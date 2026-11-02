@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Daily summary (res.users._ems_send_daily_summary, models/shared/daily_summary.py): one
+         message per person, at the moment chosen in their profile, with their pending tasks, their
+         students' attendance issues (tutors) and the informative notices queued for them. Rendered
+         in the recipient's language (its terms are translated through the .po files) and sent with
+         message_notify, so it honours their email/Odoo inbox preference. Each section only shows
+         when it has something. See docs/en/developers/shared/daily_summary.md. -->
+    <template id="daily_summary_body">
+        <div style="font-family: Arial, sans-serif; font-size: 14px;">
+            <p>Hello <t t-out="user.name"/>,</p>
+            <p>This is your EMS summary since the previous one.</p>
+
+            <t t-if="task_groups">
+                <h2 style="font-size: 17px; margin: 24px 0 8px 0; padding-bottom: 4px; border-bottom: 1px solid #dadce0;">Pending tasks</h2>
+                <p>You will find them all in the to-do tray (🕒) at the top of EMS.</p>
+                <t t-foreach="task_groups" t-as="group">
+                    <h3 style="font-size: 15px; margin: 16px 0 8px 0;">
+                        <t t-if="group['type']" t-out="group['type'].name"/><t t-else="">Other tasks</t> (<t t-out="group['count']"/>)
+                    </h3>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        <li t-foreach="group['activities']" t-as="activity" style="margin-bottom: 4px;">
+                            <a t-attf-href="{{ base_url }}/mail/view?model={{ activity.res_model }}&amp;res_id={{ activity.res_id }}" t-out="activity.res_name or activity.res_model"/>
+                            <t t-if="activity.summary"> - <t t-out="activity.summary"/></t>
+                            <span style="color: #666666;"> (due <t t-out="format_date(activity.date_deadline)"/><t t-if="activity.state == 'overdue'">, overdue</t>)</span>
+                        </li>
+                    </ul>
+                    <p t-if="group['more']" style="color: #666666;">... and <t t-out="group['more']"/> more.</p>
+                </t>
+            </t>
+
+            <t t-if="tutor_days">
+                <h2 style="font-size: 17px; margin: 24px 0 8px 0; padding-bottom: 4px; border-bottom: 1px solid #dadce0;">Your students' attendance issues</h2>
+                <ul>
+                    <li t-foreach="tutor_days" t-as="day">
+                        <strong>Date: </strong><t t-out="format_date(day['issue'].issue_date)"/>
+                        <ul>
+                            <li t-foreach="day['students']" t-as="student">
+                                <strong>Student: </strong><a t-attf-href="{{ base_url }}/odoo/res.partner/{{ student['student'].id }}" t-out="student['student'].display_name"/>
+                                <ul>
+                                    <li t-foreach="student['statuses']" t-as="status" t-att-style="'text-decoration: line-through;' if status.rectified_by else ''">
+                                        <span t-field="status.attendance_session_id.attendance_schedule_id.attendance_template_id"/> | from <span t-field="status.attendance_session_id.start_time" t-options="{'widget': 'float_time'}"/> to <span t-field="status.attendance_session_id.end_time" t-options="{'widget': 'float_time'}"/> | <span t-if="status.attendance_status_id" t-field="status.attendance_status_id"/><t t-else="">Not required to attend (removed from the roll-call)</t>
+                                        <t t-if="status.notes"> | <span t-field="status.notes"/></t>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </t>
+
+            <t t-if="notice_groups">
+                <h2 style="font-size: 17px; margin: 24px 0 8px 0; padding-bottom: 4px; border-bottom: 1px solid #dadce0;">For your information</h2>
+                <t t-foreach="notice_groups" t-as="group">
+                    <h3 style="font-size: 15px; margin: 16px 0 8px 0;">
+                        <a t-attf-href="{{ base_url }}/mail/view?model={{ group['record']._name }}&amp;res_id={{ group['record'].id }}" t-out="group['record'].display_name"/>
+                    </h3>
+                    <div t-foreach="group['notices']" t-as="notice" style="margin: 0 0 8px 0;" t-out="notice.body"/>
+                </t>
+            </t>
+
+            <p style="margin: 24px 0;">
+                <a t-attf-href="{{ base_url }}/odoo" style="background-color: #4a86e8; color: #ffffff; padding: 8px 16px; text-decoration: none; border-radius: 4px;">Open EMS</a>
+            </p>
+            <p style="color: #666666; font-size: 12px;">You can choose when you receive this summary, and whether by email or in your EMS inbox, in My Profile, Preferences tab.</p>
+        </div>
+    </template>
+</odoo>

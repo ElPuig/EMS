@@ -1637,6 +1637,37 @@ Cost: nothing while nothing changes. Each reload costs the same as opening the b
 dev database (2026-10-22, `odoo shell`, cold) at 0.15-0.24 s, the extra check-in query included (0.06
 s for every employee of the centre).
 
+## Public holidays (issue #740)
+
+On a public holiday (a `resource.calendar.leaves` with no `resource_id`, entered under Absences >
+Configuration > Public Holidays) nobody is expected, so nobody is missing and there is nothing to
+organise. `resource.calendar.leaves._ems_public_holiday_on(day)` (`models/employees/public_holiday.py`)
+returns the holiday touching that company day, or an empty recordset: one `sudo()` search with
+`limit=1`, the day's bounds computed in the company's timezone. It is shared with the detected
+absences (`ems.absence_pending._ems_detect_missing_check_ins`), which create nothing on such a day.
+
+```mermaid
+flowchart TD
+    H["_ems_public_holiday_on(day)"] -->|holiday| L["get_guard_duty_board_lines(): day = None<br/>(the plain timetable: no absences, no 'unchecked',<br/>no absences-table rows, no actions); 'holiday' = its name"]
+    L --> D["get_guard_duty_board_data(): editable = False,<br/>no 'now' line; 'holiday' to the client"]
+    D --> UI["guard_duty_board.js/xml: .o_guard_board_holiday notice,<br/>absences table hidden, timetable kept"]
+    L --> PDF["report_guard_duty_board: .gdb-holiday notice,<br/>absences table not printed"]
+    H -->|holiday| CHK["_check_board_day_open(day): UserError<br/>(every board action goes through it)"]
+    H -->|holiday| DET["_ems_detect_missing_check_ins(day): nothing detected"]
+```
+
+- **The board.** `get_guard_duty_board_lines()` resolves a holiday as if no date had been given,
+  which is the path that already returns the plain timetable, so none of the per-date code needs
+  its own check. It returns `'holiday'` (the holiday's name, or `False`), and
+  `get_guard_duty_board_data()` passes it on, with `editable` and the "today" flag forced off.
+- **Actions.** Hiding the buttons is not the guard: `_check_board_day_open()`, called by every
+  board action (`board_assign`, `board_self_assign`, `board_arrange`, `board_apply_plan`,
+  `board_support`, `board_mark_present`, ...), refuses a holiday too.
+- **Screen and PDF.** The client shows an `alert-info` notice (`.o_guard_board_holiday`) above
+  either view and leaves the absences table out; the timetable view still renders. The PDF prints
+  the same notice (`.gdb-holiday`) per shift and skips the absences table.
+- **Cost.** One indexed query more per board load (and per board action).
+
 ## Related docs
 
 - [Non-teaching types](../employees/non_teaching_type.md)

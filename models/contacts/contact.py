@@ -863,7 +863,7 @@ class ResPartner(models.Model):
         # Negated: with no groups every student is "mine", so "not mine" matches nobody.
         return ['!'] + domain if domain else [('id', '=', False)]
 
-    @api.depends('contact_type')
+    @api.depends('contact_type', 'withdrawal_expected', 'active')
     def _compute_archived_reason(self):
         # Fixed color constants (confirmed with the developer 2026-08-01) - 'expelled' is
         # deliberately left with no color, falling back to the widget's own default red, same
@@ -878,6 +878,9 @@ class ResPartner(models.Model):
         }
         for partner in self:
             label, color = reasons.get(partner.contact_type, (False, False))
+            # Issue #644: the same ribbon on a student still active whose withdrawal is expected.
+            if partner.active and partner.withdrawal_expected:
+                label, color = _("Expected withdrawal"), '#D9A21B'
             partner.archived_reason_label = label
             partner.archived_reason_color = color
 
@@ -1460,6 +1463,8 @@ class ResPartner(models.Model):
         Returns {'revoked': int, 'skipped': int, 'issues': [str]} for the caller's summary.
         """
         self.ensure_one()
+        # An expected withdrawal (issue #644) has done its job once the student leaves.
+        self._ems_clear_withdrawal_expected()
         # Must run BEFORE the conversion, which detaches the student from its group.
         self._ems_clear_operational_records()
         self._ems_convert_to_ex_student(kind=kind)

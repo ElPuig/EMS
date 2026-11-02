@@ -4,6 +4,7 @@ import calendar
 import logging
 from datetime import date, timedelta
 
+from markupsafe import Markup
 from pytz import UTC
 
 from odoo.tools import config, email_normalize, format_datetime
@@ -126,6 +127,10 @@ class ems_company(models.Model):
     convalidation_legal_other = fields.Text()
     convalidation_appeal_text = fields.Text()
     convalidation_sign_by_delegation = fields.Boolean()
+    # Issue #644: the attendance notice an applicant accepts when filing a request from the portal.
+    # Translatable, since families read it in their own language; empty means the standard text
+    # (_ems_convalidation_attendance_notice).
+    convalidation_attendance_notice = fields.Html(translate=True, sanitize=True)
 
     current_course_id = fields.Many2one(comodel_name="ems.course")
     enrollment_course_id = fields.Many2one(
@@ -404,6 +409,16 @@ class ems_company(models.Model):
             year += 1
         utils = self._ems_company_datetime_utils()
         return utils.datetime_to_odoo(utils.time_float_to_utc_datetime(date(year, month, day), minute / 60))
+
+    def _ems_convalidation_attendance_notice(self):
+        """The attendance notice shown when requesting a convalidation (issue #644): the centre's
+        own text, or the standard one, in the reader's language."""
+        self.ensure_one()
+        return self.convalidation_attendance_notice or Markup("<p>{}</p>").format(_(
+            "Attendance is compulsory until your request is resolved. For each subject you can choose not "
+            "to attend it meanwhile, but if it is not convalidated those absences will count, and you could "
+            "lose the right to continuous assessment (see the centre's organisation and operation rules, NOFC, "
+            "and the subject's planning)."))
 
     def _ems_convalidation_period_open(self, now=None):
         """Whether students and families can file convalidation requests from the portal."""

@@ -21,17 +21,20 @@
                     <group name="ems_photo_visibility" string="Photo">
                         <field name="image_disabled"/>
                     </group>
-                    <!-- Daily pending-tasks digest (models/shared/task_digest.py): on by
-                         default, everybody can turn their own off. The attendance issues
-                         report (models/attendance/attendance_report_schedule.py) only concerns
-                         whoever actually tutors a group (ems_is_tutor), not the whole tutor role. -->
-                    <group name="ems_notifications" string="Notifications">
-                        <field name="ems_task_digest"/>
-                        <field name="ems_is_tutor" invisible="1"/>
-                        <field name="ems_attendance_report_moment" invisible="not ems_is_tutor"/>
-                        <field name="ems_attendance_report_time" widget="float_time"
-                               invisible="not ems_is_tutor or ems_attendance_report_moment != 'fixed_time'"/>
+                    <!-- Daily summary (models/shared/daily_summary.py): when each person receives
+                         it, and - Odoo's own "Notification" preference, moved here from the native
+                         preferences block, which is hidden for an ordinary user - whether by email or
+                         in their EMS inbox. "When my students' classes end" only applies to whoever
+                         actually tutors a group; anyone else gets the end of their own working day. -->
+                    <group name="ems_notifications" string="Daily summary">
+                        <field name="ems_digest_moment"/>
+                        <field name="ems_digest_time" widget="float_time"
+                               invisible="ems_digest_moment != 'fixed_time'"/>
                     </group>
+                </group>
+                <!-- A "move" only works as a direct child of a spec, not nested in new content. -->
+                <group name="ems_notifications" position="inside">
+                    <field name="notification_type" position="move"/>
                 </group>
                 <!-- Preferences tab: for an ordinary self-viewing user, only "Disable profile
                      picture" (above) and "Language" stay visible/editable - everything else

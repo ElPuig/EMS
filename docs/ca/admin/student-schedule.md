@@ -48,6 +48,10 @@ una fila per tema.
 Aquesta pestanya és de només lectura: per canviar qualsevol cosa cal editar-ho des de la
 pestanya Horari del professor corresponent, o des de les matrícules del mateix alumne.
 
+### Classes ratllades
+
+Una classe ratllada, amb una llegenda sota la graella, és una classe a què l'alumne **no ha d'assistir** de moment: perquè té una [baixa prevista](../tutors/withdrawal-expected.md) (totes les classes), o perquè ha demanat convalidar el mòdul i ha triat no assistir-hi mentre es resol. Als passis de llista d'aquestes classes, l'alumne surt en gris.
+
 ---
 
 ## Exportar l'horari a PDF

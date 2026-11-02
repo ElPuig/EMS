@@ -86,6 +86,19 @@ class TestGuardBoardUnchecked(GuardDutyBoardCase):
         # teacher_b checked in: their class is not on the table.
         self.assertEqual(self._states(10, 11, teacher=self.teacher_b), [])
 
+    def test_nobody_is_unchecked_on_a_public_holiday(self):
+        """Issue #740: nobody checks in on a public holiday, and nobody is missing either."""
+        utils = self.env['ems.datetime_utils']
+        holiday = self.env['resource.calendar.leaves'].create({
+            'name': 'TGBU Holiday',
+            'date_from': utils.datetime_to_odoo(utils.time_float_to_utc_datetime(self.today, 0.0)),
+            'date_to': utils.datetime_to_odoo(utils.time_float_to_utc_datetime(self.today, 23.9)),
+        })
+        self.assertEqual(self._states(8, 9), [])
+        self.assertEqual(self._states(10, 11), [])
+        holiday.unlink()
+        self.assertEqual(self._states(8, 9), ['unchecked'], 'control: without it the class is on the table')
+
     def test_only_today_counts(self):
         next_week = self.today + timedelta(days=7)
         self.assertEqual(self._states(8, 9, day=next_week), [])

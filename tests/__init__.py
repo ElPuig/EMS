@@ -62,7 +62,10 @@ from . import test_teaching
 from . import test_teaching_tour
 from . import test_tracking
 from . import test_employee_autocheckout
-from . import test_task_digest
+from . import test_daily_summary
+from . import test_attendance_not_expected
+from . import test_withdrawal_expected_tour
+from . import test_convalidation_attendance
 from . import test_public_holiday
 from . import test_public_holiday_tour
 from . import test_user_implied_groups
@@ -153,6 +156,7 @@ from . import test_portal_schedule_tour
 from . import test_guard_duty_board
 from . import test_absence_coverage
 from . import test_guard_support
+from . import test_guard_board_public_holiday
 from . import test_guard_board_unchecked
 from . import test_guard_board_unchecked_tour
 from . import test_absence_coverage_tour
@@ -267,7 +271,6 @@ from . import test_employee_identity_visibility
 from . import test_employee_identity_visibility_tour
 from . import test_timezone
 from . import test_schedule_edit_roles
-from . import test_attendance_report_schedule
 from . import test_i18n_coverage
 from . import test_dev_mail_guard
 from . import test_employee_presence_tour

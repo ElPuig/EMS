@@ -125,6 +125,21 @@ fora dels informes i dels percentatges d'assistència, i no s'avisa la família.
   l'alumne torna a la llista amb l'estat que tenia.
 - No es pot treure un alumne que ha rebut un strike en aquella sessió: era a classe.
 
+### Alumnes que l'EMS treu sol
+
+Un alumne també pot sortir ja tret de la llista quan comences la sessió, amb el motiu sota el nom
+(a la captura de "Marcar l'assistència", la fila de *Laia Exemple*):
+
+- **No ha d'assistir: baixa prevista**: el seu tutor/a ha marcat que deixarà el centre mentre es
+  tramita la baixa (vegeu [Baixa prevista d'un alumne](../tutors/withdrawal-expected.md)).
+- **No ha d'assistir: convalidació en tràmit**: ha demanat convalidar aquest mòdul i ha triat no
+  assistir-hi mentre es resol.
+
+Tampoc no compten ni com a assistència ni com a falta. Si l'alumne es presenta igualment, fes clic a
+la icona de restaurar i marca'l com a qualsevol altre. Si la baixa prevista es reverteix, o el mòdul
+no es convalida, aquestes sessions passen a ser faltes. Rebràs un avís de tots dos casos al teu
+[resum diari](daily-summary.md).
+
 ---
 
 ## Mode guàrdia

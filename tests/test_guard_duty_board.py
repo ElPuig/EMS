@@ -809,13 +809,17 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
             guard_duty_weekday='0', guard_duty_view='table').\
             _render_qweb_pdf('ems.report_guard_duty_board', [self.course.id])
 
+        def badge(content, name):
+            # Only the guard's own badge: the guards of a period come in no fixed order, so a fixed
+            # window after the name could reach into the next guard's badge.
+            start = content.find(name.encode())
+            return content[start:content.find(b'</span>', start)]
+
         for content in (schedule_content, table_content):
             self.assertIn(self.teacher_guard.name.encode(), content)
             self.assertIn(self.teacher_a.name.encode(), content)
-            wc_marker_index = content.find(self.teacher_guard.name.encode())
-            self.assertIn(b'(WC)', content[wc_marker_index:wc_marker_index + 200])
-            plain_marker_index = content.find(self.teacher_a.name.encode())
-            self.assertNotIn(b'(WC)', content[plain_marker_index:plain_marker_index + 200])
+            self.assertIn(b'(WC)', badge(content, self.teacher_guard.name))
+            self.assertNotIn(b'(WC)', badge(content, self.teacher_a.name))
 
     def test_get_guard_duty_board_areas(self):
         """Every top-level department that manages some study, itself or through one of its

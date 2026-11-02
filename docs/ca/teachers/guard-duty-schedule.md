@@ -108,6 +108,10 @@ Aquí només es mostra que la persona falta. El tipus d'absència, el motiu i el
 
 ---
 
+## Dies festius
+
+Un dia festiu del calendari del centre (els d'**Absències > Configuració > Festius públics**), l'horari mostra un avís amb el nom del festiu. Aquell dia no s'espera ningú, així que no falta ningú: la **Taula d'absències** no surt, ningú es marca com a **Sense fitxar** i no es pot cobrir ni organitzar res. A la vista d'horari continua sortint l'horari habitual, sota el mateix avís. El PDF d'aquell dia també ho indica.
+
 ## Docents que no han fitxat
 
 Avui, tan bon punt comença una classe, si el docent no ha fitxat surt a la **Taula d'absències** com una absència, perquè un docent de guàrdia la pugui cobrir. El seu nom es mostra en vermell subratllat amb punts i amb l'etiqueta **Sense fitxar**. El mateix passa amb un docent de guàrdia: queda marcat a la columna de guàrdia i no se'l pot enviar a cobrir res fins que fitxi.

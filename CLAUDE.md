@@ -530,6 +530,7 @@ Key rules applied in this project:
   - Read a field of many records in one batch (`records.mapped('field')` on the whole set, or keep the prefetch with `with_prefetch()` when building recordsets by `browse(ids)`): a read per record is a query per record.
   - Don't recompute the same structure several times in one request: compute it once and pass it down.
   - Measure on this box's real data before handing a screen or RPC over (`odoo shell` + `cProfile`, cold: `env.invalidate_all()` first; or the werkzeug duration column of `/var/log/odoo/odoo-server.log`) and report the numbers. The dev service runs under `debugpy`, which makes Python ~10x slower than production: a number from the service log is not production's, `odoo shell` is closer.
+- **Notifying staff: one daily summary per person, at the moment they chose (developer, 2026-10-31, issue #644).** A notice to staff that asks for no action and isn't urgent is never sent on the spot: queue it (`ems.info_notice`) and it goes out in that employee's unified daily summary, together with their pending tasks and, for tutors, their students' attendance issues, at the moment chosen in their profile (start or end of their working day, end of their students' day, a fixed time; start of the working day by default). The summary is sent with `message_notify`, so it honours the user's native "Notification: by email / in Odoo" preference. Something they must act on is an activity (it shows in that same summary's task section), never a loose email. Only a genuinely urgent case goes out immediately (e.g. a guard duty for today), with a comment in the code saying why. Families and students are a different channel and are not affected by this rule. Details: `docs/en/developers/shared/daily_summary.md`.
 - Resulting code must be clean, simple, non-redundant, and well-refactored.
 - **All literals must be translatable:** wrap every user-facing string for translation (`_("...")` in Python, `_t("...")` in JS/OWL) so it can be picked up by the i18n files, with English as the default/source language. Wrapping is only step one — it makes a string *translatable*, it does not translate it. Every new feature must also add the actual Catalan/Spanish entries to `i18n/ca_ES.po` and `i18n/es_ES.po` before it's considered done (see the "Close" step of the Development workflow below). To find what's missing: export current terms with `odoo -d ems --i18n-export=<path>.po -l ca_ES --modules=ems --stop-after-init` (repeat for `es_ES`), diff msgids against the checked-in `.po` files, and append translated blocks for the new ones only (don't regenerate/replace the whole file — order doesn't matter to gettext, and the files may already carry unrelated pre-existing gaps that aren't your task's responsibility). Run as the `odoo` user with a path it can write to (not a sandboxed/restricted directory). Do not insert decorative section-header comments between po entries — a comment block with no following `msgid` breaks Odoo's po parser on load.
 
@@ -835,6 +836,8 @@ Any change that alters or renames something Odoo identifies by **XML ID** — re
 
 **Merging/rebasing across branches that each add migration scripts:** when two branches developed in parallel each add a `migrations/<version>/{pre,post}-migrate.py`, a naive merge can silently strand one branch's script in an already-released version folder instead of the current unreleased one (exactly what happened when `migrations/18.0.0.20.1/post-migrate.py` was added by a feature branch merged after `18.0.0.20.1` had already been tagged/released — the script would never run on any environment that had already upgraded past that tag). Before finishing any merge that touches `migrations/`: (1) check `git tag` for the most recent released version and confirm every new/changed migration script lives under a version folder *higher* than that tag; (2) if two branches each created their own `migrations/<same-current-version>/{pre,post}-migrate.py`, merge their `migrate()` bodies into one file (e.g. as separate helper functions called from a single `migrate()`) rather than keeping duplicate files or silently dropping one side's script — Odoo only runs one `pre-migrate.py`/`post-migrate.py` per version folder.
 
+**A release ships only migration folders for versions that will exist (developer, 2026-11-02).** When preparing a release, every migration folder an integrated branch created for a version that won't be released (e.g. `18.0.0.43.1`, when the release is `18.0.0.44.0`) is folded into the release version's folder: move its helper functions into that folder's `pre-migrate.py`/`post-migrate.py` (same kind, pre into pre, post into post), call them from its single `migrate()`, and delete the stray folder. Odoo would run it anyway (it runs every folder between the installed and the new version), but the developer considers it an inconsistency: *"no existirá la 43.1 sino la 44"*. Keep the original call order (lower version first), check the changelog doesn't still name the old path, and exercise the merged script before pushing.
+
 ## Resolving merge conflicts
 
 When resolving a merge conflict, never pick a side (ours/theirs) blindly. Before resolving each conflicted hunk:
@@ -1042,7 +1045,9 @@ Run it on the current release branch (e.g. `v18.0.0.29.0`), in this order:
 2. **Merge each issue's branch** (`origin/<issue_number>-<slug>`, after `git fetch origin`) into
    the release branch, **one at a time, in ascending issue-number order**, resolving conflicts per
    "Resolving merge conflicts" above and the multi-branch rule in "Migrations" (merge
-   same-version `pre/post-migrate.py` bodies into one file). Commit each merge before starting the
+   same-version `pre/post-migrate.py` bodies into one file, and fold a folder for a version that
+   won't be released, e.g. `43.1` in release `44.0`, into the release version's one; see "A release
+   ships only migration folders for versions that will exist" in "Migrations"). Commit each merge before starting the
    next one — this routine is an explicit exception to the developer managing commits themselves.
    If a conflict is still ambiguous after reviewing both sides, stop and ask.
 
@@ -1314,6 +1319,15 @@ permissions), then read it back and compare with the file, ignoring trailing new
 needs the repository permission **Pull requests: Read and write** on the `gh` token, granted for
 exactly this: editing the PR's description, never merging, closing, commenting on or reviewing
 it without asking.
+
+**Editing an issue's text (developer, 2026-11-02).** *"Tienes permiso explícito para actualizar el
+texto de una issue cuando te lo pedimos (si no la has creado tú) y siempre que lo consideres
+necesario (si la issue la has creado tú)."* An issue someone else created: edit its body only when
+asked. An issue the agent created: edit it whenever it sees fit (e.g. to keep its plan current).
+Read the current body first and keep what is there unless told to replace it; write it with
+`gh api -X PATCH repos/ElPuig/EMS/issues/<n> -F body=@<file>` (not `gh issue edit`, same GraphQL
+error as above), then read it back and compare. This covers the body only: closing, reopening,
+labels, assignees beyond the standing ones, and comments still need asking.
 
 **One file per branch, not one shared file** — deliberate, not just tidiness: every developer's
 own Claude session does the same on their own branch, so `changelog/` ends up with multiple

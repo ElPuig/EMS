@@ -47,6 +47,10 @@ the student takes and who teaches it — a subject split into topics shows one r
 This tab is entirely read-only: to change anything, edit the relevant teacher's own Schedule
 tab, or the student's own enrollments, instead.
 
+### Dashed classes
+
+A dashed class, with a legend under the grid, is a class the student is **not required to attend** for now: because they have an [expected withdrawal](../tutors/withdrawal-expected.md) (every class), or because they asked to convalidate the subject and chose not to attend it while it is resolved. In those classes' roll-calls, the student appears greyed out.
+
 ---
 
 ## Exporting the Schedule to PDF

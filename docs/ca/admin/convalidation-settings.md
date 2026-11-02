@@ -41,6 +41,14 @@ La configuració no accepta un dia que no existeixi en el seu mes (tampoc el 29 
 
 ---
 
+## Avís sobre l'assistència
+
+Quan l'alumnat o les famílies demanen una convalidació des del portal, han de llegir i acceptar un avís sobre l'assistència i triar, per a cada mòdul, si hi assistiran fins a la resolució. Si no hi assisteixen i el mòdul no es convalida, aquelles classes compten com a faltes (vegeu [Convalidacions al portal](../families/manual-convalidacions.md#lassistència-mentre-es-resol)).
+
+El text de l'avís es configura a **Sol·licitud: avís sobre l'assistència**. Explica-hi què diuen les normes d'organització i funcionament del centre (NOFC) sobre les faltes si es denega un mòdul. Escriu-lo en cada idioma que llegeixen les famílies: el text es desa per idioma, com qualsevol camp traduïble (canvia l'idioma del teu usuari per escriure'l en un altre). Si el deixes buit, es fa servir un text estàndard que recorda que l'assistència és obligatòria fins a la resolució i que es pot perdre el dret a l'avaluació contínua.
+
+---
+
 ## Textos de la resolució
 
 La resolució que emet la direcció es genera sempre en català. Tres paràmetres en permeten ajustar el contingut:

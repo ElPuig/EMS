@@ -153,3 +153,33 @@ registry.category("web_tour.tours").add("ems_guard_board_unchecked_guard", {
         },
     ],
 });
+
+// Issue #740: on a public holiday the board says so and lists nobody, neither on the absences
+// table nor on the timetable. Seed data: TestGuardBoardUncheckedTour, with today a holiday.
+registry.category("web_tour.tours").add("ems_guard_board_holiday", {
+    test: true,
+    url: "/odoo/action-ems.action_guard_duty_board",
+    steps: () => [
+        {
+            trigger: ".o_guard_board_holiday:contains('Tour Holiday')",
+            content: "The board says it is a public holiday (it opens on the absences table)",
+        },
+        {
+            trigger: ".o_guard_board_content:not(:has(.o_guard_board_duty_table)):not(:has(.o_guard_board_unchecked_tag))",
+            content: "No absences table, nobody marked as not checked in",
+        },
+        {
+            trigger: ".o_guard_board_view_tabs .nav-link:not(.active)",
+            content: "Switch to the timetable",
+            run: "click",
+        },
+        {
+            trigger: `.o_guard_board_holiday:contains('Tour Holiday') ~ .o_guard_board_table_wrap .o_guard_board_table:contains('TGBUT')`,
+            content: "The timetable is still shown, under the same notice",
+        },
+        {
+            trigger: ".o_guard_board_content:not(:has(.o_guard_board_unchecked_tag))",
+            content: "Nobody marked as not checked in there either",
+        },
+    ],
+});

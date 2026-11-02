@@ -59,15 +59,17 @@ class TestPortalConvalidation(HttpCase):
     def _login(self, user):
         self.authenticate(user.login, user.login)
 
-    def _submit(self, subjects, basis='prior_studies', with_file=True, origin='centre', **extra):
+    def _submit(self, subjects, basis='prior_studies', with_file=True, origin='centre', notice=True, **extra):
         # Prior studies passed at this centre by default: the one case that needs nothing attached
-        # (issue #579), so a test can leave the file out without meaning to test that rule.
+        # (issue #579), so a test can leave the file out without meaning to test that rule. The
+        # attendance notice is accepted by default (issue #644).
         data = {
             'csrf_token': Request.csrf_token(self),
             'subject_ids': [str(subject.id) for subject in subjects],
             'basis': basis,
             'student_notes': 'I passed these in SMX',
             **({'prior_studies_origin': origin} if origin else {}),
+            **({'attendance_notice_accepted': '1'} if notice else {}),
             **extra,
         }
         files = [('documents', ('certificate.pdf', PDF, 'application/pdf'))] if with_file else None
@@ -112,6 +114,27 @@ class TestPortalConvalidation(HttpCase):
         page = self.url_open('/my/convalidaciones').text
         self.assertIn('o_ems_convalidation_request', page)
         self.assertNotIn(f'value="{self.subject.id}"', page)
+
+    def test_attendance_notice_must_be_accepted(self):
+        """Issue #644: the request is not filed until the applicant accepts the attendance notice."""
+        self._login(self.student_user)
+        page = self.url_open('/my/convalidaciones?new=1').text
+        self.assertIn('o_ems_convalidation_attendance_notice', page)
+        self.assertIn('NOFC', page)
+        response = self._submit(self.subject, notice=False)
+        self.assertIn('error=no_notice', response.url)
+        self.assertFalse(self._requests(self.student))
+
+    def test_attendance_choice_per_subject(self):
+        """Issue #644: "I won't attend" is recorded per subject, "I will attend" by default."""
+        self._login(self.student_user)
+        self._submit(self.subject | self.other_subject, **{f'attendance_{self.subject.id}': 'not_attend'})
+        request = self._requests(self.student)
+        self.assertTrue(request.attendance_notice_accepted)
+        self.assertTrue(request.attendance_notice_date)
+        choices = {line.subject_id: line.attendance_choice for line in request.line_ids}
+        self.assertEqual(choices, {self.subject: 'not_attend', self.other_subject: 'attend'})
+        self.assertIn('o_ems_convalidation_not_attending', self.url_open('/my/convalidaciones').text)
 
     def test_foreign_and_tutorship_subjects_are_ignored(self):
         foreign = self.env['ems.subject'].create({'code': 'TCVP01', 'acronym': 'TCVP', 'name': 'Foreign'})
@@ -266,12 +289,12 @@ class TestPortalConvalidation(HttpCase):
         request.action_resolve()
         request.action_complete()
 
-    def _resolved_request(self, grade=7, without_grade=False):
+    def _resolved_request(self, grade=7, grade_type='grade'):
         request = self.env['ems.convalidation'].create({
             'student_id': self.student.id, 'study_id': self.study.id, 'course_id': self.course.id,
             'resolution_notes': 'Bring the original certificate',
             'line_ids': [(0, 0, {'subject_id': self.subject.id, 'state': 'granted', 'grade': grade,
-                                 'without_grade': without_grade,
+                                 'grade_type': grade_type,
                                  'resolution_notes': 'Same module in SMX'})],
         })
         request.sudo().action_propose()
@@ -327,12 +350,21 @@ class TestPortalConvalidation(HttpCase):
 
     def test_completed_subject_without_grade_reads_convalidated(self):
         """Issue #580: no grade to show, only the word."""
-        request = self._resolved_request(without_grade=True)
+        request = self._resolved_request(grade_type='without_grade')
         request.sudo().action_complete()
         self._login(self.student_user)
         page = self.url_open('/my/convalidaciones').text
-        self.assertIn('<strong>Convalidated</strong>', page)
+        self.assertIn('<strong>Convalidated (CV)</strong>', page)
         self.assertNotIn('<strong>7</strong>', page)
+
+
+    def test_completed_subject_with_a_fixed_five_says_so(self):
+        """Issue #738."""
+        request = self._resolved_request(grade_type='fixed_five')
+        request.sudo().action_complete()
+        self._login(self.student_user)
+        page = self.url_open('/my/convalidaciones').text
+        self.assertIn('<strong>Convalidated (5)</strong>', page)
 
     def test_resolution_is_not_downloadable_before_it_is_registered(self):
         request = self._resolved_request()

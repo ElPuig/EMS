@@ -75,8 +75,9 @@ class TestUserProfileTour(HttpCase):
         teacher = self._create_teacher_login('Ordinary Profile Tour Teacher', 'test_440_profile_tour_ordinary')
         # To watch this tour in a real browser during development, add watch=True below.
         self.start_tour("/odoo", "ems_user_profile_tabs_ordinary_user", login='test_440_profile_tour_ordinary')
-        # The tour turns off their own daily pending-tasks digest (models/shared/task_digest.py).
-        self.assertFalse(teacher.user_id.ems_task_digest)
+        # The tour switches their notifications, the daily summary included, to the EMS inbox
+        # (models/shared/daily_summary.py).
+        self.assertEqual(teacher.user_id.notification_type, 'inbox')
 
     def test_user_profile_tabs_tour_administrator(self):
         # 'ems.group_academic_admin' is used here rather than 'hr.group_hr_user' directly,
@@ -89,12 +90,12 @@ class TestUserProfileTour(HttpCase):
             extra_group_xmlids=('ems.group_academic_admin',))
         self.start_tour("/odoo", "ems_user_profile_tabs_administrator", login='test_440_profile_tour_admin')
 
-    def test_user_profile_attendance_report_tour_tutor(self):
+    def test_user_profile_daily_summary_tour_tutor(self):
         """A group tutor (Tutor role, the least privileged one that tutors) picks when they get
-        their attendance issues report (models/attendance/attendance_report_schedule.py)."""
+        their daily summary, attendance issues included (models/shared/daily_summary.py)."""
         teacher = self._create_teacher_login(
             'Tutor Profile Tour Teacher', 'test_527_profile_tour_tutor', extra_group_xmlids=('ems.group_tutor',))
         create_level_study_group(self, 'TUPT', group={'tutor_id': teacher.id})
-        self.start_tour("/odoo", "ems_user_profile_attendance_report_tutor", login='test_527_profile_tour_tutor')
-        self.assertEqual(teacher.user_id.ems_attendance_report_moment, 'fixed_time')
-        self.assertAlmostEqual(teacher.user_id.ems_attendance_report_time, 21 + 20 / 60)
+        self.start_tour("/odoo", "ems_user_profile_daily_summary_tutor", login='test_527_profile_tour_tutor')
+        self.assertEqual(teacher.user_id.ems_digest_moment, 'fixed_time')
+        self.assertAlmostEqual(teacher.user_id.ems_digest_time, 21 + 20 / 60)

@@ -817,8 +817,7 @@ class EmsAbsencePending(models.Model):
         if domain is None:
             return self.browse()
         day_start, day_end = self._utc_bounds(day, 0.0, 24.0)
-        if self.env['resource.calendar.leaves'].sudo().search_count([
-                ('resource_id', '=', False), ('date_from', '<', day_end), ('date_to', '>', day_start)], limit=1):
+        if self.env['resource.calendar.leaves']._ems_public_holiday_on(day):
             return self.browse()
         teachers = self.env['hr.employee'].sudo().search(domain)
         arrivals = self.env['hr.attendance']._ems_first_check_in_hours(day, teachers)

@@ -46,6 +46,7 @@ msgstr "%d creadas, %d omitidas (ya tenían matrícula)."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/portal_access_wizard.py:0
+#: code:addons/ems/models/contacts/contact.py:0
 msgid "%s access(es) granted"
 msgstr "%s acceso(s) concedido(s)"
 
@@ -458,93 +459,6 @@ msgstr ""
 "                            </ul>                        \n"
 "                        \n"
 "                        <p>Si necesita más información, puede contactar con <t t-out=\"object.attendance_issue_student_id.attendance_issue_tutor_id.tutor_id.display_name\"/> contestando a este correo.</p>                                                \n"
-"                        <p>\n"
-"                            Saludos cordiales,<br/>\n"
-"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-
-#. module: ems
-#: model:mail.template,body_html:ems.mail_attendance_issue_tutor
-msgid ""
-"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>\n"
-"                            Dear tutor,\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            These are your students' attendance issues recorded since your previous report:\n"
-"                            </p><ul>\n"
-"                                <t t-foreach=\"object._tutor_report_days()\" t-as=\"day\">\n"
-"                                    <li>\n"
-"                                        <strong>Date: </strong><span t-field=\"day['issue'].issue_date\"/>\n"
-"                                        <ul>\n"
-"                                            <t t-foreach=\"day['students']\" t-as=\"student\">\n"
-"                                                <li>\n"
-"                                                    <strong>Student: </strong><span t-out=\"student['student'].display_name\"/>\n"
-"                                                    <ul>\n"
-"                                                        <t t-foreach=\"student['statuses']\" t-as=\"status\">\n"
-"                                                            <li t-att-style=\"'text-decoration: line-through;' if status.rectified_by.id != False else ''\">\n"
-"                                                                <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | from <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-if=\"status.attendance_status_id\" t-field=\"status.attendance_status_id\"/><t t-else=\"\">Not required to attend (removed from the roll-call)</t>\n"
-"                                                                <t t-if=\"status.notes\">\n"
-"                                                                    | <span t-field=\"status.notes\"/>\n"
-"                                                                </t>\n"
-"                                                            </li>\n"
-"                                                        </t>\n"
-"                                                    </ul>\n"
-"                                                </li>\n"
-"                                            </t>\n"
-"                                        </ul>\n"
-"                                    </li>\n"
-"                                </t>\n"
-"                            </ul>\n"
-"                        \n"
-"                        <p>\n"
-"                            You can choose when you receive this report from your profile (My Profile, Preferences tab).\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Kind regards,<br/>\n"
-"                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-msgstr ""
-"<div style=\"margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>\n"
-"                            Estimado/a tutor/a,\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Estas son las incidencias de asistencia de sus alumnos registradas desde el último informe:\n"
-"                            </p><ul>\n"
-"                                <t t-foreach=\"object._tutor_report_days()\" t-as=\"day\">\n"
-"                                    <li>\n"
-"                                        <strong>Fecha: </strong><span t-field=\"day['issue'].issue_date\"/>\n"
-"                                        <ul>\n"
-"                                            <t t-foreach=\"day['students']\" t-as=\"student\">\n"
-"                                                <li>\n"
-"                                                    <strong>Estudiante: </strong><span t-out=\"student['student'].display_name\"/>\n"
-"                                                    <ul>\n"
-"                                                        <t t-foreach=\"student['statuses']\" t-as=\"status\">\n"
-"                                                            <li t-att-style=\"'text-decoration: line-through;' if status.rectified_by.id != False else ''\">\n"
-"                                                                <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | de <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-if=\"status.attendance_status_id\" t-field=\"status.attendance_status_id\"/><t t-else=\"\">No tenía que asistir (quitado de la lista)</t>\n"
-"                                                                <t t-if=\"status.notes\">\n"
-"                                                                    | <span t-field=\"status.notes\"/>\n"
-"                                                                </t>\n"
-"                                                            </li>\n"
-"                                                        </t>\n"
-"                                                    </ul>\n"
-"                                                </li>\n"
-"                                            </t>\n"
-"                                        </ul>\n"
-"                                    </li>\n"
-"                                </t>\n"
-"                            </ul>\n"
-"                        \n"
-"                        <p>\n"
-"                            Puede elegir cuándo recibe este informe desde su perfil (Mi perfil, pestaña Preferencias).\n"
-"                        </p>\n"
 "                        <p>\n"
 "                            Saludos cordiales,<br/>\n"
 "                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
@@ -2014,11 +1928,6 @@ msgid "Attendance notification"
 msgstr "Notificación de asistencia"
 
 #. module: ems
-#: model:mail.template,subject:ems.mail_attendance_issue_tutor
-msgid "Attendance notification: daily summary"
-msgstr "Notificación de asistencia: resumen diario"
-
-#. module: ems
 #: model:ir.actions.act_window,name:ems.action_attendance_report_wizard
 msgid "Attendance report"
 msgstr "Informe de asistencia"
@@ -2451,6 +2360,7 @@ msgstr "Puede editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_leave_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_review_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_expected_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -3012,6 +2922,8 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_info_notice__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -3082,6 +2994,8 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_info_notice__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3438,6 +3352,8 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_info_notice__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -3715,11 +3631,6 @@ msgstr "Email de notificación para los estudiantes: asistencia del estudiante"
 #: model:mail.template,name:ems.mail_attendance_issue_rectification
 msgid "Email notification for families: student attendance status (rectification)"
 msgstr "Email de notificación pera las familias: asistencia del alumnado (rectificació)"
-
-#. module: ems
-#: model:mail.template,name:ems.mail_attendance_issue_tutor
-msgid "Email notification for tutors: student attendances"
-msgstr "Notificación por correo electrónico para tutores: asistencia de estudiantesNotificación por email para tutores: asistencias de alumnosEmail de notificación para tutores/as: asistencia de los/las estudiantes"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
@@ -4058,6 +3969,7 @@ msgstr "Extraordinaria"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_notice__state__failed model:ir.model.fields.selection,name:ems.selection__ems_notice_line__display_status__failed
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_tutor__status__failed
 msgid "Failed"
 msgstr "Fallido"
 
@@ -4750,6 +4662,8 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_info_notice__id
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__id
 msgid "ID"
 msgstr "ID"
 
@@ -5129,6 +5043,7 @@ msgstr "Retraso de notificación de incidencia"
 #. odoo-python
 #: code:addons/ems/models/contacts/portal_access_wizard.py:0 code:addons/ems/models/enrollment/authorization_send_wizard.py:0
 #: code:addons/ems/models/grades/title_import_wizard.py:0
+#: code:addons/ems/models/contacts/contact.py:0
 msgid "Issues:"
 msgstr "Incidencias:"
 
@@ -5268,6 +5183,8 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_info_notice__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -5338,6 +5255,8 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_info_notice__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -5996,6 +5915,7 @@ msgstr "No encolado"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__note model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__note model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__note
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__note
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__note
 msgid "Note"
 msgstr "Nota"
 
@@ -6062,7 +5982,7 @@ msgid "Notices"
 msgstr "Comunicados"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__notification_id model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__notification_id model:ir.model.fields,field_description:ems.field_ems_notice_line__notification_id model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__notification_id model:ir.model.fields,field_description:ems.field_ems_notice_line__notification_id model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form
 msgid "Notification"
 msgstr "Notificación"
 
@@ -6477,6 +6397,7 @@ msgstr "Plan de pago"
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__pending
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__pending
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__pending_count model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence_line__state__pending model_terms:ir.ui.view,arch_db:ems.report_meeting_presence
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_tutor__status__pending
 msgid "Pending"
 msgstr "Pendiente"
 
@@ -6829,6 +6750,7 @@ msgstr "Motivo:"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__limesurvey_recipient_id model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__recipient_id model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+#: model:ir.model.fields,field_description:ems.field_ems_info_notice__user_id
 msgid "Recipient"
 msgstr "Destinatario"
 
@@ -7504,6 +7426,7 @@ msgstr "Estado del envío"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_notice__state__sent model:ir.model.fields.selection,name:ems.selection__ems_notice_line__display_status__done
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_tutor__status__sent
 msgid "Sent"
 msgstr "Enviado"
 
@@ -7515,6 +7438,7 @@ msgstr "Enviado por"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_notice__sent_date
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__sent_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__sent_date model:ir.model.fields,field_description:ems.field_ems_info_notice__sent_date
 msgid "Sent on"
 msgstr "Enviado el"
 
@@ -7851,6 +7775,7 @@ msgstr "Calle 2"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__student_id
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__student_id
 msgid "Student"
 msgstr "Alumno"
 
@@ -9802,6 +9727,7 @@ msgstr "enseñanza"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
 msgid "to"
 msgstr "a"
 
@@ -10703,6 +10629,7 @@ msgstr "Bajas tramitadas: %(done)s"
 #. odoo-python
 #: code:addons/ems/models/contacts/graduation_wizard.py:0
 #: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
+#: code:addons/ems/models/contacts/contact.py:0
 msgid "%(student)s: portal access could not be revoked, kept active"
 msgstr "%(student)s: no se ha podido revocar el acceso al portal, se mantiene activo"
 
@@ -15717,8 +15644,6 @@ msgstr "Convalidar"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__is_convalidated
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__is_convalidated
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_line__state__granted
-#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
-#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
 msgid "Convalidated"
 msgstr "Convalidado"
 
@@ -19826,42 +19751,6 @@ msgid "<span class=\"o_stat_text\">Attendance</span>"
 msgstr "<span class=\"o_stat_text\">Asistencia</span>"
 
 #. module: ems
-#: model:ir.actions.server,name:ems.ir_cron_task_digest_ir_actions_server
-#: model:mail.template,name:ems.email_template_task_digest
-msgid "EMS: Daily summary of pending tasks"
-msgstr "EMS: Resumen diario de tareas pendientes"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_users__ems_task_digest
-msgid "Daily summary of pending tasks"
-msgstr "Resumen diario de tareas pendientes"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_res_users__ems_task_digest
-msgid "Every working day, at the start of your working hours, an email listing the tasks you still have pending in EMS. Only sent when there is at least one."
-msgstr "Cada día laborable, al inicio de tu jornada, un correo con las tareas que aún tienes pendientes en EMS. Solo se envía si hay al menos una."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_users__ems_task_digest_date
-msgid "Last summary of pending tasks"
-msgstr "Último resumen de tareas pendientes"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__res_users__ems_attendance_report_moment__fixed_time
-msgid "At a fixed time"
-msgstr "A una hora concreta"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_users__ems_attendance_report_moment
-msgid "Attendance issues report"
-msgstr "Informe de incidencias de asistencia"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_users__ems_attendance_report_time
-msgid "Attendance issues report time"
-msgstr "Hora del informe de incidencias de asistencia"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid ""
 "Each tutor chooses in their profile when they receive their attendance "
@@ -19875,11 +19764,6 @@ msgstr ""
 " hora concreta\"."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_res_users__ems_attendance_report_time
-msgid "Every working day of the centre, at this time."
-msgstr "Cada día lectivo del centro, a esta hora."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_users__ems_is_tutor
 msgid "Is a group tutor"
 msgstr "Es tutor/a de un grupo"
@@ -19888,39 +19772,6 @@ msgstr "Es tutor/a de un grupo"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__tutor_notified
 msgid "Reported to the tutor"
 msgstr "Comunicada al tutor/a"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_report_schedule.py:0
-msgid "The attendance issues report time must be between 00:00 and 23:59."
-msgstr ""
-"La hora del informe de incidencias de asistencia debe estar entre las 00:00 "
-"y las 23:59."
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__res_users__ems_attendance_report_moment__teacher_start
-msgid "When my next working day starts"
-msgstr "Cuando empieza mi siguiente jornada"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__res_users__ems_attendance_report_moment__students_end
-msgid "When my students' day ends"
-msgstr "Cuando acaba la jornada de mis alumnos"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__res_users__ems_attendance_report_moment__teacher_end
-msgid "When my working day ends"
-msgstr "Cuando acaba mi jornada"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_res_users__ems_attendance_report_moment
-msgid ""
-"When you receive, as a tutor, the email with your students' attendance "
-"issues. Each email includes every issue recorded since the previous one."
-msgstr ""
-"Cuándo recibe, como tutor/a, el correo con las incidencias de asistencia de "
-"sus alumnos. Cada correo incluye todas las incidencias registradas desde el "
-"anterior."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__allowed_group_ids
@@ -20366,6 +20217,7 @@ msgstr "el mismo docente"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_template.py:0
+#: code:addons/ems/models/contacts/contact.py:0
 msgid "(none)"
 msgstr "(ninguno)"
 
@@ -22144,20 +21996,15 @@ msgstr "<i class=\"fa fa-info-circle me-1\"/>Al convalidar un módulo se pide su
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_grant_wizard_form
 msgid ""
-"<i class=\"fa fa-info-circle me-1\"/>Without a grade, the resolution and the student's grades\n"
-"                        show the subject as \"Convalidated\" (CV), and it does not count towards the average."
-msgstr "<i class=\"fa fa-info-circle me-1\"/>Sin nota, la resolución y las notas del alumno muestran el módulo como «Convalidado» (CV), y no cuenta para la media."
+"<i class=\"fa fa-info-circle me-1\"/>Without a grade, the resolution shows the subject as \"Convalidated (CV)\"\n"
+"                        and the student's grades as CV, and it does not count towards the average."
+msgstr "<i class=\"fa fa-info-circle me-1\"/>Sin nota, la resolución muestra el módulo como «Convalidado (CV)» y las notas del alumno como CV, y no cuenta para la media."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__without_grade
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_grant_wizard__mode__without_grade
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_line__grade_type__without_grade
 msgid "Without grade"
 msgstr "Sin nota"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_convalidation_line__without_grade
-msgid "Convalidated with no grade: the resolution and the grades show it as \"Convalidated\" (CV), and it does not count towards the average."
-msgstr "Convalidado sin nota: la resolución y las notas lo muestran como «Convalidado» (CV), y no cuenta para la media."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__convalidation_grade
@@ -22198,13 +22045,15 @@ msgstr "Detalles opcionales tras el motivo de la denegación, que la resolución
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_grant_wizard__mode__grade
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_line__grade_type__grade
 msgid "With grade"
 msgstr "Con nota"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_convalidation_grant_wizard__mode
-msgid "Without grade, the resolution and the grades show the subject as \"Convalidated\" (CV), and it does not count towards the average."
-msgstr "Sin nota, la resolución y las notas lo muestran como «Convalidado» (CV), y no cuenta para la media."
+#: model:ir.model.fields,help:ems.field_ems_convalidation_line__grade_type
+msgid "Without grade, the resolution shows the subject as \"Convalidated (CV)\" and the grades as CV, and it does not count towards the average. With a fixed 5, it counts as a 5 whatever the previous studies hold, and the resolution shows it as \"Convalidated (5)\"."
+msgstr "Sin nota, la resolución muestra el módulo como «Convalidado (CV)» y las notas como CV, y no cuenta para la media. Con un 5 fijado, cuenta como un 5 sea cual sea la nota de los estudios previos, y la resolución lo muestra como «Convalidado (5)»."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_convalidation_reject_wizard__details
@@ -27200,6 +27049,7 @@ msgstr "Pase de lista"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_session.py:0
+#: model:ir.model.fields,field_description:ems.field_res_partner__not_expected_legend model:ir.model.fields,field_description:ems.field_res_users__not_expected_legend
 msgid "Not required to attend"
 msgstr "No tiene que asistir"
 
@@ -27544,8 +27394,8 @@ msgstr "%(student)s no tiene documento de identidad (DNI/NIE) para comprobar el 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/convalidation.py:0
-msgid "%(subject)s, without a grade"
-msgstr "%(subject)s, sin nota"
+msgid "%(subject)s, convalidated (CV)"
+msgstr "%(subject)s, convalidado (CV)"
 
 #. module: ems
 #. odoo-python
@@ -27916,3 +27766,622 @@ msgid ""
 "                    The Head of Studies reviews each one first: the teacher only hears about it\n"
 "                    when asked to regularize it."
 msgstr "Sale en el horario de guardias como ausencia pendiente hasta que se resuelve. Los días que un docente no ficha se añaden solos. El jefe de estudios las revisa primero: el docente solo se entera cuando se le pide que la regularice."
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
+msgid "(due"
+msgstr "(fecha límite"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
+msgid ", overdue"
+msgstr ", vencida"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
+msgid "... and"
+msgstr "... y"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
+msgid "<strong>Date: </strong>"
+msgstr "<strong>Fecha: </strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
+msgid "<strong>Student: </strong>"
+msgstr "<strong>Alumno: </strong>"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_users__ems_digest_moment__fixed_time
+msgid "At a fixed time"
+msgstr "A una hora concreta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__summary_message_id
+#: model:ir.model.fields,field_description:ems.field_res_users__ems_digest_moment
+#: model_terms:ir.ui.view,arch_db:ems.view_users_form_simple_modif_photo_visibility
+msgid "Daily summary"
+msgstr "Resumen diario"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Daily summary default send time"
+msgstr "Hora de envío por defecto del resumen diario"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_users__ems_digest_time
+msgid "Daily summary time"
+msgstr "Hora del resumen diario"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_task_digest_ir_actions_server
+msgid "EMS: Daily summary"
+msgstr "EMS: Resumen diario"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/daily_summary.py:0
+msgid "EMS: daily summary (%(contents)s)"
+msgstr "EMS: resumen diario (%(contents)s)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Each person chooses in their profile when they receive their daily summary "
+"(pending tasks, their students' attendance issues for tutors, notices). This"
+" time is used when a tutor's moment can't be worked out (no schedule "
+"framework for that day), and as the initial time of the \"At a fixed time\" "
+"option."
+msgstr ""
+"Cada persona elige en su perfil cuándo recibe el resumen diario (tareas "
+"pendientes, incidencias de asistencia de sus alumnos para los tutores, "
+"avisos). Esta hora se usa cuando no se puede calcular el momento de un tutor"
+" (no hay marco horario ese día) y como hora inicial de la opción \"A una "
+"hora concreta\"."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_users__ems_digest_time
+msgid "Every working day of the centre, at this time."
+msgstr "Cada día lectivo del centro, a esta hora."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
+msgid "For your information"
+msgstr "Para tu información"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
+msgid "Hello"
+msgstr "Hola"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_info_notice
+msgid "Informative notice waiting for its recipient's daily summary"
+msgstr "Aviso informativo pendiente del resumen diario del destinatario"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_users__ems_digest_last_sent
+msgid "Last daily summary"
+msgstr "Último resumen diario"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_users__ems_digest_next
+msgid "Next daily summary"
+msgstr "Próximo resumen diario"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
+msgid "Not required to attend (removed from the roll-call)"
+msgstr "No tiene que asistir (fuera de la lista)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_info_notice__body
+msgid "Notice text"
+msgstr "Texto del aviso"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
+msgid "Open EMS"
+msgstr "Abrir EMS"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
+msgid "Other tasks"
+msgstr "Otras tareas"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
+msgid "Pending tasks"
+msgstr "Tareas pendientes"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_info_notice__res_model
+msgid "Related model"
+msgstr "Modelo relacionado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_info_notice__res_id
+msgid "Related record"
+msgstr "Registro relacionado"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/daily_summary.py:0
+msgid "The daily summary time must be between 00:00 and 23:59."
+msgstr "La hora del resumen diario debe estar entre las 00:00 y las 23:59."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
+msgid "This is your EMS summary since the previous one."
+msgstr "Este es tu resumen de EMS desde el anterior."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_users__ems_digest_moment__students_end
+msgid "When my students' classes end (tutors)"
+msgstr "Cuando acaban las clases de mis alumnos (tutores)"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_users__ems_digest_moment__teacher_end
+msgid "When my working day ends"
+msgstr "Cuando acaba mi jornada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_users__ems_digest_moment__teacher_start
+msgid "When my working day starts"
+msgstr "Cuando empieza mi jornada"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_users__ems_digest_moment
+msgid ""
+"When you receive the EMS daily summary: your pending tasks, your students' "
+"attendance issues if you are a tutor, and the notices for your information. "
+"It is only sent when there is something in it, and includes everything since"
+" the previous one."
+msgstr ""
+"Cuándo recibes el resumen diario de EMS: tus tareas pendientes, las "
+"incidencias de asistencia de tus alumnos si eres tutor y los avisos para tu "
+"información. Solo se envía cuando hay algo e incluye todo lo ocurrido desde "
+"el anterior."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
+msgid ""
+"You can choose when you receive this summary, and whether by email or in "
+"your EMS inbox, in My Profile, Preferences tab."
+msgstr ""
+"Puedes elegir cuándo recibes este resumen, y si lo recibes por correo o en "
+"la bandeja de entrada de EMS, en Mi perfil, pestaña Preferencias."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
+msgid "You will find them all in the to-do tray (🕒) at the top of EMS."
+msgstr ""
+"Las encontrarás todas en la bandeja de tareas (🕒) de la parte superior de "
+"EMS."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
+msgid "Your students' attendance issues"
+msgstr "Incidencias de asistencia de tus alumnos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/daily_summary.py:0
+msgid "attendance issues"
+msgstr "incidencias de asistencia"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
+msgid "more."
+msgstr "más."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/daily_summary.py:0
+msgid "notices: %(count)s"
+msgstr "avisos: %(count)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/daily_summary.py:0
+msgid "pending tasks: %(count)s"
+msgstr "tareas pendientes: %(count)s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
+msgid "| from"
+msgstr "| de"
+
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+msgid "%(label)s: %(reason)s"
+msgstr "%(label)s: %(reason)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/withdrawal_expected.py:0
+msgid ""
+"%(tutor)s has asked for the withdrawal of %(student)s. While it is "
+"processed, they no longer appear in your roll-calls as expected (they show "
+"greyed out, \"not required to attend\")."
+msgstr ""
+"%(tutor)s ha solicitado la baja de %(student)s. Mientras se tramita, ya no "
+"aparece como esperado en tus pases de lista (sale en gris, «no tiene que "
+"asistir»)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+",\n"
+"                        marked by"
+msgstr ", marcada por"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+".\n"
+"                        The student is not required to attend any class while the withdrawal is processed."
+msgstr ""
+". El alumno no tiene que asistir a ninguna clase mientras se tramita la "
+"baja."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_mark_withdrawal_expected
+#: model:ir.model.fields,field_description:ems.field_res_users__can_mark_withdrawal_expected
+msgid "Can mark an expected withdrawal"
+msgstr "Puede marcar una baja prevista"
+
+#. module: ems
+#. odoo-python
+#: model:ir.model.fields,field_description:ems.field_res_partner__withdrawal_expected
+#: model:ir.model.fields,field_description:ems.field_res_users__withdrawal_expected
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__not_expected_reason__withdrawal
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "Expected withdrawal"
+msgstr "Baja prevista"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__withdrawal_expected_by_id
+#: model:ir.model.fields,field_description:ems.field_res_users__withdrawal_expected_by_id
+msgid "Expected withdrawal marked by"
+msgstr "Baja prevista marcada por"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__withdrawal_expected_note
+#: model:ir.model.fields,field_description:ems.field_res_users__withdrawal_expected_note
+msgid "Expected withdrawal note"
+msgstr "Nota de la baja prevista"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__withdrawal_expected_date
+#: model:ir.model.fields,field_description:ems.field_res_users__withdrawal_expected_date
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Expected withdrawal since"
+msgstr "Baja prevista desde el"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/withdrawal_expected.py:0
+msgid "Expected withdrawal: not required to attend while it is processed."
+msgstr "Baja prevista: no tiene que asistir mientras se tramita."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_expected_wizard_form
+msgid ""
+"From now on the student appears in every roll-call as not required to attend, so they\n"
+"                        stop piling up absences while the withdrawal is processed. They stay a student until the\n"
+"                        withdrawal is registered. Their teachers are told in their daily summary."
+msgstr ""
+"A partir de ahora el alumno sale en todos los pases de lista como «no tiene "
+"que asistir», de modo que deja de acumular faltas mientras se tramita la "
+"baja. Sigue siendo alumno hasta que se registre la baja. Sus profesores lo "
+"sabrán por el resumen diario."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_expected_wizard_form
+msgid ""
+"If it is reverted, every session they were not required to attend becomes an"
+" absence."
+msgstr ""
+"Si se revierte, todas las sesiones a las que no tenía que asistir pasan a "
+"ser faltas."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_withdrawal_expected_wizard
+msgid "Mark an expected withdrawal"
+msgstr "Marcar una baja prevista"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/withdrawal_expected.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_expected_wizard_form
+msgid "Mark expected withdrawal"
+msgstr "Marcar baja prevista"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__not_expected_reason
+msgid "Not required to attend because"
+msgstr "No tiene que asistir por"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/withdrawal_expected.py:0
+msgid ""
+"Only the student's tutor, the secretary, the head of studies or an "
+"administrator can mark or revert an expected withdrawal."
+msgstr ""
+"Solo el tutor del alumno, la secretaría, el jefe de estudios o un "
+"administrador pueden marcar o revertir una baja prevista."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Revert expected withdrawal"
+msgstr "Revertir la baja prevista"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__not_expected_subject_ids
+#: model:ir.model.fields,field_description:ems.field_res_users__not_expected_subject_ids
+msgid "Subjects not required to attend"
+msgstr "Módulos a los que no tiene que asistir"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/withdrawal_expected.py:0
+msgid ""
+"The expected withdrawal of %(student)s has been reverted: they appear in "
+"your roll-calls again, and the sessions they were not required to attend "
+"count as absences."
+msgstr ""
+"Se ha revertido la baja prevista de %(student)s: vuelve a aparecer en tus "
+"pases de lista, y las sesiones a las que no tenía que asistir cuentan como "
+"faltas."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"The student will appear in the roll-calls again, and every session they were"
+" not required to attend since the expected withdrawal was marked becomes an "
+"absence (their family is not notified). Continue?"
+msgstr ""
+"El alumno volverá a salir en los pases de lista, y todas las sesiones a las "
+"que no tenía que asistir desde que se marcó la baja prevista pasarán a ser "
+"faltas (no se avisa a la familia). ¿Quieres continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_expected_wizard_form
+msgid "e.g. The family has told us they are moving abroad."
+msgstr "p. ej. La familia nos ha dicho que se van a vivir al extranjero."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_grant_wizard__mode__fixed_five
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_line__grade_type__fixed_five
+msgid "With a fixed 5"
+msgstr "Con un 5 fijado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__grade_type
+msgid "Grade type"
+msgstr "Tipo de nota"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+msgid "Convalidated (5)"
+msgstr "Convalidado (5)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_grant_wizard_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>The subject counts as a 5 whatever the previous studies\n"
+"                        hold, and the resolution shows it as \"Convalidated (5)\"."
+msgstr "<i class=\"fa fa-info-circle me-1\"/>El módulo cuenta como un 5 sea cual sea la nota de los estudios previos, y la resolución lo muestra como «Convalidado (5)»."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid ""
+"%(student)s has asked to convalidate these subjects and won't attend them "
+"while the request is processed: they appear in your roll-calls as not "
+"required to attend."
+msgstr ""
+"%(student)s ha solicitado convalidar estos módulos y no asistirá mientras se"
+" tramita la solicitud: sale en tus pases de lista como «no tiene que "
+"asistir»."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid ""
+"%(student)s's request no longer covers these subjects (refused or "
+"cancelled): they appear in your roll-calls again, and the sessions they were"
+" not required to attend count as absences."
+msgstr ""
+"La solicitud de %(student)s ya no incluye estos módulos (denegados o "
+"cancelada): vuelve a salir en tus pases de lista, y las sesiones a las que "
+"no tenía que asistir cuentan como faltas."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> Read and accept the "
+"attendance notice before submitting the request."
+msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> Leed y aceptad el aviso sobre"
+" la asistencia antes de enviar la solicitud."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/>Attendance while the request "
+"is resolved"
+msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/>Asistencia mientras se "
+"resuelve la solicitud"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "<i class=\"fa fa-user-times me-1\"/>Not attending until the resolution"
+msgstr "<i class=\"fa fa-user-times me-1\"/>No asiste hasta la resolución"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"<option value=\"attend\" selected=\"selected\">I will attend until the resolution</option>\n"
+"                                                            <option value=\"not_attend\">I won't attend until the resolution</option>"
+msgstr ""
+"<option value=\"attend\" selected=\"selected\">Asistiré hasta la resolución</option>\n"
+"                                                            <option value=\"not_attend\">No asistiré hasta la resolución</option>"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid ""
+"Attendance is compulsory until your request is resolved. For each subject "
+"you can choose not to attend it meanwhile, but if it is not convalidated "
+"those absences will count, and you could lose the right to continuous "
+"assessment (see the centre's organisation and operation rules, NOFC, and the"
+" subject's planning)."
+msgstr ""
+"La asistencia es obligatoria hasta que se resuelva la solicitud. Para cada "
+"módulo podéis elegir no asistir mientras tanto, pero si no se convalida, "
+"esas faltas contarán y podríais perder el derecho a la evaluación continua "
+"(consultad las normas de organización y funcionamiento del centro, NOFC, y "
+"la programación del módulo)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__attendance_choice
+msgid "Attendance meanwhile"
+msgstr "Asistencia mientras tanto"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "Attendance meanwhile: #{subject.display_name}"
+msgstr "Asistencia mientras tanto: #{subject.display_name}"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__attendance_notice_accepted
+msgid "Attendance notice accepted"
+msgstr "Aviso de asistencia aceptado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__attendance_notice_date
+msgid "Attendance notice accepted on"
+msgstr "Aviso de asistencia aceptado el"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__convalidation_attendance_notice
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__convalidation_attendance_notice
+msgid "Convalidation Attendance Notice"
+msgstr "Aviso de asistencia de las convalidaciones"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__not_expected_reason__convalidation
+msgid "Convalidation in process"
+msgstr "Convalidación en trámite"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Convalidation in process: not required to attend while it is resolved."
+msgstr "Convalidación en trámite: no tiene que asistir mientras se resuelve."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__convalidation_line_id
+msgid "Convalidation request subject"
+msgstr "Módulo de la solicitud de convalidación"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"I have read this notice and I accept it <span class=\"text-danger\">*</span>"
+msgstr "He leído este aviso y lo acepto <span class=\"text-danger\">*</span>"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_line__attendance_choice__attend
+msgid "I will attend"
+msgstr "Asistiré"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_line__attendance_choice__not_attend
+msgid "I won't attend"
+msgstr "No asistiré"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Request: attendance notice"
+msgstr "Solicitud: aviso sobre la asistencia"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Shown on the portal when requesting a convalidation: the applicant must "
+"accept it, and chooses for each subject whether they will attend it until "
+"the resolution. Explain what the centre's rules (NOFC) say about absences if"
+" a subject is refused. Write it in each language families read. Leave it "
+"empty to use the standard text."
+msgstr ""
+"Se muestra en el portal al solicitar una convalidación: el solicitante debe "
+"aceptarlo y elige para cada módulo si asistirá hasta la resolución. Explica "
+"qué dicen las normas del centro (NOFC) sobre las faltas si se deniega un "
+"módulo. Escríbelo en cada idioma que leen las familias. Déjalo vacío para "
+"usar el texto estándar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid ""
+"The attendance choice is the applicant's and cannot be changed once the "
+"request is submitted."
+msgstr ""
+"La elección sobre la asistencia es del solicitante y no se puede cambiar una"
+" vez enviada la solicitud."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_line__attendance_choice
+msgid ""
+"What the applicant chose when filing the request: attending the subject "
+"until the resolution, or not (they are then not required to attend it, and "
+"the absences count if it is refused)."
+msgstr ""
+"Lo que eligió el solicitante al presentar la solicitud: asistir al módulo "
+"hasta la resolución o no (en ese caso no tiene que asistir, y las faltas "
+"cuentan si se deniega)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "%(subject)s, convalidated (5)"
+msgstr "%(subject)s, convalidado (5)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+msgid "Convalidated (CV)"
+msgstr "Convalidado (CV)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "This day is a public holiday (%s): there is nothing to organise."
+msgstr "Este día es festivo (%s): no hay nada que organizar."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Public holiday: %s. Nobody is expected, so nobody is missing."
+msgstr "Día festivo: %s. No se espera a nadie, así que no falta nadie."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
+msgid "Public holiday:"
+msgstr "Día festivo:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
+msgid ". Nobody is expected, so nobody is missing."
+msgstr ". No se espera a nadie, así que no falta nadie."

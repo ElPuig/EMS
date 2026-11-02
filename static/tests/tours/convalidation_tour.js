@@ -82,6 +82,16 @@ registry.category("web_tour.tours").add("ems_convalidation_resolve", {
             content: "...which hides the grade",
         },
         {
+            // Issue #738: or with a fixed 5, which needs no grade either.
+            trigger: ".modal .o_field_widget[name='mode'] select",
+            content: "...or with a fixed 5...",
+            run: 'select "fixed_five"',
+        },
+        {
+            trigger: ".modal .o_form_view:not(:has(.o_field_widget[name='grade']))",
+            content: "...which hides the grade too",
+        },
+        {
             trigger: ".modal .o_field_widget[name='mode'] select",
             content: "...or rather with the grade the previous studies hold",
             run: 'select "grade"',
@@ -459,6 +469,12 @@ registry.category("web_tour.tours").add("ems_portal_convalidation_submit", {
             content: "Mark the first subject",
             run: "click",
         },
+        // Issue #644: they won't attend it until the resolution.
+        {
+            trigger: ".o_ems_convalidation_new select.o_ems_convalidation_attendance:first",
+            content: "Choose not to attend it meanwhile",
+            run: "select not_attend",
+        },
         // Issue #579: where prior studies were passed decides whether documents are mandatory.
         {
             trigger: ".o_ems_convalidation_new select[name='basis']",
@@ -517,6 +533,11 @@ registry.category("web_tour.tours").add("ems_portal_convalidation_submit", {
             trigger: ".o_ems_convalidation_new textarea[name='student_notes']",
             content: "Add a comment",
             run: "edit Passed in another cycle",
+        },
+        {
+            trigger: ".o_ems_convalidation_new .o_ems_convalidation_attendance_notice input[name='attendance_notice_accepted']",
+            content: "Accept the attendance notice",
+            run: "click",
         },
         {
             trigger: ".o_ems_convalidation_new button[type='submit']",

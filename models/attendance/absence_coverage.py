@@ -391,7 +391,7 @@ class EmsAbsenceCover(models.Model):
         ems.course._can_move_teacher). Raises otherwise. Returns that block (or duty entry) and the
         part of the period `guard` covers (issue #637: their guard duty may only overlap part of it)."""
         course = self.env['ems.course']
-        course._check_board_day_not_past(day)
+        course._check_board_day_open(day)
         if duty:
             needed = course._get_needed_duty_entry(day, duty, absent, hour_from, hour_to)
             if not needed:
@@ -571,7 +571,7 @@ class EmsAbsenceCover(models.Model):
             raise UserError(_("The class or the guard teacher no longer exists."))
         course = self.env['ems.course']
         course._check_cover_manager(day, absent, group, hour_from, hour_to)
-        course._check_board_day_not_past(day)
+        course._check_board_day_open(day)
         block = course._get_needed_absence_block(day, group, absent, hour_from, hour_to)
         if not block:
             raise UserError(_("This class no longer needs covering: the absence or the class has changed. Reload the board."))
@@ -663,7 +663,7 @@ class EmsAbsenceCover(models.Model):
             return self.with_context(ems_reopen_side=list(reopen)).board_apply_plan(day, steps)
         day = fields.Date.to_date(day)
         course = self.env['ems.course']
-        course._check_board_day_not_past(day)
+        course._check_board_day_open(day)
         Group, Employee = self.env['ems.group'], self.env['hr.employee']
         moves, notices, corrections = [], [], []
         for step in steps:
@@ -826,7 +826,7 @@ class EmsAbsenceCover(models.Model):
         if not (guard and teacher and group):
             raise UserError(_("The class or the guard teacher no longer exists."))
         course = self.env['ems.course']
-        course._check_board_day_not_past(day)
+        course._check_board_day_open(day)
         course._check_absence_manager(teacher, group)
         option = next((option for option in course._get_support_options(day, hour_from, hour_to, guard)
                        if option['teacher_id'] == teacher.id and option['group_id'] == group.id), None)
@@ -882,7 +882,7 @@ class EmsAbsenceCover(models.Model):
             raise UserError(_("This assignment no longer exists. Reload the board."))
         if not cover.is_self_assigned or cover.assigned_by_id != self.env.user:
             raise AccessError(_("Only the guard teacher who took this class themselves can leave it."))
-        self.env['ems.course']._check_board_day_not_past(cover.date)
+        self.env['ems.course']._check_board_day_open(cover.date)
         cover.write({'state': 'released'})
         return True
 
@@ -902,7 +902,7 @@ class EmsAbsenceCover(models.Model):
         if not absent or (group_id and duty_id) or (group_id and not group):
             raise UserError(_("The class or the teacher no longer exists."))
         course = self.env['ems.course']
-        course._check_board_day_not_past(day)
+        course._check_board_day_open(day)
         if not course._can_mark_present(day, absent, group, hour_from, hour_to):
             raise AccessError(_("Only a guard teacher on duty then, or whoever manages the absences of %s, can "
                                 "register their check-in.", absent.name))

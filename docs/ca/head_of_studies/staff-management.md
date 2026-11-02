@@ -94,6 +94,14 @@ Quan el compte es crea, o se'n restableix la contrasenya, les credencials viatge
 
 ---
 
+## Imprimir les declaracions horàries
+
+La declaració horària oficial del Departament de cada docent ("Horari professor/a"), a punt per signar: a **Comunitat Educativa → Professors**, passeu a la vista de llista, seleccioneu els docents i trieu **Imprimeix → Declaració horària** (una pàgina per docent), o obriu un docent i trieu **Accions → Imprimeix la declaració horària**. A [Imprimir la declaració horària oficial](../admin/working-schedules.md#imprimir-la-declaració-horària-oficial) teniu què conté cada pàgina i com s'omple el quadre resum.
+
+![El menú Imprimeix de la llista de professors, amb dos docents seleccionats i Declaració horària](../../assets/head_of_studies/hos-declaracio-horaria-llista.png)
+
+![La fitxa d'un docent amb el desplegable Accions obert: Imprimeix la declaració horària](../../assets/head_of_studies/hos-declaracio-horaria-accions.png)
+
 ## Què no podeu fer
 
 Hi ha dos límits deliberats, i l'Odoo rebutjarà l'operació si ho proveu:

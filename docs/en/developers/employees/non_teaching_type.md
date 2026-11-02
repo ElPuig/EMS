@@ -20,6 +20,8 @@
 | `is_fixed` | `Boolean` | No | Yes | Counted in the "Other fixed-schedule hours" column every day (e.g. guard duties) |
 | `is_guard` | `Boolean` | No | Yes | Counted as guard duty on the [guard duty schedule board](../attendance/guard_duty_board.md) |
 | `is_regular_guard` | `Boolean` | No | Yes | A regular guard duty (issue #606): only its teachers can be sent to cover a class, or a guard duty that is not regular, on the [guard duty schedule board](../attendance/guard_duty_board.md#guard-duties-that-are-not-regular-issue-606). A guard duty that is not regular (`is_guard` without it, e.g. WC or break) is a post that must be manned, so its absent teacher's duty is a row to cover. Seeded `True` only on `G` |
+| `adds_up_periods` | `Boolean` | No | Yes | Its periods of the week are added up and rounded up once, in both hours summaries (`_iter_summary_entries()`), instead of each counting at least one hour. Seeded `True` only on `GB` (break guard duty: 25 and 15/20-minute periods) |
+| `declaration_code` | `Selection` (`default='other'`) | No | Yes | Row of the [official schedule declaration](working_schedule.md#official-schedule-declaration-emsreport_schedule_declaration-issue-723)'s summary table these hours go to; `tutoring` goes to the tutored level's row; empty: not declared. Seeded once by `_ems_seed_declaration_codes()` |
 | `active` | `Boolean` (`default=True`) | No | Yes | Standard archive flag |
 
 `_order = "name"`; `unique_code` SQL constraint. Dropped the `sequence` field (2026-09-07,
@@ -37,8 +39,9 @@ Defined in `security/ir.model.access.csv` (lines 95–97).
 | Department Chief | ✓ | ✓ | ✓ | ✓ | `ems.group_department_chief` |
 | Teacher | — | ✓ | — | — | `ems.group_teacher` |
 | Secretary | — | ✓ | — | — | `ems.group_secretary` |
+| Administrator | ✓ | ✓ | ✓ | ✓ | `base.group_system` |
 
-Note the admin group here is `group_department_chief`, not `group_academic_admin` like most other configuration models in this cluster — intentional, since non-teaching types are a scheduling concept department chiefs manage directly.
+Note the admin group here is `group_department_chief`, not `group_academic_admin` like most other configuration models in this cluster — intentional, since non-teaching types are a scheduling concept department chiefs manage directly. The administrator (`base.group_system`) has full access too, being above Direction (issue #723: a system administrator outside the EMS groups could not even open them).
 
 ---
 

@@ -8,6 +8,14 @@ How to review and complete the contact details of the student and the family fro
 
 ---
 
+## The Profile page
+
+The **Profile** tab shows the details on file, in up to three blocks:
+
+- **School details** (**Student** on a family's account): photo, name, IDALU, birth date, group, study, tutor with their email, and the student's school email. Only the secretary's office can correct them.
+- **Contact details** of whoever is signed in: for a student, mobile, landline, personal email, address, DNI/NIE, passport, health card (TIS) and Social Security number (NUSS); for a family contact, name, mobile, email, address, DNI/NIE and passport. These are the details you can ask to change with **Update contact details**. Below them you will see whether the school has asked you to review them, whether your changes are waiting for the school's review, or whether the school has returned them and why.
+- **Family**, on the student's own account: the family contacts on file, with their mobile and email.
+
 ## Open the contact details
 
 Open the portal, click **Profile** and then **Update contact details** (1). When the school has asked you for them, the notice at the top of the home page also has a **Review** button, and the school's email has a link to the same page.

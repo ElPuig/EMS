@@ -11,8 +11,9 @@ from .academic_record_pdf import AcademicRecordPdfError
 from .previous_curriculum_pdf import grade_passes, parse_previous_curriculum_record
 
 # Imports a student's academic history under a previous curriculum (issue #672) from its
-# "Historial acadèmic" PDF: uploading it fills in the curriculum, the centre, the years and a
-# review grid with every module and unit (UF) as printed. The user checks and corrects it before
+# "Historial acadèmic" PDF, or from its "Certificat de qualificacions" (issue #732): uploading it
+# fills in the curriculum, the centre, the years and a review grid with every module and unit (UF)
+# as printed. The user checks and corrects it before
 # the record is created; nothing is mapped onto the current curriculum. The same roles as the
 # previous record of the current curriculum (issue #585) may import one.
 
@@ -23,10 +24,12 @@ class EmsPreviousCurriculumWizard(models.TransientModel):
 
     student_id = fields.Many2one(string="Student", comodel_name='res.partner', required=True,
                                  ondelete='cascade')
-    certificate_file = fields.Binary(string="Academic history document")
+    certificate_file = fields.Binary(string="Academic document")
     certificate_filename = fields.Char(string="Document file name")
-    # Who the document says it belongs to, checked against the student's own IDALU.
+    # Who the document says it belongs to, checked against the student's own IDALU, or their
+    # Document ID (DNI/NIE) on a grades certificate, which has no IDALU.
     certificate_student_identifier = fields.Char(string="Document student ID", readonly=True)
+    certificate_student_document_id = fields.Char(string="Document DNI/NIE", readonly=True)
     certificate_student_name = fields.Char(string="Document student", readonly=True)
     certificate_message = fields.Char(string="Document reading", readonly=True)
     curriculum_code = fields.Char(string="Curriculum code")
@@ -55,6 +58,7 @@ class EmsPreviousCurriculumWizard(models.TransientModel):
         self.ensure_one()
         self.line_ids = [(5, 0, 0)]
         self.certificate_student_identifier = False
+        self.certificate_student_document_id = False
         self.certificate_student_name = False
         self.certificate_message = False
         if not self.certificate_file:
@@ -65,10 +69,12 @@ class EmsPreviousCurriculumWizard(models.TransientModel):
                 raise AcademicRecordPdfError()
             document = parse_previous_curriculum_record(pdf)
         except AcademicRecordPdfError:
-            self.certificate_message = _("The file is not the academic history (Historial acadèmic) "
-                                         "of a previous curriculum.")
+            self.certificate_message = _("The file is neither the academic history (Historial "
+                                         "acadèmic) nor the grades certificate (Certificat de "
+                                         "qualificacions) of a previous curriculum.")
             return None
         self.certificate_student_identifier = document['student_identifier']
+        self.certificate_student_document_id = document['student_document_id']
         self.certificate_student_name = document['student_name']
         self.update({key: document[key] for key in (
             'curriculum_code', 'curriculum_name', 'centre_code', 'centre_name', 'start_year',
@@ -77,7 +83,8 @@ class EmsPreviousCurriculumWizard(models.TransientModel):
         self.study_id = self.env['ems.study'].find_by_code_token(
             (document['curriculum_code'].split() or [''])[-1])
         self.line_ids = self._line_commands(document['modules'])
-        self.title_obtained = self.all_modules_passed
+        # A grades certificate may list only some of the cycle's modules: it never proposes it.
+        self.title_obtained = self.all_modules_passed and not document['is_certificate']
         problem = self._certificate_student_problem()
         if problem:
             return {'warning': {'title': _("Check the certificate's student"), 'message': problem}}
@@ -96,7 +103,8 @@ class EmsPreviousCurriculumWizard(models.TransientModel):
 
     def _certificate_student_problem(self):
         return self.env['ems.base'].get_certificate_student_problem(
-            self.student_id, self.certificate_student_identifier, self.certificate_student_name)
+            self.student_id, self.certificate_student_identifier, self.certificate_student_name,
+            self.certificate_student_document_id)
 
     def action_create(self):
         self.ensure_one()
@@ -104,7 +112,8 @@ class EmsPreviousCurriculumWizard(models.TransientModel):
             raise UserError(_("Only the secretariat, the academic administration, the Head of "
                               "Studies and the Director may add a previous curriculum record."))
         if not self.line_ids:
-            raise UserError(_("Upload the academic history document of the previous curriculum."))
+            raise UserError(_("Upload the academic history or the grades certificate of the previous "
+                              "curriculum."))
         problem = self._certificate_student_problem()
         if problem:
             raise UserError(problem)

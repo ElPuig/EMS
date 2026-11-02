@@ -11,6 +11,7 @@
                             <group>
                                 <field name="acronym"/>
                                 <field name="allows_convalidation"/>
+                                <field name="declaration_code"/>
                             </group>
                             <group colspan="3">
                                 <field name="name"/>    

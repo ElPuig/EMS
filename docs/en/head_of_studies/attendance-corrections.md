@@ -60,6 +60,9 @@ If a request has been routed to you (you'll see it as an **Activity** to-do, and
 >
 > *Deciding only on your own branch's requests was introduced in version 18.0.0.36.0; until then, any Head of Studies could decide on any request.*
 
+
+> **Requests that answer a detected absence.** A correction request of a day with a detected absence answers it, whether the teacher asked for it from the absence itself or from the attendance (its **Detected absence** field says which). If they had no check-in that day, it is about the red one or, failing that, none: accepting it records the times requested and the detected absence becomes **Check-in corrected** (only the hours it covers, the rest still claimed). While you decide, the teacher gets no reminders. If you reject it, now or after accepting it (the attendance goes back to what it was), the detected absence comes back to your review. If the teacher files the absence of that day instead, the request is rejected on its own and leaves your tasks.
+
 ---
 
 [← Back to Head of Studies manuals](index.md)

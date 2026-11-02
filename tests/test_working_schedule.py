@@ -945,6 +945,16 @@ class TestWorkingSchedule(TransactionCase):
 
         self.assertEqual(summary['teaching']['rows'][0]['hours'], 1)
 
+    def test_get_schedule_hours_summary_whole_hour_with_float_noise_counts_once(self):
+        # 15:40-16:40 as stored floats is 1.0000000000000018 h: one hour, not two (issue #723).
+        schedule = self.env['resource.calendar'].create({'name': 'Test Hours Summary Float (Working Schedule)'})
+        schedule.apply_schedule_changes([{
+            'dayofweek': '2', 'hour_from': 15 + 40 / 60, 'hour_to': 16 + 40 / 60, 'day_period': 'afternoon',
+            'non_teaching': self.non_teaching_cm.id, 'name': 'CM: Coordination Meeting',
+        }])
+
+        self.assertEqual(schedule.get_schedule_hours_summary()['fixed']['total'], 1)
+
     def test_report_working_schedule_renders(self):
         self.teacher.resource_calendar_id = self.framework
         self.teacher.resource_calendar_id.apply_schedule_changes([{
@@ -1059,7 +1069,8 @@ class TestWorkingSchedule(TransactionCase):
         }])
         attendance = schedule.attendance_ids
 
-        self.assertEqual(attendance.get_report_label(), 'TWSL: TWSL - Castellà')
+        # Composed from the block's subject, groups and topic, not its stored name (issue #723).
+        self.assertEqual(attendance.get_report_label(), f"{self.subject.display_name} ({self.group.name}) - Castellà")
 
     def test_get_report_label_unaffected_without_topic(self):
         schedule = self.env['resource.calendar'].create({'name': 'Test Report Label No Topic (Working Schedule)'})
@@ -1068,7 +1079,7 @@ class TestWorkingSchedule(TransactionCase):
             'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
         }])
 
-        self.assertEqual(schedule.attendance_ids.get_report_label(), 'TWSL: TWSL')
+        self.assertEqual(schedule.attendance_ids.get_report_label(), f"{self.subject.display_name} ({self.group.name})")
 
     def test_get_subject_display_label_appends_topic_when_set(self):
         schedule = self.env['resource.calendar'].create({'name': 'Test Subject Display Label (Working Schedule)'})

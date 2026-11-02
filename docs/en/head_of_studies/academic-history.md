@@ -18,7 +18,7 @@ As Head of Studies or Director you have **access to the whole history**: cohort-
 
 Also, on any student's form, the **Academic history** section, at the end of the **Studies** tab, shows that student's records — including **former students** (alumni and withdrawals), whose Studies tab keeps just this section as their permanent record.
 
-Cycles a student studied under a **previous curriculum** (the LOE cycles by units, UF, that SAGA managed) are kept as printed on their academic history document. They show as one more line of the student's **Academic history**, with **Previous curriculum** ticked, and **Planning and Grading → Grades → Previous curricula** for all of them. The secretariat adds them (see the secretariat's academic history manual).
+Cycles a student studied under a **previous curriculum** (the LOE cycles by units, UF, that SAGA managed) are kept as printed on their academic history or grades certificate. They show as one more line of the student's **Academic history**, with **Previous curriculum** ticked, and **Planning and Grading → Grades → Previous curricula** for all of them. The secretariat adds them (see the secretariat's academic history manual).
 
 ## Useful queries
 

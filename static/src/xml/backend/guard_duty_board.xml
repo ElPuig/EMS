@@ -292,6 +292,10 @@
                                                 <span t-if="cell.joined.length" class="o_guard_board_cell_teacher o_guard_board_cell_joined">
                                                     <i class="fa fa-compress me-1"/>Together with <t t-esc="cell.joined.join(', ')"/>
                                                 </span>
+                                                <!-- Issue #725: the guards sent to support its teacher then. -->
+                                                <span t-if="cell.supports.length" class="o_guard_board_cell_teacher o_guard_board_cell_support">
+                                                    <i class="fa fa-handshake-o me-1"/><t t-esc="cell.supports.join(', ')"/>
+                                                </span>
                                                 <span t-if="cell.room" class="o_guard_board_cell_room" t-esc="cell.room"/>
                                             </td>
                                         </t>
@@ -303,6 +307,8 @@
                                                 <t t-foreach="state.board.lines[slot.line].guards" t-as="guard" t-key="guard.name">
                                                     <span class="o_guard_board_guard_badge"
                                                           t-att-class="absenceClass(guard.absence) + (guard.busy ? ' o_guard_board_guard_busy' : '')" t-att-data-tooltip="guard.busy">
+                                                        <!-- Issue #692: not checked in yet, so not available (issue #725). -->
+                                                        <i t-if="guard.absence === 'unchecked'" class="fa fa-clock-o me-1" title="Not checked in"/>
                                                         <t t-esc="guard.name"/>
                                                         <span t-if="guard.is_wc" class="o_guard_board_guard_wc_tag"> <t t-esc="wcSuffix"/></span>
                                                         <span t-if="guard.stayed" class="o_guard_board_guard_wc_tag"> (<t t-esc="guard.stayed"/>)</span>
@@ -404,8 +410,13 @@
                                                 <span class="o_guard_board_block_time" t-esc="slot.label"/>
                                                 <span t-if="slot.is_break" class="o_guard_board_break_label" t-esc="breakLabel"/>
                                                 <t t-foreach="state.board.lines[slot.line].guards" t-as="guard" t-key="guard.name">
+                                                <!-- Issue #725: whoever manages a class here may send the guard to support its teacher. -->
                                                 <span class="o_guard_board_guard_badge"
-                                                      t-att-class="guardBadgeClass(guard)" t-att-data-tooltip="guard.busy">
+                                                      t-att-class="guardBadgeClass(guard) + (guard.can_support or guard.can_mark_present ? ' o_guard_board_guard_supportable' : '') + (guard.can_support or guard.available or guard.can_mark_present ? '' : ' o_guard_board_guard_disabled')"
+                                                      t-att-data-tooltip="guard.busy or (guard.can_mark_present ? markPresentTooltip : guard.can_support ? supportTooltip : guard.available ? availableTooltip : false)"
+                                                      t-on-click="() => this.onGuardClick(state.board.lines[slot.line], guard)">
+                                                    <!-- Issue #692: not checked in yet, so not available (issue #725). -->
+                                                    <i t-if="guard.absence === 'unchecked'" class="fa fa-clock-o me-1" title="Not checked in"/>
                                                     <t t-esc="guard.name"/>
                                                     <span t-if="guard.is_wc" class="o_guard_board_guard_wc_tag"> <t t-esc="wcSuffix"/></span>
                                                     <span t-if="guard.stayed" class="o_guard_board_guard_wc_tag"> (<t t-esc="guard.stayed"/>)</span>
@@ -491,7 +502,7 @@
             <p class="o_guard_unchecked_dialog" t-esc="body"/>
             <t t-set-slot="footer">
                 <button type="button" class="btn btn-primary o_guard_unchecked_present" t-att-disabled="state.saving"
-                        t-on-click="markPresent">They are in the classroom</button>
+                        t-on-click="markPresent" t-esc="presentLabel"/>
                 <button t-if="props.onCover" type="button" class="btn btn-secondary o_guard_unchecked_cover"
                         t-att-disabled="state.saving" t-on-click="cover" t-esc="props.coverLabel"/>
                 <button type="button" class="btn btn-link" t-on-click="props.close">Cancel</button>
@@ -539,6 +550,45 @@
         </Dialog>
     </t>
 
+    <t t-name="ems.GuardSupportDialog">
+        <Dialog title="title" size="'md'">
+            <div class="o_guard_support_dialog">
+                <t t-if="state.loaded">
+                    <div t-if="state.current.length" class="mb-3 o_guard_support_current">
+                        <div class="fw-bold mb-1" t-esc="labels.current"/>
+                        <t t-foreach="state.current" t-as="cover" t-key="cover.id">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span><i class="fa fa-handshake-o me-1"/><t t-esc="cover.label"/> <span class="text-muted" t-esc="cover.time"/></span>
+                                <button t-if="cover.can_release" type="button" class="btn btn-sm btn-link text-danger o_guard_support_remove"
+                                        t-att-disabled="state.saving" t-on-click="() => this.release(cover.id)" t-esc="labels.removeSupport"/>
+                            </div>
+                        </t>
+                    </div>
+                    <t t-else="">
+                        <div class="fw-bold mb-1" t-esc="labels.classes"/>
+                        <div t-if="!state.options.length" class="text-muted o_guard_support_none" t-esc="labels.noOptions"/>
+                        <t t-foreach="state.options" t-as="option" t-key="optionKey(option)">
+                            <div class="form-check o_guard_support_option">
+                                <input class="form-check-input" type="radio" name="o_guard_support_option" t-att-id="'o_guard_support_option_' + option_index"
+                                       t-att-checked="state.choice === optionKey(option)" t-on-change="() => this.state.choice = this.optionKey(option)"/>
+                                <label class="form-check-label" t-att-for="'o_guard_support_option_' + option_index" t-esc="optionLabel(option)"/>
+                            </div>
+                        </t>
+                        <div t-if="state.options.length" class="mt-3">
+                            <label class="form-label fw-bold" for="o_guard_support_message" t-esc="labels.message"/>
+                            <textarea id="o_guard_support_message" class="form-control o_guard_support_message" rows="3"
+                                      t-att-placeholder="labels.placeholder" t-model="state.message"/>
+                        </div>
+                    </t>
+                </t>
+            </div>
+            <t t-set-slot="footer">
+                <button t-if="!state.current.length and state.options.length" class="btn btn-primary o_guard_support_send"
+                        t-att-disabled="state.saving or !selected" t-on-click="() => this.send()" t-esc="labels.send"/>
+                <button class="btn btn-secondary" t-on-click="() => this.props.close()" t-esc="labels.cancel"/>
+            </t>
+        </Dialog>
+    </t>
     <t t-name="ems.GuardCoverDialog">
         <Dialog title="title" size="'md'">
             <div class="o_guard_cover_dialog">

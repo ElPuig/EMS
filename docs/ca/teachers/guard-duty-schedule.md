@@ -79,6 +79,8 @@ La taula fa servir els mateixos trams de temps que l'horari, amb una columna per
 - **Una columna per àrea** — una línia per cada classe que es queda sense docent en aquella àrea: qui falta, i el grup, l'assignatura i l'aula que s'han de cobrir, dins d'un bloc amb l'hora de la classe. El pati de l'àrea surt com un bloc "Pati".
 - **Guàrdia** — els docents de guàrdia, agrupats per la franja de la seva guàrdia, els mateixos que mostra l'horari.
 
+A la columna **Guàrdia**, la casella d'un docent de guàrdia es veu com sempre mentre està lliure per cobrir una classe; la indicació recorda que s'assigna des de la línia d'una absència. Surt en gris quan no pot cobrir res: falta, encara no ha fitxat (també porta una icona de rellotge) o ja és amb un grup (el nom surt ratllat i la indicació diu amb quin). Qui organitza les absències també pot fer clic a la casella d'un docent de guàrdia lliure per enviar-lo a donar suport a un docent que és a classe (vegeu [Enviar un docent de guàrdia de suport](../department_chiefs/absences.md#enviar-un-docent-de-guardia-de-suport)).
+
 Així veus d'un cop d'ull quines guàrdies coincideixen amb cada classe que cal cobrir, encara que les dues àrees tinguin les classes a hores diferents. Un tram on no falta ningú té les columnes d'àrea buides.
 
 En una classe amb codocència (dos docents a la mateixa aula) on només en falta un, la seva línia surt **ratllada**: hi continua perquè sàpigues qui falta, però no cal guàrdia perquè l'altre docent es fa càrrec de la classe. Passa el ratolí per sobre de la línia o fes-hi clic per veure'n el motiu; la icona **ⓘ** de la seva esquerra indica que hi ha una explicació.
@@ -129,6 +131,8 @@ De vegades el docent és a l'aula i només s'ha oblidat de fitxar. Si estàs de 
 Es registra l'entrada del docent a l'hora actual, la classe surt de la taula i el docent rep un missatge que diu qui l'ha registrada. A la fitxa del fitxatge, **Entrada registrada per** mostra el teu nom. Si l'hora no és correcta, el docent en pot sol·licitar una correcció com amb qualsevol altre fitxatge.
 
 El mateix diàleg també ofereix el que podries fer amb la línia: **Cobrir-la jo** si estàs de guàrdia (la classe queda coberta amb el teu nom de seguida, sense cap altra confirmació, igual que amb **És a l'aula**), o **Enviar un docent de guàrdia** si organitzes l'absència. Una classe que ja ha acabat no es pot resoldre així: registrar ara l'entrada del docent no la canviaria.
+
+Un docent de guàrdia que no ha fitxat es resol de la mateixa manera, des de la seva casella a la columna **Guàrdia** (la indicació diu **Sense fitxar: indica que és al centre**): un altre docent de guàrdia d'aquella franja, o qui organitza les seves absències, hi fa clic i després a **És al centre**. Un cop ha fitxat, ja se'l pot enviar a cobrir una classe.
 
 ### L'horari s'actualitza sol
 

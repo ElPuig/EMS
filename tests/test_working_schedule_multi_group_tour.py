@@ -2,6 +2,8 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
+from odoo.addons.ems.models.employees.working_schedule import subject_block_name
+
 from .common import create_level_study, force_user_language_to_english
 
 
@@ -55,6 +57,8 @@ class TestWorkingScheduleMultiGroupTour(HttpCase):
         monday_rows = calendar.attendance_ids.filtered(lambda attendance: attendance.dayofweek == '0')
         self.assertEqual(len(monday_rows), 1)
         self.assertEqual(set(monday_rows.group_ids.ids), {self.group_a.id, self.group_b.id})
+        # The Schedule tab names it in the import's format (issue #723).
+        self.assertEqual(monday_rows.name, subject_block_name(self.subject, self.group_a | self.group_b, monday_rows.topic))
 
         template = self.env['ems.attendance_template'].search([
             ('teacher_ids', 'in', self.teacher.id), ('active', '=', True),

@@ -750,7 +750,9 @@ export class ScheduleGridField extends Component {
                 if (card.kind === "subject" && card.subjectId && card.groupIds.length) {
                     cell.subject_id = card.subjectId;
                     cell.group_ids = card.groupIds;
-                    cell.name = `${subjectById.get(card.subjectId)}: ${card.groupIds.map((groupId) => groupById.get(groupId)).join(", ")}`;
+                    // Same format as subject_block_name() (working_schedule.py), which the import
+                    // writes: "MP 0485: Programació (DAM1A)".
+                    cell.name = `${subjectById.get(card.subjectId)} (${card.groupIds.map((groupId) => groupById.get(groupId)).join(", ")})`;
                     // Topic (issue #428) is appended to the frozen 'name' label too, so the
                     // teacher's own grid immediately shows what they just typed - same "subject -
                     // topic" convention as get_report_label()/blockLabel() elsewhere.

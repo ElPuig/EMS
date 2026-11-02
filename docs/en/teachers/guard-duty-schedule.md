@@ -79,6 +79,8 @@ The table uses the same stretches of time as the timetable, with one column per 
 - **One column per area** — one line per class left without a teacher in that area: who is away, and the group, subject and classroom that needs covering, in a block carrying the class's time. The area's break shows as a "Break" block.
 - **Guard duty** — the teachers on guard duty, grouped by the time of their guard duty, the same ones the timetable shows.
 
+In the **Guard duty** column, a guard teacher's box looks as usual while they are free to cover a class then; its tooltip reminds you that they are assigned from the line of an absence. It looks greyed out when they cannot cover anything: they are away, have not checked in yet (it also carries a clock icon), or are already with a group (their name is struck through and the tooltip says with which one). Whoever organises absences can also click a free guard's box to send them to support a teacher who is in class (see [Sending a guard as support](../department_chiefs/absences.md#sending-a-guard-as-support)).
+
 So you can see at a glance which guard duties line up with each class to cover, even when the two areas run their lessons at different times. A stretch where nobody is missing has empty area columns.
 
 In a co-taught class (two teachers in the same classroom) where only one of them is away, their line is **struck through**: it stays there so you know who is missing, but no guard is needed because the other teacher is taking the class. Hover over the line or click it to see why; the **ⓘ** icon on its left shows there is an explanation.
@@ -129,6 +131,8 @@ Sometimes the teacher is in the classroom and has only forgotten to check in. If
 The teacher's check-in is registered at the current time, the class leaves the table, and the teacher receives a message saying who registered it. On the check-in's own form, **Check-in registered by** shows your name. If the time is not right, the teacher can request a correction as with any other check-in.
 
 The same dialog also offers what you could otherwise do with the line: **Cover it myself** if you are on guard duty (the class is covered in your name straight away, with no further confirmation, as with **They are in the classroom**), or **Send a guard teacher** if you organise the absence. A class that has already ended cannot be resolved this way: checking the teacher in now would not change it.
+
+A guard teacher on duty who has not checked in is resolved the same way, from their box in the **Guard duty** column (its tooltip says **Not checked in: say they are in the centre**): another teacher on guard duty then, or whoever organises their absences, clicks it and then **They are in the centre**. Once checked in, they can be sent to cover a class.
 
 ### The schedule updates itself
 

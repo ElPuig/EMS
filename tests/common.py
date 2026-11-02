@@ -190,8 +190,7 @@ def build_previous_curriculum_pdf(student_identifier, modules, student_name='Inv
     use a real one in a test: it carries a real student's name, document number and signatures.
 
     modules: list of (code, name, hours, grade, sitting, units), each unit (code, name, hours,
-    grade, sitting). A '|' in a name wraps it onto the next line; hours 0 leaves the module's hours,
-    grade and sitting blank, as SAGA does until every unit is graded."""
+    grade, sitting), laid out by _previous_curriculum_table."""
     lines = [
         "Historial acadèmic de l'alumne                       Formació professional inicial",
         "Dades del centre",
@@ -209,8 +208,69 @@ def build_previous_curriculum_pdf(student_identifier, modules, student_name='Inv
         "Historial acadèmic",
         "Resultats de l'avaluació dels mòduls i unitats formatives",
         "Qualificacions",
-        f"{'Mòdul':<34}Hores Qualif. Conv. Unitat Formativa{' ' * 16}Hores Qualif. Conv.",
+        *_previous_curriculum_table(modules, 'Unitat Formativa'),
+        "Observacions", "Diligència de validesa de l'historial acadèmic",
+        "Signatura del secretari del centre",
     ]
+    return _academic_record_lines_to_pdf(lines)
+
+
+def build_previous_curriculum_certificate_pdf(document_id, modules, student_name='Alumna Inventada',
+                                              centre=('08000888', 'Institut Inventat Dos'),
+                                              curriculum=('CFPS AGX0', 'CFPS Cicle Certificat (LOE)'),
+                                              page_break=None):
+    """An invented grades certificate ("Certificat de qualificacions de mòduls i unitats
+    formatives") of a previous curriculum (issue #732): the student named by their DNI/NIE, with no
+    IDALU and no years, and the grades table of the academic history. Never use a real one in a
+    test.
+
+    modules: as build_previous_curriculum_pdf. page_break: how many modules go on the first page;
+    the rest follow the page's footer and the second page's own header, as the real one prints."""
+    student = "Nom i cognoms de l'alumna"
+    lines = [
+        "Certificat de qualificacions de mòduls i unitats formatives        Formació professional inicial",
+        "Dades del centre",
+        f"{'Codi':<20}Nom",
+        "",
+        f"{centre[0]:<20}{centre[1]}",
+        f"{'Adreça':<64}Municipi",
+        f"{'c. Inventat, 1':<64}Barcelona",
+        "Nom i cognoms del secretari del centre",
+        "SECRETARI INVENTAT",
+        "Certifico",
+        f"{student:<64}{'DNI':<18}Número",
+        # The number is printed right of the DNI column's start, not under it.
+        f"{student_name:<64}{'':<14}{document_id}",
+        f"{'Matriculat al cicle formatiu':<64}Reial decret que regula el cicle",
+        f"{'Codi':<20}{'Nom':<44}{'Número':<12}Data",
+        f"{curriculum[0]:<20}{curriculum[1]}",
+        "Requisit d'accés al·legat per l'alumna",
+        "Batxillerat o equivalent",
+        "Mòduls i/o unitats formatives",
+    ]
+    first = modules[:page_break] if page_break else modules
+    lines += _previous_curriculum_table(first, 'Unitat formativa')
+    if page_break:
+        lines += [
+            "Y508-002/06-10", "1 de 2",
+            "Generalitat de Catalunya", "Departament d'Educació",
+            "Certificat de qualificacions de mòduls i unitats formatives        Formació professional inicial",
+            "Dades de l'alumna",
+            f"{'Nom i cognoms':<64}{'DNI':<18}Número",
+            f"{student_name:<64}{'':<14}{document_id}",
+            "Mòduls i/o unitats formatives",
+            *_previous_curriculum_table(modules[page_break:], 'Unitat formativa'),
+        ]
+    lines += ["I, perquè consti, signo aquest certificat, amb el vistiplau del director o directora del centre.",
+              "Signatura del secretari del centre", "Y508-002/06-10", "2 de 2"]
+    return _academic_record_lines_to_pdf(lines)
+
+
+def _previous_curriculum_table(modules, units_title):
+    """The grades table of a previous curriculum's documents: the header and, side by side, each
+    module and its units. A '|' in a name wraps it onto the next line; hours 0 leaves the module's
+    hours, grade and sitting blank, as SAGA does until every unit is graded."""
+    lines = [f"{'Mòdul':<34}Hores Qualif. Conv. {units_title}{' ' * 16}Hores Qualif. Conv."]
 
     def cells(code, name, hours, grade, sitting, width):
         parts = name.split('|')
@@ -226,9 +286,7 @@ def build_previous_curriculum_pdf(student_identifier, modules, student_name='Inv
             unit_part = right[index] if index < len(right) else ''
             # The unit code a few characters right of the "Unitat Formativa" title, as SAGA prints it.
             lines.append(f"{module_part:<59}{unit_part}".rstrip())
-    lines += ["Observacions", "Diligència de validesa de l'historial acadèmic",
-              "Signatura del secretari del centre"]
-    return _academic_record_lines_to_pdf(lines)
+    return lines
 
 
 def _academic_record_lines_to_pdf(lines):

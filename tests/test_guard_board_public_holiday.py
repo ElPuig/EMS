@@ -77,3 +77,11 @@ class TestGuardBoardPublicHoliday(GuardDutyBoardCase):
         # The class attribute, not the stylesheet's rule.
         self.assertIn(b'class="gdb-holiday"', content)
         self.assertNotIn(self.teacher_a.name.encode(), content)
+        self.assertNotIn(b'No schedule available', content)
+
+        # The timetable tab still prints the timetable, under the same notice.
+        content, _content_type = self.env['ir.actions.report'].with_context(
+            guard_duty_weekday='0', guard_duty_date=str(self.day)).\
+            _render_qweb_pdf('ems.report_guard_duty_board', [self.course.id])
+        self.assertIn(b'class="gdb-holiday"', content)
+        self.assertIn(self.teacher_a.name.encode(), content)

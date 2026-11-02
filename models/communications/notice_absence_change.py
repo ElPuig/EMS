@@ -192,7 +192,7 @@ class EmsNoticeAbsenceChange(models.Model):
         if not group or change_type not in CHANGE_SIDES:
             raise UserError(_("This group no longer exists."))
         course = self.env['ems.course']
-        course._check_board_day_not_past(day)
+        course._check_board_day_open(day)
         if change_type in BREAK_CHANGES:
             requested = (change_type, hour, hour_to)
         else:

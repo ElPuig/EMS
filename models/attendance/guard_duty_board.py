@@ -678,7 +678,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         self._check_absence_manager(
             self._original_absent(self._get_day_covers(day), absent, group, hour_from, hour_to), group)
 
-    def _check_board_day_not_past(self, day):
+    def _check_board_day_open(self, day):
         """Every board action on `day` goes through here: never on a day already over, nor on a
         public holiday (issue #740), when there is nobody to cover and nothing to organise."""
         if day < self.env['ems.datetime_utils'].get_local_today():
@@ -1684,7 +1684,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         group = self.env['ems.group'].browse(group_id).exists()
         if not group:
             raise UserError(_("This group no longer exists."))
-        self._check_board_day_not_past(day)
+        self._check_board_day_open(day)
         state = self._get_absence_change_states(day, group)[group.id].get(side)
         if not state or not state['change_options']:
             raise UserError(_("The absences of this group have changed since the board was loaded. Reload the board."))
@@ -2027,7 +2027,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         managers = {}
 
         def can_manage(teachers, group):
-            # A day already over is read-only for everybody (see _check_board_day_not_past).
+            # A day already over is read-only for everybody (see _check_board_day_open).
             return editable and any(self._is_absence_manager(teacher, group, managers) for teacher in teachers)
 
         actions = []
@@ -2318,7 +2318,7 @@ class EmsCourseGuardDutyBoard(models.Model):
             *(line['guards'].employee_id for line in data['lines']),
             *(self.env['hr.employee'].union(*line['guard_spans']) for line in data['lines'])))
         # A teacher on guard duty may take a free class themselves (issue #601) - from today on,
-        # like every other board action (see _check_board_day_not_past).
+        # like every other board action (see _check_board_day_open).
         # Nothing to organise on a public holiday either (issue #740).
         editable = bool(day) and not data['holiday'] \
             and fields.Date.to_date(day) >= self.env['ems.datetime_utils'].get_local_today()

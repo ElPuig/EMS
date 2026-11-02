@@ -1652,7 +1652,7 @@ flowchart TD
     L --> D["get_guard_duty_board_data(): editable = False,<br/>no 'now' line; 'holiday' to the client"]
     D --> UI["guard_duty_board.js/xml: .o_guard_board_holiday notice,<br/>absences table hidden, timetable kept"]
     L --> PDF["report_guard_duty_board: .gdb-holiday notice,<br/>absences table not printed"]
-    H -->|holiday| CHK["_check_board_day_not_past(day): UserError<br/>(every board action goes through it)"]
+    H -->|holiday| CHK["_check_board_day_open(day): UserError<br/>(every board action goes through it)"]
     H -->|holiday| DET["_ems_detect_missing_check_ins(day): nothing detected"]
 ```
 
@@ -1660,7 +1660,7 @@ flowchart TD
   which is the path that already returns the plain timetable, so none of the per-date code needs
   its own check. It returns `'holiday'` (the holiday's name, or `False`), and
   `get_guard_duty_board_data()` passes it on, with `editable` and the "today" flag forced off.
-- **Actions.** Hiding the buttons is not the guard: `_check_board_day_not_past()`, called by every
+- **Actions.** Hiding the buttons is not the guard: `_check_board_day_open()`, called by every
   board action (`board_assign`, `board_self_assign`, `board_arrange`, `board_apply_plan`,
   `board_support`, `board_mark_present`, ...), refuses a holiday too.
 - **Screen and PDF.** The client shows an `alert-info` notice (`.o_guard_board_holiday`) above

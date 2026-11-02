@@ -1013,9 +1013,9 @@ class TestConvalidation(TransactionCase):
         return tutor
 
     def _notices(self, user):
-        return self.env['mail.message'].sudo().search([
-            ('model', '=', 'res.partner'), ('res_id', '=', self.student.id),
-            ('message_type', '=', 'user_notification'), ('partner_ids', 'in', user.partner_id.ids)])
+        """Informative notices about the student queued for the user's daily summary (issue #644)."""
+        return self.env['ems.info_notice'].sudo().search([
+            ('res_model', '=', 'res.partner'), ('res_id', '=', self.student.id), ('user_id', '=', user.id)])
 
     def test_teaching_staff_get_one_notice_per_request(self):
         tutor = self._teaching_staff()
@@ -1030,12 +1030,20 @@ class TestConvalidation(TransactionCase):
         self.assertIn(f"{self.subject.display_name}, with a 8", tutor_notice.body)
         self.assertIn(f"{self.other_subject.display_name}, with a 8", tutor_notice.body)
         self.assertNotIn(self.other_subject.display_name, teacher_notice.body)
-        # A notice, not a to-do, nor a subscription to the student's messages.
+        # A notice waiting for the daily summary, not a to-do, nor a subscription to the student's messages.
         self.assertFalse(self.env['mail.activity'].sudo().search([
             ('res_model', '=', 'res.partner'), ('res_id', '=', self.student.id),
             ('user_id', 'in', (self.teacher | tutor).ids)]))
         self.student.invalidate_recordset(['message_follower_ids', 'message_partner_ids'])
         self.assertFalse((self.teacher | tutor).partner_id & self.student.message_partner_ids)
+
+    def test_notice_without_enrollment_goes_to_the_main_group_teacher(self):
+        """Completed before the student was placed in the subject: whoever teaches it in their
+        main group is told (issue #644 kept this when moving the notice to the daily summary)."""
+        tutor = self._teaching_staff()
+        self._completed()
+        self.assertEqual(len(self._notices(self.teacher)), 1)
+        self.assertEqual(len(self._notices(tutor)), 1)
 
     def test_notice_of_a_subject_convalidated_without_a_grade(self):
         self._teaching_staff()

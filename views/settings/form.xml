@@ -73,6 +73,9 @@
                             <setting string="Resolution: appeal" help="Footer of the resolution saying how and before whom it can be appealed. Write it in Catalan. Leave it empty to use the standard text, which names the competent body only in general terms." id="convalidation_appeal">
                                 <field name="convalidation_appeal_text" placeholder="Standard text"/>
                             </setting>
+                            <setting string="Request: attendance notice" help="Shown on the portal when requesting a convalidation: the applicant must accept it, and chooses for each subject whether they will attend it until the resolution. Explain what the centre's rules (NOFC) say about absences if a subject is refused. Write it in each language families read. Leave it empty to use the standard text." id="convalidation_attendance_notice">
+                                <field name="convalidation_attendance_notice" widget="html" placeholder="Standard text"/>
+                            </setting>
                             <setting string="Resolution: signed by delegation" help="The resolution is signed on the Director's behalf: it says so, and shows the name of whoever actually resolved it instead of the Director's." id="convalidation_sign_by_delegation">
                                 <field name="convalidation_sign_by_delegation"/>
                             </setting>
@@ -138,7 +141,7 @@
                                 <span class="ms-2">minutes</span>
                             </setting>
 
-                            <setting string="Tutor's attendance report default send time" help="Each tutor chooses in their profile when they receive their attendance issues report. This time is used when that moment can't be worked out (no schedule framework for that day), and as the initial time of the &quot;At a fixed time&quot; option." id="attendance_issue_tutor_default">
+                            <setting string="Daily summary default send time" help="Each person chooses in their profile when they receive their daily summary (pending tasks, their students' attendance issues for tutors, notices). This time is used when a tutor's moment can't be worked out (no schedule framework for that day), and as the initial time of the &quot;At a fixed time&quot; option." id="attendance_issue_tutor_default">
                                 <field name="attendance_issue_tutor_default" widget="float_time" />
                             </setting>
 

@@ -97,6 +97,9 @@ The same kind of catalog as `ems.convalidation.info_reason` (`name` translatable
 
 `_ems_rejection_text()` joins both, in the current language (reason, then details); the resolution, the portal and the resolution email print it, and `_ems_check_decided` requires it to be non-empty on every refused line before a proposal or a Ministry resolution.
 | `resolution_notes` | Char | Optional remarks shown to the student (hidden column in the form). |
+| `attendance_choice` | Selection, required | `attend` (default) / `not_attend` (issue #644): what the applicant chose when filing it. Not changeable afterwards except with `sudo()`. See [Attendance while the request is open](#attendance-while-the-request-is-open). |
+
+The request itself records `attendance_notice_accepted` / `attendance_notice_date` when filed from the portal.
 
 ## Workflow
 
@@ -160,7 +163,7 @@ The configurable texts live on `res.company` (see [Request period](#request-peri
 
 Completing a request means the student no longer takes the subjects it convalidated. `_ems_withdraw_convalidated_subjects()` deletes their `ems.enrollment` for each granted subject, with `ems_bypass_grade_guard` — grades already written included, the convalidation replaces them. That runs the enrollment's own cascade: the student leaves the subject's attendance schedules and loses their lines in its **open** grade sessions. Rounds already at the board or finalised keep their line, which the sync below turns into the convalidation's grade.
 
-- **Who is told:** before deleting, the enrollment's groups give the subject's teachers (active `ems.teaching` for group + subject) and the groups' tutors. Each gets one notice per request (`message_notify`, so Odoo's inbox or email as their own preference says), listing the request's subjects that concern them with each grade (or that it has none) and the registration number. It is a notice, not an activity: there is nothing for them to do, so it has no deadline and stays out of the daily task digest. It is sent **on the student** (`res.partner`), not on the request: teachers cannot read convalidations, but they can open the student. `message_notify` does not make them followers.
+- **Who is told:** before deleting, `res.partner._ems_teaching_staff(subjects)` gives each subject's teachers in the group the student takes it with (active `ems.teaching`; the main group when there is no enrollment yet) and the tutor. Each gets one informative notice per request, listing the request's subjects that concern them with each grade (or that it has none) and the registration number. Nothing for them to do and not urgent, so it is queued (`ems.info_notice`) and reaches them in their [daily summary](../shared/daily_summary.md), not sent on the spot (issue #644). It is about **the student** (`res.partner`), not the request: teachers cannot read convalidations, but they can open the student.
 - **Placements afterwards:** `sale.order._ems_apply_destination_placement()` skips any subject `_ems_is_convalidated()` for the student, so a request completed before the student is placed (the usual case during summer enrollment) never gets the subject enrolled back.
 - **The resolution alone withdraws nothing:** the request is not closed until the secretariat registers it.
 
@@ -183,6 +186,35 @@ flowchart LR
 - **Consumers:** the transition wizard's incomplete-evaluation check passes (via `has_final` / `internal_is_complete`). The EM grading wizard skips convalidated lines (`_live_subject_lines`), and `final_pending` is never set for them. Both grade widgets show the grade followed by **CV** in the Final column, or **CV** alone when it has no grade, always styled as passed. The history views hide the 0 final grade of such a subject.
 - **Not done:** a textual `CV` in an Esfera import is not turned into the flag. The request is the only source, so a later sync can never silently undo an imported value.
 
+## Attendance while the request is open
+
+Issue #644. Attendance stays compulsory until the resolution, but for each subject the applicant
+chooses whether they will attend it meanwhile (`attendance_choice`), after accepting the centre's
+attendance notice (`res.company.convalidation_attendance_notice`, Settings > Convalidations; empty
+means the standard text of `_ems_convalidation_attendance_notice()`, which warns that absences count
+and continuous assessment may be lost if the subject is refused).
+
+- **Off the roll-call:** `res.partner._ems_not_expected_reasons()` (extended in this file) makes every
+  session of a `not_attend` subject of a request still open (`state not in CLOSED_STATES`), for a class
+  starting after the request was created, create the student's line archived ("Not required to
+  attend: convalidation in process"), with `not_expected_reason = 'convalidation'` and
+  `convalidation_line_id` (see [Removing a student from the roll-call](../attendance/attendance_session.md#removing-a-student-from-the-roll-call-active-issue-537)).
+  An [expected withdrawal](../contacts/withdrawal_expected.md) takes precedence. The teacher can put
+  the student back if they come.
+- **Told on filing:** the subject's teachers and the tutor get an informative notice in their daily
+  summary (`_ems_notify_not_attending()`); only for a student, an applicant has no roll-call yet.
+- **Granted:** the enrollment is deleted as usual and the sessions stay off: the student was never
+  required to attend them.
+- **Refused (when the secretariat completes the request), request cancelled, or the subject removed
+  from it (or changed):** `_ems_restore_attendance()` puts those sessions back as absences, through
+  `res.partner._ems_restore_not_expected_lines()` (justified ones stay justified, the family is not
+  emailed, the tutor sees them in their summary), and the teachers and tutor are told. A subject the
+  Head of Studies refuses during the review is still off the roll-call until the request is completed:
+  the decision only becomes final then.
+- **Reopened:** the subject leaves the roll-calls again from then on.
+- **Schedule tab:** the `not_attend` subjects of open requests are drawn dashed with the legend
+  "Convalidation in process" (`not_expected_subject_ids`/`not_expected_legend`).
+
 ## Portal
 
 `controllers/portal_convalidation.py` (`/my/convalidaciones`) always acts on `get_portal_student()`: the student, or the child a family has selected. It uses `sudo()` because portal users have no ACL on these models.
@@ -201,7 +233,7 @@ A student with no birth date counts as a minor. `_ems_convalidation_portal_visib
 | Route | Behaviour |
 |-------|-----------|
 | `GET /my/convalidaciones` | Requests of the student, plus the new-request form when the viewer can file, `_ems_portal_study()` finds a study **and the request period is open**. The form is a Bootstrap collapse, folded by default; it opens with `?new=1` or when the page comes back with a validation `?error=`. It says when the period closes. While closed, a notice with the next opening replaces the form. Otherwise, a notice explains why the viewer cannot file. |
-| `POST /my/convalidaciones/submit` | Only whoever can file. Refused with `?error=closed` outside the request period. Then checks that at least one subject in `_ems_portal_requestable_subjects()` and a valid `basis` are sent, and, for `prior_studies`, a valid `prior_studies_origin` (`?error=no_origin`). Supporting documents are mandatory unless the studies were passed at this centre (`?error=no_documents`, issue #579): the centre looks its own records up, and can ask for more afterwards. Then it creates the request and its attachments. The same rule is applied in the browser by `EmsConvalidationRequestForm` (`static/src/js/frontend/convalidation_request_form.js`): the origin question only shows for prior studies, and the file input is marked required (and its label switches between "*" and "optional for studies passed at this centre") accordingly - the server decides whatever the browser sends. |
+| `POST /my/convalidaciones/submit` | Only whoever can file. Refused with `?error=closed` outside the request period. Then checks that at least one subject in `_ems_portal_requestable_subjects()` and a valid `basis` are sent, and, for `prior_studies`, a valid `prior_studies_origin` (`?error=no_origin`). Supporting documents are mandatory unless the studies were passed at this centre (`?error=no_documents`, issue #579): the centre looks its own records up, and can ask for more afterwards. The attendance notice must be accepted (`attendance_notice_accepted`, `?error=no_notice`, issue #644), and each subject's `attendance_<subject id>` select gives its `attendance_choice` (`attend` unless `not_attend` is sent). Then it creates the request and its attachments. The same rule is applied in the browser by `EmsConvalidationRequestForm` (`static/src/js/frontend/convalidation_request_form.js`): the origin question only shows for prior studies, and the file input is marked required (and its label switches between "*" and "optional for studies passed at this centre") accordingly - the server decides whatever the browser sends. |
 | `POST /my/convalidaciones/reply/<id>` | The applicant's answer: files and/or text, while the request is in `REVIEW_STATES`, whatever the date. The files join `attachment_ids` and the text is posted as a comment (`_ems_portal_add_documents`); a request in `documentation` goes back under review. |
 | `POST /my/convalidaciones/cancel/<id>` | Only while `_ems_is_cancellable()`, whatever the date. |
 | `GET /my/convalidaciones/resolution/<id>` | Downloads `resolution_pdf_id` of a request whose resolution is official (`_ems_resolution_is_official()`), for whoever sees the page. |

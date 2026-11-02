@@ -1,0 +1,30 @@
+<odoo>
+    <data>
+        <!-- Issue #644: "Mark expected withdrawal", from the student's Actions dropdown
+             (models/contacts/withdrawal_expected.py). -->
+        <record id="view_withdrawal_expected_wizard_form" model="ir.ui.view">
+            <field name="name">ems.withdrawal_expected_wizard.form</field>
+            <field name="model">ems.withdrawal_expected_wizard</field>
+            <field name="arch" type="xml">
+                <form>
+                    <p>
+                        From now on the student appears in every roll-call as not required to attend, so they
+                        stop piling up absences while the withdrawal is processed. They stay a student until the
+                        withdrawal is registered. Their teachers are told in their daily summary.
+                    </p>
+                    <p>
+                        If it is reverted, every session they were not required to attend becomes an absence.
+                    </p>
+                    <group>
+                        <field name="student_id" options="{'no_open': True}"/>
+                        <field name="note" placeholder="e.g. The family has told us they are moving abroad."/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Mark expected withdrawal" class="btn-primary"/>
+                        <button special="cancel" string="Cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

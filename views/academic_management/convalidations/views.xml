@@ -112,6 +112,9 @@
                             <group>
                                 <field name="submission_date"/>
                                 <field name="requester_id" readonly="1" invisible="not requester_id"/>
+                                <!-- Issue #644: accepted on the portal when filing it. -->
+                                <field name="attendance_notice_date" readonly="1" invisible="not attendance_notice_accepted"/>
+                                <field name="attendance_notice_accepted" invisible="1"/>
                                 <!-- Issue #576: one click to copy it into Esfera. -->
                                 <field name="student_idalu" widget="CopyClipboardChar" class="o_ems_copy_compact" invisible="not student_idalu"/>
                                 <!-- Issue #657: the same, to look the student up in other applications. -->
@@ -131,6 +134,8 @@
                                                domain="[('id', 'in', parent.allowed_subject_ids)]"
                                                options="{'no_create': True}"
                                                readonly="state != 'pending' or request_state not in ('pending', 'documentation', 'ministry')"/>
+                                        <!-- Issue #644: the applicant's choice, only set when the line is added. -->
+                                        <field name="attendance_choice" optional="show" readonly="id"/>
                                         <field name="state" widget="badge" readonly="1"
                                                decoration-success="state == 'granted'"
                                                decoration-danger="state == 'rejected'"/>

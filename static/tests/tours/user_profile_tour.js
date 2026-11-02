@@ -196,21 +196,27 @@ registry.category("web_tour.tours").add("ems_user_profile_tabs_ordinary_user", {
             trigger: ".o_form_view:not(:has(.o_field_widget[name='email']))",
             content: "Email is hidden from Preferences",
         },
-        // Daily pending-tasks digest: on by default, and the user can turn their own off (saved
-        // with the Private Information edit below; the Python side checks the stored value).
+        // Daily summary: at the start of the working day by default, and the user chooses
+        // whether it reaches their email or their EMS inbox (Odoo's own "Notification"
+        // preference, moved into this block; saved with the Private Information edit below, the
+        // Python side checks the stored value).
         {
-            trigger: ".o_form_view .o_field_widget[name='ems_task_digest'] input:checked",
-            content: "The daily summary of pending tasks is on by default",
+            trigger: ".o_form_view .o_field_widget[name='ems_digest_moment'] select",
+            content: "The daily summary moment is offered",
+            run() {
+                if (this.anchor.value !== '"teacher_start"') {
+                    throw new Error(`Default daily summary moment: ${this.anchor.value}`);
+                }
+            },
+        },
+        {
+            trigger: ".o_form_view:not(:has(.o_field_widget[name='ems_digest_time']))",
+            content: "No time to pick for the default moment",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='notification_type'] .o_radio_item:last-child input",
+            content: "Receive notifications in the EMS inbox instead of by email",
             run: "click",
-        },
-        {
-            trigger: ".o_form_view .o_field_widget[name='ems_task_digest'] input:not(:checked)",
-            content: "The daily summary of pending tasks is turned off",
-        },
-        // The attendance issues report only concerns whoever tutors a group: not this teacher.
-        {
-            trigger: ".o_form_view:not(:has(.o_field_widget[name='ems_attendance_report_moment']))",
-            content: "The attendance issues report option is hidden from a non-tutor",
         },
         {
             trigger: ".o_form_view:not(:has(.o_field_widget[name='tz']))",
@@ -360,9 +366,9 @@ registry.category("web_tour.tours").add("ems_user_profile_tabs_administrator", {
     ],
 });
 
-// A group tutor chooses when they receive their attendance issues report
-// (models/attendance/attendance_report_schedule.py); the time only shows for "At a fixed time".
-registry.category("web_tour.tours").add("ems_user_profile_attendance_report_tutor", {
+// A group tutor chooses when they receive their daily summary, their students' attendance
+// issues included (models/shared/daily_summary.py); the time only shows for "At a fixed time".
+registry.category("web_tour.tours").add("ems_user_profile_daily_summary_tutor", {
     test: true,
     url: "/odoo",
     steps: () => [
@@ -373,16 +379,16 @@ registry.category("web_tour.tours").add("ems_user_profile_attendance_report_tuto
             run: "click",
         },
         {
-            trigger: ".o_form_view:not(:has(.o_field_widget[name='ems_attendance_report_time']))",
+            trigger: ".o_form_view:not(:has(.o_field_widget[name='ems_digest_time']))",
             content: "No time to pick for the default moment",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='ems_attendance_report_moment'] select",
-            content: "Choose to receive the report at a fixed time",
+            trigger: ".o_form_view .o_field_widget[name='ems_digest_moment'] select",
+            content: "Choose to receive the daily summary at a fixed time",
             run: "selectByLabel At a fixed time",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='ems_attendance_report_time'] input",
+            trigger: ".o_form_view .o_field_widget[name='ems_digest_time'] input",
             content: "Set the time",
             run: "edit 21:20",
         },
@@ -392,7 +398,7 @@ registry.category("web_tour.tours").add("ems_user_profile_attendance_report_tuto
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_form_saved .o_field_widget[name='ems_attendance_report_time'] input:value('21:20')",
+            trigger: ".o_form_view .o_form_saved .o_field_widget[name='ems_digest_time'] input:value('21:20')",
             content: "Saved",
         },
     ],

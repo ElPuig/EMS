@@ -96,6 +96,11 @@ class EmsConvalidation(models.Model):
                                       column1='convalidation_id', column2='attachment_id')
     line_ids = fields.One2many(string="Subjects", comodel_name='ems.convalidation.line',
                                inverse_name='convalidation_id', copy=True)
+    # Issue #644: the applicant read and accepted the attendance notice (Settings) when filing it
+    # from the portal: attendance stays compulsory until the resolution, and absences count if a
+    # subject is refused.
+    attendance_notice_accepted = fields.Boolean(string="Attendance notice accepted", readonly=True, copy=False)
+    attendance_notice_date = fields.Datetime(string="Attendance notice accepted on", readonly=True, copy=False)
     allowed_subject_ids = fields.Many2many(string="Allowed subjects", comodel_name='ems.subject',
                                            compute='_compute_allowed_subject_ids')
     # The circuit (issue #529): the Deputy Head of Studies reviews the request, which stays theirs
@@ -264,6 +269,7 @@ class EmsConvalidation(models.Model):
                     _("Subjects requested:"),
                     self.env['ems.base'].build_html_list(convalidation.line_ids.subject_id.mapped('display_name'))))
         convalidations._ems_schedule_task('ems.mail_activity_convalidation_review')
+        convalidations.line_ids.filtered(lambda line: line.attendance_choice == 'not_attend')._ems_notify_not_attending()
         return convalidations
 
     def write(self, vals):
@@ -639,6 +645,7 @@ class EmsConvalidation(models.Model):
         self._ems_check_cancellable()
         self.sudo().write({'state': 'cancelled', 'cancel_reason': reason})
         self._ems_close_tasks()
+        self.line_ids._ems_restore_attendance()
         body = _("The request has been cancelled by %s.") % self.env.user.name
         if reason:
             body = Markup("<p>{}</p><p>{}</p>").format(body, reason)
@@ -770,6 +777,7 @@ class EmsConvalidation(models.Model):
         for convalidation in self:
             convalidation._ems_send_resolution()
         granted._ems_withdraw_convalidated_subjects()
+        self.line_ids.filtered(lambda line: line.state == 'rejected')._ems_restore_attendance()
 
     def _ems_withdraw_convalidated_subjects(self):
         """The student stops taking every subject the request convalidated: their subject
@@ -784,27 +792,23 @@ class EmsConvalidation(models.Model):
         placement itself skips convalidated subjects (sale.order._ems_apply_destination_placement)."""
         Enrollment = self.env['ems.enrollment'].sudo().with_context(ems_bypass_grade_guard=True)
         for convalidation in self:
-            notices = {}
-            for line in convalidation.line_ids.filtered(lambda line: line.state == 'granted'):
-                student = line.student_id.sudo()
-                enrollments = Enrollment.search([('student_id', '=', student.id), ('subject_id', '=', line.subject_id.id)])
-                groups = enrollments.group_id or student.main_group_id
-                teachings = self.env['ems.teaching'].sudo().search([
-                    ('group_id', 'in', groups.ids), ('subject_id', '=', line.subject_id.id), ('active', '=', True)])
-                enrollments.unlink()
-                for user in (teachings.teacher_id | groups.tutor_id).user_id:
-                    notices[user] = notices.get(user, line.browse()) | line
+            lines = convalidation.line_ids.filtered(lambda line: line.state == 'granted')
+            student = convalidation.student_id.sudo()
+            staff = student._ems_teaching_staff(lines.subject_id)
+            notices = {user: lines.filtered(lambda line, subjects=subjects: line.subject_id in subjects)
+                       for user, subjects in staff.items()}
+            Enrollment.search([('student_id', '=', student.id), ('subject_id', 'in', lines.subject_id.ids)]).unlink()
             convalidation._ems_notify_teaching_staff(notices)
 
     def _ems_notify_teaching_staff(self, notices):
         """Tells each teacher of a convalidated subject and the group's tutor ({user: lines})
         which of their subjects the student no longer takes, once per request. Nothing for them
-        to do, so a notice (to their inbox or by email, as their own preference says) and not a
-        to-do. It is sent on the student, whom teachers can open (not the request, which they
-        cannot), and does not make them followers."""
+        to do and not urgent, so an informative notice that reaches them in their daily summary
+        (issue #644), not a to-do. It is about the student, whom teachers can open (not the
+        request, which they cannot)."""
         self.ensure_one()
         for user, lines in notices.items():
-            if not user.active or user.id == SUPERUSER_ID:
+            if not lines:
                 continue
             student = self.student_id.sudo().with_context(lang=user.lang or self.env.lang)
             env = student.env
@@ -816,8 +820,7 @@ class EmsConvalidation(models.Model):
                 env._("%(student)s no longer takes these subjects, convalidated by request %(number)s. They "
                       "are no longer in their attendance lists or grades:", student=student.name, number=self.name),
                 self.env['ems.base'].build_html_list(items))
-            student.message_notify(partner_ids=user.partner_id.ids, body=body,
-                                   subject=env._("Convalidated subjects: %s", student.name))
+            self.env['ems.info_notice']._ems_queue(user, student, lambda _user, body=body: body)
 
     def action_request_info(self):
         """Ask the student (or the family) for more documentation, by email and on the portal."""
@@ -933,6 +936,14 @@ class EmsConvalidationLine(models.Model):
     rejection_reason = fields.Text(string="Refusal details",
                                    help="Optional details after the reason for refusal, stated with it on "
                                         "the resolution.")
+    # Issue #644: what the applicant chose when filing it. "I won't attend" takes the student off
+    # that subject's roll-calls ("not required to attend") while the request is open; the
+    # sessions become absences if the subject is refused or the request cancelled.
+    attendance_choice = fields.Selection(string="Attendance meanwhile", required=True, default='attend', selection=[
+        ('attend', "I will attend"),
+        ('not_attend', "I won't attend"),
+    ], help="What the applicant chose when filing the request: attending the subject until the resolution, "
+            "or not (they are then not required to attend it, and the absences count if it is refused).")
 
     @api.depends('subject_id')
     def _compute_display_name(self):
@@ -968,6 +979,13 @@ class EmsConvalidationLine(models.Model):
         return lines
 
     def write(self, vals):
+        # The attendance choice is the applicant's, made when filing the request (issue #644).
+        if 'attendance_choice' in vals and not self.env.su \
+                and self.filtered(lambda line: line.attendance_choice != vals['attendance_choice']):
+            raise UserError(_("The attendance choice is the applicant's and cannot be changed once the request is submitted."))
+        if 'subject_id' in vals:
+            # The previous subject's sessions the student was taken off go back on the roll-call.
+            self.filtered(lambda line: line.subject_id.id != vals['subject_id'])._ems_restore_attendance()
         # The grade and the reason for refusing belong to the decision itself: nobody touches
         # them once the resolution exists.
         if not {'state', 'subject_id', 'grade', 'without_grade', 'rejection_reason_id',
@@ -983,6 +1001,7 @@ class EmsConvalidationLine(models.Model):
     def unlink(self):
         if self.filtered(lambda line: line.state != 'pending'):
             self._ems_check_can_decide()
+        self._ems_restore_attendance()
         pairs, courses = self._ems_grade_keys()
         res = super().unlink()
         self.browse()._ems_sync_grades(pairs, courses)
@@ -1139,3 +1158,91 @@ class EmsConvalidationLine(models.Model):
                     if subject not in year_record.subject_record_ids.subject_id:
                         year_record.subject_record_ids = [
                             (0, 0, SubjectRecord._convalidated_vals(line, year_record.study_id))]
+
+    # --- attendance while the request is open (issue #644) --------------------------------------
+
+    def _ems_staff_notice(self, compose):
+        """Queues an informative notice per student of these lines for whoever teaches them the
+        lines' subjects (and their tutor): `compose(student, lines)` writes it, the student in the
+        recipient's language."""
+        for student in self.student_id:
+            lines = self.filtered(lambda line, student=student: line.student_id == student)
+            student._ems_queue_staff_notice(
+                lambda student_env, subjects, lines=lines: compose(
+                    student_env, lines.filtered(lambda line: line.subject_id in subjects)),
+                subjects=lines.subject_id)
+
+    def _ems_notify_not_attending(self):
+        """The applicant won't attend these subjects meanwhile: their teachers and tutor are told,
+        in their daily summary, that the student won't be in those roll-calls."""
+        lines = self.filtered(lambda line: line.attendance_choice == 'not_attend'
+                              and line.student_id.contact_type == 'student')
+        lines._ems_staff_notice(lambda student, lines: Markup("<p>{}</p>{}").format(
+            student.env._("%(student)s has asked to convalidate these subjects and won't attend them while the request "
+                          "is processed: they appear in your roll-calls as not required to attend.",
+                          student=student.name),
+            self.env['ems.base'].build_html_list(lines.subject_id.with_env(student.env).mapped('display_name'))))
+
+    def _ems_restore_attendance(self):
+        """These subjects won't be convalidated (refused, request cancelled, subject removed from
+        it): the sessions the student was taken off for them become absences, without notifying the
+        family, and their teachers and tutor are told."""
+        lines = self.filtered(lambda line: line.attendance_choice == 'not_attend')
+        for student in lines.student_id:
+            student.sudo()._ems_restore_not_expected_lines([
+                ('convalidation_line_id', 'in', lines.filtered(lambda line, student=student: line.student_id == student).ids)])
+        # An applicant has no roll-call yet: nobody to tell.
+        lines.filtered(lambda line: line.student_id.contact_type == 'student')._ems_staff_notice(
+            lambda student, lines: Markup("<p>{}</p>{}").format(
+                student.env._("%(student)s's request no longer covers these subjects (refused or cancelled): they appear "
+                              "in your roll-calls again, and the sessions they were not required to attend count as "
+                              "absences.", student=student.name),
+                self.env['ems.base'].build_html_list(lines.subject_id.with_env(student.env).mapped('display_name'))))
+
+
+class EmsConvalidationAttendancePartner(models.Model):
+    """Issue #644: a subject the student asked to convalidate and chose not to attend meanwhile
+    leaves them off its roll-calls while the request is open."""
+    _inherit = 'res.partner'
+
+    @api.model
+    def _ems_not_expected_reasons(self, students, subject, start):
+        reasons = super()._ems_not_expected_reasons(students, subject, start)
+        pending = students.filtered(lambda student: student.id not in reasons)
+        if not pending or not subject:
+            return reasons
+        lines = self.env['ems.convalidation.line'].sudo().search([
+            ('student_id', 'in', pending.ids), ('subject_id', '=', subject.id),
+            ('attendance_choice', '=', 'not_attend'),
+            ('convalidation_id.state', 'not in', CLOSED_STATES),
+            ('convalidation_id.create_date', '<=', start),
+        ])
+        for line in lines:
+            reasons[line.student_id.id] = {
+                'active': False, 'not_expected_reason': 'convalidation', 'convalidation_line_id': line.id}
+        return reasons
+
+    @api.depends('withdrawal_expected', 'enrollment_ids.subject_id')
+    def _compute_not_expected_schedule(self):
+        super()._compute_not_expected_schedule()
+        open_lines = self.env['ems.convalidation.line'].sudo().search([
+            ('student_id', 'in', self.filtered(lambda partner: not partner.withdrawal_expected).ids),
+            ('attendance_choice', '=', 'not_attend'),
+            ('convalidation_id.state', 'not in', CLOSED_STATES),
+        ])
+        for partner in self:
+            subjects = open_lines.filtered(lambda line, partner=partner: line.student_id == partner).subject_id
+            if subjects and not partner.withdrawal_expected:
+                partner.not_expected_subject_ids = subjects
+                partner.not_expected_legend = _("Convalidation in process: not required to attend while it is resolved.")
+
+
+class EmsConvalidationAttendanceLine(models.Model):
+    _inherit = 'ems.attendance_session_line'
+
+    not_expected_reason = fields.Selection(selection_add=[('convalidation', 'Convalidation in process')],
+                                           ondelete={'convalidation': 'set null'})
+    # The request line the student was taken off the roll-call for, so refusing that subject only
+    # restores its own sessions.
+    convalidation_line_id = fields.Many2one(string="Convalidation request subject", comodel_name='ems.convalidation.line',
+                                            ondelete='set null', index='btree_not_null', copy=False)

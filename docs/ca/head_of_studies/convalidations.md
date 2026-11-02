@@ -60,7 +60,7 @@ Cada pas genera una tasca a la safata d'activitats (🕒) de qui l'ha de fer:
 - Cada sol·licitud nova, o retornada per Direcció, a qui ocupa el càrrec de **Cap d'Estudis Adjunt/a**. Mentre una sol·licitud espera la documentació del sol·licitant, la tasca surt de la safata, i hi torna quan arriba la documentació.
 - Cada proposta, a qui ocupa el càrrec de **Director/a**.
 
-Crear una tasca no envia cap correu. En canvi, cada dia laborable, a l'inici de la teva jornada, reps un únic correu amb tot el que tens pendent a la safata: vegeu [Resum diari de tasques pendents](../teachers/task-digest.md).
+Crear una tasca no envia cap correu: la trobaràs al teu resum diari, amb tot el que tens pendent a la safata (vegeu [Resum diari](../teachers/daily-summary.md)).
 
 ---
 
@@ -172,7 +172,8 @@ Secretaria registra la resolució a l'Esfera (vegeu [Convalidacions: registrar l
 
 - La sol·licitud queda **Completada** (si hi ha algun mòdul convalidat) o **Rebutjada**.
 - L'alumne rep la resolució per correu, amb el PDF adjunt. També la rep la família si és menor d'edat o si l'alumne ha autoritzat compartir la informació amb ella.
-- Les notes arriben a les qualificacions: l'alumne deixa de cursar cada mòdul convalidat, el professorat del mòdul i el tutor en reben l'avís, i l'històric acadèmic el recull com a aprovat amb la nota, la marca **CV** i el número de registre.
+- Les notes arriben a les qualificacions: l'alumne deixa de cursar cada mòdul convalidat, el professorat del mòdul i el tutor en reben l'avís al seu [resum diari](../teachers/daily-summary.md), i l'històric acadèmic el recull com a aprovat amb la nota, la marca **CV** i el número de registre.
+- Si l'alumne havia triat **no assistir** a un mòdul mentre es resolia (columna **Assistència mentrestant** de la pestanya **Assignatures**), fins ara no se l'esperava a les seves classes. Si el mòdul es denega, aquestes classes passen a ser faltes, sense avisar la família, i el professorat i el tutor en reben l'avís. Denegar-lo durant la revisió no hi canvia res fins que Secretaria registra la resolució: la decisió no és definitiva fins aleshores.
 
 ---
 
@@ -180,7 +181,7 @@ Secretaria registra la resolució a l'Esfera (vegeu [Convalidacions: registrar l
 
 1. Fes clic a **Nou**.
 2. Tria l'**Estudiant**, l'**Estudi**, el **Curs** i el **Motiu** (per a estudis previs, també **Estudis superats**: en aquest centre o en un altre), i escriu-hi les observacions del sol·licitant si n'hi ha. A diferència del portal, una sol·licitud registrada aquí es pot desar sense documentació justificativa, per demanar-la després.
-3. A la pestanya **Assignatures**, fes clic a **Afegir una línia** i tria cada mòdul.
+3. A la pestanya **Assignatures**, fes clic a **Afegir una línia** i tria cada mòdul i, a **Assistència mentrestant**, el que hagi triat l'alumne per a la resta del procés (per defecte, **Hi assistiré**).
 4. A la pestanya **Documentació justificativa**, puja els documents.
 5. Fes clic a **Desa**.
 
@@ -192,7 +193,7 @@ Pots registrar una sol·licitud, i tramitar-ne qualsevol, en qualsevol moment: e
 
 ## Anul·lar i reobrir
 
-- **Anul·la la sol·licitud** està disponible mentre la sol·licitud és **Pendent**, o **Pendent de documentació** si no s'ha tramitat amb el Ministeri. Un diàleg et demana el **Motiu**, que és obligatori: queda a la sol·licitud, i l'alumne o la família el veuen al portal i a les seves comunicacions.
+- **Anul·la la sol·licitud** està disponible mentre la sol·licitud és **Pendent**, o **Pendent de documentació** si no s'ha tramitat amb el Ministeri. Un diàleg et demana el **Motiu**, que és obligatori: queda a la sol·licitud, i l'alumne o la família el veuen al portal i a les seves comunicacions. Les classes dels mòduls a què l'alumne havia triat no assistir passen a ser faltes.
 - **Reobrir** torna una sol·licitud anul·lada a **Pendent** i n'esborra el motiu.
 
 ---

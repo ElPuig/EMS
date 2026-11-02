@@ -4,52 +4,50 @@
 
 # Informe de incidencias de asistencia de tus alumnos
 
-Esta guía explica el correo que el EMS te envía, como tutor/a de grupo, con las incidencias de asistencia de tus alumnos (faltas, retrasos...) y cómo elegir cuándo lo recibes.
+Esta guía explica cómo te llegan, como tutor/a de grupo, las incidencias de asistencia de tus alumnos (faltas, retrasos...) y cómo elegir cuándo.
 
-**Rol necesario:** tutor/a de grupo (solo se muestra a los docentes que tutorizan un grupo)
+**Rol necesario:** tutor/a de grupo
 
 ---
 
 ## Contenido
 
-1. [Qué contiene](#qué-contiene)
-2. [Elegir cuándo lo recibes](#elegir-cuándo-lo-recibes)
-3. [Qué opción elegir](#qué-opción-elegir)
+1. [Dónde llegan](#dónde-llegan)
+2. [Qué aparece](#qué-aparece)
+3. [Elegir cuándo](#elegir-cuándo)
 
 ---
 
-## Qué contiene
+## Dónde llegan
 
-Cada vez que un docente registra en un pase de lista una incidencia de asistencia de uno de tus alumnos (una falta, un retraso, etc.), el EMS la guarda para tu informe. El correo las lista **por día y por alumno**: materia, hora y estado, y las notas del docente si las hay. Una incidencia corregida después (por ejemplo, una falta que era un retraso) aparece tachada, con la corrección a continuación.
+Las incidencias de tus alumnos son el apartado **Incidencias de asistencia de tus alumnos** de tu [resumen diario](../teachers/daily-summary.md), el mismo mensaje que trae tus tareas pendientes y los avisos para tu información.
 
-**Cada informe incluye todas las incidencias registradas desde el anterior.** No se pierde nada elijas el momento que elijas: si un docente pasa lista tarde, cuando tu informe ya ha salido, esa incidencia llega en el siguiente.
-
-Si no hay nada nuevo, no recibes ningún correo.
+> **Desde la versión 18.0.0.44.0:** el informe de incidencias ya no es un correo aparte; si no habías cambiado el momento por defecto (al acabar tu jornada), ahora te llega al inicio de la jornada, con el resumen diario.
 
 ---
 
-## Elegir cuándo lo recibes
+## Qué aparece
 
-1. Haz clic en tu avatar, arriba a la derecha del EMS, y elige **Mi perfil**.
-2. Abre la pestaña **Preferencias**.
-3. En **Notificaciones**, elige una opción en **Informe de incidencias de asistencia**.
-4. Si eliges **A una hora concreta**, indica la hora en **Hora del informe de incidencias de asistencia**.
-5. Guarda.
+Cada vez que un docente registra en un pase de lista una incidencia de asistencia de uno de tus alumnos (una falta, un retraso, etc.), EMS la guarda para tu resumen. El apartado las lista **por día y por alumno**: materia, hora y estado, y las notas del docente si las hay. Una incidencia corregida después (por ejemplo, una falta que era un retraso) aparece tachada, con la corrección a continuación.
 
-El cambio también se aplica al informe que tengas pendiente en ese momento.
+**Cada resumen incluye todas las incidencias registradas desde el anterior.** No se pierde nada elijas el momento que elijas: si un docente pasa lista tarde, cuando tu resumen ya ha salido, esa incidencia llega en el siguiente.
+
+Las faltas que aparecen al revertir una [baja prevista](withdrawal-expected.md) o al denegarse un módulo que el alumno había elegido no cursar mientras se resolvía la convalidación solo te llegan a ti, no a la familia.
 
 ---
 
-## Qué opción elegir
+## Elegir cuándo
 
-| Opción | Cuándo llega | Te conviene si... |
-|--------|--------------|-------------------|
-| **Cuando acaba mi jornada** (por defecto) | Cuando acaba tu jornada, según tu horario. | Quieres leerlo antes de irte. Si tus alumnos aún tienen clase después, esas incidencias llegan en el siguiente informe. |
-| **Cuando acaba la jornada de mis alumnos** | Cuando acaba la última clase del día de cualquiera de tus alumnos, según el horario de cada alumno (también cuenta una materia cursada en otro grupo). | Quieres todo el día en un solo correo, lo antes posible. |
-| **Cuando empieza mi siguiente jornada** | Cuando empieza tu siguiente jornada, según tu horario. | Prefieres revisarlo al llegar, con el día anterior completo. |
-| **A una hora concreta** | A la hora que elijas, cada día lectivo. | Tienes tu propia rutina (por ejemplo, las 21:20). |
+El momento es el de tu resumen diario: **Mi perfil** > pestaña **Preferencias** > grupo **Resumen diario**. Consulta [Elegir cuándo y cómo lo recibes](../teachers/daily-summary.md#elegir-cuándo-y-cómo-lo-recibes).
 
-Si un día el EMS no puede determinar el momento elegido (por ejemplo, no tienes horario o estás de baja durante mucho tiempo), el informe llega al acabar la jornada del centro.
+| Opción | Te va bien si... |
+|--------|------------------|
+| **Cuando empieza mi jornada** (por defecto) | Prefieres revisarlo al llegar, con el día anterior completo. |
+| **Cuando acaba mi jornada** | Quieres leerlo antes de irte. Si tus alumnos aún tienen clase después, esas incidencias llegan en el resumen siguiente. |
+| **Cuando acaban las clases de mis alumnos (tutores)** | Quieres todo el día en un solo mensaje, lo antes posible (también cuenta una materia cursada en otro grupo). |
+| **A una hora concreta** | Tienes tu propia rutina (por ejemplo, las 21:20). |
+
+Las incidencias no esperan a que vuelvas: si un día no trabajas, o EMS no puede determinar el momento elegido (por ejemplo, estás de baja durante mucho tiempo), llegan al acabar la jornada del centro.
 
 ---
 

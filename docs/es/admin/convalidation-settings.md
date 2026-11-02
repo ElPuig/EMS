@@ -41,6 +41,14 @@ La configuración no acepta un día que no exista en su mes (tampoco el 29 de fe
 
 ---
 
+## Aviso sobre la asistencia
+
+Cuando el alumnado o las familias solicitan una convalidación desde el portal, deben leer y aceptar un aviso sobre la asistencia y elegir, para cada módulo, si asistirán hasta la resolución. Si no asisten y el módulo no se convalida, esas clases cuentan como faltas (consulta [Convalidaciones en el portal](../families/manual-convalidacions.md#la-asistencia-mientras-se-resuelve)).
+
+El texto del aviso se configura en **Solicitud: aviso sobre la asistencia**. Explica qué dicen las normas de organización y funcionamiento del centro (NOFC) sobre las faltas si se deniega un módulo. Escríbelo en cada idioma que leen las familias: el texto se guarda por idioma, como cualquier campo traducible (cambia el idioma de tu usuario para escribirlo en otro). Si lo dejas vacío, se usa un texto estándar que recuerda que la asistencia es obligatoria hasta la resolución y que se puede perder el derecho a la evaluación continua.
+
+---
+
 ## Textos de la resolución
 
 La resolución que emite la dirección se genera siempre en catalán. Tres parámetros permiten ajustar su contenido:

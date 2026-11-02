@@ -470,7 +470,7 @@ class TestAttendanceCorrection(TransactionCase):
 
     def test_no_assignment_email_on_create(self):
         """Not urgent: the approver learns of it from the task itself and the daily digest
-        (models/shared/task_digest.py), not from Odoo's "X assigned you an activity" email."""
+        (models/shared/daily_summary.py), not from Odoo's "X assigned you an activity" email."""
         correction = self._create_correction(self.teacher_user)
         notices = self.env['mail.message'].search([
             ('model', '=', 'ems.attendance_correction'),

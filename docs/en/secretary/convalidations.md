@@ -47,7 +47,8 @@ When you register it:
 - The request becomes **Completed** if any module is convalidated, or **Rejected** if none is.
 - The student receives an email with the resolution and the PDF attached. So does the family if the student is a minor or has authorized sharing information with it.
 - The student stops taking each convalidated module: their module enrollment is deleted, so they leave its attendance lists and its open grade session, even if the teacher had already graded them.
-- The module's teachers and the group's tutor get a notice (in Odoo's inbox or by email, as each one's preferences say) listing the convalidated modules. Nothing for them to do: it is not a task.
+- The module's teachers and the group's tutor get a notice in their [daily summary](../teachers/daily-summary.md) listing the convalidated modules. Nothing for them to do: it is not a task.
+- If the student had chosen **not to attend** a module while it was resolved and the module was refused, the classes they weren't required to attend become absences (without notifying the family), and the module's teachers and the tutor are told.
 - The academic history records the module as passed, with the grade, the **CV** mark and the registration number.
 
 ---
@@ -56,7 +57,7 @@ When you register it:
 
 1. Click **New**.
 2. Choose the **Student**, **Study**, **Course** and **Grounds** (for prior studies, also **Studies passed**: at this centre or elsewhere), and write the applicant's comments if there are any. Unlike on the portal, a request registered here can be saved without supporting documents, to ask for them afterwards.
-3. On the **Subjects** tab, add one line for each module requested.
+3. On the **Subjects** tab, add one line for each module requested and, in **Attendance meanwhile**, say whether the student will attend it until the resolution (by default, **I will attend**). It can't be changed once the line is saved.
 4. On the **Supporting documents** tab, upload the documents.
 5. Click **Save**.
 
@@ -68,7 +69,7 @@ You can register a request, and process any request, at any time: the portal's r
 
 ## Cancelling a request
 
-While a request is **Pending**, or **Pending documentation** if it has not been filed with the Ministry, you can cancel it from **Actions > Cancel request**. A dialog asks for the **Reason**, which is required: the student or the family see it on the portal and in their communications.
+While a request is **Pending**, or **Pending documentation** if it has not been filed with the Ministry, you can cancel it from **Actions > Cancel request**. A dialog asks for the **Reason**, which is required: the student or the family see it on the portal and in their communications. The classes of the modules the student had chosen not to attend become absences.
 
 ---
 

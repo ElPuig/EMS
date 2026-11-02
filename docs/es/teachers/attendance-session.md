@@ -125,6 +125,21 @@ fuera de los informes y de los porcentajes de asistencia, y no se avisa a la fam
   el alumno vuelve a la lista con el estado que tenía.
 - No se puede quitar a un alumno que ha recibido un strike en esa sesión: estaba en clase.
 
+### Alumnos que EMS quita solo
+
+Un alumno también puede salir ya fuera de la lista cuando empiezas la sesión, con el motivo bajo el
+nombre (en la captura de "Marcar la asistencia", la fila de *Laia Exemple*):
+
+- **No tiene que asistir: baja prevista**: su tutor/a ha marcado que dejará el centro mientras se
+  tramita la baja (consulta [Baja prevista de un alumno](../tutors/withdrawal-expected.md)).
+- **No tiene que asistir: convalidación en trámite**: ha solicitado convalidar este módulo y ha
+  elegido no asistir mientras se resuelve.
+
+Tampoco cuentan ni como asistencia ni como falta. Si el alumno se presenta igualmente, haz clic en
+el icono de restaurar y márcalo como a cualquier otro. Si la baja prevista se revierte, o el módulo
+no se convalida, esas sesiones pasan a ser faltas. Recibirás un aviso de ambos casos en tu
+[resumen diario](daily-summary.md).
+
 ---
 
 ## Modo guardia

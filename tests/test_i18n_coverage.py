@@ -64,15 +64,19 @@ class TestI18nCoverage(TransactionCase):
     translatable; without its .po entry it shows in English to everyone (issue #557)."""
 
     def _assert_strings_translated(self, strings, marker):
+        # Besides the marker, the block needs a 'code:' reference: Odoo loads a code translation
+        # from its references (TranslationFileReader gives a row the 'code' type per 'code:'
+        # occurrence), so a block holding only field references never translates the message
+        # at runtime (issue #644: the "Expected withdrawal" ribbon stayed in English).
         for lang in LANGUAGES:
             blocks = _po_blocks(lang)
             missing = sorted({
                 f'{path}:{line}: {text!r}' for path, line, text in strings
-                if marker not in blocks.get(text, '')
+                if marker not in blocks.get(text, '') or 'code:' not in blocks.get(text, '')
             })
             with self.subTest(lang=lang):
                 self.assertFalse(missing, f"Not translated in i18n/{lang}.po (or its block lacks "
-                                          f"'#. {marker}'):\n" + '\n'.join(missing))
+                                          f"'#. {marker}' or a 'code:' reference):\n" + '\n'.join(missing))
 
     def test_python_messages_are_translated(self):
         # A Python string only loads at runtime if its block carries '#. odoo-python'

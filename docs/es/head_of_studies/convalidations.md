@@ -60,7 +60,7 @@ Cada paso genera una tarea en la bandeja de actividades (🕒) de quien tiene qu
 - Cada solicitud nueva, o devuelta por Dirección, a quien ocupa el cargo de **Jefe/a de Estudios Adjunto/a**. Mientras una solicitud espera la documentación del solicitante, la tarea sale de la bandeja, y vuelve cuando llega la documentación.
 - Cada propuesta, a quien ocupa el cargo de **Director/a**.
 
-Crear una tarea no envía ningún correo. En su lugar, cada día laborable, al inicio de tu jornada, recibes un único correo con todo lo que tienes pendiente en la bandeja: consulta [Resumen diario de tareas pendientes](../teachers/task-digest.md).
+Crear una tarea no envía ningún correo: la encontrarás en tu resumen diario, con todo lo que tienes pendiente en la bandeja (consulta [Resumen diario](../teachers/daily-summary.md)).
 
 ---
 
@@ -172,7 +172,8 @@ Secretaría registra la resolución en Esfera (ver [Convalidaciones: registrar l
 
 - La solicitud queda **Completada** (si hay algún módulo convalidado) o **Rechazada**.
 - El alumno recibe la resolución por correo, con el PDF adjunto. También la recibe la familia si es menor de edad o si el alumno ha autorizado compartir la información con ella.
-- Las notas llegan a las calificaciones: el alumno deja de cursar cada módulo convalidado, el profesorado del módulo y el tutor reciben el aviso, y el historial académico lo recoge como aprobado con la nota, la marca **CV** y el número de registro.
+- Las notas llegan a las calificaciones: el alumno deja de cursar cada módulo convalidado, el profesorado del módulo y el tutor reciben el aviso en su [resumen diario](../teachers/daily-summary.md), y el historial académico lo recoge como aprobado con la nota, la marca **CV** y el número de registro.
+- Si el alumno había elegido **no asistir** a un módulo mientras se resolvía (columna **Asistencia mientras tanto** de la pestaña **Asignaturas**), hasta ahora no se le esperaba en sus clases. Si el módulo se deniega, esas clases pasan a ser faltas, sin avisar a la familia, y el profesorado y el tutor reciben el aviso. Denegarlo durante la revisión no cambia nada hasta que Secretaría registra la resolución: la decisión no es definitiva hasta entonces.
 
 ---
 
@@ -180,7 +181,7 @@ Secretaría registra la resolución en Esfera (ver [Convalidaciones: registrar l
 
 1. Haz clic en **Nuevo**.
 2. Elige el **Estudiante**, el **Estudio**, el **Curso** y el **Motivo** (para estudios previos, también **Estudios superados**: en este centro o en otro), y escribe las observaciones del solicitante si las hay. A diferencia del portal, una solicitud registrada aquí se puede guardar sin documentación justificativa, para pedirla después.
-3. En la pestaña **Asignaturas**, haz clic en **Agregar una línea** y elige cada módulo.
+3. En la pestaña **Asignaturas**, haz clic en **Agregar una línea** y elige cada módulo y, en **Asistencia mientras tanto**, lo que haya elegido el alumno para el resto del proceso (por defecto, **Asistiré**).
 4. En la pestaña **Documentación justificativa**, sube los documentos.
 5. Haz clic en **Guardar**.
 
@@ -192,7 +193,7 @@ Puedes registrar una solicitud, y tramitar cualquiera, en cualquier momento: el 
 
 ## Anular y reabrir
 
-- **Anular la solicitud** está disponible mientras la solicitud está **Pendiente**, o **Pendiente de documentación** si no se ha tramitado con el Ministerio. Un diálogo te pide el **Motivo**, que es obligatorio: queda en la solicitud, y el alumno o la familia lo ven en el portal y en sus comunicaciones.
+- **Anular la solicitud** está disponible mientras la solicitud está **Pendiente**, o **Pendiente de documentación** si no se ha tramitado con el Ministerio. Un diálogo te pide el **Motivo**, que es obligatorio: queda en la solicitud, y el alumno o la familia lo ven en el portal y en sus comunicaciones. Las clases de los módulos a los que el alumno había elegido no asistir pasan a ser faltas.
 - **Reabrir** devuelve una solicitud anulada a **Pendiente** y borra el motivo.
 
 ---

@@ -44,11 +44,12 @@ Les sol·licituds ja presentades no es veuen afectades: les pots continuar consu
 
 ## Fer una sol·licitud
 
-1. Fes clic a **Nova sol·licitud de convalidació** per obrir el formulari, i marca els mòduls que vols convalidar.
+1. Fes clic a **Nova sol·licitud de convalidació** per obrir el formulari, i marca els mòduls que vols convalidar. Per a cada mòdul marcat, tria si **hi assistiràs** o **no hi assistiràs** fins a la resolució (vegeu [L'assistència mentre es resol](#lassistència-mentre-es-resol)).
 2. Tria el **Motiu**. Per a estudis previs, indica també **on els vas superar**: en aquest centre, o en un altre centre o a la universitat.
 3. A **Documentació justificativa**, adjunta els documents que calguin. Pots seleccionar diversos fitxers alhora. Són obligatoris, excepte per a estudis superats en aquest centre: sense ells no es pot enviar la sol·licitud. Just a sobre del camp de fitxers, el formulari t'indica quins documents has d'adjuntar segons el motiu triat (i, per a estudis previs, on els vas superar).
 4. Si vols, escriu-hi observacions.
-5. Fes clic a **Envia la sol·licitud**.
+5. Llegeix l'avís sobre l'assistència i marca **He llegit aquest avís i l'accepto**: sense això no es pot enviar.
+6. Fes clic a **Envia la sol·licitud**.
 
 ![Formulari de nova sol·licitud de convalidació](../../assets/families/convalidations-portal-new.png)
 
@@ -64,6 +65,19 @@ Les sol·licituds ja presentades no es veuen afectades: les pots continuar consu
 Si cal alguna cosa més, el centre t'ho demanarà i ho podràs adjuntar des d'aquesta mateixa pàgina.
 
 Un missatge confirma que la sol·licitud s'ha enviat. Els mòduls ja sol·licitats deixen d'aparèixer al formulari, llevat que el seu rebuig ja s'hagi registrat.
+
+---
+
+## L'assistència mentre es resol
+
+**L'assistència és obligatòria fins que es resolgui la sol·licitud.** Per a cada mòdul que demanes convalidar pots triar:
+
+- **Hi assistiré fins a la resolució** (l'opció per defecte): continues anant a classe com sempre.
+- **No hi assistiré fins a la resolució**: mentre la sol·licitud es tramita, no se t'espera a les classes d'aquest mòdul i no hi tens faltes.
+
+Tingues en compte que, si el mòdul **no es convalida** (o la sol·licitud s'anul·la), les classes a què no hagis anat **compten com a faltes** i podries perdre el dret a l'avaluació contínua. El text de l'avís, que pots llegir al formulari, explica què diuen les normes del centre (NOFC) i la programació del mòdul.
+
+L'elecció no es pot canviar després d'enviar la sol·licitud. A la sol·licitud enviada, els mòduls a què has triat no assistir mostren **No hi assisteix fins a la resolució**.
 
 ---
 

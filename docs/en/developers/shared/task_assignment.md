@@ -19,7 +19,7 @@ Recipients are now an explicit list per activity type, editable at
 **Academic Management → Configuration → Enrollment → Task Assignment**.
 
 Assigning a task sends no email; each recipient is reminded of everything still pending in a
-single morning email instead, see [Daily pending-tasks digest](task_digest.md).
+single daily summary instead, at the moment they chose, see [Daily summary](daily_summary.md).
 
 **Module files:** `models/shared/mail_activity_type.py`,
 `data/main/ems.mail_activity_type_task_assignment.xml`,

@@ -12,7 +12,7 @@ Crea y publica una convocatoria Erasmus+, revisa las solicitudes que el alumnado
 
 ## 1. Crear la convocatoria
 
-Ve a **Erasmus+ > Convocatorias** y haz clic en **Nuevo**:
+Ve a **Erasmus+ > Convocatorias > Convocatorias** y haz clic en **Nuevo**:
 
 | Campo | Qué hay que poner |
 |---|---|
@@ -44,7 +44,7 @@ En **Acciones**, haz clic en **Publicar**. La convocatoria aparece en el portal 
 
 ## 3. Revisar las solicitudes
 
-Ve a **Erasmus+ > Solicitudes** (o al botón **Solicitudes** de la convocatoria). Filtros: *Por revisar*, *Subsanación requerida*, *Admitida*, *Excluida*.
+Ve a **Erasmus+ > Convocatorias > Solicitudes** (o al botón **Solicitudes** de la convocatoria). Filtros: *Por revisar*, *Subsanación requerida*, *Admitida*, *Excluida*.
 
 Abre una solicitud:
 

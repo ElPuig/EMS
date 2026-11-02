@@ -12,7 +12,7 @@ Solicita unas prácticas Erasmus+ en el extranjero y sigue tu solicitud desde el
 
 ## 1. Abrir la página Erasmus+
 
-En el portal, haz clic en la tarjeta **Erasmus+**. Solo aparece cuando hay una convocatoria a la que puedes presentarte o cuando ya has presentado una solicitud.
+En el portal, haz clic en la tarjeta **Erasmus+** o en **Erasmus+** en el menú de arriba. Las dos solo aparecen cuando hay una convocatoria a la que puedes presentarte o cuando ya has presentado una solicitud.
 
 Cada convocatoria muestra las fechas y un enlace para **Leer la convocatoria**. Léela antes de solicitar: encontrarás los requisitos, los documentos y cómo se adjudican las plazas.
 
@@ -22,7 +22,6 @@ Si este curso acumulas 3 amonestaciones o más, no puedes presentarte (artículo
 
 Haz clic en **Solicitar** y rellena el formulario:
 
-- Si ya has participado en una movilidad Erasmus+, y en cuál.
 - Tu disponibilidad para los periodos de la convocatoria.
 - Si puedes acreditar una situación de menos oportunidades. La documentación es confidencial: solo la ve el equipo Erasmus.
 - Si consientes el uso de tu imagen (voluntario).

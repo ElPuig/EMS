@@ -322,16 +322,6 @@
 
                     <fieldset t-else="" t-att-disabled="None if editable else 'disabled'" class="card shadow-sm mb-4">
                         <div class="card-body">
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" name="previous_mobility" id="previous_mobility"
-                                       t-att-checked="application.previous_mobility or None"/>
-                                <label class="form-check-label" for="previous_mobility">I have already taken part in an Erasmus+ mobility</label>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label" for="previous_mobility_details">If so, which one and when</label>
-                                <textarea class="form-control" name="previous_mobility_details" id="previous_mobility_details" rows="2"
-                                          t-esc="application.previous_mobility_details or ''"/>
-                            </div>
                             <div class="mb-3">
                                 <label class="form-label" for="availability">Availability for the periods of the call</label>
                                 <textarea class="form-control" name="availability" id="availability" rows="2"

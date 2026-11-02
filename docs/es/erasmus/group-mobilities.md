@@ -12,7 +12,7 @@ Las movilidades de grupo (KA121-VET) son estancias de un grupo de alumnos de uno
 
 ## Crear una movilidad de grupo
 
-1. Ve a **Erasmus+ > Movilidades de grupo** y haz clic en **Nuevo**.
+1. Ve a **Erasmus+ > Movilidades > Movilidades de grupo** y haz clic en **Nuevo**.
 2. Rellena el nombre (p. ej. *SMX2 mañana*), el **proyecto** KA121-VET, el **turno** (solo sirve para encontrar los grupos) y los **grupos que pueden inscribirse** (los grupos reales del centro, p. ej. SMX2A y SMX2B).
 3. Indica las plazas de alumnado (8 por defecto), los docentes acompañantes (2), el **docente responsable** y el otro docente acompañante.
 4. En la pestaña **Inscripción**, pon el periodo de inscripción, revisa los **criterios de selección** (se publican en el portal) y, si hace falta, la información para el alumnado.

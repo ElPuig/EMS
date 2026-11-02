@@ -14,7 +14,7 @@ The staff call works like the students' one (see [Calls and applications](calls-
 
 ## 1. Open the call
 
-In **Erasmus+ > Calls**, create the call, set **Applicants** to *Staff*, fill in the dates, attach the published call and publish it. That's all:
+In **Erasmus+ > Calls > Calls**, create the call, set **Applicants** to *Staff*, fill in the dates, attach the published call and publish it. That's all:
 
 - The **documents** of art. 8 are added on their own: identity document, Europass CV in English and, optional, the language certificates. The **mobility and transfer plan** is not a document: the applicants write it in the form (annex 1), and it is the only part of the application the panel sees. You can change them before publishing.
 - There is no **Minimum score**: the staff call has none, so EMS sets it to 0 and hides it.
@@ -42,7 +42,7 @@ Review the documents and admit or exclude as in the students' call (conduct warn
 
 Fill in the **Panel** tab of the call: the people who rate the mobility plans (the management and the heads and seminar chiefs of the departments). Then, after **Close applications**, click **Actions > Send plans to the panel**. Every member gets a task to rate every plan from **Erasmus+ > My plan ratings**, due on the **Score correction deadline** (the button asks for it if it is empty; if you change it later, the open tasks follow it). You can click it again after admitting more applications: it only creates the ratings still missing.
 
-**Abstentions:** a panel member who is a candidate in the call does not rate (art. 10): their ratings are created as abstentions, with the reason *Candidate in this call*. For another conflict of interest, open the rating in **Erasmus+ > Plan ratings** and write the **Abstention reason**. There are no substitutes: the plan score (criterion 1) is the mean of the members who rate it. **A pending rating blocks it** until it is submitted.
+**Abstentions:** a panel member who is a candidate in the call does not rate (art. 10): their ratings are created as abstentions, with the reason *Candidate in this call*. For another conflict of interest, open the rating in **Erasmus+ > Calls > Plan ratings** and write the **Abstention reason**. There are no substitutes: the plan score (criterion 1) is the mean of the members who rate it. **A pending rating blocks it** until it is submitted.
 
 **The Direction sees no points while the panel rates:** the Head of Studies and the Director can open the staff applications, but until every plan of the call is rated they see the plan score, the criteria and the total at 0, also when they are in the panel. This way no member sees the others' mean before rating. Once the last rating is submitted, they see everything.
 

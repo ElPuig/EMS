@@ -55,7 +55,7 @@ States of the mobility: `draft` → `enrolment` → `selection` → `validation`
 
 ## Enrolment (issue #701)
 
-- The coordinator creates the mobility (*Erasmus+ > Group mobilities*), fills in the groups, the
+- The coordinator creates the mobility (*Erasmus+ > Mobilities > Group mobilities*), fills in the groups, the
   enrolment period and the selection criteria (a default text with the agreed rule), and opens the
   enrolment (`action_open_enrolment`, which refuses without groups, period or criteria). Dates
   and destination may stay empty until they are confirmed.
@@ -272,7 +272,7 @@ Group mobilities are part of the Erasmus+ document records ([records.md](records
 
 ## Coordinator overview
 
-*Erasmus+ > Group mobilities*: kanban by state and list, with the groups, leader, destination,
+*Erasmus+ > Mobilities > Group mobilities*: kanban by state and list, with the groups, leader, destination,
 enrolled and selected students, documents missing and to review, a tie to resolve, the EU Survey
 state and the late tasks (Odoo activities). Each card opens the mobility's panel.
 

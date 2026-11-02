@@ -167,3 +167,20 @@ registry.category("web_tour.tours").add("ems_erasmus_portal_choose", {
         },
     ],
 });
+
+// The issue-#682 review: any teacher sees a student's Erasmus+ participations under the academic
+// history, without access to the Erasmus+ app.
+registry.category("web_tour.tours").add("ems_erasmus_history_teacher", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_notebook a[name='studies']",
+            content: "Open the Studies tab of the student",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='erasmus_history_ids'] .o_data_row td[name='name']:contains('Test Erasmus Call')",
+            content: "The accepted Erasmus+ place is in the student's history",
+        },
+    ],
+});

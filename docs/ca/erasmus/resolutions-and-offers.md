@@ -32,7 +32,7 @@ Cadascuna necessita l'anterior publicada. Una resolució publicada no es pot mod
 
 ## 3. Preparar i publicar una resolució
 
-1. A la convocatòria, obre la pestanya **Resolucions** (o **Erasmus+ > Resolucions**) i afegeix-ne una de nova: tria'n el **Tipus**.
+1. A la convocatòria, obre la pestanya **Resolucions** (o **Erasmus+ > Convocatòries > Resolucions**) i afegeix-ne una de nova: tria'n el **Tipus**.
 2. Fes clic a **Accions > Prepara les línies**. EMS congela la llista tal com estan ara les sol·licituds. Si falta alguna cosa (una sol·licitud sense decidir, una puntuació incompleta, un document d'identitat), EMS t'indica de qui es tracta. Mentre sigui un esborrany, la pots tornar a preparar tantes vegades com calgui.
 3. En una rectificació, explica a **Notes per als sol·licitants** què corregeix.
 4. El coordinador o la coordinadora Erasmus revisa la llista i fa clic a **Accions > Publica**. EMS desa qui l'ha publicada i quan, i la llista publicada mostra aquesta data com a data d'aprovació.
@@ -48,7 +48,7 @@ Quan es publica:
 
 ## 4. Reclamacions i recursos
 
-Les reclamacions arriben per correu (l'alumnat pot respondre el correu del resultat). Registra-les a **Erasmus+ > Reclamacions** (o a la pestanya **Resultats** de la sol·licitud):
+Les reclamacions arriben per correu (l'alumnat pot respondre el correu del resultat). Registra-les a **Erasmus+ > Convocatòries > Reclamacions** (o a la pestanya **Resultats** de la sol·licitud):
 
 1. **Sol·licitud**, **Contra** (la resolució), **Tipus** (reclamació o recurs davant la direcció), **Rebuda el**, **Què es reclama** i els fitxers.
 2. Escriu la **Resposta** i fes clic a **Accions > Resoldre**.
@@ -57,7 +57,7 @@ Si s'estima una reclamació, corregeix les dades de la sol·licitud (per exemple
 
 ## 5. Ofertes de plaça
 
-**Erasmus+ > Ofertes de plaça** mostra totes les ofertes i la resposta: *Pendent de resposta*, *Plaça acceptada*, *Renúncia*, *Sense resposta* o *Retirada*.
+**Erasmus+ > Convocatòries > Ofertes de plaça** mostra totes les ofertes i la resposta: *Pendent de resposta*, *Plaça acceptada*, *Renúncia*, *Sense resposta* o *Retirada*.
 
 - L'alumnat accepta o renuncia al portal abans del termini. Si no respon a temps, EMS hi marca la renúncia.
 - Quan queda una plaça lliure i hi ha reserves, tot l'equip Erasmus rep una tasca a la convocatòria (*Erasmus+: plaça lliure a ...*). Es marca com a feta quan s'ofereix la plaça. **EMS no l'ofereix mai pel seu compte**. A la convocatòria, la pestanya **Resolucions** mostra les places lliures de cada modalitat i la **Següent reserva**. Fes clic a **Accions > Ofereix una plaça lliure**: comprova la persona proposada, posa un nou termini a **Resposta abans de** i fes clic a **Ofereix la plaça**. La persona rep un correu.

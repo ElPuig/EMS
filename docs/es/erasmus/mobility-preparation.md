@@ -12,7 +12,7 @@ Una vez aceptada una plaza, la movilidad se prepara en EMS: el destino, la entid
 
 ## 1. Antes de empezar: los proyectos y la convocatoria
 
-En **Erasmus+ > Proyectos**, mantened los proyectos Erasmus+ activos del centro: el número de convenio y el tipo (**KA121-VET** para CFGM, **KA131-HED** para CFGS). Puede haber varios del mismo tipo activos a la vez (uno por año de convocatoria); archivad un proyecto cuando termine.
+En **Erasmus+ > Gestión económica > Proyectos**, mantened los proyectos Erasmus+ activos del centro: el número de convenio y el tipo (**KA121-VET** para CFGM, **KA131-HED** para CFGS). Puede haber varios del mismo tipo activos a la vez (uno por año de convocatoria); archivad un proyecto cuando termine.
 
 En la convocatoria, revisad estas pestañas:
 
@@ -38,13 +38,13 @@ Un alumno que acepta una plaza más tarde entra en la cola según su posición.
 
 Una persona seleccionada puede proponer su propio destino en el portal, con el compromiso por escrito de la entidad de acogida. Mientras espera la validación, no recibe turno.
 
-1. Id a **Erasmus+ > Movilidades** y usad el filtro **Propuesta por validar**. También recibís una tarea pendiente.
+1. Id a **Erasmus+ > Movilidades > Movilidades individuales** y usad el filtro **Propuesta por validar**. También recibís una tarea pendiente.
 2. Abrid la movilidad y revisad la pestaña **Propuesta**: entidad de acogida, contacto, país, ciudad, fechas y el compromiso.
 3. Haced clic en **Acciones > Validar la propuesta**. Para rechazarla, escribid antes el **Comentario de la decisión** y haced clic en **Acciones > Rechazar la propuesta**: el alumno lo recibe por correo y vuelve a elegir entre los destinos del centro.
 
 ## 4. Preparar cada movilidad
 
-Abrid la movilidad desde **Erasmus+ > Movilidades** (o desde el botón **Movilidades** de la convocatoria):
+Abrid la movilidad desde **Erasmus+ > Movilidades > Movilidades individuales** (o desde el botón **Movilidades** de la convocatoria):
 
 - Rellenad la **Entidad de acogida** (un contacto de empresa, que se mantiene para los cursos siguientes) y su **Persona de contacto de la entidad**, corregid el lugar y las **fechas** si hace falta, y elegid el **Proyecto** al que va la movilidad: EMS solo ofrece los proyectos del tipo de la modalidad (CFGM a KA121-VET, CFGS a KA131-HED).
 - Pestaña **Documentos**: en **Ficheros del equipo**, adjuntad el documento rellenado para que el participante lo firme, o el que aportáis vosotros (la póliza de seguro). El participante lo descarga en el portal. Los demás los sube el participante en el portal, y también podéis adjuntarlos aquí. Cada uno muestra su **Fecha límite**. Marcad cada uno como **Válido** o **Hay que corregir** (con un comentario que el participante ve). Un fichero nuevo lo devuelve a revisión; los ficheros anteriores se conservan. En un documento que alguien firma, haced clic en **Firmas** y marcad cada firma que veáis en la copia subida (participante, director, entidad de acogida...): EMS guarda quién la marcó y cuándo, y el participante lo ve en el portal. El documento solo se puede marcar como **Válido** cuando todas las firmas están marcadas (la del tutor legal, solo para un menor). Para quitar un archivo subido por error de un documento que aún no es válido, haced clic en **Quitar un archivo**, elegidlo y escribid el motivo: el archivo no se elimina, queda en el historial de la movilidad con el motivo, vuestro nombre y la fecha. **Lista para salir** se marca cuando todos los documentos obligatorios de antes de salir son válidos (o, si los aporta el equipo, subidos), se han hecho todos los pasos de antes de salir y la carta de compromiso está firmada (pestaña **Carta de compromiso**). Mientras falte algo, EMS se lo recuerda al participante por correo cada semana.

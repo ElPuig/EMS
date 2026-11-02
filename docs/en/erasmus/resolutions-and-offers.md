@@ -32,7 +32,7 @@ Each one needs the previous one published. A published resolution can never be c
 
 ## 3. Prepare and publish a resolution
 
-1. On the call, open the **Resolutions** tab (or **Erasmus+ > Resolutions**) and add a new one: choose its **Kind**.
+1. On the call, open the **Resolutions** tab (or **Erasmus+ > Calls > Resolutions**) and add a new one: choose its **Kind**.
 2. Click **Actions > Prepare lines**. EMS freezes the list as the applications are now. If something is missing (an application not decided, a score incomplete, an identity document), EMS tells you who. You can prepare it again as many times as you need while it is a draft.
 3. For a rectification, explain in **Notes for applicants** what it corrects.
 4. The Erasmus coordinator reviews the list and clicks **Actions > Publish**. EMS keeps who published it and when, and the published list shows that date as the approval date.
@@ -48,7 +48,7 @@ When it is published:
 
 ## 4. Claims and appeals
 
-Claims arrive by email (students can reply to the result email). Record each one in **Erasmus+ > Claims** (or on the **Results** tab of the application):
+Claims arrive by email (students can reply to the result email). Record each one in **Erasmus+ > Calls > Claims** (or on the **Results** tab of the application):
 
 1. **Application**, **Against** (the resolution), **Kind** (claim or appeal before the Director), **Received on**, **What is claimed** and the files.
 2. Write the **Response** and click **Actions > Resolve**.
@@ -57,7 +57,7 @@ If a claim is upheld, correct the application's data (for example the language c
 
 ## 5. Place offers
 
-**Erasmus+ > Place offers** lists every offer and its answer: *Waiting for an answer*, *Place accepted*, *Renounced*, *No answer* or *Withdrawn*.
+**Erasmus+ > Calls > Place offers** lists every offer and its answer: *Waiting for an answer*, *Place accepted*, *Renounced*, *No answer* or *Withdrawn*.
 
 - Students accept or renounce on the portal before the deadline. Without an answer by then, EMS marks the place as renounced.
 - When a place becomes free and there is a reserve, everyone in the Erasmus team gets a task on the call (*Erasmus+: free place in ...*). It is marked done once the place is offered. **EMS never offers it on its own**. On the call, the **Resolutions** tab shows the free places of each modality and the **Next reserve**. Click **Actions > Offer a free place**: check the proposed student, set a new **Answer before** deadline and click **Offer the place**. The student receives an email.

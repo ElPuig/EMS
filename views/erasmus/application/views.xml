@@ -246,6 +246,10 @@
                                         <field name="strike_count"/>
                                     </group>
                                 </group>
+                                <!-- To check "First mobility": what EMS records of this person. -->
+                                <separator string="Erasmus+ participations in EMS" invisible="not erasmus_history_ids"/>
+                                <field name="erasmus_history_ids" invisible="not erasmus_history_ids"
+                                       context="{'list_view_ref': 'ems.view_erasmus_history_list'}"/>
                                 <field name="grade_line_ids">
                                     <list>
                                         <field name="course_name"/>
@@ -298,8 +302,6 @@
                                     <field name="host_entity" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="destination" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="preferred_dates" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="previous_mobility" readonly="not can_manage" invisible="audience != 'student'"/>
-                                    <field name="previous_mobility_details" readonly="not can_manage" invisible="audience != 'student'"/>
                                     <field name="declared_never_staff_mobility" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="declared_last_mobility_date" readonly="not can_manage" invisible="audience != 'staff' or declared_never_staff_mobility"/>
                                     <field name="declared_centre_start_date" readonly="not can_manage" invisible="audience != 'staff'"/>

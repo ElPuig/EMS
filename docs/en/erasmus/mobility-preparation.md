@@ -12,7 +12,7 @@ Once a place is accepted, prepare the mobility in EMS: the destination, the host
 
 ## 1. Before you start: the projects and the call
 
-In **Erasmus+ > Projects**, keep the centre's active Erasmus+ projects: their agreement number and kind (**KA121-VET** for CFGM, **KA131-HED** for CFGS). Several of the same kind can be active at once (one per call year); archive a project when it ends.
+In **Erasmus+ > Financial management > Projects**, keep the centre's active Erasmus+ projects: their agreement number and kind (**KA121-VET** for CFGM, **KA131-HED** for CFGS). Several of the same kind can be active at once (one per call year); archive a project when it ends.
 
 On the call, check these tabs:
 
@@ -38,13 +38,13 @@ A student who accepts a place later joins the queue in their rank order.
 
 A selected student can propose their own destination on the portal, with the host entity's written commitment. While it waits for validation, they don't get a turn.
 
-1. Go to **Erasmus+ > Mobilities** and use the **Proposal to validate** filter. You also get a to-do.
+1. Go to **Erasmus+ > Mobilities > Individual mobilities** and use the **Proposal to validate** filter. You also get a to-do.
 2. Open the mobility and check the **Proposal** tab: host entity, contact, country, city, dates and the commitment.
 3. Click **Actions > Validate the proposal**. To reject it, write the **Comment on the decision** first and click **Actions > Reject the proposal**: the student receives it by email and goes back to choosing among the centre's destinations.
 
 ## 4. Prepare each mobility
 
-Open the mobility from **Erasmus+ > Mobilities** (or the **Mobilities** button of the call):
+Open the mobility from **Erasmus+ > Mobilities > Individual mobilities** (or the **Mobilities** button of the call):
 
 - Fill in the **Host entity** (a company contact, which stays for next years) and its **Host contact person**, correct the place and the **dates** if needed, and choose the **Project** the mobility goes on: EMS only offers the projects of the modality's kind (CFGM on KA121-VET, CFGS on KA131-HED).
 - **Documents** tab: in **Files from the team**, attach the document filled in for the participant to sign, or the one you provide (the insurance policy). The participant downloads it on the portal. The participant uploads the others on the portal, and you can also attach them here. Each one shows its **Deadline**. Mark each one **Valid** or **Needs changes** (with a comment the participant sees). A new file puts it back to review; earlier files are kept. For a document someone signs, click **Signatures** and tick each signature you see on the uploaded copy (participant, Director, host entity...): EMS keeps who ticked it and when, and the participant sees it on the portal. The document can only be marked **Valid** once every signature is ticked (the legal guardian's, only for a minor). To take out a file uploaded by mistake from a document not valid yet, click **Remove a file**, choose it and write the reason: the file is not deleted, it stays in the mobility's history with the reason, your name and the date. **Ready to leave** is ticked when every required document before leaving is valid (or, if the team provides it, uploaded), every step before leaving is done and the commitment letter is signed (**Commitment letter** tab). While anything is missing, EMS reminds the participant by email every week.

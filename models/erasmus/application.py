@@ -55,7 +55,7 @@ PARTICIPANT_HEADERS = ('Nombre', 'Apellidos', 'DNI', 'Email', 'Teléfono', 'Dire
                        'IBAN', 'Tutor legal', 'Email del tutor legal', 'Teléfono del tutor legal')
 # Answers of the portal form, editable by the applicant while the call accepts applications.
 ANSWER_FIELDS = {
-    'student': ('previous_mobility', 'previous_mobility_details', 'availability', 'fewer_opportunities',
+    'student': ('availability', 'fewer_opportunities',
                 'image_consent', 'applicant_notes'),
     'staff': ('staff_activity', 'host_entity', 'destination', 'preferred_dates',
               'declared_never_staff_mobility', 'declared_last_mobility_date', 'declared_centre_start_date',
@@ -105,8 +105,6 @@ class EmsErasmusApplication(models.Model):
     submit_date = fields.Datetime(string="Submitted on", readonly=True, copy=False)
     is_minor = fields.Boolean(string="Minor", compute='_compute_is_minor')
 
-    previous_mobility = fields.Boolean(string="Previous Erasmus+ mobility")
-    previous_mobility_details = fields.Text(string="Previous mobility details")
     availability = fields.Text(string="Availability")
     # Audit D-4: what the applicant declares is the team's, as the accredited check (the Head of Studies reads
     # the conduct warnings and the exclusion reason, not this).
@@ -201,6 +199,9 @@ class EmsErasmusApplication(models.Model):
     first_mobility_user_id = fields.Many2one(string="First mobility checked by", comodel_name='res.users',
                                              readonly=True, copy=False)
     first_mobility_date = fields.Datetime(string="First mobility checked on", readonly=True, copy=False)
+    erasmus_history_ids = fields.One2many(string="Erasmus+ participations", related='partner_id.erasmus_history_ids',
+                                          help="What EMS records of this person: earlier years' participations "
+                                               "show here once they have been through EMS.")
     strike_ids = fields.Many2many(string="Conduct warnings", comodel_name='ems.strike',
                                   relation='ems_erasmus_application_strike_rel', readonly=True, copy=False)
     strike_count = fields.Integer(string="Number of conduct warnings", readonly=True, copy=False)

@@ -12,7 +12,7 @@ Group mobilities (KA121-VET) are stays of a group of students of one or more of 
 
 ## Creating a group mobility
 
-1. Go to **Erasmus+ > Group mobilities** and click **New**.
+1. Go to **Erasmus+ > Mobilities > Group mobilities** and click **New**.
 2. Fill in the name (e.g. *SMX2 morning*), the KA121-VET **project**, the **shift** (it only helps to find the groups) and the **eligible groups** (the centre's real groups, e.g. SMX2A and SMX2B).
 3. Set the student places (8 by default), the accompanying teachers (2), the **leader teacher** and the other accompanying teacher.
 4. In the **Enrolment** tab, set the enrolment period, check the **selection criteria** (published on the portal) and, if needed, the information for students.

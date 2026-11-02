@@ -51,11 +51,14 @@ class TestPortalErasmus(HttpCase):
         response = self.url_open('/my/erasmus')
         self.assertEqual(response.status_code, 200)
         self.assertIn('Test Erasmus Call', response.text)
-        self.assertIn('/my/erasmus', self.url_open('/my/home').text)
+        home = self.url_open('/my/home').text
+        self.assertIn('/my/erasmus', home)
+        self.assertIn('href="/my/erasmus" class="nav-link"', home, "The portal menu has an entry, like the card.")
 
     def test_student_of_another_level_is_sent_home(self):
         self._login(self.outsider_user)
-        self.assertNotIn('/my/erasmus"', self.url_open('/my/home').text)
+        home = self.url_open('/my/home').text
+        self.assertNotIn('/my/erasmus"', home, "Neither the card nor the portal menu entry.")
         response = self.url_open('/my/erasmus')
         self.assertTrue(response.url.endswith('/my/home'))
         response = self.url_open(f'/my/erasmus/call/{self.call.id}')

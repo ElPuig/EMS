@@ -12,7 +12,7 @@ Crea i publica una convocatòria Erasmus+, revisa les sol·licituds que l'alumna
 
 ## 1. Crear la convocatòria
 
-Ves a **Erasmus+ > Convocatòries** i fes clic a **Nou**:
+Ves a **Erasmus+ > Convocatòries > Convocatòries** i fes clic a **Nou**:
 
 | Camp | Què cal posar-hi |
 |---|---|
@@ -44,7 +44,7 @@ A **Accions**, fes clic a **Publica**. La convocatòria apareix al portal de tot
 
 ## 3. Revisar les sol·licituds
 
-Ves a **Erasmus+ > Sol·licituds** (o al botó **Sol·licituds** de la convocatòria). Filtres: *Per revisar*, *Esmena requerida*, *Admesa*, *Exclosa*.
+Ves a **Erasmus+ > Convocatòries > Sol·licituds** (o al botó **Sol·licituds** de la convocatòria). Filtres: *Per revisar*, *Esmena requerida*, *Admesa*, *Exclosa*.
 
 Obre una sol·licitud:
 

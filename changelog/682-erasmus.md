@@ -22,6 +22,13 @@
 
 - The Head of Studies and the Director sit in the staff call's panel and could open any staff application and see the running mean of the plan ratings already submitted before giving theirs. Outside the Erasmus team, the plan score, the six criteria and the total of a staff application now read as 0 until every plan of the call is rated.
 
+## Erasmus+ menus in sections, the portal entry and each person's Erasmus+ history (review by Juan Morote and Fernando Porrino, 2026-11-02):
+
+- The Erasmus+ app's 14 loose menus are grouped like the rest of EMS: Calls (calls, applications, ranking, interviews, plan ratings, claims, resolutions, place offers), Mobilities (individual and group), Financial management (projects, invoices, grant payments) and Configuration (host entities). Each section only shows to whoever sees one of its entries (the Secretary sees only Financial management); the personal entries (My evaluations, My plan ratings, My group mobilities) stay loose on the bar.
+- The student portal's top menu has an Erasmus+ entry, under the same rule as its card: students who cannot apply (PFI, CFGB) see neither.
+- New read-only Erasmus+ history (ems.erasmus.history, an SQL view over the individual mobilities and the group mobility participants, cancelled and withdrawn ones left out): shown under the academic history on the student form, to the same roles that read that history plus the Erasmus team, and on the application next to First mobility. It holds names, country, city, dates and Planned/Completed only, so no access to the Erasmus+ app is needed.
+- The application form no longer asks the student whether they took part in Erasmus+ before (fields previous_mobility and previous_mobility_details removed, never released): First mobility stays the Erasmus team's, checked against that history from next year on.
+
 # Fixes
 
 ## Erasmus+ students' call: claims, ties and rectifications found in the end-to-end test of the selection:

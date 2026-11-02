@@ -10,7 +10,7 @@ La convocatoria del personal establece que la dirección valida la actividad, la
 
 ---
 
-1. Cuando una persona del personal envía la propuesta con las fechas exactas, recibís una tarea pendiente. Id a **Erasmus+ > Movilidades** y usad el filtro **Propuesta por validar**.
+1. Cuando una persona del personal envía la propuesta con las fechas exactas, recibís una tarea pendiente. Id a **Erasmus+ > Movilidades > Movilidades individuales** y usad el filtro **Propuesta por validar**.
 2. Abrid la movilidad y revisad la pestaña **Propuesta**: actividad, entidad de acogida o curso, contacto, país, ciudad, fechas y notas.
 3. Para validarla, podéis escribir un **Comentario de la decisión** (opcional: la persona lo lee) y hacer clic en **Acciones > Validar la propuesta**. La movilidad pasa a *En preparación* con esas fechas, el equipo Erasmus la prepara con la persona interesada y EMS solicita su ausencia por formación para esos días, con la declaración responsable que dio con la propuesta.
 4. Si no la validáis, escribid antes el **Comentario de la decisión** y haced clic en **Acciones > Rechazar la propuesta**. La persona recibe el motivo por correo y propone otra actividad en el portal; recibís una tarea pendiente nueva.

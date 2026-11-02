@@ -21,4 +21,17 @@ This section contains the manuals for the **Erasmus+ team**: the Erasmus coordin
 
 ---
 
+## The Erasmus+ menu
+
+| Menu | What you find there |
+|------|---------------------|
+| **Calls** | Calls, Applications, Ranking, Interviews, Plan ratings, Claims, Resolutions and Place offers |
+| **Mobilities** | Individual mobilities and Group mobilities |
+| **Financial management** | Projects, Invoices and Grant payments |
+| **Configuration** | Host entities |
+
+Each person only sees the menus that concern them: the Secretary, for example, only sees **Financial management**. The personal entries (**My evaluations**, **My plan ratings**, **My group mobilities**) are right on the bar, with no dropdown.
+
+---
+
 [← Back to main index](../index.md)

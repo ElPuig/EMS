@@ -12,7 +12,7 @@ Sol·licita unes pràctiques Erasmus+ a l'estranger i segueix la teva sol·licit
 
 ## 1. Obrir la pàgina Erasmus+
 
-Al portal, fes clic a la targeta **Erasmus+**. Només apareix quan hi ha una convocatòria a la qual pots presentar-te o quan ja hi has presentat una sol·licitud.
+Al portal, fes clic a la targeta **Erasmus+** o a **Erasmus+** al menú de dalt. Totes dues només apareixen quan hi ha una convocatòria a la qual pots presentar-te o quan ja hi has presentat una sol·licitud.
 
 Cada convocatòria mostra les dates i un enllaç per **Llegir la convocatòria**. Llegeix-la abans de sol·licitar: hi trobaràs els requisits, els documents i com s'adjudiquen les places.
 
@@ -22,7 +22,6 @@ Si aquest curs acumules 3 amonestacions o més, no pots presentar-te (article 6 
 
 Fes clic a **Sol·licita** i omple el formulari:
 
-- Si ja has participat en una mobilitat Erasmus+, i en quina.
 - La teva disponibilitat per als períodes de la convocatòria.
 - Si pots acreditar una situació de menys oportunitats. La documentació és confidencial: només la veu l'equip Erasmus.
 - Si consenteixes l'ús de la teva imatge (voluntari).

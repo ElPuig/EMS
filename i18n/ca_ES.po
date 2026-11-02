@@ -2737,6 +2737,7 @@ msgstr "Ciutadania"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__city
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__city
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_history__city
 msgid "City"
 msgstr "Ciutat"
 
@@ -2915,6 +2916,7 @@ msgstr "Paràmetres de configuració"
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_settings model:ir.ui.menu,name:ems.menu_attendance_config model:ir.ui.menu,name:ems.menu_coexistence_config model:ir.ui.menu,name:ems.menu_community_config model:ir.ui.menu,name:ems.menu_ems_authorization_config model:ir.ui.menu,name:ems.menu_ems_configuration model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 #: model:ir.ui.menu,name:ems.menu_minutes_config
+#: model:ir.ui.menu,name:ems.menu_erasmus_section_config
 msgid "Configuration"
 msgstr "Configuració"
 
@@ -3031,6 +3033,7 @@ msgstr "No s'han pogut llegir les capçaleres de columnes del fitxer CSV."
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__country_id
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__country_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_history__country_id
 msgid "Country"
 msgstr "País"
 
@@ -3853,6 +3856,7 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_history__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -4212,6 +4216,7 @@ msgstr "Activa els comportaments especials del bloc."
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__date_end
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__date_end
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_history__date_end
 msgid "End"
 msgstr "Final"
 
@@ -5387,6 +5392,7 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_history__id
 msgid "ID"
 msgstr "ID"
 
@@ -8361,6 +8367,7 @@ msgstr "Revocar accés"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_department__top_level_role model_terms:ir.ui.view,arch_db:ems.view_role_list
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__role
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_history__role
 msgid "Role"
 msgstr "Rol"
 
@@ -8959,6 +8966,7 @@ msgstr "Comportament especial"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__date_start
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__date_start
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_history__date_start
 msgid "Start"
 msgstr "Inici"
 
@@ -9018,6 +9026,7 @@ msgstr "Iniciant procés en segon pla; rebràs una notificació en finalitzar (p
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_search
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__state model:ir.model.fields,field_description:ems.field_ems_quality_followup__state model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
 #: model:ir.model.fields,field_description:ems.field_ems_minute__state model:ir.model.fields,field_description:ems.field_ems_signed_record__state model_terms:ir.ui.view,arch_db:ems.report_minute model_terms:ir.ui.view,arch_db:ems.view_minute_search
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_history__state
 msgid "State"
 msgstr "Estat"
 
@@ -9135,6 +9144,7 @@ msgstr "Carrer 2"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__student_id
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_history__role__student
 msgid "Student"
 msgstr "Estudiant"
 
@@ -11997,6 +12007,7 @@ msgstr "Això expulsa immediatament els estudiants seleccionats. Vols continuar?
 #: code:addons/ems/models/erasmus/export.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_quality_process__kind
 #: model:ir.model.fields,field_description:ems.field_ems_minute__type_kind model:ir.model.fields,field_description:ems.field_ems_minute_section__kind model:ir.model.fields,field_description:ems.field_ems_minute_section_value__kind model:ir.model.fields,field_description:ems.field_ems_minute_type__kind model:ir.model.fields,field_description:ems.field_ems_minute_type_section__kind
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_history__kind
 msgid "Kind"
 msgstr "Tipus"
 
@@ -18047,6 +18058,7 @@ msgstr "Completa"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__completed
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_history__state__done
 msgid "Completed"
 msgstr "Completada"
 
@@ -29224,6 +29236,7 @@ msgstr "Document de la convocatòria"
 #: model:ir.ui.menu,name:ems.menu_erasmus_calls
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_list
 #: code:addons/ems/models/erasmus/export.py:0
+#: model:ir.ui.menu,name:ems.menu_erasmus_section_calls
 msgid "Calls"
 msgstr "Convocatòries"
 
@@ -29325,6 +29338,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+#: model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form_erasmus_history
 msgid "Erasmus+"
 msgstr "Erasmus+"
 
@@ -29422,16 +29437,6 @@ msgstr ""
 " (voluntari)"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "I have already taken part in an Erasmus+ mobility"
-msgstr "Ja he participat en una mobilitat Erasmus+"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "If so, which one and when"
-msgstr "Si és així, quina i quan"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__image_consent
 msgid "Image consent"
 msgstr "Consentiment d'imatge"
@@ -29455,6 +29460,7 @@ msgstr "Instruccions"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_project__kind__ka121_vet
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__project__ka121_vet
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_task__project__ka121_vet
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_history__project__ka121_vet
 msgid "KA121-VET"
 msgstr "KA121-VET"
 
@@ -29463,6 +29469,7 @@ msgstr "KA121-VET"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_project__kind__ka131_hed
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__project__ka131_hed
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_task__project__ka131_hed
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_history__project__ka131_hed
 msgid "KA131-HED"
 msgstr "KA131-HED"
 
@@ -29575,16 +29582,6 @@ msgstr "Opcional"
 msgid "Places"
 msgstr "Places"
 
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__previous_mobility
-msgid "Previous Erasmus+ mobility"
-msgstr "Mobilitat Erasmus+ anterior"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__previous_mobility_details
-msgid "Previous mobility details"
-msgstr "Detalls de la mobilitat anterior"
-
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_document__project_id
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__project_id
@@ -29597,6 +29594,7 @@ msgstr "Detalls de la mobilitat anterior"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_export__project_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__project_id
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_search
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_history__project
 msgid "Project"
 msgstr "Projecte"
 
@@ -31755,6 +31753,7 @@ msgstr "Visible per al tribunal"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__audience__staff
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_search
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_participant__audience__staff
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_history__role__staff
 msgid "Staff"
 msgstr "Personal"
 
@@ -32488,11 +32487,11 @@ msgstr "Tutor legal"
 #: model:ir.actions.act_window,name:ems.action_erasmus_mobility
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__mobility_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__mobility_ids
-#: model:ir.ui.menu,name:ems.menu_erasmus_mobilities
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_search
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__mobility_ids
+#: model:ir.ui.menu,name:ems.menu_erasmus_section_mobilities
 msgid "Mobilities"
 msgstr "Mobilitats"
 
@@ -32612,6 +32611,7 @@ msgstr "Obre l'elecció de destinació"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_form
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_document_signature__signer__participant
 #: model:ir.model.fields.selection,name:ems.selection__sign_oca_role__ems_signer__participant
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_history__partner_id
 msgid "Participant"
 msgstr "Participant"
 
@@ -36566,6 +36566,7 @@ msgstr "Admet inscripcions"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__user_role__companion
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_participant__role__companion
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_history__role__companion
 msgid "Accompanying teacher"
 msgstr "Docent acompanyant"
 
@@ -37048,6 +37049,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_export__group_mobility_id
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_export__scope__group
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__group_mobility_id
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_history__kind__group
 msgid "Group mobility"
 msgstr "Mobilitat de grup"
 
@@ -37117,6 +37119,7 @@ msgstr "Tasques endarrerides"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__user_role__leader
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_participant__role__leader
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_history__role__leader
 msgid "Leader teacher"
 msgstr "Docent responsable"
 
@@ -40399,3 +40402,50 @@ msgid ""
 "                    The Head of Studies reviews each one first: the teacher only hears about it\n"
 "                    when asked to regularize it."
 msgstr "Surt a l'horari de guàrdies com a absència pendent fins que es resol. Els dies que un docent no fitxa s'hi afegeixen sols. El cap d'estudis les revisa primer: el docent només se n'assabenta quan se li demana que la regularitzi."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_history__name
+msgid "Call or group mobility"
+msgstr "Convocatòria o mobilitat de grup"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_history
+msgid "Erasmus+ participation"
+msgstr "Participació Erasmus+"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__erasmus_history_ids
+#: model:ir.model.fields,field_description:ems.field_res_partner__erasmus_history_ids
+#: model:ir.model.fields,field_description:ems.field_res_users__erasmus_history_ids
+msgid "Erasmus+ participations"
+msgstr "Participacions Erasmus+"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+msgid "Erasmus+ participations in EMS"
+msgstr "Participacions Erasmus+ a l'EMS"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_erasmus_section_finances
+msgid "Financial management"
+msgstr "Gestió econòmica"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_erasmus_mobilities
+msgid "Individual mobilities"
+msgstr "Mobilitats individuals"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_history__kind__individual
+msgid "Individual mobility"
+msgstr "Mobilitat individual"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_history__state__planned
+msgid "Planned"
+msgstr "Prevista"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__erasmus_history_ids
+msgid "What EMS records of this person: earlier years' participations show here once they have been through EMS."
+msgstr "El que l'EMS té registrat d'aquesta persona: les participacions d'anys anteriors hi apareixen un cop han passat per l'EMS."

@@ -33,6 +33,8 @@ On the **Scoring** tab of each admitted application:
 | D. Fewer opportunities | **Fewer opportunities accredited** (only the Erasmus team sees it) | 10 or 0 |
 | E. First mobility | **First mobility** | 5 or 0 |
 
+The student is not asked about **First mobility**: you mark it. Under the criteria, the application lists the student's **Erasmus+ participations in EMS**, if any. It only knows the mobilities managed with EMS, from the 2026-2027 call on: for earlier years, check your own records.
+
 Every criterion starts empty. **An empty criterion is never zero:** the application stays without a complete score and out of the ranking until it is filled in. EMS records who filled in each one and when.
 
 ## 3. Organise the interviews
@@ -45,13 +47,13 @@ On the **Interview** tab of each admitted application:
 
 Each evaluator scores the 7 criteria of the rubric (annex 4) from 0 to 5 and submits. The interview score is the average of both evaluators. If only one evaluator could score it for a justified reason, write it in **Reason for a single evaluation**.
 
-On the call, the **Score correction deadline** sets until when the evaluators can reopen and change their own evaluation. After it, only the Erasmus team can reopen an interview, from **Erasmus+ > Interviews**, writing a **Rectification note**.
+On the call, the **Score correction deadline** sets until when the evaluators can reopen and change their own evaluation. After it, only the Erasmus team can reopen an interview, from **Erasmus+ > Calls > Interviews**, writing a **Rectification note**.
 
 If a student does not attend the interview, write the reason and click **Actions > Exclude**.
 
 ## 4. The ranking
 
-Click **Ranking** on the call (or **Erasmus+ > Ranking**): the admitted applications of each modality in order, with the score of each criterion.
+Click **Ranking** on the call (or **Erasmus+ > Calls > Ranking**): the admitted applications of each modality in order, with the score of each criterion.
 
 - A modality is only ranked when **every** admitted application in it has a complete score. Until then the rank is 0.
 - Ties are broken, in this order, by fewer opportunities, first mobility, the English part of the interview and the record average.

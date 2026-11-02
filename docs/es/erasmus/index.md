@@ -21,4 +21,17 @@ Esta sección contiene los manuales para el **equipo Erasmus+**: la coordinació
 
 ---
 
+## El menú Erasmus+
+
+| Menú | Encontraréis |
+|------|--------------|
+| **Convocatorias** | Convocatorias, Solicitudes, Clasificación, Entrevistas, Valoraciones de planes, Reclamaciones, Resoluciones y Ofertas de plaza |
+| **Movilidades** | Movilidades individuales y Movilidades de grupo |
+| **Gestión económica** | Proyectos, Facturas y Pagos de becas |
+| **Configuración** | Entidades de acogida |
+
+Cada persona solo ve los menús que le tocan: Secretaría, por ejemplo, solo ve **Gestión económica**. Las entradas personales (**Mis evaluaciones**, **Mis valoraciones de planes**, **Mis movilidades de grupo**) salen directamente en la barra, sin desplegable.
+
+---
+
 [← Volver al índice principal](../index.md)

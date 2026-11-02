@@ -12,7 +12,7 @@ Un cop acceptada una plaça, la mobilitat es prepara a l'EMS: la destinació, l'
 
 ## 1. Abans de començar: els projectes i la convocatòria
 
-A **Erasmus+ > Projectes**, manteniu els projectes Erasmus+ actius del centre: el número de conveni i el tipus (**KA121-VET** per a CFGM, **KA131-HED** per a CFGS). En pot haver diversos del mateix tipus actius alhora (un per any de convocatòria); arxiveu un projecte quan s'acabi.
+A **Erasmus+ > Gestió econòmica > Projectes**, manteniu els projectes Erasmus+ actius del centre: el número de conveni i el tipus (**KA121-VET** per a CFGM, **KA131-HED** per a CFGS). En pot haver diversos del mateix tipus actius alhora (un per any de convocatòria); arxiveu un projecte quan s'acabi.
 
 A la convocatòria, reviseu aquestes pestanyes:
 
@@ -38,13 +38,13 @@ Un alumne que accepta una plaça més tard entra a la cua segons la seva posici�
 
 Una persona seleccionada pot proposar la seva pròpia destinació al portal, amb el compromís per escrit de l'entitat d'acollida. Mentre espera la validació, no rep torn.
 
-1. Aneu a **Erasmus+ > Mobilitats** i feu servir el filtre **Proposta per validar**. També rebeu una tasca pendent.
+1. Aneu a **Erasmus+ > Mobilitats > Mobilitats individuals** i feu servir el filtre **Proposta per validar**. També rebeu una tasca pendent.
 2. Obriu la mobilitat i reviseu la pestanya **Proposta**: entitat d'acollida, contacte, país, ciutat, dates i el compromís.
 3. Feu clic a **Accions > Valida la proposta**. Per rebutjar-la, escriviu abans el **Comentari de la decisió** i feu clic a **Accions > Rebutja la proposta**: l'alumne el rep per correu i torna a triar entre les destinacions del centre.
 
 ## 4. Preparar cada mobilitat
 
-Obriu la mobilitat des d'**Erasmus+ > Mobilitats** (o des del botó **Mobilitats** de la convocatòria):
+Obriu la mobilitat des d'**Erasmus+ > Mobilitats > Mobilitats individuals** (o des del botó **Mobilitats** de la convocatòria):
 
 - Ompliu l'**Entitat d'acollida** (un contacte d'empresa, que es manté per als cursos següents) i la seva **Persona de contacte de l'entitat**, corregiu el lloc i les **dates** si cal, i trieu el **Projecte** al qual va la mobilitat: l'EMS només ofereix els projectes del tipus de la modalitat (CFGM a KA121-VET, CFGS a KA131-HED).
 - Pestanya **Documents**: a **Fitxers de l'equip**, adjunteu el document emplenat perquè el participant el signi, o el que aporteu vosaltres (la pòlissa d'assegurança). El participant el descarrega al portal. Els altres els puja el participant al portal, i també els podeu adjuntar aquí. Cadascun mostra la seva **Data límit**. Marqueu cadascun com a **Vàlid** o **Cal corregir** (amb un comentari que el participant veu). Un fitxer nou el torna a revisió; els fitxers anteriors es conserven. En un document que algú signa, feu clic a **Signatures** i marqueu cada signatura que vegeu a la còpia pujada (participant, director, entitat d'acollida...): l'EMS guarda qui la va marcar i quan, i el participant ho veu al portal. El document només es pot marcar com a **Vàlid** quan totes les signatures estan marcades (la del tutor legal, només per a un menor). Per treure un fitxer pujat per error d'un document que encara no és vàlid, feu clic a **Treure un fitxer**, trieu-lo i escriviu-ne el motiu: el fitxer no s'elimina, queda a l'historial de la mobilitat amb el motiu, el vostre nom i la data. **A punt per marxar** es marca quan tots els documents obligatoris d'abans de marxar són vàlids (o, si els aporta l'equip, pujats), s'han fet tots els passos d'abans de marxar i la carta de compromís està signada (pestanya **Carta de compromís**). Mentre falti alguna cosa, l'EMS ho recorda al participant per correu cada setmana.

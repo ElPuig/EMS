@@ -33,6 +33,8 @@ En la pestaña **Baremación** de cada solicitud admitida:
 | D. Menos oportunidades | **Menos oportunidades acreditadas** (solo lo ve el equipo Erasmus) | 10 o 0 |
 | E. Primera movilidad | **Primera movilidad** | 5 o 0 |
 
+Al alumnado no se le pregunta por la **Primera movilidad**: la marcáis vosotros. Bajo los criterios, la solicitud muestra las **Participaciones Erasmus+ en EMS** del alumno, si tiene. Solo conoce las movilidades gestionadas con EMS, a partir de la convocatoria 2026-2027: para los años anteriores, consultad vuestros registros.
+
 Todos los criterios empiezan vacíos. **Un criterio vacío nunca es un cero:** la solicitud queda sin puntuación completa y fuera de la clasificación hasta que se rellena. EMS registra quién ha rellenado cada criterio y cuándo.
 
 ## 3. Organizar las entrevistas
@@ -45,13 +47,13 @@ En la pestaña **Entrevista** de cada solicitud admitida:
 
 Cada persona evaluadora puntúa los 7 criterios de la rúbrica (anexo 4) de 0 a 5 y la envía. La puntuación de la entrevista es la media de las dos. Si por una causa justificada solo la ha podido valorar una persona, escríbelo en **Motivo de una sola valoración**.
 
-En la convocatoria, el **Plazo para corregir puntuaciones** fija hasta cuándo las personas evaluadoras pueden reabrir y cambiar su valoración. Después, solo el equipo Erasmus puede reabrir una entrevista, desde **Erasmus+ > Entrevistas**, escribiendo una **Nota de rectificación**.
+En la convocatoria, el **Plazo para corregir puntuaciones** fija hasta cuándo las personas evaluadoras pueden reabrir y cambiar su valoración. Después, solo el equipo Erasmus puede reabrir una entrevista, desde **Erasmus+ > Convocatorias > Entrevistas**, escribiendo una **Nota de rectificación**.
 
 Si un alumno no se presenta a la entrevista, escribe el motivo y haz clic en **Acciones > Excluir**.
 
 ## 4. La clasificación
 
-Haz clic en **Clasificación** en la convocatoria (o en **Erasmus+ > Clasificación**): las solicitudes admitidas de cada modalidad por orden, con la puntuación de cada criterio.
+Haz clic en **Clasificación** en la convocatoria (o en **Erasmus+ > Convocatorias > Clasificación**): las solicitudes admitidas de cada modalidad por orden, con la puntuación de cada criterio.
 
 - Una modalidad solo se clasifica cuando **todas** sus solicitudes admitidas tienen la puntuación completa. Hasta entonces la posición es 0.
 - Los empates se deshacen, por este orden, con menos oportunidades, primera movilidad, la parte en inglés de la entrevista y la nota media del expediente.

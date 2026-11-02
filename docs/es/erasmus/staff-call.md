@@ -14,7 +14,7 @@ La convocatoria del personal funciona como la del alumnado (ver [Convocatorias y
 
 ## 1. Abrir la convocatoria
 
-En **Erasmus+ > Convocatorias**, crea la convocatoria, pon *Personal* en **Solicitantes**, rellena las fechas, adjunta la convocatoria publicada y publícala. Nada más:
+En **Erasmus+ > Convocatorias > Convocatorias**, crea la convocatoria, pon *Personal* en **Solicitantes**, rellena las fechas, adjunta la convocatoria publicada y publícala. Nada más:
 
 - Los **documentos** del artículo 8 se añaden solos: documento de identidad, CV Europass en inglés y, opcionales, los certificados de idiomas. El **plan de movilidad y transferencia** no es un documento: las personas solicitantes lo escriben en el formulario (anexo 1), y es la única parte de la solicitud que ve el tribunal. Puedes cambiarlos antes de publicar.
 - No hay **Puntuación mínima**: la convocatoria del personal no tiene, así que EMS la pone a 0 y la oculta.
@@ -42,7 +42,7 @@ Revisa los documentos y admite o excluye como en la convocatoria del alumnado (l
 
 Rellena la pestaña **Tribunal** de la convocatoria: las personas que valoran los planes de movilidad (la dirección y las jefaturas de departamento y de seminario). Después de **Cerrar las solicitudes**, haz clic en **Acciones > Enviar los planes al tribunal**. Cada miembro recibe una tarea para valorar todos los planes desde **Erasmus+ > Mis valoraciones de planes**, que vence el **Plazo para corregir puntuaciones** (el botón lo pide si está vacío; si lo cambias después, las tareas abiertas lo siguen). Puedes volver a hacer clic después de admitir más solicitudes: solo crea las valoraciones que faltan.
 
-**Abstenciones:** un miembro del tribunal que se presenta a la convocatoria no valora (art. 10): sus valoraciones se crean como abstenciones, con el motivo *Candidato en esta convocatoria*. Para otro conflicto de intereses, abre la valoración en **Erasmus+ > Valoraciones de planes** y escribe el **Motivo de la abstención**. No hay personas sustitutas: la puntuación del plan (criterio 1) es la media de los miembros que lo valoran. **Una valoración pendiente la bloquea** hasta que se envía.
+**Abstenciones:** un miembro del tribunal que se presenta a la convocatoria no valora (art. 10): sus valoraciones se crean como abstenciones, con el motivo *Candidato en esta convocatoria*. Para otro conflicto de intereses, abre la valoración en **Erasmus+ > Convocatorias > Valoraciones de planes** y escribe el **Motivo de la abstención**. No hay personas sustitutas: la puntuación del plan (criterio 1) es la media de los miembros que lo valoran. **Una valoración pendiente la bloquea** hasta que se envía.
 
 **La dirección no ve los puntos mientras el tribunal valora:** el jefe de estudios y la directora pueden abrir las solicitudes del personal, pero hasta que no se han valorado todos los planes de la convocatoria ven la puntuación del plan, los criterios y el total a 0, también si están en el tribunal. Así ningún miembro ve la media de los demás antes de valorar. Cuando se envía la última valoración, lo ven todo.
 

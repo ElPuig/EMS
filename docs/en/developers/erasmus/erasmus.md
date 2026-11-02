@@ -139,7 +139,10 @@ The applicant is always `request.env.user.partner_id`: no partner or application
 form. The controller works with `sudo()` (portal users have no ACL on these models) and checks
 eligibility and state itself. The portal home card appears only to students who have an
 application or can apply to a published call (`res.partner._ems_erasmus_portal_visible`); families
-do not see it.
+do not see it. The portal's top menu has an *Erasmus+* entry under the same rule
+(`views/portal/portal_header.xml`, like *Convalidations*), so a student who cannot apply (PFI, CFGB)
+sees neither. The form never asks whether the student took part in Erasmus+ before: *First
+mobility* (criterion E) is the Erasmus team's, checked against the person's history below.
 
 ## Access control
 
@@ -155,7 +158,17 @@ coordinator alone approves them). The administrator is a member of both.
 | `ems.erasmus.application` | rwcu | r | via controller |
 | `ems.erasmus.application.document` | rwcu | r, **not confidential ones** (`ir.rule`) | via controller |
 
-Menu *Erasmus+*: *Applications* (team, Head of Studies, Director) and *Calls* (team).
+Menu *Erasmus+*, in sections like the rest of EMS, each shown only to whoever sees one of its entries:
+
+| Section | Entries |
+|---|---|
+| *Calls* | Calls, Applications, Ranking, Interviews, Plan ratings, Claims, Resolutions, Place offers |
+| *Mobilities* | Individual mobilities, Group mobilities |
+| *Financial management* | Projects, Invoices, Grant payments |
+| *Configuration* | Host entities |
+
+The personal entries (*My evaluations*, *My plan ratings*, *My group mobilities*) stay loose at the
+top: a teacher who only scores interviews or leads a group sees just that, with no extra click.
 
 ### Workflow fields and evidence (audit 2026-10-25)
 
@@ -506,7 +519,7 @@ in the call's (or group mobility's) chatter. Who can download it does not change
 | `ems.erasmus.offer` | r + *Withdraw offer*; created by publishing and the wizard | r | answers their own |
 | `ems.erasmus.claim` | rwcu | r | - |
 
-Menus *Erasmus+ > Resolutions*, *Place offers* and *Claims*: team, Head of Studies, Director.
+Menus *Erasmus+ > Calls > Resolutions*, *Place offers* and *Claims*: team, Head of Studies, Director.
 
 ## Staff call (phase 4, #686)
 
@@ -646,7 +659,7 @@ criterion-5 band too), then the draw the coordinator runs (`action_draw_ties`). 
 | `ems.erasmus.application.merit` | rwcu | r | - |
 | `ems.erasmus.application.document` | rwcu | r, not confidential | r, `panel_visible` lines of the plans they rate |
 
-Menus *Erasmus+ > Plan ratings* (team) and *My plan ratings* (evaluators).
+Menus *Erasmus+ > Calls > Plan ratings* (team) and *My plan ratings* (evaluators).
 
 ## Mobility preparation (phase 5, #687)
 
@@ -766,7 +779,7 @@ the mobility (*Self-assessment* tab, `self_assessment_progress` "answered / week
 PDF to the participant's record, category `03_Durant_la_mobilitat` (see [records.md](records.md)). Access: Erasmus team and administrator
 read/write (the team can delete a week for the participant to answer it again), Head of Studies read.
 
-**Projects** (`ems.erasmus.project`, menu *Erasmus+ > Projects*): the centre's active projects
+**Projects** (`ems.erasmus.project`, menu *Erasmus+ > Financial management > Projects*): the centre's active projects
 (agreement number, `kind` KA121-VET / KA131-HED, dates, `active`). Each mobility's `project_id` must
 be of its modality's `project` kind (`_check_project`; the field's domain offers only those).
 
@@ -891,7 +904,7 @@ mobility (`prepared_attachment_ids`).
 | `ems.erasmus.destination`, `.call.task`, `.mobility.task` | rwcu | r | r | via controller |
 | `ems.erasmus.mobility` | rwcu | r + `decision_note` and validating staff proposals (`write()` guard) | same as Head of Studies | via controller |
 
-Menu *Erasmus+ > Mobilities* (team, Head of Studies, Director), with a *Proposal to validate*
+Menu *Erasmus+ > Mobilities > Individual mobilities* (team, Head of Studies, Director), with a *Proposal to validate*
 filter.
 
 ## Grants, provision of services and host entities (phase 6, #697)
@@ -949,7 +962,7 @@ with its state. The call's page also links the published call.
 
 **Host entities:** `res.partner.is_erasmus_host` marks a company, school or course provider that
 hosts participants; its contacts are the tutors at destination, with their email. Menu *Erasmus+ >
-Host entities* (`action_erasmus_host_entity`, the native contact views). The mobility's and the
+Configuration > Host entities* (`action_erasmus_host_entity`, the native contact views). The mobility's and the
 destination's host fields only offer host entities, the mobility shows the tutor's email
 (`host_contact_email`) and picks the tutor automatically when the entity has only one contact. The
 Learning Agreement already says it is signed by the host entity (`sign_host`); sending it to the
@@ -987,7 +1000,35 @@ mobility in preparation or closed.
 | `res.partner` | r every contact; wc only host entities and their contacts (`rule_contact_erasmus_*`) | (unchanged) | (unchanged) |
 
 The mobility's *Grant* tab and its grant columns are only for the team (`groups=`), so the Head of
-Studies and the Director, who read mobilities, never load the grant models. Menus *Erasmus+ > Host
-entities* (team), *Projects*, *Invoices* and *Grant payments* (team and Secretary; the Secretary
-sees only these three under *Erasmus+*). The project form's tabs follow the same split (mobilities:
+Studies and the Director, who read mobilities, never load the grant models. Menus *Erasmus+ >
+Configuration > Host entities* (team) and *Erasmus+ > Financial management > Projects*, *Invoices*
+and *Grant payments* (team and Secretary; the Secretary sees only that section under *Erasmus+*). The project form's tabs follow the same split (mobilities:
 team and Head of Studies; invoices and payments: team and Secretary).
+
+## Erasmus+ history (`ems.erasmus.history`)
+
+A person's Erasmus+ participations as EMS has them: a read-only SQL view (`_auto = False`,
+`models/erasmus/history.py`), one line per individual mobility and one per group mobility
+participant, leaving out cancelled mobilities and withdrawn participants. It keeps text and dates
+only (the call's or group mobility's name, project kind, country, city, dates, *Planned* or
+*Completed*), so whoever reads it needs no access to the Erasmus+ models.
+
+```mermaid
+flowchart LR
+    M[ems.erasmus.mobility<br/>not cancelled] --> H[ems.erasmus.history]
+    P[ems.erasmus.group.participant<br/>active, mobility not cancelled] --> H
+    H --> F[Student form<br/>Studies tab, under the academic history]
+    H --> A[Application<br/>Scoring tab, for First mobility]
+```
+
+- `res.partner.erasmus_history_ids` shows it on the contact form, under the academic history, to the
+  same roles that read that history (teachers, Secretary, Head of Studies, academic admin, student
+  data reader) plus the Erasmus team; hidden when empty.
+- `ems.erasmus.application.erasmus_history_ids` (related) shows it on the application's *Scoring*
+  tab, next to *First mobility*, which the team still sets by hand: the history only starts with
+  the mobilities that go through EMS (the first call managed with it is 2026-2027), so earlier
+  years are not in it unless they are imported.
+
+| Model | Teacher / Secretary / Head of Studies / admin / student data reader / Erasmus team |
+|---|---|
+| `ems.erasmus.history` | r |

@@ -1,5 +1,6 @@
 from odoo.tests.common import HttpCase, tagged
 
+from .common import create_role_employee, create_role_user
 from .test_erasmus import PDF
 from .test_erasmus_mobility import ErasmusMobilityCase, ErasmusStaffMobilityCase
 
@@ -37,6 +38,13 @@ class TestErasmusMobilityTour(HttpCase, ErasmusMobilityCase):
         self.start_tour(f'/my/erasmus/call/{self.call.id}', 'ems_erasmus_portal_choose',
                         login='test_erasmus_tour_student')
         self.assertEqual(first.state, 'preparing')
+
+    def test_teacher_sees_the_history_tour(self):
+        first, _second = self._accepted()
+        teacher = create_role_user(self, 'teacher', 'test_erasmus_history_tour_teacher')
+        create_role_employee(self, teacher)
+        self.start_tour(f'/odoo/res.partner/{first.partner_id.id}', 'ems_erasmus_history_teacher',
+                        login=teacher.login)
 
 
 @tagged('post_install', '-at_install')

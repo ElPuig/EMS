@@ -12,7 +12,7 @@ Apply for an Erasmus+ internship abroad and follow your application from the stu
 
 ## 1. Open the Erasmus+ page
 
-In the portal, click the **Erasmus+** card. It only appears when there is a call you can apply to, or when you have already applied.
+In the portal, click the **Erasmus+** card, or **Erasmus+** in the top menu. Both only appear when there is a call you can apply to, or when you have already applied.
 
 Each call shows its dates and a link to **Read the call**. Read it before applying: it explains the requirements, the documents and how the places are awarded.
 
@@ -22,7 +22,6 @@ If you have 3 or more conduct warnings this course, you cannot apply (article 6 
 
 Click **Apply** and fill in the form:
 
-- Whether you have already taken part in an Erasmus+ mobility, and which one.
 - Your availability for the periods of the call.
 - Whether you can prove a situation of fewer opportunities. The evidence is confidential: only the Erasmus team sees it.
 - Whether you consent to the use of your image (voluntary).

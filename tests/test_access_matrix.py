@@ -58,6 +58,8 @@ ACCESS_MATRIX = {
     'ems.erasmus.call.question': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.call.task': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.mobility': {'teacher': '', 'secretary': '', 'head_of_studies': 'rw', 'erasmus': 'rwcu'},
+    # The issue-#682 review: a read-only SQL view, on the student form for whoever reads the academic history.
+    'ems.erasmus.history': {'teacher': 'r', 'secretary': 'r', 'head_of_studies': 'r', 'erasmus': 'r'},
     'ems.erasmus.project': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     # Issue #701: a plain teacher reaches nothing; the leader and accompanying teachers (a hidden
     # group EMS manages) only their own mobilities, through record rules tested in

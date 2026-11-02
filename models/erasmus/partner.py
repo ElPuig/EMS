@@ -15,6 +15,8 @@ class ResPartner(models.Model):
         help="A company, school or course provider that hosts Erasmus+ participants. Its contacts are the tutors "
              "at destination.")
     erasmus_oid = fields.Char(string="OID", help="The Erasmus+ organisation ID of the host entity (e.g. E10150031).")
+    erasmus_history_ids = fields.One2many(string="Erasmus+ participations", comodel_name='ems.erasmus.history',
+                                          inverse_name='partner_id', readonly=True)
 
     def _ems_erasmus_calls(self):
         """Published calls this person can apply to, open or not yet: the students' calls with a

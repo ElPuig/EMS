@@ -12,7 +12,7 @@ Create and publish an Erasmus+ call, review the applications students send from 
 
 ## 1. Create the call
 
-Go to **Erasmus+ > Calls** and click **New**:
+Go to **Erasmus+ > Calls > Calls** and click **New**:
 
 | Field | What to enter |
 |---|---|
@@ -44,7 +44,7 @@ In **Actions**, click **Publish**. The call appears on the portal of every stude
 
 ## 3. Review the applications
 
-Go to **Erasmus+ > Applications** (or the **Applications** button on the call). Filters: *To review*, *Corrections requested*, *Admitted*, *Excluded*.
+Go to **Erasmus+ > Calls > Applications** (or the **Applications** button on the call). Filters: *To review*, *Corrections requested*, *Admitted*, *Excluded*.
 
 Open an application:
 

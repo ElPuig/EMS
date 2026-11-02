@@ -150,6 +150,36 @@ class TestAbsenceDetection(TransactionCase):
 
         self.assertFalse(self._detected())
 
+    def test_nothing_on_any_day_of_a_holiday_period(self):
+        """Issue #740: a holiday of several days (Christmas) leaves out every one of its days, also
+        when the scheduled action catches up on all of them at once. Somebody checked in on each of
+        them, so it is the holiday that leaves them out, not the "nobody checked in" rule."""
+        before = self.yesterday - timedelta(days=1)
+        while before.weekday() > 4:
+            before -= timedelta(days=1)
+        make_working_day(self, before)
+        self._check_in(self.present, before, 8.9)
+        self.env['resource.calendar.leaves'].create({
+            'name': 'TAD Holidays', 'date_from': self._utc(before, 0.0), 'date_to': self._utc(self.yesterday, 23.9)})
+        self.env['ir.config_parameter'].sudo().set_param(
+            'ems.missing_check_in_last_day', fields.Date.to_string(before - timedelta(days=1)))
+
+        self._run_cron_on(self.today)
+
+        self.assertFalse(self._detected())
+
+    def test_a_refused_request_on_a_holiday_is_not_detected(self):
+        """Issue #740: re-detecting the days a refused request no longer covers (#735) skips a
+        public holiday too."""
+        leave = self._leave(self.yesterday)
+        self._run_cron_on(self.today)
+        self.env['resource.calendar.leaves'].create({
+            'name': 'TAD Holiday', 'date_from': self._utc(self.yesterday, 0.0), 'date_to': self._utc(self.yesterday, 23.9)})
+
+        leave.action_refuse()
+
+        self.assertFalse(self._detected())
+
     def test_an_absence_already_known_is_not_detected_again(self):
         requested = self._teacher('TAD Teacher With A Request')
         self.env['hr.leave'].create({

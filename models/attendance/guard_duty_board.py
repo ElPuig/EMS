@@ -679,8 +679,13 @@ class EmsCourseGuardDutyBoard(models.Model):
             self._original_absent(self._get_day_covers(day), absent, group, hour_from, hour_to), group)
 
     def _check_board_day_not_past(self, day):
+        """Every board action on `day` goes through here: never on a day already over, nor on a
+        public holiday (issue #740), when there is nobody to cover and nothing to organise."""
         if day < self.env['ems.datetime_utils'].get_local_today():
             raise UserError(_("This day is already over."))
+        holiday = self.env['resource.calendar.leaves']._ems_public_holiday_on(day)
+        if holiday:
+            raise UserError(_("This day is a public holiday (%s): there is nothing to organise.", holiday.name))
 
     # "The teacher is in the classroom" (issue #692): a class left on the table only because its
     # teacher has not checked in, which whoever is on guard or manages the absence can resolve by
@@ -1743,11 +1748,16 @@ class EmsCourseGuardDutyBoard(models.Model):
         away, each line gains 'guard_absences' for the same question asked of the guard column,
         and 'absences' - the list of classes actually left without a teacher, which is what the
         absences table is built from. Without a date none of that can be resolved at all, so
-        every one of those comes back empty and the board is the plain timetable."""
+        every one of those comes back empty and the board is the plain timetable. The same on a
+        public holiday (issue #740): nobody is expected then, so nobody is missing either, and
+        'holiday' carries its name for the board to say so (False on any other day)."""
         self.ensure_one()
         if area_ids and set(area_ids) >= set(self._get_guard_duty_board_area_records().ids):
             area_ids = None
         day = fields.Date.to_date(day)
+        holiday = self.env['resource.calendar.leaves']._ems_public_holiday_on(day) if day else False
+        if holiday:
+            day = None
         shift_start, shift_end = SHIFT_HOURS[shift]
         entries = self._get_guard_duty_board_attendance_ids([
             ('dayofweek', '=', weekday), ('hour_from', '>=', shift_start), ('hour_to', '<=', shift_end)])
@@ -1922,6 +1932,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                 management, day, management['actions'] + self._arrangement_plan_actions(dated_lines)) if management else [],
             # _is_absence_manager's answers for this load, to reuse (issue #725).
             'managers': management['managers'] if management else {},
+            'holiday': holiday.name if holiday else False,
         }
 
     def _board_cell_arrangements(self, management, group, teachers, hour_from, hour_to):
@@ -2308,7 +2319,9 @@ class EmsCourseGuardDutyBoard(models.Model):
             *(self.env['hr.employee'].union(*line['guard_spans']) for line in data['lines'])))
         # A teacher on guard duty may take a free class themselves (issue #601) - from today on,
         # like every other board action (see _check_board_day_not_past).
-        editable = bool(day) and fields.Date.to_date(day) >= self.env['ems.datetime_utils'].get_local_today()
+        # Nothing to organise on a public holiday either (issue #740).
+        editable = bool(day) and not data['holiday'] \
+            and fields.Date.to_date(day) >= self.env['ems.datetime_utils'].get_local_today()
         me = self.env.user.employee_id
         movable = {}  # _can_move_teacher's answers for this load
         # Issue #725: who may send a guard to support a teacher, worked out only for a user who may
@@ -2316,7 +2329,8 @@ class EmsCourseGuardDutyBoard(models.Model):
         may_support = editable and course._may_manage_absences()
         managed = data['managers']
         # "The teacher is in the classroom" (issue #692): only on today's classes in progress.
-        today = bool(day) and fields.Date.to_date(day) == self.env['ems.datetime_utils'].get_local_today()
+        today = bool(day) and not data['holiday'] \
+            and fields.Date.to_date(day) == self.env['ems.datetime_utils'].get_local_today()
         now = course._board_day_hour(fields.Date.to_date(day)) if today else None
         # Every name on the board read in one batch: reading them cell by cell fetched each
         # employee on its own, every fetch paying hr.employee's per-read field access check.
@@ -2452,7 +2466,9 @@ class EmsCourseGuardDutyBoard(models.Model):
                 'actions': [self._board_action_data(action) for action in data['actions'] if action['can_manage']],
                 # Whether anybody can still act on this day (from today on): the board then explains
                 # every line still to be covered, also to whoever cannot cover it.
-                'editable': editable}
+                'editable': editable,
+                # The public holiday's name on one (issue #740), for the board to say so.
+                'holiday': data['holiday']}
 
     def _arrangement_plan_data(self, plan):
         """JSON-safe version of a detected arrangement plan (see _get_arrangement_plans): its

@@ -108,6 +108,10 @@ Only the fact that somebody is away is shown here. The type of absence, its reas
 
 ---
 
+## Public holidays
+
+On a public holiday of the centre's calendar (the ones in **Absences > Configuration > Public Holidays**), the schedule shows a notice with the holiday's name. Nobody is expected that day, so nobody is missing: the **Absences table** is not shown, nobody is marked **Not checked in**, and nothing can be covered or organised. The schedule view still shows the usual timetable, under the same notice. The PDF for that day says so too.
+
 ## Teachers who have not checked in
 
 Today, as soon as a class starts, if its teacher has not checked in it appears in the **Absences table** like an absence, so a guard teacher can cover it. Their name is shown in red with a dotted underline and the tag **Not checked in**. The same goes for a teacher on guard duty: they are marked in the Guard duty column and cannot be sent to cover anything until they check in.

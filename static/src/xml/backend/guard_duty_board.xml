@@ -231,6 +231,11 @@
                     <div class="o_guard_board_loading text-muted" t-esc="emptyLabels.loading"/>
                 </t>
                 <t t-else="">
+                    <!-- Issue #740: on a public holiday nobody is expected, so the absences table has
+                         nothing to show and only the timetable is left. -->
+                    <div t-if="state.board.holiday" class="alert alert-info o_guard_board_holiday" role="status">
+                        <i class="fa fa-calendar-times-o me-2" aria-hidden="true"/><t t-esc="holidayLabel"/>
+                    </div>
                     <div t-if="!state.board.lines.length" class="text-muted o_guard_board_empty" t-esc="emptyLabels.schedule"/>
 
                     <!-- Tab 1: the timetable itself, with whoever is away marked in place. -->
@@ -325,7 +330,7 @@
 
                     <!-- Tab 2: the same shift read the other way round - one row per time block,
                          what has to be covered against who is available to cover it. -->
-                    <div t-else="" class="o_guard_board_table_wrap">
+                    <div t-elif="!state.board.holiday" class="o_guard_board_table_wrap">
                         <!-- The current time, across the whole table (issue #647): placed by
                              placeNowLine() in guard_duty_board.js, hidden when the board shows
                              another day or a range that does not include it. -->

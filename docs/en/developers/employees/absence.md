@@ -1529,6 +1529,23 @@ day's red row.
 `migrations/18.0.0.30.1/post-migrate.py` detaches the public holidays already tied to a schedule
 through the same `write()`, which also clears the technical attendances they had left behind.
 
+### A real attendance clears the day's technical one
+
+The same red technical attendance also outlives a real attendance recorded on that day
+afterwards: Odoo only deletes it when the cron creates it. The usual case is a reviewer's
+**Correct check-in** on a detected absence (`_ems_fill_attendances` creates a new manual
+attendance), but a manual attendance entered by hand or a late check-in leaves it too. So
+`hr.attendance.create()` and `write()` (on `employee_id`/`check_in`/`check_out`) call
+`_ems_unlink_replaced_technical_attendances()`, which deletes the technical attendance of each
+real attendance's employee and local day (issue #741); Odoo recomputes the day's overtime on the
+deletion. The lookup, `_ems_technical_attendances_on()`, is shared with the public holiday
+cleanup above, and it never returns a technical attendance a check-in correction request
+(`ems.attendance_correction`) is about: deleting it would delete the request with it
+(`ondelete='cascade'`), and accepting the request turns it into the real attendance anyway.
+`migrations/18.0.0.44.1/post-migrate.py` runs the same cleanup over the attendances already
+recorded. Covered by `TestAbsenceDetection` (whole and partial correction, a red attendance with
+a correction request kept, an attendance moved onto a red day).
+
 ## Access control
 
 | Group | `hr.leave` records visible | Reason and attachment | Can |

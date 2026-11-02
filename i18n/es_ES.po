@@ -39791,6 +39791,8 @@ msgstr "No quiero ninguna plaza: salgo de la lista de reserva"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
 msgid "Leave the reserve list"
 msgstr "Salir de la lista de reserva"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_level__declaration_code
 #: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__declaration_code
 msgid "Schedule declaration code"

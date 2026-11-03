@@ -11,7 +11,7 @@ function emsErasmusItem() {
     return {
         type: "item",
         id: "ems_erasmus",
-        description: _t("My Erasmus+ application"),
+        description: _t("Erasmus+"),
         href: "/my/erasmus",
         show: () => Boolean(session.ems_erasmus_portal),
         callback: () => {

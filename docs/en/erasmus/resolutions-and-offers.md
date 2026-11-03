@@ -46,12 +46,14 @@ When it is published:
 
 > **Who is selected:** the eligible applications (at least the minimum score) within the places of their modality. The rest of the eligible ones are on the reserve list, in order. Below the minimum score: not selected.
 
+In the resolution, the lines are coloured: green, admitted or selected; orange, reserve; red, excluded; black, not selected. An excluded line has no rank nor score. Applicants see their own row highlighted in the published list on the portal (never in the PDF).
+
 ## 4. Claims and appeals
 
-Claims arrive by email (students can reply to the result email). Record each one in **Erasmus+ > Calls > Claims** (or on the **Results** tab of the application):
+Applicants claim from the portal, under their provisional result, until the claims deadline: EMS records the claim with its files and the moment it arrived, and everyone in the Erasmus team gets a task to answer it, marked done when it is resolved. A claim that arrives by email (an appeal before the Director, for example) is recorded by hand in **Erasmus+ > Calls > Claims** (or on the **Results** tab of the application):
 
 1. **Application**, **Against** (the resolution), **Kind** (claim or appeal before the Director), **Received on**, **What is claimed** and the files.
-2. Write the **Response** and click **Actions > Resolve**.
+2. Write the **Response** and click **Actions > Resolve**. The applicant sees the response on the portal, under **My claims**.
 
 If a claim is upheld, correct the application's data (for example the language certificate) before preparing the definitive resolution. EMS does not let you prepare the definitive resolution before the **Claims deadline** or while a claim is still open. After the definitive one, publish a rectification.
 

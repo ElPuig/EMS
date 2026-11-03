@@ -38,6 +38,30 @@ class TestErasmusDecisionsAccess(ErasmusRecordsCase):
         self.assertNotIn(menu.id, visible)
         self.assertIn(menu.id, self.env['ir.ui.menu'].with_user(self.teacher_user)._visible_menu_ids())
 
+    def test_menus_by_role(self):
+        """The Head of Studies opens the claims and the place offers from the call, not the menu; an
+        interviewer only sees their evaluations and a panel member only their plan ratings. An
+        upgrade only adds a menu's groups, so this also checks the ones taken away were removed."""
+        def visible(user):
+            return self.env['ir.ui.menu'].with_user(user)._visible_menu_ids()
+
+        def user_with(xmlid, login):
+            return self.env['res.users'].create({'name': login, 'login': login, 'groups_id': [
+                (6, 0, [self.env.ref('base.group_user').id, self.env.ref('ems.group_teacher').id, self.env.ref(xmlid).id])]})
+
+        claims, offers = self.env.ref('ems.menu_erasmus_claims'), self.env.ref('ems.menu_erasmus_offers')
+        interviews, ratings = self.env.ref('ems.menu_erasmus_my_interviews'), self.env.ref('ems.menu_erasmus_my_plan_ratings')
+        hos_menus = visible(self.hos_user)
+        self.assertIn(self.env.ref('ems.menu_erasmus_resolutions').id, hos_menus)
+        self.assertFalse({claims.id, offers.id} & hos_menus)
+        self.assertTrue({claims.id, offers.id} <= visible(self.technician_user))
+        evaluator_menus = visible(user_with('ems.group_erasmus_evaluator', 'erasmus_menu_evaluator'))
+        self.assertIn(interviews.id, evaluator_menus)
+        self.assertNotIn(ratings.id, evaluator_menus)
+        panel_menus = visible(user_with('ems.group_erasmus_panel', 'erasmus_menu_panel'))
+        self.assertIn(ratings.id, panel_menus)
+        self.assertNotIn(interviews.id, panel_menus)
+
 
 @tagged('post_install', '-at_install')
 class TestErasmusDecisionsRecords(ErasmusRecordsCase):

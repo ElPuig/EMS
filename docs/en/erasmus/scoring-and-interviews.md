@@ -39,13 +39,15 @@ Every criterion starts empty. **An empty criterion is never zero:** the applicat
 
 ## 3. Organise the interviews
 
-On the **Interview** tab of each admitted application:
+**Many at once:** on the call, click **Actions > Schedule interviews**. Choose the modality (or none, for every one), the **First interview**, the **Minutes per interview**, the **Place** and the **Evaluators**. EMS proposes the admitted applicants without an interview date yet, by modality and name: remove or reorder whoever you need. **Schedule** gives each one the next slot, assigns them the evaluators and, with **Send the interview calls** ticked, emails each applicant the date and place (at least 24 hours ahead).
+
+**One by one**, on the **Interview** tab of each admitted application:
 
 1. Fill in the **Interview date** and **Interview place**.
 2. In the list, add the **two evaluators** (anyone of the staff). Each evaluator gets a task in EMS and sees the interview in **Erasmus+ > My evaluations**. They only see their own interview, not the other evaluator's score nor the rest of the application.
 3. Click **Actions > Send interview call**. The student receives an email with the date and place. It must be sent at least 24 hours before the interview.
 
-Each evaluator scores the 7 criteria of the rubric (annex 4) from 0 to 5 and submits. The interview score is the average of both evaluators. If only one evaluator could score it for a justified reason, write it in **Reason for a single evaluation**.
+Each evaluator scores the 7 criteria of the rubric (annex 4) from 0 to 5, with the descriptors written on the form, and submits. The interview score is the average of both evaluators. If only one evaluator could score it for a justified reason, write it in **Reason for a single evaluation**.
 
 On the call, the **Score correction deadline** sets until when the evaluators can reopen and change their own evaluation. After it, only the Erasmus team can reopen an interview, from the **Interviews** button of the call, writing a **Rectification note**.
 
@@ -53,7 +55,7 @@ If a student does not attend the interview, write the reason and click **Actions
 
 ## 4. The ranking
 
-Click **Ranking** on the call (or **Erasmus+ > Calls > Ranking**): the admitted applications of each modality in order, with the score of each criterion.
+Click **Ranking** on the call (or **Erasmus+ > Calls > Ranking**, ordered by call and modality, with the call in its own column): the admitted applications of each modality in order, with the score of each criterion. **Within the places** shows the cut: in green the applications within the places of the modality (*Selected*), then the *Reserve* ones.
 
 - A modality is only ranked when **every** admitted application in it has a complete score. Until then the rank is 0.
 - Ties are broken, in this order, by fewer opportunities, first mobility, the English part of the interview and the record average.

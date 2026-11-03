@@ -74,21 +74,28 @@
                             </group>
                         </group>
                         <field name="notes" readonly="state != 'draft'" placeholder="Notes for applicants, published with the list."/>
+                        <!-- The issue-#682 review: what each colour means, and no rank or score on an excluded line. -->
+                        <p class="small text-muted mb-1 o_ems_erasmus_resolution_legend">
+                            <span class="text-success fw-bold">Green</span>: admitted or selected.
+                            <span class="text-warning fw-bold">Orange</span>: reserve.
+                            <span class="text-danger fw-bold">Red</span>: excluded.
+                            Black: not selected.
+                        </p>
                         <field name="line_ids">
                             <list decoration-success="result in ('admitted', 'selected')"
                                   decoration-warning="result == 'reserve'" decoration-danger="result == 'excluded'">
                                 <field name="modality_id"/>
-                                <field name="rank" invisible="kind == 'admission'"/>
+                                <field name="rank" invisible="kind == 'admission' or result == 'excluded'"/>
                                 <field name="public_id"/>
                                 <field name="partner_id"/>
                                 <field name="kind" column_invisible="True"/>
-                                <field name="score_a" optional="hide"/>
-                                <field name="score_b" optional="hide"/>
-                                <field name="score_c" optional="hide"/>
-                                <field name="score_d" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
-                                <field name="score_e" optional="hide"/>
-                                <field name="score_f" optional="hide"/>
-                                <field name="score_total" invisible="kind == 'admission'"/>
+                                <field name="score_a" optional="hide" invisible="result == 'excluded'"/>
+                                <field name="score_b" optional="hide" invisible="result == 'excluded'"/>
+                                <field name="score_c" optional="hide" invisible="result == 'excluded'"/>
+                                <field name="score_d" optional="hide" invisible="result == 'excluded'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                <field name="score_e" optional="hide" invisible="result == 'excluded'"/>
+                                <field name="score_f" optional="hide" invisible="result == 'excluded'"/>
+                                <field name="score_total" invisible="kind == 'admission' or result == 'excluded'"/>
                                 <field name="result" widget="badge"/>
                             </list>
                         </field>

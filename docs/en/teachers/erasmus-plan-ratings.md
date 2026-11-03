@@ -29,11 +29,11 @@ You can write your own notes in **Evaluator's notes**.
 
 ## 3. Submit it
 
-Click **Actions > Submit**. Until the call's **score correction deadline** you can **Reopen** it and change it; afterwards, if there is a mistake, tell the Erasmus team.
+Click **Actions > Submit**, or **Actions > Submit and next** to submit it and open the next plan you still have to rate. Until the call's **score correction deadline** you can **Reopen** it and change it; afterwards, if there is a mistake, tell the Erasmus team.
 
-**If you are a candidate in the call, or you have a conflict of interest with a candidate**, you don't rate: tell the Erasmus team, who will record the abstention. The plan's score is the mean of the other members.
+**If you are a candidate in the call, or you have a conflict of interest with a candidate**, you don't rate: tell the Erasmus team, who will record the abstention: the rating is shown as *Abstention*. The plan's score is the mean of the other members.
 
-**Your rating is independent:** as a member of the Direction you can open the staff applications, but you see their points at 0 until every plan of the call is rated, so you never see the other members' mean before giving yours.
+**Your rating is independent:** as a member of the Direction you can open the staff applications, but their **Scoring** tab says the points are hidden until every plan of the call is rated, so you never see the other members' mean before giving yours.
 
 ---
 

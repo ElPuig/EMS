@@ -7,14 +7,14 @@
             <field name="name">ems.erasmus.plan_rating.list</field>
             <field name="model">ems.erasmus.plan_rating</field>
             <field name="arch" type="xml">
-                <list string="Mobility plan ratings" create="false" decoration-muted="state == 'submitted'">
+                <list string="Mobility plan ratings" create="false" decoration-muted="rating_status != 'draft'">
                     <field name="partner_id"/>
                     <field name="call_name" optional="show"/>
-                    <field name="panel_member_id" optional="show"/>
-                    <field name="evaluator_id" optional="show"/>
-                    <field name="score"/>
-                    <field name="state" widget="badge" decoration-info="state == 'draft'"
-                           decoration-success="state == 'submitted'"/>
+                    <!-- In "My plan ratings" the member is always oneself. -->
+                    <field name="panel_member_id" optional="show" column_invisible="context.get('ems_my_ratings')"/>
+                    <field name="score" invisible="rating_status != 'submitted'"/>
+                    <field name="rating_status" widget="badge" decoration-info="rating_status == 'draft'"
+                           decoration-success="rating_status == 'submitted'"/>
                 </list>
             </field>
         </record>
@@ -26,11 +26,12 @@
                 <search>
                     <field name="partner_id"/>
                     <field name="evaluator_id"/>
-                    <filter name="to_score" string="To score" domain="[('state', '=', 'draft')]"/>
+                    <filter name="to_score" string="To score" domain="[('rating_status', '=', 'draft')]"/>
                     <filter name="submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
                     <filter name="abstentions" string="Abstentions" domain="[('abstention_reason', '!=', False)]"/>
                     <group>
                         <filter name="group_member" string="Panel member" context="{'group_by': 'panel_member_id'}"/>
+                        <filter name="group_applicant" string="Applicant" context="{'group_by': 'partner_id'}"/>
                     </group>
                 </search>
             </field>
@@ -45,6 +46,9 @@
                         <div name="ems_actions" string="Actions">
                             <button name="action_submit" type="object" string="Submit" class="btn-primary"
                                     invisible="state != 'draft'"/>
+                            <button name="action_submit_next" type="object" string="Submit and next"
+                                    invisible="state != 'draft'"
+                                    help="Submits this rating and opens the next plan you still have to rate."/>
                             <button name="action_reopen" type="object" string="Reopen"
                                     invisible="state != 'submitted'"/>
                         </div>
@@ -103,19 +107,31 @@
             </field>
         </record>
 
+        <!-- The issue-#682 review: plans x status, to see at a glance what is still to rate. -->
+        <record id="view_erasmus_plan_rating_pivot" model="ir.ui.view">
+            <field name="name">ems.erasmus.plan_rating.pivot</field>
+            <field name="model">ems.erasmus.plan_rating</field>
+            <field name="arch" type="xml">
+                <pivot string="Mobility plan ratings">
+                    <field name="partner_id" type="row"/>
+                    <field name="rating_status" type="col"/>
+                </pivot>
+            </field>
+        </record>
+
         <record id="action_erasmus_my_plan_ratings" model="ir.actions.act_window">
             <field name="name">My plan ratings</field>
             <field name="res_model">ems.erasmus.plan_rating</field>
             <field name="view_mode">list,form</field>
             <field name="domain">[('evaluator_id', '=', uid)]</field>
-            <field name="context">{'search_default_to_score': 1}</field>
+            <field name="context">{'search_default_to_score': 1, 'ems_my_ratings': 1}</field>
             <field name="search_view_id" ref="view_erasmus_plan_rating_search"/>
         </record>
 
         <record id="action_erasmus_plan_rating" model="ir.actions.act_window">
             <field name="name">Mobility plan ratings</field>
             <field name="res_model">ems.erasmus.plan_rating</field>
-            <field name="view_mode">list,form</field>
+            <field name="view_mode">list,pivot,form</field>
             <field name="search_view_id" ref="view_erasmus_plan_rating_search"/>
         </record>
     </data>

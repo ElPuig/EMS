@@ -23,7 +23,7 @@ En **Erasmus+ > Convocatorias > Convocatorias**, crea la convocatoria, pon *Pers
 - **Valida las actividades:** la dirección que valida la actividad de cada persona seleccionada y sus cambios posteriores. Viene rellenado con la directora o el director y el jefe de estudios de FP (el que está por encima de la mayoría del profesorado de FP), y solo ellos reciben la tarea, aunque un profesor dependa de otro jefe de estudios en el organigrama.
 - Para abrirla no hace falta indicar las **plazas**: la convocatoria publicada ya da las orientativas, y pueden cambiar según los proyectos. Las añades más adelante (paso 5).
 
-Una vez publicada, todo el personal con ficha de empleado ve la convocatoria en el portal (tarjeta **Erasmus+**, `/my/erasmus`). Comparte este enlace cuando la anuncies.
+Una vez publicada, todo el personal con ficha de empleado ve la convocatoria en el portal (tarjeta **Erasmus+**, `/my/erasmus`). Para enviarla por correo a todos ellos, usa **Acciones > Avisar a quien puede presentarse** (ver [Convocatorias y solicitudes](calls-and-applications.md)).
 
 ## 2. Qué rellena el personal
 
@@ -42,7 +42,7 @@ Revisa los documentos y admite o excluye como en la convocatoria del alumnado (l
 
 Rellena la pestaña **Tribunal** de la convocatoria: las personas que valoran los planes de movilidad (la dirección y las jefaturas de departamento y de seminario). Después de **Cerrar las solicitudes**, haz clic en **Acciones > Enviar los planes al tribunal**. Cada miembro recibe una tarea para valorar todos los planes desde **Erasmus+ > Mis valoraciones de planes**, que vence el **Plazo para corregir puntuaciones** (el botón lo pide si está vacío; si lo cambias después, las tareas abiertas lo siguen). Puedes volver a hacer clic después de admitir más solicitudes: solo crea las valoraciones que faltan.
 
-**Abstenciones:** un miembro del tribunal que se presenta a la convocatoria no valora (art. 10): sus valoraciones se crean como abstenciones, con el motivo *Candidato en esta convocatoria*. Para otro conflicto de intereses, abre la valoración desde el botón **Valoraciones de planes** de la convocatoria y escribe el **Motivo de la abstención**. No hay personas sustitutas: la puntuación del plan (criterio 1) es la media de los miembros que lo valoran. **Una valoración pendiente la bloquea** hasta que se envía.
+**Abstenciones:** un miembro del tribunal que se presenta a la convocatoria no valora (art. 10): sus valoraciones se crean como abstenciones, con el motivo *Candidato en esta convocatoria*. Para otro conflicto de intereses, abre la valoración desde el botón **Valoraciones de planes** de la convocatoria y escribe el **Motivo de la abstención**. No hay personas sustitutas: la puntuación del plan (criterio 1) es la media de los miembros que lo valoran. **Una valoración pendiente la bloquea** hasta que se envía. En **Valoraciones de planes**, una abstención aparece como *Abstención*, y la vista de tabla dinámica (personas candidatas × estado) muestra de un vistazo qué planes todavía tienen valoraciones por enviar.
 
 **La dirección no ve los puntos mientras el tribunal valora:** el jefe de estudios y la directora pueden abrir las solicitudes del personal, pero hasta que no se han valorado todos los planes de la convocatoria ven la puntuación del plan, los criterios y el total a 0, también si están en el tribunal. Así ningún miembro ve la media de los demás antes de valorar. Cuando se envía la última valoración, lo ven todo.
 

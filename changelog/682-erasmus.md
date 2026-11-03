@@ -37,7 +37,26 @@
 - A defined mobility is split into tabs (Summary, My record with how many documents are missing, Steps, During the stay, On return), opened on the one with something to do.
 - Backend: the user menu has My Erasmus+ application for a staff member with a call to apply to or an application (session_info's ems_erasmus_portal); the call form has buttons to its interviews or plan ratings, resolutions, claims and place offers, so Interviews and Plan ratings leave the menu; an interviewer and a panel member now have separate hidden groups (ems.group_erasmus_panel is new), so each only sees their own My ... entry.
 
+## Erasmus+ notice of an open call and reminder before it closes (asked by the Erasmus coordinator, 2026-11-02):
+
+- Actions > Notify who can apply on a published call opens a wizard (ems.erasmus.call.announce) with how many people get it (and how many have no email) and emails the call to each of them alone, with its dates and the link to apply: students of the modalities' levels not ruled out by conduct warnings, or, in a staff call, the teachers of its levels and the Direction that validates (_ems_eligible_partners, the portal's rule in the other direction). The family is not emailed. It can be sent again; the wizard warns it was already sent.
+- Reminder (days before closing), 3 by default: an hourly cron (ir_cron_erasmus_remind_closing) emails, from 9:00 on that day, whoever can apply and has not submitted (a draft does not count), once per call and only if the notice was sent from EMS (0: none). The call records when each email went out and to how many people.
+- Rendered once per language and one mail.mail per recipient: about 515 students in 0.5 s and 59 staff in 0.1 s on the dev database; the conduct-warning check for the whole list is one grouped query (_ems_conduct_blocked_partners, sharing _ems_course_start with the per-student count).
+
+## Erasmus+ review of the whole process by role (2026-11-02):
+
+- Portal: the applicant's own row is highlighted in the published lists (with a note on ties), they claim from the portal with files (EMS records when it arrived and the team gets a to-do; the response shows on the portal), a reserve sees their reserve number, a student below the minimum is told so, the badge shows the provisional result, the place offer shows the modality's period and destinations, the destination choice shows country, city and "1 free place", the availability question shows the period, the buttons say Send the changes / Send the corrections, the plan sections count characters, and a student's image consent is their authorisation of the course instead of a question.
+- Mobility record: only what the participant has to do now is red (a document the team uploads says so; one not due yet says "Not yet"); return documents are folded until then; not applicable documents are hidden; the backend list has fewer columns and "2 / 3" signatures; "Needs changes" only on a document with a file.
+- Call form: buttons by phase (none hidden in "More"), tabs in two blocks (selection, mobility), the tie warning on top, dates without seconds, no bin on resolutions. Applications from the call grouped by modality, with documents to review; the ranking shows the cut of the places and the menu's ranking is ordered by call, with its column.
+- Interviews scheduled in bulk (Actions > Schedule interviews), the rubric written on the form, Submit and next for interviews and plan ratings, abstentions shown as such and a pivot of the ratings. Resolutions with a colour legend and no rank or score on excluded lines.
+- Head of Studies and Director: Mobilities > Pending validation, a note instead of zeros while the panel rates, no place offers nor claims in their menu (and the interviewers no longer see My plan ratings): the groups taken away from a menu are removed explicitly, since an upgrade only adds them. On a group mobility they no longer see Request the exception, Renounce nor EU Survey answered, which only the team or the leader can use. The staff proposal takes the country from the application. The emails are headed "Erasmus+". The user-menu entry is "Erasmus+".
+
 # Fixes
+
+## Erasmus+ health card twice in a staff mobility, and the administrator in the Erasmus team:
+
+- Validating a staff proposal as the Director added the European Health Insurance Card again: the documents still missing were looked up with the Director's rights, which hide confidential documents. They are looked up as superuser now.
+- The administrator was in the Erasmus team, so every team to-do went to them too. They are out of the team groups and keep every right as administrator. The Head of Studies and the Director no longer see the review buttons (Valid, Needs changes, Signatures, Remove a file) on a mobility's record, which they could not use.
 
 ## Erasmus+ students' call: claims, ties and rectifications found in the end-to-end test of the selection:
 

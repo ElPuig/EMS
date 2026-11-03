@@ -22,9 +22,10 @@ Si este curso acumulas 3 amonestaciones o más, no puedes presentarte (artículo
 
 Haz clic en **Solicitar** y rellena el formulario:
 
-- Tu disponibilidad para los periodos de la convocatoria.
+- Tu disponibilidad para los periodos de la convocatoria. El formulario muestra el periodo de tu modalidad encima de la pregunta.
 - Si puedes acreditar una situación de menos oportunidades. La documentación es confidencial: solo la ve el equipo Erasmus.
-- Si consientes el uso de tu imagen (voluntario).
+
+El uso de tu imagen en la difusión del proyecto sigue tu autorización de derechos de imagen de este curso: el formulario te lo muestra y no se te vuelve a preguntar.
 
 Después adjunta los documentos. Los marcados como **Obligatorio** no pueden faltar. Puedes adjuntar varios archivos a cada documento.
 
@@ -34,11 +35,11 @@ Haz clic en **Guardar borrador** para continuar más tarde.
 
 Haz clic en **Enviar la solicitud**. Solo puedes enviarla cuando has adjuntado todos los documentos obligatorios. Recibirás por correo un justificante con los archivos recibidos.
 
-Hasta la fecha de cierre todavía puedes modificarla y volver a enviarla: cada vez recibirás un justificante nuevo. Después de la fecha de cierre ya no se puede modificar.
+Hasta la fecha de cierre todavía puedes modificarla: el formulario muestra cuándo la enviaste, y el botón pasa a decir **Enviar los cambios**. Cada vez que la envíes recibirás un justificante nuevo. Después de la fecha de cierre ya no se puede modificar.
 
 ## 4. Si te piden subsanaciones
 
-Si falta un documento o hay que corregirlo, recibirás un correo con la lista y el plazo. Abre tu solicitud en el portal: el recuadro de arriba te lo indica, con el plazo, y los documentos que hay que corregir aparecen marcados en rojo. Adjunta los archivos nuevos y vuelve a hacer clic en **Enviar la solicitud**. Si no la subsanas a tiempo, la solicitud quedará excluida.
+Si falta un documento o hay que corregirlo, recibirás un correo con la lista y el plazo. Abre tu solicitud en el portal: el recuadro de arriba te lo indica, con el plazo, y los documentos que hay que corregir aparecen marcados en rojo. Adjunta los archivos nuevos y haz clic en **Enviar la subsanación**. Si no la subsanas a tiempo, la solicitud quedará excluida.
 
 ## 5. La entrevista
 
@@ -48,13 +49,17 @@ Si tu solicitud es admitida, recibirás un correo con la fecha y el lugar de la 
 
 Cuando la Comisión Erasmus+ publica una lista (la lista de admitidos, la resolución provisional, la resolución definitiva), recibes un correo con tu resultado y lo ves en tu solicitud en el portal, en **Resultados**: tu posición en tu modalidad, tu puntuación total y los puntos de cada criterio. El resultado más reciente sale abierto; haz clic en el título de uno anterior para verlo.
 
-Haz clic en **Ver la lista publicada** para ver la lista completa. No aparecen nombres: cada persona aparece solo con cuatro cifras de su documento de identidad, por ejemplo ***4567**. También puedes descargarla en PDF.
+Haz clic en **Ver la lista publicada** para ver la lista completa. No aparecen nombres: cada persona aparece solo con cuatro cifras de su documento de identidad, por ejemplo ***4567**. Tu fila aparece destacada y marcada con **Tú**. Las personas con la misma puntuación se ordenan por los criterios de desempate de la convocatoria y, si siguen empatadas, por sorteo. También puedes descargarla en PDF.
 
-Si no estás de acuerdo con el resultado provisional, puedes reclamar respondiendo al correo del resultado antes del plazo de reclamaciones que se indica.
+Si quedas en **reserva**, el resultado te indica qué número de reserva eres en tu modalidad: las plazas que quedan libres se ofrecen a las reservas en este orden. Si no llegas a la puntuación mínima de la convocatoria, el resultado te lo indica, con el mínimo.
+
+Mientras la resolución provisional está vigente, la etiqueta de arriba de la solicitud muestra tu resultado provisional (por ejemplo, *Reserva (provisional)*).
+
+**Reclamaciones.** Si no estás de acuerdo con el resultado provisional, abre **Quiero reclamar** debajo, escribe qué reclamas y por qué, adjunta los archivos que lo justifiquen y haz clic en **Enviar la reclamación**, antes del plazo de reclamaciones. EMS deja constancia con la fecha y la hora. Tus reclamaciones, y la respuesta del equipo Erasmus, aparecen en **Mis reclamaciones**.
 
 ## 7. Aceptar o renunciar a la plaza
 
-Si quedas **seleccionado o seleccionada** en la resolución definitiva, tu solicitud muestra la plaza ofrecida y el plazo para responder:
+Si quedas **seleccionado o seleccionada** en la resolución definitiva, tu solicitud muestra la plaza ofrecida y el plazo para responder, con el periodo de tu modalidad y los destinos (eliges uno más adelante, por turnos):
 
 - Haz clic en **Acepto la plaza** para aceptarla.
 - Si no puedes ir, abre **Quiero renunciar a la plaza**, escribe el motivo si quieres y haz clic en **Confirmo que renuncio a la plaza**.
@@ -69,9 +74,9 @@ Cuando aceptas la plaza, tu solicitud muestra **Tu movilidad**.
 
 **Un destino propio.** También puedes buscar por tu cuenta una empresa o entidad de otro país Erasmus+. Abre **Proponer mi propio destino**, rellena la entidad, la persona de contacto, el país, la ciudad y las fechas, adjunta su **compromiso por escrito** de acogerte y haz clic en **Enviar la propuesta**. La entidad también tiene que escribir a erasmus@elpuig.xeill.net. El equipo Erasmus la valida; si no, recibirás el motivo y podrás elegir entre los destinos del centro.
 
-**Documentos y pasos.** Cuando tienes destino, la tarjeta se divide en pestañas y se abre en la que tiene algo pendiente: **Resumen** (el lugar, la entidad de acogida, las fechas y la beca), **Mi expediente** (la carta de compromiso y los documentos, con un número que indica cuántos faltan), **Pasos** y, más adelante, **Durante la estancia** y **A la vuelta**. Ahí encontrarás:
+**Documentos y pasos.** Cuando tienes destino, la tarjeta se divide en pestañas y se abre en la que tiene algo pendiente: **Resumen** (el lugar, la entidad de acogida, las fechas y la beca), **Mi expediente** (la carta de compromiso y los documentos, con un número que indica qué tienes que hacer ahora), **Pasos** y, más adelante, **Durante la estancia** y **A la vuelta**. Ahí encontrarás:
 
-- Los **documentos** que hay que entregar antes de salir y a la vuelta, quién tiene que **firmar** cada uno y su plazo. El documento de identidad, la cuenta bancaria y los datos personales ya están en EMS. Sube la tarjeta sanitaria europea (por las dos caras) en cuanto la tengas y, si eres menor, la autorización de tu familia y la autorización de salida al extranjero tramitada con los Mossos d'Esquadra: dentro del mes siguiente a tener el destino, y en el mismo plazo el certificado del OLS con tu nivel de inglés. Si te corresponde, la documentación de inclusión (menos oportunidades, becas, necesidades especiales): solo la ve el equipo Erasmus. En una estancia de educación superior (GS) de 30 días o menos, también el **componente virtual**: un PDF con tu preparación, que puedes subir desde un mes antes de salir hasta el día antes (información sobre la ciudad, cómo irás a la empresa y cuánto cuesta el transporte, y los ejercicios sobre las tecnologías y las tareas de la empresa de acogida). El convenio de subvención y el acuerdo de aprendizaje los sube rellenados el equipo Erasmus: descárgalos, fírmalos y súbelos firmados (idealmente tres meses antes de salir, como máximo un mes antes). El equipo Erasmus también sube tu póliza de seguro, para que la descargues, y el certificado de estancia: descárgalo, haz que lo firme tu tutor en la empresa de acogida al final de la estancia y súbelo firmado dentro del mes siguiente a la vuelta. Mientras falte algo, recibirás un recordatorio cada semana. Firma los documentos fuera de EMS, adjunta la copia firmada y haz clic en **Subir los documentos**. Si el equipo Erasmus te pide un cambio, verás su comentario en rojo. Junto a quién firma cada documento verás si el equipo Erasmus ya ha comprobado cada firma (marca verde) o aún no.
+- Los **documentos** que hay que entregar antes de salir y a la vuelta, quién tiene que **firmar** cada uno y su plazo. El documento de identidad, la cuenta bancaria y los datos personales ya están en EMS. Sube la tarjeta sanitaria europea (por las dos caras) en cuanto la tengas y, si eres menor, la autorización de tu familia y la autorización de salida al extranjero tramitada con los Mossos d'Esquadra: dentro del mes siguiente a tener el destino, y en el mismo plazo el certificado del OLS con tu nivel de inglés. Si te corresponde, la documentación de inclusión (menos oportunidades, becas, necesidades especiales): solo la ve el equipo Erasmus. En una estancia de educación superior (GS) de 30 días o menos, también el **componente virtual**: un PDF con tu preparación, que puedes subir desde un mes antes de salir hasta el día antes (información sobre la ciudad, cómo irás a la empresa y cuánto cuesta el transporte, y los ejercicios sobre las tecnologías y las tareas de la empresa de acogida). El convenio de subvención y el acuerdo de aprendizaje los sube rellenados el equipo Erasmus: descárgalos, fírmalos y súbelos firmados (idealmente tres meses antes de salir, como máximo un mes antes). El equipo Erasmus también sube tu póliza de seguro, para que la descargues, y el certificado de estancia: descárgalo, haz que lo firme tu tutor en la empresa de acogida al final de la estancia y súbelo firmado dentro del mes siguiente a la vuelta. Mientras falte algo, recibirás un recordatorio cada semana. Firma los documentos fuera de EMS, adjunta la copia firmada y haz clic en **Subir los documentos**. Si el equipo Erasmus te pide un cambio, verás su comentario en rojo. Cada documento muestra su estado: solo aparece en rojo lo que tienes que hacer ahora (*Falta*, *Hay que corregir*); un documento que primero tiene que subir el equipo Erasmus dice *Lo sube el equipo Erasmus*, y uno que todavía no toca dice *Todavía no*. Los documentos de después de la estancia aparecen plegados hasta entonces. Los documentos que no te corresponden (los de menores, si eres mayor de edad) no aparecen. Una vez aceptada la plaza, los resultados también aparecen plegados. Junto a quién firma cada documento verás si el equipo Erasmus ya ha comprobado cada firma (marca verde) o aún no.
 - La **carta de compromiso** (anexo 3 de la convocatoria): léela en el portal, marca que la aceptas y haz clic en **Aceptar y firmar**. EMS la guarda firmada. Si eres menor, también la firma tu familia: recibe un correo y la firma desde su propio acceso al portal, en **Erasmus+**.
 - Los **pasos** que hay que seguir (sesiones de preparación, el curso de idiomas en línea...). El equipo Erasmus los marca cuando están hechos.
 

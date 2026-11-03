@@ -120,12 +120,17 @@ class EmsErasmusApplicationDocument(models.Model):
                                      help="Signatures the Erasmus team has not ticked yet: the document is valid "
                                           "once every one is ticked.")
 
+    signature_progress = fields.Char(string="Signed", compute='_compute_signatures_missing',
+                                     help="Signatures ticked out of those the document needs.")
+
     @api.depends('signature_ids.signed', 'signature_ids.is_required')
     def _compute_signatures_missing(self):
         labels = dict(self.env['ems.erasmus.document.signature']._fields['signer']._description_selection(self.env))
         for line in self:
-            missing = line.sudo().signature_ids.filtered(lambda signature: signature.is_required and not signature.signed)
+            required = line.sudo().signature_ids.filtered('is_required')
+            missing = required.filtered(lambda signature: not signature.signed)
             line.signatures_missing = ", ".join(labels[signature.signer] for signature in missing)
+            line.signature_progress = required and f"{len(required) - len(missing)} / {len(required)}"
 
     @api.model_create_multi
     def create(self, vals_list):

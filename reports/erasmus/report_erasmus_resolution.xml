@@ -49,10 +49,16 @@
                             <th>Result</th>
                         </tr>
                     </thead>
+                    <t t-set="scores" t-value="[line.score_total for line in group[1] if line.result != 'excluded']"/>
+                    <t t-set="tied" t-value="ranked and len(scores) != len(set(scores))"/>
                     <tbody>
-                        <tr t-foreach="group[1]" t-as="line">
+                        <tr t-foreach="group[1]" t-as="line"
+                            t-att-class="'table-info fw-bold o_ems_erasmus_my_line' if my_partner and line.partner_id == my_partner else None">
                             <td t-if="ranked"><t t-if="line.rank and line.result != 'excluded'" t-esc="line.rank"/></td>
-                            <td t-esc="line.public_id"/>
+                            <td>
+                                <t t-esc="line.public_id"/>
+                                <span t-if="my_partner and line.partner_id == my_partner" class="badge text-bg-primary ms-1">You</span>
+                            </td>
                             <td t-if="ranked" class="text-end">
                                 <t t-if="line.result != 'excluded'" t-out="line.score_total" t-options="{'widget': 'float', 'precision': 2}"/>
                             </td>
@@ -60,6 +66,7 @@
                         </tr>
                     </tbody>
                 </table>
+                <p t-if="tied" class="small text-muted o_ems_erasmus_tie_note">Applicants with the same score are ordered by the tie-break criteria of the call and, if still tied, by a draw.</p>
             </t>
         </template>
     </data>

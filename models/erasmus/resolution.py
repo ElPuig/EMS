@@ -323,7 +323,7 @@ class EmsErasmusResolutionLine(models.Model):
     score_d = fields.Float(string="D. Fewer opportunities", digits=(5, 2),
                            groups=TEAM)
     score_e = fields.Float(string="E. First mobility", digits=(5, 2), groups=TEAM)
-    score_f = fields.Float(string="F. Conduct", digits=(5, 2), groups=TEAM)
+    score_f = fields.Float(string="F. Conduct warnings", digits=(5, 2), groups=TEAM)
     score_total = fields.Float(string="Total score", digits=(5, 2))
     # Issue #686: the staff call's criteria.
     score_plan = fields.Float(string="1. Mobility plan", digits=(4, 2))
@@ -343,6 +343,14 @@ class EmsErasmusResolutionLine(models.Model):
     def _compute_display_name(self):
         for line in self:
             line.display_name = f"{line.partner_id.name} - {line.resolution_id.name}"
+
+    def _ems_reserve_number(self):
+        """The applicant's place on the reserve list of their modality (a staff call's, of the whole
+        list): 1 for the first reserve. The portal says it instead of the overall position."""
+        self.ensure_one()
+        reserves = self.resolution_id.line_ids.filtered(
+            lambda line: line.result == 'reserve' and (line.audience == 'staff' or line.modality_id == self.modality_id))
+        return len(reserves.filtered(lambda line: line.rank < self.rank)) + 1
 
     def _ems_format_score(self):
         """The total as the reader's language writes numbers, for the email."""

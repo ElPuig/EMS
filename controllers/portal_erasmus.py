@@ -126,7 +126,13 @@ class EmsPortalErasmusController(CustomerPortal):
                 'file_category']._description_selection(request.env),
             'file_state_labels': dict(request.env['ems.erasmus.application.document']._fields[
                 'file_state']._description_selection(request.env)),
+            'todo_state_labels': dict(request.env['ems.erasmus.application.document']._fields[
+                'todo_state']._description_selection(request.env)),
             'answered': kwargs.get('answered'),
+            'claimed': kwargs.get('claimed'),
+            'claimable': application._ems_portal_claimable() if application else None,
+            'claim_state_labels': dict(request.env['ems.erasmus.claim']._fields['state']._description_selection(
+                request.env)),
         })
         return request.render('ems.portal_erasmus_application', values)
 
@@ -195,7 +201,9 @@ class EmsPortalErasmusController(CustomerPortal):
     def _ems_render_resolution(self, resolution, back_url, list_url):
         """A published list's page (a call's or a group mobility's)."""
         values = self._prepare_portal_layout_values()
-        values.update({'page_name': 'erasmus', 'resolution': resolution, 'back_url': back_url, 'list_url': list_url})
+        # The issue-#682 review: the applicant finds their own row (only on the portal, never in the PDF).
+        values.update({'page_name': 'erasmus', 'resolution': resolution, 'back_url': back_url, 'list_url': list_url,
+                       'my_partner': request.env.user.partner_id})
         return request.render('ems.portal_erasmus_resolution', values)
 
     @http.route('/my/erasmus/call/<int:call_id>/resolution/<int:resolution_id>/pdf', type='http', auth='user',
@@ -213,6 +221,25 @@ class EmsPortalErasmusController(CustomerPortal):
             ('Content-Type', 'application/pdf'),
             ('Content-Disposition', content_disposition(f'{resolution.name}.pdf')),
         ])
+
+    @http.route('/my/erasmus/call/<int:call_id>/claim', type='http', auth='user', methods=['POST'], website=True)
+    def portal_erasmus_claim(self, call_id, description=None, **kwargs):
+        """A claim against the provisional resolution, with its files (the issue-#682 review)."""
+        call = self._ems_erasmus_call(call_id)
+        if not call:
+            return request.redirect('/my/home')
+        page = f'{self._redirect}/call/{call.id}'
+        application = request.env['ems.erasmus.application'].sudo().search([
+            ('call_id', '=', call.id), ('partner_id', '=', request.env.user.partner_id.id)])
+        files = [(upload.filename, upload.read()) for upload in request.httprequest.files.getlist('claim_files')
+                 if upload.filename]
+        try:
+            if not application:
+                return request.redirect(f'{page}?error=1')
+            application._ems_portal_claim(description, files)
+        except UserError:
+            return request.redirect(f'{page}?error=1')
+        return request.redirect(f'{page}?claimed=1')
 
     @http.route('/my/erasmus/call/<int:call_id>/offer', type='http', auth='user', methods=['POST'], website=True)
     def portal_erasmus_offer(self, call_id, answer=None, reason=None, **kwargs):

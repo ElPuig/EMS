@@ -410,6 +410,43 @@ class TestErasmusResolution(ErasmusResolutionCase):
         resolution = self._publish('admission')
         self.assertEqual(resolution.with_user(self.hos_user).line_ids.result, 'admitted')
 
+    def test_applicant_claims_from_the_portal_until_the_deadline(self):
+        """The issue-#682 review: the claim is sent from the portal, with its files, and becomes a
+        task for the Erasmus team until it is answered."""
+        first, _second = self._scored_call()
+        self._publish('admission')
+        with self.assertRaises(UserError, msg="Nothing to claim against before the provisional resolution."):
+            first._ems_portal_claim('My interview score')
+        provisional = self._publish('provisional')
+        self.call.claims_deadline = fields.Datetime.now() + timedelta(days=1)
+        self.assertEqual(first._ems_portal_claimable(), provisional)
+        with self.assertRaises(UserError, msg="A claim says what is claimed."):
+            first._ems_portal_claim('  ')
+        claim = first._ems_portal_claim('My interview score', [('proof.pdf', b'%PDF-1.4 proof')])
+        self.assertEqual((claim.resolution_id, claim.state, claim.attachment_ids.name),
+                         (provisional, 'open', 'proof.pdf'))
+        self.assertEqual(claim.activity_ids.user_id, self.env['ems.erasmus.call']._ems_erasmus_team())
+        claim.with_user(self.erasmus_user).response = 'Reviewed: the score stands.'
+        claim.with_user(self.erasmus_user).action_resolve()
+        self.assertFalse(claim.activity_ids, "Answering the claim closes the team's tasks.")
+        self.call.claims_deadline = fields.Datetime.now() - timedelta(minutes=1)
+        with self.assertRaises(UserError, msg="Not after the claims deadline."):
+            first._ems_portal_claim('Too late')
+
+    def test_reserve_number_and_the_cut_of_the_places(self):
+        first, second = self._scored_call()
+        self.assertEqual((first.ranking_result, second.ranking_result), ('selected', 'reserve'))
+        self._publish('admission')
+        provisional = self._publish('provisional')
+        line = provisional.line_ids.filtered(lambda line: line.application_id == second)
+        self.assertEqual((line.result, line._ems_reserve_number()), ('reserve', 1))
+
+    def test_the_administrator_gets_no_team_task_but_keeps_every_right(self):
+        admin = self.env.ref('base.user_admin')
+        self.assertNotIn(admin, self.env['ems.erasmus.call']._ems_erasmus_team())
+        self.assertFalse(admin.has_group('ems.group_erasmus'))
+        self.assertTrue(self.env['ems.erasmus.application'].with_user(admin)._ems_can_manage())
+
 
 @tagged('post_install', '-at_install')
 class TestPortalErasmusResolution(HttpCase, ErasmusResolutionCase):
@@ -441,6 +478,23 @@ class TestPortalErasmusResolution(HttpCase, ErasmusResolutionCase):
         self.assertNotIn('Erasmus Test Student', listed.text)
         pdf = self.url_open(f'/my/erasmus/call/{self.call.id}/resolution/{provisional.id}/pdf')
         self.assertEqual(pdf.headers['Content-Type'], 'application/pdf')
+
+    def test_the_applicant_finds_their_row_and_claims_from_the_portal(self):
+        first, _second = self._scored_call()
+        self._publish('admission')
+        provisional = self._publish('provisional')
+        self.call.claims_deadline = fields.Datetime.now() + timedelta(days=1)
+        self.authenticate(self.student_user.login, self.student_user.login)
+        listed = self.url_open(f'/my/erasmus/call/{self.call.id}/resolution/{provisional.id}')
+        self.assertEqual(listed.text.count('o_ems_erasmus_my_line'), 1, "Only their own row is highlighted.")
+        page = self.url_open(f'/my/erasmus/call/{self.call.id}')
+        self.assertIn('o_ems_erasmus_claim', page.text)
+        response = self.url_open(f'/my/erasmus/call/{self.call.id}/claim', data={
+            'csrf_token': Request.csrf_token(self), 'description': 'My interview score'},
+            files={'claim_files': ('proof.pdf', b'%PDF-1.4 proof', 'application/pdf')})
+        self.assertIn('claimed=1', response.url)
+        self.assertEqual(first.claim_ids.description, 'My interview score')
+        self.assertIn('o_ems_erasmus_claims', self.url_open(f'/my/erasmus/call/{self.call.id}').text)
 
     def test_draft_resolution_is_not_shown(self):
         self._scored_call()

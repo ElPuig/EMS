@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from datetime import timedelta
+
 from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 RUBRIC = [(str(points), str(points)) for points in range(6)]
 GENERAL_CRITERIA = ('motivation', 'maturity', 'difficulties', 'adaptation')
@@ -69,6 +72,17 @@ class EmsErasmusInterview(models.Model):
     def _ems_activity_summary(self):
         return _("Score the Erasmus+ interview of %s", self.partner_id.name)
 
+    def action_submit_next(self):
+        """Submit and open the next interview this evaluator still has to score."""
+        self.ensure_one()
+        self.action_submit()
+        following = self.search([('evaluator_id', '=', self.env.uid), ('state', '=', 'draft'),
+                                 ('id', '!=', self.id)], limit=1)
+        if not following:
+            return self.env['ir.actions.act_window']._for_xml_id('ems.action_erasmus_my_interviews')
+        return {'type': 'ir.actions.act_window', 'res_model': self._name, 'res_id': following.id,
+                'view_mode': 'form', 'views': [(False, 'form')], 'target': 'current'}
+
 
 class EmsErasmusApplicationGrade(models.Model):
     """Issue #684 - a module used for an application's record average (criterion A), copied
@@ -84,4 +98,60 @@ class EmsErasmusApplicationGrade(models.Model):
     course_name = fields.Char(string="Course")
     grade = fields.Integer(string="Grade")
     hours = fields.Integer(string="Hours")
+
+
+class EmsErasmusInterviewSchedule(models.TransientModel):
+    """The issue-#682 review: the interviews of many admitted applicants at once, in consecutive
+    slots of the same place and evaluators, instead of application by application."""
+    _name = 'ems.erasmus.interview.schedule'
+    _description = 'Erasmus+ interview schedule'
+
+    call_id = fields.Many2one(string="Call", comodel_name='ems.erasmus.call', required=True)
+    modality_id = fields.Many2one(string="Modality", comodel_name='ems.erasmus.call.modality',
+                                  domain="[('call_id', '=', call_id)]",
+                                  help="Empty: the admitted applicants of every modality.")
+    application_ids = fields.Many2many(
+        string="Applicants", comodel_name='ems.erasmus.application', compute='_compute_application_ids', store=True,
+        readonly=False, domain="[('call_id', '=', call_id), ('state', '=', 'admitted')]",
+        help="In this order. By default, the admitted applicants without an interview date yet.")
+    date_start = fields.Datetime(string="First interview", required=True)
+    duration = fields.Integer(string="Minutes per interview", required=True, default=20)
+    place = fields.Char(string="Place", required=True)
+    evaluator_ids = fields.Many2many(string="Evaluators", comodel_name='res.users',
+                                     domain="[('share', '=', False)]",
+                                     help="Usually two: each one scores every interview of these slots.")
+    send_call = fields.Boolean(string="Send the interview calls", default=True,
+                               help="Emails each applicant the date and place (at least 24 hours ahead).")
+
+    @api.model
+    def default_get(self, fields_list):
+        values = super().default_get(fields_list)
+        values.setdefault('call_id', self.env.context.get('active_id'))
+        return values
+
+    @api.depends('call_id', 'modality_id')
+    def _compute_application_ids(self):
+        for wizard in self:
+            wizard.application_ids = wizard.call_id.application_ids.filtered(
+                lambda application: application.state == 'admitted' and not application.interview_date
+                and (not wizard.modality_id or application.modality_id == wizard.modality_id)).sorted(
+                lambda application: (application.modality_id.sequence, application.partner_id.name))
+
+    def action_confirm(self):
+        self.ensure_one()
+        if not self.env['ems.erasmus.application']._ems_can_manage():
+            raise UserError(_("Only the Erasmus team schedules the interviews."))
+        if not self.application_ids:
+            raise UserError(_("There is nobody to schedule."))
+        if self.duration <= 0:
+            raise UserError(_("Each interview needs some minutes."))
+        Interview = self.env['ems.erasmus.interview']
+        for index, application in enumerate(self.application_ids):
+            application.write({'interview_date': self.date_start + timedelta(minutes=index * self.duration),
+                               'interview_place': self.place})
+            missing = self.evaluator_ids - application.interview_ids.evaluator_id
+            Interview.create([{'application_id': application.id, 'evaluator_id': user.id} for user in missing])
+        if self.send_call:
+            self.application_ids.action_send_interview_call()
+        return {'type': 'ir.actions.act_window_close'}
 

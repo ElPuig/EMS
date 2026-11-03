@@ -24,6 +24,8 @@ Ves a **Erasmus+ > Convocatòries > Convocatòries** i fes clic a **Nou**:
 
 > Les respostes als correus que l'EMS envia sense que ningú de l'equip els enviï (acusaments de recepció i recordatoris) arriben a la bústia d'Erasmus+ que hi ha a **Configuració > Gestió de l'EMS > Dades del centre > Erasmus+** (erasmus@elpuig.xeill.net), la mateixa per a totes les convocatòries.
 
+Les pestanyes de la convocatòria estan en dos blocs: **Selecció** (modalitats, documents, informació per a les persones sol·licitants, tribunal i resolucions) i **Mobilitat** (destinacions, documents de la mobilitat, carta de compromís, llista de passos i autoavaluació setmanal). Els botons de dalt segueixen la fase de la convocatòria, la més recent primer: abans de la resolució definitiva, la classificació i les entrevistes (o les valoracions dels plans); després, les mobilitats i les ofertes de plaça; les reclamacions, a partir de la resolució provisional. Un empat per sortejar s'avisa a dalt de tot de la convocatòria.
+
 Pestanya **Modalitats**: una línia per a cada llista de selecció amb places pròpies, per exemple *GM* i *GS*. A **Nivells** tria els nivells de l'alumnat que sol·licita en aquesta modalitat (per exemple *CFGM* per a GM, i *CFGS* i els cursos d'especialització per a GS, perquè aquest alumnat va al projecte d'educació superior). Qualsevol alumne el grup principal del qual sigui d'un d'aquests nivells pot sol·licitar, sigui del curs que sigui. Omple també el projecte, les places, el període i les destinacions.
 
 Pestanya **Documents**: una línia per a cada document que demana la convocatòria, amb el seu **Caràcter**:
@@ -42,9 +44,15 @@ Pestanya **Informació per als sol·licitants**: el text que es mostra al portal
 
 A **Accions**, fes clic a **Publica**. La convocatòria apareix al portal de tot l'alumnat que pot sol·licitar-la. Mentre no s'hagi enviat cap sol·licitud, encara pots fer **Torna a esborrany**.
 
+## Avisar qui s'hi pot presentar
+
+Publicar no envia cap correu. Per avisar tothom qui s'hi pot presentar, fes clic a **Accions > Avisa qui s'hi pot presentar**: l'EMS et mostra quantes persones el rebran (i quantes no tenen adreça de correu i no el rebran) i l'envia quan fas clic a **Envia l'avís**. És la mateixa regla que el portal: en una convocatòria d'alumnat, l'alumnat dels nivells de les seves modalitats, excepte qui té massa amonestacions; en una de personal, el professorat dels seus nivells i la direcció que valida les activitats. Cada persona rep el seu propi correu, amb les dates de la convocatòria i l'enllaç per sol·licitar-la. La família no el rep. El pots enviar abans que s'obri la convocatòria; si el tornes a enviar (per exemple després d'afegir un nivell), tothom el torna a rebre: l'assistent t'ho avisa.
+
+**Recordatori abans del tancament:** a **Recordatori (dies abans del tancament)** (3 per defecte), l'EMS envia un correu, tants dies abans del tancament i a partir de les 9:00, a qui es pot presentar i encara no ha enviat la sol·licitud (un esborrany no compta). S'envia una sola vegada, i només si l'avís s'ha enviat des de l'EMS. Posa-hi 0 perquè no n'hi hagi. La convocatòria mostra quan s'ha enviat cada correu i a quantes persones.
+
 ## 3. Revisar les sol·licituds
 
-Ves a **Erasmus+ > Convocatòries > Sol·licituds** (o al botó **Sol·licituds** de la convocatòria). Filtres: *Per revisar*, *Esmena requerida*, *Admesa*, *Exclosa*.
+Ves a **Erasmus+ > Convocatòries > Sol·licituds** (o al botó **Sol·licituds** de la convocatòria, que les agrupa per modalitat). Filtres: *Per revisar*, *Esmena requerida*, *Admesa*, *Exclosa*. **Documents per revisar** compta els fitxers que esperen la vostra comprovació.
 
 Obre una sol·licitud:
 

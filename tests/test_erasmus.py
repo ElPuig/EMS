@@ -207,6 +207,12 @@ class TestErasmusApplication(TransactionCase):
         with self.assertRaises(UserError):
             application._ems_portal_save({'availability': 'Easter'}, {})
 
+    def test_a_students_image_consent_is_their_authorisation_of_the_course(self):
+        """The issue-#682 review: not asked again in the form, whatever the browser sends."""
+        application = self._apply()
+        application._ems_portal_save({'availability': 'Summer', 'image_consent': True}, {})
+        self.assertEqual(application.image_consent, self.student.auth_image)
+
     def test_every_uploaded_version_is_kept(self):
         application = self._apply()
         upload(application, self.cv, name='v1.pdf')

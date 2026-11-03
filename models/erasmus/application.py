@@ -61,8 +61,9 @@ PARTICIPANT_HEADERS = ('Nombre', 'Apellidos', 'DNI', 'Email', 'Teléfono', 'Dire
                        'IBAN', 'Tutor legal', 'Email del tutor legal', 'Teléfono del tutor legal')
 # Answers of the portal form, editable by the applicant while the call accepts applications.
 ANSWER_FIELDS = {
-    'student': ('availability', 'fewer_opportunities',
-                'image_consent', 'applicant_notes'),
+    # A student's image consent is their image rights authorisation of the course (res.partner.auth_image,
+    # as in the group mobilities): not asked again (the issue-#682 review).
+    'student': ('availability', 'fewer_opportunities', 'applicant_notes'),
     'staff': ('staff_activity', 'host_entity', 'destination', 'preferred_dates',
               'declared_never_staff_mobility', 'declared_last_mobility_date', 'declared_centre_start_date',
               'centre_projects', 'declared_language_level', 'support_needs', 'image_consent',
@@ -238,7 +239,7 @@ class EmsErasmusApplication(models.Model):
                            groups=TEAM)
     score_e = fields.Float(string="E. First mobility", digits=(5, 2), compute='_compute_scores', store=True,
                            groups=TEAM)
-    score_f = fields.Float(string="F. Conduct", digits=(5, 2), compute='_compute_scores', store=True,
+    score_f = fields.Float(string="F. Conduct warnings", digits=(5, 2), compute='_compute_scores', store=True,
                            groups=TEAM)
     score_total = fields.Float(string="Total score", digits=(5, 2), compute='_compute_scores', store=True)
     score_complete = fields.Boolean(string="Score complete", compute='_compute_scores', store=True,
@@ -252,6 +253,15 @@ class EmsErasmusApplication(models.Model):
                           help="Position in the modality among the admitted applications. 0 until every one "
                                "of them has a complete score.")
     needs_draw = fields.Boolean(string="Needs a draw", compute='_compute_rank', store=True)
+    # The issue-#682 review: the cut of the places in the ranking, and what the team has to review.
+    ranking_result = fields.Selection(string="Within the places", compute='_compute_ranking_result', selection=[
+        ('selected', "Selected"), ('reserve', "Reserve"), ('not_selected', "Not selected")],
+        help="What the ranking gives today: selected within the places of the modality (of the call, for staff), "
+             "reserve after them, not selected below the minimum score.")
+    documents_to_review = fields.Integer(string="Documents to review", compute='_compute_documents_to_review')
+    scores_hidden = fields.Boolean(string="Scores hidden", compute='_compute_scores_hidden',
+                                   help="Outside the Erasmus team, a staff application's points are hidden until the "
+                                        "panel has rated every plan of the call.")
 
     # --- resolutions, claims and offers (issue #685) ---
     resolution_line_ids = fields.One2many(string="Resolutions", comodel_name='ems.erasmus.resolution.line',
@@ -499,6 +509,18 @@ class EmsErasmusApplication(models.Model):
             self.mobility_ids.filtered(lambda mobility: mobility.state in ('choosing', 'preparing'))._ems_sync_requirements()
         return result
 
+    @api.depends_context('uid')
+    def _compute_scores_hidden(self):
+        hidden = self.browse() if self.env.su or self._ems_can_manage() else self._ems_panel_pending()
+        for application in self:
+            application.scores_hidden = application in hidden
+
+    def _ems_panel_pending(self):
+        """The staff applications whose call's panel has not rated every plan yet."""
+        return self.sudo().filtered(lambda application: application.audience == 'staff' and not all(
+            application.call_id.application_ids.filtered(
+                lambda other: other.state in RANKED_STATES).mapped('plan_complete'))).with_env(self.env)
+
     def _read_format(self, fnames, load='_classic_read'):
         """The staff's points read as 0 outside the Erasmus team while the panel is rating
         (PANEL_PENDING_HIDDEN), whatever reads them (read, search_read, the web client). Their rank
@@ -507,9 +529,7 @@ class EmsErasmusApplication(models.Model):
         hidden = set(fnames) & set(PANEL_PENDING_HIDDEN)
         if not hidden or self.env.su or self._ems_can_manage():
             return result
-        pending = self.sudo().filtered(lambda application: application.audience == 'staff' and not all(
-            application.call_id.application_ids.filtered(
-                lambda other: other.state in RANKED_STATES).mapped('plan_complete')))
+        pending = self._ems_panel_pending()
         for vals in result:
             if vals['id'] in pending.ids:
                 vals.update(dict.fromkeys(hidden, 0.0))
@@ -577,6 +597,18 @@ class EmsErasmusApplication(models.Model):
         self._ems_send('ems.email_template_erasmus_interview_call')
         self.sudo().write({'interview_call_date': fields.Datetime.now()})
 
+    @api.depends('rank', 'is_eligible', 'score_complete', 'modality_id.places')
+    def _compute_ranking_result(self):
+        for application in self:
+            application.ranking_result = application.score_complete and application.rank and \
+                application._ems_ranking_result()
+
+    @api.depends('document_ids.review_state', 'document_ids.attachment_ids')
+    def _compute_documents_to_review(self):
+        for application in self:
+            application.documents_to_review = len(application.document_ids.filtered(
+                lambda line: line.stage == 'application' and line.file_state == 'to_review'))
+
     def _ems_ranking_result(self):
         """Issue #685: selected within the modality's places, reserve after them, not selected
         below the minimum score. A staff call, within the places of all its modalities."""
@@ -599,7 +631,7 @@ class EmsErasmusApplication(models.Model):
 
     def _ems_participants(self):
         """The applications in self whose applicant accepted a place, for the Erasmus team only."""
-        if not (self.env.su or self.env.user.has_group('ems.group_erasmus')):
+        if not self._ems_can_manage():
             raise AccessError(_("Only the Erasmus team exports the participants."))
         accepted = self.filtered(lambda application: application.state == 'accepted')
         if not accepted:
@@ -807,6 +839,8 @@ class EmsErasmusApplication(models.Model):
         if answers:
             if not self._ems_portal_editable():
                 raise UserError(_("The application can no longer be changed."))
+            if self.audience == 'student':
+                answers['image_consent'] = self.partner_id.auth_image
             self.write(answers)
         lines = {line.call_document_id.id: line for line in self.document_ids}
         editable = self._ems_portal_editable()
@@ -932,8 +966,7 @@ class EmsErasmusApplication(models.Model):
         """What the participant does before leaving: the commitment letter, then the missing documents."""
         if mobility.commitment_pending:
             return (_("Accept and sign your commitment letter."), False, 'warning')
-        missing = mobility.document_ids.filtered(
-            lambda line: line.is_required and line.file_state in ('missing', 'needs_change'))
+        missing = mobility.document_ids.filtered(lambda line: line.todo_state in ('missing', 'needs_change'))
         if missing:
             deadlines = [line.deadline for line in missing if line.deadline]
             return (_("Upload the documents still missing from your record (%s).", len(missing)),
@@ -1005,6 +1038,34 @@ class EmsErasmusApplication(models.Model):
 
     def _ems_activities_done(self):
         self.sudo().activity_ids.action_feedback()
+
+    def _ems_portal_claimable(self):
+        """The provisional resolution the applicant can claim against from the portal (art. 14):
+        published, with them on it, until the call's claims deadline (the issue-#682 review)."""
+        self.ensure_one()
+        call = self.call_id
+        if not (call.claims_deadline and call.claims_deadline > call._ems_now()):
+            return self.env['ems.erasmus.resolution']
+        return self.resolution_line_ids.resolution_id.filtered(
+            lambda resolution: resolution.kind == 'provisional' and resolution.state == 'published').sorted(
+            'publish_date')[-1:]
+
+    def _ems_portal_claim(self, description, files=()):
+        """The applicant's claim, sent from the portal: recorded with the moment it arrived, so
+        the team only answers it."""
+        self.ensure_one()
+        resolution = self._ems_portal_claimable()
+        description = (description or '').strip()
+        if not resolution or not description:
+            raise UserError(_("You cannot claim now."))
+        claim = self.env['ems.erasmus.claim'].sudo().create({
+            'application_id': self.id, 'resolution_id': resolution.id, 'description': description[:5000]})
+        if files:
+            claim.attachment_ids = self.env['ir.attachment'].sudo().create([{
+                'name': check_upload(name), 'datas': base64.b64encode(content),
+                'res_model': claim._name, 'res_id': claim.id} for name, content in files])
+        claim._ems_ask_answer()
+        return claim
 
     def _ems_can_manage(self):
         user = self.env.user
@@ -1083,6 +1144,13 @@ class EmsErasmusApplicationDocument(models.Model):
         ('complete', "Complete"), ('optional', "Optional"), ('not_applicable', "Not applicable")],
         help="Complete: valid after the team's review (a signed document is only complete once checked, not when "
              "uploaded); one the team provides, once it is uploaded.")
+    # The issue-#682 review: what the record shows, so that only what the participant has to do now
+    # is red. A missing document the Erasmus team uploads, or one that is not due yet (the destination
+    # not set, it opens later, a return document before the end of the stay), is not.
+    todo_state = fields.Selection(string="To do", compute='_compute_todo_state', selection=[
+        ('missing', "Missing"), ('waiting_team', "The Erasmus team uploads it"), ('not_yet', "Not yet"),
+        ('to_review', "Pending review"), ('needs_change', "Needs changes"), ('complete', "Complete"),
+        ('optional', "Optional"), ('not_applicable', "Not applicable")])
 
     @api.depends('call_document_id.requirement', 'application_id.is_minor', 'mobility_id.placement_type',
                  'mobility_id.is_short_blended')
@@ -1120,6 +1188,22 @@ class EmsErasmusApplicationDocument(models.Model):
                 line.file_state = 'missing'
             else:
                 line.file_state = 'optional' if line.call_document_id.requirement == 'optional' else 'not_applicable'
+
+    @api.depends('file_state', 'handled_by', 'prepared_attachment_ids', 'stage', 'open_date', 'mobility_id.state',
+                 'mobility_id.date_end')
+    def _compute_todo_state(self):
+        today = self.env['ems.datetime_utils'].get_local_today()
+        for line in self:
+            mobility = line.mobility_id
+            if line.file_state != 'missing' or not mobility:
+                line.todo_state = line.file_state
+            elif line.handled_by == 'team' or (line.handled_by == 'team_to_sign' and not line.prepared_attachment_ids):
+                line.todo_state = 'waiting_team'
+            elif mobility.state == 'choosing' or not line._ems_is_open() or (
+                    line.stage == 'return' and not (mobility.date_end and mobility.date_end < today)):
+                line.todo_state = 'not_yet'
+            else:
+                line.todo_state = 'missing'
 
     @api.depends('call_document_id.due_basis', 'call_document_id.due_days', 'mobility_id.destination_date',
                  'mobility_id.date_start', 'mobility_id.date_end')

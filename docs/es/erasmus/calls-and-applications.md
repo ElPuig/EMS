@@ -24,6 +24,8 @@ Ve a **Erasmus+ > Convocatorias > Convocatorias** y haz clic en **Nuevo**:
 
 > Las respuestas a los correos que EMS envía sin que nadie del equipo los mande (acuses de recibo y recordatorios) llegan al buzón de Erasmus+ que está en **Ajustes > Gestión del EMS > Datos del centro > Erasmus+** (erasmus@elpuig.xeill.net), el mismo para todas las convocatorias.
 
+Las pestañas de la convocatoria están en dos bloques: **Selección** (modalidades, documentos, información para las personas solicitantes, tribunal y resoluciones) y **Movilidad** (destinos, documentos de la movilidad, carta de compromiso, lista de pasos y autoevaluación semanal). Los botones de arriba siguen la fase de la convocatoria, la más reciente primero: antes de la resolución definitiva, la clasificación y las entrevistas (o las valoraciones de los planes); después, las movilidades y las ofertas de plaza; las reclamaciones, a partir de la resolución provisional. Un empate por sortear se avisa arriba del todo de la convocatoria.
+
 Pestaña **Modalidades**: una línea por cada lista de selección con plazas propias, por ejemplo *GM* y *GS*. En **Niveles** elige los niveles del alumnado que solicita en esa modalidad (por ejemplo *CFGM* para GM, y *CFGS* y los cursos de especialización para GS, porque ese alumnado va al proyecto de educación superior). Cualquier alumno cuyo grupo principal sea de uno de esos niveles puede solicitar, sea del curso que sea. Rellena también el proyecto, las plazas, el periodo y los destinos.
 
 Pestaña **Documentos**: una línea por cada documento que pide la convocatoria, con su **Carácter**:
@@ -42,9 +44,15 @@ Pestaña **Información para los solicitantes**: el texto que se muestra en el p
 
 En **Acciones**, haz clic en **Publicar**. La convocatoria aparece en el portal de todo el alumnado que puede solicitarla. Mientras no se haya enviado ninguna solicitud, todavía puedes **Volver a borrador**.
 
+## Avisar a quien puede presentarse
+
+Publicar no envía ningún correo. Para avisar a todas las personas que pueden presentarse, haz clic en **Acciones > Avisar a quien puede presentarse**: EMS te muestra cuántas personas lo recibirán (y cuántas no tienen dirección de correo y no lo recibirán) y lo envía cuando haces clic en **Enviar el aviso**. Es la misma regla que el portal: en una convocatoria de alumnado, el alumnado de los niveles de sus modalidades, excepto quien tiene demasiadas amonestaciones; en una de personal, el profesorado de sus niveles y la dirección que valida las actividades. Cada persona recibe su propio correo, con las fechas de la convocatoria y el enlace para solicitarla. La familia no lo recibe. Puedes enviarlo antes de que se abra la convocatoria; si lo vuelves a enviar (por ejemplo después de añadir un nivel), todo el mundo lo vuelve a recibir: el asistente te avisa.
+
+**Recordatorio antes del cierre:** en **Recordatorio (días antes del cierre)** (3 por defecto), EMS envía un correo, tantos días antes del cierre y a partir de las 9:00, a quien puede presentarse y aún no ha enviado la solicitud (un borrador no cuenta). Se envía una sola vez, y solo si el aviso se ha enviado desde EMS. Pon 0 para que no haya. La convocatoria muestra cuándo se ha enviado cada correo y a cuántas personas.
+
 ## 3. Revisar las solicitudes
 
-Ve a **Erasmus+ > Convocatorias > Solicitudes** (o al botón **Solicitudes** de la convocatoria). Filtros: *Por revisar*, *Subsanación requerida*, *Admitida*, *Excluida*.
+Ve a **Erasmus+ > Convocatorias > Solicitudes** (o al botón **Solicitudes** de la convocatoria, que las agrupa por modalidad). Filtros: *Por revisar*, *Subsanación requerida*, *Admitida*, *Excluida*. **Documentos por revisar** cuenta los archivos que esperan vuestra comprobación.
 
 Abre una solicitud:
 

@@ -37,7 +37,7 @@
              the team opens them from the call's form, not from the menu (the issue-#682 review). -->
         <menuitem name="My plan ratings" sequence="2" id="menu_erasmus_my_plan_ratings"
                   parent="menu_erasmus" action="action_erasmus_my_plan_ratings"
-                  groups="ems.group_erasmus_panel"/>
+                  groups="ems.group_erasmus_panel,-ems.group_erasmus_evaluator"/>
 
         <!-- Issue #685: resolutions, place offers and claims; the Head of Studies and the Director read them. -->
         <menuitem name="Resolutions" sequence="7" id="menu_erasmus_resolutions"
@@ -46,15 +46,22 @@
 
         <menuitem name="Place offers" sequence="8" id="menu_erasmus_offers"
                   parent="menu_erasmus_section_calls" action="action_erasmus_offer"
-                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+                  groups="ems.group_erasmus,ems.group_academic_admin,-ems.group_head_of_studies"/>
 
         <!-- Issue #687: mobility preparation; the Director validates the staff's activities from here. -->
         <menuitem name="Individual mobilities" sequence="1" id="menu_erasmus_mobilities"
                   parent="menu_erasmus_section_mobilities" action="action_erasmus_mobility"
                   groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
 
+        <!-- The Head of Studies and the Director don't act on the place offers nor the claims: they
+             open them from the call if they need to (the issue-#682 review). An upgrade only adds a
+             menu's groups, so the ones taken away are removed explicitly with "-". -->
         <menuitem name="Claims" sequence="6" id="menu_erasmus_claims"
                   parent="menu_erasmus_section_calls" action="action_erasmus_claim"
+                  groups="ems.group_erasmus,ems.group_academic_admin,-ems.group_head_of_studies"/>
+
+        <menuitem name="Pending validation" sequence="0" id="menu_erasmus_mobilities_to_validate"
+                  parent="menu_erasmus_section_mobilities" action="action_erasmus_mobility_to_validate"
                   groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
 
         <menuitem name="Projects" sequence="1" id="menu_erasmus_projects"

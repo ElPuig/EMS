@@ -407,18 +407,35 @@ class EmsErasmusMobility(models.Model):
             **(application.audience == 'staff' and {
                 'proposal_activity': application.staff_activity, 'proposal_host': application.host_entity,
                 'proposal_city': application.destination, 'proposal_notes': application.preferred_dates,
+                'proposal_country_id': self._ems_country_in(application.destination).id,
             } or {}),
         } for application in applications])
         mobilities._ems_sync_requirements()
         mobilities.call_id.filtered('choice_open')._ems_advance_choice()
         return mobilities
 
+    @api.model
+    def _ems_country_in(self, text):
+        """The country named in `text` (the staff application's "city and country"), in any of
+        the installed languages, or none (the issue-#682 review)."""
+        words = f" {' '.join((text or '').lower().replace(',', ' ').replace('(', ' ').replace(')', ' ').split())} "
+        if not words.strip():
+            return self.env['res.country']
+        Country = self.env['res.country'].sudo()
+        for lang in self.env['res.lang'].get_installed():
+            for country in Country.with_context(lang=lang[0]).search([]):
+                if f" {country.name.lower()} " in words:
+                    return country.with_env(self.env)
+        return self.env['res.country']
+
     def _ems_sync_requirements(self):
         """Add the preparation and return documents and checklist steps of the call that apply to
-        the mobility's modality and are still missing. Never removes a line."""
+        the mobility's modality and are still missing. Never removes a line. Read as superuser: who
+        validates a staff proposal doesn't see the confidential documents (the health card), and they
+        were added again."""
         Line = self.env['ems.erasmus.application.document'].sudo()
         Task = self.env['ems.erasmus.mobility.task'].sudo()
-        for mobility in self:
+        for mobility in self.sudo():
             call, modality = mobility.call_id, mobility.modality_id
 
             def applies(record):

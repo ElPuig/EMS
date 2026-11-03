@@ -8,7 +8,8 @@ from .workflow import check_workflow_create, check_workflow_write
 
 class EmsErasmusClaim(models.Model):
     """Issue #685 - a claim against the provisional resolution or an appeal before the Director
-    (art. 14 of the call). They arrive by email; the Erasmus team records them and the answer."""
+    (art. 14 of the call). The applicant sends it from the portal (the issue-#682 review), or by
+    email and the Erasmus team records it; the team writes the answer."""
     _name = 'ems.erasmus.claim'
     _description = 'Erasmus+ claim'
     _inherit = ['ems.base']
@@ -52,10 +53,21 @@ class EmsErasmusClaim(models.Model):
         if self.filtered(lambda claim: not (claim.response or '').strip()):
             raise UserError(_("Write the response first."))
         self.sudo().write({'state': 'resolved', 'resolved_date': self.env['ems.datetime_utils'].get_local_today()})
+        self.sudo().activity_ids.action_feedback()
 
     def action_reopen(self):
         self._ems_check_manager()
         self.sudo().write({'state': 'open', 'resolved_date': False})
+
+    def _ems_ask_answer(self):
+        """A task for each member of the Erasmus team to answer a claim sent from the portal; it is
+        marked done when the claim is resolved."""
+        activity_type = self.env.ref('mail.mail_activity_data_todo')
+        team = self.env['ems.erasmus.call']._ems_erasmus_team()
+        for claim in self.sudo():
+            for user in team:
+                claim.activity_schedule(activity_type_id=activity_type.id, user_id=user.id,
+                                        summary=_("Erasmus+: answer the claim of %s", claim.partner_id.name))
 
     def _ems_check_manager(self):
         if not self.env['ems.erasmus.application']._ems_can_manage():

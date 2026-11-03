@@ -286,6 +286,25 @@ class TestErasmusInterview(ErasmusScoringCase):
         self.assertAlmostEqual(application.interview_general, 18.0)
         self.assertAlmostEqual(application.interview_english, 13.5)
 
+    def test_schedule_many_interviews_at_once(self):
+        """The issue-#682 review: consecutive slots, the same place and evaluators, and the calls sent."""
+        first, second = self._admitted(), self._admitted(self.second)
+        self.call.action_close()
+        start = fields.Datetime.now().replace(microsecond=0) + timedelta(days=3)
+        wizard = self.env['ems.erasmus.interview.schedule'].with_user(self.erasmus_user).with_context(
+            active_id=self.call.id).create({'date_start': start, 'duration': 20, 'place': 'Room 12',
+                                            'evaluator_ids': [(6, 0, (self.evaluator_1 | self.evaluator_2).ids)]})
+        self.assertEqual(wizard.application_ids, first | second)
+        wizard.action_confirm()
+        dates = wizard.application_ids.mapped('interview_date')
+        self.assertEqual(dates, [start, start + timedelta(minutes=20)])
+        self.assertEqual(set((first | second).mapped('interview_place')), {'Room 12'})
+        self.assertEqual(first.interview_ids.evaluator_id, self.evaluator_1 | self.evaluator_2)
+        self.assertTrue(first.interview_call_date and second.interview_call_date)
+        wizard = self.env['ems.erasmus.interview.schedule'].with_context(active_id=self.call.id).create({
+            'date_start': start, 'place': 'Room 12'})
+        self.assertFalse(wizard.application_ids, "Who already has an interview date is not proposed again.")
+
     def test_one_interview_only_with_a_reason(self):
         application = self._admitted()
         score_interview(self._interview(application, self.evaluator_1).with_user(self.evaluator_1), 5, 5)

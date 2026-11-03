@@ -29,11 +29,11 @@ Pots escriure les teves notes a **Notes de l'avaluador**.
 
 ## 3. Enviar-la
 
-Fes clic a **Accions > Enviar**. Fins al **termini per corregir puntuacions** de la convocatòria la pots **Reobrir** i canviar; després, si hi ha un error, avisa l'equip Erasmus.
+Fes clic a **Accions > Enviar**, o a **Accions > Envia i següent** per enviar-la i obrir el següent pla que encara has de valorar. Fins al **termini per corregir puntuacions** de la convocatòria la pots **Reobrir** i canviar; després, si hi ha un error, avisa l'equip Erasmus.
 
-**Si et presentes a la convocatòria, o tens un conflicte d'interessos amb una persona candidata**, no valores: avisa l'equip Erasmus, que registrarà l'abstenció. La puntuació del pla és la mitjana de la resta de membres.
+**Si et presentes a la convocatòria, o tens un conflicte d'interessos amb una persona candidata**, no valores: avisa l'equip Erasmus, que registrarà l'abstenció: la valoració surt com a *Abstenció*. La puntuació del pla és la mitjana de la resta de membres.
 
-**La teva valoració és independent:** com a membre de la direcció pots obrir les sol·licituds del personal, però en veus els punts a 0 fins que no s'han valorat tots els plans de la convocatòria, de manera que mai no veus la mitjana dels altres membres abans de donar la teva.
+**La teva valoració és independent:** com a membre de la direcció pots obrir les sol·licituds del personal, però la pestanya **Baremació** indica que els punts estan ocults fins que no s'han valorat tots els plans de la convocatòria, de manera que mai no veus la mitjana dels altres membres abans de donar la teva.
 
 ---
 

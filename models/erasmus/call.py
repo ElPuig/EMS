@@ -21,6 +21,8 @@ PROJECTS = [('ka121_vet', "KA121-VET"), ('ka131_hed', "KA131-HED")]
 STAFF_RATING_DAYS = 14
 # Who a new staff call is for (art. 6 of the staff call): the teachers of every FP level.
 STAFF_LEVELS = ['ems.level_cfgb', 'ems.level_cfgm', 'ems.level_cfgs', 'ems.level_efps', 'ems.level_pfi']
+# The reminder before a call closes is emailed from this hour on, in the centre's time.
+REMINDER_HOUR = 9
 
 
 class EmsErasmusCall(models.Model):
@@ -120,9 +122,23 @@ class EmsErasmusCall(models.Model):
                                readonly=True)
     has_final_resolution = fields.Boolean(string="Definitive resolution published",
                                           compute='_compute_has_final_resolution')
+    has_provisional_resolution = fields.Boolean(string="Provisional resolution published",
+                                                compute='_compute_has_final_resolution')
     application_count = fields.Integer(string="Number of applications", compute='_compute_application_count')
     is_accepting = fields.Boolean(string="Accepting applications", compute='_compute_is_accepting',
                                   help="Published, and the closing date has not passed yet.")
+    # The notice of the open call to whoever can apply, sent by the Erasmus team, and the reminder
+    # before it closes to those who have not submitted (the issue-#682 review).
+    announce_date = fields.Datetime(string="Notice sent on", readonly=True, copy=False)
+    announce_count = fields.Integer(string="Notice sent to", readonly=True, copy=False,
+                                    help="How many people the notice of the open call was emailed to.")
+    reminder_days = fields.Integer(string="Reminder (days before closing)", default=3,
+                                   help="That many days before the closing date, EMS emails whoever can apply and "
+                                        "has not submitted an application yet. Only once, and only after the notice "
+                                        "of the open call. 0: no reminder.")
+    reminder_date = fields.Datetime(string="Reminder sent on", readonly=True, copy=False)
+    reminder_count = fields.Integer(string="Reminder sent to", readonly=True, copy=False,
+                                    help="How many people the reminder before the closing date was emailed to.")
 
     @api.depends('application_ids')
     def _compute_application_count(self):
@@ -141,7 +157,9 @@ class EmsErasmusCall(models.Model):
     @api.depends('resolution_ids.state', 'resolution_ids.kind')
     def _compute_has_final_resolution(self):
         for call in self:
-            call.has_final_resolution = 'definitive' in call._ems_published_resolutions().mapped('kind')
+            kinds = call._ems_published_resolutions().mapped('kind')
+            call.has_final_resolution = 'definitive' in kinds
+            call.has_provisional_resolution = 'provisional' in kinds
 
     @api.depends('audience', 'modality_ids.places', 'offer_ids.state', 'application_ids.state', 'application_ids.rank')
     def _compute_offers(self):
@@ -162,6 +180,11 @@ class EmsErasmusCall(models.Model):
         for call in self:
             if call.date_close <= call.date_open:
                 raise ValidationError(_("The call must close after it opens."))
+
+    @api.constrains('reminder_days')
+    def _check_reminder_days(self):
+        if any(call.reminder_days < 0 for call in self):
+            raise ValidationError(_("The reminder cannot be after the closing date."))
 
     @api.onchange('audience')
     def _onchange_audience(self):
@@ -502,8 +525,102 @@ class EmsErasmusCall(models.Model):
         self.ensure_one()
         action = self.env['ir.actions.act_window']._for_xml_id('ems.action_erasmus_ranking')
         action['domain'] = [('call_id', '=', self.id), ('state', 'in', RANKED_STATES)]
+        action['context'] = {'default_call_id': self.id}
         if self.audience == 'staff':
             action['views'] = [(self.env.ref('ems.view_erasmus_staff_ranking_list').id, 'list'), (False, 'form')]
+        return action
+
+    def action_announce(self):
+        """The notice of the open call: the Erasmus team checks how many people get it and sends it."""
+        self.ensure_one()
+        self._ems_check_manager()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_erasmus_call_announce')
+        action['context'] = {'default_call_id': self.id}
+        return action
+
+    def _ems_send_announce(self):
+        """Email the notice of the open call to whoever can apply. Again if asked again: the team
+        decides (for example after adding a level)."""
+        self.ensure_one()
+        self._ems_check_manager()
+        if self.state != 'published' or self.date_close <= self._ems_now():
+            raise UserError(_("Only a published call that has not closed yet can be announced."))
+        count = self._ems_announce(self._ems_eligible_partners(), 'ems.email_template_erasmus_call_open')
+        self.sudo().write({'announce_date': self._ems_now(), 'announce_count': count})
+        self.sudo().chatter(_("Notice of the open call emailed to %(count)s people.", count=count))
+
+    @api.model
+    def _cron_remind_closing(self):
+        """The reminder before the closing date, once per call: on the first run from `reminder_days`
+        days before the closing day on, to whoever can apply and has not submitted an application
+        (a draft counts as not submitted). Only for a call whose notice was sent, so that a call
+        announced some other way never emails anybody on its own. Hourly, from 9:00 in the centre:
+        never a mass email at night."""
+        local_now = self.env['ems.datetime_utils'].get_local_datetime()
+        if local_now.hour < REMINDER_HOUR:
+            return
+        today = local_now.date()
+        calls = self.search([('state', '=', 'published'), ('announce_date', '!=', False),
+                             ('reminder_date', '=', False), ('reminder_days', '>', 0)])
+        for call in calls.filtered('is_accepting'):
+            if today < call._ems_local_date(call.date_close) - timedelta(days=call.reminder_days):
+                continue
+            submitted = call.application_ids.filtered(lambda application: application.state != 'draft').partner_id
+            count = call._ems_announce(call._ems_eligible_partners() - submitted,
+                                       'ems.email_template_erasmus_call_reminder')
+            call.write({'reminder_date': call._ems_now(), 'reminder_count': count})
+            call.chatter(_("Reminder before the closing date emailed to %(count)s people.", count=count))
+
+    def _ems_announce(self, partners, xmlid):
+        """Email the template `xmlid` (rendered on the call) to each of `partners` with an address:
+        one email each, so nobody sees the others' addresses, rendered once per language. Returns
+        how many were emailed."""
+        self.ensure_one()
+        template = self.env.ref(xmlid).sudo()
+        partners = partners.filtered('email')
+        Mail = self.env['mail.mail'].sudo()
+        for lang, recipients in partners.grouped('lang').items():
+            first = Mail.browse(template.with_context(lang=lang).send_mail(
+                self.id, email_values={'email_to': recipients[0].email}))
+            values = {name: first[name] for name in ('subject', 'body_html', 'email_from', 'reply_to', 'auto_delete',
+                                                      'model', 'res_id')}
+            Mail.create([{**values, 'email_to': partner.email} for partner in recipients[1:]])
+        return len(partners)
+
+    def _ems_eligible_partners(self):
+        """Whoever can apply to the call, by the portal's rule (res.partner._ems_erasmus_calls): the
+        students of its modalities' levels not ruled out by their conduct warnings, or the internal
+        users of the teachers of its levels and of the Direction that validates the activities
+        (_ems_staff_can_apply). A few queries for the whole centre, never one per person."""
+        self.ensure_one()
+        if self.audience == 'staff':
+            teachers = self.env['hr.employee'].sudo().search([
+                ('employee_type', '=', 'teacher'), ('teaching_ids.group_id.level_id', 'in', self.staff_level_ids.ids)])
+            return (teachers.user_id | self.validator_ids).filtered(lambda user: not user.share).partner_id
+        students = self.env['res.partner'].sudo().search([
+            ('contact_type', '=', 'student'), ('main_group_id.level_id', 'in', self.modality_ids.level_ids.ids)])
+        return students - self._ems_conduct_blocked_partners(students)
+
+    def _ems_conduct_blocked_partners(self, partners):
+        """Those of `partners` ruled out by their conduct warnings during the call's course (art. 6),
+        counted in one query."""
+        self.ensure_one()
+        start = self._ems_course_start(self.course_id)
+        if not (partners and start and self.env.company.strike_escalation_threshold > 0):
+            return partners.browse()
+        counts = self.env['ems.strike'].sudo()._read_group(
+            [('student_id', 'in', partners.ids), ('date', '>=', start)], ['student_id'], ['__count'])
+        return partners.browse([student.id for student, count in counts if self._ems_conduct_blocked_count(count)])
+
+    def _ems_local_date(self, value):
+        """The day a stored (UTC) datetime falls on in the centre."""
+        return self.env['ems.datetime_utils'].utc_datetime_to_local(value.replace(tzinfo=UTC)).date()
+
+    def action_schedule_interviews(self):
+        """The issue-#682 review: many interviews at once, in consecutive slots."""
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_erasmus_interview_schedule')
+        action['context'] = {'default_call_id': self.id}
         return action
 
     def action_offer_place(self):
@@ -626,7 +743,8 @@ class EmsErasmusCall(models.Model):
 
     def action_view_applications(self):
         action = self._ems_call_action('ems.action_erasmus_application')
-        action['context'] = {'default_call_id': self.id}
+        action['context'] = {'default_call_id': self.id,
+                             'group_by': ['modality_id'] if self.audience == 'student' else []}
         return action
 
     def action_view_interviews(self):
@@ -721,13 +839,20 @@ class EmsErasmusCall(models.Model):
     def _ems_partner_course_strike_count(self, partner, course):
         """How many conduct warnings `partner` has during `course` (empty: the current one). Issue
         #701: group mobilities apply the same rule."""
-        course = course or self.env.company.current_course_id
-        if not course or partner.contact_type != 'student':
+        start = self._ems_course_start(course)
+        if not start or partner.contact_type != 'student':
             return 0
+        return self.env['ems.strike'].sudo().search_count([('student_id', '=', partner.id), ('date', '>=', start)])
+
+    @api.model
+    def _ems_course_start(self, course):
+        """The first moment of `course` (empty: the current one) in the centre, as Odoo stores it."""
+        course = course or self.env.company.current_course_id
+        if not course:
+            return False
         utils = self.env['ems.datetime_utils']
         first_day = datetime.combine(course.date_range()[0], time.min, tzinfo=utils.current_tz())
-        return self.env['ems.strike'].sudo().search_count([
-            ('student_id', '=', partner.id), ('date', '>=', utils.datetime_to_odoo(first_day.astimezone(UTC)))])
+        return utils.datetime_to_odoo(first_day.astimezone(UTC))
 
     @api.model
     def _ems_conduct_blocked_count(self, count):
@@ -872,3 +997,30 @@ class EmsErasmusCallDocument(models.Model):
                 for name in ('file_category', 'confidential'):
                     self.env.add_to_compute(Line._fields[name], lines)
         return result
+
+
+class EmsErasmusCallAnnounce(models.TransientModel):
+    """The notice of the open call (the issue-#682 review): how many people get it, and when it
+    was last sent, before the Erasmus team confirms."""
+    _name = 'ems.erasmus.call.announce'
+    _description = 'Erasmus+ notice of an open call'
+
+    call_id = fields.Many2one(string="Call", comodel_name='ems.erasmus.call', required=True, ondelete='cascade')
+    audience = fields.Selection(string="Applicants", related='call_id.audience')
+    recipient_count = fields.Integer(string="People who can apply", compute='_compute_recipients')
+    without_email_count = fields.Integer(string="Without an email address", compute='_compute_recipients')
+    announce_date = fields.Datetime(string="Notice sent on", related='call_id.announce_date')
+    announce_count = fields.Integer(string="Notice sent to", related='call_id.announce_count')
+    reminder_days = fields.Integer(string="Reminder (days before closing)", related='call_id.reminder_days')
+
+    @api.depends('call_id')
+    def _compute_recipients(self):
+        for wizard in self:
+            partners = wizard.call_id._ems_eligible_partners() if wizard.call_id else self.env['res.partner']
+            wizard.recipient_count = len(partners)
+            wizard.without_email_count = len(partners.filtered(lambda partner: not partner.email))
+
+    def action_send(self):
+        self.ensure_one()
+        self.call_id._ems_send_announce()
+        return {'type': 'ir.actions.act_window_close'}

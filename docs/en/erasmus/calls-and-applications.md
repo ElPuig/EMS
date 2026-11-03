@@ -24,6 +24,8 @@ Go to **Erasmus+ > Calls > Calls** and click **New**:
 
 > Replies to the emails EMS sends without anyone of the team sending them (receipts and reminders) go to the Erasmus+ mailbox in **Settings > EMS Management > Center Data > Erasmus+** (erasmus@elpuig.xeill.net), the same for every call.
 
+The call's tabs are in two blocks: **Selection** (modalities, documents, information for applicants, panel and resolutions) and **Mobility** (destinations, mobility documents, commitment letter, checklist and weekly self-assessment). The buttons at the top follow the call's phase, the latest first: before the definitive resolution, the ranking and the interviews (or plan ratings); then the mobilities and place offers; the claims, from the provisional resolution. A tie to draw is warned at the top of the call.
+
 **Modalities** tab: one line per selection list with its own places, for example *GM* and *GS*. In **Levels** choose the levels whose students apply in that modality (for example *CFGM* for GM, and *CFGS* and the specialisation courses for GS, whose students go on the higher education project). Any student whose main group is of one of those levels can apply, whatever their year. Also fill in the project, places, period and destinations.
 
 **Documents** tab: one line per document the call asks for, with its **Requirement**:
@@ -42,9 +44,15 @@ Tick **Confidential** for documents only the Erasmus team may see, such as the e
 
 In **Actions**, click **Publish**. The call appears on the portal of every student who can apply. While no application has been submitted you can still go **Back to draft**.
 
+## Notify who can apply
+
+Publishing sends no email. To tell everyone who can apply, click **Actions > Notify who can apply**: EMS shows how many people will get it (and how many have no email address, who will not) and sends it when you click **Send the notice**. It is the same rule as the portal: in a students' call, the students of the levels of its modalities, except those with too many conduct warnings; in a staff call, the teachers of its levels and the Direction that validates the activities. Each person receives their own email, with the call's dates and the link to apply. The family does not receive it. You can send it before the call opens; if you send it again (for example after adding a level), everybody receives it again: the assistant warns you.
+
+**Reminder before closing:** in **Reminder (days before closing)** (3 by default), EMS emails, that many days before the closing date and from 9:00, whoever can apply and has not submitted an application yet (a draft does not count). It is sent once, and only if the notice was sent from EMS. Set it to 0 for no reminder. The call shows when each email was sent and to how many people.
+
 ## 3. Review the applications
 
-Go to **Erasmus+ > Calls > Applications** (or the **Applications** button on the call). Filters: *To review*, *Corrections requested*, *Admitted*, *Excluded*.
+Go to **Erasmus+ > Calls > Applications** (or the **Applications** button on the call, which groups them by modality). Filters: *To review*, *Corrections requested*, *Admitted*, *Excluded*. **Documents to review** counts the files waiting for your check.
 
 Open an application:
 

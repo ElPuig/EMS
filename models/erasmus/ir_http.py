@@ -5,7 +5,7 @@ from odoo import models
 
 class IrHttp(models.AbstractModel):
     """The issue-#682 review: tells the backend whether its user has the portal's Erasmus+ page (a
-    staff call to apply to, or an application), for the user menu's "My Erasmus+ application"
+    staff call to apply to, or an application), for the user menu's "Erasmus+"
     (static/src/js/backend/user_menu_erasmus.js). Staff work in the backend, and the page is only
     on the portal."""
     _inherit = 'ir.http'

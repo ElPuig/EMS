@@ -23,7 +23,7 @@ A **Erasmus+ > Convocatòries > Convocatòries**, crea la convocatòria, posa *P
 - **Valida les activitats:** la direcció que valida l'activitat de cada persona seleccionada i els canvis posteriors. Ve omplert amb la directora o el director i el cap d'estudis de FP (el que hi ha per sobre de la majoria del professorat de FP), i només ells reben la tasca, encara que un professor depengui d'un altre cap d'estudis a l'organigrama.
 - Per obrir-la no cal indicar les **places**: la convocatòria publicada ja dona les orientatives, i poden canviar segons els projectes. Les afegeixes més endavant (pas 5).
 
-Un cop publicada, tot el personal amb fitxa d'empleat veu la convocatòria al portal (targeta **Erasmus+**, `/my/erasmus`). Comparteix aquest enllaç quan l'anunciïs.
+Un cop publicada, tot el personal amb fitxa d'empleat veu la convocatòria al portal (targeta **Erasmus+**, `/my/erasmus`). Per enviar-la per correu a tots ells, fes servir **Accions > Avisa qui s'hi pot presentar** (vegeu [Convocatòries i sol·licituds](calls-and-applications.md)).
 
 ## 2. Què omple el personal
 
@@ -42,7 +42,7 @@ Revisa els documents i admet o exclou com a la convocatòria de l'alumnat (les a
 
 Omple la pestanya **Tribunal** de la convocatòria: les persones que valoren els plans de mobilitat (la direcció i els caps de departament i de seminari). Després de **Tanca les sol·licituds**, fes clic a **Accions > Envia els plans al tribunal**. Cada membre rep una tasca per valorar tots els plans des d'**Erasmus+ > Les meves valoracions de plans**, que venç el **Termini per corregir puntuacions** (el botó te'l demana si és buit; si el canvies després, les tasques obertes el segueixen). Hi pots tornar a fer clic després d'admetre més sol·licituds: només crea les valoracions que falten.
 
-**Abstencions:** un membre del tribunal que es presenta a la convocatòria no valora (art. 10): les seves valoracions es creen com a abstencions, amb el motiu *Candidat en aquesta convocatòria*. Per a un altre conflicte d'interessos, obre la valoració des del botó **Valoracions de plans** de la convocatòria i escriu el **Motiu de l'abstenció**. No hi ha persones substitutes: la puntuació del pla (criteri 1) és la mitjana dels membres que el valoren. **Una valoració pendent la bloqueja** fins que s'envia.
+**Abstencions:** un membre del tribunal que es presenta a la convocatòria no valora (art. 10): les seves valoracions es creen com a abstencions, amb el motiu *Candidat en aquesta convocatòria*. Per a un altre conflicte d'interessos, obre la valoració des del botó **Valoracions de plans** de la convocatòria i escriu el **Motiu de l'abstenció**. No hi ha persones substitutes: la puntuació del pla (criteri 1) és la mitjana dels membres que el valoren. **Una valoració pendent la bloqueja** fins que s'envia. A **Valoracions de plans**, una abstenció surt com a *Abstenció*, i la vista de taula dinàmica (persones candidates × estat) mostra d'un cop d'ull quins plans encara tenen valoracions per enviar.
 
 **La direcció no veu els punts mentre el tribunal valora:** el cap d'estudis i la directora poden obrir les sol·licituds del personal, però fins que no s'han valorat tots els plans de la convocatòria en veuen la puntuació del pla, els criteris i el total a 0, també si són al tribunal. Així cap membre no veu la mitjana dels altres abans de valorar. Quan s'envia l'última valoració, ho veuen tot.
 

@@ -46,12 +46,14 @@ Cuando se publica:
 
 > **Quién queda seleccionado:** las solicitudes elegibles (como mínimo la puntuación mínima) dentro de las plazas de su modalidad. El resto de las elegibles quedan en reserva, por orden. Por debajo de la puntuación mínima: no seleccionadas.
 
+En la resolución, las líneas aparecen de colores: verde, admitida o seleccionada; naranja, reserva; rojo, excluida; negro, no seleccionada. Una línea excluida no tiene posición ni puntuación. En el portal, cada persona ve su fila destacada en la lista publicada (nunca en el PDF).
+
 ## 4. Reclamaciones y recursos
 
-Las reclamaciones llegan por correo (el alumnado puede responder al correo del resultado). Regístralas en **Erasmus+ > Convocatorias > Reclamaciones** (o en la pestaña **Resultados** de la solicitud):
+Las personas candidatas reclaman desde el portal, debajo de su resultado provisional, hasta el plazo de reclamaciones: EMS registra la reclamación con los archivos y el momento en que llegó, y todo el equipo Erasmus recibe una tarea para responderla, que queda hecha cuando se resuelve. Una reclamación que llega por correo (un recurso ante la dirección, por ejemplo) se registra a mano en **Erasmus+ > Convocatorias > Reclamaciones** (o en la pestaña **Resultados** de la solicitud):
 
 1. **Solicitud**, **Contra** (la resolución), **Tipo** (reclamación o recurso ante la dirección), **Recibida el**, **Qué se reclama** y los archivos.
-2. Escribe la **Respuesta** y haz clic en **Acciones > Resolver**.
+2. Escribe la **Respuesta** y haz clic en **Acciones > Resolver**. La persona ve la respuesta en el portal, en **Mis reclamaciones**.
 
 Si se estima una reclamación, corrige los datos de la solicitud (por ejemplo, el certificado de idiomas) antes de preparar la resolución definitiva. EMS no deja preparar la resolución definitiva antes del **Plazo de reclamaciones** ni mientras quede alguna reclamación abierta. Después de la definitiva, publica una rectificación.
 

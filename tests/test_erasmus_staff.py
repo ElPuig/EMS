@@ -308,9 +308,27 @@ class TestErasmusPlanRating(ErasmusStaffCase):
         self._rate(first, '1', '0.5')
         self.assertTrue(first.plan_complete)  # only the Head of Studies rates: the other two abstain
         self.assertEqual(first.plan_score, 1.5)
+        self.assertEqual(rating.rating_status, 'abstention', "Shown as an abstention, not as a plan to rate.")
         rating.abstention_reason = False
         self.assertEqual(rating.evaluator_id, self.panel_teacher)
+        self.assertEqual(rating.rating_status, 'draft')
         self.assertFalse(first.plan_complete)
+
+    def test_submit_and_open_the_next_plan_to_rate(self):
+        self._sent_to_panel()
+        mine = self.env['ems.erasmus.plan_rating'].with_user(self.panel_teacher).search(
+            [('evaluator_id', '=', self.panel_teacher.id)])
+        self.assertGreater(len(mine), 1)
+        mine[0].write({'relevance': '1', 'transfer': '1'})
+        action = mine[0].action_submit_next()
+        self.assertEqual(mine[0].state, 'submitted')
+        self.assertEqual(action['res_id'], mine[1].id, "The next plan opens.")
+        for rating in mine[1:]:
+            rating.write({'relevance': '1', 'transfer': '1'})
+        mine[1:-1].action_submit()
+        action = mine[-1].action_submit_next()
+        self.assertEqual(action['res_model'], 'ems.erasmus.plan_rating')
+        self.assertFalse(action.get('res_id'), "None left: back to the list.")
 
     def test_plan_score_is_the_mean_and_a_pending_rating_blocks(self):
         first = self._sent_to_panel()[0]

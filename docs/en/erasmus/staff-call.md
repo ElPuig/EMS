@@ -23,7 +23,7 @@ In **Erasmus+ > Calls > Calls**, create the call, set **Applicants** to *Staff*,
 - **Validates the activities:** the Direction that validates each selected person's activity and its later changes. It comes filled in with the Director and the Head of Studies of FP (the one above most of the FP teachers), and only they get the to-do, even for a teacher who hangs below another Head of Studies in the organisation chart.
 - The **places** are not needed to open it: the published call gives the indicative ones, and they may change with the projects. You add them later (step 5).
 
-Once published, every member of the staff with an employee file sees the call on the portal (**Erasmus+** card, `/my/erasmus`). Share that link when you announce the call.
+Once published, every member of the staff with an employee file sees the call on the portal (**Erasmus+** card, `/my/erasmus`). To email it to all of them, use **Actions > Notify who can apply** (see [Calls and applications](calls-and-applications.md)).
 
 ## 2. What the staff fill in
 
@@ -42,7 +42,7 @@ Review the documents and admit or exclude as in the students' call (conduct warn
 
 Fill in the **Panel** tab of the call: the people who rate the mobility plans (the management and the heads and seminar chiefs of the departments). Then, after **Close applications**, click **Actions > Send plans to the panel**. Every member gets a task to rate every plan from **Erasmus+ > My plan ratings**, due on the **Score correction deadline** (the button asks for it if it is empty; if you change it later, the open tasks follow it). You can click it again after admitting more applications: it only creates the ratings still missing.
 
-**Abstentions:** a panel member who is a candidate in the call does not rate (art. 10): their ratings are created as abstentions, with the reason *Candidate in this call*. For another conflict of interest, open the rating from the **Plan ratings** button of the call and write the **Abstention reason**. There are no substitutes: the plan score (criterion 1) is the mean of the members who rate it. **A pending rating blocks it** until it is submitted.
+**Abstentions:** a panel member who is a candidate in the call does not rate (art. 10): their ratings are created as abstentions, with the reason *Candidate in this call*. For another conflict of interest, open the rating from the **Plan ratings** button of the call and write the **Abstention reason**. There are no substitutes: the plan score (criterion 1) is the mean of the members who rate it. **A pending rating blocks it** until it is submitted. In **Plan ratings**, an abstention is shown as *Abstention*, and the pivot view (applicants × status) shows at a glance which plans still have ratings to submit.
 
 **The Direction sees no points while the panel rates:** the Head of Studies and the Director can open the staff applications, but until every plan of the call is rated they see the plan score, the criteria and the total at 0, also when they are in the panel. This way no member sees the others' mean before rating. Once the last rating is submitted, they see everything.
 

@@ -29,11 +29,11 @@ Puedes escribir tus notas en **Notas del evaluador**.
 
 ## 3. Enviarla
 
-Haz clic en **Acciones > Enviar**. Hasta el **plazo para corregir puntuaciones** de la convocatoria puedes **Reabrirla** y cambiarla; después, si hay un error, avisa al equipo Erasmus.
+Haz clic en **Acciones > Enviar**, o en **Acciones > Enviar y siguiente** para enviarla y abrir el siguiente plan que aún tienes que valorar. Hasta el **plazo para corregir puntuaciones** de la convocatoria puedes **Reabrirla** y cambiarla; después, si hay un error, avisa al equipo Erasmus.
 
-**Si te presentas a la convocatoria, o tienes un conflicto de intereses con una persona candidata**, no valoras: avisa al equipo Erasmus, que registrará la abstención. La puntuación del plan es la media del resto de miembros.
+**Si te presentas a la convocatoria, o tienes un conflicto de intereses con una persona candidata**, no valoras: avisa al equipo Erasmus, que registrará la abstención: la valoración aparece como *Abstención*. La puntuación del plan es la media del resto de miembros.
 
-**Tu valoración es independiente:** como miembro de la dirección puedes abrir las solicitudes del personal, pero ves sus puntos a 0 hasta que no se han valorado todos los planes de la convocatoria, de modo que nunca ves la media de los demás miembros antes de dar la tuya.
+**Tu valoración es independiente:** como miembro de la dirección puedes abrir las solicitudes del personal, pero la pestaña **Baremación** indica que los puntos están ocultos hasta que no se han valorado todos los planes de la convocatoria, de modo que nunca ves la media de los demás miembros antes de dar la tuya.
 
 ---
 

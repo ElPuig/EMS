@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // Issue #683 - Erasmus+ calls and applications. Every tour runs against records seeded by
 // tests/test_erasmus_tour.py and uses structural selectors (field names, CSS classes), so the
@@ -152,6 +153,33 @@ registry.category("web_tour.tours").add("ems_erasmus_head_of_studies_reads", {
         {
             trigger: ".o_form_view .o_field_widget[name='requirements_check'] span",
             content: "Everything is read-only for the Head of Studies",
+        },
+    ],
+});
+
+// The notice of the open call: the team sees how many people get it and sends it.
+registry.category("web_tour.tours").add("ems_erasmus_call_announce", {
+    test: true,
+    url: "/odoo/action-ems.action_erasmus_call",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row td[name='name']:contains('Test Erasmus Call')",
+            content: "Open the call",
+            run: "click",
+        },
+        ...clickAction("action_announce", "Notify who can apply"),
+        {
+            trigger: ".modal .o_field_widget[name='recipient_count']:contains('2')",
+            content: "The wizard counts who can apply",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_send']",
+            content: "Send the notice",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='announce_count']:contains('2')",
+            content: "The call shows how many people got it",
         },
     ],
 });

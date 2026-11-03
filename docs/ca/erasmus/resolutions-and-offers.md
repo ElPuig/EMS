@@ -46,12 +46,14 @@ Quan es publica:
 
 > **Qui queda seleccionat:** les sol·licituds elegibles (com a mínim la puntuació mínima) dins de les places de la seva modalitat. La resta de les elegibles queden en reserva, per ordre. Per sota de la puntuació mínima: no seleccionades.
 
+A la resolució, les línies surten de colors: verd, admesa o seleccionada; taronja, reserva; vermell, exclosa; negre, no seleccionada. Una línia exclosa no té posició ni puntuació. Al portal, cada persona veu la seva fila destacada a la llista publicada (mai al PDF).
+
 ## 4. Reclamacions i recursos
 
-Les reclamacions arriben per correu (l'alumnat pot respondre el correu del resultat). Registra-les a **Erasmus+ > Convocatòries > Reclamacions** (o a la pestanya **Resultats** de la sol·licitud):
+Les persones candidates reclamen des del portal, a sota del seu resultat provisional, fins al termini de reclamacions: l'EMS registra la reclamació amb els fitxers i el moment en què va arribar, i tot l'equip Erasmus rep una tasca per respondre-la, que queda feta quan es resol. Una reclamació que arriba per correu (un recurs davant la direcció, per exemple) es registra a mà a **Erasmus+ > Convocatòries > Reclamacions** (o a la pestanya **Resultats** de la sol·licitud):
 
 1. **Sol·licitud**, **Contra** (la resolució), **Tipus** (reclamació o recurs davant la direcció), **Rebuda el**, **Què es reclama** i els fitxers.
-2. Escriu la **Resposta** i fes clic a **Accions > Resoldre**.
+2. Escriu la **Resposta** i fes clic a **Accions > Resoldre**. La persona en veu la resposta al portal, a **Les meves reclamacions**.
 
 Si s'estima una reclamació, corregeix les dades de la sol·licitud (per exemple, el certificat d'idiomes) abans de preparar la resolució definitiva. EMS no deixa preparar la resolució definitiva abans del **Termini de reclamacions** ni mentre quedi alguna reclamació oberta. Després de la definitiva, publica una rectificació.
 

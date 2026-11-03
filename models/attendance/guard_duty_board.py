@@ -11,7 +11,7 @@ from ..shared.schedule_report_mixin import HOUR_EPSILON
 from .absence_coverage import (
     BREAK_CHANGES, CHANGE_SIDES, COMMUNICATED_NOTICE_STATES, NORMAL_CHANGE, WC_GUARD_CODE, overlaps,
 )
-from .arrangement_planner import ArrangementPlanner, schedule_shift
+from .arrangement_planner import ArrangementPlanner, has_started, schedule_shift
 
 WEEKDAYS = ('0', '1', '2', '3', '4')
 # Mirrors ems.group's own SHIFT_HOURS (models/contacts/group_schedule.py) — the guard duty board
@@ -1288,15 +1288,20 @@ class EmsCourseGuardDutyBoard(models.Model):
         and 'shifts' the entry/exit times it changes (see _arrangement_shifts); those that change
         nobody's entry or exit first. Only within the group and the day: anything else is a manual
         arrangement. `exclude`: covers being replaced, ignored. A lesson shared with other groups is
-        never swapped: their day would change too.
+        never swapped: their day would change too. Only classes still to come, the class and the
+        other lesson alike (issue #744).
         """
+        now_hour = self._board_day_hour(day)
+        if has_started(now_hour, (hour_from, hour_to)):
+            return []
         context = context or self._arrangement_context(day)
         covers = context['covers'] - (exclude or self.env['ems.absence_cover'])
         vacated = covers.filtered(lambda cover: cover.group_id == group and cover.vacated_hour_to)
         Employee = self.env['hr.employee']
         options = []
         for lesson, group_ids, pack, away in self._group_sessions(context, group.ids):
-            if group_ids != {group.id} or overlaps(*lesson, hour_from, hour_to) or pack & set(absent.ids):
+            if group_ids != {group.id} or overlaps(*lesson, hour_from, hour_to) or pack & set(absent.ids) \
+                    or has_started(now_hour, lesson):
                 continue
             if vacated.filtered(lambda cover, lesson=lesson: overlaps(cover.vacated_hour_from, cover.vacated_hour_to, *lesson)):
                 continue  # that lesson is already part of another arrangement

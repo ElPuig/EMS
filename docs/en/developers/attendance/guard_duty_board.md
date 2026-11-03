@@ -1134,7 +1134,7 @@ returns it with the groups' timetable-change states it was built from.
 - **Search** (`plans()`): a beam search, at most `MAX_MOVES` (4) steps, `BEAM` (30) states per
   depth. Only plans strictly better than leaving the day as it is in criteria 1-4 are kept (#711:
   moving the gap to another hour where it still needs a guard, or turning a late entry into an early
-  leave, is no proposal), never one that merely adds steps to another one that does as well, and one per resulting day (a swap seen from
+  leave, is no proposal), only with classes still to come (#744, `has_started()`: neither the gap nor the lesson brought to it may have begun at the board's hour, and `_get_arrangement_options()` applies the same test to swaps), never one that merely adds steps to another one that does as well, and one per resulting day (a swap seen from
   each of its two absences is one plan). The best 3 are shown.
 - **Dependencies** (`_plan()`): a move into a gap another step left needs that step; a notice needs
   the moves whose lessons it frees the group from.

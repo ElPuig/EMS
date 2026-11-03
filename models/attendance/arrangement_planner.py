@@ -6,6 +6,13 @@ from ..shared.schedule_report_mixin import HOUR_EPSILON
 from .absence_coverage import overlaps
 
 
+def has_started(now_hour, period):
+    """Whether `period` (`(hour_from, hour_to)`) has already begun at `now_hour` (see
+    ems.course._board_day_hour, None for a day still to come): a class under way or over can no
+    longer be moved, nor have a lesson brought to it (issue #744)."""
+    return now_hour is not None and period[0] <= now_hour
+
+
 def schedule_shift(periods, removed, added, duties=()):
     """How a teacher's working day - from their first period to their last, lessons, guards and any
     other duty alike (`periods`) - changes if they stop teaching the `removed` periods and teach the
@@ -230,10 +237,11 @@ class ArrangementPlanner:
         return all(shifts.get(teacher_id) is not None for teacher_id in step[1] | step[5])
 
     def _steps(self, steps, day):
+        # Only classes still to come, both the gap and the lesson brought to it (issue #744).
         holes = defaultdict(set)
         for group_id, blocks in day.items():
             for block in blocks:
-                if block['empty']:
+                if block['empty'] and not has_started(self.now_hour, (block['hour_from'], block['hour_to'])):
                     holes[(block['hour_from'], block['hour_to'])].add(group_id)
         # Where each teacher already is because of a step: in the gap they fill, and in a swap the
         # absent teachers at the other lesson.
@@ -248,6 +256,7 @@ class ArrangementPlanner:
         for step in self.swaps:
             _kind, teachers, lesson, target, group_ids, absents, stays, _joined = step
             if step not in steps and target in holes and group_ids <= holes[target] \
+                    and not has_started(self.now_hour, lesson) \
                     and not any((teacher_id, lesson) in vacated for teacher_id in teachers | stays) \
                     and not any(busy(teacher_id, target) for teacher_id in teachers) \
                     and not any(busy(teacher_id, lesson) for teacher_id in absents) \
@@ -257,7 +266,7 @@ class ArrangementPlanner:
             for lesson, lesson_groups, pack, away in self.sessions:
                 # Every group of the lesson must have the gap: a shared lesson moves for all of
                 # them, and none may end up with a lesson where it already had one.
-                if overlaps(*lesson, *target) or not lesson_groups <= group_ids \
+                if overlaps(*lesson, *target) or has_started(self.now_hour, lesson) or not lesson_groups <= group_ids \
                         or any((teacher_id, lesson) in vacated or any(
                             overlaps(*lesson, *other) for other in self.teachers[teacher_id]['vacated'])
                             for teacher_id in pack):
@@ -285,7 +294,7 @@ class ArrangementPlanner:
             return
         for target, group_ids in sorted(holes.items()):
             for lesson, lesson_groups, pack, away in self.sessions:
-                if overlaps(*lesson, *target) or not lesson_groups <= group_ids \
+                if overlaps(*lesson, *target) or has_started(self.now_hour, lesson) or not lesson_groups <= group_ids \
                         or not all(self.partners.get(group_id) for group_id in lesson_groups) \
                         or any((teacher_id, lesson) in vacated or any(
                             overlaps(*lesson, *other) for other in self.teachers[teacher_id]['vacated'])

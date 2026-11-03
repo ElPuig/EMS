@@ -1148,6 +1148,37 @@ class TestAbsenceCoverage(AbsenceCoverageCase):
         self.assertTrue(self.env['ems.course']._get_needed_absence_block(self.day, self.group_a, self.teacher_a, 9, 10))
         self._assign(hour_from=9, hour_to=10)
 
+    def test_a_class_already_started_is_no_gap_to_arrange(self):
+        """Issue #744: at 8:30 the 8:00 class is under way: bringing teacher_b's 11:00 lesson
+        there is no longer possible, only a guard."""
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        course = self.env['ems.course']
+        self.assertTrue(self._plans(), "before the class, the swap is proposed")
+
+        with self._at(8.5):
+            self.assertFalse(course._get_arrangement_plans(self.day, self.group_a))
+            self.assertFalse(course._get_arrangement_options(self.day, self.group_a, self.teacher_a, 8, 9))
+            planner, _states = course._arrangement_planner(course._arrangement_context(self.day), self.group_a)
+            self.assertEqual(planner.gaps((), []), [(self.group_a.id, (8, 9))], "it still needs a guard")
+
+    def test_a_lesson_already_started_is_never_moved_nor_swapped(self):
+        """Issue #744: at 8:30 teacher_a's 8:00 lesson is being taught: it can no longer go to
+        11:00, by a move or by a swap with teacher_b."""
+        self._morning()
+        self._absence(self.teacher_b, self.day, hour_from=11, hour_to=12)
+        course = self.env['ems.course']
+
+        def lessons(plans):
+            return {step['lesson'][0] for plan in plans for step in plan['steps'] if 'lesson' in step}
+
+        self.assertIn(8, lessons(self._plans()), "before it starts, the 8:00 lesson can go to 11:00")
+        with self._at(8.5):
+            plans = course._get_arrangement_plans(self.day, self.group_a)
+            self.assertFalse([start for start in lessons(plans) if start <= 8.5])
+            self.assertFalse([option for option in course._get_arrangement_options(
+                self.day, self.group_a, self.teacher_b, 11, 12) if option['hour_from'] <= 8.5])
+
     def test_the_arrangement_planner_counts_a_longer_break_as_needing_a_guard(self):
         """Issue #679: the planner scores the lesson a longer break takes in as one more guard, and
         a plan that only tells the break does not resolve that lesson's row."""

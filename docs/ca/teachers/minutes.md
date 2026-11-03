@@ -165,8 +165,9 @@ pantalla amb la faceta *Pendents que jo aprovi*, i en aprovar-la:
 ## Els meus acords
 
 **Reunions → Acords** obre amb els acords **oberts** on sou **persona responsable** (pel vostre nom o pel
-càrrec que ocupeu) o **persona implicada**: les facetes *Les meves*, *Els que m'impliquen* i *Oberta*. Traieu
-*Les meves* o *Els que m'impliquen* per veure'n només una part, o *Oberta* per veure també els tancats.
+càrrec que ocupeu) o **persona implicada**: les facetes *Les meves*, *Els que m'impliquen* i *Oberta*. Podeu
+treure *Les meves* i *Els que m'impliquen* per separat per veure'n només una part, o *Oberta* per veure
+també els tancats.
 
 ## Registres puntuals
 

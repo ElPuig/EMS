@@ -166,8 +166,8 @@ pantalla con la faceta *Pendientes de que yo apruebe*, y al aprobarla:
 
 **Reuniones → Acuerdos** abre con los acuerdos **abiertos** en los que sois **persona responsable** (por
 vuestro nombre o por el cargo que ocupáis) o **persona implicada**: las facetas *Las mías*, *Los que me
-implican* y *Abierta*. Quitad *Las mías* o *Los que me implican* para ver solo una parte, o *Abierta* para
-ver también los cerrados.
+implican* y *Abierta*. Podéis quitar *Las mías* y *Los que me implican* por separado para ver solo una parte, o
+*Abierta* para ver también los cerrados.
 
 ## Registros puntuales
 

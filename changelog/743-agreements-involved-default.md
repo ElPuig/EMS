@@ -22,5 +22,5 @@
 
 ## Automatic follow-up text of an agreement always in Catalan:
 
-- The follow-up entry EMS writes when a minute reviews an agreement with nothing written about it ("Revisat a la reunió ...") was stored in the language of whoever reviewed it (Spanish for a user working in Spanish). It is now always written in the centre's language, Catalan, like the closing entry of an agreement done in its own minute. A migration (`migrations/18.0.0.45.0/post-migrate.py`) rewrites the entries already stored in Spanish or English; it runs when the release bumps the version.
+- The follow-up entry EMS writes when a minute reviews an agreement with nothing written about it ("Revisat a la reunió ...") was stored in the language of whoever reviewed it (Spanish for a user working in Spanish). It is now always written in the centre's language, Catalan, like the closing entry of an agreement done in its own minute. So is the comment each follow-up entry posts to the agreement's followers ("Seguiment (...): ..."). A migration (`migrations/18.0.0.45.0/post-migrate.py`) rewrites the entries already stored in Spanish or English; it runs when the release bumps the version.
 - Test in `TestQualityMinute` with a writer working in Spanish.

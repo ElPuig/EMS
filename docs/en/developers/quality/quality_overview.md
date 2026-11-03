@@ -297,8 +297,8 @@ and signed as the minute (`_ems_sync_minute_closure`, sudo, the same reasoning a
 in a later minute), kept in `minute_followup_id` so unticking it removes that entry again. The minute's PDF
 prints "Done" in its deadline column, and it is not carried into the next minute.
 The text EMS writes into a follow-up entry on its own (an agreement done or reviewed in a minute with
-nothing written about it) is stored, so it is in the centre's language (`ems.minute._ems_centre_env()`),
-whatever language the writer works in.
+nothing written about it), and the comment every entry posts to the agreement's followers, are stored, so
+they are in the centre's language (`ems.minute._ems_centre_env()`), whatever language the writer works in.
 
 ## Numbering
 

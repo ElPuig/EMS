@@ -292,6 +292,8 @@ class TestQualityMinute(TransactionCase):
             second = self._minute().with_user(self.user).with_context(lang='es_ES')
             second.agreement_review_ids.is_closed = True
             self.assertTrue(open_one.followup_ids.description.startswith('Revisat a la reunió'), open_one.followup_ids.description)
+            self.assertTrue(open_one.message_ids.filtered(lambda message: 'Seguiment (' in (message.body or '')),
+                            "and so is what is posted to its followers")
 
     def test_the_nfc_box_is_translated(self):
         """The box's messages are plain spans side by side, which Odoo extracts as one term: a

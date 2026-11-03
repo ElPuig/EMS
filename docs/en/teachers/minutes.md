@@ -132,7 +132,9 @@ meeting goes on.
   underline, lists). Type `/` to insert a table. A long item scrolls inside its own box. **Add an item** adds one that was not planned.
 - **Any other business:** another text box.
 - **Agreements:** each new agreement is a card, with its content at full width and, in the header, the
-  deadline and who is responsible (by default, the department's chief and its seminar chief).
+  deadline and who is responsible (by default, the department's chief and its seminar chief). An agreement
+  that is simply a decision, which nobody has to carry out, can be closed right there: tick **Done** and it
+  is not brought to the next meeting.
 
   ![Agreements block during the meeting: card of an agreement with deadline, responsible people, people involved, content and description](../../assets/teachers/actes-08-acords.png)
 - **Pending topics:** at the end, as a list.

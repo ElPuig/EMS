@@ -286,6 +286,12 @@ The five stages, matching the centre's own vocabulary: `new` New (pending), `ana
 Closed. **Open means anything not closed** — there is no separate open flag, and no editable state field:
 moving forward requires a follow-up entry, which is what keeps the reason on record.
 
+An agreement can be closed at any moment, including in the minute that takes it (a decision nobody has to
+carry out): **Done** on its card in the minute (`is_closed_in_minute`) adds a `closed` follow-up entry dated
+and signed as the minute (`_ems_sync_minute_closure`, sudo, the same reasoning as the review of an agreement
+in a later minute), kept in `minute_followup_id` so unticking it removes that entry again. The minute's PDF
+prints "Done" in its deadline column, and it is not carried into the next minute.
+
 ## Numbering
 
 `ir.sequence`, one per (scope, element type, course), resolved or created on demand by

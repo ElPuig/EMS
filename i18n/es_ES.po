@@ -3447,6 +3447,7 @@ msgstr "Documentos"
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__done
 #: model:ir.model.fields.selection,name:ems.selection__ems_contact_data_request__state__done model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agreement_review__is_closed
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__is_closed_in_minute
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Done"
 msgstr "Hecho"
@@ -28385,3 +28386,19 @@ msgstr "Día festivo:"
 #: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
 msgid ". Nobody is expected, so nobody is missing."
 msgstr ". No se espera a nadie, así que no falta nadie."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_action__is_closed_in_minute
+msgid "Done in the meeting that takes it, such as a decision nobody has to carry out: its follow-up gets a closing entry dated on the meeting."
+msgstr "Hecho en la misma reunión que lo toma, como una decisión que nadie tiene que llevar a cabo: el seguimiento añade una entrada de cierre con la fecha de la reunión."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__minute_followup_id
+msgid "Closing entry of the minute"
+msgstr "Entrada de cierre del acta"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/action.py:0
+msgid "Agreed and done in the meeting %s."
+msgstr "Acordado y hecho en la reunión %s."

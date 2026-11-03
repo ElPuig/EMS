@@ -165,6 +165,11 @@ registry.category("web_tour.tours").add("ems_minute_write", {
             run: "edit Buy the materials for the workshop",
         },
         {
+            trigger: ".o_field_widget[name='agreement_ids'] .o_ems_record_card_cell[data-name='is_closed_in_minute'] input[type='checkbox']",
+            content: "A decision nobody has to carry out is done in the same meeting",
+            run: "click",
+        },
+        {
             trigger: ".o_form_button_save",
             content: "Save the agreement",
             run: "click",
@@ -172,6 +177,10 @@ registry.category("web_tour.tours").add("ems_minute_write", {
         {
             trigger: ".o_form_saved .o_field_widget[name='agreement_ids'] .o_ems_record_card_cell[data-name='code']:contains('ACORD-000DEP-')",
             content: "The agreement got its code",
+        },
+        {
+            trigger: ".o_form_saved .o_field_widget[name='agreement_ids'] .o_ems_record_card_cell[data-name='is_closed_in_minute'] input:checked",
+            content: "It stays done once saved",
         },
         ...clickAction("action_submit", "Send it for approval"),
         {

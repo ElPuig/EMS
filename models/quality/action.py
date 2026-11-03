@@ -82,6 +82,11 @@ class EmsQualityAction(models.Model):
         index=True,
         help="The minute this agreement was taken in. Later phases add the other origins.",
     )
+    # A decision nobody has to carry out is closed in the very meeting that takes it.
+    is_closed_in_minute = fields.Boolean(
+        string="Done", copy=False,
+        help="Done in the meeting that takes it, such as a decision nobody has to carry out: its follow-up gets a closing entry dated on the meeting.")
+    minute_followup_id = fields.Many2one(string="Closing entry of the minute", comodel_name="ems.quality.followup", ondelete='set null', readonly=True, copy=False)
     course_id = fields.Many2one(
         string="Course",
         comodel_name="ems.course",
@@ -230,6 +235,7 @@ class EmsQualityAction(models.Model):
                 vals['code'] = self.new(vals)._next_code()
         actions = super().create(vals_list)
         actions._ems_subscribe_people()
+        actions.filtered('is_closed_in_minute')._ems_sync_minute_closure()
         return actions
 
     def write(self, vals):
@@ -239,6 +245,8 @@ class EmsQualityAction(models.Model):
         result = super().write(vals)
         if {'responsible_employee_ids', 'involved_employee_ids'} & set(vals):
             self._ems_subscribe_people()
+        if 'is_closed_in_minute' in vals:
+            self._ems_sync_minute_closure()
         return result
 
     def _ems_content_managed(self):
@@ -266,6 +274,23 @@ class EmsQualityAction(models.Model):
             partners = (action.responsible_employee_ids | action.involved_employee_ids).user_id.partner_id
             if partners:
                 action.message_subscribe(partner_ids=partners.ids)
+
+    def _ems_sync_minute_closure(self):
+        """Keep the closing entry of "Done" in the minute in step with the tick: added once, dated
+        and signed as the minute, and taken back when unticked. With sudo, like the review of an
+        agreement in a later minute: whoever writes the minute closes its agreements."""
+        for action in self.sudo():
+            if not (action.is_closed_in_minute and action.minute_id):
+                action.minute_followup_id.unlink()
+            elif not action.minute_followup_id:
+                minute = action.minute_id
+                action.minute_followup_id = self.env['ems.quality.followup'].sudo().create({
+                    'action_id': action.id,
+                    'date': minute.date,
+                    'state': QUALITY_STATE_CLOSED,
+                    'description': _("Agreed and done in the meeting %s.", minute.code or minute.name),
+                    'author_employee_id': minute.redactor_employee_id.id,
+                })
 
     def action_add_followup(self):
         """A follow-up entry in a dialog: the responsible people report progress from here, on an

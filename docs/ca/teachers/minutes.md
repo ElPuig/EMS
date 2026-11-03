@@ -133,7 +133,9 @@ mesura que avança la reunió.
   estava previst.
 - **Precs i preguntes:** un altre quadre de text.
 - **Acords:** cada acord nou és una fitxa, amb el contingut a tota l'amplada i, a la capçalera, la data
-  límit i els responsables (per defecte, el cap de departament i el de seminari).
+  límit i els responsables (per defecte, el cap de departament i el de seminari). Un acord que només és
+  una decisió, que ningú no ha de dur a terme, es pot tancar allà mateix: marqueu **Fet** i ja no es porta
+  a la reunió següent.
 
   ![Bloc Acords durant la reunió: fitxa d'un acord amb data límit, persones responsables, persones implicades, contingut i descripció](../../assets/teachers/actes-08-acords.png)
 - **Temes pendents:** al final, com a llista.

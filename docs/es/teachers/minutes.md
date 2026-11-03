@@ -133,7 +133,9 @@ rellenándolos a medida que avanza la reunión.
   no estaba previsto.
 - **Ruegos y preguntas:** otro cuadro de texto.
 - **Acuerdos:** cada acuerdo nuevo es una ficha, con el contenido a todo el ancho y, en la cabecera, la
-  fecha límite y los responsables (por defecto, el jefe de departamento y el de seminario).
+  fecha límite y los responsables (por defecto, el jefe de departamento y el de seminario). Un acuerdo que
+  solo es una decisión, que nadie tiene que llevar a cabo, se puede cerrar ahí mismo: marcad **Hecho** y ya
+  no se lleva a la reunión siguiente.
 
   ![Bloque Acuerdos durante la reunión: ficha de un acuerdo con fecha límite, personas responsables, personas implicadas, contenido y descripción](../../assets/teachers/actes-08-acords.png)
 - **Temas pendientes:** al final, como lista.

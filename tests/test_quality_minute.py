@@ -335,6 +335,22 @@ class TestQualityMinute(TransactionCase):
         self.assertTrue(agreement.code.startswith('ACORD-MINDEP-'), agreement.code)
         self.assertEqual(agreement.responsible_employee_ids.ids, [chief.id], "and with it, its department's chief as responsible")
 
+    def test_an_agreement_can_be_done_in_the_minute_that_takes_it(self):
+        """A decision nobody has to carry out is closed in the same meeting: the minute's own
+        follow-up entry closes it, and it is not brought to the next meeting."""
+        minute = self._minute().with_user(self.user)
+        minute.write({'agreement_ids': [(0, 0, {'name': 'The trip is to Girona', 'is_closed_in_minute': True})]})
+        agreement = minute.agreement_ids
+        self.assertEqual(agreement.state, 'closed')
+        self.assertEqual(agreement.followup_ids.date, minute.date)
+        self.assertEqual(agreement.followup_ids.author_employee_id.id, self.employee.id)
+        self.assertFalse(self._minute().agreement_review_ids, "a closed agreement is not brought to the next meeting")
+        agreement.is_closed_in_minute = False
+        self.assertFalse(agreement.followup_ids, "unticking it takes the entry back")
+        self.assertNotEqual(agreement.state, 'closed')
+        agreement.is_closed_in_minute = True
+        self.assertEqual(len(agreement.followup_ids), 1)
+
     def test_an_agreement_stays_on_the_table_until_it_is_closed(self):
         """Carried from the first minute to the second, and from there to the third: it was not
         taken in the second, only followed up, and must not drop out for that."""

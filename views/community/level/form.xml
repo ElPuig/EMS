@@ -12,6 +12,7 @@
                                 <field name="acronym"/>
                                 <field name="allows_convalidation"/>
                                 <field name="declaration_code"/>
+                                <field name="withdrawal_circuit"/>
                             </group>
                             <group colspan="3">
                                 <field name="name"/>    

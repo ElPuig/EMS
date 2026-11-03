@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="view_ex_officio_withdrawal_list" model="ir.ui.view">
+            <field name="name">ems.ex_officio_withdrawal.list</field>
+            <field name="model">ems.ex_officio_withdrawal</field>
+            <field name="arch" type="xml">
+                <list string="Ex officio withdrawals" decoration-muted="state == 'cancelled'">
+                    <field name="name"/>
+                    <field name="student_id"/>
+                    <field name="group_id"/>
+                    <field name="circuit" optional="show"/>
+                    <field name="first_absence_date"/>
+                    <field name="current_step_id" optional="show"/>
+                    <field name="next_due_date" optional="show"/>
+                    <field name="origin" optional="hide"/>
+                    <field name="state" widget="badge"
+                           decoration-info="state == 'proposal'"
+                           decoration-warning="state in ('in_progress', 'direction', 'secretariat')"
+                           decoration-success="state == 'done'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_ex_officio_withdrawal_search" model="ir.ui.view">
+            <field name="name">ems.ex_officio_withdrawal.search</field>
+            <field name="model">ems.ex_officio_withdrawal</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="student_id"/>
+                    <field name="group_id"/>
+                    <filter name="open" string="Open" domain="[('state', 'not in', ('done', 'cancelled'))]"/>
+                    <filter name="proposals" string="Proposals" domain="[('state', '=', 'proposal')]"/>
+                    <separator/>
+                    <filter name="compulsory" string="Compulsory education" domain="[('circuit', '=', 'compulsory')]"/>
+                    <filter name="post_compulsory" string="Post-compulsory education" domain="[('circuit', '=', 'post_compulsory')]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_state" string="State" context="{'group_by': 'state'}"/>
+                        <filter name="group_by_group" string="Group" context="{'group_by': 'group_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_ex_officio_withdrawal_form" model="ir.ui.view">
+            <field name="name">ems.ex_officio_withdrawal.form</field>
+            <field name="model">ems.ex_officio_withdrawal</field>
+            <field name="arch" type="xml">
+                <form string="Ex officio withdrawal">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_start" type="object" string="Start the procedure"
+                                    class="btn-primary" invisible="not can_decide_proposal"
+                                    help="Creates the circuit's steps, each with its deadline."/>
+                            <button name="action_open_dismiss_wizard" type="object" string="Dismiss"
+                                    invisible="not can_decide_proposal"/>
+                        </div>
+                        <field name="state" widget="statusbar" statusbar_visible="proposal,in_progress,direction,secretariat,done"/>
+                    </header>
+                    <sheet>
+                        <field name="can_decide_proposal" invisible="1"/>
+                        <div class="oe_title">
+                            <h1><field name="name" placeholder="New case file"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="student_id" readonly="id" options="{'no_create': True}"/>
+                                <field name="group_id" invisible="not id"/>
+                                <field name="tutor_id"/>
+                                <field name="level_id" invisible="not id"/>
+                                <field name="circuit" invisible="not id"/>
+                            </group>
+                            <group>
+                                <field name="first_absence_date" readonly="state != 'proposal'"/>
+                                <field name="origin"/>
+                                <field name="course_id"/>
+                                <field name="next_due_date" invisible="not next_due_date"/>
+                            </group>
+                        </group>
+                        <group invisible="state != 'cancelled'">
+                            <field name="cancel_reason"/>
+                            <field name="cancel_note"/>
+                        </group>
+                        <notebook>
+                            <page string="Steps" name="steps">
+                                <p class="text-muted" invisible="step_ids">
+                                    The steps are created when the procedure starts, each with its deadline.
+                                </p>
+                                <field name="step_ids" invisible="not step_ids">
+                                    <list>
+                                        <field name="due_date"/>
+                                        <field name="code"/>
+                                        <field name="responsible"/>
+                                        <field name="needs_phone" column_invisible="1"/>
+                                        <field name="needs_enotum" column_invisible="1"/>
+                                        <field name="needs_esfera" column_invisible="1"/>
+                                        <field name="needs_saga" column_invisible="1"/>
+                                        <field name="needs_external_email" column_invisible="1"/>
+                                        <field name="phone_done" invisible="not needs_phone" optional="show"/>
+                                        <field name="enotum_done" invisible="not needs_enotum" optional="show"/>
+                                        <field name="esfera_done" invisible="not needs_esfera" optional="show"/>
+                                        <field name="saga_done" invisible="not needs_saga" optional="show"/>
+                                        <field name="external_email_done" invisible="not needs_external_email" optional="show"/>
+                                        <field name="done_by_id" optional="show"/>
+                                        <field name="done_date" optional="show"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_ex_officio_withdrawal_dismiss_wizard_form" model="ir.ui.view">
+            <field name="name">ems.ex_officio_withdrawal.dismiss_wizard.form</field>
+            <field name="model">ems.ex_officio_withdrawal.dismiss_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Dismiss the proposal">
+                    <field name="withdrawal_id" invisible="1"/>
+                    <group>
+                        <field name="note" placeholder="Why the procedure does not go ahead"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Dismiss" class="btn-primary"/>
+                        <button special="cancel" string="Cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_ex_officio_withdrawal" model="ir.actions.act_window">
+            <field name="name">Ex officio withdrawals</field>
+            <field name="res_model">ems.ex_officio_withdrawal</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_ex_officio_withdrawal_search"/>
+            <field name="context">{'search_default_open': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">No ex officio withdrawal case files</p>
+                <p>A tutor opens one when a student of theirs stops coming to the centre.</p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

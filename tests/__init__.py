@@ -284,3 +284,5 @@ from . import test_quality_minute_guest
 from . import test_title_registration
 from . import test_title_registration_tour
 from . import test_docs_screenshots_schedule_declaration
+from . import test_ex_officio_withdrawal
+from . import test_ex_officio_withdrawal_tour

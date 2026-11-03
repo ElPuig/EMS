@@ -71,6 +71,7 @@
         'security/rules/portal.xml',
         'security/rules/student_data_reader.xml',
         'security/rules/task_assignment.xml',
+        'security/rules/ex_officio_withdrawal.xml',
         'security/ir.model.access.csv',
 
 
@@ -372,6 +373,8 @@
             'views/academic_management/task_assignment/menu.xml',
             'views/academic_management/convalidations/views.xml',
             'views/academic_management/convalidations/menu.xml',
+            'views/academic_management/ex_officio_withdrawal/views.xml',
+            'views/academic_management/ex_officio_withdrawal/menu.xml',
             'views/academic_management/convalidation_info_reason/list.xml',
             'views/academic_management/convalidation_info_reason/form.xml',
             'views/academic_management/convalidation_info_reason/menu.xml',

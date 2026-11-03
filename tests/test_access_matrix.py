@@ -36,6 +36,10 @@ ACCESS_MATRIX = {
     'ems.convalidation.info_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
     'ems.convalidation.rejection_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
     'ems.course': {'teacher': 'r', 'secretary': 'r'},
+    # Issue #726: who decides a proposal dismisses it; whether they may is checked on confirming
+    # (ems.ex_officio_withdrawal._ems_check_can_decide_proposal).
+    'ems.ex_officio_withdrawal.dismiss_wizard': {
+        'teacher': '', 'tutor': 'rwc', 'secretary': '', 'academic_admin': 'rwc'},
     # Issue #644: only the daily summary reads and writes informative notices (sudo); the
     # administrator may look at them (base.group_system, via settings_admin).
     'ems.info_notice': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'settings_admin': 'r'},

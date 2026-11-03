@@ -2,6 +2,8 @@
 
 from datetime import timedelta
 
+from pytz import UTC
+
 from odoo import api, models
 
 
@@ -22,6 +24,24 @@ class EmsPublicHoliday(models.Model):
         return self.sudo().search([
             ('resource_id', '=', False), ('date_from', '<', day_end), ('date_to', '>', day_start)],
             order='date_from', limit=1)
+
+    @api.model
+    def _ems_holiday_dates(self, date_from, date_to):
+        """Set of the company's calendar days between `date_from` and `date_to` (both included)
+        covered by a public holiday or school break, in one search. A day the leave only touches
+        counts, as in _ems_public_holiday_on(). sudo: same reason."""
+        utils = self.env['ems.datetime_utils']
+        start, end = (utils.datetime_to_odoo(utils.time_float_to_utc_datetime(when, 0.0))
+                      for when in (date_from, date_to + timedelta(days=1)))
+        days = set()
+        for leave in self.sudo().search([
+                ('resource_id', '=', False), ('date_from', '<', end), ('date_to', '>', start)]):
+            day = utils.utc_datetime_to_local(UTC.localize(leave.date_from)).date()
+            last = utils.utc_datetime_to_local(UTC.localize(leave.date_to) - timedelta(seconds=1)).date()
+            while day <= last:
+                days.add(day)
+                day += timedelta(days=1)
+        return days
 
     @api.model_create_multi
     def create(self, vals_list):

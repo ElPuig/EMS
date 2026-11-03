@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #726: a tutor (and the chain above them, tutor scope) sees and opens the case
+             files of their own students. Group rules add up: the rules below give the transversal
+             roles every case file. -->
+        <record id="rule_ex_officio_withdrawal_tutor" model="ir.rule">
+            <field name="name">Ex officio withdrawal: tutor scope</field>
+            <field name="model_id" ref="ems.model_ems_ex_officio_withdrawal"/>
+            <field name="groups" eval="[(4, ref('ems.group_tutor'))]"/>
+            <field name="domain_force">[('student_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Coexistence (COCOBE), Guidance and the Head of Studies / Director: every case file.
+             Opening one stays within the tutor scope (perm_create off). -->
+        <record id="rule_ex_officio_withdrawal_reader" model="ir.rule">
+            <field name="name">Ex officio withdrawal: centre-wide</field>
+            <field name="model_id" ref="ems.model_ems_ex_officio_withdrawal"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader')), (4, ref('ems.group_secretary'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ex_officio_withdrawal_admin" model="ir.rule">
+            <field name="name">Ex officio withdrawal: administrator</field>
+            <field name="model_id" ref="ems.model_ems_ex_officio_withdrawal"/>
+            <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_ex_officio_withdrawal_step_tutor" model="ir.rule">
+            <field name="name">Ex officio withdrawal step: tutor scope</field>
+            <field name="model_id" ref="ems.model_ems_ex_officio_withdrawal_step"/>
+            <field name="groups" eval="[(4, ref('ems.group_tutor'))]"/>
+            <field name="domain_force">[('withdrawal_id.student_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ex_officio_withdrawal_step_reader" model="ir.rule">
+            <field name="name">Ex officio withdrawal step: centre-wide</field>
+            <field name="model_id" ref="ems.model_ems_ex_officio_withdrawal_step"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader')), (4, ref('ems.group_secretary'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_ex_officio_withdrawal_step_admin" model="ir.rule">
+            <field name="name">Ex officio withdrawal step: administrator</field>
+            <field name="model_id" ref="ems.model_ems_ex_officio_withdrawal_step"/>
+            <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+    </data>
+</odoo>

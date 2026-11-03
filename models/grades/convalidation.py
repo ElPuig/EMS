@@ -324,19 +324,7 @@ class EmsConvalidation(models.Model):
         the counter starting again every course. One ir.sequence per course, created the first
         time that course gets a request, so nothing has to be prepared before a new year opens.
         sudo: the request is usually filed from the portal."""
-        if not course:
-            return False
-        Sequence = self.env['ir.sequence'].sudo()
-        code = f'ems.convalidation.course.{course.id}'
-        if not Sequence.search_count([('code', '=', code)]):
-            Sequence.create({
-                'name': f"Convalidations {course.name}",
-                'code': code,
-                'prefix': f"CONV-{course.start}-{str(course.end)[-2:]}-",
-                'padding': 4,
-                'company_id': False,
-            })
-        return Sequence.next_by_code(code)
+        return self.env['ems.base'].next_course_number('ems.convalidation', "Convalidations", 'CONV', course)
 
     # --- who may do what -----------------------------------------------------
 

@@ -18,6 +18,27 @@ class EmsBase(models.AbstractModel):
         for record in self:
             record.active = False
 
+    def next_course_number(self, key, label, prefix, course):
+        """Next registry entry of `course` for one kind of record: <prefix>-<start>-<end, two
+        digits>-<4-digit counter>, the counter starting again every course. One ir.sequence per
+        kind and course (code `<key>.course.<course id>`), created the first time it is needed,
+        so nothing has to be prepared before a new year opens. Shared by convalidations (CONV) and
+        ex officio withdrawals (BO). sudo: the record may be created from the portal or by a
+        role that cannot read sequences."""
+        if not course:
+            return False
+        Sequence = self.env['ir.sequence'].sudo()
+        code = f'{key}.course.{course.id}'
+        if not Sequence.search_count([('code', '=', code)]):
+            Sequence.create({
+                'name': f"{label} {course.name}",
+                'code': code,
+                'prefix': f"{prefix}-{course.start}-{str(course.end)[-2:]}-",
+                'padding': 4,
+                'company_id': False,
+            })
+        return Sequence.next_by_code(code)
+
     # The current user is admin.
     def get_user_is_admin(self):
         return self.env.user.has_group('ems.group_academic_admin')

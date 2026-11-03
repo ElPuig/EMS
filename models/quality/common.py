@@ -24,11 +24,6 @@ def quality_state_selection():
     return [(key, _(label)) for key, label in QUALITY_STATES]
 
 
-# The language a department's or workgroup's name is read in to build the codes of its minutes
-# and agreements. The centre works in Catalan; reading it in whatever language each user has
-# would number the same department under several codes. To become a setting of the installation
-# (issue #620), along with an acronym of its own for each department.
-SCOPE_CODE_LANG = 'ca_ES'
 _SCOPE_CODE_STOPWORDS = {'i', 'de', 'del', 'dels', 'la', 'el', 'les', 'els', 'a', 'y', 'and', 'of', 'the'}
 
 
@@ -38,8 +33,9 @@ def scope_code(record):
     Its own `code` when the model has one; otherwise built from its name, without accents: the
     first five letters of a one-word name (Informàtica -> INFOR), and the first three of the first
     and of the last word of a longer one (Llengua Catalana -> LLECAT), which keeps two
-    departments that start alike apart."""
-    record = record.with_context(lang=SCOPE_CODE_LANG)
+    departments that start alike apart. Read in the centre language (res.company.ems_lang): in
+    whatever language each user has, the same department would be numbered under several codes."""
+    record = record.with_context(lang=record.env.company.ems_lang)
     code = getattr(record, 'code', False)
     if code:
         return code.upper()

@@ -7,8 +7,6 @@ from odoo import api, fields, models
 from ..shared.schedule_report_mixin import PUBLIC_SCHEDULE_ROUTE
 
 # Issue #453 - see docs/en/developers/contacts/group_schedule.md's "Public schedule link".
-# One public PDF per group, in the centre's own language (developer choice).
-PUBLIC_SCHEDULE_LANG = 'ca_ES'
 # 'name' itself is a stored compute over study/course/acronym for a main group, so the fields it
 # derives from have to be listed too - a write only ever carries the source field, never 'name'.
 PUBLIC_SCHEDULE_GROUP_FIELDS = {
@@ -128,7 +126,8 @@ class ems_group_schedule(models.Model):
         blocks._get_public_schedule_groups()._mark_public_schedule_dirty()
 
     def _generate_public_schedule(self):
-        report = self.env['ir.actions.report'].sudo().with_context(lang=PUBLIC_SCHEDULE_LANG)
+        # One public PDF per group, in the centre language (res.company.ems_lang).
+        report = self.env['ir.actions.report'].sudo().with_context(lang=self.env.company.ems_lang)
         for group in self:
             content, _content_type = report._render_qweb_pdf('ems.report_group_schedule', group.ids)
             group.write({'public_schedule_pdf': base64.b64encode(content), 'public_schedule_dirty': False})

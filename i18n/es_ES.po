@@ -28408,3 +28408,17 @@ msgstr "Acordado y hecho en la reunión %s."
 #: code:addons/ems/models/quality/minute.py:0
 msgid "%s cannot be both among the attendees and the absentees."
 msgstr "%s no puede estar a la vez entre los asistentes y entre las personas que faltan."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_lang
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_lang
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Centre language"
+msgstr "Idioma del centro"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_company__ems_lang
+#: model:ir.model.fields,help:ems.field_res_config_settings__ems_lang
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "The language EMS writes in, whatever the language of whoever uses it: the codes of minutes and agreements, the minutes and their calls, the convalidation resolutions, the public group schedules and the texts EMS adds by itself. It is also the language new contacts and users get."
+msgstr "El idioma en el que escribe EMS, sea cual sea el idioma de quien lo usa: los códigos de las actas y los acuerdos, las actas y sus convocatorias, las resoluciones de convalidación, los horarios públicos de los grupos y los textos que EMS añade por su cuenta. También es el idioma que reciben los contactos y los usuarios nuevos."

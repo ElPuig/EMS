@@ -1179,6 +1179,28 @@ class TestAbsenceCoverage(AbsenceCoverageCase):
             self.assertFalse([option for option in course._get_arrangement_options(
                 self.day, self.group_a, self.teacher_b, 11, 12) if option['hour_from'] <= 8.5])
 
+    def test_telling_the_families_is_still_offered_once_lessons_have_started(self):
+        """Issue #744: leaving out the moves of lessons already under way does not take away the
+        early leave: at 8:30 and at 10:30 the families can still be told the group goes home at
+        11:00."""
+        self._morning()
+        self._absence(self.teacher_b, self.day, hour_from=11, hour_to=12)
+        course = self.env['ems.course']
+
+        for hour in (8.5, 10.5):
+            with self._at(hour):
+                proposals = [action['expected'] for action in self._actions()
+                             if action['type'] == 'proposal' and action['group'] == self.group_a]
+                self.assertEqual(proposals, [('early_leave', 11)], f"at {hour}")
+                self.assertFalse([step for plan in course._get_arrangement_plans(self.day, self.group_a)
+                                  for step in plan['steps'] if step.get('lesson') and step['lesson'][0] <= hour])
+
+    def test_a_move_with_its_early_leave_is_still_proposed_once_the_day_has_started(self):
+        """Issue #744: at 8:30, with both lessons still to come, teacher_b's 11:00 lesson still goes
+        to 10:00 and the group still goes home at 11:00."""
+        with self._at(8.5):
+            self._moved_lesson_plan()
+
     def test_the_arrangement_planner_counts_a_longer_break_as_needing_a_guard(self):
         """Issue #679: the planner scores the lesson a longer break takes in as one more guard, and
         a plan that only tells the break does not resolve that lesson's row."""

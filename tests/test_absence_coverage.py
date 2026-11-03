@@ -1020,13 +1020,31 @@ class TestAbsenceCoverage(AbsenceCoverageCase):
             self.assertFalse([action for action in self._actions()
                               if action['type'] == 'proposal' and action['group'] == self.group_a])
 
-    def test_an_early_leave_is_proposed_until_its_time(self):
+    def test_an_early_leave_is_proposed_until_the_class_it_frees_ends(self):
+        """Issue #744: the teacher of the last class (11-12) leaves once it has started: at 11:30
+        the group can still be sent home, and the notice drafted; from 12:00 on it is over."""
         self._morning()
         self._absence(self.teacher_b, self.day)
 
-        with self._at(10.5):
-            self.assertEqual(self._states()['leave']['status'], 'proposal')
-        with self._at(11):
+        for hour in (10.5, 11, 11.5):
+            with self._at(hour):
+                state = self._states()['leave']
+                self.assertEqual((state['status'], state['expected']), ('proposal', ('early_leave', 11)), f"at {hour}")
+                self.assertEqual(self._row(11, 12, self.teacher_b)['proposed'], ('early_leave', 11))
+        with self._at(11.5):
+            notice = self._communicate('early_leave', 11.0)
+            self.assertEqual(notice.absence_changes and notice._absence_change_tuples(), [('early_leave', 11.0)])
+            state = self._states()['leave']
+            self.assertEqual((state['status'], state['change_options']), ('communicated', []),
+                             "the group has gone home: there is nothing left to correct")
+        with self._at(12):
+            self.assertFalse(self._states()['leave']['options'])
+
+    def test_an_early_leave_is_no_longer_proposed_once_its_class_is_over(self):
+        self._morning()
+        self._absence(self.teacher_b, self.day)
+
+        with self._at(12):
             self.assertIsNone(self._states()['leave']['status'])
 
     def test_no_classes_is_no_longer_proposed_once_the_day_has_started(self):

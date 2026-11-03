@@ -821,7 +821,8 @@ carry `proposed`, shown as a dashed tag.
 **Only changes still to come are offered (issue #599).** On the board's own day, an option whose
 time has come (`_change_start()`: the hour a late entry, early leave or longer break starts; the
 group's first lesson for `no_classes`/`normal_entry`; its last one for `normal_leave`) is dropped
-from `options` before anything else, so `expected`, the row tags and the box only ever show what
+from `options` before anything else (`_change_deadline()`, issue #744: an early leave stays on offer
+until the class it frees ends, since the teacher of the last class may leave once it has started), so `expected`, the row tags and the box only ever show what
 can still reach the families in time; with nothing left, the side has no status. A communicated
 change whose time has come is settled (`communicated`, no correction proposed): a correction would
 arrive too late. `_board_day_hour()` gives the company-time hour of `day` (None for a day still to

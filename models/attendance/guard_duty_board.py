@@ -929,6 +929,17 @@ class EmsCourseGuardDutyBoard(models.Model):
             return blocks[-1]['hour_to'] if blocks else 24.0
         return change[1]
 
+    @classmethod
+    def _change_deadline(cls, change, blocks):
+        """The hour until which `change` can still be told to the families: when it takes effect
+        (see _change_start), except an early leave, which can still send the group home during the
+        class it frees, until that class ends (issue #744: the teacher of the last class leaves
+        once it has started)."""
+        start = cls._change_start(change, blocks)
+        if change[0] == 'early_leave':
+            return next((block['hour_to'] for block in blocks if block['hour_to'] > start + HOUR_EPSILON), start)
+        return start
+
     def _get_absence_change_states(self, day, groups, blocks_by_group=None):
         """`{group.id: {'entry': state, 'leave': state, break_side: state...}}` - where each side
         of each group's day (its start, its end, and each of its level's breaks)
@@ -950,9 +961,10 @@ class EmsCourseGuardDutyBoard(models.Model):
         one of the options and `'draft_change'` that option, and `'teachers'` the absent teachers
         whose lessons the change concerns - any of their managers can act on it.
 
-        A change whose time has already come (see _change_start) can no longer be communicated, so
-        it is never offered, and one the families were told about that has already come is settled:
-        correcting it would reach them too late (issue #599). `blocks_by_group`: the groups' days,
+        A change that can no longer be told (see _change_deadline: its time has come, or for an
+        early leave the class it frees is over) is never offered, and one the families were told
+        about whose time has come (see _change_start) is settled: correcting it would reach them
+        too late (issues #599, #744). `blocks_by_group`: the groups' days,
         when the caller already has them (see _get_group_day_blocks)."""
         blocks_by_group = blocks_by_group or self._get_group_day_blocks(day, groups)
         notices = self.env['ems.notice'].sudo().search([
@@ -972,6 +984,9 @@ class EmsCourseGuardDutyBoard(models.Model):
             def is_past(change, blocks=blocks):
                 return now_hour is not None and self._change_start(change, blocks) <= now_hour
 
+            def is_too_late(change, blocks=blocks):
+                return now_hour is not None and self._change_deadline(change, blocks) <= now_hour
+
             level = group.level_id.id
             if level not in breaks_by_level:
                 breaks_by_level[level] = sorted(self._get_guard_duty_board_break_periods(
@@ -982,11 +997,11 @@ class EmsCourseGuardDutyBoard(models.Model):
                 side_told = [(notice, change) for notice, change in told[group.id] if self._change_side(change, side)]
                 communicated = self._notice_change(next((
                     change for notice, change in reversed(side_told) if notice.state in COMMUNICATED_NOTICE_STATES), None))
-                options = [option for option in allowed[side] if not is_past(option)]
+                options = [option for option in allowed[side] if not is_too_late(option)]
                 expected = options[-1] if options else None
                 normal = (('normal_break', *BoardBreakSide.period(side)) if BoardBreakSide.is_break(side)
                           else (NORMAL_CHANGE[side], 0.0))
-                usual = [] if is_past(normal) else [normal]
+                usual = [] if is_too_late(normal) else [normal]
                 change_options = []
                 if not communicated:
                     status = 'proposal' if options else None

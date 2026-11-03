@@ -127,11 +127,15 @@ class ArrangementPlanner:
     def _is_past(self, change, blocks):
         return self.now_hour is not None and self.course._change_start(change, blocks) <= self.now_hour
 
+    def _is_too_late(self, change, blocks):
+        return self.now_hour is not None and self.course._change_deadline(change, blocks) <= self.now_hour
+
     def _side_options(self, group_id, blocks):
         """`{side: (options, communicated)}` of one group's simulated day: the changes still to come
-        it allows, from the smallest to the largest, and what the families were told on that side."""
+        it allows that can still be told (see ems.course._change_deadline), from the smallest to the
+        largest, and what the families were told on that side."""
         allowed = self.course._allowed_absence_changes(blocks, self.breaks.get(group_id, ()), self.enabled[group_id])
-        return {side: ([option for option in options if not self._is_past(option, blocks)],
+        return {side: ([option for option in options if not self._is_too_late(option, blocks)],
                        self.communicated.get(group_id, {}).get(side))
                 for side, options in allowed.items()}
 

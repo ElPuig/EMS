@@ -28381,3 +28381,17 @@ msgstr "Dia festiu:"
 #: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
 msgid ". Nobody is expected, so nobody is missing."
 msgstr ". No s'espera ningú, així que no falta ningú."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_lang
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_lang
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Centre language"
+msgstr "Idioma del centre"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_company__ems_lang
+#: model:ir.model.fields,help:ems.field_res_config_settings__ems_lang
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "The language EMS writes in, whatever the language of whoever uses it: the codes of minutes and agreements, the minutes and their calls, the convalidation resolutions, the public group schedules and the texts EMS adds by itself. It is also the language new contacts and users get."
+msgstr "L'idioma en què escriu EMS, sigui quin sigui l'idioma de qui el fa servir: els codis de les actes i els acords, les actes i les seves convocatòries, les resolucions de convalidació, els horaris públics dels grups i els textos que EMS afegeix pel seu compte. També és l'idioma que reben els contactes i els usuaris nous."

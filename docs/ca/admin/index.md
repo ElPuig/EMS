@@ -16,6 +16,7 @@ Aquesta secció conté els manuals per a **administradors**.
 - [Curs Actual](course-settings.md) — Canviar l'any acadèmic utilitzat per a les operacions del dia a dia.
 - [Versió d'EMS instal·lada](ems-version.md) — Quina versió d'EMS funciona en aquesta instal·lació, i si n'hi ha una de més nova.
 - [Configuració de convalidacions](convalidation-settings.md) — El període anual per sol·licitar convalidacions des del portal i els textos de la resolució oficial.
+- [Idioma del centre](centre-language.md) — L'idioma en què EMS escriu pel seu compte i que reben els usuaris nous.
 - [Grups de treball](workgroups.md) — Agrupacions lliures d'empleats (equips de projecte, comissions).
 - [Espais i tipus d'espai](facilities.md) — Aules físiques i els seus tipus, usats en sessions/grups/actes/horaris.
 - [Rols de professorat i nivells de permisos](teacher-roles.md) — Com assignar rols (Tutor, Cap de departament, Cap d'estudis, Director...) per concedir nivells de permisos.

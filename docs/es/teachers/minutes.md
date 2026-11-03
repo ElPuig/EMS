@@ -162,6 +162,13 @@ pantalla con la faceta *Pendientes de que yo apruebe*, y al aprobarla:
 - El acta **ya no se puede modificar**. Si hay que corregir algo, se hace una versión nueva; no se
   reescribe la que ya estaba aprobada.
 
+## Mis acuerdos
+
+**Reuniones → Acuerdos** abre con los acuerdos **abiertos** en los que sois **persona responsable** (por
+vuestro nombre o por el cargo que ocupáis) o **persona implicada**: las facetas *Las mías*, *Los que me
+implican* y *Abierta*. Quitad *Las mías* o *Los que me implican* para ver solo una parte, o *Abierta* para
+ver también los cerrados.
+
 ## Registros puntuales
 
 El mismo sitio sirve para los papeles que solo tienen que constar (un arqueo, una entrega de llaves, una

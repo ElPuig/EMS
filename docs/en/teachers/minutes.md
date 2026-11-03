@@ -161,6 +161,12 @@ under the *Awaiting my approval* facet, and approving it:
 - Makes the minute **read-only**. If something needs correcting, a new version is produced; what was
   approved is not rewritten.
 
+## My agreements
+
+**Meetings → Agreements** opens on the **open** agreements where you are a **responsible person** (by your
+name or by the post you hold) or a **person involved**: the facets *Mine*, *Where I am involved* and *Open*.
+Remove *Mine* or *Where I am involved* to see only part of them, or *Open* to see the closed ones too.
+
 ## Evidence records
 
 The same screen holds the papers that only need to be on record (a cash count, a key handover, a delegate

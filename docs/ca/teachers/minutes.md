@@ -162,6 +162,12 @@ pantalla amb la faceta *Pendents que jo aprovi*, i en aprovar-la:
 - L'acta **ja no es pot modificar**. Si cal corregir alguna cosa, es fa una versió nova; no es reescriu
   la que ja estava aprovada.
 
+## Els meus acords
+
+**Reunions → Acords** obre amb els acords **oberts** on sou **persona responsable** (pel vostre nom o pel
+càrrec que ocupeu) o **persona implicada**: les facetes *Les meves*, *Els que m'impliquen* i *Oberta*. Traieu
+*Les meves* o *Els que m'impliquen* per veure'n només una part, o *Oberta* per veure també els tancats.
+
 ## Registres puntuals
 
 El mateix lloc serveix per als papers que només han de constar (un arqueig, un lliurament de claus, una

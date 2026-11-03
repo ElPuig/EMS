@@ -41,7 +41,8 @@ Three ideas carry the whole area and are worth stating before the field tables:
    records work this way, and it survives someone changing job in September.
 3. **An agreement and an improvement action are the same thing.** One model, `ems.quality.action`, with a
    `type`. That is what makes a single "what do I owe and by when" screen possible instead of one per
-   origin.
+   origin. Meetings > Agreements (`action_minute_agreement`) is that screen for the staff:
+   it opens on the facets *Mine*, *Where I am involved* (same filter group, so ORed) and *Open*.
 4. **State is computed, never typed.** It derives from the latest follow-up entry, so changing state
    requires recording why.
 

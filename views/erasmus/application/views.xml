@@ -79,8 +79,8 @@
                         <field name="state" widget="statusbar" statusbar_visible="draft,submitted,admitted,selected,accepted"/>
                     </header>
                     <sheet>
-                        <div class="alert alert-warning" role="alert" invisible="not conduct_blocked or state not in ('submitted', 'subsanation')">
-                            Too many conduct warnings this course: the student cannot take part (art. 6 of the call). Exclude the application.
+                        <div class="alert alert-warning" role="alert" invisible="not conduct_review or state not in ('submitted', 'subsanation')">
+                            Serious conduct record this course (<field name="course_strike_count" class="oe_inline"/> conduct warnings): the Erasmus team may exclude the application (art. 6 of the call), after hearing the teaching team or the coexistence team. If it goes on, every warning takes points off (criterion F).
                         </div>
                         <div class="oe_title">
                             <h1><field name="partner_id" readonly="1"/></h1>
@@ -131,7 +131,7 @@
                                     <!-- Students' call art. 6, from EMS's own conduct warnings. -->
                                     <group string="Conduct this course" invisible="audience != 'student'">
                                         <field name="course_strike_count"/>
-                                        <field name="conduct_blocked"/>
+                                        <field name="conduct_review"/>
                                     </group>
                                 </group>
                                 <group>
@@ -305,19 +305,13 @@
                             </page>
                             <page string="Answers" name="answers">
                                 <group>
-                                    <field name="staff_activity" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="host_entity" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="destination" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="preferred_dates" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="proposal_a" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="proposal_b" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="plan_text" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="declared_never_staff_mobility" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="declared_last_mobility_date" readonly="not can_manage" invisible="audience != 'staff' or declared_never_staff_mobility"/>
                                     <field name="declared_centre_start_date" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="centre_projects" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="plan_reason" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="plan_objectives" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="plan_application" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="support_needs" readonly="not can_manage" invisible="audience != 'staff'" groups="ems.group_erasmus,ems.group_academic_admin"/>
-                                    <field name="availability" readonly="not can_manage" invisible="audience != 'student'"/>
                                     <field name="fewer_opportunities" readonly="not can_manage" invisible="audience != 'student'" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                     <field name="image_consent" readonly="not can_manage"/>
                                     <field name="applicant_notes" readonly="not can_manage"/>

@@ -33,6 +33,9 @@ The call's tabs are in two blocks: **Selection** (modalities, documents, informa
 - *Required*: the application cannot be submitted without it.
 - *Optional*.
 - *Required for minors*: only asked to students under 18 (for example the family authorization).
+- *Required if fewer opportunities are declared*: the portal shows it right below the fewer opportunities box, only once the student ticks it, and then it is required.
+
+**Handed in as**: *Files* (any), *PDF only* (the CV: other files are refused) or *A link* (the presentation video: the student pastes the Google Drive link instead of uploading it). **Instructions** and **Instructions link** (e.g. the Europass editor) are shown to the student with the document. A new students' call already brings the CV (PDF), the video (link), the language certificates, the evidence of fewer opportunities and the family authorisation, with their instructions: adjust them if needed.
 
 Tick **Confidential** for documents only the Erasmus team may see, such as the evidence of fewer opportunities.
 
@@ -59,7 +62,7 @@ Open an application:
 - **Documents** tab: each document with its files. Every file the student uploaded is kept, also the earlier versions. Mark each one as **Valid** (✓) or **Needs changes** (✗), and write a **Comment for the applicant** when it needs changes.
 - **Admission** tab:
     - **Requirements**: enrolled in a level of the call, no previous Erasmus+ internship in this cycle, family authorization if a minor. EMS records who checked it and when.
-    - **Conduct this course**: the **conduct warnings** the student has in EMS during the call's course. With as many as the number that sends the case to the coexistence team (3, the EMS setting) or more, **Too many conduct warnings** is ticked and the student cannot take part (article 6 of the call). EMS checks it on its own: nobody records it by hand.
+    - **Conduct this course**: the **conduct warnings** the student has in EMS during the call's course. With as many as the number that sends the case to the coexistence team (3, the EMS setting) or more, **Conduct to review** is ticked and the form shows a notice at the top. It does not rule the student out: having heard the teaching team and the coexistence team, you may **exclude** the application with the reason (article 6 of the call). If it goes on, every warning takes points off (criterion F).
     - **Exclusion reason**, if the application is excluded.
 - **Answers** tab: what the student answered in the form.
 
@@ -69,7 +72,7 @@ When a document needs changes or a required one is missing, mark it and click **
 
 ## 5. Admit or exclude
 
-- **Admit**: the requirements must be *Met*, every required document *Valid* and the student cannot have too many conduct warnings. If the warnings came after the application was submitted, the form warns about it at the top: exclude it.
+- **Admit**: the requirements must be *Met* and every required document *Valid*.
 - **Exclude**: write the exclusion reason first. It also works on an admitted application, for example when the student does not attend the interview.
 - **Back to review** undoes either decision.
 

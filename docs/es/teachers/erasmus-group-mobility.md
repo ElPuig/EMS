@@ -4,7 +4,7 @@
 
 # Acompañar una movilidad de grupo Erasmus+
 
-Si eres **docente responsable** o **docente acompañante** de una movilidad de grupo Erasmus+, la encontrarás en **Erasmus+ > Mis movilidades de grupo**. No hace falta que te presentes a ninguna convocatoria: la coordinación Erasmus te añade.
+Si eres **docente responsable** o **docente acompañante** de una movilidad de grupo Erasmus+, la encontrarás en **Erasmus+ > Mi participación > Mis movilidades de grupo**. No hace falta que te presentes a ninguna convocatoria: la coordinación Erasmus te añade.
 
 ---
 

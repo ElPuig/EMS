@@ -63,19 +63,21 @@ PARTICIPANT_HEADERS = ('Nombre', 'Apellidos', 'DNI', 'Email', 'Teléfono', 'Dire
 ANSWER_FIELDS = {
     # A student's image consent is their image rights authorisation of the course (res.partner.auth_image,
     # as in the group mobilities): not asked again (the issue-#682 review).
-    'student': ('availability', 'fewer_opportunities', 'applicant_notes'),
-    'staff': ('staff_activity', 'host_entity', 'destination', 'preferred_dates',
-              'declared_never_staff_mobility', 'declared_last_mobility_date', 'declared_centre_start_date',
-              'centre_projects', 'declared_language_level', 'support_needs', 'image_consent',
-              'applicant_notes', 'plan_reason', 'plan_objectives', 'plan_application'),
+    'student': ('fewer_opportunities', 'applicant_notes'),
+    'staff': ('proposal_a', 'proposal_b', 'plan_text', 'declared_never_staff_mobility', 'declared_centre_start_date',
+              'centre_projects', 'declared_language_level', 'support_needs', 'image_consent', 'applicant_notes'),
 }
 # Issue #697: the mobility and transfer plan of the staff call (annex 1), written in the form and
-# required to submit: the activity, host entity or course, destination and dates (always a
-# concrete one), why that choice, the objectives and the application to the job. Its
-# dissemination is not asked for: it is the same obligation for everyone (a news item on the
-# website, and sharing it at a meeting if needed). The panel reads it on screen.
-PLAN_FIELDS = ('staff_activity', 'host_entity', 'destination', 'preferred_dates', 'plan_reason', 'plan_objectives',
-               'plan_application')
+# required to submit. The 2026-11-03 review made it friendlier (adriamt): two proposals in the
+# teacher's own words, A (the main one) and B (the backup if A falls through), each saying the
+# activity, the host entity or course, where and when ("job shadowing at a German VET school, the
+# Berufskolleg X in Cologne, in April"); and one text with what they want to observe or learn and
+# how they will apply it to their job. The panel reads it on screen and gives it one score; once
+# selected, the participant fills in the exact entity, country and dates of their mobility's
+# proposal for the Direction. Its dissemination is not asked for: it is the same obligation for
+# everyone (a news item on the website, and sharing it at a meeting if needed).
+PLAN_FIELDS = ('proposal_a', 'proposal_b', 'plan_text')
+# The activities of a staff mobility's proposal (ems.erasmus.mobility.proposal_activity).
 STAFF_ACTIVITIES = [('job_shadowing', "Job shadowing"), ('course', "Structured course"),
                     ('teaching', "Teaching assignment")]
 
@@ -112,36 +114,29 @@ class EmsErasmusApplication(models.Model):
     submit_date = fields.Datetime(string="Submitted on", readonly=True, copy=False)
     is_minor = fields.Boolean(string="Minor", compute='_compute_is_minor')
 
-    availability = fields.Text(string="Availability")
     # Audit D-4: what the applicant declares is the team's, as the accredited check (the Head of Studies reads
     # the conduct warnings and the exclusion reason, not this).
     fewer_opportunities = fields.Boolean(string="Declares fewer opportunities",
                                          groups=TEAM)
     image_consent = fields.Boolean(string="Image consent")
     applicant_notes = fields.Text(string="Applicant's notes")
-    # Issue #686: the staff application form (art. 8 and annex 1 of the staff call).
-    staff_activity = fields.Selection(string="Activity", selection=STAFF_ACTIVITIES)
-    host_entity = fields.Char(string="Host entity or course")
-    destination = fields.Char(string="Destination")
-    preferred_dates = fields.Char(string="Preferred dates")
+    # Issue #686: the staff application form (art. 8 and annex 1 of the staff call); PLAN_FIELDS.
+    proposal_a = fields.Text(string="Proposal A",
+                             help="The main proposal, in the applicant's words: the activity, the host entity or "
+                                  "course, where and when.")
+    proposal_b = fields.Text(string="Proposal B (backup)",
+                             help="The backup if proposal A falls through, in the same way.")
+    plan_text = fields.Text(string="What to learn and how to apply it",
+                            help="Annex 1: the competences the applicant wants to observe or learn, and how they "
+                                 "will apply them to their job.")
     centre_projects = fields.Text(string="Centre projects")
-    plan_reason = fields.Text(string="Why this entity or course",
-                              help="Annex 1, section 3: why this entity or course, and its relation with the "
-                                   "applicant's job and with the centre's training cycles.")
-    plan_objectives = fields.Text(string="Objectives",
-                                  help="Annex 1, section 4: two or three concrete objectives: what to observe, learn "
-                                       "or, in a teaching assignment, teach.")
-    plan_application = fields.Text(string="Application to the job",
-                                   help="Annex 1, section 5: how it will be used in the classes, the department or "
-                                        "the centre's management, and which students will benefit.")
     support_needs = fields.Text(string="Support needs", groups=TEAM)
+    # Criterion 2 (the 2026-11-03 review): the applicant only says they never had one; the Erasmus
+    # team sets when the last one was for everyone else (last_staff_mobility).
     declared_never_staff_mobility = fields.Boolean(
         string="Never had a staff mobility",
-        help="The applicant has never done an Erasmus+ staff mobility from this centre.")
-    declared_last_mobility_date = fields.Date(
-        string="Last staff mobility on",
-        help="Month and year of the applicant's last Erasmus+ staff mobility from this centre. Accompanying students, "
-             "other programmes and mobilities from other centres do not count.")
+        help="The applicant has never done an Erasmus+ staff mobility from this centre. Otherwise the Erasmus team "
+             "sets when the last one was.")
     declared_centre_start_date = fields.Date(
         string="At the centre since", help="Month and year since when the applicant works at the centre without "
                                            "interruption.")
@@ -168,11 +163,15 @@ class EmsErasmusApplication(models.Model):
                                                  readonly=True, copy=False)
     requirements_check_date = fields.Datetime(string="Requirements checked on", readonly=True, copy=False)
     # Students' call art. 6: conduct is read from EMS's own conduct warnings, never checked by hand.
+    # They rule nobody out (adriamt, 2026-11-03): the team may exclude the application, with the
+    # reason, after hearing the teaching team or the coexistence team; each warning still takes
+    # points off (criterion F).
     course_strike_count = fields.Integer(string="Conduct warnings this course", compute='_compute_conduct',
                                          help="The applicant's conduct warnings in EMS during the call's course.")
-    conduct_blocked = fields.Boolean(string="Too many conduct warnings", compute='_compute_conduct',
-                                     help="As many conduct warnings this course as the number that sends the case "
-                                          "to the coexistence team, or more: the student cannot apply.")
+    conduct_review = fields.Boolean(string="Conduct to review", compute='_compute_conduct',
+                                    help="As many conduct warnings this course as the number that sends the case "
+                                         "to the coexistence team, or more: the Erasmus team may exclude the "
+                                         "application (art. 6 of the call).")
     can_manage = fields.Boolean(string="Can manage", compute='_compute_permissions',
                                 help="Erasmus team or administrator.")
     exclusion_reason = fields.Text(string="Exclusion reason", tracking=True, copy=False)
@@ -321,7 +320,7 @@ class EmsErasmusApplication(models.Model):
             count = application.call_id._ems_course_strike_count(application.partner_id) \
                 if application.audience == 'student' else 0
             application.course_strike_count = count
-            application.conduct_blocked = application.call_id._ems_conduct_blocked_count(count)
+            application.conduct_review = application.call_id._ems_conduct_blocked_count(count)
 
     @api.depends('interview_ids.state', 'interview_ids.general_score', 'interview_ids.english_score',
                  'single_interview_reason')
@@ -399,20 +398,13 @@ class EmsErasmusApplication(models.Model):
             self._ems_staff_last_mobility() and self._ems_staff_seniority())
         self.is_eligible = self.score_complete and self.score_total >= self.call_id.min_score
 
-    @api.depends('declared_never_staff_mobility', 'declared_last_mobility_date', 'declared_centre_start_date',
-                 'call_id.course_id.start', 'call_id.date_close')
+    @api.depends('declared_never_staff_mobility', 'declared_centre_start_date', 'call_id.date_close')
     def _compute_declared_staff_bands(self):
-        """Criteria 2 and 5 from the dates the applicant declared. A mobility belongs to the course
-        starting on 1 September; seniority is counted in whole months up to the call's closing date."""
+        """Criteria 2 and 5 from what the applicant declared: never had a staff mobility (else the
+        team sets the last one), and seniority in whole months up to the call's closing date."""
         utils = self.env['ems.datetime_utils']
         for application in self:
-            mobility = application.declared_last_mobility_date
-            band = 'never' if application.declared_never_staff_mobility else False
-            if mobility and not band:
-                course = (application.call_id.course_id or self.env.company.current_course_id).start
-                ago = course - (mobility.year if mobility.month >= 9 else mobility.year - 1)
-                band = 'recent' if ago <= 1 else 'two_courses' if ago == 2 else 'older'
-            application.declared_last_staff_mobility = band
+            application.declared_last_staff_mobility = 'never' if application.declared_never_staff_mobility else False
             start, close = application.declared_centre_start_date, application.call_id.date_close
             seniority = False
             if start and close:
@@ -560,9 +552,6 @@ class EmsErasmusApplication(models.Model):
             application._ems_check_state(('submitted',))
             if application.requirements_check != 'met':
                 raise UserError(_("Every admission check must be met to admit %s.", application.partner_id.name))
-            if application.conduct_blocked:
-                raise UserError(_("%s has too many conduct warnings this course to take part (art. 6 of the call): "
-                                  "exclude the application.", application.partner_id.name))
             if application.document_ids.filtered(lambda line: line.is_required and line.review_state != 'valid'):
                 raise UserError(_("Every required document of %s must be valid to admit the application.",
                                   application.partner_id.name))
@@ -820,8 +809,6 @@ class EmsErasmusApplication(models.Model):
             return application
         if call not in partner._ems_erasmus_calls():
             raise UserError(_("You cannot apply to this call."))
-        if call._ems_conduct_blocked(partner):
-            raise UserError(_("You cannot apply to this call: you have too many conduct warnings this course."))
         if not call.is_accepting:
             raise UserError(_("This call is not accepting applications."))
         if call.audience == 'staff':
@@ -831,14 +818,13 @@ class EmsErasmusApplication(models.Model):
         return self.create({'call_id': call.id, 'partner_id': partner.id,
                             'modality_id': call._ems_modality_for(partner).id})
 
-    def _ems_portal_save(self, answers, uploads):
+    def _ems_portal_save(self, answers, uploads, links=None):
         """Save what the applicant sent from the portal. `answers`: values of ANSWER_FIELDS, only
         while the call accepts applications. `uploads`: {call document id: [(file name, bytes)]},
-        also during subsanation, until its deadline, for the documents asked for."""
+        also during subsanation, until its deadline, for the documents asked for. `links`: {call
+        document id: url}, the same way, for a document handed in as a link."""
         self.ensure_one()
         answers = {key: value for key, value in answers.items() if key in ANSWER_FIELDS[self.audience]}
-        if answers.get('staff_activity') not in (False, None, *dict(STAFF_ACTIVITIES)):
-            raise UserError(_("Choose one of the activities of the call."))
         if answers.get('declared_language_level') not in (
                 False, None, *dict(self._fields['declared_language_level'].selection)):
             raise UserError(_("Choose one of the language levels."))
@@ -851,13 +837,16 @@ class EmsErasmusApplication(models.Model):
         lines = {line.call_document_id.id: line for line in self.document_ids}
         editable = self._ems_portal_editable()
         correctable = self._ems_portal_correctable()
-        for document_id, files in uploads.items():
+        for document_id, content in [*uploads.items(), *(links or {}).items()]:
             line = lines.get(document_id)
-            if not files or not line:
+            if not content or not line:
                 continue
             if not (editable or line in correctable):
                 raise UserError(_("The document %s can no longer be changed.", line.name))
-            line._ems_add_files(files)
+            if isinstance(content, str):
+                line._ems_add_link(content)
+            else:
+                line._ems_add_files(content)
 
     def _ems_portal_editable(self):
         """The applicant can change answers and every document: before the closing date."""
@@ -997,20 +986,14 @@ class EmsErasmusApplication(models.Model):
         for application in self:
             if not (application._ems_portal_editable() or application._ems_subsanation_open()):
                 raise UserError(_("The application can no longer be submitted."))
-            if application.conduct_blocked:
-                raise UserError(_("You cannot apply to this call: you have too many conduct warnings this course."))
             missing = application.document_ids.filtered(lambda line: line.is_required and not line.attachment_ids)
             if missing:
                 raise UserError(_("Upload the required documents first: %s", ", ".join(missing.mapped('name'))))
-            if application.audience == 'staff' and not (
-                    (application.declared_never_staff_mobility or application.declared_last_mobility_date)
-                    and application.declared_centre_start_date):
-                raise UserError(_("Say when your last staff mobility was (or that you never had one) and since when "
-                                  "you work at the centre."))
+            if application.audience == 'staff' and not application.declared_centre_start_date:
+                raise UserError(_("Say since when you work at the centre."))
             if application.audience == 'staff' and not all(application[name] for name in PLAN_FIELDS):
-                raise UserError(_("Fill in every section of the mobility plan: the activity, the host entity or "
-                                  "course, the destination, the dates, why you chose them, the objectives and the "
-                                  "application to your job."))
+                raise UserError(_("Write both proposals, A and B, and what you want to learn and how you will apply "
+                                  "it to your job."))
         corrected = self.filtered(lambda application: application.state == 'subsanation')
         self._ems_set_state('submitted')
         self.sudo().write({'submit_date': fields.Datetime.now()})
@@ -1081,8 +1064,9 @@ class EmsErasmusApplication(models.Model):
     def _ems_mail(self, records, xmlid, family_copy=False):
         """Email `xmlid` (a template of `records`' model: applications, resolution lines, offers,
         claims) to each applicant's own address; note it in the application's chatter when there is
-        none. `family_copy`: a minor's family gets a copy (the place offered and the answer to it,
-        when a minor commits to going abroad)."""
+        none. `family_copy`: the family gets a copy (the result, the place offered and the answer to
+        it) whenever EMS keeps it informed about the student: a minor, or an adult who authorized
+        sharing with it (res.partner._ems_informed_recipients)."""
         template = self.env.ref(xmlid, raise_if_not_found=False)
         if not template:
             return
@@ -1090,7 +1074,7 @@ class EmsErasmusApplication(models.Model):
             partner = record.partner_id
             if partner.email:
                 email_values = {'email_to': partner.email}
-                family = family_copy and not partner.is_adult and partner._ems_family_contacts().filtered('email')
+                family = family_copy and (partner._ems_informed_recipients() - partner).filtered('email')
                 if family:
                     email_values['email_cc'] = ",".join(family.mapped('email'))
                 template.with_context(lang=partner.lang).sudo().send_mail(
@@ -1162,11 +1146,12 @@ class EmsErasmusApplicationDocument(models.Model):
         ('optional', "Optional"), ('not_applicable', "Not applicable")])
 
     @api.depends('call_document_id.requirement', 'application_id.is_minor', 'mobility_id.placement_type',
-                 'mobility_id.is_short_blended')
+                 'mobility_id.is_short_blended', 'application_id.fewer_opportunities')
     def _compute_is_required(self):
         for line in self:
             requirement = line.call_document_id.requirement
             line.is_required = requirement == 'required' or (requirement == 'minor' and line.application_id.is_minor) \
+                or (requirement == 'fewer_opportunities' and line.application_id.fewer_opportunities) \
                 or (requirement == 'curricular' and line.mobility_id.placement_type == 'curricular') \
                 or (requirement == 'short_blended' and line.mobility_id.is_short_blended)
 
@@ -1305,8 +1290,15 @@ class EmsErasmusApplicationDocument(models.Model):
         self.write({'review_state': 'needs_change'})
 
     def _ems_add_files(self, files):
-        """Attach `files` ([(name, bytes)]) to this line and put it back to review."""
+        """Attach `files` ([(name, bytes)]) to this line and put it back to review. A document
+        handed in as a PDF takes only PDF files (the 2026-11-03 review: the CV sent to companies)."""
         self.ensure_one()
+        kind = self.call_document_id.upload_kind
+        if kind == 'link':
+            raise UserError(_("%s is handed in as a link, not as a file.", self.name))
+        if kind == 'pdf' and any(not (name or '').lower().endswith('.pdf') or not content.startswith(b'%PDF')
+                                 for name, content in files):
+            raise UserError(_("%s: upload it as a PDF file.", self.name))
         attachments = self.env['ir.attachment'].sudo().create([{
             'name': check_upload(name),
             'datas': base64.b64encode(content),
@@ -1315,3 +1307,18 @@ class EmsErasmusApplicationDocument(models.Model):
         } for name, content in files])
         self.sudo().write({'attachment_ids': [(4, attachment.id) for attachment in attachments],
                            'review_state': 'pending'})
+
+    def _ems_add_link(self, url):
+        """Hand in a document asked for as a link (e.g. the presentation video on Google Drive): kept
+        as a link attachment, like any file of the line (every one is kept), and back to review."""
+        self.ensure_one()
+        url = (url or '').strip()
+        if self.call_document_id.upload_kind != 'link':
+            raise UserError(_("%s is handed in as a file, not as a link.", self.name))
+        if not url.startswith('https://') or len(url) > 2000 or any(char.isspace() for char in url):
+            raise UserError(_("%s: paste the whole link, starting with https://.", self.name))
+        if url in self.attachment_ids.mapped('url'):
+            return
+        attachment = self.env['ir.attachment'].sudo().create({
+            'name': _("%s (link)", self.name), 'type': 'url', 'url': url, 'res_model': self._name, 'res_id': self.id})
+        self.sudo().write({'attachment_ids': [(4, attachment.id)], 'review_state': 'pending'})

@@ -1538,6 +1538,7 @@ msgstr "Actividades"
 #: model:ir.model,name:ems.model_mail_activity
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_activity
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_form
 msgid "Activity"
 msgstr "Actividad"
 
@@ -22086,6 +22087,7 @@ msgstr "Planificación de cambios"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
 msgid "Closure"
 msgstr "Cierre"
 
@@ -22105,6 +22107,7 @@ msgstr "Correctivas y preventivas"
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agreement_review__deadline_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__deadline
 msgid "Deadline"
 msgstr "Fecha límite"
 
@@ -22344,6 +22347,7 @@ msgstr "Cuándo estará finalizada"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_followup__author_employee_id
 #: model:ir.model.fields,field_description:ems.field_ems_minute__redactor_employee_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_log__author_id
 msgid "Written by"
 msgstr "Escrito por"
 
@@ -24785,6 +24789,8 @@ msgstr "Motivo del rechazo:"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__when
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Dates"
 msgstr "Fechas"
 
@@ -25497,6 +25503,9 @@ msgstr "Incidencias"
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
 #: code:addons/ems/models/grades/title_import_wizard.py:0
 #: code:addons/ems/models/erasmus/export.py:0
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__fewer_opportunities_check__no
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__first_mobility__no
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_registration__fewer_opportunities_check__no
 msgid "No"
 msgstr "No"
 
@@ -26611,6 +26620,8 @@ msgstr "Pendientes de que yo apruebe"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
 msgid "Back to draft"
 msgstr "Volver a borrador"
 
@@ -26723,6 +26734,7 @@ msgstr "Actas de reunión"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__employee_id
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute_member_line__team_role__member
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_panel__user_id
 msgid "Member"
 msgstr "Participante"
 
@@ -26734,6 +26746,7 @@ msgstr "Miembro de un equipo que se constituye, con el cargo que ocupa en él."
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_search
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_search
 msgid "Mine"
 msgstr "Las mías"
 
@@ -26766,6 +26779,8 @@ msgstr "Actas y registros"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute__previous_approved__na
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__file_state__not_applicable
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__todo_state__not_applicable
 msgid "Not applicable"
 msgstr "No aplica"
 
@@ -26797,6 +26812,9 @@ msgstr "Objetivo y su indicador, tal como se fijan al constituir un equipo."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__objective_line_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__plan_objectives
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_objectives
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "Objectives"
 msgstr "Objetivos"
 
@@ -26835,6 +26853,9 @@ msgstr "Temas pendientes"
 #: model:ir.model.fields,field_description:ems.field_ems_minute__place_text
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
 #: model_terms:ir.ui.view,arch_db:ems.minute_call_email
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview_schedule__place
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Place"
 msgstr "Lugar"
 
@@ -26863,6 +26884,13 @@ msgstr "Imprimir el DNI"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__required
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__required
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__is_required
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_document_signature__is_required
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__is_required
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__requirement__required
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_task__requirement__required
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_document_card
 msgid "Required"
 msgstr "Obligatoria"
 
@@ -26914,6 +26942,12 @@ msgstr "Se muestra a quien redacta el acta, encima de la sección."
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__signature
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__signature_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_document_signatures_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 msgid "Signatures"
 msgstr "Firmas"
 
@@ -27462,6 +27496,7 @@ msgstr "Cuándo, con palabras"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_panel__post
 msgid "Post"
 msgstr "Cargo"
 
@@ -27595,6 +27630,8 @@ msgstr "Aprobada en el EMS"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Signed by:"
 msgstr "Firmado por:"
 
@@ -28421,6 +28458,10 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__record_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__res_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__record_progress
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__record_progress
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 msgid "Record"
 msgstr "Expediente"
 
@@ -28874,6 +28915,8 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__cancel_reason
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__cancel_reason
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__cancel_reason
 msgid "Reason for cancelling"
 msgstr "Motivo de la anulación"
 
@@ -29064,6 +29107,7 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_document_card
 msgid "<i class=\"fa fa-exclamation-circle me-1\"/>Needs changes"
 msgstr "<i class=\"fa fa-exclamation-circle me-1\"/>Hay que corregirlo"
 
@@ -29227,16 +29271,6 @@ msgstr ""
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application_document__correction_requested
 msgid "Asked to the applicant in the current corrections request."
 msgstr "Pedido al solicitante en el requerimiento de subsanación actual."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__availability
-msgid "Availability"
-msgstr "Disponibilidad"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "Availability for the periods of the call"
-msgstr "Disponibilidad para los periodos de la convocatoria"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
@@ -29472,17 +29506,9 @@ msgstr "Motivo de exclusión"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__attachment_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_export__file_count
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_log__attachment_ids
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__upload_kind__file
 msgid "Files"
 msgstr "Archivos"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid ""
-"I can prove a situation of fewer opportunities (the evidence is "
-"confidential)"
-msgstr ""
-"Puedo acreditar una situación de menos oportunidades (la documentación es "
-"confidencial)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
@@ -29633,6 +29659,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__file_state__optional
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__todo_state__optional
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_document_card
 msgid "Optional"
 msgstr "Opcional"
 
@@ -29674,16 +29701,6 @@ msgid "Published"
 msgstr "Publicada"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__rules_document
-msgid "Published call"
-msgstr "Convocatoria publicada"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__rules_filename
-msgid "Published call file name"
-msgstr "Nombre del archivo de la convocatoria"
-
-#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_call__is_accepting
 msgid "Published, and the closing date has not passed yet."
 msgstr "Publicada, y aún no ha pasado la fecha de cierre."
@@ -29704,6 +29721,7 @@ msgstr "Pedir la subsanación"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_document_signature__is_required
 #: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__required
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__required
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_document_card
 msgid "Required"
 msgstr "Obligatorio"
 
@@ -30594,145 +30612,6 @@ msgstr ""
 "revisión."
 
 #. module: ems
-#: model:mail.template,body_html:ems.email_template_erasmus_resolution_published
-msgid ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <t t-set=\"call\" t-value=\"object.resolution_id.call_id\"/>\n"
-"                        <t t-set=\"claims_deadline\" t-value=\"call.claims_deadline or object.resolution_id.group_mobility_id.claims_deadline\"/>\n"
-"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
-"                        <p>\n"
-"                            A new list has been published: <strong t-out=\"object.resolution_id.name\"/>.\n"
-"                        </p>\n"
-"                        <p t-if=\"object.resolution_id.notes\" t-out=\"object.resolution_id.notes\"/>\n"
-"                        <t t-if=\"object.result == 'excluded'\">\n"
-"                            <p>Your application has been excluded.</p>\n"
-"                            <p t-if=\"object.exclusion_reason\">Reason: <t t-out=\"object.exclusion_reason\"/></p>\n"
-"                        </t>\n"
-"                        <p t-elif=\"object.result == 'admitted' and object.audience == 'staff'\">\n"
-"                            Your application has been admitted. The panel will now rate your mobility plan.\n"
-"                        </p>\n"
-"                        <p t-elif=\"object.result == 'admitted'\">\n"
-"                            Your application has been admitted. The Erasmus team will call you to the personal interview.\n"
-"                        </p>\n"
-"                        <t t-else=\"\">\n"
-"                            <p t-if=\"object.audience == 'staff'\">\n"
-"                                Position <strong t-out=\"object.rank\"/>, <strong t-out=\"object._ems_format_score()\"/> points.\n"
-"                            </p>\n"
-"                            <p t-elif=\"object.group_registration_id\">\n"
-"                                Position <strong t-out=\"object.rank\"/>, record average <strong t-out=\"object._ems_format_score()\"/>.\n"
-"                            </p>\n"
-"                            <p t-else=\"\">\n"
-"                                Modality <strong t-out=\"object.modality_id.name\"/>: position <strong t-out=\"object.rank\"/>,\n"
-"                                <strong t-out=\"object._ems_format_score()\"/> points.\n"
-"                            </p>\n"
-"                            <t t-if=\"object.resolution_id.kind == 'provisional'\">\n"
-"                                <p t-if=\"object.result == 'selected'\">With this provisional result you would get a place.</p>\n"
-"                                <p t-elif=\"object.result == 'reserve'\">With this provisional result you would be on the reserve list.</p>\n"
-"                                <p t-else=\"\">With this provisional result you do not reach the minimum score.</p>\n"
-"                                <p>\n"
-"                                    If you disagree, you can claim by replying to this email\n"
-"                                    <t t-if=\"claims_deadline\">until <strong t-out=\"call._ems_local_format(claims_deadline)\"/></t>.\n"
-"                                </p>\n"
-"                            </t>\n"
-"                            <t t-else=\"\">\n"
-"                                <p t-if=\"object.application_id.state == 'accepted'\">\n"
-"                                    You keep the place you have already accepted.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.application_id.state == 'renounced'\">\n"
-"                                    You renounced the place earlier: this list does not change it.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.result == 'selected'\">\n"
-"                                    You have been <strong>selected</strong>. Accept or renounce the place on the school portal\n"
-"                                    before <strong t-out=\"call._ems_local_format(call.acceptance_deadline)\"/>:\n"
-"                                    without an answer by then, the place is considered renounced.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.result == 'reserve'\">\n"
-"                                    You are on the <strong>reserve list</strong>. If a place becomes free, we will offer it to you by email.\n"
-"                                </p>\n"
-"                                <p t-else=\"\">You have not been selected: you do not reach the minimum score.</p>\n"
-"                            </t>\n"
-"                        </t>\n"
-"                        <p>\n"
-"                            You can see the detail of your score and the published list on the school portal:\n"
-"                            <a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Kind regards,<br/>\n"
-"                            <t t-out=\"user.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-msgstr ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <t t-set=\"call\" t-value=\"object.resolution_id.call_id\"/>\n"
-"                        <t t-set=\"claims_deadline\" t-value=\"call.claims_deadline or object.resolution_id.group_mobility_id.claims_deadline\"/>\n"
-"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
-"                        <p>\n"
-"                            Se ha publicado una nueva lista: <strong t-out=\"object.resolution_id.name\"/>.\n"
-"                        </p>\n"
-"                        <p t-if=\"object.resolution_id.notes\" t-out=\"object.resolution_id.notes\"/>\n"
-"                        <t t-if=\"object.result == 'excluded'\">\n"
-"                            <p>Tu solicitud ha quedado excluida.</p>\n"
-"                            <p t-if=\"object.exclusion_reason\">Motivo: <t t-out=\"object.exclusion_reason\"/></p>\n"
-"                        </t>\n"
-"                        <p t-elif=\"object.result == 'admitted' and object.audience == 'staff'\">\n"
-"                            Tu solicitud ha sido admitida. Ahora el tribunal valorará tu plan de movilidad.\n"
-"                        </p>\n"
-"                        <p t-elif=\"object.result == 'admitted'\">\n"
-"                            Tu solicitud ha sido admitida. El equipo Erasmus te convocará a la entrevista personal.\n"
-"                        </p>\n"
-"                        <t t-else=\"\">\n"
-"                            <p t-if=\"object.audience == 'staff'\">\n"
-"                                Posición <strong t-out=\"object.rank\"/>, <strong t-out=\"object._ems_format_score()\"/> puntos.\n"
-"                            </p>\n"
-"                            <p t-elif=\"object.group_registration_id\">\n"
-"                                Posición <strong t-out=\"object.rank\"/>, nota media del expediente <strong t-out=\"object._ems_format_score()\"/>.\n"
-"                            </p>\n"
-"                            <p t-else=\"\">\n"
-"                                Modalidad <strong t-out=\"object.modality_id.name\"/>: posición <strong t-out=\"object.rank\"/>,\n"
-"                                <strong t-out=\"object._ems_format_score()\"/> puntos.\n"
-"                            </p>\n"
-"                            <t t-if=\"object.resolution_id.kind == 'provisional'\">\n"
-"                                <p t-if=\"object.result == 'selected'\">Con este resultado provisional obtendrías plaza.</p>\n"
-"                                <p t-elif=\"object.result == 'reserve'\">Con este resultado provisional quedarías en reserva.</p>\n"
-"                                <p t-else=\"\">Con este resultado provisional no llegas a la puntuación mínima.</p>\n"
-"                                <p>\n"
-"                                    Si no estás de acuerdo, puedes reclamar respondiendo a este correo\n"
-"                                    <t t-if=\"claims_deadline\">hasta el <strong t-out=\"call._ems_local_format(claims_deadline)\"/></t>.\n"
-"                                </p>\n"
-"                            </t>\n"
-"                            <t t-else=\"\">\n"
-"                                <p t-if=\"object.application_id.state == 'accepted'\">\n"
-"                                    Mantienes la plaza que ya has aceptado.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.application_id.state == 'renounced'\">\n"
-"                                    Ya habías renunciado a la plaza: esta lista no lo cambia.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.result == 'selected'\">\n"
-"                                    Tienes <strong>plaza</strong>. Acepta la plaza o renuncia a ella en el portal del centro\n"
-"                                    antes del <strong t-out=\"call._ems_local_format(call.acceptance_deadline)\"/>:\n"
-"                                    si no respondes dentro del plazo, se considera que renuncias.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.result == 'reserve'\">\n"
-"                                    Estás en la <strong>lista de reserva</strong>. Si queda libre alguna plaza, te la ofreceremos por correo.\n"
-"                                </p>\n"
-"                                <p t-else=\"\">No has obtenido plaza: no llegas a la puntuación mínima.</p>\n"
-"                            </t>\n"
-"                        </t>\n"
-"                        <p>\n"
-"                            Puedes consultar el detalle de tu puntuación y la lista publicada en el portal del centro:\n"
-"                            <a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Un saludo,<br/>\n"
-"                            <t t-out=\"user.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_resolution
 msgid "<i class=\"fa fa-arrow-left me-1\"/>My application"
 msgstr "<i class=\"fa fa-arrow-left me-1\"/>Mi solicitud"
@@ -31564,13 +31443,9 @@ msgstr "Coordinación de un proyecto del centro (1)"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__destination_id
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_destination
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_form
 msgid "Destination"
 msgstr "Destino"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "Destination (city and country)"
-msgstr "Destino (ciudad y país)"
 
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_erasmus_plan_rating_application_member_unique
@@ -31625,6 +31500,7 @@ msgstr "Cada modalidad de una convocatoria de alumnado necesita los niveles del 
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_host
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_form
 msgid "Host entity or course"
 msgstr "Entidad de acogida o curso"
 
@@ -31636,6 +31512,7 @@ msgstr "Actividad de internacionalización (0,5)"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__staff_activity__job_shadowing
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__proposal_activity__job_shadowing
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__staff_activity_b__job_shadowing
 msgid "Job shadowing"
 msgstr "Job shadowing"
 
@@ -31787,17 +31664,6 @@ msgid "Post"
 msgstr "Cargo"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__preferred_dates
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_dates
-msgid "Preferred dates"
-msgstr "Fechas preferentes"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "Preferred dates or period, and approximate duration"
-msgstr "Fechas o periodo preferente, y duración aproximada"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/plan_rating.py:0
 msgid "Rate the Erasmus+ mobility plan of %s"
@@ -31885,6 +31751,7 @@ msgstr "Convocatoria del personal: quién valora los planes de movilidad (todos 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__staff_activity__course
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__proposal_activity__course
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__staff_activity_b__course
 msgid "Structured course"
 msgstr "Curso estructurado"
 
@@ -31916,6 +31783,7 @@ msgstr "Apoyos o adaptaciones que necesitas para hacer la movilidad (confidencia
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__staff_activity__teaching
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__proposal_activity__teaching
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__staff_activity_b__teaching
 msgid "Teaching assignment"
 msgstr "Estancia de docencia"
 
@@ -32079,11 +31947,6 @@ msgid "Every panel member who does not abstain has submitted their rating."
 msgstr "Todos los miembros del tribunal que no se abstienen han enviado su valoración."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "I have never had one"
-msgstr "Nunca he hecho ninguna"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
 msgid "Language certificates"
@@ -32095,26 +31958,11 @@ msgid "Last staff mobility checked"
 msgstr "Última movilidad de personal comprobada"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__declared_last_mobility_date
-msgid "Last staff mobility on"
-msgstr "Última movilidad de personal en"
-
-#. module: ems
 #. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_form
 msgid "Mobility and transfer plan"
 msgstr "Plan de movilidad y transferencia"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_application__declared_last_mobility_date
-msgid "Month and year of the applicant's last Erasmus+ staff mobility from this centre. Accompanying students, other programmes and mobilities from other centres do not count."
-msgstr "Mes y año de la última movilidad Erasmus+ de personal de la persona solicitante desde este centro. Los acompañamientos de alumnado, otros programas y las movilidades desde otros centros no cuentan."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "Month and year of your last Erasmus+ staff mobility from this centre"
-msgstr "Mes y año de tu última movilidad Erasmus+ de personal desde este centro"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application__declared_centre_start_date
@@ -32153,12 +32001,6 @@ msgstr "Solo el miembro del tribunal valora sus planes."
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application__seniority
 msgid "Only when what the applicant declared is wrong: this counts instead."
 msgstr "Solo cuando lo que ha declarado la persona solicitante no es correcto: esto cuenta en su lugar."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/application.py:0
-msgid "Say when your last staff mobility was (or that you never had one) and since when you work at the centre."
-msgstr "Indica cuándo fue tu última movilidad de personal (o que nunca has hecho ninguna) y desde cuándo trabajas en el centro."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
@@ -34784,73 +34626,6 @@ msgstr ""
 "semanas después del cierre."
 
 #. module: ems
-#: model:mail.template,body_html:ems.email_template_erasmus_offer
-msgid ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
-"                        <p t-if=\"object.modality_id and object.call_id.audience == 'student'\">\n"
-"                            A place of the modality <strong t-out=\"object.modality_id.name\"/> of\n"
-"                            <strong t-out=\"object.call_id.name\"/> has become free and it is offered to you.\n"
-"                        </p>\n"
-"                        <p t-else=\"\">\n"
-"                            A place of <strong t-out=\"object.call_id.name\"/> has become free and it is offered to you.\n"
-"                        </p>\n"
-"                        <t t-if=\"object.modality_id and object.call_id.audience == 'student'\">\n"
-"                            <t t-set=\"offer_destinations\" t-value=\"object.modality_id._ems_offer_destinations()\"/>\n"
-"                            <p t-if=\"offer_destinations\">\n"
-"                                Destinations and places of the modality (you will choose one by turns, by your position):\n"
-"                            </p>\n"
-"                            <ul t-if=\"offer_destinations\">\n"
-"                                <li t-foreach=\"offer_destinations\" t-as=\"destination\" t-out=\"destination._ems_offer_label()\"/>\n"
-"                            </ul>\n"
-"                        </t>\n"
-"                        <p>\n"
-"                            Accept or renounce it on the school portal\n"
-"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
-"                            before <strong t-out=\"object.call_id._ems_local_format(object.deadline)\"/>.\n"
-"                            Without an answer by then, the place is considered renounced.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Kind regards,<br/>\n"
-"                            <t t-out=\"user.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-msgstr ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
-"                        <p t-if=\"object.modality_id and object.call_id.audience == 'student'\">\n"
-"                            Ha quedado libre una plaza de la modalidad <strong t-out=\"object.modality_id.name\"/> de\n"
-"                            <strong t-out=\"object.call_id.name\"/> y te la ofrecemos.\n"
-"                        </p>\n"
-"                        <p t-else=\"\">\n"
-"                            Ha quedado libre una plaza de <strong t-out=\"object.call_id.name\"/> y te la ofrecemos.\n"
-"                        </p>\n"
-"                        <t t-if=\"object.modality_id and object.call_id.audience == 'student'\">\n"
-"                            <t t-set=\"offer_destinations\" t-value=\"object.modality_id._ems_offer_destinations()\"/>\n"
-"                            <p t-if=\"offer_destinations\">\n"
-"                                Destinos y plazas de la modalidad (elegirás uno por turnos, según tu posición):\n"
-"                            </p>\n"
-"                            <ul t-if=\"offer_destinations\">\n"
-"                                <li t-foreach=\"offer_destinations\" t-as=\"destination\" t-out=\"destination._ems_offer_label()\"/>\n"
-"                            </ul>\n"
-"                        </t>\n"
-"                        <p>\n"
-"                            Acéptala o renuncia a ella en el portal del centro\n"
-"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
-"                            antes del <strong t-out=\"object.call_id._ems_local_format(object.deadline)\"/>.\n"
-"                            Si no respondes dentro del plazo, se considera que renuncias.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Un saludo,<br/>\n"
-"                            <t t-out=\"user.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-
-#. module: ems
 #: model:mail.template,body_html:ems.email_template_erasmus_proposal_validated
 msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
@@ -35153,66 +34928,15 @@ msgstr ""
 "convocatoria."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_application__plan_reason
-#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__plan_reason
-msgid ""
-"Annex 1, section 3: why this entity or course, and its relation with the "
-"applicant's job and with the centre's training cycles."
-msgstr ""
-"Anexo 1, apartado 3: por qué esta entidad o este curso, y qué relación tiene"
-" con el trabajo de la persona solicitante y con los ciclos formativos del "
-"centro."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_application__plan_objectives
-#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__plan_objectives
-msgid ""
-"Annex 1, section 4: two or three concrete objectives: what to observe, learn"
-" or, in a teaching assignment, teach."
-msgstr ""
-"Anexo 1, apartado 4: dos o tres objetivos concretos: qué se quiere observar,"
-" aprender o, en una estancia de docencia, enseñar."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_application__plan_application
-#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__plan_application
-msgid ""
-"Annex 1, section 5: how it will be used in the classes, the department or "
-"the centre's management, and which students will benefit."
-msgstr ""
-"Anexo 1, apartado 5: cómo se incorporará a las clases, al departamento o a "
-"la gestión del centro, y a qué alumnado beneficiará."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__plan_application
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__transfer
 msgid "Application to the job"
 msgstr "Aplicación al trabajo"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "Application to your job"
-msgstr "Aplicación a tu trabajo"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_attachment_ids
 msgid "Files for the panel"
 msgstr "Ficheros para el tribunal"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid ""
-"How you will use it in your classes, your department or the centre's "
-"management, and which students will benefit."
-msgstr ""
-"Cómo lo aplicarás en tus clases, en el departamento o en la gestión del "
-"centro, y a qué alumnado beneficiará."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "Its relation with your job and with the centre's training cycles."
-msgstr ""
-"Qué relación tiene con tu trabajo y con los ciclos formativos del centro."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__plan_objectives
@@ -35228,22 +34952,6 @@ msgid "The files of the documents the call shows to the panel, if any."
 msgstr ""
 "Los ficheros de los documentos que la convocatoria muestra al tribunal, si "
 "los hay."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid ""
-"Two or three concrete objectives: what you want to observe, learn or, in a "
-"teaching assignment, teach."
-msgstr ""
-"Dos o tres objetivos concretos: qué quieres observar, aprender o, en una "
-"estancia de docencia, enseñar."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__plan_reason
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_reason
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "Why this entity or course"
-msgstr "Por qué esta entidad o este curso"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
@@ -35329,11 +35037,6 @@ msgid "No application planned."
 msgstr "No se prevé ninguna aplicación."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_application
-msgid "Planned application"
-msgstr "Aplicación prevista"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
 msgid ""
@@ -35348,51 +35051,9 @@ msgid "resources and training"
 msgstr "recursos y formación"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/application.py:0
-msgid ""
-"%s has too many conduct warnings this course to take part (art. 6 of the "
-"call): exclude the application."
-msgstr ""
-"%s tiene demasiadas amonestaciones este curso para participar (art. 6 de la "
-"convocatoria): excluye la solicitud."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid ""
-"<i class=\"fa fa-ban me-1\"/> You cannot apply to this call: you have too "
-"many conduct warnings this course (article 6 of the call). If you think this"
-" is a mistake, talk to the Erasmus team."
-msgstr ""
-"<i class=\"fa fa-ban me-1\"/> No puedes presentarte a esta convocatoria: "
-"este curso tienes demasiadas amonestaciones (artículo 6 de la convocatoria)."
-" Si crees que es un error, habla con el equipo Erasmus."
-
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_call_card
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
-msgid ""
-"<i class=\"fa fa-ban me-1\"/>You cannot apply to this call: you have too "
-"many conduct warnings this course (article 6 of the call). If you think this"
-" is a mistake, talk to the Erasmus team."
-msgstr ""
-"<i class=\"fa fa-ban me-1\"/>No puedes presentarte a esta convocatoria: este"
-" curso tienes demasiadas amonestaciones (artículo 6 de la convocatoria). Si "
-"crees que es un error, habla con el equipo Erasmus."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "Apply for an Erasmus+ mobility and follow your application"
 msgstr "Solicita una movilidad Erasmus+ y sigue tu solicitud"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_application__conduct_blocked
-msgid ""
-"As many conduct warnings this course as the number that sends the case to "
-"the coexistence team, or more: the student cannot apply."
-msgstr ""
-"Tantas amonestaciones este curso como las que hacen saltar el aviso a "
-"convivencia, o más: el alumno no puede solicitar."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
@@ -35441,30 +35102,6 @@ msgid "The applicant's conduct warnings in EMS during the call's course."
 msgstr ""
 "Las amonestaciones del solicitante en EMS durante el curso de la "
 "convocatoria."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__conduct_blocked
-msgid "Too many conduct warnings"
-msgstr "Demasiadas amonestaciones"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
-msgid ""
-"Too many conduct warnings this course: the student cannot take part (art. 6 "
-"of the call). Exclude the application."
-msgstr ""
-"Demasiadas amonestaciones este curso: el alumno no puede participar (art. 6 "
-"de la convocatoria). Excluye la solicitud."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/application.py:0
-msgid ""
-"You cannot apply to this call: you have too many conduct warnings this "
-"course."
-msgstr ""
-"No puedes presentarte a esta convocatoria: este curso tienes demasiadas "
-"amonestaciones."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__erasmus_contact_email
@@ -35646,11 +35283,6 @@ msgstr "Obligatorio en formación en empresa curricular"
 #: code:addons/ems/models/erasmus/call.py:0
 msgid "Short stays (30 days or fewer): a PDF with your preparation before leaving. Information about the city, how you will get to the company and how much transport costs, and the exercises on the technologies and tasks of the host company (the Erasmus coordinator asks the company about them)."
 msgstr "Estancias cortas (30 días o menos): un PDF con tu preparación antes de marchar. Información sobre la ciudad, cómo irás a la empresa y cuánto cuesta el transporte, y los ejercicios sobre las tecnologías y las tareas de la empresa de acogida (el coordinador Erasmus se las consulta a la empresa)."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_call_document__requirement
-msgid "Required for curricular work placement: when the student's stay is a work placement managed in sBID (the mobility's Placement type); optional for an extracurricular stay or a recent graduate. Short blended mobilities only: asked for in a KA131-HED stay of 30 days or fewer, and not shown otherwise."
-msgstr "Obligatorio en formación en empresa curricular: cuando la estancia del alumno es una formación en empresa gestionada en el sBID (el Tipo de estancia de la movilidad); opcional en una estancia extracurricular o de un titulado reciente. Solo movilidades cortas combinadas: se pide en una estancia KA131-HED de 30 días o menos, y si no, no se muestra."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
@@ -36559,17 +36191,6 @@ msgstr ""
 "                    </div>\n"
 "                \n"
 "            "
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
-msgid ""
-"<i class=\"fa fa-ban me-1\"/>You cannot enrol: you have too many conduct "
-"warnings this course. If you think this is a mistake, talk to the Erasmus "
-"team."
-msgstr ""
-"<i class=\"fa fa-ban me-1\"/>No puedes inscribirte: tienes demasiadas "
-"amonestaciones este curso. Si crees que es un error, habla con el equipo "
-"Erasmus."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_kanban
@@ -37830,11 +37451,6 @@ msgid "Tied"
 msgstr "Empate"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_registration__exclusion__conduct
-msgid "Too many conduct warnings this course"
-msgstr "Demasiadas amonestaciones este curso"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__expense_amount
 msgid "Total of the collective expenses"
 msgstr "Total de los gastos colectivos"
@@ -37974,12 +37590,6 @@ msgstr "No puedes hacer esto en la movilidad de grupo %s."
 #: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid "You cannot enrol in this mobility."
 msgstr "No puedes inscribirte en esta movilidad."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/group_mobility.py:0
-msgid "You cannot enrol: you have too many conduct warnings this course."
-msgstr "No puedes inscribirte: tienes demasiadas amonestaciones este curso."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
@@ -41115,153 +40725,6 @@ msgid ": if a place is left free, it is offered to the reserves in this order."
 msgstr ": si queda una plaza libre, se ofrece a las reservas en este orden."
 
 #. module: ems
-#: model:mail.template,body_html:ems.email_template_erasmus_resolution_published
-msgid ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <t t-set=\"call\" t-value=\"object.resolution_id.call_id\"/>\n"
-"                        <t t-set=\"claims_deadline\" t-value=\"call.claims_deadline or object.resolution_id.group_mobility_id.claims_deadline\"/>\n"
-"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
-"                        <p>\n"
-"                            A new list has been published: <strong t-out=\"object.resolution_id.name\"/>.\n"
-"                        </p>\n"
-"                        <p t-if=\"object.resolution_id.notes\" t-out=\"object.resolution_id.notes\"/>\n"
-"                        <t t-if=\"object.result == 'excluded'\">\n"
-"                            <p>Your application has been excluded.</p>\n"
-"                            <p t-if=\"object.exclusion_reason\">Reason: <t t-out=\"object.exclusion_reason\"/></p>\n"
-"                        </t>\n"
-"                        <p t-elif=\"object.result == 'admitted' and object.audience == 'staff'\">\n"
-"                            Your application has been admitted. The panel will now rate your mobility plan.\n"
-"                        </p>\n"
-"                        <p t-elif=\"object.result == 'admitted'\">\n"
-"                            Your application has been admitted. The Erasmus team will call you to the personal interview.\n"
-"                        </p>\n"
-"                        <t t-else=\"\">\n"
-"                            <p t-if=\"object.audience == 'staff'\">\n"
-"                                Position <strong t-out=\"object.rank\"/>, <strong t-out=\"object._ems_format_score()\"/> points.\n"
-"                            </p>\n"
-"                            <p t-elif=\"object.group_registration_id\">\n"
-"                                Position <strong t-out=\"object.rank\"/>, record average <strong t-out=\"object._ems_format_score()\"/>.\n"
-"                            </p>\n"
-"                            <p t-else=\"\">\n"
-"                                Modality <strong t-out=\"object.modality_id.name\"/>: position <strong t-out=\"object.rank\"/>,\n"
-"                                <strong t-out=\"object._ems_format_score()\"/> points.\n"
-"                            </p>\n"
-"                            <t t-if=\"object.resolution_id.kind == 'provisional'\">\n"
-"                                <p t-if=\"object.result == 'selected'\">With this provisional result you would get a place.</p>\n"
-"                                <p t-elif=\"object.result == 'reserve'\">With this provisional result you would be on the reserve list.</p>\n"
-"                                <p t-else=\"\">With this provisional result you do not reach the minimum score.</p>\n"
-"                                <p t-if=\"object.group_registration_id\">\n"
-"                                    If you disagree, you can claim by replying to this email\n"
-"                                    <t t-if=\"claims_deadline\">until <strong t-out=\"call._ems_local_format(claims_deadline)\"/></t>.\n"
-"                                </p>\n"
-"                                <p t-else=\"\">\n"
-"                                    If you disagree, you can claim from the Erasmus+ page of the EMS portal\n"
-"                                    <t t-if=\"claims_deadline\">until <strong t-out=\"call._ems_local_format(claims_deadline)\"/></t>.\n"
-"                                </p>\n"
-"                            </t>\n"
-"                            <t t-else=\"\">\n"
-"                                <p t-if=\"object.application_id.state == 'accepted'\">\n"
-"                                    You keep the place you have already accepted.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.application_id.state == 'renounced'\">\n"
-"                                    You renounced the place earlier: this list does not change it.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.result == 'selected'\">\n"
-"                                    You have been <strong>selected</strong>. Accept or renounce the place on the school portal\n"
-"                                    before <strong t-out=\"call._ems_local_format(call.acceptance_deadline)\"/>:\n"
-"                                    without an answer by then, the place is considered renounced.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.result == 'reserve'\">\n"
-"                                    You are on the <strong>reserve list</strong>. If a place becomes free, we will offer it to you by email.\n"
-"                                </p>\n"
-"                                <p t-else=\"\">You have not been selected: you do not reach the minimum score.</p>\n"
-"                            </t>\n"
-"                        </t>\n"
-"                        <p>\n"
-"                            You can see the detail of your score and the published list on the school portal:\n"
-"                            <a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Kind regards,<br/>\n"
-"                            <t t-out=\"user.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-msgstr ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <t t-set=\"call\" t-value=\"object.resolution_id.call_id\"/>\n"
-"                        <t t-set=\"claims_deadline\" t-value=\"call.claims_deadline or object.resolution_id.group_mobility_id.claims_deadline\"/>\n"
-"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
-"                        <p>\n"
-"                            Se ha publicado una nueva lista: <strong t-out=\"object.resolution_id.name\"/>.\n"
-"                        </p>\n"
-"                        <p t-if=\"object.resolution_id.notes\" t-out=\"object.resolution_id.notes\"/>\n"
-"                        <t t-if=\"object.result == 'excluded'\">\n"
-"                            <p>Tu solicitud ha quedado excluida.</p>\n"
-"                            <p t-if=\"object.exclusion_reason\">Motivo: <t t-out=\"object.exclusion_reason\"/></p>\n"
-"                        </t>\n"
-"                        <p t-elif=\"object.result == 'admitted' and object.audience == 'staff'\">\n"
-"                            Tu solicitud ha sido admitida. Ahora el tribunal valorará tu plan de movilidad.\n"
-"                        </p>\n"
-"                        <p t-elif=\"object.result == 'admitted'\">\n"
-"                            Tu solicitud ha sido admitida. El equipo Erasmus te convocará a la entrevista personal.\n"
-"                        </p>\n"
-"                        <t t-else=\"\">\n"
-"                            <p t-if=\"object.audience == 'staff'\">\n"
-"                                Posición <strong t-out=\"object.rank\"/>, <strong t-out=\"object._ems_format_score()\"/> puntos.\n"
-"                            </p>\n"
-"                            <p t-elif=\"object.group_registration_id\">\n"
-"                                Posición <strong t-out=\"object.rank\"/>, nota media del expediente <strong t-out=\"object._ems_format_score()\"/>.\n"
-"                            </p>\n"
-"                            <p t-else=\"\">\n"
-"                                Modalidad <strong t-out=\"object.modality_id.name\"/>: posición <strong t-out=\"object.rank\"/>,\n"
-"                                <strong t-out=\"object._ems_format_score()\"/> puntos.\n"
-"                            </p>\n"
-"                            <t t-if=\"object.resolution_id.kind == 'provisional'\">\n"
-"                                <p t-if=\"object.result == 'selected'\">Con este resultado provisional obtendrías plaza.</p>\n"
-"                                <p t-elif=\"object.result == 'reserve'\">Con este resultado provisional quedarías en reserva.</p>\n"
-"                                <p t-else=\"\">Con este resultado provisional no llegas a la puntuación mínima.</p>\n"
-"                                <p t-if=\"object.group_registration_id\">\n"
-"                                    Si no estás de acuerdo, puedes reclamar respondiendo a este correo\n"
-"                                    <t t-if=\"claims_deadline\">hasta el <strong t-out=\"call._ems_local_format(claims_deadline)\"/></t>.\n"
-"                                </p>\n"
-"                                <p t-else=\"\">\n"
-"                                    Si no estás de acuerdo, puedes reclamar desde la página Erasmus+ del portal de EMS\n"
-"                                    <t t-if=\"claims_deadline\">hasta el <strong t-out=\"call._ems_local_format(claims_deadline)\"/></t>.\n"
-"                                </p>\n"
-"                            </t>\n"
-"                            <t t-else=\"\">\n"
-"                                <p t-if=\"object.application_id.state == 'accepted'\">\n"
-"                                    Mantienes la plaza que ya has aceptado.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.application_id.state == 'renounced'\">\n"
-"                                    Ya habías renunciado a la plaza: esta lista no lo cambia.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.result == 'selected'\">\n"
-"                                    Tienes <strong>plaza</strong>. Acepta la plaza o renuncia a ella en el portal del centro\n"
-"                                    antes del <strong t-out=\"call._ems_local_format(call.acceptance_deadline)\"/>:\n"
-"                                    si no respondes dentro del plazo, se considera que renuncias.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.result == 'reserve'\">\n"
-"                                    Estás en la <strong>lista de reserva</strong>. Si queda libre alguna plaza, te la ofreceremos por correo.\n"
-"                                </p>\n"
-"                                <p t-else=\"\">No has obtenido plaza: no llegas a la puntuación mínima.</p>\n"
-"                            </t>\n"
-"                        </t>\n"
-"                        <p>\n"
-"                            Puedes consultar el detalle de tu puntuación y la lista publicada en el portal del centro:\n"
-"                            <a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Un saludo,<br/>\n"
-"                            <t t-out=\"user.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "<i class=\"fa fa-camera me-1\"/>The use of your image in the project's dissemination follows your image rights authorisation of this course:"
 msgstr "<i class=\"fa fa-camera me-1\"/>El uso de tu imagen en la difusión del proyecto sigue tu autorización de derechos de imagen de este curso:"
@@ -41585,6 +41048,7 @@ msgstr "<strong>Mis reclamaciones</strong>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
 msgid "<strong>Response:</strong>"
 msgstr "<strong>Respuesta:</strong>"
 
@@ -41801,234 +41265,6 @@ msgstr ""
 
 
 #. module: ems
-#: model:mail.template,body_html:ems.email_template_erasmus_offer_answer
-msgid ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <t t-set=\"call\" t-value=\"object.call_id\"/>\n"
-"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
-"                        <t t-if=\"object.state == 'accepted'\">\n"
-"                            <p>\n"
-"                                We have received your acceptance of the place<t t-if=\"object.modality_id and call.audience == 'student'\"> of\n"
-"                                <strong t-out=\"object.modality_id.name\"/></t> of <strong t-out=\"call.name\"/>\n"
-"                                on <strong t-out=\"call._ems_local_format(object.answer_date)\"/>.\n"
-"                            </p>\n"
-"                            <p>\n"
-"                                On the school portal (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
-"                                you will find the next steps. We will email you whenever you have to do something.\n"
-"                            </p>\n"
-"                        </t>\n"
-"                        <p t-elif=\"object.state == 'renounced'\">\n"
-"                            We have received your renunciation of the place<t t-if=\"object.modality_id and call.audience == 'student'\"> of\n"
-"                            <strong t-out=\"object.modality_id.name\"/></t> of <strong t-out=\"call.name\"/>\n"
-"                            on <strong t-out=\"call._ems_local_format(object.answer_date)\"/>.\n"
-"                            The place will be offered to the next person on the reserve list.\n"
-"                        </p>\n"
-"                        <p t-else=\"\">\n"
-"                            The deadline to answer the place offered to you in <strong t-out=\"call.name\"/>\n"
-"                            (<t t-out=\"call._ems_local_format(object.deadline)\"/>) has passed without an answer.\n"
-"                            As the call says, the place is considered renounced and will be offered to the next\n"
-"                            person on the reserve list.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Kind regards,<br/>\n"
-"                            <t t-out=\"user.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-msgstr ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <t t-set=\"call\" t-value=\"object.call_id\"/>\n"
-"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
-"                        <t t-if=\"object.state == 'accepted'\">\n"
-"                            <p>\n"
-"                                Hemos recibido tu aceptación de la plaza<t t-if=\"object.modality_id and call.audience == 'student'\"> de\n"
-"                                <strong t-out=\"object.modality_id.name\"/></t> de <strong t-out=\"call.name\"/>\n"
-"                                el <strong t-out=\"call._ems_local_format(object.answer_date)\"/>.\n"
-"                            </p>\n"
-"                            <p>\n"
-"                                En el portal del centro (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
-"                                encontrarás los siguientes pasos. Te escribiremos cada vez que tengas que hacer algo.\n"
-"                            </p>\n"
-"                        </t>\n"
-"                        <p t-elif=\"object.state == 'renounced'\">\n"
-"                            Hemos recibido tu renuncia a la plaza<t t-if=\"object.modality_id and call.audience == 'student'\"> de\n"
-"                            <strong t-out=\"object.modality_id.name\"/></t> de <strong t-out=\"call.name\"/>\n"
-"                            el <strong t-out=\"call._ems_local_format(object.answer_date)\"/>.\n"
-"                            La plaza se ofrecerá a la siguiente persona de la lista de reserva.\n"
-"                        </p>\n"
-"                        <p t-else=\"\">\n"
-"                            Ha terminado el plazo para responder a la plaza que se te ofrecía en <strong t-out=\"call.name\"/>\n"
-"                            (<t t-out=\"call._ems_local_format(object.deadline)\"/>) sin que respondieras.\n"
-"                            Tal como dicen las bases, se considera que renuncias y la plaza se ofrecerá a la\n"
-"                            siguiente persona de la lista de reserva.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Un saludo,<br/>\n"
-"                            <t t-out=\"user.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-
-
-#. module: ems
-#: model:mail.template,body_html:ems.email_template_erasmus_resolution_published
-msgid ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <t t-set=\"call\" t-value=\"object.resolution_id.call_id\"/>\n"
-"                        <t t-set=\"claims_deadline\" t-value=\"call.claims_deadline or object.resolution_id.group_mobility_id.claims_deadline\"/>\n"
-"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
-"                        <p>\n"
-"                            A new list has been published: <strong t-out=\"object.resolution_id.name\"/>.\n"
-"                        </p>\n"
-"                        <p t-if=\"object.resolution_id.notes\" t-out=\"object.resolution_id.notes\"/>\n"
-"                        <t t-if=\"object.result == 'excluded'\">\n"
-"                            <p>Your application has been excluded.</p>\n"
-"                            <p t-if=\"object.exclusion_reason\">Reason: <t t-out=\"object.exclusion_reason\"/></p>\n"
-"                        </t>\n"
-"                        <p t-elif=\"object.result == 'admitted' and object.audience == 'staff'\">\n"
-"                            Your application has been admitted. The panel will now rate your mobility plan.\n"
-"                        </p>\n"
-"                        <p t-elif=\"object.result == 'admitted'\">\n"
-"                            Your application has been admitted. The Erasmus team will call you to the personal interview.\n"
-"                        </p>\n"
-"                        <t t-else=\"\">\n"
-"                            <p t-if=\"object.audience == 'staff'\">\n"
-"                                Position <strong t-out=\"object.rank\"/>, <strong t-out=\"object._ems_format_score()\"/> points.\n"
-"                            </p>\n"
-"                            <p t-elif=\"object.group_registration_id\">\n"
-"                                Position <strong t-out=\"object.rank\"/>, record average <strong t-out=\"object._ems_format_score()\"/>.\n"
-"                            </p>\n"
-"                            <p t-else=\"\">\n"
-"                                Modality <strong t-out=\"object.modality_id.name\"/>: position <strong t-out=\"object.rank\"/>,\n"
-"                                <strong t-out=\"object._ems_format_score()\"/> points.\n"
-"                            </p>\n"
-"                            <t t-if=\"object.resolution_id.kind == 'provisional'\">\n"
-"                                <p t-if=\"object.result == 'selected'\">With this provisional result you would get a place.</p>\n"
-"                                <p t-elif=\"object.result == 'reserve'\">With this provisional result you would be on the reserve list.</p>\n"
-"                                <p t-else=\"\">With this provisional result you do not reach the minimum score.</p>\n"
-"                                <p t-if=\"object.group_registration_id\">\n"
-"                                    If you disagree, you can claim by replying to this email\n"
-"                                    <t t-if=\"claims_deadline\">until <strong t-out=\"call._ems_local_format(claims_deadline)\"/></t>.\n"
-"                                </p>\n"
-"                                <p t-else=\"\">\n"
-"                                    If you disagree, you can claim from the Erasmus+ page of the EMS portal\n"
-"                                    <t t-if=\"claims_deadline\">until <strong t-out=\"call._ems_local_format(claims_deadline)\"/></t>.\n"
-"                                </p>\n"
-"                            </t>\n"
-"                            <t t-else=\"\">\n"
-"                                <p t-if=\"object.application_id.state == 'accepted'\">\n"
-"                                    You keep the place you have already accepted.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.application_id._ems_offer_expired()\">\n"
-"                                    You did not answer the place offer in time earlier: this list does not change it.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.application_id.state == 'renounced'\">\n"
-"                                    You renounced the place earlier: this list does not change it.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.result == 'selected'\">\n"
-"                                    You have been <strong>selected</strong>. Accept or renounce the place on the school portal\n"
-"                                    before <strong t-out=\"call._ems_local_format(call.acceptance_deadline)\"/>:\n"
-"                                    without an answer by then, the place is considered renounced.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.result == 'reserve'\">\n"
-"                                    You are on the <strong>reserve list</strong>. If a place becomes free, we will offer it to you by email.\n"
-"                                </p>\n"
-"                                <p t-else=\"\">You have not been selected: you do not reach the minimum score.</p>\n"
-"                            </t>\n"
-"                        </t>\n"
-"                        <p t-if=\"object.resolution_id.kind in ('definitive', 'rectification')\" t-out=\"object.resolution_id._ems_appeal_notice()\"/>\n"
-"                        <p>\n"
-"                            You can see the detail of your score and the published list on the school portal:\n"
-"                            <a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Kind regards,<br/>\n"
-"                            <t t-out=\"user.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-msgstr ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <t t-set=\"call\" t-value=\"object.resolution_id.call_id\"/>\n"
-"                        <t t-set=\"claims_deadline\" t-value=\"call.claims_deadline or object.resolution_id.group_mobility_id.claims_deadline\"/>\n"
-"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
-"                        <p>\n"
-"                            Se ha publicado una nueva lista: <strong t-out=\"object.resolution_id.name\"/>.\n"
-"                        </p>\n"
-"                        <p t-if=\"object.resolution_id.notes\" t-out=\"object.resolution_id.notes\"/>\n"
-"                        <t t-if=\"object.result == 'excluded'\">\n"
-"                            <p>Tu solicitud ha quedado excluida.</p>\n"
-"                            <p t-if=\"object.exclusion_reason\">Motivo: <t t-out=\"object.exclusion_reason\"/></p>\n"
-"                        </t>\n"
-"                        <p t-elif=\"object.result == 'admitted' and object.audience == 'staff'\">\n"
-"                            Tu solicitud ha sido admitida. Ahora el tribunal valorará tu plan de movilidad.\n"
-"                        </p>\n"
-"                        <p t-elif=\"object.result == 'admitted'\">\n"
-"                            Tu solicitud ha sido admitida. El equipo Erasmus te convocará a la entrevista personal.\n"
-"                        </p>\n"
-"                        <t t-else=\"\">\n"
-"                            <p t-if=\"object.audience == 'staff'\">\n"
-"                                Posición <strong t-out=\"object.rank\"/>, <strong t-out=\"object._ems_format_score()\"/> puntos.\n"
-"                            </p>\n"
-"                            <p t-elif=\"object.group_registration_id\">\n"
-"                                Posición <strong t-out=\"object.rank\"/>, nota media del expediente <strong t-out=\"object._ems_format_score()\"/>.\n"
-"                            </p>\n"
-"                            <p t-else=\"\">\n"
-"                                Modalidad <strong t-out=\"object.modality_id.name\"/>: posición <strong t-out=\"object.rank\"/>,\n"
-"                                <strong t-out=\"object._ems_format_score()\"/> puntos.\n"
-"                            </p>\n"
-"                            <t t-if=\"object.resolution_id.kind == 'provisional'\">\n"
-"                                <p t-if=\"object.result == 'selected'\">Con este resultado provisional obtendrías plaza.</p>\n"
-"                                <p t-elif=\"object.result == 'reserve'\">Con este resultado provisional quedarías en reserva.</p>\n"
-"                                <p t-else=\"\">Con este resultado provisional no llegas a la puntuación mínima.</p>\n"
-"                                <p t-if=\"object.group_registration_id\">\n"
-"                                    Si no estás de acuerdo, puedes reclamar respondiendo a este correo\n"
-"                                    <t t-if=\"claims_deadline\">hasta el <strong t-out=\"call._ems_local_format(claims_deadline)\"/></t>.\n"
-"                                </p>\n"
-"                                <p t-else=\"\">\n"
-"                                    Si no estás de acuerdo, puedes reclamar desde la página Erasmus+ del portal de EMS\n"
-"                                    <t t-if=\"claims_deadline\">hasta el <strong t-out=\"call._ems_local_format(claims_deadline)\"/></t>.\n"
-"                                </p>\n"
-"                            </t>\n"
-"                            <t t-else=\"\">\n"
-"                                <p t-if=\"object.application_id.state == 'accepted'\">\n"
-"                                    Mantienes la plaza que ya has aceptado.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.application_id._ems_offer_expired()\">\n"
-"                                    No respondiste a tiempo a la oferta de plaza: esta lista no lo cambia.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.application_id.state == 'renounced'\">\n"
-"                                    Ya habías renunciado a la plaza: esta lista no lo cambia.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.result == 'selected'\">\n"
-"                                    Tienes <strong>plaza</strong>. Acepta la plaza o renuncia a ella en el portal del centro\n"
-"                                    antes del <strong t-out=\"call._ems_local_format(call.acceptance_deadline)\"/>:\n"
-"                                    si no respondes dentro del plazo, se considera que renuncias.\n"
-"                                </p>\n"
-"                                <p t-elif=\"object.result == 'reserve'\">\n"
-"                                    Estás en la <strong>lista de reserva</strong>. Si queda libre alguna plaza, te la ofreceremos por correo.\n"
-"                                </p>\n"
-"                                <p t-else=\"\">No has obtenido plaza: no llegas a la puntuación mínima.</p>\n"
-"                            </t>\n"
-"                        </t>\n"
-"                        <p t-if=\"object.resolution_id.kind in ('definitive', 'rectification')\" t-out=\"object.resolution_id._ems_appeal_notice()\"/>\n"
-"                        <p>\n"
-"                            Puedes consultar el detalle de tu puntuación y la lista publicada en el portal del centro:\n"
-"                            <a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Un saludo,<br/>\n"
-"                            <t t-out=\"user.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/resolution.py:0
 msgid ""
@@ -42219,6 +41455,173 @@ msgstr ""
 "            "
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "<span class=\"o_stat_text\">Places accepted</span>"
+msgstr "<span class=\"o_stat_text\">Plazas aceptadas</span>"
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_erasmus_claim_one_owner
+msgid "A claim belongs to an application or to a group mobility enrolment."
+msgstr "Una reclamación pertenece a una solicitud o a una inscripción en una movilidad de grupo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "Erasmus+: the substitution in %s was not approved, propose a substitute again"
+msgstr "Erasmus+: la sustitución en %s no se ha aprobado, vuelve a proponer un sustituto"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_erasmus_claim_received
+msgid "Erasmus+: we have received your claim - {{ (object.call_id or object.group_mobility_id).name }}"
+msgstr "Erasmus+: hemos recibido tu reclamación - {{ (object.call_id or object.group_mobility_id).name }}"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/interview.py:0
+msgid "Erasmus+: you have %(count)s interviews to score in %(call)s. Each one is a task in Erasmus+ > My evaluations."
+msgstr "Erasmus+: tienes %(count)s entrevistas por puntuar en %(call)s. Cada una es una tarea en Erasmus+ > Mis evaluaciones."
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_erasmus_claim_resolved
+msgid "Erasmus+: your claim has been answered - {{ (object.call_id or object.group_mobility_id).name }}"
+msgstr "Erasmus+: se ha resuelto tu reclamación - {{ (object.call_id or object.group_mobility_id).name }}"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__offers_pending
+msgid "Offers waiting for an answer"
+msgstr "Ofertas pendientes de respuesta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__places_accepted
+msgid "Places accepted"
+msgstr "Plazas aceptadas"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__notes
+msgid "Published with the list and emailed to everyone on it: never write anyone's name. A rectification must explain what it corrects."
+msgstr "Se publican con la lista y se envían por correo a todas las personas que aparecen en ella: no escribas nunca el nombre de nadie. Una rectificación debe explicar qué corrige."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__places_accepted
+msgid "Selected applicants who have accepted their place."
+msgstr "Personas seleccionadas que han aceptado la plaza."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_mobility__claims_deadline
+msgid "Until when the students can claim against the provisional list, from the portal."
+msgstr "Hasta cuándo el alumnado puede reclamar contra la lista provisional, desde el portal."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
+msgid "Your claim of"
+msgstr "Tu reclamación del"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid ""
+"place offers are waiting for an answer\n"
+"                            ("
+msgstr ""
+"ofertas de plaza esperan respuesta\n"
+"                            ("
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "places accepted)."
+msgstr "plazas aceptadas)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Your position in the modality:"
+msgstr "Tu posición en la modalidad:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "%(destination)s: 1 place"
+msgstr "%(destination)s: 1 plaza"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "%(destination)s: %(places)s places"
+msgstr "%(destination)s: %(places)s plazas"
+
+#. module: ems
+#: model:ir.actions.act_url,name:ems.action_erasmus_my_portal
+#: model:ir.ui.menu,name:ems.menu_erasmus_my_portal
+msgid "My application"
+msgstr "Mi solicitud"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_erasmus_section_mine
+msgid "My participation"
+msgstr "Mi participación"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "%s (needs changes)"
+msgstr "%s (hay que cambiarlo)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Accept and sign the commitment letter"
+msgstr "Acepta y firma la carta de compromiso"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__conduct_review
+msgid "As many conduct warnings this course as the number that sends the case to the coexistence team, or more: the Erasmus team may exclude the application (art. 6 of the call)."
+msgstr "Tantas amonestaciones este curso como el número que lleva el caso a la comisión de convivencia, o más: el equipo Erasmus puede excluir la solicitud (art. 6 de la convocatoria)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__conduct_review
+msgid "Conduct to review"
+msgstr "Conducta por revisar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Erasmus+: hand in what is missing"
+msgstr "Erasmus+: entrega lo que falta"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_erasmus_documents
+msgid "Hand in Erasmus+ documents"
+msgstr "Entregar documentos Erasmus+"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Hand it in on your Erasmus+ page of the portal (/my/erasmus):"
+msgstr "Entrégalo en tu página Erasmus+ del portal (/my/erasmus):"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_form
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__proposal_b
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_proposal_b
+msgid "Proposal B (backup)"
+msgstr "Propuesta B (de reserva)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+msgid "Serious conduct record this course ("
+msgstr "Incidencias graves de convivencia este curso ("
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Weekly self-assessment: %s week(s)"
+msgstr "Autoevaluación semanal: %s semana(s)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+msgid "conduct warnings): the Erasmus team may exclude the application (art. 6 of the call), after hearing the teaching team or the coexistence team. If it goes on, every warning takes points off (criterion F)."
+msgstr "amonestaciones): el equipo Erasmus puede excluir la solicitud (art. 6 de la convocatoria), oído el equipo docente o la comisión de convivencia. Si sigue adelante, cada amonestación resta puntos (criterio F)."
+
+
+#. module: ems
 #: model:mail.template,body_html:ems.email_template_erasmus_resolution_published
 msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
@@ -42271,10 +41674,10 @@ msgid ""
 "                                </p>\n"
 "                                <t t-elif=\"object.result == 'selected'\">\n"
 "                                    <p>\n"
-"                                    You have been <strong>selected</strong>. Accept or renounce the place on the school portal\n"
-"                                    before <strong t-out=\"call._ems_local_format(call.acceptance_deadline)\"/>:\n"
-"                                    without an answer by then, the place is considered renounced.\n"
-"                                </p>\n"
+"                                        You have been <strong>selected</strong>. Accept or renounce the place on the school portal\n"
+"                                        before <strong t-out=\"call._ems_local_format(call.acceptance_deadline)\"/>:\n"
+"                                        without an answer by then, the place is considered renounced.\n"
+"                                    </p>\n"
 "                                    <t t-set=\"offer_destinations\" t-value=\"object.audience == 'student' and object.modality_id and object.modality_id._ems_offer_destinations()\"/>\n"
 "                                    <p t-if=\"offer_destinations\">\n"
 "                                        Destinations and places of the modality (you will choose one by turns, by your position):\n"
@@ -42394,94 +41797,486 @@ msgstr ""
 "            "
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
-msgid "<span class=\"o_stat_text\">Places accepted</span>"
-msgstr "<span class=\"o_stat_text\">Plazas aceptadas</span>"
-
-#. module: ems
-#: model:ir.model.constraint,message:ems.constraint_ems_erasmus_claim_one_owner
-msgid "A claim belongs to an application or to a group mobility enrolment."
-msgstr "Una reclamación pertenece a una solicitud o a una inscripción en una movilidad de grupo."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/group_mobility.py:0
-msgid "Erasmus+: the substitution in %s was not approved, propose a substitute again"
-msgstr "Erasmus+: la sustitución en %s no se ha aprobado, vuelve a proponer un sustituto"
-
-#. module: ems
-#: model:mail.template,subject:ems.email_template_erasmus_claim_received
-msgid "Erasmus+: we have received your claim - {{ (object.call_id or object.group_mobility_id).name }}"
-msgstr "Erasmus+: hemos recibido tu reclamación - {{ (object.call_id or object.group_mobility_id).name }}"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/interview.py:0
-msgid "Erasmus+: you have %(count)s interviews to score in %(call)s. Each one is a task in Erasmus+ > My evaluations."
-msgstr "Erasmus+: tienes %(count)s entrevistas por puntuar en %(call)s. Cada una es una tarea en Erasmus+ > Mis evaluaciones."
-
-#. module: ems
-#: model:mail.template,subject:ems.email_template_erasmus_claim_resolved
-msgid "Erasmus+: your claim has been answered - {{ (object.call_id or object.group_mobility_id).name }}"
-msgstr "Erasmus+: se ha resuelto tu reclamación - {{ (object.call_id or object.group_mobility_id).name }}"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__offers_pending
-msgid "Offers waiting for an answer"
-msgstr "Ofertas pendientes de respuesta"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__places_accepted
-msgid "Places accepted"
-msgstr "Plazas aceptadas"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__notes
-msgid "Published with the list and emailed to everyone on it: never write anyone's name. A rectification must explain what it corrects."
-msgstr "Se publican con la lista y se envían por correo a todas las personas que aparecen en ella: no escribas nunca el nombre de nadie. Una rectificación debe explicar qué corrige."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_call__places_accepted
-msgid "Selected applicants who have accepted their place."
-msgstr "Personas seleccionadas que han aceptado la plaza."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_group_mobility__claims_deadline
-msgid "Until when the students can claim against the provisional list, from the portal."
-msgstr "Hasta cuándo el alumnado puede reclamar contra la lista provisional, desde el portal."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
-msgid "Your claim of"
-msgstr "Tu reclamación del"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+#: model:mail.template,body_html:ems.email_template_erasmus_offer
 msgid ""
-"place offers are waiting for an answer\n"
-"                            ("
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
+"                        <p t-if=\"object.modality_id and object.call_id.audience == 'student'\">\n"
+"                            A place of the modality <strong t-out=\"object.modality_id.name\"/> of\n"
+"                            <strong t-out=\"object.call_id.name\"/> has become free and it is offered to you.\n"
+"                        </p>\n"
+"                        <t t-if=\"object.modality_id and object.call_id.audience == 'student'\">\n"
+"                            <t t-set=\"offer_destinations\" t-value=\"object.modality_id._ems_offer_destinations()\"/>\n"
+"                            <p t-if=\"offer_destinations\">\n"
+"                                Destinations and places of the modality (you will choose one by turns, by your position):\n"
+"                            </p>\n"
+"                            <ul t-if=\"offer_destinations\">\n"
+"                                <li t-foreach=\"offer_destinations\" t-as=\"destination\" t-out=\"destination._ems_offer_label()\"/>\n"
+"                            </ul>\n"
+"                        </t>\n"
+"                        <p t-else=\"\">\n"
+"                            A place of <strong t-out=\"object.call_id.name\"/> has become free and it is offered to you.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Accept or renounce it on the school portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
+"                            before <strong t-out=\"object.call_id._ems_local_format(object.deadline)\"/>.\n"
+"                            Without an answer by then, the place is considered renounced.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
 msgstr ""
-"ofertas de plaza esperan respuesta\n"
-"                            ("
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
+"                        <p t-if=\"object.modality_id and object.call_id.audience == 'student'\">\n"
+"                            Ha quedado libre una plaza de la modalidad <strong t-out=\"object.modality_id.name\"/> de\n"
+"                            <strong t-out=\"object.call_id.name\"/> y te la ofrecemos.\n"
+"                        </p>\n"
+"                        <t t-if=\"object.modality_id and object.call_id.audience == 'student'\">\n"
+"                            <t t-set=\"offer_destinations\" t-value=\"object.modality_id._ems_offer_destinations()\"/>\n"
+"                            <p t-if=\"offer_destinations\">\n"
+"                                Destinos y plazas de la modalidad (elegirás uno por turnos, según tu posición):\n"
+"                            </p>\n"
+"                            <ul t-if=\"offer_destinations\">\n"
+"                                <li t-foreach=\"offer_destinations\" t-as=\"destination\" t-out=\"destination._ems_offer_label()\"/>\n"
+"                            </ul>\n"
+"                        </t>\n"
+"                        <p t-else=\"\">\n"
+"                            Ha quedado libre una plaza de <strong t-out=\"object.call_id.name\"/> y te la ofrecemos.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Acéptala o renuncia a ella en el portal del centro\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
+"                            antes del <strong t-out=\"object.call_id._ems_local_format(object.deadline)\"/>.\n"
+"                            Si no respondes dentro del plazo, se considera que renuncias.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Un saludo,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
-msgid "places accepted)."
-msgstr "plazas aceptadas)."
+#: model:mail.template,body_html:ems.email_template_erasmus_offer_answer
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <t t-set=\"call\" t-value=\"object.call_id\"/>\n"
+"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
+"                        <t t-if=\"object.state == 'accepted'\">\n"
+"                            <p>\n"
+"                                We have received your acceptance of the place<t t-if=\"object.modality_id and call.audience == 'student'\"> of\n"
+"                                <strong t-out=\"object.modality_id.name\"/></t> of <strong t-out=\"call.name\"/>\n"
+"                                on <strong t-out=\"call._ems_local_format(object.answer_date)\"/>.\n"
+"                            </p>\n"
+"                            <p>\n"
+"                                On the school portal (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
+"                                you will find the next steps. We will email you whenever you have to do something.\n"
+"                            </p>\n"
+"                        </t>\n"
+"                        <p t-elif=\"object.state == 'renounced'\">\n"
+"                            We have received your renunciation of the place<t t-if=\"object.modality_id and call.audience == 'student'\"> of\n"
+"                            <strong t-out=\"object.modality_id.name\"/></t> of <strong t-out=\"call.name\"/>\n"
+"                            on <strong t-out=\"call._ems_local_format(object.answer_date)\"/>.\n"
+"                            The place will be offered to the next person on the reserve list.\n"
+"                        </p>\n"
+"                        <p t-else=\"\">\n"
+"                            The deadline to answer the place offered to you in <strong t-out=\"call.name\"/>\n"
+"                            (<t t-out=\"call._ems_local_format(object.deadline)\"/>) has passed without an answer.\n"
+"                            As the call says, the place is considered renounced and will be offered to the next\n"
+"                            person on the reserve list.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <t t-set=\"call\" t-value=\"object.call_id\"/>\n"
+"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
+"                        <t t-if=\"object.state == 'accepted'\">\n"
+"                            <p>\n"
+"                                Hemos recibido tu aceptación de la plaza<t t-if=\"object.modality_id and call.audience == 'student'\"> de\n"
+"                                <strong t-out=\"object.modality_id.name\"/></t> de <strong t-out=\"call.name\"/>\n"
+"                                el <strong t-out=\"call._ems_local_format(object.answer_date)\"/>.\n"
+"                            </p>\n"
+"                            <p>\n"
+"                                En el portal del centro (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
+"                                encontrarás los siguientes pasos. Te escribiremos cada vez que tengas que hacer algo.\n"
+"                            </p>\n"
+"                        </t>\n"
+"                        <p t-elif=\"object.state == 'renounced'\">\n"
+"                            Hemos recibido tu renuncia a la plaza<t t-if=\"object.modality_id and call.audience == 'student'\"> de\n"
+"                            <strong t-out=\"object.modality_id.name\"/></t> de <strong t-out=\"call.name\"/>\n"
+"                            el <strong t-out=\"call._ems_local_format(object.answer_date)\"/>.\n"
+"                            La plaza se ofrecerá a la siguiente persona de la lista de reserva.\n"
+"                        </p>\n"
+"                        <p t-else=\"\">\n"
+"                            Ha terminado el plazo para responder a la plaza que se te ofrecía en <strong t-out=\"call.name\"/>\n"
+"                            (<t t-out=\"call._ems_local_format(object.deadline)\"/>) sin que respondieras.\n"
+"                            Tal como dicen las bases, se considera que renuncias y la plaza se ofrecerá a la\n"
+"                            siguiente persona de la lista de reserva.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Un saludo,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "%s (link)"
+msgstr "%s (enlace)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "%s is handed in as a file, not as a link."
+msgstr "%s se entrega como fichero, no como enlace."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "%s is handed in as a link, not as a file."
+msgstr "%s se entrega como enlace, no como fichero."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "%s: paste the whole link, starting with https://."
+msgstr "%s: pega el enlace entero, que empiece por https://."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "%s: upload it as a PDF file."
+msgstr "%s: súbelo en formato PDF."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__upload_kind__link
+msgid "A link (e.g. a video on Google Drive)"
+msgstr "Un enlace (por ejemplo, un vídeo en Google Drive)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_document__upload_kind
+msgid "A link: the applicant pastes it on the portal instead of uploading a file."
+msgstr "Un enlace: la persona solicitante lo pega en el portal en lugar de subir un fichero."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "Your position in the modality:"
-msgstr "Tu posición en la modalidad:"
+msgid "A student has fewer opportunities when they face obstacles to take part for socio-economic reasons (for instance a general grant of the Ministry of Education, the Minimum Living Income or the Guaranteed Citizenship Income, a large or single-parent family, social services' report), a disability of 33 % or more, health, educational needs (report of the guidance service), cultural differences (refugee or international protection), discrimination or geography. Annex 2 of the call lists the documents that prove each one."
+msgstr "Tiene menos oportunidades el alumnado que encuentra obstáculos para participar por motivos socioeconómicos (por ejemplo, una beca general del Ministerio de Educación, el Ingreso Mínimo Vital o la Renta Garantizada de Ciudadanía, familia numerosa o monoparental, un informe de servicios sociales), una discapacidad igual o superior al 33 %, de salud, educativos (informe del servicio de orientación), de diferencias culturales (persona refugiada o con protección internacional), de discriminación o geográficos. El anexo 2 de la convocatoria dice qué documentos acreditan cada uno."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "About one minute: why would you like to take part in Erasmus+ and what tasks would you like to do in your host company? Save it in Google Drive with your school account, click Share and, under General access, choose Institut Puig Castellar as Viewer. Copy the link and paste it here."
+msgstr "Un minuto aproximadamente: «Why would you like to take part in Erasmus+ and what tasks would you like to do in your host company?». Guárdalo en Google Drive con la cuenta del centro, haz clic en Compartir y, en Acceso general, elige Institut Puig Castellar con el rol Lector. Copia el enlace y pégalo aquí."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__rules_document
+msgid "Call rules (PDF)"
+msgstr "Bases de la convocatoria (PDF)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__rules_filename
+msgid "Call rules file name"
+msgstr "Nombre del fichero de las bases"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Confidential: only the Erasmus team sees it (annex 2 of the call)."
+msgstr "Confidencial: solo la ve el equipo Erasmus (anexo 2 de la convocatoria)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Evidence of fewer opportunities"
+msgstr "Acreditación de menos oportunidades"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Family authorisation to take part"
+msgstr "Autorización familiar para participar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Fewer opportunities"
+msgstr "Menos oportunidades"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__upload_kind
+msgid "Handed in as"
+msgstr "Se entrega como"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "I can prove a situation of fewer opportunities"
+msgstr "Puedo acreditar una situación de menos oportunidades"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "If you prove it, you get 10 extra points and a top-up of the grant. The documents are confidential: only the Erasmus team sees them."
+msgstr "Si la acreditas, tienes 10 puntos más y un complemento de la beca. La documentación es confidencial: solo la ve el equipo Erasmus."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__help_url
+msgid "Instructions link"
+msgstr "Enlace de las instrucciones"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Made with the Europass editor, in English and with a photo. Include what you study, what you are learning in the cycle, your strong points and a short \"About me\". It is the CV we will send to the company of your internship: brief and clear. PDF only."
+msgstr "Hecho con el editor de Europass, en inglés y con foto. Incluye qué estudias, qué estás aprendiendo en el ciclo, tus puntos fuertes y un breve «About me». Es el currículum que enviaremos a la empresa de tus prácticas: breve y claro. Solo en PDF."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Official certificates of foreign languages, if you have any."
+msgstr "Certificados oficiales de idiomas extranjeros, si tienes."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Official language certificates"
+msgstr "Certificados oficiales de idiomas"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__upload_kind__pdf
+msgid "PDF only"
+msgstr "Solo PDF"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Presentation video in English"
+msgstr "Vídeo de presentación en inglés"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_document__requirement
+msgid "Required for curricular work placement: when the student's stay is a work placement managed in sBID (the mobility's Placement type); optional for an extracurricular stay or a recent graduate. Short blended mobilities only: asked for in a KA131-HED stay of 30 days or fewer, and not shown otherwise. Required if fewer opportunities are declared: the portal shows it only once the student ticks that they can prove a situation of fewer opportunities."
+msgstr "Obligatorio para la formación en empresa curricular: cuando la estancia del alumno es una formación en empresa gestionada en sBID (el tipo de estancia de la movilidad); opcional en una estancia extracurricular o de una persona titulada reciente. Solo movilidades combinadas cortas: se pide en una estancia KA131-HED de 30 días o menos, y no se muestra en ningún otro caso. Obligatorio si se declaran menos oportunidades: el portal lo muestra solo cuando el alumno marca que puede acreditar una situación de menos oportunidades."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Required for minors."
+msgstr "Obligatoria para menores de edad."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__requirement__fewer_opportunities
+msgid "Required if fewer opportunities are declared"
+msgstr "Obligatorio si se declaran menos oportunidades"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_document_card
+msgid "Required if you tick the box"
+msgstr "Obligatorio si marcas la casilla"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_document__help_url
+msgid "Shown with the instructions, e.g. the Europass CV editor."
+msgstr "Se muestra con las instrucciones, por ejemplo el editor del currículum Europass."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__rules_document
+msgid "The signed PDF of the call's rules. Applicants download it on the portal with \"Read the call\", and it goes into the project's documents."
+msgstr "El PDF firmado de las bases de la convocatoria. Las personas solicitantes lo descargan en el portal con «Leer la convocatoria», y va a la documentación del proyecto."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_registration__strike_count
+msgid "They rule nobody out: with a serious conduct record, the coordinator may exclude the student with an exception, giving the reason, after hearing the teaching team and the coexistence team."
+msgstr "No excluyen a nadie: con incidencias graves de convivencia, la coordinación puede excluir al alumno con una excepción, indicando el motivo, oídos el equipo docente y el equipo de convivencia."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_document_card
+msgid "https://drive.google.com/..."
+msgstr "https://drive.google.com/..."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "1. Your proposals"
+msgstr "1. Tus propuestas"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "2. What you want to learn and how you will apply it"
+msgstr "2. Qué quieres aprender y cómo lo aplicarás"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "3. About you"
+msgstr "3. Sobre ti"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
+msgid "<br/><strong>B (backup):</strong>"
+msgstr "<br/><strong>B (de reserva):</strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
+msgid "<br/>Write here the one you go with, with the exact entity and dates."
+msgstr ""
+"<br/>Escribe aquí la propuesta con la que vas, con la entidad y las fechas "
+"exactas."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
+msgid ""
+"<i class=\"fa fa-life-ring me-1\"/>Your proposals in the application. "
+"<strong>A:</strong>"
+msgstr ""
+"<i class=\"fa fa-life-ring me-1\"/>Tus propuestas en la solicitud. "
+"<strong>A:</strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid ""
+"<strong>4. Optional</strong>: support you need, your image, anything else"
+msgstr ""
+"<strong>4. Opcional</strong>: apoyo que necesitas, tu imagen, cualquier otra"
+" cosa"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid ""
+"Annex 1 of the call: briefly, the competences you want to observe or learn, "
+"and how you will apply them to your classes, your department or the centre. "
+"The panel reads it together with your proposals."
+msgstr ""
+"Anexo 1 de la convocatoria: brevemente, las competencias que quieres "
+"observar o aprender y cómo las aplicarás en tus clases, en el departamento o"
+" en el centro. El tribunal lo lee junto con tus propuestas."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__plan_text
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__plan_text
+msgid ""
+"Annex 1: the competences the applicant wants to observe or learn, and how "
+"they will apply them to their job."
+msgstr ""
+"Anexo 1: las competencias que la persona solicitante quiere observar o "
+"aprender, y cómo las aplicará a su trabajo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "E.g.: an English course at an academy in Malta, in July."
+msgstr "Ej.: un curso de inglés en una academia de Malta, en julio."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid ""
+"E.g.: job shadowing at a German VET school, the Berufskolleg X in Cologne, "
+"in April."
+msgstr ""
+"Ej.: job shadowing en un instituto de FP alemán, el Berufskolleg X de "
+"Colonia, en abril."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "I have never had an Erasmus+ staff mobility at the Puig"
+msgstr "No he hecho nunca ninguna movilidad Erasmus+ de personal en el Puig"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__proposal_a
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_proposal_a
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Proposal A"
+msgstr "Propuesta A"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/mobility.py:0
-msgid "%(destination)s: 1 place"
-msgstr "%(destination)s: 1 plaza"
+msgid ""
+"Proposal A: %(a)s\n"
+"Proposal B: %(b)s"
+msgstr ""
+"Propuesta A: %(a)s\n"
+"Propuesta B: %(b)s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid ""
+"Say in a sentence or two what you would like to do: the activity (job "
+"shadowing, a course or teaching), the host entity or course, where and when."
+" Proposal B is the backup if A falls through. Both are required. You will "
+"find options on the centre's Erasmus+ website:"
+msgstr ""
+"Explica en una o dos frases qué te gustaría hacer: la actividad (job "
+"shadowing, un curso o docencia), la entidad de acogida o el curso, dónde y "
+"cuándo. La propuesta B es la de reserva por si la A no sale. Las dos son "
+"obligatorias. Encontrarás opciones en la web Erasmus+ del centro:"
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/erasmus/mobility.py:0
-msgid "%(destination)s: %(places)s places"
-msgstr "%(destination)s: %(places)s plazas"
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Say since when you work at the centre."
+msgstr "Indica desde cuándo trabajas en el centro."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Support or adaptations you need to do the mobility (confidential)"
+msgstr ""
+"Apoyos o adaptaciones que necesitas para hacer la movilidad (confidencial)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__declared_never_staff_mobility
+msgid ""
+"The applicant has never done an Erasmus+ staff mobility from this centre. "
+"Otherwise the Erasmus team sets when the last one was."
+msgstr ""
+"La persona solicitante nunca ha hecho ninguna movilidad Erasmus+ de personal"
+" desde este centro. Si no, el equipo Erasmus indica cuándo fue la última."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__proposal_b
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__plan_proposal_b
+msgid "The backup if proposal A falls through, in the same way."
+msgstr "La de reserva por si la propuesta A no sale, de la misma manera."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__proposal_a
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__plan_proposal_a
+msgid ""
+"The main proposal, in the applicant's words: the activity, the host entity "
+"or course, where and when."
+msgstr ""
+"La propuesta principal, con las palabras de la persona solicitante: la "
+"actividad, la entidad de acogida o el curso, dónde y cuándo."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__plan_text
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_text
+msgid "What to learn and how to apply it"
+msgstr "Qué quiere aprender y cómo lo aplicará"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "What you want to learn and how you will apply it"
+msgstr "Qué quieres aprender y cómo lo aplicarás"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid ""
+"Write both proposals, A and B, and what you want to learn and how you will "
+"apply it to your job."
+msgstr ""
+"Escribe las dos propuestas, A y B, y qué quieres aprender y cómo lo "
+"aplicarás a tu trabajo."

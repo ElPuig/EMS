@@ -12,9 +12,9 @@ Com a membre del tribunal de la convocatòria Erasmus+ del personal, valores a l
 
 ## 1. Trobar els plans
 
-Quan l'equip Erasmus envia els plans al tribunal, reps una tasca a l'EMS per a cadascun, que venç el termini per corregir puntuacions de la convocatòria (dues setmanes després del tancament). Surt al resum diari de tasques pendents fins que la facis. Apareix el menú **Erasmus+**, amb **Les meves valoracions de plans**: els plans que tens assignats.
+Quan l'equip Erasmus envia els plans al tribunal, reps una tasca a l'EMS per a cadascun, que venç el termini per corregir puntuacions de la convocatòria (dues setmanes després del tancament). Surt al resum diari de tasques pendents fins que la facis. Al menú **Erasmus+** tens **La meva participació > Les meves valoracions de plans**: els plans que tens assignats.
 
-Cada valoració mostra en pantalla el **pla de mobilitat i transferència** de la persona candidata, tal com el va escriure al formulari de sol·licitud: activitat, entitat d'acollida o curs, destinació, dates, el motiu de l'elecció, els objectius i l'aplicació a la feina. No veus res més de la sol·licitud. La difusió no es valora: és la mateixa obligació per a tothom.
+Cada valoració mostra en pantalla el **pla de mobilitat i transferència** de la persona candidata, tal com el va escriure al formulari de sol·licitud: la proposta A (la principal) i la proposta B (la de reserva), amb les seves paraules, i què vol aprendre i com ho aplicarà a la feina. Valora les dues propostes juntes, amb una sola puntuació. No veus res més de la sol·licitud. La difusió no es valora: és la mateixa obligació per a tothom.
 
 ## 2. Valorar la rúbrica
 

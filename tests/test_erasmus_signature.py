@@ -89,6 +89,10 @@ class TestErasmusSignature(ErasmusSignatureCase):
         self.assertTrue(signature.signed)
         self.assertEqual(signature.sign_signer_id, participant)
         self.assertEqual(agreement.signatures_missing, 'Director')
+        self.assertEqual(agreement.signature_progress, '1 / 2')
+        unsigned = first.document_ids.filtered(lambda line: not line.sudo().signature_ids)[:1]
+        self.assertTrue(unsigned)
+        self.assertIs(unsigned.signature_progress, False, "No signature to collect: an empty cell, not a recordset.")
         self.assertFalse(agreement.attachment_ids, "Not signed by everybody yet.")
         with self.assertRaises(UserError):
             signature.with_user(self.technician_user).write({'signed': False})

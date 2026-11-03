@@ -15,7 +15,7 @@ Algunas movilidades Erasmus+ son de **grupo**: va un grupo de alumnos con dos do
 3. Haz clic en **Inscribirme**. Si estás en una situación de menos oportunidades, puedes marcarlo (es opcional y solo lo ve el equipo Erasmus).
 4. Mientras la inscripción esté abierta, puedes hacer clic en **Retirar mi inscripción** y volver a inscribirte.
 
-No hace falta ningún currículum, carta ni entrevista. Si tienes tantas amonestaciones este curso como el límite que avisa a convivencia, no podrás inscribirte.
+No hace falta ningún currículum, carta ni entrevista. La coordinación Erasmus puede excluir, indicando el motivo, al alumnado con expedientes disciplinarios o con incidencias graves de convivencia este curso.
 
 ## El resultado
 

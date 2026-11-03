@@ -27,14 +27,19 @@ registry.category("web_tour.tours").add("ems_portal_erasmus_staff_apply", {
             run: "click",
         },
         {
-            trigger: "form.o_ems_erasmus_form .o_ems_erasmus_staff_form select[name='staff_activity']",
-            content: "Choose the activity",
-            run: "select job_shadowing",
+            trigger: "form.o_ems_erasmus_form .o_ems_erasmus_staff_form textarea[name='proposal_a']",
+            content: "Proposal A, in your own words",
+            run: "edit Job shadowing at the Tour host school, in April",
         },
         {
-            trigger: "form.o_ems_erasmus_form input[name='host_entity']",
-            content: "Name the host entity",
-            run: "edit Tour host school",
+            trigger: "form.o_ems_erasmus_form textarea[name='proposal_b']",
+            content: "Proposal B, the backup",
+            run: "edit An English course in Malta, in July",
+        },
+        {
+            trigger: "form.o_ems_erasmus_form textarea[name='plan_text']",
+            content: "What you want to learn and how you will apply it (annex 1)",
+            run: "edit Tour plan_text",
         },
         {
             trigger: "form.o_ems_erasmus_form input[name='declared_never_staff_mobility']",
@@ -46,18 +51,6 @@ registry.category("web_tour.tours").add("ems_portal_erasmus_staff_apply", {
             content: "At the centre since September 2015",
             run() {
                 this.anchor.value = "2015-09";
-            },
-        },
-        {
-            trigger: "form.o_ems_erasmus_form textarea[name='plan_reason']",
-            content: "Write the mobility plan (annex 1)",
-            run() {
-                for (const name of ["plan_reason", "plan_objectives", "plan_application"]) {
-                    document.querySelector(`form.o_ems_erasmus_form textarea[name='${name}']`).value = `Tour ${name}`;
-                }
-                for (const name of ["destination", "preferred_dates"]) {
-                    document.querySelector(`form.o_ems_erasmus_form input[name='${name}']`).value = `Tour ${name}`;
-                }
             },
         },
         {
@@ -95,7 +88,7 @@ registry.category("web_tour.tours").add("ems_erasmus_my_plan_rating", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='plan_objectives']:contains('Test objectives')",
+            trigger: ".o_form_view .o_field_widget[name='plan_text']:contains('Test plan')",
             content: "The mobility plan is on screen",
         },
         {

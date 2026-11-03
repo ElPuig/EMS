@@ -62,6 +62,15 @@ class TestErasmusDecisionsAccess(ErasmusRecordsCase):
         self.assertIn(ratings.id, panel_menus)
         self.assertNotIn(interviews.id, panel_menus)
 
+    def test_a_teacher_reaches_their_own_application_from_the_app(self):
+        """The 2026-11-03 review: every teacher has the Erasmus+ app with "My participation", which
+        opens their portal page; the management sections stay the team's."""
+        visible = self.env['ir.ui.menu'].with_user(self.teacher_user)._visible_menu_ids()
+        mine = self.env.ref('ems.menu_erasmus_my_portal')
+        self.assertTrue({mine.id, mine.parent_id.id, self.env.ref('ems.menu_erasmus').id} <= visible)
+        self.assertNotIn(self.env.ref('ems.menu_erasmus_section_calls').id, visible)
+        self.assertEqual(mine.action.url, '/my/erasmus')
+
 
 @tagged('post_install', '-at_install')
 class TestErasmusDecisionsRecords(ErasmusRecordsCase):

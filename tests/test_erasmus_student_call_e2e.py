@@ -107,7 +107,7 @@ class TestErasmusStudentCallEndToEnd(TransactionCase):
         """What the portal does: the draft on the first save, the files, then submit."""
         Application = self.env['ems.erasmus.application']
         application = Application._ems_portal_get_or_create(self.call, self.students[name])
-        application._ems_portal_save({'availability': 'Any time', 'fewer_opportunities': False},
+        application._ems_portal_save({'applicant_notes': 'Any time', 'fewer_opportunities': False},
                                      {document.id: [(f'{document.name}.pdf', PDF)]
                                       for document in (documents if documents is not None else self.cv | self.letter)})
         application.action_submit()
@@ -157,9 +157,12 @@ class TestErasmusStudentCallEndToEnd(TransactionCase):
 
     def test_gm_and_gs_from_applying_to_selected_and_reserves(self):
         self.apps = {}
-        # 1. Applying. Blocked by conduct warnings: no application at all.
-        with self.assertRaises(UserError):
-            self.env['ems.erasmus.application']._ems_portal_get_or_create(self.call, self.students['gm_blocked'])
+        # 1. Applying. A serious conduct record rules nobody out: the team is warned and, having
+        # heard the teaching team, excludes the application with the reason (art. 6).
+        conduct = self._apply('gm_blocked')
+        self.assertTrue(conduct.conduct_review)
+        conduct.with_user(self.technician).exclusion_reason = 'Art. 6: serious conduct incidents'
+        conduct.with_user(self.technician).action_exclude()
         for name in (*GM, 'gm_no_show', *GS):
             self.apps[name] = self._apply(name)
         self.assertEqual(self.apps['gm_best'].modality_id, self.gm)
@@ -250,7 +253,7 @@ class TestErasmusStudentCallEndToEnd(TransactionCase):
         self.assertEqual(self._results(provisional, self.gm), [
             ('gm_best', 'selected', 1), ('gm_second', 'selected', 2), ('gm_reserve_1', 'reserve', 3),
             ('gm_reserve_2', 'reserve', 4), ('gm_low', 'not_selected', 5),
-            ('gm_no_fix', 'excluded', 0), ('gm_no_show', 'excluded', 0)])
+            ('gm_blocked', 'excluded', 0), ('gm_no_fix', 'excluded', 0), ('gm_no_show', 'excluded', 0)])
         gs_results = dict((name, (result, rank)) for name, result, rank in self._results(provisional, self.gs))
         self.assertEqual(gs_results['gs_claim'], ('reserve', 3))
         self.assertEqual(self.apps['gm_best'].state, 'admitted', "A provisional list changes no application.")

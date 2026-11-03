@@ -130,7 +130,7 @@ class EmsErasmusApplicationDocument(models.Model):
             required = line.sudo().signature_ids.filtered('is_required')
             missing = required.filtered(lambda signature: not signature.signed)
             line.signatures_missing = ", ".join(labels[signature.signer] for signature in missing)
-            line.signature_progress = required and f"{len(required) - len(missing)} / {len(required)}"
+            line.signature_progress = f"{len(required) - len(missing)} / {len(required)}" if required else False
 
     @api.model_create_multi
     def create(self, vals_list):

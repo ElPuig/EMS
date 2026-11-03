@@ -575,6 +575,24 @@ class TestErasmusResolutionNotices(ErasmusResolutionCase):
         self.assertEqual(len(self._mails(second.offer_ids)), 1, "The renunciation is confirmed too.")
         self.assertFalse(self._mails(second.offer_ids).email_cc)
 
+    def test_an_adult_who_shares_with_the_family_gets_it_a_copy_too(self):
+        """EMS's own rule of who is kept informed (res.partner._ems_informed_recipients): an adult
+        who authorized sharing with the family, like a minor, has it copied; one who didn't, not."""
+        first, _second = self._scored_call()
+        self.call.modality_ids.places = 2
+        self._publish('admission')
+        self._publish('provisional')
+        self._make_minor(self.student)
+        self.student.birth_date = '2000-01-01'
+        # auth_share is a stored compute read from an accepted 'share' authorization.
+        self.env.flush_all()
+        self.env.cr.execute("UPDATE res_partner SET auth_share = TRUE WHERE id = %s", (self.student.id,))
+        self.student.invalidate_recordset(['auth_share'])
+        definitive = self._publish('definitive')
+        line = definitive.line_ids.filtered(lambda line: line.application_id == first)
+        self.assertEqual(self._mails(line).email_cc, 'notice.mother@example.com')
+        self.assertFalse(self._mails(definitive.line_ids - line).email_cc, "No family on file: no copy.")
+
     def test_the_tutor_is_told_when_their_student_accepts(self):
         first, _second = self._scored_call()
         self._publish_up_to_definitive()

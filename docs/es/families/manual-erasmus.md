@@ -16,18 +16,20 @@ En el portal, haz clic en la tarjeta **Erasmus+** o en **Erasmus+** en el menú 
 
 Primero salen tus solicitudes, en **Mis solicitudes**, y después las convocatorias a las que te puedes presentar ahora, en **Convocatorias abiertas**. Las que aún no se han abierto o ya se han cerrado quedan plegadas en **Otras convocatorias**. Cada convocatoria muestra las fechas y un enlace para **Leer la convocatoria**. Léela antes de solicitar: encontrarás los requisitos, los documentos y cómo se adjudican las plazas.
 
-Si este curso acumulas 3 amonestaciones o más, no puedes presentarte (artículo 6 de la convocatoria): en lugar del botón **Solicitar** verás un aviso. Si crees que es un error, habla con el equipo Erasmus.
+El equipo Erasmus puede excluir, indicando el motivo, al alumnado con expedientes disciplinarios o con incidencias graves de convivencia este curso, oídos el equipo docente y el equipo de convivencia (artículo 6 de la convocatoria). Además, cada amonestación resta puntos a tu puntuación.
 
 ## 2. Rellenar la solicitud
 
 Haz clic en **Solicitar** y rellena el formulario:
 
-- Tu disponibilidad para los periodos de la convocatoria. El formulario muestra el periodo de tu modalidad encima de la pregunta.
-- Si puedes acreditar una situación de menos oportunidades. La documentación es confidencial: solo la ve el equipo Erasmus.
+1. Los **documentos**, primero. Cada uno explica qué debe contener. Los marcados como **Obligatorio** no pueden faltar:
+    - **Currículum Europass en inglés**, hecho con el editor de Europass (el enlace está en el formulario), con foto: qué estudias, qué estás aprendiendo en el ciclo, tus puntos fuertes y un breve «About me». Es el currículum que enviaremos a la empresa de tus prácticas: breve y claro. **Solo en PDF.**
+    - **Vídeo de presentación en inglés** (un minuto aproximadamente): guárdalo en Google Drive con la cuenta del centro, haz clic en **Compartir** y, en **Acceso general**, elige **Institut Puig Castellar** con el rol **Lector**. Copia el enlace y pégalo en el formulario.
+    - Tus certificados oficiales de idiomas, si tienes, y, si eres menor de edad, la autorización familiar.
+2. **Menos oportunidades**: el formulario resume qué situaciones cuentan (el anexo 2 de la convocatoria dice qué documentos acreditan cada una). Si puedes acreditar alguna, marca la casilla: justo debajo aparece el campo para subir la documentación, que pasa a ser obligatoria. Solo la ve el equipo Erasmus.
+3. **Cualquier otra cosa** que quieras que sepa el equipo Erasmus, al final.
 
 El uso de tu imagen en la difusión del proyecto sigue tu autorización de derechos de imagen de este curso: el formulario te lo muestra y no se te vuelve a preguntar.
-
-Después adjunta los documentos. Los marcados como **Obligatorio** no pueden faltar. Puedes adjuntar varios archivos a cada documento.
 
 Haz clic en **Guardar borrador** para continuar más tarde.
 

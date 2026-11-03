@@ -5,15 +5,14 @@ from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase, tagged
 
-from .common import (create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email,
-                     next_student_id)
+from .common import create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email
 from .test_erasmus import create_erasmus_fixtures, upload
 
 
 @tagged('post_install', '-at_install')
 class TestErasmusCallAnnounce(TransactionCase):
     """The notice of an open call to whoever can apply, and the reminder before it closes, for the
-    students' call (the levels of its modalities, not the students ruled out by their conduct) and
+    students' call (the levels of its modalities; conduct warnings rule nobody out, see test_erasmus.py) and
     the staff call (the teachers of its levels and the Direction)."""
 
     @classmethod
@@ -21,13 +20,6 @@ class TestErasmusCallAnnounce(TransactionCase):
         super().setUpClass()
         mock_outgoing_email(cls)
         create_erasmus_fixtures(cls)
-        cls.env.company.strike_escalation_threshold = 3
-        cls.blocked = cls.env['res.partner'].create({
-            'name': 'Erasmus Blocked Student', 'contact_type': 'student', 'student_id': next_student_id(),
-            'main_group_id': cls.group.id, 'birth_date': '2000-01-01', 'email': 'erasmus.blocked@example.com'})
-        teacher = cls.env['hr.employee'].search([], limit=1)
-        cls.env['ems.strike'].create([{'student_id': cls.blocked.id, 'teacher_id': teacher.id,
-                                       'date': fields.Datetime.now() - timedelta(hours=1)} for _n in range(3)])
         # The staff call: an FP teacher can apply, an ESO teacher and the administration staff
         # cannot; the Direction that validates the activities can.
         cls.eso_level, eso_study, cls.eso_group = create_level_study_group(cls, 'TERC')
@@ -58,8 +50,6 @@ class TestErasmusCallAnnounce(TransactionCase):
         self.assertIn(self.student, partners)
         self.assertIn(self.minor, partners)
         self.assertNotIn(self.outsider, partners, "Another level: not in any modality.")
-        self.assertNotIn(self.blocked, partners, "Ruled out by their conduct warnings (art. 6).")
-        self.assertTrue(self.call._ems_conduct_blocked(self.blocked), "The same rule as applying.")
 
     def test_who_can_apply_to_a_staff_call(self):
         partners = self.staff_call._ems_eligible_partners()

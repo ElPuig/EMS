@@ -15,7 +15,7 @@ Some Erasmus+ mobilities are **group** ones: a group of students goes with two a
 3. Click **Enrol me**. If you are in a situation of fewer opportunities, you can tick it (it is optional and only the Erasmus team sees it).
 4. While the enrolment is open you can click **Withdraw my enrolment** and enrol again.
 
-No CV, letter nor interview is needed. If you have as many conduct warnings this course as the limit that alerts the coexistence team, you cannot enrol.
+No CV, letter nor interview is needed. The Erasmus coordination may exclude, giving the reason, students with disciplinary records or serious coexistence incidents this course.
 
 ## The result
 

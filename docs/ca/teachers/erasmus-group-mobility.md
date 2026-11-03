@@ -4,7 +4,7 @@
 
 # Acompanyar una mobilitat de grup Erasmus+
 
-Si ets **docent responsable** o **docent acompanyant** d'una mobilitat de grup Erasmus+, la trobaràs a **Erasmus+ > Les meves mobilitats de grup**. No cal que et presentis a cap convocatòria: la coordinació Erasmus t'hi afegeix.
+Si ets **docent responsable** o **docent acompanyant** d'una mobilitat de grup Erasmus+, la trobaràs a **Erasmus+ > La meva participació > Les meves mobilitats de grup**. No cal que et presentis a cap convocatòria: la coordinació Erasmus t'hi afegeix.
 
 ---
 

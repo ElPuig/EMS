@@ -212,9 +212,11 @@ class ems_contact_portal(models.Model):
         return student.contact_type in ('student', 'applicant') \
             and (student == self or self._ems_convalidation_can_request(student))
 
-    def _ems_convalidation_recipients(self):
-        """Whoever hears about this student's convalidations (issue #529): the student always,
-        and his family too while he is a minor or when he authorized sharing with it."""
+    def _ems_informed_recipients(self):
+        """Whoever is kept informed about this student (convalidations, issue #529; Erasmus+
+        results and place offers): the student always, and his family too while he is a minor or
+        when he authorized sharing with it (auth_share). Informing only: acting or signing for him
+        is _ems_notification_recipients' rule."""
         self.ensure_one()
         if self.is_adult and not self.auth_share:
             return self

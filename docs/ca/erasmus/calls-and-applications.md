@@ -33,6 +33,9 @@ Pestanya **Documents**: una línia per a cada document que demana la convocatòr
 - *Obligatori*: la sol·licitud no es pot enviar sense aquest document.
 - *Opcional*.
 - *Obligatori per a menors d'edat*: només es demana a l'alumnat menor de 18 anys (per exemple, l'autorització familiar).
+- *Obligatori si es declaren menys oportunitats*: el portal el mostra just a sota de la casella de menys oportunitats, només quan l'alumne la marca, i llavors és obligatori.
+
+**Es lliura com a**: *Fitxers* (qualsevol), *Només PDF* (el currículum: es rebutgen els altres fitxers) o *Un enllaç* (el vídeo de presentació: l'alumne enganxa l'enllaç de Google Drive en lloc de pujar-lo). Les **Instruccions** i l'**Enllaç de les instruccions** (per exemple, l'editor d'Europass) es mostren a l'alumne amb el document. Una convocatòria d'alumnat nova ja porta el currículum (PDF), el vídeo (enllaç), els certificats de llengües, l'acreditació de menys oportunitats i l'autorització familiar, amb les instruccions: ajusta-les si cal.
 
 Marca **Confidencial** per als documents que només pot veure l'equip Erasmus, com l'acreditació de menys oportunitats.
 
@@ -59,7 +62,7 @@ Obre una sol·licitud:
 - Pestanya **Documents**: cada document amb els seus fitxers. Es conserven tots els fitxers que ha pujat l'alumne, també les versions anteriors. Marca'ls com a **Vàlid** (✓) o **Cal corregir** (✗), i escriu un **Comentari per al sol·licitant** quan calgui corregir-lo.
 - Pestanya **Admissió**:
     - **Requisits**: matriculat en un nivell de la convocatòria, cap pràctica Erasmus+ anterior en aquest cicle i autorització familiar si és menor d'edat. EMS registra qui ho ha comprovat i quan.
-    - **Conducta aquest curs**: les **amonestacions** que l'alumne té a l'EMS durant el curs de la convocatòria. Si en té tantes com les que fan saltar l'avís a convivència (3, l'ajust de l'EMS) o més, es marca **Massa amonestacions** i no pot participar (article 6 de la convocatòria). L'EMS ho comprova sol: ningú no ho ha de registrar a mà.
+    - **Conducta aquest curs**: les **amonestacions** que l'alumne té a l'EMS durant el curs de la convocatòria. Si en té tantes com les que fan saltar l'avís a convivència (3, l'ajust de l'EMS) o més, es marca **Conducta per revisar** i la fitxa ho avisa a dalt. No l'exclou: escoltats l'equip docent i l'equip de convivència, pots **excloure** la sol·licitud indicant-ne el motiu (article 6 de la convocatòria). Si continua, cada amonestació resta punts (criteri F).
     - **Motiu d'exclusió**, si la sol·licitud queda exclosa.
 - Pestanya **Respostes**: el que l'alumne ha respost al formulari.
 
@@ -69,7 +72,7 @@ Quan un document s'ha de corregir o en falta un d'obligatori, marca'l i fes clic
 
 ## 5. Admetre o excloure
 
-- **Admet**: els requisits han de ser *Compleix*, tots els documents obligatoris, *Vàlid*, i l'alumne no pot tenir massa amonestacions. Si li han posat les amonestacions després d'enviar la sol·licitud, la fitxa ho avisa a dalt: exclou-la.
+- **Admet**: els requisits han de ser *Compleix* i tots els documents obligatoris, *Vàlid*.
 - **Exclou**: primer escriu el motiu d'exclusió. També funciona amb una sol·licitud admesa, per exemple quan l'alumne no es presenta a l'entrevista.
 - **Torna a revisió** desfà qualsevol de les dues decisions.
 

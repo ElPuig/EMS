@@ -323,3 +323,9 @@ header nav.navbar .ems-custom-navbar .nav-link.active {
         display: none;
     }
 }
+
+// The 2026-11-03 review: the evidence of fewer opportunities only once the student ticks that
+// they can prove them (portal_erasmus.xml), without any script.
+.o_ems_erasmus_fewer:has(#fewer_opportunities:not(:checked)) .o_ems_erasmus_fewer_documents {
+    display: none;
+}

@@ -53,7 +53,6 @@
     <template id="portal_erasmus_group_card" name="Erasmus+ group mobility card">
         <t t-set="registration" t-value="group_mobility.registration_ids.filtered(lambda registration: registration.partner_id == group_partner)"/>
         <t t-set="participant" t-value="group_mobility.participant_ids.filtered(lambda participant: participant.partner_id == group_partner and participant.state == 'active')"/>
-        <t t-set="blocked" t-value="not registration and group_mobility._ems_conduct_blocked(group_partner)"/>
         <t t-set="published" t-value="group_mobility.state in ('preparation', 'stay', 'return', 'done')"/>
         <t t-set="result_labels" t-value="dict(registration._fields['result']._description_selection(request.env))"/>
         <div class="card shadow-sm mb-4 o_ems_erasmus_group_card">
@@ -154,10 +153,7 @@
                        t-esc="lists[:1]._ems_appeal_notice()"/>
                 </div>
 
-                <p t-if="blocked" class="alert alert-warning small mb-2 o_ems_erasmus_group_blocked">
-                    <i class="fa fa-ban me-1"/>You cannot enrol: you have too many conduct warnings this course. If you think this is a mistake, talk to the Erasmus team.
-                </p>
-                <form t-elif="group_mobility.is_enrolling and (not registration or registration.state == 'withdrawn')"
+                <form t-if="group_mobility.is_enrolling and (not registration or registration.state == 'withdrawn')"
                       t-attf-action="/my/erasmus/group/#{group_mobility.id}/enrol" method="post" class="o_ems_erasmus_group_enrol_form">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <div class="form-check small mb-2">

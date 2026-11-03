@@ -84,21 +84,17 @@
                 <p t-if="call.rules_document" class="small mb-2">
                     <a t-attf-href="/my/erasmus/call/#{call.id}/rules"><i class="fa fa-file-pdf-o me-1"/>Read the call</a>
                 </p>
-                <!-- Students' call art. 6: too many conduct warnings this course. -->
-                <p t-if="call in blocked and (not application or application.state == 'draft')" class="alert alert-warning small mb-2 o_ems_erasmus_blocked">
-                    <i class="fa fa-ban me-1"/>You cannot apply to this call: you have too many conduct warnings this course (article 6 of the call). If you think this is a mistake, talk to the Erasmus team.
-                </p>
                 <t t-if="application">
                     <a t-attf-href="/my/erasmus/call/#{call.id}" class="btn btn-primary btn-sm o_ems_erasmus_open">
                         <i class="fa fa-folder-open me-1"/>See my application
                     </a>
                 </t>
-                <t t-elif="call.is_accepting and call not in blocked">
+                <t t-elif="call.is_accepting">
                     <a t-attf-href="/my/erasmus/call/#{call.id}" class="btn btn-primary btn-sm o_ems_erasmus_apply">
                         <i class="fa fa-pencil me-1"/>Apply
                     </a>
                 </t>
-                <p t-elif="call not in blocked" class="text-muted small mb-0">This call is not accepting applications.</p>
+                <p t-else="" class="text-muted small mb-0">This call is not accepting applications.</p>
             </div>
         </div>
     </template>
@@ -142,7 +138,7 @@
                 <!-- Staff never see the modality: places and periods are the Erasmus team's own planning. -->
                 <p t-if="modality and call.audience == 'student'" class="text-muted small mb-3">Modality: <t t-esc="modality.name"/></p>
                 <div t-else="" class="mb-3"/>
-                <t t-if="progress and not blocked" t-call="ems.portal_erasmus_progress"/>
+                <t t-if="progress" t-call="ems.portal_erasmus_progress"/>
                 <p t-if="call.rules_document" class="small mb-3 o_ems_erasmus_rules">
                     <a t-attf-href="/my/erasmus/call/#{call.id}/rules"><i class="fa fa-file-pdf-o me-1"/>Read the call</a>
                 </p>
@@ -152,9 +148,6 @@
                 </div>
                 <div t-if="error" class="alert alert-danger mb-3 o_ems_erasmus_error">
                     <i class="fa fa-exclamation-triangle me-1"/> It could not be saved: check that the application is still open and that every required document is attached.
-                </div>
-                <div t-if="blocked" class="alert alert-warning mb-3 o_ems_erasmus_blocked">
-                    <i class="fa fa-ban me-1"/> You cannot apply to this call: you have too many conduct warnings this course (article 6 of the call). If you think this is a mistake, talk to the Erasmus team.
                 </div>
                 <!-- The corrections asked for (issue #683) and the interview (issue #684) are in the
                      "what to do now" box above (application._ems_portal_progress). -->
@@ -313,129 +306,125 @@
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
 
                         <!-- Issue #686: the staff application form (art. 8 and annex 1 of the staff call). -->
+                        <!-- Issue #686, made friendlier in the 2026-11-03 review (adriamt): four short blocks.
+                             The proposals and the plan in the teacher's own words; the exact entity and dates
+                             come later, in the mobility's proposal for the Direction. -->
                         <fieldset t-if="call.audience == 'staff'" t-att-disabled="None if editable else 'disabled'"
-                                  class="card shadow-sm mb-4 o_ems_erasmus_staff_form">
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label class="form-label" for="staff_activity">Activity</label>
-                                    <select class="form-select" name="staff_activity" id="staff_activity">
-                                        <option value="">-</option>
-                                        <t t-foreach="activity_labels.items()" t-as="activity">
-                                            <option t-att-value="activity[0]" t-att-selected="application.staff_activity == activity[0] or None"
-                                                    t-esc="activity[1]"/>
-                                        </t>
-                                    </select>
-                                </div>
-                                <div class="mb-2">
-                                    <label class="form-label" for="host_entity">Host entity or course</label>
-                                    <input type="text" class="form-control" name="host_entity" id="host_entity"
-                                           t-att-value="application.host_entity or ''"/>
-                                    <div class="form-text mb-3">A concrete one, with its name. You will find options on the centre's Erasmus+ website:
-                                        <a href="https://elpuig.xeill.net/el-centre/erasmus/recursos-i-formacio" target="_blank" rel="noopener">resources and training</a>.</div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="destination">Destination (city and country)</label>
-                                    <input type="text" class="form-control" name="destination" id="destination"
-                                           t-att-value="application.destination or ''"/>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="preferred_dates">Preferred dates or period, and approximate duration</label>
-                                    <input type="text" class="form-control" name="preferred_dates" id="preferred_dates"
-                                           t-att-value="application.preferred_dates or ''"/>
+                                  class="mb-4 o_ems_erasmus_staff_form">
+                            <div class="card shadow-sm mb-3">
+                                <div class="card-body">
+                                    <h5 class="mb-1">1. Your proposals</h5>
+                                    <p class="small text-muted mb-3">Say in a sentence or two what you would like to do: the activity (job shadowing, a course or teaching), the host entity or course, where and when. Proposal B is the backup if A falls through. Both are required. You will find options on the centre's Erasmus+ website:
+                                        <a href="https://elpuig.xeill.net/el-centre/erasmus/recursos-i-formacio" target="_blank" rel="noopener">resources and training</a>.</p>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="proposal_a">Proposal A</label>
+                                        <textarea class="form-control" name="proposal_a" id="proposal_a" rows="2" maxlength="1500"
+                                                  placeholder="E.g.: job shadowing at a German VET school, the Berufskolleg X in Cologne, in April."
+                                                  t-esc="application.proposal_a or ''"/>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="form-label" for="proposal_b">Proposal B (backup)</label>
+                                        <textarea class="form-control" name="proposal_b" id="proposal_b" rows="2" maxlength="1500"
+                                                  placeholder="E.g.: an English course at an academy in Malta, in July."
+                                                  t-esc="application.proposal_b or ''"/>
+                                    </div>
                                     <div class="form-text">Preferably in the non-teaching period (June, July). At another time, such as April, only a week that does not affect the assessments, and with the Direction's validation.</div>
                                 </div>
-                                <!-- Issue #697: the mobility and transfer plan (annex 1, sections 3 to 7), written
-                                     here instead of a PDF: it is what the panel reads and rates. -->
-                                <h5 class="mt-4 mb-1">Mobility and transfer plan</h5>
-                                <p class="small text-muted mb-3">Annex 1 of the call. The panel only reads this plan, together with the activity, the host entity or course, the destination and the dates above. 1,500 characters at most per section. Every section is required.</p>
-                                <div class="mb-3">
-                                    <label class="form-label" for="plan_reason">Why this entity or course</label>
-                                    <textarea class="form-control" name="plan_reason" id="plan_reason" rows="3" maxlength="1500"
-                                              t-esc="application.plan_reason or ''"/>
-                                    <div class="form-text float-end ms-2 o_ems_erasmus_char_count" data-for="plan_reason"/>
-                                    <div class="form-text">Its relation with your job and with the centre's training cycles.</div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="plan_objectives">Objectives</label>
-                                    <textarea class="form-control" name="plan_objectives" id="plan_objectives" rows="3" maxlength="1500"
-                                              t-esc="application.plan_objectives or ''"/>
-                                    <div class="form-text float-end ms-2 o_ems_erasmus_char_count" data-for="plan_objectives"/>
-                                    <div class="form-text">Two or three concrete objectives: what you want to observe, learn or, in a teaching assignment, teach.</div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="plan_application">Application to your job</label>
-                                    <textarea class="form-control" name="plan_application" id="plan_application" rows="3" maxlength="1500"
-                                              t-esc="application.plan_application or ''"/>
-                                    <div class="form-text float-end ms-2 o_ems_erasmus_char_count" data-for="plan_application"/>
-                                    <div class="form-text">How you will use it in your classes, your department or the centre's management, and which students will benefit.</div>
-                                </div>
-                                <div class="alert alert-info small mb-4 o_ems_erasmus_dissemination">
+                            </div>
+                            <div class="card shadow-sm mb-3">
+                                <div class="card-body">
+                                    <h5 class="mb-1">2. What you want to learn and how you will apply it</h5>
+                                    <p class="small text-muted mb-2">Annex 1 of the call: briefly, the competences you want to observe or learn, and how you will apply them to your classes, your department or the centre. The panel reads it together with your proposals.</p>
+                                    <textarea class="form-control" name="plan_text" id="plan_text" rows="5" maxlength="1500"
+                                              t-esc="application.plan_text or ''" aria-label="What you want to learn and how you will apply it"/>
+                                    <div class="form-text float-end ms-2 o_ems_erasmus_char_count" data-for="plan_text"/>
+                                    <div class="clearfix"/>
+                                    <div class="alert alert-info small mt-3 mb-0 o_ems_erasmus_dissemination">
                                     <strong>Dissemination:</strong> when you come back, you will publish a news item on the centre's website about your experience, following the Erasmus+ visual identity and dissemination policy, and, if it is considered necessary, you will share it with your colleagues at a department or cycles meeting.
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="declared_last_mobility_date">Month and year of your last Erasmus+ staff mobility from this centre</label>
-                                    <input type="month" class="form-control" name="declared_last_mobility_date" id="declared_last_mobility_date"
-                                           t-att-value="application.declared_last_mobility_date and application.declared_last_mobility_date.strftime('%Y-%m') or ''"/>
-                                    <div class="form-text">Only Erasmus+ staff mobilities: accompanying students, other programmes and mobilities from other centres do not count.</div>
-                                    <div class="form-check mt-1">
-                                        <input class="form-check-input" type="checkbox" name="declared_never_staff_mobility" id="declared_never_staff_mobility"
-                                               t-att-checked="application.declared_never_staff_mobility or None"/>
-                                        <label class="form-check-label" for="declared_never_staff_mobility">I have never had one</label>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="declared_centre_start_date">Month and year since when you work at the centre without interruption</label>
-                                    <input type="month" class="form-control" name="declared_centre_start_date" id="declared_centre_start_date"
-                                           t-att-value="application.declared_centre_start_date and application.declared_centre_start_date.strftime('%Y-%m') or ''"/>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="centre_projects">Centre projects, commissions or coordinations you take part in (last course and this one)</label>
-                                    <textarea class="form-control" name="centre_projects" id="centre_projects" rows="2"
-                                              t-esc="application.centre_projects or ''"/>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="declared_language_level">Highest official foreign-language certificate (B2 or higher)</label>
-                                    <select class="form-select" name="declared_language_level" id="declared_language_level">
-                                        <t t-foreach="language_labels.items()" t-as="level">
-                                            <option t-att-value="level[0]" t-att-selected="application.declared_language_level == level[0] or None"
-                                                    t-esc="level[1]"/>
-                                        </t>
-                                    </select>
-                                    <div class="form-text">Attach it in the documents below.</div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label" for="support_needs">Support or adaptations you need to do the mobility (confidential, optional)</label>
-                                    <textarea class="form-control" name="support_needs" id="support_needs" rows="2"
-                                              t-esc="application.support_needs or ''"/>
-                                </div>
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" name="image_consent" id="image_consent"
-                                           t-att-checked="application.image_consent or None"/>
-                                    <label class="form-check-label" for="image_consent">I consent to the use of my image in the project's dissemination activities (voluntary)</label>
-                                </div>
-                                <div class="mb-0">
-                                    <label class="form-label" for="applicant_notes">Anything else you want the Erasmus team to know</label>
-                                    <textarea class="form-control" name="applicant_notes" id="applicant_notes" rows="2"
-                                              t-esc="application.applicant_notes or ''"/>
                                 </div>
                             </div>
+                            <div class="card shadow-sm mb-3">
+                                <div class="card-body">
+                                    <h5 class="mb-3">3. About you</h5>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" name="declared_never_staff_mobility" id="declared_never_staff_mobility"
+                                               t-att-checked="application.declared_never_staff_mobility or None"/>
+                                        <label class="form-check-label" for="declared_never_staff_mobility">I have never had an Erasmus+ staff mobility at the Puig</label>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="declared_centre_start_date">Month and year since when you work at the centre without interruption</label>
+                                        <input type="month" class="form-control" name="declared_centre_start_date" id="declared_centre_start_date"
+                                               t-att-value="application.declared_centre_start_date and application.declared_centre_start_date.strftime('%Y-%m') or ''"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="declared_language_level">Highest official foreign-language certificate (B2 or higher)</label>
+                                        <select class="form-select" name="declared_language_level" id="declared_language_level">
+                                            <t t-foreach="language_labels.items()" t-as="level">
+                                                <option t-att-value="level[0]" t-att-selected="application.declared_language_level == level[0] or None"
+                                                        t-esc="level[1]"/>
+                                            </t>
+                                        </select>
+                                        <div class="form-text">Attach it in the documents below.</div>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="form-label" for="centre_projects">Centre projects, commissions or coordinations you take part in (last course and this one)</label>
+                                        <textarea class="form-control" name="centre_projects" id="centre_projects" rows="2"
+                                                  t-esc="application.centre_projects or ''"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <details class="card shadow-sm mb-3" t-att-open="(application.support_needs or application.applicant_notes) and 'open' or None">
+                                <summary class="card-body py-2"><strong>4. Optional</strong>: support you need, your image, anything else</summary>
+                                <div class="card-body pt-0">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="support_needs">Support or adaptations you need to do the mobility (confidential)</label>
+                                        <textarea class="form-control" name="support_needs" id="support_needs" rows="2"
+                                                  t-esc="application.support_needs or ''"/>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" name="image_consent" id="image_consent"
+                                               t-att-checked="application.image_consent or None"/>
+                                        <label class="form-check-label" for="image_consent">I consent to the use of my image in the project's dissemination activities (voluntary)</label>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="form-label" for="applicant_notes">Anything else you want the Erasmus team to know</label>
+                                        <textarea class="form-control" name="applicant_notes" id="applicant_notes" rows="2"
+                                                  t-esc="application.applicant_notes or ''"/>
+                                    </div>
+                                </div>
+                            </details>
                         </fieldset>
 
-                        <fieldset t-else="" t-att-disabled="None if editable else 'disabled'" class="card shadow-sm mb-4">
+                        <!-- The 2026-11-03 review: a student hands in the documents first, each with what it must
+                             contain; then, only if they can prove fewer opportunities, the evidence; and anything
+                             else at the end. Staff: their form above, then the documents. -->
+                        <h5 class="mb-2">Documents</h5>
+                        <t t-foreach="documents.filtered(lambda document: document.requirement != 'fewer_opportunities')" t-as="document">
+                            <t t-if="document.requirement != 'minor' or is_minor" t-call="ems.portal_erasmus_document_card"/>
+                        </t>
+
+                        <fieldset t-if="call.audience == 'student'" t-att-disabled="None if editable else 'disabled'"
+                                  class="card shadow-sm mt-4 mb-4 o_ems_erasmus_fewer">
                             <div class="card-body">
-                                <div class="mb-3">
-                                    <label class="form-label" for="availability">Availability for the periods of the call</label>
-                                    <p t-if="modality and modality.period" class="small text-muted mb-1 o_ems_erasmus_period">
-                                        Period of your modality (<t t-esc="modality.name"/>): <t t-esc="modality.period"/>
-                                    </p>
-                                    <textarea class="form-control" name="availability" id="availability" rows="2"
-                                              t-esc="application.availability or ''"/>
-                                </div>
+                                <h5 class="mb-2">Fewer opportunities</h5>
+                                <p class="small mb-2">A student has fewer opportunities when they face obstacles to take part for socio-economic reasons (for instance a general grant of the Ministry of Education, the Minimum Living Income or the Guaranteed Citizenship Income, a large or single-parent family, social services' report), a disability of 33 % or more, health, educational needs (report of the guidance service), cultural differences (refugee or international protection), discrimination or geography. Annex 2 of the call lists the documents that prove each one.</p>
+                                <p class="small text-muted mb-3">If you prove it, you get 10 extra points and a top-up of the grant. The documents are confidential: only the Erasmus team sees them.</p>
                                 <div class="form-check mb-2">
                                     <input class="form-check-input" type="checkbox" name="fewer_opportunities" id="fewer_opportunities"
                                            t-att-checked="application.fewer_opportunities or None"/>
-                                    <label class="form-check-label" for="fewer_opportunities">I can prove a situation of fewer opportunities (the evidence is confidential)</label>
+                                    <label class="form-check-label" for="fewer_opportunities">I can prove a situation of fewer opportunities</label>
                                 </div>
+                                <!-- Shown once the box is ticked (frontend/portal_custom.scss), without a reload. -->
+                                <div class="o_ems_erasmus_fewer_documents mt-3">
+                                    <t t-foreach="documents.filtered(lambda document: document.requirement == 'fewer_opportunities')" t-as="document">
+                                        <t t-call="ems.portal_erasmus_document_card"/>
+                                    </t>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <fieldset t-if="call.audience == 'student'" t-att-disabled="None if editable else 'disabled'" class="card shadow-sm mb-4">
+                            <div class="card-body">
                                 <p class="small text-muted mb-3 o_ems_erasmus_image_rights">
                                     <i class="fa fa-camera me-1"/>The use of your image in the project's dissemination follows your image rights authorisation of this course:
                                     <strong><t t-if="request.env.user.partner_id.auth_image">authorised</t><t t-else="">not authorised</t></strong>.
@@ -447,33 +436,6 @@
                                 </div>
                             </div>
                         </fieldset>
-
-                        <h5 class="mb-2">Documents</h5>
-                        <t t-foreach="documents" t-as="document">
-                            <t t-set="line" t-value="lines.get(document)"/>
-                            <t t-set="required" t-value="document.requirement == 'required' or (document.requirement == 'minor' and is_minor)"/>
-                            <t t-set="can_upload" t-value="editable or (line and line in correctable)"/>
-                            <t t-if="document.requirement != 'minor' or is_minor">
-                                <div t-attf-class="card mb-2 o_ems_erasmus_document #{'o_ems_erasmus_required' if required else ''}">
-                                    <div class="card-body py-2">
-                                        <div class="d-flex justify-content-between">
-                                            <strong t-esc="document.name"/>
-                                            <span t-if="required" class="badge text-bg-warning">Required</span>
-                                            <span t-else="" class="badge text-bg-light">Optional</span>
-                                        </div>
-                                        <p t-if="document.description" class="small text-muted mb-1" t-esc="document.description"/>
-                                        <p t-if="line and line.attachment_ids" class="small mb-1">
-                                            <i class="fa fa-paperclip me-1"/><t t-esc="', '.join(line.attachment_ids.mapped('name'))"/>
-                                        </p>
-                                        <p t-if="line and (line.correction_requested or line.review_state == 'needs_change')" class="small text-danger mb-1 o_ems_erasmus_needs_change">
-                                            <i class="fa fa-exclamation-circle me-1"/>Needs changes<t t-if="line.review_comment">: <t t-esc="line.review_comment"/></t>
-                                        </p>
-                                        <input t-if="can_upload" type="file" class="form-control form-control-sm" multiple="multiple"
-                                               t-attf-name="document_#{document.id}"/>
-                                    </div>
-                                </div>
-                            </t>
-                        </t>
 
                         <!-- The issue-#682 review: the buttons say what they do at each moment. -->
                         <t t-set="sent" t-value="application and application.state == 'submitted'"/>
@@ -495,6 +457,46 @@
                 </details>
             </div>
         </t>
+    </template>
+
+    <!-- One document of the application form: its instructions, what is already handed in and the
+         field to hand it in (files, a PDF or a link, ems.erasmus.call.document.upload_kind). -->
+    <template id="portal_erasmus_document_card" name="Erasmus+ application document">
+        <t t-set="line" t-value="lines.get(document)"/>
+        <t t-set="required" t-value="document.requirement == 'required' or (document.requirement == 'minor' and is_minor)"/>
+        <t t-set="can_upload" t-value="editable or (line and line in correctable)"/>
+        <div t-attf-class="card mb-2 o_ems_erasmus_document #{'o_ems_erasmus_required' if required else ''}">
+            <div class="card-body py-2">
+                <div class="d-flex justify-content-between gap-2">
+                    <strong t-esc="document.name"/>
+                    <span t-if="required" class="badge text-bg-warning">Required</span>
+                    <span t-elif="document.requirement == 'fewer_opportunities'" class="badge text-bg-warning">Required if you tick the box</span>
+                    <span t-else="" class="badge text-bg-light">Optional</span>
+                </div>
+                <p t-if="document.description" class="small text-muted mb-1" style="white-space: pre-line;" t-esc="document.description"/>
+                <p t-if="document.help_url" class="small mb-1">
+                    <a t-att-href="document.help_url" target="_blank" rel="noopener"><i class="fa fa-external-link me-1"/><t t-esc="document.help_url"/></a>
+                </p>
+                <p t-if="line and line.attachment_ids" class="small mb-1">
+                    <i class="fa fa-paperclip me-1"/>
+                    <t t-foreach="line.attachment_ids" t-as="attachment">
+                        <a t-if="attachment.type == 'url'" t-att-href="attachment.url" target="_blank" rel="noopener" t-esc="attachment.url"/>
+                        <span t-else="" t-esc="attachment.name"/><t t-if="not attachment_last">, </t>
+                    </t>
+                </p>
+                <p t-if="line and (line.correction_requested or line.review_state == 'needs_change')" class="small text-danger mb-1 o_ems_erasmus_needs_change">
+                    <i class="fa fa-exclamation-circle me-1"/>Needs changes<t t-if="line.review_comment">: <t t-esc="line.review_comment"/></t>
+                </p>
+                <t t-if="can_upload">
+                    <input t-if="document.upload_kind == 'link'" type="url" class="form-control form-control-sm o_ems_erasmus_link"
+                           t-attf-name="link_#{document.id}" placeholder="https://drive.google.com/..."/>
+                    <input t-elif="document.upload_kind == 'pdf'" type="file" class="form-control form-control-sm" multiple="multiple"
+                           accept=".pdf,application/pdf" t-attf-name="document_#{document.id}"/>
+                    <input t-else="" type="file" class="form-control form-control-sm" multiple="multiple"
+                           t-attf-name="document_#{document.id}"/>
+                </t>
+            </div>
+        </div>
     </template>
 
     <!-- Issue #685: a published resolution as the applicants see it: no names, only four digits
@@ -838,6 +840,13 @@
         <form t-att-action="action + 'propose'" method="post" enctype="multipart/form-data" class="mt-2 ems-loading-form o_ems_erasmus_propose">
             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
             <p t-if="mobility.audience == 'student'" class="small">You find the host company or entity yourself, with its written commitment to take you; the entity must also write to the Erasmus coordination. The Erasmus team validates it.</p>
+            <!-- adriamt, 2026-11-03: the two proposals of the application, to fill in the exact one here. -->
+            <t t-set="proposals" t-value="mobility.audience == 'staff' and mobility.sudo().application_id"/>
+            <div t-if="proposals and proposals.proposal_a" class="alert alert-light small mb-2 o_ems_erasmus_backup_proposal">
+                <i class="fa fa-life-ring me-1"/>Your proposals in the application. <strong>A:</strong> <t t-esc="proposals.proposal_a"/>
+                <t t-if="proposals.proposal_b"><br/><strong>B (backup):</strong> <t t-esc="proposals.proposal_b"/></t>
+                <br/>Write here the one you go with, with the exact entity and dates.
+            </div>
             <div t-if="mobility.audience == 'staff'" class="mb-2">
                 <label class="form-label" for="proposal_activity">Activity</label>
                 <select class="form-select" name="proposal_activity" id="proposal_activity" required="required">

@@ -66,12 +66,12 @@ class TestPortalErasmus(HttpCase):
 
     def test_save_then_submit(self):
         self._login(self.student_user)
-        self._save(availability='Summer only')
+        self._save(applicant_notes='Summer only')
         application = self._application()
         self.assertEqual(application.state, 'draft')
-        self.assertEqual(application.availability, 'Summer only')
+        self.assertEqual(application.applicant_notes, 'Summer only')
         self.assertEqual(application.document_ids.attachment_ids.mapped('name'), ['cv.pdf'])
-        response = self._save(submit=True, availability='Summer only')
+        response = self._save(submit=True, applicant_notes='Summer only')
         self.assertIn('submitted=1', response.url)
         self.assertEqual(application.state, 'submitted')
 
@@ -101,9 +101,9 @@ class TestPortalErasmus(HttpCase):
         self._login(self.student_user)
         self._save()
         self.call.date_close = fields.Datetime.now() - timedelta(hours=1)
-        response = self._save(availability='Too late')
+        response = self._save(applicant_notes='Too late')
         self.assertIn('error=', response.url)
-        self.assertFalse(self._application().availability)
+        self.assertFalse(self._application().applicant_notes)
 
     def test_rules_document_download(self):
         self.call.write({'rules_document': 'JVBERi0xLjQ=', 'rules_filename': 'call.pdf'})

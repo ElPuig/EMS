@@ -708,12 +708,12 @@ class TestConvalidation(TransactionCase):
     def test_adult_resolution_reaches_the_family_only_when_shared(self):
         adult, family = self._minor_with_family()
         adult.birth_date = '2000-01-01'
-        self.assertEqual(adult._ems_convalidation_recipients(), adult)
+        self.assertEqual(adult._ems_informed_recipients(), adult)
         # auth_share is a stored compute read from an accepted 'share' authorization.
         self.env.flush_all()
         self.env.cr.execute("UPDATE res_partner SET auth_share = TRUE WHERE id = %s", (adult.id,))
         adult.invalidate_recordset(['auth_share'])
-        self.assertEqual(adult._ems_convalidation_recipients(), adult | family)
+        self.assertEqual(adult._ems_informed_recipients(), adult | family)
 
     def test_resolution_without_any_email_is_logged(self):
         student = self.env['res.partner'].create({

@@ -68,17 +68,17 @@ States of the mobility: `draft` → `enrolment` → `selection` → `validation`
   the leader through its attachment, so the evidence goes, if needed, to the confidential
   "Group inclusion documentation" or is checked by the team outside EMS.
 - Server checks (`ems.erasmus.group.registration._ems_portal_enrol`): student of an eligible group,
-  enrolment open (`is_enrolling`: state and period), no duplicate, and the internship call's
-  conduct rule (`ems.erasmus.call._ems_conduct_blocked_count`: as many conduct warnings this
-  course as the coexistence escalation threshold, or more). The routes never take a partner or an
+  enrolment open (`is_enrolling`: state and period) and no duplicate. Conduct warnings never stop
+  enrolling (adriamt, 2026-11-03, as in the calls): the coordinator excludes by hand with the
+  result exception and its reason. The routes never take a partner or an
   enrolment id from the form: the student is always the logged-in user's partner.
 
 ## Ranking and selection (issue #702)
 
 - When the enrolment closes (the hourly cron `_cron_close_enrolments`, or the coordinator's
   button), `_ems_freeze` copies onto each enrolment the main group at that moment, the record
-  average and this course's conduct warnings, and decides eligibility (`exclusion`: not in an
-  eligible group, or too many conduct warnings). These values are never recomputed.
+  average and this course's conduct warnings (shown to the team only), and decides eligibility
+  (`exclusion`: not in an eligible group). These values are never recomputed.
 - The **record average is the internship call's**: `ems.erasmus.application._ems_partner_grade_values`
   and `_ems_grade_average` (extracted from the application without changing them).
 - **A student with no evaluated module has no average, never a 0** (`grade_found` false). If they
@@ -287,7 +287,7 @@ state and the late tasks (Odoo activities). Each card opens the mobility's panel
 
 The leader and accompanying teachers get the hidden group `ems.group_erasmus_group_teacher`,
 managed by EMS when the mobility's teachers change (`res.users._ems_sync_erasmus_group_teacher_group`),
-which shows *Erasmus+ > My group mobilities*. Record rules restrict them to their own mobilities;
+which shows *Erasmus+ > My participation > My group mobilities*. Record rules restrict them to their own mobilities;
 what each role may change is checked again in the models (`EmsErasmusGroupMobility._ems_role`,
 `write` overrides), never only by hiding buttons.
 

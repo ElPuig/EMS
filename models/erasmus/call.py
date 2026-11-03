@@ -74,8 +74,10 @@ class EmsErasmusCall(models.Model):
                                           "their place in the organisation chart. They can apply too.")
     description = fields.Html(string="Information for applicants",
                               help="Shown on the portal above the application form.")
-    rules_document = fields.Binary(string="Published call", attachment=True, copy=False)
-    rules_filename = fields.Char(string="Published call file name", copy=False)
+    rules_document = fields.Binary(string="Call rules (PDF)", attachment=True, copy=False,
+                                   help="The signed PDF of the call's rules. Applicants download it on the portal "
+                                        "with \"Read the call\", and it goes into the project's documents.")
+    rules_filename = fields.Char(string="Call rules file name", copy=False)
     modality_ids = fields.One2many(string="Modalities", comodel_name='ems.erasmus.call.modality',
                                    inverse_name='call_id', copy=True)
     document_ids = fields.One2many(string="Documents", comodel_name='ems.erasmus.call.document',
@@ -254,6 +256,8 @@ class EmsErasmusCall(models.Model):
                     vals['interview_deadline'] = self._ems_rating_deadline(vals.get('date_close'))
             if audience == 'staff' and not vals.get('document_ids'):
                 vals['document_ids'] = self._ems_staff_documents()
+            elif audience == 'student' and 'document_ids' not in vals:
+                vals['document_ids'] = self._ems_student_documents()
             if audience == 'staff' and not vals.get('modality_ids'):
                 vals['modality_ids'] = self._ems_staff_modalities()
             # Issue #687: the documents and checklist of art. 17 (students) and art. 15 (staff), editable.
@@ -276,16 +280,37 @@ class EmsErasmusCall(models.Model):
                 (0, 0, {'sequence': 2, 'name': _("Higher education staff (KA131-HED)"), 'project': 'ka131_hed'})]
 
     @api.model
-    def _ems_staff_documents(self):
-        """The documents art. 8 of the staff call asks for. The mobility plan is written in the form (issue #697)."""
+    def _ems_student_documents(self):
+        """The documents art. 8 of the students' call asks for (the 2026-11-03 review): the CV and
+        the video first, with what they must contain, then the optional ones; the evidence of fewer
+        opportunities only once the student declares them."""
         return [(0, 0, vals) for vals in (
-            {'sequence': 1, 'name': _("Identity document"), 'requirement': 'required',
-             'description': _("DNI or passport (EU citizens); passport and NIE (non-EU citizens).")},
-            {'sequence': 2, 'name': _("Europass CV in English"), 'requirement': 'required',
-             'description': _("With your experience, skills and a photo (europass.europa.eu).")},
-            {'sequence': 3, 'name': _("Language certificates"), 'requirement': 'optional',
-             'description': _("Official, B2 or higher.")},
+            {'sequence': 1, 'name': _("Europass CV in English"), 'requirement': 'required', 'upload_kind': 'pdf',
+             'help_url': 'https://europass.europa.eu/en/create-europass-cv',
+             'description': _("Made with the Europass editor, in English and with a photo. Include what you study, "
+                              "what you are learning in the cycle, your strong points and a short \"About me\". It "
+                              "is the CV we will send to the company of your internship: brief and clear. PDF only.")},
+            {'sequence': 2, 'name': _("Presentation video in English"), 'requirement': 'required', 'upload_kind': 'link',
+             'description': _("About one minute: why would you like to take part in Erasmus+ and what tasks would you "
+                              "like to do in your host company? Save it in Google Drive with your school account, "
+                              "click Share and, under General access, choose Institut Puig Castellar as Viewer. Copy "
+                              "the link and paste it here.")},
+            {'sequence': 3, 'name': _("Official language certificates"), 'requirement': 'optional',
+             'description': _("Official certificates of foreign languages, if you have any.")},
+            {'sequence': 4, 'name': _("Evidence of fewer opportunities"), 'requirement': 'fewer_opportunities',
+             'confidential': True,
+             'description': _("Confidential: only the Erasmus team sees it (annex 2 of the call).")},
+            {'sequence': 5, 'name': _("Family authorisation to take part"), 'requirement': 'minor',
+             'description': _("Required for minors.")},
         )]
+
+    @api.model
+    def _ems_staff_documents(self):
+        """The documents art. 8 of the staff call asks for: only the language certificates. The
+        mobility plan is written in the form (issue #697); the CV is no longer asked for and the
+        identity document only of whoever goes (a mobility document, the 2026-11-03 review)."""
+        return [(0, 0, {'sequence': 1, 'name': _("Language certificates"), 'requirement': 'optional',
+                         'description': _("Official, B2 or higher.")})]
 
     @api.model
     def _ems_preparation_documents(self, audience):
@@ -323,6 +348,9 @@ class EmsErasmusCall(models.Model):
                             "transport. Upload them within a month of your return.")}
         if audience == 'staff':
             documents = [
+                # The 2026-11-03 review: asked only of whoever goes, no longer with the application.
+                {'name': _("Identity document"), 'file_category': '01_Dades_i_autoritzacions',
+                 'description': _("DNI or passport (EU citizens); passport and NIE (non-EU citizens).")},
                 health_card,
                 grant_agreement,
                 insurance,
@@ -484,7 +512,9 @@ class EmsErasmusCall(models.Model):
                 raise UserError(_("Say which levels' teachers the staff call is for before publishing it."))
             if call.audience == 'staff' and not call.validator_ids:
                 raise UserError(_("Say who validates the staff's activities before publishing the call."))
-            if not call.document_ids.filtered(lambda document: document.requirement == 'required'):
+            # A staff call asks for the form only (the 2026-11-03 review: no CV nor identity document).
+            if call.audience == 'student' and not call.document_ids.filtered(
+                    lambda document: document.requirement == 'required'):
                 raise UserError(_("Add at least one required document before publishing the call."))
         self._ems_set_state('draft', 'published')
 
@@ -598,7 +628,8 @@ class EmsErasmusCall(models.Model):
 
     def _ems_eligible_partners(self):
         """Whoever can apply to the call, by the portal's rule (res.partner._ems_erasmus_calls): the
-        students of its modalities' levels not ruled out by their conduct warnings, or the internal
+        students of its modalities' levels (conduct warnings rule nobody out: art. 6, the team may
+        exclude an application, application.conduct_review), or the internal
         users of the teachers of its levels and of the Direction that validates the activities
         (_ems_staff_can_apply). A few queries for the whole centre, never one per person."""
         self.ensure_one()
@@ -608,18 +639,7 @@ class EmsErasmusCall(models.Model):
             return (teachers.user_id | self.validator_ids).filtered(lambda user: not user.share).partner_id
         students = self.env['res.partner'].sudo().search([
             ('contact_type', '=', 'student'), ('main_group_id.level_id', 'in', self.modality_ids.level_ids.ids)])
-        return students - self._ems_conduct_blocked_partners(students)
-
-    def _ems_conduct_blocked_partners(self, partners):
-        """Those of `partners` ruled out by their conduct warnings during the call's course (art. 6),
-        counted in one query."""
-        self.ensure_one()
-        start = self._ems_course_start(self.course_id)
-        if not (partners and start and self.env.company.strike_escalation_threshold > 0):
-            return partners.browse()
-        counts = self.env['ems.strike'].sudo()._read_group(
-            [('student_id', 'in', partners.ids), ('date', '>=', start)], ['student_id'], ['__count'])
-        return partners.browse([student.id for student, count in counts if self._ems_conduct_blocked_count(count)])
+        return students
 
     def _ems_local_date(self, value):
         """The day a stored (UTC) datetime falls on in the centre."""
@@ -865,15 +885,12 @@ class EmsErasmusCall(models.Model):
 
     @api.model
     def _ems_conduct_blocked_count(self, count):
-        """Students' call art. 6: as many conduct warnings this course as the number that sends the
-        case to the coexistence team (res.company.strike_escalation_threshold), or more, rule a
-        student out. No threshold, no rule."""
+        """As many conduct warnings this course as the number that sends the case to the
+        coexistence team (res.company.strike_escalation_threshold), or more: a serious conduct
+        record. It only warns the team, who may exclude the application (art. 6). No threshold, no
+        rule."""
         threshold = self.env.company.strike_escalation_threshold
         return threshold > 0 and count >= threshold
-
-    def _ems_conduct_blocked(self, partner):
-        self.ensure_one()
-        return self.audience == 'student' and self._ems_conduct_blocked_count(self._ems_course_strike_count(partner))
 
     @api.model
     def _ems_erasmus_team(self):
@@ -944,10 +961,19 @@ class EmsErasmusCallDocument(models.Model):
     description = fields.Text(string="Instructions", help="Shown to the applicant next to the upload.")
     requirement = fields.Selection(string="Requirement", required=True, default='required', selection=[
         ('required', "Required"), ('optional', "Optional"), ('minor', "Required for minors"),
-        ('curricular', "Required for curricular work placement"), ('short_blended', "Short blended mobilities only")],
+        ('curricular', "Required for curricular work placement"), ('short_blended', "Short blended mobilities only"),
+        ('fewer_opportunities', "Required if fewer opportunities are declared")],
         help="Required for curricular work placement: when the student's stay is a work placement managed in sBID "
              "(the mobility's Placement type); optional for an extracurricular stay or a recent graduate. Short "
-             "blended mobilities only: asked for in a KA131-HED stay of 30 days or fewer, and not shown otherwise.")
+             "blended mobilities only: asked for in a KA131-HED stay of 30 days or fewer, and not shown otherwise. "
+             "Required if fewer opportunities are declared: the portal shows it only once the student ticks that "
+             "they can prove a situation of fewer opportunities.")
+    # The 2026-11-03 review: what the applicant hands in, and a link for its instructions.
+    upload_kind = fields.Selection(string="Handed in as", required=True, default='file', selection=[
+        ('file', "Files"), ('pdf', "PDF only"), ('link', "A link (e.g. a video on Google Drive)")],
+        help="A link: the applicant pastes it on the portal instead of uploading a file.")
+    help_url = fields.Char(string="Instructions link",
+                           help="Shown with the instructions, e.g. the Europass CV editor.")
     confidential = fields.Boolean(string="Confidential",
                                   help="Only the Erasmus team sees these files (e.g. evidence of fewer opportunities).")
     stage = fields.Selection(string="When", required=True, default='application', selection=[

@@ -12,7 +12,7 @@ from odoo.addons.ems.models.erasmus.mobility import PROPOSAL_FIELDS
 
 BOOLEAN_ANSWERS = ('fewer_opportunities', 'image_consent', 'declared_never_staff_mobility')
 # Answers given as a month (<input type="month">, "YYYY-MM"), stored as the 1st of that month.
-MONTH_ANSWERS = ('declared_last_mobility_date', 'declared_centre_start_date')
+MONTH_ANSWERS = ('declared_centre_start_date',)
 
 
 class EmsPortalErasmusController(CustomerPortal):
@@ -51,8 +51,6 @@ class EmsPortalErasmusController(CustomerPortal):
             'other_calls': calls - applications.call_id - open_calls,
             'progress': {application.call_id: application._ems_portal_progress() for application in applications},
             'state_badges': PORTAL_STATE_BADGES,
-            # Students' call art. 6: too many conduct warnings this course rule the student out.
-            'blocked': calls.filtered(lambda call: call._ems_conduct_blocked(partner)),
             'applications': {application.call_id: application for application in applications},
             'state_labels': dict(applications._fields['state']._description_selection(request.env)),
             'tz': request.env['ems.datetime_utils'].company_tz_name(),
@@ -84,23 +82,20 @@ class EmsPortalErasmusController(CustomerPortal):
         partner = request.env.user.partner_id
         application = request.env['ems.erasmus.application'].sudo().search([
             ('call_id', '=', call.id), ('partner_id', '=', partner.id)])
-        blocked = call._ems_conduct_blocked(partner) and (not application or application.state in ('draft', 'subsanation'))
         values = self._prepare_portal_layout_values()
         values.update({
             'page_name': 'erasmus',
             'call': call,
             'application': application,
             'modality': application.modality_id or call._ems_modality_for(partner),
-            'blocked': blocked,
-            'editable': not blocked and (application._ems_portal_editable() if application else call.is_accepting),
-            'correctable': application._ems_portal_correctable() if application and not blocked
-            else application.document_ids.browse(),
+            'editable': application._ems_portal_editable() if application else call.is_accepting,
+            'correctable': application._ems_portal_correctable() if application else application.document_ids.browse(),
             'documents': call.document_ids,
             'lines': {line.call_document_id: line for line in application.document_ids},
             'is_minor': call.audience == 'student' and not partner.is_adult,
             'language_labels': dict(request.env['ems.erasmus.application']._fields[
                 'declared_language_level']._description_selection(request.env)),
-            'activity_labels': dict(request.env['ems.erasmus.application']._fields['staff_activity']._description_selection(
+            'activity_labels': dict(request.env['ems.erasmus.mobility']._fields['proposal_activity']._description_selection(
                 request.env)),
             'state_labels': dict(request.env['ems.erasmus.application']._fields['state']._description_selection(
                 request.env)),
@@ -162,7 +157,9 @@ class EmsPortalErasmusController(CustomerPortal):
                          if upload.filename]
                 if files:
                     uploads[document.id] = files
-            application._ems_portal_save(answers, uploads)
+            links = {document.id: post.get(f'link_{document.id}') for document in call.document_ids
+                     if document.upload_kind == 'link' and post.get(f'link_{document.id}')}
+            application._ems_portal_save(answers, uploads, links)
             if post.get('submit'):
                 application.action_submit()
         except UserError:

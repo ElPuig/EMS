@@ -164,12 +164,10 @@ class TestErasmusGroupEnrolment(ErasmusGroupMobilityCase):
         self.assertEqual(self._enrol(self.students[:1]), registration)
         self.assertEqual(registration.state, 'enrolled')
 
-    def test_too_many_conduct_warnings_cannot_enrol(self):
+    def test_conduct_warnings_never_stop_enrolling(self):
+        """adriamt, 2026-11-03: the coordinator excludes by hand, as in the calls."""
         self._strikes(self.students[0], 3)
-        with self.assertRaises(UserError):
-            self._enrol(self.students[:1])
-        self._strikes(self.students[1], 2)
-        self._enrol(self.students[1])
+        self.assertEqual(self._enrol(self.students[:1]).state, 'enrolled')
 
     def test_others_cannot_withdraw_an_enrolment(self):
         registration = self._enrol(self.students[:1])
@@ -224,17 +222,14 @@ class TestErasmusGroupRanking(ErasmusGroupMobilityCase):
         self.assertEqual(registrations[8:].mapped('reserve_position'), [1, 2])
         self.assertEqual(self.mobility.selected_count, 8)
 
-    def test_two_warnings_are_eligible_three_are_excluded(self):
+    def test_conduct_warnings_are_counted_and_rule_nobody_out(self):
         registrations = self._enrol(self.students[:3])
         self._strikes(self.students[0], 2)
         self._strikes(self.students[1], 3)
         self._close({student: 7.0 for student in self.students[:3]})
-        self.assertTrue(registrations[0].eligible)
-        self.assertEqual(registrations[0].strike_count, 2)
-        self.assertFalse(registrations[1].eligible)
-        self.assertEqual(registrations[1].exclusion, 'conduct')
-        self.assertEqual(registrations[1].proposed_result, 'excluded')
-        self.assertEqual(registrations[1].rank, 0)
+        self.assertEqual(registrations[:2].mapped('strike_count'), [2, 3])
+        self.assertTrue(all(registrations.mapped('eligible')))
+        self.assertFalse(registrations.filtered(lambda registration: registration.exclusion))
 
     def test_out_of_the_group_at_closing_is_excluded(self):
         registration = self._enrol(self.students[:1])

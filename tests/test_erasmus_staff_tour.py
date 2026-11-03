@@ -34,10 +34,10 @@ class TestErasmusStaffTour(HttpCase):
         self.start_tour('/my/erasmus', 'ems_portal_erasmus_staff_apply', login='test_erasmus_staff_1')
         application = self.env['ems.erasmus.application'].search([('call_id', '=', self.staff_call.id)])
         self.assertEqual(application.state, 'submitted')
-        self.assertEqual((application.staff_activity, application.host_entity),
-                         ('job_shadowing', 'Tour host school'))
+        self.assertEqual((application.proposal_a, application.proposal_b),
+                         ('Job shadowing at the Tour host school, in April', 'An English course in Malta, in July'))
         self.assertEqual((application.declared_last_staff_mobility, application.declared_seniority), ('never', 'y5'))
-        self.assertEqual(application.plan_objectives, 'Tour plan_objectives')
+        self.assertEqual(application.plan_text, 'Tour plan_text')
 
     def test_my_plan_rating_tour(self):
         application = self._admitted_and_closed()

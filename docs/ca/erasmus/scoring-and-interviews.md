@@ -44,7 +44,7 @@ Tots els criteris comencen buits. **Un criteri buit no és mai un zero:** la sol
 **Una per una**, a la pestanya **Entrevista** de cada sol·licitud admesa:
 
 1. Omple la **Data de l'entrevista** i el **Lloc de l'entrevista**.
-2. A la llista, afegeix les **dues persones avaluadores** (qualsevol membre del personal). Cadascuna rep una tasca a l'EMS i veu l'entrevista a **Erasmus+ > Les meves avaluacions**. Només veuen la seva entrevista: ni la puntuació de l'altra persona avaluadora ni la resta de la sol·licitud.
+2. A la llista, afegeix les **dues persones avaluadores** (qualsevol membre del personal). Cadascuna rep una tasca a l'EMS i veu l'entrevista a **Erasmus+ > La meva participació > Les meves avaluacions**. Només veuen la seva entrevista: ni la puntuació de l'altra persona avaluadora ni la resta de la sol·licitud.
 3. Fes clic a **Accions > Enviar la convocatòria a l'entrevista**. L'alumne rep un correu amb la data i el lloc. S'ha d'enviar com a mínim 24 hores abans de l'entrevista.
 
 Cada persona avaluadora puntua els 7 criteris de la rúbrica (annex 4) de 0 a 5, amb els descriptors escrits al formulari, i l'envia. La puntuació de l'entrevista és la mitjana de les dues. Si per una causa justificada només l'ha pogut valorar una persona, escriu-ho a **Motiu d'una sola valoració**.

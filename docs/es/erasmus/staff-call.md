@@ -16,7 +16,7 @@ La convocatoria del personal funciona como la del alumnado (ver [Convocatorias y
 
 En **Erasmus+ > Convocatorias > Convocatorias**, crea la convocatoria, pon *Personal* en **Solicitantes**, rellena las fechas, adjunta la convocatoria publicada y publícala. Nada más:
 
-- Los **documentos** del artículo 8 se añaden solos: documento de identidad, CV Europass en inglés y, opcionales, los certificados de idiomas. El **plan de movilidad y transferencia** no es un documento: las personas solicitantes lo escriben en el formulario (anexo 1), y es la única parte de la solicitud que ve el tribunal. Puedes cambiarlos antes de publicar.
+- Los **documentos** del artículo 8 se añaden solos: solo los certificados de idiomas, opcionales (ningún currículum; el documento de identidad se pide a quien va, con los documentos de la movilidad). El **plan de movilidad y transferencia** no es un documento: las personas solicitantes lo escriben en el formulario (anexo 1), y es la única parte de la solicitud que ve el tribunal. Puedes cambiarlos antes de publicar.
 - No hay **Puntuación mínima**: la convocatoria del personal no tiene, así que EMS la pone a 0 y la oculta.
 - El **Plazo para corregir puntuaciones** se pone dos semanas después de la fecha de cierre: ese día vencen las tareas del tribunal, y después los miembros ya no pueden cambiar sus valoraciones. Si cambias la fecha de cierre, el plazo la sigue, salvo que lo hayas cambiado a mano.
 - **Profesorado de:** los niveles del profesorado que puede solicitar. Una convocatoria del personal nueva tiene todos los niveles de formación profesional (ciclos de grado básico, medio y superior, cursos de especialización y PFI). EMS solo muestra la convocatoria al profesorado que da clase en algún grupo de esos niveles y a las personas de **Valida las actividades**: ni al personal de administración ni al profesorado que solo da clase en la ESO o el bachillerato.
@@ -27,20 +27,20 @@ Una vez publicada, todo el personal con ficha de empleado ve la convocatoria en 
 
 ## 2. Qué rellena el personal
 
-Además de la actividad, la entidad de acogida o el curso, el destino y las fechas, cada persona solicitante declara:
+Además de sus dos propuestas (A, la principal, y B, la de reserva) y de qué quiere aprender y cómo lo aplicará, escritos con sus palabras, cada persona solicitante declara:
 
-- El **mes y el año de su última movilidad Erasmus+ de personal** desde el centro, o que nunca ha hecho ninguna. Los acompañamientos de alumnado y otros programas no cuentan.
+- Si **nunca ha hecho ninguna movilidad Erasmus+ de personal en el Puig**. Si no, ponéis vosotros cuándo fue la última (**Última movilidad de personal comprobada**, criterio 2) con los registros del centro. Los acompañamientos de alumnado y otros programas no cuentan.
 - El **mes y el año desde que trabaja en el centro** de forma continuada.
 - Su **certificado de idioma** más alto (B2 o superior), que también adjunta.
 - Los **proyectos del centro** en los que participa y, opcionalmente, sus **necesidades de apoyo** (confidenciales: solo las ve el equipo Erasmus).
 
-No puede enviar la solicitud sin la última movilidad y la fecha de incorporación al centro.
+No puede enviar la solicitud sin la fecha de incorporación al centro, las dos propuestas y el plan.
 
 ## 3. Revisar, admitir y enviar los planes al tribunal
 
 Revisa los documentos y admite o excluye como en la convocatoria del alumnado (las amonestaciones no cuentan).
 
-Rellena la pestaña **Tribunal** de la convocatoria: las personas que valoran los planes de movilidad (la dirección y las jefaturas de departamento y de seminario). Después de **Cerrar las solicitudes**, haz clic en **Acciones > Enviar los planes al tribunal**. Cada miembro recibe una tarea para valorar todos los planes desde **Erasmus+ > Mis valoraciones de planes**, que vence el **Plazo para corregir puntuaciones** (el botón lo pide si está vacío; si lo cambias después, las tareas abiertas lo siguen). Puedes volver a hacer clic después de admitir más solicitudes: solo crea las valoraciones que faltan.
+Rellena la pestaña **Tribunal** de la convocatoria: las personas que valoran los planes de movilidad (la dirección y las jefaturas de departamento y de seminario). Después de **Cerrar las solicitudes**, haz clic en **Acciones > Enviar los planes al tribunal**. Cada miembro recibe una tarea para valorar todos los planes desde **Erasmus+ > Mi participación > Mis valoraciones de planes**, que vence el **Plazo para corregir puntuaciones** (el botón lo pide si está vacío; si lo cambias después, las tareas abiertas lo siguen). Puedes volver a hacer clic después de admitir más solicitudes: solo crea las valoraciones que faltan.
 
 **Abstenciones:** un miembro del tribunal que se presenta a la convocatoria no valora (art. 10): sus valoraciones se crean como abstenciones, con el motivo *Candidato en esta convocatoria*. Para otro conflicto de intereses, abre la valoración desde el botón **Valoraciones de planes** de la convocatoria y escribe el **Motivo de la abstención**. No hay personas sustitutas: la puntuación del plan (criterio 1) es la media de los miembros que lo valoran. **Una valoración pendiente la bloquea** hasta que se envía. En **Valoraciones de planes**, una abstención aparece como *Abstención*, y la vista de tabla dinámica (personas candidatas × estado) muestra de un vistazo qué planes todavía tienen valoraciones por enviar.
 

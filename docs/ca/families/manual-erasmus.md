@@ -16,18 +16,20 @@ Al portal, fes clic a la targeta **Erasmus+** o a **Erasmus+** al menú de dalt.
 
 Primer surten les teves sol·licituds, a **Les meves sol·licituds**, i després les convocatòries a les quals et pots presentar ara, a **Convocatòries obertes**. Les que encara no s'han obert o ja s'han tancat queden plegades a **Altres convocatòries**. Cada convocatòria mostra les dates i un enllaç per **Llegir la convocatòria**. Llegeix-la abans de sol·licitar: hi trobaràs els requisits, els documents i com s'adjudiquen les places.
 
-Si aquest curs acumules 3 amonestacions o més, no pots presentar-te (article 6 de la convocatòria): en lloc del botó **Sol·licita** hi veuràs un avís. Si creus que és un error, parla amb l'equip Erasmus.
+L'equip Erasmus pot excloure, indicant-ne el motiu, l'alumnat amb expedients disciplinaris o amb incidències greus de convivència aquest curs, escoltats l'equip docent i l'equip de convivència (article 6 de la convocatòria). A més, cada amonestació resta punts a la teva puntuació.
 
 ## 2. Omplir la sol·licitud
 
 Fes clic a **Sol·licita** i omple el formulari:
 
-- La teva disponibilitat per als períodes de la convocatòria. El formulari mostra el període de la teva modalitat damunt de la pregunta.
-- Si pots acreditar una situació de menys oportunitats. La documentació és confidencial: només la veu l'equip Erasmus.
+1. Els **documents**, primer. Cadascun explica què ha de contenir. Els marcats com a **Obligatori** no poden faltar:
+    - **Currículum Europass en anglès**, fet amb l'editor d'Europass (l'enllaç és al formulari), amb foto: què estudies, què estàs aprenent al cicle, els teus punts forts i un breu «About me». És el currículum que enviarem a l'empresa de les teves pràctiques: breu i clar. **Només en PDF.**
+    - **Vídeo de presentació en anglès** (un minut aproximadament): desa'l a Google Drive amb el compte del centre, fes clic a **Comparteix** i, a **Accés general**, tria **Institut Puig Castellar** amb el rol **Lector**. Copia l'enllaç i enganxa'l al formulari.
+    - Els teus certificats oficials de llengües, si en tens, i, si ets menor d'edat, l'autorització familiar.
+2. **Menys oportunitats**: el formulari resumeix quines situacions hi compten (l'annex 2 de la convocatòria diu quins documents acrediten cadascuna). Si en pots acreditar alguna, marca la casella: just a sota apareix el camp per pujar-ne la documentació, que passa a ser obligatòria. Només la veu l'equip Erasmus.
+3. **Qualsevol altra cosa** que vulguis que sàpiga l'equip Erasmus, al final.
 
 L'ús de la teva imatge en la difusió del projecte segueix la teva autorització de drets d'imatge d'aquest curs: el formulari t'ho mostra i no se't torna a preguntar.
-
-Després adjunta els documents. Els marcats com a **Obligatori** no poden faltar. Pots adjuntar diversos fitxers a cada document.
 
 Fes clic a **Desa l'esborrany** per continuar més tard.
 

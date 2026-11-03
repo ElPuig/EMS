@@ -33,6 +33,9 @@ Pestaña **Documentos**: una línea por cada documento que pide la convocatoria,
 - *Obligatorio*: la solicitud no se puede enviar sin él.
 - *Opcional*.
 - *Obligatorio para menores de edad*: solo se pide al alumnado menor de 18 años (por ejemplo, la autorización familiar).
+- *Obligatorio si se declaran menos oportunidades*: el portal lo muestra justo debajo de la casilla de menos oportunidades, solo cuando el alumno la marca, y entonces es obligatorio.
+
+**Se entrega como**: *Ficheros* (cualquiera), *Solo PDF* (el currículum: se rechazan los demás ficheros) o *Un enlace* (el vídeo de presentación: el alumno pega el enlace de Google Drive en lugar de subirlo). Las **Instrucciones** y el **Enlace de las instrucciones** (por ejemplo, el editor de Europass) se muestran al alumno con el documento. Una convocatoria de alumnado nueva ya trae el currículum (PDF), el vídeo (enlace), los certificados de idiomas, la acreditación de menos oportunidades y la autorización familiar, con sus instrucciones: ajústalas si hace falta.
 
 Marca **Confidencial** en los documentos que solo puede ver el equipo Erasmus, como la acreditación de menos oportunidades.
 
@@ -59,7 +62,7 @@ Abre una solicitud:
 - Pestaña **Documentos**: cada documento con sus archivos. Se conservan todos los archivos que ha subido el alumno, también las versiones anteriores. Márcalos como **Válido** (✓) o **Hay que corregir** (✗), y escribe un **Comentario para el solicitante** cuando haya que corregirlo.
 - Pestaña **Admisión**:
     - **Requisitos**: matriculado en un nivel de la convocatoria, ninguna práctica Erasmus+ anterior en este ciclo y autorización familiar si es menor de edad. EMS registra quién lo ha comprobado y cuándo.
-    - **Conducta este curso**: las **amonestaciones** que el alumno tiene en EMS durante el curso de la convocatoria. Si tiene tantas como las que hacen saltar el aviso a convivencia (3, el ajuste de EMS) o más, se marca **Demasiadas amonestaciones** y no puede participar (artículo 6 de la convocatoria). EMS lo comprueba solo: nadie tiene que registrarlo a mano.
+    - **Conducta este curso**: las **amonestaciones** que el alumno tiene en EMS durante el curso de la convocatoria. Si tiene tantas como las que hacen saltar el aviso a convivencia (3, el ajuste de EMS) o más, se marca **Conducta por revisar** y la ficha lo avisa arriba. No lo excluye: oídos el equipo docente y el equipo de convivencia, puedes **excluir** la solicitud indicando el motivo (artículo 6 de la convocatoria). Si sigue adelante, cada amonestación resta puntos (criterio F).
     - **Motivo de exclusión**, si la solicitud queda excluida.
 - Pestaña **Respuestas**: lo que el alumno ha respondido en el formulario.
 
@@ -69,7 +72,7 @@ Cuando hay que corregir un documento o falta uno obligatorio, márcalo y haz cli
 
 ## 5. Admitir o excluir
 
-- **Admitir**: los requisitos deben estar en *Cumple*, todos los documentos obligatorios en *Válido* y el alumno no puede tener demasiadas amonestaciones. Si le han puesto las amonestaciones después de enviar la solicitud, la ficha lo avisa arriba: exclúyela.
+- **Admitir**: los requisitos deben estar en *Cumple* y todos los documentos obligatorios en *Válido*.
 - **Excluir**: primero escribe el motivo de exclusión. También funciona con una solicitud admitida, por ejemplo cuando el alumno no se presenta a la entrevista.
 - **Volver a revisión** deshace cualquiera de las dos decisiones.
 

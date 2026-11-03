@@ -75,13 +75,10 @@ class EmsErasmusPlanRating(models.Model):
         ('draft', "To score"), ('submitted', "Submitted"), ('abstention', "Abstention")])
     # Issue #697: the mobility plan (annex 1) as the applicant wrote it in the form, the only part of
     # the application the panel sees.
-    plan_activity = fields.Selection(string="Activity", related='application_id.staff_activity')
-    plan_host = fields.Char(string="Host entity or course", related='application_id.host_entity')
-    plan_destination = fields.Char(string="Destination", related='application_id.destination')
-    plan_dates = fields.Char(string="Preferred dates", related='application_id.preferred_dates')
-    plan_reason = fields.Text(string="Why this entity or course", related='application_id.plan_reason')
-    plan_objectives = fields.Text(string="Objectives", related='application_id.plan_objectives')
-    plan_application = fields.Text(string="Planned application", related='application_id.plan_application')
+    # Both proposals, A (main) and B (backup), are rated together with one score.
+    plan_proposal_a = fields.Text(string="Proposal A", related='application_id.proposal_a')
+    plan_proposal_b = fields.Text(string="Proposal B (backup)", related='application_id.proposal_b')
+    plan_text = fields.Text(string="What to learn and how to apply it", related='application_id.plan_text')
     plan_attachment_ids = fields.Many2many(string="Files for the panel", comodel_name='ir.attachment',
                                            compute='_compute_plan_attachment_ids', compute_sudo=True,
                                            help="The files of the documents the call shows to the panel, if any.")

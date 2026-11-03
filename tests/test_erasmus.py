@@ -67,6 +67,7 @@ class TestErasmusCall(TransactionCase):
     def test_publish_needs_a_modality_and_a_required_document(self):
         draft = self.env['ems.erasmus.call'].create({
             'name': 'Empty call', 'date_open': self.call.date_open, 'date_close': self.call.date_close,
+            'document_ids': [],  # a new students' call would bring its default documents
         })
         with self.assertRaises(UserError):
             draft.action_publish()
@@ -154,6 +155,51 @@ class TestErasmusApplication(TransactionCase):
         self.assertEqual(application.document_ids.call_document_id, self.call.document_ids)
         self.assertEqual(self._apply(), application, "One application per student and call")
 
+    def test_a_new_students_call_brings_its_documents(self):
+        """The 2026-11-03 review: the CV (PDF, with the Europass link), the video (a Drive link),
+        the certificates, the evidence of fewer opportunities (only if declared) and the family
+        authorisation of minors."""
+        call = self.env['ems.erasmus.call'].create({'name': 'Test defaults call', 'date_open': self.call.date_open,
+                                                   'date_close': self.call.date_close})
+        self.assertEqual([(document.upload_kind, document.requirement) for document in call.document_ids.sorted('sequence')],
+                         [('pdf', 'required'), ('link', 'required'), ('file', 'optional'),
+                          ('file', 'fewer_opportunities'), ('file', 'minor')])
+        self.assertTrue(call.document_ids[:1].help_url.startswith('https://europass.europa.eu'))
+        self.assertTrue(call.document_ids.filtered(lambda document: document.requirement == 'fewer_opportunities').confidential)
+
+    def test_documents_by_kind_and_fewer_opportunities(self):
+        """A PDF-only document refuses other files, a link document takes a link (not a file), and
+        the evidence of fewer opportunities is required only once the student declares them."""
+        self.cv.upload_kind = 'pdf'
+        video = self.env['ems.erasmus.call.document'].create({
+            'call_id': self.call.id, 'name': 'Video', 'requirement': 'required', 'upload_kind': 'link', 'sequence': 5})
+        self.evidence.requirement = 'fewer_opportunities'
+        application = self._apply()
+        with self.assertRaises(UserError):
+            application._ems_portal_save({}, {self.cv.id: [('cv.docx', b'PK...')]})
+        with self.assertRaises(UserError, msg="Named .pdf but not a PDF."):
+            application._ems_portal_save({}, {self.cv.id: [('cv.pdf', b'not a pdf')]})
+        application._ems_portal_save({}, {self.cv.id: [('cv.pdf', PDF)]})
+        with self.assertRaises(UserError):
+            application._ems_portal_save({}, {video.id: [('video.mp4', b'...')]})
+        with self.assertRaises(UserError):
+            application._ems_portal_save({}, {}, {video.id: 'drive.google.com/no-scheme'})
+        with self.assertRaises(UserError, msg="The video is still missing."):
+            application.action_submit()
+        application._ems_portal_save({}, {}, {video.id: 'https://drive.google.com/file/d/test/view'})
+        link = self._line(application, video).attachment_ids
+        self.assertEqual((link.type, link.url), ('url', 'https://drive.google.com/file/d/test/view'))
+        evidence = self._line(application, self.evidence)
+        self.assertFalse(evidence.is_required)
+        self.assertEqual(evidence.file_state, 'not_applicable')
+        application._ems_portal_save({'fewer_opportunities': True}, {})
+        self.assertTrue(evidence.is_required)
+        with self.assertRaises(UserError, msg="Declared: the evidence is required."):
+            application.action_submit()
+        application._ems_portal_save({}, {self.evidence.id: [('evidence.pdf', PDF)]})
+        application.action_submit()
+        self.assertEqual(application.state, 'submitted')
+
     def test_unique_per_call_and_student(self):
         application = self._apply()
         with self.assertRaises(Exception), self.cr.savepoint():
@@ -201,16 +247,16 @@ class TestErasmusApplication(TransactionCase):
 
     def test_answers_editable_until_the_closing_date(self):
         application = self._apply()
-        application._ems_portal_save({'availability': 'Summer'}, {})
-        self.assertEqual(application.availability, 'Summer')
+        application._ems_portal_save({'applicant_notes': 'Summer'}, {})
+        self.assertEqual(application.applicant_notes, 'Summer')
         self.call.date_close = fields.Datetime.now() - timedelta(hours=1)
         with self.assertRaises(UserError):
-            application._ems_portal_save({'availability': 'Easter'}, {})
+            application._ems_portal_save({'applicant_notes': 'Easter'}, {})
 
     def test_a_students_image_consent_is_their_authorisation_of_the_course(self):
         """The issue-#682 review: not asked again in the form, whatever the browser sends."""
         application = self._apply()
-        application._ems_portal_save({'availability': 'Summer', 'image_consent': True}, {})
+        application._ems_portal_save({'applicant_notes': 'Summer', 'image_consent': True}, {})
         self.assertEqual(application.image_consent, self.student.auth_image)
 
     def test_every_uploaded_version_is_kept(self):
@@ -243,7 +289,7 @@ class TestErasmusApplication(TransactionCase):
         # After the closing date the applicant can still upload what was asked for...
         self.call.action_close()
         with self.assertRaises(UserError):
-            application._ems_portal_save({'availability': 'Changed'}, {})
+            application._ems_portal_save({'applicant_notes': 'Changed'}, {})
         upload(application, self.cv, name='fixed.pdf')
         application.action_submit()
         self.assertEqual(application.state, 'submitted')
@@ -304,47 +350,50 @@ class TestErasmusApplication(TransactionCase):
             'date': fields.Datetime.now() - timedelta(minutes=index + 1),
         } for index in range(count)])
 
-    def test_too_many_conduct_warnings_this_course_rule_the_student_out(self):
-        """Art. 6: as many warnings this course as the coexistence escalation threshold, or more."""
+    def _conduct(self, application):
+        application.invalidate_recordset(['conduct_review', 'course_strike_count'])
+        return application.course_strike_count, application.conduct_review
+
+    def test_a_serious_conduct_record_only_warns_the_team(self):
+        """Art. 6 (adriamt, 2026-11-03): as many warnings this course as the coexistence
+        escalation threshold, or more, rule nobody out: the student applies and can be admitted, and
+        the team sees the warning to exclude the application if the teaching team or the
+        coexistence team say so."""
         self.env.company.strike_escalation_threshold = 3
-        self._strikes(2)
-        self.assertFalse(self.call._ems_conduct_blocked(self.student))
-        application = self._apply()
-        self._strikes(1)
-        application.invalidate_recordset(['conduct_blocked', 'course_strike_count'])
-        self.assertEqual(application.course_strike_count, 3)
-        self.assertTrue(application.conduct_blocked)
-        upload(application, self.cv)
-        with self.assertRaises(UserError):
-            application.action_submit()
         self._strikes(3, self.minor)
-        with self.assertRaises(UserError):
-            self.env['ems.erasmus.application']._ems_portal_get_or_create(self.call, self.minor)
+        self.assertIn(self.minor, self.call._ems_eligible_partners())
+        application = self._apply()
+        self._strikes(2)
+        self.assertEqual(self._conduct(application), (2, False))
+        self._strikes(1)
+        self.assertEqual(self._conduct(application), (3, True))
+        upload(application, self.cv)
+        application.action_submit()
+        application.requirements_check = 'met'
+        self._line(application, self.cv).action_mark_valid()
+        application.action_admit()
+        self.assertEqual(application.state, 'admitted')
+
+    def test_the_team_may_exclude_for_conduct(self):
+        self.env.company.strike_escalation_threshold = 3
+        self._strikes(3)
+        application = self._apply()
+        upload(application, self.cv)
+        application.action_submit()
+        application.exclusion_reason = 'Art. 6: serious conduct incidents, heard the teaching team'
+        application.action_exclude()
+        self.assertEqual(application.state, 'excluded')
 
     def test_conduct_warnings_of_earlier_courses_do_not_count(self):
         self.env.company.strike_escalation_threshold = 3
         old = self._strikes(3)
         old.write({'date': fields.Datetime.now() - timedelta(days=800)})
-        self.assertFalse(self.call._ems_conduct_blocked(self.student))
+        self.assertEqual(self._conduct(self._apply()), (0, False))
 
-    def test_no_threshold_no_rule(self):
+    def test_no_threshold_no_warning(self):
         self.env.company.strike_escalation_threshold = 0
         self._strikes(5)
-        self.assertFalse(self.call._ems_conduct_blocked(self.student))
-
-    def test_conduct_warnings_after_submitting_block_the_admission(self):
-        self.env.company.strike_escalation_threshold = 3
-        application = self._apply()
-        upload(application, self.cv)
-        application.action_submit()
-        application.requirements_check = 'met'
-        self._line(application, self.cv).action_mark_valid()
-        self._strikes(3)
-        application.invalidate_recordset(['conduct_blocked', 'course_strike_count'])
-        with self.assertRaises(UserError):
-            application.action_admit()
-        application.exclusion_reason = 'Art. 6'
-        application.action_exclude()
+        self.assertEqual(self._conduct(self._apply()), (5, False))
 
     def test_receipt_replies_go_to_the_erasmus_mailbox(self):
         self.env.company.erasmus_contact_email = 'erasmus.box@example.com'

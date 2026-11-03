@@ -19,8 +19,8 @@ registry.category("web_tour.tours").add("ems_portal_erasmus_apply", {
             run: "click",
         },
         {
-            trigger: "form.o_ems_erasmus_form textarea[name='availability']",
-            content: "Say when you are available",
+            trigger: "form.o_ems_erasmus_form textarea[name='applicant_notes']",
+            content: "Tell the Erasmus team anything else",
             run: "edit Summer",
         },
         {

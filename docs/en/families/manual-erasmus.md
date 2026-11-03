@@ -16,18 +16,20 @@ In the portal, click the **Erasmus+** card, or **Erasmus+** in the top menu. Bot
 
 Your applications come first, under **My applications**; then the calls you can apply to now, under **Open calls**. The calls not open yet or already closed are folded under **Other calls**. Each call shows its dates and a link to **Read the call**. Read it before applying: it explains the requirements, the documents and how the places are awarded.
 
-If you have 3 or more conduct warnings this course, you cannot apply (article 6 of the call): instead of the **Apply** button you will see a notice. If you think it is a mistake, talk to the Erasmus team.
+The Erasmus team may exclude, giving the reason, students with disciplinary records or serious coexistence incidents this course, having heard the teaching team and the coexistence team (article 6 of the call). Each conduct warning also takes points off your score.
 
 ## 2. Fill in the application
 
 Click **Apply** and fill in the form:
 
-- Your availability for the periods of the call. The form shows the period of your modality above the question.
-- Whether you can prove a situation of fewer opportunities. The evidence is confidential: only the Erasmus team sees it.
+1. **Documents**, first. Each one says what it must contain. The ones marked **Required** are mandatory:
+    - **Europass CV in English**, made with the Europass editor (the link is in the form), with a photo: what you study, what you are learning in the cycle, your strong points and a short "About me". It is the CV we will send to the company of your internship, so keep it brief and clear. **PDF only.**
+    - **Presentation video in English** (about a minute): save it in Google Drive with your school account, click **Share** and, under **General access**, choose **Institut Puig Castellar** as **Viewer**. Copy the link and paste it in the form.
+    - Your official language certificates, if you have any, and, if you are a minor, the family authorisation.
+2. **Fewer opportunities**: the form sums up which situations count (annex 2 of the call lists the documents that prove each one). If you can prove one, tick the box: the field to upload the evidence appears right below it, and it becomes required. Only the Erasmus team sees it.
+3. **Anything else** you want the Erasmus team to know, at the end.
 
 The use of your image in the project's dissemination follows your image rights authorisation of this course: the form shows it, and you are not asked again.
-
-Then attach the documents. The ones marked **Required** are mandatory. You can attach several files to each document.
 
 Click **Save draft** to continue later.
 

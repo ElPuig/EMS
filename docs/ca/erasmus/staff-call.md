@@ -16,7 +16,7 @@ La convocatòria del personal funciona com la de l'alumnat (vegeu [Convocatòrie
 
 A **Erasmus+ > Convocatòries > Convocatòries**, crea la convocatòria, posa *Personal* a **Sol·licitants**, omple les dates, adjunta la convocatòria publicada i publica-la. Res més:
 
-- Els **documents** de l'article 8 s'afegeixen sols: document d'identitat, CV Europass en anglès i, opcionals, els certificats de llengües. El **pla de mobilitat i transferència** no és un document: les persones sol·licitants l'escriuen al formulari (annex 1), i és l'única part de la sol·licitud que veu el tribunal. Els pots canviar abans de publicar.
+- Els **documents** de l'article 8 s'afegeixen sols: només els certificats de llengües, opcionals (cap currículum; el document d'identitat es demana a qui hi va, amb els documents de la mobilitat). El **pla de mobilitat i transferència** no és un document: les persones sol·licitants l'escriuen al formulari (annex 1), i és l'única part de la sol·licitud que veu el tribunal. Els pots canviar abans de publicar.
 - No hi ha **Puntuació mínima**: la convocatòria del personal no en té, així que l'EMS la posa a 0 i l'amaga.
 - El **Termini per corregir puntuacions** es posa dues setmanes després de la data de tancament: aquell dia vencen les tasques del tribunal, i després els membres ja no poden canviar les seves valoracions. Si canvies la data de tancament, el termini la segueix, tret que l'hagis canviat a mà.
 - **Professorat de:** els nivells del professorat que pot sol·licitar. Una convocatòria del personal nova té tots els nivells de formació professional (cicles de grau bàsic, mitjà i superior, cursos d'especialització i PFI). L'EMS només mostra la convocatòria al professorat que fa classe en algun grup d'aquests nivells i a les persones de **Valida les activitats**: ni al personal d'administració ni al professorat que només fa classe a l'ESO o al batxillerat.
@@ -27,20 +27,20 @@ Un cop publicada, tot el personal amb fitxa d'empleat veu la convocatòria al po
 
 ## 2. Què omple el personal
 
-A més de l'activitat, l'entitat d'acollida o el curs, la destinació i les dates, cada persona sol·licitant declara:
+A més de les seves dues propostes (A, la principal, i B, la de reserva) i de què vol aprendre i com ho aplicarà, escrits amb les seves paraules, cada persona sol·licitant declara:
 
-- El **mes i l'any de la seva última mobilitat Erasmus+ de personal** des del centre, o que no n'ha fet mai cap. Els acompanyaments d'alumnat i altres programes no compten.
+- Si **no ha fet mai cap mobilitat Erasmus+ de personal al Puig**. Si no, poseu vosaltres quan va ser l'última (**Última mobilitat de personal comprovada**, criteri 2) amb els registres del centre. Els acompanyaments d'alumnat i altres programes no compten.
 - El **mes i l'any des que treballa al centre** de manera continuada.
 - El seu **certificat de llengua** més alt (B2 o superior), que també adjunta.
 - Els **projectes del centre** en què participa i, opcionalment, les seves **necessitats de suport** (confidencials: només les veu l'equip Erasmus).
 
-No pot enviar la sol·licitud sense l'última mobilitat i la data d'incorporació al centre.
+No pot enviar la sol·licitud sense la data d'incorporació al centre, les dues propostes i el pla.
 
 ## 3. Revisar, admetre i enviar els plans al tribunal
 
 Revisa els documents i admet o exclou com a la convocatòria de l'alumnat (les amonestacions no hi compten).
 
-Omple la pestanya **Tribunal** de la convocatòria: les persones que valoren els plans de mobilitat (la direcció i els caps de departament i de seminari). Després de **Tanca les sol·licituds**, fes clic a **Accions > Envia els plans al tribunal**. Cada membre rep una tasca per valorar tots els plans des d'**Erasmus+ > Les meves valoracions de plans**, que venç el **Termini per corregir puntuacions** (el botó te'l demana si és buit; si el canvies després, les tasques obertes el segueixen). Hi pots tornar a fer clic després d'admetre més sol·licituds: només crea les valoracions que falten.
+Omple la pestanya **Tribunal** de la convocatòria: les persones que valoren els plans de mobilitat (la direcció i els caps de departament i de seminari). Després de **Tanca les sol·licituds**, fes clic a **Accions > Envia els plans al tribunal**. Cada membre rep una tasca per valorar tots els plans des d'**Erasmus+ > La meva participació > Les meves valoracions de plans**, que venç el **Termini per corregir puntuacions** (el botó te'l demana si és buit; si el canvies després, les tasques obertes el segueixen). Hi pots tornar a fer clic després d'admetre més sol·licituds: només crea les valoracions que falten.
 
 **Abstencions:** un membre del tribunal que es presenta a la convocatòria no valora (art. 10): les seves valoracions es creen com a abstencions, amb el motiu *Candidat en aquesta convocatòria*. Per a un altre conflicte d'interessos, obre la valoració des del botó **Valoracions de plans** de la convocatòria i escriu el **Motiu de l'abstenció**. No hi ha persones substitutes: la puntuació del pla (criteri 1) és la mitjana dels membres que el valoren. **Una valoració pendent la bloqueja** fins que s'envia. A **Valoracions de plans**, una abstenció surt com a *Abstenció*, i la vista de taula dinàmica (persones candidates × estat) mostra d'un cop d'ull quins plans encara tenen valoracions per enviar.
 

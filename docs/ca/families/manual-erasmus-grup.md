@@ -15,7 +15,7 @@ Algunes mobilitats Erasmus+ són de **grup**: hi va un grup d'alumnes amb dos do
 3. Fes clic a **Inscriure'm**. Si estàs en una situació de menys oportunitats, pots marcar-ho (és opcional i només ho veu l'equip Erasmus).
 4. Mentre la inscripció estigui oberta, pots fer clic a **Retira la meva inscripció** i tornar-t'hi a inscriure.
 
-No cal cap currículum, carta ni entrevista. Si tens tantes amonestacions aquest curs com el límit que avisa convivència, no t'hi podràs inscriure.
+No cal cap currículum, carta ni entrevista. La coordinació Erasmus pot excloure, indicant-ne el motiu, l'alumnat amb expedients disciplinaris o amb incidències greus de convivència aquest curs.
 
 ## El resultat
 

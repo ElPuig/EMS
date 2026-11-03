@@ -72,7 +72,43 @@
 
 - Before accepting a place, a student sees the destinations of their modality with their places (and dates when known) on the portal's offer card, the selected's result email and a free place's offer email, plus their position in the modality on the portal: the destination is chosen later by turns in rank order, so they know what they may get before accepting instead of renouncing late.
 
+## Erasmus+ app for every teacher, with a "My participation" section (2026-11-03):
+
+- Every teacher now has the Erasmus+ app, right below Meetings, with My participation > My application, which opens their portal page to apply to the staff call and follow their mobility. The Erasmus+ team's own entries (My evaluations, My plan ratings, My group mobilities) moved into that section too, so a coordinator who also applies to the staff call tells their participant view from their management one (Calls, Mobilities, Financial management) at a glance. The section goes after the management ones so the team still lands on the calls when opening the app.
+
+## Erasmus+ result emails copied to the family of an adult who shares with it (2026-11-03):
+
+- The copy of the place offered and of the answer to it now goes to the family whenever EMS keeps it informed about the student, with the same rule as convalidations: a minor, or an adult who authorized sharing their information with the family (before, only minors).
+
+## Erasmus+ conduct warnings no longer rule a student out of a call (2026-11-03):
+
+- A student with as many conduct warnings this course as the coexistence threshold can now apply, submit and be admitted like anyone else. The application form warns the Erasmus team ("Conduct to review"), who may exclude it with the reason after hearing the teaching team and the coexistence team, as the new art. 6 of the call says. Each warning still takes points off the score (criterion F). Group mobilities follow the same rule: enrolling is never blocked, and the coordinator excludes with an exception and its reason.
+
+## Erasmus+ staff application, shorter and friendlier (2026-11-03):
+
+- The staff form has four short blocks: two required proposals in the teacher's own words (A, the main one, and B, a backup if A falls through, each saying the activity, the host, where and when), one text with what they want to learn and how they will apply it, a few facts about them, and an optional folded part (support needs, image, notes). The panel reads the two proposals and the text and gives one score; once selected, the teacher writes the exact entity and dates in the mobility's proposal, which starts with both proposals.
+- The last staff mobility is no longer asked by month: the teacher only ticks that they never had one at the Puig, and the Erasmus team sets the others. The date at the centre is still asked.
+- No CV nor identity document is asked to apply: the identity document is now asked only of whoever goes, among the mobility's documents. The call's rules (art. 8, criterion 2, annex 1) were updated to match.
+
+## Erasmus+ staff get a task, not a weekly email, for what they still have to hand in (2026-11-03):
+
+- During the preparation, a staff member gets one EMS task listing what is still missing (documents, commitment letter, weekly self-assessments), updated every week and removed once everything is handed in. Students keep the weekly email, since they only use the portal.
+
+## Erasmus+ students' application form, clearer and documents first (2026-11-03):
+
+- The form starts with the documents, each with what it must contain: the Europass CV in English (PDF only, with a link to the Europass editor and what to include: studies, what you learn in the cycle, strong points, "About me", a photo) and the presentation video, now handed in as a Google Drive link with the steps to share it with the school. Each call document can be set to accept any file, PDF only or a link, with a link for its instructions; a new students' call brings these documents ready.
+- Fewer opportunities: a short summary of the situations that count, and the field to upload the evidence appears only when the student ticks the box (then it is required). Anything else for the team goes at the end. The availability question is gone: the dates are in the call's rules.
+- The call's PDF field is now labelled "Call rules (PDF)", with a help explaining that applicants download it from the portal.
+
 # Fixes
+
+## Erasmus+ result and free-place emails reached Catalan and Spanish readers in English (2026-11-03):
+
+- The emails of a published list and of a free place offered had lost their Catalan and Spanish translations after their last change; they are translated again.
+
+## Erasmus+ documents' "Signed" column showed a technical text (2026-11-03):
+
+- A document that needs no signature showed "ems.erasmus.document.signature()" in the Signed column of the application and mobility forms; the cell is now empty.
 
 ## Erasmus+ health card twice in a staff mobility, and the administrator in the Erasmus team:
 

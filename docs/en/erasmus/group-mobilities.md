@@ -19,11 +19,11 @@ Group mobilities (KA121-VET) are stays of a group of students of one or more of 
 5. The destination, host entity and dates can stay pending until they are confirmed.
 6. In **Actions**, click **Open the enrolment**.
 
-Teachers go through no staff call: once saved, they see the mobility in **Erasmus+ > My group mobilities**.
+Teachers go through no staff call: once saved, they see the mobility in **Erasmus+ > My participation > My group mobilities**.
 
 ## Ranking and selection
 
-- When the enrolment period ends (or with **Close the enrolment now**), EMS freezes each enrolment's data: the group, the **record average** (the same formula as the internship call) and this course's conduct warnings. A student not in an eligible group, or with as many conduct warnings as the limit that alerts the coexistence team (or more), is excluded.
+- When the enrolment period ends (or with **Close the enrolment now**), EMS freezes each enrolment's data: the group, the **record average** (the same formula as the internship call) and this course's conduct warnings. A student not in an eligible group is excluded. Conduct warnings exclude nobody on their own: with a serious conduct record, the coordinator may exclude the student with an **Exception**, giving the reason, after hearing the teaching team and the coexistence team.
 - The order is by average and, in a tie, by the fewer opportunities accredited. If somebody declared fewer opportunities, check it in the **Selection** tab (*Fewer opportunities accredited* column). If a tie remains, it is resolved by a **draw**: EMS flags it and the proposal cannot be sent until the Erasmus coordinator clicks **Draw the ties** in **Actions**. EMS orders only the tied students at random. Each draw is kept in the **Selection** tab, under **Draws**: who ran it, when, what the students were tied on and the order drawn. Nobody can change or delete it. If another student joins a tie already drawn (for example, after entering their average), the tie has to be drawn again, and both draws are kept.
 - **Students with no grades:** if an eligible student has no evaluated module, EMS does not give them a 0: they are left out of the ranking and the mobility shows a red warning. Neither the proposal nor the approval can go ahead until it is solved, in the **Selection** tab: tick *Average entered by hand* and write the average and *Where the average comes from* (for example, the academic record), or the coordinator excludes the student with an *Exception* and its reason.
 - The leader teacher reviews the ranking and sends the proposal. You get a task: publish the lists or, in **Actions**, **Send the proposal back** with the reason.

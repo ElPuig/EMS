@@ -19,7 +19,9 @@ STATES = [('draft', "Draft"), ('enrolment', "Enrolment"), ('selection', "Selecti
 # States once the selection is approved: the participants' files are open.
 FILE_STATES = ('preparation', 'stay', 'return')
 RESULTS = [('selected', "Selected"), ('reserve', "Reserve"), ('excluded', "Excluded"), ('renounced', "Renounced")]
-EXCLUSIONS = [('group', "Not in the eligible group"), ('conduct', "Too many conduct warnings this course")]
+# Conduct warnings rule nobody out (adriamt, 2026-11-03, as in the calls): the coordinator excludes
+# by hand, with the reason, through the result exception.
+EXCLUSIONS = [('group', "Not in the eligible group")]
 # What the Erasmus team enters for a student with no grades in EMS (issue #702).
 GRADE_FIELDS = ('grade_manual', 'grade_average_manual', 'grade_manual_reason')
 ROLES = [('student', "Student"), ('leader', "Leader teacher"), ('companion', "Accompanying teacher")]
@@ -401,12 +403,6 @@ class EmsErasmusGroupMobility(models.Model):
         """A student of one of the eligible groups."""
         self.ensure_one()
         return partner.contact_type == 'student' and partner.main_group_id in self.sudo().group_ids
-
-    def _ems_conduct_blocked(self, partner):
-        """Same rule as the internship call (art. 6): as many conduct warnings this course as the
-        number that sends the case to the coexistence team, or more."""
-        Call = self.env['ems.erasmus.call']
-        return Call._ems_conduct_blocked_count(Call._ems_partner_course_strike_count(partner, self.sudo().course_id))
 
     def action_open_enrolment(self):
         self._ems_check_role('team')
@@ -897,7 +893,10 @@ class EmsErasmusGroupRegistration(models.Model):
         help="Eligible with no evaluated module: until the team enters the average by hand or the coordinator "
              "excludes the student with a reason, the ranking cannot be closed.")
     strike_count = fields.Integer(string="Conduct warnings this course", readonly=True,
-                                  groups='ems.group_erasmus,ems.group_academic_admin')
+                                  groups='ems.group_erasmus,ems.group_academic_admin',
+                                  help="They rule nobody out: with a serious conduct record, the coordinator may "
+                                       "exclude the student with an exception, giving the reason, after hearing "
+                                       "the teaching team and the coexistence team.")
     exclusion = fields.Selection(string="Reason not eligible", selection=EXCLUSIONS, readonly=True,
                                  groups='ems.group_erasmus,ems.group_academic_admin')
     eligible = fields.Boolean(string="Meets the requirements", readonly=True)
@@ -1004,8 +1003,6 @@ class EmsErasmusGroupRegistration(models.Model):
             raise UserError(_("You cannot enrol in this mobility."))
         if not mobility.is_enrolling:
             raise UserError(_("The enrolment of this mobility is not open."))
-        if mobility._ems_conduct_blocked(partner):
-            raise UserError(_("You cannot enrol: you have too many conduct warnings this course."))
         registration = self.sudo().search([('group_mobility_id', '=', mobility.id), ('partner_id', '=', partner.id)])
         if registration.state == 'enrolled':
             raise UserError(_("You are already enrolled."))
@@ -1043,8 +1040,6 @@ class EmsErasmusGroupRegistration(models.Model):
             average, hours = Application._ems_grade_average(grades)
             strikes = self.env['ems.erasmus.call']._ems_partner_course_strike_count(partner, course)
             exclusion = False if mobility._ems_is_eligible(partner) else 'group'
-            if not exclusion and self.env['ems.erasmus.call']._ems_conduct_blocked_count(strikes):
-                exclusion = 'conduct'
             registration._ems_write({
                 'frozen_date': fields.Datetime.now(), 'frozen_group_id': partner.main_group_id.id,
                 'grade_average': average, 'grade_found': bool(hours), 'strike_count': strikes,

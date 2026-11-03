@@ -30,7 +30,7 @@ This section contains the manuals for the **Erasmus+ team**: the Erasmus coordin
 | **Financial management** | Projects, Invoices and Grant payments |
 | **Configuration** | Host entities |
 
-Each person only sees the menus that concern them: the Secretary, for example, only sees **Financial management**. The personal entries (**My evaluations**, **My plan ratings**, **My group mobilities**) are right on the bar, with no dropdown, and each one only shows to whoever has something in it: an interviewer sees **My evaluations**, a member of the panel **My plan ratings**.
+Each person only sees the menus that concern them: the Secretary, for example, only sees **Financial management**. Every teacher has the **Erasmus+** app, right below **Meetings**, with the **My participation** section: it holds **My application**, which opens your Erasmus+ page on the portal (to apply to the staff call and follow your mobility), and the personal entries (**My evaluations**, **My plan ratings**, **My group mobilities**), which only show to whoever has something in them: an interviewer sees **My evaluations**, a member of the panel **My plan ratings**. So, if you are in the Erasmus team and also apply to the staff call, what you do as a participant is under **My participation** and the management under the other sections.
 
 **From the call:** the form of a call has a button for each step of its process (**Applications**, **Ranking**, **Interviews** or **Plan ratings**, **Resolutions**, **Claims**, **Place offers** and **Mobilities**), each one showing only that call's records. The interviews and the panel's plan ratings are only reached that way.
 

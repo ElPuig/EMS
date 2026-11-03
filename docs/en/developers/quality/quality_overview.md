@@ -201,6 +201,11 @@ approver; until then the same room is left blank. The stamp is the shared QWeb t
 convalidation resolution prints; like there, it is EMS's record of who did it, not a qualified electronic
 signature (issue #530).
 
+**Attendees and absentees** (`attendee_ids`, `absentee_ids`) exclude each other: `_check_attendee_not_absent`
+refuses anybody in both, and the form shows both with `ems_exclusive_tags`
+(`static/src/js/backend/exclusive_tags_field.js`, option `exclusive_with` naming the sibling field), a
+`many2many_tags` that takes whoever is added to one off the other and lets a tag be dragged between them.
+
 **People from outside EMS** (`ems.minute.guest`, the minute's `guest_ids`): a student's family, a teacher
 from another school, a speaker. No employee record and no account: first name, surname, an optional email
 (validated with `email_normalize`), an optional organisation or relationship, and *Present* (ticked by

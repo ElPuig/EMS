@@ -221,3 +221,47 @@ registry.category("web_tour.tours").add("ems_minute_read_only", {
         },
     ],
 });
+
+// Whoever writes the minute moves somebody from the attendees to the absentees by dragging their
+// tag, and adds somebody else to the absentees by name: nobody stays in both lists.
+registry.category("web_tour.tours").add("ems_minute_attendance_lists", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_field_widget[name='attendee_ids'] .o_tag:contains('Drag Tour Alpha')",
+            content: "Drag an attendee who did not come",
+            run: "drag_and_drop .o_field_widget[name='absentee_ids'] .o_field_tags",
+        },
+        {
+            trigger: ".o_field_widget[name='absentee_ids'] .o_tag:contains('Drag Tour Alpha')",
+            content: "They are among the absentees",
+        },
+        {
+            trigger: ".o_field_widget[name='attendee_ids']:not(:has(.o_tag:contains('Drag Tour Alpha')))",
+            content: "And no longer among the attendees",
+        },
+        {
+            trigger: ".o_field_widget[name='absentee_ids'] input",
+            content: "Add another one to the absentees by name",
+            run: "edit Drag Tour Beta",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-menu li:contains('Drag Tour Beta')",
+            content: "Pick them",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='attendee_ids']:not(:has(.o_tag:contains('Drag Tour Beta')))",
+            content: "They left the attendees too",
+        },
+        {
+            trigger: ".o_form_button_save",
+            content: "Save",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_form_saved",
+            content: "The minute is saved",
+        },
+    ],
+});

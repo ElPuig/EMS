@@ -121,7 +121,9 @@ Quan comença la reunió, **Accions → Comença la reunió**. L'acta passa a l'
 canvia: ja no hi ha pestanyes, sinó els blocs de l'ordre del dia, un sota l'altre, per anar-los omplint a
 mesura que avança la reunió.
 
-- **Assistència:** qui hi ha assistit i qui hi manca (o el quiosc, si es recull amb el tag NFC).
+- **Assistència:** qui hi ha assistit i qui hi manca (o el quiosc, si es recull amb el tag NFC). Ningú no
+  pot ser a les dues llistes: si afegiu una persona a una, surt de l'altra, i també podeu arrossegar una
+  persona d'una llista a l'altra.
 - **Aprovació de l'acta anterior:** obriu-ne el PDF, marqueu si s'aprova i anoteu-hi les esmenes.
 - **Seguiment dels acords:** cada acord que seguia obert té la seva fitxa. Escriviu-hi què se n'ha dit, poseu
   una **nova data límit** si cal i marqueu **Fet** si es dona per tancat. El que hi escriviu queda al

@@ -28402,3 +28402,9 @@ msgstr "Entrada de cierre del acta"
 #: code:addons/ems/models/quality/action.py:0
 msgid "Agreed and done in the meeting %s."
 msgstr "Acordado y hecho en la reunión %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "%s cannot be both among the attendees and the absentees."
+msgstr "%s no puede estar a la vez entre los asistentes y entre las personas que faltan."

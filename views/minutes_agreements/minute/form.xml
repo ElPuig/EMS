@@ -103,8 +103,9 @@
                                     <span invisible="not presence_id">The kiosk opens once the meeting starts: then the lists fill in by themselves from the tags passed at it.</span>
                                 </div>
                                 <group>
-                                    <field name="attendee_ids" widget="many2many_tags" options="{'no_create': True}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
-                                    <field name="absentee_ids" widget="many2many_tags" options="{'no_create': True}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
+                                    <!-- Nobody is both: adding somebody to one list takes them off the other, and a tag is dragged between them. -->
+                                    <field name="attendee_ids" widget="ems_exclusive_tags" options="{'no_create': True, 'exclusive_with': 'absentee_ids'}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
+                                    <field name="absentee_ids" widget="ems_exclusive_tags" options="{'no_create': True, 'exclusive_with': 'attendee_ids'}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
                                     <field name="absence_notes" placeholder="For example, which of them were justified" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
                                 </group>
                                 <!-- People from outside EMS: written by hand even with the NFC tag (they have none).
@@ -204,8 +205,9 @@
                                             confirm="Whoever has not passed the tag will be recorded as absent. Close attendance?"/>
                                 </div>
                                 <group>
-                                    <field name="attendee_ids" widget="many2many_tags" options="{'no_create': True}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
-                                    <field name="absentee_ids" widget="many2many_tags" options="{'no_create': True}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
+                                    <!-- Nobody is both: adding somebody to one list takes them off the other, and a tag is dragged between them. -->
+                                    <field name="attendee_ids" widget="ems_exclusive_tags" options="{'no_create': True, 'exclusive_with': 'absentee_ids'}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
+                                    <field name="absentee_ids" widget="ems_exclusive_tags" options="{'no_create': True, 'exclusive_with': 'attendee_ids'}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
                                     <field name="absence_notes" placeholder="For example, which of them were justified" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
                                 </group>
                                 <!-- People from outside EMS: written by hand even with the NFC tag (they have none).

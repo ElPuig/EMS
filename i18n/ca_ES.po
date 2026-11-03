@@ -28398,3 +28398,9 @@ msgstr "Entrada de tancament de l'acta"
 #: code:addons/ems/models/quality/action.py:0
 msgid "Agreed and done in the meeting %s."
 msgstr "Acordat i fet a la reunió %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "%s cannot be both among the attendees and the absentees."
+msgstr "%s no pot ser alhora entre els assistents i entre les persones que hi manquen."

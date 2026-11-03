@@ -12,3 +12,8 @@
 
 - A new agreement's card in the minute has a **Done** tick, for a decision nobody has to carry out: it adds a closing follow-up entry dated and signed as the minute, so the agreement is closed and is not carried into the next meeting. Unticking it removes that entry. The minute's PDF prints "Done" in its deadline column.
 - Tests in `TestQualityMinute` and the minute tour (ticks Done on the card); teachers' minutes manual (ca/es/en) and the quality developer overview explain it.
+
+## Attendees and absentees of a minute exclude each other (drag between them):
+
+- Adding somebody to the absentees of a minute takes them off the attendees and the other way round, and a person can be dragged from one list to the other (new `ems_exclusive_tags` widget, a `many2many_tags` with an `exclusive_with` sibling field). The server refuses a minute with somebody in both lists.
+- Test in `TestQualityMinute` and a new minute tour (drag one person, add another by name, save); teachers' minutes manual (ca/es/en) and the quality developer overview explain it.

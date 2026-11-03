@@ -4,7 +4,7 @@ from datetime import datetime
 from unittest.mock import patch
 
 from odoo import fields
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
 from .common import create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email
@@ -71,6 +71,13 @@ class TestQualityMinute(TransactionCase):
         """The single biggest saving of the feature: nobody types the attendee list again."""
         minute = self._minute()
         self.assertIn(self.employee.name, minute.attendee_ids.mapped('name'))
+
+    def test_nobody_is_both_attendee_and_absentee(self):
+        minute = self._minute()
+        employee = self.env['hr.employee.public'].browse(self.employee.id)
+        minute.attendee_ids = employee
+        with self.assertRaises(ValidationError):
+            minute.absentee_ids = employee
 
     def test_teaching_team_attendees_are_its_teachers_and_tutor(self):
         """Same rule as an attendance session's: whoever teaches the group, plus its tutor even

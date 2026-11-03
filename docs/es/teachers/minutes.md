@@ -121,7 +121,9 @@ Cuando empieza la reunión, **Acciones → Empezar la reunión**. El acta pasa a
 pantalla cambia: ya no hay pestañas, sino los bloques del orden del día, uno debajo de otro, para ir
 rellenándolos a medida que avanza la reunión.
 
-- **Asistencia:** quién ha asistido y quién falta (o el quiosco, si se recoge con el tag NFC).
+- **Asistencia:** quién ha asistido y quién falta (o el quiosco, si se recoge con el tag NFC). Nadie puede
+  estar en las dos listas: si añadís a una persona a una, sale de la otra, y también podéis arrastrar a una
+  persona de una lista a la otra.
 - **Aprobación del acta anterior:** abrid su PDF, marcad si se aprueba y anotad las enmiendas.
 - **Seguimiento de los acuerdos:** cada acuerdo que seguía abierto tiene su ficha. Escribid qué se ha dicho,
   poned una **nueva fecha límite** si hace falta y marcad **Hecho** si se da por cerrado. Lo que escribís

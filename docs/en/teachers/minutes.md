@@ -121,7 +121,9 @@ When the meeting starts, **Actions → Start the meeting**. The minute moves to 
 the screen changes: no more tabs, but the blocks of the agenda one under another, to fill in as the
 meeting goes on.
 
-- **Attendance:** who attended and who is missing (or the kiosk, when it is taken with the NFC tag).
+- **Attendance:** who attended and who is missing (or the kiosk, when it is taken with the NFC tag). Nobody
+  can be in both lists: adding a person to one takes them off the other, and you can also drag a person
+  from one list to the other.
 - **Approval of the previous minute:** open its PDF, mark whether it is approved and note any amendment.
 - **Follow-up of the agreements:** each agreement still open has its card. Write what was said about it, set
   a **new deadline** if needed and tick **Done** when it is closed. What you write goes to the agreement's

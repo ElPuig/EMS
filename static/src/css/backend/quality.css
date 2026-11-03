@@ -143,3 +143,12 @@
     display: block;
     width: 100%;
 }
+
+/* Attendees and absentees of a minute: a tag is dragged from one field to the other. */
+.o_field_ems_exclusive_tags .o_tag[draggable="true"] {
+    cursor: grab;
+}
+.o_field_ems_exclusive_tags .o_ems_tags_drop_over {
+    outline: 2px dashed var(--primary, #714B67);
+    outline-offset: 2px;
+}

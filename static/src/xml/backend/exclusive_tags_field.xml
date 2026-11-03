@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- web.TagsList with tags that can be dragged, for ExclusiveTagsField only (primary, so
+         every other tag list in Odoo stays as it is). -->
+    <t t-name="ems.DraggableTagsList" t-inherit="web.TagsList" t-inherit-mode="primary">
+        <xpath expr="//span[hasclass('o_tag')]" position="attributes">
+            <attribute name="t-att-draggable">tag.onDragStart ? 'true' : undefined</attribute>
+            <attribute name="t-on-dragstart">(ev) => tag.onDragStart and tag.onDragStart(ev)</attribute>
+            <attribute name="t-on-dragend">(ev) => tag.onDragEnd and tag.onDragEnd(ev)</attribute>
+        </xpath>
+    </t>
+
+    <!-- The field itself is where a tag of its sibling field is dropped. -->
+    <t t-name="ems.ExclusiveTagsField" t-inherit="web.Many2ManyTagsField" t-inherit-mode="primary">
+        <xpath expr="//div[hasclass('o_field_tags')]" position="attributes">
+            <attribute name="t-att-class">{'o_tags_input o_input': !props.readonly, 'o_ems_tags_drop_over': dropState.over}</attribute>
+            <attribute name="t-on-dragover">onDragOver</attribute>
+            <attribute name="t-on-dragleave">onDragLeave</attribute>
+            <attribute name="t-on-drop">onDrop</attribute>
+        </xpath>
+    </t>
+
+</templates>

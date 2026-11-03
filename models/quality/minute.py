@@ -328,6 +328,13 @@ class EmsMinute(models.Model):
                                             type=minute.type_id.name, scope=scope_record.display_name))
                 raise ValidationError(_("You cannot start a minute of type \"%s\".", minute.type_id.name))
 
+    @api.constrains('attendee_ids', 'absentee_ids')
+    def _check_attendee_not_absent(self):
+        for minute in self:
+            both = minute.attendee_ids & minute.absentee_ids
+            if both:
+                raise ValidationError(_("%s cannot be both among the attendees and the absentees.", ", ".join(both.mapped('name'))))
+
     @api.onchange('type_id')
     def _onchange_type_id(self):
         """Lay out the minute as its type declares it, and preload what EMS already knows."""

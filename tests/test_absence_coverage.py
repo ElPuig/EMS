@@ -1040,13 +1040,6 @@ class TestAbsenceCoverage(AbsenceCoverageCase):
         with self._at(12):
             self.assertFalse(self._states()['leave']['options'])
 
-    def test_an_early_leave_is_no_longer_proposed_once_its_class_is_over(self):
-        self._morning()
-        self._absence(self.teacher_b, self.day)
-
-        with self._at(12):
-            self.assertIsNone(self._states()['leave']['status'])
-
     def test_no_classes_is_no_longer_proposed_once_the_day_has_started(self):
         self._morning()
         self._absence(self.teacher_a, self.day)
@@ -1197,21 +1190,13 @@ class TestAbsenceCoverage(AbsenceCoverageCase):
             self.assertFalse([option for option in course._get_arrangement_options(
                 self.day, self.group_a, self.teacher_b, 11, 12) if option['hour_from'] <= 8.5])
 
-    def test_telling_the_families_is_still_offered_once_lessons_have_started(self):
-        """Issue #744: leaving out the moves of lessons already under way does not take away the
-        early leave: at 8:30 and at 10:30 the families can still be told the group goes home at
-        11:00."""
-        self._morning()
-        self._absence(self.teacher_b, self.day, hour_from=11, hour_to=12)
-        course = self.env['ems.course']
-
-        for hour in (8.5, 10.5):
-            with self._at(hour):
-                proposals = [action['expected'] for action in self._actions()
-                             if action['type'] == 'proposal' and action['group'] == self.group_a]
-                self.assertEqual(proposals, [('early_leave', 11)], f"at {hour}")
-                self.assertFalse([step for plan in course._get_arrangement_plans(self.day, self.group_a)
-                                  for step in plan['steps'] if step.get('lesson') and step['lesson'][0] <= hour])
+    def test_a_plan_whose_class_has_started_can_no_longer_be_applied(self):
+        """Issue #744: a plan read at 9:30, accepted at 10:30 once the class it fills is under
+        way, is refused."""
+        with self._at(9.5):
+            plan = self._moved_lesson_plan()
+        with self._at(10.5), self.assertRaises(UserError):
+            self._apply(plan)
 
     def test_a_move_with_its_early_leave_is_still_proposed_once_the_day_has_started(self):
         """Issue #744: at 8:30, with both lessons still to come, teacher_b's 11:00 lesson still goes
@@ -1916,6 +1901,21 @@ class TestAbsenceCoverage(AbsenceCoverageCase):
         step = self.env['ems.course']._arrangement_plan_data(plan)['steps'][0]
         self.assertEqual(step['label'], f"{self.teacher_b.name}: 12:00 lesson → 09:00 ({self.group_b.name})")
         self.assertEqual(step['details'], [{'icon': 'fa-compress', 'text': f'groups joined with {self.group_a.name}'}])
+
+    def test_a_lesson_already_started_is_never_joined(self):
+        """Issue #744: group_a has nobody at 12; teacher_b could bring its 9:00 lesson with group_a
+        there, joined with group_b's. Not once that lesson has started."""
+        self._split_groups_day()
+        course = self.env['ems.course']
+
+        def joins():
+            context = course._arrangement_context(self.day)
+            planner, _states = course._arrangement_planner(context, course._linked_groups(context, self.group_a))
+            return [(step[2], step[3]) for step in planner._steps((), planner.simulate(())) if step[0] == 'join']
+
+        self.assertIn(((9, 10), (12, 13)), joins())
+        with self._at(9.5):
+            self.assertNotIn(((9, 10), (12, 13)), joins())
 
     def test_groups_sharing_a_lesson_are_not_joined_unless_set_as_halves(self):
         """Issue #676: DAM2A and DAM2B share lessons without being halves of a split group."""

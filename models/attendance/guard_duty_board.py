@@ -940,6 +940,16 @@ class EmsCourseGuardDutyBoard(models.Model):
             return next((block['hour_to'] for block in blocks if block['hour_to'] > start + HOUR_EPSILON), start)
         return start
 
+    @classmethod
+    def _change_has_come(cls, change, blocks, now_hour):
+        """Whether `change` has already taken effect at `now_hour` (see _change_start)."""
+        return has_started(now_hour, cls._change_start(change, blocks))
+
+    @classmethod
+    def _change_too_late(cls, change, blocks, now_hour):
+        """Whether `change` can no longer be told to the families at `now_hour` (see _change_deadline)."""
+        return has_started(now_hour, cls._change_deadline(change, blocks))
+
     def _get_absence_change_states(self, day, groups, blocks_by_group=None):
         """`{group.id: {'entry': state, 'leave': state, break_side: state...}}` - where each side
         of each group's day (its start, its end, and each of its level's breaks)
@@ -981,12 +991,6 @@ class EmsCourseGuardDutyBoard(models.Model):
         for group in groups:
             blocks = blocks_by_group[group.id]
 
-            def is_past(change, blocks=blocks):
-                return now_hour is not None and self._change_start(change, blocks) <= now_hour
-
-            def is_too_late(change, blocks=blocks):
-                return now_hour is not None and self._change_deadline(change, blocks) <= now_hour
-
             level = group.level_id.id
             if level not in breaks_by_level:
                 breaks_by_level[level] = sorted(self._get_guard_duty_board_break_periods(
@@ -997,15 +1001,15 @@ class EmsCourseGuardDutyBoard(models.Model):
                 side_told = [(notice, change) for notice, change in told[group.id] if self._change_side(change, side)]
                 communicated = self._notice_change(next((
                     change for notice, change in reversed(side_told) if notice.state in COMMUNICATED_NOTICE_STATES), None))
-                options = [option for option in allowed[side] if not is_too_late(option)]
+                options = [option for option in allowed[side] if not self._change_too_late(option, blocks, now_hour)]
                 expected = options[-1] if options else None
                 normal = (('normal_break', *BoardBreakSide.period(side)) if BoardBreakSide.is_break(side)
                           else (NORMAL_CHANGE[side], 0.0))
-                usual = [] if is_too_late(normal) else [normal]
+                usual = [] if self._change_too_late(normal, blocks, now_hour) else [normal]
                 change_options = []
                 if not communicated:
                     status = 'proposal' if options else None
-                elif is_past(communicated):
+                elif self._change_has_come(communicated, blocks, now_hour):
                     status, options = 'communicated', []
                 elif any(self._same_change(communicated, option) for option in options):
                     # Still true, but whoever organises it may change their mind (issue #659).
@@ -1307,7 +1311,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         other lesson alike (issue #744).
         """
         now_hour = self._board_day_hour(day)
-        if has_started(now_hour, (hour_from, hour_to)):
+        if has_started(now_hour, hour_from):
             return []
         context = context or self._arrangement_context(day)
         covers = context['covers'] - (exclude or self.env['ems.absence_cover'])
@@ -1316,7 +1320,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         options = []
         for lesson, group_ids, pack, away in self._group_sessions(context, group.ids):
             if group_ids != {group.id} or overlaps(*lesson, hour_from, hour_to) or pack & set(absent.ids) \
-                    or has_started(now_hour, lesson):
+                    or has_started(now_hour, lesson[0]):
                 continue
             if vacated.filtered(lambda cover, lesson=lesson: overlaps(cover.vacated_hour_from, cover.vacated_hour_to, *lesson)):
                 continue  # that lesson is already part of another arrangement

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import date, timedelta
+from unittest.mock import patch
 
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase, tagged
@@ -15,8 +16,8 @@ COMPULSORY_CODES = ['tutor_contact', 'coexistence_contact', 'secretariat_notice'
 
 @tagged('post_install', '-at_install')
 class TestExOfficioWithdrawal(TransactionCase):
-    """Issue #726, phase 1: the case file opened by hand, its steps and deadlines, and who sees
-    and decides it."""
+    """Issue #726: the case file opened by hand, its steps and deadlines, who sees and decides it
+    (phase 1), and the steps done one after another, each its responsible's task (phase 2)."""
 
     @classmethod
     def setUpClass(cls):
@@ -37,6 +38,16 @@ class TestExOfficioWithdrawal(TransactionCase):
         cls.coexistence_user = create_role_user(cls, 'coexistence', 'test_eow_coexistence', name='EOW Coexistence')
         cls.secretary_user = create_role_user(cls, 'secretary', 'test_eow_secretary', name='EOW Secretary')
         (cls.post_group | cls.comp_group | cls.none_group).tutor_id = cls.tutor
+        cls.director_user = create_role_user(cls, 'director', 'test_eow_director', name='EOW Director')
+        cls.admin_user = create_role_user(cls, 'academic_admin', 'test_eow_admin', name='EOW Admin')
+        # A Coexistence coordinator under the tutor's own Head of Studies, and one under another.
+        role_coexistence = cls.env.ref('ems.role_coexistence')
+        create_role_employee(cls, cls.coexistence_user, parent_id=cls.head_of_studies.employee_id.id,
+                             role_ids=[(4, role_coexistence.id)])
+        cls.other_coexistence_user = create_role_user(cls, 'coexistence', 'test_eow_other_coexistence',
+                                                      name='EOW Other Coexistence')
+        create_role_employee(cls, cls.other_coexistence_user, parent_id=cls.other_head_of_studies.employee_id.id,
+                             role_ids=[(4, role_coexistence.id)])
 
         cls.post_student = cls._student('EOW Post Student', cls.post_group)
         cls.comp_student = cls._student('EOW Comp Student', cls.comp_group)
@@ -57,6 +68,22 @@ class TestExOfficioWithdrawal(TransactionCase):
             'name': name, 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': group.id,
         })
+
+    def _on(self, day):
+        """Run as if today were `day` in the company's calendar."""
+        return patch.object(type(self.env['ems.datetime_utils']), 'get_local_today', return_value=day)
+
+    def _tasks(self, case_file, xmlid):
+        return case_file.activity_ids.filtered(lambda activity: activity.activity_type_id == self.env.ref(xmlid))
+
+    def _accept(self, case_file, user, day, **checks):
+        """`user` ticks `checks` on the current step and accepts it on `day`, the hourly job
+        having run first."""
+        with self._on(day):
+            self.Withdrawal._cron_ems_due_step_tasks()
+            if checks:
+                case_file.current_step_id.with_user(user).write(checks)
+            case_file.with_user(user).action_accept_step()
 
     def _open(self, student, first_absence, user=None):
         model = self.Withdrawal.with_user(user) if user else self.Withdrawal
@@ -177,3 +204,88 @@ class TestExOfficioWithdrawal(TransactionCase):
     def test_student_smart_button_count(self):
         self._open(self.post_student, date(2041, 12, 17))
         self.assertEqual(self.post_student.with_user(self.tutor_user).ex_officio_withdrawal_count, 1)
+
+    # --- phase 2: steps and tasks ------------------------------------------------------------
+
+    def test_the_proposal_is_the_tutors_task_until_decided(self):
+        case_file = self._open(self.post_student, date(2041, 12, 17), user=self.tutor_user)
+        tasks = self._tasks(case_file, 'ems.mail_activity_ex_officio_withdrawal_proposal')
+        self.assertEqual(tasks.user_id, self.tutor_user)
+        self.assertIn('EOW Post Student', tasks.summary)
+        with self._on(date(2041, 12, 17)):
+            case_file.with_user(self.tutor_user).action_start()
+        self.assertFalse(case_file.activity_ids, "Started, and no step is due yet")
+
+    def test_post_compulsory_runs_from_the_tutor_to_the_secretariat(self):
+        case_file = self._open(self.post_student, date(2041, 12, 17))
+        case_file.action_start()
+        step_task = 'ems.mail_activity_ex_officio_withdrawal_step'
+
+        with self._on(date(2042, 1, 8)):
+            self.Withdrawal._cron_ems_due_step_tasks()
+        task = self._tasks(case_file, step_task)
+        self.assertEqual(task.user_id, self.tutor_user)
+        self.assertEqual(task.date_deadline, date(2042, 1, 8))
+        with self._on(date(2042, 1, 8)), self.assertRaises(UserError, msg="The phone call is not ticked"):
+            case_file.with_user(self.tutor_user).action_accept_step()
+        self._accept(case_file, self.tutor_user, date(2042, 1, 8), phone_done=True)
+        tutor_step = case_file.step_ids[0]
+        self.assertEqual(tutor_step.done_by_id, self.tutor_user)
+        self.assertTrue(tutor_step.done_date)
+        self.assertEqual(case_file.current_step_id.code, 'secretariat_warning')
+        self.assertFalse(self._tasks(case_file, step_task), "The Secretariat's step is due on the 15th")
+
+        self._accept(case_file, self.secretary_user, date(2042, 1, 15), enotum_done=True)
+        self.assertEqual(case_file.state, 'direction')
+        self._accept(case_file, self.director_user, date(2042, 1, 22))
+        self.assertEqual(case_file.state, 'secretariat')
+        self.assertEqual(case_file.current_step_id.code, 'withdrawal')
+        task = self._tasks(case_file, step_task)
+        self.assertIn(self.secretary_user, task.user_id)
+        self.assertFalse(case_file.with_user(self.secretary_user).can_accept_step,
+                         "The withdrawal itself is made from the student's withdrawal wizard")
+
+    def test_compulsory_coexistence_step_goes_to_the_tutors_branch_coordinator(self):
+        case_file = self._open(self.comp_student, date(2041, 3, 4))
+        case_file.action_start()
+        self._accept(case_file, self.tutor_user, date(2041, 3, 11), phone_done=True)
+        with self._on(date(2041, 3, 19)):
+            self.Withdrawal._cron_ems_due_step_tasks()
+        task = self._tasks(case_file, 'ems.mail_activity_ex_officio_withdrawal_step')
+        self.assertEqual(task.user_id, self.coexistence_user)
+        self.assertFalse(case_file.with_user(self.other_coexistence_user).can_accept_step)
+        self._accept(case_file, self.coexistence_user, date(2041, 3, 19), phone_done=True)
+        self.assertEqual(case_file.current_step_id.code, 'secretariat_notice')
+
+    def test_no_step_is_done_before_its_day(self):
+        case_file = self._open(self.post_student, date(2041, 12, 17))
+        case_file.action_start()
+        with self.assertRaises(UserError):
+            self._accept(case_file, self.tutor_user, date(2042, 1, 7), phone_done=True)
+        self.assertFalse(case_file.step_ids[0].done_date)
+
+    def test_who_does_each_step(self):
+        case_file = self._open(self.post_student, date(2041, 12, 17))
+        case_file.action_start()
+        for user in (self.tutor_user, self.department_chief, self.head_of_studies, self.director_user,
+                     self.admin_user):
+            self.assertTrue(case_file.with_user(user).can_accept_step, user.login)
+        for user in (self.other_tutor_user, self.secretary_user, self.coexistence_user):
+            self.assertFalse(case_file.with_user(user).can_accept_step, user.login)
+        with self.assertRaises(UserError):
+            case_file.current_step_id.with_user(self.secretary_user).write({'phone_done': True})
+        self._accept(case_file, self.tutor_user, date(2042, 1, 8), phone_done=True)
+        self.assertFalse(case_file.with_user(self.tutor_user).can_accept_step)
+        self.assertTrue(case_file.with_user(self.secretary_user).can_accept_step)
+
+    def test_a_step_changes_only_its_checks_and_notes(self):
+        case_file = self._open(self.post_student, date(2041, 12, 17))
+        case_file.action_start()
+        step = case_file.current_step_id.with_user(self.tutor_user)
+        step.write({'phone_done': True, 'notes': 'Mother answered'})
+        with self.assertRaises(UserError):
+            step.write({'due_date': date(2041, 12, 18)})
+        self._accept(case_file, self.tutor_user, date(2042, 1, 8))
+        self.assertIn('Mother answered', case_file.message_ids[0].body)
+        with self.assertRaises(UserError, msg="A step already done is closed"):
+            case_file.step_ids[0].with_user(self.tutor_user).write({'notes': 'Changed afterwards'})

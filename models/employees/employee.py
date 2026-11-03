@@ -1164,6 +1164,18 @@ class ems_employee(models.AbstractModel):
             lines.append(label)
         return lines
 
+    def _ems_coexistence_coordinators(self):
+        """The Coexistence coordinators (ems.role_coexistence) under the same Head or Deputy Head
+        of Studies as this employee (find_head_of_studies()): the ones in charge of their
+        students. Shared by strikes and ex officio withdrawals."""
+        self.ensure_one()
+        role = self.env.ref("ems.role_coexistence", raise_if_not_found=False)
+        if not role:
+            return self.env["hr.employee"]
+        head_of_studies = self.sudo().find_head_of_studies()
+        coordinators = self.env["hr.employee"].sudo().browse(role.sudo().employee_ids.ids).exists()
+        return coordinators.filtered(lambda coordinator: coordinator.find_head_of_studies() == head_of_studies)
+
     def find_head_of_studies(self):
         # NOTE: role_hos/role_dhos both map to the same global group_head_of_studies
         # (no per-employee hierarchy field), so this walks parent_id looking for the

@@ -1,7 +1,9 @@
-import hashlib, re, traceback
+import hashlib, logging, re, traceback
 from lxml import etree
 from markupsafe import Markup
-from odoo import models, fields, _
+from odoo import SUPERUSER_ID, models, fields, _
+
+_logger = logging.getLogger(__name__)
 
 class EmsBase(models.AbstractModel):
     _name = 'ems.base'
@@ -38,6 +40,32 @@ class EmsBase(models.AbstractModel):
                 'company_id': False,
             })
         return Sequence.next_by_code(code)
+
+    def task_users(self, users, what):
+        """The users of `users` who can get a task: archived users and OdooBot never do, nobody
+        reads their inbox. Logs a warning when nobody is left, naming `what` the task was for."""
+        users = users.filtered(lambda user: user.active and user.id != SUPERUSER_ID)
+        if not users:
+            _logger.warning("Nobody can take the task for %s: none will be scheduled.", what)
+        return users
+
+    def role_task_users(self, role_xmlid):
+        """The users holding a position of the centre (ems.role), for a task that is theirs."""
+        role = self.env.ref(role_xmlid, raise_if_not_found=False)
+        users = self.env['res.users']
+        if role:
+            users = self.env['hr.employee'].sudo().browse(role.sudo().employee_ids.ids).exists().user_id
+        return self.task_users(users, role_xmlid)
+
+    def secretariat_task_users(self):
+        """The whole secretariat, for a task that is its. The EMS administrator is left out: it
+        implies every group, so a group alone would hand it every task of every kind - the very
+        reason Task Assignment stopped deriving its recipients from groups."""
+        users = self.env.ref('ems.group_secretary').sudo().users
+        administrators = self.env.ref('ems.group_academic_admin', raise_if_not_found=False)
+        if administrators:
+            users -= administrators.sudo().users
+        return self.task_users(users, 'ems.group_secretary')
 
     # The current user is admin.
     def get_user_is_admin(self):

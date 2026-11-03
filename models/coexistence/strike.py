@@ -154,28 +154,12 @@ class ems_strike(models.Model):
             if recipients:
                 self._send_per_recipient(templates[kind], recipients)
 
-    def _matching_coexistence_coordinators(self):
-        """Coexistence coordinators sharing the issuing teacher's ascendant Head of
-        Studies / Deputy Head of Studies (hr.employee.find_head_of_studies())."""
-        self.ensure_one()
-        role = self.env.ref("ems.role_coexistence", raise_if_not_found=False)
-        if not role:
-            return self.env["hr.employee"]
-        teacher_hos = self.teacher_id.find_head_of_studies()
-        Employee = self.env["hr.employee"]
-        coordinators = Employee
-        for public_employee in role.employee_ids:
-            employee = Employee.sudo().search([("id", "=", public_employee.id)], limit=1)
-            if employee and employee.find_head_of_studies() == teacher_hos:
-                coordinators |= employee
-        return coordinators
-
     def _check_escalation(self):
         self.ensure_one()
         threshold = self.env.company.strike_escalation_threshold
         if threshold <= 0 or self.strike_count % threshold != 0:
             return
-        coordinators = self._matching_coexistence_coordinators()
+        coordinators = self.teacher_id._ems_coexistence_coordinators()
         if not coordinators:
             return
         template = self.env.ref("ems.mail_strike_escalation", raise_if_not_found=True)

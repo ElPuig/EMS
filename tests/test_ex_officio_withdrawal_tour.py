@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from datetime import date
+from datetime import date, timedelta
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group, create_role_employee, create_role_user, next_student_id
+from .common import create_level_study_group, create_role_employee, create_role_user, next_student_id, shift_ems_clock
 
 
 @tagged('post_install', '-at_install')
 class TestExOfficioWithdrawalTour(HttpCase):
-    """Issue #726, phase 1: the tutor (least privileged role that opens one) creates and starts a
-    case file in the browser, list and form."""
+    """Issue #726: the tutor (least privileged role that opens one) creates and starts a case file
+    in the browser, list and form (phase 1); the Secretariat does its step (phase 2)."""
 
     @classmethod
     def setUpClass(cls):
@@ -38,3 +38,18 @@ class TestExOfficioWithdrawalTour(HttpCase):
         self.assertEqual(case_file.state, 'in_progress')
         self.assertEqual(case_file.first_absence_date, date(2041, 12, 17))
         self.assertEqual(len(case_file.step_ids), 4)
+
+    def test_secretariat_does_its_step(self):
+        today = shift_ems_clock(self).date()
+        secretary = create_role_user(self, 'secretary', 'test_eow_tour_secretary', name='EOW Step Tour Secretary')
+        # Long enough ago for every step to be due, whatever breaks the calendar has.
+        case_file = self.env['ems.ex_officio_withdrawal'].create({
+            'student_id': self.student.id, 'first_absence_date': today - timedelta(days=200)})
+        case_file.action_start()
+        case_file.current_step_id.phone_done = True
+        case_file.action_accept_step()
+        self.start_tour(f"/odoo/action-ems.action_ex_officio_withdrawal/{case_file.id}",
+                        "ems_ex_officio_withdrawal_secretariat_step", login=secretary.login)
+        self.assertEqual(case_file.state, 'direction')
+        self.assertEqual(case_file.step_ids[1].done_by_id, secretary)
+        self.assertTrue(case_file.step_ids[1].enotum_done)

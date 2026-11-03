@@ -28562,6 +28562,7 @@ msgstr "Crea els passos del circuit, cadascun amb el seu termini."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__current_step_id
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__is_current
 msgid "Current step"
 msgstr "Pas actual"
 
@@ -28635,6 +28636,7 @@ msgstr "Circuit de baixa d'ofici"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_ex_officio_withdrawal_step
+#: model:mail.activity.type,name:ems.mail_activity_ex_officio_withdrawal_step
 msgid "Ex officio withdrawal step"
 msgstr "Pas de baixa d'ofici"
 
@@ -28805,3 +28807,80 @@ msgstr "Per què no es tira endavant el procediment"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__enotum_done
 msgid "eNotum sent"
 msgstr "eNotum enviat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "A step only changes through its case file's buttons."
+msgstr "Un pas només canvia amb els botons del seu expedient."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "Accept and continue"
+msgstr "Acceptar i continuar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__can_accept_step
+msgid "Can do the current step"
+msgstr "Pot fer el pas actual"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "Closes the current step, once what it asks for is ticked, and hands the case file over to the next one."
+msgstr "Tanca el pas actual, un cop marcat el que demana, i passa l'expedient al següent."
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_ex_officio_withdrawal_proposal
+msgid "Decide ex officio withdrawal proposal"
+msgstr "Decidir la proposta de baixa d'ofici"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_ex_officio_withdrawal_tasks_ir_actions_server
+msgid "EMS: Ex officio withdrawal steps due"
+msgstr "EMS: passos de baixa d'ofici que vencen"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Ex officio withdrawal proposal"
+msgstr "Proposta de baixa d'ofici"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_ex_officio_withdrawal_step__task_scheduled
+msgid "Its responsible already got the task (on its day)."
+msgstr "El responsable ja ha rebut la tasca (el dia que tocava)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Only the responsible of the current step can change it."
+msgstr "Només el responsable del pas actual el pot canviar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Only the responsible of the current step can do it."
+msgstr "Només el responsable del pas actual el pot fer."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Step done: %s"
+msgstr "Pas fet: %s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__task_scheduled
+msgid "Task scheduled"
+msgstr "Tasca programada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "This step is due on %(date)s: it cannot be done before."
+msgstr "Aquest pas toca el %(date)s: no es pot fer abans."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Tick what this step asks for first: %s"
+msgstr "Marqueu primer el que demana aquest pas: %s"

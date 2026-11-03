@@ -55,11 +55,15 @@
                                     help="Creates the circuit's steps, each with its deadline."/>
                             <button name="action_open_dismiss_wizard" type="object" string="Dismiss"
                                     invisible="not can_decide_proposal"/>
+                            <button name="action_accept_step" type="object" string="Accept and continue"
+                                    class="btn-primary" invisible="not can_accept_step"
+                                    help="Closes the current step, once what it asks for is ticked, and hands the case file over to the next one."/>
                         </div>
                         <field name="state" widget="statusbar" statusbar_visible="proposal,in_progress,direction,secretariat,done"/>
                     </header>
                     <sheet>
                         <field name="can_decide_proposal" invisible="1"/>
+                        <field name="can_accept_step" invisible="1"/>
                         <div class="oe_title">
                             <h1><field name="name" placeholder="New case file"/></h1>
                         </div>
@@ -88,7 +92,9 @@
                                     The steps are created when the procedure starts, each with its deadline.
                                 </p>
                                 <field name="step_ids" invisible="not step_ids">
-                                    <list>
+                                    <list editable="bottom" create="0" delete="0" decoration-bf="is_current"
+                                          decoration-muted="done_date">
+                                        <field name="is_current" column_invisible="1"/>
                                         <field name="due_date"/>
                                         <field name="code"/>
                                         <field name="responsible"/>
@@ -97,11 +103,18 @@
                                         <field name="needs_esfera" column_invisible="1"/>
                                         <field name="needs_saga" column_invisible="1"/>
                                         <field name="needs_external_email" column_invisible="1"/>
-                                        <field name="phone_done" invisible="not needs_phone" optional="show"/>
-                                        <field name="enotum_done" invisible="not needs_enotum" optional="show"/>
-                                        <field name="esfera_done" invisible="not needs_esfera" optional="show"/>
-                                        <field name="saga_done" invisible="not needs_saga" optional="show"/>
-                                        <field name="external_email_done" invisible="not needs_external_email" optional="show"/>
+                                        <field name="phone_done" invisible="not needs_phone" optional="show"
+                                               readonly="not is_current or not parent.can_accept_step"/>
+                                        <field name="enotum_done" invisible="not needs_enotum" optional="show"
+                                               readonly="not is_current or not parent.can_accept_step"/>
+                                        <field name="esfera_done" invisible="not needs_esfera" optional="show"
+                                               readonly="not is_current or not parent.can_accept_step"/>
+                                        <field name="saga_done" invisible="not needs_saga" optional="show"
+                                               readonly="not is_current or not parent.can_accept_step"/>
+                                        <field name="external_email_done" invisible="not needs_external_email" optional="show"
+                                               readonly="not is_current or not parent.can_accept_step"/>
+                                        <field name="notes" optional="show"
+                                               readonly="not is_current or not parent.can_accept_step"/>
                                         <field name="done_by_id" optional="show"/>
                                         <field name="done_date" optional="show"/>
                                     </list>

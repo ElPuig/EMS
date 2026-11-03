@@ -62,3 +62,29 @@ registry.category("web_tour.tours").add("ems_ex_officio_withdrawal_tutor", {
         },
     ],
 });
+
+// Issue #726, phase 2: the Secretariat does its warning step - ticks the eNotum and accepts it -
+// and the case file moves on to Direction (see test_ex_officio_withdrawal_tour.py).
+registry.category("web_tour.tours").add("ems_ex_officio_withdrawal_secretariat_step", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_field_widget[name='step_ids'] .o_data_row:nth-child(2) .o_data_cell[name='enotum_done']",
+            content: "Tick the eNotum of the current step (one click enters the row and ticks it)",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='step_ids'] .o_data_row:nth-child(2) .o_data_cell[name='enotum_done'] input:checked",
+            content: "The eNotum is ticked",
+        },
+        ...clickAction("action_accept_step", "Accept and continue"),
+        {
+            trigger: ".o_form_view .o_field_widget[name='step_ids'] .o_data_row:nth-child(2) .o_data_cell[name='done_by_id']:contains('EOW Step Tour Secretary')",
+            content: "The step is signed by the secretary",
+        },
+        {
+            trigger: ".o_form_view .o_statusbar_status .o_arrow_button_current:contains('Pending Direction')",
+            content: "The case file waits for Direction",
+        },
+    ],
+});

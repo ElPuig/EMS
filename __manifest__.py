@@ -446,6 +446,7 @@
         'data/main/ir.cron-absence.csv',
         'data/main/ir.cron-daily_summary.csv',
         'data/main/ir.cron-preenrollment_period.csv',
+        'data/main/ir.cron-ex_officio_withdrawal.csv',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
         'data/main/ems.convalidation.info_reason.csv',

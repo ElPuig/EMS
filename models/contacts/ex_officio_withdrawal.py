@@ -6,6 +6,7 @@ from dateutil.relativedelta import relativedelta
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools import format_date
 
 CIRCUITS = [
     ('compulsory', 'Compulsory education'),
@@ -58,6 +59,13 @@ STEP_CATALOG = {
 }
 
 OPEN_STATES = ('proposal', 'in_progress', 'direction', 'secretariat')
+# The states whose current step is somebody's task: the procedure has started.
+STARTED_STATES = ('in_progress', 'direction', 'secretariat')
+# The state a started case file is in while its current step is one of these.
+STATE_BY_STEP = {'direction_approval': 'direction', 'withdrawal': 'secretariat'}
+
+PROPOSAL_TASK = 'ems.mail_activity_ex_officio_withdrawal_proposal'
+STEP_TASK = 'ems.mail_activity_ex_officio_withdrawal_step'
 
 # A school-day deadline never reaches further than this many calendar days per school day
 # (weekends plus the longest break), the window the holidays are read for in one search.
@@ -106,11 +114,12 @@ class EmsExOfficioWithdrawal(models.Model):
     ])
     cancel_note = fields.Text(string="Cancel note", readonly=True, copy=False)
     step_ids = fields.One2many(string="Steps", comodel_name='ems.ex_officio_withdrawal.step',
-                               inverse_name='withdrawal_id', readonly=True)
+                               inverse_name='withdrawal_id')
     current_step_id = fields.Many2one(string="Current step", comodel_name='ems.ex_officio_withdrawal.step',
                                       compute='_compute_current_step_id')
     next_due_date = fields.Date(string="Next deadline", compute='_compute_current_step_id')
     can_decide_proposal = fields.Boolean(string="Can decide the proposal", compute='_compute_can_decide_proposal')
+    can_accept_step = fields.Boolean(string="Can do the current step", compute='_compute_can_accept_step')
 
     @api.depends('step_ids.done_date', 'step_ids.due_date')
     def _compute_current_step_id(self):
@@ -129,6 +138,17 @@ class EmsExOfficioWithdrawal(models.Model):
         for withdrawal in self:
             withdrawal.can_decide_proposal = withdrawal.state == 'proposal' and (
                 manages or base.user_acts_as_tutor(withdrawal.student_id.sudo().tutor_id))
+
+    @api.depends('state', 'current_step_id')
+    @api.depends_context('uid')
+    def _compute_can_accept_step(self):
+        """The current step's responsible, except for the withdrawal itself, which is made from
+        the student's withdrawal wizard."""
+        for withdrawal in self:
+            step = withdrawal.current_step_id
+            withdrawal.can_accept_step = (withdrawal.state in STARTED_STATES and bool(step)
+                                          and step.code != 'withdrawal'
+                                          and withdrawal._ems_user_acts_as(step.responsible))
 
     @api.constrains('student_id', 'state')
     def _check_one_open_per_student(self):
@@ -152,6 +172,8 @@ class EmsExOfficioWithdrawal(models.Model):
         for withdrawal in withdrawals:
             withdrawal.sudo().name = self.env['ems.base'].next_course_number(
                 'ems.ex_officio_withdrawal', "Ex officio withdrawals", 'BO', withdrawal.course_id)
+            withdrawal._ems_schedule_task(PROPOSAL_TASK, withdrawal._ems_responsible_users('tutor'),
+                                          self.env['ems.datetime_utils'].get_local_today())
         return withdrawals
 
     def write(self, vals):
@@ -174,7 +196,8 @@ class EmsExOfficioWithdrawal(models.Model):
                 'responsible': responsible,
                 'due_date': withdrawal._ems_due_date(deadline),
             } for index, (code, responsible, deadline, _checks) in enumerate(STEP_CATALOG[withdrawal.circuit])])
-            withdrawal.sudo().state = 'in_progress'
+        self._ems_close_tasks()
+        self._ems_move_on()
 
     def action_open_dismiss_wizard(self):
         self.ensure_one()
@@ -192,8 +215,113 @@ class EmsExOfficioWithdrawal(models.Model):
         """The tutor dismisses the proposal, saying why."""
         self._ems_check_can_decide_proposal()
         self.sudo().write({'state': 'cancelled', 'cancel_reason': 'dismissed', 'cancel_note': note})
+        self._ems_close_tasks()
         for withdrawal in self:
             withdrawal._message_log(body=_("Proposal dismissed: %(note)s", note=note))
+
+    def action_accept_step(self):
+        """The current step is done: never before its day, and only with every off-EMS action it
+        asks for ticked. The next step's task is scheduled on its own day."""
+        today = self.env['ems.datetime_utils'].get_local_today()
+        for withdrawal in self:
+            step = withdrawal.current_step_id
+            if not withdrawal.can_accept_step:
+                raise UserError(_("Only the responsible of the current step can do it."))
+            if step.due_date > today:
+                raise UserError(_("This step is due on %(date)s: it cannot be done before.",
+                                  date=format_date(self.env, step.due_date)))
+            missing = [step._fields[f'{check}_done'].get_description(self.env)['string']
+                       for check in CHECKS if step[f'needs_{check}'] and not step[f'{check}_done']]
+            if missing:
+                raise UserError(_("Tick what this step asks for first: %s", ", ".join(missing)))
+            step.sudo().write({'done_by_id': self.env.uid, 'done_date': fields.Datetime.now()})
+            body = _("Step done: %s", dict(step._fields['code']._description_selection(self.env))[step.code])
+            if step.notes:
+                body = f"{body}\n{step.notes}"
+            withdrawal._message_log(body=body)
+        self._ems_close_tasks()
+        self._ems_move_on()
+
+    @api.model
+    def _cron_ems_due_step_tasks(self):
+        """Schedule the task of every current step whose day has come. Hourly, so a step is
+        somebody's task shortly after midnight of its day, whatever the server's time zone."""
+        today = self.env['ems.datetime_utils'].get_local_today()
+        steps = self.env['ems.ex_officio_withdrawal.step'].search([
+            ('done_date', '=', False), ('task_scheduled', '=', False), ('due_date', '<=', today),
+            ('withdrawal_id.state', 'in', STARTED_STATES)])
+        steps.withdrawal_id._ems_move_on()
+
+    def _ems_move_on(self):
+        """Bring started case files up to date with their current step: the state it belongs to,
+        and its responsible's task once its day has come."""
+        today = self.env['ems.datetime_utils'].get_local_today()
+        for withdrawal in self.sudo():
+            step = withdrawal.current_step_id
+            state = STATE_BY_STEP.get(step.code, 'in_progress')
+            if withdrawal.state != state:
+                withdrawal.state = state
+            if step and not step.task_scheduled and step.due_date <= today:
+                step.task_scheduled = True
+                withdrawal._ems_schedule_task(STEP_TASK, withdrawal._ems_responsible_users(step.responsible),
+                                              step.due_date, step)
+
+    def _ems_responsible_users(self, responsible):
+        """Who a step's (or the proposal's) task goes to: the student's tutor; the Coexistence
+        coordinator under the tutor's Head or Deputy Head of Studies (every coordinator when none
+        is); the whole secretariat; the Director."""
+        self.ensure_one()
+        base = self.env['ems.base']
+        tutor = self.student_id.sudo().tutor_id
+        if responsible == 'tutor':
+            return base.task_users(tutor.user_id, f"{self.name} (tutor)")
+        if responsible == 'coexistence':
+            coordinators = tutor._ems_coexistence_coordinators().user_id if tutor else self.env['res.users']
+            if coordinators:
+                return base.task_users(coordinators, f"{self.name} (coexistence)")
+            return base.role_task_users('ems.role_coexistence')
+        if responsible == 'secretariat':
+            return base.secretariat_task_users()
+        return base.role_task_users('ems.role_director')
+
+    def _ems_user_acts_as(self, responsible):
+        """Whether the current user may do a step of `responsible`: whoever gets its task, the
+        Head of Studies for the tutor's and Coexistence's steps (they manage both), the Director
+        group for Direction's, the secretariat group for the Secretariat's, and the
+        administrators always on top."""
+        self.ensure_one()
+        user = self.env.user
+        if self.env.su or user.has_group('ems.group_academic_admin') or user.has_group('base.group_system'):
+            return True
+        if responsible == 'tutor':
+            return self._ems_user_manages() or self.env['ems.base'].user_acts_as_tutor(self.student_id.sudo().tutor_id)
+        if responsible == 'coexistence':
+            return self._ems_user_manages() or user in self._ems_responsible_users('coexistence')
+        if responsible == 'secretariat':
+            return user.has_group('ems.group_secretary')
+        return user.has_group('ems.group_director')
+
+    def _ems_schedule_task(self, xmlid, users, deadline, step=None):
+        """A task in each user's to-do list, its summary in their language: the step's (or the
+        proposal's) name and the student. mail_activity_quick_update: the task itself is the
+        notice, Odoo's "X has assigned you an activity" email would be a second one."""
+        self.ensure_one()
+        for user in users:
+            withdrawal = self.sudo().with_context(lang=user.lang, mail_activity_quick_update=True)
+            withdrawal.activity_schedule(act_type_xmlid=xmlid, summary=withdrawal._ems_task_summary(step),
+                                         user_id=user.id, date_deadline=deadline)
+
+    def _ems_task_summary(self, step):
+        if step:
+            label = dict(step._fields['code']._description_selection(self.env))[step.code]
+        else:
+            label = _("Ex officio withdrawal proposal")
+        return f"{label}: {self.student_id.display_name}"
+
+    def _ems_close_tasks(self):
+        """Drop every pending proposal or step task: what had to be done is done."""
+        task_types = self.env.ref(PROPOSAL_TASK) | self.env.ref(STEP_TASK)
+        self.sudo().activity_ids.filtered(lambda activity: activity.activity_type_id in task_types).unlink()
 
     def _ems_user_manages(self):
         """Whoever may act on every case file: the Head of Studies (the Director implies it) and
@@ -256,6 +384,9 @@ class EmsExOfficioWithdrawalStep(models.Model):
     notes = fields.Text(string="Notes")
     done_by_id = fields.Many2one(string="Done by", comodel_name='res.users', readonly=True)
     done_date = fields.Datetime(string="Done on", readonly=True)
+    task_scheduled = fields.Boolean(string="Task scheduled", readonly=True, copy=False,
+                                    help="Its responsible already got the task (on its day).")
+    is_current = fields.Boolean(string="Current step", compute='_compute_is_current')
 
     @api.depends('code', 'withdrawal_id.circuit')
     def _compute_needs(self):
@@ -265,6 +396,21 @@ class EmsExOfficioWithdrawalStep(models.Model):
             checks = checks_by_step.get((step.withdrawal_id.circuit, step.code), ())
             for check in CHECKS:
                 step[f'needs_{check}'] = check in checks
+
+
+    @api.depends('withdrawal_id.current_step_id')
+    def _compute_is_current(self):
+        for step in self:
+            step.is_current = step == step.withdrawal_id.current_step_id
+
+    def write(self, vals):
+        """Only the current step's responsible ticks its checks or writes its notes."""
+        if not self.env.su:
+            if set(vals) - {f'{check}_done' for check in CHECKS} - {'notes'}:
+                raise UserError(_("A step only changes through its case file's buttons."))
+            if any(not step.is_current or not step.withdrawal_id.can_accept_step for step in self):
+                raise UserError(_("Only the responsible of the current step can change it."))
+        return super().write(vals)
 
 
 class EmsExOfficioWithdrawalDismissWizard(models.TransientModel):

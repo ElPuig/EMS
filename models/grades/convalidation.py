@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import logging
-
 from markupsafe import Markup
 
-from odoo import SUPERUSER_ID, _, api, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
-
-_logger = logging.getLogger(__name__)
 
 # Grade a convalidated subject gets when nobody says otherwise. The Head of Studies (or the
 # secretariat afterwards) can replace it with the one the previous studies actually hold, or
@@ -415,26 +411,13 @@ class EmsConvalidation(models.Model):
         - the review is the Deputy Head of Studies' (ems.role_dhos), who handles vocational
           training;
         - the official resolution is the Director's (ems.role_director);
-        - the registration in Esfera is the whole secretariat's (ems.group_secretary). The EMS
-          administrator is left out: it implies every group, so a group alone would hand it
-          every task of every kind - the very reason Task Assignment stopped deriving its
-          recipients from groups.
-
-        Archived users and OdooBot never get one: nobody reads their inbox."""
-        users = self.env['res.users']
+        - the registration in Esfera is the whole secretariat's (ems.group_secretary)."""
+        base = self.env['ems.base']
         if xmlid in self._EMS_TASK_ROLES:
-            role = self.env.ref(self._EMS_TASK_ROLES[xmlid], raise_if_not_found=False)
-            if role:
-                users = self.env['hr.employee'].sudo().browse(role.sudo().employee_ids.ids).exists().user_id
-        elif xmlid == 'ems.mail_activity_convalidation_registration':
-            users = self.env.ref('ems.group_secretary').sudo().users
-            administrators = self.env.ref('ems.group_academic_admin', raise_if_not_found=False)
-            if administrators:
-                users -= administrators.sudo().users
-        users = users.filtered(lambda user: user.active and user.id != SUPERUSER_ID)
-        if not users:
-            _logger.warning("Nobody holds the position in charge of %s: no task will be scheduled.", xmlid)
-        return users
+            return base.role_task_users(self._EMS_TASK_ROLES[xmlid])
+        if xmlid == 'ems.mail_activity_convalidation_registration':
+            return base.secretariat_task_users()
+        return self.env['res.users']
 
     def _ems_schedule_task(self, xmlid):
         """Put the request in the to-do list of whoever the task belongs to.

@@ -61,7 +61,7 @@ Mentre la resolució provisional és vigent, l'etiqueta de dalt de la sol·licit
 
 ## 7. Acceptar o renunciar a la plaça
 
-Si quedes **seleccionat o seleccionada** a la resolució definitiva, la teva sol·licitud mostra la plaça oferta i el termini per respondre, amb el període de la teva modalitat i les destinacions (en tries una més endavant, per torns):
+Si quedes **seleccionat o seleccionada** a la resolució definitiva, la teva sol·licitud mostra la plaça oferta i el termini per respondre, amb el període de la teva modalitat, les destinacions amb les seves places i la teva posició a la modalitat: tries la destinació més endavant, per torns segons la posició, així saps què et pot tocar abans d'acceptar. El correu que t'avisa que tens plaça també les indica:
 
 - Fes clic a **Accepto la plaça** per acceptar-la.
 - Si no hi pots anar, obre **Vull renunciar a la plaça**, escriu-ne el motiu si vols i fes clic a **Confirmo que renuncio a la plaça**.

@@ -64,11 +64,20 @@
                                 <p t-elif="object.application_id.state == 'renounced'">
                                     You renounced the place earlier: this list does not change it.
                                 </p>
-                                <p t-elif="object.result == 'selected'">
-                                    You have been <strong>selected</strong>. Accept or renounce the place on the school portal
-                                    before <strong t-out="call._ems_local_format(call.acceptance_deadline)"/>:
-                                    without an answer by then, the place is considered renounced.
-                                </p>
+                                <t t-elif="object.result == 'selected'">
+                                    <p>
+                                        You have been <strong>selected</strong>. Accept or renounce the place on the school portal
+                                        before <strong t-out="call._ems_local_format(call.acceptance_deadline)"/>:
+                                        without an answer by then, the place is considered renounced.
+                                    </p>
+                                    <t t-set="offer_destinations" t-value="object.audience == 'student' and object.modality_id and object.modality_id._ems_offer_destinations()"/>
+                                    <p t-if="offer_destinations">
+                                        Destinations and places of the modality (you will choose one by turns, by your position):
+                                    </p>
+                                    <ul t-if="offer_destinations">
+                                        <li t-foreach="offer_destinations" t-as="destination" t-out="destination._ems_offer_label()"/>
+                                    </ul>
+                                </t>
                                 <p t-elif="object.result == 'reserve'">
                                     You are on the <strong>reserve list</strong>, number <strong t-out="object._ems_reserve_number()"/><t t-if="object.audience == 'student'"> of <t t-out="object.modality_id.name"/></t>.
                                     If a place becomes free, we will offer it to you by email.
@@ -111,6 +120,15 @@
                             A place of the modality <strong t-out="object.modality_id.name"/> of
                             <strong t-out="object.call_id.name"/> has become free and it is offered to you.
                         </p>
+                        <t t-if="object.modality_id and object.call_id.audience == 'student'">
+                            <t t-set="offer_destinations" t-value="object.modality_id._ems_offer_destinations()"/>
+                            <p t-if="offer_destinations">
+                                Destinations and places of the modality (you will choose one by turns, by your position):
+                            </p>
+                            <ul t-if="offer_destinations">
+                                <li t-foreach="offer_destinations" t-as="destination" t-out="destination._ems_offer_label()"/>
+                            </ul>
+                        </t>
                         <p t-else="">
                             A place of <strong t-out="object.call_id.name"/> has become free and it is offered to you.
                         </p>

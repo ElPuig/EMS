@@ -168,14 +168,13 @@
                         <t t-if="offer.modality_id and call.audience == 'student'">
                             <p class="mb-1">Modality: <strong t-esc="offer.modality_id.name"/></p>
                             <p t-if="offer.modality_id.period" class="mb-1">Period: <t t-esc="offer.modality_id.period"/></p>
-                            <t t-set="offer_destinations" t-value="call.destination_ids.filtered(lambda destination: destination.modality_id == offer.modality_id)"/>
+                            <t t-set="offer_destinations" t-value="offer.modality_id._ems_offer_destinations()"/>
                             <div t-if="offer_destinations" class="mb-2 o_ems_erasmus_offer_destinations">
-                                Destinations of the modality (you will choose one by turns, by your position):
+                                Destinations and places of the modality (you will choose one by turns, by your position):
                                 <ul class="small mb-0">
-                                    <li t-foreach="offer_destinations" t-as="destination">
-                                        <t t-esc="destination.name"/><t t-if="destination.city or destination.country_id"> (<t t-esc="', '.join(part for part in [destination.city, destination.country_id.name] if part)"/>)</t><t t-if="destination.date_start">, <t t-out="destination.date_start" t-options="{'widget': 'date'}"/> - <t t-out="destination.date_end" t-options="{'widget': 'date'}"/></t>
-                                    </li>
+                                    <li t-foreach="offer_destinations" t-as="destination" t-esc="destination._ems_offer_label()"/>
                                 </ul>
+                                <span t-if="offer.application_id.rank" class="small">Your position in the modality: <strong t-esc="offer.application_id.rank"/></span>
                             </div>
                             <p t-elif="offer.modality_id.destinations" class="mb-1">Destinations: <t t-esc="offer.modality_id.destinations"/></p>
                         </t>

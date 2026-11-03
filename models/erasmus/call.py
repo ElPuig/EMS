@@ -923,6 +923,13 @@ class EmsErasmusCallModality(models.Model):
             if len(levels) != sum(len(modality.level_ids) for modality in call.modality_ids):
                 raise ValidationError(_("A level can only belong to one modality of the call."))
 
+    def _ems_offer_destinations(self):
+        """The destinations of the modality shown with a place offer (portal and emails), so the
+        student knows what they may choose before accepting. Not personal data: read as sudo, as
+        the offer is rendered for the student or by the queue."""
+        self.ensure_one()
+        return self.sudo().call_id.destination_ids.filtered(lambda destination: destination.modality_id == self)
+
 
 class EmsErasmusCallDocument(models.Model):
     """A document the call asks applicants for."""

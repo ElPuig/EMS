@@ -61,7 +61,7 @@ While the provisional resolution is out, the badge at the top of your applicatio
 
 ## 7. Accept or renounce your place
 
-If you are **selected** in the definitive resolution, your application shows the place offered and the deadline to answer, with the period of your modality and its destinations (you choose one later, by turns):
+If you are **selected** in the definitive resolution, your application shows the place offered and the deadline to answer, with the period of your modality, its destinations with their places and your position in the modality: you choose a destination later, by turns in order of position, so you know what you may get before accepting. The email telling you that you have a place lists them too:
 
 - Click **I accept the place** to accept it.
 - If you cannot go, open **I want to renounce the place**, write the reason if you want, and click **Confirm that I renounce the place**.

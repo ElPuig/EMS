@@ -68,6 +68,10 @@
 - When the coordinator rejects a substitution in a group mobility, the leader teacher gets a task to propose a substitute again.
 - Wording: a reserve's result email gives their number on the reserve list of their modality; the selected read "Tens plaça" / "Tienes plaza" instead of "seleccionat o seleccionada"; an admitted or excluded applicant is no longer told to look at the detail of a score they do not have; every Catalan and Spanish email says "portal del centre" / "portal del centro"; the rectification's notes warn not to write anyone's name, since they are emailed to everyone on the list.
 
+## Erasmus+ place offers show the destinations and their places:
+
+- Before accepting a place, a student sees the destinations of their modality with their places (and dates when known) on the portal's offer card, the selected's result email and a free place's offer email, plus their position in the modality on the portal: the destination is chosen later by turns in rank order, so they know what they may get before accepting instead of renouncing late.
+
 # Fixes
 
 ## Erasmus+ health card twice in a staff mobility, and the administrator in the Erasmus team:

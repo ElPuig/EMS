@@ -481,7 +481,10 @@ Then:
   those that already answered an offer (`accepted`, `renounced`), which a rectification never
   undoes - and creates an offer for every selected one without an offer waiting or accepted, with
   the call's `acceptance_deadline`. No separate offer email: the result email already asks them to
-  answer. A rectification withdraws (`cancelled`, noted in the chatter) the offers still waiting of
+  answer. The selected's result email, a free place's offer email and the portal's offer card list
+  the modality's destinations with their places (`ems.erasmus.call.modality._ems_offer_destinations()`,
+  `ems.erasmus.destination._ems_offer_label()`), plus the position on the portal: the destination is
+  chosen later by turns, so the student knows what they may get before accepting. A rectification withdraws (`cancelled`, noted in the chatter) the offers still waiting of
   whom it no longer selects: the offer they got as selected, or any offer once below the minimum
   score; a reserve keeps an offer made for a free place. Whoever already accepted or renounced gets
   the list with "you keep the place you accepted" / "you renounced earlier" instead of the result

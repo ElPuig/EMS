@@ -4,6 +4,7 @@ from datetime import timedelta
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.tools import format_date
 
 from .application import STAFF_ACTIVITIES
 from .call import PROJECTS
@@ -66,6 +67,18 @@ class EmsErasmusDestination(models.Model):
         for destination in self:
             if destination.modality_id.call_id != destination.call_id:
                 raise ValidationError(_("A destination belongs to a modality of its own call."))
+
+    def _ems_offer_label(self):
+        """The destination as a student reads it before accepting a place: where, when and how
+        many places, so they know what they may get when their turn to choose comes."""
+        self.ensure_one()
+        where = ', '.join(part for part in (self.city, self.country_id.name) if part)
+        label = f"{self.name} ({where})" if where else self.name
+        if self.date_start and self.date_end:
+            label = f"{label}, {format_date(self.env, self.date_start)} - {format_date(self.env, self.date_end)}"
+        if self.places == 1:
+            return _("%(destination)s: 1 place", destination=label)
+        return _("%(destination)s: %(places)s places", destination=label, places=self.places)
 
     def _ems_suits(self, mobility):
         """Free and suitable for `mobility`'s level and modality."""

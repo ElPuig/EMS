@@ -61,7 +61,7 @@ Mientras la resolución provisional está vigente, la etiqueta de arriba de la s
 
 ## 7. Aceptar o renunciar a la plaza
 
-Si quedas **seleccionado o seleccionada** en la resolución definitiva, tu solicitud muestra la plaza ofrecida y el plazo para responder, con el periodo de tu modalidad y los destinos (eliges uno más adelante, por turnos):
+Si quedas **seleccionado o seleccionada** en la resolución definitiva, tu solicitud muestra la plaza ofrecida y el plazo para responder, con el periodo de tu modalidad, los destinos con sus plazas y tu posición en la modalidad: eliges el destino más adelante, por turnos según la posición, así sabes qué te puede tocar antes de aceptar. El correo que te avisa de que tienes plaza también los indica:
 
 - Haz clic en **Acepto la plaza** para aceptarla.
 - Si no puedes ir, abre **Quiero renunciar a la plaza**, escribe el motivo si quieres y haz clic en **Confirmo que renuncio a la plaza**.

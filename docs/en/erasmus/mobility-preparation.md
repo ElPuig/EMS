@@ -21,7 +21,7 @@ On the call, check these tabs:
 - **Weekly self-assessment:** the questions the participants answer on the portal every week of the stay (what they did, what they learned, a rating of the week from 1 to 5, what was hardest). A new students' call already has four; change them, add or remove any (each one is a text or a rating from 1 to 5). Leave it empty for no self-assessment (a staff call has none by default).
 - **Checklist:** the steps that are not a document (preparation sessions, dissemination). The EU Survey is not a step: each mobility has its own **EU Survey** status (see 6). You can limit a step to some modalities or to one project, and set its **Requirement** to *Short blended mobilities only*: it then only counts in a KA131-HED stay of 30 days or fewer. The mobility shows it as **Short blended mobility** once it has dates.
 
-**Students' call only**, on the **Destinations** tab: add each destination with its **modality**, a name, country, city, **places**, the **levels** it suits (empty: every level of the modality), the dates if they are known and notes for the students.
+**Students' call only**, on the **Destinations** tab: add each destination with its **modality**, a name, country, city, **places**, the **levels** it suits (empty: every level of the modality), the dates if they are known and notes for the students. Add them before publishing the definitive resolution: the place offer (on the portal and in its email) lists the modality's destinations with their places, so each student knows what they may get before accepting. The places of a modality's destinations should add up to the modality's places: EMS does not check it.
 
 ## 2. The destination choice (students)
 

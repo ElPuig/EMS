@@ -473,6 +473,30 @@ class TestErasmusResolutionNotices(ErasmusResolutionCase):
         self.env['res.partner.relation'].create({'left_partner_id': self.mother.id, 'right_partner_id': partner.id,
                                                  'type_id': self.env.ref('ems.relation_type_mother').id})
 
+    def test_place_offers_show_the_destinations_and_their_places(self):
+        """The student knows what they may get before accepting: the modality's destinations and
+        places are in the selected's email and in a free place's offer, not in the reserve's."""
+        cyprus, germany = self.env['ems.erasmus.destination'].create([{
+            'call_id': self.call.id, 'modality_id': self.call.modality_ids.id, 'name': name, 'city': city,
+            'country_id': self.env.ref(country).id, 'places': places, 'date_start': '2027-04-05',
+            'date_end': '2027-06-18'} for name, city, country, places in (
+                ('Notice Cyprus', 'Limassol', 'base.cy', 1), ('Notice Germany', 'Freiburg', 'base.de', 2))])
+        self.assertEqual(cyprus.with_context(lang='en_US')._ems_offer_label(),
+                         'Notice Cyprus (Limassol, Cyprus), 04/05/2027 - 06/18/2027: 1 place')
+        self.assertTrue(germany.with_context(lang='en_US')._ems_offer_label().endswith(': 2 places'))
+        first, second = self._scored_call()
+        definitive = self._publish_up_to_definitive()
+        lines = definitive.line_ids
+        selected = self._body(self._mails(lines.filtered(lambda line: line.application_id == first)))
+        reserve = self._body(self._mails(lines.filtered(lambda line: line.application_id == second)))
+        for name in ('Notice Cyprus (Limassol', 'Notice Germany (Freiburg'):
+            self.assertIn(name, selected)
+            self.assertNotIn(name, reserve, "A reserve has no place offered yet.")
+        first.offer_ids.action_renounce('Personal reasons')
+        self.env['ems.erasmus.offer.wizard'].with_user(self.erasmus_user).with_context(
+            active_id=self.call.id).create({'deadline': fields.Datetime.now() + timedelta(days=3)}).action_confirm()
+        self.assertIn('Notice Germany (Freiburg', self._body(self._mails(second.offer_ids)))
+
     def test_appeal_goes_to_the_students_own_head_of_studies(self):
         first, _second = self._scored_call()
         definitive = self._publish_up_to_definitive()
@@ -654,7 +678,11 @@ class TestPortalErasmusResolution(HttpCase, ErasmusResolutionCase):
         self.assertIn('error=1', self._answer('accept').url, "The reserve has no offer to accept.")
         self.assertEqual(first.offer_ids.state, 'pending')
         self.authenticate(self.student_user.login, self.student_user.login)
-        self.assertIn('o_ems_erasmus_offer', self.url_open(f'/my/erasmus/call/{self.call.id}').text)
+        self.env['ems.erasmus.destination'].create({
+            'call_id': self.call.id, 'modality_id': self.call.modality_ids.id, 'name': 'Portal Cyprus', 'places': 1})
+        page = self.url_open(f'/my/erasmus/call/{self.call.id}').text
+        self.assertIn('o_ems_erasmus_offer', page)
+        self.assertIn('Portal Cyprus', page, "The destinations and their places are shown before accepting.")
         self.assertIn('answered=1', self._answer('accept').url)
         self.assertEqual(first.state, 'accepted')
 

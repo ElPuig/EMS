@@ -43,7 +43,7 @@ Si falta un document o cal corregir-lo, rebràs un correu amb la llista i el ter
 
 ## 5. L'entrevista
 
-Si la teva sol·licitud és admesa, rebràs un correu amb la data i el lloc de l'entrevista personal, com a mínim 24 hores abans. També els veuràs a la teva sol·licitud al portal, al quadre de dalt. Una part de l'entrevista es fa en anglès. Arriba-hi 15 minuts abans: no presentar-s'hi suposa l'exclusió, excepte per causa de força major justificada.
+Si la teva sol·licitud és admesa, rebràs un correu amb la data i el lloc de l'entrevista personal, com a mínim 24 hores abans. També els veuràs a la teva sol·licitud al portal, al quadre de dalt. Una part de l'entrevista es fa en anglès. Arriba-hi 15 minuts abans: no presentar-s'hi suposa l'exclusió, excepte per causa de força major justificada. Si quedes exclòs, rebràs un correu amb el motiu, que també surt al portal.
 
 ## 6. Els teus resultats
 
@@ -55,7 +55,9 @@ Si quedes en **reserva**, el resultat t'indica quin número de reserva ets a la 
 
 Mentre la resolució provisional és vigent, l'etiqueta de dalt de la sol·licitud mostra el teu resultat provisional (per exemple, *Reserva (provisional)*).
 
-**Reclamacions.** Si no estàs d'acord amb el resultat provisional, obre **Vull reclamar** a sota, escriu què reclames i per què, adjunta els fitxers que ho justifiquin i fes clic a **Envia la reclamació**, abans del termini de reclamacions. L'EMS en deixa constància amb la data i l'hora. Les teves reclamacions, i la resposta de l'equip Erasmus, surten a **Les meves reclamacions**.
+**Reclamacions.** Si no estàs d'acord amb el resultat provisional, obre **Vull reclamar** a sota, escriu què reclames i per què, adjunta els fitxers que ho justifiquin i fes clic a **Envia la reclamació**, abans del termini de reclamacions. L'EMS en deixa constància amb la data i l'hora. Rebràs un correu que confirma que ha arribat, i un altre amb la resposta de l'equip Erasmus, que també surt a **Les meves reclamacions**.
+
+**Recurs d'alçada.** Contra la resolució definitiva pots presentar recurs d'alçada davant el cap d'estudis en el termini d'un mes a comptar de l'endemà de la publicació: escriu a l'equip Erasmus, que el registrarà. El respondrà el cap d'estudis, i rebràs la resposta per correu.
 
 ## 7. Acceptar o renunciar a la plaça
 
@@ -64,7 +66,7 @@ Si quedes **seleccionat o seleccionada** a la resolució definitiva, la teva sol
 - Fes clic a **Accepto la plaça** per acceptar-la.
 - Si no hi pots anar, obre **Vull renunciar a la plaça**, escriu-ne el motiu si vols i fes clic a **Confirmo que renuncio a la plaça**.
 
-Si no respons dins del termini, es considera que hi renuncies. Si estàs en **reserva** i queda una plaça lliure, rebràs un correu i l'oferta apareixerà a la teva sol·licitud, amb el seu propi termini.
+Rebràs un correu que confirma la teva resposta; si ets menor d'edat, la teva família en rep una còpia (també de l'oferta de plaça). Si no respons dins del termini, es considera que hi renuncies i la plaça passa a la persona següent de la llista de reserva: rebràs un correu que t'ho diu. Si estàs en **reserva** i queda una plaça lliure, rebràs un correu i l'oferta apareixerà a la teva sol·licitud, amb el seu propi termini.
 
 ## 8. Preparar la mobilitat
 

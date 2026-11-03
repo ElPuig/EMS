@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <!-- Issue #685 - claims and appeals, recorded by the Erasmus team (art. 14 of the call). -->
+        <!-- Issue #685 - claims and appeals, recorded by the Erasmus team (art. 14 of the call). The
+             team answers the claims, the applicant's own Head of Studies the appeals (can_resolve). -->
         <record id="view_erasmus_claim_list" model="ir.ui.view">
             <field name="name">ems.erasmus.claim.list</field>
             <field name="model">ems.erasmus.claim</field>
@@ -27,29 +28,31 @@
                     <header>
                         <div name="ems_actions" string="Actions">
                             <button name="action_resolve" type="object" string="Resolve" class="btn-primary"
-                                    invisible="state != 'open'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    invisible="state != 'open' or not can_resolve"/>
                             <button name="action_reopen" type="object" string="Reopen"
-                                    invisible="state != 'resolved'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    invisible="state != 'resolved' or not can_resolve"/>
                         </div>
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>
                         <group>
                             <group>
-                                <field name="application_id" options="{'no_create': True}"/>
+                                <field name="application_id" options="{'no_create': True}" readonly="not can_edit"/>
                                 <field name="call_id" invisible="1"/>
-                                <field name="kind"/>
-                                <field name="resolution_id" options="{'no_create': True}"/>
+                                <field name="kind" readonly="not can_edit"/>
+                                <field name="resolution_id" options="{'no_create': True}" readonly="not can_edit"/>
                             </group>
                             <group>
-                                <field name="received_date"/>
+                                <field name="received_date" readonly="not can_edit"/>
                                 <field name="resolved_date"/>
                             </group>
                         </group>
                         <group>
-                            <field name="description"/>
-                            <field name="attachment_ids" widget="many2many_binary"/>
-                            <field name="response"/>
+                            <field name="description" readonly="not can_edit"/>
+                            <field name="attachment_ids" widget="many2many_binary" readonly="not can_edit"/>
+                            <field name="can_resolve" invisible="1"/>
+                            <field name="can_edit" invisible="1"/>
+                            <field name="response" readonly="not can_resolve or state != 'open'"/>
                         </group>
                     </sheet>
                     <chatter/>

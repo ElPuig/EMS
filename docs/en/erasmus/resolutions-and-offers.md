@@ -42,7 +42,7 @@ When it is published:
 - Every applicant on it receives their result by email and sees it on the portal, with the detail of their score.
 - The list is published on the portal without names. To post it on the centre's website, click **Print > Published list** to get the PDF.
 - With the **provisional** resolution, every interview of the call is locked: only the Erasmus team can reopen one, with a rectification note.
-- With the **definitive** resolution (or a rectification), each application gets its result. The selected get a place offer with the acceptance deadline: the result email already asks them to accept it on the portal.
+- With the **definitive** resolution (or a rectification), each application gets its result. The selected get a place offer with the acceptance deadline: the result email already asks them to accept it on the portal, and the family of a minor gets a copy. The email and the portal also say that the list can be appealed before the Head of Studies within a month.
 
 > **Who is selected:** the eligible applications (at least the minimum score) within the places of their modality. The rest of the eligible ones are on the reserve list, in order. Below the minimum score: not selected.
 
@@ -50,10 +50,14 @@ In the resolution, the lines are coloured: green, admitted or selected; orange, 
 
 ## 4. Claims and appeals
 
-Applicants claim from the portal, under their provisional result, until the claims deadline: EMS records the claim with its files and the moment it arrived, and everyone in the Erasmus team gets a task to answer it, marked done when it is resolved. A claim that arrives by email (an appeal before the Director, for example) is recorded by hand in **Erasmus+ > Calls > Claims** (or on the **Results** tab of the application):
+Applicants claim from the portal, under their provisional result, until the claims deadline: EMS records the claim with its files and the moment it arrived, and everyone in the Erasmus team gets a task to answer it, marked done when it is resolved. A claim that arrives by email is recorded by hand in **Erasmus+ > Calls > Claims** (or on the **Results** tab of the application):
 
-1. **Application**, **Against** (the resolution), **Kind** (claim or appeal before the Director), **Received on**, **What is claimed** and the files.
-2. Write the **Response** and click **Actions > Resolve**. The applicant sees the response on the portal, under **My claims**.
+1. **Application**, **Against** (the resolution), **Kind** (claim or appeal before the Head of Studies), **Received on**, **What is claimed** and the files.
+2. Write the **Response** and click **Actions > Resolve**.
+
+The applicant receives an email when the claim is recorded (their proof that it arrived in time) and another one with the response, which they also see on the portal, under **My claims**.
+
+**Appeals against the definitive resolution** (within a month of its publication) are answered by the applicant's own Head of Studies, not by the Erasmus team: the Head or Deputy Head of Studies above the student's group tutor (above the teacher themself in a staff call; the Director if the applicant is that Head of Studies). Record the appeal as above with **Kind** *Appeal before the Head of Studies*: EMS gives them a task, and they write the **Response** and resolve it. The Erasmus team sees the appeal but cannot answer it.
 
 If a claim is upheld, correct the application's data (for example the language certificate) before preparing the definitive resolution. EMS does not let you prepare the definitive resolution before the **Claims deadline** or while a claim is still open. After the definitive one, publish a rectification.
 
@@ -61,7 +65,8 @@ If a claim is upheld, correct the application's data (for example the language c
 
 **Erasmus+ > Calls > Place offers** lists every offer and its answer: *Waiting for an answer*, *Place accepted*, *Renounced*, *No answer* or *Withdrawn*.
 
-- Students accept or renounce on the portal before the deadline. Without an answer by then, EMS marks the place as renounced.
+- Students accept or renounce on the portal before the deadline, and receive an email confirming their answer (with a copy to the family of a minor). Without an answer by then, EMS marks the place as renounced and tells the student by email that the deadline passed; the portal says they did not answer in time, not that they renounced.
+- When a student accepts, their group tutor gets a notice (not a task) saying they will go on an Erasmus+ stay.
 - When a place becomes free and there is a reserve, everyone in the Erasmus team gets a task on the call (*Erasmus+: free place in ...*). It is marked done once the place is offered. **EMS never offers it on its own**. On the call, the **Resolutions** tab shows the free places of each modality and the **Next reserve**. Click **Actions > Offer a free place**: check the proposed student, set a new **Answer before** deadline and click **Offer the place**. The student receives an email.
 - To withdraw an offer still waiting (for example, made by mistake), click **Withdraw offer** on it.
 

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from markupsafe import Markup
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
@@ -11,7 +13,8 @@ class EmsErasmusOffer(models.Model):
     """Issue #685 - a place offered to an applicant and their answer. The selected get one when
     the definitive resolution is published; a place freed by a renunciation is offered to the
     next reserve only when the Erasmus team confirms it (wizard below), never on its own. No
-    answer by the deadline counts as a renunciation (`_cron_expire_offers`)."""
+    answer by the deadline counts as a renunciation (`_cron_expire_offers`). Every answer, and the
+    lack of one, is confirmed to the applicant by email, with a copy to a minor's family."""
     _name = 'ems.erasmus.offer'
     _description = 'Erasmus+ place offer'
     _inherit = ['ems.base']
@@ -43,7 +46,7 @@ class EmsErasmusOffer(models.Model):
         offers = self.sudo().create([{'application_id': application.id, 'deadline': deadline,
                                       'from_reserve': from_reserve} for application in applications])
         if notify:
-            self.env['ems.erasmus.application']._ems_mail(offers, 'ems.email_template_erasmus_offer')
+            self.env['ems.erasmus.application']._ems_mail(offers, 'ems.email_template_erasmus_offer', family_copy=True)
         return offers
 
     def action_accept(self):
@@ -51,6 +54,7 @@ class EmsErasmusOffer(models.Model):
         mobility starts."""
         self._ems_answer('accepted', 'accepted')
         self.env['ems.erasmus.mobility']._ems_create_for(self.application_id)
+        self._ems_notify_tutor()
 
     def action_renounce(self, reason=False):
         self._ems_answer('renounced', 'renounced', renounce_reason=reason)
@@ -73,6 +77,28 @@ class EmsErasmusOffer(models.Model):
                 raise UserError(_("The deadline to answer this offer has passed."))
         self.sudo().write({'state': state, 'answer_date': now, **vals})
         self.application_id._ems_set_state(application_state)
+        self._ems_send_answer()
+
+    def _ems_send_answer(self):
+        """The applicant's proof of their answer, or of not answering in time."""
+        self.env['ems.erasmus.application']._ems_mail(self, 'ems.email_template_erasmus_offer_answer', family_copy=True)
+
+    def _ems_notify_tutor(self):
+        """A student's group tutor learns that they will go on an Erasmus+ stay. Nothing for them
+        to do, so a notice and not a to-do, on the student (as for a convalidation)."""
+        for offer in self.sudo().filtered(lambda offer: offer.call_id.audience == 'student'):
+            tutor = offer.partner_id.main_group_id.tutor_id.user_id
+            if not tutor.active:
+                continue
+            student = offer.partner_id.with_context(lang=tutor.lang or self.env.lang)
+            env = student.env
+            student.message_notify(
+                partner_ids=tutor.partner_id.ids,
+                subject=env._("Erasmus+: %s", student.name),
+                body=Markup("<p>{}</p>").format(env._(
+                    "%(student)s has accepted a place in %(modality)s of the Erasmus+ call %(call)s. There is nothing "
+                    "for you to do now: the Erasmus team will tell the teaching staff the dates of the stay once they "
+                    "are set.", student=student.name, modality=offer.modality_id.name, call=offer.call_id.name)))
 
     @api.model
     def _cron_expire_offers(self):
@@ -83,6 +109,7 @@ class EmsErasmusOffer(models.Model):
         offers.application_id._ems_set_state('renounced')
         for offer in offers:
             offer.application_id.chatter(_("No answer to the place offer by the deadline: renounced."))
+        offers._ems_send_answer()
         offers.call_id._ems_sync_free_place_tasks()
 
 

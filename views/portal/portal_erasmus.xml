@@ -292,6 +292,9 @@
                                 <p t-elif="line.kind == 'provisional' and call.claims_deadline" class="small text-muted mb-1">
                                     Claims deadline: <t t-out="call.claims_deadline" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>
                                 </p>
+                                <!-- The 2026-11-03 review: how the list of who goes is appealed (art. 14). -->
+                                <p t-if="line.kind in ('definitive', 'rectification')" class="small text-muted mb-1 o_ems_erasmus_appeal"
+                                   t-esc="line.resolution_id._ems_appeal_notice()"/>
                                 <a t-attf-href="/my/erasmus/call/#{call.id}/resolution/#{line.resolution_id.id}" class="small o_ems_erasmus_list_link">
                                     <i class="fa fa-list me-1"/>See the published list
                                 </a>

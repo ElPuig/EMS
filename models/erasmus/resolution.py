@@ -175,7 +175,19 @@ class EmsErasmusResolution(models.Model):
         if self.kind in FINAL_KINDS:
             self._ems_apply_results()
             self.call_id._ems_sync_free_place_tasks()
-        self.env['ems.erasmus.application']._ems_mail(self.line_ids, 'ems.email_template_erasmus_resolution_published')
+        # A minor offered a place: the family gets a copy (the place offer of the definitive list).
+        offered = self.line_ids.filtered(lambda line: self.kind in FINAL_KINDS and line.result == 'selected'
+                                         and line.application_id.state == 'selected')
+        Application = self.env['ems.erasmus.application']
+        Application._ems_mail(self.line_ids - offered, 'ems.email_template_erasmus_resolution_published')
+        Application._ems_mail(offered, 'ems.email_template_erasmus_resolution_published', family_copy=True)
+
+    @api.model
+    def _ems_appeal_notice(self):
+        """How the list of who goes is appealed (art. 14 of the call), for its emails and the
+        portal: before the Head of Studies, who answers it (ems.erasmus.claim)."""
+        return _("Against this resolution you can lodge an administrative appeal before the Head of Studies "
+                 "within one month from the day after its publication.")
 
     def _ems_stored_pdf(self):
         """Issue #697: the published list as a PDF, for the project's dossier. The report keeps a

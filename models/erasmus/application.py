@@ -570,13 +570,19 @@ class EmsErasmusApplication(models.Model):
         self._ems_set_state('admitted')
 
     def action_exclude(self):
-        """Also on an admitted application: not attending the interview excludes (art. 11)."""
+        """Also on an admitted application: not attending the interview excludes (art. 11). The
+        evaluations still to score go away with their tasks; once the admission list is published,
+        the applicant learns the reason by email instead of waiting for the next list."""
         for application in self:
             application._ems_check_state(('submitted', 'subsanation', 'admitted'))
             if not (application.exclusion_reason or '').strip():
                 raise UserError(_("Write the exclusion reason first."))
         self._ems_activities_done()
         self._ems_set_state('excluded')
+        for evaluations in (self.sudo().interview_ids, self.sudo().plan_rating_ids):
+            evaluations.filtered(lambda evaluation: evaluation.state == 'draft').unlink()
+        self.filtered(lambda application: 'admission' in application.call_id._ems_published_resolutions().mapped(
+            'kind'))._ems_send('ems.email_template_erasmus_application_excluded')
 
     def action_back_to_review(self):
         for application in self:
@@ -893,7 +899,9 @@ class EmsErasmusApplication(models.Model):
             nxt = (_("Correct the documents marked below."), call.subsanation_deadline, 'warning')
         elif state == 'excluded':
             current, failed = 1, True
-            nxt = (_("Your application has been excluded: the reason is in the results below."), False, 'secondary')
+            reason = (self.sudo().exclusion_reason or '').strip()
+            nxt = (_("Your application has been excluded. Reason: %s", reason) if reason
+                   else _("Your application has been excluded."), False, 'secondary')
         elif state == 'admitted' and provisional:
             current = 3
             nxt = ((_("Check your provisional result. If you disagree, you can claim."), call.claims_deadline, 'warning')
@@ -924,7 +932,8 @@ class EmsErasmusApplication(models.Model):
             nxt = (_("You have not been selected in this call."), False, 'secondary')
         elif state == 'renounced' or mobility.state == 'cancelled':
             current, failed = 4 if state == 'renounced' else 5, True
-            nxt = (_("You have renounced the place."), False, 'secondary')
+            nxt = (_("You did not answer the place offer in time: the place goes to the next person on the reserve list.")
+                   if self._ems_offer_expired() else _("You have renounced the place."), False, 'secondary')
         elif not mobility or mobility.state == 'choosing':
             current = 5
             nxt = self._ems_portal_choosing_next(mobility)
@@ -1022,6 +1031,11 @@ class EmsErasmusApplication(models.Model):
             raise UserError(_("The application of %s is not in the right state for this action.",
                               self.partner_id.name))
 
+    def _ems_offer_expired(self):
+        """Renounced by not answering the place offer in time, not in writing (art. 15)."""
+        self.ensure_one()
+        return self.state == 'renounced' and self.sudo().offer_ids.sorted('offer_date')[-1:].state == 'expired'
+
     def _ems_set_state(self, state):
         self.sudo().write({'state': state})
 
@@ -1075,17 +1089,23 @@ class EmsErasmusApplication(models.Model):
         self._ems_mail(self, xmlid)
 
     @api.model
-    def _ems_mail(self, records, xmlid):
-        """Email `xmlid` (a template of `records`' model: applications, resolution lines, offers) to
-        each applicant's own address; note it in the application's chatter when there is none."""
+    def _ems_mail(self, records, xmlid, family_copy=False):
+        """Email `xmlid` (a template of `records`' model: applications, resolution lines, offers,
+        claims) to each applicant's own address; note it in the application's chatter when there is
+        none. `family_copy`: a minor's family gets a copy (the place offered and the answer to it,
+        when a minor commits to going abroad)."""
         template = self.env.ref(xmlid, raise_if_not_found=False)
         if not template:
             return
         for record in records:
             partner = record.partner_id
             if partner.email:
+                email_values = {'email_to': partner.email}
+                family = family_copy and not partner.is_adult and partner._ems_family_contacts().filtered('email')
+                if family:
+                    email_values['email_cc'] = ",".join(family.mapped('email'))
                 template.with_context(lang=partner.lang).sudo().send_mail(
-                    record.id, force_send=False, email_values={'email_to': partner.email})
+                    record.id, force_send=False, email_values=email_values)
             else:
                 application = record if record._name == self._name else record.application_id
                 application.sudo().chatter(_("No email sent: the applicant has no email address."))

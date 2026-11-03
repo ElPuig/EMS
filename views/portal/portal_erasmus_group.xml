@@ -121,6 +121,8 @@
                             <i class="fa fa-list me-1"/><t t-esc="resolution.name"/>
                         </a>
                     </div>
+                    <p t-if="'definitive' in lists.mapped('kind')" class="text-muted mt-1 mb-0 o_ems_erasmus_appeal"
+                       t-esc="lists[:1]._ems_appeal_notice()"/>
                 </div>
 
                 <p t-if="blocked" class="alert alert-warning small mb-2 o_ems_erasmus_group_blocked">

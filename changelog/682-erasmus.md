@@ -51,6 +51,15 @@
 - Interviews scheduled in bulk (Actions > Schedule interviews), the rubric written on the form, Submit and next for interviews and plan ratings, abstentions shown as such and a pivot of the ratings. Resolutions with a colour legend and no rank or score on excluded lines.
 - Head of Studies and Director: Mobilities > Pending validation, a note instead of zeros while the panel rates, no place offers nor claims in their menu (and the interviewers no longer see My plan ratings): the groups taken away from a menu are removed explicitly, since an upgrade only adds them. On a group mobility they no longer see Request the exception, Renounce nor EU Survey answered, which only the team or the leader can use. The staff proposal takes the country from the application. The emails are headed "Erasmus+". The user-menu entry is "Erasmus+".
 
+## Erasmus+ appeals answered by the student's own Head of Studies, and the applicant told of every claim and place answer (review by role, 2026-11-03):
+- The definitive resolution and every rectification (email and portal, and the group mobilities' result email) now say they can be appealed before the Head of Studies within one month, as art. 14 of the calls requires (the calls' text was changed from the Director to the Head of Studies of FP).
+- An appeal gets a to-do for the applicant's own Head or Deputy Head of Studies, resolved up the chain from the student's group tutor (from the teacher in a staff call; the Director if the applicant is that Head of Studies; the administrators if it is the Director); only they and the administrator answer it, writing just the response (Head of Studies get write access on claims, guarded in write()). The Erasmus team still records and sees it, without a task.
+- Every claim and appeal emails the applicant a receipt with the moment it arrived and, once resolved, the response.
+- Accepting or renouncing a place emails a confirmation; an offer that expires emails the applicant that the deadline passed, and the portal and the rectification email say "you did not answer in time" instead of "you renounced" (ems.erasmus.application._ems_offer_expired).
+- A minor's family gets a copy (email_cc) of the place offered (definitive list or free place) and of the answer to it; the other lists and the claims still go to the student only.
+- The group tutor gets a notice (message_notify on the student, not a to-do) when their student accepts a place.
+- Excluding an application once the admission list is published (e.g. not attending the interview) emails the reason, and the portal shows it instead of pointing to results that do not exist yet.
+
 # Fixes
 
 ## Erasmus+ health card twice in a staff mobility, and the administrator in the Erasmus team:
@@ -77,6 +86,9 @@
 - A reserve who does not want a place can also leave the reserve list by themselves from their portal card, with an optional reason (decided by the Erasmus coordinator).
 - The published lists of a group mobility head the record average column as Average (it read Score, as in the calls, although a group mobility ranks by the average).
 - Any leader or accompanying teacher of any group mobility could read the draws of every group mobility, with the students tied and whether they had fewer opportunities accredited. The draws are now readable only by the leader of their own mobility, and that flag only by the Erasmus team, as on the enrolment.
+
+## Erasmus+ interviews of an excluded applicant left open (review by role, 2026-11-03):
+- Excluding an application now deletes its interviews and plan ratings still to score, with the evaluators' to-dos.
 
 # Internal changes
 

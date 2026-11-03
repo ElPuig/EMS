@@ -13,6 +13,7 @@ Aquesta secció conté els manuals per a **Cap d'Estudis, Cap d'Estudis Adjunt/a
 - [Històric acadèmic: consultes de cohort](academic-history.md)
 - [Convalidacions: revisar i resoldre les sol·licituds](convalidations.md) — Revisar cada mòdul i fer-ne la proposta (Cap d'Estudis), resoldre-la oficialment (Direcció) o tramitar-la amb el Ministeri.
 - [Erasmus+: validar les activitats del personal](erasmus-staff-validation.md) — La direcció valida l'activitat, l'entitat, la destinació i les dates de cada persona seleccionada del personal.
+- [Erasmus+: respondre un recurs d'alçada contra una resolució](erasmus-appeals.md) — El cap d'estudis de la persona respon els recursos contra la llista definitiva d'una convocatòria Erasmus+.
 - [Assistència a reunions amb la targeta NFC](../secretary/meeting-attendance.md) — Confirmar l'assistència a un claustre o a una reunió amb el lector NFC de l'entrada (manual compartit amb secretaria).
 - [Programacions docents: definir les ponderacions de la qualificació](planning.md)
 - [Gestió de contactes d'alumnes i famílies](../secretary/student-contacts.md) — tens el mateix accés complet de lectura/escriptura que secretaria aquí, per a qualsevol alumne de tot el centre.

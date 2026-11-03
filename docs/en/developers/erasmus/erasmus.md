@@ -115,8 +115,13 @@ stateDiagram-v2
   `ems.group_erasmus` internal users), so it shows in their daily pending-tasks digest; admitting,
   excluding or asking for corrections again marks it done.
 - **Admit** needs the requirements met, every required document *Valid* and, in a students' call,
-  no conduct block (below). **Exclude** needs the exclusion reason.
-- Emails go only to the applicant's own address; a recipient without one is noted in the chatter.
+  no conduct block (below). **Exclude** needs the exclusion reason. It also deletes the
+  application's evaluations still to score (interviews, plan ratings) with their to-dos, and, once
+  the admission list is published (e.g. not attending the interview), emails the reason
+  (`email_template_erasmus_application_excluded`) instead of leaving it for the next list; the
+  portal's "what to do now" box shows the reason too.
+- Emails go to the applicant's own address (a minor's family gets a copy only of the place offered
+  and of the answer to it, see *Place offers*); a recipient without one is noted in the chatter.
   Their reply-to is whoever on the team caused the email (`_ems_reply_to()`), else the centre's
   Erasmus+ mailbox, `res.company.erasmus_contact_email` (Settings > Center Data > Erasmus+, the same
   for every call; it defaults to the centre's address, like `google_ws_domain`, so an upgrading
@@ -417,7 +422,7 @@ erDiagram
 | `ems.erasmus.resolution.line` | One applicant in it, frozen when the resolution was prepared: modality, rank, every criterion, total, result, masked identity document. Described as "Erasmus+ result" and named "<applicant> - <resolution>", which is what the email layout's header shows. |
 | `ems.erasmus.offer` | A place offered to an applicant and their answer. |
 | `ems.erasmus.offer.wizard` | Offer a free place to the next reserve (transient). |
-| `ems.erasmus.claim` | A claim (after the provisional) or an appeal before the Director, recorded by the team. |
+| `ems.erasmus.claim` | A claim (after the provisional) or an appeal before the Head of Studies (after the definitive). |
 
 New fields on the call: `claims_deadline` (shown to applicants with the provisional result) and
 `acceptance_deadline` (the deadline of the offers made when the definitive resolution is
@@ -465,8 +470,11 @@ Then:
   no write access at all). A correction is a new rectification.
 - Every applicant on it gets their result by email (`email_template_erasmus_resolution_published`,
   rendered per line): the reason if excluded, the rank and total otherwise, the claims deadline
-  with the provisional, the acceptance deadline if selected. Replies go to whoever published it,
-  which is how claims arrive.
+  with the provisional, the acceptance deadline if selected, and with a definitive resolution or a
+  rectification how to appeal it (`ems.erasmus.resolution._ems_appeal_notice()`, also shown on the
+  portal next to that list and in the group mobilities' result email). Replies go to whoever
+  published it. A minor offered a place by the list gets it with a copy to their family
+  (`_ems_mail(..., family_copy=True)`: `email_cc` with `_ems_family_contacts()`).
 - The provisional resolution locks every interview of the call (`ems.erasmus.interview.is_locked`),
   as the review deadline does: after it, only a team rectification reopens one.
 - A definitive resolution or a rectification sets each application's state to its result - except
@@ -477,7 +485,8 @@ Then:
   whom it no longer selects: the offer they got as selected, or any offer once below the minimum
   score; a reserve keeps an offer made for a free place. Whoever already accepted or renounced gets
   the list with "you keep the place you accepted" / "you renounced earlier" instead of the result
-  line, since their state does not change.
+  line, since their state does not change (or "you did not answer the offer in time", from
+  `ems.erasmus.application._ems_offer_expired()`).
 - Since an accepted place is never withdrawn, a rectification can leave more people with a place
   than places (who accepted, plus whom it now selects). `_ems_places_overflow()` counts them per
   modality (a staff call: the whole pool) on the draft; `places_warning` shows it on the form and
@@ -506,7 +515,14 @@ stateDiagram-v2
   optional `reason`), before the deadline, which `_ems_answer` checks with the centre's clock. The
   application moves to `accepted` or `renounced`.
 - No answer = renounced: the hourly cron `ems.ir_cron_erasmus_expire_offers`
-  (`_cron_expire_offers`) marks the offer `expired` and the application `renounced`.
+  (`_cron_expire_offers`) marks the offer `expired` and the application `renounced`. The portal and
+  the rectification email tell it apart from a renunciation in writing (`_ems_offer_expired()`).
+- Every answer, and the deadline passing without one, is confirmed by email
+  (`email_template_erasmus_offer_answer`, one template branching on the offer's state; `_ems_send_answer`),
+  and so is a place offered to a reserve (`email_template_erasmus_offer`), both with a copy to a
+  minor's family. The family gets no copy of the other lists nor of the claims.
+- Accepting tells the student's group tutor (`_ems_notify_tutor`): a `message_notify` on the
+  student, a notice and not a to-do, like the convalidations' notice to the teaching staff.
 - **A free place is never offered on its own.** The modality computes `free_places` (places minus
   the offers waiting or accepted) and `next_reserve_id` (the best-ranked `reserve` application
   without one). The team clicks **Actions > Offer a free place** on the call; the wizard shows that
@@ -520,16 +536,32 @@ stateDiagram-v2
   No reserve left means no task.
 - The team can withdraw an offer still waiting (*Withdraw offer*, e.g. made by mistake; state `cancelled`): the place becomes free again.
 
-### Claims
+### Claims and appeals
 
 A log (art. 14): application, the published resolution it is against, kind (claim, appeal before
-the Director), received date, text, files, response. The applicant sends it from the portal while the
-newest published provisional resolution is claimable (`ems.erasmus.application._ems_portal_claimable`:
-before the call's claims deadline); `_ems_portal_claim` creates it with its files and gives every
-member of the Erasmus team a to-do (`ems.erasmus.claim._ems_ask_answer`). A claim that arrives by
-email is recorded by the team. **Resolve** needs the response, stamps the date and closes the to-dos;
-the applicant reads the response on the portal. Upholding a claim means correcting the
-application's data and publishing the next resolution (the definitive, or a rectification).
+the Head of Studies), received date, text, files, response. The applicant sends a claim from the
+portal while the newest published provisional resolution is claimable
+(`ems.erasmus.application._ems_portal_claimable`: before the call's claims deadline);
+`_ems_portal_claim` creates it with its files and gives every member of the Erasmus team a to-do
+(`ems.erasmus.claim._ems_ask_answer`). A claim or an appeal that arrives by email is recorded by the
+team. Creating one emails the applicant a receipt with the moment it arrived
+(`email_template_erasmus_claim_received`); **Resolve** needs the response, stamps the date, closes
+the to-dos and emails the response (`email_template_erasmus_claim_resolved`). Upholding a claim
+means correcting the application's data and publishing the next resolution (the definitive, or a
+rectification).
+
+**Appeals follow the hierarchy, not the role.** An appeal is answered by
+`_ems_appeal_approvers()`: the Head or Deputy Head of Studies found by
+`hr.employee.find_head_of_studies()` from the student's group tutor (`main_group_id.tutor_id`), or
+from the teacher themself in a staff call; the Director when the applicant is that Head of Studies
+or none is found; the administrators when the applicant is the Director. Creating an appeal (or
+changing a claim's kind to appeal) gives them the to-do instead of the team. `can_resolve`
+(non-stored, `depends_context('uid')`) shows **Resolve**/**Reopen** and makes the response editable,
+and `_ems_check_can_resolve()` re-checks it server-side: the team answers the claims, the resolved
+approvers the appeals, the administrator any of them. `ems.group_head_of_studies` has write access
+on the model only for that: `write()` lets anyone outside the team change nothing but `response`,
+and only where `can_resolve` holds (another Head of Studies cannot). `can_edit` makes the rest of the
+form read-only for them.
 
 ### Export to spreadsheet
 

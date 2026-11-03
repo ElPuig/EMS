@@ -37,6 +37,7 @@
                             does not meet the requirements of the selection criteria published with the enrolment.
                             If you think this is a mistake, talk to the Erasmus team.
                         </p>
+                        <p t-out="object.env['ems.erasmus.resolution']._ems_appeal_notice()"/>
                         <p>
                             Kind regards,<br/>
                             <t t-out="user.company_id.name"/>

@@ -43,7 +43,7 @@ If a document is missing or needs changes, you will receive an email with the li
 
 ## 5. The interview
 
-If your application is admitted, you will receive an email with the date and place of your personal interview, at least 24 hours ahead. You will also see them on your application in the portal, in the box at the top. Part of the interview is in English. Arrive 15 minutes early: not attending excludes you, unless for a justified reason of force majeure.
+If your application is admitted, you will receive an email with the date and place of your personal interview, at least 24 hours ahead. You will also see them on your application in the portal, in the box at the top. Part of the interview is in English. Arrive 15 minutes early: not attending excludes you, unless for a justified reason of force majeure. If you are excluded, you receive an email with the reason, which the portal also shows.
 
 ## 6. Your results
 
@@ -55,7 +55,9 @@ If you are on the **reserve list**, your result says which reserve number you ar
 
 While the provisional resolution is out, the badge at the top of your application shows your provisional result (for example *Reserve (provisional)*).
 
-**Claims.** If you disagree with the provisional result, open **I want to claim** under it, write what you claim and why, attach any files that support it and click **Send the claim**, before the claims deadline. EMS records when it arrived. Your claims, and the Erasmus team's response, appear under **My claims**.
+**Claims.** If you disagree with the provisional result, open **I want to claim** under it, write what you claim and why, attach any files that support it and click **Send the claim**, before the claims deadline. EMS records when it arrived. You receive an email confirming that it arrived, and another one with the Erasmus team's response, which also appears under **My claims**.
+
+**Appeal.** Against the definitive resolution you can lodge an appeal (*recurs d'alçada*) before the Head of Studies within one month from the day after its publication: write to the Erasmus team, who records it. The Head of Studies answers it, and you receive the answer by email.
 
 ## 7. Accept or renounce your place
 
@@ -64,7 +66,7 @@ If you are **selected** in the definitive resolution, your application shows the
 - Click **I accept the place** to accept it.
 - If you cannot go, open **I want to renounce the place**, write the reason if you want, and click **Confirm that I renounce the place**.
 
-Without an answer by the deadline, the place is considered renounced. If you are on the **reserve list** and a place becomes free, you will receive an email and the offer will appear on your application, with its own deadline.
+You receive an email confirming your answer; if you are a minor, your family receives a copy (also of the place offer). Without an answer by the deadline, the place is considered renounced and goes to the next person on the reserve list: you receive an email saying so. If you are on the **reserve list** and a place becomes free, you will receive an email and the offer will appear on your application, with its own deadline.
 
 ## 8. Prepare your mobility
 

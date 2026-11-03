@@ -43,7 +43,7 @@ Si falta un documento o hay que corregirlo, recibirás un correo con la lista y 
 
 ## 5. La entrevista
 
-Si tu solicitud es admitida, recibirás un correo con la fecha y el lugar de la entrevista personal, como mínimo 24 horas antes. También los verás en tu solicitud en el portal, en el recuadro de arriba. Una parte de la entrevista es en inglés. Llega 15 minutos antes: no presentarse supone la exclusión, salvo por causa de fuerza mayor justificada.
+Si tu solicitud es admitida, recibirás un correo con la fecha y el lugar de la entrevista personal, como mínimo 24 horas antes. También los verás en tu solicitud en el portal, en el recuadro de arriba. Una parte de la entrevista es en inglés. Llega 15 minutos antes: no presentarse supone la exclusión, salvo por causa de fuerza mayor justificada. Si quedas excluido, recibirás un correo con el motivo, que también aparece en el portal.
 
 ## 6. Tus resultados
 
@@ -55,7 +55,9 @@ Si quedas en **reserva**, el resultado te indica qué número de reserva eres en
 
 Mientras la resolución provisional está vigente, la etiqueta de arriba de la solicitud muestra tu resultado provisional (por ejemplo, *Reserva (provisional)*).
 
-**Reclamaciones.** Si no estás de acuerdo con el resultado provisional, abre **Quiero reclamar** debajo, escribe qué reclamas y por qué, adjunta los archivos que lo justifiquen y haz clic en **Enviar la reclamación**, antes del plazo de reclamaciones. EMS deja constancia con la fecha y la hora. Tus reclamaciones, y la respuesta del equipo Erasmus, aparecen en **Mis reclamaciones**.
+**Reclamaciones.** Si no estás de acuerdo con el resultado provisional, abre **Quiero reclamar** debajo, escribe qué reclamas y por qué, adjunta los archivos que lo justifiquen y haz clic en **Enviar la reclamación**, antes del plazo de reclamaciones. EMS deja constancia con la fecha y la hora. Recibirás un correo que confirma que ha llegado, y otro con la respuesta del equipo Erasmus, que también aparece en **Mis reclamaciones**.
+
+**Recurso de alzada.** Contra la resolución definitiva puedes presentar recurso de alzada ante el jefe de estudios en el plazo de un mes a contar desde el día siguiente al de su publicación: escribe al equipo Erasmus, que lo registrará. Lo responderá el jefe de estudios, y recibirás la respuesta por correo.
 
 ## 7. Aceptar o renunciar a la plaza
 
@@ -64,7 +66,7 @@ Si quedas **seleccionado o seleccionada** en la resolución definitiva, tu solic
 - Haz clic en **Acepto la plaza** para aceptarla.
 - Si no puedes ir, abre **Quiero renunciar a la plaza**, escribe el motivo si quieres y haz clic en **Confirmo que renuncio a la plaza**.
 
-Si no respondes dentro del plazo, se considera que renuncias. Si estás en **reserva** y queda una plaza libre, recibirás un correo y la oferta aparecerá en tu solicitud, con su propio plazo.
+Recibirás un correo que confirma tu respuesta; si eres menor de edad, tu familia recibe una copia (también de la oferta de plaza). Si no respondes dentro del plazo, se considera que renuncias y la plaza pasa a la siguiente persona de la lista de reserva: recibirás un correo que te lo dice. Si estás en **reserva** y queda una plaza libre, recibirás un correo y la oferta aparecerá en tu solicitud, con su propio plazo.
 
 ## 8. Preparar la movilidad
 

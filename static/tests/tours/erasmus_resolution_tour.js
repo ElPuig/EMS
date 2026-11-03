@@ -116,6 +116,28 @@ registry.category("web_tour.tours").add("ems_erasmus_claims", {
     ],
 });
 
+// The 2026-11-03 review: the student's own Head of Studies answers an appeal against the
+// definitive resolution, writing only the response (the rest of the form is read-only for them).
+registry.category("web_tour.tours").add("ems_erasmus_appeal_answer", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_field_widget[name='description']:not(:has(textarea))",
+            content: "What is appealed is read-only",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='response'] textarea",
+            content: "Write the response",
+            run: "edit The appeal is dismissed.",
+        },
+        ...clickAction("action_resolve", "Resolve the appeal"),
+        {
+            trigger: ".o_form_view .o_statusbar_status button[data-value='resolved'].o_arrow_button_current",
+            content: "The appeal is resolved",
+        },
+    ],
+});
+
 // The selected student accepts the place from the portal.
 registry.category("web_tour.tours").add("ems_erasmus_portal_accept", {
     test: true,

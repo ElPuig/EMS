@@ -288,7 +288,8 @@ class EmsQualityAction(models.Model):
                     'action_id': action.id,
                     'date': minute.date,
                     'state': QUALITY_STATE_CLOSED,
-                    'description': _("Agreed and done in the meeting %s.", minute.code or minute.name),
+                    # Stored text: in the centre's language, not in that of whoever closes it.
+                    'description': minute._ems_centre_env()._("Agreed and done in the meeting %s.", minute.code or minute.name),
                     'author_employee_id': minute.redactor_employee_id.id,
                 })
 

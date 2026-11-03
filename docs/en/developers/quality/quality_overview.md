@@ -296,6 +296,9 @@ carry out): **Done** on its card in the minute (`is_closed_in_minute`) adds a `c
 and signed as the minute (`_ems_sync_minute_closure`, sudo, the same reasoning as the review of an agreement
 in a later minute), kept in `minute_followup_id` so unticking it removes that entry again. The minute's PDF
 prints "Done" in its deadline column, and it is not carried into the next minute.
+The text EMS writes into a follow-up entry on its own (an agreement done or reviewed in a minute with
+nothing written about it) is stored, so it is in the centre's language (`ems.minute._ems_centre_env()`),
+whatever language the writer works in.
 
 ## Numbering
 

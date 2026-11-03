@@ -278,6 +278,21 @@ class TestQualityMinute(TransactionCase):
         self.assertEqual(minute.scope_name, 'Informàtica Prova')
         self.assertTrue(minute.name.endswith(' - Informàtica Prova'), minute.name)
 
+    def test_follow_up_written_by_ems_is_in_the_centre_language(self):
+        """The follow-up EMS writes on its own (an agreement done or reviewed with nothing written
+        about it) is stored text: in Catalan, whatever language the writer works in."""
+        if not (self.env['res.lang']._lang_get('ca_ES') and self.env['res.lang']._lang_get('es_ES')):
+            self.skipTest("needs Catalan and Spanish installed")
+        with patch.object(type(self.env['ems.minute']), '_ems_centre_lang', lambda minute: 'ca_ES'):
+            first = self._minute().with_user(self.user).with_context(lang='es_ES')
+            first.write({'agreement_ids': [(0, 0, {'name': 'Done here', 'is_closed_in_minute': True}),
+                                           (0, 0, {'name': 'Reviewed later'})]})
+            done, open_one = first.agreement_ids.sorted('id')
+            self.assertTrue(done.followup_ids.description.startswith('Acordat i fet a la reunió'), done.followup_ids.description)
+            second = self._minute().with_user(self.user).with_context(lang='es_ES')
+            second.agreement_review_ids.is_closed = True
+            self.assertTrue(open_one.followup_ids.description.startswith('Revisat a la reunió'), open_one.followup_ids.description)
+
     def test_the_nfc_box_is_translated(self):
         """The box's messages are plain spans side by side, which Odoo extracts as one term: a
         .po entry for a single sentence never matches it and the box stays in English."""

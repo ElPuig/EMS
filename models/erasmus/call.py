@@ -116,6 +116,10 @@ class EmsErasmusCall(models.Model):
     next_reserve_id = fields.Many2one(string="Next reserve", comodel_name='ems.erasmus.application',
                                       compute='_compute_offers',
                                       help="Staff call: the best-ranked reserve without an offer waiting or accepted.")
+    places_total = fields.Integer(string="Places", compute='_compute_offers')
+    places_accepted = fields.Integer(string="Places accepted", compute='_compute_offers',
+                                     help="Selected applicants who have accepted their place.")
+    offers_pending = fields.Integer(string="Offers waiting for an answer", compute='_compute_offers')
     # Audit D-13: the ties left in the ranking after every tie-break, drawn by EMS (as a group mobility's).
     needs_draw = fields.Boolean(string="Tie to resolve", compute='_compute_needs_draw')
     draw_ids = fields.One2many(string="Draws", comodel_name='ems.erasmus.group.draw', inverse_name='call_id',
@@ -163,11 +167,16 @@ class EmsErasmusCall(models.Model):
 
     @api.depends('audience', 'modality_ids.places', 'offer_ids.state', 'application_ids.state', 'application_ids.rank')
     def _compute_offers(self):
-        """Issue #686: a staff call offers its places as one pool, whatever the modality."""
+        """Issue #686: a staff call offers its places as one pool, whatever the modality. And how
+        many places are accepted and how many offers wait for an answer, to know when the destination
+        choice can open (the 2026-11-03 review)."""
         for call in self:
             is_staff = call.audience == 'staff'
             call.free_places = is_staff and call._ems_free_places()
             call.next_reserve_id = is_staff and call._ems_next_reserve()
+            call.places_total = sum(call.modality_ids.mapped('places'))
+            call.places_accepted = len(call.application_ids.filtered(lambda application: application.state == 'accepted'))
+            call.offers_pending = len(call.offer_ids.filtered(lambda offer: offer.state == 'pending'))
 
     @api.depends('state', 'date_open', 'date_close')
     def _compute_is_accepting(self):

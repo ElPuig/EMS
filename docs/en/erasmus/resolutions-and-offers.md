@@ -34,7 +34,7 @@ Each one needs the previous one published. A published resolution can never be c
 
 1. On the call, open the **Resolutions** tab (or **Erasmus+ > Calls > Resolutions**) and add a new one: choose its **Kind**.
 2. Click **Actions > Prepare lines**. EMS freezes the list as the applications are now. If something is missing (an application not decided, a score incomplete, an identity document), EMS tells you who. You can prepare it again as many times as you need while it is a draft.
-3. For a rectification, explain in **Notes for applicants** what it corrects.
+3. For a rectification, explain in **Notes for applicants** what it corrects. The notes are published with the list and emailed to everyone on it: never write anyone's name.
 4. The Erasmus coordinator reviews the list and clicks **Actions > Publish**. EMS keeps who published it and when, and the published list shows that date as the approval date.
 
 When it is published:
@@ -42,7 +42,7 @@ When it is published:
 - Every applicant on it receives their result by email and sees it on the portal, with the detail of their score.
 - The list is published on the portal without names. To post it on the centre's website, click **Print > Published list** to get the PDF.
 - With the **provisional** resolution, every interview of the call is locked: only the Erasmus team can reopen one, with a rectification note.
-- With the **definitive** resolution (or a rectification), each application gets its result. The selected get a place offer with the acceptance deadline: the result email already asks them to accept it on the portal, and the family of a minor gets a copy. The email and the portal also say that the list can be appealed before the Head of Studies within a month.
+- With the **definitive** resolution (or a rectification), each application gets its result. The selected get a place offer with the acceptance deadline: the result email already asks them to accept it on the portal, and the family of a minor gets a copy. The email and the portal also say that the list can be appealed before the Head of Studies within a month. A reserve's email gives their number on the reserve list of their modality. On the call, the **Places accepted** button shows how many places are accepted out of the total, and a notice says how many offers are still waiting for an answer: when none is left, you can open the destination choice.
 
 > **Who is selected:** the eligible applications (at least the minimum score) within the places of their modality. The rest of the eligible ones are on the reserve list, in order. Below the minimum score: not selected.
 

@@ -55,7 +55,8 @@ class EmsErasmusResolution(models.Model):
                                inverse_name='resolution_id', readonly=True)
     prepare_date = fields.Datetime(string="Lines frozen on", readonly=True, copy=False)
     notes = fields.Text(string="Notes for applicants",
-                        help="Published with the list. A rectification must explain what it corrects.")
+                        help="Published with the list and emailed to everyone on it: never write anyone's name. A rectification "
+                             "must explain what it corrects.")
     publish_date = fields.Datetime(string="Published on", readonly=True, copy=False)
     published_by_id = fields.Many2one(string="Published by", comodel_name='res.users', readonly=True, copy=False)
     places_warning = fields.Text(string="Places warning", compute='_compute_places_warning',

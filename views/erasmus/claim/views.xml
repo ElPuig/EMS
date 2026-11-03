@@ -11,6 +11,7 @@
                     <field name="received_date"/>
                     <field name="partner_id"/>
                     <field name="call_id" optional="hide"/>
+                    <field name="group_mobility_id" optional="hide"/>
                     <field name="kind"/>
                     <field name="resolution_id" optional="show"/>
                     <field name="resolved_date" optional="show"/>
@@ -37,8 +38,11 @@
                     <sheet>
                         <group>
                             <group>
-                                <field name="application_id" options="{'no_create': True}" readonly="not can_edit"/>
+                                <field name="application_id" options="{'no_create': True}" readonly="not can_edit"
+                                       invisible="group_registration_id" required="not group_registration_id"/>
+                                <field name="group_registration_id" invisible="not group_registration_id" readonly="1"/>
                                 <field name="call_id" invisible="1"/>
+                                <field name="group_mobility_id" invisible="not group_mobility_id"/>
                                 <field name="kind" readonly="not can_edit"/>
                                 <field name="resolution_id" options="{'no_create': True}" readonly="not can_edit"/>
                             </group>
@@ -67,6 +71,7 @@
                 <search string="Claims">
                     <field name="partner_id"/>
                     <field name="call_id"/>
+                    <field name="group_mobility_id"/>
                     <filter name="open" string="Open" domain="[('state', '=', 'open')]"/>
                     <filter name="appeals" string="Appeals" domain="[('kind', '=', 'appeal')]"/>
                 </search>

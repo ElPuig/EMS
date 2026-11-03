@@ -523,6 +523,11 @@ stateDiagram-v2
   minor's family. The family gets no copy of the other lists nor of the claims.
 - Accepting tells the student's group tutor (`_ems_notify_tutor`): a `message_notify` on the
   student, a notice and not a to-do, like the convalidations' notice to the teaching staff.
+- The call counts `places_accepted` out of `places_total` (its modalities' places) and
+  `offers_pending` (non-stored, `_compute_offers`): the **Places accepted** button and a notice on
+  the call form, so the team knows when to open the destination choice. A reserve's result email
+  gives their number (`_ems_reserve_number`); an admitted or excluded applicant's does not point to
+  a score they do not have.
 - **A free place is never offered on its own.** The modality computes `free_places` (places minus
   the offers waiting or accepted) and `next_reserve_id` (the best-ranked `reserve` application
   without one). The team clicks **Actions > Offer a free place** on the call; the wizard shows that
@@ -1145,7 +1150,10 @@ flowchart LR
 - **Ranking**: `ranking_result` (non-stored) gives the cut of the places; the menu's ranking is
   ordered by call, with its column. The application list counts `documents_to_review`.
 - **Interviews**: `ems.erasmus.interview.schedule` (wizard, Actions of the call) gives the admitted
-  applicants consecutive slots, the same place and evaluators, and sends the calls. The interview
+  applicants consecutive slots, the same place and evaluators, and sends the calls. The evaluators'
+  tasks (one per interview, done on submitting it) are scheduled quietly
+  (`mail_activity_quick_update`) and each evaluator gets one note on the call with the whole list
+  (`_ems_notify_evaluators`, `mail.thread._ems_notify`), not one email per interview. The interview
   form writes annex 4's descriptors under each criterion; interviews and plan ratings have
   **Submit and next** (`action_submit_next`).
 - **Plan ratings**: `rating_status` (stored) shows an abstention as such; a pivot view

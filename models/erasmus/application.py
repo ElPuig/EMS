@@ -1065,21 +1065,10 @@ class EmsErasmusApplication(models.Model):
             'publish_date')[-1:]
 
     def _ems_portal_claim(self, description, files=()):
-        """The applicant's claim, sent from the portal: recorded with the moment it arrived, so
-        the team only answers it."""
+        """The applicant's claim, sent from the portal against their provisional result."""
         self.ensure_one()
-        resolution = self._ems_portal_claimable()
-        description = (description or '').strip()
-        if not resolution or not description:
-            raise UserError(_("You cannot claim now."))
-        claim = self.env['ems.erasmus.claim'].sudo().create({
-            'application_id': self.id, 'resolution_id': resolution.id, 'description': description[:5000]})
-        if files:
-            claim.attachment_ids = self.env['ir.attachment'].sudo().create([{
-                'name': check_upload(name), 'datas': base64.b64encode(content),
-                'res_model': claim._name, 'res_id': claim.id} for name, content in files])
-        claim._ems_ask_answer()
-        return claim
+        return self.env['ems.erasmus.claim']._ems_portal_create(
+            {'application_id': self.id, 'resolution_id': self._ems_portal_claimable().id}, description, files)
 
     def _ems_can_manage(self):
         user = self.env.user
@@ -1108,7 +1097,7 @@ class EmsErasmusApplication(models.Model):
                     record.id, force_send=False, email_values=email_values)
             else:
                 application = record if record._name == self._name else record.application_id
-                application.sudo().chatter(_("No email sent: the applicant has no email address."))
+                (application or record).sudo().chatter(_("No email sent: the applicant has no email address."))
 
     def _ems_mail_document_list(self, lines):
         """The files of `lines` as an HTML list, for the emails."""

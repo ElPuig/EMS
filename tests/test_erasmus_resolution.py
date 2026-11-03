@@ -519,6 +519,22 @@ class TestErasmusResolutionNotices(ErasmusResolutionCase):
         self.assertNotIn(notice, self._body(self._mails(provisional.line_ids)))
         self.assertIn(notice, self._body(self._mails(definitive.line_ids)))
 
+    def test_result_emails_give_the_reserve_number_and_no_score_to_the_admitted(self):
+        """The 2026-11-03 review: a reserve learns their number; whoever has no score yet (admitted,
+        excluded) is not told to look at its detail; the place counter of the call."""
+        (self.student | self.second).lang = 'en_US'
+        first, second = self._scored_call()
+        admission = self._publish('admission')
+        self.assertNotIn('detail of your score', self._body(self._mails(admission.line_ids)))
+        self._publish('provisional')
+        definitive = self._publish('definitive')
+        reserve = self._body(self._mails(definitive.line_ids.filtered(lambda line: line.application_id == second)))
+        self.assertIn(f"number <strong>1</strong> of {second.modality_id.name}", " ".join(reserve.split()))
+        self.assertIn('detail of your score', reserve)
+        self.assertEqual((self.call.places_total, self.call.places_accepted, self.call.offers_pending), (1, 0, 1))
+        first.offer_ids.action_accept()
+        self.assertEqual((self.call.places_accepted, self.call.offers_pending), (1, 0))
+
     def test_answers_to_the_offer_are_confirmed_with_a_copy_to_a_minors_family(self):
         first, second = self._scored_call()
         self.call.modality_ids.places = 2

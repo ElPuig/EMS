@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import base64
+
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
+from .records import check_upload
 from .workflow import check_workflow_create, check_workflow_write
 
 
@@ -20,7 +23,8 @@ class EmsErasmusClaim(models.Model):
     application_id = fields.Many2one(string="Application", comodel_name='ems.erasmus.application', required=True,
                                      ondelete='restrict', index=True)
     call_id = fields.Many2one(string="Call", related='application_id.call_id', store=True)
-    partner_id = fields.Many2one(string="Applicant", related='application_id.partner_id', store=True)
+    partner_id = fields.Many2one(string="Applicant", comodel_name='res.partner', compute='_compute_partner_id',
+                                 store=True, index=True)
     resolution_id = fields.Many2one(string="Against", comodel_name='ems.erasmus.resolution', ondelete='restrict',
                                     domain="[('call_id', '=', call_id), ('state', '=', 'published')]")
     kind = fields.Selection(string="Kind", required=True, default='claim', tracking=True, selection=[
@@ -37,6 +41,11 @@ class EmsErasmusClaim(models.Model):
     can_resolve = fields.Boolean(string="Can answer", compute='_compute_can_resolve')
     can_edit = fields.Boolean(string="Can edit", compute='_compute_can_resolve',
                               help="The Erasmus team records the claims; whoever answers an appeal only writes the response.")
+
+    @api.depends('application_id.partner_id')
+    def _compute_partner_id(self):
+        for claim in self:
+            claim.partner_id = claim.application_id.partner_id
 
     def _compute_display_name(self):
         kinds = dict(self._fields['kind']._description_selection(self.env))
@@ -105,14 +114,35 @@ class EmsErasmusClaim(models.Model):
         themself (hr.employee.find_head_of_studies); the Director when the applicant is that Head
         of Studies or there is none; the administrators when the applicant is the Director."""
         self.ensure_one()
-        application = self.application_id.sudo()
-        employee = application.employee_id if application.audience == 'staff' \
-            else application.partner_id.main_group_id.tutor_id
+        employee, applicant = self._ems_appeal_chain()
         head = employee.find_head_of_studies() if employee else employee
-        if not head or head == application.employee_id:
+        if not head or head == applicant:
             head = self.env.company.sudo().director_id
-        users = head.user_id - application.employee_id.user_id
+        users = head.user_id - applicant.user_id
         return users or self.env.ref('ems.group_academic_admin').sudo().users.filtered(lambda user: not user.share)
+
+    def _ems_appeal_chain(self):
+        """The employee whose chain of command answers the appeal (a teacher themself, a student's
+        group tutor), and the applicant's own employee (a teacher, never answering their own)."""
+        application = self.application_id.sudo()
+        if application.audience == 'staff':
+            return application.employee_id, application.employee_id
+        return application.partner_id.main_group_id.tutor_id, application.employee_id
+
+    @api.model
+    def _ems_portal_create(self, vals, description, files=()):
+        """A claim sent from the portal (`vals`: who and against which list), recorded with the
+        moment it arrived and its files, and a task for the Erasmus team to answer it."""
+        description = (description or '').strip()
+        if not vals.get('resolution_id') or not description:
+            raise UserError(_("You cannot claim now."))
+        claim = self.sudo().create(dict(vals, description=description[:5000]))
+        if files:
+            claim.attachment_ids = self.env['ir.attachment'].sudo().create([{
+                'name': check_upload(name), 'datas': base64.b64encode(content),
+                'res_model': claim._name, 'res_id': claim.id} for name, content in files])
+        claim._ems_ask_answer()
+        return claim
 
     def _ems_can_resolve(self):
         """The Erasmus team answers the claims, whoever `_ems_appeal_approvers` names the appeals,

@@ -301,6 +301,19 @@ class TestErasmusInterview(ErasmusScoringCase):
         self.assertEqual(set((first | second).mapped('interview_place')), {'Room 12'})
         self.assertEqual(first.interview_ids.evaluator_id, self.evaluator_1 | self.evaluator_2)
         self.assertTrue(first.interview_call_date and second.interview_call_date)
+        # One task per interview, but a single notice per evaluator with the whole list (the
+        # 2026-11-03 review), not an "activity assigned" email for each one.
+        own = (first | second).interview_ids.filtered(lambda interview: interview.evaluator_id == self.evaluator_1)
+        self.assertEqual(len(own.activity_ids), 2)
+        Message = self.env['mail.message']
+        self.assertFalse(Message.search([('model', '=', 'ems.erasmus.interview'), ('res_id', 'in', own.ids),
+                                         ('partner_ids', 'in', self.evaluator_1.partner_id.ids)]))
+        notices = Message.search([('model', '=', 'ems.erasmus.call'), ('res_id', '=', self.call.id),
+                                  ('partner_ids', 'in', self.evaluator_1.partner_id.ids)])
+        self.assertEqual(len(notices), 1)
+        self.assertIn('Room 12', notices.body)
+        self.assertIn(first.partner_id.name, notices.body)
+        self.assertIn(second.partner_id.name, notices.body)
         wizard = self.env['ems.erasmus.interview.schedule'].with_context(active_id=self.call.id).create({
             'date_start': start, 'place': 'Room 12'})
         self.assertFalse(wizard.application_ids, "Who already has an interview date is not proposed again.")

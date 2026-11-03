@@ -2,6 +2,8 @@
 
 from datetime import timedelta
 
+from markupsafe import Markup
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
@@ -145,13 +147,32 @@ class EmsErasmusInterviewSchedule(models.TransientModel):
             raise UserError(_("There is nobody to schedule."))
         if self.duration <= 0:
             raise UserError(_("Each interview needs some minutes."))
-        Interview = self.env['ems.erasmus.interview']
+        # One task per interview (each one closes when it is scored), scheduled quietly: each
+        # evaluator gets a single notice with the whole list instead of an email per interview.
+        Interview = self.env['ems.erasmus.interview'].with_context(mail_activity_quick_update=True)
+        created = Interview
         for index, application in enumerate(self.application_ids):
             application.write({'interview_date': self.date_start + timedelta(minutes=index * self.duration),
                                'interview_place': self.place})
             missing = self.evaluator_ids - application.interview_ids.evaluator_id
-            Interview.create([{'application_id': application.id, 'evaluator_id': user.id} for user in missing])
+            created |= Interview.create([{'application_id': application.id, 'evaluator_id': user.id}
+                                         for user in missing])
+        self._ems_notify_evaluators(created)
         if self.send_call:
             self.application_ids.action_send_interview_call()
         return {'type': 'ir.actions.act_window_close'}
 
+    def _ems_notify_evaluators(self, interviews):
+        """A single notice to each evaluator with the interviews just assigned to them: date and
+        time, place and applicant, in their own language."""
+        Call = self.env['ems.erasmus.call']
+        for evaluator in interviews.evaluator_id:
+            own = interviews.filtered(lambda interview: interview.evaluator_id == evaluator).sorted('interview_date')
+            lang_self = self.with_context(lang=evaluator.lang)
+            message = Markup("<p>{}</p>{}").format(
+                lang_self.env._("Erasmus+: you have %(count)s interviews to score in %(call)s. Each one is a task in "
+                                "Erasmus+ > My evaluations.", count=len(own), call=self.call_id.name),
+                self.env['ems.base'].build_html_list([
+                    f"{Call._ems_local_format(interview.interview_date)} - {interview.interview_place} - "
+                    f"{interview.partner_id.name}" for interview in own]))
+            self.call_id.sudo()._ems_notify(evaluator.partner_id, message)

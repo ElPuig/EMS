@@ -12,7 +12,7 @@ Cuando el equipo Erasmus te pide que valores la entrevista de un candidato, la p
 
 ## 1. Encontrar tus entrevistas
 
-Cuando se te asigna una entrevista, recibes una tarea en EMS. Aparece el menú **Erasmus+**, con **Mis evaluaciones**: las entrevistas que tienes asignadas, con el candidato, la fecha y el lugar.
+Cuando se te asigna una entrevista, recibes una tarea en EMS. Cuando el equipo Erasmus programa muchas entrevistas a la vez, recibes un solo aviso con toda la lista (día y hora, lugar y candidato) en lugar de un correo por entrevista. Aparece el menú **Erasmus+**, con **Mis evaluaciones**: las entrevistas que tienes asignadas, con el candidato, la fecha y el lugar.
 
 La lista muestra los totales cuando ya has enviado cada entrevista. Solo ves tus entrevistas. No ves la puntuación de la otra persona evaluadora ni el resto de la solicitud del candidato.
 

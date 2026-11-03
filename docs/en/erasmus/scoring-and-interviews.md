@@ -39,7 +39,7 @@ Every criterion starts empty. **An empty criterion is never zero:** the applicat
 
 ## 3. Organise the interviews
 
-**Many at once:** on the call, click **Actions > Schedule interviews**. Choose the modality (or none, for every one), the **First interview**, the **Minutes per interview**, the **Place** and the **Evaluators**. EMS proposes the admitted applicants without an interview date yet, by modality and name: remove or reorder whoever you need. **Schedule** gives each one the next slot, assigns them the evaluators and, with **Send the interview calls** ticked, emails each applicant the date and place (at least 24 hours ahead).
+**Many at once:** on the call, click **Actions > Schedule interviews**. Choose the modality (or none, for every one), the **First interview**, the **Minutes per interview**, the **Place** and the **Evaluators**. EMS proposes the admitted applicants without an interview date yet, by modality and name: remove or reorder whoever you need. **Schedule** gives each one the next slot, assigns them the evaluators and, with **Send the interview calls** ticked, emails each applicant the date and place (at least 24 hours ahead). Each evaluator gets a task per interview, which is done when they submit its score, but a single notice with the whole list (date and time, place and applicant), not one email per interview.
 
 **One by one**, on the **Interview** tab of each admitted application:
 

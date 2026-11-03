@@ -34,7 +34,7 @@ Cadascuna necessita l'anterior publicada. Una resolució publicada no es pot mod
 
 1. A la convocatòria, obre la pestanya **Resolucions** (o **Erasmus+ > Convocatòries > Resolucions**) i afegeix-ne una de nova: tria'n el **Tipus**.
 2. Fes clic a **Accions > Prepara les línies**. EMS congela la llista tal com estan ara les sol·licituds. Si falta alguna cosa (una sol·licitud sense decidir, una puntuació incompleta, un document d'identitat), EMS t'indica de qui es tracta. Mentre sigui un esborrany, la pots tornar a preparar tantes vegades com calgui.
-3. En una rectificació, explica a **Notes per als sol·licitants** què corregeix.
+3. En una rectificació, explica a **Notes per als sol·licitants** què corregeix. Les notes es publiquen amb la llista i s'envien per correu a totes les persones que hi surten: no hi escriguis mai el nom de ningú.
 4. El coordinador o la coordinadora Erasmus revisa la llista i fa clic a **Accions > Publica**. EMS desa qui l'ha publicada i quan, i la llista publicada mostra aquesta data com a data d'aprovació.
 
 Quan es publica:
@@ -42,7 +42,7 @@ Quan es publica:
 - Cada sol·licitant que hi surt rep el resultat per correu i el veu al portal, amb el detall de la puntuació.
 - La llista es publica al portal sense noms. Per penjar-la al web del centre, fes clic a **Imprimeix > Llista publicada** per obtenir-ne el PDF.
 - Amb la resolució **provisional**, es bloquegen totes les entrevistes de la convocatòria: només l'equip Erasmus en pot reobrir una, amb una nota de rectificació.
-- Amb la resolució **definitiva** (o una rectificació), cada sol·licitud rep el resultat. L'alumnat seleccionat rep una oferta de plaça amb el termini d'acceptació: el correu del resultat ja li demana que l'accepti al portal, i la família d'un menor en rep una còpia. El correu i el portal també diuen que contra la llista es pot presentar recurs d'alçada davant el cap d'estudis en el termini d'un mes.
+- Amb la resolució **definitiva** (o una rectificació), cada sol·licitud rep el resultat. L'alumnat seleccionat rep una oferta de plaça amb el termini d'acceptació: el correu del resultat ja li demana que l'accepti al portal, i la família d'un menor en rep una còpia. El correu i el portal també diuen que contra la llista es pot presentar recurs d'alçada davant el cap d'estudis en el termini d'un mes. El correu d'una persona en reserva li diu el seu número a la llista de reserva de la seva modalitat. A la convocatòria, el botó **Places acceptades** mostra quantes places s'han acceptat del total, i un avís diu quantes ofertes esperen resposta: quan no en queda cap, pots obrir l'elecció de destinació.
 
 > **Qui queda seleccionat:** les sol·licituds elegibles (com a mínim la puntuació mínima) dins de les places de la seva modalitat. La resta de les elegibles queden en reserva, per ordre. Per sota de la puntuació mínima: no seleccionades.
 

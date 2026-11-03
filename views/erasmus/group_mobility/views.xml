@@ -264,6 +264,10 @@
                                         </list>
                                     </field>
                                 </group>
+                                <group string="Claims" invisible="not claim_ids"
+                                       groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
+                                    <field name="claim_ids" nolabel="1" colspan="2"/>
+                                </group>
                                 <field name="registration_ids">
                                     <list create="false" delete="false" editable="bottom"
                                           decoration-muted="state == 'withdrawn' or result == 'renounced'"

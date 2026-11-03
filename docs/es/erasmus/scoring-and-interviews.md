@@ -39,7 +39,7 @@ Todos los criterios empiezan vacíos. **Un criterio vacío nunca es un cero:** l
 
 ## 3. Organizar las entrevistas
 
-**Muchas a la vez:** en la convocatoria, haz clic en **Acciones > Programar las entrevistas**. Elige la modalidad (o ninguna, para todas), la **Primera entrevista**, los **Minutos por entrevista**, el **Lugar** y las **Personas evaluadoras**. EMS propone las personas admitidas que aún no tienen fecha de entrevista, por modalidad y nombre: quita o reordena a quien haga falta. **Programar** da a cada una la franja siguiente, le asigna las personas evaluadoras y, con **Enviar las convocatorias de entrevista** marcado, envía por correo a cada persona la fecha y el lugar (como mínimo 24 horas antes).
+**Muchas a la vez:** en la convocatoria, haz clic en **Acciones > Programar las entrevistas**. Elige la modalidad (o ninguna, para todas), la **Primera entrevista**, los **Minutos por entrevista**, el **Lugar** y las **Personas evaluadoras**. EMS propone las personas admitidas que aún no tienen fecha de entrevista, por modalidad y nombre: quita o reordena a quien haga falta. **Programar** da a cada una la franja siguiente, le asigna las personas evaluadoras y, con **Enviar las convocatorias de entrevista** marcado, envía por correo a cada persona la fecha y el lugar (como mínimo 24 horas antes). Cada persona evaluadora recibe una tarea por entrevista, que queda hecha cuando envía su puntuación, pero un solo aviso con toda la lista (día y hora, lugar y candidato), no un correo por entrevista.
 
 **Una a una**, en la pestaña **Entrevista** de cada solicitud admitida:
 

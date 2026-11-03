@@ -60,6 +60,14 @@
 - The group tutor gets a notice (message_notify on the student, not a to-do) when their student accepts a place.
 - Excluding an application once the admission list is published (e.g. not attending the interview) emails the reason, and the portal shows it instead of pointing to results that do not exist yet.
 
+## Erasmus+ group claims from the portal, one notice per evaluator and the accepted places at a glance (review by role, 2026-11-03):
+
+- A student of a group mobility claims against the provisional list from the portal card, with files, as in the calls (before: by replying to the result email). They get the receipt and the answer by email, the Erasmus team gets a task to answer it, the claims show in the mobility's Selection tab and in Erasmus+ > Calls > Claims, and the selection cannot be approved while one is open.
+- Scheduling interviews in bulk sends each evaluator a single notice with the whole list (date and time, place and applicant) instead of one "activity assigned" email per interview; the tasks, one per interview, still close when scored.
+- The call shows how many places are accepted out of the total (a stat button) and how many offers still wait for an answer, to know when to open the destination choice.
+- When the coordinator rejects a substitution in a group mobility, the leader teacher gets a task to propose a substitute again.
+- Wording: a reserve's result email gives their number on the reserve list of their modality; the selected read "Tens plaça" / "Tienes plaza" instead of "seleccionat o seleccionada"; an admitted or excluded applicant is no longer told to look at the detail of a score they do not have; every Catalan and Spanish email says "portal del centre" / "portal del centro"; the rectification's notes warn not to write anyone's name, since they are emailed to everyone on the list.
+
 # Fixes
 
 ## Erasmus+ health card twice in a staff mobility, and the administrator in the Erasmus team:

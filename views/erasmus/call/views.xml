@@ -74,8 +74,13 @@
                             <button name="action_view_mobilities" type="object" class="oe_stat_button" icon="fa-plane"
                                     string="Mobilities" invisible="not has_final_resolution"/>
                             <button name="action_view_offers" type="object" class="oe_stat_button" icon="fa-envelope-open-o"
-                                    string="Place offers" invisible="not has_final_resolution"
-                                    groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+                                    invisible="not has_final_resolution"
+                                    groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_value"><field name="places_accepted"/> / <field name="places_total"/></span>
+                                    <span class="o_stat_text">Places accepted</span>
+                                </div>
+                            </button>
                             <button name="action_view_claims" type="object" class="oe_stat_button" icon="fa-exclamation-circle"
                                     string="Claims" invisible="not has_provisional_resolution"
                                     groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
@@ -95,6 +100,11 @@
                         <field name="has_provisional_resolution" invisible="1"/>
                         <field name="needs_draw" invisible="1"/>
                         <!-- Where the coordinator sees it on opening the call. -->
+                        <div class="alert alert-info" role="alert" invisible="not has_final_resolution or not offers_pending"
+                             groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
+                            <field name="offers_pending" class="fw-bold"/> place offers are waiting for an answer
+                            (<field name="places_accepted" class="fw-bold"/> of <field name="places_total" class="fw-bold"/> places accepted).
+                        </div>
                         <div class="alert alert-warning" role="alert" invisible="not needs_draw">
                             There is a tie in the ranking: the Erasmus coordinator resolves it with a draw (Actions, Draw the ties).
                         </div>

@@ -19,7 +19,7 @@ No CV, letter nor interview is needed. If you have as many conduct warnings this
 
 ## The result
 
-First the Erasmus coordination publishes a **provisional list**: you receive an email with your provisional result and, on the portal's card, you see it and the link to the list. The list identifies each student only by four digits of their identity document. If you disagree, reply to the email before the claims deadline shown.
+First the Erasmus coordination publishes a **provisional list**: you receive an email with your provisional result and, on the portal's card, you see it and the link to the list. The list identifies each student only by four digits of their identity document. If you disagree, open **I want to claim** under your provisional result, write what you claim and why, attach the files that support it if you have any and click **Send the claim** before the claims deadline shown. You receive an email confirming that it arrived, and another one with the answer of the Erasmus team, which you also see on the card.
 
 Then the coordination publishes the **definitive list** and you receive an email with your result (selected, on the reserve list with your number, or not meeting the requirements). You also see it on the portal's card, with the link to both lists. You only see your own result.
 

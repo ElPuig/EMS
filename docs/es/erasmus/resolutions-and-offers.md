@@ -34,7 +34,7 @@ Cada una necesita la anterior publicada. Una resolución publicada no se puede m
 
 1. En la convocatoria, abre la pestaña **Resoluciones** (o **Erasmus+ > Convocatorias > Resoluciones**) y añade una nueva: elige su **Tipo**.
 2. Haz clic en **Acciones > Preparar líneas**. EMS congela la lista tal como están ahora las solicitudes. Si falta algo (una solicitud sin decidir, una puntuación incompleta, un documento de identidad), EMS te indica de quién se trata. Mientras sea un borrador, puedes volver a prepararla tantas veces como haga falta.
-3. En una rectificación, explica en **Notas para los solicitantes** qué corrige.
+3. En una rectificación, explica en **Notas para los solicitantes** qué corrige. Las notas se publican con la lista y se envían por correo a todas las personas que aparecen en ella: no escribas nunca el nombre de nadie.
 4. El coordinador o la coordinadora Erasmus revisa la lista y hace clic en **Acciones > Publicar**. EMS guarda quién la ha publicado y cuándo, y la lista publicada muestra esa fecha como fecha de aprobación.
 
 Cuando se publica:
@@ -42,7 +42,7 @@ Cuando se publica:
 - Cada solicitante que aparece recibe su resultado por correo y lo ve en el portal, con el detalle de su puntuación.
 - La lista se publica en el portal sin nombres. Para colgarla en la web del centro, haz clic en **Imprimir > Lista publicada** para obtener el PDF.
 - Con la resolución **provisional**, se bloquean todas las entrevistas de la convocatoria: solo el equipo Erasmus puede reabrir una, con una nota de rectificación.
-- Con la resolución **definitiva** (o una rectificación), cada solicitud recibe su resultado. El alumnado seleccionado recibe una oferta de plaza con el plazo de aceptación: el correo del resultado ya le pide que la acepte en el portal, y la familia de un menor recibe una copia. El correo y el portal también dicen que contra la lista se puede presentar recurso de alzada ante el jefe de estudios en el plazo de un mes.
+- Con la resolución **definitiva** (o una rectificación), cada solicitud recibe su resultado. El alumnado seleccionado recibe una oferta de plaza con el plazo de aceptación: el correo del resultado ya le pide que la acepte en el portal, y la familia de un menor recibe una copia. El correo y el portal también dicen que contra la lista se puede presentar recurso de alzada ante el jefe de estudios en el plazo de un mes. El correo de una persona en reserva le dice su número en la lista de reserva de su modalidad. En la convocatoria, el botón **Plazas aceptadas** muestra cuántas plazas se han aceptado del total, y un aviso dice cuántas ofertas esperan respuesta: cuando no queda ninguna, puedes abrir la elección de destino.
 
 > **Quién queda seleccionado:** las solicitudes elegibles (como mínimo la puntuación mínima) dentro de las plazas de su modalidad. El resto de las elegibles quedan en reserva, por orden. Por debajo de la puntuación mínima: no seleccionadas.
 

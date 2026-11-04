@@ -34,6 +34,21 @@ absence (D0) and is computed in one place, `ems.ex_officio_withdrawal._ems_due_d
 Example: D0 = Tuesday 15 December 2026 with the Christmas break from 21 December to 7 January: the
 15th school day is 22 January 2027.
 
+**The protocol's waits are always kept.** Those are the protocol's days (`planned_date`). A step
+accepted later than its day moves the pending ones (`_ems_shift_pending_steps()`, called by *Accept
+and continue*): each pending step is due (`due_date`) on the later of its protocol day and the
+previous step's day plus the protocol's wait between them (`_ems_after_wait()`), counted from the
+day the step is accepted in EMS (never from a tick box's day, which can be backdated). The wait is
+the difference of their school days in a school-day circuit, the calendar days between their
+protocol days otherwise; two steps on the same protocol day (Social Services and the notice to the
+family; the withdrawal and Direction's green light) have no wait between them. So a tutor who
+contacts the family a month late does not let the Secretariat warn it the same day, nor Direction
+approve the withdrawal: each still gets its own wait.
+
+Example (post-compulsory, D0 17 December 2041, break 23 December to 7 January): the tutor's step,
+due 8 January, accepted on Monday 20 January moves the Secretariat to 27 January (5 school days)
+and Direction and the withdrawal to 3 February (5 more).
+
 **Post-compulsory**
 
 | Step | Responsible | Day | Confirms |
@@ -82,7 +97,8 @@ circuit come with the next phases.
   group, level and circuit (taken from the student's main group when created), tutor (the
   student's current one), first day of absence, origin (`manual` / `detected`), state, cancel
   reason and note. One open case file per student (`_check_one_open_per_student`).
-- `ems.ex_officio_withdrawal.step`: step code, responsible, day (`due_date`), notes, done by / on,
+- `ems.ex_officio_withdrawal.step`: step code, responsible, protocol day (`planned_date`), day it is
+  really due (`due_date`, see above), notes, done by / on,
   `is_current` (stored, from the case file's stored `current_step_id`: the first step not done).
 - `ems.ex_officio_withdrawal.check`: one per action a step asks its responsible to confirm
   (`CHECK_CODES`: phone call, email to the family, eNotum, Esfera, SAGA, email to Social Services,
@@ -159,9 +175,9 @@ everything for `ems.group_student_data_reader`, `ems.group_secretary` and
     (`current_step_notes`).
   - **Whose turn it is**, for everybody else (`waiting_message`): the responsible, the step and its
     day; on a proposal, that the tutor decides.
-  - **The history** (`history_html`, read-only): every step in order, the done ones with who, when,
-    each check with its day and the notes, the current one in bold and the pending ones greyed out
-    with their responsible and day.
+  - **The history** (`history_html`, read-only): every step in order with its due day (and, below it
+    in grey, the protocol's day when a late step moved it) and when it was really done and by whom,
+    each check with its day and the notes; the current one in bold and the pending ones greyed out.
 - A new case file only offers the students the user may open one for (`student_domain`): their
   tutor scope's students (all of them for the Head of Studies and the administrators) whose level
   has a circuit.

@@ -257,7 +257,8 @@ class EmsExOfficioWithdrawal(models.Model):
             if step.due_date > today:
                 status = _("It cannot be done yet: it opens on %(date)s.", date=due)
             elif later and later.due_date <= today:
-                status = _("It is late: the next step was due on %(date)s.", date=format_date(self.env, later.due_date))
+                status = _("It is late: the next step was due on %(date)s. The following steps will be moved, so "
+                           "every wait the protocol sets is kept.", date=format_date(self.env, later.due_date))
             else:
                 status = False
             help_line = _("Tick each action as you do it and save: you can do it in several goes. "
@@ -268,11 +269,13 @@ class EmsExOfficioWithdrawal(models.Model):
                      status=Markup("<p class='text-danger'>{}</p>").format(status) if status else '',
                      help=help_line)
 
-    @api.depends('step_ids.done_date', 'step_ids.notes', 'step_ids.check_ids.done', 'step_ids.check_ids.date')
+    @api.depends('step_ids.done_date', 'step_ids.due_date', 'step_ids.notes', 'step_ids.check_ids.done',
+                 'step_ids.check_ids.date')
     @api.depends_context('lang')
     def _compute_history_html(self):
-        """Every step in order: the done ones with who, when, what was confirmed and the notes;
-        the pending ones greyed out with their responsible and day."""
+        """Every step in order: when it is due (with the protocol's day when a late step moved it)
+        and when it was really done, by whom, what was confirmed and the notes; the pending ones
+        greyed out."""
         responsibles = dict(self.env['ems.ex_officio_withdrawal.step']._fields['responsible']
                             ._description_selection(self.env))
         codes = dict(self.env['ems.ex_officio_withdrawal.step']._fields['code']._description_selection(self.env))
@@ -292,8 +295,9 @@ class EmsExOfficioWithdrawal(models.Model):
                     for check in step.check_ids if check.done)
                 if step.done_date:
                     icon, css = Markup("<i class='fa fa-check text-success' title='Done'/>"), ''
-                    who = _("%(user)s, %(date)s", user=step.done_by_id.name,
-                            date=format_datetime(self.env, step.done_date, tz=tz, dt_format='short'))
+                    who = _("%(date)s, %(user)s",
+                            date=format_datetime(self.env, step.done_date, tz=tz, dt_format='short'),
+                            user=step.done_by_id.name)
                 else:
                     is_current = step == current
                     icon = Markup("<i class='fa fa-arrow-right text-warning' title='Current'/>") if is_current \
@@ -301,15 +305,19 @@ class EmsExOfficioWithdrawal(models.Model):
                     css = 'fw-bold' if is_current else 'text-muted'
                     who = ''
                 notes = Markup("<br/><em>{}</em>").format(step.notes) if step.notes else ''
+                due = format_date(self.env, step.due_date)
+                if step.planned_date and step.planned_date != step.due_date:
+                    due = Markup("{due}<br/><small class='text-muted'>{protocol}</small>").format(
+                        due=due, protocol=_("protocol: %s", format_date(self.env, step.planned_date)))
                 rows.append(Markup(
                     "<tr class='{css}'><td>{icon}</td><td>{date}</td><td>{step}</td><td>{responsible}</td>"
                     "<td>{who}</td><td>{checks}{notes}</td></tr>"
-                ).format(css=css, icon=icon, date=format_date(self.env, step.due_date), step=codes[step.code],
+                ).format(css=css, icon=icon, date=due, step=codes[step.code],
                          responsible=responsibles[step.responsible], who=who, checks=checks, notes=notes))
             withdrawal.history_html = Markup(
                 "<table class='table table-sm o_ems_withdrawal_history'><thead><tr><th/><th>{date}</th><th>{step}</th>"
                 "<th>{responsible}</th><th>{done}</th><th>{what}</th></tr></thead><tbody>{rows}</tbody></table>"
-            ).format(date=_("Day"), step=_("Step"), responsible=_("Responsible"), done=_("Done by"),
+            ).format(date=_("Due"), step=_("Step"), responsible=_("Responsible"), done=_("Done"),
                      what=_("What was done"), rows=Markup("").join(rows))
 
     @api.depends('state')
@@ -367,6 +375,7 @@ class EmsExOfficioWithdrawal(models.Model):
                 'sequence': index,
                 'code': code,
                 'responsible': responsible,
+                'planned_date': withdrawal._ems_due_date(deadline),
                 'due_date': withdrawal._ems_due_date(deadline),
                 'check_ids': [(0, 0, {'sequence': position, 'code': check}) for position, check in enumerate(checks)],
             } for index, (code, responsible, deadline, checks) in enumerate(STEP_CATALOG[withdrawal.circuit])])
@@ -395,7 +404,8 @@ class EmsExOfficioWithdrawal(models.Model):
 
     def action_accept_step(self):
         """The current step is done: never before its day, and only with every off-EMS action it
-        asks for ticked. The next step's task is scheduled on its own day."""
+        asks for ticked. Done late, it moves the following steps so the protocol's waits are kept
+        (counted from today, the day it is accepted). The next step's task is scheduled on its day."""
         today = self.env['ems.datetime_utils'].get_local_today()
         for withdrawal in self:
             step = withdrawal.current_step_id
@@ -409,6 +419,7 @@ class EmsExOfficioWithdrawal(models.Model):
             if missing:
                 raise UserError(_("Tick what this step asks for first: %s", ", ".join(missing)))
             step.sudo().write({'done_by_id': self.env.uid, 'done_date': fields.Datetime.now()})
+            withdrawal._ems_shift_pending_steps(step, today)
             lines = [_("Step done: %s", dict(step._fields['code']._description_selection(self.env))[step.code])]
             lines += [f"{labels[check.code]}: {format_date(self.env, check.date)}" for check in step.check_ids]
             if step.notes:
@@ -514,18 +525,24 @@ class EmsExOfficioWithdrawal(models.Model):
                                   "can decide this proposal."))
 
     def _ems_due_date(self, deadline):
-        """The day a step is due, counted from the first day of absence (the one place the circuit's
-        deadlines are computed). {'school_days': N}: the N-th school day of absence, the first day
-        included, skipping weekends and the centre's holidays and breaks. Otherwise calendar days
-        and months (relativedelta keywords)."""
+        """The day a step is due by the protocol, counted from the first day of absence (the one
+        place the circuit's deadlines are computed). {'school_days': N}: the N-th school day of
+        absence, the first day included, skipping weekends and the centre's holidays and breaks.
+        Otherwise calendar days and months (relativedelta keywords)."""
         self.ensure_one()
         start = self.first_absence_date
         if 'school_days' not in deadline:
             return start + relativedelta(**deadline)
-        count = deadline['school_days']
+        return self._ems_nth_school_day(start, deadline['school_days'], include_start=True)
+
+    def _ems_nth_school_day(self, start, count, include_start=False):
+        """The `count`-th school day from `start` (`start` itself counted when `include_start`);
+        `start` when `count` is 0."""
+        if not count:
+            return start
         window_end = start + timedelta(days=count * SCHOOL_DAY_WINDOW_FACTOR + SCHOOL_DAY_WINDOW_MARGIN)
         closed = self.env['resource.calendar.leaves']._ems_holiday_dates(start, window_end)
-        day, seen = start, 0
+        day, seen = (start, 0) if include_start else (start + timedelta(days=1), 0)
         while True:
             if day.weekday() < 5 and day not in closed:
                 seen += 1
@@ -533,6 +550,28 @@ class EmsExOfficioWithdrawal(models.Model):
                     return day
             day += timedelta(days=1)
 
+    def _ems_after_wait(self, previous, step, done_day):
+        """The earliest day `step` may be done when the step before it, `previous`, was done on
+        `done_day`: the protocol's wait between them (school days in a school-day circuit, the
+        calendar days between their protocol dates otherwise) counted from that day."""
+        self.ensure_one()
+        catalog = STEP_CATALOG[self.circuit]
+        before, after = catalog[previous.sequence][2], catalog[step.sequence][2]
+        if 'school_days' in after:
+            return self._ems_nth_school_day(done_day, after['school_days'] - before['school_days'])
+        return done_day + timedelta(days=(step.planned_date - previous.planned_date).days)
+
+    def _ems_shift_pending_steps(self, done_step, done_day):
+        """A step done later than its protocol date moves the ones after it, so every wait the
+        protocol sets between two steps is kept: each pending step is due on the later of its
+        protocol date and the previous one's day plus the wait between them."""
+        self.ensure_one()
+        previous, previous_day = done_step, done_day
+        for step in self.step_ids.filtered(lambda later: later.sequence > done_step.sequence):
+            due = max(step.planned_date, self._ems_after_wait(previous, step, previous_day))
+            if step.due_date != due:
+                step.sudo().due_date = due
+            previous, previous_day = step, due
 
 class EmsExOfficioWithdrawalStep(models.Model):
     """One step of a case file's protocol: who does it, by when, and what they did."""
@@ -545,6 +584,9 @@ class EmsExOfficioWithdrawalStep(models.Model):
     sequence = fields.Integer(string="Sequence")
     code = fields.Selection(string="Step", selection=STEP_CODES, required=True, readonly=True)
     responsible = fields.Selection(string="Responsible", selection=RESPONSIBLES, required=True, readonly=True)
+    # The protocol's day (from the first day of absence) and the day the step is really due: later
+    # when an earlier step was done late, so the protocol's waits are always kept.
+    planned_date = fields.Date(string="Protocol day", readonly=True)
     due_date = fields.Date(string="Due", readonly=True)
     check_ids = fields.One2many(string="To confirm", comodel_name='ems.ex_officio_withdrawal.check',
                                 inverse_name='step_id')

@@ -13,7 +13,8 @@
 
 ## The case file form, per responsible (2026-11-04):
 - Whoever does the current step gets a block with what to do and from which day until which one (late or not yet open is said), each action to confirm as a sentence with its day (today by default), ticked and saved in as many goes as needed, and their notes; "Accept and continue" only works once every action is confirmed. Everybody else gets one line saying whose turn it is.
-- The steps list is replaced by a read-only history: every step in order, the done ones with who, when, each action with its day and the notes, the current one in bold and the pending ones greyed out with their responsible and day.
+- The steps list is replaced by a read-only history: every step in order with its due day (and the protocol's day when it was moved) and when it was really done and by whom, each action with its day and the notes; the current one in bold and the pending ones greyed out.
+- The protocol's waits are always kept: a step accepted late moves the following ones, each due on the later of its protocol day and the previous step's real day plus the wait between them (school days in post-compulsory, calendar days in compulsory). A tutor who contacts the family a month late no longer lets the Secretariat and Direction do their steps the same day.
 - A new case file only offers the user's own students (their tutor scope; everyone for the Head of Studies and the administrators) whose level has a circuit.
 - The tutor can request an ex officio withdrawal from the student's form (Actions), for a student whose level has a circuit and no open case file.
 

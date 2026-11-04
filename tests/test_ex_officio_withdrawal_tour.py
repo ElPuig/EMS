@@ -65,6 +65,9 @@ class TestExOfficioWithdrawalTour(HttpCase):
         case_file.action_start()
         case_file.current_check_ids.done = True
         case_file.action_accept_step()
+        # Accepted today, the tutor's step moved the Secretariat's five school days on: bring it
+        # back to today, as if the tutor had done theirs on time.
+        case_file.step_ids[1].due_date = today
         self.start_tour(f"/odoo/action-ems.action_ex_officio_withdrawal/{case_file.id}",
                         "ems_ex_officio_withdrawal_secretariat_step", login=secretary.login)
         self.assertEqual(case_file.state, 'direction')

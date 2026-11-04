@@ -3467,6 +3467,7 @@ msgid "Documents"
 msgstr "Documentos"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard__state__done
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__done
 #: model:ir.model.fields.selection,name:ems.selection__ems_contact_data_request__state__done model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
@@ -3476,6 +3477,7 @@ msgstr "Documentos"
 #: model_terms:ir.ui.view,arch_db:ems.mail_activity_view_tree_snooze
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__done
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "Done"
 msgstr "Hecho"
 
@@ -19972,9 +19974,7 @@ msgid ""
 msgstr "sesión(es) del horario personalizado de este alumno ya no están en el horario (ha cambiado el horario de un docente). Revísalas en la pestaña Estudios."
 
 #. module: ems
-#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
-#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "Day"
 msgstr "Día"
 
@@ -28914,9 +28914,7 @@ msgid "Dismissed by the tutor"
 msgstr "Descartada por el tutor"
 
 #. module: ems
-#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__done_by_id
-#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "Done by"
 msgstr "Hecho por"
 
@@ -28926,7 +28924,9 @@ msgid "Done on"
 msgstr "Hecho el"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__due_date
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "Due"
 msgstr "Plazo"
 
@@ -29261,12 +29261,6 @@ msgid "The language EMS writes in, whatever the language of whoever uses it: the
 msgstr "El idioma en el que escribe EMS, sea cual sea el idioma de quien lo usa: los códigos de las actas y los acuerdos, las actas y sus convocatorias, las resoluciones de convalidación, los horarios públicos de los grupos y los textos que EMS añade por su cuenta. También es el idioma que reciben los contactos y los usuarios nuevos."
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
-msgid "%(user)s, %(date)s"
-msgstr "%(user)s, %(date)s"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__can_request_ex_officio_withdrawal
 #: model:ir.model.fields,field_description:ems.field_res_users__can_request_ex_officio_withdrawal
 msgid "Can request an ex officio withdrawal"
@@ -29392,12 +29386,6 @@ msgstr "Doy el visto bueno a la baja de oficio en fecha"
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "It cannot be done yet: it opens on %(date)s."
 msgstr "Todavía no se puede hacer: se abre el %(date)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
-msgid "It is late: the next step was due on %(date)s."
-msgstr "Va con retraso: el paso siguiente tocaba el %(date)s."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
@@ -29545,3 +29533,26 @@ msgstr "eNotum"
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_check__code__saga
 msgid "Registered in SAGA"
 msgstr "Registrada en SAGA"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "%(date)s, %(user)s"
+msgstr "%(date)s, %(user)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "It is late: the next step was due on %(date)s. The following steps will be moved, so every wait the protocol sets is kept."
+msgstr "Va con retraso: el paso siguiente tocaba el %(date)s. Los pasos siguientes se moverán para que se respeten todos los plazos de espera del protocolo."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__planned_date
+msgid "Protocol day"
+msgstr "Día según el protocolo"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "protocol: %s"
+msgstr "protocolo: %s"

@@ -349,6 +349,40 @@ class TestExOfficioWithdrawal(TransactionCase):
         self.assertIn('Green light from Direction', history, "Pending steps are listed too")
         self.assertIn('text-muted', history)
 
+    # --- a late step moves the following ones -------------------------------------------------
+
+    def test_a_late_step_keeps_the_protocols_waits(self):
+        """The tutor's step (due 8 January) is accepted on Monday 20 January: the Secretariat gets its
+        five school days from then, and Direction five more; the withdrawal stays on Direction's day."""
+        case_file = self._open(self.post_student, date(2041, 12, 17))
+        case_file.action_start()
+        self._accept(case_file, self.tutor_user, date(2042, 1, 20))
+        self.assertEqual(case_file.step_ids.mapped('planned_date'), [
+            date(2042, 1, 8), date(2042, 1, 15), date(2042, 1, 22), date(2042, 1, 22)])
+        self.assertEqual(case_file.step_ids.mapped('due_date'), [
+            date(2042, 1, 8), date(2042, 1, 27), date(2042, 2, 3), date(2042, 2, 3)])
+        with self.assertRaises(UserError, msg="The Secretariat's wait counts from the tutor's real day"):
+            self._accept(case_file, self.secretary_user, date(2042, 1, 24))
+        self.assertIn('protocol: 01/15/2042', case_file.history_html)
+
+    def test_a_step_on_time_moves_nothing(self):
+        case_file = self._open(self.post_student, date(2041, 12, 17))
+        case_file.action_start()
+        self._accept(case_file, self.tutor_user, date(2042, 1, 8))
+        self.assertEqual(case_file.step_ids.mapped('due_date'), case_file.step_ids.mapped('planned_date'))
+        self.assertNotIn('protocol:', case_file.history_html)
+
+    def test_compulsory_waits_are_calendar_days_between_protocol_days(self):
+        """Tutor (7 days) accepted on 20 March instead of the 11th: Coexistence keeps its 8 days
+        (28 March), the notice to the family its 16 more (13 April)."""
+        case_file = self._open(self.comp_student, date(2041, 3, 4))
+        case_file.action_start()
+        self._accept(case_file, self.tutor_user, date(2041, 3, 20))
+        dues = {step.code: step.due_date for step in case_file.step_ids}
+        self.assertEqual(dues['coexistence_contact'], date(2041, 3, 28))
+        self.assertEqual(dues['secretariat_notice'], date(2041, 4, 13))
+        self.assertEqual(dues['social_services'], date(2041, 4, 13), "Same protocol day: no wait between them")
+
     # --- who may open one and for whom --------------------------------------------------------
 
     def test_new_case_file_offers_only_the_users_students(self):

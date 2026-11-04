@@ -150,6 +150,14 @@
 ## Erasmus+ interviews of an excluded applicant left open (review by role, 2026-11-03):
 - Excluding an application now deletes its interviews and plan ratings still to score, with the evaluators' to-dos.
 
+## Erasmus+ usage test by role (2026-11-04):
+
+- A call created from the app had no documents, mobility documents, checklist, self-assessment questions nor commitment letter: the defaults were only added when the form did not send those fields, and it always sends them (empty). Now they are added whenever they come empty, for students' and staff calls.
+- The portal showed a generic "it could not be saved" for every refused action; it now shows the real reason (which required document is missing, a CV that is not a PDF, a link without https://), on the application and the group mobility pages.
+- A refused file no longer loses the rest of the same form (e.g. the video link pasted with a CV that is not a PDF): valid documents are kept and the refused ones listed together.
+- After choosing a destination, signing the commitment letter, uploading mobility documents or answering a self-assessment, the portal no longer says "remember to submit the application before the closing date".
+- To-dos created by the scheduled jobs (staff satisfaction survey, staff "hand in what is missing", the team's "a place is free") are written in the recipient's language, not in English.
+
 # Internal changes
 
 ## sign_oca integration details:

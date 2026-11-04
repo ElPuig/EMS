@@ -256,18 +256,19 @@ class EmsErasmusCall(models.Model):
                     vals['interview_deadline'] = self._ems_rating_deadline(vals.get('date_close'))
             if audience == 'staff' and not vals.get('document_ids'):
                 vals['document_ids'] = self._ems_staff_documents()
-            elif audience == 'student' and 'document_ids' not in vals:
+            elif audience == 'student' and not vals.get('document_ids'):
                 vals['document_ids'] = self._ems_student_documents()
             if audience == 'staff' and not vals.get('modality_ids'):
                 vals['modality_ids'] = self._ems_staff_modalities()
             # Issue #687: the documents and checklist of art. 17 (students) and art. 15 (staff), editable.
-            if 'preparation_document_ids' not in vals:
+            # Checked by value, not by key: the form always sends these fields, empty on a new call.
+            if not vals.get('preparation_document_ids'):
                 vals['preparation_document_ids'] = self._ems_preparation_documents(audience)
-            if 'task_ids' not in vals:
+            if not vals.get('task_ids'):
                 vals['task_ids'] = self._ems_preparation_tasks(audience)
-            if audience == 'student' and 'self_assessment_question_ids' not in vals:
+            if audience == 'student' and not vals.get('self_assessment_question_ids'):
                 vals['self_assessment_question_ids'] = self._ems_self_assessment_questions()
-            if audience == 'student' and 'commitment_text' not in vals:
+            if audience == 'student' and not vals.get('commitment_text'):
                 vals['commitment_text'] = self._ems_commitment_text()
         return super().create(vals_list)
 
@@ -742,9 +743,13 @@ class EmsErasmusCall(models.Model):
                 tasks.action_feedback()
                 continue
             for user in team - tasks.user_id:
+                # In each member's language: an offer expired by the cron runs as the system user.
                 call.activity_schedule(
                     activity_type_id=activity_type.id, user_id=user.id,
-                    summary=_("Erasmus+: a place is free in %s: offer it to the next reserve", ", ".join(names)))
+                    summary=call.with_context(lang=user.lang or self.env.lang)._ems_free_place_summary(names))
+
+    def _ems_free_place_summary(self, names):
+        return _("Erasmus+: a place is free in %s: offer it to the next reserve", ", ".join(names))
 
     def _ems_next_reserve(self, modality=None):
         """The best-ranked reserve without a place, of `modality` (students) or the call (staff)."""

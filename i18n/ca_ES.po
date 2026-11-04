@@ -30445,15 +30445,6 @@ msgid "<i class=\"fa fa-calendar me-1\"/> Applications from"
 msgstr "<i class=\"fa fa-calendar me-1\"/> Sol·licituds del"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid ""
-"<i class=\"fa fa-check-circle me-1\"/> Saved. Remember to submit the "
-"application before the closing date."
-msgstr ""
-"<i class=\"fa fa-check-circle me-1\"/> S'ha desat. Recorda enviar la "
-"sol·licitud abans de la data de tancament."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
 msgid ""
 "<i class=\"fa fa-check-circle me-1\"/> Your application has been submitted. "
@@ -30476,17 +30467,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_document_card
 msgid "<i class=\"fa fa-exclamation-circle me-1\"/>Needs changes"
 msgstr "<i class=\"fa fa-exclamation-circle me-1\"/>Cal corregir-lo"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid ""
-"<i class=\"fa fa-exclamation-triangle me-1\"/> It could not be saved: check "
-"that the application is still open and that every required document is "
-"attached."
-msgstr ""
-"<i class=\"fa fa-exclamation-triangle me-1\"/> No s'ha pogut desar: comprova"
-" que la sol·licitud encara està oberta i que hi has adjuntat tots els "
-"documents obligatoris."
 
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 #. module: ems
@@ -35091,15 +35071,6 @@ msgstr ""
 "família també l'ha de signar, des del seu propi accés al portal (Erasmus+)."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
-msgid ""
-"<i class=\"fa fa-exclamation-triangle me-1\"/> It could not be signed: tick "
-"that you accept the commitments."
-msgstr ""
-"<i class=\"fa fa-exclamation-triangle me-1\"/> No s'ha pogut signar: marqueu"
-" que accepteu els compromisos."
-
-#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__commitment_guardian_pending
 #: model:ir.model.fields,help:ems.field_ems_erasmus_commitment__commitment_guardian_pending
 #: model:ir.model.fields,help:ems.field_ems_erasmus_group_participant__commitment_guardian_pending
@@ -37518,24 +37489,6 @@ msgid ""
 msgstr ""
 "<i class=\"fa fa-check-circle me-1\"/> T'has inscrit. Veuràs el resultat "
 "aquí quan es publiqui la selecció."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_cards
-msgid ""
-"<i class=\"fa fa-exclamation-triangle me-1\"/> It could not be done: the "
-"enrolment may be closed, or you do not meet its requirements."
-msgstr ""
-"<i class=\"fa fa-exclamation-triangle me-1\"/> No s'ha pogut fer: potser la "
-"inscripció està tancada o no compleixes els requisits."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
-msgid ""
-"<i class=\"fa fa-exclamation-triangle me-1\"/> It could not be saved: the "
-"documents may be closed already."
-msgstr ""
-"<i class=\"fa fa-exclamation-triangle me-1\"/> No s'ha pogut desar: potser "
-"els documents ja estan tancats."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
@@ -43906,3 +43859,46 @@ msgstr "Amb tots els documents obligatoris"
 #: code:addons/ems/models/erasmus/quality.py:0
 msgid "Write the course as EMS names it, e.g. 2022-2023."
 msgstr "Escriu el curs com l'anomena EMS, p. ex. 2022-2023."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid ""
+"It could not be saved: check that the application is still open and that "
+"every required document is attached."
+msgstr ""
+"No s'ha pogut desar: comprova que la sol·licitud encara està oberta i que hi"
+" has adjuntat tots els documents obligatoris."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
+msgid "It could not be saved: the documents may be closed already."
+msgstr "No s'ha pogut desar: potser els documents ja estan tancats."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Saved."
+msgstr "S'ha desat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Saved. Remember to submit the application before the closing date."
+msgstr ""
+"S'ha desat. Recorda enviar la sol·licitud abans de la data de tancament."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
+msgid ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> It could not be signed: tick "
+"that you accept the commitments."
+msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> No s'ha pogut signar: marqueu"
+" que accepteu els compromisos."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_cards
+msgid ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> It could not be done: the "
+"enrolment may be closed, or you do not meet its requirements."
+msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> No s'ha pogut fer: potser la "
+"inscripció està tancada o no compleixes els requisits."

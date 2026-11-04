@@ -685,7 +685,9 @@ class EmsErasmusMobility(models.Model):
             user = mobility.application_id.employee_id.user_id
             if not user:
                 continue
-            note = mobility._ems_documents_task_note()
+            # In the staff member's language: the weekly cron runs as the system user (English).
+            local = mobility.with_context(lang=user.lang or self.env.lang)
+            note = local._ems_documents_task_note()
             deadlines = mobility._ems_documents_to_correct().filtered('deadline').mapped('deadline')
             task = by_partner.get((mobility.partner_id.id, user.id))
             if task:
@@ -693,10 +695,13 @@ class EmsErasmusMobility(models.Model):
             else:
                 task = mobility.partner_id.sudo().activity_schedule(
                     activity_type_id=activity_type.id, user_id=user.id, note=note,
-                    summary=_("Erasmus+: hand in what is missing"),
+                    summary=local._ems_documents_task_summary(),
                     **({'date_deadline': min(deadlines)} if deadlines else {}))
             kept |= task
         (tasks - kept).unlink()
+
+    def _ems_documents_task_summary(self):
+        return _("Erasmus+: hand in what is missing")
 
     def _ems_documents_task_note(self):
         """What the staff member's to-do lists: the documents missing or needing changes, the

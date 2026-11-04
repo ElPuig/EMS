@@ -186,7 +186,9 @@
             <div class="container mt-4 o_ems_portal_erasmus_group">
                 <h3 class="mb-3"><t t-esc="mobility.name"/></h3>
                 <div t-if="error" class="alert alert-danger o_ems_erasmus_error">
-                    <i class="fa fa-exclamation-triangle me-1"/> It could not be saved: the documents may be closed already.
+                    <i class="fa fa-exclamation-triangle me-1"/>
+                    <span t-if="error_message" class="o_ems_erasmus_error_message" style="white-space: pre-line;" t-esc="error_message"/>
+                    <t t-else="">It could not be saved: the documents may be closed already.</t>
                 </div>
                 <div t-if="saved" class="alert alert-success o_ems_erasmus_saved">
                     <i class="fa fa-check-circle me-1"/> Saved.

@@ -154,10 +154,16 @@
                 </p>
 
                 <div t-if="saved" class="alert alert-success mb-3 o_ems_erasmus_saved">
-                    <i class="fa fa-check-circle me-1"/> Saved. Remember to submit the application before the closing date.
+                    <i class="fa fa-check-circle me-1"/>
+                    <!-- The mobility steps (destination, documents, proposal...) save here too, once the
+                         application is closed: the reminder to submit is only for the application form. -->
+                    <t t-if="editable">Saved. Remember to submit the application before the closing date.</t>
+                    <t t-else="">Saved.</t>
                 </div>
                 <div t-if="error" class="alert alert-danger mb-3 o_ems_erasmus_error">
-                    <i class="fa fa-exclamation-triangle me-1"/> It could not be saved: check that the application is still open and that every required document is attached.
+                    <i class="fa fa-exclamation-triangle me-1"/>
+                    <span t-if="error_message" class="o_ems_erasmus_error_message" style="white-space: pre-line;" t-esc="error_message"/>
+                    <t t-else="">It could not be saved: check that the application is still open and that every required document is attached.</t>
                 </div>
                 <!-- The corrections asked for (issue #683) and the interview (issue #684) are in the
                      "what to do now" box above (application._ems_portal_progress). -->

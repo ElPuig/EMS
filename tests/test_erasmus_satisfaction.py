@@ -77,8 +77,14 @@ class TestErasmusSatisfaction(ErasmusSatisfactionCase):
         survey, _other = self._open()
         survey.sudo().participant_type = 'staff'
         self.student.sudo().user_ids = self.teacher_user
-        survey._ems_schedule_todo()
+        self.teacher_user.sudo().lang = 'ca_ES'
+        # The hourly cron runs as the system user, in English: the to-do is in the teacher's
+        # language (usage test, 2026-11-04).
+        survey.with_context(lang='en_US')._ems_schedule_todo()
         self.assertEqual(survey.activity_id.user_id, self.teacher_user)
+        self.assertEqual(survey.activity_id.summary,
+                         survey.with_context(lang='ca_ES')._ems_todo_texts()[0])
+        self.assertNotEqual(survey.activity_id.summary, "Erasmus+: answer the satisfaction survey")
         self.assertIn('/my/erasmus/satisfaction/', survey.activity_id.note)
         survey._ems_portal_answer(10)
         self.assertFalse(survey.activity_id.exists())

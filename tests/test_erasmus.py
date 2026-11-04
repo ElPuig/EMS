@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.tests import Form
 from odoo.tests.common import TransactionCase, tagged
 
 from .common import create_level_study_group, create_role_user, mock_outgoing_email, next_student_id
@@ -67,8 +68,8 @@ class TestErasmusCall(TransactionCase):
     def test_publish_needs_a_modality_and_a_required_document(self):
         draft = self.env['ems.erasmus.call'].create({
             'name': 'Empty call', 'date_open': self.call.date_open, 'date_close': self.call.date_close,
-            'document_ids': [],  # a new students' call would bring its default documents
         })
+        draft.document_ids = [(5, 0, 0)]  # a new students' call brings its default documents
         with self.assertRaises(UserError):
             draft.action_publish()
         draft.modality_ids = [(0, 0, {'name': 'X', 'level_ids': [(6, 0, self.level.ids)]})]
@@ -167,6 +168,24 @@ class TestErasmusApplication(TransactionCase):
         self.assertTrue(call.document_ids[:1].help_url.startswith('https://europass.europa.eu'))
         self.assertTrue(call.document_ids.filtered(lambda document: document.requirement == 'fewer_opportunities').confidential)
 
+    def test_a_call_created_from_the_form_brings_its_defaults(self):
+        """The form sends the one2many fields empty on a new call: the defaults still apply (found in
+        the 2026-11-04 usage test, a call created from the app had no documents, steps, questions
+        nor commitment letter)."""
+        for audience in ('student', 'staff'):
+            with Form(self.env['ems.erasmus.call']) as form:
+                form.name = f'Form defaults call {audience}'
+                form.audience = audience
+                form.date_open = self.call.date_open
+                form.date_close = self.call.date_close
+            call = form.record
+            self.assertTrue(call.document_ids, audience)
+            self.assertTrue(call.preparation_document_ids, audience)
+            self.assertTrue(call.task_ids, audience)
+            if audience == 'student':
+                self.assertTrue(call.self_assessment_question_ids)
+                self.assertTrue(call.commitment_text)
+
     def test_documents_by_kind_and_fewer_opportunities(self):
         """A PDF-only document refuses other files, a link document takes a link (not a file), and
         the evidence of fewer opportunities is required only once the student declares them."""
@@ -186,7 +205,15 @@ class TestErasmusApplication(TransactionCase):
             application._ems_portal_save({}, {}, {video.id: 'drive.google.com/no-scheme'})
         with self.assertRaises(UserError, msg="The video is still missing."):
             application.action_submit()
-        application._ems_portal_save({}, {}, {video.id: 'https://drive.google.com/file/d/test/view'})
+        # A refused file in the same form does not lose the link (not assertRaises: its savepoint
+        # would undo what the portal keeps).
+        try:
+            application._ems_portal_save({}, {self.cv.id: [('cv.pdf', b'not a pdf')]},
+                                         {video.id: 'https://drive.google.com/file/d/test/view'})
+        except UserError as error:
+            self.assertIn(self.cv.name, str(error))
+        else:
+            self.fail("A CV that is not a PDF is refused.")
         link = self._line(application, video).attachment_ids
         self.assertEqual((link.type, link.url), ('url', 'https://drive.google.com/file/d/test/view'))
         evidence = self._line(application, self.evidence)

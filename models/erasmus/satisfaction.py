@@ -174,12 +174,18 @@ class EmsErasmusSatisfaction(models.Model):
         activity_type = self.env.ref('mail.mail_activity_data_todo')
         for survey in self.sudo():
             user = survey._ems_staff_user()
+            # In the staff member's language: the hourly cron runs as the system user (English).
+            summary, note = survey.with_context(lang=user.lang or self.env.lang)._ems_todo_texts()
             survey.activity_id = survey.partner_id.activity_schedule(
-                activity_type_id=activity_type.id, user_id=user.id,
-                summary=_("Erasmus+: answer the satisfaction survey"),
-                note=Markup(_("Answer it on the portal: %s")) % Markup(
-                    '<a href="{url}">{url}</a>').format(url=survey._ems_portal_url()),
+                activity_type_id=activity_type.id, user_id=user.id, summary=summary, note=note,
                 date_deadline=survey.open_date + timedelta(days=REMINDER_DAYS[-1]))
+
+    def _ems_todo_texts(self):
+        """The staff to-do's summary and note, in the language of `self.env`."""
+        self.ensure_one()
+        return (_("Erasmus+: answer the satisfaction survey"),
+                Markup(_("Answer it on the portal: %s")) % Markup(
+                    '<a href="{url}">{url}</a>').format(url=self._ems_portal_url()))
 
     def _ems_portal_url(self):
         self.ensure_one()

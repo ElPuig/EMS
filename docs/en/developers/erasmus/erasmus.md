@@ -180,7 +180,12 @@ The Head of Studies and the Director read the applications; they write nothing o
 
 The applicant is always `request.env.user.partner_id`: no partner or application id travels in a
 form. The controller works with `sudo()` (portal users have no ACL on these models) and checks
-eligibility and state itself. The portal home card appears only to students who have an
+eligibility and state itself. A refused action (a `UserError`) goes back to the page with
+`?error=1` and its own message, kept in the session for that one redirect
+(`_ems_error_redirect`/`_ems_error_message`): "Upload the required documents first: <the video>",
+not a generic "it could not be saved". When one form sends several documents, the valid ones are
+kept and the refused ones are listed together (`_ems_portal_save`), so a CV that is not a PDF never
+loses the video link pasted with it. The portal home card appears only to students who have an
 application or can apply to a published call (`res.partner._ems_erasmus_portal_visible`); families
 do not see it. The portal's top menu has an *Erasmus+* entry under the same rule
 (`views/portal/portal_header.xml`, like *Convalidations*), so a student who cannot apply (PFI, CFGB)

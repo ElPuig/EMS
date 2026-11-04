@@ -837,16 +837,24 @@ class EmsErasmusApplication(models.Model):
         lines = {line.call_document_id.id: line for line in self.document_ids}
         editable = self._ems_portal_editable()
         correctable = self._ems_portal_correctable()
+        # Every valid document is kept and the refused ones are reported together: a CV that is not a
+        # PDF no longer loses the video link pasted in the same form (usage test, 2026-11-04).
+        refused = []
         for document_id, content in [*uploads.items(), *(links or {}).items()]:
             line = lines.get(document_id)
             if not content or not line:
                 continue
-            if not (editable or line in correctable):
-                raise UserError(_("The document %s can no longer be changed.", line.name))
-            if isinstance(content, str):
-                line._ems_add_link(content)
-            else:
-                line._ems_add_files(content)
+            try:
+                if not (editable or line in correctable):
+                    raise UserError(_("The document %s can no longer be changed.", line.name))
+                if isinstance(content, str):
+                    line._ems_add_link(content)
+                else:
+                    line._ems_add_files(content)
+            except UserError as error:
+                refused.append(error.args[0])
+        if refused:
+            raise UserError("\n".join(refused))
 
     def _ems_portal_editable(self):
         """The applicant can change answers and every document: before the closing date."""

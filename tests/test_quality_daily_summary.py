@@ -152,7 +152,7 @@ class TestQualityDailySummary(TransactionCase):
         minute.action_back_to_meeting()
         self.assertFalse(self._tasks(minute, self.approval_type), "no longer waiting for approval")
         minute.action_submit()
-        minute.action_approve()
+        minute.action_sign_off()
         self.assertFalse(self._tasks(minute, self.approval_type), "approved: done")
 
     def test_the_holders_of_the_approving_post_get_the_task_when_nobody_is_named(self):
@@ -178,7 +178,7 @@ class TestQualityDailySummary(TransactionCase):
         self.assertFalse(self._notices(self.responsible) | self._notices(self.other_responsible))
 
         minute.action_submit()
-        minute.action_approve()
+        minute.action_sign_off()
         self.assertEqual(self._tasks(open_one, self.task_type).user_id, self.responsible)
         self.assertIn('You are responsible', self._notices(self.responsible, open_one).body)
         self.assertIn(minute.code, self._notices(self.responsible, open_one).body, "names the meeting it comes from")
@@ -196,7 +196,7 @@ class TestQualityDailySummary(TransactionCase):
         minute.agreement_review_ids.note = 'Two thirds of the units are done.'
         self.assertFalse(self._notices(self.responsible, action), "the minute may still change what it says")
         minute.action_submit()
-        minute.action_approve()
+        minute.action_sign_off()
         notice = self._notices(self.responsible, action)
         self.assertEqual(len(notice), 1)
         self.assertIn('Two thirds of the units', notice.body, "its final wording")

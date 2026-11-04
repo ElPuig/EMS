@@ -15,4 +15,4 @@ ems.mail_activity_absence_not_requested,Detected absence not requested,default,e
 ems.mail_activity_absence_pending_review,Review detected absence,default,ems.absence_pending,fa-search,False
 ems.mail_activity_contact_data_review,Review contact data changes,default,ems.contact.data.request,fa-address-card-o,False
 ems.mail_activity_quality_agreement,Carry out the agreement,default,ems.quality.action,fa-handshake-o,False
-ems.mail_activity_minute_approval,Approve the minute,default,ems.minute,fa-check-square-o,False
+ems.mail_activity_minute_approval,Sign off the minute,default,ems.minute,fa-check-square-o,False

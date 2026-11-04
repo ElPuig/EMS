@@ -5,7 +5,7 @@
             <field name="name">ems.minute.list</field>
             <field name="model">ems.minute</field>
             <field name="arch" type="xml">
-                <list class="o_ems_long_code_list" decoration-muted="state == 'approved'">
+                <list class="o_ems_long_code_list" decoration-muted="state == 'approved'" decoration-info="state == 'signed_off'">
                     <!-- Explicit widths on the columns whose content has a known length, so the
                          spare width goes to the type and the scope. The code's own width comes from
                          quality.css (class o_ems_long_code_list): a width set here loses to the

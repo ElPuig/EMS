@@ -86,7 +86,16 @@ class EmsMinuteType(models.Model):
         comodel_name="ems.quality.document",
         help="The controlled document this type is written against. Its code is quoted in the PDF.",
     )
-    approver_role_id = fields.Many2one(string="Approved by", comodel_name="ems.role", help="The post that normally gives the approval.")
+    approver_role_id = fields.Many2one(string="Signed off by", comodel_name="ems.role", help="The post that normally gives the minute its sign-off.")
+    # Issue #756: a meeting's minute gets the sign-off of whoever answers for it and is approved by
+    # the next meeting, which reads it; a record, or a meeting with no next one, is approved by the
+    # sign-off itself.
+    approval_mode = fields.Selection(
+        string="Approved",
+        selection=[('next_meeting', "In the next meeting"), ('sign_off', "With the sign-off")],
+        compute="_compute_approval_mode", store=True, readonly=False,
+        help="In the next meeting: the sign-off closes the minute and the next meeting of the same type and scope "
+             "approves it. With the sign-off: the sign-off approves it, for records and meetings with no next one.")
     print_identification = fields.Boolean(
         string="Print the identification number",
         help="Only for the minutes that need it: improvement team minutes carry the members' identification number because it is needed to claim the innovation credit.",
@@ -116,6 +125,12 @@ class EmsMinuteType(models.Model):
             minute_type.display_name = minute_type.name or minute_type.code
 
     @api.depends_context('uid')
+    @api.depends('kind')
+    def _compute_approval_mode(self):
+        """A record states that something happened: nobody meets again to approve it."""
+        for minute_type in self:
+            minute_type.approval_mode = 'sign_off' if minute_type.kind == 'record' else 'next_meeting'
+
     @api.depends('starter_role_ids', 'starter_scope', 'scope_kind')
     def _compute_can_start(self):
         startable = self._ems_startable()

@@ -212,7 +212,7 @@ class TestQualityActionRules(TransactionCase):
                          "the minute's writer edits the description from the minute, not as its responsible")
         minute.section_value_ids.filtered(lambda value: value.required).content = "<p>Discussed.</p>"
         minute.action_submit()
-        minute.action_approve()
+        minute.action_sign_off()
         self.assertTrue(self._reads(self.teacher_c, agreement), "an attendee still reads what was agreed")
         with self.assertRaises(AccessError):
             agreement.with_user(self.teacher_c).write({'deadline_text': 'Changed after approval'})

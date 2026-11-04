@@ -54,7 +54,7 @@ class TestQualityMinuteRules(MinuteRulesFixtures, TransactionCase):
         minute = self._minute(self.dep_a, redactor_employee_id=public_a.id)
         minute.section_value_ids.filtered(lambda value: value.required).content = "<p>Discussed.</p>"
         minute.action_submit()
-        minute.action_approve()
+        minute.action_sign_off()
         with self.assertRaises(AccessError):
             minute.with_user(self.user_a).write({'abstract': 'changed after approval'})
 
@@ -82,7 +82,7 @@ class TestQualityMinuteRules(MinuteRulesFixtures, TransactionCase):
         minute = self._ready_minute(redactor_employee_id=public_a.id, approver_employee_id=public_b.id)
         self.assertFalse(minute.with_user(self.user_a).can_approve)
         with self.assertRaises(UserError):
-            minute.with_user(self.user_a).action_approve()
+            minute.with_user(self.user_a).action_sign_off()
         self.assertEqual(minute.state, 'to_approve')
 
     def test_the_person_named_to_approve_it_does(self):
@@ -90,8 +90,8 @@ class TestQualityMinuteRules(MinuteRulesFixtures, TransactionCase):
         public_b = self.env['hr.employee.public'].browse(self.employee_b.id)
         minute = self._ready_minute(redactor_employee_id=public_a.id, approver_employee_id=public_b.id)
         self.assertTrue(minute.with_user(self.user_b).can_approve)
-        minute.with_user(self.user_b).action_approve()
-        self.assertEqual(minute.state, 'approved')
+        minute.with_user(self.user_b).action_sign_off()
+        self.assertEqual(minute.state, 'signed_off')
         self.assertEqual(minute.approver_employee_id, public_b)
 
     def test_the_chain_of_command_of_whoever_writes_it_edits_it(self):
@@ -125,10 +125,10 @@ class TestQualityMinuteRules(MinuteRulesFixtures, TransactionCase):
         self.assertFalse(minute.with_user(other_chief).can_approve)
         # Refused either way: they cannot even read it (AccessError), let alone approve it.
         with self.assertRaises(Exception):
-            minute.with_user(other_chief).action_approve()
-        minute.with_user(chief).action_approve()
-        self.assertEqual(minute.state, 'approved')
-        self.assertEqual(minute.approver_employee_id.id, chief_employee.id, "it says who actually approved it")
+            minute.with_user(other_chief).action_sign_off()
+        minute.with_user(chief).action_sign_off()
+        self.assertEqual(minute.state, 'signed_off')
+        self.assertEqual(minute.approver_employee_id.id, chief_employee.id, "it says who actually signed it off")
 
     def test_with_nobody_named_the_holders_of_the_post_approve_it(self):
         public_a = self.env['hr.employee.public'].browse(self.employee_a.id)
@@ -224,7 +224,7 @@ class TestQualityMinuteAttendanceCorrection(MinuteRulesFixtures, TransactionCase
         minute = self._nfc_minute()
         minute.section_value_ids.filtered(lambda value: value.required).content = "<p>Discussed.</p>"
         minute.action_submit()
-        minute.action_approve()
+        minute.action_sign_off()
         line = minute.presence_id.line_ids[:1]
         with self.assertRaises(AccessError):
             line.with_user(self.user_a).write({'state': 'absent'})

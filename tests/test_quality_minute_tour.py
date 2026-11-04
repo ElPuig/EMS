@@ -114,3 +114,31 @@ class TestQualityMinuteTour(HttpCase):
         self.assertEqual(len(drafts), 2, "with the approval, and again from the Actions")
         self.assertIn('minute.tour@example.com', drafts[0].email_to)
 
+    def test_sign_off_and_approval_in_the_next_meeting_tour(self):
+        """Issue #756: the chief signs off a minute, which closes it; the next meeting approves it
+        in its "Approval of the previous minute" when its own minute is signed off."""
+        writer = self.env['hr.employee.public'].browse(self.user.employee_id.id)
+        Minute = self.env['ems.minute']
+        values = {
+            'type_id': self.env.ref('__import__.minute_type_dep').id,
+            'department_id': self.department.id,
+            'attendance_mode': 'manual',
+            'attendee_ids': [(6, 0, writer.ids)],
+            'redactor_employee_id': writer.id,
+            'approver_employee_id': writer.id,
+        }
+        previous = Minute.create(values)
+        previous.section_value_ids.filtered('required').content = "<p>Discussed.</p>"
+        previous.action_start_meeting()
+        previous.action_submit()
+        self.start_tour(f"/odoo/action-ems.action_minute/{previous.id}", "ems_minute_sign_off", login="minute.tour@example.com")
+        self.assertEqual(previous.state, 'signed_off')
+        current = Minute.create(values)
+        self.assertEqual(current.previous_minute_id, previous)
+        current.section_value_ids.filtered('required').content = "<p>Discussed.</p>"
+        current.action_start_meeting()
+        self.start_tour(f"/odoo/action-ems.action_minute/{current.id}", "ems_minute_approve_previous", login="minute.tour@example.com")
+        self.assertEqual(current.state, 'signed_off')
+        self.assertEqual(previous.state, 'approved')
+        self.assertEqual(previous.approved_in_minute_id, current)
+

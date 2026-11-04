@@ -37,6 +37,7 @@
                             </group>
                             <group>
                                 <field name="approver_role_id"/>
+                                <field name="approval_mode" widget="radio"/>
                                 <field name="starter_role_ids" widget="many2many_tags" options="{'no_create': True}"/>
                                 <field name="starter_scope" invisible="scope_kind not in ('department', 'teaching_team', 'workgroup')"/>
                                 <field name="template_document_id"/>

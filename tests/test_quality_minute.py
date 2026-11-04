@@ -165,27 +165,28 @@ class TestQualityMinute(TransactionCase):
         minute = self._minute(redactor_employee_id=False)
         minute.action_submit()
         with self.assertRaises(UserError):
-            minute.action_approve()
+            minute.action_sign_off()
         minute.redactor_employee_id = self.env['hr.employee.public'].browse(self.employee.id).id
         with self.assertRaises(UserError):
-            minute.action_approve()  # the 'development' section is required by this type
+            minute.action_sign_off()  # the 'development' section is required by this type
 
-    def test_approval_renders_the_pdf(self):
+    def test_the_sign_off_renders_the_pdf(self):
         minute = self._minute()
         self.assertEqual(minute.template_document_id, self.type.template_document_id,
                          "the minute takes its controlled template from the type, for the PDF footer")
         minute.section_value_ids.filtered(lambda value: value.required).content = "<p>Discussed.</p>"
         minute.action_submit()
-        minute.action_approve()
-        self.assertEqual(minute.state, 'approved')
-        self.assertTrue(minute.pdf_attachment_id, "approving renders the PDF")
-        self.assertTrue(minute.approval_date)
+        minute.action_sign_off()
+        self.assertEqual(minute.state, 'signed_off', "a meeting's minute is approved by the next meeting")
+        self.assertTrue(minute.pdf_attachment_id, "the sign-off renders the PDF")
+        self.assertTrue(minute.signoff_date)
+        self.assertFalse(minute.approval_date)
 
     def test_an_approved_minute_cannot_go_back_to_draft(self):
         minute = self._minute()
         minute.section_value_ids.filtered(lambda value: value.required).content = "<p>Discussed.</p>"
         minute.action_submit()
-        minute.action_approve()
+        minute.action_sign_off()
         with self.assertRaises(UserError):
             minute.action_back_to_draft()
 
@@ -527,6 +528,85 @@ class TestQualityMinute(TransactionCase):
                 minute.action_send_call()
         self.mail_transport.assert_not_called()
 
+    # --- Sign-off and approval in the next meeting (issue #756) ----------------------------------
+
+    def _signed_off(self, minute=None):
+        minute = minute or self._minute()
+        minute.section_value_ids.filtered('required').content = "<p>Discussed.</p>"
+        if minute.state == 'draft':
+            minute.action_start_meeting()
+        minute.action_submit()
+        minute.action_sign_off()
+        return minute
+
+    def test_a_signed_off_minute_is_closed(self):
+        minute = self._signed_off()
+        self.assertEqual(minute.state, 'signed_off')
+        with self.assertRaises(AccessError):
+            minute.with_user(self.user).write({'abstract': 'A late change'})
+        with self.assertRaises(UserError):
+            minute.action_back_to_draft()
+        with self.assertRaises(UserError):
+            minute.action_sign_off()
+        html = self.env['ir.actions.report']._render_qweb_html('ems.action_report_minute', minute.ids)[0].decode()
+        self.assertIn('Signed off, pending approval in the next meeting', html)
+        self.assertIn('Signed off in EMS', html)
+
+    def test_the_next_meeting_approves_the_previous_minute(self):
+        previous = self._signed_off()
+        signed_off_pdf = previous.pdf_attachment_id
+        current = self._minute()
+        self.assertEqual(current.previous_minute_id, previous)
+        current.section_value_ids.filtered('required').content = "<p>Discussed.</p>"
+        current.action_start_meeting()
+        current.action_submit()
+        with self.assertRaises(UserError):
+            current.action_sign_off()  # the meeting has to say what it decided about the previous minute
+        current.state = 'to_approve'
+        current.previous_approved = 'with_changes'
+        current.action_sign_off()
+        self.assertEqual(previous.state, 'approved')
+        self.assertEqual(previous.approved_in_minute_id, current)
+        self.assertEqual(previous.approval_date, current.date)
+        self.assertNotEqual(previous.pdf_attachment_id, signed_off_pdf, "the approval files the final PDF")
+        html = self.env['ir.actions.report']._render_qweb_html('ems.action_report_minute', previous.ids)[0].decode()
+        self.assertIn(current.code, html, "the PDF says which meeting approved it")
+        self.assertEqual(current.state, 'signed_off', "and the new minute waits for the meeting after")
+
+    def test_a_minute_not_approved_goes_back_to_the_meeting(self):
+        previous = self._signed_off()
+        current = self._minute()
+        current.write({'previous_approved': 'no', 'previous_approval_notes': 'The budget figures are wrong.'})
+        self._signed_off(current)
+        self.assertEqual(previous.state, 'meeting', "back to be corrected")
+        self.assertFalse(previous.signoff_date)
+        self.assertFalse(previous.pdf_attachment_id)
+        notice = self.env['ems.info_notice'].sudo().search([('user_id', '=', self.user.id), ('res_model', '=', 'ems.minute'),
+                                                            ('res_id', '=', previous.id)])
+        self.assertIn('budget figures', notice.body, "whoever writes it hears of it, with what the meeting said")
+
+    def test_an_approval_given_before_the_sign_off_applies_once_it_is_given(self):
+        previous = self._minute()
+        previous.action_start_meeting()
+        current = self._minute()
+        current.previous_approved = 'yes'
+        self._signed_off(current)
+        self.assertEqual(previous.state, 'meeting', "not finished yet: nothing to approve")
+        self._signed_off(previous)
+        self.assertEqual(previous.state, 'approved', "its sign-off picks up the approval the next meeting gave")
+        self.assertEqual(previous.approved_in_minute_id, current)
+
+    def test_a_type_approved_with_the_sign_off(self):
+        self.type.approval_mode = 'sign_off'
+        minute = self._signed_off()
+        self.assertEqual(minute.state, 'approved')
+        self.assertEqual(minute.approval_date, minute.signoff_date)
+        self.assertFalse(minute.approved_in_minute_id)
+
+    def test_an_evidence_record_is_approved_with_the_sign_off(self):
+        record_type = self.env['ems.minute.type'].create({'code': 'TST-EVID-756', 'name': 'Evidence 756', 'kind': 'record'})
+        self.assertEqual(record_type.approval_mode, 'sign_off')
+
     # --- Draft for the participants (issue #755) ------------------------------------------------
 
     def _held_minute(self):
@@ -599,7 +679,7 @@ class TestQualityMinute(TransactionCase):
         minute.action_start_meeting()
         minute.section_value_ids.filtered('required').content = "<p>Discussed.</p>"
         minute.action_submit()
-        minute.action_approve()
+        minute.action_sign_off()
         with self.assertRaises(UserError):
             minute.action_send_draft()
 
@@ -662,7 +742,7 @@ class TestQualityMinute(TransactionCase):
         action = minute.action_open_draft_pdf()
         self.assertEqual(action['url'], f"/report/pdf/ems.report_minute/{minute.id}")
         html = self.env['ir.actions.report']._render_qweb_html('ems.action_report_minute', minute.ids)[0].decode()
-        self.assertIn('Draft, not approved yet', html)
+        self.assertIn('Draft, not signed off yet', html)
         self.assertIn('Said about it.', html, "what was written on each item is printed, without waiting for the approval to put it together")
         self.assertEqual(self.env['ems.minute']._ems_people_label(self.env['hr.employee.public'].browse(self.employee.id)), self.employee.name)
 
@@ -679,8 +759,8 @@ class TestQualityMinute(TransactionCase):
         self.assertIn('1. First item', development.content)
         self.assertIn('<b>first</b>', development.content)
         self.assertLess(development.content.index('First item'), development.content.index('Second item'))
-        minute.sudo().action_approve()
-        self.assertEqual(minute.state, 'approved', "the development it requires is there")
+        minute.sudo().action_sign_off()
+        self.assertEqual(minute.state, 'signed_off', "the development it requires is there")
 
     def test_reviewing_an_agreement_in_the_minute_follows_it_up(self):
         """What the meeting says about an open agreement lands in the agreement's own follow-up:

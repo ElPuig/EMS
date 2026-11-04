@@ -293,10 +293,11 @@ class EmsQualityAction(models.Model):
         return users.filtered(lambda user: user.active and not user.share)
 
     def _ems_is_announced(self):
-        """An agreement taken in a minute is told to its people once the minute is approved: until
-        then what was agreed, and who answers for it, may still change. Any other, from the start."""
+        """An agreement taken in a minute is told to its people once the minute is closed, signed
+        off or approved (issue #756): until then what was agreed, and who answers for it, may still
+        change. Any other, from the start."""
         self.ensure_one()
-        return not self.minute_id or self.minute_id.state == 'approved'
+        return not self.minute_id or self.minute_id.state in ('signed_off', 'approved')
 
     def _ems_sync_tasks(self, announce=True):
         """One "Carry out the agreement" task per responsible person while it is open, due on its

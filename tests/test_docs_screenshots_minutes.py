@@ -93,7 +93,7 @@ class TestDocsScreenshotsMinutes(DocsScreenshotMixin, HttpCase):
                        'responsible_employee_ids': [(6, 0, public.browse(cls.colleagues[1].id).ids)]})
         cls.env['ems.minute.pending.topic'].create({'minute_id': cls.previous.id, 'name': 'Sortida a la planta de tractament d\'aigües'})
         cls.previous.action_submit()
-        cls.previous.action_approve()
+        cls.previous.action_sign_off()
         cls.env['ems.quality.followup'].create({
             'action_id': cls.agreement_open.id, 'date': datetime(2026, 10, 14).date(), 'state': 'in_progress',
             'description': 'Criteris de 1r revisats; queden els de 2n.',

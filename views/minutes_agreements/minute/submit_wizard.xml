@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <!-- Send for approval, and the draft to the participants if wanted (issue #755). -->
+    <!-- Send for sign-off, and the draft to the participants if wanted (issues #755, #756). -->
     <record id="view_minute_submit_wizard_form" model="ir.ui.view">
         <field name="name">ems.minute.submit.wizard.form</field>
         <field name="model">ems.minute.submit.wizard</field>
         <field name="arch" type="xml">
             <form>
-                <p>The minute is sent to whoever approves it, and can no longer be written until it comes back.</p>
+                <p>The minute is sent to whoever signs it off, and can no longer be written until it comes back.</p>
                 <group>
                     <field name="minute_id" invisible="1"/>
                     <field name="recipient_count" invisible="1"/>
@@ -14,7 +14,7 @@
                 </group>
                 <p class="text-muted" invisible="recipient_count">None of the people convened has an email address: the draft cannot be sent to them.</p>
                 <footer>
-                    <button name="action_confirm" string="Send for approval" type="object" class="btn-primary"/>
+                    <button name="action_confirm" string="Send for sign-off" type="object" class="btn-primary"/>
                     <button string="Cancel" special="cancel" class="btn-secondary"/>
                 </footer>
             </form>

@@ -75,10 +75,12 @@
                                 .o_ems_minute a { word-wrap: break-word; word-break: break-all; }
                                 .o_ems_minute img { max-width: 100% !important; height: auto !important; }
                                 .o_ems_minute .o_ems_minute_draft { border: 1px solid #b00; color: #b00; font-weight: bold; padding: 2pt 6pt; margin-bottom: 6pt; display: inline-block; }
+                                .o_ems_minute .o_ems_minute_draft.o_ems_minute_pending { border-color: #a8520c; color: #a8520c; }
                                 .o_ems_minute .o_ems_minute_muted { color: #555; }
                             </style>
 
-                            <div t-if="doc.state != 'approved'" class="o_ems_minute_draft">Draft, not approved yet</div>
+                            <div t-if="doc.state not in ('signed_off', 'approved')" class="o_ems_minute_draft">Draft, not signed off yet</div>
+                            <div t-if="doc.state == 'signed_off'" class="o_ems_minute_draft o_ems_minute_pending">Signed off, pending approval in the next meeting</div>
                             <h2 t-out="doc.name"/>
                             <p class="o_ems_minute_muted" t-out="doc.code"/>
 
@@ -245,18 +247,29 @@
                             </t>
 
                             <!-- Under each name, the stamp EMS puts once that side has signed (see
-                                 ems.report_validation_stamp): who sent it for approval and when, who
-                                 approved it and when. Until then the same room is left blank, so a
-                                 draft printed for review keeps the layout of the approved minute. -->
+                                 ems.report_validation_stamp): who sent it for sign-off and when, who
+                                 signed it off and when, and, for a minute approved by the next meeting
+                                 (issue #756), which meeting approved it and when. Until then the same room
+                                 is left blank, so a draft printed for review keeps the final layout. A
+                                 minute approved before #756 has no sign-off date: its approval is shown
+                                 in the sign-off's place, as it was. -->
+                            <t t-set="in_next_meeting" t-value="doc.approval_mode == 'next_meeting'"/>
                             <table class="o_ems_minute_signatures">
-                                <thead><tr><th>Minute written by</th><th>Approved by</th></tr></thead>
+                                <thead>
+                                    <tr>
+                                        <th>Minute written by</th>
+                                        <th t-if="in_next_meeting">Signed off by</th>
+                                        <th t-else="">Approved by</th>
+                                        <th t-if="in_next_meeting">Approved in the meeting</th>
+                                    </tr>
+                                </thead>
                                 <tbody>
                                     <tr>
                                         <td>
                                             <div t-out="doc.redactor_employee_id.name or ''"/>
                                             <div class="o_ems_minute_stamp_room">
                                                 <t t-if="doc.submission_date" t-call="ems.report_validation_stamp">
-                                                    <t t-set="stamp_title">Sent for approval in EMS</t>
+                                                    <t t-set="stamp_title">Sent for sign-off in EMS</t>
                                                     <t t-set="stamp_by_label">Signed by:</t>
                                                     <t t-set="stamp_by" t-value="doc.submitted_by_id.name"/>
                                                     <t t-set="stamp_date" t-value="doc.submission_date"/>
@@ -267,10 +280,23 @@
                                         <td>
                                             <div t-out="doc.approver_employee_id.name or doc.approver_role_id.name or ''"/>
                                             <div class="o_ems_minute_stamp_room">
-                                                <t t-if="doc.approval_date" t-call="ems.report_validation_stamp">
-                                                    <t t-set="stamp_title">Approved in EMS</t>
+                                                <t t-if="doc.signoff_date or doc.approval_date" t-call="ems.report_validation_stamp">
+                                                    <t t-if="in_next_meeting and doc.signoff_date"><t t-set="stamp_title">Signed off in EMS</t></t>
+                                                    <t t-else=""><t t-set="stamp_title">Approved in EMS</t></t>
                                                     <t t-set="stamp_by_label">Signed by:</t>
                                                     <t t-set="stamp_by" t-value="doc.approver_employee_id.name"/>
+                                                    <t t-set="stamp_date" t-value="doc.signoff_date or doc.approval_date"/>
+                                                    <t t-set="stamp_reference" t-value="doc.code"/>
+                                                </t>
+                                            </div>
+                                        </td>
+                                        <td t-if="in_next_meeting">
+                                            <div t-out="doc.approved_in_minute_id.code or ''"/>
+                                            <div class="o_ems_minute_stamp_room">
+                                                <t t-if="doc.approved_in_minute_id" t-call="ems.report_validation_stamp">
+                                                    <t t-set="stamp_title">Approved in EMS</t>
+                                                    <t t-set="stamp_by_label">In the meeting:</t>
+                                                    <t t-set="stamp_by" t-value="doc.approved_in_minute_id.code"/>
                                                     <t t-set="stamp_date" t-value="doc.approval_date"/>
                                                     <t t-set="stamp_reference" t-value="doc.code"/>
                                                 </t>

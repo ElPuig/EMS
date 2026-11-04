@@ -13,12 +13,16 @@ from odoo.tools import format_date
 from .common import scope_code
 from .minute_type import SCOPE_FIELDS
 
+# The task of whoever is to give a minute its sign-off (issues #753, #756).
+APPROVAL_TASK_XMLID = 'ems.mail_activity_minute_approval'
+
+# The states in which a minute can no longer be written: signed off (waiting for the next meeting
+# to approve it) and approved (issue #756).
+CLOSED_STATES = ('signed_off', 'approved')
+
 # What the old free-text 'type' column held, kept in step with the new type's scope so the column
 # stays meaningful for anything reading the database directly. It is no longer used by the
 # application and can be dropped by a version that ships a migration for it.
-# The task of whoever is to approve a minute sent for approval (issue #753).
-APPROVAL_TASK_XMLID = 'ems.mail_activity_minute_approval'
-
 _LEGACY_TYPE_BY_SCOPE = {
     'department': 'department',
     'workgroup': 'workgroup',
@@ -39,7 +43,11 @@ class EmsMinute(models.Model):
 
     # A meeting goes through one more stage than any other signed record: once it has been
     # prepared and called, it is held - and that is when its minute gets written.
-    state = fields.Selection(selection_add=[('meeting', "Meeting"), ('to_approve',)], ondelete={'meeting': 'set default'})
+    # Issue #756: it is then signed off by whoever answers for it, which closes it, and approved by
+    # the next meeting (or by the sign-off itself, see ems.minute.type.approval_mode).
+    state = fields.Selection(
+        selection_add=[('meeting', "Meeting"), ('to_approve', "Awaiting sign-off"), ('signed_off', "Signed off")],
+        ondelete={'meeting': 'set default', 'signed_off': 'set default'})
     name = fields.Char(string="Title", compute="_compute_name", store=True, readonly=False, tracking=True)
     type_id = fields.Many2one(string="Type", comodel_name="ems.minute.type", required=True, ondelete='restrict', tracking=True)
     type_kind = fields.Selection(string="Kind", related="type_id.kind", store=True)
@@ -184,22 +192,27 @@ class EmsMinute(models.Model):
         default=lambda self: self.env['hr.employee.public'].search([('user_id', '=', self.env.uid)], limit=1),
         tracking=True,
     )
-    approver_role_id = fields.Many2one(string="Approved by (post)", comodel_name="ems.role", tracking=True)
+    approver_role_id = fields.Many2one(string="Signed off by (post)", comodel_name="ems.role", tracking=True)
     # The person, not the post: proposed from whoever answers for the scope that meets, and free to
-    # be anybody else. Once approved it says who actually did.
-    approver_employee_id = fields.Many2one(string="Approved by", comodel_name="hr.employee.public", copy=False, tracking=True)
+    # be anybody else. Once signed off it says who actually did.
+    approver_employee_id = fields.Many2one(string="Signed off by", comodel_name="hr.employee.public", copy=False, tracking=True)
     approver_candidate_ids = fields.Many2many(
         string="Who usually approves it",
         comodel_name="hr.employee.public",
         compute="_compute_approver_candidate_ids",
         help="The people who answer for the scope that meets: they come first when choosing who approves the minute.",
     )
+    approval_mode = fields.Selection(related="type_id.approval_mode")
+    signoff_date = fields.Date(string="Signed off on", readonly=True, copy=False)
     approval_date = fields.Date(string="Approved on", readonly=True, copy=False)
+    approved_in_minute_id = fields.Many2one(
+        string="Approved in the meeting", comodel_name="ems.minute", readonly=True, copy=False, ondelete='set null',
+        help="The next meeting, whose minute recorded that this one is approved.")
     # Who sent it for approval and when, for the stamp under the writer's name in the PDF: the
     # writer's side of the signature, as approval_date and approver_employee_id are the approver's.
     submission_date = fields.Date(string="Sent for approval on", readonly=True, copy=False)
     submitted_by_id = fields.Many2one(string="Sent for approval by", comodel_name="res.users", readonly=True, copy=False)
-    can_approve = fields.Boolean(string="Can approve", compute="_compute_can_approve", help="Whether the current user is the one who approves this minute.")
+    can_approve = fields.Boolean(string="Can sign off", compute="_compute_can_approve", help="Whether the current user is the one who gives this minute its sign-off.")
     # Whoever may stand in for the person named to approve it: that person and their chain of
     # command (hr.employee.tutor_scope_user_ids: every chief above them, the Director). Searchable
     # for the record rules; not stored, so it always follows the current hierarchy.
@@ -433,37 +446,39 @@ class EmsMinute(models.Model):
         if vals.get('start_datetime'):
             derived = self._ems_vals_from_start(vals['start_datetime'])
             vals = {**derived, **vals, 'date': derived['date'], 'time': derived['time']}
+        # Closed now (signed off, or approved by the sign-off itself), not when a signed-off minute is
+        # later approved: that is when its agreements reach their people.
+        closing = self.filtered(lambda minute: minute.state not in CLOSED_STATES) if vals.get('state') in CLOSED_STATES else self.browse()
         result = super().write(vals)
         if {'attendance_mode', 'start_datetime', 'duration', 'space_id'} & set(vals):
             self._ems_sync_presence()
         if {'state', 'approver_employee_id', 'approver_role_id'} & set(vals):
             self._ems_sync_approval_task()
-        if vals.get('state') == 'approved':
-            self._ems_announce_agreements()
+        closing._ems_announce_agreements()
         return result
 
     # --- Telling the people concerned (issue #753) -----------------------------------------------
 
     def _ems_approver_users(self):
-        """Who gets the approval task: the person named to approve it, or else the holders of the
-        post that approves it."""
+        """Who gets the sign-off task: the person named to give it, or else the holders of the
+        post that gives it."""
         self.ensure_one()
         minute = self.sudo()
         users = minute.approver_employee_id.user_id or minute.approver_role_id.employee_ids.user_id
         return users.filtered(lambda user: user.active and not user.share)
 
     def _ems_sync_approval_task(self):
-        """An "Approve the minute" task, due the day it is sent, for whoever is to approve it while
-        it waits for approval: done once approved, gone if it goes back to the meeting or to draft
-        or somebody else is named (mail.thread._ems_sync_user_tasks)."""
+        """A "Sign off the minute" task, due the day it is sent, for whoever is to give the sign-off
+        while it waits for it: done once signed off, gone if it goes back to the meeting or to
+        draft or somebody else is named (mail.thread._ems_sync_user_tasks)."""
         activity_type = self.env.ref(APPROVAL_TASK_XMLID)
         today = self.env['ems.datetime_utils'].get_local_today()
         for minute in self.sudo():
             users = minute._ems_approver_users() if minute.state == 'to_approve' else self.env['res.users']
-            minute._ems_sync_user_tasks(activity_type, users, today, done=minute.state == 'approved')
+            minute._ems_sync_user_tasks(activity_type, users, today, done=minute.state in CLOSED_STATES)
 
     def _ems_announce_agreements(self):
-        """Once the minute is approved, its agreements reach their responsible people: a task for
+        """Once the minute is closed (signed off), its agreements reach their responsible people: a task for
         each open one (and a notice when it is due later), a notice for each one agreed and done in
         the meeting, and the follow-up written for each agreement it reviewed. Never the people
         involved: the minute itself tells them."""
@@ -762,7 +777,7 @@ class EmsMinute(models.Model):
         self.ensure_one()
         self.check_access('write')
         self = self.with_context(lang=self._ems_centre_lang())
-        if self.state in ('to_approve', 'approved') or self.type_kind == 'record':
+        if self.state in ('to_approve',) + CLOSED_STATES or self.type_kind == 'record':
             raise UserError(_("A call can only be sent for a meeting whose minute has not been sent for approval yet."))
         if not self.start_datetime:
             raise UserError(_("Set the date and time of the meeting before sending its call."))
@@ -802,7 +817,7 @@ class EmsMinute(models.Model):
                 self.guest_ids.filtered('email'))
 
     def action_open_submit_dialog(self):
-        """Send for approval from a dialog that also offers to send the draft to the participants,
+        """Send for sign-off from a dialog that also offers to send the draft to the participants,
         so they review it while the meeting is fresh. An evidence record has no meeting: it is sent
         straight away (action_submit)."""
         self.ensure_one()
@@ -810,7 +825,7 @@ class EmsMinute(models.Model):
         staff, guests = self._ems_draft_recipients()
         return {
             'type': 'ir.actions.act_window',
-            'name': _("Send for approval"),
+            'name': _("Send for sign-off"),
             'res_model': 'ems.minute.submit.wizard',
             'view_mode': 'form',
             'target': 'new',
@@ -914,7 +929,7 @@ class EmsMinute(models.Model):
     def _ems_sync_attendance(self):
         """Fill the minute's lists from what the session recorded: who passed the tag attended,
         everybody else convened did not, and a justified absence says so with its reason."""
-        for minute in self.filtered(lambda item: item.attendance_mode == 'nfc' and item.presence_id and item.state != 'approved'):
+        for minute in self.filtered(lambda item: item.attendance_mode == 'nfc' and item.presence_id and item.state not in CLOSED_STATES):
             lines = minute.presence_id.sudo().line_ids
             present = lines.filtered(lambda line: line.state == 'present')
             justified = lines.filtered(lambda line: line.state == 'justified')
@@ -994,6 +1009,8 @@ class EmsMinute(models.Model):
     def action_back_to_draft(self):
         """Back to draft takes back the sending for approval too: the minute is no longer what
         was sent."""
+        if any(minute.state in CLOSED_STATES for minute in self):
+            raise UserError(_("A minute that has been signed off cannot go back to draft: the next meeting decides whether it is approved."))
         if any(minute.state == 'meeting' and minute.presence_id and minute.presence_id.sudo().state != 'draft' for minute in self):
             raise UserError(_("Attendance has already been taken at the kiosk: the meeting can no longer go back to being prepared."))
         result = super().action_back_to_draft()
@@ -1025,26 +1042,94 @@ class EmsMinute(models.Model):
     def _ems_check_can_approve(self):
         self.ensure_one()
         if not self.redactor_employee_id:
-            raise UserError(_("A minute needs to say who wrote it before it can be approved."))
+            raise UserError(_("A minute needs to say who wrote it before it can be signed off."))
         missing = self.section_value_ids.filtered(lambda value: value.required and not value.content)
         if missing:
             raise UserError(_("These sections are required by this type of minute and are still empty: %s",
                               ", ".join(missing.mapped('section_id.name'))))
+        previous = self.previous_minute_id.sudo()
+        if self.state == 'to_approve' and previous.state == 'signed_off' and self.previous_approved == 'na':
+            raise UserError(_("Say whether this meeting approves the previous minute (%s) before signing this one off.",
+                              previous.display_name))
+        return True
+
+    # --- Sign-off and approval (issue #756) ------------------------------------------------------
+
+    def action_sign_off(self):
+        """The sign-off of whoever answers for the minute: it closes it, records who gave it and
+        when, and renders its PDF, marked as pending approval. A type approved with the sign-off
+        is approved there and then; otherwise the next meeting approves it. Then this minute
+        settles what its meeting decided about the previous one."""
+        employee = self.env['hr.employee.public'].search([('user_id', '=', self.env.uid)], limit=1)
+        today = self.env['ems.datetime_utils'].get_local_today()
+        for minute in self:
+            if minute.state != 'to_approve':
+                raise UserError(_("Only a minute awaiting its sign-off can be signed off."))
+            # Before anything is written: the check below names who was meant to give it.
+            if not minute._ems_user_may_approve():
+                raise UserError(_("Only %s can sign off this minute.",
+                                  minute.approver_employee_id.name or minute.approver_role_id.name or _("the person who signs it off")))
+            minute._ems_check_can_approve()
+            # Who actually gives it, when that is somebody other than the person it was meant for.
+            if employee:
+                minute.approver_employee_id = employee
+            minute.signoff_date = today
+            if minute.approval_mode == 'sign_off':
+                minute.approval_date = today
+                super(EmsMinute, minute).action_approve()
+            else:
+                minute.state = 'signed_off'
+                # With sudo: a signed-off minute can no longer be written by whoever signed it off.
+                minute.sudo()._ems_render_pdf()
+                # A later meeting may have approved it already, while it waited for this sign-off.
+                later = self.sudo().search([('previous_minute_id', '=', minute.id), ('state', 'in', CLOSED_STATES),
+                                            ('previous_approved', 'in', ('yes', 'with_changes'))], limit=1)
+                if later:
+                    minute.sudo()._ems_approve_in(later)
+            minute._ems_decide_previous()
         return True
 
     def action_approve(self):
-        """Record who approved it, on top of what the shared machinery does."""
-        employee = self.env['hr.employee.public'].search([('user_id', '=', self.env.uid)], limit=1)
+        """A minute is not approved with a click of its own: by its sign-off (action_sign_off) or
+        by the next meeting. The name stays, as the shared signed-record machinery's entry point."""
+        return self.action_sign_off()
+
+    def _ems_decide_previous(self):
+        """What this minute's meeting decided about the previous one, once this one is signed off
+        and so can no longer change: approved (with or without changes) approves it; not approved
+        sends it back to the meeting to be corrected and signed off again. Only a previous minute
+        already signed off: one still being written is not finished, and its own sign-off picks up
+        an approval given meanwhile (action_sign_off)."""
         for minute in self:
-            # Before anything is written: the check below names who was meant to approve it.
-            if not minute._ems_user_may_approve():
-                raise UserError(_("Only %s can approve this minute.",
-                                  minute.approver_employee_id.name or minute.approver_role_id.name or _("the person who approves it")))
-            # Who actually approves it, when that is somebody other than the person it was meant for.
-            if employee:
-                minute.approver_employee_id = employee
-            minute.approval_date = fields.Date.context_today(minute)
-        return super().action_approve()
+            previous = minute.previous_minute_id.sudo()
+            if previous.state != 'signed_off':
+                continue
+            if minute.previous_approved in ('yes', 'with_changes'):
+                previous._ems_approve_in(minute)
+            elif minute.previous_approved == 'no':
+                previous._ems_reject_in(minute)
+
+    def _ems_approve_in(self, meeting):
+        """Approved by `meeting`, the next one: dated on that meeting, with its final PDF."""
+        self.ensure_one()
+        self.write({'approval_date': meeting.date, 'approved_in_minute_id': meeting.id})
+        super(EmsMinute, self).action_approve()
+        self.message_post(body=_("Approved in the meeting %s.", meeting.display_name), subtype_xmlid='mail.mt_note')
+
+    def _ems_reject_in(self, meeting):
+        """Not approved by `meeting`: back to the meeting, to be corrected and signed off again.
+        Whoever writes it hears of it in their daily summary, with what the meeting said."""
+        self.ensure_one()
+        self.write({'state': 'meeting', 'signoff_date': False, 'submission_date': False, 'submitted_by_id': False,
+                    'pdf_attachment_id': False})
+        notes = meeting.previous_approval_notes or ''
+        self.message_post(body=_("Not approved in the meeting %(meeting)s: it goes back to the meeting to be corrected. %(notes)s",
+                                 meeting=meeting.display_name, notes=notes), subtype_xmlid='mail.mt_note')
+        writer = self.redactor_employee_id.user_id
+        if writer:
+            self.env['ems.info_notice']._ems_queue(writer, self, lambda user: self.with_context(lang=user.lang).env._(
+                "Not approved in the meeting %(meeting)s: the minute is open again to be corrected and signed off. %(notes)s",
+                meeting=meeting.display_name, notes=notes))
 
     @api.model
     def _ems_people_label(self, people):
@@ -1053,10 +1138,10 @@ class EmsMinute(models.Model):
         return ", ".join(people.mapped('name')) if len(people) <= 3 else _("%s people", len(people))
 
     def action_open_draft_pdf(self):
-        """Show the minute as it stands, before it is approved: the same document the approval
+        """Show the minute as it stands, before it is signed off: the same document the sign-off
         will file, rendered on the spot and marked as a draft. Nothing is stored."""
         self.ensure_one()
-        if self.state == 'approved':
+        if self.state in CLOSED_STATES:
             return self.action_open_pdf()
         return {'type': 'ir.actions.act_url', 'url': f"/report/pdf/ems.report_minute/{self.id}", 'target': 'new'}
 
@@ -1095,9 +1180,9 @@ class IrActionsReport(models.Model):
 
 
 class EmsMinuteSubmitWizard(models.TransientModel):
-    """Sending a minute for approval, and with it, if wanted, its draft to the participants."""
+    """Sending a minute for its sign-off, and with it, if wanted, its draft to the participants."""
     _name = "ems.minute.submit.wizard"
-    _description = "Send a minute for approval, optionally emailing its draft to the participants."
+    _description = "Send a minute for sign-off, optionally emailing its draft to the participants."
 
     minute_id = fields.Many2one(string="Minute", comodel_name="ems.minute", required=True, ondelete='cascade')
     send_draft = fields.Boolean(

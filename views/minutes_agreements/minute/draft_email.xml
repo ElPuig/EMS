@@ -16,8 +16,8 @@
                     </a>
                 </p>
                 <p t-else="">The draft is attached to this email as a PDF.</p>
-                <p>If anything needs correcting, reply to this email before the minute is approved.</p>
-                <p t-if="approver_name" style="margin-top: 16px; color: #666;">It will be approved by <span t-out="approver_name"/>.</p>
+                <p>If anything needs correcting, reply to this email before the minute is signed off.</p>
+                <p t-if="approver_name" style="margin-top: 16px; color: #666;">Sign-off by <span t-out="approver_name"/>.</p>
             </div>
         </template>
     </data>

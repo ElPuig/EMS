@@ -126,7 +126,7 @@ How people postpone one, in My Activities (to-do tray 🕒 → "View all activit
 is due today or overdue). Each row is one line of icons (the text is the tooltip): Done, Cancel and
 a bell, the `ems_activity_snooze` view widget (`static/src/js/backend/activity_snooze.js`), in place
 of Odoo's "Snooze 7d". The bell opens a popover with three choices, 1, 3 and 7 days, each showing
-the date the task would move to (computed with `serverNow()`, never the computer's clock). The
+the date the task would move to. The web client repeats neither the days nor the rule: it asks the server (`mail.activity.ems_snooze_choices()`, which returns the days and, for a single task, the resulting date). The
 list's header has one "Snooze" (`action_ems_snooze_dialog`) that opens the same choices for the
 selected tasks, as a client action with `target: 'new'` (Odoo shows it in a dialog and reloads the
 list once it closes; the header only takes buttons, not widgets). Views:
@@ -135,7 +135,7 @@ list once it closes; the header only takes buttons, not widgets). Views:
 Both call `mail.activity.action_ems_snooze(days)` (`models/shared/mail_activity.py`), which only
 accepts 1, 3 or 7 and moves the due date to the later of (today, due date) + `days`. Odoo's own
 `action_snooze` is overridden the same way (7 days), in case anything else calls it. Today is the
-company's (`ems.datetime_utils.get_local_today()`): Odoo's own `action_snooze` uses the server's UTC
+company's, read from the same clock as the summary's task domain (`ems.datetime_utils.utc_to_local_date(fields.Datetime.now())`): Odoo's own `action_snooze` uses the server's UTC
 date, a day behind just after local midnight. Permissions are Odoo's: only whoever can write the
 activity (its owner, or someone with write access to its record) can snooze it. Editing the due
 date in the record's chatter works the same way.

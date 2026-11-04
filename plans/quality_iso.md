@@ -887,7 +887,7 @@ excluded locally (`.git/info/exclude`); never commit it again.
    Split decided with the developer the same day: content managers, responsible people (progress only, via
    follow-up entries) and the new *People involved* (read and notified only); the deadline is content.
 3. ~~Stored title in the writer's language~~: done 2026-10-22. Developer's decision: for now a minute's
-   title is always in Catalan; `name`/`scope_name` are computed in `_ems_centre_lang()` (`ca_ES`), like the
+   title is always in Catalan; `name`/`scope_name` are computed in the centre language (`res.company.ems_lang`, `ca_ES`), like the
    PDF and the call (`test_title_is_in_the_centre_language_whoever_writes_it`). Declaring the
    installation's main language is future work (issue #620, with the departments' own acronyms); for this
    centre it is Catalan.

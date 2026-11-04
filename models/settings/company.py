@@ -283,6 +283,13 @@ class ems_company(models.Model):
         companies._sync_enrollment_course_flag()
         return companies
 
+    @api.model
+    def _ems_centre_env(self):
+        """An environment in the centre language (ems_lang), for everything EMS writes or prints
+        itself whoever triggers it: stored texts, codes, the centre's documents (issue #746). The
+        language alone is env.company.ems_lang."""
+        return self.env(context=dict(self.env.context, lang=self.env.company.sudo().ems_lang))
+
     def _ems_apply_centre_lang(self):
         """Make the centre language the default one of new contacts, and so of new users, with
         Odoo's own default values (the same 'Set default' of developer mode); and reprint the

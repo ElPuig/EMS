@@ -240,7 +240,7 @@ class EmsMinute(models.Model):
             if not minute.type_id:
                 minute.name = minute.name or ""
                 continue
-            type_name = minute.type_id.with_context(lang=minute._ems_centre_lang()).name
+            type_name = minute.type_id.with_env(minute.env['res.company']._ems_centre_env()).name
             scope = minute.scope_name
             minute.name = f"{type_name} - {scope}" if scope else type_name
 
@@ -280,7 +280,7 @@ class EmsMinute(models.Model):
     def _compute_scope_name(self):
         # Stored: in the centre's language, like the title built from it.
         for minute in self:
-            minute.scope_name = minute.with_context(lang=minute._ems_centre_lang())._scope_label()
+            minute.scope_name = minute.with_env(minute.env['res.company']._ems_centre_env())._scope_label()
 
     @api.depends('space_id', 'place_text')
     def _compute_place_name(self):
@@ -570,17 +570,6 @@ class EmsMinute(models.Model):
 
     # --- Call to the meeting ---------------------------------------------------------------------
 
-    @api.model
-    def _ems_centre_lang(self):
-        """The language the centre's own documents are written in - a minute, its call - whatever
-        language whoever produces them works in (res.company.ems_lang)."""
-        return self.env.company.ems_lang
-
-    @api.model
-    def _ems_centre_env(self):
-        """An environment in the centre's language, for text EMS writes into the database itself."""
-        return self.with_context(lang=self._ems_centre_lang()).env
-
     def _ems_call_values(self):
         """What the call says: when and where, the agenda, and where to read the previous minute."""
         self.ensure_one()
@@ -711,7 +700,7 @@ class EmsMinute(models.Model):
         again whenever something changes; a second call says it replaces the first."""
         self.ensure_one()
         self.check_access('write')
-        self = self.with_context(lang=self._ems_centre_lang())
+        self = self.with_env(self.env['res.company']._ems_centre_env())
         if self.state in ('to_approve', 'approved') or self.type_kind == 'record':
             raise UserError(_("A call can only be sent for a meeting whose minute has not been sent for approval yet."))
         if not self.start_datetime:
@@ -962,19 +951,3 @@ class EmsMinute(models.Model):
     def _compute_display_name(self):
         for minute in self:
             minute.display_name = f"{minute.code} {minute.name}" if minute.code else (minute.name or "")
-
-
-class IrActionsReport(models.Model):
-    _inherit = "ir.actions.report"
-
-    def _ems_in_centre_lang(self, report_ref):
-        """A minute is the centre's document: printed in the centre's language whoever prints it."""
-        if self._get_report(report_ref).report_name == 'ems.report_minute':
-            return self.with_context(lang=self.env['ems.minute']._ems_centre_lang())
-        return self
-
-    def _render_qweb_pdf(self, report_ref, res_ids=None, data=None):
-        return super(IrActionsReport, self._ems_in_centre_lang(report_ref))._render_qweb_pdf(report_ref, res_ids=res_ids, data=data)
-
-    def _render_qweb_html(self, report_ref, docids, data=None):
-        return super(IrActionsReport, self._ems_in_centre_lang(report_ref))._render_qweb_html(report_ref, docids, data=data)

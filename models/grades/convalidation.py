@@ -514,20 +514,18 @@ class EmsConvalidation(models.Model):
 
     # --- the official resolution ----------------------------------------------
 
-    def _ems_resolution_lang(self):
-        """The resolution is issued in the centre language, whoever generates it."""
-        return self.env.company.ems_lang
-
     def _ems_generate_resolution_pdf(self):
         """Render the resolution (ems.report_convalidation_resolution) and keep it on the request,
         replacing any earlier one."""
         self.ensure_one()
-        convalidation = self.with_context(lang=self._ems_resolution_lang())
-        pdf, _content_type = self.env['ir.actions.report'].sudo().with_context(lang=convalidation.env.lang)._render_qweb_pdf(
+        # Issued in the centre language whoever generates it: the report itself is printed in it
+        # (models/shared/ir_actions_report.py), and so is the attachment's name.
+        centre_env = self.env['res.company']._ems_centre_env()
+        pdf, _content_type = self.env['ir.actions.report'].sudo()._render_qweb_pdf(
             'ems.action_report_convalidation_resolution', self.ids)
         previous = self.resolution_pdf_id
         self.sudo().resolution_pdf_id = self.env['ir.attachment'].sudo().create({
-            'name': convalidation.env._("Resolution %s.pdf", self.name),
+            'name': centre_env._("Resolution %s.pdf", self.name),
             'raw': pdf,
             'mimetype': 'application/pdf',
             'res_model': self._name,

@@ -133,7 +133,7 @@ class ResPartner(models.Model):
             'document': self.document_id or self.passport_id,
             'level': level,
             # A student without a main group still gets a band, in the colour of a level without one.
-            'color': CARD_PALETTE[level.card_color or DEFAULT_CARD_COLOR],
+            'color': CARD_PALETTE[level.card_color or DEFAULT_CARD_COLOR][1],
             # The study's acronym (SMX, not its full name), so the block never takes two lines; left out
             # when it only repeats the level's (ESO, BTX).
             'study': group.study_id.acronym if group.study_id.acronym != level.acronym else '',
@@ -155,22 +155,3 @@ class EmsGroup(models.Model):
     def action_print_student_cards(self):
         self.ensure_one()
         return self.main_student_ids.action_print_student_card()
-
-
-class IrActionsReport(models.Model):
-    _inherit = 'ir.actions.report'
-
-    def _ems_student_card_lang(self, report_ref):
-        """A student card is the centre's document: printed in the centre's language (Catalan)
-        whoever prints it, as a minute is (ir.actions.report._ems_in_centre_lang)."""
-        if self._get_report(report_ref).report_name == 'ems.report_student_card':
-            return self.with_context(lang=self.env['ems.minute']._ems_centre_lang())
-        return self
-
-    def _render_qweb_pdf(self, report_ref, res_ids=None, data=None):
-        return super(IrActionsReport, self._ems_student_card_lang(report_ref))._render_qweb_pdf(
-            report_ref, res_ids=res_ids, data=data)
-
-    def _render_qweb_html(self, report_ref, docids, data=None):
-        return super(IrActionsReport, self._ems_student_card_lang(report_ref))._render_qweb_html(
-            report_ref, docids, data=data)

@@ -11,6 +11,7 @@
                             <group>
                                 <field name="acronym"/>
                                 <field name="allows_convalidation"/>
+                                <field name="card_color"/>
                                 <field name="declaration_code"/>
                                 <field name="withdrawal_circuit"/>
                             </group>

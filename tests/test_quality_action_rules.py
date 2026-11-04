@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from lxml import etree
+
 from odoo import fields
 from odoo.exceptions import AccessError
+from odoo.osv import expression
 from odoo.tests.common import TransactionCase
+from odoo.tools.safe_eval import safe_eval
 
 from .common import create_role_employee, create_role_user, mock_outgoing_email
 
@@ -141,6 +145,30 @@ class TestQualityActionRules(TransactionCase):
         message = self.action.message_ids.filtered(lambda message: 'Follow-up by ARules Teacher B' in (message.body or ''))
         self.assertTrue(message, "adding a follow-up entry tells the agreement's followers")
         self.assertIn(self.teacher_d.partner_id, message.notified_partner_ids)
+
+    def _default_facets_domain(self, action, user):
+        """The domain the web client builds from the action's search_default_* facets: filters of
+        the same group (between separators) are ORed, groups are ANDed."""
+        defaults = {key[len('search_default_'):] for key, value in safe_eval(action.context).items()
+                    if key.startswith('search_default_') and value}
+        arch = etree.fromstring(self.env['ems.quality.action'].get_view(action.search_view_id.id, 'search')['arch'])
+        groups, group = [], []
+        for node in arch.iter('filter', 'separator'):
+            if node.tag == 'separator':
+                groups.append(group)
+                group = []
+            elif node.get('name') in defaults:
+                group.append(safe_eval(node.get('domain'), {'uid': user.id}))
+        groups.append(group)
+        return expression.AND([expression.OR(group) for group in groups if group])
+
+    def test_the_staff_screen_opens_on_the_agreements_i_manage_or_am_involved_in(self):
+        """Meetings > Agreements: responsible or involved, still open. The department's chief reads
+        it too, but it is not theirs to do."""
+        action = self.env.ref('ems.action_minute_agreement')
+        for user, expected in ((self.teacher_b, True), (self.teacher_d, True), (self.chief_a, False)):
+            domain = self._default_facets_domain(action, user) + [('id', '=', self.action.id)]
+            self.assertEqual(bool(self.env['ems.quality.action'].with_user(user).search(domain)), expected, user.name)
 
     def test_the_chain_of_command_of_the_department_writes_it(self):
         self.assertIn(self.hos, self.chief_a_employee.tutor_scope_user_ids)

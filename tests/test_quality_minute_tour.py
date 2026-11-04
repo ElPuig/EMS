@@ -41,3 +41,21 @@ class TestQualityMinuteTour(HttpCase):
         })
         minute.action_start_meeting()
         self.start_tour(f"/odoo/action-ems.action_minute/{minute.id}", "ems_minute_read_only", login="minute.reader@example.com")
+
+    def test_attendance_lists_exclude_each_other_tour(self):
+        alpha, beta = (
+            create_role_employee(self, create_role_user(self, 'teacher', f'minute.drag.{key}@example.com', name=f'Drag Tour {key.title()}'))
+            for key in ('alpha', 'beta'))
+        writer = self.env['hr.employee.public'].browse(self.user.employee_id.id)
+        minute = self.env['ems.minute'].create({
+            'type_id': self.env.ref('__import__.minute_type_dep').id,
+            'department_id': self.department.id,
+            'attendance_mode': 'manual',
+            'attendee_ids': [(6, 0, [writer.id, alpha.id, beta.id])],
+            'redactor_employee_id': writer.id,
+            'approver_employee_id': writer.id,
+        })
+        minute.action_start_meeting()
+        self.start_tour(f"/odoo/action-ems.action_minute/{minute.id}", "ems_minute_attendance_lists", login="minute.tour@example.com")
+        self.assertEqual(set(minute.absentee_ids.ids), {alpha.id, beta.id})
+        self.assertEqual(minute.attendee_ids.ids, [writer.id])

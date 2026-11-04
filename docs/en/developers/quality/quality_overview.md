@@ -41,7 +41,8 @@ Three ideas carry the whole area and are worth stating before the field tables:
    records work this way, and it survives someone changing job in September.
 3. **An agreement and an improvement action are the same thing.** One model, `ems.quality.action`, with a
    `type`. That is what makes a single "what do I owe and by when" screen possible instead of one per
-   origin.
+   origin. Meetings > Agreements (`action_minute_agreement`) is that screen for the staff:
+   it opens on the facets *Mine*, *Where I am involved* (same filter group, so ORed) and *Open*.
 4. **State is computed, never typed.** It derives from the latest follow-up entry, so changing state
    requires recording why.
 
@@ -147,9 +148,9 @@ stay English in the source and are translated through `i18n/ca_ES.po` and `i18n/
 ## `ems.minute` — lifecycle
 
 **Language.** The title (`name`) and the scope (`scope_name`) are stored computes, so they are built in
-the centre's language (`_ems_centre_lang()`, `common.SCOPE_CODE_LANG` = `ca_ES`, falling back to the
-user's when Catalan is not installed) rather than in the language of whoever creates the minute; the PDF
-and the call use the same language. Making it a setting of the installation is future work (issue #620).
+the centre language (`_ems_centre_lang()`, which reads `res.company.ems_lang`, see
+[company.md](../settings/company.md)) rather than in the language of whoever creates the minute; the PDF,
+the call and the codes (`common.scope_code`) use the same language.
 
 A meeting minute goes through four states; an evidence record (a minute type of kind `record`) skips the
 meeting and goes straight from draft to approval.
@@ -199,6 +200,11 @@ approver; until then the same room is left blank. The stamp is the shared QWeb t
 `ems.report_validation_stamp` (`reports/shared/report_validation_stamp.xml`), the same one the
 convalidation resolution prints; like there, it is EMS's record of who did it, not a qualified electronic
 signature (issue #530).
+
+**Attendees and absentees** (`attendee_ids`, `absentee_ids`) exclude each other: `_check_attendee_not_absent`
+refuses anybody in both, and the form shows both with `ems_exclusive_tags`
+(`static/src/js/backend/exclusive_tags_field.js`, option `exclusive_with` naming the sibling field), a
+`many2many_tags` that takes whoever is added to one off the other and lets a tag be dragged between them.
 
 **People from outside EMS** (`ems.minute.guest`, the minute's `guest_ids`): a student's family, a teacher
 from another school, a speaker. No employee record and no account: first name, surname, an optional email
@@ -284,6 +290,15 @@ The five stages, matching the centre's own vocabulary: `new` New (pending), `ana
 (planning), `in_progress` In progress (implementation), `review` Review (measuring efficacy), `closed`
 Closed. **Open means anything not closed** — there is no separate open flag, and no editable state field:
 moving forward requires a follow-up entry, which is what keeps the reason on record.
+
+An agreement can be closed at any moment, including in the minute that takes it (a decision nobody has to
+carry out): **Done** on its card in the minute (`is_closed_in_minute`) adds a `closed` follow-up entry dated
+and signed as the minute (`_ems_sync_minute_closure`, sudo, the same reasoning as the review of an agreement
+in a later minute), kept in `minute_followup_id` so unticking it removes that entry again. The minute's PDF
+prints "Done" in its deadline column, and it is not carried into the next minute.
+The text EMS writes into a follow-up entry on its own (an agreement done or reviewed in a minute with
+nothing written about it), and the comment every entry posts to the agreement's followers, are stored, so
+they are in the centre's language (`ems.minute._ems_centre_env()`), whatever language the writer works in.
 
 ## Numbering
 

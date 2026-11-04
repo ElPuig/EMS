@@ -16,6 +16,7 @@ Aquesta guia explica el missatge diari amb tot el que l'EMS té per a tu (tasque
 2. [Què conté](#què-conté)
 3. [Quan arriba](#quan-arriba)
 4. [Triar quan i com el reps](#triar-quan-i-com-el-reps)
+5. [Ajornar una tasca](#ajornar-una-tasca)
 
 ---
 
@@ -35,7 +36,7 @@ Les coses urgents (per exemple, una guàrdia per avui) segueixen arribant al mom
 
 Només surten els apartats que tenen alguna cosa:
 
-- **Tasques pendents:** totes les tasques de la teva safata d'activitats (🕒), agrupades per tipus (per exemple, *Revisar sol·licitud de convalidació*). Per a cada tasca, un enllaç que l'obre a l'EMS, la descripció i la data límit; les vençudes s'indiquen entre parèntesis. Si un tipus té més de 20 tasques, es mostren les 20 més properes a vèncer i quantes en queden.
+- **Tasques pendents:** les tasques de la teva safata d'activitats (🕒) que vencen avui o ja han vençut, agrupades per tipus (per exemple, *Revisar sol·licitud de convalidació*). Per a cada tasca, un enllaç que l'obre a l'EMS, la descripció i la data límit; les vençudes s'indiquen entre parèntesis. Si un tipus té més de 20 tasques, es mostren les 20 més properes a vèncer i quantes en queden.
 - **Incidències d'assistència dels teus alumnes** (només tutors): les faltes, els retards, etc. registrats des del resum anterior, per dia i per alumne. Vegeu [Informe d'incidències d'assistència dels teus alumnes](../tutors/attendance-issues-report.md).
 - **Per a la teva informació:** avisos que no et demanen fer res, agrupats per alumne. Per exemple, que un alumne teu té una [baixa prevista](../tutors/withdrawal-expected.md) i deixa de sortir als teus passis de llista, que no assistirà a un mòdul teu mentre es resol la seva sol·licitud de convalidació, o que se li han convalidat mòduls.
 
@@ -70,6 +71,19 @@ L'assumpte resumeix el que hi ha, per exemple *EMS: resum diari (tasques pendent
 | **A una hora concreta** | A l'hora que triïs, cada dia lectiu. |
 
 El canvi també s'aplica al resum que tinguis pendent en aquell moment.
+
+---
+
+## Ajornar una tasca
+
+El resum només inclou les tasques **que vencen avui o ja han vençut**. Si encara no pots ocupar-te d'una i no vols que te la recordi cada dia, ajorna-la: surt del resum fins a la nova data límit i després hi torna sola.
+
+1. Fes clic a la safata d'activitats (🕒) de la part superior de l'EMS i tria **View all activities**. S'obre amb les teves tasques que vencen avui o ja han vençut.
+2. A la fila de la tasca, prem la campana (**Posposa**) i tria **1 dia**, **3 dies** o **7 dies**; sota cada opció veus la data on passarà la tasca. Per ajornar-ne diverses alhora, marca-les, prem **Posposa** a la part superior de la llista i tria de la mateixa manera.
+
+![Les meves activitats: la campana d'una tasca, amb els 1, 3 i 7 dies per triar](../../assets/teachers/resum-diari-03-posposar.png)
+
+Els dies es compten des d'avui o, si la tasca ja vencia més endavant, des de la seva data límit. També pots canviar la data límit a mà des de la tasca, al registre on és.
 
 ---
 

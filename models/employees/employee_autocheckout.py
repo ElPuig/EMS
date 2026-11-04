@@ -321,6 +321,8 @@ class ems_attendance(models.Model):
                 'mail.mail_activity_data_todo',
                 user_id=admin.id,
                 summary=_('Automatic check-out failed'),
+                # Due today, not the to-do type's 5 days: the daily summary only lists what is due.
+                date_deadline=self.env['ems.datetime_utils'].get_local_today(),
                 note=_(
                     'Automatic check-out failed for %(employee)s\'s attendance (id=%(id)d) '
                     'due to an unexpected error. Please review and close it manually.'

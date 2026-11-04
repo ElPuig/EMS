@@ -18,6 +18,7 @@ This section contains the manuals for **secretariat staff**.
 - [A Student's Weekly Schedule](../admin/student-schedule.md) — Viewing a student's own timetable (subjects, teachers, classrooms, breaks), including overlapping classes, and exporting it to PDF.
 - [Attendance Reports](attendance-reports.md) — Print the 3 PDF attendance reports (by group/student/subject) and explore attendance data with the Attendance analysis pivot/graph screen.
 - [Managing student and family contacts](student-contacts.md) — Contact types and how they change, adding a family contact to a student, and registering bonifications and exemptions.
+- [Printing student cards](student-card.md) — Print the cards of a group, of a few students or of one as a PDF, what they show and how to print them double-sided.
 - [Authorizations: creating, sending and following up](authorizations.md) — Creating authorization forms, sending them to students during the course and following up the answers.
 - [Convalidations: registering resolutions](convalidations.md) — Registering resolved convalidations in Esfera and closing them so the student receives the resolution and sees the grade.
 - [Contact data requests: asking families to update their details](../tutors/contact-data-requests.md) — Ask students and families to review their contact details from the portal, follow up the answers and approve the changes (shared manual with the tutors).

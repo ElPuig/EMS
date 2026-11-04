@@ -1887,6 +1887,22 @@ class TestAbsenceRequest(TransactionCase):
         self.assertNotIn('waiting for your approval', for_chief.body)
         self.assertFalse(self._emails_to(leave, owner))
 
+    def test_approval_task_is_due_today(self):
+        """Odoo dates it 15 days before the absence; the daily summary only lists what is due, so
+        a request filed a month ahead would wait two weeks to appear in it (issue #727)."""
+        head = create_role_user(self, 'head_of_studies', 'absence_due_head@absence.test')
+        self.employee.leave_manager_id = head.id
+        today = self.env['ems.datetime_utils'].get_local_today()
+        day = today + timedelta(days=40)
+        while day.weekday() != 0:
+            day += timedelta(days=1)
+
+        leave = self._create_leave(self.type_justified, day, ems_full_day=True)
+
+        approval = leave.activity_ids.filtered(
+            lambda activity: activity.activity_type_id == self.env.ref('hr_holidays.mail_act_leave_approval'))
+        self.assertEqual(approval.date_deadline, today)
+
     def test_the_approver_is_emailed_what_has_to_be_covered(self):
         """Odoo's own email for the approval activity only says a document was assigned: the
         approver gets the dates and the hours instead, to arrange the cover (issue #625)."""

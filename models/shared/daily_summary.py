@@ -231,14 +231,22 @@ class EmsDailySummaryUsers(models.Model):
 
     @api.model
     def _ems_digest_candidate_ids(self):
-        """Ids of the users with something for their summary: open activities, attendance issues
+        """Ids of the users with something for their summary: tasks due by today, attendance issues
         of their students not reported yet, informative notices not sent yet."""
-        activities = self.env['mail.activity'].sudo()._read_group([('user_id', '!=', False)], ['user_id'])
+        activities = self.env['mail.activity'].sudo()._read_group(self._ems_digest_task_domain(), ['user_id'])
         notices = self.env['ems.info_notice'].sudo()._read_group([('sent_date', '=', False)], ['user_id'])
         issues = self.env['ems.attendance_issue_tutor'].sudo()._ems_pending_tutors()
         return list({user.id for user, in activities + notices} | set(issues.user_id.ids))
 
     # --- what -------------------------------------------------------------------------------
+
+    @api.model
+    def _ems_digest_task_domain(self, user=None):
+        """The tasks the summary lists: open activities due today or overdue (company day), of
+        `user` or of anyone. Postponing a task is moving its due date: it leaves the summary until
+        that day and comes back on its own (issue #727)."""
+        today = self._ems_local_today(fields.Datetime.now())
+        return [('user_id', '=', user.id) if user else ('user_id', '!=', False), ('date_deadline', '<=', today)]
 
     def _ems_digest_has_issues(self):
         self.ensure_one()
@@ -247,16 +255,16 @@ class EmsDailySummaryUsers(models.Model):
     def _ems_digest_has_content(self):
         self.ensure_one()
         return bool(
-            self.env['mail.activity'].sudo().search_count([('user_id', '=', self.id)], limit=1)
+            self.env['mail.activity'].sudo().search_count(self._ems_digest_task_domain(self), limit=1)
             or self.env['ems.info_notice'].sudo().search_count([('user_id', '=', self.id), ('sent_date', '=', False)], limit=1)
             or self._ems_digest_has_issues())
 
     def _ems_digest_task_groups(self):
-        """The user's open activities by type: a list of dicts with 'type', 'count', 'activities'
+        """The user's tasks due by today, by type: a list of dicts with 'type', 'count', 'activities'
         (at most TASKS_MAX_PER_TYPE, soonest due first) and 'more' (how many were left out)."""
         self.ensure_one()
         activities = self.env['mail.activity'].sudo().with_context(lang=self.lang).search(
-            [('user_id', '=', self.id)], order='date_deadline, id')
+            self._ems_digest_task_domain(self), order='date_deadline, id')
         by_type = defaultdict(lambda: self.env['mail.activity'])
         for activity in activities:
             by_type[activity.activity_type_id] |= activity

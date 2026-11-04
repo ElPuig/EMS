@@ -121,7 +121,9 @@ Quan comença la reunió, **Accions → Comença la reunió**. L'acta passa a l'
 canvia: ja no hi ha pestanyes, sinó els blocs de l'ordre del dia, un sota l'altre, per anar-los omplint a
 mesura que avança la reunió.
 
-- **Assistència:** qui hi ha assistit i qui hi manca (o el quiosc, si es recull amb el tag NFC).
+- **Assistència:** qui hi ha assistit i qui hi manca (o el quiosc, si es recull amb el tag NFC). Ningú no
+  pot ser a les dues llistes: si afegiu una persona a una, surt de l'altra, i també podeu arrossegar una
+  persona d'una llista a l'altra.
 - **Aprovació de l'acta anterior:** obriu-ne el PDF, marqueu si s'aprova i anoteu-hi les esmenes.
 - **Seguiment dels acords:** cada acord que seguia obert té la seva fitxa. Escriviu-hi què se n'ha dit, poseu
   una **nova data límit** si cal i marqueu **Fet** si es dona per tancat. El que hi escriviu queda al
@@ -133,7 +135,9 @@ mesura que avança la reunió.
   estava previst.
 - **Precs i preguntes:** un altre quadre de text.
 - **Acords:** cada acord nou és una fitxa, amb el contingut a tota l'amplada i, a la capçalera, la data
-  límit i els responsables (per defecte, el cap de departament i el de seminari).
+  límit i els responsables (per defecte, el cap de departament i el de seminari). Un acord que només és
+  una decisió, que ningú no ha de dur a terme, es pot tancar allà mateix: marqueu **Fet** i ja no es porta
+  a la reunió següent.
 
   ![Bloc Acords durant la reunió: fitxa d'un acord amb data límit, persones responsables, persones implicades, contingut i descripció](../../assets/teachers/actes-08-acords.png)
 - **Temes pendents:** al final, com a llista.
@@ -161,6 +165,13 @@ pantalla amb la faceta *Pendents que jo aprovi*, i en aprovar-la:
 - Es genera el **PDF**, que queda adjunt a l'acta.
 - L'acta **ja no es pot modificar**. Si cal corregir alguna cosa, es fa una versió nova; no es reescriu
   la que ja estava aprovada.
+
+## Els meus acords
+
+**Reunions → Acords** obre amb els acords **oberts** on sou **persona responsable** (pel vostre nom o pel
+càrrec que ocupeu) o **persona implicada**: les facetes *Les meves*, *Els que m'impliquen* i *Oberta*. Podeu
+treure *Les meves* i *Els que m'impliquen* per separat per veure'n només una part, o *Oberta* per veure
+també els tancats.
 
 ## Registres puntuals
 

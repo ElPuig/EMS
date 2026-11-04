@@ -165,6 +165,11 @@ registry.category("web_tour.tours").add("ems_minute_write", {
             run: "edit Buy the materials for the workshop",
         },
         {
+            trigger: ".o_field_widget[name='agreement_ids'] .o_ems_record_card_cell[data-name='is_closed_in_minute'] input[type='checkbox']",
+            content: "A decision nobody has to carry out is done in the same meeting",
+            run: "click",
+        },
+        {
             trigger: ".o_form_button_save",
             content: "Save the agreement",
             run: "click",
@@ -172,6 +177,10 @@ registry.category("web_tour.tours").add("ems_minute_write", {
         {
             trigger: ".o_form_saved .o_field_widget[name='agreement_ids'] .o_ems_record_card_cell[data-name='code']:contains('ACORD-000DEP-')",
             content: "The agreement got its code",
+        },
+        {
+            trigger: ".o_form_saved .o_field_widget[name='agreement_ids'] .o_ems_record_card_cell[data-name='is_closed_in_minute'] input:checked",
+            content: "It stays done once saved",
         },
         ...clickAction("action_submit", "Send it for approval"),
         {
@@ -209,6 +218,50 @@ registry.category("web_tour.tours").add("ems_minute_read_only", {
             // Neither the Actions dropdown nor a lone header button (see actions_dropdown_helpers).
             trigger: ".o_form_view .o_form_statusbar:not(:has(.o_ems_actions_toggle)):not(:has(button[name^='action_']))",
             content: "No action that would change the minute",
+        },
+    ],
+});
+
+// Whoever writes the minute moves somebody from the attendees to the absentees by dragging their
+// tag, and adds somebody else to the absentees by name: nobody stays in both lists.
+registry.category("web_tour.tours").add("ems_minute_attendance_lists", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_field_widget[name='attendee_ids'] .o_tag:contains('Drag Tour Alpha')",
+            content: "Drag an attendee who did not come",
+            run: "drag_and_drop .o_field_widget[name='absentee_ids'] .o_field_tags",
+        },
+        {
+            trigger: ".o_field_widget[name='absentee_ids'] .o_tag:contains('Drag Tour Alpha')",
+            content: "They are among the absentees",
+        },
+        {
+            trigger: ".o_field_widget[name='attendee_ids']:not(:has(.o_tag:contains('Drag Tour Alpha')))",
+            content: "And no longer among the attendees",
+        },
+        {
+            trigger: ".o_field_widget[name='absentee_ids'] input",
+            content: "Add another one to the absentees by name",
+            run: "edit Drag Tour Beta",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-menu li:contains('Drag Tour Beta')",
+            content: "Pick them",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='attendee_ids']:not(:has(.o_tag:contains('Drag Tour Beta')))",
+            content: "They left the attendees too",
+        },
+        {
+            trigger: ".o_form_button_save",
+            content: "Save",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_form_saved",
+            content: "The minute is saved",
         },
     ],
 });

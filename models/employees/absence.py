@@ -1160,6 +1160,7 @@ class EmsAbsenceLeave(models.Model):
         is built inline inside it with no hook of its own.
         """
         activities_before = {leave.id: leave.sudo().activity_ids for leave in self}
+        today = self.env['ems.datetime_utils'].get_local_today()
         result = super(EmsAbsenceLeave, self.with_context(
             mail_activity_quick_update=True)).activity_update()
         # Sudo because the activity belongs to the approver, not to the employee who just filed
@@ -1176,6 +1177,10 @@ class EmsAbsenceLeave(models.Model):
                     note = str(activity.note or '')
                     if long_name in note:
                         activity.note = note.replace(long_name, short_name)
+            # Due today, not 15 days before the absence as Odoo dates it: the daily summary only
+            # lists what is due (issue #727), and a request filed a month ahead would wait two
+            # weeks to appear in it. Only the new ones, so a snoozed one stays snoozed.
+            assigned.filtered(lambda activity: activity.date_deadline > today).date_deadline = today
             # Not whoever caused it: Odoo does not email them their own activity either.
             approvers = assigned.user_id - self.env.user
             leave._ems_notify(approvers.partner_id, Markup("%s<p>%s</p>") % (

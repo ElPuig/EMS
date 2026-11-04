@@ -320,7 +320,7 @@ The PDF is **never rendered on request** - only when something it prints actuall
 flowchart LR
     CH["A change that alters the printed schedule (see triggers)"] --> MARK["ems.group._mark_public_schedule_dirty(): public_schedule_dirty = True + ir.cron._trigger()"]
     MARK --> CRON["ir_cron_group_public_schedule (runs seconds later, batched)"]
-    CRON --> GEN["ems.group._generate_public_schedule(): render ems.report_group_schedule in ca_ES"]
+    CRON --> GEN["ems.group._generate_public_schedule(): render ems.report_group_schedule in the centre language"]
     GEN --> BIN["public_schedule_pdf (Binary, attachment) + public_schedule_dirty = False"]
     WEB["Anyone on the internet"] -->|"GET /ems/schedule/slug.pdf (auth=public)"| CTRL["controllers/group_public_schedule.py"]
     CTRL -->|sudo read, active groups only| BIN
@@ -362,7 +362,7 @@ affected group**, outside the user's request.
   up to 10 groups and reports `ir.cron._notify_progress(done, remaining)`; the cron framework
   calls it again in a fresh, separately committed transaction while `remaining > 0`. Its daily
   interval is only a safety net.
-- Rendered with `lang='ca_ES'` (developer choice: one link, the centre's language).
+- Rendered in the centre language (`res.company.ems_lang`; one link, one language). Changing that setting marks every public schedule for regeneration.
 
 ### Triggers (what marks which groups dirty)
 

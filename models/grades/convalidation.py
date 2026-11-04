@@ -515,8 +515,8 @@ class EmsConvalidation(models.Model):
     # --- the official resolution ----------------------------------------------
 
     def _ems_resolution_lang(self):
-        """The resolution is issued in Catalan, whoever generates it."""
-        return 'ca_ES' if self.env['res.lang']._lang_get('ca_ES') else self.env.lang
+        """The resolution is issued in the centre language, whoever generates it."""
+        return self.env.company.ems_lang
 
     def _ems_generate_resolution_pdf(self):
         """Render the resolution (ems.report_convalidation_resolution) and keep it on the request,

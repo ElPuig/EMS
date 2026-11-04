@@ -15,6 +15,7 @@
                     <field name="public_schedule_url" invisible="1"/>
                     <field name="pending_classroom_conflict_count" invisible="1"/>
                     <field name="can_edit_schedule" invisible="1"/>
+                    <field name="can_print_student_cards" invisible="1"/>
                     <!-- Every action on the group sits in its "Actions" dropdown, never loose in the
                          header (docs/en/developers/shared/actions_dropdown.md). -->
                     <header>
@@ -24,6 +25,10 @@
                             <button name="action_fill_parent_groups" type="object" string="Fill main groups from enrolled students"
                                     invisible="group_type != 'reinforcement' or not missing_parent_group_ids"
                                     groups="ems.group_department_chief"/>
+                            <!-- Issue #524: the cards of every student whose main group this is. -->
+                            <button name="action_print_student_cards" type="object" string="Print student cards"
+                                    invisible="not can_print_student_cards"
+                                    groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies,ems.group_tutor"/>
                         </div>
                     </header>
                     <!-- Outside <sheet> (above the white card), matching the equivalent banner on

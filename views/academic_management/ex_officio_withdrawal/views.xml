@@ -102,20 +102,22 @@
                             <!-- The email to the family, right after what to do: its buttons (each
                                  with its own text) once the phone call is ticked, then when it went. -->
                             <field name="family_email_state" invisible="1"/>
-                            <field name="family_email_two" invisible="1"/>
-                            <div name="family_email" class="mb-3" invisible="not family_email_state">
+                            <!-- The contact with the family, right after what to do: the phone call,
+                                 one button per outcome (its email, if any, goes with it), or else the
+                                 step's email; then when it went. -->
+                            <field name="call_step" invisible="1"/>
+                            <field name="call_pending" invisible="1"/>
+                            <div name="family_email" class="mb-3" invisible="not family_email_state and not call_pending">
                                 <p invisible="not family_email_intro"><field name="family_email_intro" nolabel="1" class="d-inline"/></p>
-                                <!-- A call step: how the phone call went, then its email (or trying again). -->
-                                <div class="d-flex flex-wrap gap-2" invisible="family_email_state != 'ready'">
-                                    <button name="action_open_family_email" type="object" class="btn-primary"
-                                            icon="fa-phone" string="I reached them"
-                                            context="{'call_outcome': 'reached'}" invisible="not family_email_two"/>
-                                    <button name="action_open_family_email" type="object" class="btn-secondary"
-                                            icon="fa-phone" string="I did not reach them"
-                                            context="{'call_outcome': 'not_reached'}" invisible="not family_email_two"/>
-                                    <button name="action_open_family_email" type="object" class="btn-secondary"
-                                            icon="fa-envelope" string="Send the email to the family"
-                                            invisible="family_email_two"/>
+                                <div class="d-flex flex-wrap gap-2" invisible="not call_pending">
+                                    <button name="action_open_contact" type="object" class="btn-primary"
+                                            icon="fa-phone" string="I reached them" context="{'call_outcome': 'reached'}"/>
+                                    <button name="action_open_contact" type="object" class="btn-secondary"
+                                            icon="fa-phone" string="I did not reach them" context="{'call_outcome': 'not_reached'}"/>
+                                </div>
+                                <div invisible="family_email_state != 'ready' or call_step">
+                                    <button name="action_open_contact" type="object" class="btn-secondary"
+                                            icon="fa-envelope" string="Send the email to the family"/>
                                 </div>
                                 <p class="text-success" invisible="family_email_state != 'sent'">
                                     <i class="fa fa-check me-1" title="Sent"/><field name="family_email_sent" nolabel="1" class="d-inline"/>
@@ -154,11 +156,11 @@
             </field>
         </record>
 
-        <record id="view_ex_officio_withdrawal_email_wizard_form" model="ir.ui.view">
-            <field name="name">ems.ex_officio_withdrawal.email_wizard.form</field>
-            <field name="model">ems.ex_officio_withdrawal.email_wizard</field>
+        <record id="view_ex_officio_withdrawal_contact_wizard_form" model="ir.ui.view">
+            <field name="name">ems.ex_officio_withdrawal.contact_wizard.form</field>
+            <field name="model">ems.ex_officio_withdrawal.contact_wizard</field>
             <field name="arch" type="xml">
-                <form string="Email to the family">
+                <form string="Contact with the family">
                     <field name="withdrawal_id" invisible="1"/>
                     <div class="alert alert-warning" role="alert" invisible="not missing_email">
                         Without an email address, they will not get it: <field name="missing_email" nolabel="1" class="d-inline"/>
@@ -167,22 +169,26 @@
                     <group invisible="not call_outcome">
                         <field name="call_date" required="call_outcome"/>
                     </group>
-                    <p class="text-muted" invisible="call_outcome != 'not_reached'">
-                        If you are going to phone them again tomorrow, you can leave the email for then: the attempt stays in the case file.
-                    </p>
-                    <group>
-                        <field name="recipient_ids" widget="many2many_tags" readonly="1"/>
-                        <field name="template_id" invisible="1"/>
-                        <field name="subject"/>
-                    </group>
-                    <field name="body" nolabel="1"/>
+                    <div invisible="not template_id">
+                        <p class="text-muted" invisible="call_outcome != 'not_reached'">
+                            If you are going to phone them again tomorrow, you can leave the email for then: the attempt stays in the case file.
+                        </p>
+                        <group>
+                            <field name="recipient_ids" widget="many2many_tags" readonly="1"/>
+                            <field name="template_id" invisible="1"/>
+                            <field name="subject"/>
+                        </group>
+                        <field name="body" nolabel="1"/>
+                    </div>
                     <footer>
-                        <button name="action_send" type="object" string="Send the confirmation" class="btn-primary"
-                                invisible="call_outcome != 'reached'"/>
-                        <button name="action_send" type="object" string="Send the notice" class="btn-primary"
-                                invisible="call_outcome != 'not_reached'"/>
-                        <button name="action_send" type="object" string="Send" class="btn-primary"
-                                invisible="call_outcome"/>
+                        <button name="action_confirm" type="object" string="Send the confirmation" class="btn-primary"
+                                invisible="not template_id or call_outcome != 'reached'"/>
+                        <button name="action_confirm" type="object" string="Send the notice" class="btn-primary"
+                                invisible="not template_id or call_outcome != 'not_reached'"/>
+                        <button name="action_confirm" type="object" string="Send" class="btn-primary"
+                                invisible="not template_id or call_outcome"/>
+                        <button name="action_confirm" type="object" string="Confirm" class="btn-primary"
+                                invisible="template_id"/>
                         <button name="action_try_again" type="object" string="I will try again tomorrow" class="btn-secondary"
                                 invisible="call_outcome != 'not_reached'"/>
                         <button special="cancel" string="Cancel" class="btn-secondary"/>

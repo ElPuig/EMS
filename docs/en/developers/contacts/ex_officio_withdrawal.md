@@ -67,8 +67,8 @@ and Direction and the withdrawal to 3 February (5 more).
 
 | Step | Responsible | Day | Confirms |
 |---|---|---|---|
-| Contact with the family | Tutor | 7 days | Phone call |
-| Contact by Coexistence | COCOBE / management team | 15 days | Phone call |
+| Contact with the family | Tutor | 7 days | Phone call (how it went) |
+| Contact by Coexistence | COCOBE / management team | 15 days | Phone call (how it went) |
 | Notice to the family | Secretariat | 1 month | Email to the family |
 | Notice to Social Services | COCOBE / management team | 1 month | Email to Social Services |
 | Ex officio withdrawal warning | Secretariat | 1.5 months | Email to the family, eNotum |
@@ -160,20 +160,27 @@ circuit come with the next phases.
   `t-if` on the circuit), compulsory Secretariat's notice. Every one is required: the step has a `family_email`
   check, which **only sending ticks** (`check.by_button`: read-only in the block, refused by `check.write()` for
   anybody but the superuser), recording which template went (`email_template_id`). One email per step.
-- **The block shows them right after what to do** (`family_email_state`: `ready`, then `sent` with the day and
-  which text, `family_email_sent`; for whoever may do the current step, from its day on). Each button opens
-  `ems.ex_officio_withdrawal.email_wizard` with **its own** template (no choice in the wizard), rendered in the
-  recipients' language, subject and body editable:
-  - **Call steps** (`CALL_STEPS`: the post-compulsory tutor's) have one button per call outcome, *I reached
-    them* / *I did not reach them* (`call_outcome` in the context, `family_email_two`). The wizard asks the day of
-    the call (`call_date`, today by default) and sending also ticks the step's `phone` check with that day and
-    the outcome (`check.call_outcome`, shown in the history: "Phone call to the family (did not reach them)"),
-    which is `by_button` too. *I did not reach them* also offers **I will try again tomorrow**
-    (`action_try_again()` → `_ems_try_call_again()`): no email, an `phone_attempt` check (done, with the call's
-    day) stays in the case file and the history, a chatter line says when it will be tried again, and the step
-    moves to the next day (the next school day in the post-compulsory circuit): its `due_date` changes, its task
-    is closed and scheduled again on that day (`task_scheduled` reset), so the block is read-only until then.
-  - **Other steps** (the Secretariat's) have one button, *Send the email to the family*, with a short intro.
+- **The contact with the family sits right after what to do**, for whoever may do the current step, from its
+  day on, and opens `ems.ex_officio_withdrawal.contact_wizard` (`action_open_contact()`, checked again on the
+  server by `_ems_check_contact_open()`):
+  - **Every phone call** (every step with a `phone` check: the tutor's in both circuits, Coexistence's) has one
+    button per outcome, *I reached them* / *I did not reach them* (`call_outcome` in the context), while it is
+    not confirmed (`call_pending`). The window asks the day of the call (`call_date`, today by default) and
+    confirming ticks the `phone` check with that day and the outcome (`check.call_outcome`; the check's
+    sentence says whether they were reached, and so does the history: "Phone call to the family (did not reach
+    them)"); `phone` and `phone_attempt` checks are always `by_button`. Where the step also writes to the family
+    (the post-compulsory tutor's), the window carries **its own** email (reached: the confirmation; not reached:
+    the notice) and confirming sends it too; otherwise the window has no email and confirming just logs the
+    call. *I did not reach them* also offers **I will try again tomorrow** (`action_try_again()` →
+    `_ems_try_call_again()`): nothing sent, a `phone_attempt` check (done, with the call's day) stays in the
+    case file and the history, a chatter line says when it will be tried again, and the step moves to the next
+    school day: its `due_date` changes, its task is closed and scheduled again on that day (`task_scheduled`
+    reset), so the block is read-only until then.
+  - **A step with an email and no phone call** (the Secretariat's) has one button, *Send the email to the
+    family*, with a short intro (`family_email_state`: `ready`, then `sent` with the day and which text,
+    `family_email_sent`).
+  - The window offers no choice of text: the template comes from the button, rendered in the recipients'
+    language, subject and body editable.
 - Recipients: `res.partner._ems_student_and_family_recipients()` (the student, plus the family while a minor or
   with `auth_share`), the ones with an email address (the others are named in a warning). Sending sends one email
   per recipient with `send_mail()` (the edited text through `email_values`, inside the template's layout), ticks

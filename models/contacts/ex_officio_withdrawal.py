@@ -79,7 +79,6 @@ STEP_CATALOG = {
 def _check_sentences():
     """What the responsible confirms by ticking each check, followed by its date."""
     return {
-        'phone': _("I confirm I phoned the family (or the student, if of age) on"),
         'phone_attempt': _("I phoned the family and did not reach them on"),
         'family_email': _("I confirm I emailed the family (or the student, if of age) on"),
         'enotum': _("I confirm I sent the eNotum on"),
@@ -155,9 +154,9 @@ FAMILY_TEMPLATES = {
     ('compulsory', 'secretariat_notice'): ('ems.email_template_ex_officio_withdrawal_family_notice',),
     ('compulsory', 'secretariat_warning'): ('ems.email_template_ex_officio_withdrawal_family_warning',),
 }
-# The steps whose phone call is confirmed from the email's window, with how it went: one button
-# per outcome (reached: the confirmation; not reached: the notice, or trying again the next day).
-CALL_STEPS = {('post_compulsory', 'tutor_contact')}
+# Every step's phone call is confirmed from the contact window, saying how it went: one button per
+# outcome. Where the step also writes to the family, the window sends its email too (reached: the
+# first text; not reached: the second); not reached can instead try again the next school day.
 CALL_OUTCOMES = [('reached', 'Reached them'), ('not_reached', 'Did not reach them')]
 
 # The texts a step's responsible copies and sends themselves (no address in EMS), in the centre
@@ -237,11 +236,14 @@ class EmsExOfficioWithdrawal(models.Model):
     waiting_message = fields.Char(string="Whose turn it is", compute='_compute_current_step_texts')
     history_html = fields.Html(string="History", compute='_compute_history_html', sanitize=False)
     # Phase 3: what the current step's block offers its responsible, once the step is open.
-    # The family email part of the block: 'ready' (its buttons), 'sent' (when and which); empty
-    # when the step sends none. A call step (CALL_STEPS) shows one button per call outcome instead.
+    # The contact part of the block, right after what to do. A step with a phone call shows one
+    # button per call outcome until it is confirmed (call_pending); its email, if any, goes with it.
+    # Otherwise the family email is 'ready' (its button), then 'sent' (when and which); empty when the
+    # step sends none.
+    call_step = fields.Boolean(string="Asks for a phone call", compute='_compute_step_tools')
+    call_pending = fields.Boolean(string="Phone call to confirm", compute='_compute_step_tools')
     family_email_state = fields.Selection(string="Email to the family", compute='_compute_step_tools', selection=[
         ('ready', 'Ready'), ('sent', 'Sent')])
-    family_email_two = fields.Boolean(string="One button per call outcome", compute='_compute_step_tools')
     family_email_intro = fields.Char(string="Email to the family intro", compute='_compute_step_tools')
     family_email_sent = fields.Char(string="Email to the family sent", compute='_compute_step_tools')
     current_step_timing = fields.Html(string="By when", compute='_compute_current_step_texts', sanitize=False)
@@ -400,20 +402,22 @@ class EmsExOfficioWithdrawal(models.Model):
             step = withdrawal.current_step_id
             acts = withdrawal.can_accept_step and withdrawal._ems_current_step_open()
             key = (withdrawal.circuit, step.code)
-            withdrawal._ems_compute_family_email(step, FAMILY_TEMPLATES.get(key, ()) if acts else ())
+            withdrawal._ems_compute_contact(step, acts, FAMILY_TEMPLATES.get(key, ()))
             withdrawal.copy_text = withdrawal._ems_render_copy_text(COPY_TEMPLATES[key]) \
                 if acts and key in COPY_TEMPLATES else False
             withdrawal.can_print_for_inspection = acts and step.code == 'direction_approval' \
                 and 'inspection_email' in step.check_ids.mapped('code')
 
-    def _ems_compute_family_email(self, step, xmlids):
-        """The family email part of the current step's block (see family_email_state)."""
+    def _ems_compute_contact(self, step, acts, xmlids):
+        """The contact part of the current step's block (see call_pending and family_email_state)."""
         self.ensure_one()
+        phone = step.check_ids.filtered(lambda check: check.code == 'phone')
+        self.call_step = bool(phone)
+        self.call_pending = acts and bool(phone) and not phone.done
         self.family_email_state = self.family_email_intro = self.family_email_sent = False
-        self.family_email_two = (self.circuit, step.code) in CALL_STEPS
-        if not xmlids:
+        if not acts or not xmlids:
             return
-        if not self.family_email_two:
+        if not phone:
             self.family_email_intro = _(
                 "Send the email to the family from here: EMS writes the text, which you can review before "
                 "sending it, and ticks it in the list.")
@@ -632,27 +636,39 @@ class EmsExOfficioWithdrawal(models.Model):
                 raise UserError(_("Only the student's tutor, the people above them and the Head of Studies "
                                   "can decide this proposal."))
 
-    def action_open_family_email(self):
-        """The email to the family of the current step, ready to review and send."""
+    def action_open_contact(self):
+        """The current step's contact window: its phone call, with how it went (`call_outcome` in
+        the context, one button each), and its email to the family, ready to review and send."""
         self.ensure_one()
-        if not self.family_email_state:
-            raise UserError(_("Only the responsible of the current step can email the family, from its day on."))
-        if self.family_email_state != 'ready':
-            raise UserError(_("The email to the family of this step has already been sent."))
-        # Each button sends its own text: the first, or the second (a call step's "not reached").
         outcome = self.env.context.get('call_outcome')
-        if self.family_email_two != bool(outcome):
-            raise UserError(_("Say first how the phone call went."))
-        template = self._ems_family_templates()[1 if outcome == 'not_reached' else 0]
+        self._ems_check_contact_open(outcome)
+        # Each button sends its own text: the first, or the second when the family was not reached.
+        templates = self._ems_family_templates()
+        template = templates[1 if outcome == 'not_reached' and len(templates) > 1 else 0] if templates else templates
         return {
             'type': 'ir.actions.act_window',
             'name': _("Phone call to the family") if outcome else _("Email to the family"),
-            'res_model': 'ems.ex_officio_withdrawal.email_wizard',
+            'res_model': 'ems.ex_officio_withdrawal.contact_wizard',
             'view_mode': 'form',
             'target': 'new',
             'context': {'default_withdrawal_id': self.id, 'default_template_id': template.id,
                         'default_call_outcome': outcome or False},
         }
+
+    def _ems_check_contact_open(self, outcome):
+        """The contact the current step still expects from the current user: its phone call (with
+        an outcome), or else its email to the family. Checked again on the server."""
+        self.ensure_one()
+        if outcome:
+            if not self.call_pending:
+                raise UserError(_("Only the responsible of the current step can confirm its phone call, from its "
+                                  "day on, and only once."))
+        elif self.call_step:
+            raise UserError(_("Say first how the phone call went."))
+        elif not self.family_email_state:
+            raise UserError(_("Only the responsible of the current step can email the family, from its day on."))
+        elif self.family_email_state != 'ready':
+            raise UserError(_("The email to the family of this step has already been sent."))
 
     def action_print_case_file(self):
         """The case file as a PDF: every step with who did it and when (what Direction sends to the
@@ -697,13 +713,10 @@ class EmsExOfficioWithdrawal(models.Model):
 
     def _ems_try_call_again(self, call_date):
         """The family was not reached and the responsible will phone again: the attempt stays in
-        the case file, and the current step (with its task) moves to the next day, a school day in
-        the post-compulsory circuit."""
+        the case file, and the current step (with its task) moves to the next school day."""
         self.ensure_one()
         step = self.current_step_id
-        today = self.env['ems.datetime_utils'].get_local_today()
-        tomorrow = self._ems_nth_school_day(today, 1) if self.circuit == 'post_compulsory' \
-            else today + timedelta(days=1)
+        tomorrow = self._ems_nth_school_day(self.env['ems.datetime_utils'].get_local_today(), 1)
         self.env['ems.ex_officio_withdrawal.check'].sudo().create({
             'step_id': step.id, 'code': 'phone_attempt', 'done': True, 'date': call_date, 'sequence': -1})
         step.sudo().write({'due_date': tomorrow, 'task_scheduled': False})
@@ -822,7 +835,7 @@ class EmsExOfficioWithdrawalCheck(models.Model):
     # The email to the family: which text was sent (the only way it gets ticked, see write()).
     email_template_id = fields.Many2one(string="Email sent", comodel_name='mail.template', readonly=True,
                                         ondelete='set null')
-    # The phone call of a call step (CALL_STEPS): how it went.
+    # A phone call: how it went (said in the contact window).
     call_outcome = fields.Selection(string="Call outcome", selection=CALL_OUTCOMES, readonly=True)
     by_button = fields.Boolean(string="Ticked by sending", compute='_compute_by_button')
 
@@ -837,7 +850,7 @@ class EmsExOfficioWithdrawalCheck(models.Model):
             'not_reached': _("I confirm I phoned the family (or the student, if of age) and did not reach them on"),
         }
         for check in self:
-            if check.code == 'phone' and check.by_button:
+            if check.code == 'phone':
                 check.label = by_outcome.get(check.call_outcome) or \
                     _("Phone call to the family: say how it went with the buttons above")
             else:
@@ -845,12 +858,11 @@ class EmsExOfficioWithdrawalCheck(models.Model):
 
     @api.depends('code', 'step_id.code', 'withdrawal_id.circuit')
     def _compute_by_button(self):
-        """The email to the family is ticked by sending it; a call step's phone call, by saying how
-        it went in the email's window."""
+        """A phone call is ticked by saying how it went in the contact window; the email to the
+        family, by sending it."""
         for check in self:
-            key = (check.withdrawal_id.circuit, check.step_id.code)
-            check.by_button = (check.code == 'family_email' and key in FAMILY_TEMPLATES) or \
-                (check.code in ('phone', 'phone_attempt') and key in CALL_STEPS)
+            check.by_button = check.code in ('phone', 'phone_attempt') or (
+                check.code == 'family_email' and (check.withdrawal_id.circuit, check.step_id.code) in FAMILY_TEMPLATES)
 
     @api.constrains('done', 'date')
     def _check_date(self):
@@ -876,18 +888,19 @@ class EmsExOfficioWithdrawalCheck(models.Model):
         return super().write(vals)
 
 
-class EmsExOfficioWithdrawalEmailWizard(models.TransientModel):
-    """An email to the student and the family from the current step (issue #726): the template's
-    text, in their language, that the responsible can edit before sending. Sending it ticks the
-    step's "Email to the family" with today's date and keeps the text in the case file."""
-    _name = 'ems.ex_officio_withdrawal.email_wizard'
-    _description = "Ex officio withdrawal email to the family"
+class EmsExOfficioWithdrawalContactWizard(models.TransientModel):
+    """The current step's contact with the family (issue #726): its phone call, with its day and
+    how it went (from the button that opens it), and its email to the student and the family, the
+    template's text in their language, editable before sending. Confirming ticks them, never by
+    hand, and keeps the text sent in the case file; a family not reached can be phoned again the
+    next school day instead."""
+    _name = 'ems.ex_officio_withdrawal.contact_wizard'
+    _description = "Ex officio withdrawal contact with the family"
 
     withdrawal_id = fields.Many2one(string="Case file", comodel_name='ems.ex_officio_withdrawal', required=True,
                                     ondelete='cascade')
-    # Set by the button that opens it, never chosen here.
-    template_id = fields.Many2one(string="Which email", comodel_name='mail.template', required=True, readonly=True)
-    # A call step's phone call (CALL_STEPS): its outcome (from the button) and its day.
+    # Set by the button that opens it, never chosen here; empty when the step sends no email.
+    template_id = fields.Many2one(string="Which email", comodel_name='mail.template', readonly=True)
     call_outcome = fields.Selection(string="Outcome", selection=CALL_OUTCOMES, readonly=True)
     call_date = fields.Date(string="Phone call on", default=lambda self: self.env['ems.datetime_utils'].get_local_today())
     recipient_ids = fields.Many2many(string="To", comodel_name='res.partner', compute='_compute_recipients')
@@ -895,12 +908,12 @@ class EmsExOfficioWithdrawalEmailWizard(models.TransientModel):
     subject = fields.Char(string="Email subject", compute='_compute_text', store=True, readonly=False)
     body = fields.Html(string="Text", compute='_compute_text', store=True, readonly=False)
 
-    @api.depends('withdrawal_id')
+    @api.depends('withdrawal_id', 'template_id')
     def _compute_recipients(self):
         for wizard in self:
             withdrawal = wizard.withdrawal_id
-            recipients = withdrawal.sudo().student_id._ems_student_and_family_recipients() if withdrawal else \
-                self.env['res.partner']
+            recipients = withdrawal.sudo().student_id._ems_student_and_family_recipients() \
+                if withdrawal and wizard.template_id else self.env['res.partner']
             wizard.recipient_ids = recipients.filtered('email')
             wizard.missing_email = ", ".join(recipients.filtered(lambda partner: not partner.email).mapped('name'))
 
@@ -921,42 +934,49 @@ class EmsExOfficioWithdrawalEmailWizard(models.TransientModel):
         student = self.withdrawal_id.sudo().student_id
         return self.recipient_ids[:1].lang or student.lang or self.env.company.ems_lang
 
-    def action_send(self):
-        self.ensure_one()
+    def _ems_check_still_expected(self):
         withdrawal = self.withdrawal_id
-        if not withdrawal.family_email_state:
-            raise UserError(_("Only the responsible of the current step can email the family, from its day on."))
-        if self.template_id not in withdrawal._ems_family_templates():
+        withdrawal._ems_check_contact_open(self.call_outcome)
+        if self.template_id and self.template_id not in withdrawal._ems_family_templates():
             raise UserError(_("This text is not one the current step offers."))
-        if withdrawal.family_email_state != 'ready':
-            raise UserError(_("The email to the family of this step has already been sent."))
+
+    def action_confirm(self):
+        """The phone call (its day and outcome) and the email, sent."""
+        self.ensure_one()
+        self._ems_check_still_expected()
+        withdrawal = self.withdrawal_id
         step = withdrawal.current_step_id
-        if not self.recipient_ids:
+        if self.template_id and not self.recipient_ids:
             raise UserError(_("Nobody to send it to has an email address."))
-        for recipient in self.recipient_ids:
-            self.template_id.sudo().with_context(lang=self._ems_lang()).send_mail(
-                withdrawal.id, force_send=False,
-                email_values={'subject': self.subject, 'body_html': self.body, 'email_to': recipient.email})
         if self.call_outcome:
             step.check_ids.filtered(lambda check: check.code == 'phone').sudo().write({
                 'done': True, 'date': self.call_date, 'call_outcome': self.call_outcome})
-        step.check_ids.filtered(lambda check: check.code == 'family_email').sudo().write({
-            'done': True, 'date': self.env['ems.datetime_utils'].get_local_today(),
-            'email_template_id': self.template_id.id})
-        withdrawal._message_log(body=Markup("{intro}<br/><strong>{subject}</strong><br/>{body}").format(
-            intro=_("Email sent to %s:", ", ".join(self.recipient_ids.mapped('email'))),
-            subject=self.subject, body=self.body))
+            outcomes = dict(self._fields['call_outcome']._description_selection(self.env))
+            withdrawal._message_log(body=_("Phone call to the family on %(date)s: %(outcome)s.",
+                                           date=format_date(self.env, self.call_date),
+                                           outcome=outcomes[self.call_outcome].lower()))
+        if self.template_id:
+            for recipient in self.recipient_ids:
+                self.template_id.sudo().with_context(lang=self._ems_lang()).send_mail(
+                    withdrawal.id, force_send=False,
+                    email_values={'subject': self.subject, 'body_html': self.body, 'email_to': recipient.email})
+            step.check_ids.filtered(lambda check: check.code == 'family_email').sudo().write({
+                'done': True, 'date': self.env['ems.datetime_utils'].get_local_today(),
+                'email_template_id': self.template_id.id})
+            withdrawal._message_log(body=Markup("{intro}<br/><strong>{subject}</strong><br/>{body}").format(
+                intro=_("Email sent to %s:", ", ".join(self.recipient_ids.mapped('email'))),
+                subject=self.subject, body=self.body))
         return {'type': 'ir.actions.act_window_close'}
 
     def action_try_again(self):
-        """Not reached, no email yet: phone again the next day."""
+        """Not reached, nothing sent: phone again the next school day."""
         self.ensure_one()
-        withdrawal = self.withdrawal_id
-        if self.call_outcome != 'not_reached' or withdrawal.family_email_state != 'ready':
+        if self.call_outcome != 'not_reached':
             raise UserError(_("Only an unanswered phone call can be tried again."))
+        self._ems_check_still_expected()
         if not self.call_date or self.call_date > self.env['ems.datetime_utils'].get_local_today():
             raise UserError(_("The day it was done cannot be in the future."))
-        withdrawal._ems_try_call_again(self.call_date)
+        self.withdrawal_id._ems_try_call_again(self.call_date)
         return {'type': 'ir.actions.act_window_close'}
 
 

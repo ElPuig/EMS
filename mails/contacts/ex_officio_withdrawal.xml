@@ -4,7 +4,7 @@
 
         <!-- Issue #726: the ex officio withdrawal's emails to the student and the family
              (res.partner._ems_student_and_family_recipients). Never sent on their own: the step's
-             responsible opens them from the case file (ems.ex_officio_withdrawal.email_wizard),
+             responsible opens them from the case file (ems.ex_officio_withdrawal.contact_wizard),
              can edit the text and sends it. No <field name="lang">: the wizard renders the text in
              the recipients' language. Texts still to be agreed with Direction (drafts). -->
 

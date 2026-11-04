@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import date, timedelta
+from datetime import date
 from unittest.mock import patch
 
 from odoo.exceptions import AccessError, UserError, ValidationError
@@ -88,8 +88,8 @@ class TestExOfficioWithdrawal(TransactionCase):
                 checks = case_file.current_check_ids
                 checks.filtered(lambda check: not check.by_button).with_user(user).write({'done': True, 'date': day})
                 if checks.filtered(lambda check: check.by_button and not check.done):
-                    self._email_wizard(case_file, user, day, outcome='reached'
-                                       if case_file.family_email_two else None).action_send()
+                    self._contact(case_file, user, day, outcome='reached'
+                                  if case_file.call_step else None).action_confirm()
             case_file.with_user(user).action_accept_step()
 
     def _open(self, student, first_absence, user=None):
@@ -310,7 +310,7 @@ class TestExOfficioWithdrawal(TransactionCase):
         enotum = case_file.current_check_ids.filtered(lambda check: check.code == 'enotum').with_user(
             self.secretary_user)
         with self._on(date(2042, 1, 15)):
-            self._email_wizard(case_file, self.secretary_user, date(2042, 1, 15)).action_send()
+            self._contact(case_file, self.secretary_user, date(2042, 1, 15)).action_confirm()
         with self._on(date(2042, 1, 16)):
             with self.assertRaisesRegex(UserError, 'eNotum'):
                 case_file.with_user(self.secretary_user).action_accept_step()
@@ -334,21 +334,26 @@ class TestExOfficioWithdrawal(TransactionCase):
                 phone.with_user(self.tutor_user).write({'done': True, 'date': date(2041, 3, 10)})
             with self.assertRaises(UserError):
                 case_file.current_step_id.with_user(self.tutor_user).write({'notes': 'Too early'})
+        with self._on(date(2041, 3, 10)), self.assertRaises(UserError):
+            tutor_view.with_context(call_outcome='reached').action_open_contact()
         with self._on(date(2041, 3, 11)):
             self.assertTrue(tutor_view._ems_current_step_open())
-            phone.with_user(self.tutor_user).write({'done': True, 'date': date(2041, 3, 11)})
+            self.assertTrue(tutor_view.call_pending)
 
     def test_a_check_day_is_neither_future_nor_before_the_first_absence(self):
-        case_file = self._open(self.comp_student, date(2041, 3, 4))
+        """A check ticked by hand (the eNotum) keeps a real day."""
+        case_file = self._open(self.post_student, date(2041, 12, 17))
         case_file.action_start()
-        check = case_file.current_check_ids.with_user(self.tutor_user)
-        with self._on(date(2041, 3, 11)):
+        self._accept(case_file, self.tutor_user, date(2042, 1, 8))
+        enotum = case_file.current_check_ids.filtered(lambda check: check.code == 'enotum').with_user(
+            self.secretary_user)
+        with self._on(date(2042, 1, 15)):
             with self.assertRaises(ValidationError):
-                check.write({'done': True, 'date': date(2041, 3, 12)})
+                enotum.write({'done': True, 'date': date(2042, 1, 16)})
             with self.assertRaises(ValidationError):
-                check.write({'done': True, 'date': date(2041, 3, 3)})
-            check.write({'done': True, 'date': date(2041, 3, 11)})
-        self.assertTrue(check.done)
+                enotum.write({'done': True, 'date': date(2041, 12, 16)})
+            enotum.write({'done': True, 'date': date(2042, 1, 15)})
+        self.assertTrue(enotum.done)
 
     def test_the_responsible_gets_instructions_everybody_else_whose_turn(self):
         case_file = self._open(self.post_student, date(2041, 12, 17))
@@ -445,9 +450,9 @@ class TestExOfficioWithdrawal(TransactionCase):
 
     # --- phase 3: emails to the family, texts to copy, the case file PDF ----------------------
 
-    def _email_wizard(self, case_file, user, day, outcome=None):
+    def _contact(self, case_file, user, day, outcome=None):
         with self._on(day):
-            action = case_file.with_user(user).with_context(call_outcome=outcome).action_open_family_email()
+            action = case_file.with_user(user).with_context(call_outcome=outcome).action_open_contact()
             return self.env[action['res_model']].with_user(user).with_context(action['context']).create({})
 
     def _mails(self, case_file):
@@ -465,12 +470,12 @@ class TestExOfficioWithdrawal(TransactionCase):
         case_file = self._comp_case_on_notice()
         self.assertEqual(case_file.current_step_id.code, 'secretariat_notice')
         self.assertFalse(self._mails(case_file), "Nothing is sent on its own")
-        wizard = self._email_wizard(case_file, self.secretary_user, date(2041, 4, 4))
+        wizard = self._contact(case_file, self.secretary_user, date(2041, 4, 4))
         self.assertEqual(wizard.recipient_ids, self.comp_student)
         self.assertIn('EOW Comp Student', wizard.body)
         wizard.body = '<p>An edited text for the family</p>'
         with self._on(date(2041, 4, 4)):
-            wizard.action_send()
+            wizard.action_confirm()
         mail = self._mails(case_file)
         self.assertEqual(mail.email_to, self.comp_student.email)
         self.assertIn('An edited text for the family', mail.body_html)
@@ -494,24 +499,24 @@ class TestExOfficioWithdrawal(TransactionCase):
         self.assertIn('buttons above', phone.with_context(lang='en_US').label, "Nothing said yet")
         with self._on(date(2042, 1, 9)):
             self.assertEqual(tutor_view.family_email_state, 'ready')
-            self.assertTrue(tutor_view.family_email_two)
+            self.assertTrue(tutor_view.call_pending)
             with self.assertRaises(UserError, msg="Never ticked by hand"):
                 phone.with_user(self.tutor_user).write({'done': True})
             with self.assertRaises(UserError, msg="How the call went comes first"):
-                tutor_view.action_open_family_email()
+                tutor_view.action_open_contact()
             with self.assertRaises(UserError, msg="The step needs the call and the email"):
                 tutor_view.action_accept_step()
-        wizard = self._email_wizard(case_file, self.tutor_user, date(2042, 1, 9), outcome='reached')
+        wizard = self._contact(case_file, self.tutor_user, date(2042, 1, 9), outcome='reached')
         self.assertEqual(wizard.template_id, self.env.ref('ems.email_template_ex_officio_withdrawal_tutor_confirmation'))
         self.assertIn('withdrawn ex officio', wizard.with_context(lang='en_US').template_id.body_html)
         wizard.call_date = date(2042, 1, 8)
         with self._on(date(2042, 1, 9)):
-            wizard.action_send()
+            wizard.action_confirm()
             tutor_view.invalidate_recordset()
             self.assertEqual(tutor_view.family_email_state, 'sent')
             self.assertIn('confirmation of the phone call', tutor_view.family_email_sent)
             with self.assertRaises(UserError, msg="Only one email"):
-                tutor_view.with_context(call_outcome='reached').action_open_family_email()
+                tutor_view.with_context(call_outcome='reached').action_open_contact()
         self.assertEqual((phone.done, phone.date, phone.call_outcome), (True, date(2042, 1, 8), 'reached'))
         phone.invalidate_recordset(['label'])
         self.assertIn('and reached them on', phone.with_context(lang='en_US').label)
@@ -520,13 +525,13 @@ class TestExOfficioWithdrawal(TransactionCase):
         self._accept(case_file, self.tutor_user, date(2042, 1, 9), tick=False)
         self.assertEqual(case_file.current_step_id.code, 'secretariat_warning')
         with self._on(date(2042, 1, 16)):
-            self.assertFalse(case_file.with_user(self.secretary_user).family_email_two)
-            self.assertEqual(self._email_wizard(case_file, self.secretary_user, date(2042, 1, 16)).template_id,
+            self.assertFalse(case_file.with_user(self.secretary_user).call_step)
+            self.assertEqual(self._contact(case_file, self.secretary_user, date(2042, 1, 16)).template_id,
                              self.env.ref('ems.email_template_ex_officio_withdrawal_family_warning'))
 
     def test_not_reached_sends_the_notice_or_tries_again_the_next_school_day(self):
         case_file, tutor_view = self._post_tutor_step()
-        wizard = self._email_wizard(case_file, self.tutor_user, date(2042, 1, 9), outcome='not_reached')
+        wizard = self._contact(case_file, self.tutor_user, date(2042, 1, 9), outcome='not_reached')
         self.assertEqual(wizard.template_id, self.env.ref('ems.email_template_ex_officio_withdrawal_tutor_unreachable'))
         with self._on(date(2042, 1, 9)):
             self.Withdrawal._cron_ems_due_step_tasks()
@@ -541,9 +546,9 @@ class TestExOfficioWithdrawal(TransactionCase):
         self.assertIn('01/10/2042', case_file.message_ids[0].body)
         with self._on(date(2042, 1, 9)):
             self.assertFalse(tutor_view._ems_current_step_open(), "Nothing more to do today")
-        wizard = self._email_wizard(case_file, self.tutor_user, date(2042, 1, 10), outcome='not_reached')
+        wizard = self._contact(case_file, self.tutor_user, date(2042, 1, 10), outcome='not_reached')
         with self._on(date(2042, 1, 10)):
-            wizard.action_send()
+            wizard.action_confirm()
         phone = step.check_ids.filtered(lambda check: check.code == 'phone')
         self.assertEqual((phone.date, phone.call_outcome), (date(2042, 1, 10), 'not_reached'))
         self.assertIn('and did not reach them on', phone.with_context(lang='en_US').label)
@@ -554,24 +559,24 @@ class TestExOfficioWithdrawal(TransactionCase):
     def test_the_call_day_is_neither_future_nor_before_the_first_absence(self):
         case_file, _tutor_view = self._post_tutor_step()
         for day in (date(2042, 1, 10), date(2041, 12, 16)):
-            wizard = self._email_wizard(case_file, self.tutor_user, date(2042, 1, 9), outcome='reached')
+            wizard = self._contact(case_file, self.tutor_user, date(2042, 1, 9), outcome='reached')
             wizard.call_date = day
             with self._on(date(2042, 1, 9)), self.assertRaises(ValidationError):
-                wizard.action_send()
+                wizard.action_confirm()
 
     def test_only_the_steps_responsible_emails_the_family(self):
         case_file = self._comp_case_on_notice()
         with self._on(date(2041, 4, 4)):
             self.assertFalse(case_file.with_user(self.tutor_user).family_email_state)
             with self.assertRaises(UserError):
-                case_file.with_user(self.tutor_user).action_open_family_email()
+                case_file.with_user(self.tutor_user).action_open_contact()
         with self._on(date(2041, 4, 3)), self.assertRaises(UserError, msg="Not before the step's day"):
-            case_file.with_user(self.secretary_user).action_open_family_email()
+            case_file.with_user(self.secretary_user).action_open_contact()
 
     def test_social_services_and_inspection_texts_are_ready_to_copy(self):
         case_file = self._comp_case_on_notice()
         with self._on(date(2041, 4, 4)):
-            self._email_wizard(case_file, self.secretary_user, date(2041, 4, 4)).action_send()
+            self._contact(case_file, self.secretary_user, date(2041, 4, 4)).action_confirm()
             case_file.with_user(self.secretary_user).action_accept_step()
         coexistence_view = case_file.with_user(self.coexistence_user)
         with self._on(date(2041, 4, 4)):
@@ -603,3 +608,30 @@ class TestExOfficioWithdrawal(TransactionCase):
             'ems.action_report_ex_officio_withdrawal', case_file.ids)[0].decode()
         self.assertIn(case_file.name, html)
         self.assertIn('EOW Tutor', html)
+
+    def test_every_phone_call_says_how_it_went_even_without_an_email(self):
+        """Compulsory tutor and Coexistence: the call window has no email; not reached can be tried
+        again the next school day (Monday, after a Friday call)."""
+        case_file = self._open(self.comp_student, date(2041, 3, 4))
+        case_file.action_start()
+        phone = case_file.current_check_ids
+        self.assertTrue(phone.by_button)
+        wizard = self._contact(case_file, self.tutor_user, date(2041, 3, 15), outcome='not_reached')
+        self.assertFalse(wizard.template_id, "No email in this step")
+        self.assertFalse(wizard.recipient_ids)
+        with self._on(date(2041, 3, 15)):
+            wizard.action_try_again()
+        self.assertEqual(case_file.current_step_id.due_date, date(2041, 3, 18))
+        wizard = self._contact(case_file, self.tutor_user, date(2041, 3, 18), outcome='reached')
+        with self._on(date(2041, 3, 18)):
+            wizard.action_confirm()
+        self.assertEqual((phone.done, phone.date, phone.call_outcome), (True, date(2041, 3, 18), 'reached'))
+        self.assertFalse(self._mails(case_file), "Nothing sent")
+        self.assertIn('reached them', case_file.with_context(lang='en_US').message_ids[0].body)
+        self._accept(case_file, self.tutor_user, date(2041, 3, 18), tick=False)
+        self.assertEqual(case_file.current_step_id.code, 'coexistence_contact')
+        due = case_file.current_step_id.due_date  # moved on: the tutor's was done a week late
+        with self._on(due):
+            self.assertTrue(case_file.with_user(self.coexistence_user).call_pending)
+        self._accept(case_file, self.coexistence_user, due)
+        self.assertEqual(case_file.step_ids[1].check_ids.call_outcome, 'reached')

@@ -116,7 +116,7 @@ registry.category("web_tour.tours").add("ems_ex_officio_withdrawal_secretariat_s
             content: "The Secretariat gets its step's instructions",
         },
         {
-            trigger: ".o_form_view div[name='current_step'] button[name='action_open_family_email']:not(.d-none)",
+            trigger: ".o_form_view div[name='current_step'] button[name='action_open_contact']:not(.d-none)",
             content: "Open the email to the family",
             run: "click",
         },
@@ -125,7 +125,7 @@ registry.category("web_tour.tours").add("ems_ex_officio_withdrawal_secretariat_s
             content: "The template's text, with the student, ready to review",
         },
         {
-            trigger: ".modal .modal-footer button[name='action_send']",
+            trigger: ".modal .modal-footer button[name='action_confirm']",
             content: "Send it",
             run: "click",
         },
@@ -165,7 +165,7 @@ registry.category("web_tour.tours").add("ems_ex_officio_withdrawal_tutor_email",
     test: true,
     steps: () => [
         {
-            trigger: ".o_form_view div[name='family_email'] button[name='action_open_family_email']:contains('I did not reach them')",
+            trigger: ".o_form_view div[name='family_email'] button[name='action_open_contact']:contains('I did not reach them')",
             content: "The family was not reached",
             run: "click",
         },
@@ -182,7 +182,7 @@ registry.category("web_tour.tours").add("ems_ex_officio_withdrawal_tutor_email",
             content: "Trying again tomorrow is offered too",
         },
         {
-            trigger: ".modal .modal-footer button[name='action_send']",
+            trigger: ".modal .modal-footer button[name='action_confirm']",
             content: "Send the notice",
             run: "click",
         },

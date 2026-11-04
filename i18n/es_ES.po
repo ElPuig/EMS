@@ -2371,7 +2371,7 @@ msgstr "Puede editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_expected_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_dismiss_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.mail_activity_view_tree_snooze
-#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_email_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_contact_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -2943,7 +2943,7 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_dismiss_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__create_uid
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -3020,7 +3020,7 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_dismiss_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__create_date
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3383,7 +3383,7 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_dismiss_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__display_name
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -4713,7 +4713,7 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_dismiss_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__id
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__id
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__id
 msgid "ID"
 msgstr "ID"
 
@@ -5247,7 +5247,7 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_dismiss_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__write_uid
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -5324,7 +5324,7 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_dismiss_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__write_date
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -6320,7 +6320,7 @@ msgstr "Otra exención"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__outcome_id model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__outcome_id model:ir.model.fields,field_description:ems.field_ems_planning_outcome__outcome_id model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__outcome_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__outcome_id
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__call_outcome
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__call_outcome
 msgid "Outcome"
 msgstr "Resultado de Aprendizaje"
 
@@ -8694,7 +8694,7 @@ msgstr "Hoy"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__date_to
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__hour_to
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__date_to
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__recipient_ids
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__recipient_ids
 msgid "To"
 msgstr "A"
 
@@ -9478,6 +9478,7 @@ msgstr "Mismo docente, aula diferente"
 #. odoo-javascript
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__co_teaching model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__co_teaching
 #: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_contact_wizard_form
 #, python-format
 msgid "Confirm"
 msgstr "Confirmar"
@@ -11478,7 +11479,7 @@ msgstr "Falta de material necesario"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
-#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_email_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_contact_wizard_form
 msgid "Send"
 msgstr "Enviar"
 
@@ -28853,7 +28854,7 @@ msgstr "Motivo de cancelación"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_dismiss_wizard__withdrawal_id
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__withdrawal_id
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__withdrawal_id
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__withdrawal_id
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__withdrawal_id
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
 msgid "Case file"
 msgstr "Expediente"
@@ -28883,6 +28884,7 @@ msgstr "Contacto de Convivencia"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_step__code__tutor_contact
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_contact_wizard_form
 msgid "Contact with the family"
 msgstr "Contacto con la familia"
 
@@ -29339,7 +29341,6 @@ msgstr "Correo electrónico a la Inspección"
 #. odoo-python
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_check__code__family_email
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
-#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_email_wizard_form
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__family_email_state
 msgid "Email to the family"
 msgstr "Correo electrónico a la familia"
@@ -29820,11 +29821,6 @@ msgid "Email sent to %s:"
 msgstr "Correo enviado a %s:"
 
 #. module: ems
-#: model:ir.model,name:ems.model_ems_ex_officio_withdrawal_email_wizard
-msgid "Ex officio withdrawal email to the family"
-msgstr "Correo de baja de oficio a la familia"
-
-#. module: ems
 #: model:mail.template,subject:ems.email_template_ex_officio_withdrawal_family_warning
 #: model:mail.template,subject:ems.email_template_ex_officio_withdrawal_inspection
 msgid "Ex officio withdrawal of {{ object.student_id.name }}"
@@ -29869,22 +29865,22 @@ msgid "This text is not one the current step offers."
 msgstr "Este texto no es ninguno de los que ofrece el paso actual."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__template_id
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__template_id
 msgid "Which email"
 msgstr "Qué correo"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__missing_email
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__missing_email
 msgid "Without an email address"
 msgstr "Sin dirección de correo electrónico"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_email_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_contact_wizard_form
 msgid "Without an email address, they will not get it:"
 msgstr "No lo recibirán porque no tienen dirección de correo electrónico:"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__body
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__body
 msgid "Text"
 msgstr "Texto"
 
@@ -29983,12 +29979,12 @@ msgstr "Resultado de la llamada"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_check__call_outcome__not_reached
-#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_email_wizard__call_outcome__not_reached
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_contact_wizard__call_outcome__not_reached
 msgid "Did not reach them"
 msgstr "No los he localizado"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__subject
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__subject
 msgid "Email subject"
 msgstr "Asunto"
 
@@ -30009,19 +30005,14 @@ msgid "I reached them"
 msgstr "Los he localizado"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_email_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_contact_wizard_form
 msgid "I will try again tomorrow"
 msgstr "Lo volveré a intentar mañana"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_email_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_contact_wizard_form
 msgid "If you are going to phone them again tomorrow, you can leave the email for then: the attempt stays in the case file."
 msgstr "Si vas a volver a llamarlos mañana, puedes dejar el correo para entonces: el intento queda en el expediente."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__family_email_two
-msgid "One button per call outcome"
-msgstr "Un botón por resultado de la llamada"
 
 #. module: ems
 #. odoo-python
@@ -30030,13 +30021,13 @@ msgid "Only an unanswered phone call can be tried again."
 msgstr "Solo se puede volver a intentar una llamada sin respuesta."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__call_date
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__call_date
 msgid "Phone call on"
 msgstr "Fecha de la llamada"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_check__call_outcome__reached
-#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_email_wizard__call_outcome__reached
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_contact_wizard__call_outcome__reached
 msgid "Reached them"
 msgstr "Los he localizado"
 
@@ -30047,12 +30038,12 @@ msgid "Say first how the phone call went."
 msgstr "Indica primero cómo ha ido la llamada."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_email_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_contact_wizard_form
 msgid "Send the confirmation"
 msgstr "Envía la confirmación"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_email_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_contact_wizard_form
 msgid "Send the notice"
 msgstr "Envía el aviso"
 
@@ -30088,11 +30079,32 @@ msgstr "Confirmo que he llamado a la familia (o al alumno, si es mayor de edad) 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
-msgid "I confirm I phoned the family (or the student, if of age) on"
-msgstr "Confirmo que he llamado a la familia (o al alumno, si es mayor de edad) en fecha"
+msgid "Phone call to the family: say how it went with the buttons above"
+msgstr "Llamada a la familia: indica cómo ha ido con los botones de arriba"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__call_step
+msgid "Asks for a phone call"
+msgstr "Pide una llamada"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_ex_officio_withdrawal_contact_wizard
+msgid "Ex officio withdrawal contact with the family"
+msgstr "Contacto con la familia de una baja de oficio"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
-msgid "Phone call to the family: say how it went with the buttons above"
-msgstr "Llamada a la familia: indica cómo ha ido con los botones de arriba"
+msgid "Only the responsible of the current step can confirm its phone call, from its day on, and only once."
+msgstr "Solo el responsable del paso actual puede confirmar su llamada, a partir de su día y una sola vez."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__call_pending
+msgid "Phone call to confirm"
+msgstr "Llamada por confirmar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Phone call to the family on %(date)s: %(outcome)s."
+msgstr "Llamada a la familia el %(date)s: %(outcome)s."

@@ -105,7 +105,7 @@ La barra de cerca s'obre amb dos filtres ja aplicats: **Alumnat**, que amaga l'a
 
 ## Columnes que es mostren a la vista de llista d'alumnat
 
-Canviar la pantalla d'Alumnat de vista Kanban a vista de Llista mostra, per defecte, la majoria de camps ja utilitzats a l'exportació oficial de dades d'alumnat del centre (document d'identitat/DNI-NIE, data de naixement, si l'alumne és major d'edat, número de la seguretat social, nacionalitat, adreça i codi postal), més els cinc distintius d'autorització (drets d'imatge, sortides escolars, dades de salut, compartir amb la família, sortir del centre). Qualsevol columna es pot amagar — fes clic a la icona de la dreta de les capçaleres de columna i desmarca les que no necessitis; l'elecció es recorda per a la propera visita.
+Canviar la pantalla d'Alumnat de vista Kanban a vista de Llista mostra, per defecte, la majoria de camps ja utilitzats a l'exportació oficial de dades d'alumnat del centre (document d'identitat/DNI-NIE, data de naixement, si l'alumne és major d'edat, número de la seguretat social, nacionalitat, adreça i codi postal), més els cinc distintius d'autorització (drets d'imatge, sortides escolars, dades de salut, compartir amb la família, sortir del centre). Qualsevol columna es pot amagar — fes clic a la icona de la dreta de les capçaleres de columna i desmarca les que no necessitis; l'elecció es recorda per a la pròxima vegada.
 
 ## Camps que només veuen admin/secretaria/Cap d'Estudis/tutors
 

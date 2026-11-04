@@ -6,7 +6,7 @@
 
 El segell del centre i el color de cada nivell que surten al carnet d'estudiant es configuren aquí. Com s'imprimeixen els carnets s'explica al manual [Imprimir els carnets d'estudiant](../secretary/student-card.md).
 
-**Rol necessari:** administració (el segell es puja des de **Configuració**, que només veu l'administrador del sistema).
+**Rol necessari:** administració (el segell es carrega des de **Configuració**, que només veu l'administrador del sistema).
 
 ---
 

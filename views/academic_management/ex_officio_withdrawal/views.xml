@@ -75,16 +75,17 @@
                                 <field name="group_id" invisible="not id"/>
                                 <field name="tutor_id"/>
                                 <field name="level_id" invisible="not id"/>
-                                <field name="circuit" invisible="not id"/>
                             </group>
                             <group>
                                 <field name="first_absence_date" readonly="state != 'proposal'"/>
                                 <field name="origin"/>
                                 <field name="course_id"/>
+                                <!-- Fourth, so it is at the height of the level it comes from. -->
+                                <field name="circuit" invisible="not id"/>
                                 <field name="next_due_date" invisible="not next_due_date"/>
                             </group>
                         </group>
-                        <group invisible="state != 'cancelled'">
+                        <group string="Cancellation" invisible="state != 'cancelled'">
                             <field name="cancel_reason"/>
                             <field name="cancel_note"/>
                         </group>

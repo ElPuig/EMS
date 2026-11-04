@@ -206,3 +206,36 @@ class TestQualityDailySummary(TransactionCase):
         content = self.responsible._ems_daily_summary_content()
         self.assertIn(action.code, content['body'])
         self.assertIn('You are responsible', content['body'])
+
+    # --- Edge cases and the recipients' own rights ----------------------------------------------
+
+    def test_a_follow_up_on_an_agreement_of_a_minute_not_approved_is_not_told_yet(self):
+        minute = self._minute()
+        minute.agreement_ids = [(0, 0, {'name': 'Still being written',
+                                        'responsible_employee_ids': [(6, 0, (self.responsible_employee | self.other_responsible_employee).ids)]})]
+        self._follow_up(minute.agreement_ids, self.responsible)
+        self.assertFalse(self._notices(self.other_responsible), "what the minute agrees may still change")
+
+    def test_naming_another_approver_moves_the_task(self):
+        minute = self._minute()
+        minute.action_submit()
+        minute.approver_employee_id = self.other_responsible_employee
+        self.assertEqual(self._tasks(minute, self.approval_type).user_id, self.other_responsible)
+
+    def test_the_responsible_person_opens_postpones_and_closes_their_task(self):
+        """A task they could not open or act on would only be noise: the agreement is theirs to
+        read (record rules) and the task theirs to postpone or mark done."""
+        action = self._action()
+        task = self._tasks(action, self.task_type).with_user(self.responsible)
+        self.assertTrue(action.with_user(self.responsible).search([('id', '=', action.id)]))
+        task.action_ems_snooze(3)
+        self.assertEqual(task.date_deadline, self.today + timedelta(days=3))
+        task.action_feedback()
+        self.assertFalse(self._tasks(action, self.task_type))
+
+    def test_the_approver_can_open_the_minute_of_their_task(self):
+        minute = self._minute()
+        minute.action_submit()
+        self.assertEqual(self._tasks(minute, self.approval_type).user_id, self.approver)
+        self.assertTrue(self.env['ems.minute'].with_user(self.approver).search([('id', '=', minute.id)]))
+        self.assertTrue(minute.with_user(self.approver).can_approve)

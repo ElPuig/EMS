@@ -455,22 +455,12 @@ class EmsMinute(models.Model):
     def _ems_sync_approval_task(self):
         """An "Approve the minute" task, due the day it is sent, for whoever is to approve it while
         it waits for approval: done once approved, gone if it goes back to the meeting or to draft
-        or somebody else is named. Quietly: the daily summary is how they hear of it. With sudo: a
-        task for somebody else is not what the record rules decide."""
+        or somebody else is named (mail.thread._ems_sync_user_tasks)."""
         activity_type = self.env.ref(APPROVAL_TASK_XMLID)
         today = self.env['ems.datetime_utils'].get_local_today()
         for minute in self.sudo():
-            tasks = minute.activity_ids.filtered(lambda activity: activity.activity_type_id == activity_type)
-            if minute.state == 'approved':
-                tasks.action_feedback()
-                continue
             users = minute._ems_approver_users() if minute.state == 'to_approve' else self.env['res.users']
-            stale = tasks.filtered(lambda task: task.user_id not in users)
-            stale.unlink()
-            tasks -= stale
-            for user in users - tasks.user_id:
-                minute.with_context(mail_activity_quick_update=True).activity_schedule(
-                    activity_type_id=activity_type.id, user_id=user.id, date_deadline=today)
+            minute._ems_sync_user_tasks(activity_type, users, today, done=minute.state == 'approved')
 
     def _ems_announce_agreements(self):
         """Once the minute is approved, its agreements reach their responsible people: a task for

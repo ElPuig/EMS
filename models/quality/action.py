@@ -301,27 +301,15 @@ class EmsQualityAction(models.Model):
     def _ems_sync_tasks(self, announce=True):
         """One "Carry out the agreement" task per responsible person while it is open, due on its
         deadline (today without one) and marked done once it is closed; whoever stops answering for
-        it loses theirs. With `announce`, whoever gets a task due later is also told of the agreement
-        in their next daily summary, which only lists a task once it is due. Quietly
-        (mail_activity_quick_update): the daily summary is how they hear of it, never an email of
-        its own. With sudo: a task for somebody else is not what the record rules decide."""
+        it loses theirs (mail.thread._ems_sync_user_tasks). With `announce`, whoever gets a task due
+        later is also told of the agreement in their next daily summary, which only lists a task
+        once it is due."""
         activity_type = self.env.ref(AGREEMENT_TASK_XMLID)
         today = self.env['ems.datetime_utils'].get_local_today()
         for action in self.sudo().filtered(lambda action: action.active and action._ems_is_announced()):
-            tasks = action.activity_ids.filtered(lambda activity: activity.activity_type_id == activity_type)
-            if action.state == QUALITY_STATE_CLOSED:
-                tasks.action_feedback()
-                continue
-            users = action._ems_responsible_users()
-            stale = tasks.filtered(lambda task: task.user_id not in users)
-            stale.unlink()
-            tasks -= stale
             deadline = action.deadline_date or today
-            tasks.filtered(lambda task: task.user_id in users and task.date_deadline != deadline).date_deadline = deadline
-            new_users = users - tasks.user_id
-            for user in new_users:
-                action.with_context(mail_activity_quick_update=True).activity_schedule(
-                    activity_type_id=activity_type.id, user_id=user.id, date_deadline=deadline)
+            new_users = action._ems_sync_user_tasks(activity_type, action._ems_responsible_users(), deadline,
+                                                    done=action.state == QUALITY_STATE_CLOSED)
             if announce and deadline > today:
                 action._ems_queue_notice(new_users - self.env.user, 'assigned')
 

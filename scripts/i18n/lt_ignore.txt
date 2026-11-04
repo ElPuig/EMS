@@ -20,3 +20,6 @@ T-BAT
 T-FP
 PFI
 NOFC
+1d
+3d
+7d

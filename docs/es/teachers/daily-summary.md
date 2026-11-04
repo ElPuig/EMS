@@ -16,6 +16,7 @@ Esta guía explica el mensaje diario con todo lo que EMS tiene para ti (tareas p
 2. [Qué contiene](#qué-contiene)
 3. [Cuándo llega](#cuándo-llega)
 4. [Elegir cuándo y cómo lo recibes](#elegir-cuándo-y-cómo-lo-recibes)
+5. [Posponer una tarea](#posponer-una-tarea)
 
 ---
 
@@ -35,7 +36,7 @@ Lo urgente (por ejemplo, una guardia para hoy) sigue llegando en el momento.
 
 Solo aparecen los apartados que tienen algo:
 
-- **Tareas pendientes:** todas las tareas de tu bandeja de actividades (🕒), agrupadas por tipo (por ejemplo, *Revisar solicitud de convalidación*). Para cada tarea, un enlace que la abre en EMS, la descripción y la fecha límite; las vencidas se indican entre paréntesis. Si un tipo tiene más de 20 tareas, se muestran las 20 más próximas a vencer y cuántas quedan.
+- **Tareas pendientes:** las tareas de tu bandeja de actividades (🕒) que vencen hoy o ya han vencido, agrupadas por tipo (por ejemplo, *Revisar solicitud de convalidación*). Para cada tarea, un enlace que la abre en EMS, la descripción y la fecha límite; las vencidas se indican entre paréntesis. Si un tipo tiene más de 20 tareas, se muestran las 20 más próximas a vencer y cuántas quedan.
 - **Incidencias de asistencia de tus alumnos** (solo tutores): las faltas, los retrasos, etc. registrados desde el resumen anterior, por día y por alumno. Consulta [Informe de incidencias de asistencia de tus alumnos](../tutors/attendance-issues-report.md).
 - **Para tu información:** avisos que no te piden hacer nada, agrupados por alumno. Por ejemplo, que un alumno tuyo tiene una [baja prevista](../tutors/withdrawal-expected.md) y deja de salir en tus pases de lista, que no asistirá a un módulo tuyo mientras se resuelve su solicitud de convalidación, o que se le han convalidado módulos.
 
@@ -70,6 +71,19 @@ El asunto resume lo que hay, por ejemplo *EMS: resumen diario (tareas pendientes
 | **A una hora concreta** | A la hora que elijas, cada día lectivo. |
 
 El cambio también se aplica al resumen que tengas pendiente en ese momento.
+
+---
+
+## Posponer una tarea
+
+El resumen solo incluye las tareas **que vencen hoy o ya han vencido**. Si todavía no puedes ocuparte de una y no quieres que te la recuerde cada día, posponla: sale del resumen hasta su nueva fecha límite y después vuelve sola.
+
+1. Haz clic en la bandeja de actividades (🕒) de la parte superior de EMS y elige **Ver todas las actividades**. Se abre con tus tareas que vencen hoy o ya han vencido.
+2. En la fila de la tarea, pulsa **Posponer 1d**, **Posponer 3d** o **Posponer 7d** (1, 3 o 7 días). Para posponer varias a la vez, márcalas y usa los mismos botones de la parte superior de la lista.
+
+![Mis actividades: los botones Posponer 1d, Posponer 3d y Posponer 7d de cada tarea](../../assets/teachers/resum-diari-03-posposar.png)
+
+Los días se cuentan desde hoy o, si la tarea ya vencía más adelante, desde su fecha límite. También puedes cambiar la fecha límite a mano desde la tarea, en el registro donde está.
 
 ---
 

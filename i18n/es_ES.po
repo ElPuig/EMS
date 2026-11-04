@@ -28385,3 +28385,18 @@ msgstr "Día festivo:"
 #: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
 msgid ". Nobody is expected, so nobody is missing."
 msgstr ". No se espera a nadie, así que no falta nadie."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
+msgid "Only the ones due today or overdue are listed here. To postpone one, open \"View all activities\" in the to-do tray and press Snooze 1d, 3d or 7d: it will be back in your summary on its new due date."
+msgstr "Aquí solo aparecen las que vencen hoy o ya han vencido. Para posponer una, abre «Ver todas las actividades» en la bandeja de tareas y pulsa Posponer 1d, 3d o 7d: volverá a aparecer en tu resumen el día de su nuevo vencimiento."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.mail_activity_view_tree_snooze
+msgid "Snooze 1d"
+msgstr "Posponer 1d"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.mail_activity_view_tree_snooze
+msgid "Snooze 3d"
+msgstr "Posponer 3d"

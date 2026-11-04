@@ -16,6 +16,7 @@ This guide explains the daily message with everything EMS has for you (pending t
 2. [What it contains](#what-it-contains)
 3. [When it arrives](#when-it-arrives)
 4. [Choosing when and how you receive it](#choosing-when-and-how-you-receive-it)
+5. [Postponing a task](#postponing-a-task)
 
 ---
 
@@ -35,7 +36,7 @@ Urgent matters (for example, a guard duty for today) still arrive straight away.
 
 Only the sections with something in them are shown:
 
-- **Pending tasks:** every task in your activities tray (🕒), grouped by type (for example, *Review convalidation request*). For each task, a link that opens it in EMS, its description and its due date; overdue ones are marked in brackets. If a type has more than 20 tasks, the 20 due soonest are shown, plus how many more there are.
+- **Pending tasks:** the tasks in your activities tray (🕒) due today or overdue, grouped by type (for example, *Review convalidation request*). For each task, a link that opens it in EMS, its description and its due date; overdue ones are marked in brackets. If a type has more than 20 tasks, the 20 due soonest are shown, plus how many more there are.
 - **Your students' attendance issues** (tutors only): absences, delays, etc. recorded since the previous summary, by day and student. See [Your Students' Attendance Issues Report](../tutors/attendance-issues-report.md).
 - **For your information:** notices that ask nothing of you, grouped by student. For example, that a student of yours has an [expected withdrawal](../tutors/withdrawal-expected.md) and no longer appears in your roll-calls, that they won't attend a subject of yours while their convalidation request is resolved, or that some of their subjects have been convalidated.
 
@@ -70,6 +71,19 @@ The subject line sums it up, for example *EMS: daily summary (pending tasks: 3, 
 | **At a fixed time** | At the time you choose, every school day. |
 
 The change also applies to the summary waiting to be sent at that moment.
+
+---
+
+## Postponing a task
+
+The summary only lists the tasks **due today or overdue**. If you can't deal with one yet and don't want it reminding you every day, postpone it: it leaves the summary until its new due date and then comes back on its own.
+
+1. Click the activities tray (🕒) at the top of EMS and choose **View all activities**. It opens on your tasks due today or overdue.
+2. On the task's row, press **Snooze 1d**, **Snooze 3d** or **Snooze 7d** (1, 3 or 7 days). To postpone several at once, tick them and use the same buttons at the top of the list.
+
+![My Activities: the Snooze 1d, Snooze 3d and Snooze 7d buttons on each task](../../assets/teachers/resum-diari-03-posposar.png)
+
+The days are counted from today or, if the task was already due later, from its due date. You can also change the due date by hand from the task in the record it belongs to.
 
 ---
 

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Issue #727: "Snooze 1d" and "Snooze 3d" before Odoo's own "Snooze 7d", in the list's
+         header (selected tasks) and on each row. One xpath per native button: a single xpath
+         only reaches its first match. -->
+    <record id="mail_activity_view_tree_snooze" model="ir.ui.view">
+        <field name="name">mail.activity.view.list.ems.snooze</field>
+        <field name="model">mail.activity</field>
+        <field name="inherit_id" ref="mail.mail_activity_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='action_snooze']" position="before">
+                <button name="action_ems_snooze_1d" type="object" string="Snooze 1d" icon="fa-bell-slash"/>
+                <button name="action_ems_snooze_3d" type="object" string="Snooze 3d" icon="fa-bell-slash"/>
+            </xpath>
+            <xpath expr="//list/button[@name='action_snooze']" position="before">
+                <button name="action_ems_snooze_1d" class="text-warning" type="object" string="Snooze 1d" icon="fa-bell-slash" invisible="active == False"/>
+                <button name="action_ems_snooze_3d" class="text-warning" type="object" string="Snooze 3d" icon="fa-bell-slash" invisible="active == False"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

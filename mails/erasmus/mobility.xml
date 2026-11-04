@@ -55,8 +55,8 @@
                             <strong t-out="object.destination_id.name or ', '.join(filter(None, [object.city, object.country_id.name]))"/>.
                         </p>
                         <p>
-                            Now you can prepare it: on the school portal
-                            (<a t-attf-href="{{ object.get_base_url() }}/my/erasmus">Erasmus+</a>) you will find the
+                            Now you can prepare it: <t t-out="object._ems_mail_place()"/>
+                            (<a t-attf-href="{{ object._ems_mail_url() }}">Erasmus+</a>) you will find the
                             documents to hand in, who signs each one, the deadlines and the steps to follow.
                         </p>
                         <p>
@@ -91,8 +91,8 @@
                             Comment from the Direction: <span style="white-space: pre-line;" t-out="object.decision_note"/>
                         </p>
                         <p>
-                            Now you can prepare it: on the portal
-                            (<a t-attf-href="{{ object.get_base_url() }}/my/erasmus">Erasmus+</a>) you will find the
+                            Now you can prepare it: <t t-out="object._ems_mail_place()"/>
+                            (<a t-attf-href="{{ object._ems_mail_url() }}">Erasmus+</a>) you will find the
                             documents to hand in, who signs each one, the deadlines and the steps to follow.
                         </p>
                         <p>
@@ -122,12 +122,12 @@
                         </p>
                         <p style="white-space: pre-line;" t-out="object.decision_note"/>
                         <p t-if="object.audience == 'staff' and object.state == 'preparing'">
-                            Your mobility stays as it was validated before. You can propose another change on the school
-                            portal (<a t-attf-href="{{ object.get_base_url() }}/my/erasmus">Erasmus+</a>).
+                            Your mobility stays as it was validated before. You can propose another change
+                            <t t-out="object._ems_mail_place()"/> (<a t-attf-href="{{ object._ems_mail_url() }}">Erasmus+</a>).
                         </p>
                         <p t-elif="object.audience == 'staff'">
-                            You can propose another activity on the school portal
-                            (<a t-attf-href="{{ object.get_base_url() }}/my/erasmus">Erasmus+</a>).
+                            You can propose another activity <t t-out="object._ems_mail_place()"/>
+                            (<a t-attf-href="{{ object._ems_mail_url() }}">Erasmus+</a>).
                         </p>
                         <p t-else="">
                             You can choose one of the centre's destinations on the school portal
@@ -162,7 +162,7 @@
                             <t t-out="object._ems_mail_document_list()"/>
                         </t>
                         <p t-if="object.commitment_pending">
-                            You have to accept and sign the commitment letter on the portal.
+                            You have to accept and sign the commitment letter <t t-out="object._ems_mail_place()"/>.
                         </p>
                         <p t-if="object.commitment_guardian_pending">
                             Your family has to sign the commitment letter too, from its own access to the portal.
@@ -172,8 +172,8 @@
                             <t t-out="object._ems_mail_self_assessment_list()"/>
                         </t>
                         <p>
-                            You will find everything on the school portal
-                            (<a t-attf-href="{{ object.get_base_url() }}/my/erasmus">Erasmus+</a>), with the team's
+                            You will find everything <t t-out="object._ems_mail_place()"/>
+                            (<a t-attf-href="{{ object._ems_mail_url() }}">Erasmus+</a>), with the team's
                             comments and the deadlines.
                         </p>
                         <p>

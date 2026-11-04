@@ -49,6 +49,9 @@ class ResPartner(models.Model):
         """The portal's Erasmus+ card: for whoever can apply to a published call or already applied
         to one, and for the family of a minor going on a mobility, which signs its commitment letter."""
         self.ensure_one()
+        if self.sudo().user_ids.filtered(lambda user: not user.share):
+            # Staff work in the backend, never on the portal (the 2026-11-04 review).
+            return False
         return bool(self._ems_erasmus_calls() or self._ems_erasmus_applications()
                     or self._ems_erasmus_guardian_mobilities())
 

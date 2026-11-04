@@ -398,6 +398,7 @@
         'views/erasmus/group_mobility/views.xml',
         'views/erasmus/document_review/views.xml',
         'views/erasmus/history/views.xml',
+        'views/erasmus/staff/views.xml',
         'views/erasmus/menu.xml',
 
         'views/sales/product_view.xml',

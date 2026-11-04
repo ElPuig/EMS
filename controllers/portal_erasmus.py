@@ -4,7 +4,7 @@ import re
 
 from odoo import http
 from odoo.exceptions import UserError
-from odoo.http import content_disposition, request
+from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
 
 from odoo.addons.ems.models.erasmus.application import ANSWER_FIELDS, PORTAL_STATE_BADGES
@@ -22,9 +22,14 @@ class EmsPortalErasmusController(CustomerPortal):
     docs/en/developers/erasmus/erasmus.md."""
 
     _redirect = '/my/erasmus'
+    # Staff apply and prepare their mobility in the backend, never on the portal (the 2026-11-04 review).
+    _staff_redirect = '/odoo/action-ems.action_erasmus_staff_calls'
 
     def _ems_erasmus_call(self, call_id):
-        """The published call `call_id` if the logged-in user can apply to it, or has applied."""
+        """The published call `call_id` if the logged-in user can apply to it, or has applied. Never
+        for an internal user: staff calls are handled in the backend."""
+        if not request.env.user.share:
+            return None
         partner = request.env.user.partner_id
         call = request.env['ems.erasmus.call'].sudo().browse(call_id).exists()
         if call and (call in partner._ems_erasmus_calls()
@@ -34,6 +39,8 @@ class EmsPortalErasmusController(CustomerPortal):
 
     @http.route('/my/erasmus', type='http', auth='user', website=True)
     def portal_erasmus(self, **kwargs):
+        if not request.env.user.share:
+            return request.redirect(self._staff_redirect)
         partner = request.env.user.partner_id
         if not partner._ems_erasmus_portal_visible():
             return request.redirect('/my/home')
@@ -76,6 +83,8 @@ class EmsPortalErasmusController(CustomerPortal):
 
     @http.route('/my/erasmus/call/<int:call_id>', type='http', auth='user', website=True)
     def portal_erasmus_application(self, call_id, **kwargs):
+        if not request.env.user.share:
+            return request.redirect(self._staff_redirect)
         call = self._ems_erasmus_call(call_id)
         if not call:
             return request.redirect('/my/home')
@@ -212,12 +221,7 @@ class EmsPortalErasmusController(CustomerPortal):
         return self._ems_resolution_pdf(resolution)
 
     def _ems_resolution_pdf(self, resolution):
-        pdf, _type = request.env['ir.actions.report'].sudo()._render_qweb_pdf(
-            'ems.action_report_erasmus_resolution', resolution.ids)
-        return request.make_response(pdf, headers=[
-            ('Content-Type', 'application/pdf'),
-            ('Content-Disposition', content_disposition(f'{resolution.name}.pdf')),
-        ])
+        return resolution._ems_pdf_response()
 
     @http.route('/my/erasmus/call/<int:call_id>/claim', type='http', auth='user', methods=['POST'], website=True)
     def portal_erasmus_claim(self, call_id, description=None, **kwargs):

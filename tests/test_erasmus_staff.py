@@ -104,7 +104,7 @@ class TestErasmusStaffCall(ErasmusStaffCase):
     def test_staff_calls_are_for_internal_users_with_an_employee_file(self):
         staff = self.staff_users[0].partner_id
         self.assertEqual(staff._ems_erasmus_calls(), self.staff_call)
-        self.assertTrue(staff._ems_erasmus_portal_visible())
+        self.assertFalse(staff._ems_erasmus_portal_visible(), "Staff apply in the backend, never on the portal.")
         self.assertNotIn(self.staff_call, self.student._ems_erasmus_calls())
         self.assertFalse(self.panel_teacher.partner_id._ems_erasmus_calls())  # no employee file
 
@@ -502,7 +502,8 @@ class TestErasmusStaffResolution(ErasmusStaffCase):
 
 @tagged('post_install', '-at_install')
 class TestPortalErasmusStaff(HttpCase):
-    """Issue #686 - a teacher applies to the staff call from /my/erasmus."""
+    """The 2026-11-04 review: the portal is for students and families; staff apply to a staff call
+    in the backend (test_erasmus_staff_backend.py), and the portal's Erasmus+ pages send them there."""
 
     @classmethod
     def setUpClass(cls):
@@ -510,33 +511,22 @@ class TestPortalErasmusStaff(HttpCase):
         mock_outgoing_email(cls)
         create_staff_call_fixtures(cls)
 
-    def test_teacher_applies_from_the_portal(self):
+    def test_the_portal_sends_staff_to_the_backend(self):
         user = self.staff_users[0]
         self.authenticate(user.login, user.login)
-        page = self.url_open('/my/erasmus')
-        self.assertIn(b'Test Erasmus Staff Call', page.content)
-        self.assertNotIn(b'<strong>Test Erasmus Call</strong>', page.content)
-        url = f'/my/erasmus/call/{self.staff_call.id}'
-        self.assertIn(b'o_ems_erasmus_staff_form', self.url_open(url).content)
-        response = self.url_open(f'{url}/save', data={
-            'csrf_token': Request.csrf_token(self), **STAFF_PLAN, 'proposal_a': 'Test course in Test city',
-            'support_needs': 'Test need', 'declared_language_level': 'c2', 'declared_centre_start_date': '2015-09',
-            'submit': '1',
-        }, files=[(f'document_{self.id_document.id}', ('id.pdf', PDF, 'application/pdf'))])
-        self.assertTrue(response.url.endswith('/my/erasmus?submitted=1'))
-        application = self.env['ems.erasmus.application'].search([('call_id', '=', self.staff_call.id)])
-        self.assertEqual(application.state, 'submitted')
-        self.assertEqual(application.employee_id, self.staff_employees[0])
-        self.assertEqual((application.proposal_a, application.support_needs, application.declared_language_level),
-                         ('Test course in Test city', 'Test need', 'c2'))
-        self.assertEqual(str(application.declared_centre_start_date), '2015-09-01')
-        self.assertFalse(application.declared_never_staff_mobility, "Not ticked: the team sets the last one.")
+        backend = '/odoo/action-ems.action_erasmus_staff_calls'
+        for url in ('/my/erasmus', f'/my/erasmus/call/{self.staff_call.id}'):
+            self.assertTrue(self.url_open(url).url.endswith(backend), url)
+        self.url_open(f'/my/erasmus/call/{self.staff_call.id}/save', data={
+            'csrf_token': Request.csrf_token(self), **STAFF_PLAN, 'submit': '1'})
+        self.assertFalse(self.env['ems.erasmus.application'].search([('call_id', '=', self.staff_call.id)]),
+                         "Refused: nothing saved.")
 
-    def test_backend_user_menu_offers_the_portal_page(self):
-        """The issue-#682 review: the backend's session says who has the portal's Erasmus+ page,
-        for the user menu's "My Erasmus+ application"."""
+    def test_backend_user_menu_offers_the_staff_calls(self):
+        """The issue-#682 review: the backend's session says who has a staff call to apply to or an
+        application, for the user menu's "Erasmus+"."""
         self.authenticate(self.staff_users[0].login, self.staff_users[0].login)
-        self.assertTrue(self.make_jsonrpc_request('/web/session/get_session_info')['ems_erasmus_portal'])
+        self.assertTrue(self.make_jsonrpc_request('/web/session/get_session_info')['ems_erasmus_staff'])
         self.authenticate(self.panel_teacher.login, self.panel_teacher.login)
-        self.assertFalse(self.make_jsonrpc_request('/web/session/get_session_info')['ems_erasmus_portal'],
+        self.assertFalse(self.make_jsonrpc_request('/web/session/get_session_info')['ems_erasmus_staff'],
                          "No employee file that can apply, no application.")

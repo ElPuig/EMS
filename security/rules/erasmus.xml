@@ -316,5 +316,232 @@
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
         </record>
+
+        <!-- Staff in the backend (the 2026-11-04 review): a teacher reads their own staff
+             applications, mobilities and what belongs to them, and the published staff calls.
+             Rules add up across a user's groups, and a Head of Studies is also a teacher: so each
+             model that gets a teacher rule gets a read-all rule for the groups that already read it
+             all (the call documents and the application documents already had theirs). Read only,
+             like every rule here: nothing else changes for writing. -->
+        <record id="rule_erasmus_call_staff_own" model="ir.rule">
+            <field name="name">Erasmus call: own (staff)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_call"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+            <field name="domain_force">[('audience', '=', 'staff'), ('state', '!=', 'draft')]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_call_staff_all" model="ir.rule">
+            <field name="name">Erasmus call: all (Erasmus team, Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_call"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies')), (4, ref('ems.group_secretary'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_call_modality_staff_own" model="ir.rule">
+            <field name="name">Erasmus call modality: own (staff)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_call_modality"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+            <field name="domain_force">[('call_id.audience', '=', 'staff'), ('call_id.state', '!=', 'draft')]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_call_modality_staff_all" model="ir.rule">
+            <field name="name">Erasmus call modality: all (Erasmus team, Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_call_modality"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_call_document_staff_own" model="ir.rule">
+            <field name="name">Erasmus call document: own (staff)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_call_document"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+            <field name="domain_force">[('call_id.audience', '=', 'staff'), ('call_id.state', '!=', 'draft')]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_application_staff_own" model="ir.rule">
+            <field name="name">Erasmus application: own (staff)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_application"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+            <field name="domain_force">[('partner_id', '=', user.partner_id.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_application_staff_all" model="ir.rule">
+            <field name="name">Erasmus application: all (Erasmus team, Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_application"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_application_document_staff_own" model="ir.rule">
+            <field name="name">Erasmus application document: own (staff)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_application_document"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+            <field name="domain_force">['|', ('application_id.partner_id', '=', user.partner_id.id), ('mobility_id.partner_id', '=', user.partner_id.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_resolution_staff_own" model="ir.rule">
+            <field name="name">Erasmus resolution: own (staff)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_resolution"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+            <field name="domain_force">[('state', '=', 'published'), ('line_ids.application_id.partner_id', '=', user.partner_id.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_resolution_staff_all" model="ir.rule">
+            <field name="name">Erasmus resolution: all (Erasmus team, Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_resolution"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_resolution_line_staff_own" model="ir.rule">
+            <field name="name">Erasmus resolution line: own (staff)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_resolution_line"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+            <field name="domain_force">[('resolution_id.state', '=', 'published'), ('application_id.partner_id', '=', user.partner_id.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_resolution_line_staff_all" model="ir.rule">
+            <field name="name">Erasmus resolution line: all (Erasmus team, Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_resolution_line"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_offer_staff_own" model="ir.rule">
+            <field name="name">Erasmus place offer: own (staff)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_offer"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+            <field name="domain_force">[('partner_id', '=', user.partner_id.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_offer_staff_all" model="ir.rule">
+            <field name="name">Erasmus place offer: all (Erasmus team, Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_offer"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_claim_staff_own" model="ir.rule">
+            <field name="name">Erasmus claim: own (staff)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_claim"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+            <field name="domain_force">[('application_id.partner_id', '=', user.partner_id.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_claim_staff_all" model="ir.rule">
+            <field name="name">Erasmus claim: all (Erasmus team, Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_claim"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_mobility_staff_own" model="ir.rule">
+            <field name="name">Erasmus mobility: own (staff)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_mobility"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+            <field name="domain_force">[('partner_id', '=', user.partner_id.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_mobility_staff_all" model="ir.rule">
+            <field name="name">Erasmus mobility: all (Erasmus team, Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_mobility"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_self_assessment_staff_own" model="ir.rule">
+            <field name="name">Erasmus self-assessment: own (staff)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_self_assessment"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+            <field name="domain_force">[('mobility_id.partner_id', '=', user.partner_id.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_self_assessment_staff_all" model="ir.rule">
+            <field name="name">Erasmus self-assessment: all (Erasmus team, Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_self_assessment"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_self_assessment_answer_staff_own" model="ir.rule">
+            <field name="name">Erasmus self-assessment answer: own (staff)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_self_assessment_answer"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+            <field name="domain_force">[('assessment_id.mobility_id.partner_id', '=', user.partner_id.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_self_assessment_answer_staff_all" model="ir.rule">
+            <field name="name">Erasmus self-assessment answer: all (Erasmus team, Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_self_assessment_answer"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
     </data>
 </odoo>

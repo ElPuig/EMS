@@ -23,8 +23,8 @@
                         </p>
                         <t t-out="object._ems_mail_document_list(object.document_ids.filtered('attachment_ids'))"/>
                         <p>
-                            You can follow your application on the school portal:
-                            <a t-attf-href="{{ object.get_base_url() }}/my/erasmus">Erasmus+</a>.
+                            You can follow your application <t t-out="object._ems_mail_place()"/>:
+                            <a t-attf-href="{{ object._ems_mail_url() }}">Erasmus+</a>.
                         </p>
                         <p>
                             Kind regards,<br/>
@@ -62,8 +62,8 @@
                             If the application is not corrected in time, it will be excluded.
                         </p>
                         <p>
-                            Upload them on the school portal:
-                            <a t-attf-href="{{ object.get_base_url() }}/my/erasmus">Erasmus+</a>.
+                            Upload them <t t-out="object._ems_mail_place()"/>:
+                            <a t-attf-href="{{ object._ems_mail_url() }}">Erasmus+</a>.
                         </p>
                         <p>
                             Kind regards,<br/>
@@ -128,7 +128,7 @@
                         </p>
                         <p t-else="">
                             The exclusion will appear in the next published list. If you disagree, you will be able
-                            to claim against the provisional resolution, from the Erasmus+ page of the school portal.
+                            to claim against the provisional resolution <t t-out="object._ems_mail_place()"/> (<a t-attf-href="{{ object._ems_mail_url() }}">Erasmus+</a>).
                         </p>
                         <p>
                             Kind regards,<br/>

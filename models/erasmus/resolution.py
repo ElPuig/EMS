@@ -4,6 +4,7 @@ import re
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
+from odoo.http import content_disposition, request
 from odoo.tools.misc import formatLang
 
 from .application import RANKED_STATES, SCORE_FIELDS, STAFF_SCORE_FIELDS, TEAM
@@ -96,6 +97,18 @@ class EmsErasmusResolution(models.Model):
         if self.filtered(lambda resolution: resolution.state == 'published'):
             raise UserError(_("A published resolution cannot be deleted."))
         return super().unlink()
+
+    def _ems_pdf_response(self):
+        """The published list as a PDF download, for whoever the controller has checked appears on
+        it: a student on the portal, a staff member from the backend. It lists everyone, so it
+        renders as superuser."""
+        self.ensure_one()
+        pdf, _type = self.env['ir.actions.report'].sudo()._render_qweb_pdf(
+            'ems.action_report_erasmus_resolution', self.ids)
+        return request.make_response(pdf, headers=[
+            ('Content-Type', 'application/pdf'),
+            ('Content-Disposition', content_disposition(f'{self.name}.pdf')),
+        ])
 
     def action_prepare(self):
         """Freeze the lines as the applications are now. Can be repeated while it is a draft."""

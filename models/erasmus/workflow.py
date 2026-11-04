@@ -34,6 +34,15 @@ def check_workflow_write(records, vals, extra=('state',)):
         _refuse(records, names)
 
 
+def check_applicant_action(records):
+    """An applicant's own step (submit, answer a place offer, choose a destination, sign the
+    commitment letter, renounce): the portal and the staff screens call it as superuser once they
+    have checked the record is the user's own, and nobody else calls it. Reading a record is no
+    proof of owning it: the Head of Studies reads every application (audit 2026-11-04)."""
+    if not records.env.su:
+        raise AccessError(_("Only the applicant does this, from their own Erasmus+ page."))
+
+
 def check_workflow_create(model, vals_list, extra=('state',)):
     """A new record starts as the workflow starts it: a workflow field is only accepted with its
     default value (a form sends the status bar's initial state)."""

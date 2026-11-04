@@ -26,9 +26,9 @@
                             students of your studies.
                         </p>
                         <p>
-                            You can apply on the school portal from <strong t-out="object._ems_local_format(object.date_open)"/>
+                            You can apply <t t-out="object._ems_mail_place()"/> from <strong t-out="object._ems_local_format(object.date_open)"/>
                             until <strong t-out="object._ems_local_format(object.date_close)"/>:
-                            <a t-attf-href="{{ object.get_base_url() }}/my/erasmus/call/{{ object.id }}">Erasmus+</a>.
+                            <a t-attf-href="{{ object._ems_mail_url() }}">Erasmus+</a>.
                             You will also find the rules of the call there.
                         </p>
                         <p>If you have any question, reply to this email.</p>
@@ -61,8 +61,8 @@
                             submitted an application. If you started one, remember to send it: a draft does not count.
                         </p>
                         <p>
-                            If you want to take part, apply on the school portal:
-                            <a t-attf-href="{{ object.get_base_url() }}/my/erasmus/call/{{ object.id }}">Erasmus+</a>.
+                            If you want to take part, apply <t t-out="object._ems_mail_place()"/>:
+                            <a t-attf-href="{{ object._ems_mail_url() }}">Erasmus+</a>.
                         </p>
                         <p>
                             Kind regards,<br/>

@@ -1,78 +1,167 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { inputFiles } from "@web/../tests/utils";
 import { clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // Issue #686 - the Erasmus+ staff call. Every tour runs against records seeded by
 // tests/test_erasmus_staff_tour.py and uses structural selectors (field names, values, CSS
 // classes), so the logged-in user's language does not matter.
 
-function attachFile(selector, name) {
-    const transfer = new DataTransfer();
-    transfer.items.add(new File(["%PDF-1.4 tour"], name, { type: "application/pdf" }));
-    const input = document.querySelector(selector);
-    input.files = transfer.files;
-    input.dispatchEvent(new Event("change", { bubbles: true }));
-}
+// The 2026-11-04 review: a teacher applies to the staff call in the backend (never the portal):
+// Staff calls, Apply, the form in its dialog, the identity document, Submit, and My applications.
+// The tour's user writes in English (tests/test_erasmus_staff_tour.py), for the date fields.
+const STAFF_CALL = "Test Erasmus Staff Call";
 
-// A teacher applies to the staff call from the portal: activity, host, the identity document and
-// the mobility plan.
-registry.category("web_tour.tours").add("ems_portal_erasmus_staff_apply", {
+registry.category("web_tour.tours").add("ems_erasmus_staff_backend_apply", {
     test: true,
-    url: "/my/erasmus",
+    url: "/odoo/action-ems.action_erasmus_staff_calls",
     steps: () => [
         {
-            trigger: ".o_ems_erasmus_call a.o_ems_erasmus_apply",
-            content: "The open staff call offers to apply",
+            trigger: `.o_list_view .o_data_row td[name='name']:contains('${STAFF_CALL}')`,
+            content: "The open staff call is listed",
             run: "click",
         },
+        ...clickAction("action_staff_apply", "Apply"),
         {
-            trigger: "form.o_ems_erasmus_form .o_ems_erasmus_staff_form textarea[name='proposal_a']",
+            trigger: ".o_form_view .o_ems_erasmus_staff_next",
+            content: "The application says what to do now",
+        },
+        ...clickAction("action_staff_edit", "Fill in the form"),
+        {
+            trigger: ".modal .o_field_widget[name='proposal_a'] textarea",
             content: "Proposal A, in your own words",
             run: "edit Job shadowing at the Tour host school, in April",
         },
         {
-            trigger: "form.o_ems_erasmus_form textarea[name='proposal_b']",
+            trigger: ".modal .o_field_widget[name='proposal_b'] textarea",
             content: "Proposal B, the backup",
             run: "edit An English course in Malta, in July",
         },
         {
-            trigger: "form.o_ems_erasmus_form textarea[name='plan_text']",
+            trigger: ".modal .o_field_widget[name='plan_text'] textarea",
             content: "What you want to learn and how you will apply it (annex 1)",
             run: "edit Tour plan_text",
         },
         {
-            trigger: "form.o_ems_erasmus_form input[name='declared_never_staff_mobility']",
+            trigger: ".modal .o_field_widget[name='declared_never_staff_mobility'] input",
             content: "Never had a staff mobility",
             run: "click",
         },
         {
-            trigger: "form.o_ems_erasmus_form input[name='declared_centre_start_date']",
+            trigger: ".modal .o_field_widget[name='declared_centre_start_date'] input",
             content: "At the centre since September 2015",
-            run() {
-                this.anchor.value = "2015-09";
-            },
+            run: "edit 09/17/2015",
         },
         {
-            trigger: "form.o_ems_erasmus_form .o_ems_erasmus_document.o_ems_erasmus_required input[type='file']",
-            content: "Attach the required documents",
-            run() {
-                const inputs = document.querySelectorAll(
-                    "form.o_ems_erasmus_form .o_ems_erasmus_document.o_ems_erasmus_required input[type='file']");
-                inputs.forEach((input, index) => {
-                    input.setAttribute("data-tour-index", index);
-                    attachFile(`input[data-tour-index='${index}']`, `document${index}.pdf`);
-                });
-            },
-        },
-        {
-            trigger: "form.o_ems_erasmus_form button[name='submit']",
-            content: "Submit the application",
+            trigger: ".modal-footer button[name='action_save']",
+            content: "Save the form",
             run: "click",
         },
         {
-            trigger: ".o_ems_erasmus_application.o_ems_erasmus_state_submitted",
-            content: "It is listed as submitted",
+            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='proposal_a']:contains('Tour host school')",
+            content: "The answers are on the application",
+        },
+        {
+            trigger: ".o_form_view .o_notebook a[name='documents']",
+            content: "Open the documents",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='document_ids'] .o_data_row:contains('Identity document') button[name='action_staff_upload']",
+            content: "Hand in the identity document",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids']",
+            content: "Attach the file",
+            run: async () => {
+                const file = new File(["%PDF-1.4 tour"], "id.pdf", { type: "application/pdf" });
+                await inputFiles(".modal .o_field_widget[name='attachment_ids'] .o_input_file", [file]);
+            },
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids'] .o_attachment",
+            content: "File attached",
+        },
+        {
+            trigger: ".modal-footer button[name='action_confirm']",
+            content: "Hand it in",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='document_ids'] .o_data_row:contains('Identity document') .o_attachment",
+            content: "The document has its file",
+        },
+        ...clickAction("action_staff_submit", "Submit the application"),
+        {
+            trigger: ".modal-footer .btn-primary",
+            content: "Confirm",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_statusbar_status button[data-value='submitted'].o_arrow_button_current",
+            content: "The application is submitted",
+        },
+        {
+            trigger: ".o_form_view",
+            content: "Go to My applications",
+            run() {
+                window.location.href = "/odoo/action-ems.action_erasmus_my_applications";
+            },
+        },
+        {
+            trigger: `.o_list_view .o_data_row td[name='call_id']:contains('${STAFF_CALL}')`,
+            content: "It is listed under My applications",
+        },
+    ],
+});
+
+// A selected teacher who accepted the place sends their activity proposal from My mobilities.
+registry.category("web_tour.tours").add("ems_erasmus_staff_backend_mobility", {
+    test: true,
+    url: "/odoo/action-ems.action_erasmus_my_mobilities",
+    steps: () => [
+        {
+            trigger: `.o_list_view .o_data_row td[name='call_id']:contains('${STAFF_CALL}')`,
+            content: "The mobility is listed",
+            run: "click",
+        },
+        ...clickAction("action_staff_propose", "Send the activity proposal"),
+        {
+            // Selection values are JSON-encoded in the <select>, hence the quotes.
+            trigger: ".modal .o_field_widget[name='proposal_activity'] select",
+            content: "A structured course",
+            run: 'select "course"',
+        },
+        {
+            trigger: ".modal .o_field_widget[name='proposal_host'] input",
+            content: "The course provider",
+            run: "edit Tour Course Provider",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='proposal_date_start'] input",
+            content: "From",
+            run: "edit 07/05/2027",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='proposal_date_end'] input",
+            content: "To",
+            run: "edit 07/09/2027",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='leave_declaration'] input",
+            content: "The responsible declaration",
+            run: "click",
+        },
+        {
+            trigger: ".modal-footer button[name='action_confirm']",
+            content: "Send the proposal",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='proposal_host']:contains('Tour Course Provider')",
+            content: "The proposal waits for the Direction",
         },
     ],
 });

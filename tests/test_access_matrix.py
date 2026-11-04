@@ -41,17 +41,19 @@ ACCESS_MATRIX = {
     'ems.info_notice': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'settings_admin': 'r'},
     'ems.criteria': {'teacher': 'r', 'secretary': 'r'},
     # Issue #683: the applications have record rules and a write() guard, tested in test_erasmus.py.
+    # The 2026-11-04 review: staff read their own staff call records in the backend (record rules,
+    # test_erasmus_staff_backend.py); the applications themselves are not in this matrix.
     # Issue #697: the Secretary reads the calls and projects of the grant payments it makes.
-    'ems.erasmus.call': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
-    'ems.erasmus.call.document': {'teacher': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    'ems.erasmus.call': {'teacher': 'r', 'secretary': 'r', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    'ems.erasmus.call.document': {'teacher': 'r', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     # Issue #684: the modules frozen for the record average, written only by the call's closing.
     'ems.erasmus.application.grade': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'r'},
-    'ems.erasmus.call.modality': {'teacher': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    'ems.erasmus.call.modality': {'teacher': 'r', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     # Issue #685: frozen lines and offers are written only by the resolutions' and offers' actions.
-    'ems.erasmus.resolution': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
-    'ems.erasmus.resolution.line': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'r'},
-    'ems.erasmus.offer': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'r'},
-    'ems.erasmus.claim': {'teacher': '', 'secretary': '', 'head_of_studies': 'rw', 'erasmus': 'rwcu'},
+    'ems.erasmus.resolution': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    'ems.erasmus.resolution.line': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'r'},
+    'ems.erasmus.offer': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'r'},
+    'ems.erasmus.claim': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'rw', 'erasmus': 'rwcu'},
     # Issue #686: plan ratings have record rules (own ratings for panel members), tested in test_erasmus_staff.py.
     'ems.erasmus.call.panel': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.plan_rating': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'erasmus': 'rwcu'},
@@ -60,7 +62,7 @@ ACCESS_MATRIX = {
     'ems.erasmus.destination': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.call.question': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.call.task': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
-    'ems.erasmus.mobility': {'teacher': '', 'secretary': '', 'head_of_studies': 'rw', 'erasmus': 'rwcu'},
+    'ems.erasmus.mobility': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'rw', 'erasmus': 'rwcu'},
     # The issue-#682 review: a read-only SQL view, on the student form for whoever reads the academic history.
     'ems.erasmus.history': {'teacher': 'r', 'secretary': 'r', 'head_of_studies': 'r', 'erasmus': 'r'},
     'ems.erasmus.project': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
@@ -89,8 +91,8 @@ ACCESS_MATRIX = {
     'ems.erasmus.commitment.version': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'erasmus': 'r'},
     'ems.erasmus.export': {'teacher': '', 'secretary': 'rc', 'head_of_studies': '', 'erasmus': 'rc'},
     'ems.erasmus.mobility.task': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
-    'ems.erasmus.self_assessment': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
-    'ems.erasmus.self_assessment.answer': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    'ems.erasmus.self_assessment': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    'ems.erasmus.self_assessment.answer': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.group': {'teacher': 'r', 'secretary': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu'},
     'ems.level': {'teacher': 'r', 'secretary': 'r', 'erasmus': 'r'},
     # The administrator configures them too: they are above Direction (issue #723).

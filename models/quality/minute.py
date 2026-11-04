@@ -10,7 +10,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_date
 
-from .common import SCOPE_CODE_LANG, scope_code
+from .common import scope_code
 from .minute_type import SCOPE_FIELDS
 
 # What the old free-text 'type' column held, kept in step with the new type's scope so the column
@@ -328,6 +328,13 @@ class EmsMinute(models.Model):
                                             type=minute.type_id.name, scope=scope_record.display_name))
                 raise ValidationError(_("You cannot start a minute of type \"%s\".", minute.type_id.name))
 
+    @api.constrains('attendee_ids', 'absentee_ids')
+    def _check_attendee_not_absent(self):
+        for minute in self:
+            both = minute.attendee_ids & minute.absentee_ids
+            if both:
+                raise ValidationError(_("%s cannot be both among the attendees and the absentees.", ", ".join(both.mapped('name'))))
+
     @api.onchange('type_id')
     def _onchange_type_id(self):
         """Lay out the minute as its type declares it, and preload what EMS already knows."""
@@ -566,8 +573,13 @@ class EmsMinute(models.Model):
     @api.model
     def _ems_centre_lang(self):
         """The language the centre's own documents are written in - a minute, its call - whatever
-        language whoever produces them works in (see common.SCOPE_CODE_LANG)."""
-        return SCOPE_CODE_LANG if self.env['res.lang']._lang_get(SCOPE_CODE_LANG) else self.env.lang
+        language whoever produces them works in (res.company.ems_lang)."""
+        return self.env.company.ems_lang
+
+    @api.model
+    def _ems_centre_env(self):
+        """An environment in the centre's language, for text EMS writes into the database itself."""
+        return self.with_context(lang=self._ems_centre_lang()).env
 
     def _ems_call_values(self):
         """What the call says: when and where, the agenda, and where to read the previous minute."""

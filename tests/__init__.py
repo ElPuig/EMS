@@ -282,6 +282,7 @@ from . import test_employee_presence_tour
 from . import test_student_chatter_replies
 from . import test_mail_reply_to
 from . import test_quality_minute
+from . import test_centre_language
 from . import test_quality_minute_start
 from . import test_quality_minute_tour
 from . import test_quality_minute_rules

@@ -121,7 +121,9 @@ Cuando empieza la reunión, **Acciones → Empezar la reunión**. El acta pasa a
 pantalla cambia: ya no hay pestañas, sino los bloques del orden del día, uno debajo de otro, para ir
 rellenándolos a medida que avanza la reunión.
 
-- **Asistencia:** quién ha asistido y quién falta (o el quiosco, si se recoge con el tag NFC).
+- **Asistencia:** quién ha asistido y quién falta (o el quiosco, si se recoge con el tag NFC). Nadie puede
+  estar en las dos listas: si añadís a una persona a una, sale de la otra, y también podéis arrastrar a una
+  persona de una lista a la otra.
 - **Aprobación del acta anterior:** abrid su PDF, marcad si se aprueba y anotad las enmiendas.
 - **Seguimiento de los acuerdos:** cada acuerdo que seguía abierto tiene su ficha. Escribid qué se ha dicho,
   poned una **nueva fecha límite** si hace falta y marcad **Hecho** si se da por cerrado. Lo que escribís
@@ -133,7 +135,9 @@ rellenándolos a medida que avanza la reunión.
   no estaba previsto.
 - **Ruegos y preguntas:** otro cuadro de texto.
 - **Acuerdos:** cada acuerdo nuevo es una ficha, con el contenido a todo el ancho y, en la cabecera, la
-  fecha límite y los responsables (por defecto, el jefe de departamento y el de seminario).
+  fecha límite y los responsables (por defecto, el jefe de departamento y el de seminario). Un acuerdo que
+  solo es una decisión, que nadie tiene que llevar a cabo, se puede cerrar ahí mismo: marcad **Hecho** y ya
+  no se lleva a la reunión siguiente.
 
   ![Bloque Acuerdos durante la reunión: ficha de un acuerdo con fecha límite, personas responsables, personas implicadas, contenido y descripción](../../assets/teachers/actes-08-acords.png)
 - **Temas pendientes:** al final, como lista.
@@ -161,6 +165,13 @@ pantalla con la faceta *Pendientes de que yo apruebe*, y al aprobarla:
 - Se genera el **PDF**, que queda adjunto al acta.
 - El acta **ya no se puede modificar**. Si hay que corregir algo, se hace una versión nueva; no se
   reescribe la que ya estaba aprobada.
+
+## Mis acuerdos
+
+**Reuniones → Acuerdos** abre con los acuerdos **abiertos** en los que sois **persona responsable** (por
+vuestro nombre o por el cargo que ocupáis) o **persona implicada**: las facetas *Las mías*, *Los que me
+implican* y *Abierta*. Podéis quitar *Las mías* y *Los que me implican* por separado para ver solo una parte, o
+*Abierta* para ver también los cerrados.
 
 ## Registros puntuales
 

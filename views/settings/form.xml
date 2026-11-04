@@ -85,6 +85,9 @@
                             <setting string="Center code" help="Official Departament d'Educació center code, leading zero included (e.g. 08028047). Used by the GEDAC applicant import to keep only the applicants assigned to this center; the comparison ignores the leading zero the Excel drops." id="center_code">
                                 <field name="center_code" placeholder="08028047"/>
                             </setting>
+                            <setting string="Centre language" help="The language EMS writes in, whatever the language of whoever uses it: the codes of minutes and agreements, the minutes and their calls, the convalidation resolutions, the public group schedules and the texts EMS adds by itself. It is also the language new contacts and users get." id="ems_lang">
+                                <field name="ems_lang"/>
+                            </setting>
                             <setting string="Secretariat" help="Email address of the center's secretariat, for messages addressed to it. No feature uses it yet." id="secretariat_email">
                                 <field name="secretariat_email" widget="email" placeholder="secretaria@example.com"/>
                             </setting>

@@ -3449,6 +3449,7 @@ msgstr "Documentos"
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__done
 #: model:ir.model.fields.selection,name:ems.selection__ems_contact_data_request__state__done model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agreement_review__is_closed
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__is_closed_in_minute
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
 #: model_terms:ir.ui.view,arch_db:ems.mail_activity_view_tree_snooze
 msgid "Done"
@@ -28744,3 +28745,39 @@ msgstr "Posponer hasta..."
 #: code:addons/ems/static/src/xml/backend/activity_snooze.xml:0
 msgid "Snooze the selected tasks until..."
 msgstr "Posponer las tareas seleccionadas hasta..."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_action__is_closed_in_minute
+msgid "Done in the meeting that takes it, such as a decision nobody has to carry out: its follow-up gets a closing entry dated on the meeting."
+msgstr "Hecho en la misma reunión que lo toma, como una decisión que nadie tiene que llevar a cabo: el seguimiento añade una entrada de cierre con la fecha de la reunión."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__minute_followup_id
+msgid "Closing entry of the minute"
+msgstr "Entrada de cierre del acta"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/action.py:0
+msgid "Agreed and done in the meeting %s."
+msgstr "Acordado y hecho en la reunión %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "%s cannot be both among the attendees and the absentees."
+msgstr "%s no puede estar a la vez entre los asistentes y entre las personas que faltan."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_lang
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_lang
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Centre language"
+msgstr "Idioma del centro"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_company__ems_lang
+#: model:ir.model.fields,help:ems.field_res_config_settings__ems_lang
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "The language EMS writes in, whatever the language of whoever uses it: the codes of minutes and agreements, the minutes and their calls, the convalidation resolutions, the public group schedules and the texts EMS adds by itself. It is also the language new contacts and users get."
+msgstr "El idioma en el que escribe EMS, sea cual sea el idioma de quien lo usa: los códigos de las actas y los acuerdos, las actas y sus convocatorias, las resoluciones de convalidación, los horarios públicos de los grupos y los textos que EMS añade por su cuenta. También es el idioma que reciben los contactos y los usuarios nuevos."

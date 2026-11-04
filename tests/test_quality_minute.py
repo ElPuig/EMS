@@ -4,7 +4,7 @@ from datetime import datetime
 from unittest.mock import patch
 
 from odoo import fields
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
 from .common import create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email
@@ -71,6 +71,13 @@ class TestQualityMinute(TransactionCase):
         """The single biggest saving of the feature: nobody types the attendee list again."""
         minute = self._minute()
         self.assertIn(self.employee.name, minute.attendee_ids.mapped('name'))
+
+    def test_nobody_is_both_attendee_and_absentee(self):
+        minute = self._minute()
+        employee = self.env['hr.employee.public'].browse(self.employee.id)
+        minute.attendee_ids = employee
+        with self.assertRaises(ValidationError):
+            minute.absentee_ids = employee
 
     def test_teaching_team_attendees_are_its_teachers_and_tutor(self):
         """Same rule as an attendance session's: whoever teaches the group, plus its tutor even
@@ -271,6 +278,23 @@ class TestQualityMinute(TransactionCase):
         self.assertEqual(minute.scope_name, 'Informàtica Prova')
         self.assertTrue(minute.name.endswith(' - Informàtica Prova'), minute.name)
 
+    def test_follow_up_written_by_ems_is_in_the_centre_language(self):
+        """The follow-up EMS writes on its own (an agreement done or reviewed with nothing written
+        about it) is stored text: in Catalan, whatever language the writer works in."""
+        if not (self.env['res.lang']._lang_get('ca_ES') and self.env['res.lang']._lang_get('es_ES')):
+            self.skipTest("needs Catalan and Spanish installed")
+        with patch.object(type(self.env['ems.minute']), '_ems_centre_lang', lambda minute: 'ca_ES'):
+            first = self._minute().with_user(self.user).with_context(lang='es_ES')
+            first.write({'agreement_ids': [(0, 0, {'name': 'Done here', 'is_closed_in_minute': True}),
+                                           (0, 0, {'name': 'Reviewed later'})]})
+            done, open_one = first.agreement_ids.sorted('id')
+            self.assertTrue(done.followup_ids.description.startswith('Acordat i fet a la reunió'), done.followup_ids.description)
+            second = self._minute().with_user(self.user).with_context(lang='es_ES')
+            second.agreement_review_ids.is_closed = True
+            self.assertTrue(open_one.followup_ids.description.startswith('Revisat a la reunió'), open_one.followup_ids.description)
+            self.assertTrue(open_one.message_ids.filtered(lambda message: 'Seguiment (' in (message.body or '')),
+                            "and so is what is posted to its followers")
+
     def test_the_nfc_box_is_translated(self):
         """The box's messages are plain spans side by side, which Odoo extracts as one term: a
         .po entry for a single sentence never matches it and the box stays in English."""
@@ -334,6 +358,22 @@ class TestQualityMinute(TransactionCase):
         self.assertEqual(agreement.course_id, minute.course_id)
         self.assertTrue(agreement.code.startswith('ACORD-MINDEP-'), agreement.code)
         self.assertEqual(agreement.responsible_employee_ids.ids, [chief.id], "and with it, its department's chief as responsible")
+
+    def test_an_agreement_can_be_done_in_the_minute_that_takes_it(self):
+        """A decision nobody has to carry out is closed in the same meeting: the minute's own
+        follow-up entry closes it, and it is not brought to the next meeting."""
+        minute = self._minute().with_user(self.user)
+        minute.write({'agreement_ids': [(0, 0, {'name': 'The trip is to Girona', 'is_closed_in_minute': True})]})
+        agreement = minute.agreement_ids
+        self.assertEqual(agreement.state, 'closed')
+        self.assertEqual(agreement.followup_ids.date, minute.date)
+        self.assertEqual(agreement.followup_ids.author_employee_id.id, self.employee.id)
+        self.assertFalse(self._minute().agreement_review_ids, "a closed agreement is not brought to the next meeting")
+        agreement.is_closed_in_minute = False
+        self.assertFalse(agreement.followup_ids, "unticking it takes the entry back")
+        self.assertNotEqual(agreement.state, 'closed')
+        agreement.is_closed_in_minute = True
+        self.assertEqual(len(agreement.followup_ids), 1)
 
     def test_an_agreement_stays_on_the_table_until_it_is_closed(self):
         """Carried from the first minute to the second, and from there to the third: it was not

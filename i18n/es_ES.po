@@ -28804,12 +28804,6 @@ msgid "%(student)s already has an open ex officio withdrawal case file."
 msgstr "%(student)s ya tiene un expediente de baja de oficio abierto."
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
-msgid "%(student)s's level has no ex officio withdrawal circuit: set it on the level first."
-msgstr "El nivel de %(student)s no tiene circuito de baja de oficio: configúralo primero en el nivel."
-
-#. module: ems
 #: model_terms:ir.actions.act_window,help:ems.action_ex_officio_withdrawal
 msgid "A tutor opens one when a student of theirs stops coming to the centre."
 msgstr "El tutor o la tutora abre uno cuando un alumno suyo deja de venir al centro."
@@ -28854,7 +28848,7 @@ msgstr "Convivencia o equipo directivo"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__circuit__compulsory
-#: model:ir.model.fields.selection,name:ems.selection__ems_level__withdrawal_circuit__compulsory
+#: model:ir.model.fields.selection,name:ems.selection__ems_level__education_stage__compulsory
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_search
 msgid "Compulsory education"
 msgstr "Educación obligatoria"
@@ -28943,9 +28937,9 @@ msgid "Ex officio withdrawal case file"
 msgstr "Expediente de baja de oficio"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_level__withdrawal_circuit
-msgid "Ex officio withdrawal circuit"
-msgstr "Circuito de baja de oficio"
+#: model:ir.model.fields,field_description:ems.field_ems_level__education_stage
+msgid "Educational stage"
+msgstr "Etapa educativa"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_ex_officio_withdrawal_step
@@ -29027,7 +29021,7 @@ msgstr "Pendiente de Secretaría"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__circuit__post_compulsory
-#: model:ir.model.fields.selection,name:ems.selection__ems_level__withdrawal_circuit__post_compulsory
+#: model:ir.model.fields.selection,name:ems.selection__ems_level__education_stage__post_compulsory
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_search
 msgid "Post-compulsory education"
 msgstr "Educación postobligatoria"
@@ -29049,9 +29043,9 @@ msgid "Proposals"
 msgstr "Propuestas"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_level__withdrawal_circuit
-msgid "Protocol followed when a student of this level stops coming. Empty: no case files."
-msgstr "Protocolo que se sigue cuando un alumno de este nivel deja de venir. Vacío: sin expedientes."
+#: model:ir.model.fields,help:ems.field_ems_level__education_stage
+msgid "Compulsory or post-compulsory education, as the regulation sets it."
+msgstr "Educación obligatoria o postobligatoria, tal como lo establece la normativa."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
@@ -29561,3 +29555,9 @@ msgstr "protocolo: %s"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__current_step_open
 msgid "Current step open"
 msgstr "Paso actual abierto"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "%(student)s's level is not of compulsory nor post-compulsory education: no ex officio withdrawal protocol applies to it."
+msgstr "El nivel de %(student)s no es de educación obligatoria ni postobligatoria: no se le aplica ningún protocolo de baja de oficio."

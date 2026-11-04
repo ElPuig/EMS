@@ -4,8 +4,9 @@ from odoo import api, fields, models
 
 from ..employees.non_teaching_type import LEVEL_DECLARATION_CODES
 
-# Issue #726: the ex officio withdrawal protocols a level can follow (the case file reuses them).
-CIRCUITS = [
+# The educational stage a level belongs to, as the regulation sets it (issue #726): EMS decides with
+# it what applies to the level's students (e.g. the ex officio withdrawal protocol).
+EDUCATION_STAGES = [
 	('compulsory', 'Compulsory education'),
 	('post_compulsory', 'Post-compulsory education'),
 ]
@@ -60,9 +61,9 @@ class EmsLevel(models.Model):
 		help="Row of the summary table of the official schedule declaration this level's teaching hours are "
 			"added to. Empty: they go to 'Altres'.")
 
-	# Issue #726: the ex officio withdrawal protocol this level's students follow. Empty: none.
-	withdrawal_circuit = fields.Selection(selection=CIRCUITS, string="Ex officio withdrawal circuit",
-		help="Protocol followed when a student of this level stops coming. Empty: no case files.")
+	# Set by the regulation, so part of EMS's catalog (data/cat/ems.level.csv) and read-only on the form.
+	education_stage = fields.Selection(selection=EDUCATION_STAGES, string="Educational stage",
+		help="Compulsory or post-compulsory education, as the regulation sets it.")
 
 	# The level's colour on the student card (issue #524). Computed from the acronym only when the
 	# level is created, then the centre's to change: not in data/cat/ems.level.csv, so an upgrade

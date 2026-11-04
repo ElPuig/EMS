@@ -17,7 +17,7 @@ class TestExOfficioWithdrawalTour(HttpCase):
     def setUpClass(cls):
         super().setUpClass()
         _level, _study, group = create_level_study_group(
-            cls, 'TEOWT', level={'withdrawal_circuit': 'post_compulsory'})
+            cls, 'TEOWT', level={'education_stage': 'post_compulsory'})
         cls.tutor_user = create_role_user(cls, 'tutor', 'test_eow_tour_tutor', name='EOW Tour Tutor')
         group.tutor_id = create_role_employee(cls, cls.tutor_user)
         cls.student = cls.env['res.partner'].create({
@@ -26,7 +26,7 @@ class TestExOfficioWithdrawalTour(HttpCase):
         })
         # Another tutor's student, never offered to this tutor.
         _level, _study, other_group = create_level_study_group(
-            cls, 'TEOWU', level={'withdrawal_circuit': 'post_compulsory'})
+            cls, 'TEOWU', level={'education_stage': 'post_compulsory'})
         other_tutor = create_role_user(cls, 'tutor', 'test_eow_tour_other_tutor', name='EOW Tour Other Tutor')
         other_group.tutor_id = create_role_employee(cls, other_tutor)
         cls.env['res.partner'].create({

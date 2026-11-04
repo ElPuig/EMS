@@ -9,15 +9,20 @@ Implemented in phases (see the issue). This page describes what exists now.
 
 ## Circuits
 
-The circuit a student follows comes from their level: `ems.level.withdrawal_circuit`
-(`compulsory` / `post_compulsory` / empty), seeded in `data/cat/ems.level.csv`.
+Every level says which educational stage it belongs to, as the regulation sets it:
+`ems.level.education_stage` (`compulsory` / `post_compulsory`), part of EMS's catalog
+(`data/cat/ems.level.csv`, re-applied on every upgrade) and read-only on the level's form. EMS
+decides with it what applies to the level's students; for this protocol, the case file picks its
+circuit from the stage of the level the student is enrolled in (`CIRCUIT_BY_STAGE`,
+`_ems_circuit_for_level()`, the student's main group: its study's level, or the group's own), and
+keeps it (`circuit`) for the rest of the procedure.
 
-| Level | Circuit |
+| Level | Educational stage, circuit |
 |---|---|
 | CFGB, ESO | Compulsory |
 | CFGM, CFGS, EFPS, PFI, BTX | Post-compulsory |
 
-A level without a circuit gets no case files.
+A level with no stage gets no case files.
 
 ## Steps and deadlines
 
@@ -187,4 +192,4 @@ everything for `ems.group_student_data_reader`, `ems.group_secretary` and
   in its Actions dropdown (`res.partner.can_request_ex_officio_withdrawal`: a student whose level
   has a circuit and no open case file, for the same people who may open one; checked again by
   `action_request_ex_officio_withdrawal()`), which opens a new case file for them.
-- Level form: the circuit.
+- Level form: the educational stage, read-only.

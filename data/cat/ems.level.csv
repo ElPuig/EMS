@@ -1,4 +1,4 @@
-id,acronym,name,allows_convalidation,withdrawal_circuit
+id,acronym,name,allows_convalidation,education_stage
 "ems.level_eso","ESO","Educació Secundària Obligatoria",False,compulsory
 "ems.level_btx","BTX","Batxillerat",False,post_compulsory
 "ems.level_cfgm","CFGM","Cicles Formatius (Grau Mitjà)",True,post_compulsory

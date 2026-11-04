@@ -9,7 +9,6 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_date, format_datetime
 
-from ..curriculum.level import CIRCUITS
 
 
 STEP_CODES = [
@@ -28,6 +27,14 @@ RESPONSIBLES = [
     ('secretariat', 'Secretariat'),
     ('direction', 'Direction'),
 ]
+
+# The protocols a case file can follow, and the one each educational stage of the student's level
+# (ems.level.education_stage) follows.
+CIRCUITS = [
+    ('compulsory', 'Compulsory education'),
+    ('post_compulsory', 'Post-compulsory education'),
+]
+CIRCUIT_BY_STAGE = {'compulsory': 'compulsory', 'post_compulsory': 'post_compulsory'}
 
 # What a step can ask its responsible to confirm, each with the day it was done.
 CHECK_CODES = [
@@ -338,8 +345,8 @@ class EmsExOfficioWithdrawal(models.Model):
     @api.depends_context('uid')
     def _compute_student_domain(self):
         domain = [('contact_type', '=', 'student'),
-                  '|', ('main_group_id.level_id.withdrawal_circuit', '!=', False),
-                  ('main_group_id.study_id.level_id.withdrawal_circuit', '!=', False)]
+                  '|', ('main_group_id.level_id.education_stage', 'in', list(CIRCUIT_BY_STAGE)),
+                  ('main_group_id.study_id.level_id.education_stage', 'in', list(CIRCUIT_BY_STAGE))]
         if not self._ems_user_manages():
             domain.append(('tutor_id.tutor_scope_user_ids', '=', self.env.uid))
         for withdrawal in self:
@@ -359,10 +366,11 @@ class EmsExOfficioWithdrawal(models.Model):
         for vals, student in zip(vals_list, students):
             group = student.main_group_id
             level = group.study_id.level_id or group.level_id
-            if not level.withdrawal_circuit:
-                raise UserError(_("%(student)s's level has no ex officio withdrawal circuit: set it on the level "
-                                  "first.", student=student.display_name))
-            vals.update({'group_id': group.id, 'level_id': level.id, 'circuit': level.withdrawal_circuit})
+            circuit = self._ems_circuit_for_level(level)
+            if not circuit:
+                raise UserError(_("%(student)s's level is not of compulsory nor post-compulsory education: no ex "
+                                  "officio withdrawal protocol applies to it.", student=student.display_name))
+            vals.update({'group_id': group.id, 'level_id': level.id, 'circuit': circuit})
         withdrawals = super().create(vals_list)
         for withdrawal in withdrawals:
             withdrawal.sudo().name = self.env['ems.base'].next_course_number(
@@ -537,6 +545,11 @@ class EmsExOfficioWithdrawal(models.Model):
             if not withdrawal.can_decide_proposal:
                 raise UserError(_("Only the student's tutor, the people above them and the Head of Studies "
                                   "can decide this proposal."))
+
+    @api.model
+    def _ems_circuit_for_level(self, level):
+        """The protocol a student of `level` follows, from its educational stage (False: none)."""
+        return CIRCUIT_BY_STAGE.get(level.education_stage, False)
 
     def _ems_due_date(self, deadline):
         """The day a step is due by the protocol, counted from the first day of absence (the one
@@ -727,7 +740,7 @@ class EmsExOfficioWithdrawalPartner(models.Model):
             group = student.main_group_id
             partner.can_request_ex_officio_withdrawal = (
                 partner in students and partner._origin.id not in with_open
-                and bool((group.study_id.level_id or group.level_id).withdrawal_circuit)
+                and bool(Withdrawal._ems_circuit_for_level(group.study_id.level_id or group.level_id))
                 and (manages or base.user_acts_as_tutor(student.tutor_id)))
 
     def action_request_ex_officio_withdrawal(self):

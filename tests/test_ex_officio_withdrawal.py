@@ -24,9 +24,9 @@ class TestExOfficioWithdrawal(TransactionCase):
         super().setUpClass()
         cls.Withdrawal = cls.env['ems.ex_officio_withdrawal']
         cls.post_level, cls.post_study, cls.post_group = create_level_study_group(
-            cls, 'TEOWP', level={'withdrawal_circuit': 'post_compulsory'})
+            cls, 'TEOWP', level={'education_stage': 'post_compulsory'})
         cls.comp_level, cls.comp_study, cls.comp_group = create_level_study_group(
-            cls, 'TEOWC', level={'withdrawal_circuit': 'compulsory'})
+            cls, 'TEOWC', level={'education_stage': 'compulsory'})
         cls.none_level, cls.none_study, cls.none_group = create_level_study_group(cls, 'TEOWN')
 
         cls.tutor_user = create_role_user(cls, 'tutor', 'test_eow_tutor', name='EOW Tutor')
@@ -133,7 +133,7 @@ class TestExOfficioWithdrawal(TransactionCase):
         self.assertEqual(case_file.state, 'proposal')
         self.assertFalse(case_file.step_ids)
 
-    def test_level_without_circuit_is_refused(self):
+    def test_level_without_educational_stage_is_refused(self):
         with self.assertRaises(UserError):
             self._open(self.none_student, date(2041, 3, 4))
 
@@ -405,7 +405,7 @@ class TestExOfficioWithdrawal(TransactionCase):
 
     def test_new_case_file_offers_only_the_users_students(self):
         Partner = self.env['res.partner']
-        other_group = create_level_study_group(self, 'TEOWO', level={'withdrawal_circuit': 'compulsory'})[2]
+        other_group = create_level_study_group(self, 'TEOWO', level={'education_stage': 'compulsory'})[2]
         other_group.tutor_id = self.other_tutor_user.employee_id
         other_student = self._student('EOW Other Student', other_group)
         students = (self.post_student | self.comp_student | self.none_student | other_student).ids

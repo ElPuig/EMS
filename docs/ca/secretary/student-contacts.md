@@ -39,7 +39,7 @@ La part superior de la fitxa recull les dades de l'alumne sense haver de canviar
 
 - **Nom** i **Cognoms**, amb el **Correu personal** i el **Correu corporatiu** a sota. Un nom escrit tot en majúscules o tot en minúscules es desa amb les inicials en majúscula ("ASHLEY BUENO" passa a "Ashley Bueno"); si barreja majúscules i minúscules, es desa tal com s'ha escrit.
 - Tres columnes: **Contacte** (adreça, telèfons i idioma), **Identificació** (DNI/NIE, passaport, identificador d'estudiant, identificació mèdica, NUSS i matrícula del vehicle) i **Dades personals** (data de naixement, si és major d'edat, país de naixement, ciutadania, beneficis i necessitats educatives especials).
-- **Autoritzacions**: el resum Sí/No dels drets d'imatge, les excursions escolars, les dades de salut i compartir amb la família.
+- **Autoritzacions**: el resum Sí/No dels drets d'imatge, les excursions escolars, les dades de salut, compartir amb la família i sortir del centre.
 
 ![Part superior de la fitxa d'un alumne: noms, correus, les columnes Contacte, Identificació i Dades personals, i el resum d'autoritzacions](../../assets/secretary/fitxa-alumne-01-capcalera.png)
 
@@ -105,7 +105,7 @@ La barra de cerca s'obre amb dos filtres ja aplicats: **Alumnat**, que amaga l'a
 
 ## Columnes que es mostren a la vista de llista d'alumnat
 
-Canviar la pantalla d'Alumnat de vista Kanban a vista de Llista mostra, per defecte, la majoria de camps ja utilitzats a l'exportació oficial de dades d'alumnat del centre (document d'identitat/DNI-NIE, data de naixement, si l'alumne és major d'edat, número de la seguretat social, nacionalitat, adreça i codi postal), més els quatre distintius d'autorització (drets d'imatge, sortides escolars, dades de salut, compartir amb la família). Qualsevol columna es pot amagar — fes clic a la icona de la dreta de les capçaleres de columna i desmarca les que no necessitis; l'elecció es recorda per a la propera visita.
+Canviar la pantalla d'Alumnat de vista Kanban a vista de Llista mostra, per defecte, la majoria de camps ja utilitzats a l'exportació oficial de dades d'alumnat del centre (document d'identitat/DNI-NIE, data de naixement, si l'alumne és major d'edat, número de la seguretat social, nacionalitat, adreça i codi postal), més els cinc distintius d'autorització (drets d'imatge, sortides escolars, dades de salut, compartir amb la família, sortir del centre). Qualsevol columna es pot amagar — fes clic a la icona de la dreta de les capçaleres de columna i desmarca les que no necessitis; l'elecció es recorda per a la propera visita.
 
 ## Camps que només veuen admin/secretaria/Cap d'Estudis/tutors
 

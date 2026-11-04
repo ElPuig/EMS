@@ -118,6 +118,9 @@ from . import test_student_google_workspace_tour
 from . import test_actions_dropdown_tour
 from . import test_archive_entry
 from . import test_student_action_rights
+from . import test_student_card
+from . import test_student_card_tour
+from . import test_student_card_check
 from . import test_employee_ems_user
 from . import test_strike
 from . import test_strike_tour
@@ -283,4 +286,5 @@ from . import test_quality_minute_rules
 from . import test_quality_minute_guest
 from . import test_title_registration
 from . import test_title_registration_tour
+from . import test_docs_screenshots_student_card
 from . import test_docs_screenshots_schedule_declaration

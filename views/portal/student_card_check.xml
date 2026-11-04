@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- The public check page of a student card (issue #524, controllers/student_card.py): what
+             the QR on the back of the card opens. Only the least needed to compare it with the card
+             in hand: the band, the initials, the IDALU's last four digits and whether the student may
+             leave the centre. The time of the check and a moving "live" dot tell a real page from a
+             screenshot. -->
+        <template id="student_card_check" name="Student card check">
+            <t t-call="web.frontend_layout">
+                <t t-set="no_header" t-value="True"/>
+                <t t-set="no_footer" t-value="True"/>
+                <t t-set="pageName" t-value="'o_ems_card_check_page'"/>
+                <style>
+                    body { background: #F1F3F4; }
+                    .o_ems_check { max-width: 26rem; margin: 1.5rem auto; padding: 0 1rem; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #37474F; }
+                    .o_ems_check_card { background: #FFFFFF; border-radius: 1rem; box-shadow: 0 0.25rem 1rem rgba(38, 50, 56, 0.12); padding: 1rem; }
+                    .o_ems_check_centre { font-weight: bold; color: #263238; }
+                    .o_ems_check_title { font-size: 0.85rem; color: #78909C; margin-bottom: 0.9rem; }
+                    .o_ems_check_band { display: flex; gap: 0.6rem; }
+                    .o_ems_check_chip { flex: 1 1 50%; border-radius: 0.75rem; padding: 0.7rem 0.8rem; display: flex; align-items: center; min-height: 5rem; }
+                    .o_ems_check_level { font-size: 1.9rem; font-weight: bold; line-height: 1; color: #263238; letter-spacing: 0.05em; }
+                    .o_ems_check_study { font-size: 1rem; font-weight: bold; color: #455A64; margin-top: 0.25rem; }
+                    .o_ems_check_course { margin-left: auto; width: 2.6rem; height: 2.6rem; border-radius: 50%; background: #FFFFFF; text-align: center; line-height: 2.6rem; font-size: 1.5rem; font-weight: bold; color: #263238; flex-shrink: 0; }
+                    .o_ems_check_exit { font-weight: bold; text-transform: uppercase; font-size: 1.05rem; line-height: 1.2; gap: 0.5rem; }
+                    .o_ems_check_exit i { font-size: 1.8rem; }
+                    .o_ems_check_exit_yes { background: #C8E6C9; color: #1B5E20; }
+                    .o_ems_check_exit_no { background: #FFCDD2; color: #B71C1C; }
+                    .o_ems_check_data { display: flex; justify-content: space-between; margin-top: 1rem; }
+                    .o_ems_check_label { font-size: 0.75rem; color: #90A4AE; text-transform: uppercase; letter-spacing: 0.05em; }
+                    .o_ems_check_value { font-size: 1.5rem; font-weight: bold; color: #263238; letter-spacing: 0.08em; }
+                    .o_ems_check_status { margin-top: 1rem; padding-top: 0.9rem; border-top: 1px solid #ECEFF1; text-align: center; }
+                    .o_ems_check_status_title { font-size: 1.15rem; font-weight: bold; }
+                    .o_ems_check_status_valid { color: #1B5E20; }
+                    .o_ems_check_status_invalid { color: #B71C1C; }
+                    .o_ems_check_time { font-size: 1.6rem; font-weight: bold; color: #263238; font-variant-numeric: tabular-nums; }
+                    .o_ems_check_live { display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: 50%; background: #43A047; margin-right: 0.4rem; vertical-align: middle; animation: o_ems_check_pulse 1.2s ease-in-out infinite; }
+                    .o_ems_check_live_off { background: #90A4AE; }
+                    @keyframes o_ems_check_pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.25; transform: scale(0.6); } }
+                    .o_ems_check_note { font-size: 0.85rem; color: #78909C; margin-top: 0.5rem; }
+                </style>
+                <div class="o_ems_check">
+                    <div class="o_ems_check_card">
+                        <div class="o_ems_check_centre" t-if="company" t-out="company.name"/>
+                        <div class="o_ems_check_title">Student card check</div>
+                        <t t-if="state == 'valid'">
+                            <div class="o_ems_check_band">
+                                <div class="o_ems_check_chip" t-attf-style="background: {{ card['color'] }};">
+                                    <div>
+                                        <div class="o_ems_check_level" t-out="card['level'].acronym"/>
+                                        <div t-if="card['study']" class="o_ems_check_study" t-out="card['study']"/>
+                                    </div>
+                                    <div t-if="card['course']" class="o_ems_check_course" t-out="card['course']"/>
+                                </div>
+                                <div t-if="card['can_leave']" class="o_ems_check_chip o_ems_check_exit o_ems_check_exit_yes">
+                                    <i class="fa fa-check-circle"/><span>May leave the centre</span>
+                                </div>
+                                <div t-else="" class="o_ems_check_chip o_ems_check_exit o_ems_check_exit_no">
+                                    <i class="fa fa-times-circle"/><span>May not leave the centre</span>
+                                </div>
+                            </div>
+                            <div class="o_ems_check_data">
+                                <div>
+                                    <div class="o_ems_check_label">Initials</div>
+                                    <div class="o_ems_check_value o_ems_check_initials" t-out="card['initials']"/>
+                                </div>
+                                <div t-if="card['idalu']" style="text-align: right;">
+                                    <div class="o_ems_check_label">IDALU</div>
+                                    <div class="o_ems_check_value o_ems_check_idalu" t-out="card['idalu']"/>
+                                </div>
+                            </div>
+                            <div class="o_ems_check_status">
+                                <div class="o_ems_check_status_title o_ems_check_status_valid"><i class="fa fa-shield"/> Valid card</div>
+                                <div class="o_ems_check_time"><span class="o_ems_check_live"/><t t-out="checked_at"/></div>
+                                <div class="o_ems_check_note">Compare these details with the ones printed on the card.</div>
+                            </div>
+                        </t>
+                        <div t-elif="state == 'invalid'" class="o_ems_check_status">
+                            <div class="o_ems_check_status_title o_ems_check_status_invalid"><i class="fa fa-ban"/> Card not valid</div>
+                            <div class="o_ems_check_time"><span class="o_ems_check_live o_ems_check_live_off"/><t t-out="checked_at"/></div>
+                            <div class="o_ems_check_note">This card has been revoked or has expired, or it was not issued by the centre.</div>
+                        </div>
+                        <div t-else="" class="o_ems_check_status">
+                            <div class="o_ems_check_status_title o_ems_check_status_invalid">Too many attempts</div>
+                            <div class="o_ems_check_note">Try again in a few minutes.</div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

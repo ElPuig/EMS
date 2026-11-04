@@ -18,6 +18,12 @@
 - A new case file only offers the user's own students (their tutor scope; everyone for the Head of Studies and the administrators) whose level has a circuit.
 - The tutor can request an ex officio withdrawal from the student's form (Actions), for a student whose level has a circuit and no open case file.
 
+# Changes
+
+## Levels: tidier form, convalidations set in Settings:
+- The level form shows the main data (acronym, name) and below it the configuration: the educational stage (read-only, set by the regulation) and the schedule declaration code, then the student card colour.
+- Which levels allow convalidations is now set as one list in Settings > Convalidations (Levels that allow convalidations) instead of a checkbox on each level. It is no longer part of EMS's catalog, so an upgrade never reverts the centre's choice; a new installation starts with CFGM and CFGS, and existing ones keep what they have.
+
 # Internal changes
 
 ## Per-course registry numbers shared:

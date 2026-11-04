@@ -2672,6 +2672,7 @@ msgstr "Ajustes de configuración"
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_settings model:ir.ui.menu,name:ems.menu_attendance_config model:ir.ui.menu,name:ems.menu_coexistence_config model:ir.ui.menu,name:ems.menu_community_config model:ir.ui.menu,name:ems.menu_ems_authorization_config model:ir.ui.menu,name:ems.menu_ems_configuration model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 #: model:ir.ui.menu,name:ems.menu_minutes_config
+#: model_terms:ir.ui.view,arch_db:ems.level_view_form
 msgid "Configuration"
 msgstr "Configuración"
 
@@ -29561,3 +29562,14 @@ msgstr "Paso actual abierto"
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "%(student)s's level is not of compulsory nor post-compulsory education: no ex officio withdrawal protocol applies to it."
 msgstr "El nivel de %(student)s no es de educación obligatoria ni postobligatoria: no se le aplica ningún protocolo de baja de oficio."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__convalidation_level_ids
+msgid "Levels that allow convalidations"
+msgstr "Niveles que admiten convalidaciones"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Students of these levels' studies can request subject convalidations, from the portal or through the secretariat."
+msgstr "El alumnado de los estudios de estos niveles puede solicitar convalidaciones de módulos, desde el portal o a través de la secretaría."

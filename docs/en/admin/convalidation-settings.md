@@ -4,7 +4,7 @@
 
 # Convalidation settings
 
-Configure when convalidation requests can be submitted from the portal, the texts of the official resolution the Director issues and the reasons offered when documentation is requested.
+Configure which levels allow convalidations, when requests can be submitted from the portal, the texts of the official resolution the Director issues and the reasons offered when documentation is requested.
 
 **Required role:** Administrator (Settings)
 
@@ -13,6 +13,15 @@ Configure when convalidation requests can be submitted from the portal, the text
 ## Access
 
 Navigate to: **Settings → EMS Management → Convalidations Settings**
+
+---
+
+## Levels that allow convalidations
+
+Only the students of these levels' studies can request convalidations, from the portal or through the secretariat. A new installation starts with **CFGM** and **CFGS**.
+
+1. In **Levels that allow convalidations**, add or remove levels.
+2. Save.
 
 ---
 

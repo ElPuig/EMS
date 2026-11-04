@@ -11,6 +11,9 @@ EDUCATION_STAGES = [
 	('post_compulsory', 'Post-compulsory education'),
 ]
 
+# Seeded once on a new installation (post_init_hook), then configured by the centre in Settings.
+CONVALIDATION_LEVEL_SEED = ['CFGM', 'CFGS']
+
 # Issue #723: seeded once (post_init_hook and migrations/18.0.0.43.0), then configured by the centre.
 LEVEL_DECLARATION_SEED = {
 	'ESO': 'eso', 'BTX': 'bat', 'CFGB': 'cfgb', 'CFGM': 'cfgm', 'CFGS': 'cfgs', 'EFPS': 'cefp', 'PFI': 'pfi',
@@ -95,6 +98,12 @@ class EmsLevel(models.Model):
 			acronym = level.acronym or ''
 			name = level.name or ''
 			level.display_name = f"{acronym}: {name}".strip(': ')
+
+	@api.model
+	def _ems_seed_convalidation_levels(self):
+		"""A new installation starts with the vocational training cycles allowing convalidations;
+		from then on the centre sets the list in Settings > Convalidations."""
+		self.search([('acronym', 'in', CONVALIDATION_LEVEL_SEED)]).allows_convalidation = True
 
 	@api.model
 	def _ems_seed_declaration_codes(self):

@@ -152,8 +152,25 @@ class ems_settings(models.TransientModel):
          values.update(self._get_latest_ems_release(LATEST_VERSION_RETRY_TIMEOUT if again else LATEST_VERSION_TIMEOUT))
       return values
 
+   # The levels whose students may request convalidations: each level's own flag
+   # (ems.level.allows_convalidation, read by the convalidation code), edited here as one list.
+   convalidation_level_ids = fields.Many2many(
+      string="Levels that allow convalidations", comodel_name='ems.level',
+      relation='res_config_settings_convalidation_level_rel')
+
+   @api.model
+   def get_values(self):
+      values = super().get_values()
+      values['convalidation_level_ids'] = [(6, 0, self.env['ems.level'].search(
+         [('allows_convalidation', '=', True)]).ids)]
+      return values
+
    def set_values(self):
       super().set_values()
+      Level = self.env['ems.level'].sudo()
+      allowed = self.convalidation_level_ids.sudo()
+      Level.search([('allows_convalidation', '=', True), ('id', 'not in', allowed.ids)]).allows_convalidation = False
+      allowed.filtered(lambda level: not level.allows_convalidation).allows_convalidation = True
       if self.auto_checkout_mode != 'ems':
          return
       cron = self.env.ref('hr_attendance.hr_attendance_check_out_cron', raise_if_not_found=False)

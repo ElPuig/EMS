@@ -4,7 +4,7 @@
 
 # Configuración de convalidaciones
 
-Configura cuándo se pueden presentar solicitudes de convalidación desde el portal, los textos de la resolución oficial que emite la dirección y los motivos que se ofrecen cuando se pide documentación.
+Configura qué niveles admiten convalidaciones, cuándo se pueden presentar solicitudes desde el portal, los textos de la resolución oficial que emite la dirección y los motivos que se ofrecen cuando se pide documentación.
 
 **Rol necesario:** Administrador (Configuración)
 
@@ -13,6 +13,15 @@ Configura cuándo se pueden presentar solicitudes de convalidación desde el por
 ## Acceso
 
 Navega a: **Ajustes → EMS Management → Configuración de convalidaciones**
+
+---
+
+## Niveles que admiten convalidaciones
+
+Solo el alumnado de los estudios de estos niveles puede solicitar convalidaciones, desde el portal o a través de la secretaría. Una instalación nueva empieza con **CFGM** y **CFGS**.
+
+1. En **Niveles que admiten convalidaciones**, añade o quita niveles.
+2. Guarda.
 
 ---
 

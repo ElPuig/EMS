@@ -1,8 +1,8 @@
-id,acronym,name,allows_convalidation,education_stage
-"ems.level_eso","ESO","Educació Secundària Obligatoria",False,compulsory
-"ems.level_btx","BTX","Batxillerat",False,post_compulsory
-"ems.level_cfgm","CFGM","Cicles Formatius (Grau Mitjà)",True,post_compulsory
-"ems.level_cfgs","CFGS","Cicles Formatius (Grau Superior)",True,post_compulsory
-"ems.level_efps","EFPS","Cursos d'especialització (FP)",False,post_compulsory
-"ems.level_cfgb","CFGB","Cicles Formatius (Grau Bàsic)",False,compulsory
-"ems.level_pfi","PFI","Programes de Formació i Inserció",False,post_compulsory
+id,acronym,name,education_stage
+"ems.level_eso","ESO","Educació Secundària Obligatoria",compulsory
+"ems.level_btx","BTX","Batxillerat",post_compulsory
+"ems.level_cfgm","CFGM","Cicles Formatius (Grau Mitjà)",post_compulsory
+"ems.level_cfgs","CFGS","Cicles Formatius (Grau Superior)",post_compulsory
+"ems.level_efps","EFPS","Cursos d'especialització (FP)",post_compulsory
+"ems.level_cfgb","CFGB","Cicles Formatius (Grau Bàsic)",compulsory
+"ems.level_pfi","PFI","Programes de Formació i Inserció",post_compulsory

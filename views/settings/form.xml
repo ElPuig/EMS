@@ -42,6 +42,9 @@
                         </block>
 
                         <block title="Convalidations Settings" name="ems_convalidation_settings">
+                            <setting string="Levels that allow convalidations" help="Students of these levels' studies can request subject convalidations, from the portal or through the secretariat." id="convalidation_level_ids">
+                                <field name="convalidation_level_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                            </setting>
                             <setting string="Request period" help="Every year, convalidations can only be requested from the portal between these two moments, in the centre's local time. Outside it the portal accepts no new requests; the ones already submitted are still handled as usual, and staff can register and process requests at any time." id="convalidation_period">
                                 <div class="content-group mt8">
                                     <div class="d-flex align-items-center gap-2 mb-2">

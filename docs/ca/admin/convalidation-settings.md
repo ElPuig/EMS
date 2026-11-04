@@ -4,7 +4,7 @@
 
 # Configuració de convalidacions
 
-Configura quan es poden presentar sol·licituds de convalidació des del portal, els textos de la resolució oficial que emet la direcció i els motius que s'ofereixen quan es demana documentació.
+Configura quins nivells admeten convalidacions, quan es poden presentar sol·licituds des del portal, els textos de la resolució oficial que emet la direcció i els motius que s'ofereixen quan es demana documentació.
 
 **Rol necessari:** Administrador (Configuració)
 
@@ -13,6 +13,15 @@ Configura quan es poden presentar sol·licituds de convalidació des del portal,
 ## Accés
 
 Navega a: **Configuració → EMS Management → Configuració de convalidacions**
+
+---
+
+## Nivells que admeten convalidacions
+
+Només l'alumnat dels estudis d'aquests nivells pot sol·licitar convalidacions, des del portal o a través de la secretaria. Una instal·lació nova comença amb **CFGM** i **CFGS**.
+
+1. A **Nivells que admeten convalidacions**, afegeix o treu nivells.
+2. Desa.
 
 ---
 

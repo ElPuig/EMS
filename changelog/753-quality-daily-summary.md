@@ -17,5 +17,5 @@
 
 ## Quality notifications (issue #753):
 - New activity types `ems.mail_activity_quality_agreement` and `ems.mail_activity_minute_approval`, scheduled quietly (`mail_activity_quick_update`); notices through `ems.info_notice` with the new QWeb template `ems.quality_agreement_notice`.
-- `ems.quality.action._ems_sync_tasks()`/`_ems_responsible_users()`/`_ems_is_announced()`, `ems.minute._ems_sync_approval_task()`/`_ems_announce_agreements()`; follow-ups written by a minute carry the `ems_quality_minute_entry` context so they wait for its approval.
+- Shared helper `mail.thread._ems_sync_user_tasks()` (one task per user, kept in step, done or removed). `ems.quality.action._ems_sync_tasks()`/`_ems_responsible_users()`/`_ems_is_announced()`, `ems.minute._ems_sync_approval_task()`/`_ems_announce_agreements()`; follow-ups written by a minute carry the `ems_quality_minute_entry` context so they wait for its approval.
 - Migration `18.0.0.46.0/post-migrate.py` unsubscribes the people only involved. No task is created for agreements that existed before the upgrade until their responsible people or deadline change.

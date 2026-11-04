@@ -186,3 +186,17 @@ class TestDevMailOdooBot(TransactionCase):
         odoobot, _person = self._mails()
         odoobot.send()
         self.assertEqual(odoobot.state, 'sent')
+
+    def test_odoobot_notification_is_cancelled_too(self):
+        """The daily summary's path: message_notify() authored by OdooBot. Its notification ends
+        cancelled, not failed, so nothing shows as a delivery error."""
+        self._server_role('dev')
+        partner = self.env['res.partner'].create({'name': 'Dev recipient', 'email': REDIRECT})
+        partner.message_notify(
+            partner_ids=partner.ids, author_id=self.env.ref('base.partner_root').id,
+            subject='Summary', body='<p>Body</p>')
+        notification = self.env['mail.notification'].search(
+            [('res_partner_id', '=', partner.id), ('notification_type', '=', 'email')])
+        notification.mail_mail_id.send()
+        self.assertEqual(notification.mail_mail_id.state, 'cancel')
+        self.assertEqual(notification.notification_status, 'canceled')

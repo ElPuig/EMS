@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Erasmus+ quality report: the panel's figures for its filters, for the ISO audit and the
+             Mobilitat FP report (also in the project ZIP and the network evidence). No participant's
+             name. See docs/en/developers/erasmus/quality.md. -->
+        <record id="action_report_erasmus_quality" model="ir.actions.report">
+            <field name="name">Erasmus+ quality report</field>
+            <field name="model">ems.erasmus.quality.panel</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_erasmus_quality</field>
+            <field name="report_file">ems.report_erasmus_quality</field>
+            <field name="print_report_name">'Erasmus+ - ' + (object.course_id.name or object.call_id.name or '')</field>
+        </record>
+
+        <template id="report_erasmus_quality_table">
+            <p t-if="not rows" class="text-muted">No data yet.</p>
+            <table t-else="" class="table table-sm table-bordered" style="page-break-inside: avoid;">
+                <thead><tr><th t-foreach="header" t-as="cell" t-esc="cell"/></tr></thead>
+                <tbody><tr t-foreach="rows" t-as="row"><td t-foreach="row" t-as="cell" t-esc="cell"/></tr></tbody>
+            </table>
+        </template>
+
+        <template id="report_erasmus_quality">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="panel">
+                    <t t-set="values" t-value="panel._ems_report_values()"/>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <h3>Erasmus+ quality report</h3>
+                            <p>
+                                <t t-foreach="values['filters']" t-as="item"><strong t-esc="item[0]"/>: <t t-esc="item[1]"/><br/></t>
+                                <t t-if="not values['filters']">Every course and call.<br/></t>
+                                Generated on <t t-esc="values['date']"/>.
+                            </p>
+
+                            <h5>Indicators</h5>
+                            <t t-call="ems.report_erasmus_quality_table">
+                                <t t-set="header" t-value="values['headers']['indicators']"/>
+                                <t t-set="rows" t-value="values['indicators']"/>
+                            </t>
+
+                            <h5>Satisfaction by participant type</h5>
+                            <t t-call="ems.report_erasmus_quality_table">
+                                <t t-set="header" t-value="values['headers']['by_type']"/>
+                                <t t-set="rows" t-value="values['by_type']"/>
+                            </t>
+
+                            <h5>Satisfaction by host entity</h5>
+                            <t t-call="ems.report_erasmus_quality_table">
+                                <t t-set="header" t-value="values['headers']['by_host']"/>
+                                <t t-set="rows" t-value="values['by_host']"/>
+                            </t>
+
+                            <h5>Calls</h5>
+                            <t t-call="ems.report_erasmus_quality_table">
+                                <t t-set="header" t-value="values['headers']['funnel']"/>
+                                <t t-set="rows" t-value="values['funnel']"/>
+                            </t>
+
+                            <h5>Evolution by course</h5>
+                            <t t-call="ems.report_erasmus_quality_table">
+                                <t t-set="header" t-value="values['headers']['evolution']"/>
+                                <t t-set="rows" t-value="values['evolution']"/>
+                            </t>
+
+                            <h5>Improvement actions</h5>
+                            <t t-call="ems.report_erasmus_quality_table">
+                                <t t-set="header" t-value="values['headers']['actions']"/>
+                                <t t-set="rows" t-value="values['actions']"/>
+                            </t>
+
+                            <h5>How it is calculated</h5>
+                            <ul class="small">
+                                <li>Student interest: students who applied to the call (submitted applications) out of every student who could apply (the call's levels: intermediate, higher and specialisation courses), frozen when the definitive resolution is published. Target: more than 5 %.</li>
+                                <li>Staff interest: teachers who applied out of the teachers of the FP levels plus the Direction that validates, frozen the same way.</li>
+                                <li>Satisfaction: average of the participants' answers to "In general, how satisfied are you with your Erasmus+ mobility experience?", from 1 to 10. Target: more than 8.5. n: answers; median: the middle answer.</li>
+                                <li>Response rate: surveys answered out of the stays over.</li>
+                                <li>A course marked "manual load" comes from the coordination's own records before EMS kept these figures.</li>
+                            </ul>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

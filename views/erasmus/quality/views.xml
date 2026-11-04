@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Erasmus+ › Quality: the satisfaction surveys and the indicators panel. The participant's
+             name (partner_id) is only for the coordinator and the administrator (field groups on the
+             model); the rest of the team reads the answers without it.
+             See docs/en/developers/erasmus/quality.md. -->
+        <record id="view_erasmus_satisfaction_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.satisfaction.list</field>
+            <field name="model">ems.erasmus.satisfaction</field>
+            <field name="arch" type="xml">
+                <list create="0" delete="0" decoration-danger="is_low" decoration-muted="state != 'answered'">
+                    <field name="course_id" optional="show"/>
+                    <field name="call_id" optional="show"/>
+                    <field name="group_mobility_id" optional="hide"/>
+                    <field name="partner_id" groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>
+                    <field name="participant_type"/>
+                    <field name="study_id" optional="show"/>
+                    <field name="host_partner_id" optional="show"/>
+                    <field name="state" widget="badge" decoration-success="state == 'answered'"
+                           decoration-warning="state == 'pending'"/>
+                    <field name="score"/>
+                    <field name="is_low" column_invisible="1"/>
+                    <field name="what_failed" optional="show"/>
+                    <field name="comment" optional="show"/>
+                    <field name="improvement_action_id" optional="show"/>
+                    <field name="improvement_state" optional="show"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_satisfaction_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.satisfaction.form</field>
+            <field name="model">ems.erasmus.satisfaction</field>
+            <field name="arch" type="xml">
+                <form create="0" delete="0">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_create_improvement" type="object" string="Create an improvement action"
+                                    invisible="not is_low or improvement_action_id"/>
+                            <button name="action_mark_not_answered" type="object" string="Close without an answer"
+                                    invisible="state != 'pending'"
+                                    groups="ems.group_erasmus_coordinator,ems.group_academic_admin"
+                                    confirm="The mobility can then be closed without this participant's answer. Continue?"/>
+                        </div>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="partner_id" groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>
+                                <field name="participant_type"/>
+                                <field name="kind"/>
+                                <field name="call_id" invisible="not call_id"/>
+                                <field name="group_mobility_id" invisible="not group_mobility_id"/>
+                                <field name="project_id"/>
+                                <field name="course_id"/>
+                            </group>
+                            <group>
+                                <field name="study_id" invisible="not study_id"/>
+                                <field name="host_partner_id"/>
+                                <field name="country_id"/>
+                                <field name="open_date"/>
+                                <field name="reminder_count"/>
+                                <field name="answer_date" invisible="state != 'answered'"/>
+                            </group>
+                        </group>
+                        <group string="Answer" invisible="state != 'answered'">
+                            <field name="score"/>
+                            <field name="is_low" invisible="1"/>
+                            <field name="what_failed" invisible="not what_failed"/>
+                            <field name="comment" invisible="not comment"/>
+                        </group>
+                        <group string="Improvement" invisible="not is_low">
+                            <field name="improvement_action_id"/>
+                            <field name="improvement_state" invisible="not improvement_action_id"/>
+                        </group>
+                        <group string="Closed without an answer" invisible="state == 'answered'"
+                               groups="ems.group_erasmus_coordinator,ems.group_academic_admin">
+                            <field name="not_answered_reason" readonly="state != 'pending'"
+                                   placeholder="E.g. the participant could not be reached after the reminders."/>
+                            <field name="not_answered_by_id" invisible="not not_answered_by_id"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_erasmus_satisfaction_search" model="ir.ui.view">
+            <field name="name">ems.erasmus.satisfaction.search</field>
+            <field name="model">ems.erasmus.satisfaction</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="call_id"/>
+                    <field name="group_mobility_id"/>
+                    <field name="course_id"/>
+                    <field name="host_partner_id"/>
+                    <field name="study_id"/>
+                    <field name="partner_id" groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>
+                    <filter string="Score of 6 or lower" name="low" domain="[('is_low', '=', True)]"/>
+                    <filter string="Without an improvement action" name="no_action"
+                            domain="[('is_low', '=', True), ('improvement_action_id', '=', False)]"/>
+                    <separator/>
+                    <filter string="Pending" name="pending" domain="[('state', '=', 'pending')]"/>
+                    <filter string="Answered" name="answered" domain="[('state', '=', 'answered')]"/>
+                    <group>
+                        <filter string="Course" name="group_course" context="{'group_by': 'course_id'}"/>
+                        <filter string="Call" name="group_call" context="{'group_by': 'call_id'}"/>
+                        <filter string="Participant type" name="group_type" context="{'group_by': 'participant_type'}"/>
+                        <filter string="Cycle" name="group_study" context="{'group_by': 'study_id'}"/>
+                        <filter string="Host entity" name="group_host" context="{'group_by': 'host_partner_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_erasmus_satisfaction_pivot" model="ir.ui.view">
+            <field name="name">ems.erasmus.satisfaction.pivot</field>
+            <field name="model">ems.erasmus.satisfaction</field>
+            <field name="arch" type="xml">
+                <pivot>
+                    <field name="course_id" type="row"/>
+                    <field name="participant_type" type="col"/>
+                    <field name="score" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record id="action_erasmus_satisfaction" model="ir.actions.act_window">
+            <field name="name">Satisfaction surveys</field>
+            <field name="res_model">ems.erasmus.satisfaction</field>
+            <field name="view_mode">list,form,pivot</field>
+            <field name="search_view_id" ref="view_erasmus_satisfaction_search"/>
+            <field name="context">{'search_default_answered': 1}</field>
+        </record>
+
+        <record id="action_erasmus_satisfaction_low" model="ir.actions.act_window">
+            <field name="name">Low scores</field>
+            <field name="res_model">ems.erasmus.satisfaction</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_erasmus_satisfaction_search"/>
+            <field name="domain">[('is_low', '=', True)]</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">No score of 6 or lower</p>
+                <p>Every answer of 6 or lower comes here, with what did not work, to record its improvement action.</p>
+            </field>
+        </record>
+
+        <!-- The panel: filters on top, every figure computed on the fly below. -->
+        <record id="view_erasmus_quality_panel_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.quality.panel.form</field>
+            <field name="model">ems.erasmus.quality.panel</field>
+            <field name="arch" type="xml">
+                <form string="Quality" create="0" delete="0">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_print_report" type="object" string="Print the quality report (PDF)"/>
+                            <button name="action_network_export" type="object" string="Mobilitat FP evidence (ZIP)"
+                                    invisible="not course_id"/>
+                        </div>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="course_id" options="{'no_create': True}"/>
+                                <field name="call_id" options="{'no_create': True}"/>
+                                <field name="project_id" options="{'no_create': True}"/>
+                            </group>
+                            <group>
+                                <field name="participant_type"/>
+                                <field name="study_id" options="{'no_create': True}"/>
+                                <field name="host_partner_id" options="{'no_create': True}"/>
+                            </group>
+                        </group>
+                        <p class="text-muted small">
+                            Student interest: applicants out of every student of the call's levels (intermediate,
+                            higher and specialisation courses). Staff interest: applicants out of the teachers of
+                            the FP levels and the Direction that validates. Both are frozen when the definitive
+                            resolution is published, and only follow the course, call and participant type
+                            filters. Satisfaction: average of the scores from 1 to 10.
+                        </p>
+                        <notebook>
+                            <page string="Indicators" name="indicators">
+                                <field name="indicators_html" nolabel="1" readonly="1"/>
+                            </page>
+                            <page string="Satisfaction breakdown" name="breakdown">
+                                <field name="breakdown_html" nolabel="1" readonly="1"/>
+                            </page>
+                            <page string="Calls" name="funnel">
+                                <field name="funnel_html" nolabel="1" readonly="1"/>
+                            </page>
+                            <page string="Evolution by course" name="evolution">
+                                <field name="evolution_html" nolabel="1" readonly="1"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_erasmus_quality_panel" model="ir.actions.act_window">
+            <field name="name">Quality indicators</field>
+            <field name="res_model">ems.erasmus.quality.panel</field>
+            <field name="view_mode">form</field>
+            <field name="target">current</field>
+        </record>
+
+        <!-- The survey on the mobility forms: its state, and the coordinator opens it. -->
+        <record id="view_erasmus_mobility_form_satisfaction" model="ir.ui.view">
+            <field name="name">ems.erasmus.mobility.form.satisfaction</field>
+            <field name="model">ems.erasmus.mobility</field>
+            <field name="inherit_id" ref="ems.view_erasmus_mobility_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group/field[@name='eu_survey_deadline']" position="after">
+                    <label for="satisfaction_state" invisible="not satisfaction_state"/>
+                    <div class="o_row" invisible="not satisfaction_state">
+                        <field name="satisfaction_state" widget="badge" decoration-success="satisfaction_state == 'answered'"
+                               decoration-warning="satisfaction_state == 'pending'"/>
+                        <button name="action_open_satisfaction" type="object" string="Open" class="btn-link"
+                                groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_erasmus_group_mobility_form_satisfaction" model="ir.ui.view">
+            <field name="name">ems.erasmus.group.mobility.form.satisfaction</field>
+            <field name="model">ems.erasmus.group.mobility</field>
+            <field name="inherit_id" ref="ems.view_erasmus_group_mobility_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group/field[@name='eu_survey_state']" position="after">
+                    <field name="satisfaction_progress" invisible="not satisfaction_progress"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Indicators of earlier courses, typed in by the coordination (manual load). -->
+        <record id="view_erasmus_quality_history_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.quality.history.list</field>
+            <field name="model">ems.erasmus.quality.history</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="course_name" placeholder="2022-2023"/>
+                    <field name="student_applicants"/>
+                    <field name="student_target"/>
+                    <field name="staff_applicants" optional="show"/>
+                    <field name="staff_target" optional="show"/>
+                    <field name="satisfaction"/>
+                    <field name="satisfaction_count"/>
+                    <field name="source"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_erasmus_quality_history" model="ir.actions.act_window">
+            <field name="name">Earlier courses (manual load)</field>
+            <field name="res_model">ems.erasmus.quality.history</field>
+            <field name="view_mode">list</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">No earlier course yet</p>
+                <p>Type in the indicators of the courses before EMS kept them, with their source: the evolution by course starts from them.</p>
+            </field>
+        </record>
+
+        <!-- Diffusion actions: EMS records its own emails to whoever can apply; the team adds the rest. -->
+        <record id="view_erasmus_diffusion_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.diffusion.list</field>
+            <field name="model">ems.erasmus.diffusion</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="date"/>
+                    <field name="name"/>
+                    <field name="channel"/>
+                    <field name="audience"/>
+                    <field name="recipient_count" optional="show"/>
+                    <field name="course_id" optional="show"/>
+                    <field name="call_id" optional="hide"/>
+                    <field name="is_automatic" optional="show"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_diffusion_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.diffusion.form</field>
+            <field name="model">ems.erasmus.diffusion</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" placeholder="E.g. Information session for CFGS students"/>
+                                <field name="date"/>
+                                <field name="channel"/>
+                                <field name="audience" placeholder="E.g. students of CFGS (never names)"/>
+                            </group>
+                            <group>
+                                <field name="recipient_count"/>
+                                <field name="course_id" options="{'no_create': True}"/>
+                                <field name="call_id" options="{'no_create': True}"/>
+                                <field name="is_automatic" invisible="not is_automatic"/>
+                            </group>
+                        </group>
+                        <field name="attachment_ids" widget="many2many_binary"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_erasmus_diffusion_search" model="ir.ui.view">
+            <field name="name">ems.erasmus.diffusion.search</field>
+            <field name="model">ems.erasmus.diffusion</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="course_id"/>
+                    <field name="call_id"/>
+                    <filter string="Recorded by EMS" name="automatic" domain="[('is_automatic', '=', True)]"/>
+                    <filter string="Added by hand" name="manual" domain="[('is_automatic', '=', False)]"/>
+                    <group>
+                        <filter string="Course" name="group_course" context="{'group_by': 'course_id'}"/>
+                        <filter string="Channel" name="group_channel" context="{'group_by': 'channel'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_erasmus_diffusion" model="ir.actions.act_window">
+            <field name="name">Diffusion actions</field>
+            <field name="res_model">ems.erasmus.diffusion</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_erasmus_diffusion_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">No diffusion action yet</p>
+                <p>Every Erasmus+ email EMS sends to whoever can apply is recorded here by itself. Add the rest by hand: information sessions, ErasmusDays, the website, social media.</p>
+            </field>
+        </record>
+
+        <!-- Settings: the workgroup whose minutes are the Erasmus+ team's meetings. -->
+        <record id="view_settings_erasmus_workgroup" model="ir.ui.view">
+            <field name="name">res.config.settings.erasmus.workgroup</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="ems.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//setting[@id='erasmus_contact_email']" position="after">
+                    <setting string="Erasmus+ team meetings" help="The workgroup whose minutes in the Quality app are the Erasmus+ team's meetings: they go in the Mobilitat FP evidence." id="erasmus_workgroup">
+                        <field name="erasmus_workgroup_id" options="{'no_create': True}"/>
+                    </setting>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

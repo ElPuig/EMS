@@ -66,6 +66,14 @@ ACCESS_MATRIX = {
     # The issue-#682 review: a read-only SQL view, on the student form for whoever reads the academic history.
     'ems.erasmus.history': {'teacher': 'r', 'secretary': 'r', 'head_of_studies': 'r', 'erasmus': 'r'},
     'ems.erasmus.project': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    # Erasmus+ quality: surveys are created by EMS and answered on the portal; the team reads them
+    # (without the name, field groups tested in test_erasmus_satisfaction.py), the coordinator
+    # writes the reason for closing one without an answer.
+    'ems.erasmus.satisfaction': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'erasmus': 'r',
+                                 'erasmus_coordinator': 'rw'},
+    'ems.erasmus.quality.panel': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'erasmus': 'rwcu'},
+    'ems.erasmus.quality.history': {'teacher': '', 'secretary': '', 'erasmus': 'r', 'erasmus_coordinator': 'rwcu'},
+    'ems.erasmus.diffusion': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'erasmus': 'rwcu'},
     # Issue #701: a plain teacher reaches nothing; the leader and accompanying teachers (a hidden
     # group EMS manages) only their own mobilities, through record rules tested in
     # test_erasmus_group_mobility.py.

@@ -110,6 +110,26 @@
                   parent="menu_erasmus_section_mobilities" action="action_erasmus_group_mobility"
                   groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
 
+        <!-- Erasmus+ quality (ISO 9001 and the Mobilitat FP network): the indicators and the
+             satisfaction surveys, for the team; names only for the coordinator (field groups). -->
+        <menuitem name="Quality" sequence="40" id="menu_erasmus_section_quality" parent="menu_erasmus"
+                  groups="ems.group_erasmus,ems.group_academic_admin"/>
+        <menuitem name="Indicators" sequence="1" id="menu_erasmus_quality_panel"
+                  parent="menu_erasmus_section_quality" action="action_erasmus_quality_panel"
+                  groups="ems.group_erasmus,ems.group_academic_admin"/>
+        <menuitem name="Satisfaction surveys" sequence="2" id="menu_erasmus_satisfaction"
+                  parent="menu_erasmus_section_quality" action="action_erasmus_satisfaction"
+                  groups="ems.group_erasmus,ems.group_academic_admin"/>
+        <menuitem name="Low scores" sequence="3" id="menu_erasmus_satisfaction_low"
+                  parent="menu_erasmus_section_quality" action="action_erasmus_satisfaction_low"
+                  groups="ems.group_erasmus,ems.group_academic_admin"/>
+        <menuitem name="Diffusion actions" sequence="4" id="menu_erasmus_diffusion"
+                  parent="menu_erasmus_section_quality" action="action_erasmus_diffusion"
+                  groups="ems.group_erasmus,ems.group_academic_admin"/>
+        <menuitem name="Earlier courses" sequence="5" id="menu_erasmus_quality_history"
+                  parent="menu_erasmus_section_quality" action="action_erasmus_quality_history"
+                  groups="ems.group_erasmus,ems.group_academic_admin"/>
+
         <menuitem name="My group mobilities" sequence="3" id="menu_erasmus_my_group_mobilities"
                   parent="menu_erasmus_section_mine" action="action_erasmus_my_group_mobility"
                   groups="ems.group_erasmus_group_teacher"/>

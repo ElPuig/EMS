@@ -230,6 +230,9 @@ class TestErasmusDecisionsRecords(ErasmusRecordsCase):
         with self.assertRaisesRegex(UserError, 'project'):
             team.action_close()
         first.project_id = self.project
+        with self.assertRaisesRegex(UserError, 'satisfaction'):
+            team.action_close()
+        first.sudo().satisfaction_ids._ems_portal_answer(9)
         team.action_close()
         self.assertEqual(first.state, 'done')
 

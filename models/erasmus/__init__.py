@@ -12,5 +12,6 @@ from . import attachment
 # electronic_signature after document_review: it signs the documents' signature lines through sign_oca.
 from . import electronic_signature
 from . import history, ir_http
+from . import satisfaction, quality
 # The backend screens of staff calls, after every model they extend.
 from . import staff_backend, staff_wizards

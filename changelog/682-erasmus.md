@@ -100,6 +100,18 @@
 - Fewer opportunities: a short summary of the situations that count, and the field to upload the evidence appears only when the student ticks the box (then it is required). Anything else for the team goes at the end. The availability question is gone: the dates are in the call's rules.
 - The call's PDF field is now labelled "Call rules (PDF)", with a help explaining that applicants download it from the portal.
 
+## Erasmus+ quality: interest and satisfaction indicators, satisfaction survey and improvement actions (asked by the Erasmus coordinator, 2026-11-04):
+
+- New menu Erasmus+ › Quality (Erasmus team): an Indicators screen with the two indicators of the Erasmus+ quality system and the Mobilitat FP report, with their target and whether it is met: student interest (applicants / every student of the call's levels, GM + GS + specialisation, target > 5 %), staff interest (applicant teachers / the FP teachers plus the Direction that validates) and satisfaction (average 1-10, target > 8.5, with n and median), plus the survey response rate, satisfaction by participant type and by host entity, each call's funnel (applications, admitted, with a place, done, renounced) in total and by cycle, and the evolution by course. Filters: course, call, project, participant type, cycle, host entity. No minimum group size (decided by the coordinator).
+- The interest counts are frozen on the call when its definitive resolution is published, so the history never changes.
+- Every participant (individual students and staff, every member of a group mobility) answers one question on the portal when the stay is over, "In general, how satisfied are you with your Erasmus+ mobility experience?" from 1 to 10, with an optional comment; 6 or lower asks for confirmation and a mandatory "What did not work?". Students get an email and reminders at 3 and 7 days; staff a to-do in their daily summary.
+- A mobility (individual or group) only closes with its surveys answered, or closed without an answer by the coordinator with a reason.
+- The team reads the answers without names (only the coordinator and the administrator see who answered). A low score becomes, with one button, an improvement action of the Quality app without the participant's name: the ISO evidence.
+- Quality report (PDF) from the indicators screen, for any filters: figures, improvement actions, calculation criteria and date, no names; it also goes by itself into each project's ZIP (folder 05).
+- Mobilitat FP evidence (ZIP) per course, laid out like the network's Drive (1-gestio: the Erasmus+ team's minutes of the workgroup set in Settings; 2-documentacio: calls with their calendar and rules, totals of each published list, % of participants with complete documentation; 3-mobilitats: the quality report; 4-difusio: the diffusion actions and their evidence). No personal data.
+- Diffusion actions register: every call notice and closing reminder EMS emails is recorded by itself; the team adds the rest by hand (sessions, ErasmusDays, web, social media).
+- Earlier courses (manual load, with their source) feed the evolution by course; the coordination's figures for 2022-2023 to 2025-2026 are seeded as centre data.
+
 # Fixes
 
 ## Erasmus+ result and free-place emails reached Catalan and Spanish readers in English (2026-11-03):

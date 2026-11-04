@@ -351,6 +351,9 @@ class TestErasmusMobility(ErasmusMobilityCase):
                                 {'name': 'TEST-CLOSE', 'kind': 'ka121_vet'}).id})
         first._ems_portal_eu_survey()
         first.with_user(self.erasmus_user).action_eu_survey_validate()
+        with self.assertRaisesRegex(UserError, 'satisfaction'):
+            first.with_user(self.erasmus_user).action_close()
+        first.sudo().satisfaction_ids._ems_portal_answer(9)
         first.with_user(self.erasmus_user).action_close()
         self.assertEqual(first.state, 'done')
 

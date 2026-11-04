@@ -936,6 +936,7 @@ class EmsErasmusMobility(models.Model):
             if mobility._ems_left_to_pay():
                 raise UserError(_("There is still something to pay for the mobility of %s: request and register "
                                   "every payment, the final one included, and every invoice first.", name))
+            mobility._ems_check_satisfaction()
         for mobility in self:
             mobility._ems_set_state('done')
         self.partner_id._ems_erasmus_release_graduate()

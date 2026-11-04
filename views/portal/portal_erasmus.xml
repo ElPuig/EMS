@@ -12,6 +12,16 @@
 
                 <p t-if="not calls and not guardian_mobilities" class="text-muted">There are no Erasmus+ calls for you right now.</p>
 
+                <!-- The satisfaction survey of every stay already over (docs/en/developers/erasmus/quality.md). -->
+                <div t-if="satisfaction_answered" class="alert alert-success mb-3 o_ems_erasmus_satisfaction_thanks">
+                    <i class="fa fa-check-circle me-1"/> Thank you for answering the satisfaction survey.
+                </div>
+                <div t-foreach="satisfaction_surveys" t-as="survey" class="alert alert-warning mb-3 o_ems_erasmus_satisfaction_pending">
+                    <i class="fa fa-star-half-o me-1"/>
+                    Your Erasmus+ stay (<strong t-esc="survey.call_id.name or survey.group_mobility_id.name"/>) is over: tell us how it went.
+                    <a t-attf-href="/my/erasmus/satisfaction/#{survey.id}" class="btn btn-primary btn-sm ms-2 o_ems_erasmus_satisfaction_open">Answer the survey</a>
+                </div>
+
                 <!-- Issue #687: the family of a minor signs their commitment letter too. -->
                 <div t-if="guardian_error" class="alert alert-danger mb-3 o_ems_erasmus_error">
                     <i class="fa fa-exclamation-triangle me-1"/> It could not be signed: tick that you accept the commitments.
@@ -920,6 +930,52 @@
                     </a>
                 </p>
                 <t t-call="ems.erasmus_resolution_list"/>
+            </div>
+        </t>
+    </template>
+    <!-- The satisfaction survey: one question, a score from 1 to 10. A score of 6 or lower asks for
+         confirmation and what did not work (controllers/portal_erasmus.py). -->
+    <template id="portal_erasmus_satisfaction" name="Erasmus+ satisfaction survey">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-4 o_ems_portal_erasmus o_ems_erasmus_satisfaction">
+                <h3 class="mb-1">Satisfaction survey</h3>
+                <p class="text-muted mb-4" t-esc="survey.call_id.name or survey.group_mobility_id.name"/>
+                <div t-if="error" class="alert alert-danger mb-3 o_ems_erasmus_error">
+                    <i class="fa fa-exclamation-triangle me-1"/>
+                    <t t-if="confirm">Tell us what did not work before sending the survey.</t>
+                    <t t-else="">Choose a score from 1 to 10.</t>
+                </div>
+                <form t-attf-action="/my/erasmus/satisfaction/#{survey.id}/answer" method="post" class="card shadow-sm">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <div class="card-body">
+                        <t t-if="confirm">
+                            <input type="hidden" name="score" t-att-value="score"/>
+                            <input type="hidden" name="confirmed" value="1"/>
+                            <div class="alert alert-info o_ems_erasmus_satisfaction_confirm">
+                                You have given a <strong t-esc="score"/> out of 10. Is that right?
+                                <a t-attf-href="/my/erasmus/satisfaction/#{survey.id}" class="ms-2">No, change the score</a>
+                            </div>
+                            <label for="what_failed" class="form-label fw-bold">What did not work?</label>
+                            <textarea name="what_failed" id="what_failed" class="form-control mb-3" rows="4"
+                                      required="required"><t t-esc="what_failed or ''"/></textarea>
+                        </t>
+                        <t t-else="">
+                            <p class="fw-bold">In general, how satisfied are you with your Erasmus+ mobility experience?</p>
+                            <div class="d-flex flex-wrap gap-2 mb-1 o_ems_erasmus_satisfaction_scores">
+                                <t t-foreach="range(1, 11)" t-as="value">
+                                    <input type="radio" class="btn-check" name="score" t-att-value="value"
+                                           t-attf-id="score_#{value}" required="required"/>
+                                    <label t-attf-class="btn btn-outline-primary o_ems_erasmus_score_#{value}"
+                                           t-attf-for="score_#{value}" t-esc="value"/>
+                                </t>
+                            </div>
+                            <p class="small text-muted mb-3">1: not satisfied at all - 10: completely satisfied</p>
+                        </t>
+                        <label for="comment" class="form-label">Anything else you want to tell us (optional)</label>
+                        <textarea name="comment" id="comment" class="form-control mb-3" rows="3"><t t-esc="comment or ''"/></textarea>
+                        <button type="submit" class="btn btn-primary o_ems_erasmus_satisfaction_send">Send</button>
+                    </div>
+                </form>
             </div>
         </t>
     </template>

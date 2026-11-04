@@ -9,6 +9,7 @@ from odoo.addons.portal.controllers.portal import CustomerPortal
 
 from odoo.addons.ems.models.erasmus.application import ANSWER_FIELDS, PORTAL_STATE_BADGES
 from odoo.addons.ems.models.erasmus.mobility import PROPOSAL_FIELDS
+from odoo.addons.ems.models.erasmus.satisfaction import LOW_SCORE
 
 BOOLEAN_ANSWERS = ('fewer_opportunities', 'image_consent', 'declared_never_staff_mobility')
 # Answers given as a month (<input type="month">, "YYYY-MM"), stored as the 1st of that month.
@@ -64,8 +65,51 @@ class EmsPortalErasmusController(CustomerPortal):
             'submitted': kwargs.get('submitted'),
             'guardian_mobilities': partner._ems_erasmus_guardian_mobilities(),
             'guardian_error': kwargs.get('error'),
+            'satisfaction_surveys': partner._ems_erasmus_satisfaction_pending(),
+            'satisfaction_answered': kwargs.get('satisfaction_answered'),
         })
         return request.render('ems.portal_erasmus', values)
+
+    # --- satisfaction survey (docs/en/developers/erasmus/quality.md) ------------------------------
+
+    def _ems_satisfaction_survey(self, survey_id):
+        """The logged-in user's own pending satisfaction survey `survey_id`, if any."""
+        return request.env.user.partner_id._ems_erasmus_satisfaction_pending().filtered(
+            lambda survey: survey.id == survey_id)
+
+    def _ems_satisfaction_render(self, survey, **values):
+        page = self._prepare_portal_layout_values()
+        page.update({'page_name': 'erasmus', 'survey': survey, 'low_score': LOW_SCORE, **values})
+        return request.render('ems.portal_erasmus_satisfaction', page)
+
+    @http.route('/my/erasmus/satisfaction/<int:survey_id>', type='http', auth='user', website=True)
+    def portal_erasmus_satisfaction(self, survey_id, **kwargs):
+        survey = self._ems_satisfaction_survey(survey_id)
+        if not survey:
+            return request.redirect(self._redirect)
+        return self._ems_satisfaction_render(survey)
+
+    @http.route('/my/erasmus/satisfaction/<int:survey_id>/answer', type='http', auth='user', methods=['POST'],
+                website=True)
+    def portal_erasmus_satisfaction_answer(self, survey_id, **post):
+        """A score of 6 or lower shows the confirmation step first (is it right?), which also asks
+        what did not work; any other score is saved at once."""
+        survey = self._ems_satisfaction_survey(survey_id)
+        if not survey:
+            return request.redirect(self._redirect)
+        score = int(post['score']) if (post.get('score') or '').isdigit() else 0
+        what_failed = (post.get('what_failed') or '').strip()[:4000]
+        comment = (post.get('comment') or '').strip()[:4000]
+        if not 1 <= score <= 10:
+            return self._ems_satisfaction_render(survey, error=True, comment=comment)
+        if score <= LOW_SCORE and not (post.get('confirmed') and what_failed):
+            return self._ems_satisfaction_render(survey, confirm=True, score=score, comment=comment,
+                                                 what_failed=what_failed, error=bool(post.get('confirmed')))
+        try:
+            survey._ems_portal_answer(score, what_failed, comment)
+        except UserError:
+            return self._ems_satisfaction_render(survey, error=True, comment=comment)
+        return request.redirect(f'{self._redirect}?satisfaction_answered=1')
 
     @http.route('/my/erasmus/commitment/<int:mobility_id>', type='http', auth='user', methods=['POST'], website=True)
     def portal_erasmus_guardian_commitment(self, mobility_id, **post):

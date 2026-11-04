@@ -18,6 +18,7 @@ Esta sección contiene los manuales para el **equipo Erasmus+**: la coordinació
 | [La convocatoria del personal](staff-call.md) | La convocatoria para el personal de formación profesional: el tribunal que valora los planes de movilidad, los criterios del personal, una sola clasificación para toda la convocatoria y las plazas |
 | [Preparar las movilidades](mobility-preparation.md) | Los proyectos del centro, destinos elegidos por turnos, destinos propios, entidades de acogida, documentos con quién los firma y los plazos, la carta de compromiso firmada en EMS, la firma electrónica de los convenios, la lista de pasos y el cierre de cada movilidad |
 | [Movilidades de grupo](group-mobilities.md) | Crear una movilidad de grupo, la inscripción del alumnado desde el portal, la clasificación, la aprobación de la selección, las renuncias, los expedientes y el cierre |
+| [Calidad Erasmus+](quality.md) | Los indicadores de interés y de satisfacción, la encuesta de satisfacción de los participantes, las puntuaciones bajas y sus acciones de mejora |
 
 ---
 
@@ -28,6 +29,7 @@ Esta sección contiene los manuales para el **equipo Erasmus+**: la coordinació
 | **Convocatorias** | Convocatorias, Solicitudes, Clasificación, Reclamaciones, Resoluciones y Ofertas de plaza |
 | **Movilidades** | Movilidades individuales y Movilidades de grupo |
 | **Gestión económica** | Proyectos, Facturas y Pagos de becas |
+| **Calidad** | Indicadores, Encuestas de satisfacción, Puntuaciones bajas, Acciones de difusión y Cursos anteriores |
 | **Configuración** | Entidades de acogida |
 
 Cada persona solo ve los menús que le tocan: Secretaría, por ejemplo, solo ve **Gestión económica**. Todo el profesorado tiene la aplicación **Erasmus+**, justo debajo de **Reuniones**, con la sección **Mi participación**: allí está **Mi solicitud**, que abre tu página Erasmus+ del portal (para presentarte a la convocatoria de personal y seguir tu movilidad), y las entradas personales (**Mis evaluaciones**, **Mis valoraciones de planes**, **Mis movilidades de grupo**), que solo ve quien tiene algo en ellas: quien hace entrevistas ve **Mis evaluaciones**, y quien es del tribunal, **Mis valoraciones de planes**. Así, si eres del equipo Erasmus y también te presentas a la convocatoria de personal, lo que haces como participante está en **Mi participación** y la gestión, en el resto de secciones.

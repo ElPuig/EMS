@@ -4,7 +4,7 @@
          student can enrol in or enrolled in, with a one-click enrolment (controllers/portal_erasmus_group.py). -->
     <template id="portal_erasmus_group_cards" name="Erasmus+ group mobilities" inherit_id="ems.portal_erasmus">
         <xpath expr="//p[@t-if='not calls and not guardian_mobilities']" position="attributes">
-            <attribute name="t-if">not calls and not guardian_mobilities and not group_mobilities and not group_partner._ems_erasmus_guardian_group_participants()</attribute>
+            <attribute name="t-if">not calls and not guardian_mobilities and not group_mobilities and not group_partner._ems_erasmus_guardian_group_participants() and not satisfaction_surveys</attribute>
         </xpath>
         <xpath expr="//h3" position="after">
             <t t-set="group_partner" t-value="request.env.user.partner_id"/>

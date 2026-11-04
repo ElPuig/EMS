@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import date
+from datetime import date, timedelta
 from unittest.mock import patch
 
 from odoo.exceptions import AccessError, UserError, ValidationError
@@ -717,3 +717,105 @@ class TestExOfficioWithdrawal(TransactionCase):
         self.assertEqual((case_file.state, case_file.cancel_reason), ('cancelled', 'voluntary'))
         student = self.post_student.with_context(active_test=False)
         self.assertEqual((student.exit_type, student.withdrawal_mode), ('withdrawal', 'voluntary'))
+
+    # --- phase 5: detection in the roll-calls -------------------------------------------------
+
+    def _roll_call(self, student, day, *statuses):
+        """One roll-call of `student` on `day` per status in `statuses` (xmlid suffixes: 'miss',
+        'attended', 'justified', 'delayed_severe'...), each at its own hour."""
+        if not getattr(self, '_detection_template', None):
+            subject = self.env['ems.subject'].create({
+                'code': 'TEOW001', 'acronym': 'TEOW', 'name': 'EOW Subject',
+                'study_ids': [(6, 0, (self.post_study | self.comp_study | self.none_study).ids)]})
+            self._detection_space = self.env['ems.space'].create({
+                'code': 'TEOW-A', 'name': 'EOW Space', 'space_type_id': self.env.ref('ems.space_type_classroom').id,
+                'work_location_id': self.env.ref('ems.work_location_main').id})
+            self._detection_template = self.env['ems.attendance_template'].create({
+                'teacher_ids': [(6, 0, self.tutor.ids)], 'study_ids': [(6, 0, (self.post_study | self.comp_study | self.none_study).ids)],
+                'subject_id': subject.id, 'group_ids': [(6, 0, (self.post_group | self.comp_group | self.none_group).ids)],
+                'start_date': date(2040, 1, 1), 'end_date': date(2042, 12, 31)})
+            self._detection_schedules, self._detection_sessions = {}, {}
+            # A justified miss is written straight on the line, as a centre allowing it does.
+            self.env.company.attendance_manual_justified = True
+        for hour, status in enumerate(statuses, start=8):
+            key = (day.weekday(), hour)
+            if key not in self._detection_schedules:
+                self._detection_schedules[key] = self.env['ems.attendance_schedule'].create({
+                    'attendance_template_id': self._detection_template.id, 'weekday': str(day.weekday()),
+                    'start_time': hour, 'end_time': hour + 1, 'space_id': self._detection_space.id,
+                    'student_ids': [(6, 0, (self.post_student | self.comp_student | self.none_student).ids)]})
+            line = {'student_id': student.id, 'status_id': self.env.ref(f'ems.attendance_status_{status}').id}
+            session = self._detection_sessions.get((day, hour))
+            if session:
+                session.attendance_session_line_ids = [(0, 0, line)]
+            else:
+                self._detection_sessions[(day, hour)] = self.env['ems.attendance_session_header'].create({
+                    'attendance_schedule_id': self._detection_schedules[key].id, 'date': day, 'mode': 'scheduled',
+                    'session_teacher_id': self.tutor.id, 'attendance_session_line_ids': [(0, 0, line)]})
+
+    def _detect(self, day):
+        with self._on(day):
+            self.Withdrawal._cron_ems_detect()
+        return self.Withdrawal.search([('student_id', 'in', (self.post_student | self.comp_student).ids)])
+
+    def _missed_week(self, student, monday, skip=()):
+        for offset in range(5):
+            if offset not in skip:
+                self._roll_call(student, monday + timedelta(days=offset), 'miss', 'miss')
+
+    def test_detection_opens_a_proposal_after_five_missed_school_days(self):
+        self._roll_call(self.post_student, date(2041, 3, 1), 'attended')
+        self._missed_week(self.post_student, date(2041, 3, 4))
+        self._missed_week(self.comp_student, date(2041, 3, 4), skip=(4,))
+        case_file = self._detect(date(2041, 3, 11))
+        self.assertEqual(case_file.student_id, self.post_student, "Four days are not enough")
+        self.assertEqual((case_file.origin, case_file.state, case_file.first_absence_date),
+                         ('detected', 'proposal', date(2041, 3, 4)))
+        self.assertTrue(self._tasks(case_file, 'ems.mail_activity_ex_officio_withdrawal_proposal'))
+        self.assertIn('5', case_file.message_ids[:1].body)
+        self.assertEqual(self._detect(date(2041, 3, 11)), case_file, "Running again opens nothing new")
+
+    def test_detection_skips_days_without_roll_call_or_justified_and_never_counts_today(self):
+        # Mon-Tue missed, Wed no roll-call, Thu justified (in part), Fri, next Mon and Tue missed.
+        monday = date(2041, 3, 4)
+        self._missed_week(self.post_student, monday, skip=(2, 3))
+        self._roll_call(self.post_student, monday + timedelta(days=3), 'miss', 'justified')
+        self._roll_call(self.post_student, date(2041, 3, 11), 'miss')
+        self.assertFalse(self._detect(date(2041, 3, 12)), "Four missed days so far")
+        self._roll_call(self.post_student, date(2041, 3, 12), 'miss')
+        self.assertFalse(self._detect(date(2041, 3, 12)), "Today's roll-calls are still being taken")
+        case_file = self._detect(date(2041, 3, 13))
+        self.assertEqual(case_file.first_absence_date, monday)
+
+    def test_detection_run_breaks_on_any_attendance_or_severe_delay(self):
+        monday = date(2041, 3, 4)
+        self._missed_week(self.post_student, monday, skip=(2,))
+        self._roll_call(self.post_student, monday + timedelta(days=2), 'miss', 'attended')
+        self._missed_week(self.comp_student, monday, skip=(2,))
+        self._roll_call(self.comp_student, monday + timedelta(days=2), 'delayed_severe', 'miss')
+        self.assertFalse(self._detect(date(2041, 3, 11)))
+        self._roll_call(self.post_student, date(2041, 3, 11), 'miss')
+        self._roll_call(self.post_student, date(2041, 3, 12), 'miss')
+        self._roll_call(self.post_student, date(2041, 3, 13), 'miss')
+        self.assertEqual(self._detect(date(2041, 3, 14)).first_absence_date, date(2041, 3, 7),
+                         "The run starts again after the day they came")
+
+    def test_detection_counts_only_the_days_after_a_closed_case_file(self):
+        self._missed_week(self.post_student, date(2041, 3, 4))
+        case_file = self._detect(date(2041, 3, 11))
+        with self._on(date(2041, 3, 11)):
+            case_file.with_user(self.tutor_user).action_dismiss("They are ill, the family will bring a note")
+        self.assertEqual(case_file.closed_date, date(2041, 3, 11))
+        self._missed_week(self.post_student, date(2041, 3, 11))
+        self.assertEqual(self._detect(date(2041, 3, 18)), case_file, "Only four days after the dismissal")
+        self._roll_call(self.post_student, date(2041, 3, 18), 'miss')
+        new = self._detect(date(2041, 3, 19)) - case_file
+        self.assertEqual(new.first_absence_date, date(2041, 3, 12))
+
+    def test_detection_leaves_out_expected_withdrawals_exits_and_levels_without_circuit(self):
+        for student in (self.post_student, self.comp_student, self.none_student):
+            self._missed_week(student, date(2041, 3, 4))
+        self.post_student.sudo().write({'withdrawal_expected': True})
+        self.comp_student.sudo().write({'exit_type': 'withdrawal', 'exit_date': date(2041, 3, 8)})
+        self.assertFalse(self._detect(date(2041, 3, 11)))
+        self.assertFalse(self.Withdrawal.search([('student_id', '=', self.none_student.id)]))

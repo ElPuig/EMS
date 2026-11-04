@@ -179,6 +179,11 @@ STEP_TASK = 'ems.mail_activity_ex_officio_withdrawal_step'
 SCHOOL_DAY_WINDOW_FACTOR = 2
 SCHOOL_DAY_WINDOW_MARGIN = 120
 
+# Detection (hourly job): this many school days in a row without attending, counted on the
+# roll-calls of the last DETECTION_WINDOW_DAYS (longer than the compulsory circuit's two months).
+DETECTION_DAYS = 5
+DETECTION_WINDOW_DAYS = 70
+
 
 class EmsExOfficioWithdrawal(models.Model):
     """Case file of an ex officio withdrawal (issue #726): a student who stopped coming, the
@@ -221,6 +226,8 @@ class EmsExOfficioWithdrawal(models.Model):
         ('expelled', 'Expelled'),
     ])
     cancel_note = fields.Text(string="Cancel note", readonly=True, copy=False)
+    # The day it was withdrawn or cancelled: detection only counts the days after it.
+    closed_date = fields.Date(string="Closed on", readonly=True, copy=False)
     step_ids = fields.One2many(string="Steps", comodel_name='ems.ex_officio_withdrawal.step',
                                inverse_name='withdrawal_id')
     current_step_id = fields.Many2one(string="Current step", comodel_name='ems.ex_officio_withdrawal.step',
@@ -463,13 +470,18 @@ class EmsExOfficioWithdrawal(models.Model):
     @api.depends('state')
     @api.depends_context('uid')
     def _compute_student_domain(self):
-        domain = [('contact_type', '=', 'student'),
-                  '|', ('main_group_id.level_id.education_stage', 'in', list(CIRCUIT_BY_STAGE)),
-                  ('main_group_id.study_id.level_id.education_stage', 'in', list(CIRCUIT_BY_STAGE))]
+        domain = self._ems_circuit_student_domain()
         if not self._ems_user_manages():
             domain.append(('tutor_id.tutor_scope_user_ids', '=', self.env.uid))
         for withdrawal in self:
             withdrawal.student_domain = str(domain)
+
+    @api.model
+    def _ems_circuit_student_domain(self):
+        """The students whose level follows a protocol."""
+        return [('contact_type', '=', 'student'),
+                '|', ('main_group_id.level_id.education_stage', 'in', list(CIRCUIT_BY_STAGE)),
+                ('main_group_id.study_id.level_id.education_stage', 'in', list(CIRCUIT_BY_STAGE))]
 
     @api.constrains('student_id', 'state')
     def _check_one_open_per_student(self):
@@ -504,6 +516,8 @@ class EmsExOfficioWithdrawal(models.Model):
                 raise UserError(_("The student and the state of a case file only change through its buttons."))
             if 'first_absence_date' in vals and self.filtered(lambda withdrawal: withdrawal.state != 'proposal'):
                 raise UserError(_("The first day of absence can only change while the case file is a proposal."))
+        if vals.get('state') in ('done', 'cancelled') and 'closed_date' not in vals:
+            vals = dict(vals, closed_date=self.env['ems.datetime_utils'].get_local_today())
         return super().write(vals)
 
     def action_start(self):
@@ -659,6 +673,76 @@ class EmsExOfficioWithdrawal(models.Model):
             ('done_date', '=', False), ('task_scheduled', '=', False), ('due_date', '<=', today),
             ('withdrawal_id.state', 'in', STARTED_STATES)])
         steps.withdrawal_id._ems_move_on()
+
+    @api.model
+    def _cron_ems_detect(self):
+        """A proposal for every student who has missed DETECTION_DAYS whole school days in a row,
+        the first of them as the first day of absence; the tutor decides on it. Only up to
+        yesterday, so a day still being taken never counts; hourly and idempotent (a student with
+        an open case file is skipped), so the proposal is the tutor's task shortly after midnight."""
+        today = self.env['ems.datetime_utils'].get_local_today()
+        runs = self._ems_absence_runs(today - timedelta(days=DETECTION_WINDOW_DAYS), today - timedelta(days=1))
+        detected = {student_id: days for student_id, days in runs.items() if len(days) >= DETECTION_DAYS}
+        if not detected:
+            return
+        withdrawals = self.sudo().create([{'student_id': student_id, 'first_absence_date': days[0],
+                                           'origin': 'detected'} for student_id, days in detected.items()])
+        for withdrawal in withdrawals:
+            days = detected[withdrawal.student_id.id]
+            withdrawal._message_log(body=_(
+                "Detected in the roll-calls: %(count)s school days in a row without attending, from %(first)s to "
+                "%(last)s.", count=len(days), first=format_date(self.env, days[0]),
+                last=format_date(self.env, days[-1])))
+
+    @api.model
+    def _ems_absence_runs(self, since, until):
+        """The days each student who could get a proposal has missed in a row, up to `until`: the
+        days after their last attendance (or delay) and after their last case file closed, on which
+        every roll-call line is an unjustified miss. A day without roll-calls or with a justified
+        absence neither counts nor breaks the run. Students with an open case file, an expected
+        withdrawal or an exit are left out. One query over the roll-call lines, grouped by day."""
+        Withdrawal = self.sudo()
+        students = self.env['res.partner'].sudo().search(self._ems_circuit_student_domain() + [
+            ('exit_type', '=', False), ('withdrawal_expected', '=', False),
+            ('id', 'not in', Withdrawal.search([('state', 'in', OPEN_STATES)]).student_id.ids)])
+        if not students:
+            return {}
+        closed = dict(Withdrawal._read_group([('student_id', 'in', students.ids), ('closed_date', '!=', False)],
+                                             ['student_id'], ['closed_date:max']))
+        self.env['ems.attendance_session_line'].flush_model(['student_id', 'date', 'status_id', 'active',
+                                                             'session_active'])
+        self.env['ems.attendance_status'].flush_model(['category'])
+        self.env.cr.execute("""
+            WITH days AS (
+                SELECT line.student_id, line.date,
+                       bool_or(status.category = 'assistance' OR line.status_id = %(severe)s) AS attended,
+                       bool_and(status.category = 'absence' AND line.status_id NOT IN %(not_missed)s) AS missed
+                  FROM ems_attendance_session_line line
+                  JOIN ems_attendance_status status ON status.id = line.status_id
+                 WHERE line.active AND line.session_active AND line.student_id = ANY(%(students)s)
+                   AND line.date BETWEEN %(since)s AND %(until)s
+                 GROUP BY line.student_id, line.date
+            ), last_attended AS (
+                SELECT student_id, max(date) AS date FROM days WHERE attended GROUP BY student_id
+            )
+            SELECT days.student_id, array_agg(days.date ORDER BY days.date)
+              FROM days LEFT JOIN last_attended ON last_attended.student_id = days.student_id
+             WHERE days.missed AND (last_attended.date IS NULL OR days.date > last_attended.date)
+             GROUP BY days.student_id
+        """, {
+            'severe': self.env.ref('ems.attendance_status_delayed_severe').id,
+            'not_missed': (self.env.ref('ems.attendance_status_delayed_severe').id,
+                           self.env.ref('ems.attendance_status_justified').id),
+            'students': students.ids, 'since': since, 'until': until,
+        })
+        closed_by_student = {student.id: day for student, day in closed.items()}
+        runs = {}
+        for student_id, days in self.env.cr.fetchall():
+            floor = closed_by_student.get(student_id)
+            days = [day for day in days if not floor or day > floor]
+            if days:
+                runs[student_id] = days
+        return runs
 
     def _ems_move_on(self):
         """Bring started case files up to date with their current step: the state it belongs to,

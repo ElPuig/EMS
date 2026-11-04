@@ -30268,3 +30268,19 @@ msgstr "Modalitat de baixa"
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "withdrawal processed"
 msgstr "baixa tramitada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__closed_date
+msgid "Closed on"
+msgstr "Tancat el"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_ex_officio_withdrawal_detection_ir_actions_server
+msgid "EMS: Ex officio withdrawal detection"
+msgstr "EMS: detecció de baixes d'ofici"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Detected in the roll-calls: %(count)s school days in a row without attending, from %(first)s to %(last)s."
+msgstr "Detectat als passis de llista: %(count)s dies lectius seguits sense assistir-hi, del %(first)s al %(last)s."

@@ -1,2 +1,3 @@
 "id","name","model_id/id","user_id/id","state","code","interval_number","interval_type"
 "ems.ir_cron_ex_officio_withdrawal_tasks","EMS: Ex officio withdrawal steps due","ems.model_ems_ex_officio_withdrawal","base.user_root","code","model._cron_ems_due_step_tasks()","1","hours"
+"ems.ir_cron_ex_officio_withdrawal_detection","EMS: Ex officio withdrawal detection","ems.model_ems_ex_officio_withdrawal","base.user_root","code","model._cron_ems_detect()","1","hours"

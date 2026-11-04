@@ -103,7 +103,8 @@ it is Direction's green light, `secretariat` while it is the withdrawal, `in_pro
   `ir.sequence` per course, `ems.base.next_course_number()`, shared with convalidations), student,
   group, level and circuit (taken from the student's main group when created), tutor (the
   student's current one), first day of absence, origin (`manual` / `detected`), state, cancel
-  reason and note. One open case file per student (`_check_one_open_per_student`).
+  reason and note, the day it closed (`closed_date`, set by `write()` when it is withdrawn or
+  cancelled). One open case file per student (`_check_one_open_per_student`).
 - `ems.ex_officio_withdrawal.step`: step code, responsible, protocol day (`planned_date`), day it is
   really due (`due_date`, see above), notes, done by / on,
   `is_current` (stored, from the case file's stored `current_step_id`: the first step not done).
@@ -171,6 +172,35 @@ it is Direction's green light, `secretariat` while it is the withdrawal, `in_pro
   scope and the Head of Studies (the Director included); Coexistence's steps, the coordinators
   who get the task and the Head of Studies; the Secretariat's, `ems.group_secretary`;
   Direction's, `ems.group_director`.
+
+## Detection in the roll-calls (phase 5)
+
+The hourly cron `_cron_ems_detect()` opens a **proposal** (`origin = 'detected'`) for every student
+who has missed `DETECTION_DAYS` (5) whole school days in a row; the first of them is the first day
+of absence, and the proposal's task goes to the tutor, like a case file opened by hand. The chatter
+logs how many days and which. It only counts up to yesterday, so a day whose roll-calls are still
+being taken never counts, and it is idempotent (students with an open case file are skipped):
+the first run after midnight opens the proposals, the others find nothing new.
+
+`_ems_absence_runs(since, until)` does the counting, over the roll-call lines of the last
+`DETECTION_WINDOW_DAYS` (70, more than the compulsory circuit's two months), in one query grouped
+by student and day:
+
+| A day where the student's active lines are... | Effect on the run |
+|---|---|
+| every one an unjustified miss | counts |
+| any attended, minor delay, issue or **severe delay** | breaks it: counting starts again after it |
+| any justified miss (all or some), and none attended | skipped: neither counts nor breaks |
+| none (no roll-call taken) | skipped |
+
+Only the days after the student's last closed case file (`closed_date`) count, so a dismissed
+proposal or a cancelled case file needs a new run of 5 days. Left out: students whose level has
+no circuit (`_ems_circuit_student_domain()`, also the new-file student picker's), with an open case
+file, an expected withdrawal or an exit.
+
+Measured on the dev database (~62k lines, 556 students, 2026-11-04): the query 56 ms cold, a
+first run opening 8 proposals 0.43 s, an hourly run finding nothing new 48 ms. The existing indexes
+are enough.
 
 ## Emails, texts to copy and the case file PDF (phase 3)
 

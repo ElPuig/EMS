@@ -29,6 +29,11 @@
 - The Secretariat ticks its last step (Esfera, SAGA, eNotum and, in post-compulsory, the new "withdrawal processed" email to the family) and then "Process the withdrawal" opens the usual withdrawal wizard filled in as an ex officio withdrawal; applying it withdraws the student and closes the case file.
 - Students now record whether a withdrawal was voluntary or ex officio (ex officio only from its case file); the withdrawals registered before stay without one. Any other exit of a student with an open case file (a voluntary withdrawal, an expulsion) cancels it.
 
+## Ex officio withdrawal proposals detected in the roll-calls (phase 5):
+
+- An hourly job opens a proposal for every student of a level with a circuit who has missed 5 whole school days in a row (up to yesterday), with the first of them as the first day of absence; the tutor gets the proposal's task. Any attendance or delay (severe included) breaks the run; days without roll-call or with a justified absence are skipped (developer's choices, 2026-11-04). After a dismissed proposal or a cancelled case file only the later days count (`closed_date`). Students with an open case file, an expected withdrawal or an exit are left out. One grouped query: 56 ms on the dev database, 48 ms an hourly run with nothing new.
+- The case file now aligns with the centre-language reports of #749 (`CENTRE_LANG_REPORTS`).
+
 # Changes
 
 ## Levels: tidier form, convalidations set in Settings:

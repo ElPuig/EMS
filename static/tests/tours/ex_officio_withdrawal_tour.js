@@ -187,7 +187,7 @@ registry.category("web_tour.tours").add("ems_ex_officio_withdrawal_tutor_email",
             run: "click",
         },
         {
-            trigger: "body:not(:has(.modal)) .o_form_view div[name='family_email'] .text-success:contains('could not reach them by phone')",
+            trigger: "body:not(:has(.modal)) .o_form_view div[name='current_step'] > .text-success:contains('could not reach them by phone')",
             content: "When it went and which text",
         },
         {

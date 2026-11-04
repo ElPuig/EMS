@@ -30108,3 +30108,8 @@ msgstr "Llamada por confirmar"
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "Phone call to the family on %(date)s: %(outcome)s."
 msgstr "Llamada a la familia el %(date)s: %(outcome)s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__current_step_notices
+msgid "Step notices"
+msgstr "Avisos del paso"

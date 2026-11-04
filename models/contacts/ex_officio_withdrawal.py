@@ -247,6 +247,8 @@ class EmsExOfficioWithdrawal(models.Model):
     family_email_intro = fields.Char(string="Email to the family intro", compute='_compute_step_tools')
     family_email_sent = fields.Char(string="Email to the family sent", compute='_compute_step_tools')
     current_step_timing = fields.Html(string="By when", compute='_compute_current_step_texts', sanitize=False)
+    # Below the contact: whether the step is late, and how to tick and accept it.
+    current_step_notices = fields.Html(string="Step notices", compute='_compute_current_step_texts', sanitize=False)
     copy_text = fields.Text(string="Text to copy", compute='_compute_step_tools')
     can_print_for_inspection = fields.Boolean(string="Case file for the Inspection", compute='_compute_step_tools')
     # The student picker of a new case file (the view's domain="student_domain"): a tutor is only
@@ -303,6 +305,7 @@ class EmsExOfficioWithdrawal(models.Model):
         codes = dict(self.env['ems.ex_officio_withdrawal.step']._fields['code']._description_selection(self.env))
         for withdrawal in self:
             withdrawal.current_step_instructions = withdrawal.current_step_timing = False
+            withdrawal.current_step_notices = False
             withdrawal.waiting_message = False
             step = withdrawal.current_step_id
             if withdrawal.state == 'proposal' and not withdrawal.can_decide_proposal:
@@ -333,11 +336,11 @@ class EmsExOfficioWithdrawal(models.Model):
                           "\"Accept and continue\" (Actions menu) hands the case file over once every one is ticked.")
             withdrawal.current_step_instructions = Markup("<p><strong>{step}</strong></p><p>{what}</p>").format(
                 step=codes[step.code], what=_step_instructions(withdrawal.circuit, step.code))
-            withdrawal.current_step_timing = Markup("<p>{frame}</p>{status}{help}").format(
-                frame=frame,
+            withdrawal.current_step_timing = Markup("<p>{}</p>").format(frame)
+            withdrawal.current_step_notices = Markup("{status}{help}").format(
                 status=Markup("<p class='text-danger'>{}</p>").format(status) if status else '',
-                     help=Markup("<p class='text-muted'>{}</p>").format(help_line)
-                     if step.due_date <= today else '')
+                help=Markup("<p class='text-muted'>{}</p>").format(help_line) if step.due_date <= today else '') \
+                or False
 
     @api.depends('step_ids.done_date', 'step_ids.due_date', 'step_ids.notes', 'step_ids.check_ids.done',
                  'step_ids.check_ids.date')

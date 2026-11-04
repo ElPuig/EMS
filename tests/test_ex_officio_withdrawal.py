@@ -363,6 +363,7 @@ class TestExOfficioWithdrawal(TransactionCase):
             self.assertIn('Contact with the family', tutor_view.current_step_instructions)
             self.assertIn('voluntary withdrawal', tutor_view.current_step_instructions)
             self.assertIn('01/15/2042', tutor_view.current_step_timing, "Before the next step's day")
+            self.assertIn('Tick each action', tutor_view.current_step_notices)
             self.assertFalse(tutor_view.waiting_message)
             secretary_view = case_file.with_user(self.secretary_user)
             self.assertFalse(secretary_view.current_step_instructions)

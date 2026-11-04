@@ -81,8 +81,8 @@ veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **nom
    marcades com a obligatòries s'han d'omplir abans de poder aprovar l'acta.
 7. A **Acords**, afegiu els acords: què s'acorda, qui se'n fa responsable (qui en porta l'avanç), qui hi està implicat (qui
    ha de fer alguna cosa, sense gestionar-lo) i per quan. A la **descripció** expliqueu com s'ha de dur a
-   terme (enllaços, instruccions); surt al PDF. Un cop aprovada l'acta, la mantenen els responsables des del
-   formulari de l'acord. El codi de cada
+   terme (enllaços, instruccions); surt al PDF. Un cop aprovada l'acta, els responsables el reben al seu
+   [resum diari](daily-summary.md) i el mantenen al dia des del formulari de l'acord. El codi de cada
    acord s'assigna sol.
 8. Deseu. El **codi** de l'acta, que heu vist formar-se a dalt del formulari a mesura que informàveu el
    tipus, l'àmbit i la data, queda assignat.
@@ -159,7 +159,8 @@ persones; es pot triar qualsevol altra escrivint-ne el nom o amb **Cerca més**.
 
 
 Quan l'acta estigui llesta, **Accions → Enviar a aprovar**. Qui hagi de donar el vistiplau la trobarà a la seva
-pantalla amb la faceta *Pendents que jo aprovi*, i en aprovar-la:
+pantalla amb la faceta *Pendents que jo aprovi*, i també rep la tasca *Aprovar l'acta* al seu
+[resum diari](daily-summary.md). En aprovar-la:
 
 - Queda registrat **qui l'ha aprovada i quan**.
 - Es genera el **PDF**, que queda adjunt a l'acta.

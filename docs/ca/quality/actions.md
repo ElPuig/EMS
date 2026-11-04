@@ -36,13 +36,29 @@ Un acord distingeix tres maneres d'estar-hi:
   cadena de comandament també ho pot fer en el seu lloc. Pot ser responsable qualsevol persona, tingui
   càrrec o no.
 - **Les persones implicades**: les que han de fer alguna cosa per l'acord (per exemple, tot el
-  departament actualitza les programacions). El poden llegir, amb el seu seguiment, i reben un avís
-  cada vegada que s'hi afegeix una entrada.
+  departament actualitza les programacions). El poden llegir, amb el seu seguiment. No en reben
+  avisos: ja els informa l'acta del que s'ha acordat.
 
 També el poden llegir els qui poden llegir l'acta de la qual surt o les del seu àmbit. La **comissió
 de qualitat**, la **coordinació de qualitat** i l'**administrador** els veuen i modifiquen tots.
 
 Si obriu un acord que no podeu modificar, s'obre en mode de només lectura.
+
+## Com se n'assabenten els responsables
+
+Tot els arriba al seu [resum diari](../teachers/daily-summary.md), mai en un correu a part:
+
+- **Una tasca**, *Dur a terme l'acord*, que venç en la data límit (o el mateix dia, si no en té). Es marca
+  com a feta quan es tanca l'acord, i desapareix per a qui deixa de ser-ne responsable.
+- **Un avís quan en passeu a ser responsables**, si la data límit és més endavant, perquè sapigueu que
+  teniu l'acord abans que venci la tasca.
+- **Un avís per cada entrada de seguiment** que hi afegeixi una altra persona: qui l'ha escrita, què ha
+  passat i l'estat en què deixa l'acord.
+
+Cada avís també indica de quina reunió surt l'acord, el seu àmbit, les persones responsables, la data límit
+i l'estat. Un acord pres en una reunió s'avisa quan se n'aprova l'acta; un acord acordat i fet en la mateixa
+reunió arriba com un avís que ja no queda res per fer. Les persones implicades i la cadena de comandament no
+reben res de tot això.
 
 ## Crear un acord
 
@@ -60,7 +76,7 @@ Si obriu un acord que no podeu modificar, s'obre en mode de només lectura.
 
 ![Formulari d'un acord: responsabilitat, data límit, àmbit i la descripció a la pestanya de sota](../../assets/quality/acords-02-formulari.png)
 
-(1) Les persones responsables, que en porten l'avanç; (2) les persones implicades, que només el llegeixen i reben els avisos; (3) la data límit i (4) l'àmbit.
+(1) Les persones responsables, que en porten l'avanç; (2) les persones implicades, que només el llegeixen; (3) la data límit i (4) l'àmbit.
 
 ## El codi i la numeració
 

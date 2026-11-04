@@ -14,7 +14,8 @@ profile**, with everything EMS has for them that isn't urgent:
 2. **Your students' attendance issues** (tutors only): every notifiable roll-call status of their
    students not reported yet (see [attendance_issue.md](../attendance/attendance_issue.md)).
 3. **For your information**: the informative notices queued for them (`ems.info_notice`), grouped
-   by the record (usually a student) they are about.
+   by the record they are about (usually a student; a Quality agreement for its responsible people, see
+   [Quality: telling the people concerned](../quality/quality_overview.md#telling-the-people-concerned-issue-753)).
 
 It replaced two separate emails (issue #644): the morning pending-tasks digest and the tutor's
 attendance issues report, each with its own schedule. **Rule for new code** (also in `CLAUDE.md`):

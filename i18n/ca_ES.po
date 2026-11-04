@@ -28776,3 +28776,68 @@ msgstr "Idioma del centre"
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "The language EMS writes in, whatever the language of whoever uses it: the codes of minutes and agreements, the minutes and their calls, the convalidation resolutions, the public group schedules and the texts EMS adds by itself. It is also the language new contacts and users get."
 msgstr "L'idioma en què escriu EMS, sigui quin sigui l'idioma de qui el fa servir: els codis de les actes i els acords, les actes i les seves convocatòries, les resolucions de convalidació, els horaris públics dels grups i els textos que EMS afegeix pel seu compte. També és l'idioma que reben els contactes i els usuaris nous."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "<strong>You are responsible for this agreement.</strong> You will find it among your pending tasks on its deadline."
+msgstr "<strong>Ets responsable d'aquest acord.</strong> El trobaràs entre les teves tasques pendents en la data límit."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "<strong>Agreed and done in the meeting:</strong> there is nothing left for you to do."
+msgstr "<strong>Acordat i fet a la reunió:</strong> no et queda res per fer."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "<strong>New follow-up entry:</strong>"
+msgstr "<strong>Nova entrada de seguiment:</strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "Written by:"
+msgstr "Escrita per:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "Date of the entry:"
+msgstr "Data de l'entrada:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "Meeting:"
+msgstr "Reunió:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "Scope:"
+msgstr "Àmbit:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "Responsible:"
+msgstr "Responsables:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "Deadline:"
+msgstr "Data límit:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "not set"
+msgstr "sense data"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "State:"
+msgstr "Estat:"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_quality_agreement
+msgid "Carry out the agreement"
+msgstr "Dur a terme l'acord"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_minute_approval
+msgid "Approve the minute"
+msgstr "Aprovar l'acta"

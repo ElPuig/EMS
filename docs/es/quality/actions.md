@@ -37,13 +37,29 @@ Un acuerdo distingue tres maneras de estar en él:
   cadena de mando también puede hacerlo en su lugar. Puede ser responsable cualquier persona, tenga
   cargo o no.
 - **Las personas implicadas**: las que tienen que hacer algo por el acuerdo (por ejemplo, todo el
-  departamento actualiza las programaciones). Pueden leerlo, con su seguimiento, y reciben un aviso
-  cada vez que se le añade una entrada.
+  departamento actualiza las programaciones). Pueden leerlo, con su seguimiento. No reciben
+  avisos: el acta ya les informa de lo acordado.
 
 También pueden leerlo quienes pueden leer el acta de la que sale o las de su ámbito. La **comisión de
 calidad**, la **coordinación de calidad** y el **administrador** los ven y modifican todos.
 
 Si abre un acuerdo que no puede modificar, se abre en modo de solo lectura.
+
+## Cómo se enteran los responsables
+
+Todo les llega en su [resumen diario](../teachers/daily-summary.md), nunca en un correo aparte:
+
+- **Una tarea**, *Llevar a cabo el acuerdo*, que vence en la fecha límite (o el mismo día, si no tiene). Se
+  marca como hecha cuando se cierra el acuerdo, y desaparece para quien deja de ser responsable.
+- **Un aviso cuando pasa a ser responsable**, si la fecha límite es más adelante, para que sepa que tiene el
+  acuerdo antes de que venza la tarea.
+- **Un aviso por cada entrada de seguimiento** que añada otra persona: quién la ha escrito, qué ha pasado
+  y el estado en que deja el acuerdo.
+
+Cada aviso indica también de qué reunión sale el acuerdo, su ámbito, las personas responsables, la fecha
+límite y su estado. Un acuerdo tomado en una reunión se avisa cuando se aprueba su acta; uno acordado y
+hecho en la misma reunión llega como un aviso de que ya no queda nada por hacer. Las personas implicadas y
+la cadena de mando no reciben nada de esto.
 
 ## Crear un acuerdo
 
@@ -61,7 +77,7 @@ Si abre un acuerdo que no puede modificar, se abre en modo de solo lectura.
 
 ![Formulario de un acuerdo: responsabilidad, fecha límite, ámbito y la descripción en la pestaña de abajo](../../assets/quality/acords-02-formulari.png)
 
-(1) Las personas responsables, que llevan su avance; (2) las personas implicadas, que solo lo leen y reciben los avisos; (3) la fecha límite y (4) el ámbito.
+(1) Las personas responsables, que llevan su avance; (2) las personas implicadas, que solo lo leen; (3) la fecha límite y (4) el ámbito.
 
 ## El código y la numeración
 

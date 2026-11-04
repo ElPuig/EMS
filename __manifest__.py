@@ -417,6 +417,7 @@
         'mails/grades/convalidation_resolved.xml',
         'mails/grades/convalidation_info_request.xml',
         'mails/shared/daily_summary.xml',
+        'mails/quality/agreement_notice.xml',
         'mails/contacts/contact_data_request.xml',
 
         ### Reports templates ###

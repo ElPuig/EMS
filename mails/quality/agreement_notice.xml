@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- A notice about an agreement for its responsible people's daily summary
+         (ems.quality.action._ems_notice_body, issue #753): what happened, and enough about the
+         agreement to understand it without opening it. The summary already heads it with the
+         agreement's code and content. Rendered in the recipient's language. -->
+    <template id="quality_agreement_notice">
+        <div>
+            <p t-if="kind == 'assigned'" style="margin: 0 0 4px 0;"><strong>You are responsible for this agreement.</strong> You will find it among your pending tasks on its deadline.</p>
+            <p t-if="kind == 'done_in_meeting'" style="margin: 0 0 4px 0;"><strong>Agreed and done in the meeting:</strong> there is nothing left for you to do.</p>
+            <t t-if="kind == 'followup'">
+                <p style="margin: 0 0 4px 0;"><strong>New follow-up entry:</strong></p>
+                <p style="margin: 0 0 4px 0; padding-left: 8px; border-left: 3px solid #dadce0; white-space: pre-line;" t-out="followup.description"/>
+            </t>
+            <ul style="margin: 0 0 8px 0; padding-left: 20px; color: #5f6368;">
+                <li t-if="kind == 'followup' and followup.author_employee_id">Written by: <t t-out="followup.author_employee_id.name"/></li>
+                <li t-if="kind == 'followup'">Date of the entry: <t t-out="format_date(followup.date)"/></li>
+                <li t-if="action.minute_id">Meeting: <t t-out="action.minute_id.display_name"/>, <t t-out="format_date(action.minute_id.date)"/></li>
+                <li t-if="action.scope_name">Scope: <t t-out="action.scope_name"/></li>
+                <li t-if="responsible">Responsible: <t t-out="responsible"/></li>
+                <li t-if="kind != 'done_in_meeting'">Deadline:
+                    <t t-if="action.deadline_date" t-out="format_date(action.deadline_date)"/>
+                    <t t-elif="action.deadline_text" t-out="action.deadline_text"/>
+                    <t t-else="">not set</t>
+                </li>
+                <li t-if="kind != 'done_in_meeting'">State: <t t-out="state"/></li>
+            </ul>
+        </div>
+    </template>
+</odoo>

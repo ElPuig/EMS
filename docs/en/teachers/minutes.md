@@ -83,7 +83,7 @@ a meeting you attended, one of your department) opens **read-only**, with no act
 7. In **Agreements**, add what was agreed: the commitment, who is responsible (who carries its progress), who is involved
    (who has to do something, without managing it) and by when. Use the **description** to explain how to
    carry it out (links, instructions); the PDF prints it. Once the minute is approved, the responsible people
-   keep it up to date from the agreement's form. Each
+   get it in their [daily summary](daily-summary.md) and keep it up to date from the agreement's form. Each
    agreement's code is issued automatically.
 8. Save. The minute's **code**, which you saw build up at the top of the form as you filled in the type,
    the scope and the date, is now issued.
@@ -158,7 +158,8 @@ shows those people first; anybody else can be chosen by typing their name or wit
 
 
 When the minute is ready, **Actions → Send for approval**. Whoever gives the approval finds it on their own screen
-under the *Awaiting my approval* facet, and approving it:
+under the *Awaiting my approval* facet, and also gets an *Approve the minute* task in their
+[daily summary](daily-summary.md). Approving it:
 
 - Records **who approved it and when**.
 - Generates the **PDF**, kept as an attachment on the minute.

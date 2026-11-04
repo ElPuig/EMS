@@ -7,7 +7,7 @@ from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase, tagged
 
 from .common import (create_head_of_studies_branch, create_level_study_group, create_role_employee,
-                     create_role_user, next_student_id)
+                     create_role_user, mock_outgoing_email, next_student_id)
 
 POST_COMPULSORY_CODES = ['tutor_contact', 'secretariat_warning', 'direction_approval', 'withdrawal']
 COMPULSORY_CODES = ['tutor_contact', 'coexistence_contact', 'secretariat_notice', 'social_services',
@@ -17,11 +17,13 @@ COMPULSORY_CODES = ['tutor_contact', 'coexistence_contact', 'secretariat_notice'
 @tagged('post_install', '-at_install')
 class TestExOfficioWithdrawal(TransactionCase):
     """Issue #726: the case file opened by hand, its steps and deadlines, who sees and decides it
-    (phase 1), and the steps done one after another, each its responsible's task (phase 2)."""
+    (phase 1), the steps done one after another, each its responsible's task (phase 2), and the
+    emails to the family, the texts to copy and the case file PDF (phase 3)."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.mail_transport = mock_outgoing_email(cls)
         cls.Withdrawal = cls.env['ems.ex_officio_withdrawal']
         cls.post_level, cls.post_study, cls.post_group = create_level_study_group(
             cls, 'TEOWP', level={'education_stage': 'post_compulsory'})
@@ -66,7 +68,7 @@ class TestExOfficioWithdrawal(TransactionCase):
     def _student(cls, name, group):
         return cls.env['res.partner'].create({
             'name': name, 'contact_type': 'student', 'student_id': next_student_id(),
-            'main_group_id': group.id,
+            'main_group_id': group.id, 'email': f"{name.lower().replace(' ', '.')}@example.com",
         })
 
     def _on(self, day):
@@ -432,3 +434,101 @@ class TestExOfficioWithdrawal(TransactionCase):
         self.post_student.invalidate_recordset()
         self.assertFalse(self.post_student.with_user(self.tutor_user).can_request_ex_officio_withdrawal,
                          "It already has an open case file")
+
+    # --- phase 3: emails to the family, texts to copy, the case file PDF ----------------------
+
+    def _email_wizard(self, case_file, user, day):
+        with self._on(day):
+            action = case_file.with_user(user).action_open_family_email()
+            return self.env[action['res_model']].with_user(user).with_context(action['context']).create({})
+
+    def _mails(self, case_file):
+        return self.env['mail.mail'].search([('model', '=', case_file._name), ('res_id', '=', case_file.id)])
+
+    def _comp_case_on_notice(self):
+        """A compulsory case file whose current step is the Secretariat's notice (due 4 April)."""
+        case_file = self._open(self.comp_student, date(2041, 3, 4))
+        case_file.action_start()
+        self._accept(case_file, self.tutor_user, date(2041, 3, 11))
+        self._accept(case_file, self.coexistence_user, date(2041, 3, 19))
+        return case_file
+
+    def test_family_email_is_sent_on_request_ticks_the_check_and_stays_in_the_case_file(self):
+        case_file = self._comp_case_on_notice()
+        self.assertEqual(case_file.current_step_id.code, 'secretariat_notice')
+        self.assertFalse(self._mails(case_file), "Nothing is sent on its own")
+        wizard = self._email_wizard(case_file, self.secretary_user, date(2041, 4, 4))
+        self.assertEqual(wizard.recipient_ids, self.comp_student)
+        self.assertIn('EOW Comp Student', wizard.body)
+        wizard.body = '<p>An edited text for the family</p>'
+        with self._on(date(2041, 4, 4)):
+            wizard.action_send()
+        mail = self._mails(case_file)
+        self.assertEqual(mail.email_to, self.comp_student.email)
+        self.assertIn('An edited text for the family', mail.body_html)
+        check = case_file.current_check_ids
+        self.assertTrue(check.done)
+        self.assertEqual(check.date, date(2041, 4, 4))
+        self.assertIn('An edited text for the family', case_file.message_ids[0].body)
+        self.assertIn(self.comp_student.email, case_file.message_ids[0].body)
+
+    def test_the_tutors_optional_email_comes_after_the_phone_call(self):
+        """Post-compulsory: confirmation or "we could not reach you", optional, never before the call."""
+        case_file = self._open(self.post_student, date(2041, 12, 17))
+        case_file.action_start()
+        wizard = self._email_wizard(case_file, self.tutor_user, date(2042, 1, 8))
+        self.assertEqual(len(wizard.allowed_template_ids), 2)
+        self.assertTrue(case_file.with_user(self.tutor_user).email_family_optional)
+        with self._on(date(2042, 1, 8)), self.assertRaises(UserError):
+            wizard.action_send()
+        with self._on(date(2042, 1, 8)):
+            case_file.current_check_ids.with_user(self.tutor_user).write({'done': True, 'date': date(2042, 1, 8)})
+            wizard.template_id = self.env.ref('ems.email_template_ex_officio_withdrawal_tutor_unreachable')
+            self.assertIn('EOW Post Student', wizard.body)
+            wizard.action_send()
+        self.assertEqual(len(self._mails(case_file)), 1)
+
+    def test_only_the_steps_responsible_emails_the_family(self):
+        case_file = self._comp_case_on_notice()
+        with self._on(date(2041, 4, 4)):
+            self.assertFalse(case_file.with_user(self.tutor_user).can_email_family)
+            with self.assertRaises(UserError):
+                case_file.with_user(self.tutor_user).action_open_family_email()
+        with self._on(date(2041, 4, 3)), self.assertRaises(UserError, msg="Not before the step's day"):
+            case_file.with_user(self.secretary_user).action_open_family_email()
+
+    def test_social_services_and_inspection_texts_are_ready_to_copy(self):
+        case_file = self._comp_case_on_notice()
+        with self._on(date(2041, 4, 4)):
+            self._email_wizard(case_file, self.secretary_user, date(2041, 4, 4)).action_send()
+            case_file.with_user(self.secretary_user).action_accept_step()
+        coexistence_view = case_file.with_user(self.coexistence_user)
+        with self._on(date(2041, 4, 4)):
+            text = coexistence_view.copy_text
+        self.assertTrue(text)
+        self.assertIn('EOW Comp Student', text)
+        self.assertIn(case_file.group_id.name, text)
+        lines = case_file.with_context(lang=self.env.company.ems_lang)._ems_done_step_lines()
+        self.assertEqual(len(lines), 3, "Tutor, Coexistence and the notice to the family")
+        for line in lines:
+            self.assertIn(f"- {line}", text.splitlines(), "One line per step done")
+        self.assertFalse(case_file.with_user(self.secretary_user).copy_text, "Only for its responsible")
+        self.assertFalse(coexistence_view.can_print_for_inspection)
+        for user, day in ((self.coexistence_user, date(2041, 4, 4)), (self.secretary_user, date(2041, 4, 19))):
+            self._accept(case_file, user, day)
+        self.assertEqual(case_file.current_step_id.code, 'direction_approval')
+        with self._on(date(2041, 5, 4)):
+            director_view = case_file.with_user(self.director_user)
+            self.assertTrue(director_view.can_print_for_inspection)
+            self.assertIn('EOW Comp Student', director_view.copy_text)
+
+    def test_the_case_file_pdf_lists_every_step(self):
+        case_file = self._open(self.post_student, date(2041, 12, 17))
+        case_file.action_start()
+        self._accept(case_file, self.tutor_user, date(2042, 1, 8))
+        action = case_file.with_user(self.tutor_user).action_print_case_file()
+        self.assertEqual(action['report_name'], 'ems.report_ex_officio_withdrawal')
+        html = self.env['ir.actions.report']._render_qweb_html(
+            'ems.action_report_ex_officio_withdrawal', case_file.ids)[0].decode()
+        self.assertIn(case_file.name, html)
+        self.assertIn('EOW Tutor', html)

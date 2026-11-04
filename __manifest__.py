@@ -349,6 +349,7 @@
             'views/academic_management/enrollment_configuration/enrollment_items_view.xml',
             'reports/authorizations/report_authorization_certificate.xml',
             'reports/contacts/report_google_credentials.xml',
+            'reports/contacts/report_ex_officio_withdrawal.xml',
             'reports/employees/report_google_credentials_employee.xml',
             'reports/employees/report_working_schedule.xml',
             'reports/employees/report_schedule_declaration.xml',
@@ -419,6 +420,7 @@
         'mails/enrollment/authorization_send.xml',
         'mails/grades/convalidation_resolved.xml',
         'mails/grades/convalidation_info_request.xml',
+        'mails/contacts/ex_officio_withdrawal.xml',
         'mails/shared/daily_summary.xml',
         'mails/contacts/contact_data_request.xml',
 

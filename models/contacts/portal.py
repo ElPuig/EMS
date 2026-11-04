@@ -200,9 +200,10 @@ class ems_contact_portal(models.Model):
         return student.contact_type in ('student', 'applicant') \
             and (student == self or self._ems_convalidation_can_request(student))
 
-    def _ems_convalidation_recipients(self):
-        """Whoever hears about this student's convalidations (issue #529): the student always,
-        and his family too while he is a minor or when he authorized sharing with it."""
+    def _ems_student_and_family_recipients(self):
+        """Whoever hears about this student's convalidations (issue #529) and ex officio
+        withdrawal (issue #726): the student always, and his family too while he is a minor or
+        when he authorized sharing with it."""
         self.ensure_one()
         if self.is_adult and not self.auth_share:
             return self

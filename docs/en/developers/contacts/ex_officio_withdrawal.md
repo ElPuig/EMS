@@ -152,6 +152,26 @@ circuit come with the next phases.
   who get the task and the Head of Studies; the Secretariat's, `ems.group_secretary`;
   Direction's, `ems.group_director`.
 
+## Emails, texts to copy and the case file PDF (phase 3)
+
+- **Emails to the family** (`mails/contacts/ex_officio_withdrawal.xml`, `FAMILY_TEMPLATES` per circuit and step):
+  post-compulsory tutor (optional: call confirmed / family not reached), Secretariat's warning (both circuits,
+  one template with a `t-if` on the circuit), compulsory Secretariat's notice. Never sent on their own: the
+  step's block offers *Send an email to the family* (`can_email_family`: whoever may do the current step, from
+  its day on), which opens `ems.ex_officio_withdrawal.email_wizard` with the template rendered in the
+  recipients' language (subject and body editable). Recipients: `res.partner._ems_student_and_family_recipients()`
+  (the student, plus the family while a minor or with `auth_share`), the ones with an email address (the
+  others are named in a warning). Sending refuses before the step's phone call is ticked, sends one email per
+  recipient with `send_mail()` (the edited text through `email_values`, inside the template's layout), ticks the
+  step's `family_email` check with today's date and logs the text sent in the chatter.
+- **Texts to copy** (`COPY_TEMPLATES`): Social Services (compulsory, Coexistence) and the Inspection
+  (compulsory, Direction), rendered in the centre language (`res.company.ems_lang`) as plain text
+  (`copy_text`), listing the steps done (`_ems_done_step_lines()`), shown in the step's block with a copy button.
+- **Case file PDF** (`reports/contacts/report_ex_officio_withdrawal.xml`, `action_print_case_file()`): every step
+  with its due day, who did it and when, the checks with their days and the notes, in the centre language.
+  Offered in the Actions dropdown once the procedure has started, and in Direction's block of the compulsory
+  circuit (`can_print_for_inspection`), to attach to the Inspection's email.
+
 ## Access
 
 | Role | Sees | Does |

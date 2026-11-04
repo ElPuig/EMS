@@ -105,8 +105,9 @@ registry.category("web_tour.tours").add("ems_ex_officio_withdrawal_request", {
     ],
 });
 
-// Issue #726: the Secretariat does its warning step - confirms the email and the eNotum, each
-// with its day - and the case file moves on to Direction (see test_ex_officio_withdrawal_tour.py).
+// Issue #726: the Secretariat does its warning step - sends the email to the family from its
+// template (which ticks it) and confirms the eNotum - and the case file moves on to Direction (see
+// test_ex_officio_withdrawal_tour.py).
 registry.category("web_tour.tours").add("ems_ex_officio_withdrawal_secretariat_step", {
     test: true,
     steps: () => [
@@ -115,13 +116,22 @@ registry.category("web_tour.tours").add("ems_ex_officio_withdrawal_secretariat_s
             content: "The Secretariat gets its step's instructions",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='current_check_ids'] .o_data_row:nth-child(1) .o_data_cell[name='done']",
-            content: "Confirm the email (one click enters the row and ticks it)",
+            trigger: ".o_form_view div[name='current_step'] button[name='action_open_family_email']:not(.d-none)",
+            content: "Open the email to the family",
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='current_check_ids'] .o_data_row:nth-child(1) .o_data_cell[name='done'] input:checked",
-            content: "The email is ticked",
+            trigger: ".modal .o_field_widget[name='body']:contains('EOW Tour Student')",
+            content: "The template's text, with the student, ready to review",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_send']",
+            content: "Send it",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='current_check_ids'] .o_data_row:nth-child(1) .o_data_cell[name='done'] input:checked",
+            content: "Sending it ticked the email",
         },
         {
             trigger: ".o_form_view .o_field_widget[name='current_check_ids'] .o_data_row:nth-child(2) .o_data_cell[name='done']",

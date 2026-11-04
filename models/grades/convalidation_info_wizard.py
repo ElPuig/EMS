@@ -38,7 +38,7 @@ class EmsConvalidationInfoWizard(models.TransientModel):
         convalidation = self.convalidation_id
         convalidation._ems_check_state(REVIEW_STATES)
         template = self.env.ref('ems.email_template_convalidation_info_request', raise_if_not_found=False)
-        recipients = convalidation.student_id._ems_convalidation_recipients().filtered('email')
+        recipients = convalidation.student_id._ems_student_and_family_recipients().filtered('email')
         for recipient in recipients:
             lang = recipient.lang or convalidation.student_id.lang
             template.with_context(

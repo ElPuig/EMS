@@ -55,6 +55,8 @@
                                     help="Creates the circuit's steps, each with its deadline."/>
                             <button name="action_open_dismiss_wizard" type="object" string="Dismiss"
                                     invisible="not can_decide_proposal"/>
+                            <button name="action_print_case_file" type="object" string="Print the case file"
+                                    invisible="not history_html"/>
                             <button name="action_accept_step" type="object" string="Accept and continue"
                                     class="btn-primary" invisible="not can_accept_step or not current_step_open"
                                     help="Closes the current step, once what it asks for is ticked, and hands the case file over to the next one."/>
@@ -104,6 +106,27 @@
                                     <field name="date" string="On" required="done" width="130px" readonly="not parent.current_step_open"/>
                                 </list>
                             </field>
+                            <!-- Phase 3: the family email the step offers, and the text to copy
+                                 (Social Services, the Inspection) with the case file PDF. -->
+                            <field name="can_email_family" invisible="1"/>
+                            <field name="email_family_optional" invisible="1"/>
+                            <field name="can_print_for_inspection" invisible="1"/>
+                            <div class="d-flex gap-2 my-2" invisible="not can_email_family and not can_print_for_inspection">
+                                <button name="action_open_family_email" type="object" class="btn-secondary"
+                                        icon="fa-envelope" string="Send an email to the family"
+                                        invisible="not can_email_family or email_family_optional"/>
+                                <button name="action_open_family_email" type="object" class="btn-secondary"
+                                        icon="fa-envelope" string="Send an email to the family (optional)"
+                                        invisible="not can_email_family or not email_family_optional"/>
+                                <button name="action_print_case_file" type="object" class="btn-secondary"
+                                        icon="fa-file-pdf-o" string="Download the case file (PDF)"
+                                        invisible="not can_print_for_inspection"/>
+                            </div>
+                            <div invisible="not copy_text" class="my-2">
+                                <p class="text-muted mb-1">Copy this text, send it yourself and tick that you sent it:</p>
+                                <field name="copy_text" nolabel="1" readonly="1" class="border rounded p-2 bg-white d-block" style="white-space: pre-wrap;"/>
+                                <field name="copy_text" nolabel="1" widget="CopyClipboardButton" string="Copy the text"/>
+                            </div>
                             <field name="current_step_notes" nolabel="1" readonly="not current_step_open" placeholder="Notes (optional): what they told you, anything worth recording"/>
                         </div>
                         <separator string="History" invisible="not history_html"/>
@@ -117,6 +140,31 @@
             </field>
         </record>
 
+        <record id="view_ex_officio_withdrawal_email_wizard_form" model="ir.ui.view">
+            <field name="name">ems.ex_officio_withdrawal.email_wizard.form</field>
+            <field name="model">ems.ex_officio_withdrawal.email_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Email to the family">
+                    <field name="withdrawal_id" invisible="1"/>
+                    <field name="allowed_template_ids" invisible="1"/>
+                    <field name="offers_choice" invisible="1"/>
+                    <div class="alert alert-warning" role="alert" invisible="not missing_email">
+                        Without an email address, they will not get it: <field name="missing_email" nolabel="1" class="d-inline"/>
+                    </div>
+                    <group>
+                        <field name="recipient_ids" widget="many2many_tags" readonly="1"/>
+                        <field name="template_id" options="{'no_create': True, 'no_open': True}" widget="radio"
+                               invisible="not offers_choice"/>
+                        <field name="subject"/>
+                    </group>
+                    <field name="body" nolabel="1"/>
+                    <footer>
+                        <button name="action_send" type="object" string="Send" class="btn-primary"/>
+                        <button special="cancel" string="Cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
         <record id="view_ex_officio_withdrawal_dismiss_wizard_form" model="ir.ui.view">
             <field name="name">ems.ex_officio_withdrawal.dismiss_wizard.form</field>
             <field name="model">ems.ex_officio_withdrawal.dismiss_wizard</field>

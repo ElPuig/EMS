@@ -466,13 +466,13 @@ class EmsConvalidation(models.Model):
 
     def _ems_send_resolution(self):
         """Email the resolution, with its official document, to the student and - while a minor
-        or when they authorized sharing - their family (res.partner._ems_convalidation_recipients).
+        or when they authorized sharing - their family (res.partner._ems_student_and_family_recipients).
         A recipient without an email is logged in the chatter."""
         self.ensure_one()
         template = self.env.ref('ems.email_template_convalidation_resolved', raise_if_not_found=False)
         if not template:
             return
-        recipients = self.student_id._ems_convalidation_recipients()
+        recipients = self.student_id._ems_student_and_family_recipients()
         addressable = recipients.filtered('email')
         documents = self.resolution_pdf_id
         for recipient in addressable:

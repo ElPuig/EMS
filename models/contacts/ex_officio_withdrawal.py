@@ -7,7 +7,7 @@ from markupsafe import Markup
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools import format_date, format_datetime
+from odoo.tools import format_date, format_datetime, html2plaintext
 
 
 
@@ -133,6 +133,24 @@ STARTED_STATES = ('in_progress', 'direction', 'secretariat')
 # The state a started case file is in while its current step is one of these.
 STATE_BY_STEP = {'direction_approval': 'direction', 'withdrawal': 'secretariat'}
 
+# The emails to the family each step offers (mails/contacts/ex_officio_withdrawal.xml), sent only when
+# its responsible asks; the first one is preselected. Sending one ticks the step's "Email to the
+# family", when it asks for it (the tutor's are optional).
+FAMILY_TEMPLATES = {
+    ('post_compulsory', 'tutor_contact'): ('ems.email_template_ex_officio_withdrawal_tutor_confirmation',
+                                           'ems.email_template_ex_officio_withdrawal_tutor_unreachable'),
+    ('post_compulsory', 'secretariat_warning'): ('ems.email_template_ex_officio_withdrawal_family_warning',),
+    ('compulsory', 'secretariat_notice'): ('ems.email_template_ex_officio_withdrawal_family_notice',),
+    ('compulsory', 'secretariat_warning'): ('ems.email_template_ex_officio_withdrawal_family_warning',),
+}
+# The texts a step's responsible copies and sends themselves (no address in EMS), in the centre
+# language; the Inspection's goes with the case file PDF.
+COPY_TEMPLATES = {
+    ('compulsory', 'social_services'): 'ems.email_template_ex_officio_withdrawal_social_services',
+    ('compulsory', 'direction_approval'): 'ems.email_template_ex_officio_withdrawal_inspection',
+}
+CASE_FILE_REPORT = 'ems.action_report_ex_officio_withdrawal'
+
 PROPOSAL_TASK = 'ems.mail_activity_ex_officio_withdrawal_proposal'
 STEP_TASK = 'ems.mail_activity_ex_officio_withdrawal_step'
 
@@ -201,6 +219,11 @@ class EmsExOfficioWithdrawal(models.Model):
                                             sanitize=False)
     waiting_message = fields.Char(string="Whose turn it is", compute='_compute_current_step_texts')
     history_html = fields.Html(string="History", compute='_compute_history_html', sanitize=False)
+    # Phase 3: what the current step's block offers its responsible, once the step is open.
+    can_email_family = fields.Boolean(string="Can email the family", compute='_compute_step_tools')
+    email_family_optional = fields.Boolean(string="Email to the family optional", compute='_compute_step_tools')
+    copy_text = fields.Text(string="Text to copy", compute='_compute_step_tools')
+    can_print_for_inspection = fields.Boolean(string="Case file for the Inspection", compute='_compute_step_tools')
     # The student picker of a new case file (the view's domain="student_domain"): a tutor is only
     # offered their own students, and nobody a student whose level has no circuit.
     student_domain = fields.Char(string="Student domain", compute='_compute_student_domain')
@@ -340,6 +363,22 @@ class EmsExOfficioWithdrawal(models.Model):
                 "<th>{responsible}</th><th>{done}</th><th>{what}</th></tr></thead><tbody>{rows}</tbody></table>"
             ).format(date=_("Due"), step=_("Step"), responsible=_("Responsible"), done=_("Done"),
                      what=_("What was done"), rows=Markup("").join(rows))
+
+    @api.depends('state', 'current_step_id', 'step_ids.done_date', 'step_ids.check_ids.done')
+    @api.depends_context('uid')
+    def _compute_step_tools(self):
+        """The family emails, the text to copy and the case file PDF the current step offers to
+        whoever may do it, from its day on."""
+        for withdrawal in self:
+            step = withdrawal.current_step_id
+            acts = withdrawal.can_accept_step and withdrawal._ems_current_step_open()
+            key = (withdrawal.circuit, step.code)
+            withdrawal.can_email_family = acts and key in FAMILY_TEMPLATES
+            withdrawal.email_family_optional = 'family_email' not in step.check_ids.mapped('code')
+            withdrawal.copy_text = withdrawal._ems_render_copy_text(COPY_TEMPLATES[key]) \
+                if acts and key in COPY_TEMPLATES else False
+            withdrawal.can_print_for_inspection = acts and step.code == 'direction_approval' \
+                and 'inspection_email' in step.check_ids.mapped('code')
 
     @api.depends('state')
     @api.depends_context('uid')
@@ -546,6 +585,57 @@ class EmsExOfficioWithdrawal(models.Model):
                 raise UserError(_("Only the student's tutor, the people above them and the Head of Studies "
                                   "can decide this proposal."))
 
+    def action_open_family_email(self):
+        """The email to the family of the current step, ready to review and send."""
+        self.ensure_one()
+        if not self.can_email_family:
+            raise UserError(_("Only the responsible of the current step can email the family, from its day on."))
+        templates = self._ems_family_templates()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Email to the family"),
+            'res_model': 'ems.ex_officio_withdrawal.email_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_withdrawal_id': self.id, 'default_template_id': templates[:1].id},
+        }
+
+    def action_print_case_file(self):
+        """The case file as a PDF: every step with who did it and when (what Direction sends to the
+        Inspection)."""
+        self.ensure_one()
+        return self.env.ref(CASE_FILE_REPORT).report_action(self)
+
+    def _ems_family_templates(self):
+        """The emails to the family the current step offers."""
+        self.ensure_one()
+        xmlids = FAMILY_TEMPLATES.get((self.circuit, self.current_step_id.code), ())
+        return self.env['mail.template'].sudo().browse([self.env.ref(xmlid).id for xmlid in xmlids])
+
+    def _ems_render_copy_text(self, xmlid):
+        """Subject and body of a text to copy, as plain text in the centre language."""
+        self.ensure_one()
+        template = self.env.ref(xmlid).sudo().with_context(lang=self.env.company.ems_lang)
+        subject = template._render_field('subject', self.ids)[self.id]
+        # One line per step done: html2plaintext would run the list items together.
+        html = str(template._render_field('body_html', self.ids)[self.id]).replace('<li>', '<br/>- ')
+        body = html2plaintext(html)
+        return _("Subject: %(subject)s", subject=subject) + "\n\n" + body
+
+    def _ems_done_step_lines(self):
+        """One line per step done, with its day and what was done: what the texts for Social
+        Services and the Inspection list (rendered in the text's language)."""
+        self.ensure_one()
+        codes = dict(self.env['ems.ex_officio_withdrawal.step']._fields['code']._description_selection(self.env))
+        labels = dict(self.env['ems.ex_officio_withdrawal.check']._fields['code']._description_selection(self.env))
+        lines = []
+        for step in self.sudo().step_ids.filtered('done_date'):
+            done = ", ".join(f"{labels[check.code].lower()} ({format_date(self.env, check.date)})"
+                             for check in step.check_ids if check.done)
+            line = f"{format_date(self.env, step.done_date.date())}: {codes[step.code]}"
+            lines.append(f"{line} - {done}" if done else line)
+        return lines
+
     @api.model
     def _ems_circuit_for_level(self, level):
         """The protocol a student of `level` follows, from its educational stage (False: none)."""
@@ -686,6 +776,79 @@ class EmsExOfficioWithdrawalCheck(models.Model):
                    or not check.withdrawal_id._ems_current_step_open() for check in self):
                 raise UserError(_("Only the responsible of the current step can change it."))
         return super().write(vals)
+
+
+class EmsExOfficioWithdrawalEmailWizard(models.TransientModel):
+    """An email to the student and the family from the current step (issue #726): the template's
+    text, in their language, that the responsible can edit before sending. Sending it ticks the
+    step's "Email to the family" with today's date and keeps the text in the case file."""
+    _name = 'ems.ex_officio_withdrawal.email_wizard'
+    _description = "Ex officio withdrawal email to the family"
+
+    withdrawal_id = fields.Many2one(string="Case file", comodel_name='ems.ex_officio_withdrawal', required=True,
+                                    ondelete='cascade')
+    allowed_template_ids = fields.Many2many(string="Allowed templates", comodel_name='mail.template',
+                                            compute='_compute_recipients')
+    template_id = fields.Many2one(string="Which email", comodel_name='mail.template', required=True,
+                                  domain="[('id', 'in', allowed_template_ids)]")
+    offers_choice = fields.Boolean(string="Offers a choice of email", compute='_compute_recipients')
+    recipient_ids = fields.Many2many(string="To", comodel_name='res.partner', compute='_compute_recipients')
+    missing_email = fields.Char(string="Without an email address", compute='_compute_recipients')
+    subject = fields.Char(string="Subject", compute='_compute_text', store=True, readonly=False)
+    body = fields.Html(string="Text", compute='_compute_text', store=True, readonly=False)
+
+    @api.depends('withdrawal_id')
+    def _compute_recipients(self):
+        for wizard in self:
+            withdrawal = wizard.withdrawal_id
+            recipients = withdrawal.sudo().student_id._ems_student_and_family_recipients() if withdrawal else \
+                self.env['res.partner']
+            wizard.recipient_ids = recipients.filtered('email')
+            wizard.missing_email = ", ".join(recipients.filtered(lambda partner: not partner.email).mapped('name'))
+            wizard.allowed_template_ids = withdrawal._ems_family_templates() if withdrawal else False
+            wizard.offers_choice = len(wizard.allowed_template_ids) > 1
+
+    @api.depends('template_id')
+    def _compute_text(self):
+        for wizard in self:
+            if not wizard.template_id or not wizard.withdrawal_id:
+                wizard.subject = wizard.body = False
+                continue
+            template = wizard.template_id.sudo().with_context(lang=wizard._ems_lang())
+            res_id = wizard.withdrawal_id.id
+            wizard.subject = template._render_field('subject', [res_id])[res_id]
+            wizard.body = template._render_field('body_html', [res_id])[res_id]
+
+    def _ems_lang(self):
+        """The text is written in the language of whoever reads it (the student's when they
+        differ)."""
+        student = self.withdrawal_id.sudo().student_id
+        return self.recipient_ids[:1].lang or student.lang or self.env.company.ems_lang
+
+    def action_send(self):
+        self.ensure_one()
+        withdrawal = self.withdrawal_id
+        if not withdrawal.can_email_family:
+            raise UserError(_("Only the responsible of the current step can email the family, from its day on."))
+        if self.template_id not in withdrawal._ems_family_templates():
+            raise UserError(_("This text is not one the current step offers."))
+        step = withdrawal.current_step_id
+        phone = step.check_ids.filtered(lambda check: check.code == 'phone')
+        if phone and not phone.done:
+            raise UserError(_("Phone the family first: the email only comes after the phone call."))
+        if not self.recipient_ids:
+            raise UserError(_("Nobody to send it to has an email address."))
+        for recipient in self.recipient_ids:
+            self.template_id.sudo().with_context(lang=self._ems_lang()).send_mail(
+                withdrawal.id, force_send=False,
+                email_values={'subject': self.subject, 'body_html': self.body, 'email_to': recipient.email})
+        email_check = step.check_ids.filtered(lambda check: check.code == 'family_email')
+        if email_check:
+            email_check.sudo().write({'done': True, 'date': self.env['ems.datetime_utils'].get_local_today()})
+        withdrawal._message_log(body=Markup("{intro}<br/><strong>{subject}</strong><br/>{body}").format(
+            intro=_("Email sent to %s:", ", ".join(self.recipient_ids.mapped('email'))),
+            subject=self.subject, body=self.body))
+        return {'type': 'ir.actions.act_window_close'}
 
 
 class EmsExOfficioWithdrawalDismissWizard(models.TransientModel):

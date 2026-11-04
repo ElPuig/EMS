@@ -4,7 +4,8 @@ from datetime import date, timedelta
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group, create_role_employee, create_role_user, next_student_id, shift_ems_clock
+from .common import (create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email,
+                     next_student_id, shift_ems_clock)
 
 
 @tagged('post_install', '-at_install')
@@ -16,13 +17,14 @@ class TestExOfficioWithdrawalTour(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        mock_outgoing_email(cls)
         _level, _study, group = create_level_study_group(
             cls, 'TEOWT', level={'education_stage': 'post_compulsory'})
         cls.tutor_user = create_role_user(cls, 'tutor', 'test_eow_tour_tutor', name='EOW Tour Tutor')
         group.tutor_id = create_role_employee(cls, cls.tutor_user)
         cls.student = cls.env['res.partner'].create({
             'name': 'EOW Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
-            'main_group_id': group.id,
+            'main_group_id': group.id, 'email': 'eow.tour.student@example.com',
         })
         # Another tutor's student, never offered to this tutor.
         _level, _study, other_group = create_level_study_group(
@@ -73,4 +75,6 @@ class TestExOfficioWithdrawalTour(HttpCase):
         self.assertEqual(case_file.state, 'direction')
         self.assertEqual(case_file.step_ids[1].done_by_id, secretary)
         self.assertTrue(all(case_file.step_ids[1].check_ids.mapped('done')))
+        self.assertTrue(self.env['mail.mail'].search([('model', '=', case_file._name), ('res_id', '=', case_file.id),
+                                                     ('email_to', '=', 'eow.tour.student@example.com')]))
         self.assertEqual(case_file.step_ids[1].check_ids.mapped('date'), [today, today])

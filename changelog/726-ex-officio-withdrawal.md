@@ -18,6 +18,12 @@
 - A new case file only offers the user's own students (their tutor scope; everyone for the Head of Studies and the administrators) whose level has a circuit.
 - The tutor can request an ex officio withdrawal from the student's form (Actions), for a student whose level has a circuit and no open case file.
 
+## Emails to the family, texts to copy and the case file PDF (phase 3):
+- In the steps that write to the family, its responsible gets "Send an email to the family": the template's text, filled in and in the family's language, editable before sending. It goes to the student, and to the family while a minor or when the student authorised sharing; it is never sent on its own, never before the step's phone call, and sending it ticks the step's "Email to the family" with today's date and keeps the text sent in the case file. Post-compulsory tutors get an optional email after the call (confirmation, or "we could not reach you").
+- Social Services and the Inspection get no email from EMS: their text, filled in and in the centre language, is shown in the step's box with a copy button, and Direction can download the case file PDF to attach it.
+- New case file PDF (Actions > Print the case file): every step with its due day, who did it and when, what was done and the notes.
+- The email texts are drafts until Direction gives the final ones.
+
 # Changes
 
 ## Levels: tidier form, convalidations set in Settings:
@@ -31,6 +37,9 @@
 - Reading the levels was refused to a user with the Settings role and no EMS role, which broke the whole settings page once it listed levels; they can now read them.
 
 # Internal changes
+
+## Student and family recipients shared:
+- `res.partner._ems_student_and_family_recipients()` (formerly `_ems_convalidation_recipients()`) decides who hears about convalidations and ex officio withdrawals: the student, and the family while a minor or when the student authorised sharing.
 
 ## Per-course registry numbers shared:
 - `ems.base.next_course_number()` now builds the per-course registry numbers (one `ir.sequence` per kind and course) used by convalidations (CONV) and ex officio withdrawals (BO), instead of convalidations keeping their own copy.

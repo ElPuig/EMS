@@ -103,7 +103,11 @@ department colleague: see `rule_minute_teacher` vs `rule_minute_teacher_write` i
 `security/rules/quality.xml`) gets it read-only. The form's `js_class="ems_minute_form"`
 (`static/src/js/backend/minute_form.js`) adds an `onRootLoaded` hook that switches the record to
 `readonly` mode when `can_edit` is False, and back to `edit` when it is True, on every load (the pager
-moves between minutes the user may and may not write); its autosave skips a read-only record. Every
+moves between minutes the user may and may not write); its autosave skips a read-only record and must never take
+the cursor out of the text being written (issue #755): when only existing lines changed it saves with
+`reload: false`, so nothing is redrawn; when the changes add one2many lines (which need the reload for their ids) it
+remembers which text box had the focus (its position among the form's text boxes) and the caret's offset, and puts
+them back after the redraw. Every
 header action and the attendance kiosk buttons are also `invisible="not can_edit or ..."`, since each
 of them writes the minute. The record rules stay the only real guarantee.
 
@@ -174,7 +178,8 @@ stateDiagram-v2
 | (in draft) Delete | `action_delete` (`unlink`) | whoever can write it (`rule_minute_teacher_unlink`, draft only) | its agenda, lines and agreements go with it, and its NFC session while still a draft; `_unlink_only_draft` refuses any other state, for every role |
 | Start the meeting | `action_start_meeting` | whoever can write it | the minute opens for writing; with the NFC tag, its kiosk can be opened |
 | Back to preparing / to the meeting / to draft | `action_back_to_draft`, `action_back_to_meeting` | whoever can write it | back to preparing is refused once its NFC session has been opened |
-| Send for approval | `action_submit` | whoever can write it | NFC attendance copied into the lists; the development composed from the items; *Approve the minute* task for the approver |
+| Send for approval | `action_open_submit_dialog` → `ems.minute.submit.wizard.action_confirm` → `action_submit` (an evidence record calls `action_submit` straight away) | whoever can write it | NFC attendance copied into the lists; the development composed from the items; *Approve the minute* task for the approver |
+| (meeting or waiting for approval) Send the draft to the participants | `action_send_draft`, also from the submit dialog's *Also send the draft to the participants* | whoever can write it | emails the attendees who have a `work_email` (one message, with a link to `/report/pdf/ems.report_minute/<id>`, the draft as it stands) and each guest who attended with an email (a message of their own with the PDF attached, having no account); attendance synced from the NFC session first; a note "Draft sent to N people" |
 | Approve | `action_approve` | **whoever gives the approval** (`can_approve`) | approval date set, PDF rendered and attached; approval task done; its agreements announced (tasks and notices); irreversible |
 
 "Whoever can write it" is the write rule (`rule_minute_teacher_write`): the writer and their chain of
@@ -440,3 +445,14 @@ still change until then.
 Upgrade (`migrations/18.0.0.46.0/post-migrate.py`): the people involved who are not also responsible (nor
 the agreement's creator) are unsubscribed from the agreements they followed. No task is created for
 agreements that already existed: they are created as their responsible people or deadline next change.
+
+## Carrying pending topics over (issue #755)
+
+`_ems_preload_previous` (from the scope onchange and from `create` when no previous minute is set) copies the
+previous minute's pending topics not dealt with, each once: none this minute already has, and no repetition the
+previous minute may hold. The form force-saves the readonly fields it fills (`previous_minute_id`,
+`followed_agreement_ids`, `carried_from_minute_id`): without it the web client never sent them, `create` found no
+previous minute and carried the topics a second time, and every following minute doubled them again. The upgrade
+(`migrations/18.0.0.46.0/post-migrate.py`) removes the repetitions from the minutes not approved yet; an approved
+minute is a closed record and keeps them, but carries each topic only once.
+

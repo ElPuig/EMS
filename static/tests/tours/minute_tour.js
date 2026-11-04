@@ -182,18 +182,23 @@ registry.category("web_tour.tours").add("ems_minute_write", {
             trigger: ".o_form_saved .o_field_widget[name='agreement_ids'] .o_ems_record_card_cell[data-name='is_closed_in_minute'] input:checked",
             content: "It stays done once saved",
         },
-        ...clickAction("action_submit", "Send it for approval"),
+        ...clickAction("action_open_submit_dialog", "Send it for approval"),
         {
-            trigger: ".o_dialog .modal-footer .btn-primary",
-            content: "Confirm the change of state",
+            // Nobody passed the tag in this meeting: there is nobody to send the draft to.
+            trigger: ".o_dialog:not(:has(.o_field_widget[name='send_draft'])) p.text-muted",
+            content: "The dialog says the draft has nobody to go to",
+        },
+        {
+            trigger: ".o_dialog .modal-footer .btn-primary[name='action_confirm']",
+            content: "Send it for approval",
             run: "click",
         },
         {
             trigger: ".o_statusbar_status .o_arrow_button_current",
             content: "The state moved on",
         },
-        ...checkActions({ offered: ["action_back_to_meeting"], notOffered: ["action_send_call", "action_delete"] },
-            "Sent for approval, it can no longer be called nor deleted"),
+        ...checkActions({ offered: ["action_back_to_meeting", "action_send_draft"], notOffered: ["action_send_call", "action_delete"] },
+            "Sent for approval, it can no longer be called nor deleted, but its draft can be sent"),
     ],
 });
 
@@ -338,3 +343,36 @@ registry.category("web_tour.tours").add("ems_minute_autosave_keeps_focus", {
         },
     ],
 });
+
+// Issue #755: sending for approval offers to send the draft to whoever attended, and it can be
+// sent again afterwards.
+registry.category("web_tour.tours").add("ems_minute_submit_with_draft", {
+    test: true,
+    steps: () => [
+        ...clickAction("action_open_submit_dialog", "Send it for approval"),
+        {
+            trigger: ".o_dialog .o_field_widget[name='send_draft'] input:checked",
+            content: "Sending the draft to the participants is offered, and ticked",
+        },
+        {
+            trigger: ".o_dialog .modal-footer .btn-primary[name='action_confirm']",
+            content: "Send it for approval, with its draft",
+            run: "click",
+        },
+        {
+            trigger: ".o-mail-Message:contains('Draft sent to 1 people')",
+            content: "The draft has gone to whoever attended, as the minute's history says",
+        },
+        ...clickAction("action_send_draft", "Send the draft again"),
+        {
+            trigger: ".o_dialog .modal-footer .btn-primary",
+            content: "Confirm",
+            run: "click",
+        },
+        {
+            trigger: ".o-mail-Message:contains('Draft sent to 1 people') ~ .o-mail-Message:contains('Draft sent to 1 people'), .o-mail-Thread:has(.o-mail-Message:contains('Draft sent to 1 people') + .o-mail-Message:contains('Draft sent to 1 people'))",
+            content: "Sent again",
+        },
+    ],
+});
+

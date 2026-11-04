@@ -527,6 +527,82 @@ class TestQualityMinute(TransactionCase):
                 minute.action_send_call()
         self.mail_transport.assert_not_called()
 
+    # --- Draft for the participants (issue #755) ------------------------------------------------
+
+    def _held_minute(self):
+        absentee = create_role_employee(self, create_role_user(self, 'teacher', 'minute.absent@example.com', name='Minute Absent Teacher'),
+                                        department_id=self.department.id)
+        absentee.work_email = 'minute.absent@example.com'
+        minute = self._minute(attendance_mode='manual')
+        minute.write({
+            'attendee_ids': [(6, 0, [self.employee.id])],
+            'absentee_ids': [(6, 0, [absentee.id])],
+            'guest_ids': [(0, 0, {'name': 'Ana', 'surname': 'Guest', 'email': 'ana.guest@example.com'}),
+                          (0, 0, {'name': 'Pau', 'surname': 'Away', 'email': 'pau.away@example.com', 'attended': False})],
+        })
+        minute.section_value_ids.filtered('required').content = "<p>Discussed.</p>"
+        minute.action_start_meeting()
+        return minute
+
+    def _draft_mails(self, minute):
+        return self.env['mail.mail'].sudo().search([('model', '=', 'ems.minute'), ('res_id', '=', minute.id),
+                                                    ('subject', 'like', 'Draft minute')])
+
+    def test_the_draft_goes_to_whoever_attended(self):
+        minute = self._held_minute()
+        minute.with_user(self.user).action_send_draft()
+        mails = self._draft_mails(minute)
+        staff = mails.filtered(lambda mail: 'minute.writer@example.com' in mail.email_to)
+        self.assertEqual(len(staff), 1)
+        self.assertNotIn('minute.absent@example.com', staff.email_to, "not to whoever was absent")
+        self.assertIn(f'/report/pdf/ems.report_minute/{minute.id}', staff.body_html, "the staff get the link to the draft's PDF")
+        self.assertFalse(staff.attachment_ids)
+        guest = mails.filtered(lambda mail: 'ana.guest@example.com' in mail.email_to)
+        self.assertEqual(len(guest), 1, "a guest gets a message of their own")
+        self.assertEqual(guest.attachment_ids.mimetype, 'application/pdf', "with the PDF attached, having no account")
+        self.assertNotIn('/report/pdf', guest.body_html)
+        self.assertFalse(mails.filtered(lambda mail: 'pau.away@example.com' in mail.email_to), "not to a guest who did not come")
+        self.assertTrue(minute.message_ids.filtered(lambda message: 'Draft sent to 2 people' in (message.body or '')))
+
+    def test_the_draft_is_sent_with_the_minute_for_approval(self):
+        minute = self._held_minute()
+        wizard = self.env['ems.minute.submit.wizard'].with_user(self.user).create({'minute_id': minute.id, 'send_draft': True})
+        self.assertEqual(wizard.recipient_count, 2)
+        wizard.action_confirm()
+        self.assertEqual(minute.state, 'to_approve')
+        self.assertEqual(len(self._draft_mails(minute)), 2)
+        minute.with_user(self.user).action_send_draft()
+        self.assertEqual(len(self._draft_mails(minute)), 4, "and again while it waits for approval")
+
+    def test_sending_for_approval_without_the_draft(self):
+        minute = self._held_minute()
+        self.env['ems.minute.submit.wizard'].with_user(self.user).create({'minute_id': minute.id, 'send_draft': False}).action_confirm()
+        self.assertEqual(minute.state, 'to_approve')
+        self.assertFalse(self._draft_mails(minute))
+
+    def test_whoever_only_reads_the_minute_cannot_send_its_draft(self):
+        minute = self._held_minute()
+        other = self.env['hr.department'].create({'name': 'Minute Reader Department'})
+        reader = create_role_user(self, 'teacher', 'minute.draft.reader@example.com', name='Minute Draft Reader')
+        reader_employee = create_role_employee(self, reader, department_id=other.id)
+        minute.attendee_ids |= self.env['hr.employee.public'].browse(reader_employee.id)
+        self.assertTrue(minute.with_user(reader).search([('id', '=', minute.id)]), "an attendee reads it")
+        with self.assertRaises(AccessError):
+            minute.with_user(reader).action_send_draft()
+        with self.assertRaises(AccessError):
+            minute.with_user(reader).action_open_submit_dialog()
+
+    def test_no_draft_before_the_meeting_or_once_approved(self):
+        minute = self._minute()
+        with self.assertRaises(UserError):
+            minute.action_send_draft()
+        minute.action_start_meeting()
+        minute.section_value_ids.filtered('required').content = "<p>Discussed.</p>"
+        minute.action_submit()
+        minute.action_approve()
+        with self.assertRaises(UserError):
+            minute.action_send_draft()
+
     # --- Deleting ---------------------------------------------------------------------------------
 
     def test_the_writer_deletes_a_draft_minute_with_its_attendance_session(self):

@@ -2363,6 +2363,7 @@ msgstr "Pot editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_review_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_expected_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.mail_activity_view_tree_snooze
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_submit_wizard_form
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -2926,6 +2927,7 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_info_notice__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_submit_wizard__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -2998,6 +3000,7 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_info_notice__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_submit_wizard__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3356,6 +3359,7 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_info_notice__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_minute_submit_wizard__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -4668,6 +4672,7 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_info_notice__id
 #: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_submit_wizard__id
 msgid "ID"
 msgstr "ID"
 
@@ -5190,6 +5195,7 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_info_notice__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_submit_wizard__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -5262,6 +5268,7 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_info_notice__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_submit_wizard__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -5644,6 +5651,7 @@ msgstr "Beca ministeri"
 #: model:ir.actions.report,name:ems.action_report_minute model:ir.model.fields,field_description:ems.field_ems_minute_agenda__minute_id model:ir.model.fields,field_description:ems.field_ems_minute_member_line__minute_id model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__minute_id model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__minute_id model:ir.model.fields,field_description:ems.field_ems_minute_section_value__minute_id model:ir.model.fields,field_description:ems.field_ems_quality_action__minute_id
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agreement_review__minute_id
 #: model:ir.model.fields,field_description:ems.field_ems_minute_guest__minute_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_submit_wizard__minute_id
 msgid "Minute"
 msgstr "Acta"
 
@@ -25171,7 +25179,10 @@ msgid "Sections, in the order they appear"
 msgstr "Seccions, en l'ordre en què apareixen"
 
 #. module: ems
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_submit_wizard_form
+#: code:addons/ems/models/quality/minute.py:0
 msgid "Send for approval"
 msgstr "Enviar a aprovar"
 
@@ -28841,3 +28852,103 @@ msgstr "Dur a terme l'acord"
 #: model:mail.activity.type,name:ems.mail_activity_minute_approval
 msgid "Approve the minute"
 msgstr "Aprovar l'acta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_submit_wizard__send_draft
+msgid "Also send the draft to the participants"
+msgstr "Envia també l'esborrany als participants"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Draft minute: %(name)s (%(date)s)"
+msgstr "Esborrany de l'acta: %(name)s (%(date)s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Draft sent to %s people."
+msgstr "Esborrany enviat a %s persones."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
+msgid "Hello! Here is the draft of the minute of our meeting, so you can review it while it is fresh."
+msgstr "Hola! Aquí teniu l'esborrany de l'acta de la nostra reunió, perquè el pugueu revisar ara que la teniu fresca."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
+msgid "If anything needs correcting, reply to this email before the minute is approved."
+msgstr "Si cal corregir alguna cosa, responeu aquest correu abans que s'aprovi l'acta."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
+msgid "It will be approved by"
+msgstr "L'aprovarà"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_submit_wizard_form
+msgid "None of the people who attended has an email address: the draft cannot be sent to them."
+msgstr "Cap de les persones que hi han assistit té adreça de correu: no se'ls pot enviar l'esborrany."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_submit_wizard__recipient_count
+msgid "Participants with an email address"
+msgstr "Participants amb adreça de correu"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
+msgid "Read the draft (PDF)"
+msgstr "Llegeix l'esborrany (PDF)"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_minute_submit_wizard
+msgid "Send a minute for approval, optionally emailing its draft to the participants."
+msgstr "Enviar una acta a aprovar i, si es vol, enviar-ne l'esborrany als participants."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Send the draft to the participants"
+msgstr "Envia l'esborrany als participants"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "The draft can only be sent while the meeting is held or its minute waits for approval."
+msgstr "L'esborrany només es pot enviar mentre es fa la reunió o mentre l'acta espera l'aprovació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "The draft has been sent to %s people."
+msgstr "L'esborrany s'ha enviat a %s persones."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
+msgid "The draft is attached to this email as a PDF."
+msgstr "L'esborrany va adjunt a aquest correu en PDF."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_submit_wizard_form
+msgid "The minute is sent to whoever approves it, and can no longer be written until it comes back."
+msgstr "L'acta s'envia a qui l'ha d'aprovar i ja no es pot redactar fins que torni."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "The record is sent to whoever approves it, and can no longer be written until it comes back. Send it?"
+msgstr "El registre s'envia a qui l'ha d'aprovar i ja no es pot redactar fins que torni. L'envieu?"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_submit_wizard__send_draft
+msgid "The staff who attended get a link to the draft's PDF, and the guests from outside EMS who came get it attached, so they can review it while the meeting is fresh."
+msgstr "El personal que hi ha assistit rep un enllaç al PDF de l'esborrany, i els convidats de fora de l'EMS que hi han vingut el reben adjunt, perquè el puguin revisar ara que tenen fresca la reunió."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "The staff who attended will get a link to the draft's PDF, and the guests who came will get it attached. Send it?"
+msgstr "El personal que hi ha assistit rebrà un enllaç al PDF de l'esborrany, i els convidats que hi han vingut el rebran adjunt. L'envieu?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "There is nobody to send the draft to: none of the people who attended has an email address."
+msgstr "No hi ha ningú a qui enviar l'esborrany: cap de les persones que hi han assistit té adreça de correu."

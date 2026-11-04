@@ -5,7 +5,7 @@ from unittest.mock import patch
 from odoo.tests import tagged
 from odoo.tests.common import HttpCase
 
-from .common import create_role_employee, create_role_user
+from .common import create_role_employee, create_role_user, mock_outgoing_email
 
 
 @tagged('post_install', '-at_install')
@@ -22,6 +22,9 @@ class TestQualityMinuteTour(HttpCase):
         cls.department = cls.env['hr.department'].create({'name': '0000 Minute Tour Department'})
         cls.user = create_role_user(cls, 'department_chief', 'minute.tour@example.com')
         employee = create_role_employee(cls, cls.user, department_id=cls.department.id)
+        # The draft is emailed to whoever attended (issue #755): nothing leaves this box from a test.
+        employee.work_email = 'minute.tour@example.com'
+        cls.mail_transport = mock_outgoing_email(cls)
         # Only the department's own chiefs start its minutes (ems.minute.type.starter_scope).
         cls.department.manager_id = employee
 
@@ -89,4 +92,25 @@ class TestQualityMinuteTour(HttpCase):
         self.assertEqual(minute.agenda_ids.mapped('name'), ['First item', 'Second item'])
         self.assertIn('First words and more', minute.agenda_ids[0].notes)
         self.assertIn('New words and more', minute.agenda_ids[1].notes)
+
+    def test_send_for_approval_with_the_draft_tour(self):
+        """Issue #755: sending a minute for approval offers to send its draft to whoever attended;
+        afterwards it can be sent again from the Actions."""
+        writer = self.env['hr.employee.public'].browse(self.user.employee_id.id)
+        minute = self.env['ems.minute'].create({
+            'type_id': self.env.ref('__import__.minute_type_dep').id,
+            'department_id': self.department.id,
+            'attendance_mode': 'manual',
+            'attendee_ids': [(6, 0, writer.ids)],
+            'redactor_employee_id': writer.id,
+            'approver_employee_id': writer.id,
+        })
+        minute.section_value_ids.filtered('required').content = "<p>Discussed.</p>"
+        minute.action_start_meeting()
+        self.start_tour(f"/odoo/action-ems.action_minute/{minute.id}", "ems_minute_submit_with_draft", login="minute.tour@example.com")
+        self.assertEqual(minute.state, 'to_approve')
+        # Written in the centre's language: found by the minute, the only mail it sends here.
+        drafts = self.env['mail.mail'].sudo().search([('model', '=', 'ems.minute'), ('res_id', '=', minute.id)])
+        self.assertEqual(len(drafts), 2, "with the approval, and again from the Actions")
+        self.assertIn('minute.tour@example.com', drafts[0].email_to)
 

@@ -12,7 +12,7 @@ Configura quins nivells admeten convalidacions, quan es poden presentar sol·lic
 
 ## Accés
 
-Navega a: **Configuració → EMS Management**, seccions **Convalidacions: sol·licituds** (nivells, període de sol·licitud i avís sobre l'assistència) i **Convalidacions: resolució** (els textos i la signatura de la resolució).
+Navega a: **Configuració → EMS Management → Configuració de convalidacions**
 
 ---
 

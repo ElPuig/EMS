@@ -240,7 +240,7 @@ A student with no birth date counts as a minor. `_ems_convalidation_portal_visib
 
 ### Request period
 
-A yearly window, with no year, stored on `res.company` and edited in Settings → EMS Management → Convalidations: requests (the settings form, so only `base.group_system`):
+A yearly window, with no year, stored on `res.company` and edited in Settings → EMS Management → Convalidations Settings (the settings form, so only `base.group_system`):
 
 | Field | Default | Notes |
 |-------|---------|-------|

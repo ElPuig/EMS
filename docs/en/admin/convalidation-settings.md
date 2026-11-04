@@ -12,7 +12,7 @@ Configure which levels allow convalidations, when requests can be submitted from
 
 ## Access
 
-Navigate to: **Settings → EMS Management**, sections **Convalidations: requests** (levels, request period and attendance notice) and **Convalidations: resolution** (the resolution's texts and signature).
+Navigate to: **Settings → EMS Management → Convalidations Settings**
 
 ---
 

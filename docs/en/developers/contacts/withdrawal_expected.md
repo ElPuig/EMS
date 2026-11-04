@@ -39,7 +39,7 @@ up absences. An **expected withdrawal** (issue #644) bridges that gap:
 | `not_expected_subject_ids` / `not_expected_legend` | computed | For the Schedule tab: the subjects drawn dashed and the legend explaining why (every subject, for an expected withdrawal). |
 
 The ribbon reuses `archived_reason_label`/`_color` (the archived student's Alumni/Withdrawal/Expelled
-ribbon): on an active student with the mark it reads "Expected withdrawal", in amber. The shared
+ribbon): on an active student with the mark it reads "Expected withdrawal", in amber, on the form and on the students' kanban card (both views show it when `not archived_reason_label or (active and not withdrawal_expected)` is false, #757). The shared
 ribbon widget now shrinks long texts like the native one (`o_medium`/`o_small`).
 
 ### `ems.attendance_session_line` (inherited)

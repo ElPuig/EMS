@@ -41,7 +41,7 @@ When you know a student won't come back, you ask for their withdrawal, but proce
 
 ## What changes while it lasts
 
-- **The file** shows the **Expected withdrawal** ribbon and a notice with the date, who marked it and the note.
+- **The file** shows the **Expected withdrawal** ribbon and a notice with the date, who marked it and the note. The student's card in the students list shows the same ribbon.
 
   ![The student's file with the Expected withdrawal ribbon and the notice](../../assets/tutors/baixa-prevista-03-fitxa.png)
 

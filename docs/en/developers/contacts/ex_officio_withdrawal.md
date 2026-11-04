@@ -172,7 +172,9 @@ everything for `ems.group_student_data_reader`, `ems.group_secretary` and
     (`_step_instructions()`, per circuit and step), from which day and before which one (the next
     step's day), and whether it is not open yet or late; the current step's checks
     (`current_check_ids`, an editable list: ticked, sentence, day) and its notes
-    (`current_step_notes`).
+    (`current_step_notes`). Before the step's day (`current_step_open`) the block only informs:
+    the checks and notes are read-only and *Accept and continue* is hidden (the writes and the
+    button are refused server-side too, `_ems_current_step_open()`).
   - **Whose turn it is**, for everybody else (`waiting_message`): the responsible, the step and its
     day; on a proposal, that the tutor decides.
   - **The history** (`history_html`, read-only): every step in order with its due day (and, below it

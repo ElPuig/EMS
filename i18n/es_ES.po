@@ -29556,3 +29556,8 @@ msgstr "Día según el protocolo"
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "protocol: %s"
 msgstr "protocolo: %s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__current_step_open
+msgid "Current step open"
+msgstr "Paso actual abierto"

@@ -282,11 +282,12 @@ class TestExOfficioWithdrawal(TransactionCase):
         case_file = self._open(self.post_student, date(2041, 12, 17))
         case_file.action_start()
         step = case_file.current_step_id.with_user(self.tutor_user)
-        step.write({'notes': 'Mother answered'})
-        with self.assertRaises(UserError):
-            step.write({'due_date': date(2041, 12, 18)})
-        with self.assertRaises(UserError):
-            case_file.current_check_ids.with_user(self.tutor_user).write({'code': 'enotum'})
+        with self._on(date(2042, 1, 8)):
+            step.write({'notes': 'Mother answered'})
+            with self.assertRaises(UserError):
+                step.write({'due_date': date(2041, 12, 18)})
+            with self.assertRaises(UserError):
+                case_file.current_check_ids.with_user(self.tutor_user).write({'code': 'enotum'})
         self._accept(case_file, self.tutor_user, date(2042, 1, 8))
         self.assertIn('Mother answered', case_file.message_ids[0].body)
         with self.assertRaises(UserError, msg="A step already done is closed"):
@@ -310,6 +311,22 @@ class TestExOfficioWithdrawal(TransactionCase):
         body = case_file.message_ids[0].body
         self.assertIn('01/15/2042', body)
         self.assertIn('01/16/2042', body)
+
+    def test_nothing_is_touched_before_the_step_opens(self):
+        """Before its day the block is read-only: no ticks, no notes, no button."""
+        case_file = self._open(self.post_student, date(2041, 12, 17))
+        case_file.action_start()
+        tutor_view = case_file.with_user(self.tutor_user)
+        with self._on(date(2042, 1, 7)):
+            self.assertFalse(tutor_view._ems_current_step_open())
+            self.assertIn('01/08/2042', tutor_view.current_step_instructions)
+            with self.assertRaises(UserError):
+                case_file.current_check_ids.with_user(self.tutor_user).write({'done': True, 'date': date(2042, 1, 7)})
+            with self.assertRaises(UserError):
+                case_file.current_step_id.with_user(self.tutor_user).write({'notes': 'Too early'})
+        with self._on(date(2042, 1, 8)):
+            self.assertTrue(tutor_view._ems_current_step_open())
+            case_file.current_check_ids.with_user(self.tutor_user).write({'done': True, 'date': date(2042, 1, 8)})
 
     def test_a_check_day_is_neither_future_nor_before_the_first_absence(self):
         case_file = self._open(self.post_student, date(2041, 12, 17))
@@ -340,7 +357,8 @@ class TestExOfficioWithdrawal(TransactionCase):
     def test_history_shows_done_and_pending_steps(self):
         case_file = self._open(self.post_student, date(2041, 12, 17))
         case_file.action_start()
-        case_file.current_step_id.with_user(self.tutor_user).notes = 'Father will call back'
+        with self._on(date(2042, 1, 8)):
+            case_file.current_step_id.with_user(self.tutor_user).notes = 'Father will call back'
         self._accept(case_file, self.tutor_user, date(2042, 1, 8))
         history = case_file.history_html
         self.assertIn('EOW Tutor', history)

@@ -182,6 +182,8 @@ class EmsExOfficioWithdrawal(models.Model):
     next_due_date = fields.Date(string="Next deadline", related='current_step_id.due_date')
     can_decide_proposal = fields.Boolean(string="Can decide the proposal", compute='_compute_can_decide_proposal')
     can_accept_step = fields.Boolean(string="Can do the current step", compute='_compute_can_accept_step')
+    # Whether the current step's day has come: before it, its block is read-only and has no button.
+    current_step_open = fields.Boolean(string="Current step open", compute='_compute_current_step_open')
     # The block of whoever does the current step: what to do and by when, what to confirm (each
     # check with its date, saved as they go) and their notes. Everybody else gets one line saying
     # whose turn it is. The history replaces the steps list: read-only, done and pending steps.
@@ -224,6 +226,17 @@ class EmsExOfficioWithdrawal(models.Model):
                                           and step.code != 'withdrawal'
                                           and withdrawal._ems_user_acts_as(step.responsible))
 
+    @api.depends('current_step_id.due_date')
+    def _compute_current_step_open(self):
+        for withdrawal in self:
+            withdrawal.current_step_open = withdrawal._ems_current_step_open()
+
+    def _ems_current_step_open(self):
+        """Whether the current step's day has come (read fresh, for the server-side checks)."""
+        self.ensure_one()
+        due = self.current_step_id.due_date
+        return bool(due) and due <= self.env['ems.datetime_utils'].get_local_today()
+
     @api.depends('state', 'current_step_id', 'step_ids.due_date')
     @api.depends_context('uid', 'lang')
     def _compute_current_step_texts(self):
@@ -264,10 +277,11 @@ class EmsExOfficioWithdrawal(models.Model):
             help_line = _("Tick each action as you do it and save: you can do it in several goes. "
                           "\"Accept and continue\" (Actions menu) hands the case file over once every one is ticked.")
             withdrawal.current_step_instructions = Markup(
-                "<p><strong>{step}</strong></p><p>{what}</p><p>{frame}</p>{status}<p class='text-muted'>{help}</p>"
+                "<p><strong>{step}</strong></p><p>{what}</p><p>{frame}</p>{status}{help}"
             ).format(step=codes[step.code], what=_step_instructions(withdrawal.circuit, step.code), frame=frame,
                      status=Markup("<p class='text-danger'>{}</p>").format(status) if status else '',
-                     help=help_line)
+                     help=Markup("<p class='text-muted'>{}</p>").format(help_line)
+                     if step.due_date <= today else '')
 
     @api.depends('step_ids.done_date', 'step_ids.due_date', 'step_ids.notes', 'step_ids.check_ids.done',
                  'step_ids.check_ids.date')
@@ -608,7 +622,8 @@ class EmsExOfficioWithdrawalStep(models.Model):
         if not self.env.su:
             if set(vals) - {'notes'}:
                 raise UserError(_("A step only changes through its case file's buttons."))
-            if any(not step.is_current or not step.withdrawal_id.can_accept_step for step in self):
+            if any(not step.is_current or not step.withdrawal_id.can_accept_step
+                   or not step.withdrawal_id._ems_current_step_open() for step in self):
                 raise UserError(_("Only the responsible of the current step can change it."))
         return super().write(vals)
 
@@ -654,7 +669,8 @@ class EmsExOfficioWithdrawalCheck(models.Model):
         if not self.env.su:
             if set(vals) - {'done', 'date'}:
                 raise UserError(_("A step only changes through its case file's buttons."))
-            if any(not check.is_current or not check.withdrawal_id.can_accept_step for check in self):
+            if any(not check.is_current or not check.withdrawal_id.can_accept_step
+                   or not check.withdrawal_id._ems_current_step_open() for check in self):
                 raise UserError(_("Only the responsible of the current step can change it."))
         return super().write(vals)
 

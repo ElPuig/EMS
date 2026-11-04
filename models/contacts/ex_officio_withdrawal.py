@@ -79,7 +79,7 @@ STEP_CATALOG = {
 def _check_sentences():
     """What the responsible confirms by ticking each check, followed by its date."""
     return {
-        'phone': _("I confirm I phoned the family (or the student, if of age), whether or not they answered, on"),
+        'phone': _("I confirm I phoned the family (or the student, if of age) on"),
         'phone_attempt': _("I phoned the family and did not reach them on"),
         'family_email': _("I confirm I emailed the family (or the student, if of age) on"),
         'enotum': _("I confirm I sent the eNotum on"),
@@ -826,12 +826,22 @@ class EmsExOfficioWithdrawalCheck(models.Model):
     call_outcome = fields.Selection(string="Call outcome", selection=CALL_OUTCOMES, readonly=True)
     by_button = fields.Boolean(string="Ticked by sending", compute='_compute_by_button')
 
-    @api.depends('code')
+    @api.depends('code', 'call_outcome', 'by_button')
     @api.depends_context('lang')
     def _compute_label(self):
+        """A call step's phone call says how it went once its window has said so; until then,
+        where to say it."""
         sentences = _check_sentences()
+        by_outcome = {
+            'reached': _("I confirm I phoned the family (or the student, if of age) and reached them on"),
+            'not_reached': _("I confirm I phoned the family (or the student, if of age) and did not reach them on"),
+        }
         for check in self:
-            check.label = sentences.get(check.code)
+            if check.code == 'phone' and check.by_button:
+                check.label = by_outcome.get(check.call_outcome) or \
+                    _("Phone call to the family: say how it went with the buttons above")
+            else:
+                check.label = sentences.get(check.code)
 
     @api.depends('code', 'step_id.code', 'withdrawal_id.circuit')
     def _compute_by_button(self):

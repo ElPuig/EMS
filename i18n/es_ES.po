@@ -29926,12 +29926,6 @@ msgid "Email to the family sent"
 msgstr "Correo a la familia enviado"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
-msgid "I confirm I phoned the family (or the student, if of age), whether or not they answered, on"
-msgstr "Confirmo que he llamado a la familia (o al alumno, si es mayor de edad), tanto si me han respondido como si no, en fecha"
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__family_email_state__ready
 msgid "Ready"
 msgstr "Listo"
@@ -30078,3 +30072,27 @@ msgstr "Esto se marca con los botones del paso, no a mano."
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_check__code__phone_attempt
 msgid "Unanswered phone call"
 msgstr "Llamada sin respuesta"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "I confirm I phoned the family (or the student, if of age) and did not reach them on"
+msgstr "Confirmo que he llamado a la familia (o al alumno, si es mayor de edad) y no los he localizado en fecha"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "I confirm I phoned the family (or the student, if of age) and reached them on"
+msgstr "Confirmo que he llamado a la familia (o al alumno, si es mayor de edad) y los he localizado en fecha"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "I confirm I phoned the family (or the student, if of age) on"
+msgstr "Confirmo que he llamado a la familia (o al alumno, si es mayor de edad) en fecha"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Phone call to the family: say how it went with the buttons above"
+msgstr "Llamada a la familia: indica cómo ha ido con los botones de arriba"

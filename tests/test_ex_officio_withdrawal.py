@@ -491,6 +491,7 @@ class TestExOfficioWithdrawal(TransactionCase):
         case_file, tutor_view = self._post_tutor_step()
         self.assertEqual(case_file.current_check_ids.mapped('code'), ['phone', 'family_email'])
         phone, email = case_file.current_check_ids
+        self.assertIn('buttons above', phone.with_context(lang='en_US').label, "Nothing said yet")
         with self._on(date(2042, 1, 9)):
             self.assertEqual(tutor_view.family_email_state, 'ready')
             self.assertTrue(tutor_view.family_email_two)
@@ -512,6 +513,8 @@ class TestExOfficioWithdrawal(TransactionCase):
             with self.assertRaises(UserError, msg="Only one email"):
                 tutor_view.with_context(call_outcome='reached').action_open_family_email()
         self.assertEqual((phone.done, phone.date, phone.call_outcome), (True, date(2042, 1, 8), 'reached'))
+        phone.invalidate_recordset(['label'])
+        self.assertIn('and reached them on', phone.with_context(lang='en_US').label)
         self.assertEqual((email.done, email.date), (True, date(2042, 1, 9)))
         self.assertIn('reached them', case_file.with_context(lang='en_US').history_html)
         self._accept(case_file, self.tutor_user, date(2042, 1, 9), tick=False)
@@ -543,6 +546,7 @@ class TestExOfficioWithdrawal(TransactionCase):
             wizard.action_send()
         phone = step.check_ids.filtered(lambda check: check.code == 'phone')
         self.assertEqual((phone.date, phone.call_outcome), (date(2042, 1, 10), 'not_reached'))
+        self.assertIn('and did not reach them on', phone.with_context(lang='en_US').label)
         self.assertEqual(len(self._mails(case_file)), 1)
         self._accept(case_file, self.tutor_user, date(2042, 1, 10), tick=False)
         self.assertEqual(case_file.current_step_id.code, 'secretariat_warning')

@@ -29922,12 +29922,6 @@ msgid "Email to the family sent"
 msgstr "Correu a la família enviat"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
-msgid "I confirm I phoned the family (or the student, if of age), whether or not they answered, on"
-msgstr "Confirmo que he trucat a la família (o a l'alumne, si és major d'edat), tant si m'han respost com si no, en data"
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__family_email_state__ready
 msgid "Ready"
 msgstr "A punt"
@@ -30074,3 +30068,27 @@ msgstr "Això es marca amb els botons del pas, no a mà."
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_check__code__phone_attempt
 msgid "Unanswered phone call"
 msgstr "Trucada sense resposta"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "I confirm I phoned the family (or the student, if of age) and did not reach them on"
+msgstr "Confirmo que he trucat a la família (o a l'alumne, si és major d'edat) i no els he localitzat en data"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "I confirm I phoned the family (or the student, if of age) and reached them on"
+msgstr "Confirmo que he trucat a la família (o a l'alumne, si és major d'edat) i els he localitzat en data"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "I confirm I phoned the family (or the student, if of age) on"
+msgstr "Confirmo que he trucat a la família (o a l'alumne, si és major d'edat) en data"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Phone call to the family: say how it went with the buttons above"
+msgstr "Trucada a la família: indiqueu com ha anat amb els botons de dalt"

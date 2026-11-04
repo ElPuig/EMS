@@ -74,6 +74,39 @@ class IrMailServer(models.Model):
         return recipient_domain == domain and (local == account or local.startswith(f"{account}+"))
 
 
+class MailMail(models.Model):
+    """On a development machine OdooBot's emails (daily summaries, automatic notices) are not
+    sent unless 'ems.dev_mail_odoobot' is 'True' (issue #752): a restored production database
+    generates them for every staff member, and devel.sh redirects all of them to the developer."""
+    _inherit = 'mail.mail'
+
+    def send(self, auto_commit=False, raise_exception=False, post_send_callback=None):
+        odoobot_mails = self._ems_dev_odoobot_mails()
+        if odoobot_mails:
+            odoobot_mails.write({
+                'state': 'cancel',
+                'failure_reason': _(
+                    "Not sent: OdooBot's emails are off on this development machine. Set the "
+                    "system parameter ems.dev_mail_odoobot to True to receive them."),
+            })
+            self.env['mail.notification'].sudo().search([
+                ('mail_mail_id', 'in', odoobot_mails.ids),
+                ('notification_status', 'not in', ('sent', 'canceled')),
+            ]).write({'notification_status': 'canceled'})
+            _logger.info("Development machine: %s OdooBot email(s) not sent.", len(odoobot_mails))
+        return super(MailMail, self - odoobot_mails).send(
+            auto_commit=auto_commit, raise_exception=raise_exception, post_send_callback=post_send_callback)
+
+    def _ems_dev_odoobot_mails(self):
+        # A database devel.sh never ran on is refused by IrMailServer, with its own reason.
+        if config.get('ems_server_role') != DEV_SERVER_ROLE or not self.env['ir.mail_server']._ems_is_dev_database():
+            return self.browse()
+        if self.env['ir.config_parameter'].sudo().get_param('ems.dev_mail_odoobot') == 'True':
+            return self.browse()
+        odoobot = self.env.ref('base.partner_root')
+        return self.filtered(lambda mail: mail.state == 'outgoing' and mail.author_id == odoobot)
+
+
 class FetchmailServer(models.Model):
     """A development machine never reads a mailbox either (issue #586): a database restored from
     production carries production's incoming mail server, and reading it here would take the

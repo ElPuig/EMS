@@ -29922,3 +29922,9 @@ msgstr "No lo recibirán porque no tienen dirección de correo electrónico:"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__body
 msgid "Text"
 msgstr "Texto"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/mail_guard.py:0
+msgid "Not sent: OdooBot's emails are off on this development machine. Set the system parameter ems.dev_mail_odoobot to True to receive them."
+msgstr "No enviado: los correos de OdooBot están desactivados en esta máquina de desarrollo. Pon el parámetro del sistema ems.dev_mail_odoobot a True para recibirlos."

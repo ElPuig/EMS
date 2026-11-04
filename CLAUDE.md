@@ -152,6 +152,8 @@ recipient is the developer's redirect account (or one of its `+` aliases) or in 
 newsletter). A refused email ends in "Delivery failed" with the reason. Details:
 `docs/en/developers/shared/dev_mail_guard.md`. If a send you expected fails on a dev machine with
 "Email blocked", that's the guard: add the address to the allowlist only if the developer says so.
+OdooBot's emails (daily summaries, automatic notices) are cancelled on such a machine unless the
+system parameter `ems.dev_mail_odoobot` is `True` (issue #752): set it to test one of them.
 
 ## Naming roles: never "chiefs"/"heads"/"jefes" on its own (developer, 2026-10-14)
 

@@ -4,7 +4,7 @@
         <!-- Issue #726: an ex officio withdrawal case file, every step with who did it and when:
              the record of the protocol, and what Direction sends to the Inspection. Printed from the
              case file's Actions (ems.ex_officio_withdrawal.action_print_case_file), always in the
-             centre language. Not bound to the Print menu: the form's Actions offer it. -->
+             centre language (models/shared/ir_actions_report.py). Not bound to the Print menu: the form's Actions offer it. -->
         <record id="action_report_ex_officio_withdrawal" model="ir.actions.report">
             <field name="name">Ex officio withdrawal case file</field>
             <field name="model">ems.ex_officio_withdrawal</field>
@@ -17,14 +17,13 @@
         <template id="report_ex_officio_withdrawal">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
-                    <t t-call="ems.report_ex_officio_withdrawal_document" t-lang="doc.env.company.ems_lang"/>
+                    <t t-call="ems.report_ex_officio_withdrawal_document"/>
                 </t>
             </t>
         </template>
 
         <template id="report_ex_officio_withdrawal_document">
             <t t-call="web.external_layout">
-                <t t-set="doc" t-value="doc.with_context(lang=doc.env.company.ems_lang)"/>
                 <div class="page o_ems_ex_officio_withdrawal_report">
                     <style>
                         .o_ems_ex_officio_withdrawal_report { font-size: 12px; }

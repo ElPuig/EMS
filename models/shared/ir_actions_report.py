@@ -7,6 +7,7 @@ from odoo import models
 # its Print menu entry follows each user's.
 CENTRE_LANG_REPORTS = {
     'ems.report_convalidation_resolution',
+    'ems.report_ex_officio_withdrawal',
     'ems.report_minute',
     'ems.report_student_card',
 }

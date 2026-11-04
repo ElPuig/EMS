@@ -795,7 +795,7 @@ class EmsExOfficioWithdrawal(models.Model):
     def _ems_render_copy_text(self, xmlid):
         """Subject and body of a text to copy, as plain text in the centre language."""
         self.ensure_one()
-        template = self.env.ref(xmlid).sudo().with_context(lang=self.env.company.ems_lang)
+        template = self.env.ref(xmlid).with_env(self.env['res.company']._ems_centre_env()).sudo()
         subject = template._render_field('subject', self.ids)[self.id]
         # One line per step done: html2plaintext would run the list items together.
         html = str(template._render_field('body_html', self.ids)[self.id]).replace('<li>', '<br/>- ')

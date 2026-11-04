@@ -584,7 +584,7 @@ class TestExOfficioWithdrawal(TransactionCase):
         self.assertTrue(text)
         self.assertIn('EOW Comp Student', text)
         self.assertIn(case_file.group_id.name, text)
-        lines = case_file.with_context(lang=self.env.company.ems_lang)._ems_done_step_lines()
+        lines = case_file.with_env(self.env['res.company']._ems_centre_env())._ems_done_step_lines()
         self.assertEqual(len(lines), 3, "Tutor, Coexistence and the notice to the family")
         for line in lines:
             self.assertIn(f"- {line}", text.splitlines(), "One line per step done")

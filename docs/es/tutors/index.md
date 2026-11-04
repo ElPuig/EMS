@@ -24,9 +24,11 @@ Esta sección contiene los manuales para los **tutores de grupo**.
 | [Strikes: consultar los registros de tu grupo](strike.md) | Consultar los strikes puestos a tus alumnos tutorizados y los que has puesto tú mismo/a |
 | [Gestionar los contactos familiares de tu alumnado](family-contacts.md) | Añadir y quitar los familiares (padre, madre, tutor legal…) de los alumnos que tutorizas |
 | [Credenciales de Google de tu alumnado](google-credentials.md) | Descargar el PDF con el usuario y la contraseña de la cuenta de Google de los alumnos que tutorizas, uno a uno o de varios alumnos a la vez en un ZIP, crearles la cuenta si aún no la tienen, y restablecerles la contraseña |
+| [Imprimir los carnés de estudiante](../secretary/student-card.md) | Imprimir en PDF los carnés de tu grupo o de los alumnos que tutorizas, y cómo imprimirlos a doble cara (manual compartido con secretaría) |
 | [Justificar las faltas de tu alumnado](attendance-justifications.md) | Registrar un justificante (por ejemplo, un informe médico) para que las faltas de un alumno tutorizado pasen a falta justificada, y adjuntar el documento |
 | [Informes de asistencia](attendance-reports.md) | Imprimir los 3 informes PDF de asistencia (por grupo/alumno/asignatura) y explorar los datos tú mismo con la pantalla de Análisis de asistencia |
-| [Informe de incidencias de asistencia de tus alumnos](attendance-issues-report.md) | El correo con las faltas y los retrasos de tus alumnos, y cómo elegir cuándo lo recibes |
+| [Informe de incidencias de asistencia de tus alumnos](attendance-issues-report.md) | Las faltas y los retrasos de tus alumnos en tu resumen diario, y cómo elegir cuándo llegan |
+| [Baja prevista de un alumno](withdrawal-expected.md) | Quitar de los pases de lista a un alumno que dejará el centro mientras se tramita su baja, para que no acumule faltas, y deshacerlo si al final no se va |
 | [El horario semanal de un grupo](../admin/group-schedule.md) | Consultar el horario agregado de un grupo (asignaturas, docentes, aulas, patios) y exportarlo a PDF |
 | [El horario semanal de un alumno](../admin/student-schedule.md) | Consultar el horario propio de uno de tus tutorandos (asignaturas, docentes, aulas, patios), incluyendo clases solapadas, y exportarlo a PDF |
 | [Notas públicas y notas privadas del alumno](../teachers/student-notes.md) | Dónde todo el profesorado lee las notas públicas de un alumno, y quién puede leer y escribir las privadas de tutoría |

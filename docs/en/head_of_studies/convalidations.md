@@ -60,7 +60,7 @@ Each step creates a task in the activity tray (🕒) of whoever has to do it:
 - Every new request, or one sent back by the Director, for whoever holds the **Deputy Head of Studies** position. While a request waits for the applicant's documentation the task leaves the tray, and it comes back when the documentation arrives.
 - Every proposal, for whoever holds the **Director** position.
 
-Creating a task sends no email. Instead, every working day at the start of your working hours you get a single email listing everything still pending in your tray: see [Daily Summary of Pending Tasks](../teachers/task-digest.md).
+Creating a task sends no email: you'll find it in your daily summary, with everything still pending in your tray (see [Daily Summary](../teachers/daily-summary.md)).
 
 ---
 
@@ -93,7 +93,7 @@ On each line of the **Subjects** tab, use the buttons on the right:
 | ✖ (Reject) | Asks for the reason, then refuses the module. |
 | ↺ (Back to pending) | Undoes the line's decision. |
 
-- **Grade:** each module is checked and graded one by one. When you click ✔, a dialog asks for it: with **Mode** set to **With grade** (the default), write the grade, 5 by default or the one the previous studies hold (from 5 to 10). Choose **Without grade** when the module is convalidated with no grade: the resolution shows it as **Convalidat**, the grades as **CV**, and it does not count towards the average. Until you send the proposal, you can still change the **Grade** and **Without grade** columns on the line.
+- **Grade:** each module is checked and graded one by one. When you click ✔, a dialog asks for it: with **Mode** set to **With grade** (the default), write the grade, 5 by default or the one the previous studies hold (from 5 to 10). Choose **Without grade** when the module is convalidated with no grade: the resolution shows it as **Convalidat (CV)**, the grades as **CV**, and it does not count towards the average. Choose **With a fixed 5** when the module is convalidated with a 5 whatever grade the previous studies hold: it counts as a 5 towards the average, and the resolution shows **Convalidat (5)** so the secretariat registers it that way in Esfera (e.g. convalidations from accredited competence standards). Until you send the proposal, you can still change the **Grade** and **Grade type** columns on the line.
 - **Reason for refusal:** when you click ✖, a dialog asks for the **Reason**, with the most usual one already selected, and optional **Details**. Both appear on the resolution. They can still be changed on the line until you send the proposal. You maintain the list of reasons yourself, together with the EMS administrator, from **Academic management > Configuration > Convalidations** (see [Convalidation settings](../admin/convalidation-settings.md)).
 - **What the student sees:** nothing of what you decide on each module, nor the comments for the student, until the secretariat registers the resolution. Until then the portal only shows the modules requested and the state of the request.
 
@@ -172,7 +172,8 @@ The secretariat registers the resolution in Esfera (see [Convalidations: registe
 
 - The request becomes **Completed** (if any module is convalidated) or **Rejected**.
 - The student receives the resolution by email, with the PDF attached. So does the family if the student is a minor or has authorized sharing information with it.
-- The grades reach the student's grades: the student stops taking each convalidated module, the module's teachers and the tutor are notified, and the academic history records it as passed with the grade, the **CV** mark and the registration number.
+- The grades reach the student's grades: the student stops taking each convalidated module, the module's teachers and the tutor are notified in their [daily summary](../teachers/daily-summary.md), and the academic history records it as passed with the grade, the **CV** mark and the registration number.
+- If the student had chosen **not to attend** a module while it was resolved (**Attendance meanwhile** column of the **Subjects** tab), they weren't expected in its classes so far. If the module is refused, those classes become absences, without notifying the family, and the teachers and the tutor are told. Refusing it during the review changes nothing until the secretariat registers the resolution: the decision isn't final until then.
 
 ---
 
@@ -180,7 +181,7 @@ The secretariat registers the resolution in Esfera (see [Convalidations: registe
 
 1. Click **New**.
 2. Choose the **Student**, **Study**, **Course** and **Grounds** (for prior studies, also **Studies passed**: at this centre or elsewhere), and write the applicant's comments if there are any. Unlike on the portal, a request registered here can be saved without supporting documents, to ask for them afterwards.
-3. On the **Subjects** tab, click **Add a line** and choose each module.
+3. On the **Subjects** tab, click **Add a line** and choose each module and, in **Attendance meanwhile**, whether the student will attend it until the resolution (by default, **I will attend**).
 4. On the **Supporting documents** tab, upload the documents.
 5. Click **Save**.
 
@@ -192,7 +193,7 @@ You can register a request, and process any request, at any time: the portal's r
 
 ## Cancelling and reopening
 
-- **Cancel request** is available while the request is **Pending**, or **Pending documentation** if it has not been filed with the Ministry. A dialog asks for the **Reason**, which is required: it stays on the request, and the student or the family see it on the portal and in their communications.
+- **Cancel request** is available while the request is **Pending**, or **Pending documentation** if it has not been filed with the Ministry. A dialog asks for the **Reason**, which is required: it stays on the request, and the student or the family see it on the portal and in their communications. The classes of the modules the student had chosen not to attend become absences.
 - **Reopen** takes a cancelled request back to **Pending** and clears the reason.
 
 ---

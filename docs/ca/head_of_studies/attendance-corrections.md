@@ -39,7 +39,7 @@ La sol·licitud segueix el mateix procés de revisió que qualsevol altra — in
 
 ## Decidir una sol·licitud
 
-Una sol·licitud nova no t'envia cap correu al moment: no és urgent. La trobaràs a la safata d'activitats (🕒) i al correu diari amb totes les teves tasques pendents (vegeu [Resum diari de tasques pendents](../teachers/task-digest.md)).
+Una sol·licitud nova no t'envia cap correu al moment: no és urgent. La trobaràs a la safata d'activitats (🕒) i al teu resum diari (vegeu [Resum diari](../teachers/daily-summary.md)).
 
 Si t'han enviat una sol·licitud (la veuràs com a activitat pendent, i també apareixerà a **Fitxatges dels empleats → Assistència → Sol·licituds de correcció**):
 

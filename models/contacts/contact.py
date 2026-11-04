@@ -247,6 +247,8 @@ class ResPartner(models.Model):
     auth_trip  = fields.Boolean(string="Scholar Trips", compute="_compute_auth_booleans", store=True)
     auth_healt = fields.Boolean(string="Health Data", compute="_compute_auth_booleans", store=True)
     auth_share = fields.Boolean(string="Share with family", compute="_compute_auth_booleans", store=True, help="If marked, the student (even if adult) allows to share its educational information with its family.")
+    # Read with is_adult by can_leave_centre (student_card.py), which the student card prints.
+    auth_leave = fields.Boolean(string="Leave the Centre", compute="_compute_auth_booleans", store=True, help="The family authorizes the student to leave the centre.")
     
     car_plate = fields.Char(string="Car Plate")
     is_adult = fields.Boolean(string="Adult", compute="_compute_is_adult", store=False)
@@ -446,6 +448,7 @@ class ResPartner(models.Model):
             student.auth_trip = 'trip' in accepted_types
             student.auth_healt = 'health' in accepted_types
             student.auth_share = 'share' in accepted_types
+            student.auth_leave = 'leave' in accepted_types
 
     @api.depends('sale_order_ids.ems_course_id', 'sale_order_ids.state',
                  'ems_authorization_all_ids.course_id')
@@ -863,7 +866,7 @@ class ResPartner(models.Model):
         # Negated: with no groups every student is "mine", so "not mine" matches nobody.
         return ['!'] + domain if domain else [('id', '=', False)]
 
-    @api.depends('contact_type')
+    @api.depends('contact_type', 'withdrawal_expected', 'active')
     def _compute_archived_reason(self):
         # Fixed color constants (confirmed with the developer 2026-08-01) - 'expelled' is
         # deliberately left with no color, falling back to the widget's own default red, same
@@ -878,6 +881,9 @@ class ResPartner(models.Model):
         }
         for partner in self:
             label, color = reasons.get(partner.contact_type, (False, False))
+            # Issue #644: the same ribbon on a student still active whose withdrawal is expected.
+            if partner.active and partner.withdrawal_expected:
+                label, color = _("Expected withdrawal"), '#D9A21B'
             partner.archived_reason_label = label
             partner.archived_reason_color = color
 
@@ -1460,6 +1466,8 @@ class ResPartner(models.Model):
         Returns {'revoked': int, 'skipped': int, 'issues': [str]} for the caller's summary.
         """
         self.ensure_one()
+        # An expected withdrawal (issue #644) has done its job once the student leaves.
+        self._ems_clear_withdrawal_expected()
         # Must run BEFORE the conversion, which detaches the student from its group.
         self._ems_clear_operational_records()
         self._ems_convert_to_ex_student(kind=kind)

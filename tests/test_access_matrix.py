@@ -36,6 +36,9 @@ ACCESS_MATRIX = {
     'ems.convalidation.info_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
     'ems.convalidation.rejection_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
     'ems.course': {'teacher': 'r', 'secretary': 'r', 'erasmus': 'r'},
+    # Issue #644: only the daily summary reads and writes informative notices (sudo); the
+    # administrator may look at them (base.group_system, via settings_admin).
+    'ems.info_notice': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'settings_admin': 'r'},
     'ems.criteria': {'teacher': 'r', 'secretary': 'r'},
     # Issue #683: the applications have record rules and a write() guard, tested in test_erasmus.py.
     # Issue #697: the Secretary reads the calls and projects of the grant payments it makes.

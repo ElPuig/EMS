@@ -340,6 +340,11 @@ export class GuardDutyBoard extends Component {
         return _t("Other groups");
     }
 
+    // Issue #740: the public holiday the board's day falls on.
+    get holidayLabel() {
+        return _t("Public holiday: %s. Nobody is expected, so nobody is missing.", this.state.board.holiday);
+    }
+
     get emptyLabels() {
         return {
             schedule: _t("No schedule for this shift."),

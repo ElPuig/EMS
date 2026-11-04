@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Issue #727: snoozing a task from My Activities. Each row on one line, icons only (the
+         text is the tooltip): Done, Cancel and a bell that opens the 1/3/7-day popover (widget
+         ems_activity_snooze, static/src/js/backend/activity_snooze.js) in place of Odoo's
+         "Snooze 7d". The header gets one "Snooze" that offers the same for the selected tasks.
+         Each icon gets a fixed width, so it has a column of its own: Odoo puts buttons without
+         one in a single cell it sizes too narrow, and they wrapped onto two lines.
+         One xpath per native button: a single xpath only reaches its first match. -->
+    <record id="mail_activity_view_tree_snooze" model="ir.ui.view">
+        <field name="name">mail.activity.view.list.ems.snooze</field>
+        <field name="model">mail.activity</field>
+        <field name="inherit_id" ref="mail.mail_activity_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='action_snooze']" position="replace">
+                <button name="action_ems_snooze_dialog" type="object" string="Snooze" icon="fa-bell-slash"/>
+            </xpath>
+            <xpath expr="//list/button[@name='action_done']" position="attributes">
+                <attribute name="string"></attribute>
+                <attribute name="title">Done</attribute>
+                <attribute name="width">32px</attribute>
+            </xpath>
+            <xpath expr="//list/button[@name='unlink']" position="attributes">
+                <attribute name="string"></attribute>
+                <attribute name="title">Cancel</attribute>
+                <attribute name="width">32px</attribute>
+            </xpath>
+            <xpath expr="//list/button[@name='action_snooze']" position="replace">
+                <widget name="ems_activity_snooze"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

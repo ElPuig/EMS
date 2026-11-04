@@ -44,11 +44,12 @@ Requests already submitted are not affected: you can keep checking them, answeri
 
 ## Making a request
 
-1. Click **New convalidation request** to open the form, and tick the modules you want to convalidate.
+1. Click **New convalidation request** to open the form, and tick the modules you want to convalidate. For each module ticked, choose whether you **will attend** it or **won't attend** it until the resolution (see [Attendance while it is resolved](#attendance-while-it-is-resolved)).
 2. Choose the **Grounds**. For prior studies, also say **where you passed them**: at this centre, or at another centre or university.
 3. Under **Supporting documents**, attach the documents needed. You can select several files at once. They are mandatory, except for studies passed at this centre: the request can't be submitted without them. Right above the file field, the form tells you which documents to attach for the grounds you chose (and, for prior studies, where you passed them).
 4. If you want, write some comments.
-5. Click **Submit request**.
+5. Read the attendance notice and tick **I have read this notice and I accept it**: the request can't be sent without it.
+6. Click **Submit request**.
 
 ![New convalidation request form](../../assets/families/convalidations-portal-new.png)
 
@@ -67,6 +68,19 @@ A message confirms the request has been submitted. Modules already requested no 
 
 ---
 
+## Attendance while it is resolved
+
+**Attendance is compulsory until the request is resolved.** For each module you ask to convalidate you can choose:
+
+- **I will attend until the resolution** (the default): you keep going to class as usual.
+- **I won't attend until the resolution**: while the request is processed, you are not expected in that module's classes and get no absences.
+
+Bear in mind that if the module **is not convalidated** (or the request is cancelled), the classes you missed **count as absences**, and you could lose the right to continuous assessment. The notice, which you can read on the form, explains what the centre's rules (NOFC) and the module's planning say.
+
+The choice can't be changed once the request is submitted. On the submitted request, the modules you chose not to attend show **Not attending until the resolution**.
+
+---
+
 ## Following the request
 
 Each request appears below the form, with its registration number (e.g. CONV-2026-27-0001), the date, the study and the state:
@@ -82,7 +96,7 @@ Each request appears below the form, with its registration number (e.g. CONV-202
 | **Rejected** | Registered, with no module convalidated. |
 | **Cancelled** | The request was cancelled. If the centre cancelled it, its box shows why. |
 
-While the request is being processed, the table only lists the modules requested: the state tells you how far it has got. The decision on each module can still change until the secretariat registers it, so it is not shown before. Once the request is **Completed** or **Rejected**, the table shows each module's resolution (**Convalidated** or **Rejected**) and, under **Remarks**, the reason for the rejected ones; on a **Completed** request the **Grade** column appears too: a module convalidated without a grade shows **Convalidated** there.
+While the request is being processed, the table only lists the modules requested: the state tells you how far it has got. The decision on each module can still change until the secretariat registers it, so it is not shown before. Once the request is **Completed** or **Rejected**, the table shows each module's resolution (**Convalidated** or **Rejected**) and, under **Remarks**, the reason for the rejected ones; on a **Completed** request the **Grade** column appears too: a module convalidated without a grade shows **Convalidated (CV)** there (it does not count towards the average), and one that counts as a 5 whatever grade the previous studies hold shows **Convalidated (5)**.
 
 When the request becomes **Completed** or **Rejected**, you get an email with the official resolution as a PDF. You can also download it from the portal with the **Official resolution** button.
 

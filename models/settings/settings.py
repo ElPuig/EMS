@@ -62,6 +62,7 @@ class ems_settings(models.TransientModel):
    convalidation_legal_certificate = fields.Text(related="company_id.convalidation_legal_certificate", readonly=False)
    convalidation_legal_other = fields.Text(related="company_id.convalidation_legal_other", readonly=False)
    convalidation_appeal_text = fields.Text(related="company_id.convalidation_appeal_text", readonly=False)
+   convalidation_attendance_notice = fields.Html(related="company_id.convalidation_attendance_notice", readonly=False)
    convalidation_sign_by_delegation = fields.Boolean(related="company_id.convalidation_sign_by_delegation", readonly=False)
 
    current_course_id = fields.Many2one(comodel_name="ems.course", related="company_id.current_course_id", readonly=False)
@@ -74,7 +75,9 @@ class ems_settings(models.TransientModel):
 
    secretariat_email = fields.Char(related="company_id.secretariat_email", readonly=False)
    erasmus_contact_email = fields.Char(related="company_id.erasmus_contact_email", readonly=False)
+   ems_lang = fields.Selection(related="company_id.ems_lang", readonly=False)
    center_code = fields.Char(related="company_id.center_code", readonly=False)
+   ems_card_stamp = fields.Image(related="company_id.ems_card_stamp", readonly=False)
    notice_email_signature = fields.Html(related="company_id.notice_email_signature", readonly=False)
 
    limesurvey_api = fields.Char(related="company_id.limesurvey_api", readonly=False)

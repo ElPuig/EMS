@@ -74,6 +74,14 @@ class TestAbsenceDetection(TransactionCase):
             'check_out': cls._utc(day, 14.0), 'in_mode': in_mode,
         })
 
+    def _red_attendance(self, employee=None, day=None):
+        """The technical attendance Odoo's absence detection leaves on a day without check-in
+        (shown in red): its midnight, in the company's timezone, lasting one second."""
+        midnight = self._utc(day or self.yesterday, 0.0)
+        return self.env['hr.attendance'].create({
+            'employee_id': (employee or self.teacher).id, 'check_in': midnight,
+            'check_out': midnight + timedelta(seconds=1), 'in_mode': 'technical', 'out_mode': 'technical'})
+
     def _detected(self, employee=None):
         return self.Pending.search([('employee_id', '=', (employee or self.teacher).id), ('origin', '=', 'check_in')])
 
@@ -147,6 +155,36 @@ class TestAbsenceDetection(TransactionCase):
         self.env['resource.calendar.leaves'].create({
             'name': 'TAD Holiday', 'date_from': self._utc(self.yesterday, 0.0), 'date_to': self._utc(self.yesterday, 23.9)})
         self.Pending._ems_detect_missing_check_ins(self.yesterday)
+
+        self.assertFalse(self._detected())
+
+    def test_nothing_on_any_day_of_a_holiday_period(self):
+        """Issue #740: a holiday of several days (Christmas) leaves out every one of its days, also
+        when the scheduled action catches up on all of them at once. Somebody checked in on each of
+        them, so it is the holiday that leaves them out, not the "nobody checked in" rule."""
+        before = self.yesterday - timedelta(days=1)
+        while before.weekday() > 4:
+            before -= timedelta(days=1)
+        make_working_day(self, before)
+        self._check_in(self.present, before, 8.9)
+        self.env['resource.calendar.leaves'].create({
+            'name': 'TAD Holidays', 'date_from': self._utc(before, 0.0), 'date_to': self._utc(self.yesterday, 23.9)})
+        self.env['ir.config_parameter'].sudo().set_param(
+            'ems.missing_check_in_last_day', fields.Date.to_string(before - timedelta(days=1)))
+
+        self._run_cron_on(self.today)
+
+        self.assertFalse(self._detected())
+
+    def test_a_refused_request_on_a_holiday_is_not_detected(self):
+        """Issue #740: re-detecting the days a refused request no longer covers (#735) skips a
+        public holiday too."""
+        leave = self._leave(self.yesterday)
+        self._run_cron_on(self.today)
+        self.env['resource.calendar.leaves'].create({
+            'name': 'TAD Holiday', 'date_from': self._utc(self.yesterday, 0.0), 'date_to': self._utc(self.yesterday, 23.9)})
+
+        leave.action_refuse()
 
         self.assertFalse(self._detected())
 
@@ -537,6 +575,55 @@ class TestAbsenceDetection(TransactionCase):
             (self._utc(self.yesterday, 10.0), self._utc(self.yesterday, 11.0)),
             (self._utc(self.yesterday, 12.0), self._utc(self.yesterday, 13.0))])
         self.assertEqual(informed.state, 'corrected')
+
+    def test_correct_check_in_removes_the_red_attendance_of_that_day(self):
+        """Issue #741: the day has a real attendance now, so the red "no check-in" one goes; the
+        red ones of another day, or of another teacher that day, stay."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+        red = self._red_attendance()
+        other_day = self._red_attendance(day=self.yesterday - timedelta(days=1))
+        other_teacher = self._red_attendance(employee=self.head)
+
+        absence.with_user(self.head_of_studies).action_correct_check_in()
+
+        self.assertFalse(red.exists())
+        self.assertTrue(other_day.exists() and other_teacher.exists())
+        attendance = self.env['hr.attendance'].search([('employee_id', '=', self.teacher.id),
+                                                       ('check_in', '>=', self._utc(self.yesterday, 0.0))])
+        self.assertEqual((attendance.check_in, attendance.in_mode), (absence.date_from, 'manual'))
+
+    def test_correct_check_in_of_a_part_removes_the_red_attendance(self):
+        """Issue #741: an absence request covering part of the day, the rest corrected."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+        red = self._red_attendance()
+
+        self._correct_check_in(absence, 11.0, 13.0)
+
+        self.assertFalse(red.exists())
+        self.assertEqual(self._hours(absence), (9.0, 11.0), 'the rest is still to review')
+
+    def test_a_red_attendance_with_a_correction_request_is_kept(self):
+        """Issue #741: deleting it would delete the teacher's request with it (ondelete cascade);
+        accepting the request turns it into the real attendance anyway."""
+        red = self._red_attendance()
+        correction = self.env['ems.attendance_correction'].with_user(self.teacher_user).with_context(
+            default_attendance_id=red.id).create({'reason': 'Forgot to check in.', 'requested_check_in': 9.0,
+                                                  'requested_check_out': 13.0})
+
+        self._check_in(self.teacher, self.yesterday, 9.0)
+
+        self.assertTrue(red.exists() and correction.exists())
+
+    def test_moving_an_attendance_to_a_red_day_removes_it(self):
+        """Issue #741: also when a real attendance is moved onto that day."""
+        red = self._red_attendance()
+        attendance = self._check_in(self.teacher, self.yesterday - timedelta(days=1), 9.0)
+
+        attendance.write({'check_in': self._utc(self.yesterday, 9.0), 'check_out': self._utc(self.yesterday, 13.0)})
+
+        self.assertFalse(red.exists())
 
     def test_no_check_in_corrected_for_a_time_still_to_come(self):
         informed = self.Pending.create({'employee_id': self.teacher.id, 'date_from': self._utc(self.today, 12.0),
@@ -1044,11 +1131,7 @@ class TestAbsenceDetection(TransactionCase):
         red) is the one corrected, as teachers have always done; rejecting restores it."""
         self.Pending._ems_detect_missing_check_ins(self.yesterday)
         absence = self._asked(self._detected())
-        red = self.env['hr.attendance'].create({
-            'employee_id': self.teacher.id, 'check_in': self._utc(self.yesterday, 0.0),
-            'check_out': self._utc(self.yesterday, 0.0) + timedelta(seconds=1),
-            'in_mode': 'technical', 'out_mode': 'technical',
-        })
+        red = self._red_attendance()
         self.assertEqual(absence.with_user(self.teacher_user).action_request_check_in_correction()['context'][
             'default_attendance_id'], red.id)
 
@@ -1150,10 +1233,7 @@ class TestAbsenceDetection(TransactionCase):
         self.Pending._ems_detect_missing_check_ins(self.yesterday)
         absence = self._detected()
         self.assertEqual(absence.state, 'pending')
-        red = self.env['hr.attendance'].create({
-            'employee_id': self.teacher.id, 'check_in': self._utc(self.yesterday, 0.0),
-            'check_out': self._utc(self.yesterday, 0.0) + timedelta(seconds=1),
-            'in_mode': 'technical', 'out_mode': 'technical'})
+        red = self._red_attendance()
         correction = self.env['ems.attendance_correction'].with_user(self.teacher_user).with_context(
             default_attendance_id=red.id).create({'reason': 'Forgot to check in.', 'requested_check_in': 9.0,
                                                   'requested_check_out': 13.0})

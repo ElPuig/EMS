@@ -7,6 +7,7 @@ from pytz import UTC
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+from odoo.osv.expression import OR
 
 # The absence states the guard duty board plans around (see guard_duty_board.ABSENCE_STATES): an
 # absence in any of them is the teacher's own request taking over from a pending one.
@@ -817,8 +818,7 @@ class EmsAbsencePending(models.Model):
         if domain is None:
             return self.browse()
         day_start, day_end = self._utc_bounds(day, 0.0, 24.0)
-        if self.env['resource.calendar.leaves'].sudo().search_count([
-                ('resource_id', '=', False), ('date_from', '<', day_end), ('date_to', '>', day_start)], limit=1):
+        if self.env['resource.calendar.leaves']._ems_public_holiday_on(day):
             return self.browse()
         teachers = self.env['hr.employee'].sudo().search(domain)
         arrivals = self.env['hr.attendance']._ems_first_check_in_hours(day, teachers)
@@ -1046,13 +1046,44 @@ class EmsAbsencePendingAttendance(models.Model):
     def create(self, vals_list):
         attendances = super().create(vals_list)
         attendances._ems_review_detected_absences()
+        attendances._ems_unlink_replaced_technical_attendances()
         return attendances
 
     def write(self, vals):
         result = super().write(vals)
         if vals.keys() & {'employee_id', 'check_in', 'check_out'}:
             self._ems_review_detected_absences()
+            self._ems_unlink_replaced_technical_attendances()
         return result
+
+    @api.model
+    def _ems_technical_attendances_on(self, day_starts):
+        """The technical attendances Odoo's absence detection left (`_cron_absence_detection`, a
+        one-second one at the day's midnight, shown in red) on the days in `day_starts`
+        (`{employee: day starts}`, naive UTC as `_get_day_start_and_day` gives them). Never one a
+        check-in correction request is about: deleting it would delete the request too (ondelete
+        cascade), and accepting the request turns it into the real attendance anyway."""
+        if not day_starts:
+            return self.browse()
+        technical = self.sudo().search([('in_mode', '=', 'technical')] + OR([
+            [('employee_id', '=', employee.id), ('check_in', 'in', list(starts))]
+            for employee, starts in day_starts.items()]))
+        if not technical:
+            return technical
+        requested = self.env['ems.attendance_correction'].sudo().with_context(active_test=False).search(
+            [('attendance_id', 'in', technical.ids)]).attendance_id
+        return technical - requested
+
+    def _ems_unlink_replaced_technical_attendances(self):
+        """A real attendance on a day makes its technical one ("no check-in that day") obsolete,
+        whoever records it: a detected absence's check-in corrected by the reviewer, a manual
+        attendance, a late kiosk check-in (issue #741). Odoo recomputes the day's overtime on
+        deleting it; left behind, it kept showing in red."""
+        day_starts = defaultdict(set)
+        for attendance in self.filtered(lambda attendance: attendance.check_in and attendance.in_mode != 'technical'):
+            day_starts[attendance.employee_id].add(
+                self._get_day_start_and_day(attendance.employee_id, attendance.check_in)[0])
+        self._ems_technical_attendances_on(day_starts).unlink()
 
     @api.model
     def _ems_first_check_in_hours(self, day, employees):

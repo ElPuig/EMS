@@ -44,11 +44,12 @@ Las solicitudes ya presentadas no se ven afectadas: puedes seguir consultándola
 
 ## Hacer una solicitud
 
-1. Haz clic en **Nueva solicitud de convalidación** para abrir el formulario, y marca los módulos que quieres convalidar.
+1. Haz clic en **Nueva solicitud de convalidación** para abrir el formulario, y marca los módulos que quieres convalidar. Para cada módulo marcado, elige si **asistirás** o **no asistirás** hasta la resolución (consulta [La asistencia mientras se resuelve](#la-asistencia-mientras-se-resuelve)).
 2. Elige el **Motivo**. Para estudios previos, indica también **dónde los superaste**: en este centro, o en otro centro o en la universidad.
 3. En **Documentación justificativa**, adjunta los documentos necesarios. Puedes seleccionar varios ficheros a la vez. Son obligatorios, salvo para estudios superados en este centro: sin ellos no se puede enviar la solicitud. Justo encima del campo de ficheros, el formulario te indica qué documentos adjuntar según el motivo elegido (y, para estudios previos, dónde los superaste).
 4. Si quieres, escribe observaciones.
-5. Haz clic en **Enviar la solicitud**.
+5. Lee el aviso sobre la asistencia y marca **He leído este aviso y lo acepto**: sin esto no se puede enviar.
+6. Haz clic en **Enviar la solicitud**.
 
 ![Formulario de nueva solicitud de convalidación](../../assets/families/convalidations-portal-new.png)
 
@@ -67,6 +68,19 @@ Un mensaje confirma que la solicitud se ha enviado. Los módulos ya solicitados 
 
 ---
 
+## La asistencia mientras se resuelve
+
+**La asistencia es obligatoria hasta que se resuelva la solicitud.** Para cada módulo que solicitas convalidar puedes elegir:
+
+- **Asistiré hasta la resolución** (la opción por defecto): sigues yendo a clase como siempre.
+- **No asistiré hasta la resolución**: mientras la solicitud se tramita, no se te espera en las clases de este módulo y no tienes faltas.
+
+Ten en cuenta que, si el módulo **no se convalida** (o la solicitud se anula), las clases a las que no hayas ido **cuentan como faltas** y podrías perder el derecho a la evaluación continua. El texto del aviso, que puedes leer en el formulario, explica qué dicen las normas del centro (NOFC) y la programación del módulo.
+
+La elección no se puede cambiar después de enviar la solicitud. En la solicitud enviada, los módulos a los que has elegido no asistir muestran **No asiste hasta la resolución**.
+
+---
+
 ## Seguir la solicitud
 
 Cada solicitud aparece bajo el formulario, con su número de registro (por ejemplo CONV-2026-27-0001), la fecha, el estudio y el estado:
@@ -82,7 +96,7 @@ Cada solicitud aparece bajo el formulario, con su número de registro (por ejemp
 | **Rechazada** | Registrada, sin ningún módulo convalidado. |
 | **Anulada** | La solicitud se ha anulado. Si la ha anulado el centro, su recuadro indica el motivo. |
 
-Mientras la solicitud se tramita, la tabla solo lista los módulos solicitados: el estado te indica en qué punto está. La decisión sobre cada módulo aún puede cambiar hasta que secretaría la registra, y por eso no se muestra antes. Cuando la solicitud queda **Completada** o **Rechazada**, la tabla muestra la resolución de cada módulo (**Convalidado** o **Rechazado**) y, en **Observaciones**, el motivo de los módulos rechazados; en una solicitud **Completada** aparece también la columna **Nota**: un módulo convalidado sin nota muestra ahí **Convalidado**.
+Mientras la solicitud se tramita, la tabla solo lista los módulos solicitados: el estado te indica en qué punto está. La decisión sobre cada módulo aún puede cambiar hasta que secretaría la registra, y por eso no se muestra antes. Cuando la solicitud queda **Completada** o **Rechazada**, la tabla muestra la resolución de cada módulo (**Convalidado** o **Rechazado**) y, en **Observaciones**, el motivo de los módulos rechazados; en una solicitud **Completada** aparece también la columna **Nota**: un módulo convalidado sin nota muestra ahí **Convalidado (CV)** (no cuenta para la media), y uno que cuenta como un 5 sea cual sea la nota de los estudios previos muestra **Convalidado (5)**.
 
 Cuando la solicitud queda **Completada** o **Rechazada**, recibirás un correo con la resolución oficial en PDF. También puedes descargarla desde el portal con el botón **Resolución oficial**.
 

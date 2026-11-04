@@ -821,7 +821,8 @@ carry `proposed`, shown as a dashed tag.
 **Only changes still to come are offered (issue #599).** On the board's own day, an option whose
 time has come (`_change_start()`: the hour a late entry, early leave or longer break starts; the
 group's first lesson for `no_classes`/`normal_entry`; its last one for `normal_leave`) is dropped
-from `options` before anything else, so `expected`, the row tags and the box only ever show what
+from `options` before anything else (`_change_deadline()`, issue #744: an early leave stays on offer
+until the class it frees ends, since the teacher of the last class may leave once it has started), so `expected`, the row tags and the box only ever show what
 can still reach the families in time; with nothing left, the side has no status. A communicated
 change whose time has come is settled (`communicated`, no correction proposed): a correction would
 arrive too late. `_board_day_hour()` gives the company-time hour of `day` (None for a day still to
@@ -1134,7 +1135,7 @@ returns it with the groups' timetable-change states it was built from.
 - **Search** (`plans()`): a beam search, at most `MAX_MOVES` (4) steps, `BEAM` (30) states per
   depth. Only plans strictly better than leaving the day as it is in criteria 1-4 are kept (#711:
   moving the gap to another hour where it still needs a guard, or turning a late entry into an early
-  leave, is no proposal), never one that merely adds steps to another one that does as well, and one per resulting day (a swap seen from
+  leave, is no proposal), only with classes still to come (#744, `has_started()`: neither the gap nor the lesson brought to it may have begun at the board's hour, and `_get_arrangement_options()` applies the same test to swaps), never one that merely adds steps to another one that does as well, and one per resulting day (a swap seen from
   each of its two absences is one plan). The best 3 are shown.
 - **Dependencies** (`_plan()`): a move into a gap another step left needs that step; a notice needs
   the moves whose lessons it frees the group from.
@@ -1636,6 +1637,37 @@ is dropped. The current-time line keeps its own once-a-minute timer, independent
 Cost: nothing while nothing changes. Each reload costs the same as opening the board, measured on the
 dev database (2026-10-22, `odoo shell`, cold) at 0.15-0.24 s, the extra check-in query included (0.06
 s for every employee of the centre).
+
+## Public holidays (issue #740)
+
+On a public holiday (a `resource.calendar.leaves` with no `resource_id`, entered under Absences >
+Configuration > Public Holidays) nobody is expected, so nobody is missing and there is nothing to
+organise. `resource.calendar.leaves._ems_public_holiday_on(day)` (`models/employees/public_holiday.py`)
+returns the holiday touching that company day, or an empty recordset: one `sudo()` search with
+`limit=1`, the day's bounds computed in the company's timezone. It is shared with the detected
+absences (`ems.absence_pending._ems_detect_missing_check_ins`), which create nothing on such a day.
+
+```mermaid
+flowchart TD
+    H["_ems_public_holiday_on(day)"] -->|holiday| L["get_guard_duty_board_lines(): day = None<br/>(the plain timetable: no absences, no 'unchecked',<br/>no absences-table rows, no actions); 'holiday' = its name"]
+    L --> D["get_guard_duty_board_data(): editable = False,<br/>no 'now' line; 'holiday' to the client"]
+    D --> UI["guard_duty_board.js/xml: .o_guard_board_holiday notice,<br/>absences table hidden, timetable kept"]
+    L --> PDF["report_guard_duty_board: .gdb-holiday notice,<br/>absences table not printed"]
+    H -->|holiday| CHK["_check_board_day_open(day): UserError<br/>(every board action goes through it)"]
+    H -->|holiday| DET["_ems_detect_missing_check_ins(day): nothing detected"]
+```
+
+- **The board.** `get_guard_duty_board_lines()` resolves a holiday as if no date had been given,
+  which is the path that already returns the plain timetable, so none of the per-date code needs
+  its own check. It returns `'holiday'` (the holiday's name, or `False`), and
+  `get_guard_duty_board_data()` passes it on, with `editable` and the "today" flag forced off.
+- **Actions.** Hiding the buttons is not the guard: `_check_board_day_open()`, called by every
+  board action (`board_assign`, `board_self_assign`, `board_arrange`, `board_apply_plan`,
+  `board_support`, `board_mark_present`, ...), refuses a holiday too.
+- **Screen and PDF.** The client shows an `alert-info` notice (`.o_guard_board_holiday`) above
+  either view and leaves the absences table out; the timetable view still renders. The PDF prints
+  the same notice (`.gdb-holiday`) per shift and skips the absences table.
+- **Cost.** One indexed query more per board load (and per board action).
 
 ## Related docs
 

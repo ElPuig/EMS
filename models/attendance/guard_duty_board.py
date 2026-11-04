@@ -11,7 +11,7 @@ from ..shared.schedule_report_mixin import HOUR_EPSILON
 from .absence_coverage import (
     BREAK_CHANGES, CHANGE_SIDES, COMMUNICATED_NOTICE_STATES, NORMAL_CHANGE, WC_GUARD_CODE, overlaps,
 )
-from .arrangement_planner import ArrangementPlanner, schedule_shift
+from .arrangement_planner import ArrangementPlanner, has_started, schedule_shift
 
 WEEKDAYS = ('0', '1', '2', '3', '4')
 # Mirrors ems.group's own SHIFT_HOURS (models/contacts/group_schedule.py) — the guard duty board
@@ -678,9 +678,14 @@ class EmsCourseGuardDutyBoard(models.Model):
         self._check_absence_manager(
             self._original_absent(self._get_day_covers(day), absent, group, hour_from, hour_to), group)
 
-    def _check_board_day_not_past(self, day):
+    def _check_board_day_open(self, day):
+        """Every board action on `day` goes through here: never on a day already over, nor on a
+        public holiday (issue #740), when there is nobody to cover and nothing to organise."""
         if day < self.env['ems.datetime_utils'].get_local_today():
             raise UserError(_("This day is already over."))
+        holiday = self.env['resource.calendar.leaves']._ems_public_holiday_on(day)
+        if holiday:
+            raise UserError(_("This day is a public holiday (%s): there is nothing to organise.", holiday.name))
 
     # "The teacher is in the classroom" (issue #692): a class left on the table only because its
     # teacher has not checked in, which whoever is on guard or manages the absence can resolve by
@@ -924,6 +929,27 @@ class EmsCourseGuardDutyBoard(models.Model):
             return blocks[-1]['hour_to'] if blocks else 24.0
         return change[1]
 
+    @classmethod
+    def _change_deadline(cls, change, blocks):
+        """The hour until which `change` can still be told to the families: when it takes effect
+        (see _change_start), except an early leave, which can still send the group home during the
+        class it frees, until that class ends (issue #744: the teacher of the last class leaves
+        once it has started)."""
+        start = cls._change_start(change, blocks)
+        if change[0] == 'early_leave':
+            return next((block['hour_to'] for block in blocks if block['hour_to'] > start + HOUR_EPSILON), start)
+        return start
+
+    @classmethod
+    def _change_has_come(cls, change, blocks, now_hour):
+        """Whether `change` has already taken effect at `now_hour` (see _change_start)."""
+        return has_started(now_hour, cls._change_start(change, blocks))
+
+    @classmethod
+    def _change_too_late(cls, change, blocks, now_hour):
+        """Whether `change` can no longer be told to the families at `now_hour` (see _change_deadline)."""
+        return has_started(now_hour, cls._change_deadline(change, blocks))
+
     def _get_absence_change_states(self, day, groups, blocks_by_group=None):
         """`{group.id: {'entry': state, 'leave': state, break_side: state...}}` - where each side
         of each group's day (its start, its end, and each of its level's breaks)
@@ -945,9 +971,10 @@ class EmsCourseGuardDutyBoard(models.Model):
         one of the options and `'draft_change'` that option, and `'teachers'` the absent teachers
         whose lessons the change concerns - any of their managers can act on it.
 
-        A change whose time has already come (see _change_start) can no longer be communicated, so
-        it is never offered, and one the families were told about that has already come is settled:
-        correcting it would reach them too late (issue #599). `blocks_by_group`: the groups' days,
+        A change that can no longer be told (see _change_deadline: its time has come, or for an
+        early leave the class it frees is over) is never offered, and one the families were told
+        about whose time has come (see _change_start) is settled: correcting it would reach them
+        too late (issues #599, #744). `blocks_by_group`: the groups' days,
         when the caller already has them (see _get_group_day_blocks)."""
         blocks_by_group = blocks_by_group or self._get_group_day_blocks(day, groups)
         notices = self.env['ems.notice'].sudo().search([
@@ -964,9 +991,6 @@ class EmsCourseGuardDutyBoard(models.Model):
         for group in groups:
             blocks = blocks_by_group[group.id]
 
-            def is_past(change, blocks=blocks):
-                return now_hour is not None and self._change_start(change, blocks) <= now_hour
-
             level = group.level_id.id
             if level not in breaks_by_level:
                 breaks_by_level[level] = sorted(self._get_guard_duty_board_break_periods(
@@ -977,15 +1001,15 @@ class EmsCourseGuardDutyBoard(models.Model):
                 side_told = [(notice, change) for notice, change in told[group.id] if self._change_side(change, side)]
                 communicated = self._notice_change(next((
                     change for notice, change in reversed(side_told) if notice.state in COMMUNICATED_NOTICE_STATES), None))
-                options = [option for option in allowed[side] if not is_past(option)]
+                options = [option for option in allowed[side] if not self._change_too_late(option, blocks, now_hour)]
                 expected = options[-1] if options else None
                 normal = (('normal_break', *BoardBreakSide.period(side)) if BoardBreakSide.is_break(side)
                           else (NORMAL_CHANGE[side], 0.0))
-                usual = [] if is_past(normal) else [normal]
+                usual = [] if self._change_too_late(normal, blocks, now_hour) else [normal]
                 change_options = []
                 if not communicated:
                     status = 'proposal' if options else None
-                elif is_past(communicated):
+                elif self._change_has_come(communicated, blocks, now_hour):
                     status, options = 'communicated', []
                 elif any(self._same_change(communicated, option) for option in options):
                     # Still true, but whoever organises it may change their mind (issue #659).
@@ -1283,15 +1307,20 @@ class EmsCourseGuardDutyBoard(models.Model):
         and 'shifts' the entry/exit times it changes (see _arrangement_shifts); those that change
         nobody's entry or exit first. Only within the group and the day: anything else is a manual
         arrangement. `exclude`: covers being replaced, ignored. A lesson shared with other groups is
-        never swapped: their day would change too.
+        never swapped: their day would change too. Only classes still to come, the class and the
+        other lesson alike (issue #744).
         """
+        now_hour = self._board_day_hour(day)
+        if has_started(now_hour, hour_from):
+            return []
         context = context or self._arrangement_context(day)
         covers = context['covers'] - (exclude or self.env['ems.absence_cover'])
         vacated = covers.filtered(lambda cover: cover.group_id == group and cover.vacated_hour_to)
         Employee = self.env['hr.employee']
         options = []
         for lesson, group_ids, pack, away in self._group_sessions(context, group.ids):
-            if group_ids != {group.id} or overlaps(*lesson, hour_from, hour_to) or pack & set(absent.ids):
+            if group_ids != {group.id} or overlaps(*lesson, hour_from, hour_to) or pack & set(absent.ids) \
+                    or has_started(now_hour, lesson[0]):
                 continue
             if vacated.filtered(lambda cover, lesson=lesson: overlaps(cover.vacated_hour_from, cover.vacated_hour_to, *lesson)):
                 continue  # that lesson is already part of another arrangement
@@ -1679,7 +1708,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         group = self.env['ems.group'].browse(group_id).exists()
         if not group:
             raise UserError(_("This group no longer exists."))
-        self._check_board_day_not_past(day)
+        self._check_board_day_open(day)
         state = self._get_absence_change_states(day, group)[group.id].get(side)
         if not state or not state['change_options']:
             raise UserError(_("The absences of this group have changed since the board was loaded. Reload the board."))
@@ -1743,11 +1772,16 @@ class EmsCourseGuardDutyBoard(models.Model):
         away, each line gains 'guard_absences' for the same question asked of the guard column,
         and 'absences' - the list of classes actually left without a teacher, which is what the
         absences table is built from. Without a date none of that can be resolved at all, so
-        every one of those comes back empty and the board is the plain timetable."""
+        every one of those comes back empty and the board is the plain timetable. The same on a
+        public holiday (issue #740): nobody is expected then, so nobody is missing either, and
+        'holiday' carries its name for the board to say so (False on any other day)."""
         self.ensure_one()
         if area_ids and set(area_ids) >= set(self._get_guard_duty_board_area_records().ids):
             area_ids = None
         day = fields.Date.to_date(day)
+        holiday = self.env['resource.calendar.leaves']._ems_public_holiday_on(day) if day else False
+        if holiday:
+            day = None
         shift_start, shift_end = SHIFT_HOURS[shift]
         entries = self._get_guard_duty_board_attendance_ids([
             ('dayofweek', '=', weekday), ('hour_from', '>=', shift_start), ('hour_to', '<=', shift_end)])
@@ -1922,6 +1956,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                 management, day, management['actions'] + self._arrangement_plan_actions(dated_lines)) if management else [],
             # _is_absence_manager's answers for this load, to reuse (issue #725).
             'managers': management['managers'] if management else {},
+            'holiday': holiday.name if holiday else False,
         }
 
     def _board_cell_arrangements(self, management, group, teachers, hour_from, hour_to):
@@ -2016,7 +2051,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         managers = {}
 
         def can_manage(teachers, group):
-            # A day already over is read-only for everybody (see _check_board_day_not_past).
+            # A day already over is read-only for everybody (see _check_board_day_open).
             return editable and any(self._is_absence_manager(teacher, group, managers) for teacher in teachers)
 
         actions = []
@@ -2307,8 +2342,10 @@ class EmsCourseGuardDutyBoard(models.Model):
             *(line['guards'].employee_id for line in data['lines']),
             *(self.env['hr.employee'].union(*line['guard_spans']) for line in data['lines'])))
         # A teacher on guard duty may take a free class themselves (issue #601) - from today on,
-        # like every other board action (see _check_board_day_not_past).
-        editable = bool(day) and fields.Date.to_date(day) >= self.env['ems.datetime_utils'].get_local_today()
+        # like every other board action (see _check_board_day_open).
+        # Nothing to organise on a public holiday either (issue #740).
+        editable = bool(day) and not data['holiday'] \
+            and fields.Date.to_date(day) >= self.env['ems.datetime_utils'].get_local_today()
         me = self.env.user.employee_id
         movable = {}  # _can_move_teacher's answers for this load
         # Issue #725: who may send a guard to support a teacher, worked out only for a user who may
@@ -2316,7 +2353,8 @@ class EmsCourseGuardDutyBoard(models.Model):
         may_support = editable and course._may_manage_absences()
         managed = data['managers']
         # "The teacher is in the classroom" (issue #692): only on today's classes in progress.
-        today = bool(day) and fields.Date.to_date(day) == self.env['ems.datetime_utils'].get_local_today()
+        today = bool(day) and not data['holiday'] \
+            and fields.Date.to_date(day) == self.env['ems.datetime_utils'].get_local_today()
         now = course._board_day_hour(fields.Date.to_date(day)) if today else None
         # Every name on the board read in one batch: reading them cell by cell fetched each
         # employee on its own, every fetch paying hr.employee's per-read field access check.
@@ -2452,7 +2490,9 @@ class EmsCourseGuardDutyBoard(models.Model):
                 'actions': [self._board_action_data(action) for action in data['actions'] if action['can_manage']],
                 # Whether anybody can still act on this day (from today on): the board then explains
                 # every line still to be covered, also to whoever cannot cover it.
-                'editable': editable}
+                'editable': editable,
+                # The public holiday's name on one (issue #740), for the board to say so.
+                'holiday': data['holiday']}
 
     def _arrangement_plan_data(self, plan):
         """JSON-safe version of a detected arrangement plan (see _get_arrangement_plans): its

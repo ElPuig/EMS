@@ -35,6 +35,7 @@ class EmsAuthorizationTemplate(models.Model):
         ('trip', 'Scholar Trips'),
         ('health', 'Health Data'),
         ('share', 'Share with Family'),
+        ('leave', 'Leave the Centre'),
         ('other', 'Other / General')
     ], string="Authorization Type", default='other',
     help="Select the specific type to automatically update the student's file.")

@@ -176,6 +176,10 @@
                                             <i t-if="isJustified"
                                                class="fa fa-shield ems-av-justified-icon"
                                                t-att-title="strings.justifiedTitle"/>
+                                            <!-- Issue #644: why the system took them off (an expected withdrawal...). -->
+                                            <small t-if="isRemoved and line.not_expected_reason"
+                                                   class="ems-av-removed-reason d-block text-muted"
+                                                   t-esc="line.roll_call_label"/>
                                         </td>
                                         <t t-foreach="statuses" t-as="s" t-key="s.key">
                                             <!-- The title also goes on the cell: some browsers don't show a disabled button's own. -->

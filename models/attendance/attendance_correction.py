@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from datetime import timedelta
 
 from pytz import UTC
 
@@ -8,11 +7,6 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
 from ..employees.absence_pending import UNRESOLVED_STATES
-
-# How much time the approver is given before the "Review attendance correction
-# request" activity is flagged overdue. Set explicitly (activity_schedule()
-# otherwise defaults the deadline to today, which reads as "due immediately").
-APPROVAL_ACTIVITY_DEADLINE_DAYS = 2
 
 
 class ems_attendance_correction(models.Model):
@@ -239,14 +233,15 @@ class ems_attendance_correction(models.Model):
                 continue
             # Not urgent: no "X has assigned you the following activity" email
             # (mail_activity_quick_update). The approver learns of it from the task itself and
-            # from the daily pending-tasks digest (models/shared/task_digest.py).
+            # from the daily summary (models/shared/daily_summary.py).
             for user in approvers:
                 correction_sudo.with_context(mail_activity_quick_update=True).activity_schedule(
                     activity_type_id=activity_type.id,
                     user_id=user.id,
                     summary=_("Attendance correction request"),
                     note=correction.reason,
-                    date_deadline=fields.Date.context_today(correction) + timedelta(days=APPROVAL_ACTIVITY_DEADLINE_DAYS),
+                    # Due today: the daily summary only lists what is due (issue #727).
+                    date_deadline=self.env['ems.datetime_utils'].get_local_today(),
                 )
             correction_sudo.chatter(
                 _("Correction requested by %(employee)s.") % {"employee": correction.employee_id.display_name}

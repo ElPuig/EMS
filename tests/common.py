@@ -96,6 +96,60 @@ def draw_invented_student_photo(look='new', full_length=False):
     return stream.getvalue()
 
 
+def draw_invented_centre_stamp(centre='Institut Puig Castellar', town='Santa Coloma de Gramenet'):
+    """PNG bytes of a simulated round rubber stamp of the centre, for the student card's tests,
+    previews and the manuals' screenshots (issue #524). Ink blue on a transparent background, the
+    centre around the top, the town around the bottom and "MOSTRA" across the middle, so it never
+    passes for the real one. Drawn at four times the size and scaled down, for smooth edges."""
+    import math
+    from PIL import Image, ImageDraw, ImageFont
+
+    def font(size):
+        try:
+            return ImageFont.truetype('DejaVuSans-Bold.ttf', size)
+        except OSError:
+            return ImageFont.load_default(size=size)
+
+    scale, size = 4, 300
+    side = size * scale
+    ink = (31, 64, 150, 235)
+    image = Image.new('RGBA', (side, side), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    centre_xy = side / 2
+    for radius, width in ((side * 0.48, 7 * scale), (side * 0.34, 3 * scale)):
+        draw.ellipse([centre_xy - radius, centre_xy - radius, centre_xy + radius, centre_xy + radius],
+                     outline=ink, width=width)
+
+    def arc_text(text, radius, middle_angle, clockwise):
+        letter_font = font(17 * scale)
+        widths = [draw.textlength(letter, font=letter_font) for letter in text]
+        total = sum(widths) / radius
+        angle = middle_angle - total / 2 if clockwise else middle_angle + total / 2
+        for letter, letter_width in zip(text, widths):
+            step = letter_width / radius
+            angle += step / 2 if clockwise else -step / 2
+            tile = Image.new('RGBA', (60 * scale, 60 * scale), (0, 0, 0, 0))
+            ImageDraw.Draw(tile).text((30 * scale, 30 * scale), letter, font=letter_font, fill=ink, anchor='mm')
+            rotation = -math.degrees(angle) - 90 if clockwise else -math.degrees(angle) + 90
+            tile = tile.rotate(rotation, resample=Image.BICUBIC)
+            x = centre_xy + radius * math.cos(angle) - tile.width / 2
+            y = centre_xy + radius * math.sin(angle) - tile.height / 2
+            image.alpha_composite(tile, (int(x), int(y)))
+            angle += step / 2 if clockwise else -step / 2
+
+    ring = side * 0.41
+    arc_text(centre.upper(), ring, -math.pi / 2, clockwise=True)
+    arc_text(town.upper(), ring, math.pi / 2, clockwise=False)
+    for x_offset in (-ring, ring):
+        draw.text((centre_xy + x_offset, centre_xy), '★', font=font(16 * scale), fill=ink, anchor='mm')
+    for text, offset, text_size in (('★', -0.17, 20), ('MOSTRA', 0.0, 30), ('★', 0.17, 20)):
+        draw.text((centre_xy, centre_xy + side * offset), text, font=font(text_size * scale), fill=ink, anchor='mm')
+
+    stream = io.BytesIO()
+    image.resize((size, size), Image.LANCZOS).save(stream, format='PNG')
+    return stream.getvalue()
+
+
 def next_student_id():
     """A fresh Student ID (IDALU) for a test fixture student (issue #460).
 

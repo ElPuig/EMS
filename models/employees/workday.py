@@ -25,9 +25,8 @@ class EmsCompanyWorkday(models.Model):
 
 class EmsEmployeeWorkday(models.Model):
     """What an employee is expected to work on a given day. Shared by the automatic check-out
-    (hr.attendance, employee_autocheckout.py), the daily pending-tasks digest (res.users,
-    models/shared/task_digest.py) and the tutor's attendance report
-    (models/attendance/attendance_report_schedule.py)."""
+    (hr.attendance, employee_autocheckout.py), the daily summary (res.users,
+    models/shared/daily_summary.py) and its tutor's attendance issues."""
     _inherit = 'hr.employee'
 
     def _ems_local_day_bounds(self, work_date):
@@ -78,3 +77,21 @@ class EmsEmployeeWorkday(models.Model):
         if calendar and not calendar.flexible_hours:
             return self._ems_expected_intervals(work_date)
         return self.company_id._ems_default_framework_intervals(work_date)
+
+    def _ems_students_day_end(self, day):
+        """Local float hour the last class of the tutor's students ends on 'day', from each
+        student's own schedule (a subject taken in another group counts), or None. The "when my
+        students' classes end" moment of the daily summary (res.users._ems_digest_moment_on)."""
+        self.ensure_one()
+        Attendance = self.env['resource.calendar.attendance']
+        weekday = str(day.weekday())
+        week_type = str(Attendance.get_week_type(day))
+        students = self.env['res.partner'].sudo().search([('contact_type', '=', 'student'), ('tutor_id', '=', self.id)])
+        hours = [
+            attendance.hour_to
+            for student in students
+            for attendance in student._ems_teaching_attendances()
+            if attendance.dayofweek == weekday and not attendance.display_type
+            and not (attendance.two_weeks_calendar and attendance.week_type != week_type)
+        ]
+        return max(hours) if hours else None

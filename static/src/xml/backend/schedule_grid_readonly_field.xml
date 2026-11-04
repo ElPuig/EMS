@@ -45,7 +45,7 @@
                     <div class="o_schedule_grid_column" t-att-style="columnStyle()">
                         <t t-foreach="blocksForDay(day.index)" t-as="block" t-key="blockKey(block)">
                             <div class="o_schedule_grid_entry"
-                                 t-att-class="blockIsBreak(block) ? 'o_schedule_grid_entry_break' : (block.parallelBlocks ? 'o_schedule_grid_entry_parallel' : '')"
+                                 t-att-class="blockClass(block)"
                                  t-att-style="blockStyle(block)"
                                  t-att-title="blockTitle(block)">
                                 <t t-if="blockIsBreak(block)">
@@ -62,6 +62,12 @@
                         </t>
                     </div>
                 </t>
+            </div>
+
+            <!-- Issue #644: why some classes are drawn dashed. -->
+            <div t-if="!editing.value and notExpectedLegend" class="o_schedule_grid_not_expected_legend">
+                <span class="o_schedule_grid_not_expected_sample"/>
+                <span t-esc="notExpectedLegend"/>
             </div>
 
             <!-- Issue #446 - card-based edit mode (only ever reachable via canEditSchedule, e.g.

@@ -1020,14 +1020,25 @@ class TestAbsenceCoverage(AbsenceCoverageCase):
             self.assertFalse([action for action in self._actions()
                               if action['type'] == 'proposal' and action['group'] == self.group_a])
 
-    def test_an_early_leave_is_proposed_until_its_time(self):
+    def test_an_early_leave_is_proposed_until_the_class_it_frees_ends(self):
+        """Issue #744: the teacher of the last class (11-12) leaves once it has started: at 11:30
+        the group can still be sent home, and the notice drafted; from 12:00 on it is over."""
         self._morning()
         self._absence(self.teacher_b, self.day)
 
-        with self._at(10.5):
-            self.assertEqual(self._states()['leave']['status'], 'proposal')
-        with self._at(11):
-            self.assertIsNone(self._states()['leave']['status'])
+        for hour in (10.5, 11, 11.5):
+            with self._at(hour):
+                state = self._states()['leave']
+                self.assertEqual((state['status'], state['expected']), ('proposal', ('early_leave', 11)), f"at {hour}")
+                self.assertEqual(self._row(11, 12, self.teacher_b)['proposed'], ('early_leave', 11))
+        with self._at(11.5):
+            notice = self._communicate('early_leave', 11.0)
+            self.assertEqual(notice.absence_changes and notice._absence_change_tuples(), [('early_leave', 11.0)])
+            state = self._states()['leave']
+            self.assertEqual((state['status'], state['change_options']), ('communicated', []),
+                             "the group has gone home: there is nothing left to correct")
+        with self._at(12):
+            self.assertFalse(self._states()['leave']['options'])
 
     def test_no_classes_is_no_longer_proposed_once_the_day_has_started(self):
         self._morning()
@@ -1147,6 +1158,51 @@ class TestAbsenceCoverage(AbsenceCoverageCase):
         self.assertEqual(row['break_change'], ('long_break', 9, 10.5))
         self.assertTrue(self.env['ems.course']._get_needed_absence_block(self.day, self.group_a, self.teacher_a, 9, 10))
         self._assign(hour_from=9, hour_to=10)
+
+    def test_a_class_already_started_is_no_gap_to_arrange(self):
+        """Issue #744: at 8:30 the 8:00 class is under way: bringing teacher_b's 11:00 lesson
+        there is no longer possible, only a guard."""
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        course = self.env['ems.course']
+        self.assertTrue(self._plans(), "before the class, the swap is proposed")
+
+        with self._at(8.5):
+            self.assertFalse(course._get_arrangement_plans(self.day, self.group_a))
+            self.assertFalse(course._get_arrangement_options(self.day, self.group_a, self.teacher_a, 8, 9))
+            planner, _states = course._arrangement_planner(course._arrangement_context(self.day), self.group_a)
+            self.assertEqual(planner.gaps((), []), [(self.group_a.id, (8, 9))], "it still needs a guard")
+
+    def test_a_lesson_already_started_is_never_moved_nor_swapped(self):
+        """Issue #744: at 8:30 teacher_a's 8:00 lesson is being taught: it can no longer go to
+        11:00, by a move or by a swap with teacher_b."""
+        self._morning()
+        self._absence(self.teacher_b, self.day, hour_from=11, hour_to=12)
+        course = self.env['ems.course']
+
+        def lessons(plans):
+            return {step['lesson'][0] for plan in plans for step in plan['steps'] if 'lesson' in step}
+
+        self.assertIn(8, lessons(self._plans()), "before it starts, the 8:00 lesson can go to 11:00")
+        with self._at(8.5):
+            plans = course._get_arrangement_plans(self.day, self.group_a)
+            self.assertFalse([start for start in lessons(plans) if start <= 8.5])
+            self.assertFalse([option for option in course._get_arrangement_options(
+                self.day, self.group_a, self.teacher_b, 11, 12) if option['hour_from'] <= 8.5])
+
+    def test_a_plan_whose_class_has_started_can_no_longer_be_applied(self):
+        """Issue #744: a plan read at 9:30, accepted at 10:30 once the class it fills is under
+        way, is refused."""
+        with self._at(9.5):
+            plan = self._moved_lesson_plan()
+        with self._at(10.5), self.assertRaises(UserError):
+            self._apply(plan)
+
+    def test_a_move_with_its_early_leave_is_still_proposed_once_the_day_has_started(self):
+        """Issue #744: at 8:30, with both lessons still to come, teacher_b's 11:00 lesson still goes
+        to 10:00 and the group still goes home at 11:00."""
+        with self._at(8.5):
+            self._moved_lesson_plan()
 
     def test_the_arrangement_planner_counts_a_longer_break_as_needing_a_guard(self):
         """Issue #679: the planner scores the lesson a longer break takes in as one more guard, and
@@ -1845,6 +1901,21 @@ class TestAbsenceCoverage(AbsenceCoverageCase):
         step = self.env['ems.course']._arrangement_plan_data(plan)['steps'][0]
         self.assertEqual(step['label'], f"{self.teacher_b.name}: 12:00 lesson → 09:00 ({self.group_b.name})")
         self.assertEqual(step['details'], [{'icon': 'fa-compress', 'text': f'groups joined with {self.group_a.name}'}])
+
+    def test_a_lesson_already_started_is_never_joined(self):
+        """Issue #744: group_a has nobody at 12; teacher_b could bring its 9:00 lesson with group_a
+        there, joined with group_b's. Not once that lesson has started."""
+        self._split_groups_day()
+        course = self.env['ems.course']
+
+        def joins():
+            context = course._arrangement_context(self.day)
+            planner, _states = course._arrangement_planner(context, course._linked_groups(context, self.group_a))
+            return [(step[2], step[3]) for step in planner._steps((), planner.simulate(())) if step[0] == 'join']
+
+        self.assertIn(((9, 10), (12, 13)), joins())
+        with self._at(9.5):
+            self.assertNotIn(((9, 10), (12, 13)), joins())
 
     def test_groups_sharing_a_lesson_are_not_joined_unless_set_as_halves(self):
         """Issue #676: DAM2A and DAM2B share lessons without being halves of a split group."""

@@ -218,7 +218,8 @@
                                                 <span t-out="doc._ems_people_label(people)"/>
                                             </td>
                                             <td style="white-space: nowrap;">
-                                                <span t-if="agreement.deadline_date" t-out="agreement.deadline_date" t-options="{'widget': 'date'}"/>
+                                                <span t-if="agreement.is_closed_in_minute">Done</span>
+                                                <span t-elif="agreement.deadline_date" t-out="agreement.deadline_date" t-options="{'widget': 'date'}"/>
                                                 <span t-else="" t-out="agreement.deadline_text or ''"/>
                                             </td>
                                         </tr>

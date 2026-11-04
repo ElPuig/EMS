@@ -121,6 +121,21 @@ left out of the attendance reports and percentages, and the family isn't notifie
   back on the roll-call with the status they had.
 - A student who got a strike in that session can't be removed: they were in class.
 
+### Students EMS takes off by itself
+
+A student can also be already off the roll-call when you start the session, with the reason under
+their name (in the "Marking attendance" screenshot, *Laia Exemple*'s row):
+
+- **Not required to attend: expected withdrawal**: their tutor has marked that they are leaving the
+  centre while the withdrawal is processed (see [A Student's Expected Withdrawal](../tutors/withdrawal-expected.md)).
+- **Not required to attend: convalidation in process**: they have asked to convalidate this subject
+  and chose not to attend it while it is resolved.
+
+They count neither as attendance nor as an absence either. If the student turns up anyway, click the
+restore icon and mark them like anyone else. If the expected withdrawal is reverted, or the subject
+is not convalidated, those sessions become absences. You get a notice of both in your
+[daily summary](daily-summary.md).
+
 ---
 
 ## Guard Mode

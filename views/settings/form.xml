@@ -73,6 +73,9 @@
                             <setting string="Resolution: appeal" help="Footer of the resolution saying how and before whom it can be appealed. Write it in Catalan. Leave it empty to use the standard text, which names the competent body only in general terms." id="convalidation_appeal">
                                 <field name="convalidation_appeal_text" placeholder="Standard text"/>
                             </setting>
+                            <setting string="Request: attendance notice" help="Shown on the portal when requesting a convalidation: the applicant must accept it, and chooses for each subject whether they will attend it until the resolution. Explain what the centre's rules (NOFC) say about absences if a subject is refused. Write it in each language families read. Leave it empty to use the standard text." id="convalidation_attendance_notice">
+                                <field name="convalidation_attendance_notice" widget="html" placeholder="Standard text"/>
+                            </setting>
                             <setting string="Resolution: signed by delegation" help="The resolution is signed on the Director's behalf: it says so, and shows the name of whoever actually resolved it instead of the Director's." id="convalidation_sign_by_delegation">
                                 <field name="convalidation_sign_by_delegation"/>
                             </setting>
@@ -82,11 +85,17 @@
                             <setting string="Center code" help="Official Departament d'Educació center code, leading zero included (e.g. 08028047). Used by the GEDAC applicant import to keep only the applicants assigned to this center; the comparison ignores the leading zero the Excel drops." id="center_code">
                                 <field name="center_code" placeholder="08028047"/>
                             </setting>
+                            <setting string="Centre language" help="The language EMS writes in, whatever the language of whoever uses it: the codes of minutes and agreements, the minutes and their calls, the convalidation resolutions, the public group schedules and the texts EMS adds by itself. It is also the language new contacts and users get." id="ems_lang">
+                                <field name="ems_lang"/>
+                            </setting>
                             <setting string="Secretariat" help="Email address of the center's secretariat, for messages addressed to it. No feature uses it yet." id="secretariat_email">
                                 <field name="secretariat_email" widget="email" placeholder="secretaria@example.com"/>
                             </setting>
                             <setting string="Erasmus+" help="The Erasmus+ coordination's mailbox. Replies to the Erasmus+ emails sent without anyone of the team behind them (application receipts, reminders) go here, for every call." id="erasmus_contact_email">
                                 <field name="erasmus_contact_email" widget="email" placeholder="erasmus@example.com"/>
+                            </setting>
+                            <setting string="Student card stamp" help="The centre's stamp, printed on every student card. Without one, the card leaves an empty box to stamp by hand." id="ems_card_stamp">
+                                <field name="ems_card_stamp" widget="image" options="{'size': [0, 90]}"/>
                             </setting>
                             <setting string="Notice email signature" help="Default sign-off appended to every Notice email. Copied onto each new notice as its own editable signature - editing it here only affects notices created afterward." id="notice_email_signature">
                                 <field name="notice_email_signature" widget="html"/>
@@ -141,7 +150,7 @@
                                 <span class="ms-2">minutes</span>
                             </setting>
 
-                            <setting string="Tutor's attendance report default send time" help="Each tutor chooses in their profile when they receive their attendance issues report. This time is used when that moment can't be worked out (no schedule framework for that day), and as the initial time of the &quot;At a fixed time&quot; option." id="attendance_issue_tutor_default">
+                            <setting string="Daily summary default send time" help="Each person chooses in their profile when they receive their daily summary (pending tasks, their students' attendance issues for tutors, notices). This time is used when a tutor's moment can't be worked out (no schedule framework for that day), and as the initial time of the &quot;At a fixed time&quot; option." id="attendance_issue_tutor_default">
                                 <field name="attendance_issue_tutor_default" widget="float_time" />
                             </setting>
 

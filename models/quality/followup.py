@@ -2,7 +2,7 @@
 
 from markupsafe import Markup
 
-from odoo import _, api, fields, models
+from odoo import api, fields, models
 
 from .common import QUALITY_STATES
 
@@ -32,11 +32,13 @@ class EmsQualityFollowup(models.Model):
         """Every entry is told to the agreement's followers (its responsible people and the people
         involved), so they hear of its progress without having to look. With sudo and the writer as
         author: posting on a record is a write the people reporting progress do not have."""
-        state_labels = dict(self._fields['state']._description_selection(self.env))
+        # Stored text, read by everybody: in the centre's language, not in that of whoever writes it.
+        centre_env = self.env['ems.minute']._ems_centre_env()
+        state_labels = dict(self._fields['state']._description_selection(centre_env))
         for followup in self:
             followup.action_id.sudo().message_post(
-                body=Markup("<p>%s</p>") % _("Follow-up (%(state)s): %(description)s",
-                                             state=state_labels.get(followup.state, ''), description=followup.description),
+                body=Markup("<p>%s</p>") % centre_env._("Follow-up (%(state)s): %(description)s",
+                                                        state=state_labels.get(followup.state, ''), description=followup.description),
                 author_id=self.env.user.partner_id.id,
                 subtype_xmlid='mail.mt_comment',
             )

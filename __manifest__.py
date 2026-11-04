@@ -389,6 +389,7 @@
         'views/erasmus/plan_rating/views.xml',
         'reports/erasmus/report_erasmus_resolution.xml',
         'reports/erasmus/report_erasmus_self_assessment.xml',
+        'reports/erasmus/report_erasmus_quality.xml',
         'views/erasmus/resolution/views.xml',
         'views/erasmus/offer/views.xml',
         'views/erasmus/claim/views.xml',
@@ -557,6 +558,7 @@
         'data/custom/ems.authorization.template.csv',
         'data/custom/ir.sequence-enrollment_number.csv',
         'data/custom/erasmus/ems.erasmus.project.csv',
+        'data/custom/erasmus/ems.erasmus.quality.history.csv',
 
         # Quality management system: the centre's process map. Load order matters - a procedure
         # references its process, and a document references its procedure.

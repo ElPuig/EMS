@@ -50,3 +50,35 @@ los comentarios sin el nombre; solo la coordinación ve quién ha respondido.
 y elige **Acciones › Crear una acción de mejora**: EMS la crea en la aplicación **Calidad**, sin el
 nombre del participante, y la sigues allí como cualquier otra acción. Es la evidencia que pide la
 auditoría ISO.
+
+## Informe de calidad y evidencias de Mobilitat FP
+
+Desde **Indicadores**, el menú **Acciones** ofrece:
+
+- **Imprimir el informe de calidad (PDF)**: las cifras para los filtros elegidos, las acciones de
+  mejora, cómo se calcula cada cifra y la fecha. Sin nombres, listo para la auditoría ISO. También
+  se añade solo a la exportación de cada proyecto, en la carpeta *05 Informe final y auditoría*.
+- **Evidencias Mobilitat FP (ZIP)**, una vez elegido el curso: todo lo que pide la memoria de la
+  red, con las mismas carpetas que su Drive: *1-gestio* (las reuniones del equipo Erasmus+),
+  *2-documentacio* (las convocatorias con su calendario y sus bases, los totales de cada lista
+  publicada y el porcentaje de participantes con la documentación completa), *3-mobilitats* (el
+  informe de calidad) y *4-difusio* (las acciones de difusión con sus evidencias). Súbelo al Drive
+  de la red tal cual: no lleva datos personales.
+
+Para que salgan las reuniones, elige una vez el grupo de trabajo del equipo Erasmus+ en
+**Ajustes > Gestión del EMS > Datos del centro > Reuniones del equipo Erasmus+** y haz las actas de las reuniones en la aplicación
+**Calidad** con ese grupo de trabajo.
+
+## Acciones de difusión
+
+**Erasmus+ › Calidad › Acciones de difusión** cuenta para el objetivo de la red (como mínimo 10 al
+año). Cada aviso de convocatoria abierta y cada recordatorio que EMS envía por correo queda
+registrado solo. Añade el resto con **Nuevo**: sesiones informativas, ErasmusDays, la web, las redes
+sociales. Escribe los destinatarios de forma general («alumnado de CFGS»), nunca nombres, y adjunta
+una captura o el cartel si lo tienes.
+
+## Cursos anteriores
+
+**Erasmus+ › Calidad › Cursos anteriores** guarda los indicadores de los cursos de antes de que EMS
+los guardara, introducidos por la coordinación con su fuente. Salen en la evolución por curso
+marcados como *carga manual*. Los cursos 2022-2023 a 2025-2026 ya están.

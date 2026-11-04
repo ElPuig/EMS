@@ -50,3 +50,35 @@ els comentaris sense el nom; només la coordinació veu qui ha respost.
 i tria **Accions › Crear una acció de millora**: EMS la crea a l'aplicació **Qualitat**, sense el nom
 del participant, i la segueixes allà com qualsevol altra acció. És l'evidència que demana
 l'auditoria ISO.
+
+## Informe de qualitat i evidències de Mobilitat FP
+
+Des d'**Indicadors**, el menú **Accions** ofereix:
+
+- **Imprimir l'informe de qualitat (PDF)**: les xifres per als filtres triats, les accions de
+  millora, com es calcula cada xifra i la data. Sense noms, a punt per a l'auditoria ISO. També
+  s'afegeix sol a l'exportació de cada projecte, a la carpeta *05 Informe final i auditoria*.
+- **Evidències Mobilitat FP (ZIP)**, un cop triat el curs: tot el que demana la memòria de la xarxa,
+  amb les mateixes carpetes que el seu Drive: *1-gestio* (les reunions de l'equip Erasmus+),
+  *2-documentacio* (les convocatòries amb el calendari i les bases, els totals de cada llista
+  publicada i el percentatge de participants amb la documentació completa), *3-mobilitats*
+  (l'informe de qualitat) i *4-difusio* (les accions de difusió amb les seves evidències). Puja-ho
+  al Drive de la xarxa tal com està: no porta dades personals.
+
+Perquè hi surtin les reunions, tria una vegada el grup de treball de l'equip Erasmus+ a
+**Configuració > Gestió de l'EMS > Dades del centre > Reunions de l'equip Erasmus+** i fes les actes de les reunions a l'aplicació
+**Qualitat** amb aquest grup de treball.
+
+## Accions de difusió
+
+**Erasmus+ › Qualitat › Accions de difusió** compta per a l'objectiu de la xarxa (com a mínim 10
+l'any). Cada avís de convocatòria oberta i cada recordatori que EMS envia per correu hi queda
+registrat sol. Afegeix la resta amb **Nou**: sessions informatives, ErasmusDays, el web, les xarxes
+socials. Escriu els destinataris de manera general («alumnat de CFGS»), mai noms, i adjunta-hi una
+captura o el cartell si en tens.
+
+## Cursos anteriors
+
+**Erasmus+ › Qualitat › Cursos anteriors** guarda els indicadors dels cursos d'abans que EMS els
+guardés, introduïts per la coordinació amb la seva font. Surten a l'evolució per curs marcats com a
+*càrrega manual*. Els cursos 2022-2023 a 2025-2026 ja hi són.

@@ -425,23 +425,32 @@ class EmsErasmusQualityPanel(models.TransientModel):
     @api.depends('course_id', 'call_id', 'project_id', 'participant_type', 'study_id', 'host_partner_id')
     def _compute_panel(self):
         self._ems_check_access()
+        headers = self._ems_headers()
         for panel in self:
             data = panel._ems_data()
             panel.indicators_html = panel._ems_table(
-                [_("Indicator"), _("Value"), _("Target"), _("Met"), _("n"), _("Median")],
-                [panel._ems_indicator_row(row) for row in data['indicators']])
+                headers['indicators'], [panel._ems_indicator_row(row) for row in data['indicators']])
             panel.breakdown_html = Markup('').join([
                 Markup("<h5>{}</h5>").format(_("By participant type")),
-                panel._ems_table([_("Participant type"), _("Average"), _("Median"), _("n")], data['by_type']),
+                panel._ems_table(headers['by_type'], data['by_type']),
                 Markup("<h5>{}</h5>").format(_("By host entity")),
-                panel._ems_table([_("Host entity"), _("Average"), _("Median"), _("n")], data['by_host']),
+                panel._ems_table(headers['by_host'], data['by_host']),
             ])
-            panel.funnel_html = panel._ems_table(
-                [_("Call"), _("Cycle"), _("Applications"), _("Admitted"), _("With a place"), _("Mobilities done"),
-                 _("Renounced or cancelled")], data['funnel'])
-            panel.evolution_html = panel._ems_table(
-                [_("Course"), _("Student interest"), _("Staff interest"), _("Satisfaction"), _("n")],
-                data['evolution'])
+            panel.funnel_html = panel._ems_table(headers['funnel'], data['funnel'])
+            panel.evolution_html = panel._ems_table(headers['evolution'], data['evolution'])
+
+    @api.model
+    def _ems_headers(self):
+        """The columns of each table, shared by the panel and its PDF."""
+        return {
+            'indicators': [_("Indicator"), _("Value"), _("Target"), _("Met"), _("n"), _("Median")],
+            'by_type': [_("Participant type"), _("Average"), _("Median"), _("n")],
+            'by_host': [_("Host entity"), _("Average"), _("Median"), _("n")],
+            'funnel': [_("Call"), _("Cycle"), _("Applications"), _("Admitted"), _("With a place"),
+                       _("Mobilities done"), _("Renounced or cancelled")],
+            'evolution': [_("Course"), _("Student interest"), _("Staff interest"), _("Satisfaction"), _("n")],
+            'actions': [_("Code"), _("Content"), _("State"), _("Deadline")],
+        }
 
     def _ems_check_access(self):
         if not (self.env.user.has_group('ems.group_erasmus') or self.env.user.has_group('ems.group_academic_admin')):

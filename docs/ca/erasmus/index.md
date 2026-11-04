@@ -29,7 +29,7 @@ Aquesta secció conté els manuals per a l'**equip Erasmus+**: la coordinació E
 | **Convocatòries** | Convocatòries, Sol·licituds, Classificació, Reclamacions, Resolucions i Ofertes de plaça |
 | **Mobilitats** | Mobilitats individuals i Mobilitats de grup |
 | **Gestió econòmica** | Projectes, Factures i Pagaments de beques |
-| **Qualitat** | Indicadors, Enquestes de satisfacció i Puntuacions baixes |
+| **Qualitat** | Indicadors, Enquestes de satisfacció, Puntuacions baixes, Accions de difusió i Cursos anteriors |
 | **Configuració** | Entitats d'acollida |
 
 Cada persona només veu els menús que li toquen: la Secretaria, per exemple, només veu **Gestió econòmica**. Tot el professorat té l'aplicació **Erasmus+**, just a sota de **Reunions**, amb la secció **La meva participació**: hi ha **La meva sol·licitud**, que obre la teva pàgina Erasmus+ del portal (per presentar-te a la convocatòria de personal i seguir la teva mobilitat), i les entrades personals (**Les meves avaluacions**, **Les meves valoracions de plans**, **Les meves mobilitats de grup**), que només veu qui hi té alguna cosa: qui fa entrevistes veu **Les meves avaluacions**, i qui és del tribunal, **Les meves valoracions de plans**. Així, si ets de l'equip Erasmus i també et presentes a la convocatòria de personal, el que fas com a participant és a **La meva participació** i la gestió, a la resta de seccions.

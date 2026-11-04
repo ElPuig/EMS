@@ -1,0 +1,5 @@
+id,course_name,student_applicants,student_target,satisfaction,satisfaction_count,source
+__import__.erasmus_quality_2022_2023,2022-2023,23,381,9.25,20,"Full de seguiment Erasmus+ de la coordinació (càrrega manual). Interès: alumnat admès a Erasmus+ / matrícula de CCFF. Satisfacció: EUSurvey, escala 0-4 passada a 0-10."
+__import__.erasmus_quality_2023_2024,2023-2024,30,436,9.17,9,"Full de seguiment Erasmus+ de la coordinació (càrrega manual). Interès: alumnat admès a Erasmus+ / matrícula de CCFF. Satisfacció: EUSurvey, escala 0-4 passada a 0-10."
+__import__.erasmus_quality_2024_2025,2024-2025,25,422,9.38,16,"Full de seguiment Erasmus+ de la coordinació (càrrega manual). Interès: alumnat admès a Erasmus+ / matrícula de CCFF. Satisfacció: EUSurvey, escala 0-4 passada a 0-10."
+__import__.erasmus_quality_2025_2026,2025-2026,46,495,9.22,16,"Full de seguiment Erasmus+ de la coordinació (càrrega manual). Interès: alumnat admès a Erasmus+ / matrícula de CCFF. Satisfacció: EUSurvey, escala 0-10."

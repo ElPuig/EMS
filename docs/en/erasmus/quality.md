@@ -49,3 +49,33 @@ comments without the name; only the coordinator sees who answered.
 **Actions › Create an improvement action**: EMS creates it in the **Quality** app, without the
 participant's name, and you follow it there like any other action. It is the evidence the ISO audit
 asks for.
+
+## Quality report and Mobilitat FP evidence
+
+From **Indicators**, the **Actions** menu offers:
+
+- **Print the quality report (PDF)**: the figures for the filters chosen, the improvement actions,
+  how each figure is calculated and the date. Without names, ready for the ISO audit. It also goes
+  by itself into each project's export, in the folder *05 Final report and audit*.
+- **Mobilitat FP evidence (ZIP)**, once a course is chosen: everything the network's report asks
+  for, in the same folders as its Drive: *1-gestio* (the Erasmus+ team's meetings), *2-documentacio*
+  (the calls with their calendar and rules, the totals of each published list and the percentage of
+  participants with their documentation complete), *3-mobilitats* (the quality report) and
+  *4-difusio* (the diffusion actions with their evidence). Upload it to the network's Drive as it
+  is: it carries no personal data.
+
+For the meetings to appear, set the Erasmus+ team's workgroup once in **Settings > EMS Management > Center Data > Erasmus+ team meetings** and minute the meetings in the **Quality** app with that workgroup.
+
+## Diffusion actions
+
+**Erasmus+ › Quality › Diffusion actions** counts towards the network's target (at least 10 a
+year). Every notice of an open call and every reminder EMS emails is recorded by itself. Add the
+rest with **New**: information sessions, ErasmusDays, the website, social media. Write the audience
+in general terms ("students of CFGS"), never names, and attach a capture or the poster if you have
+one.
+
+## Earlier courses
+
+**Erasmus+ › Quality › Earlier courses** holds the indicators of the courses before EMS kept them,
+typed in by the coordination with their source. They appear in the evolution by course marked
+*manual load*. The courses 2022-2023 to 2025-2026 are already there.

@@ -1,3 +1,5 @@
+import io
+import zipfile
 from datetime import timedelta
 
 from odoo.exceptions import AccessError, UserError
@@ -201,6 +203,65 @@ class TestErasmusQualityPanel(ErasmusSatisfactionCase):
     def test_only_the_team_opens_the_panel(self):
         with self.assertRaises(AccessError):
             self.env['ems.erasmus.quality.panel'].with_user(self.teacher_user).create({})
+
+
+@tagged('post_install', '-at_install')
+class TestErasmusQualityEvidence(ErasmusSatisfactionCase):
+    """Phase 2: earlier courses typed in by hand, diffusion actions, the PDF and the network evidence."""
+
+    def test_earlier_courses_join_the_evolution_marked_as_manual_load(self):
+        History = self.env['ems.erasmus.quality.history']
+        with self.assertRaises(Exception):
+            History.create({'course_name': '22-23', 'source': 'Test'})
+        with self.assertRaises(Exception):
+            History.create({'course_name': '2019-2020', 'satisfaction': 11, 'source': 'Test'})
+        History.create({'course_name': '2019-2020', 'student_applicants': 10, 'student_target': 200,
+                        'satisfaction': 9.5, 'satisfaction_count': 12, 'source': 'Test sheet'})
+        rows = self.env['ems.erasmus.quality.panel'].with_user(self.technician_user).create({})._ems_evolution()
+        row = next(row for row in rows if '2019-2020' in row[0])
+        self.assertEqual(row[1:], ['5,0 %', '-', '9,5', 12])
+        self.assertIn('2019-2020', rows[0][0], "Oldest first.")
+        with self.assertRaises(AccessError):
+            History.with_user(self.technician_user).create({'course_name': '2018-2019', 'source': 'Test'})
+
+    def test_every_call_email_is_a_diffusion_action_with_a_generic_audience(self):
+        Diffusion = self.env['ems.erasmus.diffusion']
+        before = Diffusion.search_count([])
+        count = self.call._ems_announce(self.student | self.second, 'ems.email_template_erasmus_call_open')
+        action = Diffusion.search([], order='id desc', limit=1)
+        self.assertEqual(Diffusion.search_count([]), before + 1)
+        self.assertEqual((action.channel, action.recipient_count, action.call_id, action.is_automatic),
+                         ('ems_email', count, self.call, True))
+        self.assertNotIn(self.student.name, action.audience + action.name)
+        manual = Diffusion.with_user(self.technician_user).create({'name': 'ErasmusDays', 'channel': 'event'})
+        self.assertEqual(manual.course_id, self.env.company.current_course_id)
+
+    def test_the_report_and_the_network_evidence_carry_no_names(self):
+        first, second = self._open()
+        first._ems_portal_answer(4, what_failed='Nobody at the airport')
+        second._ems_portal_answer(10)
+        first.sudo().action_create_improvement()
+        self.env['ems.erasmus.diffusion'].create({'name': 'ErasmusDays', 'channel': 'event',
+                                                  'course_id': self.call.course_id.id})
+        panel = self.env['ems.erasmus.quality.panel'].with_user(self.technician_user).create(
+            {'course_id': self.call.course_id.id})
+        html, _type = self.env['ir.actions.report']._render_qweb_html('ems.action_report_erasmus_quality', panel.ids)
+        html = html.decode()
+        self.assertIn('Erasmus+ satisfaction: Nobody at the airport', html)
+        export = self.env['ems.erasmus.export'].with_user(self.technician_user).create(
+            {'scope': 'network', 'course_id': self.call.course_id.id})
+        with export._ems_zip() as archive:
+            bundle = zipfile.ZipFile(io.BytesIO(archive.read()))
+        names = bundle.namelist()
+        for folder in ('2-documentacio', '3-mobilitats', '4-difusio'):
+            self.assertTrue(any(f'/{folder}/' in name for name in names), folder)
+        content = b''.join(bundle.read(name) for name in names if not name.endswith('.pdf'))
+        content += html.encode()
+        for name in (self.student.name, self.second.name):
+            self.assertNotIn(name.encode(), content)
+        self.assertIn(b'ErasmusDays', content)
+        with self.assertRaises(UserError):
+            self.env['ems.erasmus.export'].with_user(self.technician_user).create({'scope': 'network'}).action_generate()
 
 
 @tagged('post_install', '-at_install')

@@ -29,7 +29,7 @@ This section contains the manuals for the **Erasmus+ team**: the Erasmus coordin
 | **Calls** | Calls, Applications, Ranking, Claims, Resolutions and Place offers |
 | **Mobilities** | Individual mobilities and Group mobilities |
 | **Financial management** | Projects, Invoices and Grant payments |
-| **Quality** | Indicators, Satisfaction surveys and Low scores |
+| **Quality** | Indicators, Satisfaction surveys, Low scores, Diffusion actions and Earlier courses |
 | **Configuration** | Host entities |
 
 Each person only sees the menus that concern them: the Secretary, for example, only sees **Financial management**. Every teacher has the **Erasmus+** app, right below **Meetings**, with the **My participation** section: it holds **My application**, which opens your Erasmus+ page on the portal (to apply to the staff call and follow your mobility), and the personal entries (**My evaluations**, **My plan ratings**, **My group mobilities**), which only show to whoever has something in them: an interviewer sees **My evaluations**, a member of the panel **My plan ratings**. So, if you are in the Erasmus team and also apply to the staff call, what you do as a participant is under **My participation** and the management under the other sections.

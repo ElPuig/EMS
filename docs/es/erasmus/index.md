@@ -29,7 +29,7 @@ Esta sección contiene los manuales para el **equipo Erasmus+**: la coordinació
 | **Convocatorias** | Convocatorias, Solicitudes, Clasificación, Reclamaciones, Resoluciones y Ofertas de plaza |
 | **Movilidades** | Movilidades individuales y Movilidades de grupo |
 | **Gestión económica** | Proyectos, Facturas y Pagos de becas |
-| **Calidad** | Indicadores, Encuestas de satisfacción y Puntuaciones bajas |
+| **Calidad** | Indicadores, Encuestas de satisfacción, Puntuaciones bajas, Acciones de difusión y Cursos anteriores |
 | **Configuración** | Entidades de acogida |
 
 Cada persona solo ve los menús que le tocan: Secretaría, por ejemplo, solo ve **Gestión económica**. Todo el profesorado tiene la aplicación **Erasmus+**, justo debajo de **Reuniones**, con la sección **Mi participación**: allí está **Mi solicitud**, que abre tu página Erasmus+ del portal (para presentarte a la convocatoria de personal y seguir tu movilidad), y las entradas personales (**Mis evaluaciones**, **Mis valoraciones de planes**, **Mis movilidades de grupo**), que solo ve quien tiene algo en ellas: quien hace entrevistas ve **Mis evaluaciones**, y quien es del tribunal, **Mis valoraciones de planes**. Así, si eres del equipo Erasmus y también te presentas a la convocatoria de personal, lo que haces como participante está en **Mi participación** y la gestión, en el resto de secciones.

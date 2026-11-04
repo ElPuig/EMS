@@ -70,6 +70,8 @@ ACCESS_MATRIX = {
     'ems.erasmus.satisfaction': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'erasmus': 'r',
                                  'erasmus_coordinator': 'rw'},
     'ems.erasmus.quality.panel': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'erasmus': 'rwcu'},
+    'ems.erasmus.quality.history': {'teacher': '', 'secretary': '', 'erasmus': 'r', 'erasmus_coordinator': 'rwcu'},
+    'ems.erasmus.diffusion': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'erasmus': 'rwcu'},
     # Issue #701: a plain teacher reaches nothing; the leader and accompanying teachers (a hidden
     # group EMS manages) only their own mobilities, through record rules tested in
     # test_erasmus_group_mobility.py.

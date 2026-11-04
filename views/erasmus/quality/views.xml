@@ -152,6 +152,13 @@
             <field name="model">ems.erasmus.quality.panel</field>
             <field name="arch" type="xml">
                 <form string="Quality" create="0" delete="0">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_print_report" type="object" string="Print the quality report (PDF)"/>
+                            <button name="action_network_export" type="object" string="Mobilitat FP evidence (ZIP)"
+                                    invisible="not course_id"/>
+                        </div>
+                    </header>
                     <sheet>
                         <group>
                             <group>
@@ -223,6 +230,121 @@
             <field name="arch" type="xml">
                 <xpath expr="//group/field[@name='eu_survey_state']" position="after">
                     <field name="satisfaction_progress" invisible="not satisfaction_progress"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Indicators of earlier courses, typed in by the coordination (manual load). -->
+        <record id="view_erasmus_quality_history_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.quality.history.list</field>
+            <field name="model">ems.erasmus.quality.history</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="course_name" placeholder="2022-2023"/>
+                    <field name="student_applicants"/>
+                    <field name="student_target"/>
+                    <field name="staff_applicants" optional="show"/>
+                    <field name="staff_target" optional="show"/>
+                    <field name="satisfaction"/>
+                    <field name="satisfaction_count"/>
+                    <field name="source"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_erasmus_quality_history" model="ir.actions.act_window">
+            <field name="name">Earlier courses (manual load)</field>
+            <field name="res_model">ems.erasmus.quality.history</field>
+            <field name="view_mode">list</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">No earlier course yet</p>
+                <p>Type in the indicators of the courses before EMS kept them, with their source: the evolution by course starts from them.</p>
+            </field>
+        </record>
+
+        <!-- Diffusion actions: EMS records its own emails to whoever can apply; the team adds the rest. -->
+        <record id="view_erasmus_diffusion_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.diffusion.list</field>
+            <field name="model">ems.erasmus.diffusion</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="date"/>
+                    <field name="name"/>
+                    <field name="channel"/>
+                    <field name="audience"/>
+                    <field name="recipient_count" optional="show"/>
+                    <field name="course_id" optional="show"/>
+                    <field name="call_id" optional="hide"/>
+                    <field name="is_automatic" optional="show"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_diffusion_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.diffusion.form</field>
+            <field name="model">ems.erasmus.diffusion</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" placeholder="E.g. Information session for CFGS students"/>
+                                <field name="date"/>
+                                <field name="channel"/>
+                                <field name="audience" placeholder="E.g. students of CFGS (never names)"/>
+                            </group>
+                            <group>
+                                <field name="recipient_count"/>
+                                <field name="course_id" options="{'no_create': True}"/>
+                                <field name="call_id" options="{'no_create': True}"/>
+                                <field name="is_automatic" invisible="not is_automatic"/>
+                            </group>
+                        </group>
+                        <field name="attachment_ids" widget="many2many_binary"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_erasmus_diffusion_search" model="ir.ui.view">
+            <field name="name">ems.erasmus.diffusion.search</field>
+            <field name="model">ems.erasmus.diffusion</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="course_id"/>
+                    <field name="call_id"/>
+                    <filter string="Recorded by EMS" name="automatic" domain="[('is_automatic', '=', True)]"/>
+                    <filter string="Added by hand" name="manual" domain="[('is_automatic', '=', False)]"/>
+                    <group>
+                        <filter string="Course" name="group_course" context="{'group_by': 'course_id'}"/>
+                        <filter string="Channel" name="group_channel" context="{'group_by': 'channel'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_erasmus_diffusion" model="ir.actions.act_window">
+            <field name="name">Diffusion actions</field>
+            <field name="res_model">ems.erasmus.diffusion</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_erasmus_diffusion_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">No diffusion action yet</p>
+                <p>Every Erasmus+ email EMS sends to whoever can apply is recorded here by itself. Add the rest by hand: information sessions, ErasmusDays, the website, social media.</p>
+            </field>
+        </record>
+
+        <!-- Settings: the workgroup whose minutes are the Erasmus+ team's meetings. -->
+        <record id="view_settings_erasmus_workgroup" model="ir.ui.view">
+            <field name="name">res.config.settings.erasmus.workgroup</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="ems.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//setting[@id='erasmus_contact_email']" position="after">
+                    <setting string="Erasmus+ team meetings" help="The workgroup whose minutes in the Quality app are the Erasmus+ team's meetings: they go in the Mobilitat FP evidence." id="erasmus_workgroup">
+                        <field name="erasmus_workgroup_id" options="{'no_create': True}"/>
+                    </setting>
                 </xpath>
             </field>
         </record>

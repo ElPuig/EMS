@@ -107,6 +107,10 @@
 - Every participant (individual students and staff, every member of a group mobility) answers one question on the portal when the stay is over, "In general, how satisfied are you with your Erasmus+ mobility experience?" from 1 to 10, with an optional comment; 6 or lower asks for confirmation and a mandatory "What did not work?". Students get an email and reminders at 3 and 7 days; staff a to-do in their daily summary.
 - A mobility (individual or group) only closes with its surveys answered, or closed without an answer by the coordinator with a reason.
 - The team reads the answers without names (only the coordinator and the administrator see who answered). A low score becomes, with one button, an improvement action of the Quality app without the participant's name: the ISO evidence.
+- Quality report (PDF) from the indicators screen, for any filters: figures, improvement actions, calculation criteria and date, no names; it also goes by itself into each project's ZIP (folder 05).
+- Mobilitat FP evidence (ZIP) per course, laid out like the network's Drive (1-gestio: the Erasmus+ team's minutes of the workgroup set in Settings; 2-documentacio: calls with their calendar and rules, totals of each published list, % of participants with complete documentation; 3-mobilitats: the quality report; 4-difusio: the diffusion actions and their evidence). No personal data.
+- Diffusion actions register: every call notice and closing reminder EMS emails is recorded by itself; the team adds the rest by hand (sessions, ErasmusDays, web, social media).
+- Earlier courses (manual load, with their source) feed the evolution by course; the coordination's figures for 2022-2023 to 2025-2026 are seeded as centre data.
 
 # Fixes
 

@@ -148,7 +148,9 @@ class EmsMinuteAgreementReview(models.Model):
                 'action_id': review.action_id.id,
                 'date': review.minute_id.date,
                 'state': 'closed' if review.is_closed else 'in_progress',
-                'description': review.note or _("Reviewed in the meeting %s.", review.minute_id.code or review.minute_id.name),
+                # Stored text: in the centre's language, not in that of whoever reviews it.
+                'description': review.note or review.minute_id._ems_centre_env()._(
+                    "Reviewed in the meeting %s.", review.minute_id.code or review.minute_id.name),
                 'author_employee_id': review.minute_id.redactor_employee_id.id,
             }
             if review.followup_id:

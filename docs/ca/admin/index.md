@@ -16,11 +16,13 @@ Aquesta secció conté els manuals per a **administradors**.
 - [Curs Actual](course-settings.md) — Canviar l'any acadèmic utilitzat per a les operacions del dia a dia.
 - [Versió d'EMS instal·lada](ems-version.md) — Quina versió d'EMS funciona en aquesta instal·lació, i si n'hi ha una de més nova.
 - [Configuració de convalidacions](convalidation-settings.md) — El període anual per sol·licitar convalidacions des del portal i els textos de la resolució oficial.
+- [Idioma del centre](centre-language.md) — L'idioma en què EMS escriu pel seu compte i que reben els usuaris nous.
 - [Grups de treball](workgroups.md) — Agrupacions lliures d'empleats (equips de projecte, comissions).
 - [Espais i tipus d'espai](facilities.md) — Aules físiques i els seus tipus, usats en sessions/grups/actes/horaris.
 - [Rols de professorat i nivells de permisos](teacher-roles.md) — Com assignar rols (Tutor, Cap de departament, Cap d'estudis, Director...) per concedir nivells de permisos.
 - [Alta d'un professor i creació del compte de correu corporatiu (Google Workspace)](alta-professor-compte-google.md) — Com donar d'alta un professor o membre del PAS i com es genera el seu compte corporatiu.
 - [Gestionar el compte de Google d'un alumne](student-google-account.md) — Crear, suspendre o restablir la contrasenya del compte de Google d'un alumne i descarregar-ne les credencials (administració i coordinació TAC).
+- [Configurar el carnet d'estudiant](student-card-settings.md) — Pujar el segell del centre i canviar el color de cada nivell al carnet.
 - [Strikes: gestionar motius i llindar d'escalat](strike.md) — Configurar la llista de motius de strike i el llindar d'escalat de convivència.
 - [Estats d'assistència: gestionar les opcions del passar llista](attendance-status.md) — Afegir, reordenar o retirar els estats que els professors poden triar a la vista de passar llista.
 - [Horaris dels docents i marcs horaris](working-schedules.md) — Configurar les plantilles d'horari, el marc predeterminat, i editar/importar l'horari setmanal d'un docent.

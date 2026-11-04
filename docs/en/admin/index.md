@@ -16,11 +16,13 @@ This section contains the manuals for **administrators**.
 - [Current Course](course-settings.md) — Switching the academic year used for day-to-day operations.
 - [Installed EMS version](ems-version.md) — Which EMS version is running on this installation, and whether a newer one exists.
 - [Convalidations settings](convalidation-settings.md) — The yearly period to request convalidations from the portal and the texts of the official resolution.
+- [Centre Language](centre-language.md) — The language EMS writes in by itself and that new users get.
 - [Workgroups](workgroups.md) — Free-form employee groupings (project teams, committees).
 - [Spaces and Space Types](facilities.md) — Physical rooms and their types, used across sessions/groups/minutes/schedules.
 - [Teacher Roles and Permission Levels](teacher-roles.md) — How to assign roles (Tutor, Department Chief, Head of Studies, Director...) to grant permission levels.
 - [Onboarding a Teacher and Creating Their Corporate Email Account (Google Workspace)](alta-professor-compte-google.md) — How to onboard a teacher or ASP staff member and how their corporate account is generated.
 - [Managing a Student's Google Account](student-google-account.md) — Create, suspend or reset the password of a student's Google account and download its credentials (administration and TAC coordination).
+- [Setting up the student card](student-card-settings.md) — Upload the centre's stamp and change each level's colour on the card.
 - [Strikes: Managing Reasons and Escalation Threshold](strike.md) — Configuring the strike reasons list and the coexistence escalation threshold.
 - [Attendance Statuses: Managing the Passlist Options](attendance-status.md) — Adding, reordering or retiring the statuses teachers can pick from in the roll-call view.
 - [Teacher Working Schedules & Schedule Frameworks](working-schedules.md) — Setting up bell-schedule templates, the default framework, and editing/importing a teacher's weekly schedule.

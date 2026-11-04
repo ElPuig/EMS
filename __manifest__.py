@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.44.1',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.45.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -140,6 +140,7 @@
             'views/community/contact/update_wizard.xml',            
             'views/community/contact/portal_access_wizard.xml',
             'views/community/contact/google_credentials_download.xml',
+            'views/community/contact/student_card_print.xml',
             'views/community/contact/native_action_bindings.xml',
             'views/community/contact/exit_wizards.xml',
             'views/community/contact/student_document.xml',
@@ -353,6 +354,7 @@
             'reports/contacts/report_schedule_grid.xml',
             'reports/contacts/report_group_schedule.xml',
             'reports/contacts/report_student_schedule.xml',
+            'reports/contacts/report_student_card.xml',
             'reports/facilities/report_space_schedule.xml',
             'reports/grades/report_convalidation_resolution.xml',
         'reports/enrollment/templates/report_enrollment_template.xml',
@@ -386,6 +388,7 @@
         'views/portal/portal_main.xml',
             'views/portal/frontend_branding.xml',
             'views/portal/portal_loading_overlay.xml',
+            'views/portal/student_card_check.xml',
             'views/portal/portal_header.xml',
             'views/portal/portal_account_readonly.xml',
             'views/portal/portal_authorizations.xml',
@@ -399,7 +402,8 @@
             'views/portal/portal_under_construction.xml',
 
 
-        'views/shared/attachment/form.xml',  
+        'views/shared/attachment/form.xml',
+        'views/shared/mail_activity/list.xml',  
 
 
         ### Mailing templates ###

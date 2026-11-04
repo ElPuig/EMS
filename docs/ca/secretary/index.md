@@ -18,6 +18,7 @@ Aquesta secció conté els manuals per al **personal de secretaria**.
 - [L'horari setmanal d'un alumne](../admin/student-schedule.md) — Consultar l'horari propi d'un alumne (assignatures, docents, aules, patis), incloent-hi classes solapades, i exportar-lo a PDF.
 - [Informes d'assistència](attendance-reports.md) — Imprimir els 3 informes PDF d'assistència (per grup/alumne/assignatura) i explorar les dades amb la pantalla d'Anàlisi d'assistència.
 - [Gestió de contactes d'alumnat i família](student-contacts.md) — Tipus de contacte i com canvien, afegir un contacte familiar a un alumne, i registrar bonificacions i exempcions.
+- [Imprimir els carnets d'estudiant](student-card.md) — Imprimir en PDF els carnets d'un grup, d'uns quants alumnes o d'un de sol, què hi surt i com imprimir-los a doble cara.
 - [Autoritzacions: crear-les, enviar-les i fer-ne el seguiment](authorizations.md) — Crear formularis d'autorització, enviar-los a l'alumnat durant el curs i fer el seguiment de les respostes.
 - [Convalidacions: registrar les resolucions](convalidations.md) — Registrar a l'Esfera les convalidacions ja resoltes i tancar-les perquè l'alumne rebi la resolució i en vegi la nota.
 - [Sol·licituds de dades de contacte: demanar a les famílies que actualitzin les dades](../tutors/contact-data-requests.md) — Demanar a l'alumnat i a les famílies que revisin les dades de contacte des del portal, fer el seguiment de les respostes i aprovar els canvis (manual compartit amb els tutors).

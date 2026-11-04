@@ -63,6 +63,8 @@ from . import test_teaching_tour
 from . import test_tracking
 from . import test_employee_autocheckout
 from . import test_daily_summary
+from . import test_activity_snooze
+from . import test_activity_snooze_tour
 from . import test_attendance_not_expected
 from . import test_withdrawal_expected_tour
 from . import test_convalidation_attendance
@@ -118,6 +120,9 @@ from . import test_student_google_workspace_tour
 from . import test_actions_dropdown_tour
 from . import test_archive_entry
 from . import test_student_action_rights
+from . import test_student_card
+from . import test_student_card_tour
+from . import test_student_card_check
 from . import test_employee_ems_user
 from . import test_strike
 from . import test_strike_tour
@@ -277,10 +282,12 @@ from . import test_employee_presence_tour
 from . import test_student_chatter_replies
 from . import test_mail_reply_to
 from . import test_quality_minute
+from . import test_centre_language
 from . import test_quality_minute_start
 from . import test_quality_minute_tour
 from . import test_quality_minute_rules
 from . import test_quality_minute_guest
 from . import test_title_registration
 from . import test_title_registration_tour
+from . import test_docs_screenshots_student_card
 from . import test_docs_screenshots_schedule_declaration

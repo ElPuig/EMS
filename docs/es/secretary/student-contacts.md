@@ -39,7 +39,7 @@ La parte superior de la ficha reúne los datos del alumno sin tener que cambiar 
 
 - **Nombre** y **Apellidos**, con el **Correo personal** y el **Correo corporativo** debajo. Un nombre escrito todo en mayúsculas o todo en minúsculas se guarda con las iniciales en mayúscula ("ASHLEY BUENO" pasa a "Ashley Bueno"); si mezcla mayúsculas y minúsculas, se guarda tal como se ha escrito.
 - Tres columnas: **Contacto** (dirección, teléfonos e idioma), **Identificación** (DNI/NIE, pasaporte, identificador de estudiante, identificación médica, NUSS y matrícula del vehículo) y **Datos personales** (fecha de nacimiento, si es mayor de edad, país de nacimiento, ciudadanía, beneficios y necesidades educativas especiales).
-- **Autorizaciones**: el resumen Sí/No de los derechos de imagen, las excursiones escolares, los datos de salud y compartir con la familia.
+- **Autorizaciones**: el resumen Sí/No de los derechos de imagen, las excursiones escolares, los datos de salud, compartir con la familia y salir del centro.
 
 ![Parte superior de la ficha de un alumno: nombres, correos, las columnas Contacto, Identificación y Datos personales, y el resumen de autorizaciones](../../assets/secretary/fitxa-alumne-01-capcalera.png)
 
@@ -105,7 +105,7 @@ La barra de búsqueda se abre con dos filtros ya aplicados: **Alumnado**, que oc
 
 ## Columnas que se muestran en la vista de lista de alumnado
 
-Cambiar la pantalla de Alumnado de vista Kanban a vista de Lista muestra, por defecto, la mayoría de campos ya usados en la exportación oficial de datos de alumnado del centro (documento de identidad/DNI-NIE, fecha de nacimiento, si el alumno es mayor de edad, número de la seguridad social, nacionalidad, dirección y código postal), más los cuatro distintivos de autorización (derechos de imagen, salidas escolares, datos de salud, compartir con la familia). Cualquier columna se puede ocultar — haz clic en el icono a la derecha de las cabeceras de columna y desmarca las que no necesites; la elección se recuerda para tu próxima visita.
+Cambiar la pantalla de Alumnado de vista Kanban a vista de Lista muestra, por defecto, la mayoría de campos ya usados en la exportación oficial de datos de alumnado del centro (documento de identidad/DNI-NIE, fecha de nacimiento, si el alumno es mayor de edad, número de la seguridad social, nacionalidad, dirección y código postal), más los cinco distintivos de autorización (derechos de imagen, salidas escolares, datos de salud, compartir con la familia, salir del centro). Cualquier columna se puede ocultar — haz clic en el icono a la derecha de las cabeceras de columna y desmarca las que no necesites; la elección se recuerda para tu próxima visita.
 
 ## Campos que solo ven admin/secretaría/Jefatura de Estudios/tutores
 

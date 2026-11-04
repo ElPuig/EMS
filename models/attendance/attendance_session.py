@@ -373,6 +373,8 @@ class EmsAttendanceSessionHeader(models.Model):
                 'mail.mail_activity_data_todo',
                 user_id=admin.id,
                 summary=_('Automatic check-in failed'),
+                # Due today, not the to-do type's 5 days: the daily summary only lists what is due.
+                date_deadline=self.env['ems.datetime_utils'].get_local_today(),
                 note=_(
                     'Automatic check-in failed for %(employee)s while taking attendance '
                     '(session %(session)s) due to an unexpected error. Please review and '

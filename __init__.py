@@ -26,6 +26,8 @@ def post_init_hook(env):
               WHERE d.model = 'resource.calendar.attendance' AND d.res_id = rca.id
           )
     """)
+    # First: what follows may write Catalan translations, which only stick once it is installed.
+    env['res.company']._ems_seed_centre_lang()
     _backfill_default_schedule_framework(env)
     _enable_unaccent_extension(env)
     _disable_login_presence_control(env)

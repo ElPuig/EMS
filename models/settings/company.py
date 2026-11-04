@@ -9,6 +9,7 @@ from pytz import UTC
 
 from odoo.tools import config, email_normalize, format_datetime
 from odoo import _, api, fields, models
+from odoo.addons.base.models.res_partner import _lang_get
 from odoo.exceptions import UserError, ValidationError
 from cryptography.fernet import Fernet
 
@@ -16,6 +17,9 @@ from ..shared import base
 from .mail_guard import DEV_SERVER_ROLE
 
 _logger = logging.getLogger(__name__)
+
+# The centre's language when nobody has chosen another one (issue #746).
+DEFAULT_CENTRE_LANG = 'ca_ES'
 
 MONTHS = [
     ('1', 'January'), ('2', 'February'), ('3', 'March'), ('4', 'April'), ('5', 'May'), ('6', 'June'),
@@ -148,6 +152,14 @@ class ems_company(models.Model):
 
     secretariat_email = fields.Char()
 
+    # Issue #746: one language for everything EMS writes itself, whoever triggers it.
+    ems_lang = fields.Selection(
+        selection=_lang_get, string="Centre language", required=True,
+        default=lambda self: DEFAULT_CENTRE_LANG if self.env['res.lang']._lang_get(DEFAULT_CENTRE_LANG) else 'en_US',
+        help="The language EMS writes in, whatever the language of whoever uses it: the codes of minutes and "
+             "agreements, the minutes and their calls, the convalidation resolutions, the public group schedules "
+             "and the texts EMS adds by itself. It is also the language new contacts and users get.")
+
     notice_email_signature = fields.Html(
         string="Notice email signature", translate=True,
         help="Default sign-off appended to every Notice email. Copied onto each new notice "
@@ -157,6 +169,10 @@ class ems_company(models.Model):
     # Official Departament d'Educació center code (e.g. '8028047'). Used by the GEDAC
     # applicant import to keep only the rows assigned to this center.
     center_code = fields.Char(string="Center code")
+
+    # The centre's stamp, printed on every student card (issue #524). Without one the card leaves
+    # an empty box to stamp by hand.
+    ems_card_stamp = fields.Image(string="Student card stamp", max_width=512, max_height=512)
 
     # --- Google Workspace (creación automática de cuentas de alumno) ---
     # Enfoque: rol de administrador personalizado asignado a la cuenta de servicio,
@@ -267,6 +283,29 @@ class ems_company(models.Model):
         companies._sync_enrollment_course_flag()
         return companies
 
+    def _ems_apply_centre_lang(self):
+        """Make the centre language the default one of new contacts, and so of new users, with
+        Odoo's own default values (the same 'Set default' of developer mode); and reprint the
+        public group schedules, which are in that language."""
+        lang = self[:1].ems_lang
+        if lang:
+            self.env['ir.default'].sudo().set('res.partner', 'lang', lang)
+            self.env['ems.group'].sudo().search([])._mark_public_schedule_dirty()
+
+    @api.model
+    def _ems_seed_centre_lang(self):
+        """Catalan as the centre language of an installation that does not have one yet, installing
+        it if needed (issue #746). Run once, on install and on the upgrade that adds the setting."""
+        catalan = self.env['res.lang'].with_context(active_test=False).search([('code', '=', DEFAULT_CENTRE_LANG)])
+        if catalan and not catalan.active:
+            self.env['base.language.install'].create({'lang_ids': [(6, 0, catalan.ids)]}).lang_install()
+        if not catalan:
+            return
+        # Written only where it changes: the column already took Catalan as its default where it
+        # was installed, and rewriting it would reprint every public schedule for nothing.
+        self.sudo().search([('ems_lang', '!=', DEFAULT_CENTRE_LANG)]).ems_lang = DEFAULT_CENTRE_LANG
+        self.env['ir.default'].sudo().set('res.partner', 'lang', DEFAULT_CENTRE_LANG)
+
     def _sync_hos_all_attendances_rule(self):
         """Switches the record rule that lets the Heads of Studies read every employee's
         attendance on or off, as 'ems_hos_all_attendances' says. A rule cannot read a setting,
@@ -282,6 +321,8 @@ class ems_company(models.Model):
         res = super().write(vals)
         if 'ems_hos_all_attendances' in vals:
             self._sync_hos_all_attendances_rule()
+        if 'ems_lang' in vals:
+            self._ems_apply_centre_lang()
         if 'current_course_id' in vals:
             self._sync_current_course_flag()
             # Issue #453 - the current course is printed in every group's public schedule PDF title.

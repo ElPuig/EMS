@@ -14,6 +14,7 @@ from unittest.mock import patch
 
 from markupsafe import Markup
 
+from odoo import fields
 from odoo.tests.common import HttpCase, tagged
 
 from .common import (
@@ -1106,6 +1107,30 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             '/odoo', '#ems-digest', 'resum-diari-02-correu.png',
             login='doc_shot_teacher', wait_for='.o_main_navbar',
             run='document.body.innerHTML = %s;' % json.dumps(page), wait_after='#ems-digest',
+        )
+
+    def test_capture_daily_summary_snooze(self):
+        # 3. Postponing a task (issue #727): My Activities, which opens on the teacher's own tasks
+        # due today or overdue, with the first row's snooze popover open. Invented records only. Dated from
+        # the server's day: the list's own "today" filter is the headless browser's, in UTC.
+        today = fields.Date.today()
+        tasks = (
+            ('mail.mail_activity_data_todo', 'Laia Serra Puig', "Revisar la matrícula", -2),
+            ('mail.mail_activity_data_todo', 'Jordi Exemple Mas', "Validar el justificant", 0),
+            ('mail.mail_activity_data_todo', 'Anna Exemple Font', "Revisar la correcció de fitxatge", 0),
+        )
+        for activity_type, name, summary, offset in tasks:
+            self.env['res.partner'].create({'name': name}).with_context(mail_activity_quick_update=True).activity_schedule(
+                activity_type, user_id=self.teacher_user.id, summary=summary,
+                date_deadline=today + timedelta(days=offset))
+        self._capture(
+            '/odoo/action-mail.mail_activity_action_my', '.o_list_renderer', 'resum-diari-03-posposar.png',
+            login='doc_shot_teacher', wait_for='.o_data_row .o_ems_activity_snooze',
+            click='.o_data_row:first-child .o_ems_activity_snooze',
+            wait_after='.o_popover .o_ems_snooze_choice',
+            # Capturing beyond the viewport resizes the page, the list re-lays out and the open
+            # popover no longer points at its bell. The list fits in the viewport anyway.
+            beyond_viewport=False,
         )
 
     def test_capture_strike(self):

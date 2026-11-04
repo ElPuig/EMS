@@ -121,7 +121,9 @@ When the meeting starts, **Actions → Start the meeting**. The minute moves to 
 the screen changes: no more tabs, but the blocks of the agenda one under another, to fill in as the
 meeting goes on.
 
-- **Attendance:** who attended and who is missing (or the kiosk, when it is taken with the NFC tag).
+- **Attendance:** who attended and who is missing (or the kiosk, when it is taken with the NFC tag). Nobody
+  can be in both lists: adding a person to one takes them off the other, and you can also drag a person
+  from one list to the other.
 - **Approval of the previous minute:** open its PDF, mark whether it is approved and note any amendment.
 - **Follow-up of the agreements:** each agreement still open has its card. Write what was said about it, set
   a **new deadline** if needed and tick **Done** when it is closed. What you write goes to the agreement's
@@ -132,7 +134,9 @@ meeting goes on.
   underline, lists). Type `/` to insert a table. A long item scrolls inside its own box. **Add an item** adds one that was not planned.
 - **Any other business:** another text box.
 - **Agreements:** each new agreement is a card, with its content at full width and, in the header, the
-  deadline and who is responsible (by default, the department's chief and its seminar chief).
+  deadline and who is responsible (by default, the department's chief and its seminar chief). An agreement
+  that is simply a decision, which nobody has to carry out, can be closed right there: tick **Done** and it
+  is not brought to the next meeting.
 
   ![Agreements block during the meeting: card of an agreement with deadline, responsible people, people involved, content and description](../../assets/teachers/actes-08-acords.png)
 - **Pending topics:** at the end, as a list.
@@ -160,6 +164,13 @@ under the *Awaiting my approval* facet, and approving it:
 - Generates the **PDF**, kept as an attachment on the minute.
 - Makes the minute **read-only**. If something needs correcting, a new version is produced; what was
   approved is not rewritten.
+
+## My agreements
+
+**Meetings → Agreements** opens on the **open** agreements where you are a **responsible person** (by your
+name or by the post you hold) or a **person involved**: the facets *Mine*, *Where I am involved* and *Open*.
+You can remove *Mine* and *Where I am involved* separately to see only part of them, or *Open* to see
+the closed ones too.
 
 ## Evidence records
 

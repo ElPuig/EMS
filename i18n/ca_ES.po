@@ -1288,6 +1288,7 @@ msgstr "Acrònim"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__action
 #: model:ir.model.fields,field_description:ems.field_ems_quality_followup__action_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_close_wizard_line__action
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__code
 msgid "Action"
 msgstr "Acció"
 
@@ -2938,6 +2939,7 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_dismiss_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -3013,6 +3015,7 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_dismiss_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3374,6 +3377,7 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_dismiss_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -3470,6 +3474,8 @@ msgstr "Documents"
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__is_closed_in_minute
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
 #: model_terms:ir.ui.view,arch_db:ems.mail_activity_view_tree_snooze
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__done
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
 msgid "Done"
 msgstr "Fet"
 
@@ -4696,6 +4702,7 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__id
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_dismiss_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__id
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__id
 msgid "ID"
 msgstr "ID"
 
@@ -5228,6 +5235,7 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_dismiss_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -5303,6 +5311,7 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_dismiss_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -5988,6 +5997,7 @@ msgstr "Nota"
 #: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_record_form
 #: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_wizard_form
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__notes
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__current_step_notes
 msgid "Notes"
 msgstr "Notes"
 
@@ -7517,6 +7527,7 @@ msgstr "Enviat el"
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__sequence
 msgid "Sequence"
 msgstr "Seqüència"
 
@@ -9945,6 +9956,8 @@ msgstr "Sessió actual"
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_sessions
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__history_html
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
 msgid "History"
 msgstr "Històric"
 
@@ -18955,7 +18968,7 @@ msgstr "Registrada per"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__esfera_done
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_check__code__esfera
 msgid "Registered in Esfera"
 msgstr "Registrada a Esfera"
 
@@ -19958,7 +19971,9 @@ msgid ""
 msgstr "sessió(ns) de l'horari personalitzat d'aquest alumne ja no consten a l'horari (ha canviat l'horari d'un docent). Reviseu-les a la pestanya Estudis."
 
 #. module: ems
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "Day"
 msgstr "Dia"
 
@@ -20373,6 +20388,7 @@ msgstr "Ubicació de la feina"
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__student_domain
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__student_domain
 #: model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__student_domain
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__student_domain
 msgid "Student domain"
 msgstr "Domini de l'alumne"
 
@@ -25211,9 +25227,11 @@ msgid "Required"
 msgstr "Obligatòria"
 
 #. module: ems
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__responsible
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "Responsible"
 msgstr "Responsable"
 
@@ -28797,31 +28815,6 @@ msgid "Absences justified"
 msgstr "Faltes justificades"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__needs_esfera
-msgid "Asks for Esfera"
-msgstr "Demana Esfera"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__needs_saga
-msgid "Asks for SAGA"
-msgstr "Demana SAGA"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__needs_phone
-msgid "Asks for a phone call"
-msgstr "Demana una trucada"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__needs_external_email
-msgid "Asks for an email sent by hand"
-msgstr "Demana un correu enviat a mà"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__needs_enotum
-msgid "Asks for eNotum"
-msgstr "Demana eNotum"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__can_decide_proposal
 msgid "Can decide the proposal"
 msgstr "Pot decidir la proposta"
@@ -28840,6 +28833,7 @@ msgstr "Motiu de cancel·lació"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__name
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_dismiss_wizard__withdrawal_id
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__withdrawal_id
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__withdrawal_id
 msgid "Case file"
 msgstr "Expedient"
 
@@ -28915,7 +28909,9 @@ msgid "Dismissed by the tutor"
 msgstr "Descartada pel tutor"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__done_by_id
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "Done by"
 msgstr "Fet per"
 
@@ -28930,12 +28926,9 @@ msgid "Due"
 msgstr "Termini"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__external_email_done
-msgid "Email sent by hand"
-msgstr "Correu enviat a mà"
-
-#. module: ems
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "Ex officio withdrawal"
 msgstr "Baixa d'ofici"
 
@@ -29028,11 +29021,6 @@ msgid "Pending the Secretariat"
 msgstr "Pendent de Secretaria"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__phone_done
-msgid "Phone call made"
-msgstr "Trucada feta"
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__circuit__post_compulsory
 #: model:ir.model.fields.selection,name:ems.selection__ems_level__withdrawal_circuit__post_compulsory
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_search
@@ -29061,23 +29049,20 @@ msgid "Protocol followed when a student of this level stops coming. Empty: no ca
 msgstr "Protocol que se segueix quan un alumne d'aquest nivell deixa de venir. Buit: sense expedients."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__saga_done
-msgid "Registered in SAGA"
-msgstr "Registrat a SAGA"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
 msgid "Start the procedure"
 msgstr "Inicia el procediment"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__code
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__step_id
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "Step"
 msgstr "Pas"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__step_ids
-#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
 msgid "Steps"
 msgstr "Passos"
 
@@ -29091,11 +29076,6 @@ msgstr "Els terminis de cada pas es compten des d'aquest dia."
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "The first day of absence can only change while the case file is a proposal."
 msgstr "El primer dia de falta només es pot canviar mentre l'expedient és una proposta."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
-msgid "The steps are created when the procedure starts, each with its deadline."
-msgstr "Els passos es creen en iniciar el procediment, cadascun amb el seu termini."
 
 #. module: ems
 #. odoo-python
@@ -29117,11 +29097,6 @@ msgstr "Baixa voluntària"
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_dismiss_wizard_form
 msgid "Why the procedure does not go ahead"
 msgstr "Per què no es tira endavant el procediment"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__enotum_done
-msgid "eNotum sent"
-msgstr "eNotum enviat"
 
 #. module: ems
 #. odoo-python
@@ -29279,3 +29254,289 @@ msgstr "Idioma del centre"
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "The language EMS writes in, whatever the language of whoever uses it: the codes of minutes and agreements, the minutes and their calls, the convalidation resolutions, the public group schedules and the texts EMS adds by itself. It is also the language new contacts and users get."
 msgstr "L'idioma en què escriu EMS, sigui quin sigui l'idioma de qui el fa servir: els codis de les actes i els acords, les actes i les seves convocatòries, les resolucions de convalidació, els horaris públics dels grups i els textos que EMS afegeix pel seu compte. També és l'idioma que reben els contactes i els usuaris nous."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "%(user)s, %(date)s"
+msgstr "%(user)s, %(date)s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_request_ex_officio_withdrawal
+#: model:ir.model.fields,field_description:ems.field_res_users__can_request_ex_officio_withdrawal
+msgid "Can request an ex officio withdrawal"
+msgstr "Pot sol·licitar una baixa d'ofici"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Check in the history that every step was done and the student is still not coming. If so, give the green light to the ex officio withdrawal and email the Inspection the procedure followed. The Secretariat will then process it."
+msgstr "Comproveu a l'històric que s'han fet tots els passos i que l'alumne continua sense venir. Si és així, doneu el vistiplau a la baixa d'ofici i envieu a la Inspecció, per correu electrònic, el procediment seguit. Després, la Secretaria la tramitarà."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Check in the history that every step was done and the student is still not coming. If so, give the green light to the ex officio withdrawal. The Secretariat will then process it."
+msgstr "Comproveu a l'històric que s'han fet tots els passos i que l'alumne continua sense venir. Si és així, doneu el vistiplau a la baixa d'ofici. Després, la Secretaria la tramitarà."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Do it from %(start)s and before %(end)s, when the next step is due."
+msgstr "Feu-ho a partir del %(start)s i abans del %(end)s, quan toca el pas següent."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Do it from %(start)s."
+msgstr "Feu-ho a partir del %(start)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Email Social Services that the student has not come since their first day of absence, with what the centre has done so far."
+msgstr "Comuniqueu per correu electrònic als Serveis Socials que l'alumne no ve des del primer dia de falta, amb les actuacions que ha fet el centre fins ara."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Email the family: the student has not come for a month, schooling is compulsory and they must contact the centre."
+msgstr "Envieu un correu electrònic a la família: l'alumne fa un mes que no ve, l'escolarització és obligatòria i s'han de posar en contacte amb el centre."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_check__code__social_services_email
+msgid "Email to Social Services"
+msgstr "Correu electrònic als Serveis Socials"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_check__code__inspection_email
+msgid "Email to the Inspection"
+msgstr "Correu electrònic a la Inspecció"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_check__code__family_email
+msgid "Email to the family"
+msgstr "Correu electrònic a la família"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_ex_officio_withdrawal_check
+msgid "Ex officio withdrawal step check"
+msgstr "Comprovació d'un pas de baixa d'ofici"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_check__code__approval
+msgid "Green light to the withdrawal"
+msgstr "Vistiplau a la baixa"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__label
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "I confirm"
+msgstr "Confirmo"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "I confirm I emailed Social Services on"
+msgstr "Confirmo que he enviat un correu electrònic als Serveis Socials en data"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "I confirm I emailed the Inspection the procedure followed on"
+msgstr "Confirmo que he enviat a la Inspecció, per correu electrònic, el procediment seguit en data"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "I confirm I emailed the family (or the student, if of age) on"
+msgstr "Confirmo que he enviat un correu electrònic a la família (o a l'alumne, si és major d'edat) en data"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "I confirm I phoned the family (or the student, if of age) on"
+msgstr "Confirmo que he trucat a la família (o a l'alumne, si és major d'edat) en data"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "I confirm I registered the withdrawal in Esfera on"
+msgstr "Confirmo que he registrat la baixa a Esfera en data"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "I confirm I registered the withdrawal in SAGA on"
+msgstr "Confirmo que he registrat la baixa a SAGA en data"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "I confirm I sent the eNotum on"
+msgstr "Confirmo que he enviat l'eNotum en data"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "I give the green light to the ex officio withdrawal on"
+msgstr "Dono el vistiplau a la baixa d'ofici en data"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "It cannot be done yet: it opens on %(date)s."
+msgstr "Encara no es pot fer: s'obre el %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "It is late: the next step was due on %(date)s."
+msgstr "Va amb retard: el pas següent tocava el %(date)s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "Notes (optional): what they told you, anything worth recording"
+msgstr "Notes (opcional): què us han dit, qualsevol cosa que valgui la pena registrar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Now it is the turn of %(responsible)s: %(step)s, from %(date)s."
+msgstr "Ara és el torn de: %(responsible)s. %(step)s, a partir del %(date)s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__is_current
+msgid "Of the current step"
+msgstr "Del pas actual"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__date
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "On"
+msgstr "En data"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Only the student's tutor, the people above them and the Head of Studies can request an ex officio withdrawal, for a student whose level has a circuit and no open case file."
+msgstr "Només el tutor de l'alumne, els seus superiors i el cap d'estudis poden sol·licitar una baixa d'ofici, per a un alumne amb circuit al seu nivell i sense cap expedient obert."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_check__code__phone
+msgid "Phone call to the family"
+msgstr "Trucada a la família"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Phone the family again: the student is still not coming two weeks after their first absence. Write down in the notes what they tell you."
+msgstr "Torneu a trucar a la família: dues setmanes després de la primera falta, l'alumne encara no ve. Anoteu a les notes el que us diguin."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Phone the family to find out why the student has stopped coming and remind them that schooling is compulsory."
+msgstr "Truqueu a la família per saber per què l'alumne ha deixat de venir i recordeu-li que l'escolarització és obligatòria."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Phone the family, or the student if they are of age, to find out why they have stopped coming. If the student is not going to continue, urge them to request a voluntary withdrawal at the secretariat."
+msgstr "Truqueu a la família, o a l'alumne si és major d'edat, per saber per què ha deixat de venir. Si l'alumne no continuarà, insteu-lo a demanar la baixa voluntària a la secretaria."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Process the ex officio withdrawal in Esfera and SAGA, notify it through eNotum and email the family, or the student if they are of age."
+msgstr "Tramiteu la baixa d'ofici a Esfera i a SAGA, notifiqueu-la per eNotum i comuniqueu-la per correu electrònic a la família, o a l'alumne si és major d'edat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Process the ex officio withdrawal in Esfera."
+msgstr "Tramiteu la baixa d'ofici a Esfera."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Proposal: the tutor decides whether to start the procedure."
+msgstr "Proposta: el tutor decideix si s'inicia el procediment."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Request ex officio withdrawal"
+msgstr "Sol·licita la baixa d'ofici"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Say on which day it was done."
+msgstr "Indiqueu quin dia es va fer."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "The day it was done cannot be before the first day of absence."
+msgstr "El dia en què es va fer no pot ser anterior al primer dia de falta."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "The day it was done cannot be in the future."
+msgstr "El dia en què es va fer no pot ser posterior a avui."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "The steps are created when the procedure starts, each with its day."
+msgstr "Els passos es creen quan s'inicia el procediment, cadascun amb el seu dia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Tick each action as you do it and save: you can do it in several goes. \"Accept and continue\" (Actions menu) hands the case file over once every one is ticked."
+msgstr "Marqueu cada actuació a mesura que la feu i deseu: ho podeu fer en diverses vegades. «Accepta i continua» (menú Accions) passa l'expedient al pas següent quan totes estan marcades."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__current_check_ids
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__check_ids
+msgid "To confirm"
+msgstr "Per confirmar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Warn the family by email and eNotum: if the student does not come back within fifteen days, the centre will process the ex officio withdrawal."
+msgstr "Aviseu la família per correu electrònic i eNotum: si l'alumne no torna d'aquí a quinze dies, el centre en tramitarà la baixa d'ofici."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Warn the family, or the student if they are of age, by email and eNotum: if they do not come back, the centre will process the ex officio withdrawal. If they are not going to continue, urge them to request a voluntary withdrawal instead."
+msgstr "Aviseu la família, o l'alumne si és major d'edat, per correu electrònic i eNotum: si no torna, el centre en tramitarà la baixa d'ofici. Si no continuarà, insteu-lo a demanar-ne la baixa voluntària."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__current_step_instructions
+msgid "What to do"
+msgstr "Què cal fer"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "What was done"
+msgstr "Què s'ha fet"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__waiting_message
+msgid "Whose turn it is"
+msgstr "A qui li toca"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_check__code__enotum
+msgid "eNotum"
+msgstr "eNotum"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_check__code__saga
+msgid "Registered in SAGA"
+msgstr "Registrada a SAGA"

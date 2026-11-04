@@ -69,7 +69,8 @@
                         </div>
                         <group>
                             <group>
-                                <field name="student_id" readonly="id" options="{'no_create': True}"/>
+                                <field name="student_domain" invisible="1"/>
+                                <field name="student_id" readonly="id" domain="student_domain" options="{'no_create': True}"/>
                                 <field name="group_id" invisible="not id"/>
                                 <field name="tutor_id"/>
                                 <field name="level_id" invisible="not id"/>
@@ -86,41 +87,28 @@
                             <field name="cancel_reason"/>
                             <field name="cancel_note"/>
                         </group>
-                        <notebook>
-                            <page string="Steps" name="steps">
-                                <p class="text-muted" invisible="step_ids">
-                                    The steps are created when the procedure starts, each with its deadline.
-                                </p>
-                                <field name="step_ids" invisible="not step_ids">
-                                    <list editable="bottom" create="0" delete="0" decoration-bf="is_current"
-                                          decoration-muted="done_date">
-                                        <field name="is_current" column_invisible="1"/>
-                                        <field name="due_date"/>
-                                        <field name="code"/>
-                                        <field name="responsible"/>
-                                        <field name="needs_phone" column_invisible="1"/>
-                                        <field name="needs_enotum" column_invisible="1"/>
-                                        <field name="needs_esfera" column_invisible="1"/>
-                                        <field name="needs_saga" column_invisible="1"/>
-                                        <field name="needs_external_email" column_invisible="1"/>
-                                        <field name="phone_done" invisible="not needs_phone" optional="show"
-                                               readonly="not is_current or not parent.can_accept_step"/>
-                                        <field name="enotum_done" invisible="not needs_enotum" optional="show"
-                                               readonly="not is_current or not parent.can_accept_step"/>
-                                        <field name="esfera_done" invisible="not needs_esfera" optional="show"
-                                               readonly="not is_current or not parent.can_accept_step"/>
-                                        <field name="saga_done" invisible="not needs_saga" optional="show"
-                                               readonly="not is_current or not parent.can_accept_step"/>
-                                        <field name="external_email_done" invisible="not needs_external_email" optional="show"
-                                               readonly="not is_current or not parent.can_accept_step"/>
-                                        <field name="notes" optional="show"
-                                               readonly="not is_current or not parent.can_accept_step"/>
-                                        <field name="done_by_id" optional="show"/>
-                                        <field name="done_date" optional="show"/>
-                                    </list>
-                                </field>
-                            </page>
-                        </notebook>
+                        <!-- Whose turn it is, for everybody but the current step's responsible. -->
+                        <div class="alert alert-info" role="status" invisible="not waiting_message">
+                            <field name="waiting_message" nolabel="1"/>
+                        </div>
+                        <!-- The current step's responsible: what to do and by when, each action to
+                             confirm with its day (saved in as many goes as needed) and the notes. -->
+                        <div name="current_step" class="border rounded p-3 mb-3 bg-light" invisible="not can_accept_step">
+                            <field name="current_step_instructions" nolabel="1" readonly="1"/>
+                            <field name="current_check_ids" nolabel="1">
+                                <list editable="bottom" create="0" delete="0">
+                                    <field name="done" string="Done" width="60px"/>
+                                    <field name="label" string="I confirm"/>
+                                    <field name="date" string="On" required="done" width="130px"/>
+                                </list>
+                            </field>
+                            <field name="current_step_notes" nolabel="1" placeholder="Notes (optional): what they told you, anything worth recording"/>
+                        </div>
+                        <separator string="History" invisible="not history_html"/>
+                        <field name="history_html" nolabel="1" readonly="1" invisible="not history_html"/>
+                        <p class="text-muted" invisible="history_html or state != 'proposal'">
+                            The steps are created when the procedure starts, each with its day.
+                        </p>
                     </sheet>
                     <chatter/>
                 </form>

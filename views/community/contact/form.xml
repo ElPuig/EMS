@@ -79,6 +79,13 @@
                             <!-- Issue #644: the student's tutor (and everyone above them), the
                                  secretary, the Head of Studies or an administrator; re-checked
                                  server-side. -->
+                            <!-- Issue #726: the student's tutor (and the chain above them), the Head of
+                                 Studies or an administrator, for a student whose level has a circuit
+                                 and no open case file; re-checked server-side. -->
+                            <field name="can_request_ex_officio_withdrawal" invisible="1"/>
+                            <button name="action_request_ex_officio_withdrawal" type="object"
+                                    string="Request ex officio withdrawal"
+                                    invisible="not can_request_ex_officio_withdrawal"/>
                             <field name="can_mark_withdrawal_expected" invisible="1"/>
                             <button name="action_withdrawal_expected_wizard" type="object"
                                     string="Mark expected withdrawal"

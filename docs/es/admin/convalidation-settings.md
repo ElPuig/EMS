@@ -12,7 +12,7 @@ Configura qué niveles admiten convalidaciones, cuándo se pueden presentar soli
 
 ## Acceso
 
-Navega a: **Ajustes → EMS Management → Configuración de convalidaciones**
+Navega a: **Ajustes → EMS Management**, secciones **Convalidaciones: solicitudes** (niveles, periodo de solicitud y aviso sobre la asistencia) y **Convalidaciones: resolución** (los textos y la firma de la resolución).
 
 ---
 

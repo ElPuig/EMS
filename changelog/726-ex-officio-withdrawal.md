@@ -23,6 +23,12 @@
 ## Levels: tidier form, convalidations set in Settings:
 - The level form shows the main data (acronym, name) and below it the configuration: the educational stage (read-only, set by the regulation) and the schedule declaration code, then the student card colour.
 - Which levels allow convalidations is now set as one list in Settings > Convalidations (Levels that allow convalidations) instead of a checkbox on each level. It is no longer part of EMS's catalog, so an upgrade never reverts the centre's choice; a new installation starts with CFGM and CFGS, and existing ones keep what they have.
+- The convalidation settings are split in two sections, Convalidations: requests (levels, request period, attendance notice) and Convalidations: resolution (signed by delegation, appeal, grounds of law).
+
+# Fixes
+
+## The settings page opens for a user with only the Settings role:
+- Reading the levels was refused to a user with the Settings role and no EMS role, which broke the whole settings page once it listed levels; they can now read them.
 
 # Internal changes
 

@@ -39,6 +39,7 @@ ems.access_ems_tracking_secretary,ems.access_ems_tracking_secretary,ems.model_em
 ems.access_ems_level_admin,ems.access_ems_level_admin,ems.model_ems_level,ems.group_academic_admin,1,1,1,1
 ems.access_ems_level_teacher,ems.access_ems_level_teacher,ems.model_ems_level,ems.group_teacher,1,0,0,0
 ems.access_ems_level_secretary,ems.access_ems_level_secretary,ems.model_ems_level,ems.group_secretary,1,0,0,0
+ems.access_ems_level_system,ems.access_ems_level_system,ems.model_ems_level,base.group_system,1,0,0,0
 
 ems.access_ems_role_admin,ems.access_ems_role_admin,ems.model_ems_role,ems.group_academic_admin,1,1,1,1
 ems.access_ems_role_teacher,ems.access_ems_role_teacher,ems.model_ems_role,ems.group_teacher,1,0,0,0

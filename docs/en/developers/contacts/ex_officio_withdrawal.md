@@ -190,7 +190,7 @@ circuit come with the next phases.
   (`copy_text`), listing the steps done (`_ems_done_step_lines()`), shown in the step's block with a copy button.
 - **Case file PDF** (`reports/contacts/report_ex_officio_withdrawal.xml`, `action_print_case_file()`): every step
   with its due day, who did it and when, the checks with their days and the notes, in the centre language.
-  Offered in the Actions dropdown once the procedure has started, and in Direction's block of the compulsory
+  Offered in the Actions dropdown once the case file is over (withdrawn, or cancelled after starting), so that while it runs the dropdown only offers the next thing to do, and in Direction's block of the compulsory
   circuit (`can_print_for_inspection`), to attach to the Inspection's email.
 
 ## Access

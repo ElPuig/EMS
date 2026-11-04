@@ -55,8 +55,10 @@
                                     help="Creates the circuit's steps, each with its deadline."/>
                             <button name="action_open_dismiss_wizard" type="object" string="Dismiss"
                                     invisible="not can_decide_proposal"/>
+                            <!-- Only once it is over, so that while it runs the dropdown offers just
+                                 the next thing to do (Direction downloads it from its own step). -->
                             <button name="action_print_case_file" type="object" string="Print the case file"
-                                    invisible="not history_html"/>
+                                    invisible="not history_html or state not in ('done', 'cancelled')"/>
                             <button name="action_accept_step" type="object" string="Accept and continue"
                                     class="btn-primary" invisible="not can_accept_step or not current_step_open"
                                     help="Closes the current step, once what it asks for is ticked, and hands the case file over to the next one."/>

@@ -28776,3 +28776,9 @@ msgstr "Idioma del centre"
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "The language EMS writes in, whatever the language of whoever uses it: the codes of minutes and agreements, the minutes and their calls, the convalidation resolutions, the public group schedules and the texts EMS adds by itself. It is also the language new contacts and users get."
 msgstr "L'idioma en què escriu EMS, sigui quin sigui l'idioma de qui el fa servir: els codis de les actes i els acords, les actes i les seves convocatòries, les resolucions de convalidació, els horaris públics dels grups i els textos que EMS afegeix pel seu compte. També és l'idioma que reben els contactes i els usuaris nous."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/mail_guard.py:0
+msgid "Not sent: OdooBot's emails are off on this development machine. Set the system parameter ems.dev_mail_odoobot to True to receive them."
+msgstr "No enviat: els correus de l'OdooBot estan desactivats en aquesta màquina de desenvolupament. Poseu el paràmetre del sistema ems.dev_mail_odoobot a True per rebre'ls."

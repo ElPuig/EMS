@@ -135,3 +135,54 @@ class TestDevMailGuard(TransactionCase):
         self.assertEqual(mail.state, 'exception')
         smtp.send_message.assert_not_called()
         smtp.sendmail.assert_not_called()
+
+
+@tagged('post_install', '-at_install')
+class TestDevMailOdooBot(TransactionCase):
+    """On a development machine OdooBot's emails (daily summaries, automatic notices) are not
+    sent unless 'ems.dev_mail_odoobot' asks for them (issue #752): a restored production database
+    generates every staff member's summary, and all of them land in the developer's inbox."""
+
+    def setUp(self):
+        super().setUp()
+        self.params = self.env['ir.config_parameter'].sudo()
+        self.params.set_param('ems.environment_type', 'dev')
+        self.params.set_param('ems.dev_mail_redirect', REDIRECT)
+        self.smtp = MagicMock(from_filter=False, smtp_from=False)
+        connect = patch.object(type(self.env['ir.mail_server']), 'connect', return_value=self.smtp)
+        connect.start()
+        self.addCleanup(connect.stop)
+
+    def _server_role(self, role):
+        patcher = patch.dict(config.options, {'ems_server_role': role})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def _mails(self):
+        partner = self.env['res.partner'].create({'name': 'Dev recipient', 'email': REDIRECT})
+        values = {'subject': 'Summary', 'body_html': '<p>Body</p>', 'email_from': 'sender@example.com',
+                  'recipient_ids': [(4, partner.id)]}
+        odoobot = self.env['mail.mail'].create({**values, 'author_id': self.env.ref('base.partner_root').id})
+        person = self.env['mail.mail'].create({**values, 'author_id': partner.id})
+        return odoobot, person
+
+    def test_odoobot_mail_is_cancelled_on_a_development_machine(self):
+        self._server_role('dev')
+        odoobot, person = self._mails()
+        (odoobot | person).send()
+        self.assertEqual(odoobot.state, 'cancel')
+        self.assertIn('ems.dev_mail_odoobot', odoobot.failure_reason)
+        self.assertEqual(person.state, 'sent', "someone else's email still goes out")
+
+    def test_odoobot_mail_is_sent_when_asked_for(self):
+        self._server_role('dev')
+        self.params.set_param('ems.dev_mail_odoobot', 'True')
+        odoobot, _person = self._mails()
+        odoobot.send()
+        self.assertEqual(odoobot.state, 'sent')
+
+    def test_production_machine_sends_odoobot_mail(self):
+        self._server_role(False)
+        odoobot, _person = self._mails()
+        odoobot.send()
+        self.assertEqual(odoobot.state, 'sent')

@@ -5,7 +5,8 @@
 Every member of staff gets **one EMS message a day at most, at the moment they chose in their
 profile**, with everything EMS has for them that isn't urgent:
 
-1. **Pending tasks**: every activity (`mail.activity`) still assigned to them. Most EMS tasks
+1. **Pending tasks**: every activity (`mail.activity`) assigned to them that is due today or
+   overdue (see [Postponing a task](#postponing-a-task)). Most EMS tasks
    (convalidation requests, supporting documents to validate, attendance corrections, absence
    approvals...) are scheduled with `mail_activity_quick_update`, which suppresses Odoo's "X has
    assigned you an activity" email on purpose (see [Task assignment](task_assignment.md)), so this
@@ -112,6 +113,43 @@ flowchart TD
 
 ---
 
+## Postponing a task
+
+The summary only lists tasks **due today or overdue** (`date_deadline <= ` the company's today,
+`res.users._ems_digest_task_domain()`, shared by the candidate search, `_ems_digest_has_content()`
+and `_ems_digest_task_groups()`). Postponing a task is moving its due date (issue #727): it leaves
+the summary, and the subject's count, until that day and comes back on its own: the cron, every
+few minutes, finds its owner among the candidates again once it is due and schedules their next
+moment. Someone whose tasks are all due later has no summary scheduled at all.
+
+How people postpone one, in My Activities (to-do tray 🕒 → "View all activities"; it opens on what
+is due today or overdue). Each row is one line of icons (the text is the tooltip): Done, Cancel and
+a bell, the `ems_activity_snooze` view widget (`static/src/js/backend/activity_snooze.js`), in place
+of Odoo's "Snooze 7d". The bell opens a popover with three choices, 1, 3 and 7 days, each showing
+the date the task would move to (computed with `serverNow()`, never the computer's clock). The
+list's header has one "Snooze" (`action_ems_snooze_dialog`) that opens the same choices for the
+selected tasks, as a client action with `target: 'new'` (Odoo shows it in a dialog and reloads the
+list once it closes; the header only takes buttons, not widgets). Views:
+`views/shared/mail_activity/list.xml`.
+
+Both call `mail.activity.action_ems_snooze(days)` (`models/shared/mail_activity.py`), which only
+accepts 1, 3 or 7 and moves the due date to the later of (today, due date) + `days`. Odoo's own
+`action_snooze` is overridden the same way (7 days), in case anything else calls it. Today is the
+company's (`ems.datetime_utils.get_local_today()`): Odoo's own `action_snooze` uses the server's UTC
+date, a day behind just after local midnight. Permissions are Odoo's: only whoever can write the
+activity (its owner, or someone with write access to its record) can snooze it. Editing the due
+date in the record's chatter works the same way.
+
+**Tasks EMS creates are due today**, so they reach the first summary after they appear and their
+owner decides whether to postpone them: the attendance correction request for its approver, the
+admins' "Automatic check-in/check-out failed", and Odoo's own absence approval (`hr.leave`'s
+`activity_update` dates it 15 days before the absence; EMS moves new ones to today). The one
+deliberate exception is the employee's "upload the supporting document" step of an absence, due
+the day after the absence ends, when it can be uploaded. A task someone assigns by hand keeps the
+due date they chose (Odoo's to-do type suggests 5 days).
+
+---
+
 ## The message
 
 `res.users._ems_daily_summary_content()` builds the subject and body in the recipient's language
@@ -125,7 +163,7 @@ chatter and does not make anybody a follower.
   the parts it has.
 - **Body:** the QWeb template `ems.daily_summary_body` (translated through the `.po` files, like
   any view), with only the sections that have something:
-  - Pending tasks, grouped by activity type (ordered as the types are), each with the record's name
+  - Pending tasks due by today, grouped by activity type (ordered as the types are), each with the record's name
     linked through `/mail/view` (Odoo's own access-checked redirect), its summary and due date, an
     overdue mark, at most 20 per type then "and N more".
   - The tutor's issues by day and student, each status with its class, time range and notes;

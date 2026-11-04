@@ -463,10 +463,9 @@ class TestAttendanceCorrection(TransactionCase):
             ('activity_type_id', '=', activity_type.id),
         ])
         self.assertEqual(activities.user_id, self.hos_user)
-        # Deadline must not default to "today" (see attendance_correction.py's
-        # APPROVAL_ACTIVITY_DEADLINE_DAYS) or the task reads as if the request were
-        # already overdue on the day it was submitted.
-        self.assertGreater(activities.date_deadline, fields.Date.context_today(correction))
+        # Due today, so it is in the approver's next daily summary, which only lists what is due
+        # (issue #727).
+        self.assertEqual(activities.date_deadline, self.env['ems.datetime_utils'].get_local_today())
 
     def test_no_assignment_email_on_create(self):
         """Not urgent: the approver learns of it from the task itself and the daily digest

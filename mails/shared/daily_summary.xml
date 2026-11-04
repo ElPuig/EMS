@@ -14,6 +14,7 @@
             <t t-if="task_groups">
                 <h2 style="font-size: 17px; margin: 24px 0 8px 0; padding-bottom: 4px; border-bottom: 1px solid #dadce0;">Pending tasks</h2>
                 <p>You will find them all in the to-do tray (🕒) at the top of EMS.</p>
+                <p>Only the ones due today or overdue are listed here. To postpone one, open "View all activities" in the to-do tray and press its bell (Snooze): it will be back in your summary on its new due date.</p>
                 <t t-foreach="task_groups" t-as="group">
                     <h3 style="font-size: 15px; margin: 16px 0 8px 0;">
                         <t t-if="group['type']" t-out="group['type'].name"/><t t-else="">Other tasks</t> (<t t-out="group['count']"/>)

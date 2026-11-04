@@ -402,7 +402,8 @@
             'views/portal/portal_under_construction.xml',
 
 
-        'views/shared/attachment/form.xml',  
+        'views/shared/attachment/form.xml',
+        'views/shared/mail_activity/list.xml',  
 
 
         ### Mailing templates ###

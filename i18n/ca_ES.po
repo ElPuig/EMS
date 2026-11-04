@@ -2362,6 +2362,7 @@ msgstr "Pot editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_leave_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_review_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_expected_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.mail_activity_view_tree_snooze
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -3449,6 +3450,7 @@ msgstr "Documents"
 #: model:ir.model.fields.selection,name:ems.selection__ems_contact_data_request__state__done model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agreement_review__is_closed
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.mail_activity_view_tree_snooze
 msgid "Done"
 msgstr "Fet"
 
@@ -28693,3 +28695,47 @@ msgstr "Dia festiu:"
 #: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
 msgid ". Nobody is expected, so nobody is missing."
 msgstr ". No s'espera ningú, així que no falta ningú."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
+msgid "Only the ones due today or overdue are listed here. To postpone one, open \"View all activities\" in the to-do tray and press its bell (Snooze): it will be back in your summary on its new due date."
+msgstr "Aquí només surten les que vencen avui o ja han vençut. Per ajornar-ne una, obre «View all activities» a la safata de tasques i prem la seva campana (Posposa): tornarà a sortir al resum el dia del nou venciment."
+
+#. module: ems
+#. odoo-python
+#. odoo-javascript
+#: code:addons/ems/models/shared/mail_activity.py:0
+#: code:addons/ems/static/src/xml/backend/activity_snooze.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.mail_activity_view_tree_snooze
+msgid "Snooze"
+msgstr "Posposa"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/mail_activity.py:0
+msgid "A task can only be snoozed for 1, 3 or 7 days."
+msgstr "Una tasca només es pot posposar 1, 3 o 7 dies."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/activity_snooze.js:0
+msgid "1 day"
+msgstr "1 dia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/activity_snooze.js:0
+msgid "%s days"
+msgstr "%s dies"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/activity_snooze.xml:0
+msgid "Snooze until..."
+msgstr "Posposa fins a..."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/activity_snooze.xml:0
+msgid "Snooze the selected tasks until..."
+msgstr "Posposa les tasques seleccionades fins a..."

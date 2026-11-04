@@ -1,0 +1,5 @@
+/* The Snooze selector's choices (issue #727, static/src/js/backend/activity_snooze.js). */
+.o_ems_snooze_choice {
+    min-width: 5.5rem;
+    line-height: 1.2;
+}

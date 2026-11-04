@@ -69,7 +69,10 @@ class DailySummaryCase(TransactionCase):
             self.env['res.users']._cron_ems_daily_summary()
 
     def _assign(self, user, count=1, activity_type='mail.mail_activity_data_todo', record=None, **vals):
+        """Due today by default: the summary only lists what is due (issue #727), and a type's own
+        delay (5 days for a to-do) would otherwise date it in the future."""
         record = record or self.partner
+        vals.setdefault('date_deadline', self.env['ems.datetime_utils'].get_local_today())
         for index in range(count):
             record.activity_schedule(activity_type, user_id=user.id, summary=f'Summary task {index + 1}', **vals)
 
@@ -295,6 +298,44 @@ class TestDailySummary(DailySummaryCase):
             body = reviewer._ems_send_daily_summary().body
         self.assertIn(self.env.ref('ems.mail_activity_absence_pending_review').name, body)
         self.assertIn(f'model=ems.absence_pending&amp;res_id={absence.id}', body)
+
+    # --- postponed tasks (issue #727) -----------------------------------------------------
+
+    def test_lists_only_tasks_due_by_today(self):
+        records = {name: self.env['res.partner'].create({'name': f'Summary {name} Record'})
+                   for name in ('Overdue', 'Due', 'Later')}
+        self._assign(self.teacher_user, record=records['Overdue'], date_deadline=SUMMARY_DAY - timedelta(days=3))
+        self._assign(self.teacher_user, record=records['Due'], date_deadline=SUMMARY_DAY)
+        self._assign(self.teacher_user, record=records['Later'], date_deadline=SUMMARY_DAY + timedelta(days=1))
+        with self._at(9.25):
+            message = self.teacher_user._ems_send_daily_summary()
+        self.assertIn('Summary Overdue Record', message.body)
+        self.assertIn('Summary Due Record', message.body)
+        self.assertNotIn('Summary Later Record', message.body)
+        self.assertEqual(message.subject, 'EMS: daily summary (pending tasks: 2)')
+
+    def test_task_not_due_yet_waits_for_its_day(self):
+        """Postponing a task is moving its due date: it leaves the summary until that day and
+        comes back on its own, at the moment the person chose."""
+        friday = SUMMARY_DAY + timedelta(days=2)
+        self._assign(self.teacher_user, date_deadline=friday)
+        self._run_cron(8.5)
+        self.assertFalse(self.teacher_user.ems_digest_next, "Scheduled a summary with nothing due in it")
+        self._run_cron(9.25)
+        self.assertFalse(self._summaries(self.teacher_user))
+        self._run_cron(0.25, friday)
+        self.assertEqual(self.teacher_user.ems_digest_next, self._utc(10.0, friday))
+        self._run_cron(10.25, friday)
+        self.assertEqual(len(self._summaries(self.teacher_user)), 1)
+
+    def test_due_today_is_the_company_day(self):
+        """Just after local midnight it is already the next day for the centre, while in UTC it
+        is still the previous one."""
+        thursday = SUMMARY_DAY + timedelta(days=1)
+        self._assign(self.teacher_user, date_deadline=thursday)
+        with self._at(0.5, thursday):
+            self.assertEqual(fields.Datetime.now().date(), SUMMARY_DAY, "The fixture must straddle UTC midnight")
+            self.assertTrue(self.teacher_user._ems_daily_summary_content())
 
     # --- informative notices --------------------------------------------------------------
 

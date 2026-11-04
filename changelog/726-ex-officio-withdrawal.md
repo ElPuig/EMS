@@ -24,6 +24,11 @@
 - New case file PDF (Actions > Print the case file, once the case file is over): every step with its due day, who did it and when, what was done and the notes.
 - The email texts are drafts until Direction gives the final ones.
 
+## Direction gives the green light and the Secretariat processes the withdrawal (phase 4):
+- Direction's step is the green light: accepting it also marks the student as an expected withdrawal (off every roll-call while it is processed). Direction can instead close the case file without a withdrawal, saying whether the student came back or justified the absences.
+- The Secretariat ticks its last step (Esfera, SAGA, eNotum and, in post-compulsory, the new "withdrawal processed" email to the family) and then "Process the withdrawal" opens the usual withdrawal wizard filled in as an ex officio withdrawal; applying it withdraws the student and closes the case file.
+- Students now record whether a withdrawal was voluntary or ex officio (ex officio only from its case file); the withdrawals registered before stay without one. Any other exit of a student with an open case file (a voluntary withdrawal, an expulsion) cancels it.
+
 # Changes
 
 ## Levels: tidier form, convalidations set in Settings:

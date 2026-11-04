@@ -724,6 +724,7 @@
                         <group cols="2">
                             <group>
                                 <field name="exit_type"/>
+                                <field name="withdrawal_mode" invisible="exit_type != 'withdrawal'"/>
                                 <field name="exit_course_id"/>
                                 <field name="exit_date"/>
                             </group>

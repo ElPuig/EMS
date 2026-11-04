@@ -249,8 +249,7 @@ class TestExOfficioWithdrawal(TransactionCase):
         self.assertEqual(case_file.current_step_id.code, 'withdrawal')
         task = self._tasks(case_file, step_task)
         self.assertIn(self.secretary_user, task.user_id)
-        self.assertFalse(case_file.with_user(self.secretary_user).can_accept_step,
-                         "The withdrawal itself is made from the student's withdrawal wizard")
+        self.assertTrue(self.post_student.withdrawal_expected, "The green light marks an expected withdrawal")
 
     def test_compulsory_coexistence_step_goes_to_the_tutors_branch_coordinator(self):
         case_file = self._open(self.comp_student, date(2041, 3, 4))
@@ -636,3 +635,85 @@ class TestExOfficioWithdrawal(TransactionCase):
             self.assertTrue(case_file.with_user(self.coexistence_user).call_pending)
         self._accept(case_file, self.coexistence_user, due)
         self.assertEqual(case_file.step_ids[1].check_ids.call_outcome, 'reached')
+
+    # --- phase 4: Direction and the Secretariat close it --------------------------------------
+
+    def _post_case_at_withdrawal(self):
+        """A post-compulsory case file whose current step is the withdrawal (due 22 January)."""
+        case_file = self._open(self.post_student, date(2041, 12, 17))
+        case_file.action_start()
+        self._accept(case_file, self.tutor_user, date(2042, 1, 8))
+        self._accept(case_file, self.secretary_user, date(2042, 1, 15))
+        self._accept(case_file, self.director_user, date(2042, 1, 22))
+        return case_file
+
+    def _withdrawal_wizard(self, user, context):
+        return self.env['ems.withdrawal_wizard'].with_user(user).with_context(context).create({})
+
+    def test_the_secretariat_processes_the_ex_officio_withdrawal(self):
+        case_file = self._post_case_at_withdrawal()
+        secretary_view = case_file.with_user(self.secretary_user)
+        with self._on(date(2042, 1, 22)):
+            self.assertTrue(secretary_view.can_accept_step, "The Secretariat ticks its last step")
+            self.assertFalse(secretary_view.can_process_withdrawal, "Not before every action is ticked")
+            with self.assertRaises(UserError):
+                secretary_view.action_accept_step()
+            with self.assertRaises(UserError):
+                secretary_view.action_open_withdrawal_wizard()
+            case_file.current_check_ids.filtered(lambda check: not check.by_button).with_user(
+                self.secretary_user).write({'done': True, 'date': date(2042, 1, 22)})
+        wizard = self._contact(case_file, self.secretary_user, date(2042, 1, 22))
+        self.assertEqual(wizard.template_id, self.env.ref('ems.email_template_ex_officio_withdrawal_done'))
+        with self._on(date(2042, 1, 22)):
+            wizard.action_confirm()
+            secretary_view.invalidate_recordset()
+            self.assertTrue(secretary_view.can_process_withdrawal)
+            self.assertFalse(case_file.with_user(self.tutor_user).can_process_withdrawal)
+            action = secretary_view.action_open_withdrawal_wizard()
+            withdrawal_wizard = self._withdrawal_wizard(self.secretary_user, action['context'])
+            self.assertEqual(withdrawal_wizard.withdrawal_mode, 'ex_officio')
+            self.assertIn(case_file.name, withdrawal_wizard.exit_reason)
+            withdrawal_wizard.action_apply()
+        self.assertEqual(case_file.state, 'done')
+        self.assertEqual(case_file.step_ids[-1].done_by_id, self.secretary_user)
+        self.assertFalse(case_file.activity_ids)
+        student = self.post_student.with_context(active_test=False)
+        self.assertEqual((student.exit_type, student.withdrawal_mode), ('withdrawal', 'ex_officio'))
+        self.assertFalse(student.withdrawal_expected, "The withdrawal is registered: the mark has done its job")
+
+    def test_an_ex_officio_withdrawal_only_comes_from_its_case_file(self):
+        self._open(self.post_student, date(2041, 12, 17)).action_start()
+        wizard = self._withdrawal_wizard(self.secretary_user, {
+            'active_model': 'res.partner', 'active_ids': self.post_student.ids,
+            'default_withdrawal_mode': 'ex_officio'})
+        with self.assertRaises(UserError):
+            wizard.action_apply()
+        self.assertEqual(self.post_student.contact_type, 'student')
+
+    def test_direction_closes_the_case_file_without_a_withdrawal(self):
+        case_file = self._open(self.post_student, date(2041, 12, 17))
+        case_file.action_start()
+        self._accept(case_file, self.tutor_user, date(2042, 1, 8))
+        self._accept(case_file, self.secretary_user, date(2042, 1, 15))
+        with self._on(date(2042, 1, 22)):
+            self.Withdrawal._cron_ems_due_step_tasks()
+            self.assertFalse(case_file.with_user(self.secretary_user).can_close_without_withdrawal)
+            self.assertTrue(case_file.with_user(self.director_user).can_close_without_withdrawal)
+            action = case_file.with_user(self.director_user).action_open_close_wizard()
+            wizard = self.env[action['res_model']].with_user(self.director_user).with_context(action['context']).create(
+                {'close_reason': 'came_back', 'note': 'Back in class since Monday'})
+            self.assertFalse(wizard.is_proposal)
+            wizard.action_confirm()
+        self.assertEqual((case_file.state, case_file.cancel_reason), ('cancelled', 'came_back'))
+        self.assertEqual(case_file.cancel_note, 'Back in class since Monday')
+        self.assertFalse(case_file.activity_ids)
+        self.assertFalse(self.post_student.withdrawal_expected)
+
+    def test_a_voluntary_withdrawal_cancels_the_open_case_file(self):
+        case_file = self._open(self.post_student, date(2041, 12, 17))
+        case_file.action_start()
+        self._withdrawal_wizard(self.secretary_user, {
+            'active_model': 'res.partner', 'active_ids': self.post_student.ids}).action_apply()
+        self.assertEqual((case_file.state, case_file.cancel_reason), ('cancelled', 'voluntary'))
+        student = self.post_student.with_context(active_test=False)
+        self.assertEqual((student.exit_type, student.withdrawal_mode), ('withdrawal', 'voluntary'))

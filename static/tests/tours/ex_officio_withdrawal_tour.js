@@ -200,3 +200,80 @@ registry.category("web_tour.tours").add("ems_ex_officio_withdrawal_tutor_email",
         },
     ],
 });
+
+// Issue #726, phase 4: the Secretariat's last step. It ticks Esfera, SAGA and the eNotum, sends
+// the email to the family, and only then "Process the withdrawal" (Actions) opens the withdrawal
+// wizard as an ex officio withdrawal; applying it closes the case file (see
+// test_ex_officio_withdrawal_tour.py).
+registry.category("web_tour.tours").add("ems_ex_officio_withdrawal_process", {
+    test: true,
+    steps: () => [
+        ...[1, 2, 3].map((row) => ({
+            trigger: `.o_form_view .o_field_widget[name='current_check_ids'] .o_data_row:nth-child(${row}) .o_data_cell[name='done']`,
+            content: `Tick action ${row} (one click enters the row and ticks it)`,
+            run: "click",
+        })),
+        {
+            trigger: ".o_form_button_save",
+            content: "Save",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_form_saved div[name='family_email'] button[name='action_open_contact']",
+            content: "Send the email to the family",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_confirm']",
+            content: "Send it",
+            run: "click",
+        },
+        ...clickAction("action_open_withdrawal_wizard", "Process the withdrawal"),
+        {
+            trigger: ".modal .o_field_widget[name='withdrawal_mode']:contains('Ex officio')",
+            content: "The wizard is filled in as an ex officio withdrawal",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_apply']:not(.d-none)",
+            content: "Withdraw",
+            run: "click",
+        },
+        {
+            trigger: ".modal:contains('This withdraws') .modal-footer .btn-primary",
+            content: "Confirm",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .o_statusbar_status .o_arrow_button_current:contains('Withdrawn')",
+            content: "The case file is closed",
+        },
+    ],
+});
+
+// Issue #726, phase 4: Direction does not give the green light, it closes the case file saying
+// why (see test_ex_officio_withdrawal_tour.py).
+registry.category("web_tour.tours").add("ems_ex_officio_withdrawal_direction_close", {
+    test: true,
+    steps: () => [
+        ...clickAction("action_open_close_wizard", "Close without a withdrawal"),
+        {
+            trigger: ".modal .o_field_widget[name='close_reason'] input[data-value='came_back']",
+            content: "The student came back",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='note'] textarea",
+            content: "Say why",
+            run: "edit Back in class since Monday",
+        },
+        {
+            trigger: ".modal .modal-footer button[name='action_confirm']:not(.d-none)",
+            content: "Close it",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .o_statusbar_status .o_arrow_button_current:contains('Cancelled')",
+            content: "Cancelled",
+        },
+    ],
+});

@@ -91,3 +91,34 @@ class TestExOfficioWithdrawalTour(HttpCase):
         self.assertEqual(phone.call_outcome, 'not_reached')
         self.assertEqual(email.email_template_id,
                          self.env.ref('ems.email_template_ex_officio_withdrawal_tutor_unreachable'))
+
+    def _case_at(self, code):
+        """A post-compulsory case file whose current step is `code`, open today."""
+        today = shift_ems_clock(self).date()
+        director = create_role_user(self, 'director', 'test_eow_tour_director', name='EOW Tour Director')
+        case_file = self.env['ems.ex_officio_withdrawal'].create({
+            'student_id': self.student.id, 'first_absence_date': today - timedelta(days=200)})
+        case_file.action_start()
+        while case_file.current_step_id.code != code:
+            step = case_file.current_step_id
+            step.due_date = today
+            step.check_ids.write({'done': True, 'date': today})
+            accepting = case_file.with_user(director) if step.code == 'direction_approval' else case_file
+            accepting.action_accept_step()
+        case_file.current_step_id.due_date = today
+        return case_file, director
+
+    def test_secretariat_processes_the_withdrawal(self):
+        case_file, _director = self._case_at('withdrawal')
+        secretary = create_role_user(self, 'secretary', 'test_eow_tour_secretary2', name='EOW Tour Secretary')
+        self.start_tour(f"/odoo/action-ems.action_ex_officio_withdrawal/{case_file.id}",
+                        "ems_ex_officio_withdrawal_process", login=secretary.login)
+        self.assertEqual(case_file.state, 'done')
+        student = self.student.with_context(active_test=False)
+        self.assertEqual((student.exit_type, student.withdrawal_mode), ('withdrawal', 'ex_officio'))
+
+    def test_direction_closes_without_a_withdrawal(self):
+        case_file, director = self._case_at('direction_approval')
+        self.start_tour(f"/odoo/action-ems.action_ex_officio_withdrawal/{case_file.id}",
+                        "ems_ex_officio_withdrawal_direction_close", login=director.login)
+        self.assertEqual((case_file.state, case_file.cancel_reason), ('cancelled', 'came_back'))

@@ -87,15 +87,17 @@ stateDiagram-v2
     proposal --> in_progress: Start the procedure (steps created)
     proposal --> cancelled: Dismiss (reason)
     in_progress --> direction: Accept and continue (current step is Direction's)
-    direction --> secretariat: Direction accepts (current step is the withdrawal)
-    secretariat --> done
-    in_progress --> cancelled
+    direction --> secretariat: Direction accepts (green light; expected withdrawal)
+    direction --> cancelled: Close without a withdrawal (came back / justified)
+    secretariat --> done: Process the withdrawal (withdrawal wizard, ex officio)
+    in_progress --> cancelled: the student leaves otherwise (voluntary / expelled)
+    direction --> cancelled
+    secretariat --> cancelled
 ```
 
 The state follows the current step (the first one not done, `current_step_id`): `direction` while
 it is Direction's green light, `secretariat` while it is the withdrawal, `in_progress` otherwise
-(`STATE_BY_STEP`, `_ems_move_on()`). `secretariat` → `done` and the cancellations during the
-circuit come with the next phases.
+(`STATE_BY_STEP`, `_ems_move_on()`).
 
 - `ems.ex_officio_withdrawal`: registration number `BO-<course start>-<end>-NNNN` (one
   `ir.sequence` per course, `ems.base.next_course_number()`, shared with convalidations), student,
@@ -123,8 +125,26 @@ circuit come with the next phases.
   ticked and saved in several goes). It records who and when, logs the step (each check with its
   day, and the notes) in the chatter, closes the pending tasks and hands over to the next step.
   Nothing advances on its own.
-- The withdrawal step is not done with this button: it is made from the student's withdrawal
-  wizard (phase 4).
+- **Direction's step** (`direction_approval`): accepting it is the green light, which also marks the
+  student as an expected withdrawal (`res.partner._ems_mark_withdrawal_expected()`, issue #644: off every
+  roll-call while the Secretariat processes it). Instead, Direction can **Close without a withdrawal**
+  (`can_close_without_withdrawal`, `action_open_close_wizard()` → the dismiss wizard with a `close_reason`,
+  *The student came back* / *Absences justified*, and a note; `action_close_without_withdrawal()`): the case
+  file is cancelled with that reason and its tasks closed.
+- **The withdrawal step** is not accepted: once every action is ticked (Esfera, SAGA, eNotum and, in
+  post-compulsory, the email to the family, "withdrawal processed"), **Process the withdrawal**
+  (`can_process_withdrawal`, `action_open_withdrawal_wizard()`) opens the student's `ems.withdrawal_wizard`
+  filled in as an ex officio withdrawal (`withdrawal_mode`, read-only, and the exit reason naming the case
+  file; `ems_ex_officio_withdrawal_id` in the context). Applying it goes through
+  `res.partner._ems_register_exit(..., mode)`, which calls `ems.ex_officio_withdrawal._ems_on_student_exit()`:
+  the case file it came from is done (its last step signed by whoever processed it); `ex_officio` from
+  anywhere else is refused.
+- **Any other exit** of a student with an open case file (a voluntary withdrawal, an expulsion, from the
+  withdrawal wizard or anywhere else that calls `_ems_register_exit()`) cancels it (`voluntary` /
+  `expelled`).
+- **Withdrawal mode** (`res.partner.withdrawal_mode`, `voluntary` / `ex_officio`, shown on the student's
+  *Former student* tab): set by every withdrawal from now on, `voluntary` unless processed from a case file;
+  empty on the withdrawals registered before it existed (unknown, so no migration fills it in).
 - **Tasks** (`mail.activity`, so they show in *My tasks* and in the daily summary):
   - *Decide ex officio withdrawal proposal* (`ems.mail_activity_ex_officio_withdrawal_proposal`)
     for the tutor, from the moment the case file is created until it is started or dismissed.

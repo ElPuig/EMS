@@ -124,9 +124,11 @@ def _step_instructions(circuit, code):
         return _("Check in the history that every step was done and the student is still not coming. If so, "
                  "give the green light to the ex officio withdrawal. The Secretariat will then process it.")
     if compulsory:
-        return _("Process the ex officio withdrawal in Esfera.")
-    return _("Process the ex officio withdrawal in Esfera and SAGA, notify it through eNotum and email the "
-             "family, or the student if they are of age.")
+        return _("Register the ex officio withdrawal in Esfera. Then process it in EMS with \"Process the "
+                 "withdrawal\" (Actions menu): the student leaves the centre and the case file closes.")
+    return _("Register the ex officio withdrawal in Esfera and SAGA, notify it through eNotum and email the "
+             "family, or the student if they are of age. Then process it in EMS with \"Process the withdrawal\" "
+             "(Actions menu): the student leaves the centre and the case file closes.")
 
 def _family_email_labels():
     """How the case file names each email to the family once sent."""
@@ -135,6 +137,7 @@ def _family_email_labels():
         'ems.email_template_ex_officio_withdrawal_tutor_unreachable': _("could not reach them by phone"),
         'ems.email_template_ex_officio_withdrawal_family_notice': _("notice to the family"),
         'ems.email_template_ex_officio_withdrawal_family_warning': _("withdrawal warning"),
+        'ems.email_template_ex_officio_withdrawal_done': _("withdrawal processed"),
     }
 
 
@@ -153,6 +156,7 @@ FAMILY_TEMPLATES = {
     ('post_compulsory', 'secretariat_warning'): ('ems.email_template_ex_officio_withdrawal_family_warning',),
     ('compulsory', 'secretariat_notice'): ('ems.email_template_ex_officio_withdrawal_family_notice',),
     ('compulsory', 'secretariat_warning'): ('ems.email_template_ex_officio_withdrawal_family_warning',),
+    ('post_compulsory', 'withdrawal'): ('ems.email_template_ex_officio_withdrawal_done',),
 }
 # Every step's phone call is confirmed from the contact window, saying how it went: one button per
 # outcome. Where the step also writes to the family, the window sends its email too (reached: the
@@ -214,6 +218,7 @@ class EmsExOfficioWithdrawal(models.Model):
         ('came_back', 'The student came back'),
         ('justified', 'Absences justified'),
         ('voluntary', 'Voluntary withdrawal'),
+        ('expelled', 'Expelled'),
     ])
     cancel_note = fields.Text(string="Cancel note", readonly=True, copy=False)
     step_ids = fields.One2many(string="Steps", comodel_name='ems.ex_officio_withdrawal.step',
@@ -223,6 +228,13 @@ class EmsExOfficioWithdrawal(models.Model):
     next_due_date = fields.Date(string="Next deadline", related='current_step_id.due_date')
     can_decide_proposal = fields.Boolean(string="Can decide the proposal", compute='_compute_can_decide_proposal')
     can_accept_step = fields.Boolean(string="Can do the current step", compute='_compute_can_accept_step')
+    current_step_code = fields.Selection(string="Current step code", related='current_step_id.code')
+    # The Secretariat processes the withdrawal (the last step) once every check is ticked.
+    can_process_withdrawal = fields.Boolean(string="Can process the withdrawal",
+                                            compute='_compute_can_process_withdrawal')
+    # Direction, at its step, closes the case file without a withdrawal instead.
+    can_close_without_withdrawal = fields.Boolean(string="Can close without a withdrawal",
+                                                  compute='_compute_can_process_withdrawal')
     # Whether the current step's day has come: before it, its block is read-only and has no button.
     current_step_open = fields.Boolean(string="Current step open", compute='_compute_current_step_open')
     # The block of whoever does the current step: what to do and by when, what to confirm (each
@@ -275,13 +287,22 @@ class EmsExOfficioWithdrawal(models.Model):
     @api.depends('state', 'current_step_id')
     @api.depends_context('uid')
     def _compute_can_accept_step(self):
-        """The current step's responsible, except for the withdrawal itself, which is made from
-        the student's withdrawal wizard."""
+        """The current step's responsible (the withdrawal itself is then processed, not accepted:
+        see can_process_withdrawal)."""
         for withdrawal in self:
             step = withdrawal.current_step_id
             withdrawal.can_accept_step = (withdrawal.state in STARTED_STATES and bool(step)
-                                          and step.code != 'withdrawal'
                                           and withdrawal._ems_user_acts_as(step.responsible))
+
+    @api.depends('state', 'current_step_id', 'step_ids.check_ids.done')
+    @api.depends_context('uid')
+    def _compute_can_process_withdrawal(self):
+        for withdrawal in self:
+            step = withdrawal.current_step_id
+            open_step = withdrawal.can_accept_step and withdrawal._ems_current_step_open()
+            withdrawal.can_process_withdrawal = open_step and step.code == 'withdrawal' \
+                and all(step.check_ids.mapped('done'))
+            withdrawal.can_close_without_withdrawal = open_step and step.code == 'direction_approval'
 
     @api.depends('current_step_id.due_date')
     def _compute_current_step_open(self):
@@ -332,8 +353,13 @@ class EmsExOfficioWithdrawal(models.Model):
                            "every wait the protocol sets is kept.", date=format_date(self.env, later.due_date))
             else:
                 status = False
-            help_line = _("Tick each action as you do it and save: you can do it in several goes. "
-                          "\"Accept and continue\" (Actions menu) hands the case file over once every one is ticked.")
+            if step.code == 'withdrawal':
+                help_line = _("Tick each action as you do it and save: you can do it in several goes. \"Process "
+                              "the withdrawal\" (Actions menu) is offered once every one is ticked.")
+            else:
+                help_line = _("Tick each action as you do it and save: you can do it in several goes. "
+                              "\"Accept and continue\" (Actions menu) hands the case file over once every one is "
+                              "ticked.")
             withdrawal.current_step_instructions = Markup("<p><strong>{step}</strong></p><p>{what}</p>").format(
                 step=codes[step.code], what=_step_instructions(withdrawal.circuit, step.code))
             withdrawal.current_step_timing = Markup("<p>{}</p>").format(frame)
@@ -526,6 +552,8 @@ class EmsExOfficioWithdrawal(models.Model):
             step = withdrawal.current_step_id
             if not withdrawal.can_accept_step:
                 raise UserError(_("Only the responsible of the current step can do it."))
+            if step.code == 'withdrawal':
+                raise UserError(_("The withdrawal is processed with \"Process the withdrawal\", not accepted."))
             if step.due_date > today:
                 raise UserError(_("This step is due on %(date)s: it cannot be done before.",
                                   date=format_date(self.env, step.due_date)))
@@ -540,8 +568,87 @@ class EmsExOfficioWithdrawal(models.Model):
             if step.notes:
                 lines.append(step.notes)
             withdrawal._message_log(body=Markup("<br/>").join(lines))
+            if step.code == 'direction_approval':
+                # The green light: from now on the student is an expected withdrawal (issue #644),
+                # off every roll-call, while the Secretariat processes it.
+                withdrawal.student_id._ems_mark_withdrawal_expected(
+                    note=_("Ex officio withdrawal %s: green light from Direction.", withdrawal.name))
         self._ems_close_tasks()
         self._ems_move_on()
+
+    def action_open_withdrawal_wizard(self):
+        """The student's withdrawal wizard, filled in as this ex officio withdrawal: applying it
+        withdraws the student and closes the case file (_ems_on_student_exit)."""
+        self.ensure_one()
+        if not self.can_process_withdrawal:
+            raise UserError(_("The Secretariat processes the withdrawal once every action of the last step is "
+                              "ticked."))
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Ex officio withdrawal"),
+            'res_model': 'ems.withdrawal_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'active_model': 'res.partner', 'active_ids': self.student_id.ids,
+                'default_exit_kind': 'withdrawal', 'default_withdrawal_mode': 'ex_officio',
+                'default_exit_reason': _("Ex officio withdrawal (case file %s).", self.name),
+                'ems_ex_officio_withdrawal_id': self.id,
+            },
+        }
+
+    def action_open_close_wizard(self):
+        """Direction closes the case file without a withdrawal, saying why."""
+        self.ensure_one()
+        if not self.can_close_without_withdrawal:
+            raise UserError(_("Only Direction can close the case file at its step."))
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Close without a withdrawal"),
+            'res_model': 'ems.ex_officio_withdrawal.dismiss_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_withdrawal_id': self.id},
+        }
+
+    def action_close_without_withdrawal(self, reason, note):
+        """Direction does not give the green light: the student came back or justified the
+        absences."""
+        self.ensure_one()
+        if not self.can_close_without_withdrawal:
+            raise UserError(_("Only Direction can close the case file at its step."))
+        if reason not in ('came_back', 'justified'):
+            raise UserError(_("Say why the case file closes without a withdrawal."))
+        self.sudo().write({'state': 'cancelled', 'cancel_reason': reason, 'cancel_note': note})
+        self._ems_close_tasks()
+        reasons = dict(self._fields['cancel_reason']._description_selection(self.env))
+        self._message_log(body=_("Closed by Direction without a withdrawal: %(reason)s. %(note)s",
+                                 reason=reasons[reason], note=note))
+
+    @api.model
+    def _ems_on_student_exit(self, students, kind, mode):
+        """A student with an open case file leaves the centre. Processed from the case file (an ex
+        officio withdrawal at its last step, every action ticked), the case file is done; any other
+        exit (a voluntary withdrawal, an expulsion) cancels it."""
+        withdrawals = self.sudo().search([('student_id', 'in', students.ids), ('state', 'in', OPEN_STATES)])
+        if mode == 'ex_officio':
+            ready = withdrawals.filtered(lambda withdrawal: withdrawal.id == self.env.context.get(
+                'ems_ex_officio_withdrawal_id') and withdrawal.with_env(self.env).can_process_withdrawal)
+            if not ready or len(students) != 1:
+                raise UserError(_("An ex officio withdrawal is processed from its case file, once Direction has "
+                                  "given the green light and every action of the last step is ticked."))
+            step = ready.current_step_id
+            step.write({'done_by_id': self.env.uid, 'done_date': fields.Datetime.now()})
+            ready.write({'state': 'done'})
+            ready._ems_close_tasks()
+            ready._message_log(body=_("Ex officio withdrawal processed: the student has left the centre."))
+            withdrawals -= ready
+        reason = 'expelled' if kind == 'expulsion' else 'voluntary'
+        for withdrawal in withdrawals:
+            withdrawal.write({'state': 'cancelled', 'cancel_reason': reason,
+                              'cancel_note': _("The student left the centre before the procedure ended.")})
+            withdrawal._ems_close_tasks()
+            withdrawal._message_log(body=_("Cancelled: the student left the centre before the procedure ended."))
 
     @api.model
     def _cron_ems_due_step_tasks(self):
@@ -991,10 +1098,22 @@ class EmsExOfficioWithdrawalDismissWizard(models.TransientModel):
     withdrawal_id = fields.Many2one(string="Case file", comodel_name='ems.ex_officio_withdrawal', required=True,
                                     ondelete='cascade')
     note = fields.Text(string="Reason", required=True)
+    # Direction closing a started case file says which (a proposal is just dismissed).
+    is_proposal = fields.Boolean(string="Is a proposal", compute='_compute_is_proposal')
+    close_reason = fields.Selection(string="Why", selection=[
+        ('came_back', 'The student came back'), ('justified', 'Absences justified')])
+
+    @api.depends('withdrawal_id.state')
+    def _compute_is_proposal(self):
+        for wizard in self:
+            wizard.is_proposal = wizard.withdrawal_id.state == 'proposal'
 
     def action_confirm(self):
         self.ensure_one()
-        self.withdrawal_id.action_dismiss(self.note)
+        if self.is_proposal:
+            self.withdrawal_id.action_dismiss(self.note)
+        else:
+            self.withdrawal_id.action_close_without_withdrawal(self.close_reason, self.note)
         return {'type': 'ir.actions.act_window_close'}
 
 

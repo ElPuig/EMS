@@ -59,8 +59,14 @@
                                  the next thing to do (Direction downloads it from its own step). -->
                             <button name="action_print_case_file" type="object" string="Print the case file"
                                     invisible="not history_html or state not in ('done', 'cancelled')"/>
+                            <button name="action_open_withdrawal_wizard" type="object" string="Process the withdrawal"
+                                    class="btn-primary" invisible="not can_process_withdrawal"
+                                    help="Opens the withdrawal wizard as an ex officio withdrawal: the student leaves the centre and the case file closes."/>
+                            <button name="action_open_close_wizard" type="object" string="Close without a withdrawal"
+                                    invisible="not can_close_without_withdrawal"
+                                    help="Direction does not give the green light: the student came back or justified the absences."/>
                             <button name="action_accept_step" type="object" string="Accept and continue"
-                                    class="btn-primary" invisible="not can_accept_step or not current_step_open"
+                                    class="btn-primary" invisible="not can_accept_step or not current_step_open or current_step_code == 'withdrawal'"
                                     help="Closes the current step, once what it asks for is ticked, and hands the case file over to the next one."/>
                         </div>
                         <field name="state" widget="statusbar" statusbar_visible="proposal,in_progress,direction,secretariat,done"/>
@@ -69,6 +75,9 @@
                         <field name="can_decide_proposal" invisible="1"/>
                         <field name="can_accept_step" invisible="1"/>
                         <field name="current_step_open" invisible="1"/>
+                        <field name="current_step_code" invisible="1"/>
+                        <field name="can_process_withdrawal" invisible="1"/>
+                        <field name="can_close_without_withdrawal" invisible="1"/>
                         <div class="oe_title">
                             <h1><field name="name" placeholder="New case file"/></h1>
                         </div>
@@ -204,11 +213,15 @@
             <field name="arch" type="xml">
                 <form string="Dismiss the proposal">
                     <field name="withdrawal_id" invisible="1"/>
+                    <field name="is_proposal" invisible="1"/>
                     <group>
+                        <field name="close_reason" widget="radio" invisible="is_proposal" required="not is_proposal"/>
                         <field name="note" placeholder="Why the procedure does not go ahead"/>
                     </group>
                     <footer>
-                        <button name="action_confirm" type="object" string="Dismiss" class="btn-primary"/>
+                        <button name="action_confirm" type="object" string="Dismiss" class="btn-primary" invisible="not is_proposal"/>
+                        <button name="action_confirm" type="object" string="Close without a withdrawal" class="btn-primary"
+                                invisible="is_proposal"/>
                         <button special="cancel" string="Cancel" class="btn-secondary"/>
                     </footer>
                 </form>

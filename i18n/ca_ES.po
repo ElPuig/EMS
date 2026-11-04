@@ -10583,6 +10583,7 @@ msgstr "Baixa"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/contact.py:0 model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__expelled model:res.partner.category,name:ems.partner_category_expelled model_terms:ir.ui.view,arch_db:ems.view_student_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__cancel_reason__expelled
 msgid "Expelled"
 msgstr "Expulsat/da"
 
@@ -28826,6 +28827,7 @@ msgstr "El tutor o la tutora n'obre un quan un alumne seu deixa de venir al cent
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__cancel_reason__justified
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_dismiss_wizard__close_reason__justified
 msgid "Absences justified"
 msgstr "Faltes justificades"
 
@@ -29110,6 +29112,7 @@ msgstr "L'alumne i l'estat d'un expedient només canvien amb els seus botons."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__cancel_reason__came_back
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_dismiss_wizard__close_reason__came_back
 msgid "The student came back"
 msgstr "L'alumne ha tornat"
 
@@ -29456,18 +29459,6 @@ msgstr "Truqueu a la família per saber per què l'alumne ha deixat de venir i r
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "Phone the family, or the student if they are of age, to find out why they have stopped coming. If the student is not going to continue, urge them to request a voluntary withdrawal at the secretariat."
 msgstr "Truqueu a la família, o a l'alumne si és major d'edat, per saber per què ha deixat de venir. Si l'alumne no continuarà, insteu-lo a demanar la baixa voluntària a la secretaria."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
-msgid "Process the ex officio withdrawal in Esfera and SAGA, notify it through eNotum and email the family, or the student if they are of age."
-msgstr "Tramiteu la baixa d'ofici a Esfera i a SAGA, notifiqueu-la per eNotum i comuniqueu-la per correu electrònic a la família, o a l'alumne si és major d'edat."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
-msgid "Process the ex officio withdrawal in Esfera."
-msgstr "Tramiteu la baixa d'ofici a Esfera."
 
 #. module: ems
 #. odoo-python
@@ -29819,6 +29810,7 @@ msgstr "Correu enviat a %s:"
 #. module: ems
 #: model:mail.template,subject:ems.email_template_ex_officio_withdrawal_family_warning
 #: model:mail.template,subject:ems.email_template_ex_officio_withdrawal_inspection
+#: model:mail.template,subject:ems.email_template_ex_officio_withdrawal_done
 msgid "Ex officio withdrawal of {{ object.student_id.name }}"
 msgstr "Baixa d'ofici de {{ object.student_id.name }}"
 
@@ -30109,3 +30101,170 @@ msgstr "Trucada a la família el %(date)s: %(outcome)s."
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__current_step_notices
 msgid "Step notices"
 msgstr "Avisos del pas"
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_ex_officio_withdrawal_done
+msgid "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n                        <p>Hello,</p>\n                        <p>We inform you that, as <strong t-out=\"object.student_id.name\"/> has not attended classes since <t t-out=\"format_date(object.first_absence_date)\"/> without justification, the centre has processed their ex officio withdrawal, as the regulations set out. They have therefore lost their place at the centre.</p>\n                        <p>If you have any questions, please contact the centre's secretariat.</p>\n                        <p>Kind regards,<br/><t t-out=\"user.company_id.name\"/></p>\n                    </div>\n                \n            "
+msgstr "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n                        <p>Bon dia,</p>\n                        <p>Us informem que, com que <strong t-out=\"object.student_id.name\"/> no assisteix a classe des del <t t-out=\"format_date(object.first_absence_date)\"/> sense justificació, el centre n'ha tramitat la baixa d'ofici, tal com estableix la normativa. Per tant, ha perdut la plaça al centre.</p>\n                        <p>Per a qualsevol dubte, poseu-vos en contacte amb la secretaria del centre.</p>\n                        <p>Salutacions cordials,<br/><t t-out=\"user.company_id.name\"/></p>\n                    </div>\n                \n            "
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "An ex officio withdrawal is processed from its case file, once Direction has given the green light and every action of the last step is ticked."
+msgstr "Una baixa d'ofici es tramita des del seu expedient, un cop la Direcció hi ha donat el vistiplau i totes les actuacions de l'últim pas estan marcades."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__can_close_without_withdrawal
+msgid "Can close without a withdrawal"
+msgstr "Pot tancar sense baixa"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__can_process_withdrawal
+msgid "Can process the withdrawal"
+msgstr "Pot tramitar la baixa"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Cancelled: the student left the centre before the procedure ended."
+msgstr "Cancel·lat: l'alumne ha deixat el centre abans que acabés el procediment."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_dismiss_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "Close without a withdrawal"
+msgstr "Tanca sense baixa"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Closed by Direction without a withdrawal: %(reason)s. %(note)s"
+msgstr "Tancat per la Direcció sense baixa: %(reason)s. %(note)s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__current_step_code
+msgid "Current step code"
+msgstr "Codi del pas actual"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "Direction does not give the green light: the student came back or justified the absences."
+msgstr "La Direcció no dona el vistiplau: l'alumne ha tornat o ha justificat les faltes."
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_ex_officio_withdrawal_done
+msgid "EMS: Ex officio withdrawal, processed"
+msgstr "EMS: baixa d'ofici tramitada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_withdrawal_wizard__withdrawal_mode__ex_officio
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__withdrawal_mode__ex_officio
+msgid "Ex officio"
+msgstr "D'ofici"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Ex officio withdrawal %s: green light from Direction."
+msgstr "Baixa d'ofici %s: vistiplau de la Direcció."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Ex officio withdrawal (case file %s)."
+msgstr "Baixa d'ofici (expedient %s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Ex officio withdrawal processed: the student has left the centre."
+msgstr "Baixa d'ofici tramitada: l'alumne ha deixat el centre."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_dismiss_wizard__is_proposal
+msgid "Is a proposal"
+msgstr "És una proposta"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Only Direction can close the case file at its step."
+msgstr "Només la Direcció pot tancar l'expedient en el seu pas."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "Opens the withdrawal wizard as an ex officio withdrawal: the student leaves the centre and the case file closes."
+msgstr "Obre l'assistent de baixa com a baixa d'ofici: l'alumne deixa el centre i l'expedient es tanca."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "Process the withdrawal"
+msgstr "Tramita la baixa"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Register the ex officio withdrawal in Esfera and SAGA, notify it through eNotum and email the family, or the student if they are of age. Then process it in EMS with \"Process the withdrawal\" (Actions menu): the student leaves the centre and the case file closes."
+msgstr "Registreu la baixa d'ofici a Esfera i SAGA, notifiqueu-la per eNotum i envieu un correu electrònic a la família, o a l'alumne si és major d'edat. Després, tramiteu-la a EMS amb «Tramita la baixa» (menú Accions): l'alumne deixa el centre i l'expedient es tanca."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Register the ex officio withdrawal in Esfera. Then process it in EMS with \"Process the withdrawal\" (Actions menu): the student leaves the centre and the case file closes."
+msgstr "Registreu la baixa d'ofici a Esfera. Després, tramiteu-la a EMS amb «Tramita la baixa» (menú Accions): l'alumne deixa el centre i l'expedient es tanca."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Say why the case file closes without a withdrawal."
+msgstr "Indiqueu per què l'expedient es tanca sense baixa."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "The Secretariat processes the withdrawal once every action of the last step is ticked."
+msgstr "La Secretaria tramita la baixa un cop totes les actuacions de l'últim pas estan marcades."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "The student left the centre before the procedure ended."
+msgstr "L'alumne ha deixat el centre abans que acabés el procediment."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "The withdrawal is processed with \"Process the withdrawal\", not accepted."
+msgstr "La baixa es tramita amb «Tramita la baixa», no s'accepta."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Tick each action as you do it and save: you can do it in several goes. \"Process the withdrawal\" (Actions menu) is offered once every one is ticked."
+msgstr "Marqueu cada actuació a mesura que la feu i deseu: ho podeu fer en diverses vegades. «Tramita la baixa» (menú Accions) apareix quan totes estan marcades."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_withdrawal_wizard__withdrawal_mode__voluntary
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__withdrawal_mode__voluntary
+msgid "Voluntary"
+msgstr "Voluntària"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_dismiss_wizard__close_reason
+msgid "Why"
+msgstr "Motiu"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__withdrawal_mode
+#: model:ir.model.fields,field_description:ems.field_res_partner__withdrawal_mode
+#: model:ir.model.fields,field_description:ems.field_res_users__withdrawal_mode
+msgid "Withdrawal mode"
+msgstr "Modalitat de baixa"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "withdrawal processed"
+msgstr "baixa tramitada"

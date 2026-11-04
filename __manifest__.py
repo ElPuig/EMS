@@ -398,6 +398,7 @@
         'views/erasmus/group_mobility/views.xml',
         'views/erasmus/document_review/views.xml',
         'views/erasmus/history/views.xml',
+        'views/erasmus/quality/views.xml',
         'views/erasmus/menu.xml',
 
         'views/sales/product_view.xml',
@@ -443,6 +444,7 @@
         'mails/erasmus/resolution.xml',
         'mails/erasmus/mobility.xml',
         'mails/erasmus/group_mobility.xml',
+        'mails/erasmus/satisfaction.xml',
         'mails/shared/daily_summary.xml',
         'mails/contacts/contact_data_request.xml',
 

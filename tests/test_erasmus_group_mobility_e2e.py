@@ -516,5 +516,9 @@ class TestErasmusGroupMobilityEndToEnd(TransactionCase):
         required.with_user(self.technician).action_mark_valid()
         with self.assertRaises(AccessError):
             self._as(self.leader_user).action_close()
+        with self.assertRaisesRegex(UserError, 'satisfaction'):
+            self._as(self.technician).action_close()
+        for survey in active.sudo().satisfaction_ids:
+            survey._ems_portal_answer(8)
         self._as(self.technician).action_close()
         self.assertEqual(self.mobility.state, 'done')

@@ -799,6 +799,7 @@ class EmsErasmusGroupMobility(models.Model):
                                   ", ".join(sorted(set(missing.mapped('name'))))))
             if mobility.eu_survey_state != 'validated':
                 raise UserError(_("Validate the EU Survey first."))
+            mobility._ems_check_satisfaction()
         self._ems_activities_done()
         self._ems_set_state('done')
 

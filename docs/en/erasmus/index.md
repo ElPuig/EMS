@@ -18,6 +18,7 @@ This section contains the manuals for the **Erasmus+ team**: the Erasmus coordin
 | [The staff call](staff-call.md) | The call for vocational training staff: the panel that rates the mobility plans, the staff criteria, one ranking for the whole call and the places |
 | [Preparing the mobilities](mobility-preparation.md) | The centre's projects, destinations chosen by turns, own destinations, host entities, documents with their signers and deadlines, the commitment letter signed in EMS, the electronic signature of the agreements, the checklist and closing each mobility |
 | [Group mobilities](group-mobilities.md) | Creating a group mobility, the students' enrolment from the portal, the ranking, approving the selection, withdrawals, the files and the closure |
+| [Erasmus+ quality](quality.md) | The interest and satisfaction indicators, the participants' satisfaction survey, the low scores and their improvement actions |
 
 ---
 
@@ -28,6 +29,7 @@ This section contains the manuals for the **Erasmus+ team**: the Erasmus coordin
 | **Calls** | Calls, Applications, Ranking, Claims, Resolutions and Place offers |
 | **Mobilities** | Individual mobilities and Group mobilities |
 | **Financial management** | Projects, Invoices and Grant payments |
+| **Quality** | Indicators, Satisfaction surveys and Low scores |
 | **Configuration** | Host entities |
 
 Each person only sees the menus that concern them: the Secretary, for example, only sees **Financial management**. Every teacher has the **Erasmus+** app, right below **Meetings**, with the **My participation** section: it holds **My application**, which opens your Erasmus+ page on the portal (to apply to the staff call and follow your mobility), and the personal entries (**My evaluations**, **My plan ratings**, **My group mobilities**), which only show to whoever has something in them: an interviewer sees **My evaluations**, a member of the panel **My plan ratings**. So, if you are in the Erasmus team and also apply to the staff call, what you do as a participant is under **My participation** and the management under the other sections.

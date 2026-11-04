@@ -19613,10 +19613,14 @@ msgstr "Cómo"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__justified_count model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence_line__state__justified
 #: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__justified
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
-#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__justified_count
-#: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence_line__state__justified
 msgid "Justified"
 msgstr "Justificado"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__justified
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+msgid "Justified"
+msgstr "Justificada"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_meeting_presence
@@ -29328,14 +29332,6 @@ msgstr "se ha corregido el fichaje de una parte."
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__correction_requested
 msgid "Correction requested"
 msgstr "Corrección solicitada"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__justified
-#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
-#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__justified_count
-#: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence_line__state__justified
-msgid "Justified"
-msgstr "Justificada"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
@@ -41249,11 +41245,6 @@ msgstr "<i class=\"fa fa-check-circle me-1\"/> Hemos recibido tu reclamación. E
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "<i class=\"fa fa-clock-o me-1\"/>Nothing to do now: the rest is uploaded by the Erasmus team or comes later."
 msgstr "<i class=\"fa fa-clock-o me-1\"/>Ahora no tienes que hacer nada: el resto lo sube el equipo Erasmus o llega más adelante."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
-msgid "<i class=\"fa fa-exclamation-triangle me-1\"/>Still to do now in your record:"
-msgstr "<i class=\"fa fa-exclamation-triangle me-1\"/>Todavía tienes que hacer ahora en tu expediente:"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.mail_notification_erasmus

@@ -8,10 +8,8 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_date
 
-CIRCUITS = [
-    ('compulsory', 'Compulsory education'),
-    ('post_compulsory', 'Post-compulsory education'),
-]
+from ..curriculum.level import CIRCUITS
+
 
 STEP_CODES = [
     ('tutor_contact', 'Contact with the family'),

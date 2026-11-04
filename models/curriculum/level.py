@@ -2,8 +2,13 @@
 
 from odoo import api, fields, models
 
-from ..contacts.ex_officio_withdrawal import CIRCUITS
 from ..employees.non_teaching_type import LEVEL_DECLARATION_CODES
+
+# Issue #726: the ex officio withdrawal protocols a level can follow (the case file reuses them).
+CIRCUITS = [
+	('compulsory', 'Compulsory education'),
+	('post_compulsory', 'Post-compulsory education'),
+]
 
 # Issue #723: seeded once (post_init_hook and migrations/18.0.0.43.0), then configured by the centre.
 LEVEL_DECLARATION_SEED = {

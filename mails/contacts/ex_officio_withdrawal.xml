@@ -8,7 +8,7 @@
              can edit the text and sends it. No <field name="lang">: the wizard renders the text in
              the recipients' language. Texts still to be agreed with Direction (drafts). -->
 
-        <!-- Post-compulsory, tutor's step (optional): after reaching the family by phone. -->
+        <!-- Post-compulsory, tutor's step: the family was reached by phone. -->
         <record id="email_template_ex_officio_withdrawal_tutor_confirmation" model="mail.template">
             <field name="name">EMS: Ex officio withdrawal, phone call confirmed</field>
             <field name="model_id" ref="ems.model_ems_ex_officio_withdrawal"/>
@@ -22,6 +22,7 @@
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Hello,</p>
                         <p>As we have just discussed by phone, we confirm that <strong t-out="object.student_id.name"/> has not been attending classes since <t t-out="format_date(object.first_absence_date)"/>.</p>
+                        <p>We remind you that, under the regulations, a student who misses class for fifteen school days without justification loses their place and is withdrawn ex officio. If <strong t-out="object.student_id.name"/> does not come back to class, the centre will start this procedure.</p>
                         <p>If the student does not intend to continue their studies, please request a voluntary withdrawal at the centre's secretariat.</p>
                         <p>Kind regards,<br/><t t-out="user.name"/><br/><t t-out="user.company_id.name"/></p>
                     </div>
@@ -29,7 +30,7 @@
             </field>
         </record>
 
-        <!-- Post-compulsory, tutor's step (optional): the family could not be reached by phone. -->
+        <!-- Post-compulsory, tutor's step: the family could not be reached by phone. -->
         <record id="email_template_ex_officio_withdrawal_tutor_unreachable" model="mail.template">
             <field name="name">EMS: Ex officio withdrawal, family not reached by phone</field>
             <field name="model_id" ref="ems.model_ems_ex_officio_withdrawal"/>
@@ -43,6 +44,7 @@
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Hello,</p>
                         <p>We are writing because we could not reach you by phone. <strong t-out="object.student_id.name"/> has not been attending classes since <t t-out="format_date(object.first_absence_date)"/>.</p>
+                        <p>We remind you that, under the regulations, a student who misses class for fifteen school days without justification loses their place and is withdrawn ex officio. If <strong t-out="object.student_id.name"/> does not come back to class, the centre will start this procedure.</p>
                         <p>Please contact the tutor as soon as you can.</p>
                         <p>Kind regards,<br/><t t-out="user.name"/><br/><t t-out="user.company_id.name"/></p>
                     </div>

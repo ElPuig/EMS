@@ -6320,6 +6320,7 @@ msgstr "Altra exempció"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__outcome_id model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__outcome_id model:ir.model.fields,field_description:ems.field_ems_planning_outcome__outcome_id model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__outcome_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__outcome_id
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__call_outcome
 msgid "Outcome"
 msgstr "Resultat d'Aprenentatge"
 
@@ -8064,7 +8065,6 @@ msgstr "Estudi: El tipus d'estudi concret (tipus de batxillerat, grau universita
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_grant_wizard__line_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_reject_wizard__line_id
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__subject
 msgid "Subject"
 msgstr "Assignatura"
 
@@ -29432,7 +29432,9 @@ msgid "Only the student's tutor, the people above them and the Head of Studies c
 msgstr "Només el tutor de l'alumne, els seus superiors i el cap d'estudis poden sol·licitar una baixa d'ofici, per a un alumne amb circuit al seu nivell i sense cap expedient obert."
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_check__code__phone
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "Phone call to the family"
 msgstr "Trucada a la família"
 
@@ -29656,6 +29658,7 @@ msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>Hello,</p>\n"
 "                        <p>As we have just discussed by phone, we confirm that <strong t-out=\"object.student_id.name\"/> has not been attending classes since <t t-out=\"format_date(object.first_absence_date)\"/>.</p>\n"
+"                        <p>We remind you that, under the regulations, a student who misses class for fifteen school days without justification loses their place and is withdrawn ex officio. If <strong t-out=\"object.student_id.name\"/> does not come back to class, the centre will start this procedure.</p>\n"
 "                        <p>If the student does not intend to continue their studies, please request a voluntary withdrawal at the centre's secretariat.</p>\n"
 "                        <p>Kind regards,<br/><t t-out=\"user.name\"/><br/><t t-out=\"user.company_id.name\"/></p>\n"
 "                    </div>\n"
@@ -29665,6 +29668,7 @@ msgstr ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>Bon dia,</p>\n"
 "                        <p>Tal com hem parlat per telèfon, us confirmem que <strong t-out=\"object.student_id.name\"/> no assisteix a classe des del <t t-out=\"format_date(object.first_absence_date)\"/>.</p>\n"
+"                        <p>Us recordem que, segons la normativa, l'alumne que falta a classe durant quinze dies lectius sense justificació perd la plaça i se li dona de baixa d'ofici. Si <strong t-out=\"object.student_id.name\"/> no torna a classe, el centre iniciarà aquest procediment.</p>\n"
 "                        <p>Si l'alumne no té intenció de continuar els estudis, us demanem que en sol·liciteu la baixa voluntària a la secretaria del centre.</p>\n"
 "                        <p>Salutacions cordials,<br/><t t-out=\"user.name\"/><br/><t t-out=\"user.company_id.name\"/></p>\n"
 "                    </div>\n"
@@ -29677,6 +29681,7 @@ msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>Hello,</p>\n"
 "                        <p>We are writing because we could not reach you by phone. <strong t-out=\"object.student_id.name\"/> has not been attending classes since <t t-out=\"format_date(object.first_absence_date)\"/>.</p>\n"
+"                        <p>We remind you that, under the regulations, a student who misses class for fifteen school days without justification loses their place and is withdrawn ex officio. If <strong t-out=\"object.student_id.name\"/> does not come back to class, the centre will start this procedure.</p>\n"
 "                        <p>Please contact the tutor as soon as you can.</p>\n"
 "                        <p>Kind regards,<br/><t t-out=\"user.name\"/><br/><t t-out=\"user.company_id.name\"/></p>\n"
 "                    </div>\n"
@@ -29686,6 +29691,7 @@ msgstr ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>Bon dia,</p>\n"
 "                        <p>Us escrivim perquè no us hem pogut localitzar per telèfon. <strong t-out=\"object.student_id.name\"/> no assisteix a classe des del <t t-out=\"format_date(object.first_absence_date)\"/>.</p>\n"
+"                        <p>Us recordem que, segons la normativa, l'alumne que falta a classe durant quinze dies lectius sense justificació perd la plaça i se li dona de baixa d'ofici. Si <strong t-out=\"object.student_id.name\"/> no torna a classe, el centre iniciarà aquest procediment.</p>\n"
 "                        <p>Poseu-vos en contacte amb el tutor o la tutora tan aviat com pugueu.</p>\n"
 "                        <p>Salutacions cordials,<br/><t t-out=\"user.name\"/><br/><t t-out=\"user.company_id.name\"/></p>\n"
 "                    </div>\n"
@@ -29837,13 +29843,6 @@ msgstr ""
 "dia del pas."
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
-msgid "Phone the family first: the email only comes after the phone call."
-msgstr ""
-"Primer truqueu a la família: el correu només s'envia després de la trucada."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
 msgid "Print the case file"
 msgstr "Imprimeix l'expedient"
@@ -29897,17 +29896,6 @@ msgid "<i class=\"fa fa-check me-1\" title=\"Sent\"/>"
 msgstr "<i class=\"fa fa-check me-1\" title=\"Enviat\"/>"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__family_email_state__phone_first
-msgid "After the phone call"
-msgstr "Després de la trucada"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
-msgid "After the phone call, record it with an email to the family. Pick the button depending on whether you reached them: EMS writes the right text, which you can review before sending it, and ticks it in the list."
-msgstr "Després de la trucada, deixeu-ne constància amb un correu electrònic a la família. Trieu el botó segons si els heu pogut localitzar o no: EMS hi posa el text que toca, que podreu revisar abans d'enviar-lo, i el marca a la llista."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__current_step_timing
 msgid "By when"
 msgstr "Terminis"
@@ -29940,21 +29928,6 @@ msgid "I confirm I phoned the family (or the student, if of age), whether or not
 msgstr "Confirmo que he trucat a la família (o a l'alumne, si és major d'edat), tant si m'han respost com si no, en data"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
-msgid "I did not reach them: send the notice"
-msgstr "No els he localitzat: envia l'avís"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
-msgid "I reached them: send the confirmation"
-msgstr "Els he localitzat: envia la confirmació"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
-msgid "Once you have ticked the phone call and saved, you can send the email from here."
-msgstr "Quan hàgiu marcat la trucada i desat, aquí podreu enviar el correu."
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__family_email_state__ready
 msgid "Ready"
 msgstr "A punt"
@@ -29973,12 +29946,6 @@ msgstr "Envieu el correu a la família des d'aquí: EMS hi posa el text, que pod
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
-msgid "The email to the family is ticked by sending it from the case file."
-msgstr "El correu a la família es marca enviant-lo des de l'expedient."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "The email to the family of this step has already been sent."
 msgstr "El correu a la família d'aquest pas ja s'ha enviat."
 
@@ -29986,11 +29953,6 @@ msgstr "El correu a la família d'aquest pas ja s'ha enviat."
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__by_button
 msgid "Ticked by sending"
 msgstr "Es marca en enviar-lo"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__family_email_two
-msgid "Two emails to choose from"
-msgstr "Dos correus per triar"
 
 #. module: ems
 #. odoo-python
@@ -30015,3 +29977,100 @@ msgstr "avís a la família"
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "withdrawal warning"
 msgstr "avís de baixa"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__call_outcome
+msgid "Call outcome"
+msgstr "Resultat de la trucada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_check__call_outcome__not_reached
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_email_wizard__call_outcome__not_reached
+msgid "Did not reach them"
+msgstr "No els he localitzat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__subject
+msgid "Email subject"
+msgstr "Assumpte"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "I did not reach them"
+msgstr "No els he localitzat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "I phoned the family and did not reach them on"
+msgstr "He trucat a la família i no l'he localitzada en data"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "I reached them"
+msgstr "Els he localitzat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_email_wizard_form
+msgid "I will try again tomorrow"
+msgstr "Ho tornaré a intentar demà"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_email_wizard_form
+msgid "If you are going to phone them again tomorrow, you can leave the email for then: the attempt stays in the case file."
+msgstr "Si els tornareu a trucar demà, podeu deixar el correu per a llavors: l'intent queda a l'expedient."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__family_email_two
+msgid "One button per call outcome"
+msgstr "Un botó per resultat de la trucada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Only an unanswered phone call can be tried again."
+msgstr "Només es pot tornar a intentar una trucada sense resposta."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__call_date
+msgid "Phone call on"
+msgstr "Data de la trucada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_check__call_outcome__reached
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_email_wizard__call_outcome__reached
+msgid "Reached them"
+msgstr "Els he localitzat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Say first how the phone call went."
+msgstr "Indiqueu primer com ha anat la trucada."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_email_wizard_form
+msgid "Send the confirmation"
+msgstr "Envia la confirmació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_email_wizard_form
+msgid "Send the notice"
+msgstr "Envia l'avís"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "The family was not reached by phone on %(date)s: they will be phoned again on %(next)s."
+msgstr "El %(date)s no es va poder localitzar la família per telèfon: se li tornarà a trucar el %(next)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "This is ticked from the buttons of the step, not by hand."
+msgstr "Això es marca amb els botons del pas, no a mà."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_check__code__phone_attempt
+msgid "Unanswered phone call"
+msgstr "Trucada sense resposta"

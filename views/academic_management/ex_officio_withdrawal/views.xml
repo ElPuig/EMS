@@ -104,20 +104,18 @@
                             <field name="family_email_state" invisible="1"/>
                             <field name="family_email_two" invisible="1"/>
                             <div name="family_email" class="mb-3" invisible="not family_email_state">
-                                <p><field name="family_email_intro" nolabel="1" class="d-inline"/></p>
-                                <p class="text-muted" invisible="family_email_state != 'phone_first'">
-                                    Once you have ticked the phone call and saved, you can send the email from here.
-                                </p>
+                                <p invisible="not family_email_intro"><field name="family_email_intro" nolabel="1" class="d-inline"/></p>
+                                <!-- A call step: how the phone call went, then its email (or trying again). -->
                                 <div class="d-flex flex-wrap gap-2" invisible="family_email_state != 'ready'">
+                                    <button name="action_open_family_email" type="object" class="btn-primary"
+                                            icon="fa-phone" string="I reached them"
+                                            context="{'call_outcome': 'reached'}" invisible="not family_email_two"/>
                                     <button name="action_open_family_email" type="object" class="btn-secondary"
-                                            icon="fa-envelope" string="I reached them: send the confirmation"
-                                            context="{'family_email_index': 0}" invisible="not family_email_two"/>
-                                    <button name="action_open_family_email" type="object" class="btn-secondary"
-                                            icon="fa-envelope" string="I did not reach them: send the notice"
-                                            context="{'family_email_index': 1}" invisible="not family_email_two"/>
+                                            icon="fa-phone" string="I did not reach them"
+                                            context="{'call_outcome': 'not_reached'}" invisible="not family_email_two"/>
                                     <button name="action_open_family_email" type="object" class="btn-secondary"
                                             icon="fa-envelope" string="Send the email to the family"
-                                            context="{'family_email_index': 0}" invisible="family_email_two"/>
+                                            invisible="family_email_two"/>
                                 </div>
                                 <p class="text-success" invisible="family_email_state != 'sent'">
                                     <i class="fa fa-check me-1" title="Sent"/><field name="family_email_sent" nolabel="1" class="d-inline"/>
@@ -165,6 +163,13 @@
                     <div class="alert alert-warning" role="alert" invisible="not missing_email">
                         Without an email address, they will not get it: <field name="missing_email" nolabel="1" class="d-inline"/>
                     </div>
+                    <field name="call_outcome" invisible="1"/>
+                    <group invisible="not call_outcome">
+                        <field name="call_date" required="call_outcome"/>
+                    </group>
+                    <p class="text-muted" invisible="call_outcome != 'not_reached'">
+                        If you are going to phone them again tomorrow, you can leave the email for then: the attempt stays in the case file.
+                    </p>
                     <group>
                         <field name="recipient_ids" widget="many2many_tags" readonly="1"/>
                         <field name="template_id" invisible="1"/>
@@ -172,7 +177,14 @@
                     </group>
                     <field name="body" nolabel="1"/>
                     <footer>
-                        <button name="action_send" type="object" string="Send" class="btn-primary"/>
+                        <button name="action_send" type="object" string="Send the confirmation" class="btn-primary"
+                                invisible="call_outcome != 'reached'"/>
+                        <button name="action_send" type="object" string="Send the notice" class="btn-primary"
+                                invisible="call_outcome != 'not_reached'"/>
+                        <button name="action_send" type="object" string="Send" class="btn-primary"
+                                invisible="call_outcome"/>
+                        <button name="action_try_again" type="object" string="I will try again tomorrow" class="btn-secondary"
+                                invisible="call_outcome != 'not_reached'"/>
                         <button special="cancel" string="Cancel" class="btn-secondary"/>
                     </footer>
                 </form>

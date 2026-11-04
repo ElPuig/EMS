@@ -88,5 +88,6 @@ class TestExOfficioWithdrawalTour(HttpCase):
                         "ems_ex_officio_withdrawal_tutor_email", login=self.tutor_user.login)
         phone, email = case_file.current_check_ids
         self.assertTrue(phone.done and email.done)
+        self.assertEqual(phone.call_outcome, 'not_reached')
         self.assertEqual(email.email_template_id,
                          self.env.ref('ems.email_template_ex_officio_withdrawal_tutor_unreachable'))

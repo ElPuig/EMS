@@ -155,21 +155,29 @@ circuit come with the next phases.
 ## Emails, texts to copy and the case file PDF (phase 3)
 
 - **Emails to the family** (`mails/contacts/ex_officio_withdrawal.xml`, `FAMILY_TEMPLATES` per circuit and step):
-  post-compulsory tutor (two: call confirmed / family not reached), Secretariat's warning (both circuits, one
-  template with a `t-if` on the circuit), compulsory Secretariat's notice. Every one is required: the step has a
-  `family_email` check, which **only sending ticks** (`check.by_button`: read-only in the block, refused by
-  `check.write()` for anybody but the superuser), recording which template went (`email_template_id`).
-  Never sent on their own: the step's block shows them right after what to do (`family_email_state`, for
-  whoever may do the current step, from its day on): `phone_first` until the step's phone call is ticked and
-  saved, then `ready` with one button per template (the tutor's two, `family_email_two`; one otherwise), each
-  opening `ems.ex_officio_withdrawal.email_wizard` with **its own** template (`family_email_index` in the
-  context; the wizard offers no choice), rendered in the recipients' language (subject and body editable),
-  then `sent` with the day and which text (`family_email_sent`). One email per step: `action_open_family_email()`
-  and the wizard refuse in any other state. Recipients: `res.partner._ems_student_and_family_recipients()`
-  (the student, plus the family while a minor or with `auth_share`), the ones with an email address (the
-  others are named in a warning). Sending sends one email per recipient with `send_mail()` (the edited text
-  through `email_values`, inside the template's layout), ticks the `family_email` check with today's date and
-  logs the text sent in the chatter.
+  post-compulsory tutor (two: call confirmed / family not reached, both reminding that fifteen school days of
+  unjustified absence mean an ex officio withdrawal), Secretariat's warning (both circuits, one template with a
+  `t-if` on the circuit), compulsory Secretariat's notice. Every one is required: the step has a `family_email`
+  check, which **only sending ticks** (`check.by_button`: read-only in the block, refused by `check.write()` for
+  anybody but the superuser), recording which template went (`email_template_id`). One email per step.
+- **The block shows them right after what to do** (`family_email_state`: `ready`, then `sent` with the day and
+  which text, `family_email_sent`; for whoever may do the current step, from its day on). Each button opens
+  `ems.ex_officio_withdrawal.email_wizard` with **its own** template (no choice in the wizard), rendered in the
+  recipients' language, subject and body editable:
+  - **Call steps** (`CALL_STEPS`: the post-compulsory tutor's) have one button per call outcome, *I reached
+    them* / *I did not reach them* (`call_outcome` in the context, `family_email_two`). The wizard asks the day of
+    the call (`call_date`, today by default) and sending also ticks the step's `phone` check with that day and
+    the outcome (`check.call_outcome`, shown in the history: "Phone call to the family (did not reach them)"),
+    which is `by_button` too. *I did not reach them* also offers **I will try again tomorrow**
+    (`action_try_again()` → `_ems_try_call_again()`): no email, an `phone_attempt` check (done, with the call's
+    day) stays in the case file and the history, a chatter line says when it will be tried again, and the step
+    moves to the next day (the next school day in the post-compulsory circuit): its `due_date` changes, its task
+    is closed and scheduled again on that day (`task_scheduled` reset), so the block is read-only until then.
+  - **Other steps** (the Secretariat's) have one button, *Send the email to the family*, with a short intro.
+- Recipients: `res.partner._ems_student_and_family_recipients()` (the student, plus the family while a minor or
+  with `auth_share`), the ones with an email address (the others are named in a warning). Sending sends one email
+  per recipient with `send_mail()` (the edited text through `email_values`, inside the template's layout), ticks
+  the checks with their days and logs the text sent in the chatter.
 - **Texts to copy** (`COPY_TEMPLATES`): Social Services (compulsory, Coexistence) and the Inspection
   (compulsory, Direction), rendered in the centre language (`res.company.ems_lang`) as plain text
   (`copy_text`), listing the steps done (`_ems_done_step_lines()`), shown in the step's block with a copy button.

@@ -26566,8 +26566,12 @@ msgstr ""
 
 #. module: ems
 #: model:ir.actions.report,print_report_name:ems.action_report_student_card
-msgid "'Student cards - %s' % object.env.company.current_course_id.name"
-msgstr "\"Carnets d'estudiant - %s\" % object.env.company.current_course_id.name"
+msgid ""
+"'Student card - %s - %s' % (object.name, "
+"object.env.company.current_course_id.name)"
+msgstr ""
+"\"Carnet d'estudiant - %s - %s\" % (object.name, "
+"object.env.company.current_course_id.name)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_student_card_single

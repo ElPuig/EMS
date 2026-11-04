@@ -11,15 +11,15 @@ LEVEL_DECLARATION_SEED = {
 
 # The student card's level colours: pastel, so the card is not garish, and never red or green, which
 # the card keeps for "may / may not leave the centre". A closed palette, so no level can pick them.
-CARD_PALETTE = {
-	'blue': '#BBDEFB',
-	'lavender': '#D1C4E9',
-	'peach': '#FFE0B2',
-	'yellow': '#FFF3B0',
-	'cyan': '#B2EBF2',
-	'sand': '#E6D5C3',
-	'orchid': '#E1BEE7',
-	'grey': '#CFD8DC',
+CARD_PALETTE = {  # key: (label, colour)
+	'blue': ("Blue", '#BBDEFB'),
+	'lavender': ("Lavender", '#D1C4E9'),
+	'peach': ("Peach", '#FFE0B2'),
+	'yellow': ("Yellow", '#FFF3B0'),
+	'cyan': ("Cyan", '#B2EBF2'),
+	'sand': ("Sand", '#E6D5C3'),
+	'orchid': ("Orchid", '#E1BEE7'),
+	'grey': ("Grey", '#CFD8DC'),
 }
 CARD_COLORS = {
 	'ESO': 'blue',
@@ -57,16 +57,9 @@ class EmsLevel(models.Model):
 	# The level's colour on the student card (issue #524). Computed from the acronym only when the
 	# level is created, then the centre's to change: not in data/cat/ems.level.csv, so an upgrade
 	# never reverts it.
-	card_color = fields.Selection([
-		('blue', "Blue"),
-		('lavender', "Lavender"),
-		('peach', "Peach"),
-		('yellow', "Yellow"),
-		('cyan', "Cyan"),
-		('sand', "Sand"),
-		('orchid', "Orchid"),
-		('grey', "Grey"),
-	], string="Student card colour", compute="_compute_card_color", store=True, readonly=False,
+	card_color = fields.Selection(
+		[(key, label) for key, (label, _colour) in CARD_PALETTE.items()], string="Student card colour",
+		compute="_compute_card_color", store=True, readonly=False,
 		help="Colour of this level on the student card. Red and green are not offered: the card "
 		     "uses them to say whether the student may leave the centre.")
 

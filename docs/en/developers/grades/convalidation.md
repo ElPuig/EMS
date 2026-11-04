@@ -148,7 +148,7 @@ There is no whole-request "reject" action: a refusal is a resolution like any ot
 
 ## Resolution document
 
-`ems.report_convalidation_resolution` (`reports/grades/report_convalidation_resolution.xml`, not bound to the Print menu) is rendered by `_ems_generate_resolution_pdf()` when the Director resolves, always in the centre language (`_ems_resolution_lang()`, `res.company.ems_lang`), and kept as `resolution_pdf_id` (named *Resolució &lt;number&gt;.pdf*). It replaces any earlier one. Contents:
+`ems.report_convalidation_resolution` (`reports/grades/report_convalidation_resolution.xml`, not bound to the Print menu) is rendered by `_ems_generate_resolution_pdf()` when the Director resolves, always in the centre language (`res.company.ems_lang`: the report is one of the centre's documents in `models/shared/ir_actions_report.py`), and kept as `resolution_pdf_id` (named *Resolució &lt;number&gt;.pdf*). It replaces any earlier one. Contents:
 
 - Company header (`web.external_layout`) and the title *Resolució de convalidació de mòduls professionals*.
 - Registration number, request date, applicant (with `document_id`), the representative of a minor (`_ems_resolution_representative()`: the family contact that filed it, else the first one on file), study and course.

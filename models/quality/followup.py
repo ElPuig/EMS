@@ -33,7 +33,7 @@ class EmsQualityFollowup(models.Model):
         involved), so they hear of its progress without having to look. With sudo and the writer as
         author: posting on a record is a write the people reporting progress do not have."""
         # Stored text, read by everybody: in the centre's language, not in that of whoever writes it.
-        centre_env = self.env['ems.minute']._ems_centre_env()
+        centre_env = self.env['res.company']._ems_centre_env()
         state_labels = dict(self._fields['state']._description_selection(centre_env))
         for followup in self:
             followup.action_id.sudo().message_post(

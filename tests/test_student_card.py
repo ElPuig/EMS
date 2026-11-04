@@ -99,7 +99,7 @@ class TestStudentCard(TransactionCase):
         self.foreign.write({'passport_id': 'XY1234567'})
         html = self._render(self.own_a | self.foreign)
         for expected in ('TSC Alpha Student', '12345678Z', 'XY1234567', self.own_a.student_id,
-                         'TSC', 'TSCO', CARD_PALETTE[self.level.card_color],
+                         'TSC', 'TSCO', CARD_PALETTE[self.level.card_color][1],
                          self.env.company.current_course_id.name or '', 'class="o_ems_card_barcode"'):
             self.assertIn(expected, html)
 
@@ -158,7 +158,7 @@ class TestStudentCard(TransactionCase):
         self.own_a.main_group_id = False
         html = self._render(self.own_a)
         self.assertIn('TSC Alpha Student', html)
-        self.assertIn(f"background: {CARD_PALETTE['grey']}", html)
+        self.assertIn(f"background: {CARD_PALETTE['grey'][1]}", html)
 
     # --- May the student leave the centre -------------------------------------------------------
 

@@ -5,37 +5,30 @@ import { registry } from "@web/core/registry";
 import { usePopover } from "@web/core/popover/popover_hook";
 import { useService } from "@web/core/utils/hooks";
 import { standardWidgetProps } from "@web/views/widgets/standard_widget_props";
-import { Component } from "@odoo/owl";
-import { serverNow } from "./server_clock";
+import { Component, onWillStart } from "@odoo/owl";
+import { deserializeDate } from "@web/core/l10n/dates";
 
 // Snoozing a task (issue #727), in My Activities: a bell on each row opens a popover with 1, 3
 // or 7 days, and the list header's "Snooze" offers the same for the selected tasks in a small
-// dialog. The server moves the due date (mail.activity.action_ems_snooze, models/shared/
-// mail_activity.py). See docs/en/developers/shared/daily_summary.md.
-const SNOOZE_DAYS = [1, 3, 7];
+// dialog. The server decides the days offered and the date each one moves a task to, and moves
+// it (mail.activity.ems_snooze_choices / action_ems_snooze, models/shared/mail_activity.py). See
+// docs/en/developers/shared/daily_summary.md.
 
-// The three choices. With one task's `deadline`, each shows the date it would move to, by the
-// server's rule: the later of today and the due date, plus the days. "Today" is the server's
-// (serverNow), never the computer's clock.
+// The choices of the tasks `activityIds`. With a single task, each shows the date it would move to.
 export class EmsSnoozeChoices extends Component {
     static template = "ems.SnoozeChoices";
-    static props = {
-        onChoose: Function,
-        deadline: { type: [Object, { value: false }], optional: true },
-    };
+    static props = { activityIds: Array, onChoose: Function };
 
-    get choices() {
-        const today = serverNow().startOf("day");
-        const deadline = this.props.deadline && this.props.deadline.startOf("day");
-        const from = deadline && deadline > today ? deadline : today;
-        return SNOOZE_DAYS.map((days) => {
-            const date = this.props.deadline ? from.plus({ days }) : false;
-            return {
+    setup() {
+        this.orm = useService("orm");
+        onWillStart(async () => {
+            const choices = await this.orm.call("mail.activity", "ems_snooze_choices", [this.props.activityIds]);
+            this.choices = choices.map(({ days, date }) => ({
                 days,
                 label: days === 1 ? _t("1 day") : _t("%s days", days),
-                date: date ? date.toFormat("ccc d/L") : "",
-                isoDate: date ? date.toISODate() : "",
-            };
+                date: date ? deserializeDate(date).toFormat("ccc d/L") : "",
+                isoDate: date || "",
+            }));
         });
     }
 }
@@ -43,7 +36,7 @@ export class EmsSnoozeChoices extends Component {
 class EmsSnoozePopover extends Component {
     static template = "ems.SnoozePopover";
     static components = { EmsSnoozeChoices };
-    static props = { deadline: { optional: true }, onChoose: Function, close: Function };
+    static props = { activityIds: Array, onChoose: Function, close: Function };
 
     choose(days) {
         this.props.close();
@@ -71,7 +64,7 @@ export class EmsActivitySnooze extends Component {
             return;
         }
         this.popover.open(ev.currentTarget, {
-            deadline: this.props.record.data.date_deadline,
+            activityIds: [this.props.record.resId],
             onChoose: (days) => this.snooze(days),
         });
     }
@@ -85,10 +78,7 @@ export class EmsActivitySnooze extends Component {
 
 registry.category("view_widgets").add("ems_activity_snooze", {
     component: EmsActivitySnooze,
-    fieldDependencies: [
-        { name: "date_deadline", type: "date" },
-        { name: "active", type: "boolean" },
-    ],
+    fieldDependencies: [{ name: "active", type: "boolean" }],
     listViewWidth: 32,
 });
 

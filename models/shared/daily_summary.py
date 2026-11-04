@@ -84,9 +84,6 @@ class EmsDailySummaryUsers(models.Model):
 
     # --- when -------------------------------------------------------------------------------
 
-    def _ems_local_today(self, now):
-        return self.env['ems.datetime_utils'].utc_datetime_to_local(pytz.utc.localize(now)).date()
-
     def _ems_effective_digest_moment(self):
         """The user's moment; the students' classes only give one to a group tutor, anyone else
         gets the end of their own working day instead."""
@@ -143,7 +140,7 @@ class EmsDailySummaryUsers(models.Model):
         not sent on days they don't work."""
         self.ensure_one()
         now = fields.Datetime.now()
-        today = self._ems_local_today(now)
+        today = self.env['ems.datetime_utils'].utc_to_local_date(now)
         issue_date = issue_date or today
         if self._ems_effective_digest_moment() in END_OF_DAY_MOMENTS:
             due = self._ems_digest_moment_on(issue_date) or (fallback and self._ems_digest_fallback(issue_date))
@@ -245,7 +242,7 @@ class EmsDailySummaryUsers(models.Model):
         """The tasks the summary lists: open activities due today or overdue (company day), of
         `user` or of anyone. Postponing a task is moving its due date: it leaves the summary until
         that day and comes back on its own (issue #727)."""
-        today = self._ems_local_today(fields.Datetime.now())
+        today = self.env['ems.datetime_utils'].utc_to_local_date(fields.Datetime.now())
         return [('user_id', '=', user.id) if user else ('user_id', '!=', False), ('date_deadline', '<=', today)]
 
     def _ems_digest_has_issues(self):

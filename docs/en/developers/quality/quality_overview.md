@@ -148,7 +148,7 @@ stay English in the source and are translated through `i18n/ca_ES.po` and `i18n/
 ## `ems.minute` — lifecycle
 
 **Language.** The title (`name`) and the scope (`scope_name`) are stored computes, so they are built in
-the centre language (`_ems_centre_lang()`, which reads `res.company.ems_lang`, see
+the centre language (`res.company.ems_lang`, through `res.company._ems_centre_env()`, see
 [company.md](../settings/company.md)) rather than in the language of whoever creates the minute; the PDF,
 the call and the codes (`common.scope_code`) use the same language.
 
@@ -298,7 +298,7 @@ in a later minute), kept in `minute_followup_id` so unticking it removes that en
 prints "Done" in its deadline column, and it is not carried into the next minute.
 The text EMS writes into a follow-up entry on its own (an agreement done or reviewed in a minute with
 nothing written about it), and the comment every entry posts to the agreement's followers, are stored, so
-they are in the centre's language (`ems.minute._ems_centre_env()`), whatever language the writer works in.
+they are in the centre's language (`res.company._ems_centre_env()`), whatever language the writer works in.
 
 ## Numbering
 

@@ -58,7 +58,7 @@ and Direction and the withdrawal to 3 February (5 more).
 
 | Step | Responsible | Day | Confirms |
 |---|---|---|---|
-| Contact with the family | Tutor | 5 school days | Phone call |
+| Contact with the family | Tutor | 5 school days | Phone call, email to the family |
 | Ex officio withdrawal warning | Secretariat | 10 school days | Email to the family, eNotum |
 | Green light from Direction | Direction | 15 school days | Green light |
 | Withdrawal | Secretariat | 15 school days | Esfera, SAGA, eNotum, email to the family |
@@ -155,15 +155,21 @@ circuit come with the next phases.
 ## Emails, texts to copy and the case file PDF (phase 3)
 
 - **Emails to the family** (`mails/contacts/ex_officio_withdrawal.xml`, `FAMILY_TEMPLATES` per circuit and step):
-  post-compulsory tutor (optional: call confirmed / family not reached), Secretariat's warning (both circuits,
-  one template with a `t-if` on the circuit), compulsory Secretariat's notice. Never sent on their own: the
-  step's block offers *Send an email to the family* (`can_email_family`: whoever may do the current step, from
-  its day on), which opens `ems.ex_officio_withdrawal.email_wizard` with the template rendered in the
-  recipients' language (subject and body editable). Recipients: `res.partner._ems_student_and_family_recipients()`
+  post-compulsory tutor (two: call confirmed / family not reached), Secretariat's warning (both circuits, one
+  template with a `t-if` on the circuit), compulsory Secretariat's notice. Every one is required: the step has a
+  `family_email` check, which **only sending ticks** (`check.by_button`: read-only in the block, refused by
+  `check.write()` for anybody but the superuser), recording which template went (`email_template_id`).
+  Never sent on their own: the step's block shows them right after what to do (`family_email_state`, for
+  whoever may do the current step, from its day on): `phone_first` until the step's phone call is ticked and
+  saved, then `ready` with one button per template (the tutor's two, `family_email_two`; one otherwise), each
+  opening `ems.ex_officio_withdrawal.email_wizard` with **its own** template (`family_email_index` in the
+  context; the wizard offers no choice), rendered in the recipients' language (subject and body editable),
+  then `sent` with the day and which text (`family_email_sent`). One email per step: `action_open_family_email()`
+  and the wizard refuse in any other state. Recipients: `res.partner._ems_student_and_family_recipients()`
   (the student, plus the family while a minor or with `auth_share`), the ones with an email address (the
-  others are named in a warning). Sending refuses before the step's phone call is ticked, sends one email per
-  recipient with `send_mail()` (the edited text through `email_values`, inside the template's layout), ticks the
-  step's `family_email` check with today's date and logs the text sent in the chatter.
+  others are named in a warning). Sending sends one email per recipient with `send_mail()` (the edited text
+  through `email_values`, inside the template's layout), ticks the `family_email` check with today's date and
+  logs the text sent in the chatter.
 - **Texts to copy** (`COPY_TEMPLATES`): Social Services (compulsory, Coexistence) and the Inspection
   (compulsory, Direction), rendered in the centre language (`res.company.ems_lang`) as plain text
   (`copy_text`), listing the steps done (`_ems_done_step_lines()`), shown in the step's block with a copy button.

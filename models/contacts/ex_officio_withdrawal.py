@@ -57,7 +57,7 @@ STEP_CATALOG = {
     # Resolució EDF/293/2026, 8.6: the place is lost after 15 days. Counted in school days, so
     # nobody ever gets less margin than the regulation gives.
     'post_compulsory': (
-        ('tutor_contact', 'tutor', {'school_days': 5}, ('phone',)),
+        ('tutor_contact', 'tutor', {'school_days': 5}, ('phone', 'family_email')),
         ('secretariat_warning', 'secretariat', {'school_days': 10}, ('family_email', 'enotum')),
         ('direction_approval', 'direction', {'school_days': 15}, ('approval',)),
         ('withdrawal', 'secretariat', {'school_days': 15}, ('esfera', 'saga', 'enotum', 'family_email')),
@@ -78,7 +78,7 @@ STEP_CATALOG = {
 def _check_sentences():
     """What the responsible confirms by ticking each check, followed by its date."""
     return {
-        'phone': _("I confirm I phoned the family (or the student, if of age) on"),
+        'phone': _("I confirm I phoned the family (or the student, if of age), whether or not they answered, on"),
         'family_email': _("I confirm I emailed the family (or the student, if of age) on"),
         'enotum': _("I confirm I sent the eNotum on"),
         'esfera': _("I confirm I registered the withdrawal in Esfera on"),
@@ -127,6 +127,16 @@ def _step_instructions(circuit, code):
     return _("Process the ex officio withdrawal in Esfera and SAGA, notify it through eNotum and email the "
              "family, or the student if they are of age.")
 
+def _family_email_labels():
+    """How the case file names each email to the family once sent."""
+    return {
+        'ems.email_template_ex_officio_withdrawal_tutor_confirmation': _("confirmation of the phone call"),
+        'ems.email_template_ex_officio_withdrawal_tutor_unreachable': _("could not reach them by phone"),
+        'ems.email_template_ex_officio_withdrawal_family_notice': _("notice to the family"),
+        'ems.email_template_ex_officio_withdrawal_family_warning': _("withdrawal warning"),
+    }
+
+
 OPEN_STATES = ('proposal', 'in_progress', 'direction', 'secretariat')
 # The states whose current step is somebody's task: the procedure has started.
 STARTED_STATES = ('in_progress', 'direction', 'secretariat')
@@ -134,8 +144,8 @@ STARTED_STATES = ('in_progress', 'direction', 'secretariat')
 STATE_BY_STEP = {'direction_approval': 'direction', 'withdrawal': 'secretariat'}
 
 # The emails to the family each step offers (mails/contacts/ex_officio_withdrawal.xml), sent only when
-# its responsible asks; the first one is preselected. Sending one ticks the step's "Email to the
-# family", when it asks for it (the tutor's are optional).
+# its responsible asks, one button each: the tutor's two depend on whether the phone call reached
+# the family. Sending one ticks the step's "Email to the family", which nobody ticks by hand.
 FAMILY_TEMPLATES = {
     ('post_compulsory', 'tutor_contact'): ('ems.email_template_ex_officio_withdrawal_tutor_confirmation',
                                            'ems.email_template_ex_officio_withdrawal_tutor_unreachable'),
@@ -220,8 +230,14 @@ class EmsExOfficioWithdrawal(models.Model):
     waiting_message = fields.Char(string="Whose turn it is", compute='_compute_current_step_texts')
     history_html = fields.Html(string="History", compute='_compute_history_html', sanitize=False)
     # Phase 3: what the current step's block offers its responsible, once the step is open.
-    can_email_family = fields.Boolean(string="Can email the family", compute='_compute_step_tools')
-    email_family_optional = fields.Boolean(string="Email to the family optional", compute='_compute_step_tools')
+    # The family email part of the block: 'phone_first' until the step's phone call is ticked,
+    # 'ready' (its buttons), 'sent' (when and which); empty when the step sends none.
+    family_email_state = fields.Selection(string="Email to the family", compute='_compute_step_tools', selection=[
+        ('phone_first', 'After the phone call'), ('ready', 'Ready'), ('sent', 'Sent')])
+    family_email_two = fields.Boolean(string="Two emails to choose from", compute='_compute_step_tools')
+    family_email_intro = fields.Char(string="Email to the family intro", compute='_compute_step_tools')
+    family_email_sent = fields.Char(string="Email to the family sent", compute='_compute_step_tools')
+    current_step_timing = fields.Html(string="By when", compute='_compute_current_step_texts', sanitize=False)
     copy_text = fields.Text(string="Text to copy", compute='_compute_step_tools')
     can_print_for_inspection = fields.Boolean(string="Case file for the Inspection", compute='_compute_step_tools')
     # The student picker of a new case file (the view's domain="student_domain"): a tutor is only
@@ -277,7 +293,7 @@ class EmsExOfficioWithdrawal(models.Model):
                             ._description_selection(self.env))
         codes = dict(self.env['ems.ex_officio_withdrawal.step']._fields['code']._description_selection(self.env))
         for withdrawal in self:
-            withdrawal.current_step_instructions = False
+            withdrawal.current_step_instructions = withdrawal.current_step_timing = False
             withdrawal.waiting_message = False
             step = withdrawal.current_step_id
             if withdrawal.state == 'proposal' and not withdrawal.can_decide_proposal:
@@ -306,10 +322,11 @@ class EmsExOfficioWithdrawal(models.Model):
                 status = False
             help_line = _("Tick each action as you do it and save: you can do it in several goes. "
                           "\"Accept and continue\" (Actions menu) hands the case file over once every one is ticked.")
-            withdrawal.current_step_instructions = Markup(
-                "<p><strong>{step}</strong></p><p>{what}</p><p>{frame}</p>{status}{help}"
-            ).format(step=codes[step.code], what=_step_instructions(withdrawal.circuit, step.code), frame=frame,
-                     status=Markup("<p class='text-danger'>{}</p>").format(status) if status else '',
+            withdrawal.current_step_instructions = Markup("<p><strong>{step}</strong></p><p>{what}</p>").format(
+                step=codes[step.code], what=_step_instructions(withdrawal.circuit, step.code))
+            withdrawal.current_step_timing = Markup("<p>{frame}</p>{status}{help}").format(
+                frame=frame,
+                status=Markup("<p class='text-danger'>{}</p>").format(status) if status else '',
                      help=Markup("<p class='text-muted'>{}</p>").format(help_line)
                      if step.due_date <= today else '')
 
@@ -364,8 +381,9 @@ class EmsExOfficioWithdrawal(models.Model):
             ).format(date=_("Due"), step=_("Step"), responsible=_("Responsible"), done=_("Done"),
                      what=_("What was done"), rows=Markup("").join(rows))
 
-    @api.depends('state', 'current_step_id', 'step_ids.done_date', 'step_ids.check_ids.done')
-    @api.depends_context('uid')
+    @api.depends('state', 'current_step_id', 'step_ids.done_date', 'step_ids.check_ids.done',
+                 'step_ids.check_ids.date')
+    @api.depends_context('uid', 'lang')
     def _compute_step_tools(self):
         """The family emails, the text to copy and the case file PDF the current step offers to
         whoever may do it, from its day on."""
@@ -373,12 +391,40 @@ class EmsExOfficioWithdrawal(models.Model):
             step = withdrawal.current_step_id
             acts = withdrawal.can_accept_step and withdrawal._ems_current_step_open()
             key = (withdrawal.circuit, step.code)
-            withdrawal.can_email_family = acts and key in FAMILY_TEMPLATES
-            withdrawal.email_family_optional = 'family_email' not in step.check_ids.mapped('code')
+            withdrawal._ems_compute_family_email(step, FAMILY_TEMPLATES.get(key, ()) if acts else ())
             withdrawal.copy_text = withdrawal._ems_render_copy_text(COPY_TEMPLATES[key]) \
                 if acts and key in COPY_TEMPLATES else False
             withdrawal.can_print_for_inspection = acts and step.code == 'direction_approval' \
                 and 'inspection_email' in step.check_ids.mapped('code')
+
+    def _ems_compute_family_email(self, step, xmlids):
+        """The family email part of the current step's block (see family_email_state)."""
+        self.ensure_one()
+        self.family_email_state = self.family_email_intro = self.family_email_sent = False
+        self.family_email_two = len(xmlids) > 1
+        if not xmlids:
+            return
+        if len(xmlids) > 1:
+            self.family_email_intro = _(
+                "After the phone call, record it with an email to the family. Pick the button depending on "
+                "whether you reached them: EMS writes the right text, which you can review before sending it, "
+                "and ticks it in the list.")
+        else:
+            self.family_email_intro = _(
+                "Send the email to the family from here: EMS writes the text, which you can review before "
+                "sending it, and ticks it in the list.")
+        email_check = step.check_ids.filtered(lambda check: check.code == 'family_email')
+        phone = step.check_ids.filtered(lambda check: check.code == 'phone')
+        if email_check.done:
+            self.family_email_state = 'sent'
+            labels = {self.env.ref(xmlid).id: label for xmlid, label in _family_email_labels().items()}
+            self.family_email_sent = _("Email sent on %(date)s (%(which)s): its text is in the history.",
+                                       date=format_date(self.env, email_check.date),
+                                       which=labels.get(email_check.email_template_id.id, '-'))
+        elif phone and not phone.done:
+            self.family_email_state = 'phone_first'
+        else:
+            self.family_email_state = 'ready'
 
     @api.depends('state')
     @api.depends_context('uid')
@@ -588,16 +634,21 @@ class EmsExOfficioWithdrawal(models.Model):
     def action_open_family_email(self):
         """The email to the family of the current step, ready to review and send."""
         self.ensure_one()
-        if not self.can_email_family:
+        if not self.family_email_state:
             raise UserError(_("Only the responsible of the current step can email the family, from its day on."))
-        templates = self._ems_family_templates()
+        if self.family_email_state != 'ready':
+            raise UserError(_("Phone the family first: the email only comes after the phone call.")
+                            if self.family_email_state == 'phone_first' else
+                            _("The email to the family of this step has already been sent."))
+        # Each button sends its own text: the first, or the second (the tutor's "not reached").
+        template = self._ems_family_templates()[self.env.context.get('family_email_index', 0)]
         return {
             'type': 'ir.actions.act_window',
             'name': _("Email to the family"),
             'res_model': 'ems.ex_officio_withdrawal.email_wizard',
             'view_mode': 'form',
             'target': 'new',
-            'context': {'default_withdrawal_id': self.id, 'default_template_id': templates[:1].id},
+            'context': {'default_withdrawal_id': self.id, 'default_template_id': template.id},
         }
 
     def action_print_case_file(self):
@@ -748,6 +799,10 @@ class EmsExOfficioWithdrawalCheck(models.Model):
     label = fields.Char(string="I confirm", compute='_compute_label')
     done = fields.Boolean(string="Done")
     date = fields.Date(string="On", default=lambda self: self.env['ems.datetime_utils'].get_local_today())
+    # The email to the family: which text was sent (the only way it gets ticked, see write()).
+    email_template_id = fields.Many2one(string="Email sent", comodel_name='mail.template', readonly=True,
+                                        ondelete='set null')
+    by_button = fields.Boolean(string="Ticked by sending", compute='_compute_by_button')
 
     @api.depends('code')
     @api.depends_context('lang')
@@ -755,6 +810,12 @@ class EmsExOfficioWithdrawalCheck(models.Model):
         sentences = _check_sentences()
         for check in self:
             check.label = sentences.get(check.code)
+
+    @api.depends('code', 'step_id.code', 'withdrawal_id.circuit')
+    def _compute_by_button(self):
+        for check in self:
+            check.by_button = check.code == 'family_email' and \
+                (check.withdrawal_id.circuit, check.step_id.code) in FAMILY_TEMPLATES
 
     @api.constrains('done', 'date')
     def _check_date(self):
@@ -775,6 +836,8 @@ class EmsExOfficioWithdrawalCheck(models.Model):
             if any(not check.is_current or not check.withdrawal_id.can_accept_step
                    or not check.withdrawal_id._ems_current_step_open() for check in self):
                 raise UserError(_("Only the responsible of the current step can change it."))
+            if self.filtered('by_button'):
+                raise UserError(_("The email to the family is ticked by sending it from the case file."))
         return super().write(vals)
 
 
@@ -787,11 +850,8 @@ class EmsExOfficioWithdrawalEmailWizard(models.TransientModel):
 
     withdrawal_id = fields.Many2one(string="Case file", comodel_name='ems.ex_officio_withdrawal', required=True,
                                     ondelete='cascade')
-    allowed_template_ids = fields.Many2many(string="Allowed templates", comodel_name='mail.template',
-                                            compute='_compute_recipients')
-    template_id = fields.Many2one(string="Which email", comodel_name='mail.template', required=True,
-                                  domain="[('id', 'in', allowed_template_ids)]")
-    offers_choice = fields.Boolean(string="Offers a choice of email", compute='_compute_recipients')
+    # Set by the button that opens it, never chosen here.
+    template_id = fields.Many2one(string="Which email", comodel_name='mail.template', required=True, readonly=True)
     recipient_ids = fields.Many2many(string="To", comodel_name='res.partner', compute='_compute_recipients')
     missing_email = fields.Char(string="Without an email address", compute='_compute_recipients')
     subject = fields.Char(string="Subject", compute='_compute_text', store=True, readonly=False)
@@ -805,8 +865,6 @@ class EmsExOfficioWithdrawalEmailWizard(models.TransientModel):
                 self.env['res.partner']
             wizard.recipient_ids = recipients.filtered('email')
             wizard.missing_email = ", ".join(recipients.filtered(lambda partner: not partner.email).mapped('name'))
-            wizard.allowed_template_ids = withdrawal._ems_family_templates() if withdrawal else False
-            wizard.offers_choice = len(wizard.allowed_template_ids) > 1
 
     @api.depends('template_id')
     def _compute_text(self):
@@ -828,23 +886,24 @@ class EmsExOfficioWithdrawalEmailWizard(models.TransientModel):
     def action_send(self):
         self.ensure_one()
         withdrawal = self.withdrawal_id
-        if not withdrawal.can_email_family:
+        if not withdrawal.family_email_state:
             raise UserError(_("Only the responsible of the current step can email the family, from its day on."))
         if self.template_id not in withdrawal._ems_family_templates():
             raise UserError(_("This text is not one the current step offers."))
+        if withdrawal.family_email_state != 'ready':
+            raise UserError(_("Phone the family first: the email only comes after the phone call.")
+                            if withdrawal.family_email_state == 'phone_first' else
+                            _("The email to the family of this step has already been sent."))
         step = withdrawal.current_step_id
-        phone = step.check_ids.filtered(lambda check: check.code == 'phone')
-        if phone and not phone.done:
-            raise UserError(_("Phone the family first: the email only comes after the phone call."))
         if not self.recipient_ids:
             raise UserError(_("Nobody to send it to has an email address."))
         for recipient in self.recipient_ids:
             self.template_id.sudo().with_context(lang=self._ems_lang()).send_mail(
                 withdrawal.id, force_send=False,
                 email_values={'subject': self.subject, 'body_html': self.body, 'email_to': recipient.email})
-        email_check = step.check_ids.filtered(lambda check: check.code == 'family_email')
-        if email_check:
-            email_check.sudo().write({'done': True, 'date': self.env['ems.datetime_utils'].get_local_today()})
+        step.check_ids.filtered(lambda check: check.code == 'family_email').sudo().write({
+            'done': True, 'date': self.env['ems.datetime_utils'].get_local_today(),
+            'email_template_id': self.template_id.id})
         withdrawal._message_log(body=Markup("{intro}<br/><strong>{subject}</strong><br/>{body}").format(
             intro=_("Email sent to %s:", ", ".join(self.recipient_ids.mapped('email'))),
             subject=self.subject, body=self.body))

@@ -7516,6 +7516,7 @@ msgstr "Estado del envío"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_notice__state__sent model:ir.model.fields.selection,name:ems.selection__ems_notice_line__display_status__done
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_tutor__status__sent
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__family_email_state__sent
 msgid "Sent"
 msgstr "Enviado"
 
@@ -29339,6 +29340,7 @@ msgstr "Correo electrónico a la Inspección"
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_check__code__family_email
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_email_wizard_form
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__family_email_state
 msgid "Email to the family"
 msgstr "Correo electrónico a la familia"
 
@@ -29375,12 +29377,6 @@ msgstr "Confirmo que he enviado a la Inspección, por correo electrónico, el pr
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "I confirm I emailed the family (or the student, if of age) on"
 msgstr "Confirmo que he enviado un correo electrónico a la familia (o al alumno, si es mayor de edad) en fecha"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
-msgid "I confirm I phoned the family (or the student, if of age) on"
-msgstr "Confirmo que he llamado a la familia (o al alumno, si es mayor de edad) en fecha"
 
 #. module: ems
 #. odoo-python
@@ -29762,16 +29758,6 @@ msgid "Absenteeism of {{ object.student_id.name }}"
 msgstr "Absentismo de {{ object.student_id.name }}"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__allowed_template_ids
-msgid "Allowed templates"
-msgstr "Plantillas permitidas"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__can_email_family
-msgid "Can email the family"
-msgstr "Puede escribir a la familia"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__can_print_for_inspection
 msgid "Case file for the Inspection"
 msgstr "Expediente para la Inspección"
@@ -29828,11 +29814,6 @@ msgid "Email sent to %s:"
 msgstr "Correo enviado a %s:"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__email_family_optional
-msgid "Email to the family optional"
-msgstr "Correo a la familia opcional"
-
-#. module: ems
 #: model:ir.model,name:ems.model_ems_ex_officio_withdrawal_email_wizard
 msgid "Ex officio withdrawal email to the family"
 msgstr "Correo de baja de oficio a la familia"
@@ -29848,11 +29829,6 @@ msgstr "Baja de oficio de {{ object.student_id.name }}"
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "Nobody to send it to has an email address."
 msgstr "Ninguno de los destinatarios tiene dirección de correo electrónico."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_email_wizard__offers_choice
-msgid "Offers a choice of email"
-msgstr "Ofrece elegir el correo"
 
 #. module: ems
 #. odoo-python
@@ -29875,16 +29851,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
 msgid "Print the case file"
 msgstr "Imprimir el expediente"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
-msgid "Send an email to the family"
-msgstr "Enviar un correo a la familia"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
-msgid "Send an email to the family (optional)"
-msgstr "Enviar un correo a la familia (opcional)"
 
 #. module: ems
 #. odoo-python
@@ -29928,3 +29894,128 @@ msgstr "Texto"
 #: code:addons/ems/models/settings/mail_guard.py:0
 msgid "Not sent: OdooBot's emails are off on this development machine. Set the system parameter ems.dev_mail_odoobot to True to receive them."
 msgstr "No enviado: los correos de OdooBot están desactivados en esta máquina de desarrollo. Pon el parámetro del sistema ems.dev_mail_odoobot a True para recibirlos."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "<i class=\"fa fa-check me-1\" title=\"Sent\"/>"
+msgstr "<i class=\"fa fa-check me-1\" title=\"Enviado\"/>"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__family_email_state__phone_first
+msgid "After the phone call"
+msgstr "Después de la llamada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "After the phone call, record it with an email to the family. Pick the button depending on whether you reached them: EMS writes the right text, which you can review before sending it, and ticks it in the list."
+msgstr "Después de la llamada, deja constancia con un correo electrónico a la familia. Elige el botón según si los has podido localizar o no: EMS pone el texto que toca, que podrás revisar antes de enviarlo, y lo marca en la lista."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__current_step_timing
+msgid "By when"
+msgstr "Plazos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__email_template_id
+msgid "Email sent"
+msgstr "Correo enviado"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Email sent on %(date)s (%(which)s): its text is in the history."
+msgstr "Correo enviado el %(date)s (%(which)s): puedes ver su texto en el historial."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__family_email_intro
+msgid "Email to the family intro"
+msgstr "Introducción del correo a la familia"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__family_email_sent
+msgid "Email to the family sent"
+msgstr "Correo a la familia enviado"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "I confirm I phoned the family (or the student, if of age), whether or not they answered, on"
+msgstr "Confirmo que he llamado a la familia (o al alumno, si es mayor de edad), tanto si me han respondido como si no, en fecha"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "I did not reach them: send the notice"
+msgstr "No los he localizado: envía el aviso"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "I reached them: send the confirmation"
+msgstr "Los he localizado: envía la confirmación"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "Once you have ticked the phone call and saved, you can send the email from here."
+msgstr "Cuando hayas marcado la llamada y guardado, aquí podrás enviar el correo."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__family_email_state__ready
+msgid "Ready"
+msgstr "Listo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "Send the email to the family"
+msgstr "Envía el correo a la familia"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Send the email to the family from here: EMS writes the text, which you can review before sending it, and ticks it in the list."
+msgstr "Envía el correo a la familia desde aquí: EMS pone el texto, que podrás revisar antes de enviarlo, y lo marca en la lista."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "The email to the family is ticked by sending it from the case file."
+msgstr "El correo a la familia se marca enviándolo desde el expediente."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "The email to the family of this step has already been sent."
+msgstr "El correo a la familia de este paso ya se ha enviado."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__by_button
+msgid "Ticked by sending"
+msgstr "Se marca al enviarlo"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__family_email_two
+msgid "Two emails to choose from"
+msgstr "Dos correos para elegir"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "confirmation of the phone call"
+msgstr "confirmación de la llamada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "could not reach them by phone"
+msgstr "no se los ha podido localizar por teléfono"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "notice to the family"
+msgstr "aviso a la familia"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "withdrawal warning"
+msgstr "aviso de baja"

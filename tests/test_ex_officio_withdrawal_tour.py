@@ -78,3 +78,15 @@ class TestExOfficioWithdrawalTour(HttpCase):
         self.assertTrue(self.env['mail.mail'].search([('model', '=', case_file._name), ('res_id', '=', case_file.id),
                                                      ('email_to', '=', 'eow.tour.student@example.com')]))
         self.assertEqual(case_file.step_ids[1].check_ids.mapped('date'), [today, today])
+
+    def test_tutor_emails_the_family_from_the_steps_text(self):
+        today = shift_ems_clock(self).date()
+        case_file = self.env['ems.ex_officio_withdrawal'].create({
+            'student_id': self.student.id, 'first_absence_date': today - timedelta(days=200)})
+        case_file.action_start()
+        self.start_tour(f"/odoo/action-ems.action_ex_officio_withdrawal/{case_file.id}",
+                        "ems_ex_officio_withdrawal_tutor_email", login=self.tutor_user.login)
+        phone, email = case_file.current_check_ids
+        self.assertTrue(phone.done and email.done)
+        self.assertEqual(email.email_template_id,
+                         self.env.ref('ems.email_template_ex_officio_withdrawal_tutor_unreachable'))

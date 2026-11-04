@@ -99,28 +99,44 @@
                              confirm with its day (saved in as many goes as needed) and the notes. -->
                         <div name="current_step" class="border rounded p-3 mb-3 bg-light" invisible="not can_accept_step">
                             <field name="current_step_instructions" nolabel="1" readonly="1"/>
+                            <!-- The email to the family, right after what to do: its buttons (each
+                                 with its own text) once the phone call is ticked, then when it went. -->
+                            <field name="family_email_state" invisible="1"/>
+                            <field name="family_email_two" invisible="1"/>
+                            <div name="family_email" class="mb-3" invisible="not family_email_state">
+                                <p><field name="family_email_intro" nolabel="1" class="d-inline"/></p>
+                                <p class="text-muted" invisible="family_email_state != 'phone_first'">
+                                    Once you have ticked the phone call and saved, you can send the email from here.
+                                </p>
+                                <div class="d-flex flex-wrap gap-2" invisible="family_email_state != 'ready'">
+                                    <button name="action_open_family_email" type="object" class="btn-secondary"
+                                            icon="fa-envelope" string="I reached them: send the confirmation"
+                                            context="{'family_email_index': 0}" invisible="not family_email_two"/>
+                                    <button name="action_open_family_email" type="object" class="btn-secondary"
+                                            icon="fa-envelope" string="I did not reach them: send the notice"
+                                            context="{'family_email_index': 1}" invisible="not family_email_two"/>
+                                    <button name="action_open_family_email" type="object" class="btn-secondary"
+                                            icon="fa-envelope" string="Send the email to the family"
+                                            context="{'family_email_index': 0}" invisible="family_email_two"/>
+                                </div>
+                                <p class="text-success" invisible="family_email_state != 'sent'">
+                                    <i class="fa fa-check me-1" title="Sent"/><field name="family_email_sent" nolabel="1" class="d-inline"/>
+                                </p>
+                            </div>
+                            <field name="current_step_timing" nolabel="1" readonly="1"/>
                             <field name="current_check_ids" nolabel="1">
                                 <list editable="bottom" create="0" delete="0">
-                                    <field name="done" string="Done" width="60px" readonly="not parent.current_step_open"/>
+                                    <field name="by_button" column_invisible="1"/>
+                                    <field name="done" string="Done" width="60px" readonly="by_button or not parent.current_step_open"/>
                                     <field name="label" string="I confirm"/>
-                                    <field name="date" string="On" required="done" width="130px" readonly="not parent.current_step_open"/>
+                                    <field name="date" string="On" required="done" width="130px" readonly="by_button or not parent.current_step_open"/>
                                 </list>
                             </field>
-                            <!-- Phase 3: the family email the step offers, and the text to copy
-                                 (Social Services, the Inspection) with the case file PDF. -->
-                            <field name="can_email_family" invisible="1"/>
-                            <field name="email_family_optional" invisible="1"/>
+                            <!-- The text to copy (Social Services, the Inspection) with the case file PDF. -->
                             <field name="can_print_for_inspection" invisible="1"/>
-                            <div class="d-flex gap-2 my-2" invisible="not can_email_family and not can_print_for_inspection">
-                                <button name="action_open_family_email" type="object" class="btn-secondary"
-                                        icon="fa-envelope" string="Send an email to the family"
-                                        invisible="not can_email_family or email_family_optional"/>
-                                <button name="action_open_family_email" type="object" class="btn-secondary"
-                                        icon="fa-envelope" string="Send an email to the family (optional)"
-                                        invisible="not can_email_family or not email_family_optional"/>
+                            <div class="d-flex gap-2 my-2" invisible="not can_print_for_inspection">
                                 <button name="action_print_case_file" type="object" class="btn-secondary"
-                                        icon="fa-file-pdf-o" string="Download the case file (PDF)"
-                                        invisible="not can_print_for_inspection"/>
+                                        icon="fa-file-pdf-o" string="Download the case file (PDF)"/>
                             </div>
                             <div invisible="not copy_text" class="my-2">
                                 <p class="text-muted mb-1">Copy this text, send it yourself and tick that you sent it:</p>
@@ -146,15 +162,12 @@
             <field name="arch" type="xml">
                 <form string="Email to the family">
                     <field name="withdrawal_id" invisible="1"/>
-                    <field name="allowed_template_ids" invisible="1"/>
-                    <field name="offers_choice" invisible="1"/>
                     <div class="alert alert-warning" role="alert" invisible="not missing_email">
                         Without an email address, they will not get it: <field name="missing_email" nolabel="1" class="d-inline"/>
                     </div>
                     <group>
                         <field name="recipient_ids" widget="many2many_tags" readonly="1"/>
-                        <field name="template_id" options="{'no_create': True, 'no_open': True}" widget="radio"
-                               invisible="not offers_choice"/>
+                        <field name="template_id" invisible="1"/>
                         <field name="subject"/>
                     </group>
                     <field name="body" nolabel="1"/>

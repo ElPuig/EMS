@@ -157,3 +157,49 @@ registry.category("web_tour.tours").add("ems_ex_officio_withdrawal_secretariat_s
         },
     ],
 });
+
+// Issue #726: the post-compulsory tutor's email to the family, inside the step's text. Before the
+// phone call there is only a hint; once it is ticked and saved, one button per text. "I did not
+// reach them" opens its own notice, and sending it ticks the email and says when it went (see
+// test_ex_officio_withdrawal_tour.py).
+registry.category("web_tour.tours").add("ems_ex_officio_withdrawal_tutor_email", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view div[name='family_email']:contains('Once you have ticked the phone call')",
+            content: "Before the phone call, only a hint",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='current_check_ids'] .o_data_row:nth-child(1) .o_data_cell[name='done']",
+            content: "Tick the phone call (one click enters the row and ticks it)",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_button_save",
+            content: "Save",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view div[name='family_email'] button[name='action_open_family_email']:contains('I did not reach them')",
+            content: "The family was not reached: send the notice",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='body']:contains('EOW Tour Student')",
+            content: "Its own text (in the family's language; which one, checked in Python), with no choice of another one",
+        },
+        {
+            trigger: ".modal:not(:has(.o_field_widget[name='template_id'])) .modal-footer button[name='action_send']",
+            content: "Send it",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view div[name='family_email'] .text-success:contains('could not reach them by phone')",
+            content: "When it went and which text",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='current_check_ids'] .o_data_row:nth-child(2) .o_data_cell[name='done'] input:checked:disabled",
+            content: "Sending it ticked the email, which nobody ticks by hand",
+        },
+    ],
+});

@@ -559,6 +559,16 @@ class TestQualityMinute(TransactionCase):
         self.assertIn('Said about it.', html, "what was written on each item is printed, without waiting for the approval to put it together")
         self.assertEqual(self.env['ems.minute']._ems_people_label(self.env['hr.employee.public'].browse(self.employee.id)), self.employee.name)
 
+    def test_the_pdf_is_printed_in_the_centre_language_whoever_prints_it(self):
+        # The class sets the centre language to the source one (en_US): a user working in Spanish
+        # still gets the minute in it.
+        if not self.env['res.lang']._lang_get('es_ES'):
+            self.skipTest("needs Spanish installed")
+        minute = self._minute()
+        html = self.env['ir.actions.report'].with_context(lang='es_ES')._render_qweb_html(
+            'ems.action_report_minute', minute.ids)[0].decode()
+        self.assertIn('lang="en-US"', html)
+
     def test_the_development_is_put_together_from_the_items(self):
         minute = self._minute(agenda_ids=[
             (0, 0, {'sequence': 20, 'name': 'Second item', 'notes': '<p>Said second.</p>'}),

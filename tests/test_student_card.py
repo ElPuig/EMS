@@ -143,6 +143,16 @@ class TestStudentCard(TransactionCase):
         self.assertIn('lang="ca-ES"', html)
         self.assertIn('Aquest carnet és personal i intransferible', html)
 
+    def test_printed_in_another_centre_language(self):
+        # The card follows the centre language (res.company.ems_lang), not a fixed Catalan.
+        if not self.env['res.lang']._lang_get('es_ES'):
+            self.skipTest("needs Spanish installed")
+        self.env['res.lang']._activate_lang('ca_ES')
+        self.env.company.ems_lang = 'es_ES'
+        html = self.env['ir.actions.report'].with_context(lang='ca_ES')._render_qweb_html(
+            'ems.report_student_card', self.own_a.ids)[0].decode()
+        self.assertIn('lang="es-ES"', html)
+
     def test_student_without_main_group(self):
         # No level to show: the card still prints, with a grey band.
         self.own_a.main_group_id = False

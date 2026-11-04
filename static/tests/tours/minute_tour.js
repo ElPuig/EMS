@@ -265,3 +265,76 @@ registry.category("web_tour.tours").add("ems_minute_attendance_lists", {
         },
     ],
 });
+
+// Issue #755: the minute saves by itself while it is written, and that save must not take the
+// cursor away from the text box being written in: whoever writes carries on typing without looking.
+// Two pauses, together longer than the least time between two saves plus the writer's pause and
+// one tick of the autosave (minute_form.js); each one shorter than a tour step's time limit.
+const AUTOSAVE_WAIT = 7500;
+
+function wait(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function keepsWriting(blockIndex, text) {
+    const editable = `.o_field_widget[name='agenda_ids'] .o_ems_text_block:nth-child(${blockIndex}) .o_ems_text_block_body .odoo-editor-editable`;
+    return [
+        {
+            trigger: editable,
+            content: "Write the first words of what is said about the item",
+            run: `editor ${text}`,
+        },
+        {
+            trigger: editable,
+            content: "Pause, long enough for the form to save by itself",
+            run: () => wait(AUTOSAVE_WAIT),
+        },
+        {
+            trigger: editable,
+            content: "Still pausing",
+            run: () => wait(AUTOSAVE_WAIT),
+        },
+        {
+            trigger: editable,
+            content: "The cursor is still in the same text box, so writing goes on there",
+            run() {
+                const active = document.activeElement;
+                if (!active || !active.closest || active.closest(".odoo-editor-editable") !== this.anchor) {
+                    throw new Error(`The autosave took the focus away from the text being written (now on ${active && active.outerHTML.slice(0, 80)})`);
+                }
+                document.execCommand("insertText", false, " and more");
+            },
+        },
+        {
+            trigger: `${editable}:contains('${text} and more')`,
+            content: "What is typed after the save lands right after the first words",
+        },
+    ];
+}
+
+registry.category("web_tour.tours").add("ems_minute_autosave_keeps_focus", {
+    test: true,
+    steps: () => [
+        ...keepsWriting(1, "First words"),
+        {
+            trigger: ".o_field_widget[name='agenda_ids'] .o_ems_text_block_add",
+            content: "Add a new item during the meeting",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='agenda_ids'] .o_ems_text_block:nth-child(2) .o_field_widget[name='name'] input",
+            content: "Name it",
+            run: "edit Second item",
+        },
+        ...keepsWriting(2, "New words"),
+        {
+            trigger: ".o_form_view .o_form_button_save",
+            content: "Save by hand",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_form_saved",
+            content: "Saved",
+        },
+    ],
+});

@@ -5,7 +5,7 @@
         <div class="o_ems_snooze_choices d-flex gap-2">
             <button t-foreach="choices" t-as="choice" t-key="choice.days" type="button"
                     class="o_ems_snooze_choice btn btn-outline-secondary d-flex flex-column align-items-center"
-                    t-att-data-days="choice.days" t-on-click="() => props.onChoose(choice.days)">
+                    t-att-data-days="choice.days" t-att-data-date="choice.isoDate" t-on-click="() => props.onChoose(choice.days)">
                 <span class="fw-bold" t-esc="choice.label"/>
                 <small t-if="choice.date" class="text-muted" t-esc="choice.date"/>
             </button>

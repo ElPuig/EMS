@@ -28,11 +28,15 @@ export class EmsSnoozeChoices extends Component {
         const today = serverNow().startOf("day");
         const deadline = this.props.deadline && this.props.deadline.startOf("day");
         const from = deadline && deadline > today ? deadline : today;
-        return SNOOZE_DAYS.map((days) => ({
-            days,
-            label: days === 1 ? _t("1 day") : _t("%s days", days),
-            date: this.props.deadline ? from.plus({ days }).toFormat("ccc d/L") : "",
-        }));
+        return SNOOZE_DAYS.map((days) => {
+            const date = this.props.deadline ? from.plus({ days }) : false;
+            return {
+                days,
+                label: days === 1 ? _t("1 day") : _t("%s days", days),
+                date: date ? date.toFormat("ccc d/L") : "",
+                isoDate: date ? date.toISODate() : "",
+            };
+        });
     }
 }
 

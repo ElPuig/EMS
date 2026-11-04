@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { serverNow } from "@ems/js/backend/server_clock";
 
 // Issue #727: snoozing tasks in My Activities (the to-do tray's "View all activities"). A row's
 // bell opens a popover with 1/3/7 days; the header's "Snooze" offers the same for the selected
@@ -14,6 +15,21 @@ registry.category("web_tour.tours").add("ems_activity_snooze", {
             trigger: ".o_data_row:contains('Snooze tour task A') .o_ems_activity_snooze",
             content: "Open task A's snooze popover",
             run: "click",
+        },
+        {
+            // Task A was due yesterday, so each choice counts from today.
+            trigger: ".o_popover .o_ems_snooze_choice[data-days='7']",
+            content: "The choices show the date the task would move to",
+            run() {
+                const today = serverNow().startOf("day");
+                for (const days of [1, 3, 7]) {
+                    const chip = document.querySelector(`.o_popover .o_ems_snooze_choice[data-days='${days}']`);
+                    const expected = today.plus({ days }).toISODate();
+                    if (chip.dataset.date !== expected) {
+                        throw new Error(`${days} days: shows ${chip.dataset.date}, expected ${expected}`);
+                    }
+                }
+            },
         },
         {
             trigger: ".o_popover .o_ems_snooze_choice[data-days='3']",

@@ -1,9 +1,5 @@
-/* Issue #727: My Activities shows five buttons per row (Done, Cancel, Snooze 1d/3d/7d). Odoo puts
-   them in one cell whose width it sizes for fewer, so the Snooze labels were cut ("Snooze 1...")
-   and 1d could not be told from 3d. Only in a list that has the EMS snooze buttons. The width is
-   !important because Odoo sets the column widths inline. */
-.o_list_table:has(button[name="action_ems_snooze_1d"]) th.o_list_button,
-.o_list_table:has(button[name="action_ems_snooze_1d"]) td.o_list_button {
-    width: 140px !important;
-    min-width: 140px;
+/* The Snooze selector's choices (issue #727, static/src/js/backend/activity_snooze.js). */
+.o_ems_snooze_choice {
+    min-width: 5.5rem;
+    line-height: 1.2;
 }

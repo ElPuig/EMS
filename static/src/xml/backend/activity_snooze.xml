@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="ems.SnoozeChoices">
+        <div class="o_ems_snooze_choices d-flex gap-2">
+            <button t-foreach="choices" t-as="choice" t-key="choice.days" type="button"
+                    class="o_ems_snooze_choice btn btn-outline-secondary d-flex flex-column align-items-center"
+                    t-att-data-days="choice.days" t-on-click="() => props.onChoose(choice.days)">
+                <span class="fw-bold" t-esc="choice.label"/>
+                <small t-if="choice.date" class="text-muted" t-esc="choice.date"/>
+            </button>
+        </div>
+    </t>
+
+    <t t-name="ems.SnoozePopover">
+        <div class="o_ems_snooze_popover p-3">
+            <div class="mb-2 fw-bold">Snooze until...</div>
+            <EmsSnoozeChoices deadline="props.deadline" onChoose="(days) => this.choose(days)"/>
+        </div>
+    </t>
+
+    <t t-name="ems.ActivitySnooze">
+        <button t-if="isActive" type="button" class="o_ems_activity_snooze btn btn-link p-0 text-warning"
+                title="Snooze" aria-label="Snooze" t-on-click.stop="onClick">
+            <i class="fa fa-bell-slash"/>
+        </button>
+    </t>
+
+    <t t-name="ems.ActivitySnoozeDialog">
+        <div class="o_ems_snooze_dialog p-3">
+            <p>Snooze the selected tasks until...</p>
+            <EmsSnoozeChoices onChoose="(days) => this.snooze(days)"/>
+        </div>
+    </t>
+
+</templates>

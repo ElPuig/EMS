@@ -123,24 +123,22 @@ few minutes, finds its owner among the candidates again once it is due and sched
 moment. Someone whose tasks are all due later has no summary scheduled at all.
 
 How people postpone one, in My Activities (to-do tray 🕒 → "View all activities"; it opens on what
-is due today or overdue), per row or for the selected tasks (`models/shared/mail_activity.py`,
-`views/shared/mail_activity/list.xml`):
+is due today or overdue). Each row is one line of icons (the text is the tooltip): Done, Cancel and
+a bell, the `ems_activity_snooze` view widget (`static/src/js/backend/activity_snooze.js`), in place
+of Odoo's "Snooze 7d". The bell opens a popover with three choices, 1, 3 and 7 days, each showing
+the date the task would move to (computed with `serverNow()`, never the computer's clock). The
+list's header has one "Snooze" (`action_ems_snooze_dialog`) that opens the same choices for the
+selected tasks, as a client action with `target: 'new'` (Odoo shows it in a dialog and reloads the
+list once it closes; the header only takes buttons, not widgets). Views:
+`views/shared/mail_activity/list.xml`.
 
-| Button | Method | New due date |
-|---|---|---|
-| Snooze 1d | `action_ems_snooze_1d` | later of (today, due date) + 1 day |
-| Snooze 3d | `action_ems_snooze_3d` | later of (today, due date) + 3 days |
-| Snooze 7d (Odoo's own) | `action_snooze` | later of (today, due date) + 7 days |
-
-All three go through `mail.activity._ems_snooze(days)`, which takes the company's today
-(`ems.datetime_utils.get_local_today()`): Odoo's own `action_snooze` uses the server's UTC date,
-a day behind just after local midnight. Permissions are Odoo's: only whoever can write the
+Both call `mail.activity.action_ems_snooze(days)` (`models/shared/mail_activity.py`), which only
+accepts 1, 3 or 7 and moves the due date to the later of (today, due date) + `days`. Odoo's own
+`action_snooze` is overridden the same way (7 days), in case anything else calls it. Today is the
+company's (`ems.datetime_utils.get_local_today()`): Odoo's own `action_snooze` uses the server's UTC
+date, a day behind just after local midnight. Permissions are Odoo's: only whoever can write the
 activity (its owner, or someone with write access to its record) can snooze it. Editing the due
 date in the record's chatter works the same way.
-
-With five buttons per row (Done, Cancel and the three snoozes), Odoo's single button cell is sized
-too narrow and cuts their labels; `static/src/css/backend/activity_snooze.css` widens it, only in a
-list that has the EMS snooze buttons.
 
 **Tasks EMS creates are due today**, so they reach the first summary after they appear and their
 owner decides whether to postpone them: the attendance correction request for its approver, the

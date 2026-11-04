@@ -1111,7 +1111,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
 
     def test_capture_daily_summary_snooze(self):
         # 3. Postponing a task (issue #727): My Activities, which opens on the teacher's own tasks
-        # due today or overdue, with Snooze 1d/3d/7d on each row. Invented records only. Dated from
+        # due today or overdue, with the first row's snooze popover open. Invented records only. Dated from
         # the server's day: the list's own "today" filter is the headless browser's, in UTC.
         today = fields.Date.today()
         tasks = (
@@ -1125,7 +1125,12 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
                 date_deadline=today + timedelta(days=offset))
         self._capture(
             '/odoo/action-mail.mail_activity_action_my', '.o_list_renderer', 'resum-diari-03-posposar.png',
-            login='doc_shot_teacher', wait_for=".o_data_row button[name='action_ems_snooze_1d']",
+            login='doc_shot_teacher', wait_for='.o_data_row .o_ems_activity_snooze',
+            click='.o_data_row:first-child .o_ems_activity_snooze',
+            wait_after='.o_popover .o_ems_snooze_choice',
+            # Capturing beyond the viewport resizes the page, the list re-lays out and the open
+            # popover no longer points at its bell. The list fits in the viewport anyway.
+            beyond_viewport=False,
         )
 
     def test_capture_strike(self):

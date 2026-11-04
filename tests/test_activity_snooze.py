@@ -1,15 +1,16 @@
 from datetime import timedelta
 
+from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
 from .common import create_role_user
 
 
 class TestActivitySnooze(TransactionCase):
-    """Snoozing a task (issue #727, models/shared/mail_activity.py): Odoo's own "Snooze 7d" and
-    EMS's "Snooze 1d"/"Snooze 3d" move its due date on from the company's today, or from its own
-    due date when that is later. The daily summary only lists what is due, so a snoozed task
-    leaves it until that day."""
+    """Snoozing a task (issue #727, models/shared/mail_activity.py): the row's popover and the
+    header's dialog in My Activities both call action_ems_snooze(days), which moves the due date
+    1, 3 or 7 days on from the company's today, or from its own due date when that is later. The
+    daily summary only lists what is due, so a snoozed task leaves it until that day."""
 
     @classmethod
     def setUpClass(cls):
@@ -30,21 +31,34 @@ class TestActivitySnooze(TransactionCase):
         }).with_user(self.teacher_user)
 
     def test_overdue_task_is_snoozed_from_today(self):
-        for method, days in (('action_ems_snooze_1d', 1), ('action_ems_snooze_3d', 3), ('action_snooze', 7)):
-            with self.subTest(method=method):
+        for days in (1, 3, 7):
+            with self.subTest(days=days):
                 activity = self._activity(self.today - timedelta(days=4))
-                getattr(activity, method)()
+                activity.action_ems_snooze(days)
                 self.assertEqual(activity.date_deadline, self.today + timedelta(days=days))
 
     def test_future_task_is_snoozed_from_its_own_date(self):
-        for method, days in (('action_ems_snooze_1d', 1), ('action_ems_snooze_3d', 3), ('action_snooze', 7)):
-            with self.subTest(method=method):
+        for days in (1, 3, 7):
+            with self.subTest(days=days):
                 activity = self._activity(self.today + timedelta(days=5))
-                getattr(activity, method)()
+                activity.action_ems_snooze(days)
                 self.assertEqual(activity.date_deadline, self.today + timedelta(days=5 + days))
 
-    def test_several_tasks_at_once(self):
-        """The list's header button snoozes every selected task."""
+    def test_only_the_offered_days(self):
+        activity = self._activity(self.today)
+        with self.assertRaises(UserError):
+            activity.action_ems_snooze(2)
+        self.assertEqual(activity.date_deadline, self.today)
+
+    def test_odoo_snooze_counts_from_the_company_day(self):
+        activity = self._activity(self.today - timedelta(days=1))
+        activity.action_snooze()
+        self.assertEqual(activity.date_deadline, self.today + timedelta(days=7))
+
+    def test_header_dialog_snoozes_the_selected_tasks(self):
         activities = self._activity(self.today) | self._activity(self.today - timedelta(days=1))
-        activities.action_ems_snooze_3d()
+        action = activities.action_ems_snooze_dialog()
+        self.assertEqual((action['tag'], action['target']), ('ems.activity_snooze_dialog', 'new'))
+        self.assertEqual(action['params']['activity_ids'], activities.ids)
+        activities.action_ems_snooze(3)
         self.assertEqual(set(activities.mapped('date_deadline')), {self.today + timedelta(days=3)})

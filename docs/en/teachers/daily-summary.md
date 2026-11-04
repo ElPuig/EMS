@@ -79,9 +79,9 @@ The change also applies to the summary waiting to be sent at that moment.
 The summary only lists the tasks **due today or overdue**. If you can't deal with one yet and don't want it reminding you every day, postpone it: it leaves the summary until its new due date and then comes back on its own.
 
 1. Click the activities tray (🕒) at the top of EMS and choose **View all activities**. It opens on your tasks due today or overdue.
-2. On the task's row, press **Snooze 1d**, **Snooze 3d** or **Snooze 7d** (1, 3 or 7 days). To postpone several at once, tick them and use the same buttons at the top of the list.
+2. On the task's row, press the bell (**Snooze**) and choose **1 day**, **3 days** or **7 days**; under each one you see the date the task will move to. To postpone several at once, tick them, press **Snooze** at the top of the list and choose in the same way.
 
-![My Activities: the Snooze 1d, Snooze 3d and Snooze 7d buttons on each task](../../assets/teachers/resum-diari-03-posposar.png)
+![My Activities: a task's bell, with the 1, 3 and 7 days to choose from](../../assets/teachers/resum-diari-03-posposar.png)
 
 The days are counted from today or, if the task was already due later, from its due date. You can also change the due date by hand from the task in the record it belongs to.
 

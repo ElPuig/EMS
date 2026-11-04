@@ -7,7 +7,8 @@ from .common import create_role_user
 
 @tagged('post_install', '-at_install')
 class TestActivitySnoozeTour(HttpCase):
-    """Issue #727: a teacher snoozes their own tasks from My Activities (list and kanban)."""
+    """Issue #727: a teacher snoozes their own tasks from My Activities: one from its row's
+    popover, two at once from the header's dialog (list and kanban)."""
 
     def test_activity_snooze_tour(self):
         teacher = create_role_user(self, 'teacher', 'snooze_tour_teacher', email='snooze.tour@example.com')
@@ -21,9 +22,10 @@ class TestActivitySnoozeTour(HttpCase):
                 'user_id': teacher.id,
                 'summary': f'Snooze tour task {letter}',
                 'date_deadline': today - timedelta(days=1),
-            }) for letter in 'ABC'
+            }) for letter in 'ABCD'
         }
         self.start_tour("/odoo", "ems_activity_snooze", login=teacher.login)
-        self.assertEqual(activities['A'].date_deadline, today + timedelta(days=1))
-        self.assertEqual(activities['B'].date_deadline, today + timedelta(days=3))
-        self.assertEqual(activities['C'].date_deadline, today - timedelta(days=1))
+        self.assertEqual(activities['A'].date_deadline, today + timedelta(days=3))
+        self.assertEqual(activities['B'].date_deadline, today + timedelta(days=1))
+        self.assertEqual(activities['C'].date_deadline, today + timedelta(days=1))
+        self.assertEqual(activities['D'].date_deadline, today - timedelta(days=1))

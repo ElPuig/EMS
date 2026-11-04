@@ -79,9 +79,9 @@ El canvi també s'aplica al resum que tinguis pendent en aquell moment.
 El resum només inclou les tasques **que vencen avui o ja han vençut**. Si encara no pots ocupar-te d'una i no vols que te la recordi cada dia, ajorna-la: surt del resum fins a la nova data límit i després hi torna sola.
 
 1. Fes clic a la safata d'activitats (🕒) de la part superior de l'EMS i tria **View all activities**. S'obre amb les teves tasques que vencen avui o ja han vençut.
-2. A la fila de la tasca, prem **Posposa 1d**, **Posposa 3d** o **Posposa 7d** (1, 3 o 7 dies). Per ajornar-ne diverses alhora, marca-les i fes servir els mateixos botons de la part superior de la llista.
+2. A la fila de la tasca, prem la campana (**Posposa**) i tria **1 dia**, **3 dies** o **7 dies**; sota cada opció veus la data on passarà la tasca. Per ajornar-ne diverses alhora, marca-les, prem **Posposa** a la part superior de la llista i tria de la mateixa manera.
 
-![Les meves activitats: els botons Posposa 1d, Posposa 3d i Posposa 7d de cada tasca](../../assets/teachers/resum-diari-03-posposar.png)
+![Les meves activitats: la campana d'una tasca, amb els 1, 3 i 7 dies per triar](../../assets/teachers/resum-diari-03-posposar.png)
 
 Els dies es compten des d'avui o, si la tasca ja vencia més endavant, des de la seva data límit. També pots canviar la data límit a mà des de la tasca, al registre on és.
 

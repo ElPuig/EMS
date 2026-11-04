@@ -79,9 +79,9 @@ El cambio también se aplica al resumen que tengas pendiente en ese momento.
 El resumen solo incluye las tareas **que vencen hoy o ya han vencido**. Si todavía no puedes ocuparte de una y no quieres que te la recuerde cada día, posponla: sale del resumen hasta su nueva fecha límite y después vuelve sola.
 
 1. Haz clic en la bandeja de actividades (🕒) de la parte superior de EMS y elige **Ver todas las actividades**. Se abre con tus tareas que vencen hoy o ya han vencido.
-2. En la fila de la tarea, pulsa **Posponer 1d**, **Posponer 3d** o **Posponer 7d** (1, 3 o 7 días). Para posponer varias a la vez, márcalas y usa los mismos botones de la parte superior de la lista.
+2. En la fila de la tarea, pulsa la campana (**Posponer**) y elige **1 día**, **3 días** o **7 días**; debajo de cada opción ves la fecha a la que pasará la tarea. Para posponer varias a la vez, márcalas, pulsa **Posponer** en la parte superior de la lista y elige de la misma manera.
 
-![Mis actividades: los botones Posponer 1d, Posponer 3d y Posponer 7d de cada tarea](../../assets/teachers/resum-diari-03-posposar.png)
+![Mis actividades: la campana de una tarea, con los 1, 3 y 7 días para elegir](../../assets/teachers/resum-diari-03-posposar.png)
 
 Los días se cuentan desde hoy o, si la tarea ya vencía más adelante, desde su fecha límite. También puedes cambiar la fecha límite a mano desde la tarea, en el registro donde está.
 

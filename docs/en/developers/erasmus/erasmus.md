@@ -13,8 +13,8 @@ corrections (subsanation) and admits or excludes each application, then scores t
 languages, fewer opportunities, first mobility, conduct warnings) and ranks them per modality.
 The resolutions, approved by the Erasmus coordinator, are published on the portal, claims are recorded, and the places are
 offered to the selected and, when one is renounced, to the next reserve. The centre's vocational
-training staff apply to their own call through the same portal page; a panel rates their mobility
-plans (see "Staff call"). Once a place is accepted, the mobility is prepared in EMS: destination,
+training staff apply to their own call from the backend (see "Staff in the backend"); a panel rates
+their mobility plans (see "Staff call"). Once a place is accepted, the mobility is prepared in EMS: destination,
 host entity, documents and checklist (see "Mobility preparation" at the end).
 
 ## Models
@@ -242,10 +242,44 @@ _ems_call_action`, an action narrowed to the call): Applications, Ranking, Inter
 or Plan ratings (staff), Resolutions, Claims, Place offers and Mobilities. Interviews and Plan
 ratings have no menu entry: they are only reached from their call.
 
-A staff member applies on the portal but works in the backend: the user menu has *My Erasmus+
-application* (`static/src/js/backend/user_menu_erasmus.js`), shown when `session_info`'s
-`ems_erasmus_portal` (`models/erasmus/ir_http.py`, `_ems_erasmus_portal_visible` of an internal
-user) is true.
+### Staff in the backend
+
+Since the 2026-11-04 review the portal is for students and families only: a staff member applies to
+a staff call, follows their application and prepares their mobility in the Erasmus+ app, under *My
+participation* (`views/erasmus/staff/views.xml`, `models/erasmus/staff_backend.py`,
+`models/erasmus/staff_wizards.py`):
+
+| Menu | Action | Model and domain |
+|---|---|---|
+| Staff calls | `action_erasmus_staff_calls` | `ems.erasmus.call`, `staff_mine` (non-stored, searchable: the staff calls the user can apply to or has applied to) |
+| My applications | `action_erasmus_my_applications` | `ems.erasmus.application`, the user's own staff applications |
+| My mobilities | `action_erasmus_my_mobilities` | `ems.erasmus.mobility`, the user's own staff mobilities |
+
+- **Read-only screens, changes through actions.** The three forms are `create/edit/delete="false"`;
+  teachers (`ems.group_teacher`) get read access on the call, application, document, resolution and
+  its lines, offer, claim, mobility and self-assessment models, narrowed by `*_staff_own` record
+  rules to their own records (`security/rules/erasmus.xml`). Every change is an entry of the
+  *Actions* dropdown or a line button (*Hand in*, *Sign it here*, *PDF*) that checks the record is
+  the user's own (`_ems_staff_check()`) and then calls, as superuser, the same `_ems_portal_*`
+  methods the portal uses, mostly through a wizard (`ems.erasmus.staff.*.wizard`). So the rules of
+  the process (deadlines, required fields, who may act) live in one place for both channels.
+- **Computed flags** (`staff_own`, `staff_editable`, `staff_can_submit`, `staff_claimable`,
+  `staff_can_propose`, `staff_self_assessment_open`, ...; non-stored, `@api.depends_context('uid')`)
+  drive the `invisible=` of each action; `staff_next_step`/`staff_next_deadline` show the portal's
+  "what to do now" (`_ems_portal_progress()`).
+- **Forms by owner.** `get_formview_id()` opens the staff form for the user's own application or
+  mobility (a task, a link, a mention), and the team's management form for everyone else.
+- **Portal redirect.** `/my/erasmus` and `/my/erasmus/call/<id>` redirect an internal user to *Staff
+  calls* (`controllers/portal_erasmus.py`, `_staff_redirect`); the user menu's *Erasmus+* entry
+  (`static/src/js/backend/user_menu_erasmus.js`) opens the same action, shown when `session_info`'s
+  `ems_erasmus_portal` (`models/erasmus/ir_http.py`) is true.
+- **Email links.** `ems.erasmus.mail.link` (abstract, inherited by the call, application, claim,
+  offer, resolution line and mobility) gives the mail templates `_ems_mail_place()` ("on the school
+  portal" / "in EMS") and `_ems_mail_url()` (the portal page for a student, the record in the staff
+  action for a staff member), so one template serves both audiences.
+- **The commitment letter** of an individual mobility is still signed only by the applicant
+  (`check_applicant_action()` in `ems.erasmus.mobility.action_sign_commitment`, from the portal or
+  the staff wizard); a group mobility's participants sign theirs from the portal.
 
 ### Workflow fields and evidence (audit 2026-10-25)
 
@@ -689,7 +723,7 @@ erDiagram
 
 ### Application form
 
-The portal shows the staff form when `audience == 'staff'` (`ANSWER_FIELDS['staff']`), in four
+The staff form (`ems.erasmus.staff.application.wizard`, over `ANSWER_FIELDS['staff']`) has four
 short blocks since the 2026-11-03 review (adriamt): (1) two proposals in the teacher's own words,
 both required, `proposal_a` (the main one) and `proposal_b` (the backup if A falls through), each
 saying the activity, host, where and when; (2) `plan_text`, the competences to observe or learn and
@@ -719,7 +753,7 @@ call's `staff_level_ids` (*Teachers of*; a new staff call gets every FP level of
 `_ems_staff_validators()`: the Director (`res.company.director_id`) and the Head of Studies that
 `find_head_of_studies()` returns for most of the teachers of those levels (decided with the
 coordinator 2026-10-23: FP's validates every applicant, also the language teachers who hang below
-ESO/BTX's in the chart). The staff portal never shows the modality (places and periods are the
+ESO/BTX's in the chart). The staff screens never show the modality (places and periods are the
 team's planning): not in the application header, the offer nor the offer email.
 
 ### Panel and plan ratings

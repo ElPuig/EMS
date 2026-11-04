@@ -1839,7 +1839,6 @@ msgstr "Aplica a los estudios"
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_state_wizard_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__to_apply model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__to_apply
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_close_wizard_form
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_staff_form
 msgid "Apply"
 msgstr "Aplicar"
 
@@ -44606,3 +44605,9 @@ msgstr "en EMS"
 #: code:addons/ems/models/erasmus/staff_backend.py:0
 msgid "on the school portal"
 msgstr "en el portal del centro"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_staff_form
+msgid "Apply to the call"
+msgstr "Presenta la solicitud"

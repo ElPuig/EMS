@@ -30,7 +30,7 @@
                 <form string="Staff call" create="false" edit="false" delete="false">
                     <header>
                         <div name="ems_actions" string="Actions">
-                            <button name="action_staff_apply" type="object" string="Apply" class="btn-primary"
+                            <button name="action_staff_apply" type="object" string="Apply to the call" class="btn-primary"
                                     invisible="staff_application_id or not is_accepting"/>
                             <button name="action_staff_apply" type="object" string="Open my application"
                                     invisible="not staff_application_id"/>

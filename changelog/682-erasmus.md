@@ -74,7 +74,7 @@
 
 ## Erasmus+ app for every teacher, with a "My participation" section (2026-11-03):
 
-- Every teacher now has the Erasmus+ app, right below Meetings, with My participation > My application, which opens their portal page to apply to the staff call and follow their mobility. The Erasmus+ team's own entries (My evaluations, My plan ratings, My group mobilities) moved into that section too, so a coordinator who also applies to the staff call tells their participant view from their management one (Calls, Mobilities, Financial management) at a glance. The section goes after the management ones so the team still lands on the calls when opening the app.
+- Every teacher now has the Erasmus+ app, right below Meetings, with My participation > Staff calls, My applications and My mobilities, where they apply to the staff call, follow their application and prepare their mobility (see below). The Erasmus+ team's own entries (My evaluations, My plan ratings, My group mobilities) moved into that section too, so a coordinator who also applies to the staff call tells their participant view from their management one (Calls, Mobilities, Financial management) at a glance. The section goes after the management ones so the team still lands on the calls when opening the app.
 
 ## Erasmus+ result emails copied to the family of an adult who shares with it (2026-11-03):
 
@@ -111,6 +111,13 @@
 - Mobilitat FP evidence (ZIP) per course, laid out like the network's Drive (1-gestio: the Erasmus+ team's minutes of the workgroup set in Settings; 2-documentacio: calls with their calendar and rules, totals of each published list, % of participants with complete documentation; 3-mobilitats: the quality report; 4-difusio: the diffusion actions and their evidence). No personal data.
 - Diffusion actions register: every call notice and closing reminder EMS emails is recorded by itself; the team adds the rest by hand (sessions, ErasmusDays, web, social media).
 - Earlier courses (manual load, with their source) feed the evolution by course; the coordination's figures for 2022-2023 to 2025-2026 are seeded as centre data.
+
+## Erasmus+ staff apply and prepare their mobility in EMS, not on the portal (review by Juan Morote and adriamt, 2026-11-04):
+
+- The portal is now for students and families only. A teacher finds the staff calls they can apply to under Erasmus+ > My participation > Staff calls, and works on their own records under My applications and My mobilities: read-only screens where every step is an entry of the Actions menu (apply, fill in the form, submit, hand in a document, claim, accept or renounce the place, send the activity proposal, sign the commitment letter, the weekly self-assessment, the EU Survey). Each action calls the same methods the portal uses, so the rules of the process stay in one place (models/erasmus/staff_backend.py, staff_wizards.py, views/erasmus/staff/).
+- Teachers get read access to their own Erasmus+ records only (record rules per model); the portal's /my/erasmus pages redirect an internal user to Staff calls, and the user-menu entry opens it too.
+- The Erasmus+ emails say where to go and link there: "on the school portal" for a student, "in EMS" (and the record itself) for a staff member, from the same template (ems.erasmus.mail.link).
+- Catalan and Spanish translations for the new screens, wizards, messages and the reworded emails; the staff "Apply" button has its own label ("Apply to the call") so it is no longer translated as Odoo's generic "Apply". The teachers' manual and the Erasmus team's and Direction's manuals describe the new screens.
 
 # Fixes
 
@@ -168,3 +175,18 @@
 ## End-to-end test of a group mobility:
 
 - `tests/test_erasmus_group_mobility_e2e.py` runs a KA121-VET group mobility (4 students, leader and accompanying teacher) from its creation to its closure with the real roles (technician, coordinator, leader, accompanying teacher, Head of Studies, students and a family on the portal): enrolling only from the eligible groups, the conduct-warning block before and after enrolling, a withdrawal, the frozen ranking with real grades, fewer opportunities accredited or not, two students with no grades (average entered with its source, and excluded by the coordinator), a tie drawn, the proposal sent back and sent again, the provisional list (masked DNIs, no names, emails), a claim upheld, the claims deadline, the definitive list, the commitment letter accepted provisionally and again after the destination is confirmed (student and family of a minor), renouncing, substitutions and a reserve who does not want the place, documents and who reviews them, insurance (own or collective), the optional documents, the participants' spreadsheet and the documents' ZIP, the stay, the programme question, the EU Survey and the closure; and what each role reads (read and search_read).
+
+# Related with
+
+- The work of the Erasmus+ phases 7 to 10 (group mobilities) has no branch of its own: it is all in 682-erasmus, so their Closes lines have to be added by hand.
+- Closes #682
+- Closes #683
+- Closes #684
+- Closes #685
+- Closes #686
+- Closes #687
+- Closes #697
+- Closes #701
+- Closes #702
+- Closes #703
+- Closes #704

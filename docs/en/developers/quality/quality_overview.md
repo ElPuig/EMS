@@ -156,55 +156,76 @@ the centre language (`_ems_centre_lang()`, which reads `res.company.ems_lang`, s
 [company.md](../settings/company.md)) rather than in the language of whoever creates the minute; the PDF,
 the call and the codes (`common.scope_code`) use the same language.
 
-A meeting minute goes through four states; an evidence record (a minute type of kind `record`) skips the
-meeting and goes straight from draft to approval.
+A meeting minute goes through five states (issue #756): it is written in the meeting, **signed off** by
+whoever answers for it, which closes it, and **approved by the next meeting** of the same type and scope. An
+evidence record (a minute type of kind `record`) skips the meeting, and a type whose `approval_mode` is
+`sign_off` (records by default; set by the administrator for meetings with no next one) is approved by the
+sign-off itself. `ems.minute.type.approval_mode` is a stored compute from `kind` (`record` → `sign_off`,
+otherwise `next_meeting`), editable on the type's form.
 
 ```mermaid
 stateDiagram-v2
     [*] --> draft: created
     draft --> meeting: Start the meeting
     meeting --> draft: Back to preparing the meeting
-    meeting --> to_approve: Send for approval
-    draft --> to_approve: Send for approval (evidence record)
+    meeting --> to_approve: Send for sign-off
+    draft --> to_approve: Send for sign-off (evidence record)
     to_approve --> meeting: Back to the meeting
     to_approve --> draft: Back to draft (evidence record)
-    to_approve --> approved: Approve
+    to_approve --> signed_off: Give the sign-off (approved in the next meeting)
+    to_approve --> approved: Give the sign-off (approval_mode = sign_off)
+    signed_off --> approved: next minute signed off with "Approved" / "Approved with changes"
+    signed_off --> meeting: next minute signed off with "Not approved"
     approved --> [*]
 ```
 
 | Change | Method | Who | What else happens |
 |---|---|---|---|
-| (before sending for approval) Send the call | `action_send_call` | whoever can write it | emails the convened; no change of state |
+| (before sending for sign-off) Send the call | `action_send_call` | whoever can write it | emails the convened; no change of state |
 | (in draft) Delete | `action_delete` (`unlink`) | whoever can write it (`rule_minute_teacher_unlink`, draft only) | its agenda, lines and agreements go with it, and its NFC session while still a draft; `_unlink_only_draft` refuses any other state, for every role |
 | Start the meeting | `action_start_meeting` | whoever can write it | the minute opens for writing; with the NFC tag, its kiosk can be opened |
-| Back to preparing / to the meeting / to draft | `action_back_to_draft`, `action_back_to_meeting` | whoever can write it | back to preparing is refused once its NFC session has been opened |
-| Send for approval | `action_open_submit_dialog` → `ems.minute.submit.wizard.action_confirm` → `action_submit` (an evidence record calls `action_submit` straight away) | whoever can write it | NFC attendance copied into the lists; the development composed from the items; *Approve the minute* task for the approver |
-| (meeting or waiting for approval) Send the draft to the participants | `action_send_draft`, also from the submit dialog's *Also send the draft to the participants* | whoever can write it | emails everybody convened, whether they came or not: the attendees and absentees who have a `work_email` (one message, with a link to `/report/pdf/ems.report_minute/<id>`, the draft as it stands) and each guest with an email (a message of their own with the PDF attached, having no account); a note "Draft sent to N people" |
-| Approve | `action_approve` | **whoever gives the approval** (`can_approve`) | approval date set, PDF rendered and attached; approval task done; its agreements announced (tasks and notices); irreversible |
+| Back to preparing / to the meeting / to draft | `action_back_to_draft`, `action_back_to_meeting` | whoever can write it | back to preparing is refused once its NFC session has been opened; a signed-off or approved minute never goes back to draft |
+| Send for sign-off | `action_open_submit_dialog` → `ems.minute.submit.wizard.action_confirm` → `action_submit` (an evidence record calls `action_submit` straight away) | whoever can write it | NFC attendance copied into the lists; the development composed from the items; *Sign off the minute* task for whoever gives it |
+| (meeting or awaiting sign-off) Send the draft to the participants | `action_send_draft`, also from the submit dialog's *Also send the draft to the participants* | whoever can write it | emails everybody convened, whether they came or not: the attendees and absentees who have a `work_email` (one message, with a link to `/report/pdf/ems.report_minute/<id>`, the draft as it stands) and each guest with an email (a message of their own with the PDF attached, having no account); a note "Draft sent to N people" |
+| Give the sign-off | `action_sign_off` (`action_approve` is an alias: the shared signed-record entry point) | **whoever gives the sign-off** (`can_approve`) | `signoff_date` and who gave it recorded; `next_meeting`: state `signed_off`, PDF rendered (marked "pending approval"); `sign_off`: `approval_date` = `signoff_date` and the shared approval (`ems.signed.record.action_approve`: state `approved`, PDF, Drive seam); sign-off task done; its agreements announced (tasks and notices); then `_ems_decide_previous` |
+| Approved by the next meeting | `_ems_approve_in(meeting)` (sudo), from the next minute's `_ems_decide_previous`, or from this minute's own sign-off when a later meeting already approved it | — | `approval_date` = the meeting's date, `approved_in_minute_id`; the shared approval renders the final PDF; a note on the minute |
+| Not approved by the next meeting | `_ems_reject_in(meeting)` (sudo) | — | back to `meeting`, sign-off, submission and PDF cleared; a note, and an informative notice for whoever writes it with the meeting's notes (daily summary) |
+
+**The next meeting's decision** is the existing block "Approval of the previous minute" (`previous_approved`,
+`previous_approval_notes`), which only takes effect when that next minute is signed off, so it can no longer
+change: `_ems_check_can_approve` refuses the sign-off while the previous minute is `signed_off` and the
+decision is still "Not applicable"; `_ems_decide_previous` then approves it (`yes`, `with_changes`) or sends it
+back (`no`). A previous minute not signed off yet is left alone: when it gets its sign-off, `action_sign_off`
+looks for a closed later minute that approved it and applies the approval then. Amendments stay in the minute
+that approves; the approved one is not rewritten.
 
 "Whoever can write it" is the write rule (`rule_minute_teacher_write`): the writer and their chain of
 command (`redactor_scope_user_ids`: a Seminar Chief above the teacher who writes it edits it even when a
-Department Chief above both approves it), the person named to approve it and their chain of command, and
-the holders of its approver post, while it is not approved, plus quality coordination and the
-administrator. The rules that depend on "whoever can write the minute" (its agreements, their follow-up, its
-NFC attendance session) use the same two chains. Approving is narrower (`_ems_user_may_approve`): the
-person named in **Approved by** or anybody above them in the chain of command, who stands in when they are
-away (`approver_scope_user_ids`, non-stored and searchable: that employee's `tutor_scope_user_ids`, so
-their Department or Seminar Chief, Head or Deputy Head of Studies and the Director, never a chief of
-another branch); while nobody is named, a holder of the post in **Approved by (post)**; plus the
-administrator (`group_academic_admin`, top of the pyramid) and the superuser. Never the writer just for
-having written it. The check runs in `action_approve` before anything is written, since approving then records the
-approving employee as **Approved by** (which differs from the person named only when the administrator
-approves on their behalf). Every change of state asks for confirmation (`confirm=` on its button).
+Department Chief above both signs it off), the person named to sign it off and their chain of command, and
+the holders of the sign-off post, while it is neither signed off nor approved (`CLOSED_STATES`; the agreement,
+follow-up and NFC attendance rules use the same condition), plus quality coordination and the administrator.
+The rules that depend on "whoever can write the minute" (its agreements, their follow-up, its NFC attendance
+session) use the same two chains. Signing off is narrower (`_ems_user_may_approve`): the person named in
+**Signed off by** or anybody above them in the chain of command, who stands in when they are away
+(`approver_scope_user_ids`, non-stored and searchable: that employee's `tutor_scope_user_ids`, so their
+Department or Seminar Chief, Head or Deputy Head of Studies and the Director, never a chief of another branch);
+while nobody is named, a holder of the post in **Signed off by (post)**; plus the administrator
+(`group_academic_admin`, top of the pyramid) and the superuser. Never the writer just for having written it. The
+check runs in `action_sign_off` before anything is written, since signing off then records the employee who
+gave it as **Signed off by** (which differs from the person named only when somebody stands in). Every change
+of state asks for confirmation (`confirm=` on its button, or the submit dialog).
 
-Sending for approval records who did it and when (`submitted_by_id`, `submission_date`), cleared again
-when the minute goes back to the meeting or to draft. In the PDF, each signature cell carries, under the
-name, the stamp of its side once it has happened: "Sent for approval in EMS" (who sent it, when, the
-minute's code) under the writer, "Approved in EMS" (who approved it, `approval_date`, the code) under the
-approver; until then the same room is left blank. The stamp is the shared QWeb template
-`ems.report_validation_stamp` (`reports/shared/report_validation_stamp.xml`), the same one the
-convalidation resolution prints; like there, it is EMS's record of who did it, not a qualified electronic
-signature (issue #530).
+Sending for sign-off records who did it and when (`submitted_by_id`, `submission_date`), cleared again when
+the minute goes back to the meeting or to draft. In the PDF, each signature cell carries, under the name, the
+stamp of its side once it has happened: "Sent for sign-off in EMS" under the writer; "Signed off in EMS" (who,
+`signoff_date`) under whoever gave the sign-off, or "Approved in EMS" for a type approved with the sign-off (and
+for minutes approved before #756, which have no `signoff_date`: their `approval_date` is shown there); and, for
+a type approved in the next meeting, a third cell "Approved in the meeting" with the approving minute's code and
+`approval_date`. Until then each room is left blank. A signed-off minute carries the mark "Signed off, pending
+approval in the next meeting" instead of the draft one. The stamp is the shared QWeb template
+`ems.report_validation_stamp` (`reports/shared/report_validation_stamp.xml`), the same one the convalidation
+resolution prints; like there, it is EMS's record of who did it, not a qualified electronic signature (issue
+#530).
 
 **Attendees and absentees** (`attendee_ids`, `absentee_ids`) exclude each other: `_check_attendee_not_absent`
 refuses anybody in both, and the form shows both with `ems_exclusive_tags`
@@ -344,15 +365,15 @@ those of every department whose Department or Seminar Chief they are above (the 
 of Studies for VET reaches the VET departments and the Head of Studies the ESO/BTX ones, and the Director)
 and of every group whose tutor they are above. The secretariat goes by the same rule (a user in no rule
 group of the model would see every record). Only the committee, quality coordination and the
-administrator see every minute. Writing stays with whoever writes or approves the minute, while it is not
-approved.
+administrator see every minute. Writing stays with whoever writes the minute or gives it the sign-off, until it
+is signed off.
 
 `ems.quality.action` and `ems.quality.followup` (same file; the follow-up uses its action's domains through
 `action_id`) go by the same chain of command, with three ways of being in an agreement:
 
 - **Content managers** write the action itself (what was agreed, scope, responsible and involved people,
   deadline): the chain of the department's Department or Seminar Chief and of the group's tutor; while its
-  minute is not approved, whoever writes or approves the minute and whoever added the agreement to it; the
+  minute is not signed off, whoever writes it or gives it the sign-off and whoever added the agreement to it; the
   creator of an action from no minute.
 - **Responsible people** (`responsible_employee_ids`), the holders of `responsible_role_id` and everybody
   above those people (`responsible_scope_user_ids`, non-stored and searchable, built on
@@ -413,10 +434,10 @@ post. Never the people involved, nor the chain of command, who oversee agreement
 
 ```mermaid
 flowchart TD
-    A[Agreement created / responsible people or deadline changed] --> B{_ems_is_announced?<br/>no minute, or minute approved}
-    B -- no --> W[Wait for the minute's approval]
+    A[Agreement created / responsible people or deadline changed] --> B{_ems_is_announced?<br/>no minute, or minute signed off or approved}
+    B -- no --> W[Wait for the minute's sign-off]
     B -- yes --> C[_ems_sync_tasks]
-    W --> M[ems.minute write state=approved<br/>_ems_announce_agreements]
+    W --> M[ems.minute write state closed<br/>signed_off, or approved by the sign-off<br/>_ems_announce_agreements]
     M --> C
     M --> N1[Notice 'done_in_meeting'<br/>agreements with minute_followup_id]
     M --> N2[Notice 'followup'<br/>each review's follow-up entry]
@@ -432,15 +453,15 @@ flowchart TD
 | *Carry out the agreement* (`ems.mail_activity_quality_agreement`) | agreement announced and open | each responsible user | task due on `deadline_date`, today without one; moved with the deadline; `action_feedback` once `state` is closed; unlinked for a user who stops being responsible |
 | "You are responsible for this agreement" | a user gets the task and the deadline is later than today (the summary only lists a task once due) | the new responsible users, except whoever made the change | notice |
 | A follow-up entry | created by hand on an announced agreement | responsible users except its writer | notice; the entry is also posted on the agreement as an internal note (`mail.mt_note`) |
-| A follow-up entry written by a minute (review of an agreement, "Done" closing entry) | the minute is approved, with its final wording | responsible users except the approver | notice (`ems_quality_minute_entry` context keeps it from being queued when the minute writes it) |
-| "Agreed and done in the meeting" | the minute that took and closed it is approved | responsible users except the approver | notice, no task |
-| *Approve the minute* (`ems.mail_activity_minute_approval`) | the minute is `to_approve` | `approver_employee_id`'s user, or the holders of `approver_role_id` when nobody is named | task due the day it is sent; done when approved; removed when it goes back to the meeting or to draft or another approver is named (`ems.minute._ems_sync_approval_task`, from `write`) |
+| A follow-up entry written by a minute (review of an agreement, "Done" closing entry) | the minute is signed off, with its final wording | responsible users except whoever signs it off | notice (`ems_quality_minute_entry` context keeps it from being queued when the minute writes it) |
+| "Agreed and done in the meeting" | the minute that took and closed it is signed off | responsible users except whoever signs it off | notice, no task |
+| *Sign off the minute* (`ems.mail_activity_minute_approval`) | the minute is `to_approve` (awaiting sign-off) | `approver_employee_id`'s user, or the holders of `approver_role_id` when nobody is named | task due the day it is sent; done when signed off; removed when it goes back to the meeting or to draft or another approver is named (`ems.minute._ems_sync_approval_task`, from `write`) |
 
 The notice (`ems.quality_agreement_notice`, `mails/quality/agreement_notice.xml`) is rendered in the
 recipient's language and says what happened plus the agreement's meeting, scope, responsible people,
 deadline and state; the summary heads it with the agreement's code and content. An agreement taken in a
-minute is only announced once the minute is approved, since what was agreed and who answers for it may
-still change until then.
+minute is only announced once the minute is signed off (issue #756), since what was agreed and who answers
+for it may still change until then.
 
 Upgrade (`migrations/18.0.0.46.0/post-migrate.py`): the people involved who are not also responsible (nor
 the agreement's creator) are unsubscribed from the agreements they followed. No task is created for

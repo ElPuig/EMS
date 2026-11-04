@@ -5,18 +5,18 @@
 # Meeting minutes
 
 Minutes are written in **Meetings → Minutes and records**. The screen opens on yours: the
-ones you wrote, the ones of meetings you attended and the ones awaiting your approval, for the current
+ones you wrote, the ones of meetings you attended and the ones awaiting your sign-off, for the current
 year. Removing a facet in the search bar shows more.
 
 If you are a Department or Seminar Chief, or Head or Deputy Head of Studies, you also see the minutes of the
 departments and groups that hang from you.
 
-Only whoever writes a minute and whoever approves it can change it, and so can their chiefs (for instance
-the Seminar Chief of whoever writes it); if whoever approves it is away, their
-chiefs (Department Chief, Head or Deputy Head of Studies, Director) can approve it in their place. Any other minute you can see (one of
+Only whoever writes a minute and whoever gives it the sign-off can change it, until it is signed off, and so can
+their chiefs (for instance the Seminar Chief of whoever writes it); if whoever gives the sign-off is away, their
+chiefs (Department Chief, Head or Deputy Head of Studies, Director) can give it in their place. Any other minute you can see (one of
 a meeting you attended, one of your department) opens **read-only**, with no actions.
 
-![List of the year's minutes with the facets Mine or Awaiting my approval, Meeting minutes and Current course](../../assets/teachers/actes-01-llistat.png)
+![List of the year's minutes with the facets Mine or Awaiting my sign-off, Meeting minutes and Current course](../../assets/teachers/actes-01-llistat.png)
 
 
 ---
@@ -60,7 +60,7 @@ a meeting you attended, one of your department) opens **read-only**, with no act
      fills both lists: whoever passed the tag attended, everybody else is recorded as absent. If someone
      left their tag at home or it failed, **Actions → Correct the attendance** opens the session: if it
      is already closed, **Reopen** it, mark them by hand (present, or justified with a note) and close it
-     again. The minute's lists update by themselves. It can be done until the minute is approved.
+     again. The minute's lists update by themselves. It can be done until the minute is signed off.
 
      ![Box of the attendance taken with the NFC tag, with the Open the kiosk button](../../assets/teachers/actes-04-nfc.png)
 
@@ -79,10 +79,10 @@ a meeting you attended, one of your department) opens **read-only**, with no act
 
    ![Items to discuss tab with two items and, below, the agenda put together from them](../../assets/teachers/actes-05-punts.png)
    In the **Content** tab, fill in each section the type asks for. The ones marked as
-   required have to be filled in before the minute can be approved.
+   required have to be filled in before the minute can be signed off.
 7. In **Agreements**, add what was agreed: the commitment, who is responsible (who carries its progress), who is involved
    (who has to do something, without managing it) and by when. Use the **description** to explain how to
-   carry it out (links, instructions); the PDF prints it. Once the minute is approved, the responsible people
+   carry it out (links, instructions); the PDF prints it. Once the minute is signed off, the responsible people
    get it in their [daily summary](daily-summary.md) and keep it up to date from the agreement's form. Each
    agreement's code is issued automatically.
 8. Save. The minute's **code**, which you saw build up at the top of the form as you filled in the type,
@@ -102,7 +102,7 @@ a meeting you attended, one of your department) opens **read-only**, with no act
 
 ## Calling the meeting
 
-Until the minute is sent for approval, **Actions → Send the call** emails everybody convened (the people in the
+Until the minute is sent for sign-off, **Actions → Send the call** emails everybody convened (the people in the
 attendee list) the date, time, place and modality of the meeting, its agenda and a link to the minute of
 the previous meeting, so they can read it before approving it.
 
@@ -124,7 +124,7 @@ meeting goes on.
 - **Attendance:** who attended and who is missing (or the kiosk, when it is taken with the NFC tag). Nobody
   can be in both lists: adding a person to one takes them off the other, and you can also drag a person
   from one list to the other.
-- **Approval of the previous minute:** open its PDF, mark whether it is approved and note any amendment.
+- **Approval of the previous minute:** open its PDF, mark whether it is approved and note any amendment (see [Approval in the next meeting](#approval-in-the-next-meeting)).
 - **Follow-up of the agreements:** each agreement still open has its card. Write what was said about it, set
   a **new deadline** if needed and tick **Done** when it is closed. What you write goes to the agreement's
   own follow-up, and a closed agreement is not brought to the next meeting.
@@ -143,34 +143,61 @@ meeting goes on.
 
 The minute saves itself while you write, in your pauses, without moving the cursor from where you are writing. **Open the draft of the minute**, at the top and
 at the bottom of the screen, shows the PDF as it would come out, marked as a draft, while the minute is in
-the meeting or waiting for approval. To change the date or the people convened again, **Actions → Back to preparing
+the meeting or waiting for its sign-off. To change the date or the people convened again, **Actions → Back to preparing
 the meeting**.
 
-## Approving
+## Sign-off and approval
 
-Under **Signatures**, the **Approved by** field says who will approve the minute. Whoever answers for the
-scope that meets comes proposed (the department's chief, the group's tutor, the director) and the dropdown
-shows those people first; anybody else can be chosen by typing their name or with **Search more**.
+A meeting's minute goes through two steps: whoever answers for it gives it the **sign-off**, which closes
+it, and the **next meeting** of the same type and scope **approves** it, once its people have read it.
 
-![Signatures block with who writes the minute and who will approve it](../../assets/teachers/actes-09-signatures.png)
+### Who gives the sign-off
 
-(1) Who will approve the minute.
+Under **Signatures**, the **Signed off by** field says who will give it. Whoever answers for the scope that
+meets comes proposed (the department's chief, the group's tutor, the director) and the dropdown shows those
+people first; anybody else can be chosen by typing their name or with **Search more**.
 
+![Signatures block with who writes the minute and who gives it the sign-off](../../assets/teachers/actes-09-signatures.png)
 
-When the minute is ready, **Actions → Send for approval**. A dialog asks you to confirm it and offers **Also send the
-draft to the participants**, ticked. Everybody convened gets it, whether they came or not: the staff, an email with a
-link to the draft's PDF; the guests from outside EMS, the PDF attached. That way they can review it while the meeting
-is fresh and reply with any correction before it is approved. While the meeting is held or the minute waits for approval, **Actions → Send the
-draft to the participants** sends it again (for instance, after a correction).
+(1) Who gives the minute its sign-off.
 
-Whoever gives the approval finds it on their own screen
-under the *Awaiting my approval* facet, and also gets an *Approve the minute* task in their
-[daily summary](daily-summary.md). Approving it:
+### Sending it for sign-off, with the draft for the participants
 
-- Records **who approved it and when**.
-- Generates the **PDF**, kept as an attachment on the minute.
-- Makes the minute **read-only**. If something needs correcting, a new version is produced; what was
-  approved is not rewritten.
+When the minute is ready, **Actions → Send for sign-off**. A dialog asks you to confirm it and offers **Also
+send the draft to the participants**, ticked. Everybody convened gets it, whether they came or not: the staff,
+an email with a link to the draft's PDF; the guests from outside EMS, the PDF attached. That way they can review
+it while the meeting is fresh and reply with any correction before it is signed off. While the meeting is held
+or the minute waits for its sign-off, **Actions → Send the draft to the participants** sends it again (for
+instance, after a correction).
+
+![Dialog to send the minute for sign-off, with the option to send the draft to the participants](../../assets/teachers/actes-10-enviar-vistiplau.png)
+
+### Giving the sign-off
+
+Whoever gives it finds the minute on their own screen under the *Awaiting my sign-off* facet, and also gets a
+*Sign off the minute* task in their [daily summary](daily-summary.md). **Actions → Give the sign-off**:
+
+- Records **who gave it and when**.
+- Makes the minute **read-only**: its state becomes **Signed off**.
+- Files its **PDF**, marked *Signed off, pending approval in the next meeting*.
+- Sends its agreements to their responsible people (see [Agreements](../quality/actions.md)).
+
+### Approval in the next meeting
+
+In the next meeting of the same type and scope, the block **Approval of the previous minute** says what the
+meeting decides about it: **Approved**, **Approved with changes** (note the amendments) or **Not approved**
+(note why). It has to be filled in before that minute can be signed off, and it takes effect then:
+
+- **Approved** or **Approved with changes**: the previous minute becomes **Approved**, and its final PDF says in
+  which meeting and on which date. Amendments stay recorded in the minute that approves it; the approved one is
+  not rewritten.
+- **Not approved**: the previous minute goes back to **Meeting** to be corrected, and needs a new sign-off. Whoever
+  writes it hears of it in their daily summary, with what the meeting said. It will be approved in a later meeting.
+
+![Approval of the previous minute block, in the next meeting](../../assets/teachers/actes-11-aprovacio-anterior.png)
+
+Evidence records, and the minute types the administrator sets to be approved **with the sign-off** (for meetings
+with no next one), are approved by the sign-off itself.
 
 ## My agreements
 

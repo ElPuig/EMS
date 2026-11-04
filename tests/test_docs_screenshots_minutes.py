@@ -75,8 +75,8 @@ class TestDocsScreenshotsMinutes(DocsScreenshotMixin, HttpCase):
                                   'start_datetime': start, 'duration': 1.5, 'space_id': cls.space.id,
                                   'redactor_employee_id': cls.teacher_public.id, **vals})
 
-        # Last month's meeting, approved, with agreements still open and a pending topic: what the
-        # next minute carries over by itself.
+        # Last month's meeting, signed off (issue #756: the next meeting approves it), with agreements
+        # still open and a pending topic: what the next minute carries over by itself.
         cls.previous = _minute(datetime(2026, 9, 30, 15, 0))
         cls.previous.section_value_ids.filtered(lambda value: value.required).write({'content': '<p>Tractat.</p>'})
         Action = cls.env['ems.quality.action']
@@ -110,8 +110,12 @@ class TestDocsScreenshotsMinutes(DocsScreenshotMixin, HttpCase):
         cls.nfc = _minute(datetime(2026, 11, 4, 16, 0), attendance_mode='nfc')
         cls.nfc.action_start_meeting()  # the kiosk is offered once the meeting has started
 
-        # A meeting being held, with an agreement of its own.
+        # A meeting being held, with an agreement of its own; it approves last month's minute. Its
+        # writer has an email address, so sending it for sign-off offers the draft to the participants.
+        cls.teacher_employee.work_email = f'{cls.TEACHER}@example.com'
         cls.held = _minute(datetime(2026, 11, 4, 16, 0))
+        cls.held.write({'previous_minute_id': cls.previous.id, 'previous_approved': 'with_changes',
+                        'previous_approval_notes': "Al punt 2, on diu «dimarts» ha de dir «dijous»."})
         cls.held.action_start_meeting()
         Action.create({'name': 'Organitzar la sortida a la planta de tractament', 'minute_id': cls.held.id,
                        'deadline_date': datetime(2027, 2, 26).date(),
@@ -180,6 +184,16 @@ class TestDocsScreenshotsMinutes(DocsScreenshotMixin, HttpCase):
                       + ";document.querySelector('.o_group:has(.o_field_widget[name=approver_employee_id]) .o_inner_group:last-child').style.paddingLeft = '40px'",
                       wait_after='.o_field_widget[name=approver_employee_id]', beyond_viewport=False,
                       marks=[('label[for^=approver_employee_id]', 1, 'left')])
+        # Issue #756: sending it for sign-off, with the offer to send the draft to the participants.
+        self._capture(self._minute_url(self.held), '.modal-content', 'actes-10-enviar-vistiplau.png', login=login,
+                      wait_for='.o_form_statusbar .o_ems_actions_toggle',
+                      click=['.o_form_statusbar .o_ems_actions_toggle', ".o_ems_actions_menu button[name='action_open_submit_dialog']"],
+                      wait_after=[".o_ems_actions_menu button[name='action_open_submit_dialog']", '.modal-content .o_field_widget[name=send_draft]'],
+                      padding=0)
+        # ...and what the next meeting decides about the previous minute.
+        self._capture(self._minute_url(self.held), "div[name=block_previous]", 'actes-11-aprovacio-anterior.png', login=login,
+                      wait_for="div[name=block_previous] .o_field_widget[name=previous_approved]", run=self._show("div[name=block_previous]"),
+                      wait_after="div[name=block_previous]", beyond_viewport=False)
 
     def test_capture_agreements(self):
         action = self.agreements_action.id

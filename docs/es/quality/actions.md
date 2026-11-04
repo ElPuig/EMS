@@ -28,8 +28,8 @@ Un acuerdo distingue tres maneras de estar en él:
 
 - **Quien gestiona su contenido** (qué se acordó, el ámbito, los responsables, las personas
   implicadas, el plazo): la cadena de mando del departamento o del tutor del grupo (jefe de
-  departamento o de seminario, jefe de estudios o jefe de estudios adjunto, director) y, mientras el
-  acta no está aprobada, quien la redacta o la valida. Una acción que no sale de ningún acta, también
+  departamento o de seminario, jefe de estudios o jefe de estudios adjunto, director) y, hasta que el
+  acta tiene el visto bueno, quien la redacta o le da el visto bueno. Una acción que no sale de ningún acta, también
   quien la creó.
 - **Las personas responsables** y quien ocupa el **cargo responsable**: llevan su avance. Le añaden
   entradas de seguimiento con **Acciones → Añadir seguimiento** y escriben su **descripción** (cómo
@@ -57,7 +57,7 @@ Todo les llega en su [resumen diario](../teachers/daily-summary.md), nunca en un
   y el estado en que deja el acuerdo.
 
 Cada aviso indica también de qué reunión sale el acuerdo, su ámbito, las personas responsables, la fecha
-límite y su estado. Un acuerdo tomado en una reunión se avisa cuando se aprueba su acta; uno acordado y
+límite y su estado. Un acuerdo tomado en una reunión se avisa cuando el acta recibe el visto bueno; uno acordado y
 hecho en la misma reunión llega como un aviso de que ya no queda nada por hacer. Las personas implicadas y
 la cadena de mando no reciben nada de esto.
 

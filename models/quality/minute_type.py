@@ -91,7 +91,7 @@ class EmsMinuteType(models.Model):
     # the next meeting, which reads it; a record, or a meeting with no next one, is approved by the
     # sign-off itself.
     approval_mode = fields.Selection(
-        string="Approved",
+        string="Approval",
         selection=[('next_meeting', "In the next meeting"), ('sign_off', "With the sign-off")],
         compute="_compute_approval_mode", store=True, readonly=False,
         help="In the next meeting: the sign-off closes the minute and the next meeting of the same type and scope "

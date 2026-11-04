@@ -11,13 +11,12 @@ curs actual. Traient una faceta de la barra de cerca veieu més.
 Si sou cap de departament o de seminari, o cap d'estudis o cap d'estudis adjunt, també veieu les actes dels
 departaments i grups que depenen de vosaltres.
 
-Només qui redacta una acta i qui li ha de donar el vistiplau la poden modificar, i també els seus superiors
-(per exemple, el cap de seminari de qui la redacta); si qui l'ha d'aprovar no hi
-és, la poden aprovar en lloc seu els seus superiors (cap de departament, cap d'estudis o cap d'estudis
-adjunt, director). Qualsevol altra acta que
+Només qui redacta una acta i qui li ha de donar el vistiplau la poden modificar, fins que té el vistiplau, i també
+els seus superiors (per exemple, el cap de seminari de qui la redacta); si qui ha de donar el vistiplau no hi és,
+el poden donar en lloc seu els seus superiors (cap de departament, cap d'estudis o cap d'estudis adjunt, director). Qualsevol altra acta que
 veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **només en lectura**, sense accions.
 
-![Llista d'actes del curs amb les facetes Les meves o Pendents que jo aprovi, Actes de reunió i Curs actual](../../assets/teachers/actes-01-llistat.png)
+![Llista d'actes del curs amb les facetes Les meves o Pendents del meu vistiplau, Actes de reunió i Curs actual](../../assets/teachers/actes-01-llistat.png)
 
 
 ---
@@ -59,7 +58,7 @@ veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **nom
      i omple les dues llistes: qui ha passat el tag hi ha assistit, la resta consta com a absent. Si algú
      s'ha deixat el tag o no li ha funcionat, **Accions → Corregeix l'assistència** obre la sessió: si ja
      està tancada, **Reobrir**, marqueu-lo a mà (present, o justificat amb la nota) i torneu a tancar-la.
-     Les llistes de l'acta s'actualitzen soles. Es pot fer fins que l'acta estigui aprovada.
+     Les llistes de l'acta s'actualitzen soles. Es pot fer fins que l'acta tingui el vistiplau.
 
      ![Requadre de l'assistència amb el tag NFC, amb el botó Obre el quiosc](../../assets/teachers/actes-04-nfc.png)
 
@@ -78,10 +77,10 @@ veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **nom
 
    ![Pestanya Punts a tractar amb dos punts i, a sota, l'ordre del dia que se'n forma](../../assets/teachers/actes-05-punts.png)
    A la pestanya **Contingut**, ompliu cada secció que el tipus d'acta demana. Les
-   marcades com a obligatòries s'han d'omplir abans de poder aprovar l'acta.
+   marcades com a obligatòries s'han d'omplir abans de poder donar el vistiplau a l'acta.
 7. A **Acords**, afegiu els acords: què s'acorda, qui se'n fa responsable (qui en porta l'avanç), qui hi està implicat (qui
    ha de fer alguna cosa, sense gestionar-lo) i per quan. A la **descripció** expliqueu com s'ha de dur a
-   terme (enllaços, instruccions); surt al PDF. Un cop aprovada l'acta, els responsables el reben al seu
+   terme (enllaços, instruccions); surt al PDF. Un cop l'acta té el vistiplau, els responsables el reben al seu
    [resum diari](daily-summary.md) i el mantenen al dia des del formulari de l'acord. El codi de cada
    acord s'assigna sol.
 8. Deseu. El **codi** de l'acta, que heu vist formar-se a dalt del formulari a mesura que informàveu el
@@ -101,7 +100,7 @@ veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **nom
 
 ## Convocar la reunió
 
-Mentre l'acta no s'hagi enviat a aprovar, **Accions → Envia la convocatòria** envia un correu a totes les persones
+Mentre l'acta no s'hagi enviat al vistiplau, **Accions → Envia la convocatòria** envia un correu a totes les persones
 convocades (les de la llista d'assistents) amb la data, l'hora, el lloc, la modalitat, l'ordre del dia i un
 enllaç a l'acta de la reunió anterior, perquè la puguin llegir abans d'aprovar-la.
 
@@ -124,7 +123,7 @@ mesura que avança la reunió.
 - **Assistència:** qui hi ha assistit i qui hi manca (o el quiosc, si es recull amb el tag NFC). Ningú no
   pot ser a les dues llistes: si afegiu una persona a una, surt de l'altra, i també podeu arrossegar una
   persona d'una llista a l'altra.
-- **Aprovació de l'acta anterior:** obriu-ne el PDF, marqueu si s'aprova i anoteu-hi les esmenes.
+- **Aprovació de l'acta anterior:** obriu-ne el PDF, marqueu si s'aprova i anoteu-hi les esmenes (vegeu [Aprovació a la reunió següent](#aprovacio-a-la-reunio-seguent)).
 - **Seguiment dels acords:** cada acord que seguia obert té la seva fitxa. Escriviu-hi què se n'ha dit, poseu
   una **nova data límit** si cal i marqueu **Fet** si es dona per tancat. El que hi escriviu queda al
   seguiment del mateix acord, i un acord tancat ja no torna a sortir a la reunió següent.
@@ -144,35 +143,60 @@ mesura que avança la reunió.
 
 L'acta es desa sola mentre escriviu, a les pauses, sense moure el cursor d'on escriviu. **Obre l'esborrany de l'acta**, a dalt i a baix de la
 pantalla, mostra el PDF tal com quedaria, marcat com a esborrany, mentre l'acta és en reunió o pendent
-d'aprovar. Si cal tornar a canviar la data o els convocats, **Accions → Torna
+del vistiplau. Si cal tornar a canviar la data o els convocats, **Accions → Torna
 a la preparació**.
 
-## Aprovar
+## Vistiplau i aprovació
 
-A **Signatures**, el camp **Vistiplau** indica qui aprovarà l'acta. Ve proposat el responsable de l'àmbit que es
-reuneix (el cap de departament, el tutor del grup, la direcció) i el desplegable mostra primer aquestes
-persones; es pot triar qualsevol altra escrivint-ne el nom o amb **Cerca més**.
+L'acta d'una reunió passa per dos passos: qui en respon li dona el **vistiplau**, que la tanca, i la **reunió
+següent** del mateix tipus i àmbit l'**aprova**, un cop la gent l'ha llegida.
+
+### Qui dona el vistiplau
+
+A **Signatures**, el camp **Vistiplau** indica qui el donarà. Ve proposat el responsable de l'àmbit que es reuneix
+(el cap de departament, el tutor del grup, la direcció) i el desplegable mostra primer aquestes persones; es pot
+triar qualsevol altra escrivint-ne el nom o amb **Cerca més**.
 
 ![Bloc Signatures amb qui redacta l'acta i qui li donarà el vistiplau](../../assets/teachers/actes-09-signatures.png)
 
-(1) Qui aprovarà l'acta.
+(1) Qui donarà el vistiplau a l'acta.
 
+### Enviar-la al vistiplau, amb l'esborrany per als participants
 
-Quan l'acta estigui llesta, **Accions → Enviar a aprovar**. Un diàleg us demana que ho confirmeu i ofereix **Envia
-també l'esborrany als participants**, marcat. El rep tothom qui estava convocat, hi hagi assistit o no: el personal,
-un correu amb un enllaç al PDF de l'esborrany; els convidats de fora de l'EMS, el PDF adjunt. Així el poden revisar
-ara que tenen fresca la reunió i respondre amb qualsevol correcció abans que s'aprovi. Mentre es fa la reunió o l'acta
-espera l'aprovació, **Accions → Envia l'esborrany als participants** el torna a enviar (per exemple, després d'una
-correcció).
+Quan l'acta estigui llesta, **Accions → Enviar al vistiplau**. Un diàleg us demana que ho confirmeu i ofereix
+**Envia també l'esborrany als participants**, marcat. El rep tothom qui estava convocat, hi hagi assistit o no: el
+personal, un correu amb un enllaç al PDF de l'esborrany; els convidats de fora de l'EMS, el PDF adjunt. Així el poden
+revisar ara que tenen fresca la reunió i respondre amb qualsevol correcció abans del vistiplau. Mentre es fa la
+reunió o l'acta espera el vistiplau, **Accions → Envia l'esborrany als participants** el torna a enviar (per
+exemple, després d'una correcció).
 
-Qui hagi de donar el vistiplau la trobarà a la seva
-pantalla amb la faceta *Pendents que jo aprovi*, i també rep la tasca *Aprovar l'acta* al seu
-[resum diari](daily-summary.md). En aprovar-la:
+![Diàleg per enviar l'acta al vistiplau, amb l'opció d'enviar l'esborrany als participants](../../assets/teachers/actes-10-enviar-vistiplau.png)
 
-- Queda registrat **qui l'ha aprovada i quan**.
-- Es genera el **PDF**, que queda adjunt a l'acta.
-- L'acta **ja no es pot modificar**. Si cal corregir alguna cosa, es fa una versió nova; no es reescriu
-  la que ja estava aprovada.
+### Donar el vistiplau
+
+Qui l'ha de donar troba l'acta a la seva pantalla amb la faceta *Pendents del meu vistiplau*, i també rep la tasca
+*Donar el vistiplau a l'acta* al seu [resum diari](daily-summary.md). **Accions → Donar el vistiplau**:
+
+- Deixa registrat **qui l'ha donat i quan**.
+- L'acta **ja no es pot modificar**: el seu estat passa a **Amb vistiplau**.
+- Es desa el seu **PDF**, marcat *Amb vistiplau, pendent d'aprovació a la reunió següent*.
+- Els acords arriben a les persones responsables (vegeu [Acords](../quality/actions.md)).
+
+### Aprovació a la reunió següent
+
+A la reunió següent del mateix tipus i àmbit, el bloc **Aprovació de l'acta anterior** recull què decideix la
+reunió: **Aprovat**, **Aprovada amb canvis** (anoteu-hi les esmenes) o **No aprovada** (anoteu-ne el motiu). S'ha d'omplir
+abans de poder donar el vistiplau a aquesta acta, i és llavors quan té efecte:
+
+- **Aprovat** o **Aprovada amb canvis**: l'acta anterior passa a l'estat **Aprovat**, i el seu PDF definitiu indica en
+  quina reunió i en quina data. Les esmenes queden a l'acta que l'aprova; l'aprovada no es reescriu.
+- **No aprovada**: l'acta anterior torna a **Reunió** per corregir-la i necessita un nou vistiplau. Qui la redacta
+  ho sap pel seu resum diari, amb el que n'ha dit la reunió. S'aprovarà en una reunió posterior.
+
+![Bloc Aprovació de l'acta anterior, a la reunió següent](../../assets/teachers/actes-11-aprovacio-anterior.png)
+
+Els registres d'evidències, i els tipus d'acta que l'administrador configura perquè s'aprovin **amb el vistiplau**
+(per a reunions que no en tenen cap de següent), queden aprovats amb el mateix vistiplau.
 
 ## Els meus acords
 

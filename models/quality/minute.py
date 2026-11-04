@@ -46,7 +46,7 @@ class EmsMinute(models.Model):
     # Issue #756: it is then signed off by whoever answers for it, which closes it, and approved by
     # the next meeting (or by the sign-off itself, see ems.minute.type.approval_mode).
     state = fields.Selection(
-        selection_add=[('meeting', "Meeting"), ('to_approve', "Awaiting sign-off"), ('signed_off', "Signed off")],
+        selection_add=[('meeting', "Meeting"), ('to_approve', "Awaiting sign-off"), ('signed_off', "Signed off"), ('approved',)],
         ondelete={'meeting': 'set default', 'signed_off': 'set default'})
     name = fields.Char(string="Title", compute="_compute_name", store=True, readonly=False, tracking=True)
     type_id = fields.Many2one(string="Type", comodel_name="ems.minute.type", required=True, ondelete='restrict', tracking=True)

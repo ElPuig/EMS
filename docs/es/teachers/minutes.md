@@ -11,13 +11,13 @@ bueno, del curso actual. Quitando una faceta de la barra de búsqueda veis más.
 Si sois jefe de departamento o de seminario, o jefe de estudios o jefe de estudios adjunto, también veis las
 actas de los departamentos y grupos que dependen de vosotros.
 
-Solo quien redacta un acta y quien debe darle el visto bueno pueden modificarla, y también sus superiores
-(por ejemplo, el jefe de seminario de quien la redacta); si quien debe aprobarla no
-está, pueden aprobarla en su lugar sus superiores (jefe de departamento, jefe de estudios o jefe de
-estudios adjunto, director). Cualquier otra acta que
+Solo quien redacta un acta y quien debe darle el visto bueno pueden modificarla, hasta que tiene el visto bueno, y
+también sus superiores (por ejemplo, el jefe de seminario de quien la redacta); si quien debe dar el visto bueno no
+está, pueden darlo en su lugar sus superiores (jefe de departamento, jefe de estudios o jefe de estudios adjunto,
+director). Cualquier otra acta que
 veáis (la de una reunión a la que asististeis, la de vuestro departamento) se abre **solo en lectura**, sin acciones.
 
-![Lista de actas del curso con las facetas Las mías o Pendientes de que yo apruebe, Actas de reunión y Curso actual](../../assets/teachers/actes-01-llistat.png)
+![Lista de actas del curso con las facetas Las mías o Pendientes de mi visto bueno, Actas de reunión y Curso actual](../../assets/teachers/actes-01-llistat.png)
 
 
 ---
@@ -59,7 +59,7 @@ veáis (la de una reunión a la que asististeis, la de vuestro departamento) se 
      recogida y rellena las dos listas: quien ha pasado el tag ha asistido, el resto consta como ausente.
      Si alguien se ha dejado el tag o no le ha funcionado, **Acciones → Corregir la asistencia** abre la
      sesión: si ya está cerrada, **Reabrir**, marcadlo a mano (presente, o justificado con la nota) y
-     volved a cerrarla. Las listas del acta se actualizan solas. Se puede hacer hasta que el acta esté aprobada.
+     volved a cerrarla. Las listas del acta se actualizan solas. Se puede hacer hasta que el acta tenga el visto bueno.
 
      ![Recuadro de la asistencia con el tag NFC, con el botón Abrir el quiosco](../../assets/teachers/actes-04-nfc.png)
 
@@ -78,10 +78,10 @@ veáis (la de una reunión a la que asististeis, la de vuestro departamento) se 
 
    ![Pestaña Puntos a tratar con dos puntos y, debajo, el orden del día que se forma con ellos](../../assets/teachers/actes-05-punts.png)
    En la pestaña **Contenido**, rellenad cada sección que el tipo de acta pide.
-   Las marcadas como obligatorias hay que rellenarlas antes de poder aprobar el acta.
+   Las marcadas como obligatorias hay que rellenarlas antes de poder dar el visto bueno al acta.
 7. En **Acuerdos**, añadid los acuerdos: qué se acuerda, quién se hace responsable (quien lleva su avance), quién está implicado
    (quien tiene que hacer algo, sin gestionarlo) y para cuándo. En la **descripción** explicad cómo
-   llevarlo a cabo (enlaces, instrucciones); sale en el PDF. Una vez aprobada el acta, los responsables
+   llevarlo a cabo (enlaces, instrucciones); sale en el PDF. Una vez que el acta tiene el visto bueno, los responsables
    lo reciben en su [resumen diario](daily-summary.md) y lo mantienen al día desde el formulario del acuerdo. El
    código de cada acuerdo se asigna solo.
 8. Guardad. El **código** del acta, que habéis visto formarse en la parte superior del formulario a medida
@@ -101,7 +101,7 @@ veáis (la de una reunión a la que asististeis, la de vuestro departamento) se 
 
 ## Convocar la reunión
 
-Mientras el acta no se haya enviado a aprobar, **Acciones → Enviar la convocatoria** envía un correo a todas las personas
+Mientras el acta no se haya enviado al visto bueno, **Acciones → Enviar la convocatoria** envía un correo a todas las personas
 convocadas (las de la lista de asistentes) con la fecha, la hora, el lugar, la modalidad, el orden del día y
 un enlace al acta de la reunión anterior, para que puedan leerla antes de aprobarla.
 
@@ -124,7 +124,7 @@ rellenándolos a medida que avanza la reunión.
 - **Asistencia:** quién ha asistido y quién falta (o el quiosco, si se recoge con el tag NFC). Nadie puede
   estar en las dos listas: si añadís a una persona a una, sale de la otra, y también podéis arrastrar a una
   persona de una lista a la otra.
-- **Aprobación del acta anterior:** abrid su PDF, marcad si se aprueba y anotad las enmiendas.
+- **Aprobación del acta anterior:** abrid su PDF, marcad si se aprueba y anotad las enmiendas (consultad [Aprobación en la reunión siguiente](#aprobacion-en-la-reunion-siguiente)).
 - **Seguimiento de los acuerdos:** cada acuerdo que seguía abierto tiene su ficha. Escribid qué se ha dicho,
   poned una **nueva fecha límite** si hace falta y marcad **Hecho** si se da por cerrado. Lo que escribís
   queda en el seguimiento del propio acuerdo, y un acuerdo cerrado ya no vuelve a salir en la reunión siguiente.
@@ -144,35 +144,60 @@ rellenándolos a medida que avanza la reunión.
 
 El acta se guarda sola mientras escribís, en las pausas, sin mover el cursor de donde escribís. **Abrir el borrador del acta**, arriba y abajo de
 la pantalla, muestra el PDF tal como quedaría, marcado como borrador, mientras el acta está en reunión o
-pendiente de aprobar. Si hay que volver a cambiar la fecha o los convocados,
+pendiente del visto bueno. Si hay que volver a cambiar la fecha o los convocados,
 **Acciones → Volver a la preparación**.
 
-## Aprobar
+## Visto bueno y aprobación
 
-En **Firmas**, el campo **Visto bueno** indica quién aprobará el acta. Viene propuesto el responsable del
-ámbito que se reúne (el jefe de departamento, el tutor del grupo, la dirección) y el desplegable muestra
-primero a esas personas; se puede elegir a cualquier otra escribiendo su nombre o con **Buscar más**.
+El acta de una reunión pasa por dos pasos: quien responde de ella le da el **visto bueno**, que la cierra, y la
+**reunión siguiente** del mismo tipo y ámbito la **aprueba**, una vez que su gente la ha leído.
+
+### Quién da el visto bueno
+
+En **Firmas**, el campo **Visto bueno** indica quién lo dará. Viene propuesto el responsable del ámbito que se
+reúne (el jefe de departamento, el tutor del grupo, la dirección) y el desplegable muestra primero a esas personas;
+se puede elegir a cualquier otra escribiendo su nombre o con **Buscar más**.
 
 ![Bloque Firmas con quien redacta el acta y quien le dará el visto bueno](../../assets/teachers/actes-09-signatures.png)
 
-(1) Quién aprobará el acta.
+(1) Quién dará el visto bueno al acta.
 
+### Enviarla al visto bueno, con el borrador para los participantes
 
-Cuando el acta esté lista, **Acciones → Enviar a aprobar**. Un diálogo os pide que lo confirméis y ofrece **Enviar
-también el borrador a los participantes**, marcado. Lo recibe todo el mundo que estaba convocado, haya asistido o
-no: el personal, un correo con un enlace al PDF del borrador; los invitados de fuera de EMS, el PDF adjunto. Así
-pueden revisarlo ahora que tienen fresca la reunión y responder con cualquier corrección antes de que se apruebe. Mientras se celebra
-la reunión o el acta espera la aprobación, **Acciones → Enviar el borrador a los participantes** lo vuelve a enviar
-(por ejemplo, después de una corrección).
+Cuando el acta esté lista, **Acciones → Enviar al visto bueno**. Un diálogo os pide que lo confirméis y ofrece
+**Enviar también el borrador a los participantes**, marcado. Lo recibe todo el mundo que estaba convocado, haya
+asistido o no: el personal, un correo con un enlace al PDF del borrador; los invitados de fuera de EMS, el PDF
+adjunto. Así pueden revisarlo ahora que tienen fresca la reunión y responder con cualquier corrección antes del
+visto bueno. Mientras se celebra la reunión o el acta espera el visto bueno, **Acciones → Enviar el borrador a los
+participantes** lo vuelve a enviar (por ejemplo, después de una corrección).
 
-Quien tenga que dar el visto bueno la encontrará en su
-pantalla con la faceta *Pendientes de que yo apruebe*, y también recibe la tarea *Aprobar el acta* en su
-[resumen diario](daily-summary.md). Al aprobarla:
+![Diálogo para enviar el acta al visto bueno, con la opción de enviar el borrador a los participantes](../../assets/teachers/actes-10-enviar-vistiplau.png)
 
-- Queda registrado **quién la ha aprobado y cuándo**.
-- Se genera el **PDF**, que queda adjunto al acta.
-- El acta **ya no se puede modificar**. Si hay que corregir algo, se hace una versión nueva; no se
-  reescribe la que ya estaba aprobada.
+### Dar el visto bueno
+
+Quien debe darlo encuentra el acta en su pantalla con la faceta *Pendientes de mi visto bueno*, y también recibe la
+tarea *Dar el visto bueno al acta* en su [resumen diario](daily-summary.md). **Acciones → Dar el visto bueno**:
+
+- Deja registrado **quién lo ha dado y cuándo**.
+- El acta **ya no se puede modificar**: su estado pasa a **Con visto bueno**.
+- Se guarda su **PDF**, marcado *Con visto bueno, pendiente de aprobación en la reunión siguiente*.
+- Los acuerdos llegan a las personas responsables (consultad [Acuerdos](../quality/actions.md)).
+
+### Aprobación en la reunión siguiente
+
+En la reunión siguiente del mismo tipo y ámbito, el bloque **Aprobación del acta anterior** recoge qué decide la
+reunión: **Aprobado**, **Aprobada con cambios** (anotad las enmiendas) o **No aprobada** (anotad el motivo). Hay que
+rellenarlo antes de poder dar el visto bueno a esa acta, y es entonces cuando tiene efecto:
+
+- **Aprobado** o **Aprobada con cambios**: el acta anterior pasa al estado **Aprobado**, y su PDF definitivo indica en qué
+  reunión y en qué fecha. Las enmiendas quedan en el acta que la aprueba; la aprobada no se reescribe.
+- **No aprobada**: el acta anterior vuelve a **Reunión** para corregirla y necesita un nuevo visto bueno. Quien la
+  redacta lo sabe por su resumen diario, con lo que ha dicho la reunión. Se aprobará en una reunión posterior.
+
+![Bloque Aprobación del acta anterior, en la reunión siguiente](../../assets/teachers/actes-11-aprovacio-anterior.png)
+
+Los registros de evidencias, y los tipos de acta que el administrador configura para aprobarse **con el visto
+bueno** (para reuniones que no tienen una siguiente), quedan aprobados con el propio visto bueno.
 
 ## Mis acuerdos
 

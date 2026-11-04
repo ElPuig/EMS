@@ -145,12 +145,12 @@
                             </page>
                             <page string="Previous minute" name="previous" invisible="type_kind == 'record'">
                                 <group>
-                                    <field name="previous_minute_id" readonly="1"/>
+                                    <field name="previous_minute_id" readonly="1" force_save="1"/>
                                     <button name="action_open_previous_pdf" string="Open the previous minute's PDF" type="object" class="oe_link"
                                             icon="fa-file-pdf-o" colspan="2" invisible="not previous_minute_id"/>
                                 </group>
                                 <separator string="Agreements still open, carried over"/>
-                                <field name="followed_agreement_ids" widget="many2many" readonly="1">
+                                <field name="followed_agreement_ids" widget="many2many" readonly="1" force_save="1">
                                     <list>
                                         <field name="code"/>
                                         <field name="name"/>
@@ -237,7 +237,7 @@
                             <div class="o_ems_minute_block" name="block_previous" invisible="not previous_minute_id">
                                 <h3>Approval of the previous minute</h3>
                                 <group>
-                                    <field name="previous_minute_id" readonly="1"/>
+                                    <field name="previous_minute_id" readonly="1" force_save="1"/>
                                     <button name="action_open_previous_pdf" string="Open the previous minute's PDF" type="object" class="oe_link"
                                             icon="fa-file-pdf-o" colspan="2"/>
                                     <field name="previous_approved" widget="radio" options="{'horizontal': true}" readonly="state == 'approved'"/>
@@ -319,7 +319,7 @@
                                         <field name="sequence" widget="handle"/>
                                         <field name="name"/>
                                         <field name="is_done"/>
-                                        <field name="carried_from_minute_id" readonly="1" optional="show"/>
+                                        <field name="carried_from_minute_id" readonly="1" force_save="1" optional="show"/>
                                     </list>
                                 </field>
                             

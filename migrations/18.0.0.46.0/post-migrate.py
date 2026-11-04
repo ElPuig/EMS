@@ -31,5 +31,28 @@ def _unsubscribe_involved_people(cr):
     _logger.info("Agreements: %s people involved no longer follow them", cr.rowcount)
 
 
+def _remove_duplicated_pending_topics(cr):
+    """Issue #755: a minute created from the form carried the previous minute's pending topics
+    twice. Keep one of each (the one dealt with, else the one that says where it comes from) in
+    the minutes not approved yet; an approved minute is a closed record and stays as it is."""
+    cr.execute("""
+        DELETE FROM ems_minute_pending_topic
+         WHERE id IN (
+            SELECT id FROM (
+                SELECT topic.id,
+                       row_number() OVER (
+                           PARTITION BY topic.minute_id, topic.name
+                           ORDER BY COALESCE(topic.is_done, FALSE) DESC,
+                                    topic.carried_from_minute_id IS NULL, topic.id) AS position
+                  FROM ems_minute_pending_topic topic
+                  JOIN ems_minute minute ON minute.id = topic.minute_id
+                 WHERE minute.state != 'approved'
+            ) ranked
+             WHERE ranked.position > 1)
+    """)
+    _logger.info("Minutes: %s duplicated pending topics removed", cr.rowcount)
+
+
 def migrate(cr, version):
     _unsubscribe_involved_people(cr)
+    _remove_duplicated_pending_topics(cr)

@@ -604,10 +604,11 @@ class EmsMinute(models.Model):
         # Whatever an earlier choice of scope had carried over goes first: changing the department
         # in the form must not leave the other department's topics behind.
         self.pending_topic_ids -= self.pending_topic_ids.filtered('carried_from_minute_id')
-        self.pending_topic_ids = [(0, 0, {
-            'name': topic.name,
-            'carried_from_minute_id': previous.id,
-        }) for topic in pending]
+        # Each topic once: not one this minute already has (written by hand, or carried by an
+        # earlier run of this method), nor the repetitions an older minute may hold (issue #755).
+        present = set(self.pending_topic_ids.mapped('name'))
+        names = [name for name in dict.fromkeys(pending.mapped('name')) if name not in present]
+        self.pending_topic_ids = [(0, 0, {'name': name, 'carried_from_minute_id': previous.id}) for name in names]
 
     # --- Call to the meeting ---------------------------------------------------------------------
 

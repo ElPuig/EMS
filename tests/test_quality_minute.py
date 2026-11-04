@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import Form, TransactionCase
 
 from .common import create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email
 
@@ -121,6 +121,37 @@ class TestQualityMinute(TransactionCase):
                          "a closed agreement is not carried over")
         self.assertEqual(current.pending_topic_ids.mapped('name'), ['Still to discuss'])
         self.assertEqual(current.pending_topic_ids.carried_from_minute_id, previous)
+
+    def _minute_from_form(self):
+        """A minute created as the web client does: the readonly fields filled by the onchange
+        (the previous minute, where each topic comes from) reach the server only if they are
+        force-saved."""
+        with Form(self.env['ems.minute']) as form:
+            form.type_id = self.type
+            form.department_id = self.department
+            form.redactor_employee_id = self.env['hr.employee.public'].browse(self.employee.id)
+        return form.record
+
+    def test_pending_topics_are_carried_once_meeting_after_meeting(self):
+        """Issue #755: each minute created from the form carried its pending topics twice, and the
+        next one twice again."""
+        first = self._minute()
+        first.pending_topic_ids = [(0, 0, {'name': 'Projects jury'}), (0, 0, {'name': 'Room changes'})]
+        second = self._minute_from_form()
+        self.assertEqual(second.previous_minute_id, first)
+        self.assertEqual(sorted(second.pending_topic_ids.mapped('name')), ['Projects jury', 'Room changes'])
+        self.assertEqual(second.pending_topic_ids.carried_from_minute_id, first)
+        second.pending_topic_ids.filtered(lambda topic: topic.name == 'Room changes').is_done = True
+        third = self._minute_from_form()
+        self.assertEqual(third.previous_minute_id, second)
+        self.assertEqual(third.pending_topic_ids.mapped('name'), ['Projects jury'])
+
+    def test_a_topic_already_written_is_not_carried_again(self):
+        previous = self._minute()
+        previous.pending_topic_ids = [(0, 0, {'name': 'Projects jury'})]
+        current = self._minute(pending_topic_ids=[(0, 0, {'name': 'Projects jury'})], previous_minute_id=False)
+        current._ems_preload_previous()
+        self.assertEqual(current.pending_topic_ids.mapped('name'), ['Projects jury'])
 
     def test_carry_over_does_not_cross_scopes(self):
         other_department = self.env['hr.department'].create({'name': 'Minute Other Department'})

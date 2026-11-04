@@ -95,6 +95,22 @@ class EmsPortalErasmusGroupController(EmsPortalErasmusController):
             return request.redirect(f'{self._redirect}?group_error=1')
         return request.redirect(self._redirect)
 
+    @http.route('/my/erasmus/group/<int:mobility_id>/claim', type='http', auth='user', methods=['POST'], website=True)
+    def portal_erasmus_group_claim(self, mobility_id, description=None, **kwargs):
+        """A claim against the provisional list, with its files, as in the calls."""
+        mobility = self._ems_group_mobility(mobility_id)
+        registration = mobility.registration_ids.filtered(
+            lambda registration: registration.partner_id == request.env.user.partner_id)
+        if not registration:
+            return request.redirect('/my/home')
+        files = [(upload.filename, upload.read()) for upload in request.httprequest.files.getlist('claim_files')
+                 if upload.filename]
+        try:
+            registration._ems_portal_claim(description, files)
+        except UserError:
+            return request.redirect(f'{self._redirect}?group_error=1')
+        return request.redirect(f'{self._redirect}?group_claimed=1')
+
     @http.route('/my/erasmus/group/<int:mobility_id>', type='http', auth='user', website=True)
     def portal_erasmus_group(self, mobility_id, **kwargs):
         """The selected student's file: the mobility, their documents, and renouncing the place."""

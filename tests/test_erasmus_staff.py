@@ -14,9 +14,9 @@ from .test_erasmus import PDF, create_erasmus_fixtures, upload
 
 
 # The mobility plan (annex 1), written in the form and required to submit (issue #697).
-STAFF_PLAN = {'staff_activity': 'job_shadowing', 'host_entity': 'Test host school', 'destination': 'Test city',
-              'preferred_dates': 'June', 'plan_reason': 'Test reason', 'plan_objectives': 'Test objectives',
-              'plan_application': 'Test application'}
+STAFF_PLAN = {'proposal_a': 'Test proposal A: job shadowing at a VET school in Porto, in June',
+              'proposal_b': 'Test proposal B: an English course in Malta, in July',
+              'plan_text': 'Test plan: what to learn and how to apply it'}
 
 
 def create_staff_call_fixtures(cls):
@@ -109,15 +109,12 @@ class TestErasmusStaffCall(ErasmusStaffCase):
         self.assertFalse(self.panel_teacher.partner_id._ems_erasmus_calls())  # no employee file
 
     def test_staff_apply_once_without_a_modality(self):
-        application = self._apply(0, staff_activity='job_shadowing', host_entity='Test host',
-                                  availability='Ignored: a students\' answer')
+        application = self._apply(0, proposal_a='Test host', fewer_opportunities=True)
         self.assertEqual(application.employee_id, self.staff_employees[0])
         self.assertFalse(application.modality_id)
         self.assertFalse(application.is_minor)
-        self.assertEqual((application.staff_activity, application.host_entity), ('job_shadowing', 'Test host'))
-        self.assertFalse(application.availability)
-        with self.assertRaises(UserError):
-            application._ems_portal_save({'staff_activity': 'holidays'}, {})
+        self.assertEqual(application.proposal_a, 'Test host')
+        self.assertFalse(application.fewer_opportunities, "A students' answer, ignored.")
         with self.assertRaises(UserError):
             application._ems_portal_save({'declared_language_level': 'b1'}, {})
         with self.assertRaises(UserError):
@@ -126,7 +123,7 @@ class TestErasmusStaffCall(ErasmusStaffCase):
     def test_staff_conduct_warnings_never_count(self):
         application = self._admitted(0)
         self.assertEqual(application.state, 'admitted')
-        self.assertFalse(application.conduct_blocked)
+        self.assertFalse(application.conduct_review)
 
     def test_a_call_with_applications_keeps_its_audience(self):
         self._apply(0)
@@ -137,7 +134,8 @@ class TestErasmusStaffCall(ErasmusStaffCase):
         call = self.env['ems.erasmus.call'].create({
             'name': 'Staff call without places', 'audience': 'staff', 'date_open': self.staff_call.date_open,
             'date_close': self.staff_call.date_close})
-        self.assertEqual(len(call.document_ids), 3)
+        self.assertEqual(call.document_ids.mapped('requirement'), ['optional'],
+                         "Only the language certificates: no CV, and the identity document only of whoever goes.")
         self.assertEqual(call.modality_ids.mapped('project'), ['ka121_vet', 'ka131_hed'],
                          "One modality per project, without a period.")
         self.assertFalse(call.document_ids.filtered('panel_visible'), "The mobility plan is written in the form.")
@@ -199,13 +197,15 @@ class TestErasmusStaffCall(ErasmusStaffCase):
         self.assertEqual(call.interview_deadline, changed, "Unless it was changed by hand.")
 
     def test_staff_declare_their_last_mobility_and_seniority(self):
+        """The 2026-11-03 review: the applicant only ticks that they never had one at the Puig; the
+        team sets the last one of everyone else."""
         application = self._apply(0)
         self.assertEqual((application.declared_last_staff_mobility, application.declared_seniority), ('never', 'y5'))
-        start = self.staff_call.course_id.start
-        for day, band in ((f'{start}-10-01', 'recent'), (f'{start}-03-01', 'recent'),
-                          (f'{start - 2}-11-01', 'two_courses'), (f'{start - 2}-06-01', 'older')):
-            application.write({'declared_never_staff_mobility': False, 'declared_last_mobility_date': day})
-            self.assertEqual(application.declared_last_staff_mobility, band, day)
+        application.declared_never_staff_mobility = False
+        self.assertFalse(application.declared_last_staff_mobility)
+        self.assertFalse(application._ems_staff_last_mobility(), "Until the team sets it.")
+        application.last_staff_mobility = 'recent'
+        self.assertEqual(application._ems_staff_last_mobility(), 'recent')
         close = self.staff_call.date_close
         application.declared_centre_start_date = fields.Date.subtract(close.date(), months=1)
         self.assertEqual(application.declared_seniority, 'y0')
@@ -215,7 +215,7 @@ class TestErasmusStaffCall(ErasmusStaffCase):
         application.seniority = 'y5'  # the team corrects it
         self.assertEqual(application.score_seniority, 2.0)
 
-    def test_staff_must_declare_last_mobility_and_seniority_to_submit(self):
+    def test_staff_must_declare_their_seniority_to_submit(self):
         partner = self.staff_users[1].partner_id
         application = self.env['ems.erasmus.application']._ems_portal_get_or_create(self.staff_call, partner)
         application._ems_portal_save(STAFF_PLAN, {self.id_document.id: [('id.pdf', PDF)]})
@@ -225,14 +225,14 @@ class TestErasmusStaffCall(ErasmusStaffCase):
     def test_staff_write_every_section_of_the_mobility_plan_to_submit(self):
         partner = self.staff_users[1].partner_id
         application = self.env['ems.erasmus.application']._ems_portal_get_or_create(self.staff_call, partner)
-        application._ems_portal_save({'declared_never_staff_mobility': True, 'declared_centre_start_date': '2015-09-01',
-                                      **STAFF_PLAN, 'host_entity': False}, {self.id_document.id: [('id.pdf', PDF)]})
-        with self.assertRaises(UserError, msg="Always with a concrete host entity or course."):
+        application._ems_portal_save({'declared_centre_start_date': '2015-09-01', **STAFF_PLAN, 'proposal_b': False},
+                                     {self.id_document.id: [('id.pdf', PDF)]})
+        with self.assertRaises(UserError, msg="Proposal B, the backup, is required too."):
             application.action_submit()
-        application._ems_portal_save({'host_entity': 'Test course provider', 'plan_objectives': False}, {})
+        application._ems_portal_save({'proposal_b': 'Test course', 'plan_text': False}, {})
         with self.assertRaises(UserError):
             application.action_submit()
-        application._ems_portal_save({'plan_objectives': 'Test objectives'}, {})
+        application._ems_portal_save({'plan_text': 'Test plan'}, {})
         application.action_submit()
         self.assertEqual(application.state, 'submitted')
 
@@ -251,6 +251,17 @@ class TestErasmusPlanRating(ErasmusStaffCase):
         self.staff_call.action_close()
         self.staff_call.with_user(self.erasmus_user).action_send_to_panel()
         return applications
+
+    def test_the_call_opens_its_panel_ratings_and_the_panel_its_own_menu(self):
+        """The issue-#682 review: the team opens a call's plan ratings from its form; a panel
+        member gets "My plan ratings" only, never the interviewers' "My evaluations"."""
+        first, *_rest = self._sent_to_panel()
+        action = self.staff_call.with_user(self.erasmus_user).action_view_plan_ratings()
+        self.assertEqual(self.env['ems.erasmus.plan_rating'].search(action['domain']),
+                         self.staff_call.application_ids.plan_rating_ids)
+        self.assertIn(first.plan_rating_ids[:1], self.env['ems.erasmus.plan_rating'].search(action['domain']))
+        self.assertTrue(self.panel_teacher.has_group('ems.group_erasmus_panel'))
+        self.assertFalse(self.panel_teacher.has_group('ems.group_erasmus_evaluator'))
 
     def test_every_panel_member_rates_every_plan_and_candidates_abstain(self):
         first, _second, third = self._sent_to_panel()
@@ -297,9 +308,27 @@ class TestErasmusPlanRating(ErasmusStaffCase):
         self._rate(first, '1', '0.5')
         self.assertTrue(first.plan_complete)  # only the Head of Studies rates: the other two abstain
         self.assertEqual(first.plan_score, 1.5)
+        self.assertEqual(rating.rating_status, 'abstention', "Shown as an abstention, not as a plan to rate.")
         rating.abstention_reason = False
         self.assertEqual(rating.evaluator_id, self.panel_teacher)
+        self.assertEqual(rating.rating_status, 'draft')
         self.assertFalse(first.plan_complete)
+
+    def test_submit_and_open_the_next_plan_to_rate(self):
+        self._sent_to_panel()
+        mine = self.env['ems.erasmus.plan_rating'].with_user(self.panel_teacher).search(
+            [('evaluator_id', '=', self.panel_teacher.id)])
+        self.assertGreater(len(mine), 1)
+        mine[0].write({'relevance': '1', 'transfer': '1'})
+        action = mine[0].action_submit_next()
+        self.assertEqual(mine[0].state, 'submitted')
+        self.assertEqual(action['res_id'], mine[1].id, "The next plan opens.")
+        for rating in mine[1:]:
+            rating.write({'relevance': '1', 'transfer': '1'})
+        mine[1:-1].action_submit()
+        action = mine[-1].action_submit_next()
+        self.assertEqual(action['res_model'], 'ems.erasmus.plan_rating')
+        self.assertFalse(action.get('res_id'), "None left: back to the list.")
 
     def test_plan_score_is_the_mean_and_a_pending_rating_blocks(self):
         first = self._sent_to_panel()[0]
@@ -324,8 +353,7 @@ class TestErasmusPlanRating(ErasmusStaffCase):
         self.assertEqual(len(mine), 3)
         rating = mine.filtered(lambda rating: rating.application_id == first)
         # The plan written in the form, and none of the application's documents.
-        self.assertEqual((rating.plan_activity, rating.plan_host, rating.plan_destination, rating.plan_dates,
-                          rating.plan_reason, rating.plan_objectives, rating.plan_application), tuple(STAFF_PLAN.values()))
+        self.assertEqual((rating.plan_proposal_a, rating.plan_proposal_b, rating.plan_text), tuple(STAFF_PLAN.values()))
         self.assertFalse(rating.plan_attachment_ids)
         self.assertFalse(self.env['ems.erasmus.application.document'].with_user(self.panel_teacher).search([]))
         with self.assertRaises(AccessError):
@@ -491,14 +519,24 @@ class TestPortalErasmusStaff(HttpCase):
         url = f'/my/erasmus/call/{self.staff_call.id}'
         self.assertIn(b'o_ems_erasmus_staff_form', self.url_open(url).content)
         response = self.url_open(f'{url}/save', data={
-            'csrf_token': Request.csrf_token(self), **STAFF_PLAN, 'staff_activity': 'course', 'host_entity': 'Test course',
-            'destination': 'Test city, Test country', 'support_needs': 'Test need', 'declared_language_level': 'c2',
-            'declared_last_mobility_date': '2024-03', 'declared_centre_start_date': '2015-09', 'submit': '1',
+            'csrf_token': Request.csrf_token(self), **STAFF_PLAN, 'proposal_a': 'Test course in Test city',
+            'support_needs': 'Test need', 'declared_language_level': 'c2', 'declared_centre_start_date': '2015-09',
+            'submit': '1',
         }, files=[(f'document_{self.id_document.id}', ('id.pdf', PDF, 'application/pdf'))])
         self.assertTrue(response.url.endswith('/my/erasmus?submitted=1'))
         application = self.env['ems.erasmus.application'].search([('call_id', '=', self.staff_call.id)])
         self.assertEqual(application.state, 'submitted')
         self.assertEqual(application.employee_id, self.staff_employees[0])
-        self.assertEqual((application.staff_activity, application.support_needs, application.declared_language_level),
-                         ('course', 'Test need', 'c2'))
-        self.assertEqual(str(application.declared_last_mobility_date), '2024-03-01')
+        self.assertEqual((application.proposal_a, application.support_needs, application.declared_language_level),
+                         ('Test course in Test city', 'Test need', 'c2'))
+        self.assertEqual(str(application.declared_centre_start_date), '2015-09-01')
+        self.assertFalse(application.declared_never_staff_mobility, "Not ticked: the team sets the last one.")
+
+    def test_backend_user_menu_offers_the_portal_page(self):
+        """The issue-#682 review: the backend's session says who has the portal's Erasmus+ page,
+        for the user menu's "My Erasmus+ application"."""
+        self.authenticate(self.staff_users[0].login, self.staff_users[0].login)
+        self.assertTrue(self.make_jsonrpc_request('/web/session/get_session_info')['ems_erasmus_portal'])
+        self.authenticate(self.panel_teacher.login, self.panel_teacher.login)
+        self.assertFalse(self.make_jsonrpc_request('/web/session/get_session_info')['ems_erasmus_portal'],
+                         "No employee file that can apply, no application.")

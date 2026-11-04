@@ -394,6 +394,7 @@
         'views/erasmus/grant/views.xml',
         'views/erasmus/group_mobility/views.xml',
         'views/erasmus/document_review/views.xml',
+        'views/erasmus/history/views.xml',
         'views/erasmus/menu.xml',
 
         'views/sales/product_view.xml',
@@ -432,7 +433,9 @@
         'mails/enrollment/authorization_send.xml',
         'mails/grades/convalidation_resolved.xml',
         'mails/grades/convalidation_info_request.xml',
+        'mails/erasmus/layout.xml',
         'mails/erasmus/application.xml',
+        'mails/erasmus/call.xml',
         'mails/erasmus/resolution.xml',
         'mails/erasmus/mobility.xml',
         'mails/erasmus/group_mobility.xml',

@@ -4,7 +4,7 @@
 
 # Accompanying an Erasmus+ group mobility
 
-If you are the **leader teacher** or an **accompanying teacher** of an Erasmus+ group mobility, you will find it in **Erasmus+ > My group mobilities**. You do not apply to any call: the Erasmus coordination adds you.
+If you are the **leader teacher** or an **accompanying teacher** of an Erasmus+ group mobility, you will find it in **Erasmus+ > My participation > My group mobilities**. You do not apply to any call: the Erasmus coordination adds you.
 
 ---
 

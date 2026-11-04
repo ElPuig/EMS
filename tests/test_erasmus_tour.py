@@ -28,7 +28,7 @@ class TestErasmusTour(HttpCase):
         self.start_tour('/my/erasmus', 'ems_portal_erasmus_apply', login='test_portal_erasmus_student')
         application = self.env['ems.erasmus.application'].search([('partner_id', '=', self.student.id)])
         self.assertEqual(application.state, 'submitted')
-        self.assertEqual(application.availability, 'Summer')
+        self.assertEqual(application.applicant_notes, 'Summer')
 
     def test_review_tour(self):
         application = self._submitted_application()
@@ -44,3 +44,9 @@ class TestErasmusTour(HttpCase):
         self._submitted_application()
         self.start_tour('/odoo/action-ems.action_erasmus_application', 'ems_erasmus_head_of_studies_reads',
                         login='test_erasmus_hos')
+
+    def test_call_announce_tour(self):
+        self.start_tour('/odoo/action-ems.action_erasmus_call', 'ems_erasmus_call_announce', login='test_erasmus_team')
+        self.assertEqual(self.call.announce_count, 2)
+        self.assertEqual(len(self.env['mail.mail'].search([('model', '=', 'ems.erasmus.call'),
+                                                           ('res_id', '=', self.call.id)])), 2)

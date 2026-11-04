@@ -63,6 +63,28 @@ accepted only while it is published **and** the company's local time is between 
 `date_close` (`is_accepting`, computed with `ems.datetime_utils`, never the browser's clock).
 Closing turns every application still in draft into *Not submitted*.
 
+### Notice of the open call and reminder before closing
+
+Publishing emails nobody. `action_announce` opens the `ems.erasmus.call.announce` wizard (Erasmus
+team only), which counts the recipients and calls `_ems_send_announce()`; the hourly cron
+`ir_cron_erasmus_remind_closing` (`_cron_remind_closing()`) sends the reminder.
+
+| | Notice (`email_template_erasmus_call_open`) | Reminder (`email_template_erasmus_call_reminder`) |
+|---|---|---|
+| Triggered by | the Erasmus team, from the call (any number of times) | the cron, once per call (`reminder_date`) |
+| When | while published and not closed (before `date_open` too) | from `reminder_days` days before the closing day (local), from 9:00 (`REMINDER_HOUR`), while `is_accepting`, and only if `announce_date` is set |
+| To | `_ems_eligible_partners()` | the same, minus the partners with an application not in draft |
+| Recorded in | `announce_date`, `announce_count`, chatter | `reminder_date`, `reminder_count`, chatter |
+
+`_ems_eligible_partners()` mirrors the portal's rule (`res.partner._ems_erasmus_calls()`) in the
+other direction, for the whole centre in a few queries: students whose main group is of a modality's
+level, minus `_ems_conduct_blocked_partners()` (one `_read_group` over `ems.strike` from
+`_ems_course_start()`); staff, the internal users of the teachers of `staff_level_ids` plus
+`validator_ids`. `_ems_announce()` renders the template once per language (`send_mail` for the
+first recipient) and creates one `mail.mail` per recipient with the same values, so nobody sees
+another address. Partners without an email are skipped and counted in the wizard. Families never
+receive these emails.
+
 ## Application states
 
 ```mermaid
@@ -93,8 +115,15 @@ stateDiagram-v2
   `ems.group_erasmus` internal users), so it shows in their daily pending-tasks digest; admitting,
   excluding or asking for corrections again marks it done.
 - **Admit** needs the requirements met, every required document *Valid* and, in a students' call,
-  no conduct block (below). **Exclude** needs the exclusion reason.
-- Emails go only to the applicant's own address; a recipient without one is noted in the chatter.
+  no conduct block (below). **Exclude** needs the exclusion reason. It also deletes the
+  application's evaluations still to score (interviews, plan ratings) with their to-dos, and, once
+  the admission list is published (e.g. not attending the interview), emails the reason
+  (`email_template_erasmus_application_excluded`) instead of leaving it for the next list; the
+  portal's "what to do now" box shows the reason too.
+- Emails go to the applicant's own address (the family gets a copy only of the place offered and of
+  the answer to it, see *Place offers*, whenever EMS keeps it informed about the student: a minor, or
+  an adult who authorized sharing with the family, `res.partner._ems_informed_recipients()`, the same
+  rule as convalidations); a recipient without one is noted in the chatter.
   Their reply-to is whoever on the team caused the email (`_ems_reply_to()`), else the centre's
   Erasmus+ mailbox, `res.company.erasmus_contact_email` (Settings > Center Data > Erasmus+, the same
   for every call; it defaults to the centre's address, like `google_ws_domain`, so an upgrading
@@ -115,14 +144,28 @@ family authorization if minor): recorded by the Erasmus team, with result (*Pend
 **Conduct** (students' call, art. 6), never recorded by hand: EMS has no register of
 disciplinary sanctions, only the conduct warnings (`ems.strike`), and the coexistence team reviews
 a case each time a student reaches `res.company.strike_escalation_threshold` warnings (3 by
-default). The same number rules a student out: `call._ems_course_strike_count(partner)` counts
-their warnings since 1 September of the call's course (`ems.course.date_range()`, centre's
-timezone), and `call._ems_conduct_blocked(partner)` is true at the threshold or above (a threshold
-of 0 disables it; staff calls never). Shown on the application as `course_strike_count` and
-`conduct_blocked` (non-stored). A blocked student sees the call on the portal with a notice
-instead of *Apply*; `_ems_portal_get_or_create()` and `action_submit()` refuse them, and
-`action_admit()` refuses an application whose warnings came after submitting (the form warns the
-team to exclude it). Criterion F, the scoring's penalty per warning, is unrelated and unchanged.
+default). That number rules nobody out (adriamt, 2026-11-03): art. 6 says the Erasmus team *may*
+exclude, with a reason and having heard the teaching team and the coexistence team, a student with
+disciplinary records or serious coexistence incidents this course. EMS only points them out:
+`call._ems_course_strike_count(partner)` counts their warnings since 1 September of the call's
+course (`ems.course.date_range()`, centre's timezone), shown on the application as
+`course_strike_count` and `conduct_review` (non-stored, true at the threshold or above, via
+`_ems_conduct_blocked_count()`; a threshold of 0 disables it; staff calls never). The form warns
+the team at the top while the application is under review, and **Exclude** (with its reason) does
+the rest. Criterion F, the scoring's penalty per warning, still applies to whoever goes on. Group
+mobilities follow the same rule (the coordinator's exclusion is a result exception there).
+
+**Application documents** (the 2026-11-03 review). Each call document says how it is handed in
+(`upload_kind`): *files*, *PDF only* (`_ems_add_files` refuses a file not named `.pdf` or not
+starting with `%PDF`: the CV sent to companies) or *a link* (the presentation video on Google
+Drive: `_ems_add_link` keeps it as an `ir.attachment` of type `url`, so the line's file state, the
+review and the submit check treat it like a file; the dossier ZIP writes it as an Internet shortcut,
+`.url`). `help_url` is shown with the instructions (the Europass editor). The requirement
+`fewer_opportunities` makes a line required only when the applicant declares fewer opportunities
+(`is_required`); the portal renders those documents under the fewer opportunities box and hides
+them with CSS until it is ticked (`:has()`, no script). The portal form puts the documents first,
+then fewer opportunities, then the notes; there is no availability question (the dates are in the
+rules).
 
 The Head of Studies and the Director read the applications; they write nothing on them.
 
@@ -130,7 +173,7 @@ The Head of Studies and the Director read the applications; they write nothing o
 
 | Route | What |
 |---|---|
-| `GET /my/erasmus` | Published calls the student can apply to and their own applications. |
+| `GET /my/erasmus` | The person's own applications, the calls open to them now, and the others folded. |
 | `GET /my/erasmus/call/<id>` | The application form for that call. |
 | `POST /my/erasmus/call/<id>/save` | Save answers and uploads; with `submit`, submit too. |
 | `GET /my/erasmus/call/<id>/rules` | Download the call PDF. |
@@ -139,7 +182,26 @@ The applicant is always `request.env.user.partner_id`: no partner or application
 form. The controller works with `sudo()` (portal users have no ACL on these models) and checks
 eligibility and state itself. The portal home card appears only to students who have an
 application or can apply to a published call (`res.partner._ems_erasmus_portal_visible`); families
-do not see it.
+do not see it. The portal's top menu has an *Erasmus+* entry under the same rule
+(`views/portal/portal_header.xml`, like *Convalidations*), so a student who cannot apply (PFI, CFGB)
+sees neither.
+
+The page lists the person's own applications first (*My applications*), then the calls they can
+apply to now (*Open calls*), and folds the rest (not open yet, or closed) under *Other calls*. Each
+application, on that page and on its own, shows a step bar and a "what to do now" box, both from
+`ems.erasmus.application._ems_portal_progress()`: eight steps (application, document check,
+interview or plan rating, resolution, place, preparation, stay, return), each `done`, `current`,
+`todo` or `failed` (where an excluded, not submitted, not selected or renounced application ended),
+and the next action with its deadline and colour (`warning` when the person has something to do).
+The state badge is coloured by `PORTAL_STATE_BADGES`. The corrections asked for and the interview
+are in that box (its class keeps `o_ems_erasmus_subsanation` / `o_ems_erasmus_interview`). Once the
+application can no longer change, the call's text and the form fold under *The call and my
+application*; of the published results, the newest is open and the earlier ones folded. A defined
+mobility (preparing or closed) is split into tabs (Summary, My record, Steps, During the stay, On
+return), opened on the one with something to do.
+
+The form never asks whether the student took part in Erasmus+ before: *First
+mobility* (criterion E) is the Erasmus team's, checked against the person's history below.
 
 ## Access control
 
@@ -155,7 +217,35 @@ coordinator alone approves them). The administrator is a member of both.
 | `ems.erasmus.application` | rwcu | r | via controller |
 | `ems.erasmus.application.document` | rwcu | r, **not confidential ones** (`ir.rule`) | via controller |
 
-Menu *Erasmus+*: *Applications* (team, Head of Studies, Director) and *Calls* (team).
+Menu *Erasmus+*, in sections like the rest of EMS, each shown only to whoever sees one of its entries:
+
+| Section | Entries |
+|---|---|
+| *Calls* | Calls, Applications, Ranking, Claims, Resolutions, Place offers |
+| *Mobilities* | Individual mobilities, Group mobilities |
+| *Financial management* | Projects, Invoices, Grant payments |
+| *My participation* | My evaluations, My plan ratings, My group mobilities, My application |
+| *Configuration* | Host entities |
+
+Every teacher has the app (right below *Meetings*), at least for *My participation > My
+application*, which opens their portal page `/my/erasmus` (an `ir.actions.act_url`): that is where
+staff apply to the staff call and follow their mobility, the Erasmus+ team included. Opening the app
+runs its first entry, so *My participation* goes after the management sections (the team lands on
+the calls) and *My application* last in it (an interviewer or a panel member lands on their own
+scoring, a teacher with nothing else on their portal page). The personal entries other than *My
+application* only show to whoever has something there. Each one has its own hidden group, managed by EMS (`res.users._ems_sync_erasmus_evaluator_group`,
+`_ems_sync_erasmus_group_teacher_group`), so nobody sees an entry with nothing in it: an interviewer
+is in `ems.group_erasmus_evaluator`, a panel member with plans to rate in `ems.group_erasmus_panel`.
+
+The call's form opens each step of its own process with a stat button (`ems.erasmus.call.
+_ems_call_action`, an action narrowed to the call): Applications, Ranking, Interviews (students)
+or Plan ratings (staff), Resolutions, Claims, Place offers and Mobilities. Interviews and Plan
+ratings have no menu entry: they are only reached from their call.
+
+A staff member applies on the portal but works in the backend: the user menu has *My Erasmus+
+application* (`static/src/js/backend/user_menu_erasmus.js`), shown when `session_info`'s
+`ems_erasmus_portal` (`models/erasmus/ir_http.py`, `_ems_erasmus_portal_visible` of an internal
+user) is true.
 
 ### Workflow fields and evidence (audit 2026-10-25)
 
@@ -292,7 +382,8 @@ erDiagram
 `ems.erasmus.interview` and the staff's `ems.erasmus.plan_rating` (phase 4) share the evaluator's
 workflow through the abstract model `ems.erasmus.evaluation` (`models/erasmus/evaluation.py`):
 evaluator, state, submit, reopen, lock at the review deadline or the provisional resolution, the
-evaluator's activity, `ems.group_erasmus_evaluator` membership and the write guard (an evaluator
+evaluator's activity, the evaluator group membership (`ems.group_erasmus_evaluator` for an
+interview, `ems.group_erasmus_panel` for a plan rating) and the write guard (an evaluator
 writes only the rubric `_ems_criteria` and their notes). Each model only adds its rubric.
 
 The Erasmus team sets the interview's date and place on the application (`interview_date`,
@@ -316,7 +407,8 @@ stateDiagram-v2
 
 - **Evaluators see only their own interviews** (record rule `evaluator_id = user`), never the
   other evaluator's, nor anything else of the application. Being assigned adds them to
-  `ems.group_erasmus_evaluator` (*Erasmus+ > My evaluations*); losing every interview removes it.
+  `ems.group_erasmus_evaluator` (*Erasmus+ > My participation > My evaluations*); losing every interview removes it.
+  The panel's plan ratings use `ems.group_erasmus_panel` the same way (*My plan ratings*).
 - After the call's `interview_deadline` (label *Score correction deadline*, shared with the plan ratings) the evaluator can no longer change or reopen; the team
   can still reopen, writing a rectification note (`rectification_note`), posted in the chatter.
 - The application's interview score is the mean of the submitted interviews, complete when every
@@ -351,7 +443,7 @@ erDiagram
 | `ems.erasmus.resolution.line` | One applicant in it, frozen when the resolution was prepared: modality, rank, every criterion, total, result, masked identity document. Described as "Erasmus+ result" and named "<applicant> - <resolution>", which is what the email layout's header shows. |
 | `ems.erasmus.offer` | A place offered to an applicant and their answer. |
 | `ems.erasmus.offer.wizard` | Offer a free place to the next reserve (transient). |
-| `ems.erasmus.claim` | A claim (after the provisional) or an appeal before the Director, recorded by the team. |
+| `ems.erasmus.claim` | A claim (after the provisional) or an appeal before the Head of Studies (after the definitive). |
 
 New fields on the call: `claims_deadline` (shown to applicants with the provisional result) and
 `acceptance_deadline` (the deadline of the offers made when the definitive resolution is
@@ -399,19 +491,27 @@ Then:
   no write access at all). A correction is a new rectification.
 - Every applicant on it gets their result by email (`email_template_erasmus_resolution_published`,
   rendered per line): the reason if excluded, the rank and total otherwise, the claims deadline
-  with the provisional, the acceptance deadline if selected. Replies go to whoever published it,
-  which is how claims arrive.
+  with the provisional, the acceptance deadline if selected, and with a definitive resolution or a
+  rectification how to appeal it (`ems.erasmus.resolution._ems_appeal_notice()`, also shown on the
+  portal next to that list and in the group mobilities' result email). Replies go to whoever
+  published it. A student offered a place by the list gets it with a copy to their family when EMS
+  keeps it informed (`_ems_mail(..., family_copy=True)`: `email_cc` with the family of
+  `_ems_informed_recipients()`: a minor's, or an adult's who authorized sharing).
 - The provisional resolution locks every interview of the call (`ems.erasmus.interview.is_locked`),
   as the review deadline does: after it, only a team rectification reopens one.
 - A definitive resolution or a rectification sets each application's state to its result - except
   those that already answered an offer (`accepted`, `renounced`), which a rectification never
   undoes - and creates an offer for every selected one without an offer waiting or accepted, with
   the call's `acceptance_deadline`. No separate offer email: the result email already asks them to
-  answer. A rectification withdraws (`cancelled`, noted in the chatter) the offers still waiting of
+  answer. The selected's result email, a free place's offer email and the portal's offer card list
+  the modality's destinations with their places (`ems.erasmus.call.modality._ems_offer_destinations()`,
+  `ems.erasmus.destination._ems_offer_label()`), plus the position on the portal: the destination is
+  chosen later by turns, so the student knows what they may get before accepting. A rectification withdraws (`cancelled`, noted in the chatter) the offers still waiting of
   whom it no longer selects: the offer they got as selected, or any offer once below the minimum
   score; a reserve keeps an offer made for a free place. Whoever already accepted or renounced gets
   the list with "you keep the place you accepted" / "you renounced earlier" instead of the result
-  line, since their state does not change.
+  line, since their state does not change (or "you did not answer the offer in time", from
+  `ems.erasmus.application._ems_offer_expired()`).
 - Since an accepted place is never withdrawn, a rectification can leave more people with a place
   than places (who accepted, plus whom it now selects). `_ems_places_overflow()` counts them per
   modality (a staff call: the whole pool) on the draft; `places_warning` shows it on the form and
@@ -440,7 +540,19 @@ stateDiagram-v2
   optional `reason`), before the deadline, which `_ems_answer` checks with the centre's clock. The
   application moves to `accepted` or `renounced`.
 - No answer = renounced: the hourly cron `ems.ir_cron_erasmus_expire_offers`
-  (`_cron_expire_offers`) marks the offer `expired` and the application `renounced`.
+  (`_cron_expire_offers`) marks the offer `expired` and the application `renounced`. The portal and
+  the rectification email tell it apart from a renunciation in writing (`_ems_offer_expired()`).
+- Every answer, and the deadline passing without one, is confirmed by email
+  (`email_template_erasmus_offer_answer`, one template branching on the offer's state; `_ems_send_answer`),
+  and so is a place offered to a reserve (`email_template_erasmus_offer`), both with a copy to the
+  family of a minor or of an adult who authorized sharing. The family gets no copy of the other lists nor of the claims.
+- Accepting tells the student's group tutor (`_ems_notify_tutor`): a `message_notify` on the
+  student, a notice and not a to-do, like the convalidations' notice to the teaching staff.
+- The call counts `places_accepted` out of `places_total` (its modalities' places) and
+  `offers_pending` (non-stored, `_compute_offers`): the **Places accepted** button and a notice on
+  the call form, so the team knows when to open the destination choice. A reserve's result email
+  gives their number (`_ems_reserve_number`); an admitted or excluded applicant's does not point to
+  a score they do not have.
 - **A free place is never offered on its own.** The modality computes `free_places` (places minus
   the offers waiting or accepted) and `next_reserve_id` (the best-ranked `reserve` application
   without one). The team clicks **Actions > Offer a free place** on the call; the wizard shows that
@@ -454,12 +566,32 @@ stateDiagram-v2
   No reserve left means no task.
 - The team can withdraw an offer still waiting (*Withdraw offer*, e.g. made by mistake; state `cancelled`): the place becomes free again.
 
-### Claims
+### Claims and appeals
 
-A log, recorded by the team from the email that brought it (art. 14): application, the published
-resolution it is against, kind (claim, appeal before the Director), received date, text, files,
-response. **Resolve** needs the response and stamps the date. Upholding a claim means correcting the
-application's data and publishing the next resolution (the definitive, or a rectification).
+A log (art. 14): application, the published resolution it is against, kind (claim, appeal before
+the Head of Studies), received date, text, files, response. The applicant sends a claim from the
+portal while the newest published provisional resolution is claimable
+(`ems.erasmus.application._ems_portal_claimable`: before the call's claims deadline);
+`_ems_portal_claim` creates it with its files and gives every member of the Erasmus team a to-do
+(`ems.erasmus.claim._ems_ask_answer`). A claim or an appeal that arrives by email is recorded by the
+team. Creating one emails the applicant a receipt with the moment it arrived
+(`email_template_erasmus_claim_received`); **Resolve** needs the response, stamps the date, closes
+the to-dos and emails the response (`email_template_erasmus_claim_resolved`). Upholding a claim
+means correcting the application's data and publishing the next resolution (the definitive, or a
+rectification).
+
+**Appeals follow the hierarchy, not the role.** An appeal is answered by
+`_ems_appeal_approvers()`: the Head or Deputy Head of Studies found by
+`hr.employee.find_head_of_studies()` from the student's group tutor (`main_group_id.tutor_id`), or
+from the teacher themself in a staff call; the Director when the applicant is that Head of Studies
+or none is found; the administrators when the applicant is the Director. Creating an appeal (or
+changing a claim's kind to appeal) gives them the to-do instead of the team. `can_resolve`
+(non-stored, `depends_context('uid')`) shows **Resolve**/**Reopen** and makes the response editable,
+and `_ems_check_can_resolve()` re-checks it server-side: the team answers the claims, the resolved
+approvers the appeals, the administrator any of them. `ems.group_head_of_studies` has write access
+on the model only for that: `write()` lets anyone outside the team change nothing but `response`,
+and only where `can_resolve` holds (another Head of Studies cannot). `can_edit` makes the rest of the
+form read-only for them.
 
 ### Export to spreadsheet
 
@@ -496,6 +628,15 @@ in the call's (or group mobility's) chatter. Who can download it does not change
 | `GET /my/erasmus/call/<id>/resolution/<id>` | The published list, without names. Only for applicants of that call, only published resolutions. |
 | `GET /my/erasmus/call/<id>/resolution/<id>/pdf` | The same list as a PDF. |
 | `POST /my/erasmus/call/<id>/offer` | Answer the logged-in user's own pending offer of that call. |
+| `POST /my/erasmus/call/<id>/claim` | The logged-in applicant's claim against the provisional resolution (text and `claim_files`). |
+
+The list page passes `my_partner`, so the shared list template (`ems.erasmus_resolution_list`)
+highlights the applicant's own row; the PDF has no `my_partner` and highlights nothing. A reserve's
+result says their place on the reserve list of the modality
+(`ems.erasmus.resolution.line._ems_reserve_number`), and while the application is *Admitted* the
+top badge shows the newest provisional result. A student's `image_consent` is not a form answer: it
+is copied from their image rights authorisation of the course (`res.partner.auth_image`) on every
+save.
 
 ### Access (phase 3)
 
@@ -506,7 +647,7 @@ in the call's (or group mobility's) chatter. Who can download it does not change
 | `ems.erasmus.offer` | r + *Withdraw offer*; created by publishing and the wizard | r | answers their own |
 | `ems.erasmus.claim` | rwcu | r | - |
 
-Menus *Erasmus+ > Resolutions*, *Place offers* and *Claims*: team, Head of Studies, Director.
+Menus *Erasmus+ > Calls > Resolutions*, *Place offers* and *Claims*: team, Head of Studies, Director.
 
 ## Staff call (phase 4, #686)
 
@@ -518,8 +659,8 @@ what differs:
 |---|---|---|
 | Who sees the call on the portal | A student whose main group's level is in a modality | An internal user with an employee file (`res.partner._ems_erasmus_employee`) |
 | Modality | Computed from the level when applying; required to publish | Not needed to publish (the places may change): required before preparing the provisional resolution; the team assigns each selected person's project and period |
-| Documents | Configured per call | The three of art. 8 added on their own (`_ems_staff_documents`, on create and on the `audience` onchange); the mobility plan is written in the form, not uploaded (`PLAN_TEXT_FIELDS`, issue #697) |
-| Admission checks | Requirements + conduct warnings this course (automatic) | Requirements only |
+| Documents | Configured per call; a new call brings the five of art. 8 (`_ems_student_documents`, on create) | Only the optional language certificates (`_ems_staff_documents`, on create and on the `audience` onchange); the plan is written in the form (`PLAN_FIELDS`) |
+| Admission checks | Requirements; a serious conduct record this course is pointed out, the team may exclude | Requirements only |
 | Scoring | Art. 12 (A-F), A and F frozen at closing | Art. 11 of the staff call (1-6): the panel, what the applicant declares (last mobility, seniority, language) and the merits the team records |
 | Ranking | Per modality | One list for the whole call |
 | Places | Per modality | The sum of every modality, offered as one pool |
@@ -548,13 +689,21 @@ erDiagram
 
 ### Application form
 
-The portal shows the staff form when `audience == 'staff'` (`ANSWER_FIELDS['staff']`): activity
-(`staff_activity`), host entity or course, destination, preferred dates, last staff mobility and date
-at the centre (below), centre projects, the mobility and transfer plan of annex 1 (`plan_reason`,
-`plan_objectives`, `plan_application`; `PLAN_FIELDS`, with the activity, host, destination and dates,
-all required to submit: always a concrete host, decided with the coordinator 2026-10-23; the rating
-shows them through related fields, so the panel reads the plan on screen and nothing else of the
-application), support needs
+The portal shows the staff form when `audience == 'staff'` (`ANSWER_FIELDS['staff']`), in four
+short blocks since the 2026-11-03 review (adriamt): (1) two proposals in the teacher's own words,
+both required, `proposal_a` (the main one) and `proposal_b` (the backup if A falls through), each
+saying the activity, host, where and when; (2) `plan_text`, the competences to observe or learn and
+how to apply them (annex 1); `PLAN_FIELDS` lists the three, required to submit, and the rating shows
+them through related fields, so the panel reads them on screen and nothing else of the application,
+and gives one score; (3) "never had an Erasmus+ staff mobility at the Puig"
+(`declared_never_staff_mobility`: otherwise the team sets `last_staff_mobility`, criterion 2), the
+date at the centre (required, criterion 5), the language certificate and the centre projects; (4)
+optional and folded: support needs, image consent, notes. The mobility's proposal starts with both
+proposals in its notes and the country named in A (`_ems_create_for`, `_ems_country_in`); the
+participant writes the exact entity and dates there and the Direction validates them as any
+proposal. A staff call asks for no CV and no identity document at application time
+(`_ems_staff_documents`: only the optional language certificates, so publishing a staff call needs
+no required document); the identity document is a staff preparation document. Support needs
 (confidential: `groups` Erasmus team and administrator), the declared language certificate
 (`declared_language_level`), image consent, notes. The controller saves only the answers of the call's audience;
 `_ems_portal_save` refuses an activity outside the selection. `employee_id` is set when the
@@ -607,12 +756,12 @@ read only); the rating shows those files (`plan_attachment_ids`). Nothing else o
 | 5 | Seniority | `seniority` (team correction) else `declared_seniority` → `score_seniority` | < 1 year 0, 1-2 1, 2-5 1.5, ≥ 5 2 |
 | 6 | Internationalisation | `merit_ids` (internationalisation) → `score_internationalisation` | sum, max 1 |
 
-**Declared values** (`_compute_declared_staff_bands`): the applicant gives the month of their last
-Erasmus+ staff mobility from the centre (`declared_last_mobility_date`, or
-`declared_never_staff_mobility`) and the month they joined the centre (`declared_centre_start_date`);
-both are required to submit. The mobility belongs to the course starting the 1 September before it
-and is compared with the call's course; seniority counts whole months up to the call's closing date
-(company time). The portal sends them as `<input type="month">` values (`YYYY-MM`, stored as the 1st).
+**Declared values** (`_compute_declared_staff_bands`): the applicant only ticks that they never had an
+Erasmus+ staff mobility at the Puig (`declared_never_staff_mobility` → band `never`); for everyone
+else the team sets `last_staff_mobility` from the centre's records (the 2026-11-03 review). The month
+they joined the centre (`declared_centre_start_date`) is required to submit; seniority counts whole
+months up to the call's closing date (company time). The portal sends it as an `<input type="month">`
+value (`YYYY-MM`, stored as the 1st).
 
 `score_complete` needs the plan complete, criteria 2 and 5 (declared or corrected) and
 `merits_checked` (stamped like every manual criterion, so "no merits" is an explicit answer).
@@ -639,14 +788,14 @@ criterion-5 band too), then the draw the coordinator runs (`action_draw_ties`). 
 
 ### Access (phase 4)
 
-| Model | Erasmus team | Head of Studies / Director | Panel member (`ems.group_erasmus_evaluator`) |
+| Model | Erasmus team | Head of Studies / Director | Panel member (`ems.group_erasmus_panel`) |
 |---|---|---|---|
 | `ems.erasmus.call.panel` | rwcu | r | - |
 | `ems.erasmus.plan_rating` | rwcu | - (unless in the panel) | rw own (rubric, notes) |
 | `ems.erasmus.application.merit` | rwcu | r | - |
 | `ems.erasmus.application.document` | rwcu | r, not confidential | r, `panel_visible` lines of the plans they rate |
 
-Menus *Erasmus+ > Plan ratings* (team) and *My plan ratings* (evaluators).
+The team opens the plan ratings from the call's *Plan ratings* button; the panel, from *Erasmus+ > My participation > My plan ratings*.
 
 ## Mobility preparation (phase 5, #687)
 
@@ -766,7 +915,7 @@ the mobility (*Self-assessment* tab, `self_assessment_progress` "answered / week
 PDF to the participant's record, category `03_Durant_la_mobilitat` (see [records.md](records.md)). Access: Erasmus team and administrator
 read/write (the team can delete a week for the participant to answer it again), Head of Studies read.
 
-**Projects** (`ems.erasmus.project`, menu *Erasmus+ > Projects*): the centre's active projects
+**Projects** (`ems.erasmus.project`, menu *Erasmus+ > Financial management > Projects*): the centre's active projects
 (agreement number, `kind` KA121-VET / KA131-HED, dates, `active`). Each mobility's `project_id` must
 be of its modality's `project` kind (`_check_project`; the field's domain offers only those).
 
@@ -844,7 +993,13 @@ keeps the validated activity and the email says so.
 - *Notify pending documents* emails `email_template_erasmus_mobility_documents` with the lines
   missing or needing changes (`_ems_documents_to_correct`: before leaving, and on return once the
   end date has passed; one filled in by the team only once it is uploaded to sign). The weekly cron `ems.ir_cron_erasmus_remind_documents`
-  (`_cron_remind_documents`) sends the same email to every mobility in preparation with any.
+  (`_cron_remind_documents`) sends the same email to every student mobility in preparation with any
+  (or with the commitment letter or a self-assessment pending). Staff get a to-do instead
+  (adriamt, 2026-11-03; `_ems_sync_documents_tasks`): one activity of type
+  `ems.mail_activity_erasmus_documents` per participant, on their own contact (staff can't open a
+  mobility in the backend), listing what is still to hand in on the portal and due on the earliest
+  deadline; the cron refreshes it every week and deletes it once nothing is pending. Students keep
+  the email: they only have the portal, where a to-do would never show.
 - `preparation_complete` / `return_complete`: every required line of the stage valid and every
   step done. **Close** (`action_close`, audit D-5) needs both, the mobility assigned to a project,
   the EU Survey validated and nothing left to pay (`_ems_left_to_pay()`: no payment nor invoice of
@@ -891,7 +1046,7 @@ mobility (`prepared_attachment_ids`).
 | `ems.erasmus.destination`, `.call.task`, `.mobility.task` | rwcu | r | r | via controller |
 | `ems.erasmus.mobility` | rwcu | r + `decision_note` and validating staff proposals (`write()` guard) | same as Head of Studies | via controller |
 
-Menu *Erasmus+ > Mobilities* (team, Head of Studies, Director), with a *Proposal to validate*
+Menu *Erasmus+ > Mobilities > Individual mobilities* (team, Head of Studies, Director), with a *Proposal to validate*
 filter.
 
 ## Grants, provision of services and host entities (phase 6, #697)
@@ -949,7 +1104,7 @@ with its state. The call's page also links the published call.
 
 **Host entities:** `res.partner.is_erasmus_host` marks a company, school or course provider that
 hosts participants; its contacts are the tutors at destination, with their email. Menu *Erasmus+ >
-Host entities* (`action_erasmus_host_entity`, the native contact views). The mobility's and the
+Configuration > Host entities* (`action_erasmus_host_entity`, the native contact views). The mobility's and the
 destination's host fields only offer host entities, the mobility shows the tutor's email
 (`host_contact_email`) and picks the tutor automatically when the entity has only one contact. The
 Learning Agreement already says it is signed by the host entity (`sign_host`); sending it to the
@@ -987,7 +1142,71 @@ mobility in preparation or closed.
 | `res.partner` | r every contact; wc only host entities and their contacts (`rule_contact_erasmus_*`) | (unchanged) | (unchanged) |
 
 The mobility's *Grant* tab and its grant columns are only for the team (`groups=`), so the Head of
-Studies and the Director, who read mobilities, never load the grant models. Menus *Erasmus+ > Host
-entities* (team), *Projects*, *Invoices* and *Grant payments* (team and Secretary; the Secretary
-sees only these three under *Erasmus+*). The project form's tabs follow the same split (mobilities:
+Studies and the Director, who read mobilities, never load the grant models. Menus *Erasmus+ >
+Configuration > Host entities* (team) and *Erasmus+ > Financial management > Projects*, *Invoices*
+and *Grant payments* (team and Secretary; the Secretary sees only that section under *Erasmus+*). The project form's tabs follow the same split (mobilities:
 team and Head of Studies; invoices and payments: team and Secretary).
+
+## Erasmus+ history (`ems.erasmus.history`)
+
+A person's Erasmus+ participations as EMS has them: a read-only SQL view (`_auto = False`,
+`models/erasmus/history.py`), one line per individual mobility and one per group mobility
+participant, leaving out cancelled mobilities and withdrawn participants. It keeps text and dates
+only (the call's or group mobility's name, project kind, country, city, dates, *Planned* or
+*Completed*), so whoever reads it needs no access to the Erasmus+ models.
+
+```mermaid
+flowchart LR
+    M[ems.erasmus.mobility<br/>not cancelled] --> H[ems.erasmus.history]
+    P[ems.erasmus.group.participant<br/>active, mobility not cancelled] --> H
+    H --> F[Student form<br/>Studies tab, under the academic history]
+    H --> A[Application<br/>Scoring tab, for First mobility]
+```
+
+- `res.partner.erasmus_history_ids` shows it on the contact form, under the academic history, to the
+  same roles that read that history (teachers, Secretary, Head of Studies, academic admin, student
+  data reader) plus the Erasmus team; hidden when empty.
+- `ems.erasmus.application.erasmus_history_ids` (related) shows it on the application's *Scoring*
+  tab, next to *First mobility*, which the team still sets by hand: the history only starts with
+  the mobilities that go through EMS (the first call managed with it is 2026-2027), so earlier
+  years are not in it unless they are imported.
+
+| Model | Teacher / Secretary / Head of Studies / admin / student data reader / Erasmus team |
+|---|---|
+| `ems.erasmus.history` | r |
+
+### Review of 2026-11-02 (end-to-end walk-through by role)
+
+- **Record status (`ems.erasmus.application.document.todo_state`)**: what the record shows, so that
+  only what the participant has to do now is red. A missing mobility document is *waiting_team*
+  when the team uploads it (or fills it in first), *not_yet* while the destination is not set, before
+  its opening day or, for a return document, before the end of the stay; the portal's count, the
+  "what to do now" box and the backend list use it. `signature_progress` ("2 / 3") replaces the two
+  signature columns in the record's list.
+- **Call form**: the stat buttons follow the phase (`has_provisional_resolution`,
+  `has_final_resolution`), the latest first; the tabs are two nested notebooks (`selection_block`,
+  `mobility_block`); the tie warning is above the title.
+- **Ranking**: `ranking_result` (non-stored) gives the cut of the places; the menu's ranking is
+  ordered by call, with its column. The application list counts `documents_to_review`.
+- **Interviews**: `ems.erasmus.interview.schedule` (wizard, Actions of the call) gives the admitted
+  applicants consecutive slots, the same place and evaluators, and sends the calls. The evaluators'
+  tasks (one per interview, done on submitting it) are scheduled quietly
+  (`mail_activity_quick_update`) and each evaluator gets one note on the call with the whole list
+  (`_ems_notify_evaluators`, `mail.thread._ems_notify`), not one email per interview. The interview
+  form writes annex 4's descriptors under each criterion; interviews and plan ratings have
+  **Submit and next** (`action_submit_next`).
+- **Plan ratings**: `rating_status` (stored) shows an abstention as such; a pivot view
+  (applicants x status) in the team's action.
+- **Direction**: `scores_hidden` (non-stored, `depends_context('uid')`) replaces the zeros of a staff
+  application with an explanation while the panel rates (`_ems_panel_pending`, shared with
+  `_read_format`); **Mobilities > Pending validation** (`action_erasmus_mobility_to_validate`); the
+  place offers and claims are no longer in their menu.
+- **Sync of a mobility's documents** (`ems.erasmus.mobility._ems_sync_requirements`) reads as
+  superuser: the Director validating a staff proposal does not see the confidential health card, and
+  it was created again.
+- **Staff proposal**: the country is taken from the application's "city and country" text
+  (`_ems_country_in`, in every installed language).
+- **Emails**: every Erasmus+ template uses `ems.mail_notification_erasmus`, Odoo's light layout
+  headed "Erasmus+" instead of "Your <model>" ("El vostre Sol·licitud Erasmus+").
+- **Team**: the administrator is not in `group_erasmus`/`group_erasmus_coordinator` (they got every
+  team to-do); they keep every right through `group_academic_admin`.

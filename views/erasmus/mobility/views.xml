@@ -195,13 +195,16 @@
                                     </group>
                                 </group>
                                 <field name="document_ids">
+                                    <!-- The issue-#682 review: the record in a few columns that fit, ordered by
+                                         category; only what the participant has to do now in red (todo_state). -->
                                     <list editable="bottom" create="false" delete="false"
                                           decoration-muted="file_state == 'not_applicable'">
-                                        <field name="file_category"/>
+                                        <field name="file_category" optional="hide"/>
                                         <field name="name"/>
                                         <field name="stage" optional="hide"/>
-                                        <field name="signers" optional="show"/>
-                                        <field name="signatures_missing" optional="show"/>
+                                        <field name="signers" optional="hide"/>
+                                        <field name="signatures_missing" optional="hide"/>
+                                        <field name="signature_progress" optional="show"/>
                                         <field name="open_date" optional="hide"/>
                                         <field name="deadline"/>
                                         <field name="is_required" optional="hide"/>
@@ -210,23 +213,25 @@
                                                readonly="handled_by == 'participant'"/>
                                         <field name="attachment_ids" widget="many2many_binary"
                                                readonly="handled_by == 'team'"/>
-                                        <field name="file_state" widget="badge" decoration-success="file_state == 'complete'"
-                                               decoration-danger="file_state in ('missing', 'needs_change')"
-                                               decoration-warning="file_state == 'to_review'"/>
+                                        <field name="file_state" optional="hide"/>
+                                        <field name="todo_state" widget="badge" decoration-success="todo_state == 'complete'"
+                                               decoration-danger="todo_state in ('missing', 'needs_change')"
+                                               decoration-warning="todo_state == 'to_review'"/>
                                         <field name="review_state" optional="hide"/>
-                                        <field name="review_comment"/>
+                                        <field name="review_comment" optional="hide"/>
                                         <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
-                                                invisible="file_state != 'to_review'"/>
+                                                invisible="file_state != 'to_review'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <!-- Only on a file to correct: nothing to correct in a missing or not applicable document. -->
                                         <button name="action_mark_needs_change" type="object" string="Needs changes"
-                                                icon="fa-pencil" invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers)"/>
+                                                icon="fa-pencil" invisible="review_state == 'needs_change' or not attachment_ids or (handled_by == 'team' and not signers)" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                         <button name="action_open_signatures" type="object" string="Signatures" icon="fa-check-square-o"
-                                                invisible="not signers"/>
+                                                invisible="not signers" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                         <field name="can_send_to_sign" column_invisible="1"/>
-                                        <field name="sign_state" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <field name="sign_state" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                         <button name="action_send_to_sign" type="object" string="Send to sign" icon="fa-pencil-square-o"
                                                 invisible="not can_send_to_sign and sign_state not in ('1_draft', '0_sent')" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                         <button name="action_remove_file" type="object" string="Remove a file" icon="fa-trash"
-                                                invisible="review_state == 'valid' or not (attachment_ids or prepared_attachment_ids)"/>
+                                                invisible="review_state == 'valid' or not (attachment_ids or prepared_attachment_ids)" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                     </list>
                                 </field>
                                 <separator string="From the application" invisible="not application_document_ids"/>
@@ -360,6 +365,15 @@
             <field name="res_model">ems.erasmus.mobility</field>
             <field name="view_mode">list,form</field>
             <field name="context">{'search_default_open': 1}</field>
+        </record>
+
+        <!-- The issue-#682 review: the Direction finds the staff activities waiting for its validation
+             here, not only through the task (the Erasmus team, the students' own destinations). -->
+        <record id="action_erasmus_mobility_to_validate" model="ir.actions.act_window">
+            <field name="name">Pending validation</field>
+            <field name="res_model">ems.erasmus.mobility</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'search_default_proposal_pending': 1}</field>
         </record>
     </data>
 </odoo>

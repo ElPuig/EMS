@@ -145,7 +145,7 @@
                                     invisible="state != 'stay' or user_role not in ('team', 'leader')"
                                     help="The return documents and the EU Survey start."/>
                             <button name="action_eu_survey_done" type="object" string="EU Survey answered"
-                                    invisible="state != 'return' or eu_survey_state != 'pending'"/>
+                                    invisible="state != 'return' or eu_survey_state != 'pending' or not user_role"/>
                             <button name="action_eu_survey_validate" type="object" string="Validate the EU Survey"
                                     invisible="eu_survey_state != 'done' or user_role != 'team'"/>
                             <button name="action_propose_closure" type="object" string="Propose the closure"
@@ -264,6 +264,10 @@
                                         </list>
                                     </field>
                                 </group>
+                                <group string="Claims" invisible="not claim_ids"
+                                       groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
+                                    <field name="claim_ids" nolabel="1" colspan="2"/>
+                                </group>
                                 <field name="registration_ids">
                                     <list create="false" delete="false" editable="bottom"
                                           decoration-muted="state == 'withdrawn' or result == 'renounced'"
@@ -306,10 +310,10 @@
                                         <field name="substitution_state" optional="show"/>
                                         <button name="action_request_exception" type="object" string="Request the exception" icon="fa-flag"
                                                 title="Ask the coordinator for the exception written in Exception requested"
-                                                invisible="not exception_request or parent.state != 'selection'"/>
+                                                invisible="not exception_request or parent.state != 'selection' or parent.user_role not in ('team', 'leader')"/>
                                         <button name="action_open_renounce" type="object" string="Renounce" icon="fa-sign-out"
                                                 title="Record that the student renounces the place or the reserve place, with the reason"
-                                                invisible="state != 'enrolled' or result not in ('selected', 'reserve') or parent.state not in ('preparation', 'stay')"/>
+                                                invisible="state != 'enrolled' or result not in ('selected', 'reserve') or parent.state not in ('preparation', 'stay') or parent.user_role not in ('team', 'leader')"/>
                                         <button name="action_approve_substitution" type="object" string="Approve" icon="fa-check"
                                                 invisible="substitution_state != 'proposed'"
                                                 groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>

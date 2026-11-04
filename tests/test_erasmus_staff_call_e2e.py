@@ -24,9 +24,9 @@ TEACHERS = {
     'draw_2': (('0.5', '0.5'), RECENT, (), 'none', 'y1'),                   # the same: drawn
     'fix': (('0.5', '0.5'), RECENT, (), 'none', 'y0'),                      # 1, after correcting the CV
 }
-PLAN = {'staff_activity': 'job_shadowing', 'host_entity': 'E2E host school', 'destination': 'E2E city',
-        'preferred_dates': 'June', 'plan_reason': 'E2E reason', 'plan_objectives': 'E2E objectives',
-        'plan_application': 'E2E application'}
+PLAN = {'proposal_a': 'E2E proposal A: job shadowing at a VET school in Porto, in June',
+        'proposal_b': 'E2E proposal B: an English course in Malta, in July',
+        'plan_text': 'E2E plan: what to learn and how to apply it'}
 
 
 @tagged('post_install', '-at_install')
@@ -92,8 +92,8 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         start = self.call.course_id.start
         if band == NEVER:
             return {'declared_never_staff_mobility': True}
-        day = {OLDER: f'{start - 3}-11-01', TWO_COURSES: f'{start - 2}-11-01', RECENT: f'{start}-10-01'}[band]
-        return {'declared_last_mobility_date': day}
+        # The 2026-11-03 review: only "never at the Puig" is declared; the team sets the others.
+        return {}
 
     def _apply(self, name, documents=None):
         """What the portal does: the draft on the first visit, the form and the files, then submit."""
@@ -104,8 +104,10 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
             {**PLAN, **self._last_mobility(last), 'declared_centre_start_date': self._start(start),
              'declared_language_level': language, 'centre_projects': 'E2E projects'},
             {document.id: [(f'{document.name}.pdf', PDF)]
-             for document in (documents if documents is not None else self.id_document | self.cv)})
+             for document in (documents if documents is not None else self.certificate)})
         application.action_submit()
+        if last != NEVER:
+            self._team(application).last_staff_mobility = last
         return application
 
     def _team(self, application):
@@ -155,9 +157,11 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         self.assertEqual(call.min_score, 0.0)
         self.assertEqual(call.interview_deadline, call.date_close + timedelta(days=14))
         self.assertEqual(call.modality_ids.mapped('project'), ['ka121_vet', 'ka131_hed'])
-        self.id_document, self.cv, self.certificate = call.document_ids.sorted('sequence')
-        self.assertEqual((self.id_document.requirement, self.cv.requirement, self.certificate.requirement),
-                         ('required', 'required', 'optional'))
+        # The 2026-11-03 review: only the language certificates; no CV, and the identity document
+        # only of whoever goes (a mobility document).
+        self.certificate = call.document_ids
+        self.assertEqual(self.certificate.mapped('requirement'), ['optional'])
+        self.assertIn('Identity document', call.preparation_document_ids.mapped('name'))
         call.with_user(self.technician).write({'panel_ids': [
             (0, 0, {'user_id': user.id, 'post': post}) for user, post in (
                 (self.director, 'Director'), (self.hos, 'Head of Studies of FP'),
@@ -176,8 +180,8 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         # 3. Applying: the mobility plan, the last mobility and the seniority are needed to submit.
         apps = {name: self._apply(name) for name in TEACHERS if name != 'fix'}
         incomplete = self.env['ems.erasmus.application']._ems_portal_get_or_create(call, self.users['no_fix'].partner_id)
-        incomplete._ems_portal_save({**PLAN, 'plan_objectives': False}, {self.id_document.id: [('id.pdf', PDF)]})
-        with self.assertRaises(UserError, msg="No CV, no last mobility, no seniority, no objectives."):
+        incomplete._ems_portal_save({**PLAN, 'plan_text': False}, {self.certificate.id: [('c.pdf', PDF)]})
+        with self.assertRaises(UserError, msg="No seniority, no plan."):
             incomplete.action_submit()
         apps['no_fix'] = self._apply('no_fix')
         apps['fix'] = self._apply('fix')
@@ -191,12 +195,11 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         for name in ('no_fix', 'fix'):
             team = self._team(apps[name])
             team.requirements_check = 'met'
-            team.document_ids.filtered(lambda line: line.call_document_id == self.cv).action_mark_needs_change()
-            team.document_ids.filtered(lambda line: line.call_document_id == self.id_document).action_mark_valid()
+            team.document_ids.filtered(lambda line: line.call_document_id == self.certificate).action_mark_needs_change()
             team.action_request_subsanation()
             self.assertEqual(apps[name].state, 'subsanation')
-        self.assertTrue(self._mails_to('fix').filtered(lambda mail: 'Europass' in (mail.body_html or '')))
-        apps['fix']._ems_portal_save({}, {self.cv.id: [('cv2.pdf', PDF)]})
+        self.assertTrue(self._mails_to('fix').filtered(lambda mail: self.certificate.name in (mail.body_html or '')))
+        apps['fix']._ems_portal_save({}, {self.certificate.id: [('certificate2.pdf', PDF)]})
         apps['fix'].action_submit()
         self.assertTrue(apps['fix'].activity_ids, "A corrected application becomes a task for the team.")
         for name, application in apps.items():
@@ -207,7 +210,7 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
             team.document_ids.filtered('attachment_ids').action_mark_valid()
             team.action_admit()
         no_fix = self._team(apps['no_fix'])
-        no_fix.exclusion_reason = 'Europass CV not corrected'
+        no_fix.exclusion_reason = 'Language certificate not corrected'
         no_fix.action_exclude()
         admission = self._publish('admission')
         self.assertEqual(self._results(admission)['no_fix'], ('excluded', 0))
@@ -223,13 +226,14 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         self.assertNotIn(self.users['chief'], ratings.evaluator_id)
         mine = self.env['ems.erasmus.plan_rating'].with_user(self.chief_a).search([])
         self.assertEqual(len(mine), 10, "A panel member sees their own ratings only.")
-        self.assertEqual(mine[:1].plan_objectives, 'E2E objectives')
+        self.assertEqual(mine[:1].plan_text, PLAN['plan_text'])
         with self.assertRaises(AccessError, msg="A panel member never opens the application."):
             apps['best'].with_user(self.chief_a).read(['partner_id'])
         with self.assertRaises(AccessError, msg="Nor scores someone else's rating."):
             ratings.filtered(lambda rating: rating.evaluator_id == self.hos)[:1].with_user(self.chief_a).write(
                 {'relevance': '1'})
-        self.assertTrue(self.chief_a.has_group('ems.group_erasmus_evaluator'))
+        self.assertTrue(self.chief_a.has_group('ems.group_erasmus_panel'))
+        self.assertFalse(self.chief_a.has_group('ems.group_erasmus_evaluator'), "No interview to score.")
         for name, (rating, *_rest) in TEACHERS.items():
             self._rate(apps[name], *rating)
         self.assertEqual(apps['best'].plan_score, 2.0)
@@ -357,7 +361,7 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         call.with_user(self.technician).write({'panel_ids': [
             (0, 0, {'user_id': user.id}) for user in (self.hos, self.users['chief'])]})
         call.with_user(self.technician).action_publish()
-        self.id_document, self.cv, self.certificate = call.document_ids.sorted('sequence')
+        self.certificate = call.document_ids
         apps = {name: self._apply(name) for name in ('best', 'chief')}
         call.with_user(self.technician).action_close()
         for application in apps.values():
@@ -366,6 +370,6 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
             team.document_ids.filtered('attachment_ids').action_mark_valid()
             team.action_admit()
         call.with_user(self.technician).action_send_to_panel()
-        self.assertFalse(self.users['chief'].has_group('ems.group_erasmus_evaluator'), "Nothing to rate.")
+        self.assertFalse(self.users['chief'].has_group('ems.group_erasmus_panel'), "Nothing to rate.")
         self._rate(apps['best'], '1', '0.5')
         self.assertEqual((apps['best'].plan_score, apps['best'].plan_complete), (1.5, True))

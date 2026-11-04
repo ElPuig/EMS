@@ -498,6 +498,8 @@ class EmsErasmusExport(models.Model):
         entries = []
         for number, attachment in enumerate(attachments.sorted('id'), 1):
             name = safe_name((names or {}).get(attachment.id) or attachment.name)
+            if attachment.type == 'url':
+                name = f"{name}.url"
             entries.append({
                 'path': f"{folder}/{version_prefix}{number}_{name}" if versions else f"{folder}/{name}",
                 'content': attachment, 'version': number if versions else '', 'attachment': attachment.id,
@@ -640,6 +642,10 @@ class EmsErasmusExport(models.Model):
             yield content
             return
         attachment = content.sudo()
+        if attachment.type == 'url':
+            # A document handed in as a link (the presentation video): an Internet shortcut to it.
+            yield f"[InternetShortcut]\nURL={attachment.url}\n".encode()
+            return
         if attachment.store_fname:
             with open(attachment._full_path(attachment.store_fname), 'rb') as source:
                 yield from iter(lambda: source.read(CHUNK), b'')

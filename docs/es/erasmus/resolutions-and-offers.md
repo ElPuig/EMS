@@ -32,9 +32,9 @@ Cada una necesita la anterior publicada. Una resolución publicada no se puede m
 
 ## 3. Preparar y publicar una resolución
 
-1. En la convocatoria, abre la pestaña **Resoluciones** (o **Erasmus+ > Resoluciones**) y añade una nueva: elige su **Tipo**.
+1. En la convocatoria, abre la pestaña **Resoluciones** (o **Erasmus+ > Convocatorias > Resoluciones**) y añade una nueva: elige su **Tipo**.
 2. Haz clic en **Acciones > Preparar líneas**. EMS congela la lista tal como están ahora las solicitudes. Si falta algo (una solicitud sin decidir, una puntuación incompleta, un documento de identidad), EMS te indica de quién se trata. Mientras sea un borrador, puedes volver a prepararla tantas veces como haga falta.
-3. En una rectificación, explica en **Notas para los solicitantes** qué corrige.
+3. En una rectificación, explica en **Notas para los solicitantes** qué corrige. Las notas se publican con la lista y se envían por correo a todas las personas que aparecen en ella: no escribas nunca el nombre de nadie.
 4. El coordinador o la coordinadora Erasmus revisa la lista y hace clic en **Acciones > Publicar**. EMS guarda quién la ha publicado y cuándo, y la lista publicada muestra esa fecha como fecha de aprobación.
 
 Cuando se publica:
@@ -42,24 +42,31 @@ Cuando se publica:
 - Cada solicitante que aparece recibe su resultado por correo y lo ve en el portal, con el detalle de su puntuación.
 - La lista se publica en el portal sin nombres. Para colgarla en la web del centro, haz clic en **Imprimir > Lista publicada** para obtener el PDF.
 - Con la resolución **provisional**, se bloquean todas las entrevistas de la convocatoria: solo el equipo Erasmus puede reabrir una, con una nota de rectificación.
-- Con la resolución **definitiva** (o una rectificación), cada solicitud recibe su resultado. El alumnado seleccionado recibe una oferta de plaza con el plazo de aceptación: el correo del resultado ya le pide que la acepte en el portal.
+- Con la resolución **definitiva** (o una rectificación), cada solicitud recibe su resultado. El alumnado seleccionado recibe una oferta de plaza con el plazo de aceptación: el correo del resultado ya le pide que la acepte en el portal, y la familia de un menor recibe una copia. El correo y el portal también dicen que contra la lista se puede presentar recurso de alzada ante el jefe de estudios en el plazo de un mes. El correo de una persona en reserva le dice su número en la lista de reserva de su modalidad. En la convocatoria, el botón **Plazas aceptadas** muestra cuántas plazas se han aceptado del total, y un aviso dice cuántas ofertas esperan respuesta: cuando no queda ninguna, puedes abrir la elección de destino.
 
 > **Quién queda seleccionado:** las solicitudes elegibles (como mínimo la puntuación mínima) dentro de las plazas de su modalidad. El resto de las elegibles quedan en reserva, por orden. Por debajo de la puntuación mínima: no seleccionadas.
 
+En la resolución, las líneas aparecen de colores: verde, admitida o seleccionada; naranja, reserva; rojo, excluida; negro, no seleccionada. Una línea excluida no tiene posición ni puntuación. En el portal, cada persona ve su fila destacada en la lista publicada (nunca en el PDF).
+
 ## 4. Reclamaciones y recursos
 
-Las reclamaciones llegan por correo (el alumnado puede responder al correo del resultado). Regístralas en **Erasmus+ > Reclamaciones** (o en la pestaña **Resultados** de la solicitud):
+Las personas candidatas reclaman desde el portal, debajo de su resultado provisional, hasta el plazo de reclamaciones: EMS registra la reclamación con los archivos y el momento en que llegó, y todo el equipo Erasmus recibe una tarea para responderla, que queda hecha cuando se resuelve. Una reclamación que llega por correo se registra a mano en **Erasmus+ > Convocatorias > Reclamaciones** (o en la pestaña **Resultados** de la solicitud):
 
-1. **Solicitud**, **Contra** (la resolución), **Tipo** (reclamación o recurso ante la dirección), **Recibida el**, **Qué se reclama** y los archivos.
+1. **Solicitud**, **Contra** (la resolución), **Tipo** (reclamación o recurso de alzada ante el jefe de estudios), **Recibida el**, **Qué se reclama** y los archivos.
 2. Escribe la **Respuesta** y haz clic en **Acciones > Resolver**.
+
+La persona recibe un correo cuando se registra la reclamación (el justificante de que llegó dentro del plazo) y otro con la respuesta, que también ve en el portal, en **Mis reclamaciones**.
+
+**Los recursos de alzada contra la resolución definitiva** (en el plazo de un mes desde su publicación) los responde el jefe de estudios de la persona, no el equipo Erasmus: el jefe de estudios o jefe de estudios adjunto que está por encima del tutor del grupo del alumno (por encima del propio docente en una convocatoria de profesorado; la directora si quien recurre es ese jefe de estudios). Registra el recurso como se ha explicado, con **Tipo** *Recurso de alzada ante el jefe de estudios*: EMS le crea una tarea, y él escribe la **Respuesta** y lo resuelve. El equipo Erasmus ve el recurso, pero no puede responderlo.
 
 Si se estima una reclamación, corrige los datos de la solicitud (por ejemplo, el certificado de idiomas) antes de preparar la resolución definitiva. EMS no deja preparar la resolución definitiva antes del **Plazo de reclamaciones** ni mientras quede alguna reclamación abierta. Después de la definitiva, publica una rectificación.
 
 ## 5. Ofertas de plaza
 
-**Erasmus+ > Ofertas de plaza** muestra todas las ofertas y su respuesta: *Pendiente de respuesta*, *Plaza aceptada*, *Renuncia*, *Sin respuesta* o *Retirada*.
+**Erasmus+ > Convocatorias > Ofertas de plaza** muestra todas las ofertas y su respuesta: *Pendiente de respuesta*, *Plaza aceptada*, *Renuncia*, *Sin respuesta* o *Retirada*.
 
-- El alumnado acepta o renuncia en el portal antes del plazo. Si no responde a tiempo, EMS marca la renuncia.
+- El alumnado acepta o renuncia en el portal antes del plazo y recibe un correo que confirma su respuesta (con copia a la familia de un menor). Si no responde a tiempo, EMS marca la renuncia y le comunica por correo que el plazo ha terminado; el portal dice que no respondió a tiempo, no que renunció.
+- Cuando un alumno acepta, el tutor de su grupo recibe un aviso (no una tarea) de que hará una estancia Erasmus+.
 - Cuando queda una plaza libre y hay reservas, todo el equipo Erasmus recibe una tarea en la convocatoria (*Erasmus+: plaza libre en ...*). Se marca como hecha cuando se ofrece la plaza. **EMS nunca la ofrece por su cuenta**. En la convocatoria, la pestaña **Resoluciones** muestra las plazas libres de cada modalidad y la **Siguiente reserva**. Haz clic en **Acciones > Ofrecer una plaza libre**: comprueba la persona propuesta, pon un nuevo plazo en **Responder antes de** y haz clic en **Ofrecer la plaza**. La persona recibe un correo.
 - Para retirar una oferta pendiente (por ejemplo, hecha por error), haz clic en **Retirar la oferta**.
 

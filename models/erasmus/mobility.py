@@ -2,8 +2,11 @@
 
 from datetime import timedelta
 
+from markupsafe import Markup
+
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.tools import format_date
 
 from .application import STAFF_ACTIVITIES
 from .call import PROJECTS
@@ -66,6 +69,18 @@ class EmsErasmusDestination(models.Model):
         for destination in self:
             if destination.modality_id.call_id != destination.call_id:
                 raise ValidationError(_("A destination belongs to a modality of its own call."))
+
+    def _ems_offer_label(self):
+        """The destination as a student reads it before accepting a place: where, when and how
+        many places, so they know what they may get when their turn to choose comes."""
+        self.ensure_one()
+        where = ', '.join(part for part in (self.city, self.country_id.name) if part)
+        label = f"{self.name} ({where})" if where else self.name
+        if self.date_start and self.date_end:
+            label = f"{label}, {format_date(self.env, self.date_start)} - {format_date(self.env, self.date_end)}"
+        if self.places == 1:
+            return _("%(destination)s: 1 place", destination=label)
+        return _("%(destination)s: %(places)s places", destination=label, places=self.places)
 
     def _ems_suits(self, mobility):
         """Free and suitable for `mobility`'s level and modality."""
@@ -399,26 +414,44 @@ class EmsErasmusMobility(models.Model):
     @api.model
     def _ems_create_for(self, applications):
         """A mobility for each application whose place was just accepted. Staff start with a
-        proposal filled from their application, which they complete with the exact dates and send
-        to the Direction from the portal."""
+        proposal from their application (its two proposals in the notes, the country named in A),
+        which they complete with the exact entity and dates and send to the Direction from the
+        portal."""
         mobilities = self.sudo().create([{
             'application_id': application.id,
             'level_id': application.partner_id.main_group_id.level_id.id,
             **(application.audience == 'staff' and {
-                'proposal_activity': application.staff_activity, 'proposal_host': application.host_entity,
-                'proposal_city': application.destination, 'proposal_notes': application.preferred_dates,
+                'proposal_notes': _("Proposal A: %(a)s\nProposal B: %(b)s", a=application.proposal_a or '',
+                                    b=application.proposal_b or ''),
+                'proposal_country_id': self._ems_country_in(application.proposal_a).id,
             } or {}),
         } for application in applications])
         mobilities._ems_sync_requirements()
         mobilities.call_id.filtered('choice_open')._ems_advance_choice()
         return mobilities
 
+    @api.model
+    def _ems_country_in(self, text):
+        """The country named in `text` (the staff application's proposal A), in any of
+        the installed languages, or none (the issue-#682 review)."""
+        words = f" {' '.join((text or '').lower().replace(',', ' ').replace('(', ' ').replace(')', ' ').split())} "
+        if not words.strip():
+            return self.env['res.country']
+        Country = self.env['res.country'].sudo()
+        for lang in self.env['res.lang'].get_installed():
+            for country in Country.with_context(lang=lang[0]).search([]):
+                if f" {country.name.lower()} " in words:
+                    return country.with_env(self.env)
+        return self.env['res.country']
+
     def _ems_sync_requirements(self):
         """Add the preparation and return documents and checklist steps of the call that apply to
-        the mobility's modality and are still missing. Never removes a line."""
+        the mobility's modality and are still missing. Never removes a line. Read as superuser: who
+        validates a staff proposal doesn't see the confidential documents (the health card), and they
+        were added again."""
         Line = self.env['ems.erasmus.application.document'].sudo()
         Task = self.env['ems.erasmus.mobility.task'].sudo()
-        for mobility in self:
+        for mobility in self.sudo():
             call, modality = mobility.call_id, mobility.modality_id
 
             def applies(record):
@@ -628,12 +661,56 @@ class EmsErasmusMobility(models.Model):
         """Weekly: remind every participant preparing a mobility of the documents still missing or
         needing changes (the European Health Insurance Card above all), of the commitment letter
         still to sign and, during the stay, of the weekly self-assessments of the weeks already
-        over; and the family of a minor, of the letter it has to sign too."""
+        over (students by email, staff with a to-do, `_ems_sync_documents_tasks`); and the family of
+        a minor, of the letter it has to sign too."""
         mobilities = self.sudo().search([('state', '=', 'preparing')])
-        mobilities.filtered(lambda mobility: mobility._ems_documents_to_correct() or mobility.commitment_pending
-                            or mobility._ems_self_assessments_missing())._ems_send(
-            'ems.email_template_erasmus_mobility_documents')
+        pending = mobilities.filtered(lambda mobility: mobility._ems_documents_to_correct()
+                                      or mobility.commitment_pending or mobility._ems_self_assessments_missing())
+        staff = pending.filtered(lambda mobility: mobility.audience == 'staff')
+        (pending - staff)._ems_send('ems.email_template_erasmus_mobility_documents')
+        staff._ems_sync_documents_tasks()
         mobilities._ems_remind_guardians()
+
+    def _ems_sync_documents_tasks(self):
+        """Staff (adriamt, 2026-11-03): instead of the weekly email, one to-do of their own (on their
+        contact, since staff don't open mobilities in the backend) listing what is still to hand in
+        on the portal, refreshed every week; it goes away once nothing is (`self` being every staff
+        mobility with something pending). Students keep the email: they only have the portal."""
+        activity_type = self.env.ref('ems.mail_activity_erasmus_documents')
+        Activity = self.env['mail.activity'].sudo()
+        tasks = Activity.search([('activity_type_id', '=', activity_type.id), ('res_model', '=', 'res.partner')])
+        by_partner = {(task.res_id, task.user_id.id): task for task in tasks}
+        kept = Activity
+        for mobility in self:
+            user = mobility.application_id.employee_id.user_id
+            if not user:
+                continue
+            note = mobility._ems_documents_task_note()
+            deadlines = mobility._ems_documents_to_correct().filtered('deadline').mapped('deadline')
+            task = by_partner.get((mobility.partner_id.id, user.id))
+            if task:
+                task.write({'note': note, 'date_deadline': min(deadlines) if deadlines else task.date_deadline})
+            else:
+                task = mobility.partner_id.sudo().activity_schedule(
+                    activity_type_id=activity_type.id, user_id=user.id, note=note,
+                    summary=_("Erasmus+: hand in what is missing"),
+                    **({'date_deadline': min(deadlines)} if deadlines else {}))
+            kept |= task
+        (tasks - kept).unlink()
+
+    def _ems_documents_task_note(self):
+        """What the staff member's to-do lists: the documents missing or needing changes, the
+        commitment letter and the self-assessments of the weeks already over."""
+        self.ensure_one()
+        items = [_("%s (needs changes)", line.name) if line.review_state == 'needs_change' else line.name
+                 for line in self._ems_documents_to_correct()]
+        if self.commitment_pending:
+            items.append(_("Accept and sign the commitment letter"))
+        weeks = self._ems_self_assessments_missing()
+        if weeks:
+            items.append(_("Weekly self-assessment: %s week(s)", len(weeks)))
+        return Markup("<p>{}</p>{}").format(
+            _("Hand it in on your Erasmus+ page of the portal (/my/erasmus):"), self.env['ems.base'].build_html_list(items))
 
     def action_notify_documents(self):
         """Email the participant the documents still missing or needing changes."""

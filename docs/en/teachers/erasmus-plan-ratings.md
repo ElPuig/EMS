@@ -12,9 +12,9 @@ As a member of the panel of the Erasmus+ staff call, you rate in EMS the mobilit
 
 ## 1. Find the plans
 
-When the Erasmus team sends the plans to the panel you receive a task in EMS for each one, due on the call's score correction deadline (two weeks after it closes). It appears in your daily summary of pending tasks until you do it. The **Erasmus+** menu appears, with **My plan ratings**: the plans assigned to you.
+When the Erasmus team sends the plans to the panel you receive a task in EMS for each one, due on the call's score correction deadline (two weeks after it closes). It appears in your daily summary of pending tasks until you do it. In the **Erasmus+** menu you have **My participation > My plan ratings**: the plans assigned to you.
 
-Each rating shows the candidate's **mobility and transfer plan** on screen, as they wrote it in the application form: activity, host entity or course, destination, dates, why that choice, objectives and application to their job. You see nothing else of the application. The dissemination is not rated: it is the same obligation for everyone.
+Each rating shows the candidate's **mobility and transfer plan** on screen, as they wrote it in the application form: proposal A (the main one) and proposal B (the backup), in their own words, and what they want to learn and how they will apply it to their job. Rate both proposals together, with one score. You see nothing else of the application. The dissemination is not rated: it is the same obligation for everyone.
 
 ## 2. Rate the rubric
 
@@ -29,11 +29,11 @@ You can write your own notes in **Evaluator's notes**.
 
 ## 3. Submit it
 
-Click **Actions > Submit**. Until the call's **score correction deadline** you can **Reopen** it and change it; afterwards, if there is a mistake, tell the Erasmus team.
+Click **Actions > Submit**, or **Actions > Submit and next** to submit it and open the next plan you still have to rate. Until the call's **score correction deadline** you can **Reopen** it and change it; afterwards, if there is a mistake, tell the Erasmus team.
 
-**If you are a candidate in the call, or you have a conflict of interest with a candidate**, you don't rate: tell the Erasmus team, who will record the abstention. The plan's score is the mean of the other members.
+**If you are a candidate in the call, or you have a conflict of interest with a candidate**, you don't rate: tell the Erasmus team, who will record the abstention: the rating is shown as *Abstention*. The plan's score is the mean of the other members.
 
-**Your rating is independent:** as a member of the Direction you can open the staff applications, but you see their points at 0 until every plan of the call is rated, so you never see the other members' mean before giving yours.
+**Your rating is independent:** as a member of the Direction you can open the staff applications, but their **Scoring** tab says the points are hidden until every plan of the call is rated, so you never see the other members' mean before giving yours.
 
 ---
 

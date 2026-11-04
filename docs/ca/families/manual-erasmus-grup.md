@@ -15,11 +15,11 @@ Algunes mobilitats Erasmus+ són de **grup**: hi va un grup d'alumnes amb dos do
 3. Fes clic a **Inscriure'm**. Si estàs en una situació de menys oportunitats, pots marcar-ho (és opcional i només ho veu l'equip Erasmus).
 4. Mentre la inscripció estigui oberta, pots fer clic a **Retira la meva inscripció** i tornar-t'hi a inscriure.
 
-No cal cap currículum, carta ni entrevista. Si tens tantes amonestacions aquest curs com el límit que avisa convivència, no t'hi podràs inscriure.
+No cal cap currículum, carta ni entrevista. La coordinació Erasmus pot excloure, indicant-ne el motiu, l'alumnat amb expedients disciplinaris o amb incidències greus de convivència aquest curs.
 
 ## El resultat
 
-Primer la coordinació Erasmus publica una **llista provisional**: rebràs un correu amb el teu resultat provisional i, a la targeta del portal, el veuràs amb l'enllaç a la llista. La llista només mostra quatre xifres del document d'identitat de cada alumne. Si no hi estàs d'acord, respon el correu abans del termini de reclamacions que s'hi indica.
+Primer la coordinació Erasmus publica una **llista provisional**: rebràs un correu amb el teu resultat provisional i, a la targeta del portal, el veuràs amb l'enllaç a la llista. La llista només mostra quatre xifres del document d'identitat de cada alumne. Si no hi estàs d'acord, obre **Vull reclamar** a sota del resultat provisional, escriu què reclames i per què, adjunta els fitxers que ho justifiquin si en tens i fes clic a **Envia la reclamació** abans del termini de reclamacions que s'hi indica. Rebràs un correu que confirma que ha arribat, i un altre amb la resposta de l'equip Erasmus, que també veuràs a la targeta.
 
 Després la coordinació publica la **llista definitiva** i rebràs un correu amb el teu resultat (seleccionat, en llista de reserva amb el teu número, o sense els requisits). També el veuràs a la targeta del portal, amb l'enllaç a totes dues llistes. Només veus el teu resultat.
 

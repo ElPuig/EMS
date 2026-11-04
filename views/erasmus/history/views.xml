@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- The issue-#682 review: a person's Erasmus+ participations (ems.erasmus.history), read-only. -->
+        <record id="view_erasmus_history_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.history.list</field>
+            <field name="model">ems.erasmus.history</field>
+            <field name="arch" type="xml">
+                <list create="0" edit="0" delete="0">
+                    <field name="date_start"/>
+                    <field name="date_end"/>
+                    <field name="kind"/>
+                    <field name="name"/>
+                    <field name="role" optional="hide"/>
+                    <field name="project"/>
+                    <field name="country_id"/>
+                    <field name="city" optional="show"/>
+                    <field name="state" widget="badge" decoration-success="state == 'done'"
+                           decoration-info="state == 'planned'"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Under the academic history, for the same roles that read it plus the Erasmus team; only
+             when there is something to show. -->
+        <record id="view_contact_form_erasmus_history" model="ir.ui.view">
+            <field name="name">res.partner.form.erasmus.history</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="ems.view_contact_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='history_line_ids']" position="after">
+                    <separator string="Erasmus+" invisible="not erasmus_history_ids"
+                               groups="ems.group_teacher,ems.group_secretary,ems.group_head_of_studies,ems.group_academic_admin,ems.group_student_data_reader,ems.group_erasmus"/>
+                    <field name="erasmus_history_ids" invisible="not erasmus_history_ids"
+                           context="{'list_view_ref': 'ems.view_erasmus_history_list'}"
+                           groups="ems.group_teacher,ems.group_secretary,ems.group_head_of_studies,ems.group_academic_admin,ems.group_student_data_reader,ems.group_erasmus"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

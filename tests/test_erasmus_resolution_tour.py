@@ -1,5 +1,6 @@
 from odoo.tests.common import HttpCase, tagged
 
+from .common import create_role_employee, create_role_user
 from .test_erasmus_resolution import ErasmusResolutionCase
 
 
@@ -37,6 +38,18 @@ class TestErasmusResolutionTour(HttpCase, ErasmusResolutionCase):
             'application_id': first.id, 'resolution_id': provisional.id, 'description': 'My interview score'})
         self.start_tour('/odoo/action-ems.action_erasmus_claim', 'ems_erasmus_claims', login='test_erasmus_team')
         self.assertEqual(claim.state, 'resolved')
+
+    def test_appeal_answer_tour(self):
+        """Logged in as the student's own Head of Studies, the least-privileged role who answers it."""
+        tutor = create_role_user(self, 'teacher', 'test_erasmus_tour_tutor')
+        self.group.tutor_id = create_role_employee(self, tutor, parent_id=create_role_employee(self, self.hos_user).id)
+        first, _second = self._scored_call()
+        definitive = self._publish_up_to_definitive()
+        appeal = self.env['ems.erasmus.claim'].create({
+            'application_id': first.id, 'resolution_id': definitive.id, 'kind': 'appeal',
+            'description': 'My interview score'})
+        self.start_tour(f'/odoo/ems.erasmus.claim/{appeal.id}', 'ems_erasmus_appeal_answer', login='test_erasmus_hos')
+        self.assertEqual((appeal.state, appeal.response), ('resolved', 'The appeal is dismissed.'))
 
     def test_portal_accept_tour(self):
         first, _second = self._scored_call()

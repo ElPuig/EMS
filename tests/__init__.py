@@ -304,4 +304,6 @@ from . import test_erasmus_integrity
 from . import test_erasmus_decisions
 from . import test_erasmus_signature
 from . import test_erasmus_signature_tour
+from . import test_erasmus_history
+from . import test_erasmus_call_announce
 from . import test_docs_screenshots_schedule_declaration

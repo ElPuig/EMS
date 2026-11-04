@@ -19,7 +19,9 @@ STATES = [('draft', "Draft"), ('enrolment', "Enrolment"), ('selection', "Selecti
 # States once the selection is approved: the participants' files are open.
 FILE_STATES = ('preparation', 'stay', 'return')
 RESULTS = [('selected', "Selected"), ('reserve', "Reserve"), ('excluded', "Excluded"), ('renounced', "Renounced")]
-EXCLUSIONS = [('group', "Not in the eligible group"), ('conduct', "Too many conduct warnings this course")]
+# Conduct warnings rule nobody out (adriamt, 2026-11-03, as in the calls): the coordinator excludes
+# by hand, with the reason, through the result exception.
+EXCLUSIONS = [('group', "Not in the eligible group")]
 # What the Erasmus team enters for a student with no grades in EMS (issue #702).
 GRADE_FIELDS = ('grade_manual', 'grade_average_manual', 'grade_manual_reason')
 ROLES = [('student', "Student"), ('leader', "Leader teacher"), ('companion', "Accompanying teacher")]
@@ -134,10 +136,12 @@ class EmsErasmusGroupMobility(models.Model):
     proposal_note = fields.Text(string="Leader's comment on the proposal", copy=False)
     return_note = fields.Text(string="Why the proposal was sent back", copy=False, tracking=True)
     claims_deadline = fields.Datetime(string="Claims deadline", tracking=True, copy=False,
-                                      help="Until when the students can claim against the provisional list, by "
-                                           "replying to its email.")
+                                      help="Until when the students can claim against the provisional list, from "
+                                           "the portal.")
     resolution_ids = fields.One2many(string="Published lists", comodel_name='ems.erasmus.resolution',
                                      inverse_name='group_mobility_id', readonly=True)
+    claim_ids = fields.One2many(string="Claims", comodel_name='ems.erasmus.claim', inverse_name='group_mobility_id',
+                                readonly=True, groups='ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin')
     provisional_published = fields.Boolean(string="Provisional list published",
                                            compute='_compute_provisional_published')
     approval_date = fields.Datetime(string="Selection approved on", readonly=True, copy=False)
@@ -400,12 +404,6 @@ class EmsErasmusGroupMobility(models.Model):
         self.ensure_one()
         return partner.contact_type == 'student' and partner.main_group_id in self.sudo().group_ids
 
-    def _ems_conduct_blocked(self, partner):
-        """Same rule as the internship call (art. 6): as many conduct warnings this course as the
-        number that sends the case to the coexistence team, or more."""
-        Call = self.env['ems.erasmus.call']
-        return Call._ems_conduct_blocked_count(Call._ems_partner_course_strike_count(partner, self.sudo().course_id))
-
     def action_open_enrolment(self):
         self._ems_check_role('team')
         self._ems_check_state('draft')
@@ -557,7 +555,7 @@ class EmsErasmusGroupMobility(models.Model):
 
     def action_publish_provisional(self):
         """The coordinator publishes the provisional list: each student gets their provisional
-        result and can claim, by replying to the email, until the claims deadline."""
+        result and can claim from the portal until the claims deadline."""
         self._ems_check_coordinator()
         self._ems_check_state('validation')
         self._ems_check_selection_ready()
@@ -582,6 +580,10 @@ class EmsErasmusGroupMobility(models.Model):
             if mobility.claims_deadline and mobility.claims_deadline > Call._ems_now():
                 raise UserError(_("The claims deadline (%s) has not passed yet: the students can still claim "
                                   "against the provisional list.", Call._ems_local_format(mobility.claims_deadline)))
+            open_claims = mobility.sudo().claim_ids.filtered(lambda claim: claim.state == 'open')
+            if open_claims:
+                raise UserError(_("Answer the open claims first: %s",
+                                  ", ".join(open_claims.partner_id.mapped('name'))))
         self._ems_activities_done()
         today = self.env['ems.datetime_utils'].get_local_today()
         for mobility in self.sudo():
@@ -891,7 +893,10 @@ class EmsErasmusGroupRegistration(models.Model):
         help="Eligible with no evaluated module: until the team enters the average by hand or the coordinator "
              "excludes the student with a reason, the ranking cannot be closed.")
     strike_count = fields.Integer(string="Conduct warnings this course", readonly=True,
-                                  groups='ems.group_erasmus,ems.group_academic_admin')
+                                  groups='ems.group_erasmus,ems.group_academic_admin',
+                                  help="They rule nobody out: with a serious conduct record, the coordinator may "
+                                       "exclude the student with an exception, giving the reason, after hearing "
+                                       "the teaching team and the coexistence team.")
     exclusion = fields.Selection(string="Reason not eligible", selection=EXCLUSIONS, readonly=True,
                                  groups='ems.group_erasmus,ems.group_academic_admin')
     eligible = fields.Boolean(string="Meets the requirements", readonly=True)
@@ -909,6 +914,8 @@ class EmsErasmusGroupRegistration(models.Model):
     result = fields.Selection(string="Result", selection=RESULTS, readonly=True, tracking=True,
                               help="Published when the coordinator approves the selection.")
     reserve_position = fields.Integer(string="Reserve number", compute='_compute_reserve_position')
+    claim_ids = fields.One2many(string="Claims", comodel_name='ems.erasmus.claim', inverse_name='group_registration_id',
+                                groups='ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin')
     renounce_date = fields.Datetime(string="Renounced on", readonly=True)
     renounce_reason = fields.Text(string="Reason for renouncing", readonly=True)
     substitution_state = fields.Selection(string="Substitution", readonly=True, tracking=True,
@@ -996,8 +1003,6 @@ class EmsErasmusGroupRegistration(models.Model):
             raise UserError(_("You cannot enrol in this mobility."))
         if not mobility.is_enrolling:
             raise UserError(_("The enrolment of this mobility is not open."))
-        if mobility._ems_conduct_blocked(partner):
-            raise UserError(_("You cannot enrol: you have too many conduct warnings this course."))
         registration = self.sudo().search([('group_mobility_id', '=', mobility.id), ('partner_id', '=', partner.id)])
         if registration.state == 'enrolled':
             raise UserError(_("You are already enrolled."))
@@ -1035,8 +1040,6 @@ class EmsErasmusGroupRegistration(models.Model):
             average, hours = Application._ems_grade_average(grades)
             strikes = self.env['ems.erasmus.call']._ems_partner_course_strike_count(partner, course)
             exclusion = False if mobility._ems_is_eligible(partner) else 'group'
-            if not exclusion and self.env['ems.erasmus.call']._ems_conduct_blocked_count(strikes):
-                exclusion = 'conduct'
             registration._ems_write({
                 'frozen_date': fields.Datetime.now(), 'frozen_group_id': partner.main_group_id.id,
                 'grade_average': average, 'grade_found': bool(hours), 'strike_count': strikes,
@@ -1112,6 +1115,23 @@ class EmsErasmusGroupRegistration(models.Model):
             else:
                 registration.chatter(_("No email sent: the student has no email address."))
 
+    def _ems_portal_claimable(self):
+        """The provisional list the student can claim against from the portal: published, with them
+        on it, until the mobility's claims deadline (as in the calls)."""
+        self.ensure_one()
+        mobility = self.group_mobility_id
+        if self.state != 'enrolled' or not (
+                mobility.claims_deadline and mobility.claims_deadline > self.env['ems.erasmus.call']._ems_now()):
+            return self.env['ems.erasmus.resolution']
+        return mobility._ems_published_list('provisional').filtered(
+            lambda resolution: self in resolution.line_ids.group_registration_id)[-1:]
+
+    def _ems_portal_claim(self, description, files=()):
+        """The student's claim, sent from the portal against their provisional result."""
+        self.ensure_one()
+        return self.env['ems.erasmus.claim']._ems_portal_create(
+            {'group_registration_id': self.id, 'resolution_id': self._ems_portal_claimable().id}, description, files)
+
     def action_renounce(self, reason=False):
         """A selected student renounces (from the portal, or the team or the leader on their
         behalf, with the reason): the place is free for the next reserve. The file and its
@@ -1168,7 +1188,12 @@ class EmsErasmusGroupRegistration(models.Model):
         self.group_mobility_id._ems_activities_done()
         self._ems_write({'substitution_state': False, 'substitute_for_id': False})
         for registration in self:
-            registration.group_mobility_id.sudo().chatter(_("Substitution of %s not approved.", registration.partner_id.name))
+            mobility = registration.group_mobility_id
+            mobility.sudo().chatter(_("Substitution of %s not approved.", registration.partner_id.name))
+            # The place is still free: the leader proposes again (the 2026-11-03 review).
+            leader = mobility.sudo().leader_id.user_id or mobility._ems_team_users()
+            mobility._ems_schedule(leader, _("Erasmus+: the substitution in %s was not approved, propose a "
+                                             "substitute again", mobility.name))
 
 
 class EmsErasmusGroupParticipant(models.Model):
@@ -1694,6 +1719,35 @@ class EmsErasmusProject(models.Model):
             project.record_missing_count += sum(Export._ems_group_missing(group) for group in groups)
 
 
+class EmsErasmusClaim(models.Model):
+    """A student's claim against the provisional list of a group mobility, sent from the portal
+    (as in the calls) and answered by the Erasmus team."""
+    _inherit = 'ems.erasmus.claim'
+    _sql_constraints = [
+        ('one_owner', 'CHECK((application_id IS NULL) != (group_registration_id IS NULL))',
+         "A claim belongs to an application or to a group mobility enrolment."),
+    ]
+
+    application_id = fields.Many2one(required=False)
+    group_registration_id = fields.Many2one(string="Enrolment", comodel_name='ems.erasmus.group.registration',
+                                            ondelete='restrict', index=True)
+    group_mobility_id = fields.Many2one(string="Group mobility", related='group_registration_id.group_mobility_id',
+                                        store=True)
+    resolution_id = fields.Many2one(domain="[('call_id', '=', call_id), ('group_mobility_id', '=', group_mobility_id), "
+                                           "('state', '=', 'published')]")
+
+    @api.depends('group_registration_id.partner_id')
+    def _compute_partner_id(self):
+        super()._compute_partner_id()
+        for claim in self.filtered('group_registration_id'):
+            claim.partner_id = claim.group_registration_id.partner_id
+
+    def _ems_appeal_chain(self):
+        if self.group_registration_id:
+            return self.partner_id.sudo().main_group_id.tutor_id, self.env['hr.employee']
+        return super()._ems_appeal_chain()
+
+
 class EmsErasmusResolution(models.Model):
     """A group mobility's provisional and definitive lists of admitted, excluded and reserves, with
     the calls' resolutions: frozen lines, only the masked identity document published, approved by
@@ -1743,7 +1797,7 @@ class EmsErasmusResolution(models.Model):
             super()._ems_check_can_publish()
 
     def _ems_after_publish(self):
-        """A group's provisional list: each student's own result by email, to claim by replying. The
+        """A group's provisional list: each student's own result by email, to claim from the portal. The
         definitive one is the approval, which emails each student their result."""
         if not self.group_mobility_id:
             return super()._ems_after_publish()

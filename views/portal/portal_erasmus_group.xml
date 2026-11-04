@@ -12,6 +12,9 @@
             <div t-if="request.params.get('enrolled')" class="alert alert-success mb-3 o_ems_erasmus_group_enrolled">
                 <i class="fa fa-check-circle me-1"/> You are enrolled. You will see the result here when the selection is published.
             </div>
+            <div t-if="request.params.get('group_claimed')" class="alert alert-success mb-3 o_ems_erasmus_group_claimed">
+                <i class="fa fa-check-circle me-1"/> Your claim has been received. The Erasmus team will answer it.
+            </div>
             <div t-if="request.params.get('group_error')" class="alert alert-danger mb-3 o_ems_erasmus_group_error">
                 <i class="fa fa-exclamation-triangle me-1"/> It could not be done: the enrolment may be closed, or you do not meet its requirements.
             </div>
@@ -50,7 +53,6 @@
     <template id="portal_erasmus_group_card" name="Erasmus+ group mobility card">
         <t t-set="registration" t-value="group_mobility.registration_ids.filtered(lambda registration: registration.partner_id == group_partner)"/>
         <t t-set="participant" t-value="group_mobility.participant_ids.filtered(lambda participant: participant.partner_id == group_partner and participant.state == 'active')"/>
-        <t t-set="blocked" t-value="not registration and group_mobility._ems_conduct_blocked(group_partner)"/>
         <t t-set="published" t-value="group_mobility.state in ('preparation', 'stay', 'return', 'done')"/>
         <t t-set="result_labels" t-value="dict(registration._fields['result']._description_selection(request.env))"/>
         <div class="card shadow-sm mb-4 o_ems_erasmus_group_card">
@@ -111,22 +113,47 @@
                         Provisional result:
                         <span class="badge text-bg-secondary" t-esc="dict(provisional_line._fields['result']._description_selection(request.env)).get(provisional_line.result)"/>
                         <t t-if="provisional_line.result == 'excluded' and provisional_line.exclusion_reason"> - <t t-esc="provisional_line.exclusion_reason"/></t>
-                        <span t-if="group_mobility.claims_deadline" class="d-block text-muted">
-                            If you disagree, you can claim by replying to the result email until
-                            <t t-out="group_mobility.claims_deadline" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': request.env['ems.datetime_utils'].company_tz_name()}"/>.
-                        </span>
+                        <t t-if="registration._ems_portal_claimable()">
+                            <span class="d-block text-muted">
+                                If you disagree, you can claim until
+                                <t t-out="group_mobility.claims_deadline" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': request.env['ems.datetime_utils'].company_tz_name()}"/>.
+                            </span>
+                            <details class="mt-1 o_ems_erasmus_group_claim">
+                                <summary>I want to claim</summary>
+                                <form t-attf-action="/my/erasmus/group/#{group_mobility.id}/claim" method="post" enctype="multipart/form-data"
+                                      class="mt-2 ems-loading-form o_ems_erasmus_group_claim_form">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <label class="form-label small" t-attf-for="group_claim_description_#{group_mobility.id}">What you claim and why</label>
+                                    <textarea class="form-control form-control-sm mb-2" name="description" t-attf-id="group_claim_description_#{group_mobility.id}"
+                                              rows="4" maxlength="5000" required="required"/>
+                                    <label class="form-label small" t-attf-for="group_claim_files_#{group_mobility.id}">Files that support it (optional)</label>
+                                    <input type="file" class="form-control form-control-sm mb-2" name="claim_files" t-attf-id="group_claim_files_#{group_mobility.id}" multiple="multiple"/>
+                                    <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_group_claim_submit">Send the claim</button>
+                                </form>
+                            </details>
+                        </t>
                     </div>
+                    <ul t-if="registration.sudo().claim_ids" class="list-unstyled mb-1 o_ems_erasmus_group_claims">
+                        <li t-foreach="registration.sudo().claim_ids" t-as="claim" class="border-start ps-2 mb-1">
+                            Your claim of <t t-out="claim.received_date" t-options="{'widget': 'date'}"/>:
+                            <span t-attf-class="badge #{'text-bg-success' if claim.state == 'resolved' else 'text-bg-info'}"
+                                  t-esc="dict(claim._fields['state']._description_selection(request.env)).get(claim.state)"/>
+                            <span class="d-block" style="white-space: pre-line;" t-esc="claim.description"/>
+                            <span t-if="claim.state == 'resolved' and claim.response" class="d-block" style="white-space: pre-line;">
+                                <strong>Response:</strong> <t t-esc="claim.response"/>
+                            </span>
+                        </li>
+                    </ul>
                     <div t-foreach="lists" t-as="resolution">
                         <a t-attf-href="/my/erasmus/group/#{group_mobility.id}/resolution/#{resolution.id}" class="o_ems_erasmus_group_list_link">
                             <i class="fa fa-list me-1"/><t t-esc="resolution.name"/>
                         </a>
                     </div>
+                    <p t-if="'definitive' in lists.mapped('kind')" class="text-muted mt-1 mb-0 o_ems_erasmus_appeal"
+                       t-esc="lists[:1]._ems_appeal_notice()"/>
                 </div>
 
-                <p t-if="blocked" class="alert alert-warning small mb-2 o_ems_erasmus_group_blocked">
-                    <i class="fa fa-ban me-1"/>You cannot enrol: you have too many conduct warnings this course. If you think this is a mistake, talk to the Erasmus team.
-                </p>
-                <form t-elif="group_mobility.is_enrolling and (not registration or registration.state == 'withdrawn')"
+                <form t-if="group_mobility.is_enrolling and (not registration or registration.state == 'withdrawn')"
                       t-attf-action="/my/erasmus/group/#{group_mobility.id}/enrol" method="post" class="o_ems_erasmus_group_enrol_form">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <div class="form-check small mb-2">

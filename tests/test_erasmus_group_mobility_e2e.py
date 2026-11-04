@@ -16,7 +16,8 @@ from .test_erasmus import PDF
 # Grades are whole numbers. 4 student places. Ranking at closing: ana 10, ivet 9, bel 8 (fewer opportunities accredited),
 # cai 8 (declared, not accredited), dani / eva 7 (tied: drawn), fiona (no grades: 6.5 entered by
 # the team), hugo 6 (claims against the provisional list: 8.5 entered by the team), gil (no grades:
-# excluded by the coordinator), jan (3 conduct warnings after enrolling: excluded).
+# excluded by the coordinator), jan (3 conduct warnings after enrolling: the coordinator excludes them;
+# warnings rule nobody out on their own).
 STUDENTS = {
     'ana': (10.0, False, False),
     'ivet': (9.0, False, True),
@@ -27,8 +28,8 @@ STUDENTS = {
     'fiona': (None, False, False),
     'hugo': (6.0, False, False),
     'gil': (None, False, False),
-    'jan': (7.0, False, False),
-    'kim': (9.5, False, False),        # 3 conduct warnings before: cannot enrol
+    'jan': (5.0, False, False),
+    'kim': (9.5, False, False),        # 3 conduct warnings before: may enrol, does not
     'max': (9.9, False, False),        # enrols and withdraws
     'leo': (9.9, False, False),        # afternoon group: cannot enrol
 }
@@ -179,8 +180,6 @@ class TestErasmusGroupMobilityEndToEnd(TransactionCase):
                          ._ems_erasmus_group_mobilities(), "The afternoon group does not see it.")
         with self.assertRaises(UserError):
             self.env['ems.erasmus.group.registration'].sudo()._ems_portal_enrol(self.mobility, self.students['leo'])
-        with self.assertRaises(UserError, msg="Three conduct warnings this course: cannot enrol."):
-            self._enrol('kim')
         for name in ('ana', 'ivet', 'bel', 'cai', 'dani', 'eva', 'fiona', 'hugo', 'gil', 'jan', 'max'):
             self._enrol(name)
         with self.assertRaises(UserError):
@@ -204,8 +203,8 @@ class TestErasmusGroupMobilityEndToEnd(TransactionCase):
         self.assertEqual(self.mobility.state, 'selection')
         self.assertTrue(self.mobility.activity_ids.filtered(lambda activity: activity.user_id == self.leader_user))
         registrations = self._registrations()
-        self.assertEqual(registrations['jan'].exclusion, 'conduct')
-        self.assertEqual(registrations['jan'].proposed_result, 'excluded')
+        self.assertTrue(registrations['jan'].eligible, "Conduct warnings rule nobody out on their own.")
+        self.assertEqual(registrations['jan'].strike_count, 3)
         self.assertEqual((registrations['fiona'].grade_incident, registrations['gil'].grade_incident), (True, True))
         self.assertEqual(self.mobility.grade_incidents, 2)
         self.assertEqual(registrations['ana'].grade_average, 10.0, "The internship call's average, from EMS.")
@@ -251,6 +250,9 @@ class TestErasmusGroupMobilityEndToEnd(TransactionCase):
                 'result_override': 'excluded', 'override_reason': 'No record'})
         registrations['gil'].with_user(self.coordinator).write({
             'result_override': 'excluded', 'override_reason': "No record: enrolled this course without grades"})
+        registrations['jan'].with_user(self.coordinator).write({
+            'result_override': 'excluded',
+            'override_reason': "Serious conduct incidents this course, heard the teaching team"})
         self.assertEqual(self.mobility.grade_incidents, 0)
         self.assertEqual([registrations[name].rank for name in ('ana', 'ivet', 'bel', 'cai')], [1, 2, 3, 4],
                          "The accredited fewer opportunities break the tie at 8.")
@@ -305,14 +307,33 @@ class TestErasmusGroupMobilityEndToEnd(TransactionCase):
         self.assertNotIn('>Score<', html)
         mail = self._mails_to('hugo@example.com').filtered(lambda mail: provisional.name in (mail.subject or ''))
         self.assertTrue(mail, "Each student gets their provisional result.")
-        self.assertIn('claim by replying', mail.body_html)
+        self.assertIn('claim from the Erasmus+ page of the EMS portal', mail.body_html)
         self.assertIn('Reason:', self._mails_to('jan@example.com').body_html, "The excluded learn why.")
         self.assertEqual(self.env['ems.erasmus.resolution.line'].with_user(self.hos).search_count(
             [('resolution_id', '=', provisional.id)]), 10, "The Head of Studies reads the lists.")
         with self.assertRaises(AccessError, msg="The leader does not read the published lists."):
             self.env['ems.erasmus.resolution'].with_user(self.leader_user).search_read([], ['name'])
 
-        # 7. hugo claims by email: a module was missing; the team enters the right average.
+        # 7. hugo claims from the portal (as in the calls): a module was missing; the team enters
+        # the right average and answers. The selection waits for the answer.
+        hugo = registrations['hugo'].with_user(self.portal_users['hugo']).sudo()
+        self.assertEqual(hugo._ems_portal_claimable(), provisional)
+        self.assertFalse(registrations['max'].sudo()._ems_portal_claimable(), "A withdrawn student does not claim.")
+        with self.assertRaises(UserError, msg="A claim says what is claimed."):
+            hugo._ems_portal_claim('  ')
+        claim = hugo._ems_portal_claim("Module 3 is missing from my average", [('record.pdf', PDF)])
+        self.assertEqual((claim.partner_id, claim.group_mobility_id, claim.resolution_id, claim.kind),
+                         (self.students['hugo'], self.mobility, provisional, 'claim'))
+        self.assertEqual(claim.attachment_ids.mapped('name'), ['record.pdf'])
+        self.assertEqual(self.mobility.claim_ids, claim)
+        self.assertTrue(self._mails_to('hugo@example.com').filtered(
+            lambda mail: 'we have received your claim' in (mail.subject or '')), "The receipt, as in the calls.")
+        self.assertEqual(claim.activity_ids.user_id & (self.technician | self.coordinator),
+                         self.technician | self.coordinator, "The Erasmus team answers it.")
+        self.assertEqual(self.env['ems.erasmus.claim'].with_user(self.hos).search_count(
+            [('group_mobility_id', '=', self.mobility.id)]), 1, "The Head of Studies reads it.")
+        with self.assertRaises(AccessError, msg="The leader does not read the claims."):
+            self.env['ems.erasmus.claim'].with_user(self.leader_user).search_read([], ['description'])
         registrations['hugo'].with_user(self.technician).write({
             'grade_manual': True, 'grade_average_manual': 8.5,
             'grade_manual_reason': "Claim: module 3 was not in EMS (academic record)"})
@@ -322,6 +343,14 @@ class TestErasmusGroupMobilityEndToEnd(TransactionCase):
         with self.assertRaises(UserError, msg="The students can still claim."):
             self._as(self.coordinator).action_approve_selection()
         self.mobility.sudo().claims_deadline = now - timedelta(minutes=1)
+        self.assertFalse(hugo._ems_portal_claimable(), "The claims deadline has passed.")
+        with self.assertRaises(UserError, msg="hugo's claim is not answered yet."):
+            self._as(self.coordinator).action_approve_selection()
+        claim.with_user(self.technician).write({'response': "Upheld: your average is 8.5 with module 3."})
+        claim.with_user(self.technician).action_resolve()
+        self.assertFalse(claim.activity_ids)
+        self.assertIn('8.5', self._mails_to('hugo@example.com').filtered(
+            lambda mail: 'your claim has been answered' in (mail.subject or '')).body_html)
         with self.assertRaises(AccessError):
             self._as(self.technician).action_approve_selection()
         self._as(self.coordinator).action_approve_selection()

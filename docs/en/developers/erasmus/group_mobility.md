@@ -55,7 +55,7 @@ States of the mobility: `draft` → `enrolment` → `selection` → `validation`
 
 ## Enrolment (issue #701)
 
-- The coordinator creates the mobility (*Erasmus+ > Group mobilities*), fills in the groups, the
+- The coordinator creates the mobility (*Erasmus+ > Mobilities > Group mobilities*), fills in the groups, the
   enrolment period and the selection criteria (a default text with the agreed rule), and opens the
   enrolment (`action_open_enrolment`, which refuses without groups, period or criteria). Dates
   and destination may stay empty until they are confirmed.
@@ -68,17 +68,17 @@ States of the mobility: `draft` → `enrolment` → `selection` → `validation`
   the leader through its attachment, so the evidence goes, if needed, to the confidential
   "Group inclusion documentation" or is checked by the team outside EMS.
 - Server checks (`ems.erasmus.group.registration._ems_portal_enrol`): student of an eligible group,
-  enrolment open (`is_enrolling`: state and period), no duplicate, and the internship call's
-  conduct rule (`ems.erasmus.call._ems_conduct_blocked_count`: as many conduct warnings this
-  course as the coexistence escalation threshold, or more). The routes never take a partner or an
+  enrolment open (`is_enrolling`: state and period) and no duplicate. Conduct warnings never stop
+  enrolling (adriamt, 2026-11-03, as in the calls): the coordinator excludes by hand with the
+  result exception and its reason. The routes never take a partner or an
   enrolment id from the form: the student is always the logged-in user's partner.
 
 ## Ranking and selection (issue #702)
 
 - When the enrolment closes (the hourly cron `_cron_close_enrolments`, or the coordinator's
   button), `_ems_freeze` copies onto each enrolment the main group at that moment, the record
-  average and this course's conduct warnings, and decides eligibility (`exclusion`: not in an
-  eligible group, or too many conduct warnings). These values are never recomputed.
+  average and this course's conduct warnings (shown to the team only), and decides eligibility
+  (`exclusion`: not in an eligible group). These values are never recomputed.
 - The **record average is the internship call's**: `ems.erasmus.application._ems_partner_grade_values`
   and `_ems_grade_average` (extracted from the application without changing them).
 - **A student with no evaluated module has no average, never a 0** (`grade_found` false). If they
@@ -117,16 +117,22 @@ States of the mobility: `draft` → `enrolment` → `selection` → `validation`
   only for the student, a PDF kept for the dossier. `action_publish_provisional` (state
   `validation`, a future `claims_deadline` required) creates, prepares and publishes the
   provisional list from the proposal with its exceptions (`_ems_list_result`); each student gets
-  `email_template_erasmus_resolution_published` (the calls' template, with a group branch) and
-  claims by replying. `action_approve_selection` refuses until the provisional list is published
-  and its `claims_deadline` has passed (as the calls' definitive resolution);
+  `email_template_erasmus_resolution_published` (the calls' template) and claims from the portal. `action_approve_selection` refuses until the provisional list is published
+  and its `claims_deadline` has passed, with every claim answered (as the calls' definitive resolution);
   it freezes `result`, publishes the definitive list, opens the files and emails each student
   **their own** result (`email_template_erasmus_group_result`, so the definitive list sends no
   second email). The resolution's call-specific parts are hooks the group overrides
   (`_ems_check_can_prepare`, `_ems_check_can_publish`, `_ems_after_publish`, `_ems_line_values`,
   `_ems_list_groups`). Publishing needs every enrolled student's identity document (DNI/NIE, else
-  passport), as in the calls. Claims arrive by email and are answered with exceptions; the
-  `ems.erasmus.claim` model stays for the calls. On the portal, the group card links each published
+  passport), as in the calls. Claims are the calls' `ems.erasmus.claim`, extended here: a
+  claim belongs to an application or to a group enrolment (`group_registration_id`, SQL check
+  `one_owner`), `partner_id` is computed from either, `group_mobility_id` is stored for the lists
+  and the access. The student sends it from the portal card
+  (`POST /my/erasmus/group/<id>/claim`, `registration._ems_portal_claimable()` /
+  `_ems_portal_claim()`, the same `ems.erasmus.claim._ems_portal_create()` as the calls), it gets
+  the receipt and the answer by email and a task goes to the Erasmus team. An upheld claim is
+  applied with the manual average or an exception. Only the team, the Head of Studies and the
+  administrator read claims (`claim_ids` carries those groups): the leader never does. On the portal, the group card links each published
   list (`/my/erasmus/group/<id>/resolution/<id>[/pdf]`, only for students who enrolled) and shows
   the student's provisional result while the claims are open.
 - Withdrawal and substitution: a selected student renounces (portal, or the leader or the team on
@@ -137,7 +143,8 @@ States of the mobility: `draft` → `enrolment` → `selection` → `validation`
   (`POST /my/erasmus/group/<id>/reserve/renounce`, their own enrolment only): they leave the reserve
   list and a substitution proposed to them is withdrawn,
   so `next_reserve` moves on to the following one (rejecting the substitution alone would propose
-  the same reserve again). With a
+  the same reserve again). Rejecting it gives the leader (or the team, with no leader user) a task
+  to propose a substitute again, since the place is still free. With a
   place free, `next_reserve` shows the first reserve; the leader proposes them
   (`action_propose_substitution`), the coordinator approves or rejects. The frozen ranking is
   never rewritten; the history is in the enrolments (`substitute_for_id`, who proposed and
@@ -272,7 +279,7 @@ Group mobilities are part of the Erasmus+ document records ([records.md](records
 
 ## Coordinator overview
 
-*Erasmus+ > Group mobilities*: kanban by state and list, with the groups, leader, destination,
+*Erasmus+ > Mobilities > Group mobilities*: kanban by state and list, with the groups, leader, destination,
 enrolled and selected students, documents missing and to review, a tie to resolve, the EU Survey
 state and the late tasks (Odoo activities). Each card opens the mobility's panel.
 
@@ -280,7 +287,7 @@ state and the late tasks (Odoo activities). Each card opens the mobility's panel
 
 The leader and accompanying teachers get the hidden group `ems.group_erasmus_group_teacher`,
 managed by EMS when the mobility's teachers change (`res.users._ems_sync_erasmus_group_teacher_group`),
-which shows *Erasmus+ > My group mobilities*. Record rules restrict them to their own mobilities;
+which shows *Erasmus+ > My participation > My group mobilities*. Record rules restrict them to their own mobilities;
 what each role may change is checked again in the models (`EmsErasmusGroupMobility._ems_role`,
 `write` overrides), never only by hiding buttons.
 

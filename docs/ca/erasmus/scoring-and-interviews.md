@@ -33,25 +33,29 @@ A la pestanya **Baremació** de cada sol·licitud admesa:
 | D. Menys oportunitats | **Menys oportunitats acreditades** (només el veu l'equip Erasmus) | 10 o 0 |
 | E. Primera mobilitat | **Primera mobilitat** | 5 o 0 |
 
+A l'alumnat no se li pregunta per la **Primera mobilitat**: la marqueu vosaltres. Sota els criteris, la sol·licitud mostra les **Participacions Erasmus+ a l'EMS** de l'alumne, si en té. Només coneix les mobilitats gestionades amb l'EMS, a partir de la convocatòria 2026-2027: per als anys anteriors, consulteu els vostres registres.
+
 Tots els criteris comencen buits. **Un criteri buit no és mai un zero:** la sol·licitud queda sense puntuació completa i fora de la classificació fins que s'omple. L'EMS registra qui ha omplert cada criteri i quan.
 
 ## 3. Organitzar les entrevistes
 
-A la pestanya **Entrevista** de cada sol·licitud admesa:
+**Moltes alhora:** a la convocatòria, fes clic a **Accions > Programa les entrevistes**. Tria la modalitat (o cap, per a totes), la **Primera entrevista**, els **Minuts per entrevista**, el **Lloc** i les **Persones avaluadores**. L'EMS proposa les persones admeses que encara no tenen data d'entrevista, per modalitat i nom: treu o reordena qui calgui. **Programa** dona a cadascuna la franja següent, li assigna les persones avaluadores i, amb **Envia les convocatòries d'entrevista** marcat, envia per correu a cada persona la data i el lloc (com a mínim 24 hores abans). Cada persona avaluadora rep una tasca per entrevista, que queda feta quan n'envia la puntuació, però un sol avís amb tota la llista (dia i hora, lloc i candidat), no un correu per entrevista.
+
+**Una per una**, a la pestanya **Entrevista** de cada sol·licitud admesa:
 
 1. Omple la **Data de l'entrevista** i el **Lloc de l'entrevista**.
-2. A la llista, afegeix les **dues persones avaluadores** (qualsevol membre del personal). Cadascuna rep una tasca a l'EMS i veu l'entrevista a **Erasmus+ > Les meves avaluacions**. Només veuen la seva entrevista: ni la puntuació de l'altra persona avaluadora ni la resta de la sol·licitud.
+2. A la llista, afegeix les **dues persones avaluadores** (qualsevol membre del personal). Cadascuna rep una tasca a l'EMS i veu l'entrevista a **Erasmus+ > La meva participació > Les meves avaluacions**. Només veuen la seva entrevista: ni la puntuació de l'altra persona avaluadora ni la resta de la sol·licitud.
 3. Fes clic a **Accions > Enviar la convocatòria a l'entrevista**. L'alumne rep un correu amb la data i el lloc. S'ha d'enviar com a mínim 24 hores abans de l'entrevista.
 
-Cada persona avaluadora puntua els 7 criteris de la rúbrica (annex 4) de 0 a 5 i l'envia. La puntuació de l'entrevista és la mitjana de les dues. Si per una causa justificada només l'ha pogut valorar una persona, escriu-ho a **Motiu d'una sola valoració**.
+Cada persona avaluadora puntua els 7 criteris de la rúbrica (annex 4) de 0 a 5, amb els descriptors escrits al formulari, i l'envia. La puntuació de l'entrevista és la mitjana de les dues. Si per una causa justificada només l'ha pogut valorar una persona, escriu-ho a **Motiu d'una sola valoració**.
 
-A la convocatòria, el **Termini per corregir puntuacions** fixa fins quan les persones avaluadores poden reobrir i canviar la seva valoració. Després, només l'equip Erasmus pot reobrir una entrevista, des d'**Erasmus+ > Entrevistes**, escrivint una **Nota de rectificació**.
+A la convocatòria, el **Termini per corregir puntuacions** fixa fins quan les persones avaluadores poden reobrir i canviar la seva valoració. Després, només l'equip Erasmus pot reobrir una entrevista, des del botó **Entrevistes** de la convocatòria, escrivint una **Nota de rectificació**.
 
 Si un alumne no es presenta a l'entrevista, escriu-ne el motiu i fes clic a **Accions > Exclou**.
 
 ## 4. La classificació
 
-Fes clic a **Classificació** a la convocatòria (o a **Erasmus+ > Classificació**): les sol·licituds admeses de cada modalitat per ordre, amb la puntuació de cada criteri.
+Fes clic a **Classificació** a la convocatòria (o a **Erasmus+ > Convocatòries > Classificació**, ordenada per convocatòria i modalitat, amb la convocatòria en una columna): les sol·licituds admeses de cada modalitat per ordre, amb la puntuació de cada criteri. **Dins de les places** marca el tall: en verd les sol·licituds que entren a les places de la modalitat (*Seleccionada*) i, després, les de *Reserva*.
 
 - Una modalitat només es classifica quan **totes** les seves sol·licituds admeses tenen la puntuació completa. Fins llavors la posició és 0.
 - Els empats es desfan, per aquest ordre, amb menys oportunitats, primera mobilitat, la part en anglès de l'entrevista i la mitjana de l'expedient.

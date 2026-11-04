@@ -70,15 +70,15 @@ class EmsErasmusPlanRating(models.Model):
     transfer = fields.Selection(string="Application to the job", selection=TRANSFER_RUBRIC, tracking=True,
                                 help="Annex 2 of the staff call: 1, 0.5 or 0 points.")
     score = fields.Float(string="Score (max 2)", digits=(3, 1), compute='_compute_score', store=True)
+    # The issue-#682 review: an abstention is not a plan still to rate (it read "To score", 0.0).
+    rating_status = fields.Selection(string="Status", compute='_compute_rating_status', store=True, selection=[
+        ('draft', "To score"), ('submitted', "Submitted"), ('abstention', "Abstention")])
     # Issue #697: the mobility plan (annex 1) as the applicant wrote it in the form, the only part of
     # the application the panel sees.
-    plan_activity = fields.Selection(string="Activity", related='application_id.staff_activity')
-    plan_host = fields.Char(string="Host entity or course", related='application_id.host_entity')
-    plan_destination = fields.Char(string="Destination", related='application_id.destination')
-    plan_dates = fields.Char(string="Preferred dates", related='application_id.preferred_dates')
-    plan_reason = fields.Text(string="Why this entity or course", related='application_id.plan_reason')
-    plan_objectives = fields.Text(string="Objectives", related='application_id.plan_objectives')
-    plan_application = fields.Text(string="Planned application", related='application_id.plan_application')
+    # Both proposals, A (main) and B (backup), are rated together with one score.
+    plan_proposal_a = fields.Text(string="Proposal A", related='application_id.proposal_a')
+    plan_proposal_b = fields.Text(string="Proposal B (backup)", related='application_id.proposal_b')
+    plan_text = fields.Text(string="What to learn and how to apply it", related='application_id.plan_text')
     plan_attachment_ids = fields.Many2many(string="Files for the panel", comodel_name='ir.attachment',
                                            compute='_compute_plan_attachment_ids', compute_sudo=True,
                                            help="The files of the documents the call shows to the panel, if any.")
@@ -87,6 +87,11 @@ class EmsErasmusPlanRating(models.Model):
     def _compute_score(self):
         for rating in self:
             rating.score = sum(float(rating[name] or 0) for name in PLAN_CRITERIA)
+
+    @api.depends('state', 'abstention_reason')
+    def _compute_rating_status(self):
+        for rating in self:
+            rating.rating_status = 'abstention' if rating.abstention_reason else rating.state
 
     @api.depends('application_id.document_ids.attachment_ids')
     def _compute_plan_attachment_ids(self):
@@ -120,6 +125,17 @@ class EmsErasmusPlanRating(models.Model):
 
     def _ems_activity_summary(self):
         return _("Rate the Erasmus+ mobility plan of %s", self.partner_id.name)
+
+    def action_submit_next(self):
+        """Submit and open the next plan this member still has to rate (each one rates 10 to 30)."""
+        self.ensure_one()
+        self.action_submit()
+        following = self.search([('evaluator_id', '=', self.env.uid), ('state', '=', 'draft'),
+                                 ('id', '!=', self.id)], limit=1)
+        if not following:
+            return self.env['ir.actions.act_window']._for_xml_id('ems.action_erasmus_my_plan_ratings')
+        return {'type': 'ir.actions.act_window', 'res_model': self._name, 'res_id': following.id,
+                'view_mode': 'form', 'views': [(False, 'form')], 'target': 'current'}
 
 
 class EmsErasmusApplicationMerit(models.Model):

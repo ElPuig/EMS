@@ -164,12 +164,10 @@ class TestErasmusGroupEnrolment(ErasmusGroupMobilityCase):
         self.assertEqual(self._enrol(self.students[:1]), registration)
         self.assertEqual(registration.state, 'enrolled')
 
-    def test_too_many_conduct_warnings_cannot_enrol(self):
+    def test_conduct_warnings_never_stop_enrolling(self):
+        """adriamt, 2026-11-03: the coordinator excludes by hand, as in the calls."""
         self._strikes(self.students[0], 3)
-        with self.assertRaises(UserError):
-            self._enrol(self.students[:1])
-        self._strikes(self.students[1], 2)
-        self._enrol(self.students[1])
+        self.assertEqual(self._enrol(self.students[:1]).state, 'enrolled')
 
     def test_others_cannot_withdraw_an_enrolment(self):
         registration = self._enrol(self.students[:1])
@@ -224,17 +222,14 @@ class TestErasmusGroupRanking(ErasmusGroupMobilityCase):
         self.assertEqual(registrations[8:].mapped('reserve_position'), [1, 2])
         self.assertEqual(self.mobility.selected_count, 8)
 
-    def test_two_warnings_are_eligible_three_are_excluded(self):
+    def test_conduct_warnings_are_counted_and_rule_nobody_out(self):
         registrations = self._enrol(self.students[:3])
         self._strikes(self.students[0], 2)
         self._strikes(self.students[1], 3)
         self._close({student: 7.0 for student in self.students[:3]})
-        self.assertTrue(registrations[0].eligible)
-        self.assertEqual(registrations[0].strike_count, 2)
-        self.assertFalse(registrations[1].eligible)
-        self.assertEqual(registrations[1].exclusion, 'conduct')
-        self.assertEqual(registrations[1].proposed_result, 'excluded')
-        self.assertEqual(registrations[1].rank, 0)
+        self.assertEqual(registrations[:2].mapped('strike_count'), [2, 3])
+        self.assertTrue(all(registrations.mapped('eligible')))
+        self.assertFalse(registrations.filtered(lambda registration: registration.exclusion))
 
     def test_out_of_the_group_at_closing_is_excluded(self):
         registration = self._enrol(self.students[:1])
@@ -535,6 +530,20 @@ class TestErasmusGroupSelection(ErasmusGroupMobilityCase):
             second.with_user(self.companion_user).action_open_renounce()
         with self.assertRaises(UserError, msg="Excluded or already renounced: nothing to renounce."):
             first.sudo().action_renounce()
+
+    def test_a_rejected_substitution_asks_the_leader_again(self):
+        """The 2026-11-03 review: the place is still free, so the leader gets a task to propose again."""
+        registrations = self._approved()
+        registrations[0].sudo().action_renounce("Cannot travel")
+        reserve = registrations.filtered(lambda registration: registration.result == 'reserve').sorted('rank')[:1]
+        self.mobility.with_user(self.leader_user).action_propose_substitution()
+        reserve.with_user(self.coordinator_user).action_reject_substitution()
+        self.assertFalse(reserve.substitution_state)
+        tasks = self.mobility.activity_ids.filtered(lambda activity: activity.user_id == self.leader_user)
+        self.assertEqual(len(tasks), 1)
+        self.assertIn('not approved', tasks.summary)
+        self.assertFalse(self.mobility.activity_ids.filtered(lambda activity: activity.user_id == self.coordinator_user),
+                         "The coordinator's validation task is done.")
 
     def test_student_renounces_from_the_portal(self):
         registrations = self._approved()
@@ -945,6 +954,29 @@ class TestPortalErasmusGroup(HttpCase, ErasmusGroupMobilityCase):
         self.authenticate(self.afternoon_user.login, self.afternoon_user.login)
         response = self.url_open(f'/my/erasmus/group/{self.mobility.id}/resolution/{provisional.id}')
         self.assertNotIn('***0000**', response.text)
+
+    def test_claim_against_the_provisional_list_from_the_portal(self):
+        """The 2026-11-03 review: as in the calls, a claim with its files from the card, and its
+        answer shown there."""
+        self._ranked()
+        self.mobility.with_user(self.leader_user).action_submit_proposal()
+        self._publish_provisional()
+        self.authenticate(self.student_user.login, self.student_user.login)
+        self.assertIn('o_ems_erasmus_group_claim_form', self.url_open('/my/erasmus').text)
+        response = self.url_open(f'/my/erasmus/group/{self.mobility.id}/claim', data={
+            'csrf_token': Request.csrf_token(self), 'description': 'My average is wrong'},
+            files={'claim_files': ('record.pdf', PDF, 'application/pdf')})
+        self.assertIn('group_claimed=1', response.url)
+        claim = self.mobility.claim_ids
+        self.assertEqual((claim.partner_id, claim.description, claim.attachment_ids.name),
+                         (self.students[0], 'My average is wrong', 'record.pdf'))
+        claim.sudo().write({'response': 'Checked: it is right.'})
+        claim.sudo().action_resolve()
+        page = self.url_open('/my/erasmus').text
+        self.assertIn('Checked: it is right.', page)
+        self.authenticate(self.afternoon_user.login, self.afternoon_user.login)
+        self._post(f'/my/erasmus/group/{self.mobility.id}/claim', description='Not mine')
+        self.assertEqual(len(self.mobility.claim_ids), 1, "Only a student enrolled claims.")
 
     def test_not_selected_student_has_no_file(self):
         self._approved()

@@ -2,7 +2,7 @@
 
 import base64
 import io
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import xlsxwriter
 from pytz import UTC
@@ -29,6 +29,12 @@ STAMPED_FIELDS = ('requirements_check', 'language_level', 'fewer_opportunities_c
 SUBMITTED_STATES = ('submitted', 'subsanation', 'admitted', 'excluded')
 # Application states that compete in the ranking (issue #685): admitted, and the results after it.
 RANKED_STATES = ('admitted', 'selected', 'reserve', 'not_selected', 'accepted', 'renounced')
+# The colour of each state's badge on the portal (the issue-#682 review).
+PORTAL_STATE_BADGES = {
+    'draft': 'secondary', 'submitted': 'info', 'subsanation': 'warning', 'admitted': 'info', 'excluded': 'danger',
+    'not_submitted': 'danger', 'selected': 'success', 'reserve': 'warning', 'not_selected': 'secondary',
+    'accepted': 'success', 'renounced': 'secondary',
+}
 # The criteria and total a resolution freezes on its lines.
 SCORE_FIELDS = ('score_a', 'score_b', 'score_c', 'score_d', 'score_e', 'score_f', 'score_total')
 # Issue #686: the staff call's criteria (art. 11), frozen too.
@@ -55,20 +61,23 @@ PARTICIPANT_HEADERS = ('Nombre', 'Apellidos', 'DNI', 'Email', 'Teléfono', 'Dire
                        'IBAN', 'Tutor legal', 'Email del tutor legal', 'Teléfono del tutor legal')
 # Answers of the portal form, editable by the applicant while the call accepts applications.
 ANSWER_FIELDS = {
-    'student': ('previous_mobility', 'previous_mobility_details', 'availability', 'fewer_opportunities',
-                'image_consent', 'applicant_notes'),
-    'staff': ('staff_activity', 'host_entity', 'destination', 'preferred_dates',
-              'declared_never_staff_mobility', 'declared_last_mobility_date', 'declared_centre_start_date',
-              'centre_projects', 'declared_language_level', 'support_needs', 'image_consent',
-              'applicant_notes', 'plan_reason', 'plan_objectives', 'plan_application'),
+    # A student's image consent is their image rights authorisation of the course (res.partner.auth_image,
+    # as in the group mobilities): not asked again (the issue-#682 review).
+    'student': ('fewer_opportunities', 'applicant_notes'),
+    'staff': ('proposal_a', 'proposal_b', 'plan_text', 'declared_never_staff_mobility', 'declared_centre_start_date',
+              'centre_projects', 'declared_language_level', 'support_needs', 'image_consent', 'applicant_notes'),
 }
 # Issue #697: the mobility and transfer plan of the staff call (annex 1), written in the form and
-# required to submit: the activity, host entity or course, destination and dates (always a
-# concrete one), why that choice, the objectives and the application to the job. Its
-# dissemination is not asked for: it is the same obligation for everyone (a news item on the
-# website, and sharing it at a meeting if needed). The panel reads it on screen.
-PLAN_FIELDS = ('staff_activity', 'host_entity', 'destination', 'preferred_dates', 'plan_reason', 'plan_objectives',
-               'plan_application')
+# required to submit. The 2026-11-03 review made it friendlier (adriamt): two proposals in the
+# teacher's own words, A (the main one) and B (the backup if A falls through), each saying the
+# activity, the host entity or course, where and when ("job shadowing at a German VET school, the
+# Berufskolleg X in Cologne, in April"); and one text with what they want to observe or learn and
+# how they will apply it to their job. The panel reads it on screen and gives it one score; once
+# selected, the participant fills in the exact entity, country and dates of their mobility's
+# proposal for the Direction. Its dissemination is not asked for: it is the same obligation for
+# everyone (a news item on the website, and sharing it at a meeting if needed).
+PLAN_FIELDS = ('proposal_a', 'proposal_b', 'plan_text')
+# The activities of a staff mobility's proposal (ems.erasmus.mobility.proposal_activity).
 STAFF_ACTIVITIES = [('job_shadowing', "Job shadowing"), ('course', "Structured course"),
                     ('teaching', "Teaching assignment")]
 
@@ -105,38 +114,29 @@ class EmsErasmusApplication(models.Model):
     submit_date = fields.Datetime(string="Submitted on", readonly=True, copy=False)
     is_minor = fields.Boolean(string="Minor", compute='_compute_is_minor')
 
-    previous_mobility = fields.Boolean(string="Previous Erasmus+ mobility")
-    previous_mobility_details = fields.Text(string="Previous mobility details")
-    availability = fields.Text(string="Availability")
     # Audit D-4: what the applicant declares is the team's, as the accredited check (the Head of Studies reads
     # the conduct warnings and the exclusion reason, not this).
     fewer_opportunities = fields.Boolean(string="Declares fewer opportunities",
                                          groups=TEAM)
     image_consent = fields.Boolean(string="Image consent")
     applicant_notes = fields.Text(string="Applicant's notes")
-    # Issue #686: the staff application form (art. 8 and annex 1 of the staff call).
-    staff_activity = fields.Selection(string="Activity", selection=STAFF_ACTIVITIES)
-    host_entity = fields.Char(string="Host entity or course")
-    destination = fields.Char(string="Destination")
-    preferred_dates = fields.Char(string="Preferred dates")
+    # Issue #686: the staff application form (art. 8 and annex 1 of the staff call); PLAN_FIELDS.
+    proposal_a = fields.Text(string="Proposal A",
+                             help="The main proposal, in the applicant's words: the activity, the host entity or "
+                                  "course, where and when.")
+    proposal_b = fields.Text(string="Proposal B (backup)",
+                             help="The backup if proposal A falls through, in the same way.")
+    plan_text = fields.Text(string="What to learn and how to apply it",
+                            help="Annex 1: the competences the applicant wants to observe or learn, and how they "
+                                 "will apply them to their job.")
     centre_projects = fields.Text(string="Centre projects")
-    plan_reason = fields.Text(string="Why this entity or course",
-                              help="Annex 1, section 3: why this entity or course, and its relation with the "
-                                   "applicant's job and with the centre's training cycles.")
-    plan_objectives = fields.Text(string="Objectives",
-                                  help="Annex 1, section 4: two or three concrete objectives: what to observe, learn "
-                                       "or, in a teaching assignment, teach.")
-    plan_application = fields.Text(string="Application to the job",
-                                   help="Annex 1, section 5: how it will be used in the classes, the department or "
-                                        "the centre's management, and which students will benefit.")
     support_needs = fields.Text(string="Support needs", groups=TEAM)
+    # Criterion 2 (the 2026-11-03 review): the applicant only says they never had one; the Erasmus
+    # team sets when the last one was for everyone else (last_staff_mobility).
     declared_never_staff_mobility = fields.Boolean(
         string="Never had a staff mobility",
-        help="The applicant has never done an Erasmus+ staff mobility from this centre.")
-    declared_last_mobility_date = fields.Date(
-        string="Last staff mobility on",
-        help="Month and year of the applicant's last Erasmus+ staff mobility from this centre. Accompanying students, "
-             "other programmes and mobilities from other centres do not count.")
+        help="The applicant has never done an Erasmus+ staff mobility from this centre. Otherwise the Erasmus team "
+             "sets when the last one was.")
     declared_centre_start_date = fields.Date(
         string="At the centre since", help="Month and year since when the applicant works at the centre without "
                                            "interruption.")
@@ -163,11 +163,15 @@ class EmsErasmusApplication(models.Model):
                                                  readonly=True, copy=False)
     requirements_check_date = fields.Datetime(string="Requirements checked on", readonly=True, copy=False)
     # Students' call art. 6: conduct is read from EMS's own conduct warnings, never checked by hand.
+    # They rule nobody out (adriamt, 2026-11-03): the team may exclude the application, with the
+    # reason, after hearing the teaching team or the coexistence team; each warning still takes
+    # points off (criterion F).
     course_strike_count = fields.Integer(string="Conduct warnings this course", compute='_compute_conduct',
                                          help="The applicant's conduct warnings in EMS during the call's course.")
-    conduct_blocked = fields.Boolean(string="Too many conduct warnings", compute='_compute_conduct',
-                                     help="As many conduct warnings this course as the number that sends the case "
-                                          "to the coexistence team, or more: the student cannot apply.")
+    conduct_review = fields.Boolean(string="Conduct to review", compute='_compute_conduct',
+                                    help="As many conduct warnings this course as the number that sends the case "
+                                         "to the coexistence team, or more: the Erasmus team may exclude the "
+                                         "application (art. 6 of the call).")
     can_manage = fields.Boolean(string="Can manage", compute='_compute_permissions',
                                 help="Erasmus team or administrator.")
     exclusion_reason = fields.Text(string="Exclusion reason", tracking=True, copy=False)
@@ -201,6 +205,9 @@ class EmsErasmusApplication(models.Model):
     first_mobility_user_id = fields.Many2one(string="First mobility checked by", comodel_name='res.users',
                                              readonly=True, copy=False)
     first_mobility_date = fields.Datetime(string="First mobility checked on", readonly=True, copy=False)
+    erasmus_history_ids = fields.One2many(string="Erasmus+ participations", related='partner_id.erasmus_history_ids',
+                                          help="What EMS records of this person: earlier years' participations "
+                                               "show here once they have been through EMS.")
     strike_ids = fields.Many2many(string="Conduct warnings", comodel_name='ems.strike',
                                   relation='ems_erasmus_application_strike_rel', readonly=True, copy=False)
     strike_count = fields.Integer(string="Number of conduct warnings", readonly=True, copy=False)
@@ -231,7 +238,7 @@ class EmsErasmusApplication(models.Model):
                            groups=TEAM)
     score_e = fields.Float(string="E. First mobility", digits=(5, 2), compute='_compute_scores', store=True,
                            groups=TEAM)
-    score_f = fields.Float(string="F. Conduct", digits=(5, 2), compute='_compute_scores', store=True,
+    score_f = fields.Float(string="F. Conduct warnings", digits=(5, 2), compute='_compute_scores', store=True,
                            groups=TEAM)
     score_total = fields.Float(string="Total score", digits=(5, 2), compute='_compute_scores', store=True)
     score_complete = fields.Boolean(string="Score complete", compute='_compute_scores', store=True,
@@ -245,6 +252,15 @@ class EmsErasmusApplication(models.Model):
                           help="Position in the modality among the admitted applications. 0 until every one "
                                "of them has a complete score.")
     needs_draw = fields.Boolean(string="Needs a draw", compute='_compute_rank', store=True)
+    # The issue-#682 review: the cut of the places in the ranking, and what the team has to review.
+    ranking_result = fields.Selection(string="Within the places", compute='_compute_ranking_result', selection=[
+        ('selected', "Selected"), ('reserve', "Reserve"), ('not_selected', "Not selected")],
+        help="What the ranking gives today: selected within the places of the modality (of the call, for staff), "
+             "reserve after them, not selected below the minimum score.")
+    documents_to_review = fields.Integer(string="Documents to review", compute='_compute_documents_to_review')
+    scores_hidden = fields.Boolean(string="Scores hidden", compute='_compute_scores_hidden',
+                                   help="Outside the Erasmus team, a staff application's points are hidden until the "
+                                        "panel has rated every plan of the call.")
 
     # --- resolutions, claims and offers (issue #685) ---
     resolution_line_ids = fields.One2many(string="Resolutions", comodel_name='ems.erasmus.resolution.line',
@@ -304,7 +320,7 @@ class EmsErasmusApplication(models.Model):
             count = application.call_id._ems_course_strike_count(application.partner_id) \
                 if application.audience == 'student' else 0
             application.course_strike_count = count
-            application.conduct_blocked = application.call_id._ems_conduct_blocked_count(count)
+            application.conduct_review = application.call_id._ems_conduct_blocked_count(count)
 
     @api.depends('interview_ids.state', 'interview_ids.general_score', 'interview_ids.english_score',
                  'single_interview_reason')
@@ -382,20 +398,13 @@ class EmsErasmusApplication(models.Model):
             self._ems_staff_last_mobility() and self._ems_staff_seniority())
         self.is_eligible = self.score_complete and self.score_total >= self.call_id.min_score
 
-    @api.depends('declared_never_staff_mobility', 'declared_last_mobility_date', 'declared_centre_start_date',
-                 'call_id.course_id.start', 'call_id.date_close')
+    @api.depends('declared_never_staff_mobility', 'declared_centre_start_date', 'call_id.date_close')
     def _compute_declared_staff_bands(self):
-        """Criteria 2 and 5 from the dates the applicant declared. A mobility belongs to the course
-        starting on 1 September; seniority is counted in whole months up to the call's closing date."""
+        """Criteria 2 and 5 from what the applicant declared: never had a staff mobility (else the
+        team sets the last one), and seniority in whole months up to the call's closing date."""
         utils = self.env['ems.datetime_utils']
         for application in self:
-            mobility = application.declared_last_mobility_date
-            band = 'never' if application.declared_never_staff_mobility else False
-            if mobility and not band:
-                course = (application.call_id.course_id or self.env.company.current_course_id).start
-                ago = course - (mobility.year if mobility.month >= 9 else mobility.year - 1)
-                band = 'recent' if ago <= 1 else 'two_courses' if ago == 2 else 'older'
-            application.declared_last_staff_mobility = band
+            application.declared_last_staff_mobility = 'never' if application.declared_never_staff_mobility else False
             start, close = application.declared_centre_start_date, application.call_id.date_close
             seniority = False
             if start and close:
@@ -492,6 +501,18 @@ class EmsErasmusApplication(models.Model):
             self.mobility_ids.filtered(lambda mobility: mobility.state in ('choosing', 'preparing'))._ems_sync_requirements()
         return result
 
+    @api.depends_context('uid')
+    def _compute_scores_hidden(self):
+        hidden = self.browse() if self.env.su or self._ems_can_manage() else self._ems_panel_pending()
+        for application in self:
+            application.scores_hidden = application in hidden
+
+    def _ems_panel_pending(self):
+        """The staff applications whose call's panel has not rated every plan yet."""
+        return self.sudo().filtered(lambda application: application.audience == 'staff' and not all(
+            application.call_id.application_ids.filtered(
+                lambda other: other.state in RANKED_STATES).mapped('plan_complete'))).with_env(self.env)
+
     def _read_format(self, fnames, load='_classic_read'):
         """The staff's points read as 0 outside the Erasmus team while the panel is rating
         (PANEL_PENDING_HIDDEN), whatever reads them (read, search_read, the web client). Their rank
@@ -500,9 +521,7 @@ class EmsErasmusApplication(models.Model):
         hidden = set(fnames) & set(PANEL_PENDING_HIDDEN)
         if not hidden or self.env.su or self._ems_can_manage():
             return result
-        pending = self.sudo().filtered(lambda application: application.audience == 'staff' and not all(
-            application.call_id.application_ids.filtered(
-                lambda other: other.state in RANKED_STATES).mapped('plan_complete')))
+        pending = self._ems_panel_pending()
         for vals in result:
             if vals['id'] in pending.ids:
                 vals.update(dict.fromkeys(hidden, 0.0))
@@ -533,9 +552,6 @@ class EmsErasmusApplication(models.Model):
             application._ems_check_state(('submitted',))
             if application.requirements_check != 'met':
                 raise UserError(_("Every admission check must be met to admit %s.", application.partner_id.name))
-            if application.conduct_blocked:
-                raise UserError(_("%s has too many conduct warnings this course to take part (art. 6 of the call): "
-                                  "exclude the application.", application.partner_id.name))
             if application.document_ids.filtered(lambda line: line.is_required and line.review_state != 'valid'):
                 raise UserError(_("Every required document of %s must be valid to admit the application.",
                                   application.partner_id.name))
@@ -543,13 +559,19 @@ class EmsErasmusApplication(models.Model):
         self._ems_set_state('admitted')
 
     def action_exclude(self):
-        """Also on an admitted application: not attending the interview excludes (art. 11)."""
+        """Also on an admitted application: not attending the interview excludes (art. 11). The
+        evaluations still to score go away with their tasks; once the admission list is published,
+        the applicant learns the reason by email instead of waiting for the next list."""
         for application in self:
             application._ems_check_state(('submitted', 'subsanation', 'admitted'))
             if not (application.exclusion_reason or '').strip():
                 raise UserError(_("Write the exclusion reason first."))
         self._ems_activities_done()
         self._ems_set_state('excluded')
+        for evaluations in (self.sudo().interview_ids, self.sudo().plan_rating_ids):
+            evaluations.filtered(lambda evaluation: evaluation.state == 'draft').unlink()
+        self.filtered(lambda application: 'admission' in application.call_id._ems_published_resolutions().mapped(
+            'kind'))._ems_send('ems.email_template_erasmus_application_excluded')
 
     def action_back_to_review(self):
         for application in self:
@@ -569,6 +591,18 @@ class EmsErasmusApplication(models.Model):
                 raise UserError(_("The interview call must be sent at least 24 hours before the interview."))
         self._ems_send('ems.email_template_erasmus_interview_call')
         self.sudo().write({'interview_call_date': fields.Datetime.now()})
+
+    @api.depends('rank', 'is_eligible', 'score_complete', 'modality_id.places')
+    def _compute_ranking_result(self):
+        for application in self:
+            application.ranking_result = application.score_complete and application.rank and \
+                application._ems_ranking_result()
+
+    @api.depends('document_ids.review_state', 'document_ids.attachment_ids')
+    def _compute_documents_to_review(self):
+        for application in self:
+            application.documents_to_review = len(application.document_ids.filtered(
+                lambda line: line.stage == 'application' and line.file_state == 'to_review'))
 
     def _ems_ranking_result(self):
         """Issue #685: selected within the modality's places, reserve after them, not selected
@@ -592,7 +626,7 @@ class EmsErasmusApplication(models.Model):
 
     def _ems_participants(self):
         """The applications in self whose applicant accepted a place, for the Erasmus team only."""
-        if not (self.env.su or self.env.user.has_group('ems.group_erasmus')):
+        if not self._ems_can_manage():
             raise AccessError(_("Only the Erasmus team exports the participants."))
         accepted = self.filtered(lambda application: application.state == 'accepted')
         if not accepted:
@@ -775,8 +809,6 @@ class EmsErasmusApplication(models.Model):
             return application
         if call not in partner._ems_erasmus_calls():
             raise UserError(_("You cannot apply to this call."))
-        if call._ems_conduct_blocked(partner):
-            raise UserError(_("You cannot apply to this call: you have too many conduct warnings this course."))
         if not call.is_accepting:
             raise UserError(_("This call is not accepting applications."))
         if call.audience == 'staff':
@@ -786,31 +818,35 @@ class EmsErasmusApplication(models.Model):
         return self.create({'call_id': call.id, 'partner_id': partner.id,
                             'modality_id': call._ems_modality_for(partner).id})
 
-    def _ems_portal_save(self, answers, uploads):
+    def _ems_portal_save(self, answers, uploads, links=None):
         """Save what the applicant sent from the portal. `answers`: values of ANSWER_FIELDS, only
         while the call accepts applications. `uploads`: {call document id: [(file name, bytes)]},
-        also during subsanation, until its deadline, for the documents asked for."""
+        also during subsanation, until its deadline, for the documents asked for. `links`: {call
+        document id: url}, the same way, for a document handed in as a link."""
         self.ensure_one()
         answers = {key: value for key, value in answers.items() if key in ANSWER_FIELDS[self.audience]}
-        if answers.get('staff_activity') not in (False, None, *dict(STAFF_ACTIVITIES)):
-            raise UserError(_("Choose one of the activities of the call."))
         if answers.get('declared_language_level') not in (
                 False, None, *dict(self._fields['declared_language_level'].selection)):
             raise UserError(_("Choose one of the language levels."))
         if answers:
             if not self._ems_portal_editable():
                 raise UserError(_("The application can no longer be changed."))
+            if self.audience == 'student':
+                answers['image_consent'] = self.partner_id.auth_image
             self.write(answers)
         lines = {line.call_document_id.id: line for line in self.document_ids}
         editable = self._ems_portal_editable()
         correctable = self._ems_portal_correctable()
-        for document_id, files in uploads.items():
+        for document_id, content in [*uploads.items(), *(links or {}).items()]:
             line = lines.get(document_id)
-            if not files or not line:
+            if not content or not line:
                 continue
             if not (editable or line in correctable):
                 raise UserError(_("The document %s can no longer be changed.", line.name))
-            line._ems_add_files(files)
+            if isinstance(content, str):
+                line._ems_add_link(content)
+            else:
+                line._ems_add_files(content)
 
     def _ems_portal_editable(self):
         """The applicant can change answers and every document: before the closing date."""
@@ -822,6 +858,118 @@ class EmsErasmusApplication(models.Model):
         self.ensure_one()
         deadline = self.call_id.subsanation_deadline
         return self.state == 'subsanation' and not (deadline and deadline <= self.call_id._ems_now())
+
+    def _ems_portal_progress(self):
+        """The issue-#682 review: where the applicant is in the call's process, for the portal's
+        step bar, and what they have to do now (or what they are waiting for), with its deadline.
+        Returns {'steps': [(label, status)], 'next': {'text', 'deadline', 'is_date', 'level', 'key'}}, a
+        status being 'done', 'current', 'todo' or 'failed', the deadline a datetime, a date or False,
+        and the level the colour of its box (warning: something to do)."""
+        self.ensure_one()
+        call, state = self.call_id, self.state
+        mobility = self.mobility_ids[:1]
+        today = self.env['ems.datetime_utils'].get_local_today()
+        labels = [_("Application"), _("Document check"), _("Plan rating") if call.audience == 'staff' else _("Interview"),
+                  _("Resolution"), _("Your place"), _("Preparation"), _("Mobility stay"), _("After the stay")]
+        provisional = 'provisional' in call._ems_published_resolutions().mapped('kind')
+        failed = False
+        if state == 'draft':
+            current = 0
+            nxt = ((_("Complete your application and submit it."), call.date_close, 'warning') if call.is_accepting
+                   else (_("The call is not accepting applications."), False, 'secondary'))
+        elif state == 'not_submitted':
+            current, failed = 0, True
+            nxt = (_("The application was not submitted in time."), False, 'secondary')
+        elif state == 'submitted':
+            current = 1
+            nxt = (_("The Erasmus team is reviewing your application."), False, 'info')
+        elif state == 'subsanation':
+            current = 1
+            nxt = (_("Correct the documents marked below."), call.subsanation_deadline, 'warning')
+        elif state == 'excluded':
+            current, failed = 1, True
+            reason = (self.sudo().exclusion_reason or '').strip()
+            nxt = (_("Your application has been excluded. Reason: %s", reason) if reason
+                   else _("Your application has been excluded."), False, 'secondary')
+        elif state == 'admitted' and provisional:
+            current = 3
+            nxt = ((_("Check your provisional result. If you disagree, you can claim."), call.claims_deadline, 'warning')
+                   if call.claims_deadline and call.claims_deadline > call._ems_now()
+                   else (_("Waiting for the definitive resolution."), False, 'info'))
+        elif state == 'admitted':
+            current = 2
+            if call.audience == 'staff':
+                nxt = (_("The panel is rating your mobility plan."), False, 'info')
+            elif self.interview_call_date:
+                nxt = (_("Come to your interview%(place)s. Part of it is in English: please arrive 15 minutes "
+                         "early.", place=f" ({self.interview_place})" if self.interview_place else ""),
+                       self.interview_date, 'warning')
+            else:
+                nxt = (_("You will receive an email with the day of your interview."), False, 'info')
+        elif state in ('selected', 'reserve'):
+            current = 4
+            offer = self.offer_ids.filtered(lambda offer: offer.state == 'pending')[:1]
+            if offer:
+                nxt = (_("A place is offered to you: accept it or renounce it."), offer.deadline, 'warning')
+            elif state == 'reserve':
+                nxt = (_("You are on the reserve list: you will receive an email if a place becomes free."), False,
+                       'info')
+            else:
+                nxt = (_("Waiting for the place to be offered to you."), False, 'info')
+        elif state == 'not_selected':
+            current, failed = 3, True
+            nxt = (_("You have not been selected in this call."), False, 'secondary')
+        elif state == 'renounced' or mobility.state == 'cancelled':
+            current, failed = 4 if state == 'renounced' else 5, True
+            nxt = (_("You did not answer the place offer in time: the place goes to the next person on the reserve list.")
+                   if self._ems_offer_expired() else _("You have renounced the place."), False, 'secondary')
+        elif not mobility or mobility.state == 'choosing':
+            current = 5
+            nxt = self._ems_portal_choosing_next(mobility)
+        elif mobility.state == 'done':
+            current = len(labels)
+            nxt = (_("Your mobility is closed. Thank you for taking part!"), False, 'success')
+        elif mobility.date_end and mobility.date_end < today:
+            current = 7
+            nxt = ((_("Answer the EU Survey and tell us here."), mobility.eu_survey_deadline, 'warning')
+                   if mobility.eu_survey_state == 'pending'
+                   else (_("The Erasmus team will close your mobility once your record is complete."), False, 'info'))
+        elif mobility.date_start and mobility.date_start <= today:
+            current = 6
+            nxt = ((_("Fill in this week's self-assessment."), False, 'warning') if mobility._ems_self_assessments_open()
+                   else (_("Enjoy your stay!"), False, 'success'))
+        else:
+            current = 5
+            nxt = self._ems_portal_preparing_next(mobility)
+        steps = [(label, 'done' if index < current else ('failed' if failed else 'current') if index == current
+                  else 'todo') for index, label in enumerate(labels)]
+        text, deadline, level = nxt
+        # The two moments with their own box before this review keep its class.
+        key = 'subsanation' if state == 'subsanation' else 'interview' if current == 2 and self.interview_call_date \
+            and call.audience == 'student' else ''
+        return {'steps': steps, 'next': {'text': text, 'deadline': deadline, 'level': level, 'key': key,
+                                         'is_date': bool(deadline) and not isinstance(deadline, datetime)}}
+
+    def _ems_portal_choosing_next(self, mobility):
+        """What the applicant does while their mobility is being defined (destination or proposal)."""
+        if mobility.proposal_state == 'pending':
+            return (_("Your proposal is waiting for validation."), False, 'info')
+        if mobility.audience == 'staff':
+            return (_("Complete your proposal with the exact dates and send it."), False, 'warning')
+        if mobility.turn_deadline or mobility.free_choice:
+            return (_("It is your turn: choose your destination."), mobility.turn_deadline, 'warning')
+        return (_("You will receive an email when it is your turn to choose your destination."), False, 'info')
+
+    def _ems_portal_preparing_next(self, mobility):
+        """What the participant does before leaving: the commitment letter, then the missing documents."""
+        if mobility.commitment_pending:
+            return (_("Accept and sign your commitment letter."), False, 'warning')
+        missing = mobility.document_ids.filtered(lambda line: line.todo_state in ('missing', 'needs_change'))
+        if missing:
+            deadlines = [line.deadline for line in missing if line.deadline]
+            return (_("Upload the documents still missing from your record (%s).", len(missing)),
+                    min(deadlines) if deadlines else False, 'warning')
+        return (_("Your record is up to date. Get ready for your stay!"), mobility.date_start, 'success')
 
     def _ems_portal_correctable(self):
         """The document lines the applicant can still upload to during subsanation: those the
@@ -838,20 +986,14 @@ class EmsErasmusApplication(models.Model):
         for application in self:
             if not (application._ems_portal_editable() or application._ems_subsanation_open()):
                 raise UserError(_("The application can no longer be submitted."))
-            if application.conduct_blocked:
-                raise UserError(_("You cannot apply to this call: you have too many conduct warnings this course."))
             missing = application.document_ids.filtered(lambda line: line.is_required and not line.attachment_ids)
             if missing:
                 raise UserError(_("Upload the required documents first: %s", ", ".join(missing.mapped('name'))))
-            if application.audience == 'staff' and not (
-                    (application.declared_never_staff_mobility or application.declared_last_mobility_date)
-                    and application.declared_centre_start_date):
-                raise UserError(_("Say when your last staff mobility was (or that you never had one) and since when "
-                                  "you work at the centre."))
+            if application.audience == 'staff' and not application.declared_centre_start_date:
+                raise UserError(_("Say since when you work at the centre."))
             if application.audience == 'staff' and not all(application[name] for name in PLAN_FIELDS):
-                raise UserError(_("Fill in every section of the mobility plan: the activity, the host entity or "
-                                  "course, the destination, the dates, why you chose them, the objectives and the "
-                                  "application to your job."))
+                raise UserError(_("Write both proposals, A and B, and what you want to learn and how you will apply "
+                                  "it to your job."))
         corrected = self.filtered(lambda application: application.state == 'subsanation')
         self._ems_set_state('submitted')
         self.sudo().write({'submit_date': fields.Datetime.now()})
@@ -872,6 +1014,11 @@ class EmsErasmusApplication(models.Model):
             raise UserError(_("The application of %s is not in the right state for this action.",
                               self.partner_id.name))
 
+    def _ems_offer_expired(self):
+        """Renounced by not answering the place offer in time, not in writing (art. 15)."""
+        self.ensure_one()
+        return self.state == 'renounced' and self.sudo().offer_ids.sorted('offer_date')[-1:].state == 'expired'
+
     def _ems_set_state(self, state):
         self.sudo().write({'state': state})
 
@@ -889,6 +1036,23 @@ class EmsErasmusApplication(models.Model):
     def _ems_activities_done(self):
         self.sudo().activity_ids.action_feedback()
 
+    def _ems_portal_claimable(self):
+        """The provisional resolution the applicant can claim against from the portal (art. 14):
+        published, with them on it, until the call's claims deadline (the issue-#682 review)."""
+        self.ensure_one()
+        call = self.call_id
+        if not (call.claims_deadline and call.claims_deadline > call._ems_now()):
+            return self.env['ems.erasmus.resolution']
+        return self.resolution_line_ids.resolution_id.filtered(
+            lambda resolution: resolution.kind == 'provisional' and resolution.state == 'published').sorted(
+            'publish_date')[-1:]
+
+    def _ems_portal_claim(self, description, files=()):
+        """The applicant's claim, sent from the portal against their provisional result."""
+        self.ensure_one()
+        return self.env['ems.erasmus.claim']._ems_portal_create(
+            {'application_id': self.id, 'resolution_id': self._ems_portal_claimable().id}, description, files)
+
     def _ems_can_manage(self):
         user = self.env.user
         return self.env.su or user.has_group('ems.group_erasmus') or user.has_group('ems.group_academic_admin')
@@ -897,20 +1061,27 @@ class EmsErasmusApplication(models.Model):
         self._ems_mail(self, xmlid)
 
     @api.model
-    def _ems_mail(self, records, xmlid):
-        """Email `xmlid` (a template of `records`' model: applications, resolution lines, offers) to
-        each applicant's own address; note it in the application's chatter when there is none."""
+    def _ems_mail(self, records, xmlid, family_copy=False):
+        """Email `xmlid` (a template of `records`' model: applications, resolution lines, offers,
+        claims) to each applicant's own address; note it in the application's chatter when there is
+        none. `family_copy`: the family gets a copy (the result, the place offered and the answer to
+        it) whenever EMS keeps it informed about the student: a minor, or an adult who authorized
+        sharing with it (res.partner._ems_informed_recipients)."""
         template = self.env.ref(xmlid, raise_if_not_found=False)
         if not template:
             return
         for record in records:
             partner = record.partner_id
             if partner.email:
+                email_values = {'email_to': partner.email}
+                family = family_copy and (partner._ems_informed_recipients() - partner).filtered('email')
+                if family:
+                    email_values['email_cc'] = ",".join(family.mapped('email'))
                 template.with_context(lang=partner.lang).sudo().send_mail(
-                    record.id, force_send=False, email_values={'email_to': partner.email})
+                    record.id, force_send=False, email_values=email_values)
             else:
                 application = record if record._name == self._name else record.application_id
-                application.sudo().chatter(_("No email sent: the applicant has no email address."))
+                (application or record).sudo().chatter(_("No email sent: the applicant has no email address."))
 
     def _ems_mail_document_list(self, lines):
         """The files of `lines` as an HTML list, for the emails."""
@@ -966,13 +1137,21 @@ class EmsErasmusApplicationDocument(models.Model):
         ('complete', "Complete"), ('optional', "Optional"), ('not_applicable', "Not applicable")],
         help="Complete: valid after the team's review (a signed document is only complete once checked, not when "
              "uploaded); one the team provides, once it is uploaded.")
+    # The issue-#682 review: what the record shows, so that only what the participant has to do now
+    # is red. A missing document the Erasmus team uploads, or one that is not due yet (the destination
+    # not set, it opens later, a return document before the end of the stay), is not.
+    todo_state = fields.Selection(string="To do", compute='_compute_todo_state', selection=[
+        ('missing', "Missing"), ('waiting_team', "The Erasmus team uploads it"), ('not_yet', "Not yet"),
+        ('to_review', "Pending review"), ('needs_change', "Needs changes"), ('complete', "Complete"),
+        ('optional', "Optional"), ('not_applicable', "Not applicable")])
 
     @api.depends('call_document_id.requirement', 'application_id.is_minor', 'mobility_id.placement_type',
-                 'mobility_id.is_short_blended')
+                 'mobility_id.is_short_blended', 'application_id.fewer_opportunities')
     def _compute_is_required(self):
         for line in self:
             requirement = line.call_document_id.requirement
             line.is_required = requirement == 'required' or (requirement == 'minor' and line.application_id.is_minor) \
+                or (requirement == 'fewer_opportunities' and line.application_id.fewer_opportunities) \
                 or (requirement == 'curricular' and line.mobility_id.placement_type == 'curricular') \
                 or (requirement == 'short_blended' and line.mobility_id.is_short_blended)
 
@@ -1003,6 +1182,22 @@ class EmsErasmusApplicationDocument(models.Model):
                 line.file_state = 'missing'
             else:
                 line.file_state = 'optional' if line.call_document_id.requirement == 'optional' else 'not_applicable'
+
+    @api.depends('file_state', 'handled_by', 'prepared_attachment_ids', 'stage', 'open_date', 'mobility_id.state',
+                 'mobility_id.date_end')
+    def _compute_todo_state(self):
+        today = self.env['ems.datetime_utils'].get_local_today()
+        for line in self:
+            mobility = line.mobility_id
+            if line.file_state != 'missing' or not mobility:
+                line.todo_state = line.file_state
+            elif line.handled_by == 'team' or (line.handled_by == 'team_to_sign' and not line.prepared_attachment_ids):
+                line.todo_state = 'waiting_team'
+            elif mobility.state == 'choosing' or not line._ems_is_open() or (
+                    line.stage == 'return' and not (mobility.date_end and mobility.date_end < today)):
+                line.todo_state = 'not_yet'
+            else:
+                line.todo_state = 'missing'
 
     @api.depends('call_document_id.due_basis', 'call_document_id.due_days', 'mobility_id.destination_date',
                  'mobility_id.date_start', 'mobility_id.date_end')
@@ -1095,8 +1290,15 @@ class EmsErasmusApplicationDocument(models.Model):
         self.write({'review_state': 'needs_change'})
 
     def _ems_add_files(self, files):
-        """Attach `files` ([(name, bytes)]) to this line and put it back to review."""
+        """Attach `files` ([(name, bytes)]) to this line and put it back to review. A document
+        handed in as a PDF takes only PDF files (the 2026-11-03 review: the CV sent to companies)."""
         self.ensure_one()
+        kind = self.call_document_id.upload_kind
+        if kind == 'link':
+            raise UserError(_("%s is handed in as a link, not as a file.", self.name))
+        if kind == 'pdf' and any(not (name or '').lower().endswith('.pdf') or not content.startswith(b'%PDF')
+                                 for name, content in files):
+            raise UserError(_("%s: upload it as a PDF file.", self.name))
         attachments = self.env['ir.attachment'].sudo().create([{
             'name': check_upload(name),
             'datas': base64.b64encode(content),
@@ -1105,3 +1307,18 @@ class EmsErasmusApplicationDocument(models.Model):
         } for name, content in files])
         self.sudo().write({'attachment_ids': [(4, attachment.id) for attachment in attachments],
                            'review_state': 'pending'})
+
+    def _ems_add_link(self, url):
+        """Hand in a document asked for as a link (e.g. the presentation video on Google Drive): kept
+        as a link attachment, like any file of the line (every one is kept), and back to review."""
+        self.ensure_one()
+        url = (url or '').strip()
+        if self.call_document_id.upload_kind != 'link':
+            raise UserError(_("%s is handed in as a file, not as a link.", self.name))
+        if not url.startswith('https://') or len(url) > 2000 or any(char.isspace() for char in url):
+            raise UserError(_("%s: paste the whole link, starting with https://.", self.name))
+        if url in self.attachment_ids.mapped('url'):
+            return
+        attachment = self.env['ir.attachment'].sudo().create({
+            'name': _("%s (link)", self.name), 'type': 'url', 'url': url, 'res_model': self._name, 'res_id': self.id})
+        self.sudo().write({'attachment_ids': [(4, attachment.id)], 'review_state': 'pending'})

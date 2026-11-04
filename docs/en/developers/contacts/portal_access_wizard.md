@@ -16,7 +16,7 @@ Two rules, both in `models/contacts/portal.py`, deliberately kept apart:
 
 - `_ems_notification_recipients()`: who **acts** on the student's behalf. It is also used for
   authorizations, so it never includes a minor who has a family. Convalidations have their own
-  rules (`_ems_convalidation_can_request()`, `_ems_convalidation_recipients()`), see
+  rules (`_ems_convalidation_can_request()`, `_ems_informed_recipients()`), see
   [`convalidation.md`](../grades/convalidation.md#portal).
 - `_ems_portal_access_recipients()`: who gets a **portal account**, which is the above plus
   the student himself. A minor gets his own, view-only account (see below) next to his

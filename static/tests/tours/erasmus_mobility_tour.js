@@ -19,6 +19,11 @@ registry.category("web_tour.tours").add("ems_erasmus_open_choice", {
             run: "click",
         },
         {
+            trigger: ".o_form_view .o_notebook a[name='mobility_block']",
+            content: "Open the mobility block of tabs",
+            run: "click",
+        },
+        {
             trigger: ".o_form_view .o_notebook a[name='preparation_documents']",
             content: "Open the mobility documents tab",
             run: "click",
@@ -69,12 +74,8 @@ registry.category("web_tour.tours").add("ems_erasmus_mobility_team", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='document_ids'] .o_data_row td[name='file_state'] .badge.text-bg-success",
+            trigger: ".o_form_view .o_field_widget[name='document_ids'] .o_data_row td[name='todo_state'] .badge.text-bg-success",
             content: "The document is complete once valid",
-        },
-        {
-            trigger: ".o_form_view .o_field_widget[name='document_ids'] .o_data_row td[name='file_category']:not(:empty)",
-            content: "Each document shows its category in the record",
         },
         {
             trigger: ".o_form_view .o_notebook a[name='checklist']",
@@ -158,12 +159,42 @@ registry.category("web_tour.tours").add("ems_erasmus_portal_choose", {
             content: "The mobility is in preparation",
         },
         {
-            trigger: ".o_ems_erasmus_mobility_documents .o_ems_erasmus_mobility_document",
-            content: "The documents to hand in are listed",
+            trigger: ".o_ems_erasmus_next.o_ems_erasmus_next_warning",
+            content: "The box on top says what to do now",
         },
         {
-            trigger: ".o_ems_erasmus_mobility_tasks li",
+            trigger: ".o_ems_erasmus_steps .o_ems_erasmus_step_current",
+            content: "The step bar shows where the application is",
+        },
+        {
+            trigger: ".o_ems_erasmus_tab_record.active .o_ems_erasmus_mobility_documents .o_ems_erasmus_mobility_document",
+            content: "The preparation opens on the record, with the documents to hand in",
+        },
+        {
+            trigger: ".o_ems_erasmus_tab_button_steps",
+            content: "Open the steps tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_ems_erasmus_tab_steps.active .o_ems_erasmus_mobility_tasks li",
             content: "And the steps to follow",
+        },
+    ],
+});
+
+// The issue-#682 review: any teacher sees a student's Erasmus+ participations under the academic
+// history, without access to the Erasmus+ app.
+registry.category("web_tour.tours").add("ems_erasmus_history_teacher", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_notebook a[name='studies']",
+            content: "Open the Studies tab of the student",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='erasmus_history_ids'] .o_data_row td[name='name']:contains('Test Erasmus Call')",
+            content: "The accepted Erasmus+ place is in the student's history",
         },
     ],
 });

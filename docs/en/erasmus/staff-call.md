@@ -14,35 +14,35 @@ The staff call works like the students' one (see [Calls and applications](calls-
 
 ## 1. Open the call
 
-In **Erasmus+ > Calls**, create the call, set **Applicants** to *Staff*, fill in the dates, attach the published call and publish it. That's all:
+In **Erasmus+ > Calls > Calls**, create the call, set **Applicants** to *Staff*, fill in the dates, attach the published call and publish it. That's all:
 
-- The **documents** of art. 8 are added on their own: identity document, Europass CV in English and, optional, the language certificates. The **mobility and transfer plan** is not a document: the applicants write it in the form (annex 1), and it is the only part of the application the panel sees. You can change them before publishing.
+- The **documents** of art. 8 are added on their own: only the optional language certificates (no CV; the identity document is asked of whoever goes, among the mobility's documents). The **mobility and transfer plan** is not a document: the applicants write it in the form (annex 1), and it is the only part of the application the panel sees. You can change them before publishing.
 - There is no **Minimum score**: the staff call has none, so EMS sets it to 0 and hides it.
 - The **Score correction deadline** is set two weeks after the closing date: the panel's tasks are due that day, and after it the members can no longer change their ratings. It follows the closing date when you change it, unless you changed it by hand.
 - **Teachers of:** the levels whose teachers can apply. A new staff call has every vocational training level (basic, intermediate and higher cycles, specialisation courses and PFI). EMS shows the call only to the teachers who teach a group of those levels and to the people in **Validates the activities**: not to the administration staff nor to the teachers of ESO or Batxillerat only.
 - **Validates the activities:** the Direction that validates each selected person's activity and its later changes. It comes filled in with the Director and the Head of Studies of FP (the one above most of the FP teachers), and only they get the to-do, even for a teacher who hangs below another Head of Studies in the organisation chart.
 - The **places** are not needed to open it: the published call gives the indicative ones, and they may change with the projects. You add them later (step 5).
 
-Once published, every member of the staff with an employee file sees the call on the portal (**Erasmus+** card, `/my/erasmus`). Share that link when you announce the call.
+Once published, every member of the staff with an employee file sees the call on the portal (**Erasmus+** card, `/my/erasmus`). To email it to all of them, use **Actions > Notify who can apply** (see [Calls and applications](calls-and-applications.md)).
 
 ## 2. What the staff fill in
 
-Besides the activity, host entity or course, destination and dates, each applicant declares:
+Besides their two proposals (A, the main one, and B, the backup) and what they want to learn and how they will apply it, written in their own words, each applicant declares:
 
-- The **month and year of their last Erasmus+ staff mobility** from the centre, or that they never had one. Accompanying students and other programmes don't count.
+- Whether they **never had an Erasmus+ staff mobility at the Puig**. Otherwise, you set when their last one was (**Last staff mobility checked**, criterion 2) from the centre's records. Accompanying students and other programmes don't count.
 - The **month and year since when they work at the centre** without interruption.
 - Their highest **language certificate** (B2 or higher), and they attach it.
 - The **centre projects** they take part in, and optionally their **support needs** (confidential: only the Erasmus team sees them).
 
-They can't submit without the last mobility and the date at the centre.
+They can't submit without the date at the centre, both proposals and the plan.
 
 ## 3. Review, admit and send the plans to the panel
 
 Review the documents and admit or exclude as in the students' call (conduct warnings do not count).
 
-Fill in the **Panel** tab of the call: the people who rate the mobility plans (the management and the heads and seminar chiefs of the departments). Then, after **Close applications**, click **Actions > Send plans to the panel**. Every member gets a task to rate every plan from **Erasmus+ > My plan ratings**, due on the **Score correction deadline** (the button asks for it if it is empty; if you change it later, the open tasks follow it). You can click it again after admitting more applications: it only creates the ratings still missing.
+Fill in the **Panel** tab of the call: the people who rate the mobility plans (the management and the heads and seminar chiefs of the departments). Then, after **Close applications**, click **Actions > Send plans to the panel**. Every member gets a task to rate every plan from **Erasmus+ > My participation > My plan ratings**, due on the **Score correction deadline** (the button asks for it if it is empty; if you change it later, the open tasks follow it). You can click it again after admitting more applications: it only creates the ratings still missing.
 
-**Abstentions:** a panel member who is a candidate in the call does not rate (art. 10): their ratings are created as abstentions, with the reason *Candidate in this call*. For another conflict of interest, open the rating in **Erasmus+ > Plan ratings** and write the **Abstention reason**. There are no substitutes: the plan score (criterion 1) is the mean of the members who rate it. **A pending rating blocks it** until it is submitted.
+**Abstentions:** a panel member who is a candidate in the call does not rate (art. 10): their ratings are created as abstentions, with the reason *Candidate in this call*. For another conflict of interest, open the rating from the **Plan ratings** button of the call and write the **Abstention reason**. There are no substitutes: the plan score (criterion 1) is the mean of the members who rate it. **A pending rating blocks it** until it is submitted. In **Plan ratings**, an abstention is shown as *Abstention*, and the pivot view (applicants × status) shows at a glance which plans still have ratings to submit.
 
 **The Direction sees no points while the panel rates:** the Head of Studies and the Director can open the staff applications, but until every plan of the call is rated they see the plan score, the criteria and the total at 0, also when they are in the panel. This way no member sees the others' mean before rating. Once the last rating is submitted, they see everything.
 

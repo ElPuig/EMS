@@ -7,12 +7,12 @@ from odoo.exceptions import UserError
 from odoo.http import content_disposition, request
 from odoo.addons.portal.controllers.portal import CustomerPortal
 
-from odoo.addons.ems.models.erasmus.application import ANSWER_FIELDS
+from odoo.addons.ems.models.erasmus.application import ANSWER_FIELDS, PORTAL_STATE_BADGES
 from odoo.addons.ems.models.erasmus.mobility import PROPOSAL_FIELDS
 
-BOOLEAN_ANSWERS = ('previous_mobility', 'fewer_opportunities', 'image_consent', 'declared_never_staff_mobility')
+BOOLEAN_ANSWERS = ('fewer_opportunities', 'image_consent', 'declared_never_staff_mobility')
 # Answers given as a month (<input type="month">, "YYYY-MM"), stored as the 1st of that month.
-MONTH_ANSWERS = ('declared_last_mobility_date', 'declared_centre_start_date')
+MONTH_ANSWERS = ('declared_centre_start_date',)
 
 
 class EmsPortalErasmusController(CustomerPortal):
@@ -39,12 +39,18 @@ class EmsPortalErasmusController(CustomerPortal):
             return request.redirect('/my/home')
         applications = partner._ems_erasmus_applications()
         calls = partner._ems_erasmus_calls() | applications.call_id
+        # The issue-#682 review: the person's own applications first, then the calls they can apply
+        # to now, and the rest (not open yet, or closed) folded away at the end.
+        open_calls = calls.filtered(lambda call: call.is_accepting) - applications.call_id
         values = self._prepare_portal_layout_values()
         values.update({
             'page_name': 'erasmus',
             'calls': calls,
-            # Students' call art. 6: too many conduct warnings this course rule the student out.
-            'blocked': calls.filtered(lambda call: call._ems_conduct_blocked(partner)),
+            'my_calls': applications.call_id,
+            'open_calls': open_calls,
+            'other_calls': calls - applications.call_id - open_calls,
+            'progress': {application.call_id: application._ems_portal_progress() for application in applications},
+            'state_badges': PORTAL_STATE_BADGES,
             'applications': {application.call_id: application for application in applications},
             'state_labels': dict(applications._fields['state']._description_selection(request.env)),
             'tz': request.env['ems.datetime_utils'].company_tz_name(),
@@ -76,26 +82,25 @@ class EmsPortalErasmusController(CustomerPortal):
         partner = request.env.user.partner_id
         application = request.env['ems.erasmus.application'].sudo().search([
             ('call_id', '=', call.id), ('partner_id', '=', partner.id)])
-        blocked = call._ems_conduct_blocked(partner) and (not application or application.state in ('draft', 'subsanation'))
         values = self._prepare_portal_layout_values()
         values.update({
             'page_name': 'erasmus',
             'call': call,
             'application': application,
             'modality': application.modality_id or call._ems_modality_for(partner),
-            'blocked': blocked,
-            'editable': not blocked and (application._ems_portal_editable() if application else call.is_accepting),
-            'correctable': application._ems_portal_correctable() if application and not blocked
-            else application.document_ids.browse(),
+            'editable': application._ems_portal_editable() if application else call.is_accepting,
+            'correctable': application._ems_portal_correctable() if application else application.document_ids.browse(),
             'documents': call.document_ids,
             'lines': {line.call_document_id: line for line in application.document_ids},
             'is_minor': call.audience == 'student' and not partner.is_adult,
             'language_labels': dict(request.env['ems.erasmus.application']._fields[
                 'declared_language_level']._description_selection(request.env)),
-            'activity_labels': dict(request.env['ems.erasmus.application']._fields['staff_activity']._description_selection(
+            'activity_labels': dict(request.env['ems.erasmus.mobility']._fields['proposal_activity']._description_selection(
                 request.env)),
             'state_labels': dict(request.env['ems.erasmus.application']._fields['state']._description_selection(
                 request.env)),
+            'state_badges': PORTAL_STATE_BADGES,
+            'progress': application._ems_portal_progress() if application else None,
             'tz': request.env['ems.datetime_utils'].company_tz_name(),
             'error': kwargs.get('error'),
             'saved': kwargs.get('saved'),
@@ -116,7 +121,13 @@ class EmsPortalErasmusController(CustomerPortal):
                 'file_category']._description_selection(request.env),
             'file_state_labels': dict(request.env['ems.erasmus.application.document']._fields[
                 'file_state']._description_selection(request.env)),
+            'todo_state_labels': dict(request.env['ems.erasmus.application.document']._fields[
+                'todo_state']._description_selection(request.env)),
             'answered': kwargs.get('answered'),
+            'claimed': kwargs.get('claimed'),
+            'claimable': application._ems_portal_claimable() if application else None,
+            'claim_state_labels': dict(request.env['ems.erasmus.claim']._fields['state']._description_selection(
+                request.env)),
         })
         return request.render('ems.portal_erasmus_application', values)
 
@@ -146,7 +157,9 @@ class EmsPortalErasmusController(CustomerPortal):
                          if upload.filename]
                 if files:
                     uploads[document.id] = files
-            application._ems_portal_save(answers, uploads)
+            links = {document.id: post.get(f'link_{document.id}') for document in call.document_ids
+                     if document.upload_kind == 'link' and post.get(f'link_{document.id}')}
+            application._ems_portal_save(answers, uploads, links)
             if post.get('submit'):
                 application.action_submit()
         except UserError:
@@ -185,7 +198,9 @@ class EmsPortalErasmusController(CustomerPortal):
     def _ems_render_resolution(self, resolution, back_url, list_url):
         """A published list's page (a call's or a group mobility's)."""
         values = self._prepare_portal_layout_values()
-        values.update({'page_name': 'erasmus', 'resolution': resolution, 'back_url': back_url, 'list_url': list_url})
+        # The issue-#682 review: the applicant finds their own row (only on the portal, never in the PDF).
+        values.update({'page_name': 'erasmus', 'resolution': resolution, 'back_url': back_url, 'list_url': list_url,
+                       'my_partner': request.env.user.partner_id})
         return request.render('ems.portal_erasmus_resolution', values)
 
     @http.route('/my/erasmus/call/<int:call_id>/resolution/<int:resolution_id>/pdf', type='http', auth='user',
@@ -203,6 +218,25 @@ class EmsPortalErasmusController(CustomerPortal):
             ('Content-Type', 'application/pdf'),
             ('Content-Disposition', content_disposition(f'{resolution.name}.pdf')),
         ])
+
+    @http.route('/my/erasmus/call/<int:call_id>/claim', type='http', auth='user', methods=['POST'], website=True)
+    def portal_erasmus_claim(self, call_id, description=None, **kwargs):
+        """A claim against the provisional resolution, with its files (the issue-#682 review)."""
+        call = self._ems_erasmus_call(call_id)
+        if not call:
+            return request.redirect('/my/home')
+        page = f'{self._redirect}/call/{call.id}'
+        application = request.env['ems.erasmus.application'].sudo().search([
+            ('call_id', '=', call.id), ('partner_id', '=', request.env.user.partner_id.id)])
+        files = [(upload.filename, upload.read()) for upload in request.httprequest.files.getlist('claim_files')
+                 if upload.filename]
+        try:
+            if not application:
+                return request.redirect(f'{page}?error=1')
+            application._ems_portal_claim(description, files)
+        except UserError:
+            return request.redirect(f'{page}?error=1')
+        return request.redirect(f'{page}?claimed=1')
 
     @http.route('/my/erasmus/call/<int:call_id>/offer', type='http', auth='user', methods=['POST'], website=True)
     def portal_erasmus_offer(self, call_id, answer=None, reason=None, **kwargs):

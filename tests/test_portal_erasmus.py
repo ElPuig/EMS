@@ -51,11 +51,14 @@ class TestPortalErasmus(HttpCase):
         response = self.url_open('/my/erasmus')
         self.assertEqual(response.status_code, 200)
         self.assertIn('Test Erasmus Call', response.text)
-        self.assertIn('/my/erasmus', self.url_open('/my/home').text)
+        home = self.url_open('/my/home').text
+        self.assertIn('/my/erasmus', home)
+        self.assertIn('href="/my/erasmus" class="nav-link"', home, "The portal menu has an entry, like the card.")
 
     def test_student_of_another_level_is_sent_home(self):
         self._login(self.outsider_user)
-        self.assertNotIn('/my/erasmus"', self.url_open('/my/home').text)
+        home = self.url_open('/my/home').text
+        self.assertNotIn('/my/erasmus"', home, "Neither the card nor the portal menu entry.")
         response = self.url_open('/my/erasmus')
         self.assertTrue(response.url.endswith('/my/home'))
         response = self.url_open(f'/my/erasmus/call/{self.call.id}')
@@ -63,12 +66,12 @@ class TestPortalErasmus(HttpCase):
 
     def test_save_then_submit(self):
         self._login(self.student_user)
-        self._save(availability='Summer only')
+        self._save(applicant_notes='Summer only')
         application = self._application()
         self.assertEqual(application.state, 'draft')
-        self.assertEqual(application.availability, 'Summer only')
+        self.assertEqual(application.applicant_notes, 'Summer only')
         self.assertEqual(application.document_ids.attachment_ids.mapped('name'), ['cv.pdf'])
-        response = self._save(submit=True, availability='Summer only')
+        response = self._save(submit=True, applicant_notes='Summer only')
         self.assertIn('submitted=1', response.url)
         self.assertEqual(application.state, 'submitted')
 
@@ -98,9 +101,9 @@ class TestPortalErasmus(HttpCase):
         self._login(self.student_user)
         self._save()
         self.call.date_close = fields.Datetime.now() - timedelta(hours=1)
-        response = self._save(availability='Too late')
+        response = self._save(applicant_notes='Too late')
         self.assertIn('error=', response.url)
-        self.assertFalse(self._application().availability)
+        self.assertFalse(self._application().applicant_notes)
 
     def test_rules_document_download(self):
         self.call.write({'rules_document': 'JVBERi0xLjQ=', 'rules_filename': 'call.pdf'})
@@ -124,3 +127,76 @@ class TestPortalErasmus(HttpCase):
         page = self.url_open(f'/my/erasmus/call/{self.call.id}').text
         self.assertIn('o_ems_erasmus_interview', page)
         self.assertIn('Room E12', page)
+
+    # The issue-#682 review: the step bar and the "what to do now" box.
+
+    def _progress(self, application):
+        progress = application._ems_portal_progress()
+        return [status for _label, status in progress['steps']], progress['next']
+
+    def test_progress_follows_the_application(self):
+        self._login(self.student_user)
+        self._save()
+        application = self._application()
+        statuses, nxt = self._progress(application)
+        self.assertEqual(statuses[:2], ['current', 'todo'])
+        self.assertEqual((nxt['level'], nxt['deadline'], nxt['is_date']), ('warning', self.call.date_close, False))
+        application._ems_set_state('subsanation')
+        statuses, nxt = self._progress(application)
+        self.assertEqual(statuses[:2], ['done', 'current'])
+        self.assertEqual((nxt['level'], nxt['key']), ('warning', 'subsanation'))
+        application._ems_set_state('admitted')
+        statuses, nxt = self._progress(application)
+        self.assertEqual(statuses[2], 'current', "The interview step.")
+        self.assertEqual((nxt['level'], nxt['key']), ('info', ''), "Nothing to do until called.")
+        application.write({'interview_date': fields.Datetime.now() + timedelta(days=3), 'interview_place': 'Room E12'})
+        application.action_send_interview_call()
+        _statuses, nxt = self._progress(application)
+        self.assertEqual((nxt['level'], nxt['key'], nxt['deadline']), ('warning', 'interview', application.interview_date))
+        self.assertIn('Room E12', nxt['text'])
+        application._ems_set_state('reserve')
+        statuses, nxt = self._progress(application)
+        self.assertEqual(statuses[:5], ['done', 'done', 'done', 'done', 'current'])
+        self.assertEqual(nxt['level'], 'info', "A reserve waits for a free place.")
+
+    def test_progress_marks_where_an_application_ended(self):
+        self._login(self.student_user)
+        self._save(submit=True)
+        application = self._application()
+        application._ems_set_state('excluded')
+        statuses, nxt = self._progress(application)
+        self.assertEqual(statuses[:3], ['done', 'failed', 'todo'])
+        self.assertEqual(nxt['level'], 'secondary')
+        application._ems_set_state('not_selected')
+        statuses, _nxt = self._progress(application)
+        self.assertEqual(statuses[3], 'failed', "Not selected in the resolution step.")
+
+    def test_page_groups_the_calls(self):
+        """Own applications first, then the open calls; a closed call folded away."""
+        self._login(self.student_user)
+        page = self.url_open('/my/erasmus').text
+        self.assertIn('o_ems_erasmus_section_open', page)
+        self.assertNotIn('o_ems_erasmus_section_mine', page)
+        date_close = self.call.date_close
+        self.call.date_close = fields.Datetime.now() - timedelta(hours=1)
+        page = self.url_open('/my/erasmus').text
+        self.assertIn('o_ems_erasmus_section_other', page)
+        self.assertNotIn('o_ems_erasmus_section_open', page)
+        self.call.date_close = date_close
+        self._save(submit=True)
+        page = self.url_open('/my/erasmus').text
+        self.assertIn('o_ems_erasmus_section_mine', page)
+        self.assertIn('o_ems_erasmus_steps', page)
+        self.assertIn('o_ems_erasmus_state_submitted', page)
+        self.assertIn('text-bg-info', page, "A submitted application has its own colour.")
+        self.assertNotIn('o_ems_erasmus_section_open', page)
+
+    def test_sent_application_folds_away(self):
+        self._login(self.student_user)
+        page = self.url_open(f'/my/erasmus/call/{self.call.id}').text
+        self.assertIn('o_ems_erasmus_form_details" open="open"', page)
+        self._save(submit=True)
+        self.call.action_close()
+        page = self.url_open(f'/my/erasmus/call/{self.call.id}').text
+        self.assertIn('<details class="mb-4 o_ems_erasmus_form_details">', page, "Folded once sent and closed.")
+        self.assertIn('o_ems_erasmus_next', page)

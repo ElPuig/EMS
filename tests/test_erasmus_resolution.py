@@ -1,3 +1,4 @@
+import html
 import io
 from datetime import datetime, timedelta
 
@@ -8,7 +9,7 @@ from odoo.exceptions import AccessError, UserError
 from odoo.http import Request
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_role_user
+from .common import create_role_employee, create_role_user
 from .test_erasmus import upload
 from .test_erasmus_scoring import ErasmusScoringCase
 from ..models.erasmus.resolution import mask_document_id
@@ -410,6 +411,227 @@ class TestErasmusResolution(ErasmusResolutionCase):
         resolution = self._publish('admission')
         self.assertEqual(resolution.with_user(self.hos_user).line_ids.result, 'admitted')
 
+    def test_applicant_claims_from_the_portal_until_the_deadline(self):
+        """The issue-#682 review: the claim is sent from the portal, with its files, and becomes a
+        task for the Erasmus team until it is answered."""
+        first, _second = self._scored_call()
+        self._publish('admission')
+        with self.assertRaises(UserError, msg="Nothing to claim against before the provisional resolution."):
+            first._ems_portal_claim('My interview score')
+        provisional = self._publish('provisional')
+        self.call.claims_deadline = fields.Datetime.now() + timedelta(days=1)
+        self.assertEqual(first._ems_portal_claimable(), provisional)
+        with self.assertRaises(UserError, msg="A claim says what is claimed."):
+            first._ems_portal_claim('  ')
+        claim = first._ems_portal_claim('My interview score', [('proof.pdf', b'%PDF-1.4 proof')])
+        self.assertEqual((claim.resolution_id, claim.state, claim.attachment_ids.name),
+                         (provisional, 'open', 'proof.pdf'))
+        self.assertEqual(claim.activity_ids.user_id, self.env['ems.erasmus.call']._ems_erasmus_team())
+        claim.with_user(self.erasmus_user).response = 'Reviewed: the score stands.'
+        claim.with_user(self.erasmus_user).action_resolve()
+        self.assertFalse(claim.activity_ids, "Answering the claim closes the team's tasks.")
+        self.call.claims_deadline = fields.Datetime.now() - timedelta(minutes=1)
+        with self.assertRaises(UserError, msg="Not after the claims deadline."):
+            first._ems_portal_claim('Too late')
+
+    def test_reserve_number_and_the_cut_of_the_places(self):
+        first, second = self._scored_call()
+        self.assertEqual((first.ranking_result, second.ranking_result), ('selected', 'reserve'))
+        self._publish('admission')
+        provisional = self._publish('provisional')
+        line = provisional.line_ids.filtered(lambda line: line.application_id == second)
+        self.assertEqual((line.result, line._ems_reserve_number()), ('reserve', 1))
+
+    def test_the_administrator_gets_no_team_task_but_keeps_every_right(self):
+        admin = self.env.ref('base.user_admin')
+        self.assertNotIn(admin, self.env['ems.erasmus.call']._ems_erasmus_team())
+        self.assertFalse(admin.has_group('ems.group_erasmus'))
+        self.assertTrue(self.env['ems.erasmus.application'].with_user(admin)._ems_can_manage())
+
+
+@tagged('post_install', '-at_install')
+class TestErasmusResolutionNotices(ErasmusResolutionCase):
+    """The 2026-11-03 review: the appeal goes to the student's own Head of Studies, and the applicant
+    (with a copy to a minor's family) is told of every step of the claims and the place offer."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.tutor_user = create_role_user(cls, 'teacher', 'test_erasmus_notice_tutor')
+        cls.other_hos_user = create_role_user(cls, 'head_of_studies', 'test_erasmus_notice_other_hos')
+        hos_employee = create_role_employee(cls, cls.hos_user)
+        create_role_employee(cls, cls.other_hos_user, name='0000 Erasmus Notice Other HoS')
+        cls.group.tutor_id = create_role_employee(cls, cls.tutor_user, parent_id=hos_employee.id)
+        cls.mother = cls.env['res.partner'].create({
+            'name': 'Erasmus Notice Mother', 'contact_type': 'family', 'email': 'notice.mother@example.com'})
+
+    def _body(self, mails):
+        return html.unescape(" ".join(mails.mapped('body_html')))
+
+    def _make_minor(self, partner):
+        partner.birth_date = '2015-01-01'
+        self.env['res.partner.relation'].create({'left_partner_id': self.mother.id, 'right_partner_id': partner.id,
+                                                 'type_id': self.env.ref('ems.relation_type_mother').id})
+
+    def test_place_offers_show_the_destinations_and_their_places(self):
+        """The student knows what they may get before accepting: the modality's destinations and
+        places are in the selected's email and in a free place's offer, not in the reserve's."""
+        cyprus, germany = self.env['ems.erasmus.destination'].create([{
+            'call_id': self.call.id, 'modality_id': self.call.modality_ids.id, 'name': name, 'city': city,
+            'country_id': self.env.ref(country).id, 'places': places, 'date_start': '2027-04-05',
+            'date_end': '2027-06-18'} for name, city, country, places in (
+                ('Notice Cyprus', 'Limassol', 'base.cy', 1), ('Notice Germany', 'Freiburg', 'base.de', 2))])
+        self.assertEqual(cyprus.with_context(lang='en_US')._ems_offer_label(),
+                         'Notice Cyprus (Limassol, Cyprus), 04/05/2027 - 06/18/2027: 1 place')
+        self.assertTrue(germany.with_context(lang='en_US')._ems_offer_label().endswith(': 2 places'))
+        first, second = self._scored_call()
+        definitive = self._publish_up_to_definitive()
+        lines = definitive.line_ids
+        selected = self._body(self._mails(lines.filtered(lambda line: line.application_id == first)))
+        reserve = self._body(self._mails(lines.filtered(lambda line: line.application_id == second)))
+        for name in ('Notice Cyprus (Limassol', 'Notice Germany (Freiburg'):
+            self.assertIn(name, selected)
+            self.assertNotIn(name, reserve, "A reserve has no place offered yet.")
+        first.offer_ids.action_renounce('Personal reasons')
+        self.env['ems.erasmus.offer.wizard'].with_user(self.erasmus_user).with_context(
+            active_id=self.call.id).create({'deadline': fields.Datetime.now() + timedelta(days=3)}).action_confirm()
+        self.assertIn('Notice Germany (Freiburg', self._body(self._mails(second.offer_ids)))
+
+    def test_appeal_goes_to_the_students_own_head_of_studies(self):
+        first, _second = self._scored_call()
+        definitive = self._publish_up_to_definitive()
+        appeal = self.env['ems.erasmus.claim'].with_user(self.erasmus_user).create({
+            'application_id': first.id, 'resolution_id': definitive.id, 'kind': 'appeal',
+            'description': 'My interview score'})
+        self.assertEqual(appeal._ems_appeal_approvers(), self.hos_user, "Up the chain from the group's tutor.")
+        self.assertEqual(appeal.activity_ids.user_id, self.hos_user, "No task for the Erasmus team.")
+        self.assertEqual(self._mails(appeal).email_to, 'erasmus.student@example.com', "Proof it arrived.")
+        self.assertTrue(appeal.with_user(self.hos_user).can_resolve)
+        self.assertFalse(appeal.with_user(self.erasmus_user).can_resolve)
+        with self.assertRaises(AccessError, msg="The team records the appeal, it does not answer it."):
+            appeal.with_user(self.erasmus_user).response = 'Upheld'
+        with self.assertRaises(AccessError, msg="Another Head of Studies is not this student's."):
+            appeal.with_user(self.other_hos_user).response = 'Upheld'
+        appeal.with_user(self.hos_user).response = 'Dismissed: the score stands.'
+        with self.assertRaises(AccessError, msg="The Head of Studies only writes the response."):
+            appeal.with_user(self.hos_user).description = 'Changed'
+        appeal.with_user(self.hos_user).action_resolve()
+        self.assertEqual(appeal.state, 'resolved')
+        self.assertFalse(appeal.activity_ids)
+        self.assertIn('Dismissed: the score stands.', self._body(self._mails(appeal)))
+        self.assertTrue(appeal.with_user(self.env.ref('base.user_admin'))._ems_can_resolve(),
+                        "The administrator is above everyone.")
+
+    def test_claim_is_acknowledged_and_its_answer_emailed(self):
+        first, _second = self._scored_call()
+        self._publish('admission')
+        self._publish('provisional')
+        self.call.claims_deadline = fields.Datetime.now() + timedelta(days=1)
+        claim = first._ems_portal_claim('My interview score')
+        self.assertEqual(len(self._mails(claim)), 1, "Received.")
+        claim.with_user(self.erasmus_user).response = 'Reviewed: the score stands.'
+        claim.with_user(self.erasmus_user).action_resolve()
+        self.assertEqual(len(self._mails(claim)), 2, "Answered.")
+        self.assertIn('Reviewed: the score stands.', self._body(self._mails(claim)))
+
+    def test_the_list_of_who_goes_says_how_to_appeal_it(self):
+        first, _second = self._scored_call()
+        self._publish('admission')
+        provisional = self._publish('provisional')
+        definitive = self._publish('definitive')
+        notice = self.env['ems.erasmus.resolution'].with_context(lang=self.student.lang)._ems_appeal_notice()
+        self.assertNotIn(notice, self._body(self._mails(provisional.line_ids)))
+        self.assertIn(notice, self._body(self._mails(definitive.line_ids)))
+
+    def test_result_emails_give_the_reserve_number_and_no_score_to_the_admitted(self):
+        """The 2026-11-03 review: a reserve learns their number; whoever has no score yet (admitted,
+        excluded) is not told to look at its detail; the place counter of the call."""
+        (self.student | self.second).lang = 'en_US'
+        first, second = self._scored_call()
+        admission = self._publish('admission')
+        self.assertNotIn('detail of your score', self._body(self._mails(admission.line_ids)))
+        self._publish('provisional')
+        definitive = self._publish('definitive')
+        reserve = self._body(self._mails(definitive.line_ids.filtered(lambda line: line.application_id == second)))
+        self.assertIn(f"number <strong>1</strong> of {second.modality_id.name}", " ".join(reserve.split()))
+        self.assertIn('detail of your score', reserve)
+        self.assertEqual((self.call.places_total, self.call.places_accepted, self.call.offers_pending), (1, 0, 1))
+        first.offer_ids.action_accept()
+        self.assertEqual((self.call.places_accepted, self.call.offers_pending), (1, 0))
+
+    def test_answers_to_the_offer_are_confirmed_with_a_copy_to_a_minors_family(self):
+        first, second = self._scored_call()
+        self.call.modality_ids.places = 2
+        self._publish('admission')
+        self._publish('provisional')
+        self._make_minor(self.student)
+        definitive = self._publish('definitive')
+        line = definitive.line_ids.filtered(lambda line: line.application_id == first)
+        self.assertEqual(self._mails(line).email_cc, 'notice.mother@example.com', "The place offered to a minor.")
+        self.assertFalse(self._mails(definitive.line_ids - line).email_cc, "An adult: no copy.")
+        first.offer_ids.action_accept()
+        self.assertEqual(self._mails(first.offer_ids).email_cc, 'notice.mother@example.com', "The acceptance.")
+        second.offer_ids.action_renounce()
+        self.assertEqual(len(self._mails(second.offer_ids)), 1, "The renunciation is confirmed too.")
+        self.assertFalse(self._mails(second.offer_ids).email_cc)
+
+    def test_an_adult_who_shares_with_the_family_gets_it_a_copy_too(self):
+        """EMS's own rule of who is kept informed (res.partner._ems_informed_recipients): an adult
+        who authorized sharing with the family, like a minor, has it copied; one who didn't, not."""
+        first, _second = self._scored_call()
+        self.call.modality_ids.places = 2
+        self._publish('admission')
+        self._publish('provisional')
+        self._make_minor(self.student)
+        self.student.birth_date = '2000-01-01'
+        # auth_share is a stored compute read from an accepted 'share' authorization.
+        self.env.flush_all()
+        self.env.cr.execute("UPDATE res_partner SET auth_share = TRUE WHERE id = %s", (self.student.id,))
+        self.student.invalidate_recordset(['auth_share'])
+        definitive = self._publish('definitive')
+        line = definitive.line_ids.filtered(lambda line: line.application_id == first)
+        self.assertEqual(self._mails(line).email_cc, 'notice.mother@example.com')
+        self.assertFalse(self._mails(definitive.line_ids - line).email_cc, "No family on file: no copy.")
+
+    def test_the_tutor_is_told_when_their_student_accepts(self):
+        first, _second = self._scored_call()
+        self._publish_up_to_definitive()
+        first.offer_ids.action_accept()
+        notice = self.env['mail.message'].search([('model', '=', 'res.partner'), ('res_id', '=', self.student.id),
+                                                  ('partner_ids', 'in', self.tutor_user.partner_id.ids)])
+        self.assertEqual(len(notice), 1)
+        self.assertFalse(self.env['mail.activity'].search([('user_id', '=', self.tutor_user.id)]),
+                         "A notice, not a task.")
+
+    def test_no_answer_in_time_is_not_a_renunciation(self):
+        first, _second = self._scored_call()
+        self._publish_up_to_definitive()
+        offer = first.offer_ids
+        offer.sudo().deadline = fields.Datetime.now() - timedelta(minutes=1)
+        self.env['ems.erasmus.offer']._cron_expire_offers()
+        self.assertEqual(len(self._mails(offer)), 1, "The applicant is told the deadline passed.")
+        self.assertTrue(first._ems_offer_expired())
+        expired_text = first._ems_portal_progress()['next']['text']
+        offer.sudo().state = 'renounced'
+        self.assertFalse(first._ems_offer_expired())
+        self.assertNotEqual(first._ems_portal_progress()['next']['text'], expired_text,
+                            "The portal does not say they renounced.")
+
+    def test_excluded_after_the_admission_list_is_told_and_its_interviews_go_away(self):
+        application = self._admitted()
+        self.call.action_close()
+        interview = self.env['ems.erasmus.interview'].create({
+            'application_id': application.id, 'evaluator_id': self.evaluator_1.id})
+        self.assertTrue(interview.activity_ids)
+        self._publish('admission')
+        application.exclusion_reason = 'Did not attend the interview'
+        application.action_exclude()
+        self.assertFalse(interview.exists(), "Nothing left to score.")
+        self.assertFalse(self.env['mail.activity'].search([('user_id', '=', self.evaluator_1.id),
+                                                           ('res_model', '=', 'ems.erasmus.interview')]))
+        self.assertIn('Did not attend the interview', self._body(self._mails(application)))
+        self.assertIn('Did not attend the interview', application._ems_portal_progress()['next']['text'])
+
 
 @tagged('post_install', '-at_install')
 class TestPortalErasmusResolution(HttpCase, ErasmusResolutionCase):
@@ -442,6 +664,23 @@ class TestPortalErasmusResolution(HttpCase, ErasmusResolutionCase):
         pdf = self.url_open(f'/my/erasmus/call/{self.call.id}/resolution/{provisional.id}/pdf')
         self.assertEqual(pdf.headers['Content-Type'], 'application/pdf')
 
+    def test_the_applicant_finds_their_row_and_claims_from_the_portal(self):
+        first, _second = self._scored_call()
+        self._publish('admission')
+        provisional = self._publish('provisional')
+        self.call.claims_deadline = fields.Datetime.now() + timedelta(days=1)
+        self.authenticate(self.student_user.login, self.student_user.login)
+        listed = self.url_open(f'/my/erasmus/call/{self.call.id}/resolution/{provisional.id}')
+        self.assertEqual(listed.text.count('o_ems_erasmus_my_line'), 1, "Only their own row is highlighted.")
+        page = self.url_open(f'/my/erasmus/call/{self.call.id}')
+        self.assertIn('o_ems_erasmus_claim', page.text)
+        response = self.url_open(f'/my/erasmus/call/{self.call.id}/claim', data={
+            'csrf_token': Request.csrf_token(self), 'description': 'My interview score'},
+            files={'claim_files': ('proof.pdf', b'%PDF-1.4 proof', 'application/pdf')})
+        self.assertIn('claimed=1', response.url)
+        self.assertEqual(first.claim_ids.description, 'My interview score')
+        self.assertIn('o_ems_erasmus_claims', self.url_open(f'/my/erasmus/call/{self.call.id}').text)
+
     def test_draft_resolution_is_not_shown(self):
         self._scored_call()
         draft = self._resolution('admission')
@@ -457,7 +696,11 @@ class TestPortalErasmusResolution(HttpCase, ErasmusResolutionCase):
         self.assertIn('error=1', self._answer('accept').url, "The reserve has no offer to accept.")
         self.assertEqual(first.offer_ids.state, 'pending')
         self.authenticate(self.student_user.login, self.student_user.login)
-        self.assertIn('o_ems_erasmus_offer', self.url_open(f'/my/erasmus/call/{self.call.id}').text)
+        self.env['ems.erasmus.destination'].create({
+            'call_id': self.call.id, 'modality_id': self.call.modality_ids.id, 'name': 'Portal Cyprus', 'places': 1})
+        page = self.url_open(f'/my/erasmus/call/{self.call.id}').text
+        self.assertIn('o_ems_erasmus_offer', page)
+        self.assertIn('Portal Cyprus', page, "The destinations and their places are shown before accepting.")
         self.assertIn('answered=1', self._answer('accept').url)
         self.assertEqual(first.state, 'accepted')
 

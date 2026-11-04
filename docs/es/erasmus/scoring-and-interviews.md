@@ -33,25 +33,29 @@ En la pestaña **Baremación** de cada solicitud admitida:
 | D. Menos oportunidades | **Menos oportunidades acreditadas** (solo lo ve el equipo Erasmus) | 10 o 0 |
 | E. Primera movilidad | **Primera movilidad** | 5 o 0 |
 
+Al alumnado no se le pregunta por la **Primera movilidad**: la marcáis vosotros. Bajo los criterios, la solicitud muestra las **Participaciones Erasmus+ en EMS** del alumno, si tiene. Solo conoce las movilidades gestionadas con EMS, a partir de la convocatoria 2026-2027: para los años anteriores, consultad vuestros registros.
+
 Todos los criterios empiezan vacíos. **Un criterio vacío nunca es un cero:** la solicitud queda sin puntuación completa y fuera de la clasificación hasta que se rellena. EMS registra quién ha rellenado cada criterio y cuándo.
 
 ## 3. Organizar las entrevistas
 
-En la pestaña **Entrevista** de cada solicitud admitida:
+**Muchas a la vez:** en la convocatoria, haz clic en **Acciones > Programar las entrevistas**. Elige la modalidad (o ninguna, para todas), la **Primera entrevista**, los **Minutos por entrevista**, el **Lugar** y las **Personas evaluadoras**. EMS propone las personas admitidas que aún no tienen fecha de entrevista, por modalidad y nombre: quita o reordena a quien haga falta. **Programar** da a cada una la franja siguiente, le asigna las personas evaluadoras y, con **Enviar las convocatorias de entrevista** marcado, envía por correo a cada persona la fecha y el lugar (como mínimo 24 horas antes). Cada persona evaluadora recibe una tarea por entrevista, que queda hecha cuando envía su puntuación, pero un solo aviso con toda la lista (día y hora, lugar y candidato), no un correo por entrevista.
+
+**Una a una**, en la pestaña **Entrevista** de cada solicitud admitida:
 
 1. Rellena la **Fecha de la entrevista** y el **Lugar de la entrevista**.
-2. En la lista, añade las **dos personas evaluadoras** (cualquier miembro del personal). Cada una recibe una tarea en EMS y ve la entrevista en **Erasmus+ > Mis evaluaciones**. Solo ven su entrevista: ni la puntuación de la otra persona evaluadora ni el resto de la solicitud.
+2. En la lista, añade las **dos personas evaluadoras** (cualquier miembro del personal). Cada una recibe una tarea en EMS y ve la entrevista en **Erasmus+ > Mi participación > Mis evaluaciones**. Solo ven su entrevista: ni la puntuación de la otra persona evaluadora ni el resto de la solicitud.
 3. Haz clic en **Acciones > Enviar la convocatoria a la entrevista**. El alumno recibe un correo con la fecha y el lugar. Se debe enviar como mínimo 24 horas antes de la entrevista.
 
-Cada persona evaluadora puntúa los 7 criterios de la rúbrica (anexo 4) de 0 a 5 y la envía. La puntuación de la entrevista es la media de las dos. Si por una causa justificada solo la ha podido valorar una persona, escríbelo en **Motivo de una sola valoración**.
+Cada persona evaluadora puntúa los 7 criterios de la rúbrica (anexo 4) de 0 a 5, con los descriptores escritos en el formulario, y la envía. La puntuación de la entrevista es la media de las dos. Si por una causa justificada solo la ha podido valorar una persona, escríbelo en **Motivo de una sola valoración**.
 
-En la convocatoria, el **Plazo para corregir puntuaciones** fija hasta cuándo las personas evaluadoras pueden reabrir y cambiar su valoración. Después, solo el equipo Erasmus puede reabrir una entrevista, desde **Erasmus+ > Entrevistas**, escribiendo una **Nota de rectificación**.
+En la convocatoria, el **Plazo para corregir puntuaciones** fija hasta cuándo las personas evaluadoras pueden reabrir y cambiar su valoración. Después, solo el equipo Erasmus puede reabrir una entrevista, desde el botón **Entrevistas** de la convocatoria, escribiendo una **Nota de rectificación**.
 
 Si un alumno no se presenta a la entrevista, escribe el motivo y haz clic en **Acciones > Excluir**.
 
 ## 4. La clasificación
 
-Haz clic en **Clasificación** en la convocatoria (o en **Erasmus+ > Clasificación**): las solicitudes admitidas de cada modalidad por orden, con la puntuación de cada criterio.
+Haz clic en **Clasificación** en la convocatoria (o en **Erasmus+ > Convocatorias > Clasificación**, ordenada por convocatoria y modalidad, con la convocatoria en una columna): las solicitudes admitidas de cada modalidad por orden, con la puntuación de cada criterio. **Dentro de las plazas** marca el corte: en verde las solicitudes que entran en las plazas de la modalidad (*Seleccionada*) y, después, las de *Reserva*.
 
 - Una modalidad solo se clasifica cuando **todas** sus solicitudes admitidas tienen la puntuación completa. Hasta entonces la posición es 0.
 - Los empates se deshacen, por este orden, con menos oportunidades, primera movilidad, la parte en inglés de la entrevista y la nota media del expediente.

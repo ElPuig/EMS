@@ -22,6 +22,8 @@ It is read-only. To correct a record, contact the Secretary or the Administrator
 
 If a student has a subject convalidated during the current course, the history already shows a record marked **Current course** with the convalidation's grade and the **CV** mark. The rest of the course is added when it closes.
 
+If the student takes part, or took part, in an Erasmus+ mobility managed with EMS (individual or group), an **Erasmus+** list appears under the academic history: the call or group mobility, the country and city, the dates and whether it is *Planned* or *Completed*. It is read-only and needs no access to the Erasmus+ app.
+
 ---
 
 ## Consult Any Student's Data (Guidance and Coexistence)

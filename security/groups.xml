@@ -385,7 +385,9 @@
             <field name="comment">Erasmus team: manages the Erasmus+ calls and applications.</field>
             <field name="category_id" ref="ems.category_erasmus"/>
             <field name="implied_ids" eval="[(4, ref('sign_oca.sign_oca_group_manager'))]"/>
-            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+            <!-- Not the administrator: every team task (a free place, a corrected application...)
+                 went to them too. They keep every right through group_academic_admin. -->
+            <field name="users" eval="[(4, ref('base.user_root')), (3, ref('base.user_admin'))]"/>
         </record>
 
         <!-- Issue #686: the Erasmus coordinator alone approves and publishes the resolutions. Given
@@ -395,7 +397,7 @@
             <field name="comment">Erasmus coordinator: also approves and publishes the resolutions.</field>
             <field name="category_id" ref="ems.category_erasmus"/>
             <field name="implied_ids" eval="[(4, ref('ems.group_erasmus'))]"/>
-            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (3, ref('base.user_admin'))]"/>
         </record>
 
         <!-- Issue #684: whoever has an Erasmus+ interview to score (ems.erasmus.interview). Managed by
@@ -404,6 +406,15 @@
         <record model="res.groups" id="group_erasmus_evaluator">
             <field name="name">Erasmus+ evaluator</field>
             <field name="comment">Has Erasmus+ interviews to score.</field>
+            <field name="category_id" ref="base.module_category_hidden"/>
+        </record>
+
+        <!-- Issue #686: whoever has a staff mobility plan to rate (ems.erasmus.plan_rating), as a member
+             of a call's panel. Kept apart from the interview evaluators so each one only sees their own
+             menu entry (the issue-#682 review). Managed by EMS itself, like the evaluators. -->
+        <record model="res.groups" id="group_erasmus_panel">
+            <field name="name">Erasmus+ panel member</field>
+            <field name="comment">Has Erasmus+ staff mobility plans to rate.</field>
             <field name="category_id" ref="base.module_category_hidden"/>
         </record>
 

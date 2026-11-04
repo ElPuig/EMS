@@ -22,6 +22,8 @@ L'historial acadèmic és el registre congelat, curs a curs, de la trajectòria 
 
 Si un alumne té alguna assignatura convalidada durant el curs actual, l'historial ja mostra un registre marcat com a **Curs actual** amb la nota de la convalidació i la marca **CV**. La resta del curs s'hi afegeix quan es tanca.
 
+Si l'alumne participa, o ha participat, en una mobilitat Erasmus+ gestionada amb l'EMS (individual o de grup), sota l'historial acadèmic apareix la llista **Erasmus+**: la convocatòria o la mobilitat de grup, el país i la ciutat, les dates i si està *Prevista* o *Completada*. És només de lectura i no cal tenir accés a l'aplicació Erasmus+.
+
 ---
 
 ## Consultar les dades de qualsevol alumne (Orientació i Convivència)

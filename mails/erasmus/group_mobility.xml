@@ -11,7 +11,7 @@
             <field name="email_from">{{ user.company_id.name }} &lt;{{ user.company_id.email }}&gt;</field>
             <field name="reply_to">{{ user.partner_id._ems_reply_to() or object.env.company.erasmus_contact_email or '' }}</field>
             <field name="auto_delete" eval="True"/>
-            <field name="email_layout_xmlid">mail.mail_notification_light</field>
+            <field name="email_layout_xmlid">ems.mail_notification_erasmus</field>
             <field name="body_html">
                 <![CDATA[
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
@@ -37,6 +37,7 @@
                             does not meet the requirements of the selection criteria published with the enrolment.
                             If you think this is a mistake, talk to the Erasmus team.
                         </p>
+                        <p t-out="object.env['ems.erasmus.resolution']._ems_appeal_notice()"/>
                         <p>
                             Kind regards,<br/>
                             <t t-out="user.company_id.name"/>
@@ -54,7 +55,7 @@
             <field name="email_from">{{ user.company_id.name }} &lt;{{ user.company_id.email }}&gt;</field>
             <field name="reply_to">{{ user.partner_id._ems_reply_to() or object.env.company.erasmus_contact_email or '' }}</field>
             <field name="auto_delete" eval="True"/>
-            <field name="email_layout_xmlid">mail.mail_notification_light</field>
+            <field name="email_layout_xmlid">ems.mail_notification_erasmus</field>
             <field name="body_html">
                 <![CDATA[
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">

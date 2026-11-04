@@ -15,11 +15,11 @@ Algunas movilidades Erasmus+ son de **grupo**: va un grupo de alumnos con dos do
 3. Haz clic en **Inscribirme**. Si estás en una situación de menos oportunidades, puedes marcarlo (es opcional y solo lo ve el equipo Erasmus).
 4. Mientras la inscripción esté abierta, puedes hacer clic en **Retirar mi inscripción** y volver a inscribirte.
 
-No hace falta ningún currículum, carta ni entrevista. Si tienes tantas amonestaciones este curso como el límite que avisa a convivencia, no podrás inscribirte.
+No hace falta ningún currículum, carta ni entrevista. La coordinación Erasmus puede excluir, indicando el motivo, al alumnado con expedientes disciplinarios o con incidencias graves de convivencia este curso.
 
 ## El resultado
 
-Primero la coordinación Erasmus publica una **lista provisional**: recibirás un correo con tu resultado provisional y, en la tarjeta del portal, lo verás con el enlace a la lista. La lista solo muestra cuatro cifras del documento de identidad de cada alumno. Si no estás de acuerdo, responde el correo antes del plazo de reclamaciones que se indica.
+Primero la coordinación Erasmus publica una **lista provisional**: recibirás un correo con tu resultado provisional y, en la tarjeta del portal, lo verás con el enlace a la lista. La lista solo muestra cuatro cifras del documento de identidad de cada alumno. Si no estás de acuerdo, abre **Quiero reclamar** debajo de tu resultado provisional, escribe qué reclamas y por qué, adjunta los archivos que lo justifiquen si tienes y haz clic en **Enviar la reclamación** antes del plazo de reclamaciones que se indica. Recibirás un correo que confirma que ha llegado, y otro con la respuesta del equipo Erasmus, que también verás en la tarjeta.
 
 Después la coordinación publica la **lista definitiva** y recibirás un correo con tu resultado (seleccionado, en lista de reserva con tu número, o sin los requisitos). También lo verás en la tarjeta del portal, con el enlace a las dos listas. Solo ves tu resultado.
 

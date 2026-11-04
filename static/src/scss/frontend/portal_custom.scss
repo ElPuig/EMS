@@ -225,3 +225,107 @@ header nav.navbar .ems-custom-navbar .nav-link.active {
     align-self: flex-start;
     object-fit: contain;
 }
+
+/* Erasmus+ (the issue-#682 review): the step bar of an application on the portal. One circle per
+   step joined by a line; done steps in the centre's colour, the current one outlined, a failed one
+   in grey with a cross. It wraps onto two rows on a phone. */
+.o_ems_erasmus_steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0;
+    padding: 0;
+    margin: 0 0 0.75rem;
+    list-style: none;
+    counter-reset: ems-erasmus-step;
+
+    .o_ems_erasmus_step {
+        position: relative;
+        flex: 1 0 4.5rem;
+        text-align: center;
+        font-size: 0.75rem;
+        color: #6c757d;
+        counter-increment: ems-erasmus-step;
+
+        &::before {
+            content: counter(ems-erasmus-step);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.6rem;
+            height: 1.6rem;
+            margin: 0 auto 0.2rem;
+            border: 2px solid #dee2e6;
+            border-radius: 50%;
+            background-color: #ffffff;
+            font-weight: bold;
+            position: relative;
+            z-index: 1;
+        }
+
+        &:not(:first-child)::after {
+            content: "";
+            position: absolute;
+            top: 0.8rem;
+            right: 50%;
+            width: 100%;
+            border-top: 2px solid #dee2e6;
+        }
+    }
+
+    .o_ems_erasmus_step_done {
+        color: #212529;
+
+        &::before {
+            content: "\2713";
+            border-color: #9e1c34;
+            background-color: #9e1c34;
+            color: #ffffff;
+        }
+
+        &::after {
+            border-color: #9e1c34 !important;
+        }
+    }
+
+    .o_ems_erasmus_step_current {
+        color: #9e1c34;
+        font-weight: bold;
+
+        &::before {
+            border-color: #e88a1a;
+            color: #9e1c34;
+        }
+
+        &::after {
+            border-color: #9e1c34 !important;
+        }
+    }
+
+    .o_ems_erasmus_step_failed {
+        color: #212529;
+        font-weight: bold;
+
+        &::before {
+            content: "\2715";
+            border-color: #6c757d;
+            background-color: #6c757d;
+            color: #ffffff;
+        }
+    }
+}
+
+/* Erasmus+: each published result folds under its title (the newest one starts open). */
+.o_ems_erasmus_result_details > summary {
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker {
+        display: none;
+    }
+}
+
+// The 2026-11-03 review: the evidence of fewer opportunities only once the student ticks that
+// they can prove them (portal_erasmus.xml), without any script.
+.o_ems_erasmus_fewer:has(#fewer_opportunities:not(:checked)) .o_ems_erasmus_fewer_documents {
+    display: none;
+}

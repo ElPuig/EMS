@@ -41,45 +41,81 @@
                     </div>
                 </div>
 
-                <t t-foreach="calls" t-as="call">
-                    <t t-set="application" t-value="applications.get(call)"/>
-                    <div class="card shadow-sm mb-4 o_ems_erasmus_call">
-                        <div class="card-header bg-ems-primary text-white">
-                            <strong t-esc="call.name"/>
-                        </div>
-                        <div class="card-body">
-                            <p class="small mb-2">
-                                <i class="fa fa-calendar me-1"/> Applications from
-                                <strong t-out="call.date_open" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>
-                                to
-                                <strong t-out="call.date_close" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
-                            </p>
-                            <p t-if="call.rules_document" class="small mb-2">
-                                <a t-attf-href="/my/erasmus/call/#{call.id}/rules"><i class="fa fa-file-pdf-o me-1"/>Read the call</a>
-                            </p>
-                            <div t-if="application" t-attf-class="mb-2 o_ems_erasmus_application o_ems_erasmus_state_#{application.state}">
-                                Your application: <span class="badge text-bg-secondary" t-esc="state_labels.get(application.state)"/>
-                            </div>
-                            <!-- Students' call art. 6: too many conduct warnings this course. -->
-                            <p t-if="call in blocked and (not application or application.state == 'draft')" class="alert alert-warning small mb-2 o_ems_erasmus_blocked">
-                                <i class="fa fa-ban me-1"/>You cannot apply to this call: you have too many conduct warnings this course (article 6 of the call). If you think this is a mistake, talk to the Erasmus team.
-                            </p>
-                            <t t-if="application">
-                                <a t-attf-href="/my/erasmus/call/#{call.id}" class="btn btn-primary btn-sm o_ems_erasmus_open">
-                                    <i class="fa fa-folder-open me-1"/>See my application
-                                </a>
-                            </t>
-                            <t t-elif="call.is_accepting and call not in blocked">
-                                <a t-attf-href="/my/erasmus/call/#{call.id}" class="btn btn-primary btn-sm o_ems_erasmus_apply">
-                                    <i class="fa fa-pencil me-1"/>Apply
-                                </a>
-                            </t>
-                            <p t-elif="call not in blocked" class="text-muted small mb-0">This call is not accepting applications.</p>
-                        </div>
-                    </div>
+                <!-- The issue-#682 review: the person's own applications first, then the calls open now,
+                     and the rest folded away. -->
+                <t t-if="my_calls">
+                    <h5 class="mb-2 o_ems_erasmus_section_mine">My applications</h5>
+                    <t t-foreach="my_calls" t-as="call" t-call="ems.portal_erasmus_call_card"/>
                 </t>
+                <t t-if="open_calls">
+                    <h5 class="mb-2 o_ems_erasmus_section_open">Open calls</h5>
+                    <t t-foreach="open_calls" t-as="call" t-call="ems.portal_erasmus_call_card"/>
+                </t>
+                <details t-if="other_calls" class="mb-4 o_ems_erasmus_section_other">
+                    <summary class="h6 mb-2">Other calls (<t t-esc="len(other_calls)"/>)</summary>
+                    <t t-foreach="other_calls" t-as="call" t-call="ems.portal_erasmus_call_card"/>
+                </details>
             </div>
         </t>
+    </template>
+
+    <!-- One call on the portal's Erasmus+ page: with an application, its steps and what to do now;
+         without one, its dates and the way to apply. -->
+    <template id="portal_erasmus_call_card" name="Erasmus+ call card">
+        <t t-set="application" t-value="applications.get(call)"/>
+        <div class="card shadow-sm mb-4 o_ems_erasmus_call">
+            <div class="card-header bg-ems-primary text-white d-flex justify-content-between flex-wrap gap-2">
+                <strong t-esc="call.name"/>
+                <span t-if="application" t-attf-class="badge text-bg-#{state_badges.get(application.state, 'secondary')} o_ems_erasmus_application o_ems_erasmus_state_#{application.state}"
+                      t-esc="state_labels.get(application.state)"/>
+            </div>
+            <div class="card-body">
+                <t t-if="application" t-call="ems.portal_erasmus_progress">
+                    <t t-set="progress" t-value="progress.get(call)"/>
+                </t>
+                <t t-else="">
+                    <p class="small mb-2">
+                        <i class="fa fa-calendar me-1"/> Applications from
+                        <strong t-out="call.date_open" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>
+                        to
+                        <strong t-out="call.date_close" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
+                    </p>
+                </t>
+                <p t-if="call.rules_document" class="small mb-2">
+                    <a t-attf-href="/my/erasmus/call/#{call.id}/rules"><i class="fa fa-file-pdf-o me-1"/>Read the call</a>
+                </p>
+                <t t-if="application">
+                    <a t-attf-href="/my/erasmus/call/#{call.id}" class="btn btn-primary btn-sm o_ems_erasmus_open">
+                        <i class="fa fa-folder-open me-1"/>See my application
+                    </a>
+                </t>
+                <t t-elif="call.is_accepting">
+                    <a t-attf-href="/my/erasmus/call/#{call.id}" class="btn btn-primary btn-sm o_ems_erasmus_apply">
+                        <i class="fa fa-pencil me-1"/>Apply
+                    </a>
+                </t>
+                <p t-else="" class="text-muted small mb-0">This call is not accepting applications.</p>
+            </div>
+        </div>
+    </template>
+
+    <!-- The issue-#682 review: where an application is in the call's process, and what to do now. -->
+    <template id="portal_erasmus_progress" name="Erasmus+ application progress">
+        <ol class="o_ems_erasmus_steps">
+            <li t-foreach="progress['steps']" t-as="step" t-attf-class="o_ems_erasmus_step o_ems_erasmus_step_#{step[1]}"
+                t-att-aria-current="'step' if step[1] == 'current' else None" t-esc="step[0]"/>
+        </ol>
+        <t t-set="next_step" t-value="progress['next']"/>
+        <div t-attf-class="alert alert-#{next_step['level']} py-2 mb-3 o_ems_erasmus_next o_ems_erasmus_next_#{next_step['level']} #{'o_ems_erasmus_' + next_step['key'] if next_step['key'] else ''}">
+            <i t-attf-class="fa #{'fa-hand-o-right' if next_step['level'] == 'warning' else 'fa-info-circle'} me-1"/>
+            <strong t-if="next_step['level'] == 'warning'">What to do now:</strong>
+            <t t-esc="next_step['text']"/>
+            <span t-if="next_step['deadline']" class="text-nowrap">
+                <i class="fa fa-calendar ms-1 me-1"/>
+                <strong t-if="next_step['is_date']" t-out="next_step['deadline']" t-options="{'widget': 'date', 'format': 'd MMMM yyyy'}"/>
+                <strong t-else="" t-out="next_step['deadline']" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>
+            </span>
+        </div>
     </template>
 
     <template id="portal_erasmus_application" name="Erasmus+ application">
@@ -88,13 +124,21 @@
                 <t t-call="ems.portal_loading_overlay"/>
 
                 <p class="mb-2"><a href="/my/erasmus"><i class="fa fa-arrow-left me-1"/>Erasmus+</a></p>
-                <h3 class="mb-1" t-esc="call.name"/>
-                <p class="text-muted small mb-3">
-                    <!-- Staff never see the modality: places and periods are the Erasmus team's own planning. -->
-                    <t t-set="show_modality" t-value="modality and call.audience == 'student'"/>
-                    <t t-if="show_modality">Modality: <t t-esc="modality.name"/></t>
-                    <t t-if="application"><t t-if="show_modality"> - </t><t t-esc="state_labels.get(application.state)"/></t>
-                </p>
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-1">
+                    <h3 class="mb-0" t-esc="call.name"/>
+                    <!-- The issue-#682 review: while admitted, the newest provisional result is what the
+                         applicant is (it said "Admitted" next to a "Reserve" result). -->
+                    <t t-set="provisional" t-value="application and application.state == 'admitted' and result_lines[:1].filtered(lambda line: line.kind == 'provisional')"/>
+                    <span t-if="provisional" t-attf-class="badge fs-6 text-bg-#{state_badges.get(provisional.result, 'secondary')} o_ems_erasmus_application_state">
+                        <t t-esc="result_labels.get(provisional.result)"/> (provisional)
+                    </span>
+                    <span t-elif="application" t-attf-class="badge fs-6 text-bg-#{state_badges.get(application.state, 'secondary')} o_ems_erasmus_application_state"
+                          t-esc="state_labels.get(application.state)"/>
+                </div>
+                <!-- Staff never see the modality: places and periods are the Erasmus team's own planning. -->
+                <p t-if="modality and call.audience == 'student'" class="text-muted small mb-3">Modality: <t t-esc="modality.name"/></p>
+                <div t-else="" class="mb-3"/>
+                <t t-if="progress" t-call="ems.portal_erasmus_progress"/>
                 <p t-if="call.rules_document" class="small mb-3 o_ems_erasmus_rules">
                     <a t-attf-href="/my/erasmus/call/#{call.id}/rules"><i class="fa fa-file-pdf-o me-1"/>Read the call</a>
                 </p>
@@ -105,21 +149,8 @@
                 <div t-if="error" class="alert alert-danger mb-3 o_ems_erasmus_error">
                     <i class="fa fa-exclamation-triangle me-1"/> It could not be saved: check that the application is still open and that every required document is attached.
                 </div>
-                <div t-if="blocked" class="alert alert-warning mb-3 o_ems_erasmus_blocked">
-                    <i class="fa fa-ban me-1"/> You cannot apply to this call: you have too many conduct warnings this course (article 6 of the call). If you think this is a mistake, talk to the Erasmus team.
-                </div>
-                <div t-if="application.state == 'subsanation' and not blocked" class="alert alert-warning mb-3 o_ems_erasmus_subsanation">
-                    <i class="fa fa-exclamation-circle me-1"/> The Erasmus team asks you to correct the documents marked below<t t-if="call.subsanation_deadline">, before
-                    <strong t-out="call.subsanation_deadline" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/></t>.
-                </div>
-
-                <!-- Issue #684: the interview the Erasmus team called the applicant to. -->
-                <div t-if="application.state == 'admitted' and application.interview_call_date" class="alert alert-info mb-3 o_ems_erasmus_interview">
-                    <i class="fa fa-calendar me-1"/> Your interview:
-                    <strong t-out="application.interview_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/><t t-if="application.interview_place">, <t t-esc="application.interview_place"/></t>.
-                    Part of it is in English. Please arrive 15 minutes early.
-                </div>
-
+                <!-- The corrections asked for (issue #683) and the interview (issue #684) are in the
+                     "what to do now" box above (application._ems_portal_progress). -->
                 <!-- Issue #685: the place offered, to accept or renounce in writing before the deadline. -->
                 <div t-if="answered" class="alert alert-success mb-3 o_ems_erasmus_answered">
                     <i class="fa fa-check-circle me-1"/> Your answer has been recorded.
@@ -127,7 +158,19 @@
                 <div t-if="offer" class="card border-success shadow-sm mb-3 o_ems_erasmus_offer">
                     <div class="card-body">
                         <h5 class="card-title"><i class="fa fa-plane me-1"/>A place is offered to you</h5>
-                        <p t-if="offer.modality_id and call.audience == 'student'" class="mb-1">Modality: <strong t-esc="offer.modality_id.name"/></p>
+                        <t t-if="offer.modality_id and call.audience == 'student'">
+                            <p class="mb-1">Modality: <strong t-esc="offer.modality_id.name"/></p>
+                            <p t-if="offer.modality_id.period" class="mb-1">Period: <t t-esc="offer.modality_id.period"/></p>
+                            <t t-set="offer_destinations" t-value="offer.modality_id._ems_offer_destinations()"/>
+                            <div t-if="offer_destinations" class="mb-2 o_ems_erasmus_offer_destinations">
+                                Destinations and places of the modality (you will choose one by turns, by your position):
+                                <ul class="small mb-0">
+                                    <li t-foreach="offer_destinations" t-as="destination" t-esc="destination._ems_offer_label()"/>
+                                </ul>
+                                <span t-if="offer.application_id.rank" class="small">Your position in the modality: <strong t-esc="offer.application_id.rank"/></span>
+                            </div>
+                            <p t-elif="offer.modality_id.destinations" class="mb-1">Destinations: <t t-esc="offer.modality_id.destinations"/></p>
+                        </t>
                         <p class="mb-1">Answer before: <strong t-out="offer.deadline" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/></p>
                         <p class="mb-2">Without an answer by then, the place is considered renounced.</p>
                         <form t-attf-action="/my/erasmus/call/#{call.id}/offer" method="post" class="d-inline">
@@ -151,248 +194,309 @@
                 </div>
                 <!-- Issue #687: the mobility of the accepted place. -->
                 <t t-if="mobility" t-call="ems.portal_erasmus_mobility"/>
-                <div t-if="application.state == 'renounced'" class="alert alert-secondary mb-3 o_ems_erasmus_renounced">
-                    You have renounced the place.
-                </div>
 
+                <div t-if="claimed" class="alert alert-success mb-3 o_ems_erasmus_claimed">
+                    <i class="fa fa-check-circle me-1"/> Your claim has been received. The Erasmus team will answer it.
+                </div>
+                <div t-if="application and application.sudo().claim_ids" class="card shadow-sm mb-3 o_ems_erasmus_claims">
+                    <div class="card-header"><strong>My claims</strong></div>
+                    <ul class="list-group list-group-flush">
+                        <li t-foreach="application.sudo().claim_ids" t-as="claim" class="list-group-item small">
+                            <div class="d-flex justify-content-between gap-2">
+                                <span>Sent on <t t-out="claim.received_date" t-options="{'widget': 'date'}"/></span>
+                                <span t-attf-class="badge #{'text-bg-success' if claim.state == 'resolved' else 'text-bg-info'}"
+                                      t-esc="claim_state_labels.get(claim.state)"/>
+                            </div>
+                            <p class="mb-1" style="white-space: pre-line;" t-esc="claim.description"/>
+                            <p t-if="claim.state == 'resolved' and claim.response" class="mb-0" style="white-space: pre-line;">
+                                <strong>Response:</strong> <t t-esc="claim.response"/>
+                            </p>
+                        </li>
+                    </ul>
+                </div>
                 <!-- Issue #685: what each published resolution says about this application. -->
                 <div t-if="result_lines" class="card shadow-sm mb-4 o_ems_erasmus_results">
                     <div class="card-header"><strong>Results</strong></div>
                     <ul class="list-group list-group-flush">
                         <li t-foreach="result_lines" t-as="line" class="list-group-item o_ems_erasmus_result">
-                            <div class="d-flex justify-content-between flex-wrap gap-2">
-                                <strong t-esc="line.resolution_id.name"/>
-                                <span t-attf-class="badge #{'text-bg-success' if line.result in ('admitted', 'selected') else 'text-bg-warning' if line.result == 'reserve' else 'text-bg-secondary'} o_ems_erasmus_result_#{line.result}"
-                                      t-esc="result_labels.get(line.result)"/>
-                            </div>
-                            <p t-if="line.result == 'excluded' and line.exclusion_reason" class="small mb-1">
-                                Reason: <t t-esc="line.exclusion_reason"/>
-                            </p>
-                            <t t-if="line.kind != 'admission' and line.result != 'excluded' and line.audience == 'staff'">
-                                <table class="table table-sm small mb-1 o_ems_erasmus_breakdown">
-                                    <tbody>
-                                        <tr><td>Position</td><td class="text-end" t-esc="line.rank"/></tr>
-                                        <tr class="fw-bold"><td>Total score</td><td class="text-end" t-out="line.score_total" t-options="{'widget': 'float', 'precision': 2}"/></tr>
-                                        <tr><td>1. Mobility plan</td><td class="text-end" t-out="line.score_plan" t-options="{'widget': 'float', 'precision': 2}"/></tr>
-                                        <tr><td>2. Last staff mobility</td><td class="text-end" t-out="line.score_last_mobility" t-options="{'widget': 'float', 'precision': 2}"/></tr>
-                                        <tr><td>3. Centre projects</td><td class="text-end" t-out="line.score_projects" t-options="{'widget': 'float', 'precision': 2}"/></tr>
-                                        <tr><td>4. Languages</td><td class="text-end" t-out="line.score_staff_language" t-options="{'widget': 'float', 'precision': 2}"/></tr>
-                                        <tr><td>5. Seniority at the centre</td><td class="text-end" t-out="line.score_seniority" t-options="{'widget': 'float', 'precision': 2}"/></tr>
-                                        <tr><td>6. Internationalisation</td><td class="text-end" t-out="line.score_internationalisation" t-options="{'widget': 'float', 'precision': 2}"/></tr>
-                                    </tbody>
-                                </table>
-                            </t>
-                            <t t-elif="line.kind != 'admission' and line.result != 'excluded'">
-                                <table class="table table-sm small mb-1 o_ems_erasmus_breakdown">
-                                    <tbody>
-                                        <tr><td>Modality</td><td class="text-end" t-esc="line.modality_id.name"/></tr>
-                                        <tr><td>Position</td><td class="text-end" t-esc="line.rank"/></tr>
-                                        <tr class="fw-bold"><td>Total score</td><td class="text-end" t-out="line.score_total" t-options="{'widget': 'float', 'precision': 2}"/></tr>
-                                        <tr><td>A. Academic record</td><td class="text-end" t-out="line.score_a" t-options="{'widget': 'float', 'precision': 2}"/></tr>
-                                        <tr><td>B. Interview</td><td class="text-end" t-out="line.score_b" t-options="{'widget': 'float', 'precision': 2}"/></tr>
-                                        <tr><td>C. Languages</td><td class="text-end" t-out="line.score_c" t-options="{'widget': 'float', 'precision': 2}"/></tr>
-                                        <tr><td>D. Fewer opportunities</td><td class="text-end" t-out="line.score_d" t-options="{'widget': 'float', 'precision': 2}"/></tr>
-                                        <tr><td>E. First mobility</td><td class="text-end" t-out="line.score_e" t-options="{'widget': 'float', 'precision': 2}"/></tr>
-                                        <tr><td>F. Conduct warnings</td><td class="text-end" t-out="line.score_f" t-options="{'widget': 'float', 'precision': 2}"/></tr>
-                                    </tbody>
-                                </table>
-                            </t>
-                            <t t-if="line.kind == 'provisional' and call.claims_deadline">
-                                <p class="small text-muted mb-0">If you disagree, you can claim by replying to the result email.</p>
-                                <p class="small text-muted mb-1">Claims deadline: <t t-out="call.claims_deadline" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/></p>
-                            </t>
-                            <a t-attf-href="/my/erasmus/call/#{call.id}/resolution/#{line.resolution_id.id}" class="small o_ems_erasmus_list_link">
-                                <i class="fa fa-list me-1"/>See the published list
-                            </a>
+                            <!-- The issue-#682 review: the newest result open, the earlier ones folded. -->
+                            <details t-att-open="'open' if line_first and not mobility else None" class="o_ems_erasmus_result_details">
+                                <summary class="d-flex justify-content-between flex-wrap gap-2">
+                                    <strong><t t-esc="line.resolution_id.name"/> <i class="fa fa-caret-down text-muted"/></strong>
+                                    <span t-attf-class="badge #{'text-bg-success' if line.result in ('admitted', 'selected') else 'text-bg-warning' if line.result == 'reserve' else 'text-bg-secondary'} o_ems_erasmus_result_#{line.result}"
+                                          t-esc="result_labels.get(line.result)"/>
+                                </summary>
+                                <p t-if="line.result == 'excluded' and line.exclusion_reason" class="small mb-1">
+                                    Reason: <t t-esc="line.exclusion_reason"/>
+                                </p>
+                                <p t-if="line.result == 'reserve'" class="small mb-1 o_ems_erasmus_reserve_number">
+                                    You are reserve number <strong t-esc="line._ems_reserve_number()"/><t t-if="line.audience == 'student'"> of <t t-esc="line.modality_id.name"/></t>: if a place is left free, it is offered to the reserves in this order.
+                                </p>
+                                <p t-if="line.result == 'not_selected' and call.min_score" class="small mb-1 o_ems_erasmus_min_score">
+                                    You did not reach the minimum score of the call (<t t-out="call.min_score" t-options="{'widget': 'float', 'precision': 2}"/> points).
+                                </p>
+                                <t t-if="line.kind != 'admission' and line.result != 'excluded' and line.audience == 'staff'">
+                                    <table class="table table-sm small mb-1 o_ems_erasmus_breakdown">
+                                        <tbody>
+                                            <tr><td>Position</td><td class="text-end" t-esc="line.rank"/></tr>
+                                            <tr class="fw-bold"><td>Total score</td><td class="text-end" t-out="line.score_total" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                            <tr><td>1. Mobility plan</td><td class="text-end" t-out="line.score_plan" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                            <tr><td>2. Last staff mobility</td><td class="text-end" t-out="line.score_last_mobility" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                            <tr><td>3. Centre projects</td><td class="text-end" t-out="line.score_projects" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                            <tr><td>4. Languages</td><td class="text-end" t-out="line.score_staff_language" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                            <tr><td>5. Seniority at the centre</td><td class="text-end" t-out="line.score_seniority" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                            <tr><td>6. Internationalisation</td><td class="text-end" t-out="line.score_internationalisation" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                        </tbody>
+                                    </table>
+                                </t>
+                                <t t-elif="line.kind != 'admission' and line.result != 'excluded'">
+                                    <table class="table table-sm small mb-1 o_ems_erasmus_breakdown">
+                                        <tbody>
+                                            <tr><td>Modality</td><td class="text-end" t-esc="line.modality_id.name"/></tr>
+                                            <tr><td>Position</td><td class="text-end" t-esc="line.rank"/></tr>
+                                            <tr class="fw-bold"><td>Total score</td><td class="text-end" t-out="line.score_total" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                            <tr><td>A. Academic record</td><td class="text-end" t-out="line.score_a" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                            <tr><td>B. Interview</td><td class="text-end" t-out="line.score_b" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                            <tr><td>C. Languages</td><td class="text-end" t-out="line.score_c" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                            <tr><td>D. Fewer opportunities</td><td class="text-end" t-out="line.score_d" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                            <tr><td>E. First mobility</td><td class="text-end" t-out="line.score_e" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                            <tr><td>F. Conduct warnings</td><td class="text-end" t-out="line.score_f" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                        </tbody>
+                                    </table>
+                                </t>
+                                <!-- The issue-#682 review: the claim is sent from here, with its files. -->
+                                <t t-if="line.kind == 'provisional' and line.resolution_id == claimable">
+                                    <p class="small text-muted mb-1">If you disagree, you can claim until <t t-out="call.claims_deadline" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.</p>
+                                    <details class="mb-2 o_ems_erasmus_claim">
+                                        <summary class="small">I want to claim</summary>
+                                        <form t-attf-action="/my/erasmus/call/#{call.id}/claim" method="post" enctype="multipart/form-data"
+                                              class="mt-2 ems-loading-form">
+                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                            <label class="form-label small" for="claim_description">What you claim and why</label>
+                                            <textarea class="form-control form-control-sm mb-2" name="description" id="claim_description"
+                                                      rows="4" maxlength="5000" required="required"/>
+                                            <label class="form-label small" for="claim_files">Files that support it (optional)</label>
+                                            <input type="file" class="form-control form-control-sm mb-2" name="claim_files" id="claim_files" multiple="multiple"/>
+                                            <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_claim_submit">Send the claim</button>
+                                        </form>
+                                    </details>
+                                </t>
+                                <p t-elif="line.kind == 'provisional' and call.claims_deadline" class="small text-muted mb-1">
+                                    Claims deadline: <t t-out="call.claims_deadline" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>
+                                </p>
+                                <!-- The 2026-11-03 review: how the list of who goes is appealed (art. 14). -->
+                                <p t-if="line.kind in ('definitive', 'rectification')" class="small text-muted mb-1 o_ems_erasmus_appeal"
+                                   t-esc="line.resolution_id._ems_appeal_notice()"/>
+                                <a t-attf-href="/my/erasmus/call/#{call.id}/resolution/#{line.resolution_id.id}" class="small o_ems_erasmus_list_link">
+                                    <i class="fa fa-list me-1"/>See the published list
+                                </a>
+                            </details>
                         </li>
                     </ul>
                 </div>
 
-                <div t-if="call.description" class="mb-3" t-out="call.description"/>
+                <!-- The issue-#682 review: once nothing in it can change, the call's text and the
+                     application as it was sent fold away below what matters now. -->
+                <details t-att-open="'open' if editable or correctable else None" class="mb-4 o_ems_erasmus_form_details">
+                    <summary class="h5 mb-3">The call and my application</summary>
+                    <div t-if="call.description" class="mb-3" t-out="call.description"/>
 
-                <form t-attf-action="/my/erasmus/call/#{call.id}/save" method="post" enctype="multipart/form-data"
-                      class="ems-loading-form o_ems_erasmus_form">
-                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <form t-attf-action="/my/erasmus/call/#{call.id}/save" method="post" enctype="multipart/form-data"
+                          class="ems-loading-form o_ems_erasmus_form">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
 
-                    <!-- Issue #686: the staff application form (art. 8 and annex 1 of the staff call). -->
-                    <fieldset t-if="call.audience == 'staff'" t-att-disabled="None if editable else 'disabled'"
-                              class="card shadow-sm mb-4 o_ems_erasmus_staff_form">
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label class="form-label" for="staff_activity">Activity</label>
-                                <select class="form-select" name="staff_activity" id="staff_activity">
-                                    <option value="">-</option>
-                                    <t t-foreach="activity_labels.items()" t-as="activity">
-                                        <option t-att-value="activity[0]" t-att-selected="application.staff_activity == activity[0] or None"
-                                                t-esc="activity[1]"/>
-                                    </t>
-                                </select>
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label" for="host_entity">Host entity or course</label>
-                                <input type="text" class="form-control" name="host_entity" id="host_entity"
-                                       t-att-value="application.host_entity or ''"/>
-                                <div class="form-text mb-3">A concrete one, with its name. You will find options on the centre's Erasmus+ website:
-                                    <a href="https://elpuig.xeill.net/el-centre/erasmus/recursos-i-formacio" target="_blank" rel="noopener">resources and training</a>.</div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label" for="destination">Destination (city and country)</label>
-                                <input type="text" class="form-control" name="destination" id="destination"
-                                       t-att-value="application.destination or ''"/>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label" for="preferred_dates">Preferred dates or period, and approximate duration</label>
-                                <input type="text" class="form-control" name="preferred_dates" id="preferred_dates"
-                                       t-att-value="application.preferred_dates or ''"/>
-                                <div class="form-text">Preferably in the non-teaching period (June, July). At another time, such as April, only a week that does not affect the assessments, and with the Direction's validation.</div>
-                            </div>
-                            <!-- Issue #697: the mobility and transfer plan (annex 1, sections 3 to 7), written
-                                 here instead of a PDF: it is what the panel reads and rates. -->
-                            <h5 class="mt-4 mb-1">Mobility and transfer plan</h5>
-                            <p class="small text-muted mb-3">Annex 1 of the call. The panel only reads this plan, together with the activity, the host entity or course, the destination and the dates above. 1,500 characters at most per section. Every section is required.</p>
-                            <div class="mb-3">
-                                <label class="form-label" for="plan_reason">Why this entity or course</label>
-                                <textarea class="form-control" name="plan_reason" id="plan_reason" rows="3" maxlength="1500"
-                                          t-esc="application.plan_reason or ''"/>
-                                <div class="form-text">Its relation with your job and with the centre's training cycles.</div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label" for="plan_objectives">Objectives</label>
-                                <textarea class="form-control" name="plan_objectives" id="plan_objectives" rows="3" maxlength="1500"
-                                          t-esc="application.plan_objectives or ''"/>
-                                <div class="form-text">Two or three concrete objectives: what you want to observe, learn or, in a teaching assignment, teach.</div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label" for="plan_application">Application to your job</label>
-                                <textarea class="form-control" name="plan_application" id="plan_application" rows="3" maxlength="1500"
-                                          t-esc="application.plan_application or ''"/>
-                                <div class="form-text">How you will use it in your classes, your department or the centre's management, and which students will benefit.</div>
-                            </div>
-                            <div class="alert alert-info small mb-4 o_ems_erasmus_dissemination">
-                                <strong>Dissemination:</strong> when you come back, you will publish a news item on the centre's website about your experience, following the Erasmus+ visual identity and dissemination policy, and, if it is considered necessary, you will share it with your colleagues at a department or cycles meeting.
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label" for="declared_last_mobility_date">Month and year of your last Erasmus+ staff mobility from this centre</label>
-                                <input type="month" class="form-control" name="declared_last_mobility_date" id="declared_last_mobility_date"
-                                       t-att-value="application.declared_last_mobility_date and application.declared_last_mobility_date.strftime('%Y-%m') or ''"/>
-                                <div class="form-text">Only Erasmus+ staff mobilities: accompanying students, other programmes and mobilities from other centres do not count.</div>
-                                <div class="form-check mt-1">
-                                    <input class="form-check-input" type="checkbox" name="declared_never_staff_mobility" id="declared_never_staff_mobility"
-                                           t-att-checked="application.declared_never_staff_mobility or None"/>
-                                    <label class="form-check-label" for="declared_never_staff_mobility">I have never had one</label>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label" for="declared_centre_start_date">Month and year since when you work at the centre without interruption</label>
-                                <input type="month" class="form-control" name="declared_centre_start_date" id="declared_centre_start_date"
-                                       t-att-value="application.declared_centre_start_date and application.declared_centre_start_date.strftime('%Y-%m') or ''"/>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label" for="centre_projects">Centre projects, commissions or coordinations you take part in (last course and this one)</label>
-                                <textarea class="form-control" name="centre_projects" id="centre_projects" rows="2"
-                                          t-esc="application.centre_projects or ''"/>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label" for="declared_language_level">Highest official foreign-language certificate (B2 or higher)</label>
-                                <select class="form-select" name="declared_language_level" id="declared_language_level">
-                                    <t t-foreach="language_labels.items()" t-as="level">
-                                        <option t-att-value="level[0]" t-att-selected="application.declared_language_level == level[0] or None"
-                                                t-esc="level[1]"/>
-                                    </t>
-                                </select>
-                                <div class="form-text">Attach it in the documents below.</div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label" for="support_needs">Support or adaptations you need to do the mobility (confidential, optional)</label>
-                                <textarea class="form-control" name="support_needs" id="support_needs" rows="2"
-                                          t-esc="application.support_needs or ''"/>
-                            </div>
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" name="image_consent" id="image_consent"
-                                       t-att-checked="application.image_consent or None"/>
-                                <label class="form-check-label" for="image_consent">I consent to the use of my image in the project's dissemination activities (voluntary)</label>
-                            </div>
-                            <div class="mb-0">
-                                <label class="form-label" for="applicant_notes">Anything else you want the Erasmus team to know</label>
-                                <textarea class="form-control" name="applicant_notes" id="applicant_notes" rows="2"
-                                          t-esc="application.applicant_notes or ''"/>
-                            </div>
-                        </div>
-                    </fieldset>
-
-                    <fieldset t-else="" t-att-disabled="None if editable else 'disabled'" class="card shadow-sm mb-4">
-                        <div class="card-body">
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" name="previous_mobility" id="previous_mobility"
-                                       t-att-checked="application.previous_mobility or None"/>
-                                <label class="form-check-label" for="previous_mobility">I have already taken part in an Erasmus+ mobility</label>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label" for="previous_mobility_details">If so, which one and when</label>
-                                <textarea class="form-control" name="previous_mobility_details" id="previous_mobility_details" rows="2"
-                                          t-esc="application.previous_mobility_details or ''"/>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label" for="availability">Availability for the periods of the call</label>
-                                <textarea class="form-control" name="availability" id="availability" rows="2"
-                                          t-esc="application.availability or ''"/>
-                            </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" name="fewer_opportunities" id="fewer_opportunities"
-                                       t-att-checked="application.fewer_opportunities or None"/>
-                                <label class="form-check-label" for="fewer_opportunities">I can prove a situation of fewer opportunities (the evidence is confidential)</label>
-                            </div>
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" name="image_consent" id="image_consent"
-                                       t-att-checked="application.image_consent or None"/>
-                                <label class="form-check-label" for="image_consent">I consent to the use of my image in the project's dissemination activities (voluntary)</label>
-                            </div>
-                            <div class="mb-0">
-                                <label class="form-label" for="applicant_notes">Anything else you want the Erasmus team to know</label>
-                                <textarea class="form-control" name="applicant_notes" id="applicant_notes" rows="2"
-                                          t-esc="application.applicant_notes or ''"/>
-                            </div>
-                        </div>
-                    </fieldset>
-
-                    <h5 class="mb-2">Documents</h5>
-                    <t t-foreach="documents" t-as="document">
-                        <t t-set="line" t-value="lines.get(document)"/>
-                        <t t-set="required" t-value="document.requirement == 'required' or (document.requirement == 'minor' and is_minor)"/>
-                        <t t-set="can_upload" t-value="editable or (line and line in correctable)"/>
-                        <t t-if="document.requirement != 'minor' or is_minor">
-                            <div t-attf-class="card mb-2 o_ems_erasmus_document #{'o_ems_erasmus_required' if required else ''}">
-                                <div class="card-body py-2">
-                                    <div class="d-flex justify-content-between">
-                                        <strong t-esc="document.name"/>
-                                        <span t-if="required" class="badge text-bg-warning">Required</span>
-                                        <span t-else="" class="badge text-bg-light">Optional</span>
+                        <!-- Issue #686: the staff application form (art. 8 and annex 1 of the staff call). -->
+                        <!-- Issue #686, made friendlier in the 2026-11-03 review (adriamt): four short blocks.
+                             The proposals and the plan in the teacher's own words; the exact entity and dates
+                             come later, in the mobility's proposal for the Direction. -->
+                        <fieldset t-if="call.audience == 'staff'" t-att-disabled="None if editable else 'disabled'"
+                                  class="mb-4 o_ems_erasmus_staff_form">
+                            <div class="card shadow-sm mb-3">
+                                <div class="card-body">
+                                    <h5 class="mb-1">1. Your proposals</h5>
+                                    <p class="small text-muted mb-3">Say in a sentence or two what you would like to do: the activity (job shadowing, a course or teaching), the host entity or course, where and when. Proposal B is the backup if A falls through. Both are required. You will find options on the centre's Erasmus+ website:
+                                        <a href="https://elpuig.xeill.net/el-centre/erasmus/recursos-i-formacio" target="_blank" rel="noopener">resources and training</a>.</p>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="proposal_a">Proposal A</label>
+                                        <textarea class="form-control" name="proposal_a" id="proposal_a" rows="2" maxlength="1500"
+                                                  placeholder="E.g.: job shadowing at a German VET school, the Berufskolleg X in Cologne, in April."
+                                                  t-esc="application.proposal_a or ''"/>
                                     </div>
-                                    <p t-if="document.description" class="small text-muted mb-1" t-esc="document.description"/>
-                                    <p t-if="line and line.attachment_ids" class="small mb-1">
-                                        <i class="fa fa-paperclip me-1"/><t t-esc="', '.join(line.attachment_ids.mapped('name'))"/>
-                                    </p>
-                                    <p t-if="line and (line.correction_requested or line.review_state == 'needs_change')" class="small text-danger mb-1 o_ems_erasmus_needs_change">
-                                        <i class="fa fa-exclamation-circle me-1"/>Needs changes<t t-if="line.review_comment">: <t t-esc="line.review_comment"/></t>
-                                    </p>
-                                    <input t-if="can_upload" type="file" class="form-control form-control-sm" multiple="multiple"
-                                           t-attf-name="document_#{document.id}"/>
+                                    <div class="mb-0">
+                                        <label class="form-label" for="proposal_b">Proposal B (backup)</label>
+                                        <textarea class="form-control" name="proposal_b" id="proposal_b" rows="2" maxlength="1500"
+                                                  placeholder="E.g.: an English course at an academy in Malta, in July."
+                                                  t-esc="application.proposal_b or ''"/>
+                                    </div>
+                                    <div class="form-text">Preferably in the non-teaching period (June, July). At another time, such as April, only a week that does not affect the assessments, and with the Direction's validation.</div>
                                 </div>
                             </div>
-                        </t>
-                    </t>
+                            <div class="card shadow-sm mb-3">
+                                <div class="card-body">
+                                    <h5 class="mb-1">2. What you want to learn and how you will apply it</h5>
+                                    <p class="small text-muted mb-2">Annex 1 of the call: briefly, the competences you want to observe or learn, and how you will apply them to your classes, your department or the centre. The panel reads it together with your proposals.</p>
+                                    <textarea class="form-control" name="plan_text" id="plan_text" rows="5" maxlength="1500"
+                                              t-esc="application.plan_text or ''" aria-label="What you want to learn and how you will apply it"/>
+                                    <div class="form-text float-end ms-2 o_ems_erasmus_char_count" data-for="plan_text"/>
+                                    <div class="clearfix"/>
+                                    <div class="alert alert-info small mt-3 mb-0 o_ems_erasmus_dissemination">
+                                    <strong>Dissemination:</strong> when you come back, you will publish a news item on the centre's website about your experience, following the Erasmus+ visual identity and dissemination policy, and, if it is considered necessary, you will share it with your colleagues at a department or cycles meeting.
+                                </div>
+                                </div>
+                            </div>
+                            <div class="card shadow-sm mb-3">
+                                <div class="card-body">
+                                    <h5 class="mb-3">3. About you</h5>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" name="declared_never_staff_mobility" id="declared_never_staff_mobility"
+                                               t-att-checked="application.declared_never_staff_mobility or None"/>
+                                        <label class="form-check-label" for="declared_never_staff_mobility">I have never had an Erasmus+ staff mobility at the Puig</label>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="declared_centre_start_date">Month and year since when you work at the centre without interruption</label>
+                                        <input type="month" class="form-control" name="declared_centre_start_date" id="declared_centre_start_date"
+                                               t-att-value="application.declared_centre_start_date and application.declared_centre_start_date.strftime('%Y-%m') or ''"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="declared_language_level">Highest official foreign-language certificate (B2 or higher)</label>
+                                        <select class="form-select" name="declared_language_level" id="declared_language_level">
+                                            <t t-foreach="language_labels.items()" t-as="level">
+                                                <option t-att-value="level[0]" t-att-selected="application.declared_language_level == level[0] or None"
+                                                        t-esc="level[1]"/>
+                                            </t>
+                                        </select>
+                                        <div class="form-text">Attach it in the documents below.</div>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="form-label" for="centre_projects">Centre projects, commissions or coordinations you take part in (last course and this one)</label>
+                                        <textarea class="form-control" name="centre_projects" id="centre_projects" rows="2"
+                                                  t-esc="application.centre_projects or ''"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <details class="card shadow-sm mb-3" t-att-open="(application.support_needs or application.applicant_notes) and 'open' or None">
+                                <summary class="card-body py-2"><strong>4. Optional</strong>: support you need, your image, anything else</summary>
+                                <div class="card-body pt-0">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="support_needs">Support or adaptations you need to do the mobility (confidential)</label>
+                                        <textarea class="form-control" name="support_needs" id="support_needs" rows="2"
+                                                  t-esc="application.support_needs or ''"/>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" name="image_consent" id="image_consent"
+                                               t-att-checked="application.image_consent or None"/>
+                                        <label class="form-check-label" for="image_consent">I consent to the use of my image in the project's dissemination activities (voluntary)</label>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="form-label" for="applicant_notes">Anything else you want the Erasmus team to know</label>
+                                        <textarea class="form-control" name="applicant_notes" id="applicant_notes" rows="2"
+                                                  t-esc="application.applicant_notes or ''"/>
+                                    </div>
+                                </div>
+                            </details>
+                        </fieldset>
 
-                    <div t-if="editable or correctable" class="d-flex gap-2 mt-3 mb-5">
-                        <button t-if="editable" type="submit" class="btn btn-secondary">
-                            <i class="fa fa-save me-1"/>Save draft
-                        </button>
-                        <button type="submit" name="submit" value="1" class="btn btn-primary">
-                            <i class="fa fa-paper-plane me-1"/>Submit application
-                        </button>
-                    </div>
-                </form>
+                        <!-- The 2026-11-03 review: a student hands in the documents first, each with what it must
+                             contain; then, only if they can prove fewer opportunities, the evidence; and anything
+                             else at the end. Staff: their form above, then the documents. -->
+                        <h5 class="mb-2">Documents</h5>
+                        <t t-foreach="documents.filtered(lambda document: document.requirement != 'fewer_opportunities')" t-as="document">
+                            <t t-if="document.requirement != 'minor' or is_minor" t-call="ems.portal_erasmus_document_card"/>
+                        </t>
+
+                        <fieldset t-if="call.audience == 'student'" t-att-disabled="None if editable else 'disabled'"
+                                  class="card shadow-sm mt-4 mb-4 o_ems_erasmus_fewer">
+                            <div class="card-body">
+                                <h5 class="mb-2">Fewer opportunities</h5>
+                                <p class="small mb-2">A student has fewer opportunities when they face obstacles to take part for socio-economic reasons (for instance a general grant of the Ministry of Education, the Minimum Living Income or the Guaranteed Citizenship Income, a large or single-parent family, social services' report), a disability of 33 % or more, health, educational needs (report of the guidance service), cultural differences (refugee or international protection), discrimination or geography. Annex 2 of the call lists the documents that prove each one.</p>
+                                <p class="small text-muted mb-3">If you prove it, you get 10 extra points and a top-up of the grant. The documents are confidential: only the Erasmus team sees them.</p>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="fewer_opportunities" id="fewer_opportunities"
+                                           t-att-checked="application.fewer_opportunities or None"/>
+                                    <label class="form-check-label" for="fewer_opportunities">I can prove a situation of fewer opportunities</label>
+                                </div>
+                                <!-- Shown once the box is ticked (frontend/portal_custom.scss), without a reload. -->
+                                <div class="o_ems_erasmus_fewer_documents mt-3">
+                                    <t t-foreach="documents.filtered(lambda document: document.requirement == 'fewer_opportunities')" t-as="document">
+                                        <t t-call="ems.portal_erasmus_document_card"/>
+                                    </t>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <fieldset t-if="call.audience == 'student'" t-att-disabled="None if editable else 'disabled'" class="card shadow-sm mb-4">
+                            <div class="card-body">
+                                <p class="small text-muted mb-3 o_ems_erasmus_image_rights">
+                                    <i class="fa fa-camera me-1"/>The use of your image in the project's dissemination follows your image rights authorisation of this course:
+                                    <strong><t t-if="request.env.user.partner_id.auth_image">authorised</t><t t-else="">not authorised</t></strong>.
+                                </p>
+                                <div class="mb-0">
+                                    <label class="form-label" for="applicant_notes">Anything else you want the Erasmus team to know</label>
+                                    <textarea class="form-control" name="applicant_notes" id="applicant_notes" rows="2"
+                                              t-esc="application.applicant_notes or ''"/>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- The issue-#682 review: the buttons say what they do at each moment. -->
+                        <t t-set="sent" t-value="application and application.state == 'submitted'"/>
+                        <p t-if="sent and editable" class="small text-muted mt-3 mb-1 o_ems_erasmus_sent_on">
+                            <i class="fa fa-check me-1"/>Submitted on <t t-out="application.submit_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>. You can change it until the call closes: send it again to keep the changes.
+                        </p>
+                        <div t-if="editable or correctable" class="d-flex gap-2 mt-3 mb-5">
+                            <button t-if="editable and not sent" type="submit" class="btn btn-secondary">
+                                <i class="fa fa-save me-1"/>Save draft
+                            </button>
+                            <button type="submit" name="submit" value="1" class="btn btn-primary o_ems_erasmus_submit">
+                                <i class="fa fa-paper-plane me-1"/>
+                                <t t-if="not editable">Send the corrections</t>
+                                <t t-elif="sent">Send the changes</t>
+                                <t t-else="">Submit application</t>
+                            </button>
+                        </div>
+                    </form>
+                </details>
             </div>
         </t>
+    </template>
+
+    <!-- One document of the application form: its instructions, what is already handed in and the
+         field to hand it in (files, a PDF or a link, ems.erasmus.call.document.upload_kind). -->
+    <template id="portal_erasmus_document_card" name="Erasmus+ application document">
+        <t t-set="line" t-value="lines.get(document)"/>
+        <t t-set="required" t-value="document.requirement == 'required' or (document.requirement == 'minor' and is_minor)"/>
+        <t t-set="can_upload" t-value="editable or (line and line in correctable)"/>
+        <div t-attf-class="card mb-2 o_ems_erasmus_document #{'o_ems_erasmus_required' if required else ''}">
+            <div class="card-body py-2">
+                <div class="d-flex justify-content-between gap-2">
+                    <strong t-esc="document.name"/>
+                    <span t-if="required" class="badge text-bg-warning">Required</span>
+                    <span t-elif="document.requirement == 'fewer_opportunities'" class="badge text-bg-warning">Required if you tick the box</span>
+                    <span t-else="" class="badge text-bg-light">Optional</span>
+                </div>
+                <p t-if="document.description" class="small text-muted mb-1" style="white-space: pre-line;" t-esc="document.description"/>
+                <p t-if="document.help_url" class="small mb-1">
+                    <a t-att-href="document.help_url" target="_blank" rel="noopener"><i class="fa fa-external-link me-1"/><t t-esc="document.help_url"/></a>
+                </p>
+                <p t-if="line and line.attachment_ids" class="small mb-1">
+                    <i class="fa fa-paperclip me-1"/>
+                    <t t-foreach="line.attachment_ids" t-as="attachment">
+                        <a t-if="attachment.type == 'url'" t-att-href="attachment.url" target="_blank" rel="noopener" t-esc="attachment.url"/>
+                        <span t-else="" t-esc="attachment.name"/><t t-if="not attachment_last">, </t>
+                    </t>
+                </p>
+                <p t-if="line and (line.correction_requested or line.review_state == 'needs_change')" class="small text-danger mb-1 o_ems_erasmus_needs_change">
+                    <i class="fa fa-exclamation-circle me-1"/>Needs changes<t t-if="line.review_comment">: <t t-esc="line.review_comment"/></t>
+                </p>
+                <t t-if="can_upload">
+                    <input t-if="document.upload_kind == 'link'" type="url" class="form-control form-control-sm o_ems_erasmus_link"
+                           t-attf-name="link_#{document.id}" placeholder="https://drive.google.com/..."/>
+                    <input t-elif="document.upload_kind == 'pdf'" type="file" class="form-control form-control-sm" multiple="multiple"
+                           accept=".pdf,application/pdf" t-attf-name="document_#{document.id}"/>
+                    <input t-else="" type="file" class="form-control form-control-sm" multiple="multiple"
+                           t-attf-name="document_#{document.id}"/>
+                </t>
+            </div>
+        </div>
     </template>
 
     <!-- Issue #685: a published resolution as the applicants see it: no names, only four digits
@@ -431,8 +535,10 @@
                                            t-att-value="destination.id" t-attf-id="destination_#{destination.id}"/>
                                     <label class="form-check-label" t-attf-for="destination_#{destination.id}">
                                         <strong t-esc="destination.name"/>
+                                        <span t-if="destination.city or destination.country_id" class="small"
+                                              t-esc="', '.join(part for part in [destination.city, destination.country_id.name] if part)"/>
                                         <span class="text-muted small">
-                                            (<t t-esc="destination.free_places"/> free places<t t-if="destination.date_start">,
+                                            (<t t-esc="destination.free_places"/> <t t-if="destination.free_places == 1">free place</t><t t-else="">free places</t><t t-if="destination.date_start">,
                                             <t t-out="destination.date_start" t-options="{'widget': 'date'}"/> - <t t-out="destination.date_end" t-options="{'widget': 'date'}"/></t>)
                                         </span>
                                         <span t-if="destination.notes" class="d-block small" t-esc="destination.notes"/>
@@ -461,207 +567,253 @@
                     </details>
                 </t>
 
-                <!-- The mobility as it will happen, its documents and its checklist. -->
+                <!-- The issue-#682 review: once the mobility is defined, its preparation in tabs, opened
+                     on the one with something to do now. -->
                 <t t-if="mobility.state in ('preparing', 'done')">
-                    <table class="table table-sm small mb-3 o_ems_erasmus_mobility_summary">
-                        <tbody>
-                            <tr t-if="mobility.destination_id"><td>Destination</td><td t-esc="mobility.destination_id.name"/></tr>
-                            <tr t-if="mobility.country_id or mobility.city"><td>Place</td><td><t t-esc="mobility.city or ''"/><t t-if="mobility.city and mobility.country_id">, </t><t t-esc="mobility.country_id.name or ''"/></td></tr>
-                            <tr t-if="mobility.host_partner_id"><td>Host entity</td><td t-esc="mobility.host_partner_id.name"/></tr>
-                            <tr t-if="mobility.host_contact_id"><td>Contact person</td><td><t t-esc="mobility.host_contact_id.name"/><t t-if="mobility.host_contact_id.email"> (<t t-esc="mobility.host_contact_id.email"/>)</t></td></tr>
-                            <tr t-if="mobility.date_start"><td>Dates</td><td><t t-out="mobility.date_start" t-options="{'widget': 'date'}"/> - <t t-out="mobility.date_end" t-options="{'widget': 'date'}"/></td></tr>
-                        </tbody>
-                    </table>
-                </t>
-                <!-- Issue #697: staff change a validated activity before it starts (another course, other
-                     dates); it stays as validated until the Direction validates the change. -->
-                <t t-if="mobility.audience == 'staff' and mobility.state == 'preparing'">
-                    <div t-if="mobility.proposal_state == 'rejected' and mobility.decision_note" class="alert alert-warning o_ems_erasmus_change_rejected">
-                        The change you proposed was not validated: <span style="white-space: pre-line;" t-esc="mobility.decision_note"/>
-                        Your mobility stays as it was validated.
-                    </div>
-                    <p t-elif="mobility.proposal_state == 'validated' and mobility.decision_note" class="small o_ems_erasmus_decision_note">
-                        Comment from the Direction: <span style="white-space: pre-line;" t-esc="mobility.decision_note"/>
-                    </p>
-                    <p t-if="mobility.proposal_state == 'pending'" class="o_ems_erasmus_change_pending">
-                        <i class="fa fa-hourglass-half me-1"/>The change you proposed is waiting for the Direction's validation. Until then, your mobility stays as it was validated.
-                    </p>
-                    <details t-if="mobility._ems_can_change_proposal()" class="mb-3 o_ems_erasmus_change">
-                        <summary>Change the activity or the dates</summary>
-                        <p class="small mt-2 mb-0">If the course, the host entity or the dates change, send the new proposal: the Direction validates it again.</p>
-                        <t t-call="ems.portal_erasmus_proposal_form"/>
-                    </details>
-                </t>
-                <!-- Issue #697: the grant, what the centre pays out of it and the payments (art. 5). -->
-                <t t-if="mobility.state in ('preparing', 'done') and mobility.grant_amount">
-                    <t t-set="currency_options" t-value="{'widget': 'monetary', 'display_currency': mobility.currency_id}"/>
-                    <t t-set="grant" t-value="mobility._ems_portal_grant()"/>
-                    <h6>Your grant</h6>
-                    <table class="table table-sm small mb-3 o_ems_erasmus_grant">
-                        <tbody>
-                            <tr><td>Erasmus+ grant</td><td class="text-end" t-out="mobility.grant_amount" t-options="currency_options"/></tr>
-                            <tr t-foreach="grant[0]" t-as="provision">
-                                <td>Paid by the centre: <t t-esc="provision[0]"/></td>
-                                <td class="text-end">- <t t-out="provision[1]" t-options="currency_options"/></td>
-                            </tr>
-                            <tr class="fw-bold"><td>You receive</td><td class="text-end o_ems_erasmus_grant_net" t-out="mobility.grant_net" t-options="currency_options"/></tr>
-                            <tr t-foreach="grant[1]" t-as="payment" class="text-muted">
-                                <td><t t-esc="payment[0]"/>: <t t-esc="payment[1]"/><t t-if="payment[3]"> (<t t-out="payment[3]" t-options="{'widget': 'date'}"/>)</t></td>
-                                <td class="text-end" t-out="payment[2]" t-options="currency_options"/>
-                            </tr>
-                        </tbody>
-                    </table>
-                </t>
-                <!-- The commitment letter (annex 3), accepted and signed in EMS. -->
-                <t t-if="mobility.state in ('preparing', 'done') and (mobility.commitment_pending or mobility.commitment_signed_date)">
-                    <h6>Commitment letter</h6>
-                    <div t-if="mobility.commitment_signed_date" class="alert alert-success small o_ems_erasmus_commitment_signed">
-                        <i class="fa fa-check-circle me-1"/>You accepted and signed it on
-                        <t t-out="mobility.commitment_signed_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
-                    </div>
-                    <div t-if="mobility.commitment_guardian_pending" class="alert alert-warning small o_ems_erasmus_guardian_pending">
-                        <i class="fa fa-exclamation-circle me-1"/>As you are a minor, your family has to sign it too, from its own access to the portal (Erasmus+).
-                    </div>
-                    <div t-elif="mobility.commitment_guardian_signed_date" class="alert alert-success small">
-                        <i class="fa fa-check-circle me-1"/>Your family signed it on
-                        <t t-out="mobility.commitment_guardian_signed_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
-                    </div>
-                    <form t-if="mobility.state == 'preparing' and mobility.commitment_pending" t-att-action="action + 'commitment'" method="post" class="mb-3 o_ems_erasmus_commitment">
-                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                        <div class="border rounded p-3 mb-2 small" t-out="mobility._ems_commitment_text()"/>
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" name="accepted" id="commitment_accepted" required="required"/>
-                            <label class="form-check-label" for="commitment_accepted">I have read these commitments and I accept them.</label>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_commitment_sign">Accept and sign</button>
-                    </form>
-                </t>
-                <!-- A short blended document (the virtual component) is only shown when it is asked for. -->
-                <t t-set="mobility_documents" t-value="mobility.document_ids.filtered(lambda line: line.is_required or line.call_document_id.requirement != 'short_blended')"/>
-                <t t-if="mobility.state in ('preparing', 'done') and mobility_documents">
-                    <h6>My record</h6>
-                    <p class="small text-muted mb-2">
-                        Sign them outside EMS as indicated and upload the signed copy, better as soon as you can: you will receive a reminder every week while any is missing.
-                    </p>
-                    <t t-set="record_missing" t-value="len(mobility_documents.filtered(lambda line: line.is_required and line.file_state != 'complete'))"/>
-                    <div t-if="record_missing" class="alert alert-warning py-2 small o_ems_erasmus_record_missing">
-                        <i class="fa fa-exclamation-triangle me-1"/>Documents still to complete your record: <strong t-esc="record_missing"/>
-                    </div>
-                    <div t-else="" class="alert alert-success py-2 small o_ems_erasmus_record_complete">
-                        <i class="fa fa-check me-1"/>Your record has every required document.
-                    </div>
-                    <form t-att-action="action + 'upload'" method="post" enctype="multipart/form-data" class="ems-loading-form o_ems_erasmus_mobility_documents">
-                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                        <t t-foreach="record_categories" t-as="category">
-                            <t t-set="category_lines" t-value="mobility_documents.filtered(lambda line: line.file_category == category[0])"/>
-                            <t t-if="category_lines">
-                            <p class="fw-bold small mb-1 mt-2 o_ems_erasmus_record_category" t-esc="category[1]"/>
-                            <ul class="list-group mb-2">
-                            <li t-foreach="category_lines" t-as="line" class="list-group-item o_ems_erasmus_mobility_document">
-                                <div class="d-flex justify-content-between flex-wrap gap-2">
-                                    <span>
-                                        <strong t-esc="line.name"/>
-                                        <span t-if="not line.is_required" class="small text-muted"> (optional)</span>
-                                    </span>
-                                    <span t-attf-class="badge o_ems_erasmus_file_state #{'text-bg-success' if line.file_state == 'complete' else 'text-bg-danger' if line.file_state in ('missing', 'needs_change') else 'text-bg-warning' if line.file_state == 'to_review' else 'text-bg-light'}"
-                                          t-esc="file_state_labels.get(line.file_state)"/>
-                                </div>
-                                <t t-set="line_open" t-value="line._ems_is_open()"/>
-                                <p t-if="not line_open" class="small mb-1 o_ems_erasmus_document_not_open">
-                                    <i class="fa fa-clock-o me-1"/><t t-if="line.open_date">Available from <t t-out="line.open_date" t-options="{'widget': 'date'}"/>.</t>
-                                    <t t-else="">Available <t t-esc="line.call_document_id.open_days"/> days before leaving, once the dates of the stay are known.</t>
-                                </p>
-                                <p t-if="line.deadline" class="small mb-1">Deadline: <t t-out="line.deadline" t-options="{'widget': 'date'}"/></p>
-                                <p t-if="line.signers" class="small mb-1 o_ems_erasmus_signers">Signed by:
-                                    <t t-foreach="line.sudo().signature_ids.filtered('is_required')" t-as="signature">
-                                        <span t-attf-class="badge #{'text-bg-success' if signature.signed else 'text-bg-light'} o_ems_erasmus_signature">
-                                            <i t-attf-class="fa #{'fa-check' if signature.signed else 'fa-clock-o'} me-1"/><t t-esc="signature._ems_label()"/>
-                                        </span>
-                                    </t>
-                                </p>
-                                <t t-set="sign_url" t-value="line._ems_portal_sign_url(request.env.user.partner_id)"/>
-                                <p t-if="sign_url" class="small mb-1"><a t-att-href="sign_url" class="btn btn-sm btn-primary o_ems_erasmus_sign"><i class="fa fa-pencil me-1"/>Sign it here</a></p>
-                                <p t-if="line.prepared_attachment_ids" class="small mb-1"><t t-if="line.handled_by == 'team'">To download:</t><t t-else="">To download and sign:</t>
-                                    <t t-foreach="line.prepared_attachment_ids" t-as="prepared">
-                                        <a t-attf-href="/my/erasmus/call/#{call.id}/mobility/file/#{prepared.id}" class="o_ems_erasmus_prepared_file" t-esc="prepared.name"/><t t-if="not prepared_last">, </t>
-                                    </t>
-                                </p>
-                                <p t-elif="line.handled_by == 'team_to_sign'" class="small text-muted mb-1">The Erasmus team will upload it filled in for you to sign.</p>
-                                <p t-elif="line.handled_by == 'team'" class="small text-muted mb-1">The Erasmus team will upload it for you.</p>
-                                <p t-if="line.description" class="small text-muted mb-1" t-esc="line.description"/>
-                                <p t-if="line.review_state == 'needs_change' and line.review_comment" class="small text-danger mb-1" t-esc="line.review_comment"/>
-                                <p t-if="line.attachment_ids" class="small mb-1">Received:
-                                    <t t-foreach="line.attachment_ids" t-as="received">
-                                        <a t-attf-href="/my/erasmus/call/#{call.id}/mobility/file/#{received.id}" class="o_ems_erasmus_received_file" t-esc="received.name"/>
-                                        <span class="text-muted">(<t t-out="received.create_date" t-options="{'widget': 'date'}"/>)</span><t t-if="not received_last">, </t>
-                                    </t>
-                                </p>
-                                <t t-if="mobility.state == 'preparing' and line_open and line.review_state != 'valid' and line.handled_by != 'team' and (line.handled_by != 'team_to_sign' or line.prepared_attachment_ids)">
-                                    <p t-if="line.attachment_ids" class="small text-muted mb-1">Uploading again adds a new version: the earlier ones are kept.</p>
-                                    <input class="form-control form-control-sm" type="file"
-                                           t-attf-name="document_#{line.call_document_id.id}" multiple="multiple"/>
-                                </t>
-                            </li>
-                            </ul>
-                            </t>
-                        </t>
-                        <button t-if="mobility.state == 'preparing'" type="submit" class="btn btn-primary btn-sm o_ems_erasmus_mobility_upload">Upload the documents</button>
-                    </form>
-                </t>
-                <t t-set="steps" t-value="mobility.task_ids.filtered('is_required')"/>
-                <t t-if="mobility.state in ('preparing', 'done') and steps">
-                    <h6 class="mt-3">Steps</h6>
-                    <ul class="list-unstyled small o_ems_erasmus_mobility_tasks">
-                        <li t-foreach="steps" t-as="task">
-                            <i t-attf-class="fa #{'fa-check-square-o text-success' if task.done else 'fa-square-o'} me-1"/>
-                            <t t-esc="task.name"/><span class="text-muted"> - <t t-if="task.stage == 'return'">On return</t><t t-else="">Before leaving</t></span>
-                            <span t-if="task.description" class="d-block text-muted ms-3" t-esc="task.description"/>
+                    <!-- Not applicable documents (a minor's, for an adult) are not shown; only what the
+                         participant has to do now counts as missing (todo_state). -->
+                    <t t-set="mobility_documents" t-value="mobility.document_ids.filtered(lambda line: line.file_state != 'not_applicable' and (line.is_required or line.call_document_id.requirement != 'short_blended'))"/>
+                    <t t-set="record_missing" t-value="len(mobility_documents.filtered(lambda line: line.todo_state in ('missing', 'needs_change')))"/>
+                    <t t-set="steps" t-value="mobility.task_ids.filtered('is_required')"/>
+                    <t t-set="open_weeks" t-value="mobility._ems_self_assessments_open()"/>
+                    <t t-set="stay_shown" t-value="open_weeks or mobility.self_assessment_ids"/>
+                    <t t-set="return_shown" t-value="mobility._ems_eu_survey_open() or mobility.eu_survey_state != 'pending'"/>
+                    <t t-set="record_todo" t-value="record_missing + (1 if mobility.commitment_pending else 0)"/>
+                    <t t-set="active_tab" t-value="'record' if mobility.state == 'preparing' and record_todo else 'stay' if open_weeks else 'return' if return_shown and mobility.eu_survey_state == 'pending' else 'summary'"/>
+                    <ul class="nav nav-tabs mb-3 o_ems_erasmus_mobility_tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button type="button" t-attf-class="nav-link #{'active' if active_tab == 'summary' else ''} o_ems_erasmus_tab_button_summary"
+                                    data-bs-toggle="tab" data-bs-target="#ems_erasmus_tab_summary" role="tab">Summary</button>
+                        </li>
+                        <li class="nav-item" t-if="mobility_documents or mobility.commitment_pending or mobility.commitment_signed_date" role="presentation">
+                            <button type="button" t-attf-class="nav-link #{'active' if active_tab == 'record' else ''} o_ems_erasmus_tab_button_record"
+                                    data-bs-toggle="tab" data-bs-target="#ems_erasmus_tab_record" role="tab">My record <span t-if="record_todo" class="badge rounded-pill text-bg-warning ms-1" t-esc="record_todo"/><i t-elif="mobility_documents" class="fa fa-check text-success ms-1"/></button>
+                        </li>
+                        <li class="nav-item" t-if="steps" role="presentation">
+                            <button type="button" t-attf-class="nav-link #{'active' if active_tab == 'steps' else ''} o_ems_erasmus_tab_button_steps"
+                                    data-bs-toggle="tab" data-bs-target="#ems_erasmus_tab_steps" role="tab">Steps <span class="badge rounded-pill text-bg-light ms-1"><t t-esc="len(steps.filtered('done'))"/>/<t t-esc="len(steps)"/></span></button>
+                        </li>
+                        <li class="nav-item" t-if="stay_shown" role="presentation">
+                            <button type="button" t-attf-class="nav-link #{'active' if active_tab == 'stay' else ''} o_ems_erasmus_tab_button_stay"
+                                    data-bs-toggle="tab" data-bs-target="#ems_erasmus_tab_stay" role="tab">During the stay</button>
+                        </li>
+                        <li class="nav-item" t-if="return_shown" role="presentation">
+                            <button type="button" t-attf-class="nav-link #{'active' if active_tab == 'return' else ''} o_ems_erasmus_tab_button_return"
+                                    data-bs-toggle="tab" data-bs-target="#ems_erasmus_tab_return" role="tab">On return</button>
                         </li>
                     </ul>
-                </t>
-
-                <!-- Audit D-8: once the stay is over, the EU Survey; the participant says when it is answered. -->
-                <t t-if="mobility._ems_eu_survey_open() or mobility.eu_survey_state != 'pending'">
-                    <h6 class="mt-3">On return: EU Survey</h6>
-                    <div t-if="mobility.eu_survey_state == 'validated'" class="alert alert-success py-2 small o_ems_erasmus_eu_survey_validated">
-                        <i class="fa fa-check me-1"/>EU Survey answered and checked by the Erasmus team.
-                    </div>
-                    <div t-elif="mobility.eu_survey_state == 'done'" class="alert alert-info py-2 small o_ems_erasmus_eu_survey_done">
-                        <i class="fa fa-clock-o me-1"/>EU Survey answered: the Erasmus team will check it.
-                    </div>
-                    <form t-else="" t-att-action="action + 'eu_survey'" method="post" class="alert alert-warning py-2 small o_ems_erasmus_eu_survey">
-                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                        <p class="mb-2"><i class="fa fa-exclamation-triangle me-1"/>Answer the EU Survey, the final report of the European Commission: you receive the link by email from the European Commission.
-                            <t t-if="mobility.eu_survey_deadline">Deadline: <t t-out="mobility.eu_survey_deadline" t-options="{'widget': 'date'}"/>.</t></p>
-                        <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_eu_survey_answered">I have answered it</button>
-                    </form>
-                </t>
-
-                <!-- Issue #697: during the stay, the weekly self-assessment of the weeks already begun. -->
-                <t t-set="open_weeks" t-value="mobility._ems_self_assessments_open()"/>
-                <t t-if="open_weeks or mobility.self_assessment_ids">
-                    <h6 class="mt-3">During the stay: weekly self-assessment</h6>
-                    <p class="small text-muted mb-2">Every week, think about what you have done and learned. The Erasmus team reads it, and it is kept in your record.</p>
-                    <form t-foreach="open_weeks" t-as="week" t-att-action="action + 'self_assessment'" method="post" class="border rounded p-3 mb-2 o_ems_erasmus_self_assessment">
-                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                        <input type="hidden" name="week" t-att-value="week[0]"/>
-                        <p class="fw-bold mb-2">Week <t t-esc="week[0]"/> (<t t-out="week[1]" t-options="{'widget': 'date'}"/> - <t t-out="week[2]" t-options="{'widget': 'date'}"/>)</p>
-                        <div t-foreach="mobility.call_id.self_assessment_question_ids" t-as="question" class="mb-2">
-                            <label class="form-label small" t-attf-for="question_#{week[0]}_#{question.id}" t-esc="question.name"/>
-                            <select t-if="question.kind == 'rating'" class="form-select form-select-sm" t-attf-name="question_#{question.id}" t-attf-id="question_#{week[0]}_#{question.id}" required="required">
-                                <option value=""/>
-                                <option t-foreach="range(1, 6)" t-as="score" t-att-value="score" t-esc="score"/>
-                            </select>
-                            <textarea t-else="" class="form-control form-control-sm" rows="2" t-attf-name="question_#{question.id}" t-attf-id="question_#{week[0]}_#{question.id}" required="required"/>
+                    <div class="tab-content">
+                        <div t-attf-class="tab-pane #{'show active' if active_tab == 'summary' else ''} o_ems_erasmus_tab_summary" id="ems_erasmus_tab_summary" role="tabpanel">
+                            <table class="table table-sm small mb-3 o_ems_erasmus_mobility_summary">
+                                <tbody>
+                                    <tr t-if="mobility.destination_id"><td>Destination</td><td t-esc="mobility.destination_id.name"/></tr>
+                                    <tr t-if="mobility.country_id or mobility.city"><td>Place</td><td><t t-esc="mobility.city or ''"/><t t-if="mobility.city and mobility.country_id">, </t><t t-esc="mobility.country_id.name or ''"/></td></tr>
+                                    <tr t-if="mobility.host_partner_id"><td>Host entity</td><td t-esc="mobility.host_partner_id.name"/></tr>
+                                    <tr t-if="mobility.host_contact_id"><td>Contact person</td><td><t t-esc="mobility.host_contact_id.name"/><t t-if="mobility.host_contact_id.email"> (<t t-esc="mobility.host_contact_id.email"/>)</t></td></tr>
+                                    <tr t-if="mobility.date_start"><td>Dates</td><td><t t-out="mobility.date_start" t-options="{'widget': 'date'}"/> - <t t-out="mobility.date_end" t-options="{'widget': 'date'}"/></td></tr>
+                                </tbody>
+                            </table>
+                            <!-- Issue #697: staff change a validated activity before it starts (another course, other
+                                 dates); it stays as validated until the Direction validates the change. -->
+                            <t t-if="mobility.audience == 'staff' and mobility.state == 'preparing'">
+                                <div t-if="mobility.proposal_state == 'rejected' and mobility.decision_note" class="alert alert-warning o_ems_erasmus_change_rejected">
+                                    The change you proposed was not validated: <span style="white-space: pre-line;" t-esc="mobility.decision_note"/>
+                                    Your mobility stays as it was validated.
+                                </div>
+                                <p t-elif="mobility.proposal_state == 'validated' and mobility.decision_note" class="small o_ems_erasmus_decision_note">
+                                    Comment from the Direction: <span style="white-space: pre-line;" t-esc="mobility.decision_note"/>
+                                </p>
+                                <p t-if="mobility.proposal_state == 'pending'" class="o_ems_erasmus_change_pending">
+                                    <i class="fa fa-hourglass-half me-1"/>The change you proposed is waiting for the Direction's validation. Until then, your mobility stays as it was validated.
+                                </p>
+                                <details t-if="mobility._ems_can_change_proposal()" class="mb-3 o_ems_erasmus_change">
+                                    <summary>Change the activity or the dates</summary>
+                                    <p class="small mt-2 mb-0">If the course, the host entity or the dates change, send the new proposal: the Direction validates it again.</p>
+                                    <t t-call="ems.portal_erasmus_proposal_form"/>
+                                </details>
+                            </t>
+                            <!-- Issue #697: the grant, what the centre pays out of it and the payments (art. 5). -->
+                            <t t-if="mobility.state in ('preparing', 'done') and mobility.grant_amount">
+                                <t t-set="currency_options" t-value="{'widget': 'monetary', 'display_currency': mobility.currency_id}"/>
+                                <t t-set="grant" t-value="mobility._ems_portal_grant()"/>
+                                <h6>Your grant</h6>
+                                <table class="table table-sm small mb-3 o_ems_erasmus_grant">
+                                    <tbody>
+                                        <tr><td>Erasmus+ grant</td><td class="text-end" t-out="mobility.grant_amount" t-options="currency_options"/></tr>
+                                        <tr t-foreach="grant[0]" t-as="provision">
+                                            <td>Paid by the centre: <t t-esc="provision[0]"/></td>
+                                            <td class="text-end">- <t t-out="provision[1]" t-options="currency_options"/></td>
+                                        </tr>
+                                        <tr class="fw-bold"><td>You receive</td><td class="text-end o_ems_erasmus_grant_net" t-out="mobility.grant_net" t-options="currency_options"/></tr>
+                                        <tr t-foreach="grant[1]" t-as="payment" class="text-muted">
+                                            <td><t t-esc="payment[0]"/>: <t t-esc="payment[1]"/><t t-if="payment[3]"> (<t t-out="payment[3]" t-options="{'widget': 'date'}"/>)</t></td>
+                                            <td class="text-end" t-out="payment[2]" t-options="currency_options"/>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_self_assessment_send">Send</button>
-                    </form>
-                    <details t-foreach="mobility.self_assessment_ids" t-as="assessment" class="small mb-1 o_ems_erasmus_self_assessment_sent">
-                        <summary><i class="fa fa-check text-success me-1"/>Week <t t-esc="assessment.week"/> (<t t-out="assessment.date_from" t-options="{'widget': 'date'}"/> - <t t-out="assessment.date_to" t-options="{'widget': 'date'}"/>)</summary>
-                        <div class="mt-2" t-out="assessment.answers_html"/>
-                    </details>
-                </t>
+                        <div t-attf-class="tab-pane #{'show active' if active_tab == 'record' else ''} o_ems_erasmus_tab_record" id="ems_erasmus_tab_record" role="tabpanel">
+                            <!-- The commitment letter (annex 3), accepted and signed in EMS. -->
+                            <t t-if="mobility.state in ('preparing', 'done') and (mobility.commitment_pending or mobility.commitment_signed_date)">
+                                <h6>Commitment letter</h6>
+                                <div t-if="mobility.commitment_signed_date" class="alert alert-success small o_ems_erasmus_commitment_signed">
+                                    <i class="fa fa-check-circle me-1"/>You accepted and signed it on
+                                    <t t-out="mobility.commitment_signed_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
+                                </div>
+                                <div t-if="mobility.commitment_guardian_pending" class="alert alert-warning small o_ems_erasmus_guardian_pending">
+                                    <i class="fa fa-exclamation-circle me-1"/>As you are a minor, your family has to sign it too, from its own access to the portal (Erasmus+).
+                                </div>
+                                <div t-elif="mobility.commitment_guardian_signed_date" class="alert alert-success small">
+                                    <i class="fa fa-check-circle me-1"/>Your family signed it on
+                                    <t t-out="mobility.commitment_guardian_signed_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
+                                </div>
+                                <form t-if="mobility.state == 'preparing' and mobility.commitment_pending" t-att-action="action + 'commitment'" method="post" class="mb-3 o_ems_erasmus_commitment">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <div class="border rounded p-3 mb-2 small" t-out="mobility._ems_commitment_text()"/>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" name="accepted" id="commitment_accepted" required="required"/>
+                                        <label class="form-check-label" for="commitment_accepted">I have read these commitments and I accept them.</label>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_commitment_sign">Accept and sign</button>
+                                </form>
+                            </t>
+                            <!-- A short blended document (the virtual component) is only shown when it is asked for. -->
+                            <t t-if="mobility.state in ('preparing', 'done') and mobility_documents">
+                                <h6>Documents</h6>
+                                <p class="small text-muted mb-2">
+                                    Sign them outside EMS as indicated and upload the signed copy, better as soon as you can: you will receive a reminder every week while any is missing.
+                                </p>
+                                <div t-if="record_todo" class="alert alert-warning py-2 small o_ems_erasmus_record_missing">
+                                    <i class="fa fa-exclamation-triangle me-1"/>Still to do now in your record: <strong t-esc="record_todo"/><t t-if="mobility.commitment_pending"> (the commitment letter included)</t>
+                                </div>
+                                <div t-elif="mobility_documents.filtered(lambda line: line.is_required and line.file_state != 'complete')" class="alert alert-info py-2 small o_ems_erasmus_record_waiting">
+                                    <i class="fa fa-clock-o me-1"/>Nothing to do now: the rest is uploaded by the Erasmus team or comes later.
+                                </div>
+                                <div t-else="" class="alert alert-success py-2 small o_ems_erasmus_record_complete">
+                                    <i class="fa fa-check me-1"/>Your record has every required document.
+                                </div>
+                                <form t-att-action="action + 'upload'" method="post" enctype="multipart/form-data" class="ems-loading-form o_ems_erasmus_mobility_documents">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <t t-foreach="record_categories" t-as="category">
+                                        <t t-set="category_lines" t-value="mobility_documents.filtered(lambda line: line.file_category == category[0])"/>
+                                        <!-- What is not due yet (the return documents before the end of the stay) is folded. -->
+                                        <t t-set="category_later" t-value="all(line.todo_state in ('not_yet', 'optional') for line in category_lines)"/>
+                                        <details t-if="category_lines" t-att-open="None if category_later else 'open'" class="o_ems_erasmus_record_category_block">
+                                        <summary class="fw-bold small mb-1 mt-2 o_ems_erasmus_record_category"><t t-esc="category[1]"/><span t-if="category_later" class="fw-normal text-muted"> - later</span></summary>
+                                        <ul class="list-group mb-2">
+                                        <li t-foreach="category_lines" t-as="line" class="list-group-item o_ems_erasmus_mobility_document">
+                                            <div class="d-flex justify-content-between flex-wrap gap-2">
+                                                <span>
+                                                    <strong t-esc="line.name"/>
+                                                    <span t-if="not line.is_required" class="small text-muted"> (optional)</span>
+                                                </span>
+                                                <span t-attf-class="badge o_ems_erasmus_file_state o_ems_erasmus_todo_#{line.todo_state} #{'text-bg-success' if line.todo_state == 'complete' else 'text-bg-danger' if line.todo_state in ('missing', 'needs_change') else 'text-bg-warning' if line.todo_state == 'to_review' else 'text-bg-light'}"
+                                                      t-esc="todo_state_labels.get(line.todo_state)"/>
+                                            </div>
+                                            <t t-set="line_open" t-value="line._ems_is_open()"/>
+                                            <p t-if="not line_open" class="small mb-1 o_ems_erasmus_document_not_open">
+                                                <i class="fa fa-clock-o me-1"/><t t-if="line.open_date">Available from <t t-out="line.open_date" t-options="{'widget': 'date'}"/>.</t>
+                                                <t t-else="">Available <t t-esc="line.call_document_id.open_days"/> days before leaving, once the dates of the stay are known.</t>
+                                            </p>
+                                            <p t-if="line.deadline" class="small mb-1">Deadline: <t t-out="line.deadline" t-options="{'widget': 'date'}"/></p>
+                                            <p t-if="line.signers" class="small mb-1 o_ems_erasmus_signers">Signed by:
+                                                <t t-foreach="line.sudo().signature_ids.filtered('is_required')" t-as="signature">
+                                                    <span t-attf-class="badge #{'text-bg-success' if signature.signed else 'text-bg-light'} o_ems_erasmus_signature">
+                                                        <i t-attf-class="fa #{'fa-check' if signature.signed else 'fa-clock-o'} me-1"/><t t-esc="signature._ems_label()"/>
+                                                    </span>
+                                                </t>
+                                            </p>
+                                            <t t-set="sign_url" t-value="line._ems_portal_sign_url(request.env.user.partner_id)"/>
+                                            <p t-if="sign_url" class="small mb-1"><a t-att-href="sign_url" class="btn btn-sm btn-primary o_ems_erasmus_sign"><i class="fa fa-pencil me-1"/>Sign it here</a></p>
+                                            <p t-if="line.prepared_attachment_ids" class="small mb-1"><t t-if="line.handled_by == 'team'">To download:</t><t t-else="">To download and sign:</t>
+                                                <t t-foreach="line.prepared_attachment_ids" t-as="prepared">
+                                                    <a t-attf-href="/my/erasmus/call/#{call.id}/mobility/file/#{prepared.id}" class="o_ems_erasmus_prepared_file" t-esc="prepared.name"/><t t-if="not prepared_last">, </t>
+                                                </t>
+                                            </p>
+                                            <!-- The document's own instructions already say it, when it has them. -->
+                                            <p t-elif="line.handled_by == 'team_to_sign' and not line.description" class="small text-muted mb-1">The Erasmus team will upload it filled in for you to sign.</p>
+                                            <p t-elif="line.handled_by == 'team' and not line.description" class="small text-muted mb-1">The Erasmus team will upload it for you.</p>
+                                            <p t-if="line.description" class="small text-muted mb-1" t-esc="line.description"/>
+                                            <p t-if="line.review_state == 'needs_change' and line.review_comment" class="small text-danger mb-1" t-esc="line.review_comment"/>
+                                            <p t-if="line.attachment_ids" class="small mb-1">Received:
+                                                <t t-foreach="line.attachment_ids" t-as="received">
+                                                    <a t-attf-href="/my/erasmus/call/#{call.id}/mobility/file/#{received.id}" class="o_ems_erasmus_received_file" t-esc="received.name"/>
+                                                    <span class="text-muted">(<t t-out="received.create_date" t-options="{'widget': 'date'}"/>)</span><t t-if="not received_last">, </t>
+                                                </t>
+                                            </p>
+                                            <t t-if="mobility.state == 'preparing' and line_open and line.review_state != 'valid' and line.handled_by != 'team' and (line.handled_by != 'team_to_sign' or line.prepared_attachment_ids)">
+                                                <p t-if="line.attachment_ids" class="small text-muted mb-1">Uploading again adds a new version: the earlier ones are kept.</p>
+                                                <input class="form-control form-control-sm" type="file"
+                                                       t-attf-name="document_#{line.call_document_id.id}" multiple="multiple"/>
+                                            </t>
+                                        </li>
+                                        </ul>
+                                        </details>
+                                    </t>
+                                    <button t-if="mobility.state == 'preparing'" type="submit" class="btn btn-primary btn-sm o_ems_erasmus_mobility_upload">Upload the documents</button>
+                                </form>
+                            </t>
+                        </div>
+                        <div t-attf-class="tab-pane #{'show active' if active_tab == 'steps' else ''} o_ems_erasmus_tab_steps" id="ems_erasmus_tab_steps" role="tabpanel">
+                            <t t-if="mobility.state in ('preparing', 'done') and steps">
+                                <ul class="list-unstyled small o_ems_erasmus_mobility_tasks">
+                                    <li t-foreach="steps" t-as="task">
+                                        <i t-attf-class="fa #{'fa-check-square-o text-success' if task.done else 'fa-square-o'} me-1"/>
+                                        <t t-esc="task.name"/><span class="text-muted"> - <t t-if="task.stage == 'return'">On return</t><t t-else="">Before leaving</t></span>
+                                        <span t-if="task.description" class="d-block text-muted ms-3" t-esc="task.description"/>
+                                    </li>
+                                </ul>
+                            </t>
 
+                        </div>
+                        <div t-attf-class="tab-pane #{'show active' if active_tab == 'stay' else ''} o_ems_erasmus_tab_stay" id="ems_erasmus_tab_stay" role="tabpanel">
+                            <!-- Issue #697: during the stay, the weekly self-assessment of the weeks already begun. -->
+                            <t t-if="open_weeks or mobility.self_assessment_ids">
+                                <h6>Weekly self-assessment</h6>
+                                <p class="small text-muted mb-2">Every week, think about what you have done and learned. The Erasmus team reads it, and it is kept in your record.</p>
+                                <form t-foreach="open_weeks" t-as="week" t-att-action="action + 'self_assessment'" method="post" class="border rounded p-3 mb-2 o_ems_erasmus_self_assessment">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <input type="hidden" name="week" t-att-value="week[0]"/>
+                                    <p class="fw-bold mb-2">Week <t t-esc="week[0]"/> (<t t-out="week[1]" t-options="{'widget': 'date'}"/> - <t t-out="week[2]" t-options="{'widget': 'date'}"/>)</p>
+                                    <div t-foreach="mobility.call_id.self_assessment_question_ids" t-as="question" class="mb-2">
+                                        <label class="form-label small" t-attf-for="question_#{week[0]}_#{question.id}" t-esc="question.name"/>
+                                        <select t-if="question.kind == 'rating'" class="form-select form-select-sm" t-attf-name="question_#{question.id}" t-attf-id="question_#{week[0]}_#{question.id}" required="required">
+                                            <option value=""/>
+                                            <option t-foreach="range(1, 6)" t-as="score" t-att-value="score" t-esc="score"/>
+                                        </select>
+                                        <textarea t-else="" class="form-control form-control-sm" rows="2" t-attf-name="question_#{question.id}" t-attf-id="question_#{week[0]}_#{question.id}" required="required"/>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_self_assessment_send">Send</button>
+                                </form>
+                                <details t-foreach="mobility.self_assessment_ids" t-as="assessment" class="small mb-1 o_ems_erasmus_self_assessment_sent">
+                                    <summary><i class="fa fa-check text-success me-1"/>Week <t t-esc="assessment.week"/> (<t t-out="assessment.date_from" t-options="{'widget': 'date'}"/> - <t t-out="assessment.date_to" t-options="{'widget': 'date'}"/>)</summary>
+                                    <div class="mt-2" t-out="assessment.answers_html"/>
+                                </details>
+                            </t>
+
+                        </div>
+                        <div t-attf-class="tab-pane #{'show active' if active_tab == 'return' else ''} o_ems_erasmus_tab_return" id="ems_erasmus_tab_return" role="tabpanel">
+                            <!-- Audit D-8: once the stay is over, the EU Survey; the participant says when it is answered. -->
+                            <t t-if="mobility._ems_eu_survey_open() or mobility.eu_survey_state != 'pending'">
+                                <h6>EU Survey</h6>
+                                <div t-if="mobility.eu_survey_state == 'validated'" class="alert alert-success py-2 small o_ems_erasmus_eu_survey_validated">
+                                    <i class="fa fa-check me-1"/>EU Survey answered and checked by the Erasmus team.
+                                </div>
+                                <div t-elif="mobility.eu_survey_state == 'done'" class="alert alert-info py-2 small o_ems_erasmus_eu_survey_done">
+                                    <i class="fa fa-clock-o me-1"/>EU Survey answered: the Erasmus team will check it.
+                                </div>
+                                <form t-else="" t-att-action="action + 'eu_survey'" method="post" class="alert alert-warning py-2 small o_ems_erasmus_eu_survey">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <p class="mb-2"><i class="fa fa-exclamation-triangle me-1"/>Answer the EU Survey, the final report of the European Commission: you receive the link by email from the European Commission.
+                                        <t t-if="mobility.eu_survey_deadline">Deadline: <t t-out="mobility.eu_survey_deadline" t-options="{'widget': 'date'}"/>.</t></p>
+                                    <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_eu_survey_answered">I have answered it</button>
+                                </form>
+                            </t>
+
+                        </div>
+                    </div>
+                </t>
                 <!-- Staff: the absence for training EMS requested for the validated dates. -->
                 <div t-if="mobility.leave_id and mobility.leave_id.state not in ('refuse', 'cancel')" class="alert alert-info mt-3 mb-0 o_ems_erasmus_leave_requested">
                     <i class="fa fa-calendar-check-o me-1"/>Your absence for training has been requested; whoever approves your absences will decide on it.
@@ -688,6 +840,13 @@
         <form t-att-action="action + 'propose'" method="post" enctype="multipart/form-data" class="mt-2 ems-loading-form o_ems_erasmus_propose">
             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
             <p t-if="mobility.audience == 'student'" class="small">You find the host company or entity yourself, with its written commitment to take you; the entity must also write to the Erasmus coordination. The Erasmus team validates it.</p>
+            <!-- adriamt, 2026-11-03: the two proposals of the application, to fill in the exact one here. -->
+            <t t-set="proposals" t-value="mobility.audience == 'staff' and mobility.sudo().application_id"/>
+            <div t-if="proposals and proposals.proposal_a" class="alert alert-light small mb-2 o_ems_erasmus_backup_proposal">
+                <i class="fa fa-life-ring me-1"/>Your proposals in the application. <strong>A:</strong> <t t-esc="proposals.proposal_a"/>
+                <t t-if="proposals.proposal_b"><br/><strong>B (backup):</strong> <t t-esc="proposals.proposal_b"/></t>
+                <br/>Write here the one you go with, with the exact entity and dates.
+            </div>
             <div t-if="mobility.audience == 'staff'" class="mb-2">
                 <label class="form-label" for="proposal_activity">Activity</label>
                 <select class="form-select" name="proposal_activity" id="proposal_activity" required="required">

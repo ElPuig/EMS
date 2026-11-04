@@ -452,6 +452,20 @@ class TestErasmusMobility(ErasmusMobilityCase):
         policy.prepared_attachment_ids = False
         self.assertFalse(first.preparation_complete, "Not ready to leave without the policy.")
 
+    def test_only_what_the_participant_has_to_do_now_is_missing(self):
+        """The issue-#682 review: before the destination nothing is due; then a document the team
+        uploads waits for the team, and a return document waits for the end of the stay."""
+        first, _second = self._accepted()
+        self.assertEqual(set(first.document_ids.filtered('is_required').mapped('todo_state')) - {'waiting_team'},
+                         {'not_yet'}, "Choosing the destination: nothing is due yet.")
+        self._destinations(2)
+        self.call.action_open_destination_choice()
+        states = {line.name: line.todo_state for line in first.document_ids}
+        self.assertEqual(states['Insurance policy'], 'waiting_team')
+        self.assertEqual(states['Grant agreement'], 'waiting_team', "Filled in by the team before it is signed.")
+        self.assertEqual(states['European Health Insurance Card'], 'missing')
+        self.assertEqual(states['Certificate of stay'], 'waiting_team')
+
     def test_project_of_the_modality_kind(self):
         first, _second = self._accepted()
         vet, hed = self.env['ems.erasmus.project'].create([
@@ -525,8 +539,8 @@ class ErasmusStaffMobilityCase(ErasmusStaffCase):
 
     def _accepted_staff(self):
         applications = self._admitted(0), self._admitted(1)
-        applications[0].write({'staff_activity': 'job_shadowing', 'host_entity': 'Test VET School',
-                               'destination': 'Porto', 'preferred_dates': 'June 2027'})
+        applications[0].write({'proposal_a': 'Job shadowing at the Test VET School, Porto (Portugal), June 2027',
+                               'proposal_b': 'An English course in Malta, July 2027'})
         self.staff_call.action_close()
         self.staff_call.action_send_to_panel()
         for application, last in zip(applications, ('never', 'older')):
@@ -541,8 +555,9 @@ class ErasmusStaffMobilityCase(ErasmusStaffCase):
         return applications[0].mobility_ids
 
     def _send_proposal(self, mobility, declaration=True, **values):
-        mobility._ems_portal_propose({'proposal_activity': mobility.proposal_activity,
-                                      'proposal_host': mobility.proposal_host, 'proposal_city': mobility.proposal_city,
+        mobility._ems_portal_propose({'proposal_activity': mobility.proposal_activity or 'job_shadowing',
+                                      'proposal_host': mobility.proposal_host or 'Test VET School',
+                                      'proposal_city': mobility.proposal_city or 'Porto',
                                       'proposal_country_id': self.env.ref('base.pt').id,
                                       'proposal_date_start': '2027-06-14', 'proposal_date_end': '2027-06-18', **values},
                                      declaration=declaration)
@@ -551,11 +566,59 @@ class ErasmusStaffMobilityCase(ErasmusStaffCase):
 @tagged('post_install', '-at_install')
 class TestErasmusStaffMobility(ErasmusStaffMobilityCase):
 
+    def test_staff_get_a_to_do_instead_of_the_weekly_email(self):
+        """adriamt, 2026-11-03: staff get one to-do of their own with what is missing, refreshed every
+        week and gone once nothing is; no weekly email (students keep it: they only have the portal)."""
+        mobility = self._accepted_staff()
+        self._send_proposal(mobility)
+        mobility.with_user(self.director_user).action_validate_proposal()
+        self.assertEqual(mobility.state, 'preparing')
+        user = mobility.application_id.employee_id.user_id
+        activity_type = self.env.ref('ems.mail_activity_erasmus_documents')
+
+        def tasks():
+            return self.env['mail.activity'].search([('activity_type_id', '=', activity_type.id),
+                                                     ('res_model', '=', 'res.partner'),
+                                                     ('res_id', '=', mobility.partner_id.id)])
+
+        def mails():
+            return self.env['mail.mail'].search([('model', '=', mobility._name), ('res_id', '=', mobility.id),
+                                                 ('subject', 'ilike', 'document')])
+        before = mails()
+        self.env['ems.erasmus.mobility']._cron_remind_documents()
+        task = tasks()
+        self.assertEqual((len(task), task.user_id), (1, user))
+        missing = mobility._ems_documents_to_correct()
+        self.assertTrue(missing)
+        self.assertIn(missing[0].name, task.note)
+        self.assertEqual(mails(), before, "No weekly email for staff.")
+        self.env['ems.erasmus.mobility']._cron_remind_documents()
+        self.assertEqual(tasks(), task, "The same to-do, refreshed.")
+        mobility._ems_portal_upload({line.call_document_id.id: [('doc.pdf', PDF)] for line in missing})
+        if mobility.commitment_pending:
+            mobility.action_sign_commitment(True, '127.0.0.1')
+        self.env['ems.erasmus.mobility']._cron_remind_documents()
+        self.assertFalse(tasks(), "Nothing left: the to-do goes away.")
+
+    def test_validating_never_adds_a_confidential_document_twice(self):
+        """The Direction doesn't see the health card (confidential): validating the proposal from
+        its own request (an empty cache) used to add it again."""
+        mobility = self._accepted_staff()
+        self._send_proposal(mobility)
+        documents = mobility.document_ids
+        self.assertIn(True, documents.mapped('confidential'))
+        self.env.invalidate_all()
+        mobility.with_user(self.director_user).action_validate_proposal()
+        self.assertEqual(mobility.document_ids, documents)
+
     def test_staff_complete_their_proposal_with_the_dates_for_the_direction(self):
         mobility = self._accepted_staff()
         self.assertEqual((mobility.state, mobility.proposal_state), ('choosing', False))
-        self.assertEqual((mobility.proposal_activity, mobility.proposal_host, mobility.proposal_city,
-                          mobility.proposal_notes), ('job_shadowing', 'Test VET School', 'Porto', 'June 2027'))
+        # The 2026-11-03 review: the application's two proposals, in the teacher's words, in the notes,
+        # and the country named in A; the exact entity and dates are written now.
+        self.assertIn('Test VET School', mobility.proposal_notes)
+        self.assertIn('English course in Malta', mobility.proposal_notes)
+        self.assertEqual(mobility.proposal_country_id, self.env.ref('base.pt'))
         self.assertFalse(mobility.activity_ids, "Nothing to validate until the proposal is sent.")
         with self.assertRaises(UserError):
             self._send_proposal(mobility, proposal_date_start=False)
@@ -641,6 +704,22 @@ class TestErasmusStaffMobility(ErasmusStaffMobilityCase):
         mobility.with_user(self.erasmus_user).cancel_reason = 'Cannot go'
         mobility.with_user(self.erasmus_user).action_cancel()
         self.assertFalse(leave.exists(), "A request not decided yet is withdrawn with the mobility.")
+
+    def test_the_proposal_takes_the_country_written_in_the_application(self):
+        application = self._admitted(0)
+        application.proposal_a = 'A course in Porto, Portugal'
+        mobility = self.env['ems.erasmus.mobility']._ems_create_for(application)
+        self.assertEqual(mobility.proposal_country_id, self.env.ref('base.pt'))
+        self.assertFalse(self.env['ems.erasmus.mobility']._ems_country_in('Somewhere nice'))
+
+    def test_the_direction_reads_no_score_until_the_panel_has_rated(self):
+        application = self._admitted(0)
+        self.staff_call.action_close()
+        self.staff_call.action_send_to_panel()
+        self.assertTrue(application.with_user(self.hos_user).scores_hidden)
+        self.assertFalse(application.with_user(self.erasmus_user).scores_hidden)
+        self._rate(application, '1', '1')
+        self.assertFalse(application.with_user(self.hos_user).scores_hidden)
 
     def test_the_modality_assigned_later_brings_its_documents(self):
         only_june = self.env['ems.erasmus.call.document'].create({

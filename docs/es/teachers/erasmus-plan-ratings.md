@@ -12,9 +12,9 @@ Como miembro del tribunal de la convocatoria Erasmus+ del personal, valoras en E
 
 ## 1. Encontrar los planes
 
-Cuando el equipo Erasmus envía los planes al tribunal, recibes una tarea en EMS para cada uno, que vence el plazo para corregir puntuaciones de la convocatoria (dos semanas después del cierre). Sale en el resumen diario de tareas pendientes hasta que la hagas. Aparece el menú **Erasmus+**, con **Mis valoraciones de planes**: los planes que tienes asignados.
+Cuando el equipo Erasmus envía los planes al tribunal, recibes una tarea en EMS para cada uno, que vence el plazo para corregir puntuaciones de la convocatoria (dos semanas después del cierre). Sale en el resumen diario de tareas pendientes hasta que la hagas. En el menú **Erasmus+** tienes **Mi participación > Mis valoraciones de planes**: los planes que tienes asignados.
 
-Cada valoración muestra en pantalla el **plan de movilidad y transferencia** de la persona candidata, tal como lo escribió en el formulario de solicitud: actividad, entidad de acogida o curso, destino, fechas, el motivo de la elección, los objetivos y la aplicación al trabajo. No ves nada más de la solicitud. La difusión no se valora: es la misma obligación para todo el mundo.
+Cada valoración muestra en pantalla el **plan de movilidad y transferencia** de la persona candidata, tal como lo escribió en el formulario de solicitud: la propuesta A (la principal) y la propuesta B (la de reserva), con sus palabras, y qué quiere aprender y cómo lo aplicará al trabajo. Valora las dos propuestas juntas, con una sola puntuación. No ves nada más de la solicitud. La difusión no se valora: es la misma obligación para todo el mundo.
 
 ## 2. Valorar la rúbrica
 
@@ -29,11 +29,11 @@ Puedes escribir tus notas en **Notas del evaluador**.
 
 ## 3. Enviarla
 
-Haz clic en **Acciones > Enviar**. Hasta el **plazo para corregir puntuaciones** de la convocatoria puedes **Reabrirla** y cambiarla; después, si hay un error, avisa al equipo Erasmus.
+Haz clic en **Acciones > Enviar**, o en **Acciones > Enviar y siguiente** para enviarla y abrir el siguiente plan que aún tienes que valorar. Hasta el **plazo para corregir puntuaciones** de la convocatoria puedes **Reabrirla** y cambiarla; después, si hay un error, avisa al equipo Erasmus.
 
-**Si te presentas a la convocatoria, o tienes un conflicto de intereses con una persona candidata**, no valoras: avisa al equipo Erasmus, que registrará la abstención. La puntuación del plan es la media del resto de miembros.
+**Si te presentas a la convocatoria, o tienes un conflicto de intereses con una persona candidata**, no valoras: avisa al equipo Erasmus, que registrará la abstención: la valoración aparece como *Abstención*. La puntuación del plan es la media del resto de miembros.
 
-**Tu valoración es independiente:** como miembro de la dirección puedes abrir las solicitudes del personal, pero ves sus puntos a 0 hasta que no se han valorado todos los planes de la convocatoria, de modo que nunca ves la media de los demás miembros antes de dar la tuya.
+**Tu valoración es independiente:** como miembro de la dirección puedes abrir las solicitudes del personal, pero la pestaña **Baremación** indica que los puntos están ocultos hasta que no se han valorado todos los planes de la convocatoria, de modo que nunca ves la media de los demás miembros antes de dar la tuya.
 
 ---
 

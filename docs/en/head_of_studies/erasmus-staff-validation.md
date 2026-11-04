@@ -10,7 +10,7 @@ The staff call says that the Direction validates the activity, the host entity o
 
 ---
 
-1. When a staff member sends their proposal with the exact dates, you get a to-do. Go to **Erasmus+ > Mobilities** and use the **Proposal to validate** filter.
+1. When a staff member sends their proposal with the exact dates, you get a to-do. Go to **Erasmus+ > Mobilities > Pending validation**: it lists the proposals waiting for a decision.
 2. Open the mobility and check the **Proposal** tab: activity, host entity or course, contact, country, city, dates and notes.
 3. To validate it, you can write a **Comment on the decision** (optional: the staff member reads it) and click **Actions > Validate the proposal**. The mobility moves to *Preparing* with those dates, the Erasmus team prepares it with the staff member, and EMS requests their absence for training for those days, with the responsible declaration they gave with the proposal.
 4. If you don't validate it, write the **Comment on the decision** first and click **Actions > Reject the proposal**. The staff member receives the reason by email and proposes another activity on the portal; you get a new to-do.
@@ -18,6 +18,8 @@ The staff call says that the Direction validates the activity, the host entity o
 **A change after validating it:** until the mobility starts, the staff member can propose another course, host entity or dates on the portal (or the Erasmus team changes them and clicks **Actions > Ask the Direction to validate it again**). You get a new to-do and validate or reject it as above. Until you decide, the mobility stays as it was validated; if you validate it, the dates and the absence for training follow the new proposal.
 
 EMS records who decided and when. You can read the rest of the mobility, but the Erasmus team manages it.
+
+While the panel is still rating the plans, a staff application's **Scoring** tab says the points are hidden until the panel has rated every plan of the call: no member sees the others' marks before giving theirs. The place offers and the claims are not in your menu: if you need them, open them from the call.
 
 ---
 

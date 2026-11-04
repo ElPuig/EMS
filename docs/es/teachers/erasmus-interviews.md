@@ -12,13 +12,13 @@ Cuando el equipo Erasmus te pide que valores la entrevista de un candidato, la p
 
 ## 1. Encontrar tus entrevistas
 
-Cuando se te asigna una entrevista, recibes una tarea en EMS. Aparece el menú **Erasmus+**, con **Mis evaluaciones**: las entrevistas que tienes asignadas, con el candidato, la fecha y el lugar.
+Cuando se te asigna una entrevista, recibes una tarea en EMS. Cuando el equipo Erasmus programa muchas entrevistas a la vez, recibes un solo aviso con toda la lista (día y hora, lugar y candidato) en lugar de un correo por entrevista. En el menú **Erasmus+** tienes **Mi participación > Mis evaluaciones**: las entrevistas que tienes asignadas, con el candidato, la fecha y el lugar.
 
-Solo ves tus entrevistas. No ves la puntuación de la otra persona evaluadora ni el resto de la solicitud del candidato.
+La lista muestra los totales cuando ya has enviado cada entrevista. Solo ves tus entrevistas. No ves la puntuación de la otra persona evaluadora ni el resto de la solicitud del candidato.
 
 ## 2. Puntuar la rúbrica
 
-Abre la entrevista y puntúa cada criterio de 0 a 5. Pasa el ratón por encima de cada criterio para ver sus descriptores (anexo 4 de la convocatoria); puedes poner una puntuación intermedia cuando la respuesta queda entre dos niveles.
+Abre la entrevista y puntúa cada criterio de 0 a 5. Los descriptores de la rúbrica (anexo 4 de la convocatoria) aparecen escritos debajo de cada criterio, para que puedas puntuar durante la entrevista; puedes poner una puntuación intermedia cuando la respuesta queda entre dos niveles.
 
 | Parte | Criterios | Máximo |
 |---|---|---|
@@ -29,7 +29,7 @@ Puedes escribir tus observaciones en **Notas del evaluador**.
 
 ## 3. Enviarla
 
-Haz clic en **Acciones > Enviar** cuando tengas todos los criterios puntuados. La tarea queda hecha.
+Haz clic en **Acciones > Enviar** cuando tengas todos los criterios puntuados. La tarea queda hecha. **Acciones > Enviar y siguiente** la envía y abre la siguiente entrevista que aún tienes que puntuar.
 
 Hasta el **plazo para corregir puntuaciones** de la convocatoria puedes **Reabrirla** y cambiarla. Pasado el plazo ya no se puede modificar: si hay un error, avisa al equipo Erasmus.
 

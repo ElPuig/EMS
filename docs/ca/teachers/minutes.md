@@ -159,9 +159,9 @@ persones; es pot triar qualsevol altra escrivint-ne el nom o amb **Cerca més**.
 
 
 Quan l'acta estigui llesta, **Accions → Enviar a aprovar**. Un diàleg us demana que ho confirmeu i ofereix **Envia
-també l'esborrany als participants**, marcat: el personal que hi ha assistit rep un correu amb un enllaç al PDF de
-l'esborrany, i els convidats de fora de l'EMS que hi han vingut el reben adjunt en PDF, perquè el puguin revisar ara
-que tenen fresca la reunió i respondre amb qualsevol correcció abans que s'aprovi. Mentre es fa la reunió o l'acta
+també l'esborrany als participants**, marcat. El rep tothom qui estava convocat, hi hagi assistit o no: el personal,
+un correu amb un enllaç al PDF de l'esborrany; els convidats de fora de l'EMS, el PDF adjunt. Així el poden revisar
+ara que tenen fresca la reunió i respondre amb qualsevol correcció abans que s'aprovi. Mentre es fa la reunió o l'acta
 espera l'aprovació, **Accions → Envia l'esborrany als participants** el torna a enviar (per exemple, després d'una
 correcció).
 

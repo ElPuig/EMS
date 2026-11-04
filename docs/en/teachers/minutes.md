@@ -158,9 +158,9 @@ shows those people first; anybody else can be chosen by typing their name or wit
 
 
 When the minute is ready, **Actions → Send for approval**. A dialog asks you to confirm it and offers **Also send the
-draft to the participants**, ticked: the staff who attended get an email with a link to the draft's PDF, and the guests
-from outside EMS who came get the PDF attached, so they can review it while the meeting is fresh and reply with any
-correction before it is approved. While the meeting is held or the minute waits for approval, **Actions → Send the
+draft to the participants**, ticked. Everybody convened gets it, whether they came or not: the staff, an email with a
+link to the draft's PDF; the guests from outside EMS, the PDF attached. That way they can review it while the meeting
+is fresh and reply with any correction before it is approved. While the meeting is held or the minute waits for approval, **Actions → Send the
 draft to the participants** sends it again (for instance, after a correction).
 
 Whoever gives the approval finds it on their own screen

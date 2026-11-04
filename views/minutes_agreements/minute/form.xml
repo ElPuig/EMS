@@ -32,7 +32,7 @@
                                     confirm="The record is sent to whoever approves it, and can no longer be written until it comes back. Send it?"/>
                             <button name="action_send_draft" string="Send the draft to the participants" type="object"
                                     invisible="not can_edit or state not in ('meeting', 'to_approve') or type_kind == 'record'"
-                                    confirm="The staff who attended will get a link to the draft's PDF, and the guests who came will get it attached. Send it?"/>
+                                    confirm="Everybody convened, whether they came or not, will get it: the staff, a link to the draft's PDF; the guests, the PDF attached. Send it?"/>
                             <!-- Only for whoever gives the approval (can_approve), not for whoever can edit. -->
                             <button name="action_approve" string="Approve" type="object" invisible="not can_approve or state != 'to_approve'"
                                     confirm="Once approved, the minute can no longer be changed and its PDF is filed. Approve it?"/>

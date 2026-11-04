@@ -28887,8 +28887,8 @@ msgstr "L'aprovarà"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_submit_wizard_form
-msgid "None of the people who attended has an email address: the draft cannot be sent to them."
-msgstr "Cap de les persones que hi han assistit té adreça de correu: no se'ls pot enviar l'esborrany."
+msgid "None of the people convened has an email address: the draft cannot be sent to them."
+msgstr "Cap de les persones convocades té adreça de correu: no se'ls pot enviar l'esborrany."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute_submit_wizard__recipient_count
@@ -28939,16 +28939,16 @@ msgstr "El registre s'envia a qui l'ha d'aprovar i ja no es pot redactar fins qu
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_minute_submit_wizard__send_draft
-msgid "The staff who attended get a link to the draft's PDF, and the guests from outside EMS who came get it attached, so they can review it while the meeting is fresh."
-msgstr "El personal que hi ha assistit rep un enllaç al PDF de l'esborrany, i els convidats de fora de l'EMS que hi han vingut el reben adjunt, perquè el puguin revisar ara que tenen fresca la reunió."
+msgid "Everybody convened, whether they came or not: the staff get a link to the draft's PDF, and the guests from outside EMS get it attached, so they can review it while the meeting is fresh."
+msgstr "Tothom qui estava convocat, hi hagi assistit o no: el personal rep un enllaç al PDF de l'esborrany, i els convidats de fora de l'EMS el reben adjunt, perquè el puguin revisar ara que tenen fresca la reunió."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
-msgid "The staff who attended will get a link to the draft's PDF, and the guests who came will get it attached. Send it?"
-msgstr "El personal que hi ha assistit rebrà un enllaç al PDF de l'esborrany, i els convidats que hi han vingut el rebran adjunt. L'envieu?"
+msgid "Everybody convened, whether they came or not, will get it: the staff, a link to the draft's PDF; the guests, the PDF attached. Send it?"
+msgstr "El rebrà tothom qui estava convocat, hi hagi assistit o no: el personal, un enllaç al PDF de l'esborrany; els convidats, el PDF adjunt. L'envieu?"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/quality/minute.py:0
-msgid "There is nobody to send the draft to: none of the people who attended has an email address."
-msgstr "No hi ha ningú a qui enviar l'esborrany: cap de les persones que hi han assistit té adreça de correu."
+msgid "There is nobody to send the draft to: none of the people convened has an email address."
+msgstr "No hi ha ningú a qui enviar l'esborrany: cap de les persones convocades té adreça de correu."

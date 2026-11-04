@@ -159,9 +159,9 @@ primero a esas personas; se puede elegir a cualquier otra escribiendo su nombre 
 
 
 Cuando el acta esté lista, **Acciones → Enviar a aprobar**. Un diálogo os pide que lo confirméis y ofrece **Enviar
-también el borrador a los participantes**, marcado: el personal que ha asistido recibe un correo con un enlace al PDF
-del borrador, y los invitados de fuera de EMS que han venido lo reciben adjunto en PDF, para que puedan revisarlo
-ahora que tienen fresca la reunión y responder con cualquier corrección antes de que se apruebe. Mientras se celebra
+también el borrador a los participantes**, marcado. Lo recibe todo el mundo que estaba convocado, haya asistido o
+no: el personal, un correo con un enlace al PDF del borrador; los invitados de fuera de EMS, el PDF adjunto. Así
+pueden revisarlo ahora que tienen fresca la reunión y responder con cualquier corrección antes de que se apruebe. Mientras se celebra
 la reunión o el acta espera la aprobación, **Acciones → Enviar el borrador a los participantes** lo vuelve a enviar
 (por ejemplo, después de una corrección).
 

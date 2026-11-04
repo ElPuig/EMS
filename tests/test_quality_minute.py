@@ -548,31 +548,31 @@ class TestQualityMinute(TransactionCase):
         return self.env['mail.mail'].sudo().search([('model', '=', 'ems.minute'), ('res_id', '=', minute.id),
                                                     ('subject', 'like', 'Draft minute')])
 
-    def test_the_draft_goes_to_whoever_attended(self):
+    def test_the_draft_goes_to_everybody_convened(self):
         minute = self._held_minute()
         minute.with_user(self.user).action_send_draft()
         mails = self._draft_mails(minute)
         staff = mails.filtered(lambda mail: 'minute.writer@example.com' in mail.email_to)
         self.assertEqual(len(staff), 1)
-        self.assertNotIn('minute.absent@example.com', staff.email_to, "not to whoever was absent")
+        self.assertIn('minute.absent@example.com', staff.email_to, "whoever was absent gets it too")
         self.assertIn(f'/report/pdf/ems.report_minute/{minute.id}', staff.body_html, "the staff get the link to the draft's PDF")
         self.assertFalse(staff.attachment_ids)
         guest = mails.filtered(lambda mail: 'ana.guest@example.com' in mail.email_to)
         self.assertEqual(len(guest), 1, "a guest gets a message of their own")
         self.assertEqual(guest.attachment_ids.mimetype, 'application/pdf', "with the PDF attached, having no account")
         self.assertNotIn('/report/pdf', guest.body_html)
-        self.assertFalse(mails.filtered(lambda mail: 'pau.away@example.com' in mail.email_to), "not to a guest who did not come")
-        self.assertTrue(minute.message_ids.filtered(lambda message: 'Draft sent to 2 people' in (message.body or '')))
+        self.assertTrue(mails.filtered(lambda mail: 'pau.away@example.com' in mail.email_to), "and so does a guest who did not come")
+        self.assertTrue(minute.message_ids.filtered(lambda message: 'Draft sent to 4 people' in (message.body or '')))
 
     def test_the_draft_is_sent_with_the_minute_for_approval(self):
         minute = self._held_minute()
         wizard = self.env['ems.minute.submit.wizard'].with_user(self.user).create({'minute_id': minute.id, 'send_draft': True})
-        self.assertEqual(wizard.recipient_count, 2)
+        self.assertEqual(wizard.recipient_count, 4)
         wizard.action_confirm()
         self.assertEqual(minute.state, 'to_approve')
-        self.assertEqual(len(self._draft_mails(minute)), 2)
+        self.assertEqual(len(self._draft_mails(minute)), 3, "one for the staff, one per guest")
         minute.with_user(self.user).action_send_draft()
-        self.assertEqual(len(self._draft_mails(minute)), 4, "and again while it waits for approval")
+        self.assertEqual(len(self._draft_mails(minute)), 6, "and again while it waits for approval")
 
     def test_sending_for_approval_without_the_draft(self):
         minute = self._held_minute()

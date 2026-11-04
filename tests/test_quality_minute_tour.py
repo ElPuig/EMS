@@ -94,7 +94,7 @@ class TestQualityMinuteTour(HttpCase):
         self.assertIn('New words and more', minute.agenda_ids[1].notes)
 
     def test_send_for_approval_with_the_draft_tour(self):
-        """Issue #755: sending a minute for approval offers to send its draft to whoever attended;
+        """Issue #755: sending a minute for approval offers to send its draft to everybody convened;
         afterwards it can be sent again from the Actions."""
         writer = self.env['hr.employee.public'].browse(self.user.employee_id.id)
         minute = self.env['ems.minute'].create({

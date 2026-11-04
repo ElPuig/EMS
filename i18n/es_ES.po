@@ -28892,8 +28892,8 @@ msgstr "La aprobará"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_submit_wizard_form
-msgid "None of the people who attended has an email address: the draft cannot be sent to them."
-msgstr "Ninguna de las personas que han asistido tiene dirección de correo: no se les puede enviar el borrador."
+msgid "None of the people convened has an email address: the draft cannot be sent to them."
+msgstr "Ninguna de las personas convocadas tiene dirección de correo: no se les puede enviar el borrador."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute_submit_wizard__recipient_count
@@ -28944,16 +28944,16 @@ msgstr "El registro se envía a quien debe aprobarlo y ya no se puede redactar h
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_minute_submit_wizard__send_draft
-msgid "The staff who attended get a link to the draft's PDF, and the guests from outside EMS who came get it attached, so they can review it while the meeting is fresh."
-msgstr "El personal que ha asistido recibe un enlace al PDF del borrador, y los invitados de fuera de EMS que han venido lo reciben adjunto, para que puedan revisarlo ahora que tienen fresca la reunión."
+msgid "Everybody convened, whether they came or not: the staff get a link to the draft's PDF, and the guests from outside EMS get it attached, so they can review it while the meeting is fresh."
+msgstr "Todo el mundo que estaba convocado, haya asistido o no: el personal recibe un enlace al PDF del borrador, y los invitados de fuera de EMS lo reciben adjunto, para que puedan revisarlo ahora que tienen fresca la reunión."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
-msgid "The staff who attended will get a link to the draft's PDF, and the guests who came will get it attached. Send it?"
-msgstr "El personal que ha asistido recibirá un enlace al PDF del borrador, y los invitados que han venido lo recibirán adjunto. ¿Lo enviáis?"
+msgid "Everybody convened, whether they came or not, will get it: the staff, a link to the draft's PDF; the guests, the PDF attached. Send it?"
+msgstr "Lo recibirá todo el mundo que estaba convocado, haya asistido o no: el personal, un enlace al PDF del borrador; los invitados, el PDF adjunto. ¿Lo enviáis?"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/quality/minute.py:0
-msgid "There is nobody to send the draft to: none of the people who attended has an email address."
-msgstr "No hay nadie a quien enviar el borrador: ninguna de las personas que han asistido tiene dirección de correo."
+msgid "There is nobody to send the draft to: none of the people convened has an email address."
+msgstr "No hay nadie a quien enviar el borrador: ninguna de las personas convocadas tiene dirección de correo."

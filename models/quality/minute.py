@@ -795,11 +795,11 @@ class EmsMinute(models.Model):
     # --- Draft for the participants (issue #755) -------------------------------------------------
 
     def _ems_draft_recipients(self):
-        """Who reviews the draft: the staff who attended, with an email address, and the guests
-        from outside EMS who came and have one."""
+        """Who reviews the draft: everybody convened, whether they came or not - the staff with an
+        email address (attendees and absentees) and the guests from outside EMS who have one."""
         self.ensure_one()
-        return (self.attendee_ids.filtered('work_email'),
-                self.guest_ids.filtered(lambda guest: guest.attended and guest.email))
+        return ((self.attendee_ids | self.absentee_ids).filtered('work_email'),
+                self.guest_ids.filtered('email'))
 
     def action_open_submit_dialog(self):
         """Send for approval from a dialog that also offers to send the draft to the participants,
@@ -807,8 +807,6 @@ class EmsMinute(models.Model):
         straight away (action_submit)."""
         self.ensure_one()
         self.check_access('write')
-        # Who attended, as sending it will record it: with the NFC tag, whoever passed it.
-        self._ems_sync_attendance()
         staff, guests = self._ems_draft_recipients()
         return {
             'type': 'ir.actions.act_window',
@@ -820,7 +818,7 @@ class EmsMinute(models.Model):
         }
 
     def action_send_draft(self):
-        """Email the draft to the participants, so they can review it before it is approved: the
+        """Email the draft to everybody convened, so they can review it before it is approved: the
         staff get a link to its PDF, always as the minute stands (they open it with their EMS
         account); the guests, who have none, get the PDF attached in a message of their own. It
         can be sent again whenever the draft changes."""
@@ -828,10 +826,9 @@ class EmsMinute(models.Model):
         self.check_access('write')
         if self.state not in ('meeting', 'to_approve') or self.type_kind == 'record':
             raise UserError(_("The draft can only be sent while the meeting is held or its minute waits for approval."))
-        self._ems_sync_attendance()
         staff, guests = self._ems_draft_recipients()
         if not staff and not guests:
-            raise UserError(_("There is nobody to send the draft to: none of the people who attended has an email address."))
+            raise UserError(_("There is nobody to send the draft to: none of the people convened has an email address."))
         minute = self.with_context(lang=self._ems_centre_lang())
         subject = minute.env._("Draft minute: %(name)s (%(date)s)", name=minute.name, date=format_date(minute.env, minute.date))
         values = {
@@ -1105,8 +1102,8 @@ class EmsMinuteSubmitWizard(models.TransientModel):
     minute_id = fields.Many2one(string="Minute", comodel_name="ems.minute", required=True, ondelete='cascade')
     send_draft = fields.Boolean(
         string="Also send the draft to the participants",
-        help="The staff who attended get a link to the draft's PDF, and the guests from outside EMS who came get it attached, "
-             "so they can review it while the meeting is fresh.")
+        help="Everybody convened, whether they came or not: the staff get a link to the draft's PDF, and the guests from "
+             "outside EMS get it attached, so they can review it while the meeting is fresh.")
     recipient_count = fields.Integer(string="Participants with an email address", compute="_compute_recipient_count")
 
     @api.depends('minute_id')

@@ -1,8 +1,8 @@
 # What's new
 
 ## Draft of the minute for the participants:
-- Sending a minute for approval opens a dialog that offers, ticked, to also send its draft to the participants: the staff who attended get an email with a link to the draft's PDF (always as the minute stands), and the guests from outside EMS who came get the PDF attached in a message of their own. They review it while the meeting is fresh and reply with corrections before it is approved.
-- While the meeting is held or the minute waits for approval, Actions → "Send the draft to the participants" sends it again. Attendance taken with the NFC tag is synced first, so it goes to whoever actually attended; the minute's history records how many people got it.
+- Sending a minute for approval opens a dialog that offers, ticked, to also send its draft to everybody convened, whether they came or not: the staff get an email with a link to the draft's PDF (always as the minute stands), and the guests from outside EMS get the PDF attached in a message of their own. They review it while the meeting is fresh and reply with corrections before it is approved.
+- While the meeting is held or the minute waits for approval, Actions → "Send the draft to the participants" sends it again; the minute's history records how many people got it.
 
 # Fixes
 

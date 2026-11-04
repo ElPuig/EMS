@@ -12,7 +12,7 @@
                     <field name="recipient_count" invisible="1"/>
                     <field name="send_draft" invisible="not recipient_count"/>
                 </group>
-                <p class="text-muted" invisible="recipient_count">None of the people who attended has an email address: the draft cannot be sent to them.</p>
+                <p class="text-muted" invisible="recipient_count">None of the people convened has an email address: the draft cannot be sent to them.</p>
                 <footer>
                     <button name="action_confirm" string="Send for approval" type="object" class="btn-primary"/>
                     <button string="Cancel" special="cancel" class="btn-secondary"/>

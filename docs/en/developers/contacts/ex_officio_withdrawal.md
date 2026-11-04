@@ -202,6 +202,31 @@ Measured on the dev database (~62k lines, 556 students, 2026-11-04): the query 5
 first run opening 8 proposals 0.43 s, an hourly run finding nothing new 48 ms. The existing indexes
 are enough.
 
+## Roll-calls during the case file (phase 6)
+
+A roll-call of the case file's days (from the first day of absence on) that says otherwise becomes
+an `ems.ex_officio_withdrawal.review` (case file, roll-call line, `kind`, `state`), one per line and
+kind (`line_kind_unique`). `_ems_collect_reviews()` finds them in one search over the lines of every
+open case file, only from **sessions already over** (a line is *attended* by default until its
+teacher takes the roll-call). It runs hourly with the detection, when a case file is created and
+when its first day of absence changes. A pending review whose line no longer says so (the teacher
+corrected the roll-call, or the first day of absence moved past it) is removed.
+
+| `kind` | Line | What happens | The tutor's buttons |
+|---|---|---|---|
+| `attendance` | attended, minor delay, issue, severe delay | Task *Check an attendance* to the tutor; the case file stops: Start, Accept and Process the withdrawal are refused (`_ems_check_no_attendance_pending()`, `attendance_pending`) | **They did come** (`action_came_back`): cancelled `came_back`. **It was a mistake** (`action_mark_absent`): the line becomes a miss (sudo), with a note naming the case file and who corrected it |
+| `justification` | justified miss | Task *Review justified absences*; nothing stops | **Close: the absences are justified** (`action_cancel_justified`): cancelled `justified`. **Go on** (`action_keep_justified`): reviews `kept` |
+
+Applies to proposals too, so a case file opened by hand with attendances after its first day of
+absence can't start until they are checked (or the first day moves past them). Who reviews:
+`can_review` = `_ems_user_acts_as('tutor')` (the tutor scope, the Head of Studies, the
+administrators), checked again on the server; everybody else sees a one-line notice while an
+attendance is pending. `_ems_sync_review_tasks()` keeps one task per kind while any is pending and
+removes it once none is. A correction to a miss goes through the line's own `write()`, so the
+attendance notifications behave as when a teacher corrects the roll-call.
+
+Measured on the dev database (11 open case files, 2026-11-04): 37 ms cold.
+
 ## Emails, texts to copy and the case file PDF (phase 3)
 
 - **Emails to the family** (`mails/contacts/ex_officio_withdrawal.xml`, `FAMILY_TEMPLATES` per circuit and step):

@@ -122,3 +122,35 @@ class TestExOfficioWithdrawalTour(HttpCase):
         self.start_tour(f"/odoo/action-ems.action_ex_officio_withdrawal/{case_file.id}",
                         "ems_ex_officio_withdrawal_direction_close", login=director.login)
         self.assertEqual((case_file.state, case_file.cancel_reason), ('cancelled', 'came_back'))
+
+    def test_tutor_checks_an_attendance(self):
+        """Phase 6: a roll-call says the student came yesterday; it was a mistake."""
+        today = shift_ems_clock(self).date()
+        case_file = self.env['ems.ex_officio_withdrawal'].create({
+            'student_id': self.student.id, 'first_absence_date': today - timedelta(days=10)})
+        case_file.action_start()
+        study = self.student.main_group_id.study_id
+        subject = self.env['ems.subject'].create({
+            'code': 'TEOWT001', 'acronym': 'TEOWT', 'name': 'EOW Tour Subject', 'study_ids': [(6, 0, study.ids)]})
+        space = self.env['ems.space'].create({
+            'code': 'TEOWT-A', 'name': 'EOW Tour Space', 'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id})
+        teacher = self.student.main_group_id.tutor_id
+        template = self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, teacher.ids)], 'study_ids': [(6, 0, study.ids)], 'subject_id': subject.id,
+            'group_ids': [(6, 0, self.student.main_group_id.ids)],
+            'start_date': date(2020, 1, 1), 'end_date': date(2045, 12, 31)})
+        yesterday = today - timedelta(days=1)
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': str(yesterday.weekday()), 'start_time': 9.0,
+            'end_time': 10.0, 'space_id': space.id, 'student_ids': [(6, 0, self.student.ids)]})
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': schedule.id, 'date': yesterday, 'mode': 'scheduled',
+            'session_teacher_id': teacher.id, 'attendance_session_line_ids': [(0, 0, {
+                'student_id': self.student.id, 'status_id': self.env.ref('ems.attendance_status_attended').id})]})
+        case_file._ems_collect_reviews()
+        self.assertTrue(case_file.attendance_pending)
+        self.start_tour(f"/odoo/action-ems.action_ex_officio_withdrawal/{case_file.id}",
+                        "ems_ex_officio_withdrawal_attendance_check", login=self.tutor_user.login)
+        self.assertFalse(case_file.attendance_pending)
+        self.assertEqual(session.attendance_session_line_ids.status_id, self.env.ref('ems.attendance_status_miss'))

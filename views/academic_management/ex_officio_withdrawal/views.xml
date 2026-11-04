@@ -51,7 +51,7 @@
                     <header>
                         <div name="ems_actions" string="Actions">
                             <button name="action_start" type="object" string="Start the procedure"
-                                    class="btn-primary" invisible="not can_decide_proposal"
+                                    class="btn-primary" invisible="not can_decide_proposal or attendance_pending"
                                     help="Creates the circuit's steps, each with its deadline."/>
                             <button name="action_open_dismiss_wizard" type="object" string="Dismiss"
                                     invisible="not can_decide_proposal"/>
@@ -66,7 +66,7 @@
                                     invisible="not can_close_without_withdrawal"
                                     help="Direction does not give the green light: the student came back or justified the absences."/>
                             <button name="action_accept_step" type="object" string="Accept and continue"
-                                    class="btn-primary" invisible="not can_accept_step or not current_step_open or current_step_code == 'withdrawal'"
+                                    class="btn-primary" invisible="not can_accept_step or not current_step_open or current_step_code == 'withdrawal' or attendance_pending"
                                     help="Closes the current step, once what it asks for is ticked, and hands the case file over to the next one."/>
                         </div>
                         <field name="state" widget="statusbar" statusbar_visible="proposal,in_progress,direction,secretariat,done"/>
@@ -78,6 +78,9 @@
                         <field name="current_step_code" invisible="1"/>
                         <field name="can_process_withdrawal" invisible="1"/>
                         <field name="can_close_without_withdrawal" invisible="1"/>
+                        <field name="attendance_pending" invisible="1"/>
+                        <field name="justification_pending" invisible="1"/>
+                        <field name="can_review" invisible="1"/>
                         <div class="oe_title">
                             <h1><field name="name" placeholder="New case file"/></h1>
                         </div>
@@ -105,6 +108,51 @@
                         <!-- Whose turn it is, for everybody but the current step's responsible. -->
                         <div class="alert alert-info" role="status" invisible="not waiting_message">
                             <field name="waiting_message" nolabel="1"/>
+                        </div>
+                        <!-- Phase 6: the roll-calls of the case file's days that say otherwise. An
+                             attendance stops the case file until the tutor checks it; justified
+                             absences are reviewed, without stopping it. -->
+                        <div name="attendance_review" class="alert alert-warning" role="alert" invisible="not attendance_pending">
+                            <p class="mb-0" invisible="can_review">
+                                The roll-calls say the student attended: the case file waits until their tutor checks it.
+                            </p>
+                            <div invisible="not can_review">
+                                <p class="mb-2">
+                                    <strong>The roll-calls say the student attended.</strong> Check it with the teachers:
+                                    if they came, the case file closes; if it was a mistake, the roll-call becomes an
+                                    absence. The case file does not go on until every one is checked.
+                                </p>
+                                <field name="attendance_review_ids" nolabel="1" readonly="1">
+                                    <list create="0" delete="0">
+                                        <field name="date"/>
+                                        <field name="session_label"/>
+                                        <field name="status_id"/>
+                                        <button name="action_came_back" type="object" string="They did come" icon="fa-check"
+                                                class="btn-link" confirm="The case file closes: the student is back."/>
+                                        <button name="action_mark_absent" type="object" string="It was a mistake" icon="fa-times"
+                                                class="btn-link" confirm="The roll-call becomes an absence."/>
+                                    </list>
+                                </field>
+                            </div>
+                        </div>
+                        <div name="justification_review" class="alert alert-info" role="status"
+                             invisible="not justification_pending or not can_review">
+                            <p class="mb-2">
+                                <strong>Some absences of the case file have been justified.</strong> Decide whether they
+                                explain the absence (the case file closes) or the case file goes on as it was.
+                            </p>
+                            <field name="justification_review_ids" nolabel="1" readonly="1">
+                                <list create="0" delete="0">
+                                    <field name="date"/>
+                                    <field name="session_label"/>
+                                </list>
+                            </field>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button name="action_cancel_justified" type="object" class="btn-secondary"
+                                        string="Close: the absences are justified"
+                                        confirm="The case file closes: the absences are justified."/>
+                                <button name="action_keep_justified" type="object" class="btn-secondary" string="Go on"/>
+                            </div>
                         </div>
                         <!-- The current step's responsible: what to do and by when, each action to
                              confirm with its day (saved in as many goes as needed) and the notes. -->

@@ -1882,6 +1882,7 @@ msgstr "Quantitat d'adjunts"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__attendance_id
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 #: model:ir.model.fields,field_description:ems.field_ems_minute__attendance_mode
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_review__kind__attendance
 msgid "Attendance"
 msgstr "Assistència"
 
@@ -2944,6 +2945,7 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -3021,6 +3023,7 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3384,6 +3387,7 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -4714,6 +4718,7 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__id
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__id
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__id
 msgid "ID"
 msgstr "ID"
 
@@ -5248,6 +5253,7 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -5325,6 +5331,7 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -6483,6 +6490,7 @@ msgstr "Pla de pagament"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__pending_count model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence_line__state__pending model_terms:ir.ui.view,arch_db:ems.report_meeting_presence
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_tutor__status__pending
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_review__state__pending
 msgid "Pending"
 msgstr "Pendent"
 
@@ -7561,6 +7569,7 @@ msgstr "Producte de servei"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__attendance_session_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__attendance_schedule_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__attendance_session_id model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_attendance_report_group_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_student_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_subject_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__attendance_schedule_id
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__session_label
 msgid "Session"
 msgstr "Sessió"
 
@@ -7784,6 +7793,7 @@ msgstr "Iniciant procés en segon pla; rebràs una notificació en finalitzar (p
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__state
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_search
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__state
 msgid "State"
 msgstr "Estat"
 
@@ -7801,6 +7811,7 @@ msgstr "Estat / Província"
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__state
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__state
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__status_id
 msgid "Status"
 msgstr "Estat"
 
@@ -10607,6 +10618,7 @@ msgstr "Això expulsa immediatament els estudiants seleccionats. Vols continuar?
 #: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__exit_kind
 #: model:ir.model.fields,field_description:ems.field_ems_quality_process__kind
 #: model:ir.model.fields,field_description:ems.field_ems_minute__type_kind model:ir.model.fields,field_description:ems.field_ems_minute_section__kind model:ir.model.fields,field_description:ems.field_ems_minute_section_value__kind model:ir.model.fields,field_description:ems.field_ems_minute_type__kind model:ir.model.fields,field_description:ems.field_ems_minute_type_section__kind
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__kind
 msgid "Kind"
 msgstr "Tipus"
 
@@ -14099,6 +14111,7 @@ msgstr "Formació: cursos, Erasmus, ..."
 
 #. module: ems
 #: model:hr.leave.type,name:ems.leave_type_justified
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_review__kind__justification
 msgid "Justified absence"
 msgstr "Absència justificada"
 
@@ -19995,6 +20008,7 @@ msgstr "sessió(ns) de l'horari personalitzat d'aquest alumne ja no consten a l'
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__date
 msgid "Day"
 msgstr "Dia"
 
@@ -27272,6 +27286,7 @@ msgstr "Encara deixa %s sense docent: un cop aplicada, triareu el docent de guà
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__roll_call_label
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__line_id
 msgid "Roll-call"
 msgstr "Passar llista"
 
@@ -28853,6 +28868,7 @@ msgstr "Motiu de cancel·lació"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__withdrawal_id
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__withdrawal_id
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__withdrawal_id
 msgid "Case file"
 msgstr "Expedient"
 
@@ -30284,3 +30300,242 @@ msgstr "EMS: detecció de baixes d'ofici"
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "Detected in the roll-calls: %(count)s school days in a row without attending, from %(first)s to %(last)s."
 msgstr "Detectat als passis de llista: %(count)s dies lectius seguits sense assistir-hi, del %(first)s al %(last)s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid ""
+"<strong>Some absences of the case file have been justified.</strong> Decide whether they\n"
+"                                explain the absence (the case file closes) or the case file goes on as it was."
+msgstr ""
+"<strong>S'han justificat faltes de l'expedient.</strong> Decidiu si "
+"expliquen l'absència (l'expedient es tanca) o si l'expedient continua com "
+"estava."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid ""
+"<strong>The roll-calls say the student attended.</strong> Check it with the teachers:\n"
+"                                    if they came, the case file closes; if it was a mistake, the roll-call becomes an\n"
+"                                    absence. The case file does not go on until every one is checked."
+msgstr ""
+"<strong>Els passis de llista diuen que l'alumne hi ha assistit.</strong> "
+"Comproveu-ho amb el professorat: si va venir, l'expedient es tanca; si va "
+"ser un error, el passi de llista passa a ser una falta. L'expedient no "
+"continua fins que no s'han comprovat totes."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_ex_officio_withdrawal_review_line_kind_unique
+msgid "A roll-call is reviewed once per case file."
+msgstr "Un passi de llista es revisa una sola vegada per expedient."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Absences justified on %(days)s."
+msgstr "Faltes justificades el %(days)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid ""
+"Absences justified on %(days)s: their tutor reviews whether the case file "
+"goes on."
+msgstr ""
+"Faltes justificades el %(days)s: el tutor revisa si l'expedient continua."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__attendance_pending
+msgid "An attendance to check"
+msgstr "Assistència per comprovar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__attendance_review_ids
+msgid "Attendances to check"
+msgstr "Assistències per comprovar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__can_review
+msgid "Can review the roll-calls"
+msgstr "Pot revisar els passis de llista"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Cancelled by the tutor: %(note)s"
+msgstr "Cancel·lat pel tutor: %(note)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Check an attendance"
+msgstr "Comprovar una assistència"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_ex_officio_withdrawal_attendance
+msgid "Check an attendance (ex officio withdrawal)"
+msgstr "Comprovar una assistència"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "Close: the absences are justified"
+msgstr "Tancar: les faltes estan justificades"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_review__state__corrected
+msgid "Corrected to an absence"
+msgstr "Corregit a falta"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid ""
+"Corrected to an absence by %(user)s on %(day)s, from the ex officio "
+"withdrawal case file %(name)s."
+msgstr "Corregit a falta"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_ex_officio_withdrawal_review
+msgid "Ex officio withdrawal: a roll-call to review"
+msgstr "Baixa d'ofici: un passi de llista per revisar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "Go on"
+msgstr "Continuar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "It was a mistake"
+msgstr "Va ser un error"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__justification_pending
+msgid "Justified absences pending review"
+msgstr "Faltes justificades pendents de revisar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__justification_review_ids
+msgid "Justified absences to review"
+msgstr "Faltes justificades per revisar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid ""
+"Only the student's tutor, the people above them and the Head of Studies can "
+"review the roll-calls of this case file."
+msgstr ""
+"Només el tutor de l'alumne, els seus superiors i el cap d'estudis poden "
+"revisar els passis de llista d'aquest expedient."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "Review justified absences"
+msgstr "Revisar faltes justificades"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_ex_officio_withdrawal_justification
+msgid "Review justified absences (ex officio withdrawal)"
+msgstr "Revisar faltes justificades"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_review__state__cancelled_case
+msgid "Reviewed, the case file closed"
+msgstr "Revisat, l'expedient es va tancar"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_review__state__kept
+msgid "Reviewed, the case file goes on"
+msgstr "Revisat, l'expedient continua"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__review_ids
+msgid "Roll-calls to review"
+msgstr "Passis de llista per revisar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "The case file closes: the absences are justified."
+msgstr "L'expedient es tanca: les faltes estan justificades."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "The case file closes: the student is back."
+msgstr "L'expedient es tanca: l'alumne ha tornat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "The roll-call becomes an absence."
+msgstr "El passi de llista passa a ser una falta."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid ""
+"The roll-call of %(day)s (%(session)s) was a mistake: corrected to an "
+"absence."
+msgstr ""
+"El passi de llista del %(day)s (%(session)s) va ser un error: s'ha corregit "
+"a falta."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid ""
+"The roll-calls say %(student)s attended: their tutor has to check it before "
+"the case file goes on."
+msgstr ""
+"Els passis de llista diuen que %(student)s hi ha assistit: el tutor ho ha de"
+" comprovar abans que l'expedient continuï."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid ""
+"The roll-calls say the student attended on %(days)s: their tutor has to "
+"check it, and the case file does not go on meanwhile."
+msgstr ""
+"Els passis de llista diuen que l'alumne hi va assistir el %(days)s: el tutor"
+" ho ha de comprovar, i mentrestant l'expedient no continua."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid ""
+"The roll-calls say the student attended: the case file waits until their "
+"tutor checks it."
+msgstr ""
+"Els passis de llista diuen que l'alumne hi ha assistit: l'expedient espera "
+"que el tutor ho comprovi."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_review__state__came_back
+msgid "The student came"
+msgstr "L'alumne va venir"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "The student came on %(day)s (%(session)s)."
+msgstr "L'alumne va venir"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid ""
+"The tutor reviewed the absences justified on %(days)s: the case file goes "
+"on."
+msgstr ""
+"El tutor ha revisat les faltes justificades el %(days)s: l'expedient "
+"continua."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
+msgid "They did come"
+msgstr "Sí que va venir"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
+msgid "This attendance has already been checked."
+msgstr "Aquesta assistència ja s'ha comprovat."

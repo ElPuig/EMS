@@ -173,6 +173,9 @@ CASE_FILE_REPORT = 'ems.action_report_ex_officio_withdrawal'
 
 PROPOSAL_TASK = 'ems.mail_activity_ex_officio_withdrawal_proposal'
 STEP_TASK = 'ems.mail_activity_ex_officio_withdrawal_step'
+# The tutor's tasks while a roll-call of the case file's days waits for them (phase 6).
+REVIEW_TASKS = {'attendance': 'ems.mail_activity_ex_officio_withdrawal_attendance',
+                'justification': 'ems.mail_activity_ex_officio_withdrawal_justification'}
 
 # A school-day deadline never reaches further than this many calendar days per school day
 # (weekends plus the longest break), the window the holidays are read for in one search.
@@ -228,6 +231,20 @@ class EmsExOfficioWithdrawal(models.Model):
     cancel_note = fields.Text(string="Cancel note", readonly=True, copy=False)
     # The day it was withdrawn or cancelled: detection only counts the days after it.
     closed_date = fields.Date(string="Closed on", readonly=True, copy=False)
+    # Roll-calls since the first day of absence that say otherwise (phase 6): attendances the
+    # tutor checks (nothing goes on meanwhile) and justified absences the tutor reviews.
+    review_ids = fields.One2many(string="Roll-calls to review", comodel_name='ems.ex_officio_withdrawal.review',
+                                 inverse_name='withdrawal_id')
+    attendance_review_ids = fields.One2many(string="Attendances to check", comodel_name='ems.ex_officio_withdrawal.review',
+                                            inverse_name='withdrawal_id',
+                                            domain=[('kind', '=', 'attendance'), ('state', '=', 'pending')])
+    justification_review_ids = fields.One2many(string="Justified absences to review",
+                                               comodel_name='ems.ex_officio_withdrawal.review',
+                                               inverse_name='withdrawal_id',
+                                               domain=[('kind', '=', 'justification'), ('state', '=', 'pending')])
+    attendance_pending = fields.Boolean(string="An attendance to check", compute='_compute_review_pending')
+    justification_pending = fields.Boolean(string="Justified absences pending review", compute='_compute_review_pending')
+    can_review = fields.Boolean(string="Can review the roll-calls", compute='_compute_can_review')
     step_ids = fields.One2many(string="Steps", comodel_name='ems.ex_officio_withdrawal.step',
                                inverse_name='withdrawal_id')
     current_step_id = fields.Many2one(string="Current step", comodel_name='ems.ex_officio_withdrawal.step',
@@ -301,13 +318,14 @@ class EmsExOfficioWithdrawal(models.Model):
             withdrawal.can_accept_step = (withdrawal.state in STARTED_STATES and bool(step)
                                           and withdrawal._ems_user_acts_as(step.responsible))
 
-    @api.depends('state', 'current_step_id', 'step_ids.check_ids.done')
+    @api.depends('state', 'current_step_id', 'step_ids.check_ids.done', 'review_ids.state')
     @api.depends_context('uid')
     def _compute_can_process_withdrawal(self):
         for withdrawal in self:
             step = withdrawal.current_step_id
             open_step = withdrawal.can_accept_step and withdrawal._ems_current_step_open()
             withdrawal.can_process_withdrawal = open_step and step.code == 'withdrawal' \
+                and not withdrawal.attendance_pending \
                 and all(step.check_ids.mapped('done'))
             withdrawal.can_close_without_withdrawal = open_step and step.code == 'direction_approval'
 
@@ -476,6 +494,20 @@ class EmsExOfficioWithdrawal(models.Model):
         for withdrawal in self:
             withdrawal.student_domain = str(domain)
 
+    @api.depends('review_ids.kind', 'review_ids.state')
+    def _compute_review_pending(self):
+        for withdrawal in self:
+            pending = withdrawal.sudo().review_ids.filtered(lambda review: review.state == 'pending')
+            withdrawal.attendance_pending = 'attendance' in pending.mapped('kind')
+            withdrawal.justification_pending = 'justification' in pending.mapped('kind')
+
+    @api.depends('state')
+    @api.depends_context('uid')
+    def _compute_can_review(self):
+        """Whoever may do the tutor's step: the tutor scope, the Head of Studies, the administrators."""
+        for withdrawal in self:
+            withdrawal.can_review = withdrawal.state in OPEN_STATES and withdrawal._ems_user_acts_as('tutor')
+
     @api.model
     def _ems_circuit_student_domain(self):
         """The students whose level follows a protocol."""
@@ -508,6 +540,7 @@ class EmsExOfficioWithdrawal(models.Model):
                 'ems.ex_officio_withdrawal', "Ex officio withdrawals", 'BO', withdrawal.course_id)
             withdrawal._ems_schedule_task(PROPOSAL_TASK, withdrawal._ems_responsible_users('tutor'),
                                           self.env['ems.datetime_utils'].get_local_today())
+        withdrawals._ems_collect_reviews()
         return withdrawals
 
     def write(self, vals):
@@ -518,11 +551,15 @@ class EmsExOfficioWithdrawal(models.Model):
                 raise UserError(_("The first day of absence can only change while the case file is a proposal."))
         if vals.get('state') in ('done', 'cancelled') and 'closed_date' not in vals:
             vals = dict(vals, closed_date=self.env['ems.datetime_utils'].get_local_today())
-        return super().write(vals)
+        result = super().write(vals)
+        if 'first_absence_date' in vals:
+            self._ems_collect_reviews()
+        return result
 
     def action_start(self):
         """Start the procedure: the circuit's steps are created with their deadlines."""
         self._ems_check_can_decide_proposal()
+        self._ems_check_no_attendance_pending()
         Step = self.env['ems.ex_officio_withdrawal.step'].sudo()
         for withdrawal in self:
             Step.create([{
@@ -562,6 +599,7 @@ class EmsExOfficioWithdrawal(models.Model):
         asks for ticked. Done late, it moves the following steps so the protocol's waits are kept
         (counted from today, the day it is accepted). The next step's task is scheduled on its day."""
         today = self.env['ems.datetime_utils'].get_local_today()
+        self._ems_check_no_attendance_pending()
         for withdrawal in self:
             step = withdrawal.current_step_id
             if not withdrawal.can_accept_step:
@@ -680,6 +718,7 @@ class EmsExOfficioWithdrawal(models.Model):
         the first of them as the first day of absence; the tutor decides on it. Only up to
         yesterday, so a day still being taken never counts; hourly and idempotent (a student with
         an open case file is skipped), so the proposal is the tutor's task shortly after midnight."""
+        self.sudo().search([('state', 'in', OPEN_STATES)])._ems_collect_reviews()
         today = self.env['ems.datetime_utils'].get_local_today()
         runs = self._ems_absence_runs(today - timedelta(days=DETECTION_WINDOW_DAYS), today - timedelta(days=1))
         detected = {student_id: days for student_id, days in runs.items() if len(days) >= DETECTION_DAYS}
@@ -744,6 +783,101 @@ class EmsExOfficioWithdrawal(models.Model):
                 runs[student_id] = days
         return runs
 
+    def _ems_collect_reviews(self):
+        """The roll-calls of these case files' days that say otherwise, from sessions already over
+        (a line is 'attended' until its teacher takes the roll-call): every attendance (a delay
+        too) becomes one the tutor checks, every justified absence one the tutor reviews. A pending
+        one whose line no longer says so (the teacher corrected the roll-call) goes away. One search
+        over the lines of every case file. Hourly with the detection, and when a case file is opened
+        or its first day of absence changes."""
+        withdrawals = self.sudo().filtered(lambda withdrawal: withdrawal.state in OPEN_STATES)
+        if not withdrawals:
+            return
+        justified = self.env.ref('ems.attendance_status_justified')
+        statuses = self.env['ems.attendance_status'].search([
+            '|', ('category', '=', 'assistance'), ('id', 'in', [self.env.ref('ems.attendance_status_delayed_severe').id,
+                                                                 justified.id])])
+        lines = self.env['ems.attendance_session_line'].sudo().search([
+            ('student_id', 'in', withdrawals.student_id.ids), ('status_id', 'in', statuses.ids),
+            ('date', '>=', min(withdrawals.mapped('first_absence_date'))),
+            ('active', '=', True), ('session_active', '=', True),
+            ('attendance_session_id.end_date', '<=', fields.Datetime.now())])
+        by_student = {withdrawal.student_id.id: withdrawal for withdrawal in withdrawals}
+        Review = self.env['ems.ex_officio_withdrawal.review'].sudo()
+        existing = Review.search([('withdrawal_id', 'in', withdrawals.ids)])
+        known = {(review.withdrawal_id.id, review.line_id.id, review.kind) for review in existing}
+        wanted, new_vals = set(), []
+        for line in lines:
+            withdrawal = by_student[line.student_id.id]
+            if line.date < withdrawal.first_absence_date:
+                continue
+            key = (withdrawal.id, line.id, 'justification' if line.status_id == justified else 'attendance')
+            wanted.add(key)
+            if key not in known:
+                new_vals.append({'withdrawal_id': key[0], 'line_id': key[1], 'kind': key[2]})
+        existing.filtered(lambda review: review.state == 'pending' and (
+            review.withdrawal_id.id, review.line_id.id, review.kind) not in wanted).unlink()
+        new = Review.create(new_vals)
+        for withdrawal in new.withdrawal_id:
+            mine = new.filtered(lambda review: review.withdrawal_id == withdrawal)
+            attended = mine.filtered(lambda review: review.kind == 'attendance')
+            if attended:
+                withdrawal._message_log(body=_(
+                    "The roll-calls say the student attended on %(days)s: their tutor has to check it, and the case "
+                    "file does not go on meanwhile.", days=attended._ems_days()))
+            if mine - attended:
+                withdrawal._message_log(body=_(
+                    "Absences justified on %(days)s: their tutor reviews whether the case file goes on.",
+                    days=(mine - attended)._ems_days()))
+        withdrawals._ems_sync_review_tasks()
+
+    def _ems_sync_review_tasks(self):
+        """The tutor has a task to check the attendances (or review the justified absences) while
+        any is pending, and none once they are all done."""
+        today = self.env['ems.datetime_utils'].get_local_today()
+        for withdrawal in self.sudo().filtered(lambda record: record.state in OPEN_STATES):
+            pending = set(withdrawal.review_ids.filtered(lambda review: review.state == 'pending').mapped('kind'))
+            for kind, xmlid in REVIEW_TASKS.items():
+                task_type = self.env.ref(xmlid)
+                tasks = withdrawal.activity_ids.filtered(lambda activity: activity.activity_type_id == task_type)
+                if kind in pending and not tasks:
+                    withdrawal._ems_schedule_task(xmlid, withdrawal._ems_responsible_users('tutor'), today, kind=kind)
+                elif kind not in pending:
+                    tasks.unlink()
+
+    def _ems_check_can_review(self):
+        for withdrawal in self:
+            if not withdrawal.can_review:
+                raise UserError(_("Only the student's tutor, the people above them and the Head of Studies can "
+                                  "review the roll-calls of this case file."))
+
+    def _ems_check_no_attendance_pending(self):
+        for withdrawal in self:
+            if withdrawal.attendance_pending:
+                raise UserError(_("The roll-calls say %(student)s attended: their tutor has to check it before the "
+                                  "case file goes on.", student=withdrawal.student_id.display_name))
+
+    def action_cancel_justified(self):
+        """The tutor reviews the justified absences: they explain the absence, the case file closes."""
+        self.ensure_one()
+        self._ems_check_can_review()
+        days = self.justification_review_ids._ems_days()
+        note = _("Absences justified on %(days)s.", days=days)
+        self.justification_review_ids.sudo().state = 'cancelled_case'
+        self.sudo().write({'state': 'cancelled', 'cancel_reason': 'justified', 'cancel_note': note})
+        self._ems_close_tasks()
+        self._message_log(body=_("Cancelled by the tutor: %(note)s", note=note))
+
+    def action_keep_justified(self):
+        """The tutor reviews the justified absences: the case file goes on as it was."""
+        self.ensure_one()
+        self._ems_check_can_review()
+        days = self.justification_review_ids._ems_days()
+        self.justification_review_ids.sudo().state = 'kept'
+        self._ems_sync_review_tasks()
+        self._message_log(body=_("The tutor reviewed the absences justified on %(days)s: the case file goes on.",
+                                 days=days))
+
     def _ems_move_on(self):
         """Bring started case files up to date with their current step: the state it belongs to,
         and its responsible's task once its day has come."""
@@ -793,26 +927,30 @@ class EmsExOfficioWithdrawal(models.Model):
             return user.has_group('ems.group_secretary')
         return user.has_group('ems.group_director')
 
-    def _ems_schedule_task(self, xmlid, users, deadline, step=None):
+    def _ems_schedule_task(self, xmlid, users, deadline, step=None, kind=None):
         """A task in each user's to-do list, its summary in their language: the step's (or the
         proposal's) name and the student. mail_activity_quick_update: the task itself is the
         notice, Odoo's "X has assigned you an activity" email would be a second one."""
         self.ensure_one()
         for user in users:
             withdrawal = self.sudo().with_context(lang=user.lang, mail_activity_quick_update=True)
-            withdrawal.activity_schedule(act_type_xmlid=xmlid, summary=withdrawal._ems_task_summary(step),
+            withdrawal.activity_schedule(act_type_xmlid=xmlid, summary=withdrawal._ems_task_summary(step, kind),
                                          user_id=user.id, date_deadline=deadline)
 
-    def _ems_task_summary(self, step):
-        if step:
+    def _ems_task_summary(self, step, kind=None):
+        if kind:
+            label = {'attendance': _("Check an attendance"), 'justification': _("Review justified absences")}[kind]
+        elif step:
             label = dict(step._fields['code']._description_selection(self.env))[step.code]
         else:
             label = _("Ex officio withdrawal proposal")
         return f"{label}: {self.student_id.display_name}"
 
     def _ems_close_tasks(self):
-        """Drop every pending proposal or step task: what had to be done is done."""
+        """Drop every pending task of the case file: what had to be done is done."""
         task_types = self.env.ref(PROPOSAL_TASK) | self.env.ref(STEP_TASK)
+        for xmlid in REVIEW_TASKS.values():
+            task_types |= self.env.ref(xmlid)
         self.sudo().activity_ids.filtered(lambda activity: activity.activity_type_id in task_types).unlink()
 
     def _ems_user_manages(self):
@@ -1080,6 +1218,84 @@ class EmsExOfficioWithdrawalCheck(models.Model):
             if self.filtered('by_button'):
                 raise UserError(_("This is ticked from the buttons of the step, not by hand."))
         return super().write(vals)
+
+
+class EmsExOfficioWithdrawalReview(models.Model):
+    """A roll-call of a case file's days that says otherwise (issue #726, phase 6): the student
+    attended (the tutor checks whether they came back or it was a mistake), or the absence was
+    justified (the tutor reviews whether the case file goes on). Created by the case file itself
+    (_ems_collect_reviews), changed only by its buttons (sudo)."""
+    _name = 'ems.ex_officio_withdrawal.review'
+    _description = "Ex officio withdrawal: a roll-call to review"
+    _order = 'date, id'
+
+    withdrawal_id = fields.Many2one(string="Case file", comodel_name='ems.ex_officio_withdrawal', required=True,
+                                    ondelete='cascade', index=True)
+    line_id = fields.Many2one(string="Roll-call", comodel_name='ems.attendance_session_line', required=True,
+                              ondelete='cascade')
+    kind = fields.Selection(string="Kind", required=True, selection=[
+        ('attendance', 'Attendance'),
+        ('justification', 'Justified absence'),
+    ])
+    state = fields.Selection(string="State", default='pending', required=True, selection=[
+        ('pending', 'Pending'),
+        ('came_back', 'The student came'),
+        ('corrected', 'Corrected to an absence'),
+        ('kept', 'Reviewed, the case file goes on'),
+        ('cancelled_case', 'Reviewed, the case file closed'),
+    ])
+    date = fields.Date(string="Day", related='line_id.date', store=True)
+    session_label = fields.Char(string="Session", compute='_compute_session_label')
+    status_id = fields.Many2one(string="Status", related='line_id.status_id')
+
+    _sql_constraints = [
+        ('line_kind_unique', 'unique(withdrawal_id, line_id, kind)', "A roll-call is reviewed once per case file."),
+    ]
+
+    @api.depends('line_id')
+    def _compute_session_label(self):
+        for review in self:
+            line = review.line_id.sudo()
+            session = line.attendance_session_id
+            review.session_label = " - ".join(filter(None, [session.time_range, line.subject_label,
+                                                            session.session_teacher_id.name]))
+
+    def _ems_days(self):
+        """The days of these reviews, as a short list (each day once)."""
+        return ", ".join(format_date(self.env, day) for day in sorted(set(self.mapped('date'))))
+
+    def _ems_check_pending_attendance(self):
+        self.ensure_one()
+        if self.kind != 'attendance' or self.state != 'pending':
+            raise UserError(_("This attendance has already been checked."))
+        self.withdrawal_id._ems_check_can_review()
+
+    def action_came_back(self):
+        """The student did come: they are back, the case file closes (the count starts again)."""
+        self._ems_check_pending_attendance()
+        withdrawal = self.withdrawal_id
+        note = _("The student came on %(day)s (%(session)s).", day=format_date(self.env, self.date),
+                 session=self.session_label)
+        self.sudo().state = 'came_back'
+        withdrawal.sudo().write({'state': 'cancelled', 'cancel_reason': 'came_back', 'cancel_note': note})
+        withdrawal._ems_close_tasks()
+        withdrawal._message_log(body=_("Cancelled by the tutor: %(note)s", note=note))
+
+    def action_mark_absent(self):
+        """The roll-call was a mistake: the line becomes the absence it was, noted on it and in
+        the case file."""
+        self._ems_check_pending_attendance()
+        withdrawal = self.withdrawal_id
+        line = self.line_id.sudo()
+        stamp = _("Corrected to an absence by %(user)s on %(day)s, from the ex officio withdrawal case file "
+                  "%(name)s.", user=self.env.user.name,
+                  day=format_date(self.env, self.env['ems.datetime_utils'].get_local_today()), name=withdrawal.name)
+        line.write({'status_id': self.env.ref('ems.attendance_status_miss').id,
+                    'notes': "\n".join(filter(None, [line.notes, stamp]))})
+        self.sudo().state = 'corrected'
+        withdrawal._ems_sync_review_tasks()
+        withdrawal._message_log(body=_("The roll-call of %(day)s (%(session)s) was a mistake: corrected to an "
+                                       "absence.", day=format_date(self.env, self.date), session=self.session_label))
 
 
 class EmsExOfficioWithdrawalContactWizard(models.TransientModel):

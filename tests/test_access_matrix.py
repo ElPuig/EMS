@@ -40,6 +40,9 @@ ACCESS_MATRIX = {
     # (ems.ex_officio_withdrawal._ems_check_can_decide_proposal).
     'ems.ex_officio_withdrawal.dismiss_wizard': {
         'teacher': '', 'tutor': 'rwc', 'secretary': '', 'academic_admin': 'rwc'},
+    # Issue #726: the roll-calls a case file reviews; only its own buttons change them (sudo).
+    'ems.ex_officio_withdrawal.review': {
+        'teacher': '', 'tutor': 'r', 'secretary': 'r', 'head_of_studies': 'r', 'academic_admin': 'rwcu'},
     # Issue #644: only the daily summary reads and writes informative notices (sudo); the
     # administrator may look at them (base.group_system, via settings_admin).
     'ems.info_notice': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'settings_admin': 'r'},

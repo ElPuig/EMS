@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from datetime import date, timedelta
+from contextlib import ExitStack
+from datetime import date, datetime, timedelta
 from unittest.mock import patch
 
+from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase, tagged
+from odoo.tools import format_date
 
 from .common import (create_head_of_studies_branch, create_level_study_group, create_role_employee,
                      create_role_user, mock_outgoing_email, next_student_id)
@@ -819,3 +822,115 @@ class TestExOfficioWithdrawal(TransactionCase):
         self.comp_student.sudo().write({'exit_type': 'withdrawal', 'exit_date': date(2041, 3, 8)})
         self.assertFalse(self._detect(date(2041, 3, 11)))
         self.assertFalse(self.Withdrawal.search([('student_id', '=', self.none_student.id)]))
+
+    # --- phase 6: the roll-calls of a case file's days ---------------------------------------
+
+    def _at_night(self, day):
+        """Today is `day` and every session of it is over (22:00 UTC)."""
+        stack = ExitStack()
+        stack.enter_context(self._on(day))
+        stack.enter_context(patch.object(fields.Datetime, 'now', return_value=datetime(day.year, day.month, day.day, 22)))
+        return stack
+
+    def _collect(self, day):
+        with self._at_night(day):
+            self.Withdrawal._cron_ems_detect()
+
+    def _started(self, student=None, first_absence=date(2041, 3, 4)):
+        case_file = self._open(student or self.post_student, first_absence)
+        case_file.action_start()
+        return case_file
+
+    def _line_of(self, student, day):
+        return self.env['ems.attendance_session_line'].search([('student_id', '=', student.id), ('date', '=', day)])
+
+    def test_an_attendance_stops_the_case_file_until_the_tutor_checks_it(self):
+        case_file = self._started()
+        self._roll_call(self.post_student, date(2041, 3, 6), 'attended')
+        self._collect(date(2041, 3, 7))
+        self.assertTrue(case_file.attendance_pending)
+        self.assertEqual(case_file.attendance_review_ids.date, date(2041, 3, 6))
+        self.assertTrue(self._tasks(case_file, 'ems.mail_activity_ex_officio_withdrawal_attendance'))
+        with self._on(date(2041, 3, 11)), self.assertRaises(UserError):
+            case_file.with_user(self.tutor_user).action_accept_step()
+
+        # A mistake: the roll-call becomes the absence it was, noted on the line.
+        case_file.attendance_review_ids.with_user(self.tutor_user).action_mark_absent()
+        line = self._line_of(self.post_student, date(2041, 3, 6))
+        self.assertEqual(line.status_id, self.env.ref('ems.attendance_status_miss'))
+        self.assertIn(case_file.name, line.notes)
+        self.assertFalse(case_file.attendance_pending)
+        self.assertFalse(self._tasks(case_file, 'ems.mail_activity_ex_officio_withdrawal_attendance'))
+        self._collect(date(2041, 3, 8))
+        self.assertFalse(case_file.attendance_pending, "A corrected roll-call is not checked again")
+
+        # They did come: the case file closes, and detection counts from the next day.
+        self._roll_call(self.post_student, date(2041, 3, 10), 'delayed')
+        self._collect(date(2041, 3, 10))
+        with self._on(date(2041, 3, 11)):
+            case_file.attendance_review_ids.with_user(self.tutor_user).action_came_back()
+        self.assertEqual((case_file.state, case_file.cancel_reason, case_file.closed_date),
+                         ('cancelled', 'came_back', date(2041, 3, 11)))
+        self.assertFalse(case_file.activity_ids)
+
+    def test_a_teacher_correcting_the_roll_call_drops_the_check(self):
+        case_file = self._started()
+        self._roll_call(self.post_student, date(2041, 3, 6), 'attended')
+        self._collect(date(2041, 3, 6))
+        self.assertTrue(case_file.attendance_pending)
+        self._line_of(self.post_student, date(2041, 3, 6)).status_id = self.env.ref('ems.attendance_status_miss')
+        self._collect(date(2041, 3, 7))
+        self.assertFalse(case_file.review_ids)
+        self.assertFalse(self._tasks(case_file, 'ems.mail_activity_ex_officio_withdrawal_attendance'))
+
+    def test_a_session_still_running_is_not_checked(self):
+        case_file = self._started()
+        self._roll_call(self.post_student, date(2041, 3, 6), 'attended')
+        with self._on(date(2041, 3, 6)), patch.object(fields.Datetime, 'now', return_value=datetime(2041, 3, 6, 7, 30)):
+            self.Withdrawal._cron_ems_detect()
+        self.assertFalse(case_file.review_ids, "Until its end a line is 'attended' by default")
+
+    def test_a_case_file_opened_by_hand_checks_the_earlier_attendances_before_starting(self):
+        self._roll_call(self.post_student, date(2041, 3, 5), 'attended')
+        with self._at_night(date(2041, 3, 11)):
+            case_file = self._open(self.post_student, date(2041, 3, 4), user=self.tutor_user)
+        self.assertTrue(case_file.attendance_pending)
+        with self.assertRaises(UserError):
+            case_file.with_user(self.tutor_user).action_start()
+        with self._at_night(date(2041, 3, 11)):
+            case_file.with_user(self.tutor_user).first_absence_date = date(2041, 3, 6)
+        self.assertFalse(case_file.attendance_pending, "From a later first day of absence")
+        case_file.with_user(self.tutor_user).action_start()
+
+    def test_justified_absences_are_reviewed_without_stopping_the_case_file(self):
+        case_file = self._started()
+        self._roll_call(self.post_student, date(2041, 3, 6), 'justified')
+        self._collect(date(2041, 3, 6))
+        self.assertTrue(case_file.justification_pending)
+        self.assertFalse(case_file.attendance_pending)
+        self.assertTrue(self._tasks(case_file, 'ems.mail_activity_ex_officio_withdrawal_justification'))
+        case_file.with_user(self.tutor_user).action_keep_justified()
+        self.assertFalse(case_file.justification_pending)
+        self.assertFalse(self._tasks(case_file, 'ems.mail_activity_ex_officio_withdrawal_justification'))
+        self.assertEqual(case_file.state, 'in_progress')
+
+        self._roll_call(self.post_student, date(2041, 3, 7), 'justified')
+        self._collect(date(2041, 3, 7))
+        with self._on(date(2041, 3, 8)):
+            case_file.with_user(self.tutor_user).action_cancel_justified()
+        self.assertEqual((case_file.state, case_file.cancel_reason), ('cancelled', 'justified'))
+        self.assertIn(format_date(self.env, date(2041, 3, 7)), case_file.cancel_note)
+
+    def test_only_the_tutor_scope_reviews_the_roll_calls(self):
+        case_file = self._started()
+        self._roll_call(self.post_student, date(2041, 3, 6), 'attended')
+        self._collect(date(2041, 3, 6))
+        review = case_file.attendance_review_ids
+        self.assertFalse(case_file.with_user(self.secretary_user).can_review)
+        with self.assertRaises(UserError):
+            review.with_user(self.secretary_user).action_mark_absent()
+        with self.assertRaises(AccessError):
+            review.with_user(self.other_tutor_user).read(['date'])
+        self.assertTrue(case_file.with_user(self.head_of_studies).can_review)
+        review.with_user(self.admin_user).action_mark_absent()
+        self.assertEqual(review.state, 'corrected')

@@ -277,3 +277,25 @@ registry.category("web_tour.tours").add("ems_ex_officio_withdrawal_direction_clo
         },
     ],
 });
+
+// Phase 6: the roll-calls say the student came; the tutor checks it was a mistake and the case
+// file can go on (structural selectors). Fixtures in tests/test_ex_officio_withdrawal_tour.py.
+registry.category("web_tour.tours").add("ems_ex_officio_withdrawal_attendance_check", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view div[name='attendance_review'] .o_data_row",
+            content: "The attendance to check, with its session",
+        },
+        {
+            trigger: ".o_form_view div[name='attendance_review'] button[name='action_mark_absent']",
+            content: "It was a mistake",
+            run: "click",
+        },
+        { trigger: ".modal-footer .btn-primary", content: "Confirm", run: "click" },
+        {
+            trigger: ".o_form_view:not(:has(div[name='attendance_review']))",
+            content: "Nothing left to check",
+        },
+    ],
+});

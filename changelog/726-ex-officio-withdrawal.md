@@ -34,6 +34,12 @@
 - An hourly job opens a proposal for every student of a level with a circuit who has missed 5 whole school days in a row (up to yesterday), with the first of them as the first day of absence; the tutor gets the proposal's task. Any attendance or delay (severe included) breaks the run; days without roll-call or with a justified absence are skipped (developer's choices, 2026-11-04). After a dismissed proposal or a cancelled case file only the later days count (`closed_date`). Students with an open case file, an expected withdrawal or an exit are left out. One grouped query: 56 ms on the dev database, 48 ms an hourly run with nothing new.
 - The case file now aligns with the centre-language reports of #749 (`CENTRE_LANG_REPORTS`).
 
+## Roll-calls that say otherwise during a case file (phase 6):
+
+- An attendance (or a delay) on a roll-call of the case file's days, from a session already over, stops the case file and gives the tutor a task: "They did come" closes it (the student is back, detection counts again from the next day), "It was a mistake" turns that roll-call into an absence, with a note on it. Proposals and case files opened by hand with an earlier first day of absence are checked too (developer's choices, 2026-11-04).
+- A justified absence among the case file's days gives the tutor a task to review it, without stopping anything: close the case file (absences justified) or go on.
+- Only the tutor scope, the Head of Studies and the administrators review them; a teacher correcting the roll-call removes the pending check by itself. New model `ems.ex_officio_withdrawal.review`, one search per hourly run (37 ms on the dev database).
+
 # Changes
 
 ## Levels: tidier form, convalidations set in Settings:

@@ -3,21 +3,10 @@ echo "Installing the EMS..."
 
 MODULES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-OCA_REPOS=(
-    "https://github.com/OCA/queue.git"
-    "https://github.com/OCA/partner-contact.git"
-    "https://github.com/OCA/sign.git"
-)
-OCA_BRANCH="18.0"
-
-for repo_url in "${OCA_REPOS[@]}"; do
-    repo_name=$(basename "$repo_url" .git)
-    target="$MODULES_DIR/$repo_name"
-    if [ ! -d "$target/.git" ]; then
-        echo "# $repo_name (cloning):"
-        git clone --depth 1 --branch "$OCA_BRANCH" "$repo_url" "$target"
-    fi
-done
+# The OCA repositories: cloned next to this checkout and added to odoo.conf's addons_path.
+source "$MODULES_DIR/ems/scripts/oca_repos.sh"
+oca_clone_missing "$MODULES_DIR"
+oca_sync_addons_path /etc/odoo/odoo.conf "$MODULES_DIR"
 
 echo "Installing system (apt) Python dependencies..."
 sudo apt-get update -qq

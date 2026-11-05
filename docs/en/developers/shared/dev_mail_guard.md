@@ -95,6 +95,26 @@ Production and CI never set `ems_server_role`, so nothing changes there. Tests t
 `_prepare_email_message`, so the guard does not interfere with them; `tests/test_dev_mail_guard.py`
 covers it.
 
+## OdooBot's emails are off unless asked for
+
+A restored production database generates OdooBot's emails for every staff member (the daily
+summaries, automatic notices), and `devel.sh` redirects every one of them to the developer: dozens
+a day in one inbox (issue #752). On a development machine with a `dev` database,
+`mail.mail.send()` therefore cancels every outgoing email whose author is OdooBot
+(`base.partner_root`) before it reaches the SMTP server: the email ends **Cancelled** with the
+reason, its notifications are marked as cancelled, and the log says how many were skipped.
+Everyone else's emails go through the recipient check above as usual.
+
+| `ir.config_parameter` | Default | Meaning |
+|-----------------------|---------|---------|
+| `ems.dev_mail_odoobot` | unset | `True` sends OdooBot's emails again (to test a summary or a notice); remove it or set anything else to switch them off. Settings → Technical → System Parameters. |
+
+The emails cancelled meanwhile are not resent when the parameter is switched on.
+
+A database `devel.sh` never ran on is left to the recipient check, which refuses the email with
+its own reason ("Delivery failed"). Production and CI have no machine role, so nothing changes
+there; `tests/test_dev_mail_guard.py` (`TestDevMailOdooBot`) covers it.
+
 ## Incoming mail
 
 The same role stops the machine from reading any mailbox: `fetchmail.server.fetch_mail()` returns

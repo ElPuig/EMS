@@ -70,6 +70,16 @@
              transversal to the teacher/tutor/HoS hierarchy - the post is held by a teacher, but it
              doesn't sit anywhere on that chain, so it gets its own independent Manager/Administrator
              chain instead of being wired into it. -->
+        <!-- Issue #683: the Erasmus team (coordination and mobility technician) is transversal to
+             the teacher/tutor/HoS hierarchy, like the blocks above. -->
+        <record model="ir.module.category" id="category_erasmus">
+            <field name="name">Erasmus+</field>
+            <field name="description">Educational Management System - Erasmus+ calls and mobilities</field>
+            <field name="parent_id" ref="ems.category_main"/>
+            <field name="sequence">7</field>
+            <field name="visible">True</field>
+        </record>
+
         <record model="ir.module.category" id="category_tac">
             <field name="name">TAC</field>
             <field name="description">Educational Management System - Learning and Knowledge Technologies</field>
@@ -364,6 +374,59 @@
              Administrator here must not silently grant it in another block. root/admin are
              kept with full access to every block through explicit membership on each of
              those groups instead (see their 'users' field above). -->
+        <!-- Issue #683: full access to every Erasmus+ call and application, confidential evidence
+             included. Given through the roles "Erasmus coordinator" and "Erasmus mobility
+             technician" (data/cat/ems.role.csv). No teacher group implied: the technician may not
+             be a teacher. It implies Sign's "All Documents" (sign_oca): the team prepares, sends and
+             follows the documents signed electronically (security/ir.model.access.csv adds editing
+             the signature templates). -->
+        <record model="res.groups" id="group_erasmus">
+            <field name="name">Manager</field>
+            <field name="comment">Erasmus team: manages the Erasmus+ calls and applications.</field>
+            <field name="category_id" ref="ems.category_erasmus"/>
+            <field name="implied_ids" eval="[(4, ref('sign_oca.sign_oca_group_manager'))]"/>
+            <!-- Not the administrator: every team task (a free place, a corrected application...)
+                 went to them too. They keep every right through group_academic_admin. -->
+            <field name="users" eval="[(4, ref('base.user_root')), (3, ref('base.user_admin'))]"/>
+        </record>
+
+        <!-- Issue #686: the Erasmus coordinator alone approves and publishes the resolutions. Given
+             through the role "Erasmus coordinator"; the mobility technician keeps only Manager. -->
+        <record model="res.groups" id="group_erasmus_coordinator">
+            <field name="name">Coordinator</field>
+            <field name="comment">Erasmus coordinator: also approves and publishes the resolutions.</field>
+            <field name="category_id" ref="ems.category_erasmus"/>
+            <field name="implied_ids" eval="[(4, ref('ems.group_erasmus'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (3, ref('base.user_admin'))]"/>
+        </record>
+
+        <!-- Issue #684: whoever has an Erasmus+ interview to score (ems.erasmus.interview). Managed by
+             EMS itself when interviews are assigned or removed (res.users._ems_sync_erasmus_evaluator_group),
+             never by hand, hence hidden. Its record rule shows each evaluator only their own interviews. -->
+        <record model="res.groups" id="group_erasmus_evaluator">
+            <field name="name">Erasmus+ evaluator</field>
+            <field name="comment">Has Erasmus+ interviews to score.</field>
+            <field name="category_id" ref="base.module_category_hidden"/>
+        </record>
+
+        <!-- Issue #686: whoever has a staff mobility plan to rate (ems.erasmus.plan_rating), as a member
+             of a call's panel. Kept apart from the interview evaluators so each one only sees their own
+             menu entry (the issue-#682 review). Managed by EMS itself, like the evaluators. -->
+        <record model="res.groups" id="group_erasmus_panel">
+            <field name="name">Erasmus+ panel member</field>
+            <field name="comment">Has Erasmus+ staff mobility plans to rate.</field>
+            <field name="category_id" ref="base.module_category_hidden"/>
+        </record>
+
+        <!-- Issue #701: whoever leads or accompanies an Erasmus+ group mobility. Managed by EMS itself
+             when the mobility's teachers change (res.users._ems_sync_erasmus_group_teacher_group),
+             never by hand, hence hidden. Its record rules open only their own mobilities. -->
+        <record model="res.groups" id="group_erasmus_group_teacher">
+            <field name="name">Erasmus+ group mobility teacher</field>
+            <field name="comment">Leads or accompanies an Erasmus+ group mobility.</field>
+            <field name="category_id" ref="base.module_category_hidden"/>
+        </record>
+
         <record model="res.groups" id="group_academic_admin">
             <field name="name">Administrator</field>
             <field name="comment">All access rights for the Academic block.</field>

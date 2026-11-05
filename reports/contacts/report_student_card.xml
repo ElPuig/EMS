@@ -26,7 +26,9 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">ems.report_student_card</field>
             <field name="report_file">ems.report_student_card</field>
-            <field name="print_report_name">'Student cards - %s' % object.env.company.current_course_id.name</field>
+            <!-- Only used when a single card is downloaded (Odoo names a multi-record download after the
+                 report): the student's name tells the downloads apart. -->
+            <field name="print_report_name">'Student card - %s - %s' % (object.name, object.env.company.current_course_id.name)</field>
             <field name="paperformat_id" ref="paperformat_student_card"/>
         </record>
 
@@ -106,6 +108,12 @@
                                             <td>
                                                 <t t-call="ems.report_student_card_single"/>
                                             </td>
+                                        </t>
+                                        <!-- A lone card keeps the left column, as the back keeps the right one:
+                                             a centred row would not land on its back. -->
+                                        <t t-if="row_start + 1 == len(sheet)">
+                                            <td class="o_ems_card_gap"/>
+                                            <td class="o_ems_card_blank"/>
                                         </t>
                                     </tr>
                                 </table>

@@ -5,6 +5,7 @@ from dateutil.relativedelta import relativedelta
 from odoo.addons.ems.models.curriculum.level import CARD_PALETTE
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
+from odoo.tools.safe_eval import safe_eval, time
 
 from .common import (
     create_head_of_studies_branch, create_level_study_group, create_role_employee, create_role_user,
@@ -99,7 +100,7 @@ class TestStudentCard(TransactionCase):
         self.foreign.write({'passport_id': 'XY1234567'})
         html = self._render(self.own_a | self.foreign)
         for expected in ('TSC Alpha Student', '12345678Z', 'XY1234567', self.own_a.student_id,
-                         'TSC', 'TSCO', CARD_PALETTE[self.level.card_color],
+                         'TSC', 'TSCO', CARD_PALETTE[self.level.card_color][1],
                          self.env.company.current_course_id.name or '', 'class="o_ems_card_barcode"'):
             self.assertIn(expected, html)
 
@@ -128,12 +129,24 @@ class TestStudentCard(TransactionCase):
         self.assertIn('<div class="o_ems_card_photo_frame">', html)
 
     def test_every_card_has_its_back(self):
-        # Fronts and backs alternate sheet by sheet; an odd last row puts its back on the right.
+        # Fronts and backs alternate sheet by sheet; an odd last card keeps its column on both sides
+        # (front on the left, back on the right), so it lands on its back once printed (issue #754).
         html = self._render(self.own_a | self.own_b | self.foreign)
         self.assertEqual(html.count('class="o_ems_card"'), 3)
         self.assertEqual(html.count('class="o_ems_card o_ems_card_back"'), 3)
-        self.assertEqual(html.count('class="o_ems_card_blank"'), 1)
+        self.assertEqual(html.count('class="o_ems_card_blank"'), 2)
         self.assertIn('departament_educacio.png', html)
+
+    def test_single_card_keeps_its_columns(self):
+        html = self._render(self.own_a)
+        front_sheet, back_sheet = html.split('o_ems_card_sheet')[1:3]
+        self.assertLess(front_sheet.index('class="o_ems_card"'), front_sheet.index('class="o_ems_card_blank"'))
+        self.assertLess(back_sheet.index('class="o_ems_card_blank"'), back_sheet.index('o_ems_card_back'))
+
+    def test_single_card_file_name_carries_the_student(self):
+        report = self.env.ref('ems.action_report_student_card')
+        filename = safe_eval(report.print_report_name, {'object': self.own_a, 'time': time})
+        self.assertEqual(filename, f"Student card - TSC Alpha Student - {self.env.company.current_course_id.name}")
 
     def test_printed_in_the_centre_language(self):
         # Whoever prints it, in whatever language they work: the card speaks Catalan.
@@ -143,12 +156,22 @@ class TestStudentCard(TransactionCase):
         self.assertIn('lang="ca-ES"', html)
         self.assertIn('Aquest carnet és personal i intransferible', html)
 
+    def test_printed_in_another_centre_language(self):
+        # The card follows the centre language (res.company.ems_lang), not a fixed Catalan.
+        if not self.env['res.lang']._lang_get('es_ES'):
+            self.skipTest("needs Spanish installed")
+        self.env['res.lang']._activate_lang('ca_ES')
+        self.env.company.ems_lang = 'es_ES'
+        html = self.env['ir.actions.report'].with_context(lang='ca_ES')._render_qweb_html(
+            'ems.report_student_card', self.own_a.ids)[0].decode()
+        self.assertIn('lang="es-ES"', html)
+
     def test_student_without_main_group(self):
         # No level to show: the card still prints, with a grey band.
         self.own_a.main_group_id = False
         html = self._render(self.own_a)
         self.assertIn('TSC Alpha Student', html)
-        self.assertIn(f"background: {CARD_PALETTE['grey']}", html)
+        self.assertIn(f"background: {CARD_PALETTE['grey'][1]}", html)
 
     # --- May the student leave the centre -------------------------------------------------------
 

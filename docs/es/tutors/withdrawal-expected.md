@@ -41,7 +41,7 @@ Cuando sabes que un alumno no volverá, pides la baja, pero la tramitación tard
 
 ## Qué cambia mientras dura
 
-- **La ficha** muestra el banderín **Baja prevista** y un aviso con la fecha, quién la marcó y la nota.
+- **La ficha** muestra el banderín **Baja prevista** y un aviso con la fecha, quién la marcó y la nota. La tarjeta del alumno en la lista de alumnos muestra el mismo banderín.
 
   ![La ficha del alumno con el banderín Baja prevista y el aviso](../../assets/tutors/baixa-prevista-03-fitxa.png)
 

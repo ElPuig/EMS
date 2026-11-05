@@ -31,6 +31,10 @@ This section contains the manuals for **teachers**.
 | [Plannings: checking your subjects' grading ponderations](planning.md) | Check where the internal/work-placement split and the per-learning-outcome weighting of the subjects you teach comes from |
 | [A Student's Public and Private Notes](student-notes.md) | Where every teacher reads a student's public notes, and who can read and write the private tutoring ones |
 | [The Presence Dot on the Teachers Screen](staff-presence.md) | What the green, yellow and grey dot next to each colleague's name means, and what it is based on |
+| [Scoring an Erasmus+ interview](erasmus-interviews.md) | How to score, with the rubric of the call, the Erasmus+ interviews the Erasmus team assigns you |
+| [Applying for an Erasmus+ staff mobility](erasmus-staff-call.md) | How to apply for a job shadowing, a course or a teaching assignment, follow your application and prepare your mobility |
+| [Rating Erasmus+ mobility plans](erasmus-plan-ratings.md) | How the panel of the staff call rates the mobility plans with the rubric of the call |
+| [Accompanying an Erasmus+ group mobility](erasmus-group-mobility.md) | What the leader teacher does (the selection, the documents, the follow-up, the EU Survey) and what the accompanying teacher does |
 | [Meeting minutes](minutes.md) | Writing department, staff meeting, teaching team or improvement team minutes, with attendees and agreements carried over automatically |
 
 > Are you a Department or Seminar Chief? Your own manuals (organising absences, notices to your department's groups) are in [Department and Seminar Chiefs](../department_chiefs/index.md).

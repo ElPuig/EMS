@@ -1,0 +1,5 @@
+CHANGE {'confidential': True} [(3211, 450, 'Targeta sanitària europea'), (3198, 449, 'Targeta sanitària europea')]
+CHANGE {'file_category': '01_Dades_i_autoritzacions'} [(3211, 450, 'Targeta sanitària europea'), (3198, 449, 'Targeta sanitària europea'), (3200, 449, "Documentació d'inclusió"), (3201, 449, 'Autorització de la família per viatjar'), (3202, 449, "Autorització de sortida de menors a l'estranger")]
+CHANGE {'file_category': '03_Durant_la_mobilitat'} [(3516, 450, "Bitllets o targetes d'embarcament"), (3517, 449, "Bitllets o targetes d'embarcament")]
+HEALTH CARD documents confidential: True | lines: 0 all confidential: True
+DRY RUN: rolled back

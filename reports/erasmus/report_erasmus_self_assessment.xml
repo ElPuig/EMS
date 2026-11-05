@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #697: a participant's weekly self-assessments of the stay, for the project's dossier
+             (folder 13) and to print from the mobility. -->
+        <record id="action_report_erasmus_self_assessment" model="ir.actions.report">
+            <field name="name">Weekly self-assessment</field>
+            <field name="model">ems.erasmus.mobility</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_erasmus_self_assessment</field>
+            <field name="report_file">ems.report_erasmus_self_assessment</field>
+            <field name="print_report_name">object.partner_id.name</field>
+            <field name="binding_model_id" ref="ems.model_ems_erasmus_mobility"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="report_erasmus_self_assessment">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="mobility">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <h3>Weekly self-assessment</h3>
+                            <p>
+                                <strong t-esc="mobility.partner_id.name"/> - <t t-esc="mobility.call_id.name"/><br/>
+                                <t t-if="mobility.host_partner_id"><t t-esc="mobility.host_partner_id.name"/><br/></t>
+                                <t t-if="mobility.date_start"><t t-out="mobility.date_start" t-options="{'widget': 'date'}"/> - <t t-out="mobility.date_end" t-options="{'widget': 'date'}"/></t>
+                            </p>
+                            <p t-if="not mobility.self_assessment_ids">No week has been self-assessed yet.</p>
+                            <div t-foreach="mobility.self_assessment_ids" t-as="assessment" class="mt-4" style="page-break-inside: avoid;">
+                                <h5>Week <t t-esc="assessment.week"/> (<t t-out="assessment.date_from" t-options="{'widget': 'date'}"/> - <t t-out="assessment.date_to" t-options="{'widget': 'date'}"/>)</h5>
+                                <t t-out="assessment.answers_html"/>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

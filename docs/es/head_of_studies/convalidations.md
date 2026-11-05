@@ -200,7 +200,7 @@ Puedes registrar una solicitud, y tramitar cualquiera, en cualquier momento: el 
 
 ## Estudios que admiten convalidaciones
 
-Solo pueden recibir solicitudes los estudios de los niveles que tienen marcado **Admite convalidaciones** (por defecto, CFGM y CFGS). Consulta [Niveles](../admin/curriculum-levels.md).
+Solo pueden recibir solicitudes los estudios de los niveles de la lista **Niveles que admiten convalidaciones** (por defecto, CFGM y CFGS). El administrador del EMS la configura en [Configuración de convalidaciones](../admin/convalidation-settings.md#niveles-que-admiten-convalidaciones).
 
 ---
 

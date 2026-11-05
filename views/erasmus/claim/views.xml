@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #685 - claims and appeals, recorded by the Erasmus team (art. 14 of the call). The
+             team answers the claims, the applicant's own Head of Studies the appeals (can_resolve). -->
+        <record id="view_erasmus_claim_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.claim.list</field>
+            <field name="model">ems.erasmus.claim</field>
+            <field name="arch" type="xml">
+                <list string="Claims" decoration-muted="state == 'resolved'">
+                    <field name="received_date"/>
+                    <field name="partner_id"/>
+                    <field name="call_id" optional="hide"/>
+                    <field name="group_mobility_id" optional="hide"/>
+                    <field name="kind"/>
+                    <field name="resolution_id" optional="show"/>
+                    <field name="resolved_date" optional="show"/>
+                    <field name="state" widget="badge" decoration-warning="state == 'open'"
+                           decoration-success="state == 'resolved'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_claim_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.claim.form</field>
+            <field name="model">ems.erasmus.claim</field>
+            <field name="arch" type="xml">
+                <form string="Claim">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_resolve" type="object" string="Resolve" class="btn-primary"
+                                    invisible="state != 'open' or not can_resolve"/>
+                            <button name="action_reopen" type="object" string="Reopen"
+                                    invisible="state != 'resolved' or not can_resolve"/>
+                        </div>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="application_id" options="{'no_create': True}" readonly="not can_edit"
+                                       invisible="group_registration_id" required="not group_registration_id"/>
+                                <field name="group_registration_id" invisible="not group_registration_id" readonly="1"/>
+                                <field name="call_id" invisible="1"/>
+                                <field name="group_mobility_id" invisible="not group_mobility_id"/>
+                                <field name="kind" readonly="not can_edit"/>
+                                <field name="resolution_id" options="{'no_create': True}" readonly="not can_edit"/>
+                            </group>
+                            <group>
+                                <field name="received_date" readonly="not can_edit"/>
+                                <field name="resolved_date"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="description" readonly="not can_edit"/>
+                            <field name="attachment_ids" widget="many2many_binary" readonly="not can_edit"/>
+                            <field name="can_resolve" invisible="1"/>
+                            <field name="can_edit" invisible="1"/>
+                            <field name="response" readonly="not can_resolve or state != 'open'"/>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_erasmus_claim_search" model="ir.ui.view">
+            <field name="name">ems.erasmus.claim.search</field>
+            <field name="model">ems.erasmus.claim</field>
+            <field name="arch" type="xml">
+                <search string="Claims">
+                    <field name="partner_id"/>
+                    <field name="call_id"/>
+                    <field name="group_mobility_id"/>
+                    <filter name="open" string="Open" domain="[('state', '=', 'open')]"/>
+                    <filter name="appeals" string="Appeals" domain="[('kind', '=', 'appeal')]"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_erasmus_claim" model="ir.actions.act_window">
+            <field name="name">Claims</field>
+            <field name="res_model">ems.erasmus.claim</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_erasmus_claim_search"/>
+            <field name="context">{'search_default_open': 1}</field>
+        </record>
+    </data>
+</odoo>

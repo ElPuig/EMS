@@ -38,7 +38,7 @@ Solo aparecen los apartados que tienen algo:
 
 - **Tareas pendientes:** las tareas de tu bandeja de actividades (🕒) que vencen hoy o ya han vencido, agrupadas por tipo (por ejemplo, *Revisar solicitud de convalidación*). Para cada tarea, un enlace que la abre en EMS, la descripción y la fecha límite; las vencidas se indican entre paréntesis. Si un tipo tiene más de 20 tareas, se muestran las 20 más próximas a vencer y cuántas quedan.
 - **Incidencias de asistencia de tus alumnos** (solo tutores): las faltas, los retrasos, etc. registrados desde el resumen anterior, por día y por alumno. Consulta [Informe de incidencias de asistencia de tus alumnos](../tutors/attendance-issues-report.md).
-- **Para tu información:** avisos que no te piden hacer nada, agrupados por alumno. Por ejemplo, que un alumno tuyo tiene una [baja prevista](../tutors/withdrawal-expected.md) y deja de salir en tus pases de lista, que no asistirá a un módulo tuyo mientras se resuelve su solicitud de convalidación, o que se le han convalidado módulos.
+- **Para tu información:** avisos que no te piden hacer nada, agrupados por el alumno o el acuerdo del que tratan. Por ejemplo, que un alumno tuyo tiene una [baja prevista](../tutors/withdrawal-expected.md) y deja de salir en tus pases de lista, que no asistirá a un módulo tuyo mientras se resuelve su solicitud de convalidación, o que se le han convalidado módulos. También, de los [acuerdos](../quality/actions.md) de los que eres responsable: que tienes uno nuevo, cada entrada de seguimiento que añade otra persona, y los que se acuerdan y se hacen en la misma reunión.
 
 El asunto resume lo que hay, por ejemplo *EMS: resumen diario (tareas pendientes: 3, avisos: 1)*.
 

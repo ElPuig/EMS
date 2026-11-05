@@ -131,16 +131,18 @@ registry.category("web_tour.tours").add("ems_enrollment_hidden_outside_preenroll
             run: "click",
         },
         {
-            trigger: ".o_menu_sections [data-menu-xmlid='ems.menu_ems_authorization_root']",
-            content: "With its Authorizations entry",
-        },
-        {
             trigger: ".o_menu_sections:not(:has([data-menu-xmlid='ems.menu_ems_enrollment']))",
             content: "No Enrollment section while the pre-enrollment period is closed",
         },
         {
-            trigger: ".o_action_manager .o_list_view",
-            content: "The app opens on the authorizations list",
+            // The app may open on another entry first (Ex officio withdrawals, issue #726).
+            trigger: ".o_menu_sections [data-menu-xmlid='ems.menu_ems_authorization_root']",
+            content: "With its Authorizations entry",
+            run: "click",
+        },
+        {
+            trigger: ".o_action_manager .o_list_view th[data-name='template_id']",
+            content: "The authorizations list opens",
         },
         {
             trigger: ".o_control_panel button.btn-primary:contains('New')",

@@ -31,6 +31,10 @@ Esta sección contiene los manuales para los **profesores**.
 | [Programaciones: consultar las ponderaciones de tus módulos](planning.md) | Consultar de dónde sale el reparto entre nota del centro y estancia, y la ponderación por resultado de aprendizaje, de los módulos que impartes |
 | [Notas públicas y notas privadas del alumno](student-notes.md) | Dónde todo el profesorado lee las notas públicas de un alumno, y quién puede leer y escribir las privadas de tutoría |
 | [El punto de presencia en la pantalla de Profesores](staff-presence.md) | Qué significa el punto verde, amarillo o gris junto al nombre de cada compañero, y en qué se basa |
+| [Puntuar una entrevista Erasmus+](erasmus-interviews.md) | Cómo puntuar, con la rúbrica de la convocatoria, las entrevistas Erasmus+ que te asigna el equipo Erasmus |
+| [Solicitar una movilidad Erasmus+ de personal](erasmus-staff-call.md) | Cómo solicitar un job shadowing, un curso o una estancia de docencia, seguir la solicitud y preparar la movilidad |
+| [Valorar planes de movilidad Erasmus+](erasmus-plan-ratings.md) | Cómo valora el tribunal de la convocatoria del personal los planes de movilidad con la rúbrica de la convocatoria |
+| [Acompañar una movilidad de grupo Erasmus+](erasmus-group-mobility.md) | Qué hace el docente responsable (la selección, los documentos, el seguimiento, la EU Survey) y el docente acompañante |
 | [Actas de reunión](minutes.md) | Redactar actas de departamento, claustro, equipo docente o equipo de mejora, con los asistentes y los acuerdos arrastrados automáticamente |
 
 > ¿Eres jefe de departamento o de seminario? Tus manuales (organizar las ausencias, comunicados a los grupos de tu departamento) están en [Jefes de departamento y de seminario](../department_chiefs/index.md).

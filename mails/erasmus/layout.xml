@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- The issue-#682 review: Odoo's light layout heads every email with "Your <model>", which
+             Catalan renders as "El vostre Sol·licitud Erasmus+" (wrong gender, and formal while the
+             body speaks informally). The Erasmus+ emails say just "Erasmus+". -->
+        <template id="mail_notification_erasmus" inherit_id="mail.mail_notification_light" primary="True">
+            <xpath expr="//span[@style='font-size: 10px;']" position="replace">
+                <span style="font-size: 10px;">Erasmus+</span>
+            </xpath>
+        </template>
+    </data>
+</odoo>

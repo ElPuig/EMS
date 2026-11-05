@@ -21,7 +21,7 @@ class TestCentreLanguage(TransactionCase):
         self.env.company.ems_lang = 'es_ES'
         self.assertEqual(self.env['ir.default']._get('res.partner', 'lang'), 'es_ES')
         self.assertEqual(self.env['res.partner'].create({'name': 'New Contact Test'}).lang, 'es_ES')
-        self.assertEqual(self.env['ems.minute']._ems_centre_lang(), 'es_ES')
+        self.assertEqual(self.env['res.company']._ems_centre_env().lang, 'es_ES')
         self.assertEqual(scope_code(department), 'FISPRU', "the codes read the department's name in the centre language")
 
     def test_the_centre_language_cannot_be_empty(self):

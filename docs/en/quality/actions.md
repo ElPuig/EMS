@@ -35,13 +35,29 @@ An agreement tells apart three ways of being in it:
   carry it out: links, instructions), but do not change what was agreed. Their
   chain of command may also do it in their place. Anyone can be responsible, with or without a post.
 - **The people involved**: those who have to do something about the agreement (for instance, the whole
-  department updates its syllabuses). They can read it, with its follow-up, and are notified every
-  time an entry is added.
+  department updates its syllabuses). They can read it, with its follow-up. They get no notices about
+  it: the minute already tells them what was agreed.
 
 Whoever can read the minute it comes from, or those of its scope, can read it too. The **quality
 committee**, **quality coordination** and the **administrator** see and change them all.
 
 An agreement you may not change opens in read-only mode.
+
+## How the responsible people hear of it
+
+Everything reaches them in their [daily summary](../teachers/daily-summary.md), never as an email of its own:
+
+- **A task**, *Carry out the agreement*, due on the deadline (or on the same day, if there is no date). It is
+  marked as done when the agreement is closed, and disappears for whoever stops being responsible.
+- **A notice when you become responsible**, if the deadline is later, so that you know about the agreement
+  before the task is due.
+- **A notice for each follow-up entry** someone else adds: who wrote it, what happened and the state it
+  leaves the agreement in.
+
+Each notice also says which meeting the agreement comes from, its scope, the responsible people, the
+deadline and its state. An agreement taken in a meeting is notified once its minute is approved; one agreed
+and done in that same meeting arrives as a notice that there is nothing left to do. The people involved and
+the chain of command get none of this.
 
 ## Creating an agreement
 
@@ -59,7 +75,7 @@ An agreement you may not change opens in read-only mode.
 
 ![Form of an agreement: responsibility, deadline, scope and the description in the tab below](../../assets/quality/acords-02-formulari.png)
 
-(1) The responsible people, who carry its progress; (2) the people involved, who only read it and get the notices; (3) the deadline and (4) the scope.
+(1) The responsible people, who carry its progress; (2) the people involved, who only read it; (3) the deadline and (4) the scope.
 
 ## The code and the numbering
 

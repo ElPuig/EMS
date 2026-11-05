@@ -1,0 +1,385 @@
+# -*- coding: utf-8 -*-
+
+import re
+
+from odoo import _, api, fields, models
+from odoo.exceptions import AccessError, UserError
+from odoo.http import content_disposition, request
+from odoo.tools.misc import formatLang
+
+from .application import RANKED_STATES, SCORE_FIELDS, STAFF_SCORE_FIELDS, TEAM
+from .workflow import check_workflow_create, check_workflow_write
+
+KINDS = [('admission', "Admission list"), ('provisional', "Provisional resolution"),
+         ('definitive', "Definitive resolution"), ('rectification', "Rectification")]
+# The resolution that must be published before preparing one of each kind.
+PREVIOUS_KIND = {'provisional': 'admission', 'definitive': 'provisional', 'rectification': 'definitive'}
+# Kinds published once per call; a correction afterwards is a rectification.
+SINGLE_KINDS = ('admission', 'provisional', 'definitive')
+# Kinds that decide who goes: their publication sets the applications' result and makes the offers.
+FINAL_KINDS = ('definitive', 'rectification')
+RESULTS = [('admitted', "Admitted"), ('excluded', "Excluded"), ('selected', "Selected"), ('reserve', "Reserve"),
+           ('not_selected', "Not selected")]
+
+
+def mask_document_id(value):
+    """The identity document as published lists show it (art. 14; additional provision 7 of
+    Organic Law 3/2018 and the Spanish data protection agency's guidance): only four digits. DNI
+    12345678Z -> ***4567**, NIE X1234567L -> ****4567*, any other document (passport) -> its 4th to
+    7th characters."""
+    value = re.sub(r'[\s.-]', '', value or '').upper()
+    if not value:
+        return ''
+    if re.fullmatch(r'[XYZ]\d{7}[A-Z]', value):
+        return '****' + value[4:8] + '*'
+    return '***' + value[3:7] + '*' * max(len(value) - 7, 0)
+
+
+class EmsErasmusResolution(models.Model):
+    """Issue #685 - a list the Erasmus team prepares and the Erasmus coordinator alone approves by
+    publishing it (issue #686): admission, provisional, definitive or rectification. Preparing it
+    freezes its lines; once published it is never changed (a correction is a new rectification). See
+    docs/en/developers/erasmus/erasmus.md."""
+    _name = 'ems.erasmus.resolution'
+    _description = 'Erasmus+ resolution'
+    _inherit = ['ems.base']
+    _order = 'call_id, publish_date desc, id desc'
+    _rec_names_search = ['call_id.name']  # name is computed in the reader's language, not stored
+
+    call_id = fields.Many2one(string="Call", comodel_name='ems.erasmus.call', required=True, ondelete='restrict',
+                              index=True)
+    kind = fields.Selection(string="Kind", selection=KINDS, required=True, tracking=True)
+    name = fields.Char(string="Name", compute='_compute_name')
+    state = fields.Selection(string="State", required=True, default='draft', tracking=True, copy=False,
+                             selection=[('draft', "Draft"), ('published', "Published")])
+    line_ids = fields.One2many(string="Lines", comodel_name='ems.erasmus.resolution.line',
+                               inverse_name='resolution_id', readonly=True)
+    prepare_date = fields.Datetime(string="Lines frozen on", readonly=True, copy=False)
+    notes = fields.Text(string="Notes for applicants",
+                        help="Published with the list and emailed to everyone on it: never write anyone's name. A rectification "
+                             "must explain what it corrects.")
+    publish_date = fields.Datetime(string="Published on", readonly=True, copy=False)
+    published_by_id = fields.Many2one(string="Published by", comodel_name='res.users', readonly=True, copy=False)
+    places_warning = fields.Text(string="Places warning", compute='_compute_places_warning',
+                                 help="A rectification that would leave more people with a place than places.")
+
+    @api.depends('kind', 'call_id.name')
+    @api.depends_context('lang')
+    def _compute_name(self):
+        """Not stored: in the reader's language (the portal, the PDF, the emails)."""
+        kinds = self._ems_kind_labels()
+        for resolution in self:
+            resolution.name = f"{kinds.get(resolution.kind, '')} - {resolution.call_id.name or ''}"
+
+    @api.depends('kind', 'state', 'line_ids.result')
+    def _compute_places_warning(self):
+        for resolution in self:
+            warnings = []
+            for name, holding, places in resolution._ems_places_overflow():
+                warnings.append(_("%(name)s: %(holding)s people would have a place, and there are %(places)s "
+                                  "places.", name=name, holding=holding, places=places))
+            resolution.places_warning = "\n".join(warnings)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        check_workflow_create(self, vals_list)
+        return super().create(vals_list)
+
+    def write(self, vals):
+        """Published, by whom, when and the frozen lines only through action_prepare and
+        action_publish (audit R-25); a published resolution never changes."""
+        check_workflow_write(self, vals)
+        if not self.env.su and self.filtered(lambda resolution: resolution.state == 'published'):
+            raise UserError(_("A published resolution cannot be changed: publish a rectification instead."))
+        return super().write(vals)
+
+    def unlink(self):
+        if self.filtered(lambda resolution: resolution.state == 'published'):
+            raise UserError(_("A published resolution cannot be deleted."))
+        return super().unlink()
+
+    def _ems_pdf_response(self):
+        """The published list as a PDF download, for whoever the controller has checked appears on
+        it: a student on the portal, a staff member from the backend. It lists everyone, so it
+        renders as superuser."""
+        self.ensure_one()
+        pdf, _type = self.env['ir.actions.report'].sudo()._render_qweb_pdf(
+            'ems.action_report_erasmus_resolution', self.ids)
+        return request.make_response(pdf, headers=[
+            ('Content-Type', 'application/pdf'),
+            ('Content-Disposition', content_disposition(f'{self.name}.pdf')),
+        ])
+
+    def action_prepare(self):
+        """Freeze the lines as the applications are now. Can be repeated while it is a draft."""
+        Line = self.env['ems.erasmus.resolution.line'].sudo()  # the lines are never edited by hand
+        for resolution in self:
+            if resolution.state != 'draft':
+                raise UserError(_("The resolution is already published."))
+            resolution._ems_check_can_prepare()
+            values = resolution._ems_line_values()
+            resolution.line_ids.sudo().unlink()
+            Line.create([{**vals, 'resolution_id': resolution.id} for vals in values])
+            resolution.sudo().prepare_date = fields.Datetime.now()
+
+    def action_publish(self):
+        """Publish on the portal and email every applicant their result. A definitive resolution or
+        a rectification also sets each application's result and offers the place to the selected.
+        Publishing is the coordinator's approval: who and when are kept in published_by_id/publish_date."""
+        if not self.env.user.has_group('ems.group_erasmus_coordinator') \
+                and not self.env.user.has_group('ems.group_academic_admin'):
+            raise AccessError(_("Only the Erasmus coordinator can publish a resolution."))
+        for resolution in self:
+            if resolution.state != 'draft':
+                raise UserError(_("The resolution is already published."))
+            if not resolution.line_ids:
+                raise UserError(_("Prepare the lines first."))
+            if resolution.kind == 'rectification' and not (resolution.notes or '').strip():
+                raise UserError(_("Explain in the notes what the rectification corrects."))
+            resolution._ems_check_can_prepare()
+            resolution._ems_check_can_publish()
+        self.sudo().write({
+            'state': 'published', 'publish_date': fields.Datetime.now(), 'published_by_id': self.env.uid})
+        for resolution in self:
+            resolution._ems_after_publish()
+
+    def _ems_check_can_publish(self):
+        """What publishing needs besides the lines: a call's list of who goes needs the deadline
+        to accept the place."""
+        self.ensure_one()
+        call = self.call_id
+        if self.kind in FINAL_KINDS and not (call.acceptance_deadline and call.acceptance_deadline > call._ems_now()):
+            raise UserError(_("Set a future acceptance deadline on the call before publishing who goes."))
+        if self.places_warning:
+            raise UserError(_("This rectification would leave more people with a place than places, because a place "
+                              "already accepted is never withdrawn:\n%s\nDecide with the Erasmus team what to do "
+                              "(e.g. add a place to the modality) before publishing it.", self.places_warning))
+
+    def _ems_places_overflow(self):
+        """A draft rectification never withdraws a place already accepted: [(name, holding, places)]
+        for each modality (a staff call: the whole call) where publishing it would leave more people
+        holding a place than places. Holding one: who accepted, who it selects (and has not
+        renounced), and a reserve still waiting for the answer to a free place offered to them."""
+        self.ensure_one()
+        call = self.call_id.sudo()
+        if self.kind != 'rectification' or self.state != 'draft' or not call or not self.line_ids:
+            return []
+        results = {line.application_id: line.result for line in self.line_ids}
+
+        def holds(application):
+            if application.state in ('accepted', 'renounced'):
+                return application.state == 'accepted'
+            result = results.get(application)
+            return result == 'selected' or (result == 'reserve' and any(
+                offer.state == 'pending' and offer.from_reserve for offer in application.offer_ids))
+
+        holding = call.application_ids.filtered(holds)
+        if call.audience == 'staff':
+            groups = [(call.name, holding, sum(call.modality_ids.mapped('places')))]
+        else:
+            groups = [(modality.name, holding.filtered(lambda application: application.modality_id == modality),
+                       modality.places) for modality in call.modality_ids]
+        return [(name, len(applications), places) for name, applications, places in groups
+                if len(applications) > places]
+
+    def _ems_after_publish(self):
+        """A list of who goes sets the results and offers the places; every applicant gets their own
+        result by email."""
+        self.ensure_one()
+        if self.kind in FINAL_KINDS:
+            self._ems_apply_results()
+            self.call_id._ems_sync_free_place_tasks()
+        # A minor offered a place: the family gets a copy (the place offer of the definitive list).
+        offered = self.line_ids.filtered(lambda line: self.kind in FINAL_KINDS and line.result == 'selected'
+                                         and line.application_id.state == 'selected')
+        Application = self.env['ems.erasmus.application']
+        Application._ems_mail(self.line_ids - offered, 'ems.email_template_erasmus_resolution_published')
+        Application._ems_mail(offered, 'ems.email_template_erasmus_resolution_published', family_copy=True)
+
+    @api.model
+    def _ems_appeal_notice(self):
+        """How the list of who goes is appealed (art. 14 of the call), for its emails and the
+        portal: before the Head of Studies, who answers it (ems.erasmus.claim)."""
+        return _("Against this resolution you can lodge an administrative appeal before the Head of Studies "
+                 "within one month from the day after its publication.")
+
+    def _ems_stored_pdf(self):
+        """Issue #697: the published list as a PDF, for the project's dossier. The report keeps a
+        copy the first time a published resolution is printed (attachment_use) and reuses it after."""
+        self.ensure_one()
+        Attachment = self.env['ir.attachment'].sudo()
+        domain = [('res_model', '=', self._name), ('res_id', '=', self.id), ('mimetype', '=', 'application/pdf')]
+        pdf = Attachment.search(domain, order='id desc', limit=1)
+        if not pdf and self.state == 'published':
+            self.env['ir.actions.report'].sudo()._render_qweb_pdf('ems.report_erasmus_resolution', self.ids)
+            pdf = Attachment.search(domain, order='id desc', limit=1)
+        return pdf
+
+    def _ems_check_can_prepare(self):
+        self.ensure_one()
+        call = self.call_id
+        if call.state != 'closed':
+            raise UserError(_("Close the applications of the call first."))
+        published = call.resolution_ids.filtered(lambda resolution: resolution.state == 'published') - self
+        if self.kind in SINGLE_KINDS and self.kind in published.mapped('kind'):
+            raise UserError(_("This call already has a published %s: publish a rectification instead.",
+                              self._ems_kind_labels()[self.kind].lower()))
+        previous = PREVIOUS_KIND.get(self.kind)
+        if previous and previous not in published.mapped('kind'):
+            raise UserError(_("Publish the %s first.", self._ems_kind_labels()[previous].lower()))
+        if call.audience == 'staff' and self.kind != 'admission' and not sum(call.modality_ids.mapped('places')):
+            raise UserError(_("Add the modalities of the call, with their places, before preparing the resolution."))
+        applications = call.application_ids
+        undecided = applications.filtered(lambda application: application.state in ('submitted', 'subsanation'))
+        if undecided:
+            raise UserError(_("Admit or exclude every application first: %s",
+                              ", ".join(undecided.partner_id.mapped('name'))))
+        if self.kind != 'admission':
+            pending = applications.filtered(lambda application: application.state in RANKED_STATES and (
+                not application.score_complete or application.needs_draw))
+            if pending:
+                raise UserError(_("Complete the score and resolve the draws of: %s", "; ".join(
+                    f"{application.partner_id.name} ({', '.join(application._ems_score_missing())})"
+                    for application in pending)))
+        if self.kind == 'definitive':
+            # Art. 14: the definitive list answers the claims against the provisional one.
+            if call.claims_deadline and call.claims_deadline > call._ems_now():
+                raise UserError(_("The claims deadline (%s) has not passed yet: the applicants can still claim "
+                                  "against the provisional resolution.", call._ems_local_format(call.claims_deadline)))
+            open_claims = call.claim_ids.filtered(lambda claim: claim.state == 'open')
+            if open_claims:
+                raise UserError(_("Answer the open claims first: %s",
+                                  ", ".join(open_claims.partner_id.mapped('name'))))
+        missing = self._ems_applications().filtered(
+            lambda application: not mask_document_id(application._ems_identity_document()))
+        if missing:
+            raise UserError(_("Record the identity document of: %s", ", ".join(missing.partner_id.mapped('name'))))
+
+    def _ems_kind_labels(self):
+        return dict(self._fields['kind']._description_selection(self.env))
+
+    def _ems_applications(self):
+        """The applications the list includes: admitted and excluded for the admission list; for
+        the others, also the results already decided (selected, reserve...)."""
+        self.ensure_one()
+        states = ('admitted', 'excluded') if self.kind == 'admission' else RANKED_STATES + ('excluded',)
+        return self.call_id.application_ids.filtered(lambda application: application.state in states)
+
+    def _ems_list_groups(self):
+        """The published list's tables, as [(title, lines)]: one per modality in a students' call,
+        a single one in a staff call, which ranks everyone together (issue #686)."""
+        self.ensure_one()
+        if self.call_id.audience == 'staff':
+            return [('', self.line_ids)]
+        return [(modality.name, self.line_ids.filtered(lambda line: line.modality_id == modality))
+                for modality in self.line_ids.modality_id]
+
+    def _ems_line_values(self):
+        self.ensure_one()
+        values = []
+        for application in self._ems_applications().sudo().sorted(
+                lambda application: (application.state == 'excluded',
+                                     application.audience == 'student' and application.modality_id.sequence,
+                                     application.audience == 'student' and application.modality_id.id,
+                                     application.rank, application.partner_id.name)):
+            vals = {
+                'application_id': application.id,
+                'modality_id': application.modality_id.id,
+                'public_id': mask_document_id(application._ems_identity_document()),
+                'sequence': len(values) + 1,
+            }
+            if application.state == 'excluded':
+                vals.update(result='excluded', exclusion_reason=application.exclusion_reason)
+            elif self.kind == 'admission':
+                vals['result'] = 'admitted'
+            else:
+                vals.update({name: application[name] for name in SCORE_FIELDS + STAFF_SCORE_FIELDS},
+                            rank=application.rank,
+                            result=application._ems_ranking_result())
+            values.append(vals)
+        return values
+
+    def _ems_apply_results(self):
+        """Set each application's result, except those that already answered a place offer, and
+        offer the place to the selected without one. A rectification withdraws the offers still
+        waiting for an answer of whom it no longer selects: the place they were offered as selected,
+        or any offer once below the minimum score (a reserve keeps one made for a free place)."""
+        self.ensure_one()
+        lines = self.line_ids.filtered(lambda line: line.result in ('selected', 'reserve', 'not_selected')
+                                       and line.application_id.state not in ('accepted', 'renounced'))
+        for result, result_lines in lines.grouped('result').items():
+            result_lines.application_id._ems_set_state(result)
+        withdrawn = lines.filtered(lambda line: line.result != 'selected').application_id.offer_ids.filtered(
+            lambda offer: offer.state == 'pending' and (
+                not offer.from_reserve or offer.application_id.state == 'not_selected'))
+        withdrawn.sudo().write({'state': 'cancelled'})
+        for offer in withdrawn:
+            offer.application_id.sudo().chatter(_("Place offer withdrawn: the rectification no longer selects "
+                                                  "this application."))
+        selected = lines.filtered(lambda line: line.result == 'selected').application_id.filtered(
+            lambda application: not application.offer_ids.filtered(
+                lambda offer: offer.state in ('pending', 'accepted')))
+        self.env['ems.erasmus.offer']._ems_offer(selected, self.call_id.acceptance_deadline, notify=False)
+
+
+class EmsErasmusResolutionLine(models.Model):
+    """Issue #685 - one applicant in a resolution, frozen when it was prepared. The published
+    list identifies them only by the masked identity document (`public_id`), never by name."""
+    _name = 'ems.erasmus.resolution.line'
+    # The emails' header reads "Your <description>": the applicant's result, not a technical "line".
+    _description = 'Erasmus+ result'
+    _order = 'resolution_id, sequence, id'
+
+    resolution_id = fields.Many2one(string="Resolution", comodel_name='ems.erasmus.resolution', required=True,
+                                    ondelete='cascade', index=True)
+    kind = fields.Selection(string="Kind", related='resolution_id.kind')
+    audience = fields.Selection(string="Applicants", related='resolution_id.call_id.audience')
+    application_id = fields.Many2one(string="Application", comodel_name='ems.erasmus.application', required=True,
+                                     ondelete='restrict', index=True)
+    partner_id = fields.Many2one(string="Applicant", comodel_name='res.partner', compute='_compute_partner_id',
+                                 store=True)
+    modality_id = fields.Many2one(string="Modality", comodel_name='ems.erasmus.call.modality', ondelete='restrict')
+    sequence = fields.Integer(string="Sequence")
+    public_id = fields.Char(string="Identity document (published)")
+    result = fields.Selection(string="Result", selection=RESULTS, required=True)
+    rank = fields.Integer(string="Rank")
+    # Audit D-14: as on the application, the Head of Studies sees the total only.
+    score_a = fields.Float(string="A. Record", digits=(5, 2), groups=TEAM)
+    score_b = fields.Float(string="B. Interview", digits=(5, 2), groups=TEAM)
+    score_c = fields.Float(string="C. Languages", digits=(5, 2), groups=TEAM)
+    score_d = fields.Float(string="D. Fewer opportunities", digits=(5, 2),
+                           groups=TEAM)
+    score_e = fields.Float(string="E. First mobility", digits=(5, 2), groups=TEAM)
+    score_f = fields.Float(string="F. Conduct warnings", digits=(5, 2), groups=TEAM)
+    score_total = fields.Float(string="Total score", digits=(5, 2))
+    # Issue #686: the staff call's criteria.
+    score_plan = fields.Float(string="1. Mobility plan", digits=(4, 2))
+    score_last_mobility = fields.Float(string="2. Last mobility", digits=(4, 2))
+    score_projects = fields.Float(string="3. Centre projects", digits=(4, 2))
+    score_staff_language = fields.Float(string="4. Languages", digits=(4, 2))
+    score_seniority = fields.Float(string="5. Seniority", digits=(4, 2))
+    score_internationalisation = fields.Float(string="6. Internationalisation", digits=(4, 2))
+    exclusion_reason = fields.Text(string="Exclusion reason",
+                                   help="Only for the applicant (email and portal), never in the published list.")
+
+    @api.depends('application_id.partner_id')
+    def _compute_partner_id(self):
+        for line in self:
+            line.partner_id = line.application_id.partner_id
+
+    def _compute_display_name(self):
+        for line in self:
+            line.display_name = f"{line.partner_id.name} - {line.resolution_id.name}"
+
+    def _ems_reserve_number(self):
+        """The applicant's place on the reserve list of their modality (a staff call's, of the whole
+        list): 1 for the first reserve. The portal says it instead of the overall position."""
+        self.ensure_one()
+        reserves = self.resolution_id.line_ids.filtered(
+            lambda line: line.result == 'reserve' and (line.audience == 'staff' or line.modality_id == self.modality_id))
+        return len(reserves.filtered(lambda line: line.rank < self.rank)) + 1
+
+    def _ems_format_score(self):
+        """The total as the reader's language writes numbers, for the email."""
+        self.ensure_one()
+        return formatLang(self.env, self.score_total, digits=2)

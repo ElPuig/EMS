@@ -29,6 +29,7 @@ Esta sección contiene los manuales para los **tutores de grupo**.
 | [Informes de asistencia](attendance-reports.md) | Imprimir los 3 informes PDF de asistencia (por grupo/alumno/asignatura) y explorar los datos tú mismo con la pantalla de Análisis de asistencia |
 | [Informe de incidencias de asistencia de tus alumnos](attendance-issues-report.md) | Las faltas y los retrasos de tus alumnos en tu resumen diario, y cómo elegir cuándo llegan |
 | [Baja prevista de un alumno](withdrawal-expected.md) | Quitar de los pases de lista a un alumno que dejará el centro mientras se tramita su baja, para que no acumule faltas, y deshacerlo si al final no se va |
+| [Baja de oficio de un alumno](ex-officio-withdrawal.md) | Qué hacer cuando un alumno deja de venir: la propuesta, tu paso (la llamada y el correo a la familia) y qué pasa si los pases de lista dicen otra cosa |
 | [El horario semanal de un grupo](../admin/group-schedule.md) | Consultar el horario agregado de un grupo (asignaturas, docentes, aulas, patios) y exportarlo a PDF |
 | [El horario semanal de un alumno](../admin/student-schedule.md) | Consultar el horario propio de uno de tus tutorandos (asignaturas, docentes, aulas, patios), incluyendo clases solapadas, y exportarlo a PDF |
 | [Notas públicas y notas privadas del alumno](../teachers/student-notes.md) | Dónde todo el profesorado lee las notas públicas de un alumno, y quién puede leer y escribir las privadas de tutoría |

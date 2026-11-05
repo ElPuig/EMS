@@ -2,7 +2,9 @@
 <odoo>
     <data>
 
-        <template id="portal_my_home_ems_custom_landing" name="EMS Custom Portal Landing" inherit_id="portal.portal_my_home" priority="99">
+        <!-- Priority above sign_oca's portal_my_home (100), which adds its card inside o_portal_docs:
+             this replaces the whole block, so it has to come last. -->
+        <template id="portal_my_home_ems_custom_landing" name="EMS Custom Portal Landing" inherit_id="portal.portal_my_home" priority="110">
             
             <xpath expr="//div[hasclass('o_portal_docs')]" position="replace">
 
@@ -21,6 +23,12 @@
                 <div t-if="_ems_partner.contact_type == 'family' and not _ems_partner.get_portal_students()"
                      class="alert alert-info mt-3 ems-portal-no-students" role="alert">
                     There is no student whose information you can consult. A student of legal age must authorize sharing his information with the family before you can consult it again.
+                </div>
+
+                <div t-if="request.env.user.share" class="mt-3">
+                    <t t-call="ems.portal_erasmus_satisfaction_banners">
+                        <t t-set="surveys" t-value="_ems_partner._ems_erasmus_satisfaction_pending()"/>
+                    </t>
                 </div>
 
                 <div class="row g-4 mt-2">
@@ -71,6 +79,18 @@
                             <t t-set="title">Convalidations</t>
                             <t t-set="url" t-value="'/my/convalidaciones'"/>
                             <t t-set="text">Request the convalidation of subjects you already passed</t>
+                            <t t-set="config_card" t-value="True"/>
+                        </t>
+                    </t>
+
+                    <!-- Issue #683: students who can apply to a published Erasmus+ call, or already
+                         applied (res.partner._ems_erasmus_portal_visible). -->
+                    <t t-if="request.env.user.partner_id._ems_erasmus_portal_visible()">
+                        <t t-call="portal.portal_docs_entry">
+                            <t t-set="icon" t-value="'/ems/static/src/img/erasmus.svg'"/>
+                            <t t-set="title">Erasmus+</t>
+                            <t t-set="url" t-value="'/my/erasmus'"/>
+                            <t t-set="text">Apply for an Erasmus+ mobility and follow your application</t>
                             <t t-set="config_card" t-value="True"/>
                         </t>
                     </t>

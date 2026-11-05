@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #726: an ex officio withdrawal case file, every step with who did it and when:
+             the record of the protocol, and what Direction sends to the Inspection. Printed from the
+             case file's Actions (ems.ex_officio_withdrawal.action_print_case_file), always in the
+             centre language (models/shared/ir_actions_report.py). Not bound to the Print menu: the form's Actions offer it. -->
+        <record id="action_report_ex_officio_withdrawal" model="ir.actions.report">
+            <field name="name">Ex officio withdrawal case file</field>
+            <field name="model">ems.ex_officio_withdrawal</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_ex_officio_withdrawal</field>
+            <field name="report_file">ems.report_ex_officio_withdrawal</field>
+            <field name="print_report_name">'%s' % object.name</field>
+        </record>
+
+        <template id="report_ex_officio_withdrawal">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="ems.report_ex_officio_withdrawal_document"/>
+                </t>
+            </t>
+        </template>
+
+        <template id="report_ex_officio_withdrawal_document">
+            <t t-call="web.external_layout">
+                <div class="page o_ems_ex_officio_withdrawal_report">
+                    <style>
+                        .o_ems_ex_officio_withdrawal_report { font-size: 12px; }
+                        .o_ems_ex_officio_withdrawal_report h2 { font-size: 18px; margin-bottom: 12px; }
+                        .o_ems_ex_officio_withdrawal_report h3 { font-size: 13px; margin-top: 16px; margin-bottom: 4px; }
+                        .o_ems_ex_officio_withdrawal_report table td, .o_ems_ex_officio_withdrawal_report table th { padding: 3px 6px !important; vertical-align: top; }
+                    </style>
+
+                    <h2>Ex officio withdrawal case file</h2>
+
+                    <table class="table table-sm table-borderless">
+                        <tbody>
+                            <tr><th class="w-25">Case file</th><td t-out="doc.name"/></tr>
+                            <tr><th>Student</th><td t-out="doc.student_id.name"/></tr>
+                            <tr><th>Group</th><td t-out="doc.group_id.name"/></tr>
+                            <tr><th>Level</th><td t-out="doc.level_id.display_name"/></tr>
+                            <tr><th>Circuit</th><td><span t-field="doc.circuit"/></td></tr>
+                            <tr><th>First day of absence</th><td><span t-field="doc.first_absence_date"/></td></tr>
+                            <tr><th>Course</th><td t-out="doc.course_id.name"/></tr>
+                            <tr><th>State</th><td><span t-field="doc.state"/></td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Steps</h3>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Due</th>
+                                <th>Step</th>
+                                <th>Responsible</th>
+                                <th>Done</th>
+                                <th>What was done</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="doc.step_ids" t-as="step">
+                                <td><span t-field="step.due_date"/></td>
+                                <td><span t-field="step.code"/></td>
+                                <td><span t-field="step.responsible"/></td>
+                                <td>
+                                    <t t-if="step.done_date">
+                                        <span t-field="step.done_date" t-options="{'widget': 'date'}"/><br/>
+                                        <span t-out="step.done_by_id.name"/>
+                                    </t>
+                                    <t t-else="">Pending</t>
+                                </td>
+                                <td>
+                                    <t t-foreach="step.check_ids.filtered('done')" t-as="check">
+                                        <span t-field="check.code"/>: <span t-field="check.date"/><br/>
+                                    </t>
+                                    <em t-if="step.notes" t-out="step.notes"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

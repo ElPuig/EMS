@@ -168,6 +168,10 @@ class TestDocsScreenshotsMinutes(DocsScreenshotMixin, HttpCase):
         self._capture(self._minute_url(self.draft), 'body', 'actes-06-accions.png', login=login,
                       wait_for='.o_form_statusbar .o_ems_actions_toggle', click='.o_form_statusbar .o_ems_actions_toggle',
                       wait_after=".o_ems_actions_menu button[name='action_send_call']", max_height=420, beyond_viewport=False)
+        # An approved minute: undoing the approval to correct it (issue #756).
+        # With a single action the dropdown shows it as a plain button.
+        self._capture(self._minute_url(self.previous), 'body', 'actes-10-desfer-aprovacio.png', login=login,
+                      wait_for=".o_form_statusbar button[name='action_reopen']", max_height=320, beyond_viewport=False)
         self._capture(self._minute_url(self.held), "div[name=block_reviews]", 'actes-07-seguiment-acords.png', login=login,
                       wait_for="div[name=block_reviews] .o_ems_record_card", run=self._show("div[name=block_reviews]"),
                       wait_after="div[name=block_reviews]", beyond_viewport=False)

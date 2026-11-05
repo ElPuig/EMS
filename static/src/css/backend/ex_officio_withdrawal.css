@@ -1,0 +1,13 @@
+/* Issue #726: the attendances to check show "They did come" and "It was a mistake" side by side,
+   whole: their table sizes its columns to their content, and Odoo's cap on a list's button cells
+   (32px, so their text wraps word by word) is lifted. */
+.o_ems_attendance_review .o_list_table {
+    table-layout: auto !important;
+}
+.o_ems_attendance_review .o_list_table .o_list_button {
+    max-width: none !important;
+    width: 1% !important;
+}
+.o_ems_attendance_review .o_list_table td.o_list_button > div {
+    flex-wrap: nowrap !important;
+}

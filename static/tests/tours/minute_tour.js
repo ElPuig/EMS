@@ -182,18 +182,27 @@ registry.category("web_tour.tours").add("ems_minute_write", {
             trigger: ".o_form_saved .o_field_widget[name='agreement_ids'] .o_ems_record_card_cell[data-name='is_closed_in_minute'] input:checked",
             content: "It stays done once saved",
         },
-        ...clickAction("action_submit", "Send it for approval"),
+        ...clickAction("action_open_submit_dialog", "Send it for approval"),
         {
-            trigger: ".o_dialog .modal-footer .btn-primary",
-            content: "Confirm the change of state",
+            // Everybody convened gets the draft, whether they passed the tag or not.
+            trigger: ".o_dialog .o_field_widget[name='send_draft'] input:checked",
+            content: "Sending the draft to the participants is offered, and ticked",
+        },
+        {
+            trigger: ".o_dialog .modal-footer .btn-primary[name='action_confirm']",
+            content: "Send it for approval, with its draft",
             run: "click",
+        },
+        {
+            trigger: ".o-mail-Message:contains('Draft sent to')",
+            content: "The draft has gone to everybody convened, as the minute's history says",
         },
         {
             trigger: ".o_statusbar_status .o_arrow_button_current",
             content: "The state moved on",
         },
-        ...checkActions({ offered: ["action_back_to_meeting"], notOffered: ["action_send_call", "action_delete"] },
-            "Sent for approval, it can no longer be called nor deleted"),
+        ...checkActions({ offered: ["action_back_to_meeting", "action_send_draft"], notOffered: ["action_send_call", "action_delete"] },
+            "Sent for approval, it can no longer be called nor deleted, but its draft can be sent"),
     ],
 });
 
@@ -262,6 +271,148 @@ registry.category("web_tour.tours").add("ems_minute_attendance_lists", {
         {
             trigger: ".o_form_view .o_form_saved",
             content: "The minute is saved",
+        },
+    ],
+});
+
+// Issue #755: the minute saves by itself while it is written, and that save must not take the
+// cursor away from the text box being written in: whoever writes carries on typing without looking.
+// Two pauses, together longer than the least time between two saves plus the writer's pause and
+// one tick of the autosave (minute_form.js); each one shorter than a tour step's time limit.
+const AUTOSAVE_WAIT = 7500;
+
+function wait(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function keepsWriting(blockIndex, text) {
+    const editable = `.o_field_widget[name='agenda_ids'] .o_ems_text_block:nth-child(${blockIndex}) .o_ems_text_block_body .odoo-editor-editable`;
+    return [
+        {
+            trigger: editable,
+            content: "Write the first words of what is said about the item",
+            run: `editor ${text}`,
+        },
+        {
+            trigger: editable,
+            content: "Pause, long enough for the form to save by itself",
+            run: () => wait(AUTOSAVE_WAIT),
+        },
+        {
+            trigger: editable,
+            content: "Still pausing",
+            run: () => wait(AUTOSAVE_WAIT),
+        },
+        {
+            trigger: editable,
+            content: "The cursor is still in the same text box, so writing goes on there",
+            run() {
+                const active = document.activeElement;
+                if (!active || !active.closest || active.closest(".odoo-editor-editable") !== this.anchor) {
+                    throw new Error(`The autosave took the focus away from the text being written (now on ${active && active.outerHTML.slice(0, 80)})`);
+                }
+                document.execCommand("insertText", false, " and more");
+            },
+        },
+        {
+            trigger: `${editable}:contains('${text} and more')`,
+            content: "What is typed after the save lands right after the first words",
+        },
+    ];
+}
+
+registry.category("web_tour.tours").add("ems_minute_autosave_keeps_focus", {
+    test: true,
+    steps: () => [
+        ...keepsWriting(1, "First words"),
+        {
+            trigger: ".o_field_widget[name='agenda_ids'] .o_ems_text_block_add",
+            content: "Add a new item during the meeting",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='agenda_ids'] .o_ems_text_block:nth-child(2) .o_field_widget[name='name'] input",
+            content: "Name it",
+            run: "edit Second item",
+        },
+        ...keepsWriting(2, "New words"),
+        {
+            trigger: ".o_form_view .o_form_button_save",
+            content: "Save by hand",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_form_saved",
+            content: "Saved",
+        },
+    ],
+});
+
+// Issue #755: sending for approval offers to send the draft to everybody convened, and it can be
+// sent again afterwards.
+registry.category("web_tour.tours").add("ems_minute_submit_with_draft", {
+    test: true,
+    steps: () => [
+        ...clickAction("action_open_submit_dialog", "Send it for approval"),
+        {
+            trigger: ".o_dialog .o_field_widget[name='send_draft'] input:checked",
+            content: "Sending the draft to the participants is offered, and ticked",
+        },
+        {
+            trigger: ".o_dialog .modal-footer .btn-primary[name='action_confirm']",
+            content: "Send it for approval, with its draft",
+            run: "click",
+        },
+        {
+            trigger: ".o-mail-Message:contains('Draft sent to 1 people')",
+            content: "The draft has gone to everybody convened, as the minute's history says",
+        },
+        ...clickAction("action_send_draft", "Send the draft again"),
+        {
+            trigger: ".o_dialog .modal-footer .btn-primary",
+            content: "Confirm",
+            run: "click",
+        },
+        {
+            trigger: ".o-mail-Message:contains('Draft sent to 1 people') ~ .o-mail-Message:contains('Draft sent to 1 people'), .o-mail-Thread:has(.o-mail-Message:contains('Draft sent to 1 people') + .o-mail-Message:contains('Draft sent to 1 people'))",
+            content: "Sent again",
+        },
+    ],
+});
+
+
+// Issue #756: an approved minute's approval is undone to change it, and given again.
+registry.category("web_tour.tours").add("ems_minute_undo_approval", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_field_widget[name='state'] .o_arrow_button_current[data-value='approved']",
+            content: "The minute is approved",
+        },
+        ...clickAction("action_reopen", "Undo the approval to change it"),
+        {
+            trigger: ".o_dialog .modal-footer .btn-primary",
+            content: "Confirm",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='state'] .o_arrow_button_current[data-value='to_approve']",
+            content: "Waiting for approval again",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='absence_notes']:not(.o_readonly_modifier) input:visible",
+            content: "It can be written again",
+            run: "edit Corrected after undoing the approval",
+        },
+        ...clickAction("action_approve", "Approve it again"),
+        {
+            trigger: ".o_dialog .modal-footer .btn-primary",
+            content: "Confirm",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='state'] .o_arrow_button_current[data-value='approved']",
+            content: "Approved again",
         },
     ],
 });

@@ -10,14 +10,22 @@
                         <group string="Main data" col="4">
                             <group>
                                 <field name="acronym"/>
-                                <field name="allows_convalidation"/>
-                                <field name="card_color"/>
-                                <field name="declaration_code"/>
                             </group>
                             <group colspan="3">
-                                <field name="name"/>    
-                            </group>                            
-                        </group>  
+                                <field name="name"/>
+                            </group>
+                        </group>
+                        <group string="Configuration">
+                            <!-- Set by the regulation (EMS's catalog), then what the centre configures. Which
+                                 levels allow convalidations is set in Settings > Convalidations. -->
+                            <group>
+                                <field name="education_stage" readonly="1"/>
+                                <field name="declaration_code"/>
+                            </group>
+                            <group>
+                                <field name="card_color"/>
+                            </group>
+                        </group>
 
                         <notebook>
                             <page string="Studies">

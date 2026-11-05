@@ -22,6 +22,8 @@ Es solo de lectura. Para corregir un registro, contacta con la Secretaría o con
 
 Si un alumno tiene alguna asignatura convalidada durante el curso actual, el historial ya muestra un registro marcado como **Curso actual** con la nota de la convalidación y la marca **CV**. El resto del curso se añade cuando se cierra.
 
+Si el alumno participa, o ha participado, en una movilidad Erasmus+ gestionada con EMS (individual o de grupo), bajo el historial académico aparece la lista **Erasmus+**: la convocatoria o la movilidad de grupo, el país y la ciudad, las fechas y si está *Prevista* o *Completada*. Es solo de lectura y no hace falta tener acceso a la aplicación Erasmus+.
+
 ---
 
 ## Consultar los datos de cualquier alumno (Orientación y Convivencia)

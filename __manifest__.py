@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.45.1',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.46.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -44,7 +44,8 @@
         'base_vat',
         'spreadsheet_dashboard',
         'partner_firstname',
-        'partner_multi_relation'
+        'partner_multi_relation',
+        'sign_oca',
     ],
     
     # just for debugging
@@ -63,6 +64,7 @@
         'security/rules/attendance.xml',
         'security/rules/quality.xml',
         'security/rules/coexistence.xml',
+        'security/rules/erasmus.xml',
         'security/rules/communications.xml',
         'security/rules/contacts.xml',
         'security/rules/employees.xml',
@@ -71,6 +73,7 @@
         'security/rules/portal.xml',
         'security/rules/student_data_reader.xml',
         'security/rules/task_assignment.xml',
+        'security/rules/ex_officio_withdrawal.xml',
         'security/ir.model.access.csv',
 
 
@@ -79,6 +82,8 @@
         'reports/shared/report_validation_stamp.xml',
         'reports/minute_report.xml',
         'views/minutes_agreements/minute/call_email.xml',
+        'views/minutes_agreements/minute/draft_email.xml',
+        'views/minutes_agreements/minute/submit_wizard.xml',
         'views/minutes_agreements/menu.xml',
             'views/minutes_agreements/minute/search.xml',
             'views/minutes_agreements/minute/list.xml',
@@ -348,6 +353,7 @@
             'views/academic_management/enrollment_configuration/enrollment_items_view.xml',
             'reports/authorizations/report_authorization_certificate.xml',
             'reports/contacts/report_google_credentials.xml',
+            'reports/contacts/report_ex_officio_withdrawal.xml',
             'reports/employees/report_google_credentials_employee.xml',
             'reports/employees/report_working_schedule.xml',
             'reports/employees/report_schedule_declaration.xml',
@@ -374,12 +380,35 @@
             'views/academic_management/task_assignment/menu.xml',
             'views/academic_management/convalidations/views.xml',
             'views/academic_management/convalidations/menu.xml',
+            'views/academic_management/ex_officio_withdrawal/views.xml',
+            'views/academic_management/ex_officio_withdrawal/menu.xml',
             'views/academic_management/convalidation_info_reason/list.xml',
             'views/academic_management/convalidation_info_reason/form.xml',
             'views/academic_management/convalidation_info_reason/menu.xml',
             'views/academic_management/convalidation_rejection_reason/list.xml',
             'views/academic_management/convalidation_rejection_reason/form.xml',
             'views/academic_management/convalidation_rejection_reason/menu.xml',
+
+        'views/erasmus/call/views.xml',
+        'views/erasmus/application/views.xml',
+        'views/erasmus/interview/views.xml',
+        'views/erasmus/plan_rating/views.xml',
+        'reports/erasmus/report_erasmus_resolution.xml',
+        'reports/erasmus/report_erasmus_self_assessment.xml',
+        'reports/erasmus/report_erasmus_quality.xml',
+        'views/erasmus/resolution/views.xml',
+        'views/erasmus/offer/views.xml',
+        'views/erasmus/claim/views.xml',
+        'views/erasmus/mobility/views.xml',
+        'views/erasmus/project/views.xml',
+        'views/erasmus/grant/views.xml',
+        'views/erasmus/group_mobility/views.xml',
+        'views/erasmus/economy/views.xml',
+        'views/erasmus/document_review/views.xml',
+        'views/erasmus/history/views.xml',
+        'views/erasmus/staff/views.xml',
+        'views/erasmus/quality/views.xml',
+        'views/erasmus/menu.xml',
 
         'views/sales/product_view.xml',
         'views/accounting/payment_term_views.xml',
@@ -399,6 +428,8 @@
             'views/portal/portal_contact_data.xml',
             'views/portal/portal_documentation.xml',
             'views/portal/portal_convalidations.xml',
+            'views/portal/portal_erasmus.xml',
+            'views/portal/portal_erasmus_group.xml',
             'views/portal/portal_under_construction.xml',
 
 
@@ -416,7 +447,16 @@
         'mails/enrollment/authorization_send.xml',
         'mails/grades/convalidation_resolved.xml',
         'mails/grades/convalidation_info_request.xml',
+        'mails/erasmus/layout.xml',
+        'mails/erasmus/application.xml',
+        'mails/erasmus/call.xml',
+        'mails/erasmus/resolution.xml',
+        'mails/erasmus/mobility.xml',
+        'mails/erasmus/group_mobility.xml',
+        'mails/erasmus/satisfaction.xml',
+        'mails/contacts/ex_officio_withdrawal.xml',
         'mails/shared/daily_summary.xml',
+        'mails/quality/agreement_notice.xml',
         'mails/contacts/contact_data_request.xml',
 
         ### Reports templates ###
@@ -445,8 +485,11 @@
         'data/main/ir.cron-coming_of_age.csv',
         'data/main/ir.cron-group_public_schedule.csv',
         'data/main/ir.cron-absence.csv',
+        'data/main/ir.cron-erasmus.csv',
+        'data/main/sign.oca.role-erasmus.csv',
         'data/main/ir.cron-daily_summary.csv',
         'data/main/ir.cron-preenrollment_period.csv',
+        'data/main/ir.cron-ex_officio_withdrawal.csv',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
         'data/main/ems.convalidation.info_reason.csv',
@@ -525,6 +568,9 @@
         'data/custom/crm.team.csv',
         'data/custom/ems.authorization.template.csv',
         'data/custom/ir.sequence-enrollment_number.csv',
+        'data/custom/erasmus/ems.erasmus.project.csv',
+        'data/custom/erasmus/ems.erasmus.support.rate.csv',
+        'data/custom/erasmus/ems.erasmus.quality.history.csv',
 
         # Quality management system: the centre's process map. Load order matters - a procedure
         # references its process, and a document references its procedure.
@@ -607,6 +653,9 @@
             #'ems/static/src/css/**/*',
         ],
         'web.assets_tests': [
+            # sign_oca 18.0 ships an Odoo 16-style tour (odoo.define + require("web_tour.tour")) that
+            # no longer loads: its console error would fail every EMS tour.
+            ('remove', 'sign_oca/static/src/tests/sign_tour.esm.js'),
             'ems/static/tests/tours/quality_tour.js',
             'ems/static/tests/tours/minute_tour.js',
             'ems/static/tests/tours/**/*',

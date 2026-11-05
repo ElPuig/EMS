@@ -1,0 +1,12 @@
+ call_id |    stage    |            cat            | confidential |                      name                       
+---------+-------------+---------------------------+--------------+-------------------------------------------------
+     449 | application | (empty)                   | t            | Documentació de menys oportunitats
+     449 | preparation | 01_Dades_i_autoritzacions | t            | Targeta sanitària europea
+     449 | preparation | 01_Dades_i_autoritzacions | t            | Documentació d'inclusió
+     449 | preparation | 01_Dades_i_autoritzacions |              | Autorització de la família per viatjar
+     449 | preparation | 01_Dades_i_autoritzacions |              | Autorització de sortida de menors a l'estranger
+     449 | return      | 03_Durant_la_mobilitat    |              | Bitllets o targetes d'embarcament
+     450 | preparation | 01_Dades_i_autoritzacions | t            | Targeta sanitària europea
+     450 | return      | 03_Durant_la_mobilitat    |              | Bitllets o targetes d'embarcament
+(8 rows)
+

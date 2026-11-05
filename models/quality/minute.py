@@ -13,6 +13,9 @@ from odoo.tools import format_date
 from .common import scope_code
 from .minute_type import SCOPE_FIELDS
 
+# The task of whoever is to approve a minute sent for approval (issue #753).
+APPROVAL_TASK_XMLID = 'ems.mail_activity_minute_approval'
+
 # What the old free-text 'type' column held, kept in step with the new type's scope so the column
 # stays meaningful for anything reading the database directly. It is no longer used by the
 # application and can be dropped by a version that ships a migration for it.
@@ -197,6 +200,8 @@ class EmsMinute(models.Model):
     submission_date = fields.Date(string="Sent for approval on", readonly=True, copy=False)
     submitted_by_id = fields.Many2one(string="Sent for approval by", comodel_name="res.users", readonly=True, copy=False)
     can_approve = fields.Boolean(string="Can approve", compute="_compute_can_approve", help="Whether the current user is the one who approves this minute.")
+    can_reopen = fields.Boolean(string="Can reopen", compute="_compute_can_reopen",
+                                help="Whether the current user may take back the approval of this minute to change it.")
     # Whoever may stand in for the person named to approve it: that person and their chain of
     # command (hr.employee.tutor_scope_user_ids: every chief above them, the Director). Searchable
     # for the record rules; not stored, so it always follows the current hierarchy.
@@ -240,7 +245,7 @@ class EmsMinute(models.Model):
             if not minute.type_id:
                 minute.name = minute.name or ""
                 continue
-            type_name = minute.type_id.with_context(lang=minute._ems_centre_lang()).name
+            type_name = minute.type_id.with_env(minute.env['res.company']._ems_centre_env()).name
             scope = minute.scope_name
             minute.name = f"{type_name} - {scope}" if scope else type_name
 
@@ -280,7 +285,7 @@ class EmsMinute(models.Model):
     def _compute_scope_name(self):
         # Stored: in the centre's language, like the title built from it.
         for minute in self:
-            minute.scope_name = minute.with_context(lang=minute._ems_centre_lang())._scope_label()
+            minute.scope_name = minute.with_env(minute.env['res.company']._ems_centre_env())._scope_label()
 
     @api.depends('space_id', 'place_text')
     def _compute_place_name(self):
@@ -433,7 +438,47 @@ class EmsMinute(models.Model):
         result = super().write(vals)
         if {'attendance_mode', 'start_datetime', 'duration', 'space_id'} & set(vals):
             self._ems_sync_presence()
+        if {'state', 'approver_employee_id', 'approver_role_id'} & set(vals):
+            self._ems_sync_approval_task()
+        if vals.get('state') == 'approved':
+            self._ems_announce_agreements()
         return result
+
+    # --- Telling the people concerned (issue #753) -----------------------------------------------
+
+    def _ems_approver_users(self):
+        """Who gets the approval task: the person named to approve it, or else the holders of the
+        post that approves it."""
+        self.ensure_one()
+        minute = self.sudo()
+        users = minute.approver_employee_id.user_id or minute.approver_role_id.employee_ids.user_id
+        return users.filtered(lambda user: user.active and not user.share)
+
+    def _ems_sync_approval_task(self):
+        """An "Approve the minute" task, due the day it is sent, for whoever is to approve it while
+        it waits for approval: done once approved, gone if it goes back to the meeting or to draft
+        or somebody else is named (mail.thread._ems_sync_user_tasks)."""
+        activity_type = self.env.ref(APPROVAL_TASK_XMLID)
+        today = self.env['ems.datetime_utils'].get_local_today()
+        for minute in self.sudo():
+            users = minute._ems_approver_users() if minute.state == 'to_approve' else self.env['res.users']
+            minute._ems_sync_user_tasks(activity_type, users, today, done=minute.state == 'approved')
+
+    def _ems_announce_agreements(self):
+        """Once the minute is approved, its agreements reach their responsible people: a task for
+        each open one (and a notice when it is due later), a notice for each one agreed and done in
+        the meeting, and the follow-up written for each agreement it reviewed. Never the people
+        involved: the minute itself tells them. Approved again after being reopened, only what
+        changed is told again: the tasks follow the agreements as they now stand, and a notice
+        already given in the same words is not repeated."""
+        for minute in self.sudo():
+            agreements = minute.agreement_ids
+            agreements._ems_sync_tasks()
+            for action in agreements.filtered('minute_followup_id'):
+                action._ems_queue_notice(action._ems_responsible_users() - self.env.user, 'done_in_meeting', once=True)
+            for review in minute.agreement_review_ids.filtered('followup_id'):
+                action = review.action_id
+                action._ems_queue_notice(action._ems_responsible_users() - self.env.user, 'followup', review.followup_id, once=True)
 
     @api.ondelete(at_uninstall=False)
     def _unlink_only_draft(self):
@@ -563,23 +608,13 @@ class EmsMinute(models.Model):
         # Whatever an earlier choice of scope had carried over goes first: changing the department
         # in the form must not leave the other department's topics behind.
         self.pending_topic_ids -= self.pending_topic_ids.filtered('carried_from_minute_id')
-        self.pending_topic_ids = [(0, 0, {
-            'name': topic.name,
-            'carried_from_minute_id': previous.id,
-        }) for topic in pending]
+        # Each topic once: not one this minute already has (written by hand, or carried by an
+        # earlier run of this method), nor the repetitions an older minute may hold (issue #755).
+        present = set(self.pending_topic_ids.mapped('name'))
+        names = [name for name in dict.fromkeys(pending.mapped('name')) if name not in present]
+        self.pending_topic_ids = [(0, 0, {'name': name, 'carried_from_minute_id': previous.id}) for name in names]
 
     # --- Call to the meeting ---------------------------------------------------------------------
-
-    @api.model
-    def _ems_centre_lang(self):
-        """The language the centre's own documents are written in - a minute, its call - whatever
-        language whoever produces them works in (res.company.ems_lang)."""
-        return self.env.company.ems_lang
-
-    @api.model
-    def _ems_centre_env(self):
-        """An environment in the centre's language, for text EMS writes into the database itself."""
-        return self.with_context(lang=self._ems_centre_lang()).env
 
     def _ems_call_values(self):
         """What the call says: when and where, the agenda, and where to read the previous minute."""
@@ -596,17 +631,25 @@ class EmsMinute(models.Model):
             'convener_name': self._ems_convener().name,
         }
 
-    def _ems_call_mail(self, subject, values, email_to):
-        return self.env['mail.mail'].sudo().create({
+    def _ems_meeting_mail(self, template, subject, values, email_to, pdf=None):
+        """A message about the meeting from whoever sends it (the call, the draft), rendered from
+        `template`; `pdf`, the minute's PDF to attach for somebody who cannot open it in EMS."""
+        vals = {
             'subject': subject,
-            'body_html': self.env['ir.qweb']._render('ems.minute_call_email', values, minimal_qcontext=True),
+            'body_html': self.env['ir.qweb']._render(template, values, minimal_qcontext=True),
             'email_from': self.env.user.email_formatted or self.env.company.email_formatted,
             'reply_to': self.env.user.email_formatted or self.env.company.email_formatted,
             'email_to': email_to,
             'model': self._name,
             'res_id': self.id,
             'auto_delete': False,
-        })
+        }
+        if pdf:
+            vals['attachment_ids'] = [(0, 0, {
+                'name': f"{self.code or self.name}.pdf", 'raw': pdf, 'mimetype': 'application/pdf',
+                'res_model': self._name, 'res_id': self.id,
+            })]
+        return self.env['mail.mail'].sudo().create(vals)
 
     def _ems_convener(self):
         """Who calls the meeting: whoever is to approve its minute, which by default is the person
@@ -684,6 +727,22 @@ class EmsMinute(models.Model):
             return user in self.approver_scope_user_ids
         return user in self.approver_role_id.sudo().employee_ids.user_id
 
+    @api.depends('state', 'approver_employee_id', 'approver_role_id', 'redactor_employee_id')
+    @api.depends_context('uid')
+    def _compute_can_reopen(self):
+        for minute in self:
+            minute.can_reopen = minute.state == 'approved' and minute._ems_user_may_reopen()
+
+    def _ems_user_may_reopen(self):
+        """Who may take back the approval to change the minute (issue #756): whoever gives it
+        (_ems_user_may_approve), whoever answers for the scope that met (a department's chiefs, a
+        group's tutor, the director) and whoever wrote it, with the chain of command above them."""
+        self.ensure_one()
+        user = self.env.user
+        return (self._ems_user_may_approve()
+                or user in self.redactor_scope_user_ids
+                or user in self._ems_approver_candidates().user_id)
+
     def _ems_google_calendar_url(self):
         """A link that opens Google Calendar with this meeting filled in, for each person to add
         it to their own calendar: its start and end (in UTC, which is what the link takes), the
@@ -711,7 +770,7 @@ class EmsMinute(models.Model):
         again whenever something changes; a second call says it replaces the first."""
         self.ensure_one()
         self.check_access('write')
-        self = self.with_context(lang=self._ems_centre_lang())
+        self = self.with_env(self.env['res.company']._ems_centre_env())
         if self.state in ('to_approve', 'approved') or self.type_kind == 'record':
             raise UserError(_("A call can only be sent for a meeting whose minute has not been sent for approval yet."))
         if not self.start_datetime:
@@ -725,12 +784,12 @@ class EmsMinute(models.Model):
         subject = f"{subject} ({values['date_label']}, {self.time})"
         mails = self.env['mail.mail'].sudo()
         if recipients:
-            mails |= self._ems_call_mail(subject, values, ", ".join(recipients.mapped('work_email')))
+            mails |= self._ems_meeting_mail('ems.minute_call_email', subject, values, ", ".join(recipients.mapped('work_email')))
         # People from outside EMS get it one by one: the staff's message shows every address, and
         # theirs leaves out the link to the previous minute, which they cannot open.
         for guest in guests:
-            mails |= self._ems_call_mail(subject, {**values, 'previous_url': False},
-                                         formataddr((f"{guest.name} {guest.surname}", guest.email)))
+            mails |= self._ems_meeting_mail('ems.minute_call_email', subject, {**values, 'previous_url': False},
+                                            formataddr((f"{guest.name} {guest.surname}", guest.email)))
         mails.send()
         count = len(recipients) + len(guests)
         self.write({'call_sent_datetime': fields.Datetime.now(), 'call_recipient_count': count})
@@ -739,6 +798,70 @@ class EmsMinute(models.Model):
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {'type': 'success', 'message': _("The call has been sent to %s people.", count),
+                       'next': {'type': 'ir.actions.act_window_close'}},
+        }
+
+    # --- Draft for the participants (issue #755) -------------------------------------------------
+
+    def _ems_draft_recipients(self):
+        """Who reviews the draft: everybody convened, whether they came or not - the staff with an
+        email address (attendees and absentees) and the guests from outside EMS who have one."""
+        self.ensure_one()
+        return ((self.attendee_ids | self.absentee_ids).filtered('work_email'),
+                self.guest_ids.filtered('email'))
+
+    def action_open_submit_dialog(self):
+        """Send for approval from a dialog that also offers to send the draft to the participants,
+        so they review it while the meeting is fresh. An evidence record has no meeting: it is sent
+        straight away (action_submit)."""
+        self.ensure_one()
+        self.check_access('write')
+        staff, guests = self._ems_draft_recipients()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Send for approval"),
+            'res_model': 'ems.minute.submit.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_minute_id': self.id, 'default_send_draft': bool(staff or guests)},
+        }
+
+    def action_send_draft(self):
+        """Email the draft to everybody convened, so they can review it before it is approved: the
+        staff get a link to its PDF, always as the minute stands (they open it with their EMS
+        account); the guests, who have none, get the PDF attached in a message of their own. It
+        can be sent again whenever the draft changes."""
+        self.ensure_one()
+        self.check_access('write')
+        if self.state not in ('meeting', 'to_approve') or self.type_kind == 'record':
+            raise UserError(_("The draft can only be sent while the meeting is held or its minute waits for approval."))
+        staff, guests = self._ems_draft_recipients()
+        if not staff and not guests:
+            raise UserError(_("There is nobody to send the draft to: none of the people convened has an email address."))
+        minute = self.with_env(self.env['res.company']._ems_centre_env())
+        subject = minute.env._("Draft minute: %(name)s (%(date)s)", name=minute.name, date=format_date(minute.env, minute.date))
+        values = {
+            'minute': minute,
+            'date_label': format_date(minute.env, minute.date),
+            'approver_name': minute.approver_employee_id.name or minute.approver_role_id.name,
+        }
+        mails = self.env['mail.mail'].sudo()
+        if staff:
+            pdf_url = f"{minute.get_base_url()}/report/pdf/ems.report_minute/{minute.id}"
+            mails |= minute._ems_meeting_mail('ems.minute_draft_email', subject, {**values, 'pdf_url': pdf_url},
+                                              ", ".join(staff.mapped('work_email')))
+        if guests:
+            pdf = self.env['ir.actions.report'].sudo()._render_qweb_pdf('ems.report_minute', minute.ids)[0]
+            for guest in guests:
+                mails |= minute._ems_meeting_mail('ems.minute_draft_email', subject, {**values, 'pdf_url': False},
+                                                  formataddr((f"{guest.name} {guest.surname}", guest.email)), pdf)
+        mails.send()
+        count = len(staff) + len(guests)
+        self.message_post(body=_("Draft sent to %s people.", count))
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {'type': 'success', 'message': _("The draft has been sent to %s people.", count),
                        'next': {'type': 'ir.actions.act_window_close'}},
         }
 
@@ -929,8 +1052,23 @@ class EmsMinute(models.Model):
             # Who actually approves it, when that is somebody other than the person it was meant for.
             if employee:
                 minute.approver_employee_id = employee
-            minute.approval_date = fields.Date.context_today(minute)
+            # Approved again after being reopened: the date says when the changes were approved.
+            minute.approval_date = self.env['ems.datetime_utils'].get_local_today()
         return super().action_approve()
+
+    def action_reopen(self):
+        """Take back the approval to change the minute (issue #756): it goes back to waiting for
+        approval, open to whoever writes it, and is approved again once corrected - on a new date,
+        with a new PDF. The PDF approved before stays attached to it, for the record."""
+        for minute in self:
+            if minute.state != 'approved':
+                raise UserError(_("Only an approved minute can be reopened."))
+            if not minute._ems_user_may_reopen():
+                raise UserError(_("Only whoever approves this minute, whoever answers for the scope that met or whoever wrote it can reopen it."))
+            # With sudo: nobody writes an approved minute, which is what this checked exception undoes.
+            minute.sudo().write({'state': 'to_approve', 'approval_date': False, 'pdf_attachment_id': False})
+            minute.message_post(body=_("Approval taken back to change the minute."), subtype_xmlid='mail.mt_note')
+        return True
 
     @api.model
     def _ems_people_label(self, people):
@@ -964,17 +1102,28 @@ class EmsMinute(models.Model):
             minute.display_name = f"{minute.code} {minute.name}" if minute.code else (minute.name or "")
 
 
-class IrActionsReport(models.Model):
-    _inherit = "ir.actions.report"
+class EmsMinuteSubmitWizard(models.TransientModel):
+    """Sending a minute for approval, and with it, if wanted, its draft to the participants."""
+    _name = "ems.minute.submit.wizard"
+    _description = "Send a minute for approval, optionally emailing its draft to the participants."
 
-    def _ems_in_centre_lang(self, report_ref):
-        """A minute is the centre's document: printed in the centre's language whoever prints it."""
-        if self._get_report(report_ref).report_name == 'ems.report_minute':
-            return self.with_context(lang=self.env['ems.minute']._ems_centre_lang())
-        return self
+    minute_id = fields.Many2one(string="Minute", comodel_name="ems.minute", required=True, ondelete='cascade')
+    send_draft = fields.Boolean(
+        string="Also send the draft to the participants",
+        help="Everybody convened, whether they came or not: the staff get a link to the draft's PDF, and the guests from "
+             "outside EMS get it attached, so they can review it while the meeting is fresh.")
+    recipient_count = fields.Integer(string="Participants with an email address", compute="_compute_recipient_count")
 
-    def _render_qweb_pdf(self, report_ref, res_ids=None, data=None):
-        return super(IrActionsReport, self._ems_in_centre_lang(report_ref))._render_qweb_pdf(report_ref, res_ids=res_ids, data=data)
+    @api.depends('minute_id')
+    def _compute_recipient_count(self):
+        for wizard in self:
+            staff, guests = wizard.minute_id._ems_draft_recipients() if wizard.minute_id else ((), ())
+            wizard.recipient_count = len(staff) + len(guests)
 
-    def _render_qweb_html(self, report_ref, docids, data=None):
-        return super(IrActionsReport, self._ems_in_centre_lang(report_ref))._render_qweb_html(report_ref, docids, data=data)
+    def action_confirm(self):
+        self.ensure_one()
+        self.minute_id.action_submit()
+        if self.send_draft and self.recipient_count:
+            return self.minute_id.action_send_draft()
+        return {'type': 'ir.actions.act_window_close'}
+

@@ -494,6 +494,29 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             max_height=560,
         )
 
+        # The settings (go to docs/assets/admin/), before the portal ones, which need nothing of them.
+        create_role_user(self, 'settings_admin', 'doc_shot_settings_admin', lang='ca_ES',
+                         name='Administrador')
+        set_convalidation_period(self.env, (1, 10, 8.0), (31, 3, 23 + 59 / 60))
+        # Only the levels a new installation allows (the fixture's own one stays out of the shot).
+        self.level.allows_convalidation = False
+        self._capture(
+            '/odoo/action-ems.action_settings', '#convalidation_level_ids',
+            'convalidations-settings-levels.png',
+            login='doc_shot_settings_admin',
+        )
+        self.level.allows_convalidation = True
+        self._capture(
+            '/odoo/action-ems.action_settings', '#convalidation_period',
+            'convalidations-settings.png',
+            login='doc_shot_settings_admin',
+        )
+        self._capture(
+            '/odoo/action-ems.action_settings', '#convalidation_legal_grounds',
+            'convalidations-settings-resolution.png',
+            login='doc_shot_settings_admin',
+        )
+
         # The portal (goes to docs/assets/families/): the resolved request, completed; a new one
         # the centre has asked documentation for; and the request period, open while the form is
         # captured (the default one may well be closed the day this runs), then closed for the
@@ -531,18 +554,4 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             '/my/convalidaciones', '.o_ems_convalidation_closed',
             'convalidations-portal-closed.png',
             login='doc_shot_portal',
-        )
-        # The settings (go to docs/assets/admin/).
-        create_role_user(self, 'settings_admin', 'doc_shot_settings_admin', lang='ca_ES',
-                         name='Administrador')
-        set_convalidation_period(self.env, (1, 10, 8.0), (31, 3, 23 + 59 / 60))
-        self._capture(
-            '/odoo/action-ems.action_settings', '#convalidation_period',
-            'convalidations-settings.png',
-            login='doc_shot_settings_admin',
-        )
-        self._capture(
-            '/odoo/action-ems.action_settings', '#convalidation_legal_grounds',
-            'convalidations-settings-resolution.png',
-            login='doc_shot_settings_admin',
         )

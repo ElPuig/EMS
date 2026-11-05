@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #683 - Erasmus+ applications. See docs/en/developers/erasmus/erasmus.md. -->
+        <record id="view_erasmus_application_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.application.list</field>
+            <field name="model">ems.erasmus.application</field>
+            <field name="arch" type="xml">
+                <list string="Applications" create="false" expand="1"
+                      decoration-muted="state in ('draft', 'not_submitted', 'not_selected', 'renounced')">
+                    <field name="partner_id"/>
+                    <!-- Opened from a call, the call column repeats itself (the issue-#682 review). -->
+                    <field name="call_id" optional="show" column_invisible="context.get('default_call_id')"/>
+                    <field name="audience" optional="hide"/>
+                    <field name="modality_id"/>
+                    <field name="submit_date" options="{'show_seconds': False}"/>
+                    <field name="requirements_check" optional="show"/>
+                    <field name="documents_to_review" optional="show" invisible="not documents_to_review"/>
+                    <field name="course_strike_count" optional="hide"/>
+                    <field name="score_total" optional="hide"/>
+                    <field name="score_complete" optional="hide"/>
+                    <field name="state" widget="badge"
+                           decoration-info="state == 'submitted'"
+                           decoration-warning="state == 'subsanation'"
+                           decoration-success="state in ('admitted', 'selected', 'accepted')"
+                           decoration-danger="state == 'excluded'"
+                           decoration-primary="state == 'reserve'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_application_search" model="ir.ui.view">
+            <field name="name">ems.erasmus.application.search</field>
+            <field name="model">ems.erasmus.application</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="partner_id"/>
+                    <field name="call_id"/>
+                    <filter name="to_review" string="To review" domain="[('state', '=', 'submitted')]"/>
+                    <filter name="subsanation" string="Corrections requested" domain="[('state', '=', 'subsanation')]"/>
+                    <filter name="admitted" string="Admitted" domain="[('state', '=', 'admitted')]"/>
+                    <filter name="excluded" string="Excluded" domain="[('state', '=', 'excluded')]"/>
+                    <filter name="selected" string="Selected" domain="[('state', 'in', ('selected', 'accepted'))]"/>
+                    <filter name="reserve" string="Reserve" domain="[('state', '=', 'reserve')]"/>
+                    <separator/>
+                    <filter name="students" string="Students" domain="[('audience', '=', 'student')]"/>
+                    <filter name="staff" string="Staff" domain="[('audience', '=', 'staff')]"/>
+                    <group>
+                        <filter name="group_call" string="Call" context="{'group_by': 'call_id'}"/>
+                        <filter name="group_modality" string="Modality" context="{'group_by': 'modality_id'}"/>
+                        <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_erasmus_application_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.application.form</field>
+            <field name="model">ems.erasmus.application</field>
+            <field name="arch" type="xml">
+                <form string="Application" create="false">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_admit" type="object" string="Admit" class="btn-primary"
+                                    invisible="state != 'submitted'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                            <button name="action_request_subsanation" type="object" string="Request corrections"
+                                    invisible="state != 'submitted'" groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="Emails the applicant the documents marked as needing changes, and the corrections deadline of the call."/>
+                            <button name="action_exclude" type="object" string="Exclude"
+                                    invisible="state not in ('submitted', 'subsanation', 'admitted')" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                            <button name="action_send_interview_call" type="object" string="Send interview call"
+                                    invisible="state != 'admitted' or not interview_date" groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="Emails the applicant the interview's date and place. At least 24 hours ahead."/>
+                            <button name="action_export_participants" type="object" string="Export to spreadsheet"
+                                    invisible="state != 'accepted'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                            <button name="action_back_to_review" type="object" string="Back to review"
+                                    invisible="state not in ('admitted', 'excluded')" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                        </div>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,submitted,admitted,selected,accepted"/>
+                    </header>
+                    <sheet>
+                        <div class="alert alert-warning" role="alert" invisible="not conduct_review or state not in ('submitted', 'subsanation')">
+                            Serious conduct record this course (<field name="course_strike_count" class="oe_inline"/> conduct warnings): the Erasmus team may exclude the application (art. 6 of the call), after hearing the teaching team or the coexistence team. If it goes on, every warning takes points off (criterion F).
+                        </div>
+                        <div class="oe_title">
+                            <h1><field name="partner_id" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="call_id" readonly="1"/>
+                                <field name="can_manage" invisible="1"/>
+                                <field name="audience" invisible="1"/>
+                                <field name="modality_id" options="{'no_create': True}" readonly="not can_manage"/>
+                                <field name="employee_id" invisible="audience != 'staff'"/>
+                                <field name="is_minor" invisible="audience != 'student'"/>
+                            </group>
+                            <group>
+                                <field name="submit_date"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Documents" name="documents">
+                                <field name="document_ids" readonly="not can_manage">
+                                    <!-- The 2026-11-04 usage test: what each document is at now (missing, to review,
+                                         complete, not applicable...), the not applicable ones greyed out. -->
+                                    <list editable="bottom" create="false" delete="false"
+                                          decoration-muted="file_state in ('not_applicable', 'optional')">
+                                        <field name="name"/>
+                                        <field name="is_required"/>
+                                        <field name="file_state" widget="badge" decoration-danger="file_state == 'missing'"
+                                               decoration-warning="file_state in ('to_review', 'needs_change')"
+                                               decoration-success="file_state == 'complete'"/>
+                                        <field name="current_attachment_ids" widget="many2many_binary"/>
+                                        <field name="link_url" widget="url" optional="show"/>
+                                        <field name="attachment_ids" widget="many2many_binary" readonly="1" optional="hide"/>
+                                        <field name="review_state" optional="hide"/>
+                                        <field name="review_comment"/>
+                                        <button name="action_mark_valid" type="object" icon="fa-check" title="Valid"
+                                                invisible="review_state == 'valid' or file_state in ('missing', 'optional', 'not_applicable')" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <button name="action_mark_needs_change" type="object" icon="fa-times" title="Needs changes"
+                                                invisible="review_state == 'needs_change'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <field name="signers" column_invisible="1"/>
+                                        <field name="signature_progress" optional="show"/>
+                                        <button name="action_open_signatures" type="object" string="Signatures" icon="fa-check-square-o"
+                                                invisible="not signers" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <button name="action_remove_file" type="object" title="Remove a file" icon="fa-trash"
+                                                invisible="review_state == 'valid' or not attachment_ids" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Admission" name="admission">
+                                <group>
+                                    <group string="Requirements">
+                                        <field name="requirements_check" readonly="not can_manage or state not in ('submitted', 'subsanation')"/>
+                                        <field name="requirements_check_note" readonly="not can_manage"/>
+                                        <field name="requirements_check_user_id"/>
+                                        <field name="requirements_check_date"/>
+                                    </group>
+                                    <!-- Students' call art. 6, from EMS's own conduct warnings. -->
+                                    <group string="Conduct this course" invisible="audience != 'student'">
+                                        <field name="course_strike_count"/>
+                                        <field name="conduct_review"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <field name="exclusion_reason" readonly="not can_manage"/>
+                                </group>
+                            </page>
+                            <page string="Interview" name="interview" invisible="audience != 'student' or state in ('draft', 'submitted', 'subsanation', 'not_submitted')">
+                                <group>
+                                    <group>
+                                        <field name="interview_date" readonly="not can_manage"/>
+                                        <field name="interview_place" readonly="not can_manage"/>
+                                        <field name="interview_call_date"/>
+                                    </group>
+                                    <group>
+                                        <field name="interview_general"/>
+                                        <field name="interview_english"/>
+                                        <field name="interview_complete"/>
+                                    </group>
+                                </group>
+                                <field name="interview_ids" readonly="not can_manage" groups="ems.group_erasmus,ems.group_academic_admin">
+                                    <list editable="bottom">
+                                        <field name="evaluator_id" options="{'no_create': True}"/>
+                                        <field name="state" widget="badge" decoration-success="state == 'submitted'"/>
+                                        <field name="general_score"/>
+                                        <field name="english_score"/>
+                                    </list>
+                                </field>
+                                <group>
+                                    <field name="single_interview_reason" readonly="not can_manage"/>
+                                </group>
+                            </page>
+                            <!-- Issue #686: art. 11 of the staff call. -->
+                            <page string="Scoring" name="staff_scoring" invisible="audience != 'staff' or state in ('draft', 'submitted', 'subsanation', 'not_submitted', 'excluded')">
+                                <!-- The issue-#682 review: the zeros are not a score. -->
+                                <field name="scores_hidden" invisible="1"/>
+                                <div class="alert alert-info o_ems_erasmus_scores_hidden" role="alert" invisible="not scores_hidden">
+                                    Hidden until the panel has rated every plan of the call: no member sees the others' marks before rating.
+                                </div>
+                                <group invisible="scores_hidden">
+                                    <group string="Total">
+                                        <field name="score_total"/>
+                                        <field name="score_complete"/>
+                                        <field name="rank"/>
+                                        <field name="needs_draw" invisible="not needs_draw"/>
+                                        <field name="draw_order" invisible="not needs_draw and not draw_order"/>
+                                    </group>
+                                    <group string="Criteria">
+                                        <field name="score_plan"/>
+                                        <field name="score_last_mobility"/>
+                                        <field name="score_projects"/>
+                                        <field name="score_staff_language"/>
+                                        <field name="score_seniority"/>
+                                        <field name="score_internationalisation"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="1. Mobility plan" invisible="scores_hidden">
+                                        <field name="plan_score"/>
+                                        <field name="plan_complete"/>
+                                    </group>
+                                    <group string="Checked by the Erasmus team">
+                                        <field name="declared_last_staff_mobility"/>
+                                        <field name="last_staff_mobility" string="Last staff mobility checked" readonly="not can_manage"/>
+                                        <field name="declared_seniority"/>
+                                        <field name="seniority" string="Seniority checked" readonly="not can_manage"/>
+                                        <field name="declared_language_level"/>
+                                        <field name="language_level" string="Language certificate checked" readonly="not can_manage"
+                                               help="Only when the certificate does not match what the applicant declared: this level counts instead."/>
+                                        <field name="merits_checked" readonly="not can_manage"/>
+                                    </group>
+                                </group>
+                                <field name="plan_rating_ids" readonly="1" groups="ems.group_erasmus,ems.group_academic_admin">
+                                    <list>
+                                        <field name="panel_member_id"/>
+                                        <field name="evaluator_id"/>
+                                        <field name="abstention_reason" optional="show"/>
+                                        <field name="score"/>
+                                        <field name="state" widget="badge" decoration-success="state == 'submitted'"/>
+                                    </list>
+                                </field>
+                                <field name="merit_ids" readonly="not can_manage">
+                                    <list editable="bottom">
+                                        <field name="kind"/>
+                                        <field name="description"/>
+                                        <field name="points"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Scoring" name="scoring" invisible="audience != 'student' or not scoring_frozen_date">
+                                <group>
+                                    <group string="Total">
+                                        <field name="score_total"/>
+                                        <field name="score_complete"/>
+                                        <field name="is_eligible"/>
+                                        <field name="rank"/>
+                                        <field name="needs_draw" invisible="not needs_draw"/>
+                                        <field name="draw_order" invisible="not needs_draw and not draw_order"/>
+                                        <field name="scoring_frozen_date"/>
+                                    </group>
+                                    <!-- Audit D-14: the criteria are the Erasmus team's; the Head of Studies sees the total. -->
+                                    <group string="Criteria" groups="ems.group_erasmus,ems.group_academic_admin">
+                                        <field name="score_a"/>
+                                        <field name="score_b"/>
+                                        <field name="score_c"/>
+                                        <field name="score_d"/>
+                                        <field name="score_e"/>
+                                        <field name="score_f"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="A. Record average">
+                                        <field name="grade_average"/>
+                                        <field name="score_a_pending" invisible="not score_a_pending"/>
+                                    </group>
+                                    <group string="Checked by the Erasmus team">
+                                        <field name="language_level" readonly="not can_manage"/>
+                                        <field name="fewer_opportunities_check" readonly="not can_manage"/>
+                                        <field name="first_mobility" readonly="not can_manage"/>
+                                        <field name="strike_count"/>
+                                    </group>
+                                </group>
+                                <!-- To check "First mobility": what EMS records of this person. -->
+                                <separator string="Erasmus+ participations in EMS" invisible="not erasmus_history_ids"/>
+                                <field name="erasmus_history_ids" invisible="not erasmus_history_ids"
+                                       context="{'list_view_ref': 'ems.view_erasmus_history_list'}"/>
+                                <field name="grade_line_ids">
+                                    <list>
+                                        <field name="course_name"/>
+                                        <field name="subject_name"/>
+                                        <field name="hours"/>
+                                        <field name="grade"/>
+                                    </list>
+                                </field>
+                                <field name="strike_ids" groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"
+                                       invisible="not strike_ids">
+                                    <list>
+                                        <field name="date"/>
+                                        <field name="group_id"/>
+                                        <field name="reason_id"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <!-- Issue #685: what each published resolution said, the places offered and the claims. -->
+                            <page string="Results" name="results" invisible="not resolution_line_ids and not offer_ids and not claim_ids">
+                                <field name="resolution_line_ids">
+                                    <list>
+                                        <field name="resolution_id"/>
+                                        <field name="kind" column_invisible="True"/>
+                                        <field name="rank"/>
+                                        <field name="score_total"/>
+                                        <field name="result" widget="badge"/>
+                                    </list>
+                                </field>
+                                <field name="offer_ids">
+                                    <list>
+                                        <field name="offer_date"/>
+                                        <field name="deadline"/>
+                                        <field name="from_reserve"/>
+                                        <field name="answer_date"/>
+                                        <field name="state" widget="badge"/>
+                                    </list>
+                                </field>
+                                <field name="claim_ids" readonly="not can_manage" context="{'default_application_id': id}">
+                                    <list>
+                                        <field name="received_date"/>
+                                        <field name="kind"/>
+                                        <field name="resolution_id"/>
+                                        <field name="state" widget="badge"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Answers" name="answers">
+                                <group>
+                                    <field name="proposal_a" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="proposal_b" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="plan_text" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="declared_never_staff_mobility" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="declared_centre_start_date" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="centre_projects" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="support_needs" readonly="not can_manage" invisible="audience != 'staff'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    <field name="fewer_opportunities" readonly="not can_manage" invisible="audience != 'student'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    <field name="image_consent" readonly="not can_manage"/>
+                                    <field name="applicant_notes" readonly="not can_manage"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <!-- Issue #684: the admitted applications of a call, per modality, in ranking order. -->
+        <record id="view_erasmus_ranking_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.application.ranking.list</field>
+            <field name="model">ems.erasmus.application</field>
+            <field name="priority">20</field>
+            <field name="arch" type="xml">
+                <!-- The issue-#682 review: the cut of the places, in green the applications within them. -->
+                <list string="Ranking" create="false" default_order="call_id, modality_id, rank, score_total desc"
+                      decoration-muted="not score_complete" decoration-danger="score_complete and not is_eligible"
+                      decoration-warning="needs_draw" decoration-success="ranking_result == 'selected' and not needs_draw">
+                    <field name="call_id" optional="show" column_invisible="context.get('default_call_id')"/>
+                    <field name="modality_id"/>
+                    <field name="rank" invisible="not rank"/>
+                    <field name="partner_id"/>
+                    <field name="score_a"/>
+                    <field name="score_b"/>
+                    <field name="score_c"/>
+                    <field name="score_d" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                    <field name="score_e"/>
+                    <field name="score_f"/>
+                    <field name="score_total"/>
+                    <field name="score_complete"/>
+                    <field name="is_eligible"/>
+                    <field name="needs_draw" optional="show"/>
+                    <field name="ranking_result" widget="badge" decoration-success="ranking_result == 'selected'"
+                           decoration-warning="ranking_result == 'reserve'"/>
+                    <field name="state" widget="badge" optional="show"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Issue #686: the staff call ranks everyone in one list, with art. 11's criteria. -->
+        <record id="view_erasmus_staff_ranking_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.application.staff.ranking.list</field>
+            <field name="model">ems.erasmus.application</field>
+            <field name="priority">30</field>
+            <field name="arch" type="xml">
+                <list string="Ranking" create="false" default_order="rank, score_total desc"
+                      decoration-muted="not score_complete" decoration-warning="needs_draw"
+                      decoration-success="ranking_result == 'selected' and not needs_draw">
+                    <field name="rank" invisible="not rank"/>
+                    <field name="partner_id"/>
+                    <field name="score_plan"/>
+                    <field name="score_last_mobility"/>
+                    <field name="score_projects"/>
+                    <field name="score_staff_language"/>
+                    <field name="score_seniority"/>
+                    <field name="score_internationalisation"/>
+                    <field name="score_total"/>
+                    <field name="score_complete"/>
+                    <field name="needs_draw" optional="show"/>
+                    <field name="ranking_result" widget="badge" decoration-success="ranking_result == 'selected'"
+                           decoration-warning="ranking_result == 'reserve'"/>
+                    <field name="modality_id" optional="show"/>
+                    <field name="state" widget="badge" optional="show"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_erasmus_ranking" model="ir.actions.act_window">
+            <field name="name">Ranking</field>
+            <field name="res_model">ems.erasmus.application</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('state', 'in', ('admitted', 'selected', 'reserve', 'not_selected', 'accepted', 'renounced'))]</field>
+            <!-- From the menu, the calls open at once don't mix: ordered by call, with its column
+                 (the issue-#682 review). -->
+            <field name="context">{}</field>
+            <field name="search_view_id" ref="view_erasmus_application_search"/>
+            <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('view_erasmus_ranking_list')})]"/>
+        </record>
+
+        <!-- Issue #685: the spreadsheet of the people who accepted a place (personal and bank data:
+             Erasmus team only). The application and call forms have it in their Actions dropdown,
+             so it is list-only here. -->
+        <record id="action_erasmus_export_participants" model="ir.actions.server">
+            <field name="name">Export to spreadsheet</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_application"/>
+            <field name="binding_model_id" ref="ems.model_ems_erasmus_application"/>
+            <field name="binding_view_types">list</field>
+            <field name="groups_id" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin'))]"/>
+            <field name="state">code</field>
+            <field name="code">
+action = records.action_export_participants()
+            </field>
+        </record>
+
+        <record id="action_erasmus_application" model="ir.actions.act_window">
+            <field name="name">Applications</field>
+            <field name="res_model">ems.erasmus.application</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_erasmus_application_search"/>
+        </record>
+    </data>
+</odoo>

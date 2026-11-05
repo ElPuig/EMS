@@ -200,7 +200,7 @@ You can register a request, and process any request, at any time: the portal's r
 
 ## Studies that allow convalidations
 
-Only studies whose level has **Allows convalidations** checked (by default, CFGM and CFGS) can receive requests. See [Levels](../admin/curriculum-levels.md).
+Only the studies of the levels listed in **Levels that allow convalidations** (by default, CFGM and CFGS) can receive requests. The EMS administrator sets that list in [Convalidation settings](../admin/convalidation-settings.md#levels-that-allow-convalidations).
 
 ---
 

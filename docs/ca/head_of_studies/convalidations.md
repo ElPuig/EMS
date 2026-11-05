@@ -200,8 +200,8 @@ Pots registrar una sol·licitud, i tramitar-ne qualsevol, en qualsevol moment: e
 
 ## Estudis que admeten convalidacions
 
-Només poden rebre sol·licituds els estudis dels nivells que tenen marcat **Admet convalidacions** (per defecte, CFGM i CFGS). Consulta [Nivells](../admin/curriculum-levels.md).
+Només poden rebre sol·licituds els estudis dels nivells de la llista **Nivells que admeten convalidacions** (per defecte, CFGM i CFGS). L'administrador de l'EMS la configura a [Configuració de convalidacions](../admin/convalidation-settings.md#nivells-que-admeten-convalidacions).
 
 ---
 
-[← Tornar a l'índex de Cap d'Estudis](index.md)
+[← Tornar a l'índex de cap d'estudis](index.md)

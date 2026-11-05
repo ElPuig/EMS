@@ -14,14 +14,13 @@ class ems_attachment(models.Model):
 		})
 
 
-class EmsAttachmentMixin(models.AbstractModel):
-	"""For a model whose 'attachment_ids' many2many holds its own files, edited with the
-	'ems_attachments' widget (upload, preview, download, delete): ties every file to its record,
-	so it follows the record's access rights, and deletes a file once it is removed, since that
-	widget offers no list of existing files to pick it back from. A file another record of the
-	same model still holds (an official curriculum shared by several studies) is kept."""
-	_name = 'ems.attachment_mixin'
-	_description = 'EMS owned attachments'
+class EmsAttachmentLinkMixin(models.AbstractModel):
+	"""For a model whose 'attachment_ids' many2many holds its own files (a many2many_binary widget
+	uploads them before the record is saved, with no res_id, and Odoo then only lets the uploader
+	read them): ties every file to its record, so it follows the record's access rights. A file
+	removed from the record is kept (it may be evidence); ems.attachment_mixin also deletes it."""
+	_name = 'ems.attachment_link_mixin'
+	_description = 'EMS attachments linked to their record'
 
 	@api.model_create_multi
 	def create(self, vals_list):
@@ -30,12 +29,32 @@ class EmsAttachmentMixin(models.AbstractModel):
 		return records
 
 	def write(self, vals):
+		res = super().write(vals)
+		if 'attachment_ids' in vals:
+			self._ems_link_attachments()
+		return res
+
+	def _ems_link_attachments(self):
+		for record in self:
+			record.attachment_ids._ems_link_to(record)
+
+
+class EmsAttachmentMixin(models.AbstractModel):
+	"""For a model whose 'attachment_ids' many2many holds its own files, edited with the
+	'ems_attachments' widget (upload, preview, download, delete): ties every file to its record,
+	so it follows the record's access rights, and deletes a file once it is removed, since that
+	widget offers no list of existing files to pick it back from. A file another record of the
+	same model still holds (an official curriculum shared by several studies) is kept."""
+	_name = 'ems.attachment_mixin'
+	_description = 'EMS owned attachments'
+	_inherit = ['ems.attachment_link_mixin']
+
+	def write(self, vals):
 		if 'attachment_ids' not in vals:
 			return super().write(vals)
 
 		previous = {record: record.attachment_ids for record in self}
 		res = super().write(vals)
-		self._ems_link_attachments()
 
 		removed = self.env['ir.attachment']
 		for record, attachments in previous.items():
@@ -47,7 +66,3 @@ class EmsAttachmentMixin(models.AbstractModel):
 			still_used = holders.attachment_ids.sudo(False)
 			(removed - still_used).unlink()
 		return res
-
-	def _ems_link_attachments(self):
-		for record in self:
-			record.attachment_ids._ems_link_to(record)

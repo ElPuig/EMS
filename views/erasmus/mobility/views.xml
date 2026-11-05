@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #687 - mobilities: created when a place is accepted; the destination, the host
+             entity, the documents and the checklist until the participant is back. -->
+        <record id="view_erasmus_mobility_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.mobility.list</field>
+            <field name="model">ems.erasmus.mobility</field>
+            <field name="arch" type="xml">
+                <list string="Mobilities" create="false" decoration-muted="state in ('done', 'cancelled')">
+                    <field name="call_id" optional="hide"/>
+                    <field name="modality_id"/>
+                    <field name="rank" optional="show"/>
+                    <field name="partner_id"/>
+                    <field name="destination_id" optional="show"/>
+                    <field name="host_partner_id" optional="show"/>
+                    <field name="date_start"/>
+                    <field name="date_end"/>
+                    <field name="proposal_state" optional="show" widget="badge" decoration-warning="proposal_state == 'pending'"
+                           decoration-success="proposal_state == 'validated'" decoration-danger="proposal_state == 'rejected'"/>
+                    <field name="preparation_complete" optional="show"/>
+                    <field name="return_complete" optional="show"/>
+                    <field name="eu_survey_state" optional="hide"/>
+                    <field name="record_progress" optional="hide"/>
+                    <field name="project_id" optional="show"/>
+                    <field name="currency_id" column_invisible="1" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                    <field name="grant_amount" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                    <field name="grant_net" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                    <field name="state" widget="badge" decoration-info="state == 'choosing'"
+                           decoration-warning="state == 'preparing'" decoration-success="state == 'done'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_mobility_search" model="ir.ui.view">
+            <field name="name">ems.erasmus.mobility.search</field>
+            <field name="model">ems.erasmus.mobility</field>
+            <field name="arch" type="xml">
+                <search string="Mobilities">
+                    <field name="partner_id"/>
+                    <field name="call_id"/>
+                    <field name="destination_id"/>
+                    <field name="host_partner_id"/>
+                    <filter name="open" string="Open" domain="[('state', 'in', ('choosing', 'preparing'))]"/>
+                    <filter name="proposal_pending" string="Proposal to validate"
+                            domain="[('proposal_state', '=', 'pending'), ('state', 'in', ('choosing', 'preparing'))]"/>
+                    <separator/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_call" string="Call" context="{'group_by': 'call_id'}"/>
+                        <filter name="group_modality" string="Modality" context="{'group_by': 'modality_id'}"/>
+                        <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_erasmus_mobility_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.mobility.form</field>
+            <field name="model">ems.erasmus.mobility</field>
+            <field name="arch" type="xml">
+                <form string="Mobility" create="false">
+                    <header>
+                        <field name="can_validate" invisible="1"/>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_validate_proposal" type="object" string="Validate the proposal"
+                                    class="btn-primary"
+                                    invisible="not can_validate or state not in ('choosing', 'preparing') or proposal_state != 'pending'"
+                                    help="You can write a comment on the decision first: the participant reads it."/>
+                            <button name="action_reject_proposal" type="object" string="Reject the proposal"
+                                    invisible="not can_validate or state not in ('choosing', 'preparing') or proposal_state != 'pending'"
+                                    help="Write the comment on the decision first: the participant reads it."/>
+                            <!-- Issue #697: after changing a validated staff activity in the Proposal tab. -->
+                            <button name="action_request_revalidation" type="object" string="Ask the Direction to validate it again"
+                                    invisible="audience != 'staff' or state != 'preparing' or proposal_state == 'pending'"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="Change the proposal in the Proposal tab first: the Direction validates the new activity or dates, and until then the mobility stays as it was validated."/>
+                            <button name="action_agree_destination" type="object" string="Set the agreed destination"
+                                    invisible="state != 'choosing'" groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="Write the country (and the city, host entity and dates you have) first: e.g. a destination through an intermediary organisation."/>
+                            <button name="action_notify_documents" type="object" string="Notify pending documents"
+                                    invisible="state != 'preparing'" groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="Emails the participant the documents missing or needing changes."/>
+                            <button name="action_sync_requirements" type="object" string="Update documents and checklist"
+                                    invisible="state not in ('choosing', 'preparing')"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="Adds the documents and steps of the call that this mobility does not have yet."/>
+                            <!-- Issue #697: the grant payments the Secretary transfers. -->
+                            <button name="action_request_prefinancing" type="object" string="Request the first payment"
+                                    invisible="not can_request_prefinancing or state not in ('preparing', 'done')"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"
+                                    confirm="The Secretary will see this payment to transfer it. Continue?"
+                                    help="The prefinancing percentage of what the participant receives, or everything at 100 %."/>
+                            <button name="action_request_final_payment" type="object" string="Request the final payment"
+                                    invisible="not can_request_final or state not in ('preparing', 'done')"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"
+                                    confirm="The Secretary will see this payment to transfer it. Continue?"
+                                    help="What is left to transfer to the participant, on return."/>
+                            <button name="action_export_record" type="object" string="Export the record"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="The participant's documents of this mobility as a ZIP, in the four categories, with an index of what is missing and the files' hashes."/>
+                            <!-- Audit D-8: the EU Survey, answered from the portal, validated by the team. -->
+                            <button name="action_eu_survey_done" type="object" string="EU Survey answered"
+                                    invisible="state != 'preparing' or eu_survey_state != 'pending'"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="The participant usually says so from the portal once the stay is over."/>
+                            <button name="action_eu_survey_validate" type="object" string="Validate the EU Survey"
+                                    invisible="state != 'preparing' or eu_survey_state != 'done'"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"/>
+                            <button name="action_close" type="object" string="Close the mobility"
+                                    invisible="state != 'preparing'" groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="Needs the record complete, the project, the EU Survey validated and nothing left to pay."/>
+                            <button name="action_cancel" type="object" string="Cancel the mobility"
+                                    invisible="state not in ('choosing', 'preparing')"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"
+                                    confirm="The place becomes free and the application is marked as renounced. Continue?"
+                                    help="Write the reason for cancelling first."/>
+                        </div>
+                        <field name="can_request_prefinancing" invisible="1" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                        <field name="can_request_final" invisible="1" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                        <field name="state" widget="statusbar" statusbar_visible="choosing,preparing,done"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="partner_id" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="application_id"/>
+                                <field name="call_id"/>
+                                <field name="audience" invisible="1"/>
+                                <field name="modality_id"/>
+                                <field name="rank"/>
+                                <field name="level_id" invisible="audience != 'student'"/>
+                            </group>
+                            <group>
+                                <field name="destination_id" invisible="audience != 'student'"/>
+                                <field name="turn_deadline" invisible="not turn_deadline"/>
+                                <field name="turn_missed" invisible="not turn_missed"/>
+                                <field name="free_choice" invisible="not free_choice"/>
+                                <field name="country_id"/>
+                                <field name="city"/>
+                                <field name="host_partner_id"
+                                       context="{'default_is_company': True, 'default_is_erasmus_host': True, 'default_contact_type': 'provider'}"/>
+                                <field name="host_contact_id" context="{'default_parent_id': host_partner_id}"
+                                       invisible="not host_partner_id"/>
+                                <field name="host_contact_email" widget="email" invisible="not host_contact_id"/>
+                                <field name="date_start"/>
+                                <field name="date_end"/>
+                                <field name="project_kind" invisible="1"/>
+                                <field name="project_id" options="{'no_create': True}"/>
+                                <field name="placement_type" invisible="audience != 'student'" required="audience == 'student'"/>
+                                <field name="is_short_blended" invisible="project_kind != 'ka131_hed'"/>
+                                <field name="destination_date" invisible="not destination_date"/>
+                                <field name="leave_id" invisible="audience != 'staff' or not leave_id"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Proposal" name="proposal" invisible="not proposal_state">
+                                <group>
+                                    <group>
+                                        <field name="proposal_state"/>
+                                        <field name="proposal_activity" invisible="audience != 'staff'"/>
+                                        <field name="proposal_host"/>
+                                        <field name="proposal_contact"/>
+                                        <field name="proposal_country_id"/>
+                                        <field name="proposal_city"/>
+                                        <field name="proposal_date_start"/>
+                                        <field name="proposal_date_end"/>
+                                    </group>
+                                    <group>
+                                        <field name="proposal_date"/>
+                                        <field name="proposal_attachment_ids" widget="many2many_binary"/>
+                                        <field name="proposal_notes"/>
+                                        <field name="leave_declaration" invisible="audience != 'staff'"/>
+                                        <field name="decision_note" readonly="not can_validate or proposal_state != 'pending'"/>
+                                        <field name="decided_by_id"/>
+                                        <field name="decision_date"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <!-- The participant's record: the call's documents that apply, in the four
+                                 categories, and the project's documents about them. -->
+                            <page string="Record" name="documents">
+                                <group>
+                                    <group>
+                                        <field name="record_progress"/>
+                                        <field name="record_missing" decoration-danger="record_missing"/>
+                                    </group>
+                                    <group>
+                                        <field name="preparation_complete"/>
+                                        <field name="return_complete"/>
+                                        <field name="eu_survey_state" widget="badge" decoration-success="eu_survey_state == 'validated'"
+                                               decoration-info="eu_survey_state == 'done'"/>
+                                        <field name="eu_survey_deadline"/>
+                                    </group>
+                                </group>
+                                <field name="document_ids">
+                                    <!-- The issue-#682 review: the record in a few columns that fit, ordered by
+                                         category; only what the participant has to do now in red (todo_state). -->
+                                    <list editable="bottom" create="false" delete="false"
+                                          decoration-muted="file_state == 'not_applicable'">
+                                        <field name="file_category" optional="hide"/>
+                                        <field name="name"/>
+                                        <field name="stage" optional="hide"/>
+                                        <field name="signers" optional="hide"/>
+                                        <field name="signatures_missing" optional="hide"/>
+                                        <field name="signature_progress" optional="show"/>
+                                        <field name="open_date" optional="hide"/>
+                                        <field name="deadline"/>
+                                        <field name="is_required" optional="hide"/>
+                                        <field name="handled_by" optional="hide"/>
+                                        <field name="prepared_attachment_ids" widget="many2many_binary"
+                                               readonly="handled_by == 'participant'"/>
+                                        <field name="attachment_ids" widget="many2many_binary"
+                                               readonly="handled_by == 'team'"/>
+                                        <field name="file_state" optional="hide"/>
+                                        <field name="todo_state" widget="badge" decoration-success="todo_state == 'complete'"
+                                               decoration-danger="todo_state in ('missing', 'needs_change')"
+                                               decoration-warning="todo_state == 'to_review'"/>
+                                        <field name="review_state" optional="hide"/>
+                                        <field name="review_comment" optional="hide"/>
+                                        <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
+                                                invisible="file_state != 'to_review'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <!-- Only on a file to correct: nothing to correct in a missing or not applicable document. -->
+                                        <button name="action_mark_needs_change" type="object" string="Needs changes"
+                                                icon="fa-pencil" invisible="review_state == 'needs_change' or not attachment_ids or (handled_by == 'team' and not signers)" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <button name="action_open_signatures" type="object" string="Signatures" icon="fa-check-square-o"
+                                                invisible="not signers" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <field name="can_send_to_sign" column_invisible="1"/>
+                                        <field name="sign_state" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <button name="action_send_to_sign" type="object" string="Send to sign" icon="fa-pencil-square-o"
+                                                invisible="not can_send_to_sign and sign_state not in ('1_draft', '0_sent')" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <button name="action_remove_file" type="object" string="Remove a file" icon="fa-trash"
+                                                invisible="review_state == 'valid' or not (attachment_ids or prepared_attachment_ids)" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    </list>
+                                </field>
+                                <separator string="From the application" invisible="not application_document_ids"/>
+                                <field name="application_document_ids" invisible="not application_document_ids">
+                                    <list>
+                                        <field name="file_category"/>
+                                        <field name="name"/>
+                                        <field name="attachment_ids" widget="many2many_binary"/>
+                                        <field name="file_state" widget="badge" decoration-success="file_state == 'complete'"
+                                               decoration-danger="file_state in ('missing', 'needs_change')"
+                                               decoration-warning="file_state == 'to_review'"/>
+                                    </list>
+                                </field>
+                                <separator string="Other documents"/>
+                                <field name="project_document_ids" readonly="not project_id"
+                                       context="{'default_project_id': project_id, 'default_category': '02_Mobilitats', 'default_mobility_ids': [id]}"
+                                       help="Documents not in the call's list (an incident, a change of dates...) or shared with other participants. Set the project first.">
+                                    <list>
+                                        <field name="participant_category"/>
+                                        <field name="name"/>
+                                        <field name="date"/>
+                                        <field name="attachment_ids" widget="many2many_binary"/>
+                                        <field name="confidential" optional="show"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Commitment letter" name="commitment" invisible="not commitment_signed_date and not commitment_pending">
+                                <field name="commitment_pending" invisible="1"/>
+                                <field name="commitment_guardian_pending" invisible="1"/>
+                                <group>
+                                    <group string="Participant">
+                                        <field name="commitment_signed_date"/>
+                                        <field name="commitment_signed_by_id"/>
+                                        <field name="commitment_signed_ip"/>
+                                    </group>
+                                    <group string="Family" invisible="not commitment_guardian_pending and not commitment_guardian_signed_date">
+                                        <field name="commitment_guardian_signed_date"/>
+                                        <field name="commitment_guardian_signed_by_id"/>
+                                        <field name="commitment_guardian_signed_ip"/>
+                                    </group>
+                                </group>
+                                <field name="commitment_signed_text" invisible="not commitment_signed_date"/>
+                            </page>
+                            <page string="Checklist" name="checklist">
+                                <field name="task_ids">
+                                    <list editable="bottom" create="false" delete="false">
+                                        <field name="stage"/>
+                                        <field name="name"/>
+                                        <field name="is_required"/>
+                                        <field name="done"/>
+                                        <field name="done_user_id" optional="show"/>
+                                        <field name="done_date" optional="show"/>
+                                        <field name="note"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <!-- Issue #697: what the participant answers every week of the stay, on the portal. -->
+                            <page string="Self-assessment" name="self_assessment" invisible="not self_assessment_progress">
+                                <group>
+                                    <field name="self_assessment_progress"/>
+                                </group>
+                                <field name="self_assessment_ids">
+                                    <list create="false" delete="false">
+                                        <field name="week"/>
+                                        <field name="date_from"/>
+                                        <field name="date_to"/>
+                                        <field name="rating"/>
+                                        <field name="create_date" string="Answered on"/>
+                                    </list>
+                                    <form create="false" edit="false">
+                                        <group>
+                                            <field name="week"/>
+                                            <field name="date_from"/>
+                                            <field name="date_to"/>
+                                        </group>
+                                        <field name="answers_html"/>
+                                    </form>
+                                </field>
+                            </page>
+                            <!-- Issue #697: only the Erasmus team handles the grant. -->
+                            <page string="Grant" name="grant" groups="ems.group_erasmus,ems.group_academic_admin">
+                                <group>
+                                    <group>
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="grant_amount"/>
+                                        <field name="provision_amount"/>
+                                        <field name="grant_net" class="fw-bold"/>
+                                    </group>
+                                    <group>
+                                        <field name="prefinancing_percent"/>
+                                    </group>
+                                </group>
+                                <separator string="Provision of services"/>
+                                <field name="provision_ids">
+                                    <list editable="bottom">
+                                        <field name="concept"/>
+                                        <field name="description"/>
+                                        <field name="invoice_id" readonly="1" optional="show"/>
+                                        <field name="currency_id" column_invisible="1"/>
+                                        <field name="amount" sum="Total"/>
+                                    </list>
+                                </field>
+                                <separator string="Payments to the participant"/>
+                                <field name="payment_ids" readonly="1">
+                                    <list>
+                                        <field name="kind"/>
+                                        <field name="request_date"/>
+                                        <field name="currency_id" column_invisible="1"/>
+                                        <field name="amount" sum="Total"/>
+                                        <field name="bank_account"/>
+                                        <field name="state" widget="badge" decoration-warning="state == 'to_pay'"
+                                               decoration-success="state == 'paid'"/>
+                                        <field name="paid_date"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Cancellation" name="cancellation">
+                                <group>
+                                    <field name="cancel_reason" readonly="state not in ('choosing', 'preparing')"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_erasmus_mobility" model="ir.actions.act_window">
+            <field name="name">Mobilities</field>
+            <field name="res_model">ems.erasmus.mobility</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'search_default_open': 1}</field>
+        </record>
+
+        <!-- The issue-#682 review: the Direction finds the staff activities waiting for its validation
+             here, not only through the task (the Erasmus team, the students' own destinations). -->
+        <record id="action_erasmus_mobility_to_validate" model="ir.actions.act_window">
+            <field name="name">Pending validation</field>
+            <field name="res_model">ems.erasmus.mobility</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'search_default_proposal_pending': 1}</field>
+        </record>
+    </data>
+</odoo>

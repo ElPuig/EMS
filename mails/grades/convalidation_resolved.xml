@@ -4,7 +4,7 @@
 
         <!-- Sent once a convalidation request is fully resolved
              (ems.convalidation._ems_send_resolution), to the student and, while a minor or when
-             they authorized sharing, to their family (res.partner._ems_convalidation_recipients),
+             they authorized sharing, to their family (res.partner._ems_informed_recipients),
              with the official resolution attached. No <field name="lang">, for the same reason as
              mails/enrollment/authorization_send.xml: the sender sets the recipient's language.
              The resolution labels are written in each translation instead of read from the

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #726: tutors (their own students), the transversal roles and the secretariat. -->
+        <menuitem id="menu_ems_ex_officio_withdrawals"
+                  name="Ex officio withdrawals"
+                  parent="menu_ems_academic_management"
+                  action="action_ex_officio_withdrawal"
+                  groups="ems.group_tutor,ems.group_student_data_reader,ems.group_secretary,ems.group_academic_admin,base.group_system"
+                  sequence="16"/>
+    </data>
+</odoo>

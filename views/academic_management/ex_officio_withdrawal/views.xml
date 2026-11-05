@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="view_ex_officio_withdrawal_list" model="ir.ui.view">
+            <field name="name">ems.ex_officio_withdrawal.list</field>
+            <field name="model">ems.ex_officio_withdrawal</field>
+            <field name="arch" type="xml">
+                <list string="Ex officio withdrawals" decoration-muted="state == 'cancelled'">
+                    <field name="name"/>
+                    <field name="student_id"/>
+                    <field name="group_id"/>
+                    <field name="circuit" optional="show"/>
+                    <field name="first_absence_date"/>
+                    <field name="current_step_id" optional="show"/>
+                    <field name="next_due_date" optional="show"/>
+                    <field name="origin" optional="hide"/>
+                    <field name="state" widget="badge"
+                           decoration-info="state == 'proposal'"
+                           decoration-warning="state in ('in_progress', 'direction', 'secretariat')"
+                           decoration-success="state == 'done'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_ex_officio_withdrawal_search" model="ir.ui.view">
+            <field name="name">ems.ex_officio_withdrawal.search</field>
+            <field name="model">ems.ex_officio_withdrawal</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="student_id"/>
+                    <field name="group_id"/>
+                    <filter name="open" string="Open" domain="[('state', 'not in', ('done', 'cancelled'))]"/>
+                    <filter name="proposals" string="Proposals" domain="[('state', '=', 'proposal')]"/>
+                    <separator/>
+                    <filter name="compulsory" string="Compulsory education" domain="[('circuit', '=', 'compulsory')]"/>
+                    <filter name="post_compulsory" string="Post-compulsory education" domain="[('circuit', '=', 'post_compulsory')]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_state" string="State" context="{'group_by': 'state'}"/>
+                        <filter name="group_by_group" string="Group" context="{'group_by': 'group_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_ex_officio_withdrawal_form" model="ir.ui.view">
+            <field name="name">ems.ex_officio_withdrawal.form</field>
+            <field name="model">ems.ex_officio_withdrawal</field>
+            <field name="arch" type="xml">
+                <form string="Ex officio withdrawal">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_start" type="object" string="Start the procedure"
+                                    class="btn-primary" invisible="not can_decide_proposal or attendance_pending"
+                                    help="Creates the circuit's steps, each with its deadline."/>
+                            <button name="action_open_dismiss_wizard" type="object" string="Dismiss"
+                                    invisible="not can_decide_proposal"/>
+                            <!-- Only once it is over, so that while it runs the dropdown offers just
+                                 the next thing to do (Direction downloads it from its own step). -->
+                            <button name="action_print_case_file" type="object" string="Print the case file"
+                                    invisible="not history_html or state not in ('done', 'cancelled')"/>
+                            <button name="action_open_withdrawal_wizard" type="object" string="Process the withdrawal"
+                                    class="btn-primary" invisible="not can_process_withdrawal"
+                                    help="Opens the withdrawal wizard as an ex officio withdrawal: the student leaves the centre and the case file closes."/>
+                            <button name="action_open_close_wizard" type="object" string="Close without a withdrawal"
+                                    invisible="not can_close_without_withdrawal"
+                                    help="Direction does not give the green light: the student came back or justified the absences."/>
+                            <button name="action_accept_step" type="object" string="Accept and continue"
+                                    class="btn-primary" invisible="not can_accept_step or not current_step_open or current_step_code == 'withdrawal' or attendance_pending"
+                                    help="Closes the current step, once what it asks for is ticked, and hands the case file over to the next one."/>
+                        </div>
+                        <field name="state" widget="statusbar" statusbar_visible="proposal,in_progress,direction,secretariat,done"/>
+                    </header>
+                    <sheet>
+                        <field name="can_decide_proposal" invisible="1"/>
+                        <field name="can_accept_step" invisible="1"/>
+                        <field name="current_step_open" invisible="1"/>
+                        <field name="current_step_code" invisible="1"/>
+                        <field name="can_process_withdrawal" invisible="1"/>
+                        <field name="can_close_without_withdrawal" invisible="1"/>
+                        <field name="attendance_pending" invisible="1"/>
+                        <field name="justification_pending" invisible="1"/>
+                        <field name="can_review" invisible="1"/>
+                        <div class="oe_title">
+                            <h1><field name="name" placeholder="New case file"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="student_domain" invisible="1"/>
+                                <field name="student_id" readonly="id" domain="student_domain" options="{'no_create': True}"/>
+                                <field name="group_id" invisible="not id"/>
+                                <field name="tutor_id"/>
+                                <field name="level_id" invisible="not id"/>
+                            </group>
+                            <group>
+                                <field name="first_absence_date" readonly="state != 'proposal'"/>
+                                <field name="origin"/>
+                                <field name="course_id"/>
+                                <!-- Fourth, so it is at the height of the level it comes from. -->
+                                <field name="circuit" invisible="not id"/>
+                                <field name="next_due_date" invisible="not next_due_date"/>
+                            </group>
+                        </group>
+                        <group string="Cancellation" invisible="state != 'cancelled'">
+                            <field name="cancel_reason"/>
+                            <field name="cancel_note"/>
+                        </group>
+                        <!-- Whose turn it is, for everybody but the current step's responsible. -->
+                        <div class="alert alert-info" role="status" invisible="not waiting_message">
+                            <field name="waiting_message" nolabel="1"/>
+                        </div>
+                        <!-- Phase 6: the roll-calls of the case file's days that say otherwise. An
+                             attendance stops the case file until the tutor checks it; justified
+                             absences are reviewed, without stopping it. -->
+                        <div name="attendance_review" class="alert alert-warning" role="alert" invisible="not attendance_pending">
+                            <p class="mb-0" invisible="can_review">
+                                The roll-calls say the student attended: the case file waits until their tutor checks it.
+                            </p>
+                            <div invisible="not can_review">
+                                <p class="mb-2">
+                                    <strong>The roll-calls say the student attended.</strong> Check it with the teachers:
+                                    if they came, the case file closes; if it was a mistake, the roll-call becomes an
+                                    absence. The case file does not go on until every one is checked.
+                                </p>
+                                <!-- Both buttons whole on the row (static/src/css/backend/ex_officio_withdrawal.css):
+                                     Odoo otherwise squeezes a list's button cells until their text wraps. -->
+                                <field name="attendance_review_ids" nolabel="1" readonly="1" class="o_ems_attendance_review">
+                                    <list create="0" delete="0">
+                                        <field name="date"/>
+                                        <field name="session_label"/>
+                                        <button name="action_came_back" type="object" string="They did come" icon="fa-check"
+                                                class="btn-link" confirm="The case file closes: the student is back."/>
+                                        <button name="action_mark_absent" type="object" string="It was a mistake" icon="fa-times"
+                                                class="btn-link" confirm="The roll-call becomes an absence."/>
+                                    </list>
+                                </field>
+                            </div>
+                        </div>
+                        <div name="justification_review" class="alert alert-info" role="status"
+                             invisible="not justification_pending or not can_review">
+                            <p class="mb-2">
+                                <strong>Some absences of the case file have been justified.</strong> Decide whether they
+                                explain the absence (the case file closes) or the case file goes on as it was.
+                            </p>
+                            <field name="justification_review_ids" nolabel="1" readonly="1">
+                                <list create="0" delete="0">
+                                    <field name="date"/>
+                                    <field name="session_label"/>
+                                </list>
+                            </field>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button name="action_cancel_justified" type="object" class="btn-secondary"
+                                        string="Close: the absences are justified"
+                                        confirm="The case file closes: the absences are justified."/>
+                                <button name="action_keep_justified" type="object" class="btn-secondary" string="Go on"/>
+                            </div>
+                        </div>
+                        <!-- The current step's responsible: what to do and by when, each action to
+                             confirm with its day (saved in as many goes as needed) and the notes. -->
+                        <div name="current_step" class="border rounded p-3 mb-3 bg-light" invisible="not can_accept_step">
+                            <field name="current_step_instructions" nolabel="1" readonly="1"/>
+                            <!-- The contact with the family, right after what to do: the phone call,
+                                 one button per outcome (its email, if any, goes with it), or else the
+                                 step's email. When it went is shown below by when it was due. -->
+                            <field name="family_email_state" invisible="1"/>
+                            <field name="call_step" invisible="1"/>
+                            <field name="call_pending" invisible="1"/>
+                            <div name="family_email" class="mb-3" invisible="not call_pending and family_email_state != 'ready'">
+                                <p invisible="not family_email_intro"><field name="family_email_intro" nolabel="1" class="d-inline"/></p>
+                                <div class="d-flex flex-wrap gap-2" invisible="not call_pending">
+                                    <button name="action_open_contact" type="object" class="btn-primary"
+                                            icon="fa-phone" string="I reached them" context="{'call_outcome': 'reached'}"/>
+                                    <button name="action_open_contact" type="object" class="btn-secondary"
+                                            icon="fa-phone" string="I did not reach them" context="{'call_outcome': 'not_reached'}"/>
+                                </div>
+                                <div invisible="family_email_state != 'ready' or call_step">
+                                    <button name="action_open_contact" type="object" class="btn-secondary"
+                                            icon="fa-envelope" string="Send the email to the family"/>
+                                </div>
+                            </div>
+                            <field name="current_step_timing" nolabel="1" readonly="1"/>
+                            <!-- When the step's email went, right below by when it was due. -->
+                            <p class="text-success" invisible="family_email_state != 'sent'">
+                                <i class="fa fa-check me-1" title="Sent"/><field name="family_email_sent" nolabel="1" class="d-inline"/>
+                            </p>
+                            <field name="current_step_notices" nolabel="1" readonly="1" invisible="not current_step_notices"/>
+                            <field name="current_check_ids" nolabel="1">
+                                <list editable="bottom" create="0" delete="0">
+                                    <field name="by_button" column_invisible="1"/>
+                                    <field name="done" string="Done" width="60px" readonly="by_button or not parent.current_step_open"/>
+                                    <field name="label" string="I confirm"/>
+                                    <field name="date" string="On" required="done" width="130px" readonly="by_button or not parent.current_step_open"/>
+                                </list>
+                            </field>
+                            <!-- The text to copy (Social Services, the Inspection) with the case file PDF. -->
+                            <field name="can_print_for_inspection" invisible="1"/>
+                            <div class="d-flex gap-2 my-2" invisible="not can_print_for_inspection">
+                                <button name="action_print_case_file" type="object" class="btn-secondary"
+                                        icon="fa-file-pdf-o" string="Download the case file (PDF)"/>
+                            </div>
+                            <div invisible="not copy_text" class="my-2">
+                                <p class="text-muted mb-1">Copy this text, send it yourself and tick that you sent it:</p>
+                                <field name="copy_text" nolabel="1" readonly="1" class="border rounded p-2 bg-white d-block" style="white-space: pre-wrap;"/>
+                                <field name="copy_text" nolabel="1" widget="CopyClipboardButton" string="Copy the text"/>
+                            </div>
+                            <field name="current_step_notes" nolabel="1" readonly="not current_step_open" placeholder="Notes (optional): what they told you, anything worth recording"/>
+                        </div>
+                        <separator string="History" invisible="not history_html"/>
+                        <field name="history_html" nolabel="1" readonly="1" invisible="not history_html"/>
+                        <p class="text-muted" invisible="history_html or state != 'proposal'">
+                            The steps are created when the procedure starts, each with its day.
+                        </p>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_ex_officio_withdrawal_contact_wizard_form" model="ir.ui.view">
+            <field name="name">ems.ex_officio_withdrawal.contact_wizard.form</field>
+            <field name="model">ems.ex_officio_withdrawal.contact_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Contact with the family">
+                    <field name="withdrawal_id" invisible="1"/>
+                    <div class="alert alert-warning" role="alert" invisible="not missing_email">
+                        Without an email address, they will not get it: <field name="missing_email" nolabel="1" class="d-inline"/>
+                    </div>
+                    <field name="call_outcome" invisible="1"/>
+                    <group invisible="not call_outcome">
+                        <field name="call_date" required="call_outcome"/>
+                    </group>
+                    <div invisible="not template_id">
+                        <p class="text-muted" invisible="call_outcome != 'not_reached'">
+                            If you are going to phone them again tomorrow, you can leave the email for then: the attempt stays in the case file.
+                        </p>
+                        <group>
+                            <field name="recipient_ids" widget="many2many_tags" readonly="1"/>
+                            <field name="template_id" invisible="1"/>
+                            <field name="subject"/>
+                        </group>
+                        <field name="body" nolabel="1"/>
+                    </div>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Send the confirmation" class="btn-primary"
+                                invisible="not template_id or call_outcome != 'reached'"/>
+                        <button name="action_confirm" type="object" string="Send the notice" class="btn-primary"
+                                invisible="not template_id or call_outcome != 'not_reached'"/>
+                        <button name="action_confirm" type="object" string="Send" class="btn-primary"
+                                invisible="not template_id or call_outcome"/>
+                        <button name="action_confirm" type="object" string="Confirm" class="btn-primary"
+                                invisible="template_id"/>
+                        <button name="action_try_again" type="object" string="I will try again tomorrow" class="btn-secondary"
+                                invisible="call_outcome != 'not_reached'"/>
+                        <button special="cancel" string="Cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="view_ex_officio_withdrawal_dismiss_wizard_form" model="ir.ui.view">
+            <field name="name">ems.ex_officio_withdrawal.dismiss_wizard.form</field>
+            <field name="model">ems.ex_officio_withdrawal.dismiss_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Dismiss the proposal">
+                    <field name="withdrawal_id" invisible="1"/>
+                    <field name="is_proposal" invisible="1"/>
+                    <group>
+                        <field name="close_reason" widget="radio" invisible="is_proposal" required="not is_proposal"/>
+                        <field name="note" placeholder="Why the procedure does not go ahead"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Dismiss" class="btn-primary" invisible="not is_proposal"/>
+                        <button name="action_confirm" type="object" string="Close without a withdrawal" class="btn-primary"
+                                invisible="is_proposal"/>
+                        <button special="cancel" string="Cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_ex_officio_withdrawal" model="ir.actions.act_window">
+            <field name="name">Ex officio withdrawals</field>
+            <field name="res_model">ems.ex_officio_withdrawal</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_ex_officio_withdrawal_search"/>
+            <field name="context">{'search_default_open': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">No ex officio withdrawal case files</p>
+                <p>EMS proposes one when a student misses 5 school days in a row; their tutor can also request it from the student's form.</p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

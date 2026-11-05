@@ -179,6 +179,10 @@ class ResPartner(models.Model):
         ('withdrawal', 'Withdrawal'),
         ('expulsion', 'Expulsion'),
     ], string="Exit type")
+    # A withdrawal's mode (issue #726): ex officio only when processed from its case file. Empty
+    # for the withdrawals registered before it existed.
+    withdrawal_mode = fields.Selection(string="Withdrawal mode", selection=[
+        ('voluntary', 'Voluntary'), ('ex_officio', 'Ex officio')])
     exit_course_id = fields.Many2one('ems.course', string="Exit course")
     exit_date = fields.Date(string="Exit date")
     exit_reason = fields.Text(string="Exit reason")
@@ -1375,6 +1379,7 @@ class ResPartner(models.Model):
             'active': True,
             'contact_type': 'student',
             'exit_type': False,
+            'withdrawal_mode': False,
             'exit_course_id': False,
             'exit_date': False,
             'exit_reason': False,
@@ -1417,20 +1422,23 @@ class ResPartner(models.Model):
         if orders:
             orders.sudo()._action_cancel()
 
-    def _ems_register_exit(self, kind, exit_date, exit_reason):
+    def _ems_register_exit(self, kind, exit_date, exit_reason, mode='voluntary'):
         """Withdraw or expel ('withdrawal'/'expulsion') this student now, as of the current
         course: what the withdrawal wizard applies to each line, and what
         ems.enrollment_close_wizard applies to a student who never confirmed (issue #643).
-        Returns _ems_leave_centre()'s summary."""
+        `mode`: a withdrawal's, 'ex_officio' only from its case file, which it then closes; any
+        other exit cancels an open case file (issue #726). Returns _ems_leave_centre()'s summary."""
         self.ensure_one()
         course = self.env.company.current_course_id \
             or self.env['ems.course'].search([('is_current', '=', True)], limit=1)
         self.write({
             'exit_type': 'expulsion' if kind == 'expulsion' else 'withdrawal',
+            'withdrawal_mode': False if kind == 'expulsion' else mode,
             'exit_course_id': course.id if course else False,
             'exit_date': exit_date,
             'exit_reason': exit_reason,
         })
+        self.env['ems.ex_officio_withdrawal']._ems_on_student_exit(self, kind, mode)
         self._ems_cancel_pending_enrollments()
         # Freeze the academic history NOW, while the student still has its
         # group: the transition wizard captures by main_group_id, so without

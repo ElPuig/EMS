@@ -74,7 +74,9 @@ class EmsRole(models.Model):
 		# security group used to be granted with none of its permissions when assigned from the
 		# role's own "Assigned to" list. Both the employees losing the role and the ones gaining
 		# it have to be re-synced, hence capturing the membership on both sides of super().
-		affected = self.employee_ids if 'employee_ids' in vals else None
+		# Same when the role's own group changes (issue #683: role_erasmus got one in an upgrade
+		# while already assigned): its current holders gain the new group and lose the old one.
+		affected = self.employee_ids if ('employee_ids' in vals or 'group_id' in vals) else None
 		previous_groups = {employee.id: employee._ems_role_job_groups() for employee in affected} if affected else {}
 		res = super().write(vals)
 		if affected is not None:

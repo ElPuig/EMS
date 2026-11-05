@@ -35,7 +35,7 @@ def scope_code(record):
     and of the last word of a longer one (Llengua Catalana -> LLECAT), which keeps two
     departments that start alike apart. Read in the centre language (res.company.ems_lang): in
     whatever language each user has, the same department would be numbered under several codes."""
-    record = record.with_context(lang=record.env.company.ems_lang)
+    record = record.with_env(record.env['res.company']._ems_centre_env())
     code = getattr(record, 'code', False)
     if code:
         return code.upper()

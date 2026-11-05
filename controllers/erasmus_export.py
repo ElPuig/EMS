@@ -1,0 +1,87 @@
+# -*- coding: utf-8 -*-
+
+from werkzeug.wsgi import wrap_file
+
+from odoo import _, http
+from odoo.exceptions import AccessError, UserError
+from odoo.http import content_disposition, request
+
+
+class EmsErasmusExportController(http.Controller):
+
+    @http.route('/ems/erasmus/participants', type='http', auth='user', methods=['GET'])
+    def download_participants(self, application_ids=''):
+        """Issue #685 - the .xlsx of the people who accepted an Erasmus+ place. Built on the fly
+        and never stored (it carries personal and bank data); Erasmus team only."""
+        ids = [int(application_id) for application_id in application_ids.split(',') if application_id.isdigit()]
+        try:
+            content = request.env['ems.erasmus.application'].browse(ids).exists()._ems_participants_xlsx()
+        except (AccessError, UserError):
+            raise request.not_found()
+        return request.make_response(content, headers=[
+            ('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+            ('Content-Disposition', content_disposition(f"{_('Erasmus+ participants')}.xlsx")),
+        ])
+
+    @http.route('/ems/erasmus/group/participants', type='http', auth='user', methods=['GET'])
+    def download_group_participants(self, participant_ids=''):
+        """Issue #703 - the same .xlsx for a group mobility's participants (selected students and
+        accompanying teachers); Erasmus team only, built on the fly and never stored."""
+        ids = [int(participant_id) for participant_id in participant_ids.split(',') if participant_id.isdigit()]
+        try:
+            content = request.env['ems.erasmus.group.participant'].browse(ids).exists()._ems_participants_xlsx()
+        except (AccessError, UserError):
+            raise request.not_found()
+        return request.make_response(content, headers=[
+            ('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+            ('Content-Disposition', content_disposition(f"{_('Erasmus+ participants')}.xlsx")),
+        ])
+
+    @http.route('/ems/erasmus/resolution/<int:resolution_id>/pdf', type='http', auth='user', methods=['GET'])
+    def download_resolution(self, resolution_id):
+        """A published resolution's PDF, for a staff member who appears on it (staff never use the
+        portal, where students download it). It lists everyone in it, so it renders as superuser."""
+        resolution = request.env['ems.erasmus.resolution'].sudo().browse(resolution_id).exists()
+        partner = request.env.user.partner_id
+        if request.env.user.share or not resolution or resolution.state != 'published' \
+                or partner not in resolution.line_ids.application_id.partner_id:
+            raise request.not_found()
+        return resolution._ems_pdf_response()
+
+    @http.route('/ems/erasmus/export/<int:export_id>', type='http', auth='user', methods=['GET'])
+    def download_export(self, export_id):
+        """Erasmus+ documents export (a participant's record or a whole project) as a ZIP built on
+        the fly in a temporary file and streamed (never held whole in memory, never stored); only
+        for whoever asked for it, once."""
+        export = request.env['ems.erasmus.export'].browse(export_id).exists()
+        try:
+            archive = export and export._ems_zip()
+        except (AccessError, UserError):
+            archive = None
+        if not archive:
+            raise request.not_found()
+        size = archive.seek(0, 2)
+        archive.seek(0)
+        response = request.make_response(wrap_file(request.httprequest.environ, archive), headers=[
+            ('Content-Type', 'application/zip'),
+            ('Content-Length', str(size)),
+            ('Content-Disposition', content_disposition(f"{export.sudo()._ems_root_name()}.zip")),
+        ])
+        response.direct_passthrough = True
+        return response
+
+    @http.route('/ems/erasmus/project/<int:project_id>/economy', type='http', auth='user', methods=['GET'])
+    def download_economy(self, project_id):
+        """Issue #762 - a project's economy as an .xlsx, built on the fly: the same figures as the
+        economic panel. For the Erasmus team, the Secretary and the Director."""
+        project = request.env['ems.erasmus.project'].browse(project_id).exists()
+        try:
+            content = project and project._ems_economy_xlsx()
+        except AccessError:
+            content = None
+        if not content:
+            raise request.not_found()
+        return request.make_response(content, headers=[
+            ('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+            ('Content-Disposition', content_disposition(f"{_('Economy')} {project.name}.xlsx")),
+        ])

@@ -1204,11 +1204,11 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
         self.assertIn(self.teacher_a.name.encode(), table_content)
 
     def test_menu_visible_only_to_the_roles_that_can_open_the_board(self):
-        """Quality and Settings don't organise guards and can't read ems.group, which the board
-        needs, so its menu is hidden from them (issue #680). Every other role keeps it: they all
-        imply group_teacher or group_secretary."""
+        """Quality, Settings and the Erasmus+ team don't organise guards, so the menu is hidden from
+        them (issue #680); an Erasmus+ team member who also teaches sees it as a teacher. Every
+        other role keeps it: they all imply group_teacher or group_secretary."""
         menu = self.env.ref('ems.menu_guard_duty_board')
-        hidden_roles = {'quality', 'quality_admin', 'settings', 'settings_admin'}
+        hidden_roles = {'quality', 'quality_admin', 'settings', 'settings_admin', 'erasmus', 'erasmus_coordinator'}
         for role in ROLE_GROUP_XMLIDS:
             user = create_role_user(self, role, f'test_guard_menu_{role}')
             visible = menu.id in self.env['ir.ui.menu'].with_user(user)._visible_menu_ids()

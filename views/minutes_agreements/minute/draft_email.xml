@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- The draft of a minute, emailed to the participants so they review it before it is
+             approved (ems.minute.action_send_draft, issue #755): the staff get a link to its PDF,
+             the guests from outside EMS get it attached. -->
+        <template id="minute_draft_email" name="Minute: draft for the participants">
+            <div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #222;">
+                <p>Please find the draft of the minute of the meeting below, for your review.</p>
+                <h2 style="font-size: 18px; margin: 12px 0 4px 0;" t-out="minute.name"/>
+                <p style="margin: 0 0 16px 0; color: #666;"><t t-out="date_label"/>, <t t-out="minute.time"/></p>
+                <p t-if="pdf_url" style="margin: 0 0 16px 0;">
+                    <a t-att-href="pdf_url" target="_blank"
+                       style="display: inline-block; background: #1a73e8; color: #ffffff; text-decoration: none; padding: 8px 14px; border-radius: 4px;">
+                        Read the draft (PDF)
+                    </a>
+                </p>
+                <p t-else="">The draft is attached to this email as a PDF.</p>
+                <p>If anything needs correcting, please reply to this email.</p>
+                <p t-if="approver_name" style="margin-top: 16px; color: #666;">It will be approved by <span t-out="approver_name"/>.</p>
+            </div>
+        </template>
+    </data>
+</odoo>

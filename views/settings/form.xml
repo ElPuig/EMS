@@ -42,6 +42,11 @@
                         </block>
 
                         <block title="Convalidations Settings" name="ems_convalidation_settings">
+                            <!-- The requests (who, when, what the portal asks to accept), then the resolution, in the
+                                 order of the document: grounds of law, appeal, signature. -->
+                            <setting string="Levels that allow convalidations" help="Students of these levels' studies can request subject convalidations, from the portal or through the secretariat." id="convalidation_level_ids">
+                                <field name="convalidation_level_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                            </setting>
                             <setting string="Request period" help="Every year, convalidations can only be requested from the portal between these two moments, in the centre's local time. Outside it the portal accepts no new requests; the ones already submitted are still handled as usual, and staff can register and process requests at any time." id="convalidation_period">
                                 <div class="content-group mt8">
                                     <div class="d-flex align-items-center gap-2 mb-2">
@@ -60,6 +65,9 @@
                                     </div>
                                 </div>
                             </setting>
+                            <setting string="Request: attendance notice" help="Shown on the portal when requesting a convalidation: the applicant must accept it, and chooses for each subject whether they will attend it until the resolution. Explain what the centre's rules (NOFC) say about absences if a subject is refused. Write it in each language families read. Leave it empty to use the standard text." id="convalidation_attendance_notice">
+                                <field name="convalidation_attendance_notice" widget="html" placeholder="Standard text"/>
+                            </setting>
                             <setting string="Resolution: grounds of law" help="Text added to Royal Decree 1085/2020, art. 8, in the resolution the Director issues, depending on the grounds of the request. Write it in Catalan, the language of the resolution. Leave it empty to use the standard text." id="convalidation_legal_grounds">
                                 <div class="content-group mt8">
                                     <div class="o_form_label">Prior vocational training or university studies</div>
@@ -72,9 +80,6 @@
                             </setting>
                             <setting string="Resolution: appeal" help="Footer of the resolution saying how and before whom it can be appealed. Write it in Catalan. Leave it empty to use the standard text, which names the competent body only in general terms." id="convalidation_appeal">
                                 <field name="convalidation_appeal_text" placeholder="Standard text"/>
-                            </setting>
-                            <setting string="Request: attendance notice" help="Shown on the portal when requesting a convalidation: the applicant must accept it, and chooses for each subject whether they will attend it until the resolution. Explain what the centre's rules (NOFC) say about absences if a subject is refused. Write it in each language families read. Leave it empty to use the standard text." id="convalidation_attendance_notice">
-                                <field name="convalidation_attendance_notice" widget="html" placeholder="Standard text"/>
                             </setting>
                             <setting string="Resolution: signed by delegation" help="The resolution is signed on the Director's behalf: it says so, and shows the name of whoever actually resolved it instead of the Director's." id="convalidation_sign_by_delegation">
                                 <field name="convalidation_sign_by_delegation"/>
@@ -90,6 +95,9 @@
                             </setting>
                             <setting string="Secretariat" help="Email address of the center's secretariat, for messages addressed to it. No feature uses it yet." id="secretariat_email">
                                 <field name="secretariat_email" widget="email" placeholder="secretaria@example.com"/>
+                            </setting>
+                            <setting string="Erasmus+" help="The Erasmus+ coordination's mailbox. Replies to the Erasmus+ emails sent without anyone of the team behind them (application receipts, reminders) go here, for every call." id="erasmus_contact_email">
+                                <field name="erasmus_contact_email" widget="email" placeholder="erasmus@example.com"/>
                             </setting>
                             <setting string="Student card stamp" help="The centre's stamp, printed on every student card. Without one, the card leaves an empty box to stamp by hand." id="ems_card_stamp">
                                 <field name="ems_card_stamp" widget="image" options="{'size': [0, 90]}"/>

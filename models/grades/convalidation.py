@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import logging
-
 from markupsafe import Markup
 
-from odoo import SUPERUSER_ID, _, api, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
-
-_logger = logging.getLogger(__name__)
 
 # Grade a convalidated subject gets when nobody says otherwise. The Head of Studies (or the
 # secretariat afterwards) can replace it with the one the previous studies actually hold, or
@@ -324,19 +320,7 @@ class EmsConvalidation(models.Model):
         the counter starting again every course. One ir.sequence per course, created the first
         time that course gets a request, so nothing has to be prepared before a new year opens.
         sudo: the request is usually filed from the portal."""
-        if not course:
-            return False
-        Sequence = self.env['ir.sequence'].sudo()
-        code = f'ems.convalidation.course.{course.id}'
-        if not Sequence.search_count([('code', '=', code)]):
-            Sequence.create({
-                'name': f"Convalidations {course.name}",
-                'code': code,
-                'prefix': f"CONV-{course.start}-{str(course.end)[-2:]}-",
-                'padding': 4,
-                'company_id': False,
-            })
-        return Sequence.next_by_code(code)
+        return self.env['ems.base'].next_course_number('ems.convalidation', "Convalidations", 'CONV', course)
 
     # --- who may do what -----------------------------------------------------
 
@@ -427,26 +411,13 @@ class EmsConvalidation(models.Model):
         - the review is the Deputy Head of Studies' (ems.role_dhos), who handles vocational
           training;
         - the official resolution is the Director's (ems.role_director);
-        - the registration in Esfera is the whole secretariat's (ems.group_secretary). The EMS
-          administrator is left out: it implies every group, so a group alone would hand it
-          every task of every kind - the very reason Task Assignment stopped deriving its
-          recipients from groups.
-
-        Archived users and OdooBot never get one: nobody reads their inbox."""
-        users = self.env['res.users']
+        - the registration in Esfera is the whole secretariat's (ems.group_secretary)."""
+        base = self.env['ems.base']
         if xmlid in self._EMS_TASK_ROLES:
-            role = self.env.ref(self._EMS_TASK_ROLES[xmlid], raise_if_not_found=False)
-            if role:
-                users = self.env['hr.employee'].sudo().browse(role.sudo().employee_ids.ids).exists().user_id
-        elif xmlid == 'ems.mail_activity_convalidation_registration':
-            users = self.env.ref('ems.group_secretary').sudo().users
-            administrators = self.env.ref('ems.group_academic_admin', raise_if_not_found=False)
-            if administrators:
-                users -= administrators.sudo().users
-        users = users.filtered(lambda user: user.active and user.id != SUPERUSER_ID)
-        if not users:
-            _logger.warning("Nobody holds the position in charge of %s: no task will be scheduled.", xmlid)
-        return users
+            return base.role_task_users(self._EMS_TASK_ROLES[xmlid])
+        if xmlid == 'ems.mail_activity_convalidation_registration':
+            return base.secretariat_task_users()
+        return self.env['res.users']
 
     def _ems_schedule_task(self, xmlid):
         """Put the request in the to-do list of whoever the task belongs to.
@@ -495,13 +466,13 @@ class EmsConvalidation(models.Model):
 
     def _ems_send_resolution(self):
         """Email the resolution, with its official document, to the student and - while a minor
-        or when they authorized sharing - their family (res.partner._ems_convalidation_recipients).
+        or when they authorized sharing - their family (res.partner._ems_informed_recipients).
         A recipient without an email is logged in the chatter."""
         self.ensure_one()
         template = self.env.ref('ems.email_template_convalidation_resolved', raise_if_not_found=False)
         if not template:
             return
-        recipients = self.student_id._ems_convalidation_recipients()
+        recipients = self.student_id._ems_informed_recipients()
         addressable = recipients.filtered('email')
         documents = self.resolution_pdf_id
         for recipient in addressable:
@@ -543,20 +514,18 @@ class EmsConvalidation(models.Model):
 
     # --- the official resolution ----------------------------------------------
 
-    def _ems_resolution_lang(self):
-        """The resolution is issued in the centre language, whoever generates it."""
-        return self.env.company.ems_lang
-
     def _ems_generate_resolution_pdf(self):
         """Render the resolution (ems.report_convalidation_resolution) and keep it on the request,
         replacing any earlier one."""
         self.ensure_one()
-        convalidation = self.with_context(lang=self._ems_resolution_lang())
-        pdf, _content_type = self.env['ir.actions.report'].sudo().with_context(lang=convalidation.env.lang)._render_qweb_pdf(
+        # Issued in the centre language whoever generates it: the report itself is printed in it
+        # (models/shared/ir_actions_report.py), and so is the attachment's name.
+        centre_env = self.env['res.company']._ems_centre_env()
+        pdf, _content_type = self.env['ir.actions.report'].sudo()._render_qweb_pdf(
             'ems.action_report_convalidation_resolution', self.ids)
         previous = self.resolution_pdf_id
         self.sudo().resolution_pdf_id = self.env['ir.attachment'].sudo().create({
-            'name': convalidation.env._("Resolution %s.pdf", self.name),
+            'name': centre_env._("Resolution %s.pdf", self.name),
             'raw': pdf,
             'mimetype': 'application/pdf',
             'res_model': self._name,

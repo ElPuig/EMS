@@ -151,6 +151,12 @@ class ems_company(models.Model):
              "(Head of Studies/Deputy) will have their own Manager set to this employee automatically.")
 
     secretariat_email = fields.Char()
+    # Issue #697: where applicants' replies go when an Erasmus+ email has nobody of the team behind it.
+    # A default, like google_ws_domain's, so an upgrading installation gets it too.
+    erasmus_contact_email = fields.Char(
+        string="Erasmus+ contact email", default='erasmus@elpuig.xeill.net',
+        help="The Erasmus+ coordination's mailbox: the reply-to of the Erasmus+ emails sent without anyone of the "
+             "team behind them (application receipts, reminders), for every call.")
 
     # Issue #746: one language for everything EMS writes itself, whoever triggers it.
     ems_lang = fields.Selection(
@@ -198,12 +204,12 @@ class ems_company(models.Model):
                                               inverse='_inverse_google_ws_sa_json', store=False)
     google_ws_sa_json_encrypted = fields.Char(copy=False)
 
-    @api.constrains('secretariat_email')
+    @api.constrains('secretariat_email', 'erasmus_contact_email')
     def _check_secretariat_email_format(self):
         for company in self:
-            if company.secretariat_email and not email_normalize(company.secretariat_email):
-                raise ValidationError(_(
-                    "%(email)s is not a valid email address.", email=company.secretariat_email))
+            for email in (company.secretariat_email, company.erasmus_contact_email):
+                if email and not email_normalize(email):
+                    raise ValidationError(_("%(email)s is not a valid email address.", email=email))
 
     @api.constrains('convalidation_start_day', 'convalidation_start_month', 'convalidation_start_time',
                     'convalidation_end_day', 'convalidation_end_month', 'convalidation_end_time')
@@ -282,6 +288,13 @@ class ems_company(models.Model):
         companies._sync_current_course_flag()
         companies._sync_enrollment_course_flag()
         return companies
+
+    @api.model
+    def _ems_centre_env(self):
+        """An environment in the centre language (ems_lang), for everything EMS writes or prints
+        itself whoever triggers it: stored texts, codes, the centre's documents (issue #746). The
+        language alone is env.company.ems_lang."""
+        return self.env(context=dict(self.env.context, lang=self.env.company.sudo().ems_lang))
 
     def _ems_apply_centre_lang(self):
         """Make the centre language the default one of new contacts, and so of new users, with

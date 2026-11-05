@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
+from unittest.mock import patch
+
 from odoo.tests import tagged
 from odoo.tests.common import HttpCase
 
-from .common import create_role_employee, create_role_user
+from .common import create_role_employee, create_role_user, mock_outgoing_email
 
 
 @tagged('post_install', '-at_install')
@@ -20,6 +22,9 @@ class TestQualityMinuteTour(HttpCase):
         cls.department = cls.env['hr.department'].create({'name': '0000 Minute Tour Department'})
         cls.user = create_role_user(cls, 'department_chief', 'minute.tour@example.com')
         employee = create_role_employee(cls, cls.user, department_id=cls.department.id)
+        # The draft is emailed to whoever attended (issue #755): nothing leaves this box from a test.
+        employee.work_email = 'minute.tour@example.com'
+        cls.mail_transport = mock_outgoing_email(cls)
         # Only the department's own chiefs start its minutes (ems.minute.type.starter_scope).
         cls.department.manager_id = employee
 
@@ -59,3 +64,74 @@ class TestQualityMinuteTour(HttpCase):
         self.start_tour(f"/odoo/action-ems.action_minute/{minute.id}", "ems_minute_attendance_lists", login="minute.tour@example.com")
         self.assertEqual(set(minute.absentee_ids.ids), {alpha.id, beta.id})
         self.assertEqual(minute.attendee_ids.ids, [writer.id])
+
+    def test_autosave_keeps_the_focus_tour(self):
+        """Issue #755: the save the minute does by itself while it is being written must not take
+        the cursor out of the text box, for an item already saved and for one just added."""
+        writer = self.env['hr.employee.public'].browse(self.user.employee_id.id)
+        minute = self.env['ems.minute'].create({
+            'type_id': self.env.ref('__import__.minute_type_dep').id,
+            'department_id': self.department.id,
+            'attendance_mode': 'manual',
+            'redactor_employee_id': writer.id,
+            'approver_employee_id': writer.id,
+            'agenda_ids': [(0, 0, {'name': 'First item'})],
+        })
+        minute.action_start_meeting()
+        Minute = type(self.env['ems.minute'])
+        saves = []
+        web_save = Minute.web_save
+
+        def counted_web_save(records, *args, **kwargs):
+            saves.append(records.id)
+            return web_save(records, *args, **kwargs)
+
+        with patch.object(Minute, 'web_save', counted_web_save):
+            self.start_tour(f"/odoo/action-ems.action_minute/{minute.id}", "ems_minute_autosave_keeps_focus", login="minute.tour@example.com")
+        self.assertGreaterEqual(len(saves), 3, "the form saved by itself twice (an existing item, a new one), then by hand")
+        self.assertEqual(minute.agenda_ids.mapped('name'), ['First item', 'Second item'])
+        self.assertIn('First words and more', minute.agenda_ids[0].notes)
+        self.assertIn('New words and more', minute.agenda_ids[1].notes)
+
+    def test_send_for_approval_with_the_draft_tour(self):
+        """Issue #755: sending a minute for approval offers to send its draft to everybody convened;
+        afterwards it can be sent again from the Actions."""
+        writer = self.env['hr.employee.public'].browse(self.user.employee_id.id)
+        minute = self.env['ems.minute'].create({
+            'type_id': self.env.ref('__import__.minute_type_dep').id,
+            'department_id': self.department.id,
+            'attendance_mode': 'manual',
+            'attendee_ids': [(6, 0, writer.ids)],
+            'redactor_employee_id': writer.id,
+            'approver_employee_id': writer.id,
+        })
+        minute.section_value_ids.filtered('required').content = "<p>Discussed.</p>"
+        minute.action_start_meeting()
+        self.start_tour(f"/odoo/action-ems.action_minute/{minute.id}", "ems_minute_submit_with_draft", login="minute.tour@example.com")
+        self.assertEqual(minute.state, 'to_approve')
+        # Written in the centre's language: found by the minute, the only mail it sends here.
+        drafts = self.env['mail.mail'].sudo().search([('model', '=', 'ems.minute'), ('res_id', '=', minute.id)])
+        self.assertEqual(len(drafts), 2, "with the approval, and again from the Actions")
+        self.assertIn('minute.tour@example.com', drafts[0].email_to)
+
+    def test_undo_the_approval_to_change_the_minute_tour(self):
+        """Issue #756: whoever approved a minute undoes the approval to change it, and approves
+        it again."""
+        writer = self.env['hr.employee.public'].browse(self.user.employee_id.id)
+        minute = self.env['ems.minute'].create({
+            'type_id': self.env.ref('__import__.minute_type_dep').id,
+            'department_id': self.department.id,
+            'attendance_mode': 'manual',
+            'attendee_ids': [(6, 0, writer.ids)],
+            'redactor_employee_id': writer.id,
+            'approver_employee_id': writer.id,
+        })
+        minute.section_value_ids.filtered('required').content = "<p>Discussed.</p>"
+        minute.action_start_meeting()
+        minute.action_submit()
+        minute.action_approve()
+        first_pdf = minute.pdf_attachment_id
+        self.start_tour(f"/odoo/action-ems.action_minute/{minute.id}", "ems_minute_undo_approval", login="minute.tour@example.com")
+        self.assertEqual(minute.state, 'approved')
+        self.assertEqual(minute.absence_notes, 'Corrected after undoing the approval')
+        self.assertNotEqual(minute.pdf_attachment_id, first_pdf, "a new PDF, with the change")

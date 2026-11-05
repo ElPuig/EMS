@@ -152,6 +152,8 @@ recipient is the developer's redirect account (or one of its `+` aliases) or in 
 newsletter). A refused email ends in "Delivery failed" with the reason. Details:
 `docs/en/developers/shared/dev_mail_guard.md`. If a send you expected fails on a dev machine with
 "Email blocked", that's the guard: add the address to the allowlist only if the developer says so.
+OdooBot's emails (daily summaries, automatic notices) are cancelled on such a machine unless the
+system parameter `ems.dev_mail_odoobot` is `True` (issue #752): set it to test one of them.
 
 ## Naming roles: never "chiefs"/"heads"/"jefes" on its own (developer, 2026-10-14)
 
@@ -180,6 +182,7 @@ models/
 ├── documentation/    # Minutes and records
 ├── employees/        # Teachers, roles, working schedules
 ├── enrollment/       # Enrolment process, templates, payments
+├── erasmus/          # Erasmus+ calls and applications
 ├── facilities/       # Spaces and space types
 ├── grades/           # Grade outcomes
 ├── limesurvey/       # LimeSurvey integration
@@ -532,7 +535,7 @@ Key rules applied in this project:
   - Read a field of many records in one batch (`records.mapped('field')` on the whole set, or keep the prefetch with `with_prefetch()` when building recordsets by `browse(ids)`): a read per record is a query per record.
   - Don't recompute the same structure several times in one request: compute it once and pass it down.
   - Measure on this box's real data before handing a screen or RPC over (`odoo shell` + `cProfile`, cold: `env.invalidate_all()` first; or the werkzeug duration column of `/var/log/odoo/odoo-server.log`) and report the numbers. The dev service runs under `debugpy`, which makes Python ~10x slower than production: a number from the service log is not production's, `odoo shell` is closer.
-- **Notifying staff: one daily summary per person, at the moment they chose (developer, 2026-10-31, issue #644).** A notice to staff that asks for no action and isn't urgent is never sent on the spot: queue it (`ems.info_notice`) and it goes out in that employee's unified daily summary, together with their pending tasks and, for tutors, their students' attendance issues, at the moment chosen in their profile (start or end of their working day, end of their students' day, a fixed time; start of the working day by default). The summary is sent with `message_notify`, so it honours the user's native "Notification: by email / in Odoo" preference. Something they must act on is an activity (it shows in that same summary's task section), never a loose email. Only a genuinely urgent case goes out immediately (e.g. a guard duty for today), with a comment in the code saying why. Families and students are a different channel and are not affected by this rule. Details: `docs/en/developers/shared/daily_summary.md`.
+- **Notifying staff: one daily summary per person, at the moment they chose (developer, 2026-10-31, issue #644).** A notice to staff that asks for no action and isn't urgent is never sent on the spot: queue it (`ems.info_notice`) and it goes out in that employee's unified daily summary, together with their pending tasks and, for tutors, their students' attendance issues, at the moment chosen in their profile (start or end of their working day, end of their students' day, a fixed time; start of the working day by default). The summary is sent with `message_notify`, so it honours the user's native "Notification: by email / in Odoo" preference. Something they must act on is an activity (it shows in that same summary's task section), never a loose email. **Schedule it quietly:** a plain `activity_schedule()` also sends Odoo's own "X has been assigned to you" email, so always pass `mail_activity_quick_update` (`record.with_context(mail_activity_quick_update=True).activity_schedule(...)`) or use `mail.thread._ems_sync_user_tasks()`, which already does. Found on 2026-11-05: ten Erasmus+ tasks sent that email because the rule said "an activity" and an ordinary `activity_schedule()` looked compliant. Only a genuinely urgent case goes out immediately (e.g. a guard duty for today), with a comment in the code saying why. Families and students are a different channel and are not affected by this rule. Details: `docs/en/developers/shared/daily_summary.md`.
 - Resulting code must be clean, simple, non-redundant, and well-refactored.
 - **All literals must be translatable:** wrap every user-facing string for translation (`_("...")` in Python, `_t("...")` in JS/OWL) so it can be picked up by the i18n files, with English as the default/source language. Wrapping is only step one — it makes a string *translatable*, it does not translate it. Every new feature must also add the actual Catalan/Spanish entries to `i18n/ca_ES.po` and `i18n/es_ES.po` before it's considered done (see the "Close" step of the Development workflow below). To find what's missing: export current terms with `odoo -d ems --i18n-export=<path>.po -l ca_ES --modules=ems --stop-after-init` (repeat for `es_ES`), diff msgids against the checked-in `.po` files, and append translated blocks for the new ones only (don't regenerate/replace the whole file — order doesn't matter to gettext, and the files may already carry unrelated pre-existing gaps that aren't your task's responsibility). Run as the `odoo` user with a path it can write to (not a sandboxed/restricted directory). Do not insert decorative section-header comments between po entries — a comment block with no following `msgid` breaks Odoo's po parser on load.
 
@@ -547,7 +550,7 @@ Key rules applied in this project:
 There are **two distinct categories** of documentation, for two different audiences — every new feature needs both, they are not alternatives:
 
 - **Technical documentation** (`docs/en/developers/`): for developers reading the code. English only. Mermaid diagrams of hierarchy/relations, CRUD flow, access-control tables.
-- **User documentation** (`docs/{en,ca,es}/<role>/`): manuals for the people who actually operate the feature in the running app — one folder per role (`admin`, `teachers`, `department_chiefs`, `tutors`, `secretary`, `head_of_studies`, `families`, `quality`). Trilingual: every user doc needs a Catalan, Spanish and English version. A single feature can need more than one role's manual (e.g. a teacher-facing screen plus the admin config behind it) — see the Development workflow below for how to identify which roles apply.
+- **User documentation** (`docs/{en,ca,es}/<role>/`): manuals for the people who actually operate the feature in the running app — one folder per role (`admin`, `teachers`, `department_chiefs`, `tutors`, `secretary`, `head_of_studies`, `erasmus`, `families`, `quality`). Trilingual: every user doc needs a Catalan, Spanish and English version. A single feature can need more than one role's manual (e.g. a teacher-facing screen plus the admin config behind it) — see the Development workflow below for how to identify which roles apply.
 
 Trilingual tree: English (`docs/en/`), Catalan (`docs/ca/`), Spanish (`docs/es/`).
 
@@ -560,6 +563,7 @@ docs/
 │   ├── admin/         # [USER doc] Administrator manuals
 │   ├── developers/    # [TECHNICAL doc] Mermaid diagrams, CRUD flow, access-control tables (English only)
 │   ├── department_chiefs/  # [USER doc] Department/Seminar Chief manuals (organising absences, notices)
+│   ├── erasmus/       # [USER doc] Erasmus+ team manuals (coordination, mobility technician)
 │   ├── families/      # [USER doc] Family/student manuals
 │   ├── head_of_studies/  # [USER doc] Head of Studies / Deputy / Director manuals
 │   ├── quality/       # [USER doc] Quality coordination manuals (ISO 9001 system)
@@ -860,7 +864,7 @@ forward, use the **Development workflow** below for both new models and changes 
 ones — it already folds D/T/O/N into a single cycle and doesn't need a separate retroactive
 pass to catch up to.
 
-1. **D — Diagrams:** Technical docs in English (`docs/en/developers/`) with Mermaid diagrams; user docs in all three languages, one file per role that actually interacts with the feature (`docs/{en,ca,es}/<role>/`, where `<role>` is `admin`, `teachers`, `department_chiefs`, `tutors`, `secretary`, `head_of_studies`, `families` or `quality` — not only `admin/`; a feature can be relevant to more than one role and then needs a doc file under each).
+1. **D — Diagrams:** Technical docs in English (`docs/en/developers/`) with Mermaid diagrams; user docs in all three languages, one file per role that actually interacts with the feature (`docs/{en,ca,es}/<role>/`, where `<role>` is `admin`, `teachers`, `department_chiefs`, `tutors`, `secretary`, `head_of_studies`, `erasmus`, `families` or `quality` — not only `admin/`; a feature can be relevant to more than one role and then needs a doc file under each).
 2. **T — Testing:** Backend `TransactionCase` tests + browser tour test. The tour must exercise **every view where the model's data is actually rendered**, not just its own canonical list/kanban/form action — a clean `./upgrade.sh` and passing `TransactionCase` tests only prove the arch loads and the model's logic works; neither renders anything in a browser, so neither catches a client-side (OWL template, widget) crash. Concretely, check for and cover:
    - The model's own primary list/kanban/form views (the ones reachable from its normal menu).
    - Any **secondary view** for the same model reachable only via a different action (e.g. a kanban view inherited/overridden separately from the model's main list+form action) — these are easy to forget precisely because they're not in the model's own menu.
@@ -878,7 +882,7 @@ separate cleanup pass later. It is TDD's Red-Green-Refactor cycle, with D/O/N sl
 no separate process to remember, and no distinction between "new" and "existing" beyond
 whether Spec/Red start from a blank file or a diff:
 
-1. **Spec (before Red) — D:** Before any test or code, stub or update `docs/en/developers/<area>/<model>.md` (Mermaid diagram of hierarchy/relations, CRUD flow, access-control table) with the requirements this change needs to cover. From that access-control table, identify **every role that will actually use the feature** (`admin`, `teachers`, `department_chiefs`, `tutors`, `secretary`, `head_of_studies`, `families`, `quality` — a feature is frequently relevant to more than one, e.g. a teacher-facing grading screen plus an admin config screen) and stub or update one `docs/{en,ca,es}/<role>/<model>.md` per role identified, not just `admin/`. These stubs are the acceptance criteria for the cycle below.
+1. **Spec (before Red) — D:** Before any test or code, stub or update `docs/en/developers/<area>/<model>.md` (Mermaid diagram of hierarchy/relations, CRUD flow, access-control table) with the requirements this change needs to cover. From that access-control table, identify **every role that will actually use the feature** (`admin`, `teachers`, `department_chiefs`, `tutors`, `secretary`, `head_of_studies`, `erasmus`, `families`, `quality` — a feature is frequently relevant to more than one, e.g. a teacher-facing grading screen plus an admin config screen) and stub or update one `docs/{en,ca,es}/<role>/<model>.md` per role identified, not just `admin/`. These stubs are the acceptance criteria for the cycle below.
 2. **Red — T:** Write or adapt `tests/test_<model>.py` (`TransactionCase`) and the tour (`static/tests/tours/<model>_tour.js` + `tests/test_<model>_tour.py`) for the behavior this change needs — before writing the implementation. The tour is the default, not an optional extra; skip it only for a model with no UI surface at all (pure backend/abstract model, never rendered in any view). The tour must cover every view the model's data ends up in, including secondary views under a different action and any embedding in another model's view — not only the model's own screen. **This applies just as much to a change on an already-DTON'd model as to a brand-new one** — found the hard way (2026-07-30): a checkbox-to-radio widget change on `ems.limesurvey_block` was initially shipped without a tour ("no tour exists for this view" was treated as a reason to move on, not as the gap it was); the developer had to ask "¿no haría falta un tour para comprobar que abrir esta vista no falla?" before one got added — and it caught real, non-trivial bugs in the process (`select` on a plain `<select>` doesn't work the way it looks like it should, since Odoo's `SelectionField` JSON-stringifies the option `value` attribute — use `selectByLabel` instead; a `widget="code"` field is an Ace editor, not a plain `<textarea>`, and needs `ace.edit(anchor).setValue(...)` in a custom `run()`, not the generic `edit` action). `./upgrade.sh` succeeding only proves the view's XML is structurally valid (fields exist, widgets are compatible with the field type) — it proves nothing about whether the page actually renders or a click actually works in a real browser. `./test.sh TestClassName` (scoped to the relevant test class) must fail. **Log in as the least-privileged role that should have access to the screen, not `admin` by default** — from the Spec step's access-control table, using `create_role_user`/`create_role_employee` (`tests/common.py`), not `admin`/an `hr.group_hr_user`-implying role. Admin login is only justified when the feature genuinely is admin/`academic_admin`-only by design. Found the hard way (issue #434, 2026-09-10): 78 of 89 existing tours logged in as admin or a role implying `hr.group_hr_user`, so a widget's field *dependency* bypassing the view's group-based arch stripping reached production unnoticed — every existing employee tour happened to be run by someone the bug couldn't affect. If the action under test exposes more than one `view_mode` (kanban+list+form, etc.), the tour must visit each view type at least once, not only whichever renders first — the #434 bug broke the kanban specifically while the list view of the same action was fine.
 3. **Green — T:** Write the minimum code to pass: `models/<area>/<model>.py`, `security/ir.model.access.csv` (+ `security/rules/*.xml` if needed), `views/<area>/<model>/{form,list,menu}.xml`, manifest bump. `./test.sh TestClassName` must pass. If a new validation/constraint conflicts with an existing test, don't relax the new check to fit the test on assumption alone — see "Full-scenario exploration before implementing" in Coding standards above.
 4. **Refactor — O:** In the same cycle, not as a later pass: add `_order`, `_sql_constraints`, computed field guards, view fixes for *this* model. Also check for **cross-cutting duplication** while you're here — the same shape of code (or test fixture/mock boilerplate) hand-written in more than one file is worth extracting into a shared helper (`ems.base` for production code, `tests/common.py` for test utilities) rather than left copy-pasted; this is exactly how the same escaping bug got independently found and fixed five times before `EmsBase.build_html_list` existed. Don't go looking for unrelated duplication elsewhere in the codebase on every change — but if this change's own work reveals an existing duplicate, fold the extraction into this same cycle instead of deferring it.
@@ -905,8 +909,16 @@ a pedir, estaríamos metiendo código sucio en el proyecto"*).
 - Refactoring: duplicated logic (server and client), code that grew convoluted through iterations
   and can be restructured, two paths or two UIs doing the same job, leftovers (unused labels, methods,
   translations, stale comments and docstrings).
-- Runtime efficiency, per "Efficiency first" above: measured on this box's real data (`odoo shell`,
-  cold, read-only and rolled back), with the numbers reported.
+- "Odoo way" (developer, 2026-11-05): every new custom mechanism (model, helper, widget, script,
+  cron) compared with what Odoo or OCA already offer; when the built-in one is ruled out, the reason is
+  written in a code comment or the developer doc.
+- Runtime efficiency, per "Efficiency first" above: what runs often (screens, RPCs, scheduled jobs,
+  summaries) measured on this box's real data (`odoo shell`, cold and warm, read-only and rolled
+  back), with the numbers reported; filtering in the search domain, no `search()`/`filtered()` inside
+  loops.
+- Memory efficiency (developer, 2026-11-05): no whole tables loaded into memory, batch reads instead
+  of one per record, large exports and files built in parts (streamed), no caches that grow without
+  limit.
 - Tests: redundant or overlapping ones (same code path, same assertion), and **missing** ones,
   especially where the code is most complex.
 
@@ -985,27 +997,38 @@ problems (say which), ➖ doesn't apply (say why). One row per item, a short not
 merged into prose. An ❌ or ⚠️ is stated, never hidden: the table is how the developer decides whether
 to go ahead.
 
+**Every row green before moving on (developer, 2026-11-04).** *"Todas deberían estar en verde. Si alguna
+no lo está, hay que verificarlo. Que podría ser correcto, pero hay que asegurarse bien."* Before an issue
+goes to "Ready to merge" and before a release PR is merged, every row must be ✅. Any ⚠️, ❌ or ➖ means
+stopping to verify it thoroughly: do the missing item, or prove with evidence that it really doesn't
+apply. Never report it and carry on, never lean on each issue's own close for a release, and never under
+"piloto automático" either. On v18.0.0.45.0 (PR #747) the release's quality audit was marked ⚠️
+("relied on each issue's close") and merged anyway, the third time this happened: the audit done
+afterwards found duplication between the integrated branches already in production (issue #749).
+
 Issue items:
 
 | # | Item |
 |---|------|
-| 1 | Quality audit over the whole branch diff: missing tests first, run on the current code |
-| 2 | Refactoring: duplication (server/client), convoluted code, two paths/UIs, leftovers |
-| 3 | Efficiency measured on real data, with numbers |
-| 4 | Redundant tests removed or merged |
-| 5 | Permission audit of the touched area, re-run with 0 mismatches |
-| 6 | Backend tests + tour (least-privileged role, every view mode); scoped `./test.sh` green |
-| 7 | `./upgrade.sh` clean (no WARNING/ERROR) |
-| 8 | Migrations (upgrade and clean-install paths) when xmlids or data change |
-| 9 | Developer docs describe current behavior |
-| 10 | User manuals ca/es/en per role, linked from `index.md` |
-| 11 | Screenshots (audience's role, no personal data) |
-| 12 | ca/es translations, verified in the DB; `TestI18nCoverage` green |
-| 13 | LanguageTool on Catalan/Spanish text |
-| 14 | `pylint` redefined-builtin on touched files |
-| 15 | `changelog/<branch>.md` up to date |
-| 16 | Nothing deferred left untracked |
-| 17 | `git status` clean, branch pushed, card in "Ready to merge" (GitHub issue left open) |
+| 1 | Test coverage first: the missing tests for what is about to be touched, written and run on the current code before refactoring |
+| 2 | Refactoring: duplicated logic (server/client and across files), convoluted code, two paths/UIs for the same job, leftovers (methods, labels, translations, comments) |
+| 3 | "Odoo way": every new custom mechanism compared with Odoo/OCA; a built-in ruled out has its reason written in the code or the developer doc |
+| 4 | Efficiency, time: what runs often (screens, RPCs, scheduled jobs, summaries) measured on real data, cold and warm, numbers in the note; filtering in the domain, no search/filtered inside loops |
+| 5 | Efficiency, memory: no whole tables in memory, batch reads, large exports and files streamed, no unbounded caches |
+| 6 | Redundant tests (same path, same assertion) removed or merged |
+| 7 | Permission audit of the touched area, re-run with 0 mismatches |
+| 8 | Backend tests + tour (least-privileged role, every view mode); scoped `./test.sh` green |
+| 9 | `./upgrade.sh` clean (no WARNING/ERROR) |
+| 10 | Migrations (upgrade and clean-install paths) when xmlids or data change |
+| 11 | Developer docs describe current behavior |
+| 12 | User manuals ca/es/en per role, linked from `index.md` |
+| 13 | Screenshots (audience's role, no personal data) |
+| 14 | ca/es translations, verified in the DB; `TestI18nCoverage` green |
+| 15 | LanguageTool on Catalan/Spanish text |
+| 16 | `pylint` redefined-builtin on touched files |
+| 17 | `changelog/<branch>.md` up to date |
+| 18 | Nothing deferred left untracked |
+| 19 | `git status` clean, branch pushed, card in "Ready to merge" (GitHub issue left open) |
 
 Release PR items:
 
@@ -1013,17 +1036,21 @@ Release PR items:
 |---|------|
 | 1 | Every "Ready to merge" branch integrated in ascending order, cards moved |
 | 2 | Conflicts resolved keeping both sides (`.po` blocks checked, migrations above the last tag) |
-| 3 | Quality audit over everything integrated |
-| 4 | Permission audit over everything integrated, 0 mismatches |
-| 5 | Developer docs current; user manuals in three-language parity |
-| 6 | Translations verified in the DB |
-| 7 | LanguageTool `--since <last tag>` |
-| 8 | Backend, feature tours and the role-smoke crawler tours green (scoped run) |
-| 9 | PR text: every changelog reassembled in template order, condensed, `Related with` checked, put on the PR |
-| 10 | CI green on the newest head |
-| 11 | `/changelog-clean` and then `/deploy-check` green |
-| 12 | Developer's go-ahead to merge |
-| 13 | Squash merge, release and deploy confirmed |
+| 3 | Refactoring across branches: what no single branch could see (helpers or methods written twice, renamed differently, name clashes, overlapping tests) |
+| 4 | "Odoo way" over everything integrated, as in the issue table |
+| 5 | Efficiency, time: combined cost of what was integrated (scheduled jobs, daily summary, most used screens), measured, with numbers |
+| 6 | Efficiency, memory over everything integrated, as in the issue table |
+| 7 | Redundant tests across branches (two branches testing the same thing) |
+| 8 | Permission audit over everything integrated, 0 mismatches |
+| 9 | Developer docs current; user manuals in three-language parity |
+| 10 | Translations verified in the DB |
+| 11 | LanguageTool `--since <last tag>` |
+| 12 | Backend, feature tours and the role-smoke crawler tours green (scoped run) |
+| 13 | PR text: every changelog reassembled in template order, condensed, `Related with` checked, put on the PR |
+| 14 | CI green on the newest head |
+| 15 | `/changelog-clean` and then `/deploy-check` green |
+| 16 | Developer's go-ahead to merge |
+| 17 | Squash merge, release and deploy confirmed |
 
 ## "Prepara la release" — integrate every ready branch into the release branch (2026-09-25)
 
@@ -1074,7 +1101,12 @@ Run it on the current release branch (e.g. `v18.0.0.29.0`), in this order:
    anything else on GitHub — every other GitHub write still needs the developer's explicit go-ahead
    first.
 3. **Run the "revisión del cierre"** (section above) over everything integrated, and **fix**
-   whatever it finds (docs, translations, tests), not just report it. Commit the fixes.
+   whatever it finds (docs, translations, tests), not just report it. Commit the fixes. **This step
+   blocks the first push of the release branch**, and it includes the full quality audit over
+   `git diff <last tag>..HEAD`: read every changed code file, looking above all for what no single
+   branch could see (duplication between branches touching the same area, overlapping tests, combined
+   runtime cost), and report the findings with numbers. The release closing table must then be all ✅
+   (see "Every row green before moving on" above) before going on to step 4.
 4. **Prepare the PR text** exactly as "PR changelog" below describes (every `changelog/` file,
    reassembled by section, condensed, `Related with` from merge history, delivered as a
    scratchpad file) and **put it on the release PR itself** (see "Putting the text on the open

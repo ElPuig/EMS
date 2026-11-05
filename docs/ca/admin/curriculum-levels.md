@@ -30,7 +30,7 @@ En obrir el menú es mostra una llista de tots els nivells ordenada alfabèticam
 2. Omple els camps obligatoris:
    - **Acrònim** *(obligatori)*: Codi curt que s'utilitza a tot el sistema (p. ex., `BTX`, `CFGM`).
    - **Nom** *(obligatori)*: Nom descriptiu complet (p. ex., `Batxillerat`, `Cicles Formatius Grau Mitjà`).
-3. Marca **Admet convalidacions** si l'alumnat dels estudis d'aquest nivell pot sol·licitar convalidacions de mòduls (vegeu [Convalidacions](../head_of_studies/convalidations.md)).
+3. L'**Etapa educativa** (educació obligatòria o postobligatòria) és de només lectura: la fixa la normativa, i l'EMS la manté per als nivells oficials. Quins nivells admeten convalidacions es configura a [Configuració de convalidacions](convalidation-settings.md#nivells-que-admeten-convalidacions).
 4. Opcionalment, afegeix notes lliures a la pestanya **Notes**.
 5. Fes clic a **Desa** (o usa les engrunes de navegació per anar a una altra pàgina — Odoo desa automàticament).
 

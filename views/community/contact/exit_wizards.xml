@@ -49,7 +49,10 @@
                             (family access kept if another child is still enrolled).
                         </div>
                         <group>
-                            <field name="exit_kind" widget="radio" options="{'horizontal': true}"/>
+                            <field name="exit_kind" widget="radio" options="{'horizontal': true}"
+                                   readonly="withdrawal_mode == 'ex_officio'" force_save="1"/>
+                            <!-- Ex officio only when opened from its case file (issue #726). -->
+                            <field name="withdrawal_mode" invisible="exit_kind != 'withdrawal'" force_save="1"/>
                             <field name="exit_date"/>
                             <field name="exit_reason"/>
                         </group>

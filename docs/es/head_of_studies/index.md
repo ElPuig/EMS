@@ -12,10 +12,13 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 
 - [Histórico académico: consultas de cohorte](academic-history.md)
 - [Convalidaciones: revisar y resolver las solicitudes](convalidations.md) — Revisar cada módulo y hacer la propuesta (Jefatura de Estudios), resolverla oficialmente (Dirección) o tramitarla con el Ministerio.
+- [Erasmus+: validar las actividades del personal](erasmus-staff-validation.md) — La dirección valida la actividad, la entidad, el destino y las fechas de cada persona seleccionada del personal.
+- [Erasmus+: responder un recurso de alzada contra una resolución](erasmus-appeals.md) — El jefe de estudios de la persona responde los recursos contra la lista definitiva de una convocatoria Erasmus+.
 - [Asistencia a reuniones con la tarjeta NFC](../secretary/meeting-attendance.md) — Confirmar la asistencia a un claustro o a una reunión con el lector NFC de la entrada (manual compartido con secretaría).
 - [Programaciones docentes: definir las ponderaciones de la calificación](planning.md)
 - [Gestión de contactos de alumnos y familias](../secretary/student-contacts.md) — tienes el mismo acceso completo de lectura/escritura que secretaría aquí, para cualquier alumno de todo el centro.
 - [Tramitar una baja o una expulsión](../secretary/graduation-withdrawal.md) — puedes tramitar la baja o la expulsión de un alumno, con los mismos pasos que secretaría (manual compartido).
+- [Baja de oficio: Dirección, jefatura de estudios y Convivencia](ex-officio-withdrawal.md) — el visto bueno de Dirección, lo que puede hacer la jefatura de estudios y los pasos de Convivencia del circuito de obligatoria.
 - [Credenciales de Google del alumnado](../tutors/google-credentials.md) — consultarlas, crear la cuenta y restablecer la contraseña, los mismos pasos que los tutores, para el alumnado de los tutores de tu área.
 - [Consulta de los documentos del alumnado](student-documents.md) — Todos los documentos que ha entregado el alumnado de los tutores de tu área, solo de consulta.
 - [Matriculación del alumnado de preinscripción](../secretary/manual-matriculacio-preinscripcio.md) — podéis consultar todas las pantallas de **Gestión académica > Matrícula** (matrículas, preinscripción, alumnado sin destino) y su configuración (elementos y plantillas de matrícula, asignación de tareas), de todo el centro, solo de consulta: los pasos de este manual son de secretaría (manual compartido).
@@ -31,6 +34,7 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 - [Horario de guardias](../teachers/guard-duty-schedule.md) — Quién falta en cada franja horaria, y quién está de guardia para cubrirlo.
 - [Organizar las ausencias](../department_chiefs/absences.md) — Enviar guardias, reorganizar las clases y avisar a las familias de un cambio de horario cuando falta un docente.
 - [Notas públicas y notas privadas del alumno](../teachers/student-notes.md) — Dónde todo el profesorado lee las notas públicas de un alumno, y quién puede leer y escribir las privadas de tutoría.
+- [Erasmus+: consultar la economía de los proyectos](erasmus-economy.md) — La dirección consulta la subvención, los compromisos, los pagos, los gastos y el apoyo organizativo de cada proyecto Erasmus+, y los exporta a Excel.
 
 ---
 

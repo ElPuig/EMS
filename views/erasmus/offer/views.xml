@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #685 - places offered and their answers. Created only by publishing the
+             definitive resolution or by the "Offer a free place" wizard. -->
+        <record id="view_erasmus_offer_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.offer.list</field>
+            <field name="model">ems.erasmus.offer</field>
+            <field name="arch" type="xml">
+                <list string="Place offers" create="false" decoration-muted="state in ('cancelled', 'expired')"
+                      decoration-success="state == 'accepted'" decoration-danger="state == 'renounced'">
+                    <field name="call_id" optional="hide"/>
+                    <field name="modality_id"/>
+                    <field name="rank"/>
+                    <field name="partner_id"/>
+                    <field name="offer_date"/>
+                    <field name="deadline"/>
+                    <field name="from_reserve" optional="show"/>
+                    <field name="answer_date" optional="show"/>
+                    <field name="state" widget="badge" decoration-info="state == 'pending'"/>
+                    <button name="action_cancel" type="object" string="Withdraw offer" icon="fa-ban"
+                            invisible="state != 'pending'" groups="ems.group_erasmus,ems.group_academic_admin"
+                            confirm="Withdraw this offer?"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_offer_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.offer.form</field>
+            <field name="model">ems.erasmus.offer</field>
+            <field name="arch" type="xml">
+                <form string="Place offer" create="false" edit="false">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_cancel" type="object" string="Withdraw offer"
+                                    invisible="state != 'pending'" groups="ems.group_erasmus,ems.group_academic_admin"
+                                    confirm="Withdraw this offer?"/>
+                        </div>
+                        <field name="state" widget="statusbar" statusbar_visible="pending,accepted,renounced"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="application_id"/>
+                                <field name="modality_id"/>
+                                <field name="rank"/>
+                                <field name="from_reserve"/>
+                            </group>
+                            <group>
+                                <field name="offer_date"/>
+                                <field name="deadline"/>
+                                <field name="answer_date"/>
+                                <field name="renounce_reason" invisible="not renounce_reason"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_erasmus_offer_search" model="ir.ui.view">
+            <field name="name">ems.erasmus.offer.search</field>
+            <field name="model">ems.erasmus.offer</field>
+            <field name="arch" type="xml">
+                <search string="Place offers">
+                    <field name="partner_id"/>
+                    <field name="call_id"/>
+                    <filter name="pending" string="Waiting for an answer" domain="[('state', '=', 'pending')]"/>
+                    <filter name="accepted" string="Accepted" domain="[('state', '=', 'accepted')]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_modality" string="Modality" context="{'group_by': 'modality_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_erasmus_offer" model="ir.actions.act_window">
+            <field name="name">Place offers</field>
+            <field name="res_model">ems.erasmus.offer</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_erasmus_offer_search"/>
+        </record>
+
+        <record id="view_erasmus_offer_wizard_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.offer.wizard.form</field>
+            <field name="model">ems.erasmus.offer.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Offer a free place">
+                    <p class="text-muted">
+                        EMS proposes the best-ranked reserve of the modality. The offer is emailed to them and they answer on the portal before the deadline.
+                    </p>
+                    <group>
+                        <field name="call_id" invisible="1"/>
+                        <field name="modality_id" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="free_places"/>
+                        <field name="application_id"/>
+                        <field name="rank" invisible="not application_id"/>
+                        <field name="deadline"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Offer the place" class="btn-primary"
+                                invisible="not application_id or free_places &lt;= 0"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_erasmus_offer_wizard" model="ir.actions.act_window">
+            <field name="name">Offer a free place</field>
+            <field name="res_model">ems.erasmus.offer.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

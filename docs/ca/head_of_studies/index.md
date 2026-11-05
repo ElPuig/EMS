@@ -12,10 +12,13 @@ Aquesta secció conté els manuals per a **Cap d'Estudis, Cap d'Estudis Adjunt/a
 
 - [Històric acadèmic: consultes de cohort](academic-history.md)
 - [Convalidacions: revisar i resoldre les sol·licituds](convalidations.md) — Revisar cada mòdul i fer-ne la proposta (Cap d'Estudis), resoldre-la oficialment (Direcció) o tramitar-la amb el Ministeri.
+- [Erasmus+: validar les activitats del personal](erasmus-staff-validation.md) — La direcció valida l'activitat, l'entitat, la destinació i les dates de cada persona seleccionada del personal.
+- [Erasmus+: respondre un recurs d'alçada contra una resolució](erasmus-appeals.md) — El cap d'estudis de la persona respon els recursos contra la llista definitiva d'una convocatòria Erasmus+.
 - [Assistència a reunions amb la targeta NFC](../secretary/meeting-attendance.md) — Confirmar l'assistència a un claustre o a una reunió amb el lector NFC de l'entrada (manual compartit amb secretaria).
 - [Programacions docents: definir les ponderacions de la qualificació](planning.md)
 - [Gestió de contactes d'alumnes i famílies](../secretary/student-contacts.md) — tens el mateix accés complet de lectura/escriptura que secretaria aquí, per a qualsevol alumne de tot el centre.
 - [Tramitar una baixa o una expulsió](../secretary/graduation-withdrawal.md) — pots tramitar la baixa o l'expulsió d'un alumne, amb els mateixos passos que secretaria (manual compartit).
+- [Baixa d'ofici: Direcció, prefectura d'estudis i Convivència](ex-officio-withdrawal.md) — el vistiplau de Direcció, el que pot fer la prefectura d'estudis i els passos de Convivència del circuit d'obligatòria.
 - [Credencials de Google de l'alumnat](../tutors/google-credentials.md) — consultar-les, crear el compte i restablir la contrasenya, els mateixos passos que els tutors, per a l'alumnat dels tutors de la teva àrea.
 - [Consulta dels documents de l'alumnat](student-documents.md) — Tots els documents que ha lliurat l'alumnat dels tutors de la teva àrea, només de consulta.
 - [Matriculació per l'alumnat de preinscripció](../secretary/manual-matriculacio-preinscripcio.md) — podeu consultar totes les pantalles de **Gestió acadèmica > Matrícula** (matrícules, preinscripció, alumnat sense destinació) i la seva configuració (elements i plantilles de matrícula, assignació de tasques), de tot el centre, només de consulta: els passos d'aquest manual són de secretaria (manual compartit).
@@ -31,6 +34,7 @@ Aquesta secció conté els manuals per a **Cap d'Estudis, Cap d'Estudis Adjunt/a
 - [Horari de guàrdies](../teachers/guard-duty-schedule.md) — Qui falta a cada franja horària, i qui està de guàrdia per cobrir-ho.
 - [Organitzar les absències](../department_chiefs/absences.md) — Enviar guàrdies, reorganitzar les classes i avisar les famílies d'un canvi d'horari quan falta un docent.
 - [Notes públiques i notes privades de l'alumne](../teachers/student-notes.md) — On tot el professorat llegeix les notes públiques d'un alumne, i qui pot llegir i escriure les privades de tutoria.
+- [Erasmus+: consultar l'economia dels projectes](erasmus-economy.md) — La direcció consulta la subvenció, els compromisos, els pagaments, les despeses i el suport organitzatiu de cada projecte Erasmus+, i els exporta a Excel.
 
 ---
 

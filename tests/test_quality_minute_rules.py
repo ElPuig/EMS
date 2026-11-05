@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import timedelta
+
 from odoo import fields
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
@@ -93,6 +95,46 @@ class TestQualityMinuteRules(MinuteRulesFixtures, TransactionCase):
         minute.with_user(self.user_b).action_approve()
         self.assertEqual(minute.state, 'approved')
         self.assertEqual(minute.approver_employee_id, public_b)
+
+    def test_the_approval_is_undone_to_change_the_minute_and_given_again(self):
+        """Whoever approves it, whoever answers for the scope (the department's chief) and whoever
+        wrote it may take back the approval (issue #756): the minute opens again for writing and,
+        approved again, gets a new date and a new PDF. Anybody else may not."""
+        public_a = self.env['hr.employee.public'].browse(self.employee_a.id)
+        public_b = self.env['hr.employee.public'].browse(self.employee_b.id)
+        chief_user = create_role_user(self, 'department_chief', 'rules.chief@example.com', name='Rules Chief')
+        chief = create_role_employee(self, chief_user, department_id=self.dep_b.id)
+        stranger = create_role_user(self, 'teacher', 'rules.stranger@example.com', name='Rules Stranger')
+        create_role_employee(self, stranger, department_id=self.dep_b.id)
+        self.dep_a.manager_id = chief
+        # The note left in the minute's history is signed with the email of whoever undoes it.
+        self.user_a.email = 'rules.a@example.com'
+        minute = self._ready_minute(redactor_employee_id=public_a.id, approver_employee_id=public_b.id)
+        self.assertFalse(minute.with_user(self.user_a).can_reopen, "nothing to undo before it is approved")
+        with self.assertRaises(UserError):
+            minute.with_user(self.user_b).action_reopen()
+        minute.with_user(self.user_b).action_approve()
+        first_pdf = minute.pdf_attachment_id
+        minute.approval_date = minute.approval_date - timedelta(days=3)
+
+        for user in (self.user_a, self.user_b, chief_user):
+            self.assertTrue(minute.with_user(user).can_reopen, user.name)
+        self.assertFalse(minute.with_user(stranger).can_reopen)
+        with self.assertRaises(UserError):
+            minute.with_user(stranger).action_reopen()
+
+        minute.with_user(self.user_a).action_reopen()
+        self.assertEqual(minute.state, 'to_approve')
+        self.assertFalse(minute.approval_date)
+        self.assertFalse(minute.pdf_attachment_id)
+        self.assertTrue(first_pdf.exists(), "the PDF approved before stays with the minute")
+        minute.with_user(self.user_a).write({'abstract': 'Corrected after the approval was undone'})
+
+        minute.with_user(self.user_b).action_approve()
+        self.assertEqual(minute.state, 'approved')
+        self.assertEqual(minute.approval_date, self.env['ems.datetime_utils'].get_local_today(), "dated when approved again")
+        self.assertTrue(minute.pdf_attachment_id)
+        self.assertNotEqual(minute.pdf_attachment_id, first_pdf)
 
     def test_the_chain_of_command_of_whoever_writes_it_edits_it(self):
         """A Seminar Chief above the teacher who writes the minute edits it too, even when somebody

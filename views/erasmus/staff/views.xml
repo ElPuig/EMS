@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Staff in the backend (the 2026-11-04 review): the portal is for students and families
+             only, so a teacher applies to a staff call, follows their application and prepares
+             their mobility here. Read-only forms on their own records; every change goes through the
+             Actions dropdown (models/erasmus/staff_backend.py, staff_wizards.py). -->
+
+        <!-- Staff calls -->
+        <record id="view_erasmus_call_staff_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.call.staff.list</field>
+            <field name="model">ems.erasmus.call</field>
+            <field name="priority">90</field>
+            <field name="arch" type="xml">
+                <list string="Staff calls" create="false" delete="false">
+                    <field name="name"/>
+                    <field name="date_open"/>
+                    <field name="date_close"/>
+                    <field name="is_accepting" widget="boolean"/>
+                    <field name="staff_application_id" string="My application"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_call_staff_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.call.staff.form</field>
+            <field name="model">ems.erasmus.call</field>
+            <field name="priority">90</field>
+            <field name="arch" type="xml">
+                <form string="Staff call" create="false" edit="false" delete="false">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_staff_apply" type="object" string="Apply to the call" class="btn-primary"
+                                    invisible="staff_application_id or not is_accepting"/>
+                            <button name="action_staff_apply" type="object" string="Open my application"
+                                    invisible="not staff_application_id"/>
+                        </div>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="date_open"/>
+                                <field name="date_close"/>
+                                <field name="is_accepting"/>
+                            </group>
+                            <group>
+                                <field name="rules_document" filename="rules_filename" invisible="not rules_document"/>
+                                <field name="rules_filename" invisible="1"/>
+                                <field name="staff_application_id" string="My application" invisible="not staff_application_id"/>
+                            </group>
+                        </group>
+                        <field name="description" readonly="1"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_erasmus_staff_calls" model="ir.actions.act_window">
+            <field name="name">Staff calls</field>
+            <field name="res_model">ems.erasmus.call</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('staff_mine', '=', True)]</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'list', 'view_id': ref('view_erasmus_call_staff_list')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('view_erasmus_call_staff_form')})]"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">No staff call is open to you right now</p>
+                <p>When the Erasmus team publishes a call for the centre's staff that you can apply to, it shows here and you receive an email.</p>
+            </field>
+        </record>
+
+        <!-- My applications -->
+        <record id="view_erasmus_application_staff_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.application.staff.list</field>
+            <field name="model">ems.erasmus.application</field>
+            <field name="priority">90</field>
+            <field name="arch" type="xml">
+                <list string="My applications" create="false" delete="false">
+                    <field name="call_id"/>
+                    <field name="submit_date"/>
+                    <field name="state" widget="badge" decoration-success="state in ('selected', 'accepted')"
+                           decoration-info="state in ('submitted', 'admitted')" decoration-warning="state in ('subsanation', 'reserve')"
+                           decoration-danger="state in ('excluded', 'not_submitted')"/>
+                    <field name="staff_next_step" string="What to do now"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_application_staff_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.application.staff.form</field>
+            <field name="model">ems.erasmus.application</field>
+            <field name="priority">90</field>
+            <field name="arch" type="xml">
+                <form string="My application" create="false" edit="false" delete="false">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_staff_edit" type="object" string="Fill in the form" class="btn-primary"
+                                    invisible="not staff_editable"/>
+                            <button name="action_staff_submit" type="object" string="Submit"
+                                    invisible="not staff_can_submit"
+                                    confirm="Submit the application? You can still change it until the call closes."/>
+                            <button name="action_staff_accept_offer" type="object" string="Accept the place" class="btn-primary"
+                                    invisible="not staff_offer_id" confirm="Accept the place offered?"/>
+                            <button name="action_staff_renounce_offer" type="object" string="Renounce the place"
+                                    invisible="not staff_offer_id"/>
+                            <button name="action_staff_claim" type="object" string="Claim"
+                                    invisible="not staff_claimable"/>
+                        </div>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,submitted,admitted,selected,accepted"/>
+                    </header>
+                    <sheet>
+                        <field name="staff_editable" invisible="1"/>
+                        <field name="staff_can_submit" invisible="1"/>
+                        <field name="staff_claimable" invisible="1"/>
+                        <field name="staff_offer_id" invisible="1"/>
+                        <field name="staff_mobility_id" invisible="1"/>
+                        <field name="staff_next_level" invisible="1"/>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_staff_open_mobility" type="object" class="oe_stat_button" icon="fa-plane"
+                                    string="My mobility" invisible="not staff_mobility_id"/>
+                        </div>
+                        <div class="alert alert-warning o_ems_erasmus_staff_next" role="alert"
+                             invisible="not staff_next_step or staff_next_level != 'warning'">
+                            <field name="staff_next_step" class="fw-bold"/>
+                            <span invisible="not staff_next_deadline"> Before <field name="staff_next_deadline" class="oe_inline"/>.</span>
+                        </div>
+                        <div class="alert alert-info o_ems_erasmus_staff_next" role="status"
+                             invisible="not staff_next_step or staff_next_level != 'info'">
+                            <field name="staff_next_step"/>
+                        </div>
+                        <div class="alert alert-success o_ems_erasmus_staff_next" role="status"
+                             invisible="not staff_next_step or staff_next_level != 'success'">
+                            <field name="staff_next_step"/>
+                        </div>
+                        <div class="alert alert-secondary o_ems_erasmus_staff_next" role="status"
+                             invisible="not staff_next_step or staff_next_level not in ('secondary', 'danger')">
+                            <field name="staff_next_step"/>
+                        </div>
+                        <div class="oe_title">
+                            <h1><field name="call_id" readonly="1" options="{'no_open': True}"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="submit_date" invisible="not submit_date"/>
+                            </group>
+                            <group>
+                                <field name="rules_document" filename="rules_filename" invisible="not rules_document"/>
+                                <field name="rules_filename" invisible="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Form" name="answers">
+                                <group>
+                                    <field name="proposal_a"/>
+                                    <field name="proposal_b"/>
+                                    <field name="plan_text"/>
+                                    <field name="declared_never_staff_mobility"/>
+                                    <field name="declared_centre_start_date"/>
+                                    <field name="centre_projects"/>
+                                    <field name="declared_language_level"/>
+                                    <field name="staff_support_needs"/>
+                                    <field name="image_consent"/>
+                                    <field name="applicant_notes"/>
+                                </group>
+                            </page>
+                            <page string="Documents" name="documents" invisible="not document_ids">
+                                <field name="document_ids">
+                                    <list create="false" delete="false">
+                                        <field name="name"/>
+                                        <field name="is_required"/>
+                                        <field name="attachment_ids" widget="many2many_binary" readonly="1"/>
+                                        <field name="review_state" widget="badge" decoration-success="review_state == 'valid'"
+                                               decoration-danger="review_state == 'needs_change'"/>
+                                        <field name="review_comment"/>
+                                        <field name="staff_can_upload" column_invisible="1"/>
+                                        <button name="action_staff_upload" type="object" string="Hand in" icon="fa-upload"
+                                                invisible="not staff_can_upload"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Results" name="results" invisible="not resolution_line_ids and not offer_ids and not claim_ids">
+                                <field name="resolution_line_ids">
+                                    <list>
+                                        <field name="resolution_id"/>
+                                        <field name="rank"/>
+                                        <field name="score_total"/>
+                                        <field name="result" widget="badge"/>
+                                        <button name="action_staff_download" type="object" string="PDF" icon="fa-download"/>
+                                    </list>
+                                </field>
+                                <field name="offer_ids" invisible="not offer_ids">
+                                    <list>
+                                        <field name="offer_date"/>
+                                        <field name="deadline"/>
+                                        <field name="answer_date"/>
+                                        <field name="state" widget="badge"/>
+                                    </list>
+                                </field>
+                                <field name="claim_ids" invisible="not claim_ids">
+                                    <list>
+                                        <field name="received_date"/>
+                                        <field name="kind"/>
+                                        <field name="description"/>
+                                        <field name="response"/>
+                                        <field name="state" widget="badge"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_erasmus_my_applications" model="ir.actions.act_window">
+            <field name="name">My applications</field>
+            <field name="res_model">ems.erasmus.application</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('partner_id.user_ids', 'in', uid), ('audience', '=', 'staff')]</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'list', 'view_id': ref('view_erasmus_application_staff_list')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('view_erasmus_application_staff_form')})]"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">You have not applied to any staff call</p>
+                <p>Open a call under Staff calls to apply to it.</p>
+            </field>
+        </record>
+
+        <!-- My mobilities -->
+        <record id="view_erasmus_mobility_staff_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.mobility.staff.list</field>
+            <field name="model">ems.erasmus.mobility</field>
+            <field name="priority">90</field>
+            <field name="arch" type="xml">
+                <list string="My mobilities" create="false" delete="false">
+                    <field name="call_id"/>
+                    <field name="proposal_host"/>
+                    <field name="date_start"/>
+                    <field name="date_end"/>
+                    <field name="state" widget="badge" decoration-success="state == 'done'" decoration-info="state == 'preparing'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_mobility_staff_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.mobility.staff.form</field>
+            <field name="model">ems.erasmus.mobility</field>
+            <field name="priority">90</field>
+            <field name="arch" type="xml">
+                <form string="My mobility" create="false" edit="false" delete="false">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_staff_propose" type="object" string="Send the activity proposal" class="btn-primary"
+                                    invisible="not staff_can_propose"/>
+                            <button name="action_staff_commitment" type="object" string="Sign the commitment letter" class="btn-primary"
+                                    invisible="not commitment_pending"/>
+                            <button name="action_staff_self_assessment" type="object" string="Weekly self-assessment"
+                                    invisible="not staff_self_assessment_open"/>
+                            <button name="action_staff_eu_survey" type="object" string="I have answered the EU Survey"
+                                    invisible="not staff_eu_survey_open" confirm="Have you answered the EU Survey?"/>
+                            <button name="action_staff_renounce" type="object" string="Renounce the place"
+                                    invisible="not staff_can_renounce"/>
+                        </div>
+                        <field name="state" widget="statusbar" statusbar_visible="choosing,preparing,done"/>
+                    </header>
+                    <sheet>
+                        <field name="staff_can_propose" invisible="1"/>
+                        <field name="commitment_pending" invisible="1"/>
+                        <field name="staff_self_assessment_open" invisible="1"/>
+                        <field name="staff_eu_survey_open" invisible="1"/>
+                        <field name="staff_can_renounce" invisible="1"/>
+                        <div class="oe_title">
+                            <h1><field name="call_id" readonly="1" options="{'no_open': True}"/></h1>
+                        </div>
+                        <group>
+                            <group string="The activity">
+                                <field name="proposal_activity"/>
+                                <field name="proposal_host"/>
+                                <field name="proposal_contact"/>
+                                <field name="proposal_country_id" options="{'no_open': True}"/>
+                                <field name="proposal_city"/>
+                                <field name="proposal_date_start"/>
+                                <field name="proposal_date_end"/>
+                                <field name="proposal_notes"/>
+                                <field name="proposal_attachment_ids" widget="many2many_binary" readonly="1"
+                                       invisible="not proposal_attachment_ids"/>
+                            </group>
+                            <group string="Validation by the Direction">
+                                <field name="proposal_state" widget="badge" decoration-success="proposal_state == 'validated'"
+                                       decoration-warning="proposal_state == 'pending'" decoration-danger="proposal_state == 'rejected'"/>
+                                <field name="proposal_date"/>
+                                <field name="decision_date" invisible="not decision_date"/>
+                                <field name="decision_note" invisible="not decision_note"/>
+                                <field name="leave_declaration"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Record" name="documents">
+                                <group>
+                                    <group>
+                                        <field name="record_progress"/>
+                                        <field name="record_missing" decoration-danger="record_missing"/>
+                                    </group>
+                                    <group>
+                                        <field name="eu_survey_state" widget="badge" decoration-success="eu_survey_state == 'validated'"
+                                               decoration-info="eu_survey_state == 'done'"/>
+                                        <field name="eu_survey_deadline"/>
+                                    </group>
+                                </group>
+                                <field name="document_ids">
+                                    <list create="false" delete="false" decoration-muted="file_state == 'not_applicable'">
+                                        <field name="name"/>
+                                        <field name="description" optional="hide"/>
+                                        <field name="deadline"/>
+                                        <field name="prepared_attachment_ids" widget="many2many_binary" readonly="1" string="From the Erasmus team"/>
+                                        <field name="attachment_ids" widget="many2many_binary" readonly="1" string="Handed in"/>
+                                        <field name="file_state" column_invisible="1"/>
+                                        <field name="todo_state" widget="badge" decoration-success="todo_state == 'complete'"
+                                               decoration-danger="todo_state in ('missing', 'needs_change')"
+                                               decoration-warning="todo_state == 'to_review'"/>
+                                        <field name="review_comment" optional="show"/>
+                                        <field name="staff_can_upload" column_invisible="1"/>
+                                        <field name="staff_sign_url" column_invisible="1"/>
+                                        <button name="action_staff_upload" type="object" string="Hand in" icon="fa-upload"
+                                                invisible="not staff_can_upload"/>
+                                        <button name="action_staff_sign" type="object" string="Sign it here" icon="fa-pencil-square-o"
+                                                invisible="not staff_sign_url"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Commitment letter" name="commitment" invisible="not commitment_signed_date">
+                                <group>
+                                    <field name="commitment_signed_date"/>
+                                </group>
+                                <field name="commitment_signed_text"/>
+                            </page>
+                            <page string="Self-assessment" name="self_assessment" invisible="not self_assessment_ids">
+                                <field name="self_assessment_ids">
+                                    <list create="false" delete="false">
+                                        <field name="week"/>
+                                        <field name="date_from"/>
+                                        <field name="date_to"/>
+                                        <field name="rating"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_erasmus_my_mobilities" model="ir.actions.act_window">
+            <field name="name">My mobilities</field>
+            <field name="res_model">ems.erasmus.mobility</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('partner_id.user_ids', 'in', uid), ('audience', '=', 'staff')]</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'list', 'view_id': ref('view_erasmus_mobility_staff_list')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('view_erasmus_mobility_staff_form')})]"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">You have no Erasmus+ mobility</p>
+                <p>Your mobility shows here once you accept a place in a staff call.</p>
+            </field>
+        </record>
+
+        <!-- Dialogs -->
+        <record id="view_erasmus_staff_application_wizard_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.staff.application.wizard.form</field>
+            <field name="model">ems.erasmus.staff.application.wizard</field>
+            <field name="arch" type="xml">
+                <form string="My application">
+                    <field name="application_id" invisible="1"/>
+                    <group string="Mobility plan">
+                        <field name="proposal_a"/>
+                        <field name="proposal_b"/>
+                        <field name="plan_text"/>
+                    </group>
+                    <group string="About you">
+                        <field name="declared_never_staff_mobility"/>
+                        <field name="declared_centre_start_date"/>
+                        <field name="centre_projects"/>
+                        <field name="declared_language_level"/>
+                        <field name="support_needs"/>
+                        <field name="image_consent"/>
+                        <field name="applicant_notes"/>
+                    </group>
+                    <footer>
+                        <button name="action_save" type="object" string="Save" class="btn-primary"/>
+                        <button name="action_save_submit" type="object" string="Save and submit"
+                                confirm="Submit the application? You can still change it until the call closes."/>
+                        <button string="Cancel" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_erasmus_staff_document_wizard_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.staff.document.wizard.form</field>
+            <field name="model">ems.erasmus.staff.document.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Hand in a document">
+                    <field name="line_id" invisible="1"/>
+                    <field name="upload_kind" invisible="1"/>
+                    <field name="description" readonly="1" invisible="not description"/>
+                    <group>
+                        <field name="attachment_ids" widget="many2many_binary" invisible="upload_kind == 'link'"/>
+                        <field name="link" widget="url" invisible="upload_kind != 'link'" required="upload_kind == 'link'"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Hand in" class="btn-primary"/>
+                        <button string="Cancel" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_erasmus_staff_claim_wizard_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.staff.claim.wizard.form</field>
+            <field name="model">ems.erasmus.staff.claim.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Claim">
+                    <field name="application_id" invisible="1"/>
+                    <group>
+                        <field name="description"/>
+                        <field name="attachment_ids" widget="many2many_binary"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Send the claim" class="btn-primary"/>
+                        <button string="Cancel" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_erasmus_staff_renounce_wizard_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.staff.renounce.wizard.form</field>
+            <field name="model">ems.erasmus.staff.renounce.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Renounce the place">
+                    <field name="application_id" invisible="1"/>
+                    <field name="mobility_id" invisible="1"/>
+                    <p>The place goes to the next person on the reserve list. This cannot be undone.</p>
+                    <group>
+                        <field name="reason"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Renounce" class="btn-danger"/>
+                        <button string="Cancel" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_erasmus_staff_proposal_wizard_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.staff.proposal.wizard.form</field>
+            <field name="model">ems.erasmus.staff.proposal.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Activity proposal">
+                    <field name="mobility_id" invisible="1"/>
+                    <group>
+                        <group>
+                            <field name="proposal_activity"/>
+                            <field name="proposal_host"/>
+                            <field name="proposal_contact"/>
+                            <field name="proposal_country_id" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="proposal_city"/>
+                        </group>
+                        <group>
+                            <field name="proposal_date_start"/>
+                            <field name="proposal_date_end"/>
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="proposal_notes"/>
+                        <field name="leave_declaration"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Send the proposal" class="btn-primary"/>
+                        <button string="Cancel" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_erasmus_staff_commitment_wizard_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.staff.commitment.wizard.form</field>
+            <field name="model">ems.erasmus.staff.commitment.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Commitment letter">
+                    <field name="mobility_id" invisible="1"/>
+                    <field name="commitment_text" readonly="1"/>
+                    <group>
+                        <field name="accepted"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Accept and sign" class="btn-primary"/>
+                        <button string="Cancel" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_erasmus_staff_self_assessment_wizard_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.staff.self_assessment.wizard.form</field>
+            <field name="model">ems.erasmus.staff.self_assessment.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Weekly self-assessment">
+                    <field name="mobility_id" invisible="1"/>
+                    <group>
+                        <field name="week"/>
+                    </group>
+                    <field name="line_ids">
+                        <list editable="bottom" create="false" delete="false">
+                            <field name="question_id" column_invisible="1"/>
+                            <field name="kind" column_invisible="1"/>
+                            <field name="question" readonly="1"/>
+                            <field name="rating" invisible="kind != 'rating'"/>
+                            <field name="text" invisible="kind != 'text'"/>
+                        </list>
+                    </field>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Send" class="btn-primary"/>
+                        <button string="Cancel" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

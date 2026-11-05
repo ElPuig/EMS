@@ -80,3 +80,20 @@ registry.category("web_tour.tours").add("ems_withdrawal_expected_roll_call", {
         },
     ],
 });
+
+// Issue #757: the students' kanban shows the same ribbon on the card of an active student whose
+// withdrawal is expected, and none on their classmate's (structural selectors).
+registry.category("web_tour.tours").add("ems_withdrawal_expected_kanban", {
+    test: true,
+    url: "/odoo/action-ems.action_student_kanban",
+    steps: () => [
+        {
+            trigger: ".o_kanban_record:contains('Leaving Student') .ribbon",
+            content: "The leaving student's card has the ribbon",
+        },
+        {
+            trigger: ".o_kanban_record:contains('Staying Student'):not(:has(.ribbon))",
+            content: "Their classmate's has none",
+        },
+    ],
+});

@@ -83,7 +83,7 @@ a meeting you attended, one of your department) opens **read-only**, with no act
 7. In **Agreements**, add what was agreed: the commitment, who is responsible (who carries its progress), who is involved
    (who has to do something, without managing it) and by when. Use the **description** to explain how to
    carry it out (links, instructions); the PDF prints it. Once the minute is approved, the responsible people
-   keep it up to date from the agreement's form. Each
+   get it in their [daily summary](daily-summary.md) and keep it up to date from the agreement's form. Each
    agreement's code is issued automatically.
 8. Save. The minute's **code**, which you saw build up at the top of the form as you filled in the type,
    the scope and the date, is now issued.
@@ -141,7 +141,7 @@ meeting goes on.
   ![Agreements block during the meeting: card of an agreement with deadline, responsible people, people involved, content and description](../../assets/teachers/actes-08-acords.png)
 - **Pending topics:** at the end, as a list.
 
-The minute saves itself while you write, in your pauses. **Open the draft of the minute**, at the top and
+The minute saves itself while you write, in your pauses, without moving the cursor from where you are writing. **Open the draft of the minute**, at the top and
 at the bottom of the screen, shows the PDF as it would come out, marked as a draft, while the minute is in
 the meeting or waiting for approval. To change the date or the people convened again, **Actions → Back to preparing
 the meeting**.
@@ -157,13 +157,30 @@ shows those people first; anybody else can be chosen by typing their name or wit
 (1) Who will approve the minute.
 
 
-When the minute is ready, **Actions → Send for approval**. Whoever gives the approval finds it on their own screen
-under the *Awaiting my approval* facet, and approving it:
+When the minute is ready, **Actions → Send for approval**. A dialog asks you to confirm it and offers **Also send the
+draft to the participants**, ticked. Everybody convened gets it, whether they came or not: the staff, an email with a
+link to the draft's PDF; the guests from outside EMS, the PDF attached. That way they can review it while the meeting
+is fresh and reply with any correction before it is approved. While the meeting is held or the minute waits for approval, **Actions → Send the
+draft to the participants** sends it again (for instance, after a correction).
+
+Whoever gives the approval finds it on their own screen
+under the *Awaiting my approval* facet, and also gets an *Approve the minute* task in their
+[daily summary](daily-summary.md). Approving it:
 
 - Records **who approved it and when**.
 - Generates the **PDF**, kept as an attachment on the minute.
-- Makes the minute **read-only**. If something needs correcting, a new version is produced; what was
-  approved is not rewritten.
+- Makes the minute **read-only**.
+
+### Correcting an approved minute
+
+If something needs changing after the approval, use the **Undo the approval** button. Whoever approves the minute,
+whoever answers for the scope that met (the Department or Seminar Chief, the group's tutor, the Director) and
+whoever wrote it can do it. The minute goes back to *To approve*: it can be edited again and its draft sent again to
+the participants. Once corrected, it is approved again as above: the approval date then says when the changes were
+approved, and a new PDF is generated (the previous one stays attached to the minute). Its agreements follow what the
+minute now says, and their responsible people are only told again about what changed.
+
+![An approved minute with the Undo the approval button](../../assets/teachers/actes-10-desfer-aprovacio.png)
 
 ## My agreements
 

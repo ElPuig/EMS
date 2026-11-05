@@ -29,6 +29,7 @@ Aquesta secció conté els manuals per als **tutors de grup**.
 | [Informes d'assistència](attendance-reports.md) | Imprimir els 3 informes PDF d'assistència (per grup/alumne/assignatura) i explorar les dades tu mateix amb la pantalla d'Anàlisi d'assistència |
 | [Informe d'incidències d'assistència dels teus alumnes](attendance-issues-report.md) | Les faltes i els retards dels teus alumnes al teu resum diari, i com triar quan arriben |
 | [Baixa prevista d'un alumne](withdrawal-expected.md) | Treure dels passis de llista un alumne que deixarà el centre mentre se'n tramita la baixa, perquè no acumuli faltes, i desfer-ho si al final no marxa |
+| [Baixa d'ofici d'un alumne](ex-officio-withdrawal.md) | Què fer quan un alumne deixa de venir: la proposta, el teu pas (la trucada i el correu a la família) i què passa si els passis de llista diuen una altra cosa |
 | [L'horari setmanal d'un grup](../admin/group-schedule.md) | Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF |
 | [L'horari setmanal d'un alumne](../admin/student-schedule.md) | Consultar l'horari propi d'un dels teus tutorands (assignatures, docents, aules, patis), incloent-hi classes solapades, i exportar-lo a PDF |
 | [Notes públiques i notes privades de l'alumne](../teachers/student-notes.md) | On tot el professorat llegeix les notes públiques d'un alumne, i qui pot llegir i escriure les privades de tutoria |

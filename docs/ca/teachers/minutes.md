@@ -81,8 +81,8 @@ veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **nom
    marcades com a obligatòries s'han d'omplir abans de poder aprovar l'acta.
 7. A **Acords**, afegiu els acords: què s'acorda, qui se'n fa responsable (qui en porta l'avanç), qui hi està implicat (qui
    ha de fer alguna cosa, sense gestionar-lo) i per quan. A la **descripció** expliqueu com s'ha de dur a
-   terme (enllaços, instruccions); surt al PDF. Un cop aprovada l'acta, la mantenen els responsables des del
-   formulari de l'acord. El codi de cada
+   terme (enllaços, instruccions); surt al PDF. Un cop aprovada l'acta, els responsables el reben al seu
+   [resum diari](daily-summary.md) i el mantenen al dia des del formulari de l'acord. El codi de cada
    acord s'assigna sol.
 8. Deseu. El **codi** de l'acta, que heu vist formar-se a dalt del formulari a mesura que informàveu el
    tipus, l'àmbit i la data, queda assignat.
@@ -142,7 +142,7 @@ mesura que avança la reunió.
   ![Bloc Acords durant la reunió: fitxa d'un acord amb data límit, persones responsables, persones implicades, contingut i descripció](../../assets/teachers/actes-08-acords.png)
 - **Temes pendents:** al final, com a llista.
 
-L'acta es desa sola mentre escriviu, a les pauses. **Obre l'esborrany de l'acta**, a dalt i a baix de la
+L'acta es desa sola mentre escriviu, a les pauses, sense moure el cursor d'on escriviu. **Obre l'esborrany de l'acta**, a dalt i a baix de la
 pantalla, mostra el PDF tal com quedaria, marcat com a esborrany, mentre l'acta és en reunió o pendent
 d'aprovar. Si cal tornar a canviar la data o els convocats, **Accions → Torna
 a la preparació**.
@@ -158,13 +158,31 @@ persones; es pot triar qualsevol altra escrivint-ne el nom o amb **Cerca més**.
 (1) Qui aprovarà l'acta.
 
 
-Quan l'acta estigui llesta, **Accions → Enviar a aprovar**. Qui hagi de donar el vistiplau la trobarà a la seva
-pantalla amb la faceta *Pendents que jo aprovi*, i en aprovar-la:
+Quan l'acta estigui llesta, **Accions → Enviar a aprovar**. Un diàleg us demana que ho confirmeu i ofereix **Envia
+també l'esborrany als participants**, marcat. El rep tothom qui estava convocat, hi hagi assistit o no: el personal,
+un correu amb un enllaç al PDF de l'esborrany; els convidats de fora de l'EMS, el PDF adjunt. Així el poden revisar
+ara que tenen fresca la reunió i respondre amb qualsevol correcció abans que s'aprovi. Mentre es fa la reunió o l'acta
+espera l'aprovació, **Accions → Envia l'esborrany als participants** el torna a enviar (per exemple, després d'una
+correcció).
+
+Qui hagi de donar el vistiplau la trobarà a la seva
+pantalla amb la faceta *Pendents que jo aprovi*, i també rep la tasca *Aprovar l'acta* al seu
+[resum diari](daily-summary.md). En aprovar-la:
 
 - Queda registrat **qui l'ha aprovada i quan**.
 - Es genera el **PDF**, que queda adjunt a l'acta.
-- L'acta **ja no es pot modificar**. Si cal corregir alguna cosa, es fa una versió nova; no es reescriu
-  la que ja estava aprovada.
+- L'acta **ja no es pot modificar**.
+
+### Corregir una acta aprovada
+
+Si cal canviar alguna cosa després de l'aprovació, feu servir el botó **Desfés l'aprovació**. Ho pot fer qui aprova l'acta,
+qui respon de l'àmbit que s'ha reunit (el cap de departament o de seminari, el tutor del grup, el director) i qui
+l'ha redactada. L'acta torna a *Per aprovar*: es pot tornar a editar i se'n pot tornar a enviar l'esborrany als
+participants. Un cop corregida, es torna a aprovar com s'explica més amunt: la data d'aprovació indica llavors quan
+es van aprovar els canvis, i es genera un PDF nou (l'anterior queda adjunt a l'acta). Els acords segueixen el que
+diu ara l'acta, i als seus responsables només se'ls torna a avisar del que ha canviat.
+
+![Acta aprovada amb el botó Desfés l'aprovació](../../assets/teachers/actes-10-desfer-aprovacio.png)
 
 ## Els meus acords
 

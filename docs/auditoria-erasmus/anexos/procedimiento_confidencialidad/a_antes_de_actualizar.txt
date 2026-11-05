@@ -1,0 +1,10 @@
+-- Before upgrading (schema 18.0.0.38.1, no group_mobility_id yet), the read-only check used on 'ems':
+--   SELECT id, call_id, stage, confidential, file_category, name FROM ems_erasmus_call_document
+--    WHERE name ~* '(sanit|health|salud|inclusi)' ORDER BY id;
+  id  | call_id |    stage    | confidential | file_category |           name            
+------+---------+-------------+--------------+---------------+---------------------------
+ 3198 |     449 | preparation |              |               | Targeta sanitària europea
+ 3200 |     449 | preparation | t            |               | Documentació d'inclusió
+ 3211 |     450 | preparation |              |               | Targeta sanitària europea
+(3 rows)
+

@@ -40,8 +40,8 @@ class EmsStudentCardController(http.Controller):
     @http.route('/ems/card/<string:token>', type='http', auth='public', methods=['GET'], sitemap=False)
     def check(self, token):
         address = request.httprequest.remote_addr
-        # The card's language (Catalan), whoever scans it: an anonymous visitor has none of their own.
-        request.update_context(lang=request.env['ems.minute'].sudo()._ems_centre_lang())
+        # The card's language (the centre's), whoever scans it: an anonymous visitor has none of their own.
+        request.update_context(lang=request.env.company.sudo().ems_lang)
         if self._too_many_failed_checks(address):
             response = request.render('ems.student_card_check', {
                 'state': 'blocked', 'company': request.env.company.sudo()})

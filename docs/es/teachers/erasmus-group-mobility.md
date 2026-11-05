@@ -1,0 +1,26 @@
+[Català](../../ca/teachers/erasmus-group-mobility.md) | [Castellano](erasmus-group-mobility.md) | [English](../../en/teachers/erasmus-group-mobility.md)
+
+---
+
+# Acompañar una movilidad de grupo Erasmus+
+
+Si eres **docente responsable** o **docente acompañante** de una movilidad de grupo Erasmus+, la encontrarás en **Erasmus+ > Mi participación > Mis movilidades de grupo**. No hace falta que te presentes a ninguna convocatoria: la coordinación Erasmus te añade.
+
+---
+
+## Docente responsable
+
+- **Selección:** cuando se cierra la inscripción, en la pestaña **Selección** verás la clasificación que hace EMS: la posición, la nota media del expediente y si el alumno cumple los requisitos (no verás las amonestaciones ni otros datos confidenciales). No puedes cambiar notas ni posiciones. Si crees que hace falta una excepción, escríbela en *Excepción solicitada por el docente responsable* y haz clic en **Solicitar la excepción**. Cuando todo esté bien, en **Acciones**, **Enviar la propuesta a la coordinación**. La coordinación publica la lista provisional (el alumnado puede reclamar hasta el plazo de reclamaciones) y después aprueba la selección con la lista definitiva. Si queda un empate o un alumno no tiene notas, no se puede enviar la propuesta hasta que el equipo Erasmus lo resuelve. La tarea de la coordinación para responder tu petición queda pendiente hasta que decide, aunque ya hayas enviado la propuesta.
+- **Renuncias:** si un alumno seleccionado te dice que no puede ir, regístralo con el botón **Renunciar** de su inscripción en la pestaña **Selección**, escribiendo el motivo (también lo puede hacer él desde el portal). Entonces la movilidad muestra la siguiente reserva: en **Acciones**, **Proponer la siguiente reserva**. La coordinación la aprueba. Si esa reserva no quiere la plaza, regístralo de la misma manera con **Renunciar** en su inscripción y propón la siguiente.
+- **Documentos:** en la pestaña **Documentos** y en el expediente de cada participante puedes revisar los documentos (marcarlos como válidos o que hay que corregir) y subir los documentos compartidos del grupo. Un documento que alguien firma solo queda completo cuando lo marcas como válido después de comprobar sus firmas. Los documentos confidenciales (por ejemplo la tarjeta sanitaria europea) solo los ve el equipo Erasmus. El botón **Documentos de los participantes** muestra los documentos de todos los participantes en una lista, agrupados por documento.
+- **Programa y estancia:** escribe el programa de actividades y, durante la estancia, el **seguimiento** (asistencia, incidencias, cambios, evidencias). Las incidencias de la movilidad no son amonestaciones.
+- **Becas y dinero de bolsillo:** la pestaña **Gastos colectivos** muestra las facturas del grupo (vuelos, alojamiento...), la beca de cada participante, su parte de las facturas, su **dinero de bolsillo** y si ya está pagado. Solo lo consultas: el equipo Erasmus lo introduce y la Secretaría lo paga. Nunca ves las cuentas bancarias.
+- **Regreso:** en **Acciones**, **Empieza la estancia** y **De vuelta**. Al volver recibirás dos tareas. Indica si **el programa se ha realizado según lo previsto** (pestaña **Regreso y cierre**): sí, o no y qué ha cambiado; después el equipo sube el acuerdo de aprendizaje del grupo ejecutado, firmado por los dos centros. Y responde la **EU Survey** en nombre de todo el grupo: cuando la hayas respondido, haz clic en **EU Survey respondida** (puedes adjuntar una evidencia). Al final, **Proponer el cierre** (hace falta haber respondido la pregunta del programa). Antes de **Empieza la estancia** (pide confirmación), revisa el aviso de arriba de la movilidad: dice quién todavía no está listo para marchar.
+
+## Tu cuenta bancaria
+
+Como participante también recibes dinero de bolsillo (parte de tu propia beca). Antes de salir, en **Acciones**, **Mi cuenta bancaria**, escribe el IBAN y el titular de la cuenta a la que debe ir. Mientras no lo hagas, el equipo Erasmus no puede solicitar tu pago.
+
+## Docente acompañante
+
+Puedes consultar el grupo, el programa y los participantes, escribir el **seguimiento** de la estancia (asistencia, incidencias, evidencias) y subir tus propios documentos a tu expediente. No ves las inscripciones ni la clasificación, y no puedes validar la selección ni cambiar datos administrativos.

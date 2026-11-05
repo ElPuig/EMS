@@ -83,7 +83,7 @@ El mòdul conserva la data, l'autor/a i el text de l'última revisió que s'hi h
 
 ## Afegir un expedient anterior
 
-Quan un alumne/a té cursos fets abans que l'històric es portés a EMS, sigui en un altre centre (p. ex. ve a fer segon després d'haver fet primer en un altre institut) o en aquest mateix (un antic alumne/a d'abans d'EMS), aquests cursos s'afegeixen a l'històric a partir del certificat acadèmic. Ho poden fer secretaria, administració, cap d'estudis i direcció, de moment només en estudis de FP.
+Quan un alumne/a té cursos fets abans que l'històric es portés a EMS, sigui en un altre centre (p. ex. ve a fer segon després d'haver fet primer en un altre institut) o en aquest mateix (un antic alumne/a d'abans d'EMS), aquests cursos s'afegeixen a l'històric a partir del certificat acadèmic. Ho poden fer secretaria, administració, cap d'estudis i direcció, de moment només en estudis d'FP.
 
 Obriu la fitxa de l'alumne/a i, al desplegable **Accions**, feu clic a **Afegeix un expedient anterior**.
 

@@ -1,0 +1,34 @@
+[Català](../../ca/families/manual-erasmus-grup.md) | [Castellano](manual-erasmus-grup.md) | [English](../../en/families/manual-erasmus-grup.md)
+
+---
+
+# Inscribirse en una movilidad de grupo Erasmus+
+
+Algunas movilidades Erasmus+ son de **grupo**: va un grupo de alumnos con dos docentes acompañantes. Si hay una para tu grupo, la verás en el portal, en la página **Erasmus+**.
+
+---
+
+## Inscribirte
+
+1. Entra en el portal y ve a **Erasmus+**.
+2. En la tarjeta de la movilidad de grupo están el proyecto, el destino y las fechas (cuando estén confirmadas), las plazas y el periodo de inscripción. Abre **Criterios de selección** para ver cómo se hace la selección.
+3. Haz clic en **Inscribirme**. Si estás en una situación de menos oportunidades, puedes marcarlo (es opcional y solo lo ve el equipo Erasmus). Tu inscripción se muestra entonces como **Recibida**.
+4. Mientras la inscripción esté abierta, puedes hacer clic en **Retirar mi inscripción** y volver a inscribirte.
+
+No hace falta ningún currículum, carta ni entrevista. La coordinación Erasmus puede excluir, indicando el motivo, al alumnado con expedientes disciplinarios o con incidencias graves de convivencia este curso.
+
+## El resultado
+
+Primero la coordinación Erasmus publica una **lista provisional**: recibirás un correo con tu resultado provisional y, en la tarjeta del portal, lo verás con el enlace a la lista. La lista solo muestra cuatro cifras del documento de identidad de cada alumno. Si no estás de acuerdo, abre **Quiero reclamar** debajo de tu resultado provisional, escribe qué reclamas y por qué, adjunta los archivos que lo justifiquen si tienes y haz clic en **Enviar la reclamación** antes del plazo de reclamaciones que se indica. Recibirás un correo que confirma que ha llegado, y otro con la respuesta del equipo Erasmus, que también verás en la tarjeta.
+
+Después la coordinación publica la **lista definitiva** y recibirás un correo con tu resultado (seleccionado, en lista de reserva con tu número, o sin los requisitos). También lo verás en la tarjeta del portal, con el enlace a las dos listas. Solo ves tu resultado. Si eres menor de edad, tu familia recibe una copia del resultado provisional y del definitivo.
+
+Si estás en la lista de reserva y no quieres ninguna plaza (por ejemplo, porque has encontrado trabajo), abre **No quiero ninguna plaza: salgo de la lista de reserva** en la tarjeta, escribe el motivo si quieres y haz clic en **Salir de la lista de reserva**. Así la plaza pasa a la siguiente reserva sin esperarte. Si queda una plaza libre y te proponen, la tarjeta te lo dice; cuando la coordinación lo aprueba, recibes un correo.
+
+## Si te seleccionan
+
+Haz clic en **Ver mis documentos**: encontrarás los documentos que tienes que entregar (por ejemplo la tarjeta sanitaria europea, el convenio de subvención firmado o, si eres menor de edad, la autorización oficial de viaje al extranjero), quién los firma (y si el equipo Erasmus ya ha comprobado cada firma) y los plazos, y los documentos del grupo que pone el equipo Erasmus. Sube cada archivo y haz clic en **Subir**. Un documento que primero tiene que subir el equipo Erasmus (por ejemplo el convenio de subvención para firmar) se muestra como **Lo sube el equipo Erasmus** hasta que está.
+
+En la misma página encontrarás la **carta de compromiso** de la movilidad (destino y fechas, participación en las actividades, normas de convivencia e instrucciones de los docentes, qué pasa ante un incumplimiento grave y la comunicación con el centro). Léela, marca que la aceptas y haz clic en **Aceptar y firmar**. Si eres menor de edad, también tiene que aceptarla tu familia: recibe un correo y encuentra la carta en su portal, en **Erasmus+**. Si el destino o las fechas aún no están confirmados, la aceptación es provisional: cuando se confirmen, o si después cambian las condiciones (destino, fechas, viajes o docentes), tendrás que aceptar la carta nueva (y tu familia, si eres menor). La aceptación anterior se guarda. La carta no sustituye la autorización oficial de viaje al extranjero para menores, que entregas como documento. Si no puedes ir, abre **No puedo ir: renuncio a la plaza** cuanto antes, para que la plaza pase a la siguiente reserva.
+
+**Tu beca y el dinero de bolsillo.** Una vez te seleccionan, la página también muestra tu beca Erasmus+, la parte que paga el centro por ti (tu parte de los vuelos y el alojamiento del grupo), lo que recibes tú (tu **dinero de bolsillo**) y sus pagos. En **Cuenta bancaria para tu dinero de bolsillo**, escribe el IBAN y el titular de la cuenta a la que debe ir y haz clic en **Guardar la cuenta**. Si lo dejas vacío, se usa la cuenta de tu matrícula (la página muestra sus cuatro últimas cifras).

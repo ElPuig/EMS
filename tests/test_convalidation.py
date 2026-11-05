@@ -360,8 +360,11 @@ class TestConvalidation(TransactionCase):
 
     # --- the resolution document ---------------------------------------------
 
-    def _resolution_html(self, request, lang=None):
-        return self.env['ir.actions.report'].with_context(lang=lang or request._ems_resolution_lang())._render_qweb_html(
+    def _resolution_html(self, request, centre_lang=None):
+        """The resolution as issued: always in the centre language (`centre_lang` sets it)."""
+        if centre_lang:
+            self.env.company.ems_lang = centre_lang
+        return self.env['ir.actions.report']._render_qweb_html(
             'ems.action_report_convalidation_resolution', request.ids)[0].decode()
 
     def test_resolution_shows_each_subject_and_its_outcome(self):
@@ -385,7 +388,7 @@ class TestConvalidation(TransactionCase):
         for grade_type, label in (('without_grade', 'Convalidated (CV)'), ('fixed_five', 'Convalidated (5)'),
                                   ('grade', None)):
             other.write({'grade_type': grade_type})
-            cells = [cell.split('<')[0].strip() for cell in self._resolution_html(request, 'en_US').split('<td>')[1:]]
+            cells = [cell.split('<')[0].strip() for cell in self._resolution_html(request, centre_lang='en_US').split('<td>')[1:]]
             self.assertIn('5', cells)
             self.assertEqual([cell for cell in cells if cell.startswith('Convalidated')], [label] if label else [])
 
@@ -651,7 +654,7 @@ class TestConvalidation(TransactionCase):
         reason = self.env['ems.convalidation.rejection_reason'].create({'name': 'Test refusal reason'})
         self._reject_dialog(self._line(request), reason_id=reason.id, details="Only 40 hours.").action_reject()
         self.assertEqual(self._line(request)._ems_rejection_text(), "Test refusal reason. Only 40 hours.")
-        self.assertIn("Test refusal reason. Only 40 hours.", self._resolution_html(request, 'en_US'))
+        self.assertIn("Test refusal reason. Only 40 hours.", self._resolution_html(request, centre_lang='en_US'))
 
     def test_the_reject_dialog_starts_from_the_line(self):
         line = self._line(self._request())
@@ -730,12 +733,12 @@ class TestConvalidation(TransactionCase):
     def test_adult_resolution_reaches_the_family_only_when_shared(self):
         adult, family = self._minor_with_family()
         adult.birth_date = '2000-01-01'
-        self.assertEqual(adult._ems_convalidation_recipients(), adult)
+        self.assertEqual(adult._ems_informed_recipients(), adult)
         # auth_share is a stored compute read from an accepted 'share' authorization.
         self.env.flush_all()
         self.env.cr.execute("UPDATE res_partner SET auth_share = TRUE WHERE id = %s", (adult.id,))
         adult.invalidate_recordset(['auth_share'])
-        self.assertEqual(adult._ems_convalidation_recipients(), adult | family)
+        self.assertEqual(adult._ems_informed_recipients(), adult | family)
 
     def test_resolution_without_any_email_is_logged(self):
         student = self.env['res.partner'].create({

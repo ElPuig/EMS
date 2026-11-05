@@ -106,7 +106,7 @@ class EmsErasmusClaim(models.Model):
             else:
                 users, summary = team, self.env['ems.base'].ems_elide(_("Erasmus+: answer the claim of %s", claim.partner_id.name))
             for user in users:
-                claim.activity_schedule(activity_type_id=activity_type.id, user_id=user.id, summary=summary)
+                claim.with_context(mail_activity_quick_update=True).activity_schedule(activity_type_id=activity_type.id, user_id=user.id, summary=summary)
 
     def _ems_appeal_approvers(self):
         """Who answers an appeal (art. 14 of the call): the applicant's own Head or Deputy Head of

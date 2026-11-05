@@ -648,7 +648,7 @@ class EmsErasmusMobility(models.Model):
         activity_type = self.env.ref('mail.mail_activity_data_todo')
         for mobility in self:
             for user in mobility._ems_validators():
-                mobility.sudo().activity_schedule(
+                mobility.sudo().with_context(mail_activity_quick_update=True).activity_schedule(
                     activity_type_id=activity_type.id, user_id=user.id,
                     summary=self.env['ems.base'].ems_elide(_("Erasmus+: validate the proposal of %s", mobility.partner_id.name)))
 
@@ -700,7 +700,7 @@ class EmsErasmusMobility(models.Model):
             if task:
                 task.write({'note': note, 'date_deadline': min(deadlines) if deadlines else task.date_deadline})
             else:
-                task = mobility.sudo().activity_schedule(
+                task = mobility.sudo().with_context(mail_activity_quick_update=True).activity_schedule(
                     activity_type_id=activity_type.id, user_id=user.id, note=note,
                     summary=local._ems_documents_task_summary(),
                     **({'date_deadline': min(deadlines)} if deadlines else {}))

@@ -92,20 +92,17 @@ class EmsErasmusOffer(models.Model):
 
     def _ems_notify_tutor(self):
         """A student's group tutor learns that they will go on an Erasmus+ stay. Nothing for them
-        to do, so a notice and not a to-do, on the student (as for a convalidation)."""
+        to do, so a notice in their next daily summary (ems.info_notice), on the student, as for a
+        convalidation; not urgent, so never an email on the spot."""
         for offer in self.sudo().filtered(lambda offer: offer.call_id.audience == 'student'):
             tutor = offer.partner_id.main_group_id.tutor_id.user_id
-            if not tutor.active:
-                continue
             student = offer.partner_id.with_context(lang=tutor.lang or self.env.lang)
             env = student.env
-            student.message_notify(
-                partner_ids=tutor.partner_id.ids,
-                subject=env._("Erasmus+: %s", student.name),
-                body=Markup("<p>{}</p>").format(env._(
-                    "%(student)s has accepted a place in %(modality)s of the Erasmus+ call %(call)s. There is nothing "
-                    "for you to do now: the Erasmus team will tell the teaching staff the dates of the stay once they "
-                    "are set.", student=student.name, modality=offer.modality_id.name, call=offer.call_id.name)))
+            body = Markup("<p>{}</p>").format(env._(
+                "%(student)s has accepted a place in %(modality)s of the Erasmus+ call %(call)s. There is nothing "
+                "for you to do now: the Erasmus team will tell the teaching staff the dates of the stay once they "
+                "are set.", student=student.name, modality=offer.modality_id.name, call=offer.call_id.name))
+            self.env['ems.info_notice']._ems_queue(tutor, student, lambda _user, body=body: body)
 
     @api.model
     def _cron_expire_offers(self):

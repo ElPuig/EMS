@@ -183,6 +183,15 @@ rules).
 
 The Head of Studies and the Director read the applications; they write nothing on them.
 
+## Tasks and notices to the staff
+
+Staff (the Erasmus team, evaluators, the panel, validators, the Secretary, tutors) never get an
+Erasmus+ email on the spot: nothing in the process is urgent (agreed 2026-11-05). Every to-do is an
+activity scheduled with `mail_activity_quick_update` (no "assigned to you" email) and reaches its owner
+in the daily summary; a notice that asks for nothing (the tutor's "your student accepted a place", the
+evaluators' list of interviews) is an `ems.info_notice` for that same summary (see
+[`daily_summary.md`](../shared/daily_summary.md)). Students and families keep their emails.
+
 ## Portal (`controllers/portal_erasmus.py`)
 
 | Route | What |
@@ -618,8 +627,9 @@ stateDiagram-v2
   (`email_template_erasmus_offer_answer`, one template branching on the offer's state; `_ems_send_answer`),
   and so is a place offered to a reserve (`email_template_erasmus_offer`), both with a copy to the
   family of a minor or of an adult who authorized sharing. The family gets no copy of the other lists nor of the claims.
-- Accepting tells the student's group tutor (`_ems_notify_tutor`): a `message_notify` on the
-  student, a notice and not a to-do, like the convalidations' notice to the teaching staff.
+- Accepting tells the student's group tutor (`_ems_notify_tutor`): an `ems.info_notice` on the
+  student for their next daily summary, a notice and not a to-do, like the convalidations' notice
+  to the teaching staff.
 - The call counts `places_accepted` out of `places_total` (its modalities' places) and
   `offers_pending` (non-stored, `_compute_offers`): the **Places accepted** button and a notice on
   the call form, so the team knows when to open the destination choice. A reserve's result email
@@ -1271,9 +1281,8 @@ flowchart LR
 - **Interviews**: `ems.erasmus.interview.schedule` (wizard, Actions of the call) gives the admitted
   applicants consecutive slots, the same place and evaluators, and sends the calls. The evaluators'
   tasks (one per interview, done on submitting it) are scheduled quietly
-  (`mail_activity_quick_update`) and the evaluators get one note on the call with the whole list
-  (`_ems_notify_evaluators`, `mail.thread._ems_notify`), not one email per interview: evaluators with
-  the same list and language share one note, addressed to all of them. The interview
+  (`mail_activity_quick_update`) and each evaluator gets the whole list as an `ems.info_notice` on the
+  call (`_ems_notify_evaluators`), in their next daily summary, not one email per interview. The interview
   form writes annex 4's descriptors under each criterion; interviews and plan ratings have
   **Submit and next** (`action_submit_next`).
 - **Plan ratings**: `rating_status` (stored) shows an abstention as such; a pivot view

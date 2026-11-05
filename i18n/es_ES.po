@@ -42058,12 +42058,6 @@ msgstr "EMS: Erasmus+, recordatorio antes de que cierre una convocatoria"
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/erasmus/offer.py:0
-msgid "Erasmus+: %s"
-msgstr "Erasmus+: %s"
-
-#. module: ems
-#. odoo-python
 #: code:addons/ems/models/erasmus/claim.py:0
 msgid "Erasmus+: answer the appeal of %s"
 msgstr "Erasmus+: responde el recurso de alzada de %s"

@@ -1081,7 +1081,7 @@ class EmsErasmusApplication(models.Model):
         team = self.env['ems.erasmus.call']._ems_erasmus_team()
         for application in self:
             for user in team:
-                application.sudo().activity_schedule(
+                application.sudo().with_context(mail_activity_quick_update=True).activity_schedule(
                     activity_type_id=activity_type.id, user_id=user.id,
                     summary=self.env['ems.base'].ems_elide(_("Erasmus+: review the corrections of %s", application.partner_id.name)))
 

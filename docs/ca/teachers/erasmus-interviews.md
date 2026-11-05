@@ -12,7 +12,7 @@ Quan l'equip Erasmus et demana que valoris l'entrevista d'un candidat, la puntue
 
 ## 1. Trobar les teves entrevistes
 
-Quan se t'assigna una entrevista, reps una tasca a l'EMS. Quan l'equip Erasmus programa moltes entrevistes alhora, reps un sol avís amb tota la llista (dia i hora, lloc i candidat) en lloc d'un correu per entrevista. Al menú **Erasmus+** tens **La meva participació > Les meves avaluacions**: les entrevistes que tens assignades, amb el candidat, la data i el lloc.
+Quan se t'assigna una entrevista, reps una tasca a l'EMS. Quan l'equip Erasmus programa moltes entrevistes alhora, tota la llista (dia i hora, lloc i candidat) t'arriba al teu pròxim resum diari, amb les tasques, en lloc d'un correu per entrevista. Al menú **Erasmus+** tens **La meva participació > Les meves avaluacions**: les entrevistes que tens assignades, amb el candidat, la data i el lloc.
 
 La llista mostra els totals quan ja has enviat cada entrevista. Només veus les teves entrevistes. No veus la puntuació de l'altra persona avaluadora ni la resta de la sol·licitud del candidat.
 

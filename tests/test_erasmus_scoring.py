@@ -308,14 +308,17 @@ class TestErasmusInterview(ErasmusScoringCase):
         Message = self.env['mail.message']
         self.assertFalse(Message.search([('model', '=', 'ems.erasmus.interview'), ('res_id', 'in', own.ids),
                                          ('partner_ids', 'in', self.evaluator_1.partner_id.ids)]))
-        notices = Message.search([('model', '=', 'ems.erasmus.call'), ('res_id', '=', self.call.id),
-                                  ('partner_ids', 'in', self.evaluator_1.partner_id.ids)])
-        self.assertEqual(len(notices), 1)
-        self.assertEqual(notices.partner_ids, (self.evaluator_1 | self.evaluator_2).partner_id,
-                         "The 2026-11-04 usage test: the same list is one notice to both, not one each.")
-        self.assertIn('Room 12', notices.body)
-        self.assertIn(first.partner_id.name, notices.body)
-        self.assertIn(second.partner_id.name, notices.body)
+        self.assertFalse(Message.search([('model', '=', 'ems.erasmus.call'), ('res_id', '=', self.call.id),
+                                         ('partner_ids', 'in', self.evaluator_1.partner_id.ids)]),
+                         "Not urgent: no email on the spot, the list waits for the daily summary.")
+        notices = self.env['ems.info_notice'].sudo().search([('res_model', '=', 'ems.erasmus.call'),
+                                                             ('res_id', '=', self.call.id)])
+        self.assertEqual(notices.user_id, self.evaluator_1 | self.evaluator_2, "One notice per evaluator.")
+        own_notice = notices.filtered(lambda notice: notice.user_id == self.evaluator_1)
+        self.assertEqual(len(own_notice), 1)
+        self.assertIn('Room 12', own_notice.body)
+        self.assertIn(first.partner_id.name, own_notice.body)
+        self.assertIn(second.partner_id.name, own_notice.body)
         wizard = self.env['ems.erasmus.interview.schedule'].with_context(active_id=self.call.id).create({
             'date_start': start, 'place': 'Room 12'})
         self.assertFalse(wizard.application_ids, "Who already has an interview date is not proposed again.")

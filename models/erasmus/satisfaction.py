@@ -176,7 +176,7 @@ class EmsErasmusSatisfaction(models.Model):
             user = survey._ems_staff_user()
             # In the staff member's language: the hourly cron runs as the system user (English).
             summary, note = survey.with_context(lang=user.lang or self.env.lang)._ems_todo_texts()
-            survey.activity_id = survey.partner_id.activity_schedule(
+            survey.activity_id = survey.partner_id.with_context(mail_activity_quick_update=True).activity_schedule(
                 activity_type_id=activity_type.id, user_id=user.id, summary=summary, note=note,
                 date_deadline=survey.open_date + timedelta(days=REMINDER_DAYS[-1]))
 

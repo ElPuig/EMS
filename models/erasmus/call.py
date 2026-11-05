@@ -790,7 +790,7 @@ class EmsErasmusCall(models.Model):
                 continue
             for user in team - tasks.user_id:
                 # In each member's language: an offer expired by the cron runs as the system user.
-                call.activity_schedule(
+                call.with_context(mail_activity_quick_update=True).activity_schedule(
                     activity_type_id=activity_type.id, user_id=user.id,
                     summary=call.with_context(lang=user.lang or self.env.lang)._ems_free_place_summary(names))
 

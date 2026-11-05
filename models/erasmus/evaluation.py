@@ -127,7 +127,7 @@ class EmsErasmusEvaluation(models.AbstractModel):
 
     def _ems_schedule_activity(self):
         self.ensure_one()
-        self.sudo().activity_schedule(
+        self.sudo().with_context(mail_activity_quick_update=True).activity_schedule(
             'mail.mail_activity_data_todo', user_id=self.evaluator_id.id, date_deadline=self._ems_activity_date(),
             summary=self._ems_activity_summary())
 

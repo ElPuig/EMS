@@ -51,7 +51,7 @@ def _ask_transfer(records):
     users = _secretary_users(records.env)
     for record in records.sudo():
         for user in users:
-            record.activity_schedule(activity_type_id=activity_type.id, user_id=user.id,
+            record.with_context(mail_activity_quick_update=True).activity_schedule(activity_type_id=activity_type.id, user_id=user.id,
                                      summary=record._ems_transfer_summary())
 
 

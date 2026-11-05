@@ -12,7 +12,7 @@ When the Erasmus team asks you to evaluate a candidate's interview, you score it
 
 ## 1. Find your interviews
 
-When you are assigned an interview you receive a task in EMS. When the Erasmus team schedules many interviews at once, you get a single notice with the whole list (date and time, place and candidate) instead of one email per interview. In the **Erasmus+** menu you have **My participation > My evaluations**: the interviews assigned to you, with the candidate, the date and the place.
+When you are assigned an interview you receive a task in EMS. When the Erasmus team schedules many interviews at once, the whole list (date and time, place and candidate) comes in your next daily summary, with the tasks, instead of one email per interview. In the **Erasmus+** menu you have **My participation > My evaluations**: the interviews assigned to you, with the candidate, the date and the place.
 
 The list shows the totals once you have submitted each interview. You only see your own interviews. You don't see the other evaluator's score nor the rest of the candidate's application.
 

@@ -43,5 +43,5 @@ class EmsErasmusEuSurvey(models.AbstractModel):
         activity_type = self.env.ref('mail.mail_activity_data_todo')
         for record in self.sudo():
             for user in users:
-                record.activity_schedule(activity_type_id=activity_type.id, user_id=user.id, summary=summary,
+                record.with_context(mail_activity_quick_update=True).activity_schedule(activity_type_id=activity_type.id, user_id=user.id, summary=summary,
                                          **(deadline and {'date_deadline': deadline} or {}))

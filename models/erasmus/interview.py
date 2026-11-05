@@ -163,21 +163,17 @@ class EmsErasmusInterviewSchedule(models.TransientModel):
         return {'type': 'ir.actions.act_window_close'}
 
     def _ems_notify_evaluators(self, interviews):
-        """A single notice with the interviews just assigned: date and time, place and applicant, in
-        the evaluators' language. Evaluators with the same list and language share one notice (the
-        2026-11-04 usage test: the same text showed once per evaluator in the call's chatter)."""
+        """One notice per evaluator with the interviews just assigned (date and time, place and
+        applicant, in their language), in their next daily summary (ems.info_notice) next to the
+        scoring tasks: not urgent, so never an email on the spot."""
         Call = self.env['ems.erasmus.call']
-        groups = {}
         for evaluator in interviews.evaluator_id:
             own = interviews.filtered(lambda interview: interview.evaluator_id == evaluator).sorted('interview_date')
-            key = (evaluator.lang, tuple(own.application_id.ids))
-            groups.setdefault(key, [self.env['res.users'], own])[0] |= evaluator
-        for (lang, _applications), (evaluators, own) in groups.items():
-            lang_self = self.with_context(lang=lang)
-            message = Markup("<p>{}</p>{}").format(
-                lang_self.env._("Erasmus+: you have %(count)s interviews to score in %(call)s. Each one is a task in "
-                                "Erasmus+ > My evaluations.", count=len(own), call=self.call_id.name),
+            env = self.with_context(lang=evaluator.lang or self.env.lang).env
+            body = Markup("<p>{}</p>{}").format(
+                env._("Erasmus+: you have %(count)s interviews to score in %(call)s. Each one is a task in "
+                      "Erasmus+ > My evaluations.", count=len(own), call=self.call_id.name),
                 self.env['ems.base'].build_html_list([
                     f"{Call._ems_local_format(interview.interview_date)} - {interview.interview_place} - "
                     f"{interview.partner_id.name}" for interview in own]))
-            self.call_id.sudo()._ems_notify(evaluators.partner_id, message)
+            self.env['ems.info_notice']._ems_queue(evaluator, self.call_id, lambda _user, body=body: body)

@@ -39,7 +39,7 @@ Tots els criteris comencen buits. **Un criteri buit no és mai un zero:** la sol
 
 ## 3. Organitzar les entrevistes
 
-**Moltes alhora:** a la convocatòria, fes clic a **Accions > Programa les entrevistes**. Tria la modalitat (o cap, per a totes), la **Primera entrevista**, els **Minuts per entrevista**, el **Lloc** i les **Persones avaluadores**. L'EMS proposa les persones admeses que encara no tenen data d'entrevista, per modalitat i nom: treu o reordena qui calgui. **Programa** dona a cadascuna la franja següent, li assigna les persones avaluadores i, amb **Envia les convocatòries d'entrevista** marcat, envia per correu a cada persona la data i el lloc (com a mínim 24 hores abans). Cada persona avaluadora rep una tasca per entrevista, que queda feta quan n'envia la puntuació, però un sol avís amb tota la llista (dia i hora, lloc i candidat), no un correu per entrevista.
+**Moltes alhora:** a la convocatòria, fes clic a **Accions > Programa les entrevistes**. Tria la modalitat (o cap, per a totes), la **Primera entrevista**, els **Minuts per entrevista**, el **Lloc** i les **Persones avaluadores**. L'EMS proposa les persones admeses que encara no tenen data d'entrevista, per modalitat i nom: treu o reordena qui calgui. **Programa** dona a cadascuna la franja següent, li assigna les persones avaluadores i, amb **Envia les convocatòries d'entrevista** marcat, envia per correu a cada persona la data i el lloc (com a mínim 24 hores abans). Cada persona avaluadora rep una tasca per entrevista, que queda feta quan n'envia la puntuació, i tota la llista (dia i hora, lloc i candidat) al seu pròxim resum diari, no un correu per entrevista.
 
 **Una per una**, a la pestanya **Entrevista** de cada sol·licitud admesa:
 

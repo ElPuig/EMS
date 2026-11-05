@@ -533,6 +533,9 @@ class TestErasmusResolutionNotices(ErasmusResolutionCase):
         self.call.claims_deadline = fields.Datetime.now() + timedelta(days=1)
         claim = first._ems_portal_claim('My interview score')
         self.assertEqual(len(self._mails(claim)), 1, "Received.")
+        self.assertTrue(claim.activity_ids, "The team gets the task to answer it...")
+        self.assertFalse(self._mails(claim).filtered(lambda mail: mail.message_type == 'user_notification'),
+                         "...quietly: the daily summary is how they hear of it, never an 'assigned to you' email.")
         claim.with_user(self.erasmus_user).response = 'Reviewed: the score stands.'
         claim.with_user(self.erasmus_user).action_resolve()
         self.assertEqual(len(self._mails(claim)), 2, "Answered.")
@@ -613,9 +616,12 @@ class TestErasmusResolutionNotices(ErasmusResolutionCase):
         first, _second = self._scored_call()
         self._publish_up_to_definitive()
         first.offer_ids.action_accept()
-        notice = self.env['mail.message'].search([('model', '=', 'res.partner'), ('res_id', '=', self.student.id),
-                                                  ('partner_ids', 'in', self.tutor_user.partner_id.ids)])
-        self.assertEqual(len(notice), 1)
+        self.assertFalse(self.env['mail.message'].search([('model', '=', 'res.partner'), ('res_id', '=', self.student.id),
+                                                          ('partner_ids', 'in', self.tutor_user.partner_id.ids)]),
+                         "Not urgent: no email on the spot.")
+        notice = self.env['ems.info_notice'].sudo().search([('user_id', '=', self.tutor_user.id),
+                                                            ('res_model', '=', 'res.partner'), ('res_id', '=', self.student.id)])
+        self.assertEqual(len(notice), 1, "In the tutor's next daily summary.")
         self.assertFalse(self.env['mail.activity'].search([('user_id', '=', self.tutor_user.id)]),
                          "A notice, not a task.")
 

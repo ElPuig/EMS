@@ -107,7 +107,7 @@ class EmsErasmusProject(models.Model):
                         "and what to delete (EMS deletes nothing)", project=project.name,
                         date=format_date(self.env, project.keep_until))
             for user in coordinators:
-                project.activity_schedule(activity_type_id=activity_type.id, user_id=user.id, summary=summary)
+                project.with_context(mail_activity_quick_update=True).activity_schedule(activity_type_id=activity_type.id, user_id=user.id, summary=summary)
         projects.write({'retention_notice_date': today})
 
 

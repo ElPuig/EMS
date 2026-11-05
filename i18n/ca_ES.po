@@ -48059,7 +48059,7 @@ msgid ""
 msgstr ""
 "Per al tram: la posició del participant entre els del mateix tipus de "
 "mobilitat (KA121-VET), o entre tots els participants del projecte, alumnat i"
-" personal junts (KA131-HED)."
+" personal plegats (KA131-HED)."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__grant_amount

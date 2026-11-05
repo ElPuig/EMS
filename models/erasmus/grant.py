@@ -2,9 +2,10 @@
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
-from odoo.tools import float_round, format_date, formatLang
+from odoo.tools import format_date, formatLang
 from odoo.tools.sql import create_unique_index
 
+from .payee import split_amount
 from .workflow import check_workflow_create
 
 # What the centre may pay directly out of a participant's grant (issue #697).
@@ -50,7 +51,11 @@ def _secretary_users(env):
 
 def _ask_transfer(records):
     """A task for the Secretary per payment or invoice to pay: it shows in their daily summary of
-    pending tasks until the transfer is registered."""
+    pending tasks until the transfer is registered. A group mobility's pocket money is one task
+    for the whole group (issue #764)."""
+    if records._name == 'ems.erasmus.payment':
+        records.group_mobility_id._ems_sync_transfer_task()
+        records = records.filtered(lambda payment: not payment.group_participant_id)
     activity_type = records.env.ref('mail.mail_activity_data_todo')
     users = _secretary_users(records.env)
     for record in records.sudo():
@@ -160,15 +165,10 @@ class EmsErasmusInvoice(models.Model):
         for invoice in self:
             invoice.provision_ids.unlink()
             mobilities = invoice.mobility_ids
-            if not mobilities:
-                continue
-            share = float_round(invoice.amount / len(mobilities), precision_rounding=invoice.currency_id.rounding,
-                                rounding_method='DOWN')
-            remainder = invoice.amount - share * len(mobilities)
             self.env['ems.erasmus.provision'].create([{
                 'invoice_id': invoice.id, 'mobility_id': mobility.id, 'concept': invoice.concept,
-                'description': invoice._ems_share_description(), 'amount': share + (remainder if index == 0 else 0),
-            } for index, mobility in enumerate(mobilities)])
+                'description': invoice._ems_share_description(), 'amount': share,
+            } for mobility, share in zip(mobilities, split_amount(invoice.amount, len(mobilities), invoice.currency_id))])
 
     def _ems_transfer_summary(self):
         self.ensure_one()
@@ -183,20 +183,26 @@ class EmsErasmusInvoice(models.Model):
 class EmsErasmusPayment(models.Model):
     """Issue #697 - an amount of a participant's grant the Secretary transfers to their bank
     account: a prefinancing before leaving and the rest on return, or a single payment when the
-    prefinancing is 100 %. Requested by the Erasmus team from the mobility; the Secretary marks it
-    paid."""
+    prefinancing is 100 %. Requested by the Erasmus team from the mobility, or from the group
+    mobility for its participants' pocket money (issue #764); the Secretary marks it paid."""
     _name = 'ems.erasmus.payment'
     _description = 'Erasmus+ grant payment'
     _inherit = ['ems.base']
     _order = 'state desc, request_date, id'
 
-    mobility_id = fields.Many2one(string="Mobility", comodel_name='ems.erasmus.mobility', required=True,
-                                  ondelete='restrict', index=True)
-    partner_id = fields.Many2one(string="Participant", related='mobility_id.partner_id', store=True, index=True)
-    call_id = fields.Many2one(string="Call", related='mobility_id.call_id', store=True)
-    project_id = fields.Many2one(string="Project", related='mobility_id.project_id', store=True)
+    mobility_id = fields.Many2one(string="Mobility", comodel_name='ems.erasmus.mobility', ondelete='restrict',
+                                  index=True)
+    group_participant_id = fields.Many2one(string="Group participant", comodel_name='ems.erasmus.group.participant',
+                                           ondelete='restrict', index=True)
+    group_mobility_id = fields.Many2one(string="Group mobility", related='group_participant_id.group_mobility_id',
+                                        store=True, index=True)
+    partner_id = fields.Many2one(string="Participant", comodel_name='res.partner', compute='_compute_payee',
+                                 store=True, index=True)
+    call_id = fields.Many2one(string="Call", comodel_name='ems.erasmus.call', compute='_compute_payee', store=True)
+    project_id = fields.Many2one(string="Project", comodel_name='ems.erasmus.project', compute='_compute_payee',
+                                 store=True)
     kind = fields.Selection(string="Payment", selection=PAYMENT_KINDS, required=True)
-    currency_id = fields.Many2one(string="Currency", related='mobility_id.currency_id')
+    currency_id = fields.Many2one(string="Currency", comodel_name='res.currency', compute='_compute_currency_id')
     amount = fields.Monetary(string="Amount", required=True)
     request_date = fields.Date(string="Requested on", readonly=True,
                                default=lambda self: self.env['ems.datetime_utils'].get_local_today())
@@ -213,16 +219,35 @@ class EmsErasmusPayment(models.Model):
     bank_account = fields.Char(string="IBAN", compute='_compute_bank_account', groups=PAYERS)
     bank_holder = fields.Char(string="Account holder", compute='_compute_bank_account', groups=PAYERS)
 
+    _sql_constraints = [
+        ('one_payee', 'CHECK((mobility_id IS NULL) != (group_participant_id IS NULL))',
+         "A grant payment is for one mobility or one participant of a group mobility."),
+    ]
+
+    @api.depends('mobility_id.partner_id', 'mobility_id.call_id', 'mobility_id.project_id',
+                 'group_participant_id.partner_id', 'group_participant_id.group_mobility_id.project_id')
+    def _compute_payee(self):
+        for payment in self:
+            payee = payment.mobility_id or payment.group_participant_id
+            payment.partner_id = payee.partner_id
+            payment.call_id = payment.mobility_id.call_id
+            payment.project_id = payment.mobility_id.project_id or payment.group_mobility_id.project_id
+
+    def _compute_currency_id(self):
+        self.currency_id = self.env.company.currency_id
+
     def _compute_display_name(self):
         kinds = dict(self._fields['kind']._description_selection(self.env))
         for payment in self:
             payment.display_name = f"{payment.partner_id.name} - {kinds.get(payment.kind, '')}"
 
     def init(self):
-        """The first payment (prefinancing or single) and the final one, once per mobility: the check in
-        action_request_* cannot see a request made at the same moment in another transaction."""
+        """The first payment (prefinancing or single) and the final one, once per payee: the check in
+        the request actions cannot see a request made at the same moment in another transaction."""
         create_unique_index(self.env.cr, 'ems_erasmus_payment_once_per_mobility', self._table,
                             ['mobility_id', "(kind = 'final')"])
+        create_unique_index(self.env.cr, 'ems_erasmus_payment_once_per_group_participant', self._table,
+                            ['group_participant_id', "(kind = 'final')"])
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -237,15 +262,10 @@ class EmsErasmusPayment(models.Model):
                  amount=formatLang(self.env, self.amount, currency_obj=self.currency_id))
 
     def _compute_bank_account(self):
-        """The participant's first bank account, the one EMS keeps from enrolment (a family's,
-        for a minor, may be in the guardian's name)."""
+        """The payee's account (`_ems_payee_bank()`)."""
         for payment in self:
-            bank = payment.partner_id.sudo().bank_ids[:1]
-            # Grouped by four as the Secretary types it into the bank, whether or not base_iban
-            # (which stores it that way) is installed.
-            iban = bank.sanitized_acc_number
-            payment.bank_account = ' '.join(iban[i:i + 4] for i in range(0, len(iban), 4)) if iban else False
-            payment.bank_holder = bank.acc_holder_name or (payment.partner_id.name if bank else False)
+            payee = (payment.mobility_id or payment.group_participant_id).sudo()
+            payment.bank_account, payment.bank_holder = payee._ems_payee_bank() if payee else (False, False)
 
     def write(self, vals):
         _check_transfer_fields(self, vals)
@@ -264,6 +284,12 @@ class EmsErasmusPayment(models.Model):
     def action_mark_unpaid(self):
         """Undo a transfer registered by mistake, saying why: back to pay, its receipts kept apart from it."""
         return _undo_wizard_action(self)
+
+    def action_register_group_transfer(self):
+        """Issue #764: one transfer for every pocket money payment of this payment's group still to pay."""
+        self.ensure_one()
+        return _transfer_wizard_action(self.search([('group_mobility_id', '=', self.group_mobility_id.id),
+                                                    ('state', '=', 'to_pay')]))
 
 
 def _mark_paid(records, paid_date, receipts=None, reason=''):
@@ -285,7 +311,10 @@ def _mark_paid(records, paid_date, receipts=None, reason=''):
             attachment_ids=was_receipts.ids,
             message_type='notification', subtype_xmlid='mail.mt_note')
     if paid_date:
-        records.sudo().activity_ids.action_feedback()
+        own = records.filtered(lambda record: not (record._name == 'ems.erasmus.payment' and record.group_participant_id))
+        own.sudo().activity_ids.action_feedback()
+        if records._name == 'ems.erasmus.payment':
+            records.group_mobility_id._ems_sync_transfer_task()
     else:
         _ask_transfer(records)
 

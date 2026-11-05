@@ -232,6 +232,33 @@
                     </ul>
                 </t>
 
+                <!-- Issue #764: the pocket money and the bank account it goes to. -->
+                <t t-set="pocket" t-value="participant.sudo()"/>
+                <t t-if="participant.state == 'active' and mobility.state in ('preparation', 'stay', 'return', 'done') and pocket.grant_amount">
+                    <t t-call="ems.portal_erasmus_grant_table">
+                        <t t-set="payee" t-value="pocket"/>
+                        <t t-set="grant_amount" t-value="pocket.grant_amount"/>
+                        <t t-set="net_amount" t-value="pocket.pocket_amount"/>
+                    </t>
+                    <t t-set="bank" t-value="pocket._ems_payee_bank()"/>
+                    <form t-if="mobility.state != 'done'" t-att-action="action + 'bank'" method="post" class="mb-3 o_ems_erasmus_group_bank">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <h6>Bank account for your pocket money</h6>
+                        <t t-if="bank[0] and not pocket.bank_account">
+                            <p class="small text-muted mb-0">We will use the account of your enrolment. Write another one only if you want it paid elsewhere.</p>
+                            <p class="small text-muted mb-2">Account ending in: <strong t-esc="bank[0][-4:]"/></p>
+                        </t>
+                        <p t-elif="not bank[0]" class="small text-warning mb-2">Write the account your pocket money is transferred to: until then it cannot be paid.</p>
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-7"><input type="text" name="bank_account" class="form-control form-control-sm" required="required"
+                                   t-att-value="pocket.bank_account" placeholder="IBAN: ES00 0000 0000 0000 0000 0000"/></div>
+                            <div class="col-md-5"><input type="text" name="bank_holder" class="form-control form-control-sm"
+                                   t-att-value="pocket.bank_holder" placeholder="Account holder"/></div>
+                        </div>
+                        <button type="submit" class="btn btn-secondary btn-sm">Save the account</button>
+                    </form>
+                </t>
+
                 <!-- Issue #703: the commitment letter, accepted on the portal (and by the family of a minor). -->
                 <t t-if="participant.commitment_pending or participant.commitment_signed_date">
                     <h6>Commitment letter</h6>

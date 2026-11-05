@@ -188,11 +188,96 @@ The administrator (`ems.group_academic_admin`) can do everything the team does. 
 economic lines are checked in Python too (`_check_manager()`), and every amendment and SEPIE transfer
 added, changed or deleted is posted in the project's chatter. The mobilities' and group mobilities'
 `econ_*` fields and `grant_amount` (group) carry `groups=` so a teacher or a leader never reads
-them.
+them; a group participant's own `grant_amount` and pocket money figures are also readable by the
+group's leader and accompanying teachers (`ems.group_erasmus_group_teacher`, issue #764), its
+`bank_account`/`bank_holder` only by the team, the Secretary and the administrator.
+
+## Pocket money of group participants (issue #764)
+
+Every active participant of a group mobility (students and accompanying teachers) receives what is
+left of their own grant once the collective invoices are paid: their **pocket money**, transferred
+by the Secretary as an ordinary grant payment (`ems.erasmus.payment`), with the same transfer and
+undo wizards as the individual mobilities.
+
+**Example.** 8 students (1,200 € each) and 2 teachers (1,500 € each): 12,600 €. The centre pays a
+2,000 € flight and a 5,000 € hotel (collective invoices): 700 € per person. A student's pocket money
+is 1,200 - 700 = 500 €, a teacher's 800 €: 5,600 € in all. The group's figures: committed 12,600 €
+(the grants), spent 7,000 + 5,600 = 12,600 €, nothing counted twice.
+
+```mermaid
+erDiagram
+    ems_erasmus_group_mobility ||--o{ ems_erasmus_group_participant : "participant_ids (grant_amount)"
+    ems_erasmus_group_mobility ||--o{ ems_erasmus_invoice : "invoice_ids (split equally, computed)"
+    ems_erasmus_group_participant ||--o{ ems_erasmus_payment : "payment_ids (group_participant_id)"
+    ems_erasmus_mobility ||--o{ ems_erasmus_payment : "payment_ids (mobility_id)"
+```
+
+### What is shared with the individual mobilities
+
+`ems.erasmus.payee` (abstract, `models/erasmus/payee.py`, loaded before the mobilities) holds the grant-payment logic both kinds of payee use:
+`can_request_prefinancing` / `can_request_final`, the first payment (`prefinancing` or, at 100 %,
+`single`) as the prefinancing percentage of the amount to transfer, the final one as what is left,
+`_ems_left_to_pay()` and the portal's rows (`_ems_portal_grant()`). Each payee says what it transfers
+(`_ems_payee_amount()`: an individual's `grant_net`, a participant's `pocket_amount`), its
+percentage, when a payment may be requested and how a payment points at it (`mobility_id` or
+`group_participant_id`; exactly one, checked).
+
+### Fields
+
+| Model | Field | Meaning |
+|---|---|---|
+| `ems.erasmus.group.mobility` | `prefinancing_percent` | Part of the pocket money paid before leaving (default **100**: one single payment); the rest on return. |
+| | `no_direct_costs` | *The centre pays nothing directly*: no collective invoice can be added (blocked, with a warning on the form), each participant's pocket money is their whole grant. Cannot be set while the group has invoices. |
+| `ems.erasmus.group.participant` | `invoice_share` | Their equal share of the group's collective invoices: each invoice's amount divided among the **active** participants, the cents left over on the first one (same rule as an individual invoice's shares). Computed, never typed. |
+| | `pocket_amount` | `grant_amount - invoice_share` (below zero: a warning). |
+| | `pocket_requested` / `pocket_paid` / `pocket_state` | What has been requested and paid, and *not requested*, *to pay*, *paid*. Read with sudo, so the leader sees them without reading the payments. |
+| | `bank_account` / `bank_holder` | The IBAN (mod-97 checked) and holder the participant gives for the pocket money: a student on the portal, a teacher from *My bank account* on the group form, or the team. Empty: the contact's first bank account (a student's from the enrolment). |
+| `ems.erasmus.payment` | `group_participant_id`, `group_mobility_id` | The participant paid; `partner_id`, `project_id`, `call_id` are stored computes from whichever payee it has. One first and one final payment per participant (unique index). |
+
+### Requesting and paying
+
+- *Request pocket money* (group form, Actions; team): one first payment per active participant
+  with something to receive and none yet, from **Preparation** to **Closed**; *Request the final
+  pocket money* only **on return** or **closed**, when the percentage is below 100. A participant
+  with no IBAN (their own or the contact's) blocks the request, naming them.
+- **One task per group for the Secretary** (not one per payment): an activity of type *Pay
+  Erasmus+ pocket money* (`ems.mail_activity_erasmus_transfer`) on the group's first payment still
+  to pay (the Secretary cannot open the group mobility), "pay the pocket money of <group> (N
+  payments, total)", kept up to date as payments are requested, paid or undone (moved to the next
+  payment to pay when its own is paid) and marked done once none is left
+  (`group._ems_sync_transfer_task()`, called from `_ask_transfer()` and `_mark_paid()`).
+- The Secretary pays them from *Financial management > Grant payments* (filter and group by group
+  mobility), several at once with one receipt, or from a payment's *Register the transfer of the
+  whole group*.
+- A teacher gives their account with *My bank account* (`ems.erasmus.bank.wizard`, only for their
+  own participant record); a student on the group's portal page (`/my/erasmus/group/<id>/bank`).
+  The portal's grant table is one template for both kinds of payee
+  (`ems.portal_erasmus_grant_table`).
+- **Closing** the group waits until every active participant's pocket money is requested and paid
+  and no collective invoice is left to pay.
+
+### Figures
+
+The group's `_ems_economic_inputs()`: spent = collective invoices + pocket payments; paid = paid
+invoices + paid pocket payments. A withdrawn participant who was paid is warned in the project
+("record what they gave back"); the group's `recovered_amount` takes it.
+
+### Who sees what
+
+| | Erasmus team | Secretary | Director | Leader / accompanying teacher | Participant (portal) |
+|---|---|---|---|---|---|
+| Collective invoices of the group | rwcu | r | r | r (own group) | - |
+| Grant, share, pocket money, state | rw (grant) | r (payments list, Excel) | r | r (own group) | own, on the portal |
+| IBAN and holder | rw | r | - | - | own (writes it) |
+| Payments | request | pay, undo | r | - (states only) | own rows |
+
+`ems.erasmus.invoice` gets read access for `ems.group_erasmus_group_teacher` with a rule limited to
+the groups they lead or accompany (plus an *all* rule for the team, the Secretary, the Director and
+the administrator, so holding both never narrows them).
 
 ## Install and upgrade
 
-New models and stored fields only: on an upgrade, Odoo creates the columns and computes every
+New models and stored fields only (issue #764: `ems.erasmus.payment.mobility_id` stops being required; the payment's `partner_id`/`project_id`/`call_id` become stored computes that keep their values): on an upgrade, Odoo creates the columns and computes every
 stored figure for the existing projects and mobilities (`call_year` from each agreement number). No
 migration. The rates of the calls known so far are seeded once from `data/custom/` (clean install and
 upgrade alike); the coordination adds the next years' in the app.

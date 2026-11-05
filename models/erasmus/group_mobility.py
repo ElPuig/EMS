@@ -1487,8 +1487,8 @@ class EmsErasmusGroupParticipant(models.Model):
         """The row of the participants' spreadsheet (PARTICIPANT_HEADERS, the calls' format): a
         student's from their contact, with their cycle and year (an accompanying teacher's stay
         empty, which tells them apart); a teacher's from their employee file, like a staff call's.
-        No bank details: a group mobility pays its expenses collectively, nothing is transferred
-        to a participant from EMS."""
+        No bank details: the Secretary pays the pocket money from the grant payments, which show
+        the account each participant gave (issue #764)."""
         self.ensure_one()
         Application = self.env['ems.erasmus.application']
         participant = self.sudo()

@@ -25,6 +25,16 @@ Pagueu-la com una beca o una factura: seleccioneu una o més despeses de la llis
 
 Una despesa compta en el pressupost del projecte des que es registra: pagar-la no la torna a descomptar, només la marca com a pagada.
 
+## Diners de butxaca de les mobilitats de grup
+
+Cada participant d'una mobilitat de grup Erasmus+ (alumnes i docents acompanyants) rep part de la seva beca com a **diners de butxaca**. Quan l'equip Erasmus els demana, rebeu **una sola tasca per a tot el grup** («pagar els diners de butxaca de …: N pagaments, total»), no una per persona. Per pagar-los:
+
+1. Aneu a **Erasmus+ > Gestió econòmica > Pagaments de beques**. La columna **Mobilitat de grup** diu a quin grup pertany cada pagament (podeu filtrar o agrupar per aquesta columna).
+2. Seleccioneu els pagaments del grup i feu clic a **Registra la transferència**, o obriu-ne un i feu servir **Accions > Registra la transferència de tot el grup**.
+3. Introduïu la data de la transferència i adjunteu el justificant del banc. La tasca es dona per feta quan no queda res del grup per pagar; si només en pagueu una part, continua amb el nombre i l'import que falten.
+
+Cada pagament mostra l'**IBAN** i el **titular** que ha indicat el participant (un alumne que no n'ha indicat usa el compte de la seva matrícula). Si heu registrat una transferència per error, **Desfer la transferència** funciona com en qualsevol altre pagament i la tasca del grup torna.
+
 ## Consultar el pressupost d'un projecte
 
 **Erasmus+ > Gestió econòmica > Panell econòmic** mostra la subvenció de cada projecte, el que està compromès, el que s'ha pagat i el que queda disponible. Obriu un projecte per veure'n la pestanya **Economia**, i feu servir **Accions > Exporta a Excel** per descarregar-ne l'informe econòmic (resum, beques i pagaments, despeses, suport organitzatiu i transferències del SEPIE). Els avisos i l'Excel mostren el nom i la beca de cada participant, perquè els pagueu, però no obriu les mobilitats mateixes.

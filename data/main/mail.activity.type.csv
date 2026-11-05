@@ -22,3 +22,4 @@ ems.mail_activity_ex_officio_withdrawal_attendance,Check an attendance (ex offic
 ems.mail_activity_ex_officio_withdrawal_justification,Review justified absences (ex officio withdrawal),default,ems.ex_officio_withdrawal,fa-user-times,False
 ems.mail_activity_quality_agreement,Carry out the agreement,default,ems.quality.action,fa-handshake-o,False
 ems.mail_activity_minute_approval,Approve the minute,default,ems.minute,fa-check-square-o,False
+ems.mail_activity_erasmus_transfer,Pay Erasmus+ pocket money,default,ems.erasmus.payment,fa-eur,False

@@ -10,6 +10,7 @@ from odoo.tools import format_date
 
 from .application import STAFF_ACTIVITIES
 from .call import PROJECTS
+from .payee import check_prefinancing_percent
 from .records import check_upload
 from .workflow import check_applicant_action, check_kept, check_workflow_create, check_workflow_write
 
@@ -118,7 +119,7 @@ class EmsErasmusMobility(models.Model):
     return. See docs/en/developers/erasmus/erasmus.md."""
     _name = 'ems.erasmus.mobility'
     _description = 'Erasmus+ mobility'
-    _inherit = ['ems.base', 'ems.erasmus.commitment', 'ems.erasmus.eu.survey']
+    _inherit = ['ems.base', 'ems.erasmus.commitment', 'ems.erasmus.eu.survey', 'ems.erasmus.payee']
     _ems_commitment_guardian_template = 'ems.email_template_erasmus_commitment_guardian'
     _order = 'call_id desc, modality_id, rank, id'
     _sql_constraints = [
@@ -255,9 +256,6 @@ class EmsErasmusMobility(models.Model):
                                 help="The grant minus the services the centre pays directly. Below zero, the "
                                      "centre paid more than the grant: the project warns about it.")
     payment_ids = fields.One2many(string="Payments", comodel_name='ems.erasmus.payment', inverse_name='mobility_id')
-    can_request_prefinancing = fields.Boolean(string="Can request the first payment",
-                                              compute='_compute_can_request_payment')
-    can_request_final = fields.Boolean(string="Can request the final payment", compute='_compute_can_request_payment')
     host_contact_email = fields.Char(string="Contact person's email", related='host_contact_id.email')
 
     def _ems_commitment_depends(self):
@@ -348,13 +346,8 @@ class EmsErasmusMobility(models.Model):
             mobility.provision_amount = sum(mobility.provision_ids.mapped('amount'))
             mobility.grant_net = mobility.grant_amount - mobility.provision_amount
 
-    @api.depends('payment_ids.kind', 'grant_amount')
-    def _compute_can_request_payment(self):
-        for mobility in self:
-            first = mobility.payment_ids.filtered(lambda payment: payment.kind in ('prefinancing', 'single'))
-            mobility.can_request_prefinancing = bool(mobility.grant_amount) and not first
-            mobility.can_request_final = bool(first) and not mobility.payment_ids.filtered(
-                lambda payment: payment.kind == 'final')
+    def _ems_payee_depends(self):
+        return super()._ems_payee_depends() + ['payment_ids.kind', 'grant_amount']
 
     @api.onchange('host_partner_id')
     def _onchange_host_partner_id(self):
@@ -364,9 +357,7 @@ class EmsErasmusMobility(models.Model):
 
     @api.constrains('prefinancing_percent')
     def _check_prefinancing_percent(self):
-        for mobility in self:
-            if not 0 < mobility.prefinancing_percent <= 100:
-                raise ValidationError(_("The prefinancing is a percentage above 0 and up to 100."))
+        check_prefinancing_percent(self)
 
     @api.depends_context('uid')
     @api.depends('audience')
@@ -884,34 +875,37 @@ class EmsErasmusMobility(models.Model):
         """Issue #697: the first payment for the Secretary, the prefinancing percentage of what
         the participant receives (a single payment at 100 %)."""
         self._ems_check_manager()
-        for mobility in self:
-            if not mobility.can_request_prefinancing:
-                raise UserError(_("The first payment of %s is already requested, or the grant is not set.",
-                                  mobility.partner_id.name))
-            kind = 'single' if mobility.prefinancing_percent >= 100 else 'prefinancing'
-            mobility._ems_request_payment(kind, mobility.grant_net * mobility.prefinancing_percent / 100)
+        self.env['ems.erasmus.payment'].create(self._ems_first_payment_vals())
 
     def action_request_final_payment(self):
-        """Issue #697: the rest, on return: what the participant receives minus what was already
-        requested, so a change of the grant or the services after the prefinancing lands here."""
+        """Issue #697: the rest, on return."""
         self._ems_check_manager()
-        for mobility in self:
-            if not mobility.can_request_final:
-                raise UserError(_("Request the first payment of %s before the final one, and only once.",
-                                  mobility.partner_id.name))
-            mobility._ems_request_payment('final', mobility.grant_net - sum(mobility.payment_ids.mapped('amount')))
+        self.env['ems.erasmus.payment'].create(self._ems_final_payment_vals())
 
-    def _ems_request_payment(self, kind, amount):
+    # ems.erasmus.payee
+    def _ems_payee_granted(self):
+        return self.grant_amount
+
+    def _ems_payee_amount(self):
+        return self.grant_net
+
+    def _ems_payee_percent(self):
+        return self.prefinancing_percent
+
+    def _ems_payee_link(self):
+        return {'mobility_id': self.id}
+
+    def _ems_payee_check_state(self):
         """Only for a mobility under way or closed, as the form offers it (audit R-13)."""
-        self.ensure_one()
         if self.state not in ('preparing', 'done'):
             raise UserError(_("The mobility of %s is not under way: no payment can be requested.",
                               self.partner_id.name))
-        amount = self.currency_id.round(amount)
-        if self.currency_id.compare_amounts(amount, 0) <= 0:
-            raise UserError(_("There is nothing to pay to %s: check the grant and the services the centre pays.",
-                              self.partner_id.name))
-        self.env['ems.erasmus.payment'].create({'mobility_id': self.id, 'kind': kind, 'amount': amount})
+
+    def _ems_payee_deductions(self):
+        """The provisions of services, by concept."""
+        concepts = dict(self.env['ems.erasmus.provision']._fields['concept']._description_selection(self.env))
+        return [(" - ".join(filter(None, [concepts[provision.concept], provision.description])), provision.amount)
+                for provision in self.provision_ids]
 
     def action_open(self):
         self.ensure_one()
@@ -950,14 +944,9 @@ class EmsErasmusMobility(models.Model):
         self.partner_id._ems_erasmus_release_graduate()
 
     def _ems_left_to_pay(self):
-        """A payment or an invoice of this mobility still to pay, or part of the grant not requested yet."""
-        self.ensure_one()
-        to_pay = self.env['ems.erasmus.payment'].sudo().search_count(
-            [('mobility_id', '=', self.id), ('state', '=', 'to_pay')], limit=1) or \
-            self.env['ems.erasmus.invoice'].sudo().search_count(
-                [('mobility_ids', 'in', self.ids), ('state', '=', 'to_pay')], limit=1)
-        requested = sum(self.sudo().payment_ids.mapped('amount'))
-        return bool(to_pay) or self.currency_id.compare_amounts(self.grant_net - requested, 0) > 0
+        """Also an invoice of this mobility still to pay."""
+        return super()._ems_left_to_pay() or bool(self.env['ems.erasmus.invoice'].sudo().search_count(
+            [('mobility_ids', 'in', self.ids), ('state', '=', 'to_pay')], limit=1))
 
     def action_cancel(self):
         """The team cancels the mobility (e.g. travel documents not handed in on time, art. 17)."""
@@ -995,20 +984,6 @@ class EmsErasmusMobility(models.Model):
         self.partner_id._ems_erasmus_release_graduate()
         self.call_id.filtered('choice_open')._ems_advance_choice()
 
-    def _ems_portal_grant(self):
-        """Issue #697: the grant as the participant reads it on the portal (art. 5 of the calls:
-        what the centre pays directly and what they receive): the provisions as (label, amount),
-        the payments as (label, state label, amount, paid date)."""
-        self.ensure_one()
-        Provision, Payment = self.env['ems.erasmus.provision'], self.env['ems.erasmus.payment']
-        concepts = dict(Provision._fields['concept']._description_selection(self.env))
-        kinds = dict(Payment._fields['kind']._description_selection(self.env))
-        states = dict(Payment._fields['state']._description_selection(self.env))
-        provisions = [(" - ".join(filter(None, [concepts[provision.concept], provision.description])), provision.amount)
-                      for provision in self.provision_ids]
-        payments = [(kinds[payment.kind], states[payment.state], payment.amount, payment.paid_date)
-                    for payment in self.payment_ids]
-        return provisions, payments
 
     # --- helpers -----------------------------------------------------------------------------
 

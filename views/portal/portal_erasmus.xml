@@ -706,23 +706,11 @@
                             </t>
                             <!-- Issue #697: the grant, what the centre pays out of it and the payments (art. 5). -->
                             <t t-if="mobility.state in ('preparing', 'done') and mobility.grant_amount">
-                                <t t-set="currency_options" t-value="{'widget': 'monetary', 'display_currency': mobility.currency_id}"/>
-                                <t t-set="grant" t-value="mobility._ems_portal_grant()"/>
-                                <h6>Your grant</h6>
-                                <table class="table table-sm small mb-3 o_ems_erasmus_grant">
-                                    <tbody>
-                                        <tr><td>Erasmus+ grant</td><td class="text-end" t-out="mobility.grant_amount" t-options="currency_options"/></tr>
-                                        <tr t-foreach="grant[0]" t-as="provision">
-                                            <td>Paid by the centre: <t t-esc="provision[0]"/></td>
-                                            <td class="text-end">- <t t-out="provision[1]" t-options="currency_options"/></td>
-                                        </tr>
-                                        <tr class="fw-bold"><td>You receive</td><td class="text-end o_ems_erasmus_grant_net" t-out="mobility.grant_net" t-options="currency_options"/></tr>
-                                        <tr t-foreach="grant[1]" t-as="payment" class="text-muted">
-                                            <td><t t-esc="payment[0]"/>: <t t-esc="payment[1]"/><t t-if="payment[3]"> (<t t-out="payment[3]" t-options="{'widget': 'date'}"/>)</t></td>
-                                            <td class="text-end" t-out="payment[2]" t-options="currency_options"/>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <t t-call="ems.portal_erasmus_grant_table">
+                                    <t t-set="payee" t-value="mobility"/>
+                                    <t t-set="grant_amount" t-value="mobility.grant_amount"/>
+                                    <t t-set="net_amount" t-value="mobility.grant_net"/>
+                                </t>
                             </t>
                         </div>
                         <div t-attf-class="tab-pane #{'show active' if active_tab == 'record' else ''} o_ems_erasmus_tab_record" id="ems_erasmus_tab_record" role="tabpanel">
@@ -982,6 +970,28 @@
             </div>
             <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_propose_submit">Send the proposal</button>
         </form>
+    </template>
+
+    <!-- Issue #697/#764: a payee's grant (an individual mobility, or a group participant's pocket
+         money): what the centre pays directly out of it, what they receive and the payments. -->
+    <template id="portal_erasmus_grant_table" name="Erasmus+ grant">
+        <t t-set="currency_options" t-value="{'widget': 'monetary', 'display_currency': payee.currency_id}"/>
+        <t t-set="grant" t-value="payee._ems_portal_grant()"/>
+        <h6>Your grant</h6>
+        <table class="table table-sm small mb-3 o_ems_erasmus_grant">
+            <tbody>
+                <tr><td>Erasmus+ grant</td><td class="text-end" t-out="grant_amount" t-options="currency_options"/></tr>
+                <tr t-foreach="grant[0]" t-as="provision">
+                    <td>Paid by the centre: <t t-esc="provision[0]"/></td>
+                    <td class="text-end">- <t t-out="provision[1]" t-options="currency_options"/></td>
+                </tr>
+                <tr class="fw-bold"><td>You receive</td><td class="text-end o_ems_erasmus_grant_net" t-out="net_amount" t-options="currency_options"/></tr>
+                <tr t-foreach="grant[1]" t-as="payment" class="text-muted">
+                    <td><t t-esc="payment[0]"/>: <t t-esc="payment[1]"/><t t-if="payment[3]"> (<t t-out="payment[3]" t-options="{'widget': 'date'}"/>)</t></td>
+                    <td class="text-end" t-out="payment[2]" t-options="currency_options"/>
+                </tr>
+            </tbody>
+        </table>
     </template>
 
     <template id="portal_erasmus_resolution" name="Erasmus+ resolution">

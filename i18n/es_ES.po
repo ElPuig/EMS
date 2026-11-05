@@ -1272,6 +1272,9 @@ msgstr "Permisos de acceso para los jefes de departamento. Actualmente idéntico
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_value2 model_terms:ir.ui.view,arch_db:ems.view_student_document_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__bank_holder
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__bank_holder
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__bank_holder
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
 msgid "Account holder"
 msgstr "Titular de la cuenta"
 
@@ -2560,6 +2563,7 @@ msgstr "Puede editar"
 #: code:addons/ems/static/src/js/backend/guard_support_dialog.js:0
 #: code:addons/ems/static/src/xml/backend/guard_duty_board.xml:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_correct_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_bank_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -3254,6 +3258,7 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_amendment__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -3404,6 +3409,7 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_amendment__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3867,6 +3873,7 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_amendment__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -4118,6 +4125,7 @@ msgstr "EMS: Actualizar alumnos desde CSV"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_bank_wizard_form
 msgid "ES00 0000 0000 0000 0000 0000"
 msgstr ""
 
@@ -5275,6 +5283,8 @@ msgstr "Confirmo esta cuenta bancaria para la nueva matrícula y todo el próxim
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_value model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_iban model_terms:ir.ui.view,arch_db:ems.view_student_document_form model_terms:ir.ui.view,arch_db:ems.view_student_document_list model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__bank_account
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__bank_account
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__bank_account
 msgid "IBAN"
 msgstr "IBAN"
 
@@ -5432,6 +5442,7 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_amendment__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__id
 msgid "ID"
 msgstr "ID"
 
@@ -6164,6 +6175,7 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_amendment__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -6314,6 +6326,7 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_amendment__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -8601,6 +8614,7 @@ msgstr "Sábado"
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_followup_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_document_signatures_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_bank_wizard_form
 msgid "Save"
 msgstr "Guardar"
 
@@ -21346,6 +21360,7 @@ msgstr "Solo los docentes que tienes por debajo en la jerarquía, que dan clase 
 #: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__linked
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_export__state__requested
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__pocket_requested
 msgid "Requested"
 msgstr "Solicitada"
 
@@ -34312,6 +34327,7 @@ msgstr "Abrir la elección de destino"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_history__partner_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_satisfaction__partner_id
 #: code:addons/ems/models/erasmus/economy.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__group_participant_id
 msgid "Participant"
 msgstr "Participante"
 
@@ -35645,11 +35661,15 @@ msgstr "Importe"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__can_request_final
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__can_request_final
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payee__can_request_final
 msgid "Can request the final payment"
 msgstr "Puede solicitar el pago final"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__can_request_prefinancing
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__can_request_prefinancing
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payee__can_request_prefinancing
 msgid "Can request the first payment"
 msgstr "Puede solicitar el primer pago"
 
@@ -35705,6 +35725,7 @@ msgstr "Moneda"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_grant_table
 msgid "Erasmus+ grant"
 msgstr "Beca Erasmus+"
 
@@ -35846,6 +35867,8 @@ msgstr "Sin asignar"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__econ_state__paid
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__econ_state__paid
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_search
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__pocket_paid
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_participant__pocket_state__paid
 msgid "Paid"
 msgstr "Pagado"
 
@@ -35856,6 +35879,7 @@ msgstr "Pagado por el centro"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_grant_table
 msgid "Paid by the centre:"
 msgstr "Pagado por el centro:"
 
@@ -35901,6 +35925,7 @@ msgstr "Participantes que cubre la factura"
 #. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__payment_ids
 #: code:addons/ems/models/erasmus/economy.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__payment_ids
 msgid "Payments"
 msgstr "Pagos"
 
@@ -35939,6 +35964,7 @@ msgstr "Solicitar el primer pago"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/mobility.py:0
+#: code:addons/ems/models/erasmus/payee.py:0
 msgid "Request the first payment of %s before the final one, and only once."
 msgstr "Solicita el primer pago de %s antes del final, y solo una vez."
 
@@ -35984,6 +36010,7 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/mobility.py:0
+#: code:addons/ems/models/erasmus/payee.py:0
 msgid "The first payment of %s is already requested, or the grant is not set."
 msgstr ""
 "El primer pago de %s ya se ha solicitado, o la beca no está informada."
@@ -36006,6 +36033,7 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/mobility.py:0
+#: code:addons/ems/models/erasmus/pocket_money.py:0
 msgid "The prefinancing is a percentage above 0 and up to 100."
 msgstr "La prefinanciación es un porcentaje mayor que 0 y hasta 100."
 
@@ -36021,6 +36049,7 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/mobility.py:0
+#: code:addons/ems/models/erasmus/payee.py:0
 msgid ""
 "There is nothing to pay to %s: check the grant and the services the centre "
 "pays."
@@ -36034,6 +36063,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_payment__state__to_pay
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_search
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_participant__pocket_state__to_pay
 msgid "To pay"
 msgstr "Por pagar"
 
@@ -36082,11 +36112,13 @@ msgstr "A quién cubre la factura: el importe se reparte a partes iguales."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_grant_table
 msgid "You receive"
 msgstr "Recibes"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_grant_table
 msgid "Your grant"
 msgstr "Tu beca"
 
@@ -38548,6 +38580,8 @@ msgstr ""
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_history__kind__group
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__group_mobility_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_satisfaction__group_mobility_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__group_mobility_id
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_search
 msgid "Group mobility"
 msgstr "Movilidad de grupo"
 
@@ -43423,6 +43457,7 @@ msgstr "Evolución por curso"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_satisfaction__group_participant_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__group_participant_id
 msgid "Group participant"
 msgstr "Participante de grupo"
 
@@ -48020,6 +48055,8 @@ msgid "the mobility has no dates"
 msgstr "la movilidad no tiene fechas"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/pocket_money.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form_economy
 msgid "Collective invoices"
 msgstr "Facturas colectivas"
@@ -48320,3 +48357,253 @@ msgstr ""
 #: code:addons/ems/models/erasmus/economy.py:0
 msgid "no limit"
 msgstr "sin límite"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/pocket_money.py:0
+msgid "%(name)s withdrew from %(group)s after being paid %(paid)s: record what they gave back in the group's \"Given back by the participant\"."
+msgstr "%(name)s se ha retirado de %(group)s después de cobrar %(paid)s: anotad lo que devuelva en «Devuelto por el participante» del grupo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/payee.py:0
+msgid "%s is not a valid IBAN: check it."
+msgstr "%s no es un IBAN válido: revisadlo."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_erasmus_payment_one_payee
+msgid "A grant payment is for one mobility or one participant of a group mobility."
+msgstr "Un pago de beca es para una movilidad o para un participante de una movilidad de grupo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
+msgid "Account ending in:"
+msgstr "Cuenta acabada en:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/pocket_money.py:0
+msgid "Add the bank account of %s first: students give it on the portal, teachers from My bank account on the group mobility, or the team in their file."
+msgstr "Primero falta la cuenta bancaria de %s: el alumnado la indica en el portal, el profesorado desde «Mi cuenta bancaria» en la movilidad de grupo, o el equipo en su ficha."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
+msgid "Bank account for your pocket money"
+msgstr "Cuenta bancaria para tu dinero de bolsillo"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_bank_wizard
+msgid "Erasmus+ bank account for the pocket money"
+msgstr "Cuenta bancaria Erasmus+ para el dinero de bolsillo"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_payee
+msgid "Erasmus+ grant payee"
+msgstr "Perceptor de beca Erasmus+"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/pocket_money.py:0
+msgid "Erasmus+: pay the pocket money of %(group)s (%(count)s payments, %(amount)s)"
+msgstr "Erasmus+: pagar el dinero de bolsillo de %(group)s (%(count)s pagos, %(amount)s)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_form
+msgid "Every pocket money payment of this group mobility still to pay, in one transfer."
+msgstr "Todos los pagos de dinero de bolsillo de esta movilidad de grupo pendientes de pagar, en una sola transferencia."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
+msgid "IBAN: ES00 0000 0000 0000 0000 0000"
+msgstr "IBAN: ES00 0000 0000 0000 0000 0000"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/pocket_money.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_bank_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "My bank account"
+msgstr "Mi cuenta bancaria"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_mobility__no_direct_costs
+msgid "No collective invoice: each participant receives their whole grant as pocket money."
+msgstr "Sin facturas colectivas: cada participante recibe toda su beca como dinero de bolsillo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/pocket_money.py:0
+msgid "No pocket money can be requested for %s in this state of the group mobility."
+msgstr "No se puede solicitar dinero de bolsillo para %s en este estado de la movilidad de grupo."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_participant__pocket_state__none
+msgid "Not requested"
+msgstr "No solicitado"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "One payment for each participant with pocket money to receive: the Secretary gets one task for the whole group."
+msgstr "Un pago para cada participante que deba recibir dinero de bolsillo: la secretaría recibe una sola tarea para todo el grupo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/pocket_money.py:0
+msgid "Only the participant gives their own bank account."
+msgstr "Solo el propio participante indica su cuenta bancaria."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_mobility__prefinancing_percent
+msgid "Part of each participant's pocket money paid before leaving; the rest, on return. 100: a single payment."
+msgstr "Parte del dinero de bolsillo de cada participante que se paga antes de salir; el resto, a la vuelta. 100: un pago único."
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_erasmus_transfer
+msgid "Pay Erasmus+ pocket money"
+msgstr "Pagar dinero de bolsillo Erasmus+"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/economy.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__pocket_amount
+msgid "Pocket money"
+msgstr "Dinero de bolsillo"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__prefinancing_percent
+msgid "Pocket money before leaving (%)"
+msgstr "Dinero de bolsillo antes de salir (%)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__pocket_state
+msgid "Pocket money state"
+msgstr "Estado del dinero de bolsillo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_form
+msgid "Register the transfer of the whole group"
+msgstr "Registrar la transferencia de todo el grupo"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/pocket_money.py:0
+msgid "Request and pay every participant's pocket money and every collective invoice of %s first."
+msgstr "Primero hay que solicitar y pagar el dinero de bolsillo de cada participante y todas las facturas colectivas de %s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "Request the final pocket money"
+msgstr "Solicitar el resto del dinero de bolsillo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "Request the pocket money"
+msgstr "Solicitar el dinero de bolsillo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
+msgid "Save the account"
+msgstr "Guardar la cuenta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__invoice_share
+msgid "Share of collective invoices"
+msgstr "Parte de las facturas colectivas"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_payment
+msgid "The Erasmus team requests each payment from the participant's mobility, or the pocket money from the group mobility."
+msgstr "El equipo Erasmus+ solicita cada pago desde la movilidad del participante, o el dinero de bolsillo desde la movilidad de grupo."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_participant__bank_account
+msgid "The account the pocket money goes to. Empty: the contact's bank account (a student's, from the enrolment)."
+msgstr "La cuenta a la que va el dinero de bolsillo. Vacío: la cuenta bancaria del contacto (la del alumno, de la matrícula)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "The account your pocket money is transferred to."
+msgstr "La cuenta a la que te transferimos el dinero de bolsillo."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__no_direct_costs
+msgid "The centre pays nothing directly"
+msgstr "El centro no paga nada directamente"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/pocket_money.py:0
+msgid "The centre pays nothing directly in %s: it cannot have collective invoices."
+msgstr "En %s el centro no paga nada directamente: no puede tener facturas colectivas."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/pocket_money.py:0
+msgid "The centre pays nothing directly in %s: it cannot have collective invoices. Remove them, or uncheck the option."
+msgstr "En %s el centro no paga nada directamente: no puede tener facturas colectivas. Eliminadlas o desmarcad la opción."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form_economy
+msgid "The centre pays nothing directly: each participant receives their whole grant as pocket money."
+msgstr "El centro no paga nada directamente: cada participante recibe toda su beca como dinero de bolsillo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/pocket_money.py:0
+msgid "The collective invoices of %(group)s are above the grant of %(name)s by %(over)s."
+msgstr "Las facturas colectivas de %(group)s superan en %(over)s la beca de %(name)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/pocket_money.py:0
+msgid "The final pocket money of %s is requested on return."
+msgstr "El resto del dinero de bolsillo de %s se solicita a la vuelta."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_participant__invoice_share
+msgid "The group's collective invoices divided equally among the participants taking part."
+msgstr "Las facturas colectivas del grupo repartidas a partes iguales entre los participantes que toman parte."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/pocket_money.py:0
+msgid "There is no pocket money left to request in %s."
+msgstr "En %s no queda dinero de bolsillo por solicitar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/pocket_money.py:0
+msgid "This group mobility has collective invoices: remove them first, the centre pays nothing directly."
+msgstr "Esta movilidad de grupo tiene facturas colectivas: eliminadlas primero, el centro no paga nada directamente."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_participant__pocket_amount
+msgid "What is transferred to the participant: their grant minus their share of the collective invoices."
+msgstr "Lo que se transfiere al participante: su beca menos su parte de las facturas colectivas."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
+msgid "Write the account your pocket money is transferred to: until then it cannot be paid."
+msgstr "Escribe la cuenta a la que te debemos transferir el dinero de bolsillo: hasta entonces no se puede pagar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/pocket_money.py:0
+msgid "You do not take part in %s as a teacher."
+msgstr "No participas en %s como profesor."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_bank_wizard_form
+msgid "Your pocket money is transferred to this account by the Secretary."
+msgstr "La secretaría te transfiere el dinero de bolsillo a esta cuenta."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/pocket_money.py:0
+msgid "your share of the group's collective expenses"
+msgstr "tu parte de los gastos colectivos del grupo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
+msgid "We will use the account of your enrolment. Write another one only if you want it paid elsewhere."
+msgstr "Usaremos la cuenta de tu matrícula. Escribe otra solo si quieres que te lo paguemos en otra cuenta."

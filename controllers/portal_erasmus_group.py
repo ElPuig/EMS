@@ -139,7 +139,8 @@ class EmsPortalErasmusGroupController(EmsPortalErasmusController):
     @http.route('/my/erasmus/group/<int:mobility_id>/<string:step>', type='http', auth='user', methods=['POST'],
                 website=True)
     def portal_erasmus_group_step(self, mobility_id, step, **post):
-        """Upload documents, accept the commitment letter, or renounce the place."""
+        """Upload documents, give the bank account for the pocket money, accept the commitment letter, or
+        renounce the place."""
         mobility = self._ems_group_mobility(mobility_id)
         participant = mobility and self._ems_group_participant(mobility)
         if not participant:
@@ -155,6 +156,8 @@ class EmsPortalErasmusGroupController(EmsPortalErasmusController):
                     if files:
                         uploads[line.call_document_id.id] = files
                 participant._ems_portal_upload(uploads)
+            elif step == 'bank':
+                participant._ems_portal_set_bank(post.get('bank_account'), post.get('bank_holder'))
             elif step == 'commitment':
                 participant.action_sign_commitment(bool(post.get('accepted')), request.httprequest.remote_addr)
             elif step == 'renounce':

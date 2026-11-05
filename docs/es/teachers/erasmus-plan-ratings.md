@@ -18,7 +18,7 @@ Cada valoración muestra en pantalla el **plan de movilidad y transferencia** de
 
 ## 2. Valorar la rúbrica
 
-Para cada aspecto, elige la descripción que más se ajusta al plan: son las del anexo 2 de la convocatoria, y EMS las convierte en puntos (1, 0,5 o 0).
+Para cada aspecto, elige la descripción que más se ajusta al plan: son las del anexo 2 de la convocatoria, y cada una empieza con los puntos que da (1, 0,5 o 0).
 
 | Aspecto | 1 punto | 0,5 puntos | 0 puntos |
 |---|---|---|---|

@@ -18,7 +18,7 @@ Each rating shows the candidate's **mobility and transfer plan** on screen, as t
 
 ## 2. Rate the rubric
 
-For each aspect, choose the description that fits the plan best: they are the ones of annex 2 of the call, and EMS turns them into points (1, 0.5 or 0).
+For each aspect, choose the description that fits the plan best: they are the ones of annex 2 of the call, and each one starts with the points it gives (1, 0.5 or 0).
 
 | Aspect | 1 point | 0.5 points | 0 points |
 |---|---|---|---|

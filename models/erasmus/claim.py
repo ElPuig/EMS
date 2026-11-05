@@ -102,9 +102,9 @@ class EmsErasmusClaim(models.Model):
         team = self.env['ems.erasmus.call']._ems_erasmus_team()
         for claim in self.sudo():
             if claim.kind == 'appeal':
-                users, summary = claim._ems_appeal_approvers(), _("Erasmus+: answer the appeal of %s", claim.partner_id.name)
+                users, summary = claim._ems_appeal_approvers(), self.env['ems.base'].ems_elide(_("Erasmus+: answer the appeal of %s", claim.partner_id.name))
             else:
-                users, summary = team, _("Erasmus+: answer the claim of %s", claim.partner_id.name)
+                users, summary = team, self.env['ems.base'].ems_elide(_("Erasmus+: answer the claim of %s", claim.partner_id.name))
             for user in users:
                 claim.activity_schedule(activity_type_id=activity_type.id, user_id=user.id, summary=summary)
 

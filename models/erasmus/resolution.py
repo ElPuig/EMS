@@ -238,8 +238,9 @@ class EmsErasmusResolution(models.Model):
             pending = applications.filtered(lambda application: application.state in RANKED_STATES and (
                 not application.score_complete or application.needs_draw))
             if pending:
-                raise UserError(_("Complete the score and resolve the draws of: %s",
-                                  ", ".join(pending.partner_id.mapped('name'))))
+                raise UserError(_("Complete the score and resolve the draws of: %s", "; ".join(
+                    f"{application.partner_id.name} ({', '.join(application._ems_score_missing())})"
+                    for application in pending)))
         if self.kind == 'definitive':
             # Art. 14: the definitive list answers the claims against the provisional one.
             if call.claims_deadline and call.claims_deadline > call._ems_now():

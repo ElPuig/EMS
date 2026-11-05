@@ -49,7 +49,8 @@ los comentarios sin el nombre; solo la coordinación ve quién ha respondido.
 **Puntuaciones bajas** lista todas las respuestas de 6 o menos con lo que no ha funcionado. Abre una
 y elige **Acciones › Crear una acción de mejora**: EMS la crea en la aplicación **Calidad**, sin el
 nombre del participante, y la sigues allí como cualquier otra acción. Es la evidencia que pide la
-auditoría ISO.
+auditoría ISO. Un miembro del equipo que no es docente no puede abrir las acciones de Calidad: EMS
+le dice que se ha creado, y la gestiona la comisión de calidad.
 
 ## Informe de calidad y evidencias de Mobilitat FP
 

@@ -131,6 +131,7 @@ class EmsPortalErasmusGroupController(EmsPortalErasmusController):
                 'file_category']._description_selection(request.env)),
             'tz': request.env['ems.datetime_utils'].company_tz_name(),
             'error': kwargs.get('error'),
+            'error_message': self._ems_error_message(kwargs),
             'saved': kwargs.get('saved'),
         })
         return request.render('ems.portal_erasmus_group', values)
@@ -161,8 +162,8 @@ class EmsPortalErasmusGroupController(EmsPortalErasmusController):
                 return request.redirect(self._erasmus_redirect)
             else:
                 return request.redirect(f'{page}?error=1')
-        except UserError:
-            return request.redirect(f'{page}?error=1')
+        except UserError as error:
+            return self._ems_error_redirect(page, error)
         return request.redirect(f'{page}?saved=1')
 
     @http.route('/my/erasmus/group/commitment/<int:participant_id>', type='http', auth='user', methods=['POST'],

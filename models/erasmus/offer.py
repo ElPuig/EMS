@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from datetime import timedelta
+
 from markupsafe import Markup
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
+from .resolution import FINAL_KINDS
 from .workflow import check_applicant_action
 
 # Offers that hold a place: waiting for an answer, or accepted.
@@ -140,6 +143,7 @@ class EmsErasmusOfferWizard(models.TransientModel):
         call = self.env['ems.erasmus.call'].browse(values.get('call_id') or self.env.context.get('active_id'))
         if call:
             values['call_id'] = call.id
+            values.setdefault('deadline', self._ems_answer_deadline(call))
             if call.audience == 'staff':
                 return values
             modality = call.modality_ids.filtered(lambda modality: modality.free_places > 0
@@ -156,6 +160,17 @@ class EmsErasmusOfferWizard(models.TransientModel):
                 continue
             wizard.free_places = call._ems_free_places(wizard.modality_id)
             wizard.application_id = call._ems_next_reserve(wizard.modality_id)
+
+    @api.model
+    def _ems_answer_deadline(self, call):
+        """The 2026-11-04 usage test: a free place offered later gets as long to answer as the places
+        of the definitive resolution had (from its publication to the acceptance deadline), or three
+        days."""
+        definitive = call.resolution_ids.filtered(lambda resolution: resolution.state == 'published'
+                                                  and resolution.kind in FINAL_KINDS
+                                                  and resolution.publish_date).sorted('publish_date')[:1]
+        span = call.acceptance_deadline and definitive and call.acceptance_deadline - definitive.publish_date
+        return call._ems_now() + (span if span and span > timedelta(0) else timedelta(days=3))
 
     def action_confirm(self):
         self.ensure_one()

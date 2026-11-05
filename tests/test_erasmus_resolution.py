@@ -256,8 +256,12 @@ class TestErasmusResolution(ErasmusResolutionCase):
         self.assertIn(self.erasmus_user, tasks.user_id, "The Erasmus team gets a task to offer the free place.")
         self.assertEqual(len(tasks), len(tasks.user_id), "One task each.")
         self.assertIn(modality.name, tasks[0].summary)
+        # The 2026-11-04 usage test: it comes with as long to answer as the definitive offers had.
+        definitive = self.call.resolution_ids.filtered(lambda resolution: resolution.kind == 'definitive')
         wizard = self.env['ems.erasmus.offer.wizard'].with_user(self.erasmus_user).with_context(
-            active_id=self.call.id).create({'deadline': fields.Datetime.now() + timedelta(days=3)})
+            active_id=self.call.id).create({})
+        expected = self.call._ems_now() + (self.call.acceptance_deadline - definitive.publish_date)
+        self.assertAlmostEqual(wizard.deadline, expected, delta=timedelta(minutes=1))
         self.assertEqual(wizard.application_id, second)
         wizard.action_confirm()
         self.assertFalse(self._free_place_tasks(), "Done once the place is offered.")
@@ -558,6 +562,18 @@ class TestErasmusResolutionNotices(ErasmusResolutionCase):
         self.assertEqual((self.call.places_total, self.call.places_accepted, self.call.offers_pending), (1, 0, 1))
         first.offer_ids.action_accept()
         self.assertEqual((self.call.places_accepted, self.call.offers_pending), (1, 0))
+
+    def test_a_minors_application_receipt_goes_to_the_family_too(self):
+        """A minor's family is informed when the application is submitted (2026-11-05: no family
+        authorisation document is asked for to apply)."""
+        self.call.document_ids.filtered(lambda document: document.requirement == 'minor').unlink()
+        self._make_minor(self.second)
+        minor = self.env['ems.erasmus.application']._ems_portal_get_or_create(self.call, self.second)
+        upload(minor, self.cv)
+        minor.action_submit()
+        self.assertEqual(self._mails(minor).email_cc, 'notice.mother@example.com')
+        adult = self._admitted()
+        self.assertFalse(self._mails(adult).filtered('email_cc'), "An adult: no copy.")
 
     def test_answers_to_the_offer_are_confirmed_with_a_copy_to_a_minors_family(self):
         first, second = self._scored_call()

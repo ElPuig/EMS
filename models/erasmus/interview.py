@@ -72,7 +72,7 @@ class EmsErasmusInterview(models.Model):
         return self.interview_date or super()._ems_activity_deadline()
 
     def _ems_activity_summary(self):
-        return _("Score the Erasmus+ interview of %s", self.partner_id.name)
+        return self.env['ems.base'].ems_elide(_("Score the Erasmus+ interview of %s", self.partner_id.name))
 
     def action_submit_next(self):
         """Submit and open the next interview this evaluator still has to score."""
@@ -163,16 +163,21 @@ class EmsErasmusInterviewSchedule(models.TransientModel):
         return {'type': 'ir.actions.act_window_close'}
 
     def _ems_notify_evaluators(self, interviews):
-        """A single notice to each evaluator with the interviews just assigned to them: date and
-        time, place and applicant, in their own language."""
+        """A single notice with the interviews just assigned: date and time, place and applicant, in
+        the evaluators' language. Evaluators with the same list and language share one notice (the
+        2026-11-04 usage test: the same text showed once per evaluator in the call's chatter)."""
         Call = self.env['ems.erasmus.call']
+        groups = {}
         for evaluator in interviews.evaluator_id:
             own = interviews.filtered(lambda interview: interview.evaluator_id == evaluator).sorted('interview_date')
-            lang_self = self.with_context(lang=evaluator.lang)
+            key = (evaluator.lang, tuple(own.application_id.ids))
+            groups.setdefault(key, [self.env['res.users'], own])[0] |= evaluator
+        for (lang, _applications), (evaluators, own) in groups.items():
+            lang_self = self.with_context(lang=lang)
             message = Markup("<p>{}</p>{}").format(
                 lang_self.env._("Erasmus+: you have %(count)s interviews to score in %(call)s. Each one is a task in "
                                 "Erasmus+ > My evaluations.", count=len(own), call=self.call_id.name),
                 self.env['ems.base'].build_html_list([
                     f"{Call._ems_local_format(interview.interview_date)} - {interview.interview_place} - "
                     f"{interview.partner_id.name}" for interview in own]))
-            self.call_id.sudo()._ems_notify(evaluator.partner_id, message)
+            self.call_id.sudo()._ems_notify(evaluators.partner_id, message)

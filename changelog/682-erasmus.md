@@ -112,6 +112,25 @@
 - Diffusion actions register: every call notice and closing reminder EMS emails is recorded by itself; the team adds the rest by hand (sessions, ErasmusDays, web, social media).
 - Earlier courses (manual load, with their source) feed the evolution by course; the coordination's figures for 2022-2023 to 2025-2026 are seeded as centre data.
 
+## Usage test by role, second batch (files, corrections, families, staff call, team):
+
+- Repeated files: a call document is handed in as **One file** by default (unticked for the language certificates); its newest upload counts and the earlier ones show as *Earlier version* with their dates, on the portal and in the backend (*Files*, optional *Every version*), and the receipt lists only the newest. While the application is a draft the student removes a file uploaded by mistake from the portal.
+- The receipt and the backend show a link document's address, not "Video (link)".
+- Corrections can only be requested with a corrections deadline still to come (the email had no date and the corrections never closed).
+- A document line without any file can never be *Valid* (it let an application be admitted without the document).
+- The application's documents show their status (missing, to review, complete...) and the ones that do not apply are greyed out, instead of every line saying "Pending review"; a draft no longer counts documents to review.
+- "Offer a free place" comes with a default answer deadline: as long as the definitive offers had, or three days.
+- A staff call published without places warns the team (it still opens without them, as the call allows); admitting a teacher without a DNI in their employee file warns the team to ask the Secretary; preparing a resolution says what is missing of each incomplete score.
+- The family of a minor reads its own sentence above the commitment letter, sees the application read only on its portal from the start, and downloads a call document's **Model to download** (e.g. the family authorisation).
+- A member of the Erasmus team who is not a teacher lands on the calls instead of an access error, and creating an improvement action no longer opens a screen they cannot read.
+- A teacher sees the activity proposal they sent while it waits for validation.
+- Smaller: Catalan "de" elided before a name in the to-dos' subjects ("d'Alumna"), one interviews notice for evaluators with the same list, a new call shows its documents and steps before saving (also when switching between students and staff), and the panel's options show their points.
+
+## Students apply without a family authorisation (the family gets the receipt instead):
+
+- A new students' call no longer brings the "Family authorisation to take part" document (decided 2026-11-05 with adriamt): the family's consent comes once the place is accepted (commitment letter and travel authorisation, both signed by the family).
+- Instead, the application's receipt goes with a copy to the family whenever EMS keeps it informed about the student (a minor, or an adult who shares with the family), like the result, the place offered and the answer already did.
+
 ## Erasmus+ staff apply and prepare their mobility in EMS, not on the portal (review by Juan Morote and adriamt, 2026-11-04):
 
 - The portal is now for students and families only. A teacher finds the staff calls they can apply to under Erasmus+ > My participation > Staff calls, and works on their own records under My applications and My mobilities: read-only screens where every step is an entry of the Actions menu (apply, fill in the form, submit, hand in a document, claim, accept or renounce the place, send the activity proposal, sign the commitment letter, the weekly self-assessment, the EU Survey). Each action calls the same methods the portal uses, so the rules of the process stay in one place (models/erasmus/staff_backend.py, staff_wizards.py, views/erasmus/staff/).
@@ -156,6 +175,25 @@
 
 ## Erasmus+ interviews of an excluded applicant left open (review by role, 2026-11-03):
 - Excluding an application now deletes its interviews and plan ratings still to score, with the evaluators' to-dos.
+
+## Erasmus+ usage test by role (2026-11-04):
+
+- A call created from the app had no documents, mobility documents, checklist, self-assessment questions nor commitment letter: the defaults were only added when the form did not send those fields, and it always sends them (empty). Now they are added whenever they come empty, for students' and staff calls.
+- The portal showed a generic "it could not be saved" for every refused action; it now shows the real reason (which required document is missing, a CV that is not a PDF, a link without https://), on the application and the group mobility pages.
+- A refused file no longer loses the rest of the same form (e.g. the video link pasted with a CV that is not a PDF): valid documents are kept and the refused ones listed together.
+- After choosing a destination, signing the commitment letter, uploading mobility documents or answering a self-assessment, the portal no longer says "remember to submit the application before the closing date".
+- To-dos created by the scheduled jobs (staff satisfaction survey, staff "hand in what is missing", the team's "a place is free") are written in the recipient's language, not in English.
+
+## Erasmus+ group mobilities usage test by role (2026-11-05):
+
+- A group mobility created from the app asked for no document (the same cause as the calls': the form always sends the field, empty). Now it gets the default KA121-VET documents.
+- The default selection criteria said students with too many conduct warnings were left out, which is no longer the rule (2026-11-03): the text now says only the period, the eligible group, the average, the fewer opportunities and the draw.
+- A student the coordinator excludes with an exception stayed in the ranking, so their place was lost (one student fewer selected than places, with no warning). Now they leave the ranking and the next one moves up.
+- The leader teacher could not save an exception request from the Selection tab, and that also blocked sending the proposal.
+- A photo attached to the follow-up during the stay (or the leader's EU Survey evidence) could only be read by whoever uploaded it: the leader and the Erasmus team got an access error opening the mobility. The files now follow the mobility's access.
+- On the portal, a withdrawn enrolment showed "Withdrawn" and "Enrolled" at once (and a published result also showed "Enrolled"): only one status is shown.
+- Improvements agreed with adriamt after that test: the coordinator's task to answer a leader's exception request stays pending until the coordinator decides; the team can enter a corrected average for a student with grades (an upheld claim) and everyone sees the average the ranking uses; the mobility warns when more students are selected than places, when a student has a serious conduct record (only a warning, the coordinator decides) and, before the stay starts, who is not ready to leave (the button asks for confirmation); the team sees who enrolled during the enrolment; a new "Participants' documents" list shows every participant's documents on one screen (e.g. to upload the grant agreements at once), each line saying who signs it.
+- Portal and emails: the family of a minor gets a copy of the provisional and definitive results; a reserve proposed for a free place is told so; documents the team uploads first say "The Erasmus team uploads it" instead of a red "Missing" and what does not apply is not listed; the card shows the exclusion reason and the reserve number; the commitment letter names the student instead of "the student"; the published list explains the group's tie-break; a teacher who answers their last satisfaction survey sees the thanks.
 
 # Internal changes
 

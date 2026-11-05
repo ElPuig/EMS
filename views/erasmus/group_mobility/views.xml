@@ -140,7 +140,8 @@
                                     invisible="state not in ('preparation', 'stay', 'return') or user_role != 'team'"
                                     help="Adds to every file the documents asked for that it does not have yet."/>
                             <button name="action_start_stay" type="object" string="The stay starts"
-                                    invisible="state != 'preparation' or user_role not in ('team', 'leader')"/>
+                                    invisible="state != 'preparation' or user_role not in ('team', 'leader')"
+                                    confirm="The stay starts now: check first that everyone is ready to leave (the warning on top lists who is not). Continue?"/>
                             <button name="action_end_stay" type="object" string="Back home"
                                     invisible="state != 'stay' or user_role not in ('team', 'leader')"
                                     help="The return documents and the EU Survey start."/>
@@ -165,6 +166,12 @@
                             <button name="action_view_participants" type="object" class="oe_stat_button" icon="fa-users">
                                 <field name="selected_count" widget="statinfo" string="Selected students"/>
                             </button>
+                            <!-- The 2026-11-05 usage test: every participant's documents on one screen, e.g. to
+                                 upload the filled grant agreements without opening each file. -->
+                            <button name="action_view_participant_documents" type="object" class="oe_stat_button"
+                                    icon="fa-files-o" invisible="state not in ('preparation', 'stay', 'return', 'done') or user_role not in ('team', 'leader')">
+                                <field name="documents_missing" widget="statinfo" string="Participants' documents"/>
+                            </button>
                         </div>
                         <div class="oe_title">
                             <label for="name"/>
@@ -174,11 +181,24 @@
                             There is a tie in the ranking: the Erasmus coordinator resolves it with a draw (Actions, Draw the ties).
                         </div>
                         <div class="alert alert-danger" role="alert" invisible="not grade_incidents">
-                            <field name="grade_incidents" class="fw-bold"/> eligible students have no evaluated module, so they have no record average:
-                            the Erasmus team enters it by hand with its reason, or the coordinator excludes them with a reason (Selection tab). The ranking cannot be closed until then.
+                            <div>Eligible students with no evaluated module, so with no record average: <field name="grade_incidents" class="fw-bold"/></div>
+                            <div>The Erasmus team enters it by hand with its reason, or the coordinator excludes them with a reason (Selection tab). The ranking cannot be closed until then.</div>
                         </div>
                         <div class="alert alert-warning" role="alert" invisible="not commitments_pending or state != 'preparation'">
-                            <field name="commitments_pending" class="fw-bold"/> selected students have not accepted the commitment letter on the portal yet (they or, for a minor, their family).
+                            Selected students who have not accepted the commitment letter on the portal yet (they or, for a minor, their family): <field name="commitments_pending" class="fw-bold"/>.
+                        </div>
+                        <div class="alert alert-warning" role="alert"
+                             invisible="state not in ('selection', 'validation') or selected_count &lt;= student_places">
+                            <div>More students selected than places (with the exceptions): <field name="selected_count" class="fw-bold"/> / <field name="student_places" class="fw-bold" readonly="1"/></div>
+                            <div>Move someone to reserve with an exception before approving.</div>
+                        </div>
+                        <div class="alert alert-warning" role="alert" invisible="not conduct_reviews"
+                             groups="ems.group_erasmus,ems.group_academic_admin">
+                            <div>Students with as many conduct warnings this course as the number that sends the case to the coexistence team, or more: <field name="conduct_reviews" class="fw-bold"/></div>
+                            <div>They are not excluded on their own: the coordinator decides, with an exception and its reason, after hearing the teaching team and the coexistence team (column "Conduct to review").</div>
+                        </div>
+                        <div class="alert alert-warning" role="alert" invisible="state != 'preparation' or not not_ready">
+                            Not ready to leave yet (a required document or the commitment letter pending): <field name="not_ready" class="fw-bold"/>.
                         </div>
                         <div class="alert alert-info" role="alert" invisible="not next_reserve">
                             A place is free: the next reserve is <field name="next_reserve" class="fw-bold"/>.
@@ -235,7 +255,8 @@
                                 <label for="description"/>
                                 <field name="description" readonly="user_role != 'team'"/>
                             </page>
-                            <page string="Selection" name="selection" invisible="state in ('draft', 'enrolment') or user_role == 'companion'">
+                            <page string="Selection" name="selection"
+                                  invisible="state == 'draft' or (state == 'enrolment' and user_role != 'team') or user_role == 'companion'">
                                 <group>
                                     <group>
                                         <field name="ranking_date"/>
@@ -272,24 +293,27 @@
                                     <list create="false" delete="false" editable="bottom"
                                           decoration-muted="state == 'withdrawn' or result == 'renounced'"
                                           decoration-danger="proposed_result == 'excluded'">
-                                        <field name="rank"/>
+                                        <field name="rank" invisible="not rank"/>
                                         <field name="partner_id"/>
                                         <field name="group_id" optional="show"/>
                                         <field name="state" optional="show"/>
                                         <field name="enrol_date" optional="hide"/>
-                                        <field name="grade_average" invisible="not grade_found"/>
+                                        <field name="grade_average" invisible="not grade_found" optional="show"/>
+                                        <field name="ranking_average" invisible="not has_average"/>
+                                        <field name="has_average" column_invisible="1"/>
                                         <field name="grade_found" optional="hide"/>
                                         <field name="grade_incident" widget="boolean_toggle" readonly="1" optional="show"
                                                decoration-danger="grade_incident"/>
-                                        <field name="grade_manual" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"
-                                               invisible="grade_found"/>
+                                        <field name="grade_manual" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                         <field name="grade_average_manual" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"
                                                invisible="not grade_manual" required="grade_manual"/>
                                         <field name="grade_manual_reason" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"
                                                invisible="not grade_manual" required="grade_manual"/>
                                         <field name="eligible"/>
                                         <field name="exclusion" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"/>
-                                        <field name="strike_count" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <field name="strike_count" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <field name="conduct_review" widget="boolean_toggle" readonly="1" optional="show"
+                                               groups="ems.group_erasmus,ems.group_academic_admin"/>
                                         <field name="fewer_opportunities" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                         <field name="fewer_opportunities_check" optional="show"
                                                groups="ems.group_erasmus,ems.group_academic_admin"
@@ -505,6 +529,39 @@
             </field>
         </record>
 
+        <!-- Every participant's documents of one group mobility (action_view_participant_documents),
+             grouped by document: the team uploads each one's prepared file and reviews from one list. -->
+        <record id="view_erasmus_group_participant_document_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.application.document.group.list</field>
+            <field name="model">ems.erasmus.application.document</field>
+            <field name="priority">90</field>
+            <field name="arch" type="xml">
+                <list editable="bottom" create="false" delete="false" decoration-muted="file_state == 'not_applicable'">
+                    <field name="group_participant_id" readonly="1"/>
+                    <field name="name" readonly="1"/>
+                    <field name="call_document_id" column_invisible="1"/>
+                    <field name="signers" column_invisible="1"/>
+                    <field name="required_signers" optional="show"/>
+                    <field name="deadline" optional="show"/>
+                    <field name="is_required" optional="hide"/>
+                    <field name="handled_by" column_invisible="1"/>
+                    <field name="prepared_attachment_ids" widget="many2many_binary" readonly="handled_by == 'participant'"/>
+                    <field name="attachment_ids" widget="many2many_binary" readonly="handled_by == 'team'"/>
+                    <field name="file_state" widget="badge" decoration-success="file_state == 'complete'"
+                           decoration-danger="file_state in ('missing', 'needs_change')"
+                           decoration-warning="file_state == 'to_review'"/>
+                    <field name="review_state" column_invisible="1"/>
+                    <field name="review_comment" optional="show"/>
+                    <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
+                            invisible="file_state != 'to_review'"/>
+                    <button name="action_mark_needs_change" type="object" string="Needs changes" icon="fa-pencil"
+                            invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers)"/>
+                    <button name="action_open_signatures" type="object" string="Signatures" icon="fa-check-square-o"
+                            invisible="not signers"/>
+                </list>
+            </field>
+        </record>
+
         <record id="action_erasmus_group_mobility" model="ir.actions.act_window">
             <field name="name">Group mobilities</field>
             <field name="res_model">ems.erasmus.group.mobility</field>
@@ -577,11 +634,13 @@
                                 <field name="file_category"/>
                                 <field name="stage" optional="hide"/>
                                 <field name="name"/>
-                                <field name="signers"/>
+                                <field name="signers" column_invisible="1"/>
+                                <field name="required_signers"/>
                                 <field name="deadline"/>
                                 <field name="is_required"/>
                                 <field name="confidential" column_invisible="1"/>
                                 <field name="handled_by" optional="hide"/>
+                                <field name="review_comment" optional="hide"/>
                                 <field name="prepared_attachment_ids" widget="many2many_binary"
                                        readonly="handled_by == 'participant'"/>
                                 <field name="attachment_ids" widget="many2many_binary" readonly="handled_by == 'team'"/>
@@ -589,7 +648,6 @@
                                        decoration-danger="file_state in ('missing', 'needs_change')"
                                        decoration-warning="file_state == 'to_review'"/>
                                 <field name="review_state" optional="hide"/>
-                                <field name="review_comment"/>
                                 <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
                                         invisible="file_state != 'to_review'"/>
                                 <button name="action_mark_needs_change" type="object" string="Needs changes"

@@ -77,8 +77,14 @@ class TestErasmusSatisfaction(ErasmusSatisfactionCase):
         survey, _other = self._open()
         survey.sudo().participant_type = 'staff'
         self.student.sudo().user_ids = self.teacher_user
-        survey._ems_schedule_todo()
+        self.teacher_user.sudo().lang = 'ca_ES'
+        # The hourly cron runs as the system user, in English: the to-do is in the teacher's
+        # language (usage test, 2026-11-04).
+        survey.with_context(lang='en_US')._ems_schedule_todo()
         self.assertEqual(survey.activity_id.user_id, self.teacher_user)
+        self.assertEqual(survey.activity_id.summary,
+                         survey.with_context(lang='ca_ES')._ems_todo_texts()[0])
+        self.assertNotEqual(survey.activity_id.summary, "Erasmus+: answer the satisfaction survey")
         self.assertIn('/my/erasmus/satisfaction/', survey.activity_id.note)
         survey._ems_portal_answer(10)
         self.assertFalse(survey.activity_id.exists())
@@ -122,12 +128,18 @@ class TestErasmusSatisfaction(ErasmusSatisfactionCase):
 
     def test_a_low_score_becomes_an_improvement_action_of_the_quality_app_without_the_name(self):
         survey, answered = self._open()
-        survey._ems_portal_answer(5, what_failed='The company had no tasks for me')
-        answered._ems_portal_answer(9)
-        with self.assertRaises(UserError):
+        with self.assertRaises(UserError, msg="Not answered yet, so not low."):
             answered.with_user(self.technician_user).action_create_improvement()
+        survey._ems_portal_answer(5, what_failed='The company had no tasks for me')
+        answered._ems_portal_answer(4, what_failed='No mentor')
         with self.assertRaises(AccessError):
             survey.with_user(self.teacher_user).action_create_improvement()
+        # The 2026-11-04 usage test: one who may not see the Quality app's actions is told, instead
+        # of opening it and getting an access error.
+        self.assertFalse(self.technician_user.has_group('ems.group_teacher'))
+        result = answered.with_user(self.technician_user).action_create_improvement()
+        self.assertEqual(result['tag'], 'display_notification')
+        self.assertTrue(answered.improvement_action_id)
         # The Erasmus team are teachers: they then manage the action like any other of theirs.
         self.technician_user.groups_id |= self.env.ref('ems.group_teacher')
         result = survey.with_user(self.technician_user).action_create_improvement()

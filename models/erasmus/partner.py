@@ -53,7 +53,18 @@ class ResPartner(models.Model):
             # Staff work in the backend, never on the portal (the 2026-11-04 review).
             return False
         return bool(self._ems_erasmus_calls() or self._ems_erasmus_applications()
-                    or self._ems_erasmus_guardian_mobilities())
+                    or self._ems_erasmus_guardian_mobilities() or self._ems_erasmus_guardian_applications())
+
+    def _ems_erasmus_guardian_applications(self):
+        """The 2026-11-04 usage test: the applications of the minors this family acts for, which it
+        follows from the start (it saw nothing until the commitment letter)."""
+        self.ensure_one()
+        Application = self.env['ems.erasmus.application'].sudo()
+        if self.contact_type != 'family':
+            return Application
+        students = self.get_portal_students().filtered(self._ems_portal_can_act_for).filtered(
+            lambda student: not student.is_adult)
+        return Application.search([('partner_id', 'in', students.ids), ('audience', '=', 'student')])
 
     def _ems_erasmus_guardian_mobilities(self):
         """Issue #687: the mobilities in preparation of the minors this family acts for, whose

@@ -103,6 +103,9 @@ States of the mobility: `draft` → `enrolment` → `selection` → `validation`
   opportunities still pending verification blocks the proposal too. The first ones, as many as
   places, are proposed as selected, the rest as reserves in order; the non-eligible, as excluded
   ("excluded" and "no place" are different results).
+  A student the coordinator excludes with an exception (`result_override` = excluded) is out of
+  the ranking too (rank 0, proposed excluded), so their place goes to the next one; setting the
+  exception re-ranks (`write` of `result_override`).
 - The leader teacher reviews the ranking (rank, average and whether the requirements are met;
   never the conduct warnings, the reason for exclusion nor the fewer opportunities: those fields
   have `groups=` Erasmus team/admin) and sends the proposal (`action_submit_proposal`). The
@@ -149,6 +152,24 @@ States of the mobility: `draft` → `enrolment` → `selection` → `validation`
   (`action_propose_substitution`), the coordinator approves or rejects. The frozen ranking is
   never rewritten; the history is in the enrolments (`substitute_for_id`, who proposed and
   approved, when) and the chatter.
+
+- **Warnings on the form (the 2026-11-05 usage test).** `selected_count`/`reserve_count` count the
+  result the lists publish (`_ems_list_result`: approved result, else the coordinator's exception,
+  else the proposal), and a banner warns while more students are selected than places (the
+  approval refuses it anyway). `conduct_reviews` (team only) counts the enrolled students not
+  excluded whose frozen `strike_count` reaches the coexistence threshold
+  (`ems.erasmus.call._ems_conduct_blocked_count`, the calls' art. 6 rule; per row,
+  `conduct_review`): a warning, never an exclusion. During the enrolment the team already sees the
+  Selection tab (who enrolled). `ranking_average` shows everyone the average the ranking uses
+  (EMS's or the manual one); the team may enter a manual average also for a student with grades,
+  to apply an upheld claim.
+- **Exception requests.** `action_request_exception` keeps the coordinators' new tasks in
+  `exception_activity_ids`; sending or returning the proposal closes the mobility's other tasks
+  (`_ems_activities_done(keep_exceptions=True)`), not those: they close when the coordinator writes
+  `result_override` on that enrolment, or at the approval.
+- **The family of a minor** gets a copy (`email_cc`) of the provisional result and of the group's
+  own result email, through `ems.erasmus.application._ems_mail(..., family_copy=True)`, as the
+  calls do (`res.partner._ems_informed_recipients`).
 
 ## Files and documents (issue #703): the integration contract
 
@@ -282,6 +303,25 @@ Group mobilities are part of the Erasmus+ document records ([records.md](records
 *Erasmus+ > Mobilities > Group mobilities*: kanban by state and list, with the groups, leader, destination,
 enrolled and selected students, documents missing and to review, a tie to resolve, the EU Survey
 state and the late tasks (Odoo activities). Each card opens the mobility's panel.
+
+### Screens added in the 2026-11-05 usage test
+
+- **Participants' documents** (stat button, team and leader, `action_view_participant_documents`):
+  every active participant's lines on one editable list grouped by document
+  (`view_erasmus_group_participant_document_list`), to upload each grant agreement or review without
+  opening each file. The record rules decide what each one sees (the leader, no confidential line).
+- `required_signers` (on the line): the signatures this participant's line requires
+  (`signature_ids.is_required`), shown instead of the document type's `signers` in the group lists.
+- `not_ready` lists the active participants not `preparation_complete`; the form shows it in
+  preparation, and **The stay starts** asks for confirmation.
+- Follow-up files (`ems.erasmus.group.log.attachment_ids`) and the EU Survey evidence are tied to
+  their record (`ir.attachment._ems_link_to`) on create/write: uploaded from the form they had no
+  res_id, so only the uploader could read them and the others got an access error.
+- Portal: one status per card (withdrawn, the result with the exclusion reason or the reserve
+  number, or "Received"); a reserve proposed for a free place is told so; documents the team uploads
+  first show "The Erasmus team uploads it" instead of "Missing", and not-applicable ones are not
+  listed; only enrolled students see the published lists. After answering the last pending
+  satisfaction survey, `/my/erasmus?satisfaction_answered=1` opens even with nothing else to show.
 
 ## Roles and access
 

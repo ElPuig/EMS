@@ -72,8 +72,8 @@ registry.category("web_tour.tours").add("ems_erasmus_review", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='document_ids'] .o_data_row td[name='review_state']:not(:contains('Pending'))",
-            content: "The document is no longer pending",
+            trigger: ".o_form_view .o_field_widget[name='document_ids'] .o_data_row td[name='file_state'] .text-bg-success",
+            content: "The document is complete (structural: the badge's colour, whatever the language)",
         },
         {
             trigger: ".o_form_view .o_notebook a[name='admission']",

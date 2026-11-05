@@ -142,8 +142,10 @@ class TestErasmusStaffCall(ErasmusStaffCase):
         self.assertEqual(call.modality_ids.mapped('project'), ['ka121_vet', 'ka131_hed'],
                          "One modality per project, without a period.")
         self.assertFalse(call.document_ids.filtered('panel_visible'), "The mobility plan is written in the form.")
-        call.action_publish()
+        result = call.action_publish()
         self.assertEqual(call.state, 'published')
+        self.assertEqual(result['params']['type'], 'warning', "Published, but warned that it has no places yet.")
+        self.assertIsNone(self.staff_call.copy().action_publish(), "With places, no warning.")
 
     def test_a_staff_call_is_only_for_fp_teachers_and_their_direction(self):
         """Art. 6: the teachers of its levels and the Direction that validates; not the
@@ -464,6 +466,36 @@ class TestErasmusStaffResolution(ErasmusStaffCase):
         html = self.env['ir.actions.report']._render_qweb_html('ems.action_report_erasmus_resolution', resolution.ids)[0]
         self.assertNotIn(b'Erasmus Staff 1', html)
 
+    def test_admitting_a_teacher_without_a_dni_warns_the_team(self):
+        """The 2026-11-04 usage test: it was only found when preparing the lists, and only the
+        Secretary fills it in."""
+        self.staff_employees[0].identification_id = False
+        application = self._apply(0)
+        application.requirements_check = 'met'
+        application.document_ids.filtered('attachment_ids').action_mark_valid()
+        result = application.action_admit()
+        self.assertEqual(application.state, 'admitted')
+        self.assertEqual(result['params']['type'], 'warning')
+        self.assertIn('Erasmus Staff 1', result['params']['message'])
+        second = self._apply(1)
+        second.requirements_check = 'met'
+        second.document_ids.filtered('attachment_ids').action_mark_valid()
+        self.assertIsNone(second.action_admit(), "With a DNI, no warning.")
+
+    def test_preparing_says_what_is_missing_of_each_score(self):
+        """The 2026-11-04 usage test: "Complete the score of: X" did not say what."""
+        application = self._admitted(0)
+        self.staff_call.action_close()
+        self._publish('admission')
+        application.write({'merits_checked': False, 'seniority': False, 'declared_centre_start_date': False})
+        resolution = self.env['ems.erasmus.resolution'].with_user(self.erasmus_user).create({
+            'call_id': self.staff_call.id, 'kind': 'provisional'})
+        with self.assertRaises(UserError) as error:
+            resolution.action_prepare()
+        labels = application.fields_get(['plan_complete', 'merits_checked', 'seniority'], ['string'])
+        for name in ('plan_complete', 'merits_checked', 'seniority'):
+            self.assertIn(labels[name]['string'], str(error.exception))
+
     def test_missing_employee_document_blocks_preparing(self):
         self._admitted(0)
         self.staff_call.action_close()
@@ -524,6 +556,20 @@ class TestPortalErasmusStaff(HttpCase):
             'csrf_token': Request.csrf_token(self), **STAFF_PLAN, 'submit': '1'})
         self.assertFalse(self.env['ems.erasmus.application'].search([('call_id', '=', self.staff_call.id)]),
                          "Refused: nothing saved.")
+
+    def test_a_team_member_who_is_not_a_teacher_lands_on_the_calls(self):
+        """The 2026-11-04 usage test: the roll call, every new account's home, gave them an access
+        error. A home chosen on purpose is kept."""
+        roll_call = self.env['ir.actions.actions'].browse(self.env.ref('ems.action_attendance_passlist').id)
+        self.erasmus_user.action_id = roll_call
+        self.assertFalse(self.erasmus_user.has_group('ems.group_teacher'))
+        self.authenticate(self.erasmus_user.login, self.erasmus_user.login)
+        home = self.make_jsonrpc_request('/web/session/get_session_info')['home_action_id']
+        self.assertEqual(home, self.env.ref('ems.action_erasmus_call').id)
+        self.authenticate(self.staff_users[0].login, self.staff_users[0].login)
+        self.staff_users[0].action_id = roll_call
+        self.assertEqual(self.make_jsonrpc_request('/web/session/get_session_info')['home_action_id'], roll_call.id,
+                         "A teacher keeps the roll call.")
 
     def test_backend_user_menu_offers_the_staff_calls(self):
         """The issue-#682 review: the backend's session says who has a staff call to apply to or an

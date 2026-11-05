@@ -650,7 +650,7 @@ class EmsErasmusMobility(models.Model):
             for user in mobility._ems_validators():
                 mobility.sudo().activity_schedule(
                     activity_type_id=activity_type.id, user_id=user.id,
-                    summary=_("Erasmus+: validate the proposal of %s", mobility.partner_id.name))
+                    summary=self.env['ems.base'].ems_elide(_("Erasmus+: validate the proposal of %s", mobility.partner_id.name)))
 
     def _ems_activities_done(self, everything=False):
         """The team's tasks on the mobility are done; the participant's own to-do of what is missing
@@ -692,7 +692,9 @@ class EmsErasmusMobility(models.Model):
             user = mobility.application_id.employee_id.user_id
             if not user:
                 continue
-            note = mobility._ems_documents_task_note()
+            # In the staff member's language: the weekly cron runs as the system user (English).
+            local = mobility.with_context(lang=user.lang or self.env.lang)
+            note = local._ems_documents_task_note()
             deadlines = mobility._ems_documents_to_correct().filtered('deadline').mapped('deadline')
             task = by_mobility.get((mobility.id, user.id))
             if task:
@@ -700,10 +702,13 @@ class EmsErasmusMobility(models.Model):
             else:
                 task = mobility.sudo().activity_schedule(
                     activity_type_id=activity_type.id, user_id=user.id, note=note,
-                    summary=_("Erasmus+: hand in what is missing"),
+                    summary=local._ems_documents_task_summary(),
                     **({'date_deadline': min(deadlines)} if deadlines else {}))
             kept |= task
         (tasks - kept).unlink()
+
+    def _ems_documents_task_summary(self):
+        return _("Erasmus+: hand in what is missing")
 
     def _ems_documents_task_note(self):
         """What the staff member's to-do lists: the documents missing or needing changes, the

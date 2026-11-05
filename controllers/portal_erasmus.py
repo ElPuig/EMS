@@ -26,6 +26,18 @@ class EmsPortalErasmusController(CustomerPortal):
     # Staff apply and prepare their mobility in the backend, never on the portal (the 2026-11-04 review).
     _staff_redirect = '/odoo/action-ems.action_erasmus_staff_calls'
 
+    @staticmethod
+    def _ems_error_redirect(page, error):
+        """Back to the page, showing why the action was refused: a UserError is written for the
+        person in front of the portal ("Upload the required documents first: ..."), and a generic
+        message left them guessing which document was missing (usage test, 2026-11-04)."""
+        request.session['ems_erasmus_error'] = error.args[0] if error.args else ''
+        return request.redirect(f'{page}?error=1')
+
+    @staticmethod
+    def _ems_error_message(kwargs):
+        return request.session.pop('ems_erasmus_error', None) if kwargs.get('error') else None
+
     def _ems_erasmus_call(self, call_id):
         """The published call `call_id` if the logged-in user can apply to it, or has applied. Never
         for an internal user: staff calls are handled in the backend."""
@@ -43,7 +55,9 @@ class EmsPortalErasmusController(CustomerPortal):
         if not request.env.user.share:
             return request.redirect(self._staff_redirect)
         partner = request.env.user.partner_id
-        if not partner._ems_erasmus_portal_visible():
+        # Right after answering the last pending satisfaction survey the page may have nothing else to
+        # show: it still opens, to thank them (the 2026-11-05 usage test).
+        if not partner._ems_erasmus_portal_visible() and not kwargs.get('satisfaction_answered'):
             return request.redirect('/my/home')
         applications = partner._ems_erasmus_applications()
         calls = partner._ems_erasmus_calls() | applications.call_id
@@ -64,6 +78,7 @@ class EmsPortalErasmusController(CustomerPortal):
             'tz': request.env['ems.datetime_utils'].company_tz_name(),
             'submitted': kwargs.get('submitted'),
             'guardian_mobilities': partner._ems_erasmus_guardian_mobilities(),
+            'guardian_applications': partner._ems_erasmus_guardian_applications(),
             'guardian_error': kwargs.get('error'),
             'satisfaction_surveys': partner._ems_erasmus_satisfaction_pending(),
             'satisfaction_answered': kwargs.get('satisfaction_answered'),
@@ -156,6 +171,7 @@ class EmsPortalErasmusController(CustomerPortal):
             'progress': application._ems_portal_progress() if application else None,
             'tz': request.env['ems.datetime_utils'].company_tz_name(),
             'error': kwargs.get('error'),
+            'error_message': self._ems_error_message(kwargs),
             'saved': kwargs.get('saved'),
             # Issue #685: results of the published resolutions, newest first, and the place offered.
             'result_lines': application.resolution_line_ids.filtered(
@@ -215,11 +231,39 @@ class EmsPortalErasmusController(CustomerPortal):
             application._ems_portal_save(answers, uploads, links)
             if post.get('submit'):
                 application.action_submit()
-        except UserError:
-            return request.redirect(f'{page}?error=1')
+        except UserError as error:
+            return self._ems_error_redirect(page, error)
         if post.get('submit'):
             return request.redirect(f'{self._erasmus_redirect}?submitted=1')
         return request.redirect(f'{page}?saved=1')
+
+    @http.route('/my/erasmus/call/<int:call_id>/file/<int:attachment_id>/remove', type='http', auth='user',
+                methods=['POST'], website=True)
+    def portal_erasmus_remove_file(self, call_id, attachment_id, **post):
+        """The applicant removes a file uploaded by mistake, while the application is a draft."""
+        call = self._ems_erasmus_call(call_id)
+        if not call:
+            return request.redirect('/my/home')
+        page = f'{self._erasmus_redirect}/call/{call.id}'
+        application = request.env['ems.erasmus.application'].sudo().search([
+            ('call_id', '=', call.id), ('partner_id', '=', request.env.user.partner_id.id)])
+        try:
+            application._ems_portal_remove_file(attachment_id)
+        except UserError as error:
+            return self._ems_error_redirect(page, error)
+        return request.redirect(f'{page}?saved=1')
+
+    @http.route('/my/erasmus/call/<int:call_id>/template/<int:document_id>', type='http', auth='user', website=True)
+    def portal_erasmus_template(self, call_id, document_id, **kwargs):
+        """Download the model of a document of a call the logged-in user can see (e.g. the family
+        authorisation)."""
+        call = self._ems_erasmus_call(call_id) or request.env.user.partner_id._ems_erasmus_guardian_applications(
+            ).call_id.filtered(lambda call: call.id == call_id)
+        document = call and call.sudo().document_ids.filtered(lambda line: line.id == document_id and line.template_file)
+        if not document:
+            return request.redirect(self._erasmus_redirect)
+        return request.env['ir.binary']._get_stream_from(
+            document, 'template_file', filename=document.template_filename).get_response(as_attachment=True)
 
     @http.route('/my/erasmus/call/<int:call_id>/rules', type='http', auth='user', website=True)
     def portal_erasmus_rules(self, call_id, **kwargs):
@@ -282,8 +326,8 @@ class EmsPortalErasmusController(CustomerPortal):
             if not application:
                 return request.redirect(f'{page}?error=1')
             application._ems_portal_claim(description, files)
-        except UserError:
-            return request.redirect(f'{page}?error=1')
+        except UserError as error:
+            return self._ems_error_redirect(page, error)
         return request.redirect(f'{page}?claimed=1')
 
     @http.route('/my/erasmus/call/<int:call_id>/offer', type='http', auth='user', methods=['POST'], website=True)
@@ -303,8 +347,8 @@ class EmsPortalErasmusController(CustomerPortal):
                 offer.action_accept()
             else:
                 offer.action_renounce((reason or '').strip()[:2000] or False)
-        except UserError:
-            return request.redirect(f'{page}?error=1')
+        except UserError as error:
+            return self._ems_error_redirect(page, error)
         return request.redirect(f'{page}?answered=1')
 
     # --- issue #687: mobility preparation -------------------------------------------------------
@@ -361,8 +405,8 @@ class EmsPortalErasmusController(CustomerPortal):
                 mobility.action_renounce((post.get('reason') or '').strip()[:2000] or False)
             else:
                 return request.redirect(f'{page}?error=1')
-        except UserError:
-            return request.redirect(f'{page}?error=1')
+        except UserError as error:
+            return self._ems_error_redirect(page, error)
         return request.redirect(f'{page}?saved=1')
 
     @http.route('/my/erasmus/call/<int:call_id>/mobility/file/<int:attachment_id>', type='http', auth='user',

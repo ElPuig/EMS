@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.tests import Form
 from odoo.tests.common import TransactionCase, tagged
 
 from .common import create_level_study_group, create_role_user, mock_outgoing_email, next_student_id
@@ -64,11 +65,22 @@ class TestErasmusCall(TransactionCase):
         with self.assertRaises(ValidationError):
             self.call.copy({'date_close': self.call.date_open - timedelta(hours=1)})
 
+    def test_a_new_call_shows_its_defaults_before_saving(self):
+        """The 2026-11-04 usage test: the Documents tab was empty until the call was saved."""
+        form = Form(self.env['ems.erasmus.call'])
+        self.assertEqual(len(form.document_ids), 4, "No family authorisation: the receipt's copy informs the family")
+        self.assertTrue(form.task_ids)
+        form.audience = 'staff'
+        self.assertEqual(len(form.document_ids), 1, "The staff call's own documents")
+        self.assertEqual(len(form.modality_ids), 2)
+        with form.document_ids.edit(0) as certificates:
+            self.assertFalse(certificates.single_file, "A certificate per language")
+
     def test_publish_needs_a_modality_and_a_required_document(self):
         draft = self.env['ems.erasmus.call'].create({
             'name': 'Empty call', 'date_open': self.call.date_open, 'date_close': self.call.date_close,
-            'document_ids': [],  # a new students' call would bring its default documents
         })
+        draft.document_ids = [(5, 0, 0)]  # a new students' call brings its default documents
         with self.assertRaises(UserError):
             draft.action_publish()
         draft.modality_ids = [(0, 0, {'name': 'X', 'level_ids': [(6, 0, self.level.ids)]})]
@@ -157,15 +169,33 @@ class TestErasmusApplication(TransactionCase):
 
     def test_a_new_students_call_brings_its_documents(self):
         """The 2026-11-03 review: the CV (PDF, with the Europass link), the video (a Drive link),
-        the certificates, the evidence of fewer opportunities (only if declared) and the family
-        authorisation of minors."""
+        the certificates and the evidence of fewer opportunities (only if declared). No family
+        authorisation (2026-11-05): a minor's family gets a copy of the receipt instead."""
         call = self.env['ems.erasmus.call'].create({'name': 'Test defaults call', 'date_open': self.call.date_open,
                                                    'date_close': self.call.date_close})
         self.assertEqual([(document.upload_kind, document.requirement) for document in call.document_ids.sorted('sequence')],
                          [('pdf', 'required'), ('link', 'required'), ('file', 'optional'),
-                          ('file', 'fewer_opportunities'), ('file', 'minor')])
+                          ('file', 'fewer_opportunities')])
         self.assertTrue(call.document_ids[:1].help_url.startswith('https://europass.europa.eu'))
         self.assertTrue(call.document_ids.filtered(lambda document: document.requirement == 'fewer_opportunities').confidential)
+
+    def test_a_call_created_from_the_form_brings_its_defaults(self):
+        """The form sends the one2many fields empty on a new call: the defaults still apply (found in
+        the 2026-11-04 usage test, a call created from the app had no documents, steps, questions
+        nor commitment letter)."""
+        for audience in ('student', 'staff'):
+            with Form(self.env['ems.erasmus.call']) as form:
+                form.name = f'Form defaults call {audience}'
+                form.audience = audience
+                form.date_open = self.call.date_open
+                form.date_close = self.call.date_close
+            call = form.record
+            self.assertTrue(call.document_ids, audience)
+            self.assertTrue(call.preparation_document_ids, audience)
+            self.assertTrue(call.task_ids, audience)
+            if audience == 'student':
+                self.assertTrue(call.self_assessment_question_ids)
+                self.assertTrue(call.commitment_text)
 
     def test_documents_by_kind_and_fewer_opportunities(self):
         """A PDF-only document refuses other files, a link document takes a link (not a file), and
@@ -186,7 +216,15 @@ class TestErasmusApplication(TransactionCase):
             application._ems_portal_save({}, {}, {video.id: 'drive.google.com/no-scheme'})
         with self.assertRaises(UserError, msg="The video is still missing."):
             application.action_submit()
-        application._ems_portal_save({}, {}, {video.id: 'https://drive.google.com/file/d/test/view'})
+        # A refused file in the same form does not lose the link (not assertRaises: its savepoint
+        # would undo what the portal keeps).
+        try:
+            application._ems_portal_save({}, {self.cv.id: [('cv.pdf', b'not a pdf')]},
+                                         {video.id: 'https://drive.google.com/file/d/test/view'})
+        except UserError as error:
+            self.assertIn(self.cv.name, str(error))
+        else:
+            self.fail("A CV that is not a PDF is refused.")
         link = self._line(application, video).attachment_ids
         self.assertEqual((link.type, link.url), ('url', 'https://drive.google.com/file/d/test/view'))
         evidence = self._line(application, self.evidence)
@@ -267,6 +305,95 @@ class TestErasmusApplication(TransactionCase):
         upload(application, self.cv, name='v2.pdf')
         self.assertEqual(sorted(line.attachment_ids.mapped('name')), ['v1.pdf', 'v2.pdf'])
         self.assertEqual(line.review_state, 'pending', "A new file needs a new review")
+
+    def test_only_the_newest_file_counts_and_a_draft_removes_a_file_by_mistake(self):
+        """The 2026-11-04 usage test: a CV uploaded twice showed "cv.pdf, cv.pdf". The newest file
+        of a document handed in as one counts (the receipt lists it alone); a document with several
+        files keeps them all; a link shows its address; and a draft removes a file uploaded by
+        mistake, a submitted application no longer."""
+        self.certificate.single_file = False
+        video = self.env['ems.erasmus.call.document'].create({
+            'call_id': self.call.id, 'name': 'Video', 'requirement': 'optional', 'upload_kind': 'link', 'sequence': 5})
+        application = self._apply()
+        upload(application, self.cv, name='cv_old.pdf')
+        upload(application, self.cv, name='cv_new.pdf')
+        upload(application, self.certificate, name='english.pdf')
+        upload(application, self.certificate, name='french.pdf')
+        application._ems_portal_save({}, {}, {video.id: 'https://drive.google.com/file/d/test/view'})
+        cv, certificate, link = (self._line(application, document) for document in (self.cv, self.certificate, video))
+        self.assertEqual(cv.current_attachment_ids.mapped('name'), ['cv_new.pdf'])
+        self.assertEqual(len(cv.attachment_ids), 2, "The earlier version is kept")
+        self.assertEqual(sorted(certificate.current_attachment_ids.mapped('name')), ['english.pdf', 'french.pdf'])
+        self.assertEqual(link.link_url, 'https://drive.google.com/file/d/test/view')
+        old = cv.attachment_ids.filtered(lambda attachment: attachment.name == 'cv_old.pdf')
+        application._ems_portal_remove_file(old.id)
+        self.assertFalse(old.exists())
+        with self.assertRaises(UserError, msg="Not a file of this application."):
+            application._ems_portal_remove_file(self.env['ir.attachment'].create({'name': 'x', 'raw': PDF}).id)
+        upload(application, self.cv, name='cv_newest.pdf')
+        application.action_submit()
+        body = self._mails(application).body_html
+        self.assertIn('cv_newest.pdf', body)
+        self.assertNotIn('cv_new.pdf', body)
+        self.assertIn('french.pdf', body)
+        self.assertIn('https://drive.google.com/file/d/test/view', body)
+        with self.assertRaises(UserError, msg="Submitted: only the team removes a file."):
+            application._ems_portal_remove_file(cv.attachment_ids[:1].id)
+
+    def test_a_document_without_any_file_is_never_valid(self):
+        """The 2026-11-04 usage test: it let the team admit an application without the document."""
+        application = self._apply()
+        upload(application, self.cv)
+        application.action_submit()
+        with self.assertRaises(UserError):
+            self._line(application, self.certificate).action_mark_valid()
+        with self.assertRaises(UserError, msg="Nor from the list's own field."):
+            self._line(application, self.certificate).review_state = 'valid'
+        self.assertEqual(self._line(application, self.authorization).file_state, 'not_applicable')
+
+    def test_corrections_need_a_deadline_still_to_come(self):
+        """The 2026-11-04 usage test: without one the email gave no date and the corrections never
+        closed."""
+        application = self._apply()
+        upload(application, self.cv)
+        application.action_submit()
+        self._line(application, self.cv).action_mark_needs_change()
+        for deadline in (False, fields.Datetime.now() - timedelta(hours=1)):
+            self.call.subsanation_deadline = deadline
+            with self.assertRaises(UserError):
+                application.action_request_subsanation()
+        self.call.subsanation_deadline = fields.Datetime.now() + timedelta(days=5)
+        application.action_request_subsanation()
+        self.assertIn(self.call._ems_local_deadline(), self._mails(application).sorted('id')[-1:].body_html)
+
+    def test_a_draft_has_no_documents_for_the_team_to_review(self):
+        application = self._apply()
+        upload(application, self.cv)
+        self.assertEqual(application.documents_to_review, 0)
+        application.action_submit()
+        self.assertEqual(application.documents_to_review, 1)
+
+    def test_the_family_of_a_minor_follows_the_application_and_downloads_the_model(self):
+        """The 2026-11-04 usage test: the family saw nothing of Erasmus+ until the commitment
+        letter."""
+        family = self.env['res.partner'].create({'name': 'Erasmus Test Family', 'contact_type': 'family'})
+        self.env['res.partner.relation'].create({
+            'left_partner_id': family.id, 'type_id': self.env.ref('ems.relation_type_father').id,
+            'right_partner_id': self.minor.id})
+        self.assertFalse(family._ems_erasmus_portal_visible())
+        application = self._apply(self.minor)
+        self.assertEqual(family._ems_erasmus_guardian_applications(), application)
+        self.assertTrue(family._ems_erasmus_portal_visible())
+        self.assertFalse(self.student._ems_erasmus_guardian_applications(), "Only a family")
+
+    def test_names_after_de_are_elided_in_catalan(self):
+        Base = self.env['ems.base'].with_context(lang='ca_ES')
+        self.assertEqual(Base.ems_elide("revisar l'esmena de Alumna Prova"), "revisar l'esmena d'Alumna Prova")
+        self.assertEqual(Base.ems_elide("la proposta de Hug"), "la proposta d'Hug")
+        self.assertEqual(Base.ems_elide("la proposta de Iolanda"), "la proposta de Iolanda")
+        self.assertEqual(Base.ems_elide("la proposta de Pere"), "la proposta de Pere")
+        self.assertEqual(self.env['ems.base'].with_context(lang='es_ES').ems_elide("la propuesta de Ana"),
+                         "la propuesta de Ana")
 
     def test_state_only_changes_through_the_actions(self):
         application = self._apply()
@@ -408,6 +535,7 @@ class TestErasmusApplication(TransactionCase):
         upload(application, self.cv)
         application.action_submit()
         self._line(application, self.cv).action_mark_needs_change()
+        self.call.subsanation_deadline = fields.Datetime.now() + timedelta(days=10)
         application.action_request_subsanation()
         self.assertFalse(application.activity_ids)
         upload(application, self.cv)

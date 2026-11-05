@@ -169,10 +169,13 @@
                                                 <field name="name"/>
                                                 <field name="requirement"/>
                                                 <field name="upload_kind"/>
+                                                <field name="single_file" optional="show"/>
                                                 <field name="confidential"/>
                                                 <field name="panel_visible" column_invisible="parent.audience != 'staff'"/>
                                                 <field name="description"/>
                                                 <field name="help_url" widget="url" optional="show"/>
+                                                <field name="template_filename" column_invisible="1"/>
+                                                <field name="template_file" filename="template_filename" optional="show"/>
                                                 <field name="file_category" optional="hide"/>
                                             </list>
                                         </field>

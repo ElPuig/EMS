@@ -105,9 +105,17 @@ stateDiagram-v2
 - The state only changes through these actions (`write()` refuses a direct change).
 - **Submit** checks that every required document has a file (documents required for minors only
   when the applicant is a minor) and emails a receipt listing the files
-  (`email_template_erasmus_application_submitted`). Each new submission sends a new receipt.
+  (`email_template_erasmus_application_submitted`), with a copy to the family when EMS keeps it
+  informed (a minor's, `_ems_mail(family_copy=True)`). Each new submission sends a new receipt. A
+  new students' call asks for no family authorisation to apply: the family is informed by that copy
+  and signs the commitment letter once the place is accepted.
+  The receipt (and every document list in an email, `_ems_mail_document_list`) shows only the files
+  that count (`ems.erasmus.application.document._ems_current_files()`): every file, or only the
+  newest of a call document with `single_file` (the default; unticked for the language
+  certificates), and a link by its address (`ir.attachment._ems_erasmus_labels()`).
 - **Request corrections** needs at least one document marked *Needs changes* or a required
-  document missing; it emails the list and the call's `subsanation_deadline`
+  document missing, and a `subsanation_deadline` still to come (without one the email gave no date
+  and `_ems_subsanation_open()` never closed); it emails the list and the call's `subsanation_deadline`
   (`email_template_erasmus_application_subsanation`). Those lines get `correction_requested`;
   until the deadline the applicant can upload to them only (not change the answers, nor other
   documents) and submit again, which clears the flags. Submitting a correction schedules a to-do
@@ -115,7 +123,13 @@ stateDiagram-v2
   `ems.group_erasmus` internal users), so it shows in their daily pending-tasks digest; admitting,
   excluding or asking for corrections again marks it done.
 - **Admit** needs the requirements met, every required document *Valid* and, in a students' call,
-  no conduct block (below). **Exclude** needs the exclusion reason. It also deletes the
+  no conduct block (below). A line is never *Valid* without a file (`_ems_has_files()`: one of the
+  participant's, or of the team for a document the team provides), from the button or from the
+  list's own field (`write()` in `document_review.py`). Admitting a staff application whose employee
+  file has no DNI/NIE nor passport (`_ems_identity_document()`) still admits it, but warns the team
+  (sticky notification and a chatter note): only the Secretary fills it in, and the resolution lists
+  cannot be prepared without it. Preparing a resolution with an incomplete score names, per person,
+  what is missing (`_ems_score_missing()`, by the fields' labels). **Exclude** needs the exclusion reason. It also deletes the
   application's evaluations still to score (interviews, plan ratings) with their to-dos, and, once
   the admission list is published (e.g. not attending the interview), emails the reason
   (`email_template_erasmus_application_excluded`) instead of leaving it for the next list; the
@@ -180,9 +194,22 @@ The Head of Studies and the Director read the applications; they write nothing o
 
 The applicant is always `request.env.user.partner_id`: no partner or application id travels in a
 form. The controller works with `sudo()` (portal users have no ACL on these models) and checks
-eligibility and state itself. The portal home card appears only to students who have an
-application or can apply to a published call (`res.partner._ems_erasmus_portal_visible`); families
-do not see it. The portal's top menu has an *Erasmus+* entry under the same rule
+eligibility and state itself. A refused action (a `UserError`) goes back to the page with
+`?error=1` and its own message, kept in the session for that one redirect
+(`_ems_error_redirect`/`_ems_error_message`): "Upload the required documents first: <the video>",
+not a generic "it could not be saved". When one form sends several documents, the valid ones are
+kept and the refused ones are listed together (`_ems_portal_save`), so a CV that is not a PDF never
+loses the video link pasted with it. Each file shows its date; the earlier versions of a
+`single_file` document are marked *Earlier version*. While the application is a draft
+(`state == 'draft'`), `/my/erasmus/call/<id>/file/<attachment>/remove` deletes a file uploaded by
+mistake (`_ems_portal_remove_file`, nobody has reviewed it yet); once submitted, only the team
+removes one, with a reason (*Remove a file*). A call document's `template_file` (*Model to
+download*) is served by `/my/erasmus/call/<id>/template/<document>`, to the applicant and to the
+family of a minor applicant. The portal home card appears only to students who have an
+application or can apply to a published call (`res.partner._ems_erasmus_portal_visible`), and to the
+family of a minor applicant, which follows the application read only from the start
+(`_ems_erasmus_guardian_applications()`: state, the non-confidential documents that apply and their
+models). The portal's top menu has an *Erasmus+* entry under the same rule
 (`views/portal/portal_header.xml`, like *Convalidations*), so a student who cannot apply (PFI, CFGB)
 sees neither.
 
@@ -242,6 +269,17 @@ _ems_call_action`, an action narrowed to the call): Applications, Ranking, Inter
 or Plan ratings (staff), Resolutions, Claims, Place offers and Mobilities. Interviews and Plan
 ratings have no menu entry: they are only reached from their call.
 
+`session_info` (`models/erasmus/ir_http.py`) gives a member of the Erasmus team who is not a teacher the
+calls (`action_erasmus_call`) as home when theirs is still the roll call every new account copies
+from `base.default_user`, which they cannot open (`_ems_erasmus_home_action`); a home chosen on
+purpose is kept.
+
+A new call shows its defaults before it is saved: `default_get()` and the `audience` onchange (on an
+unsaved call) fill them from `_ems_audience_defaults()`, the same dict `create()` uses for whatever
+is still empty. The onchange assigns each list as new records, not as commands: `document_ids` and
+`preparation_document_ids` are lines of the same model, and replacing one with commands brought back
+lines of the other. Subjects of the to-dos built with a name go through
+`ems.base.ems_elide()`, which elides "de" in Catalan ("d'Anna").
 ### Staff in the backend
 
 Since the 2026-11-04 review the portal is for students and families only: a staff member applies to
@@ -590,7 +628,8 @@ stateDiagram-v2
 - **A free place is never offered on its own.** The modality computes `free_places` (places minus
   the offers waiting or accepted) and `next_reserve_id` (the best-ranked `reserve` application
   without one). The team clicks **Actions > Offer a free place** on the call; the wizard shows that
-  proposal and asks for a new deadline; confirming creates the offer (`from_reserve`) and emails it
+  proposal and a deadline, by default as long as the definitive offers had (from the definitive
+  resolution's publication to `acceptance_deadline`) or three days (`_ems_answer_deadline`); confirming creates the offer (`from_reserve`) and emails it
   (`email_template_erasmus_offer`).
 - **The team is told when a place is free.** A renunciation, an offer without an answer (cron) or
   a published definitive/rectification call `ems.erasmus.call._ems_sync_free_place_tasks()`: while
@@ -692,7 +731,7 @@ what differs:
 | | Students | Staff |
 |---|---|---|
 | Who sees the call on the portal | A student whose main group's level is in a modality | An internal user with an employee file (`res.partner._ems_erasmus_employee`) |
-| Modality | Computed from the level when applying; required to publish | Not needed to publish (the places may change): required before preparing the provisional resolution; the team assigns each selected person's project and period |
+| Modality | Computed from the level when applying; required to publish | Not needed to publish (the places may change), but publishing without places warns the team (`action_publish()` returns a notification); required before preparing the provisional resolution; the team assigns each selected person's project and period |
 | Documents | Configured per call; a new call brings the five of art. 8 (`_ems_student_documents`, on create) | Only the optional language certificates (`_ems_staff_documents`, on create and on the `audience` onchange); the plan is written in the form (`PLAN_FIELDS`) |
 | Admission checks | Requirements; a serious conduct record this course is pointed out, the team may exclude | Requirements only |
 | Scoring | Art. 12 (A-F), A and F frozen at closing | Art. 11 of the staff call (1-6): the panel, what the applicant declares (last mobility, seniority, language) and the merits the team records |
@@ -918,7 +957,11 @@ too; the centre's tutor, the sBID activity plan. Not asked for, EMS
 already has them: identity document, bank account, personal details, emergency contact.
 
 **Commitment letter** (annex 3): the call's `commitment_text` (HTML, filled in with
-`_ems_commitment_text()` on a new students' call, translatable). The participant accepts and signs it
+`_ems_commitment_text()` on a new students' call, translatable): the commitments, the terms the
+centre's former paper "assumpció de responsabilitat" carried (the centre's responsibility is limited to
+the agreed programme; a serious breach means being sent back, at the participant's or family's cost),
+and a note that a minor's family authorises taking part by accepting it, so applying needs no family
+authorisation. The participant accepts and signs it
 on the portal (`action_sign_commitment`, portal step `commitment`): EMS keeps a copy of the text
 (`commitment_signed_text`), who (`commitment_signed_by_id`), when and the IP address.
 `commitment_pending` (text on the call, not signed yet) blocks `preparation_complete` and is part of
@@ -1221,12 +1264,16 @@ flowchart LR
   `has_final_resolution`), the latest first; the tabs are two nested notebooks (`selection_block`,
   `mobility_block`); the tie warning is above the title.
 - **Ranking**: `ranking_result` (non-stored) gives the cut of the places; the menu's ranking is
-  ordered by call, with its column. The application list counts `documents_to_review`.
+  ordered by call, with its column. The application list counts `documents_to_review` (never on a
+  draft). The application's Documents tab shows each line's `file_state` as a badge (greyed out when
+  optional or not applicable), the files that count (`current_attachment_ids`), the `link_url` of a
+  link and, optional, `attachment_ids` (*Every version*).
 - **Interviews**: `ems.erasmus.interview.schedule` (wizard, Actions of the call) gives the admitted
   applicants consecutive slots, the same place and evaluators, and sends the calls. The evaluators'
   tasks (one per interview, done on submitting it) are scheduled quietly
-  (`mail_activity_quick_update`) and each evaluator gets one note on the call with the whole list
-  (`_ems_notify_evaluators`, `mail.thread._ems_notify`), not one email per interview. The interview
+  (`mail_activity_quick_update`) and the evaluators get one note on the call with the whole list
+  (`_ems_notify_evaluators`, `mail.thread._ems_notify`), not one email per interview: evaluators with
+  the same list and language share one note, addressed to all of them. The interview
   form writes annex 4's descriptors under each criterion; interviews and plan ratings have
   **Submit and next** (`action_submit_next`).
 - **Plan ratings**: `rating_status` (stored) shows an abstention as such; a pivot view

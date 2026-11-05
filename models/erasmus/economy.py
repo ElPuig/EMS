@@ -187,7 +187,9 @@ class EmsErasmusGroupParticipant(models.Model):
     _inherit = 'ems.erasmus.group.participant'
 
     currency_id = fields.Many2one(string="Currency", comodel_name='res.currency', compute='_compute_currency_id')
-    grant_amount = fields.Monetary(string="Grant", tracking=True, groups=ECONOMY_READERS,
+    # Also read by the group's leader and accompanying teachers (issue #764).
+    grant_amount = fields.Monetary(string="Grant", tracking=True,
+                                   groups=f'{ECONOMY_READERS},ems.group_erasmus_group_teacher',
                                    help="The participant's grant, as calculated in the Beneficiary Module.")
 
     def _compute_currency_id(self):
@@ -207,7 +209,7 @@ class EmsErasmusGroupMobility(models.Model):
                                         "accompanying teachers.")
     grant_participant_ids = fields.One2many(
         string="Participants' grants", comodel_name='ems.erasmus.group.participant', inverse_name='group_mobility_id',
-        groups=ECONOMY_READERS, help="Each participant's grant, as calculated in the Beneficiary Module.")
+        groups=f'{ECONOMY_READERS},ems.group_erasmus_group_teacher', help="Each participant's grant, as calculated in the Beneficiary Module.")
 
     @api.depends('participant_ids.grant_amount', 'participant_ids.state')
     def _compute_grant_amount(self):
@@ -217,15 +219,18 @@ class EmsErasmusGroupMobility(models.Model):
 
     def _ems_economic_depends(self):
         return super()._ems_economic_depends() + ['state', 'grant_amount', 'invoice_ids.amount',
-                                                  'invoice_ids.state']
+                                                  'invoice_ids.state', 'participant_ids.payment_ids.amount',
+                                                  'participant_ids.payment_ids.state']
 
     def _ems_economic_inputs(self):
+        """Spent: the collective invoices and the participants' pocket money payments (issue #764)."""
         self.ensure_one()
-        invoices = self.invoice_ids
-        paid = sum(invoices.filtered(lambda invoice: invoice.state == 'paid').mapped('amount'))
+        records = self.invoice_ids, self.sudo().participant_ids.payment_ids
+        spent = sum(sum(group.mapped('amount')) for group in records)
+        paid = sum(sum(group.filtered(lambda record: record.state == 'paid').mapped('amount')) for group in records)
         phase = 'cancelled' if self.state == 'cancelled' else \
             'forecast' if self.state in GROUP_PLANNING_STATES else 'committed'
-        return self.grant_amount, sum(invoices.mapped('amount')), paid, phase
+        return self.grant_amount, spent, paid, phase
 
 
 class EmsErasmusProject(models.Model):
@@ -540,7 +545,8 @@ class EmsErasmusProject(models.Model):
         pay_states = dict(self.env['ems.erasmus.payment']._fields['state']._description_selection(self.env))
         pay_kinds = dict(self.env['ems.erasmus.payment']._fields['kind']._description_selection(self.env))
         invoices = project._ems_invoices()
-        payment_rows = [(payment.partner_id.name, _("Grant payment"), pay_kinds.get(payment.kind, ''),
+        payment_rows = [(payment.partner_id.name, _("Pocket money") if payment.group_participant_id else
+                         _("Grant payment"), pay_kinds.get(payment.kind, ''),
                          float(payment.amount), pay_states.get(payment.state, ''), payment.request_date,
                          payment.paid_date, ", ".join(payment.receipt_ids.mapped('name')))
                         for payment in project.payment_ids]

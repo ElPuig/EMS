@@ -96,6 +96,7 @@
                 <form string="Group mobility">
                     <header>
                         <field name="user_role" invisible="1"/>
+                        <field name="prefinancing_percent" invisible="1"/>
                         <field name="needs_draw" invisible="1"/>
                         <field name="provisional_published" invisible="1"/>
                         <div name="ems_actions" string="Actions">
@@ -139,6 +140,15 @@
                             <button name="action_sync_requirements" type="object" string="Update documents"
                                     invisible="state not in ('preparation', 'stay', 'return') or user_role != 'team'"
                                     help="Adds to every file the documents asked for that it does not have yet."/>
+                            <!-- Issue #764: the participants' pocket money. -->
+                            <button name="action_request_pocket_money" type="object" string="Request the pocket money"
+                                    invisible="state not in ('preparation', 'stay', 'return', 'done') or user_role != 'team'"
+                                    help="One payment for each participant with pocket money to receive: the Secretary gets one task for the whole group."/>
+                            <button name="action_request_final_pocket_money" type="object" string="Request the final pocket money"
+                                    invisible="state not in ('return', 'done') or prefinancing_percent &gt;= 100 or user_role != 'team'"/>
+                            <button name="action_my_bank_account" type="object" string="My bank account"
+                                    invisible="state in ('done', 'cancelled') or user_role not in ('leader', 'companion')"
+                                    help="The account your pocket money is transferred to."/>
                             <button name="action_start_stay" type="object" string="The stay starts"
                                     invisible="state != 'preparation' or user_role not in ('team', 'leader')"
                                     confirm="The stay starts now: check first that everyone is ready to leave (the warning on top lists who is not). Continue?"/>
@@ -504,13 +514,15 @@
                                 </group>
                             </page>
                             <!-- Issue #704: the group's own invoices (flights, accommodation...), never split by EMS. -->
-                            <page string="Collective expenses" name="expenses"
-                                  groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin">
+                            <!-- Issue #764: also read by the leader (invoices, grants and pocket money, never IBANs). -->
+                            <page string="Collective expenses" name="expenses" invisible="user_role not in ('team', 'leader')"
+                                  groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin,ems.group_erasmus_group_teacher">
                                 <group>
                                     <field name="currency_id" invisible="1"/>
                                     <field name="expense_amount"/>
                                 </group>
-                                <field name="invoice_ids" context="{'default_project_id': project_id}">
+                                <field name="invoice_ids" context="{'default_project_id': project_id}"
+                                       readonly="user_role != 'team' or no_direct_costs">
                                     <list>
                                         <field name="name"/>
                                         <field name="date"/>

@@ -447,8 +447,13 @@
                     <field name="econ_committed"/>
                     <field name="econ_paid"/>
                     <field name="econ_pending"/>
+                    <field name="no_direct_costs" readonly="user_role != 'team'"/>
+                    <field name="prefinancing_percent" readonly="user_role != 'team'"/>
                 </field>
                 <field name="invoice_ids" position="before">
+                    <div class="alert alert-info" role="status" invisible="not no_direct_costs">
+                        The centre pays nothing directly: each participant receives their whole grant as pocket money.
+                    </div>
                     <separator string="Participants' grants" invisible="not grant_participant_ids"/>
                     <field name="grant_participant_ids" invisible="not grant_participant_ids"
                            readonly="user_role != 'team'">
@@ -458,9 +463,20 @@
                             <field name="state" column_invisible="1"/>
                             <field name="currency_id" column_invisible="1"/>
                             <field name="grant_amount"/>
+                            <field name="invoice_share" optional="show"/>
+                            <field name="pocket_amount"/>
+                            <field name="pocket_requested" optional="show"/>
+                            <field name="pocket_paid" optional="show"/>
+                            <field name="pocket_state" widget="badge" decoration-warning="pocket_state == 'to_pay'"
+                                   decoration-success="pocket_state == 'paid'"/>
+                            <field name="bank_account" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                            <field name="bank_holder" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
                         </list>
                     </field>
-                    <separator string="Collective invoices"/>
+                    <separator string="Collective invoices" invisible="no_direct_costs"/>
+                </field>
+                <field name="invoice_ids" position="attributes">
+                    <attribute name="invisible">no_direct_costs</attribute>
                 </field>
             </field>
         </record>
@@ -473,6 +489,11 @@
                 <field name="insurance_collective" position="after">
                     <field name="currency_id" invisible="1"/>
                     <field name="grant_amount"/>
+                    <field name="invoice_share"/>
+                    <field name="pocket_amount"/>
+                    <field name="pocket_state"/>
+                    <field name="bank_account" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                    <field name="bank_holder" groups="ems.group_erasmus,ems.group_academic_admin"/>
                 </field>
             </field>
         </record>

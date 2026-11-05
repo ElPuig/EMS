@@ -184,6 +184,26 @@
             </field>
         </record>
 
+        <!-- Issue #764 - a group mobility's teacher gives the account for their pocket money. -->
+        <record id="view_erasmus_bank_wizard_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.bank.wizard.form</field>
+            <field name="model">ems.erasmus.bank.wizard</field>
+            <field name="arch" type="xml">
+                <form string="My bank account">
+                    <p>Your pocket money is transferred to this account by the Secretary.</p>
+                    <group>
+                        <field name="group_participant_id" invisible="1"/>
+                        <field name="bank_account" placeholder="ES00 0000 0000 0000 0000 0000"/>
+                        <field name="bank_holder"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Save" class="btn-primary"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
         <!-- Issue #697 - the grant payments the Secretary transfers. -->
         <record id="view_erasmus_payment_list" model="ir.ui.view">
             <field name="name">ems.erasmus.payment.list</field>
@@ -196,6 +216,7 @@
                     </header>
                     <field name="request_date"/>
                     <field name="partner_id"/>
+                    <field name="group_mobility_id" optional="show"/>
                     <field name="call_id" optional="hide"/>
                     <field name="project_id" optional="show"/>
                     <field name="kind"/>
@@ -218,11 +239,13 @@
                 <search string="Grant payments">
                     <field name="partner_id"/>
                     <field name="call_id"/>
+                    <field name="group_mobility_id"/>
                     <filter name="to_pay" string="To pay" domain="[('state', '=', 'to_pay')]"/>
                     <filter name="paid" string="Paid" domain="[('state', '=', 'paid')]"/>
                     <group expand="0" string="Group By">
                         <filter name="group_project" string="Project" context="{'group_by': 'project_id'}"/>
                         <filter name="group_call" string="Call" context="{'group_by': 'call_id'}"/>
+                        <filter name="group_group_mobility" string="Group mobility" context="{'group_by': 'group_mobility_id'}"/>
                     </group>
                 </search>
             </field>
@@ -238,6 +261,11 @@
                             <button name="action_register_transfer" type="object" string="Register transfer"
                                     class="btn-primary" invisible="state != 'to_pay'"
                                     groups="ems.group_secretary,ems.group_academic_admin"/>
+                            <button name="action_register_group_transfer" type="object"
+                                    string="Register the transfer of the whole group"
+                                    invisible="state != 'to_pay' or not group_mobility_id"
+                                    groups="ems.group_secretary,ems.group_academic_admin"
+                                    help="Every pocket money payment of this group mobility still to pay, in one transfer."/>
                             <button name="action_mark_unpaid" type="object" string="Undo: not paid yet"
                                     invisible="state != 'paid'" groups="ems.group_secretary,ems.group_academic_admin"/>
                         </div>
@@ -256,7 +284,8 @@
                                 <field name="bank_holder"/>
                             </group>
                             <group>
-                                <field name="call_id"/>
+                                <field name="call_id" invisible="not call_id"/>
+                                <field name="group_mobility_id" invisible="not group_mobility_id"/>
                                 <field name="project_id"/>
                                 <field name="request_date"/>
                                 <field name="paid_date"/>
@@ -276,7 +305,7 @@
             <field name="context">{'search_default_to_pay': 1}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">No grant payment to make</p>
-                <p>The Erasmus team requests each payment from the participant's mobility.</p>
+                <p>The Erasmus team requests each payment from the participant's mobility, or the pocket money from the group mobility.</p>
             </field>
         </record>
 

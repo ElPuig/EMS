@@ -172,6 +172,24 @@
             <field name="groups" eval="[(4, ref('ems.group_erasmus_group_teacher'))]"/>
             <field name="domain_force">['|', ('group_mobility_id.leader_id.user_id', '=', user.id), ('group_mobility_id.companion_ids.user_id', '=', user.id)]</field>
         </record>
+        <!-- Issue #764: the group's teachers read its collective invoices; the "all" rule keeps a
+             teacher who is also in the team, the Secretary or the Direction from being narrowed. -->
+        <record id="rule_erasmus_invoice_all" model="ir.rule">
+            <field name="name">Erasmus invoice: all (team, Secretary, Director, admin)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_invoice"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_erasmus'), ref('ems.group_secretary'), ref('ems.group_director'), ref('ems.group_academic_admin')])]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        <record id="rule_erasmus_invoice_group_teacher" model="ir.rule">
+            <field name="name">Erasmus invoice: own group mobilities, read only (leader, accompanying teacher)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_invoice"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus_group_teacher'))]"/>
+            <field name="domain_force">['|', ('group_mobility_id.leader_id.user_id', '=', user.id), ('group_mobility_id.companion_ids.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
         <record id="rule_erasmus_group_follow_up_all" model="ir.rule">
             <field name="name">Erasmus group follow-up: all (team, admin)</field>
             <field name="model_id" ref="ems.model_ems_erasmus_group_log"/>

@@ -16,3 +16,4 @@ ems.mail_activity_absence_pending_review,Review detected absence,default,ems.abs
 ems.mail_activity_contact_data_review,Review contact data changes,default,ems.contact.data.request,fa-address-card-o,False
 ems.mail_activity_erasmus_free_place,Offer a free Erasmus+ place,default,ems.erasmus.call,fa-user-plus,False
 ems.mail_activity_erasmus_documents,Hand in Erasmus+ documents,default,ems.erasmus.mobility,fa-folder-open,False
+ems.mail_activity_erasmus_transfer,Pay Erasmus+ pocket money,default,ems.erasmus.payment,fa-eur,False

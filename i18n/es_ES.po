@@ -1457,6 +1457,7 @@ msgstr "Actividades"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_activity
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Activity"
 msgstr "Actividad"
 
@@ -2879,6 +2880,7 @@ msgstr "Conectado"
 #: model:ir.model,name:ems.model_res_partner model:ir.model.fields,field_description:ems.field_ems_notice_line__partner_id model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__partner_id
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Contact"
 msgstr "Contacto"
 
@@ -6319,6 +6321,7 @@ msgstr "Usuario de LimeSurvey"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 #: model:ir.model.fields,field_description:ems.field_ems_quality_document__url model:ir.model.fields,field_description:ems.field_ems_quality_link__url model:ir.model.fields,field_description:ems.field_ems_quality_procedure__url model:ir.model.fields,field_description:ems.field_ems_quality_process__url
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__link_url
 msgid "Link"
 msgstr "Enlace"
 
@@ -6918,6 +6921,7 @@ msgstr "Nota"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 #: code:addons/ems/models/erasmus/export.py:0
 #: model:ir.model.fields,field_description:ems.field_res_users__comment
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Notes"
 msgstr "Notas"
 
@@ -30866,6 +30870,8 @@ msgstr "Motivo de exclusión"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_export__file_count
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_log__attachment_ids
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__upload_kind__file
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__current_attachment_ids
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Files"
 msgstr "Archivos"
 
@@ -32452,7 +32458,7 @@ msgstr "Recibida el"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/resolution.py:0
-#: code:addons/ems/models/erasmus/group_mobility.py
+#: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid "Record the identity document of: %s"
 msgstr "Registra el documento de identidad de: %s"
 
@@ -32859,6 +32865,7 @@ msgstr "Cada modalidad de una convocatoria de alumnado necesita los niveles del 
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_host
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Host entity or course"
 msgstr "Entidad de acogida o curso"
 
@@ -36172,27 +36179,27 @@ msgstr "El cambio que has propuesto no se ha validado:"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__relevance__0_5
 msgid ""
-"The relation is general, or the objectives and the activity are not very "
+"0.5 points: The relation is general, or the objectives and the activity are not very "
 "concrete."
 msgstr ""
-"La relación es general o los objetivos y la actividad son poco concretos."
+"0,5 puntos: la relación es general o los objetivos y la actividad son poco concretos."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__relevance__0
 msgid ""
-"The relation with the job or the training cycles is not explained, and the "
+"0 points: The relation with the job or the training cycles is not explained, and the "
 "objectives and the activity are generic."
 msgstr ""
-"No se explica la relación con el trabajo ni con los ciclos formativos, y los"
+"0 puntos: no se explica la relación con el trabajo ni con los ciclos formativos, y los"
 " objetivos y la actividad son genéricos."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__relevance__1
 msgid ""
-"The relation with the job, the department and the training cycles is clear, "
+"1 point: The relation with the job, the department and the training cycles is clear, "
 "with concrete objectives and the entity or course named."
 msgstr ""
-"La relación con el trabajo, el departamento y los ciclos formativos es "
+"1 punto: la relación con el trabajo, el departamento y los ciclos formativos es "
 "clara, con objetivos concretos y la entidad o el curso indicados por su "
 "nombre."
 
@@ -36273,8 +36280,8 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__transfer__1
 msgid ""
-"A concrete application to the job and the students, with defined actions."
-msgstr "Aplicación concreta al trabajo y al alumnado, con acciones definidas."
+"1 point: A concrete application to the job and the students, with defined actions."
+msgstr "1 punto: aplicación concreta al trabajo y al alumnado, con acciones definidas."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
@@ -36287,8 +36294,8 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__transfer__0_5
-msgid "An application not very concrete."
-msgstr "Aplicación poco concreta."
+msgid "0.5 points: An application not very concrete."
+msgstr "0,5 puntos: aplicación poco concreta."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
@@ -36336,8 +36343,8 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__transfer__0
-msgid "No application planned."
-msgstr "No se prevé ninguna aplicación."
+msgid "0 points: No application planned."
+msgstr "0 puntos: no se prevé ninguna aplicación."
 
 #. module: ems
 #. odoo-python
@@ -39547,6 +39554,8 @@ msgstr "Documentos completos"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_document_card
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Earlier version"
 msgstr "Versión anterior"
 
@@ -40672,7 +40681,7 @@ msgstr "El plazo de reclamaciones (%s) aún no ha terminado: los solicitantes to
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/resolution.py:0
-#: code:addons/ems/models/erasmus/group_mobility.py
+#: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid "Answer the open claims first: %s"
 msgstr "Primero responde las reclamaciones abiertas: %s"
 
@@ -41601,7 +41610,7 @@ msgstr "Eres la reserva número"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
-#: code:addons/ems/models/erasmus/claim.py
+#: code:addons/ems/models/erasmus/claim.py:0
 msgid "You cannot claim now."
 msgstr "Ahora no puedes reclamar."
 
@@ -43930,3 +43939,128 @@ msgid ""
 msgstr ""
 "<i class=\"fa fa-exclamation-triangle me-1\"/> No se ha podido hacer: quizá "
 "la inscripción está cerrada o no cumples los requisitos."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
+msgid "<i class=\"fa fa-download me-1\"/>Download the model"
+msgstr "<i class=\"fa fa-download me-1\"/>Descarga el modelo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_document_card
+msgid "<i class=\"fa fa-download me-1\"/>Download the model:"
+msgstr "<i class=\"fa fa-download me-1\"/>Descarga el modelo:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_document_card
+msgid "<i class=\"fa fa-times me-1\"/>Remove"
+msgstr "<i class=\"fa fa-times me-1\"/>Quitarlo"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application_document__link_url
+msgid "A document handed in as a link: the address that counts."
+msgstr "Un documento entregado como enlace: la dirección que cuenta."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/document_review.py:0
+msgid "A document without any file cannot be valid: %s"
+msgstr "Un documento sin ningún archivo no puede ser válido: %s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_cards
+msgid "As the family, we know the commitments that"
+msgstr "Como familia, conocemos los compromisos que"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Ask the Secretary to fill in the identity document (DNI/NIE or passport) in the employee file of: %s. Without it, the resolution lists cannot be prepared."
+msgstr "Pide a Secretaría que informe el documento de identidad (DNI/NIE o pasaporte) en la ficha de empleado de: %s. Sin este documento no se pueden preparar las listas de la resolución."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_cards
+msgid "Commitments of the student:"
+msgstr "Compromisos del alumno:"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application_document__attachment_ids
+msgid "Every file uploaded, the earlier versions too: none is ever replaced."
+msgstr "Todos los archivos subidos, también las versiones anteriores: nunca se sustituye ninguno."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__attachment_ids
+msgid "Every version"
+msgstr "Todas las versiones"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__template_filename
+msgid "Model file name"
+msgstr "Nombre del archivo del modelo"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__template_file
+msgid "Model to download"
+msgstr "Modelo para descargar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Once the application is submitted, ask the Erasmus team to remove a file."
+msgstr "Una vez enviada la solicitud, pide al equipo Erasmus que quite el archivo."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__single_file
+msgid "One file"
+msgstr "Un solo archivo"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_document__single_file
+msgid "Only the newest file counts: the earlier ones stay as earlier versions and the receipt lists only the newest. Untick it for a document with several files, e.g. one certificate per language."
+msgstr "Solo cuenta el archivo más reciente: los anteriores se conservan como versiones anteriores y el justificante solo muestra el más reciente. Desmárcalo para un documento con varios archivos, por ejemplo un certificado por idioma."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Published without places: add them to the modalities before preparing the resolution lists (%s)."
+msgstr "Publicada sin plazas: añádelas a las modalidades antes de preparar las listas de la resolución (%s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Set a corrections deadline in the future on the call first: the email tells the applicant until when they can correct the documents."
+msgstr "Primero pon un plazo de subsanación futuro en la convocatoria: el correo le dice al alumno hasta cuándo puede corregir los documentos."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_document__template_file
+msgid "The applicant downloads it from the portal, fills it in and hands it in."
+msgstr "La persona solicitante lo descarga desde el portal, lo rellena y lo entrega."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "The file is not one of your application's."
+msgstr "Este archivo no es de tu solicitud."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application_document__current_attachment_ids
+msgid "The files that count: the newest one, for a document handed in as one file."
+msgstr "Los archivos que cuentan: el más reciente, en un documento que se entrega como un solo archivo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/satisfaction.py:0
+msgid "The improvement action is created: the quality committee manages it."
+msgstr "Se ha creado la acción de mejora: la gestiona la comisión de calidad."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
+msgid "The student fills in and submits the application. If a document needs the family's signature, download its model, sign it and give it to them to upload."
+msgstr "El alumno rellena y envía la solicitud. Si un documento necesita la firma de la familia, descargad el modelo, firmadlo y dádselo para que lo suba."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_cards
+msgid "takes on in this stay and we accept them:"
+msgstr "adquiere en esta estancia y los aceptamos:"

@@ -69,6 +69,7 @@ class EmsPortalErasmusController(CustomerPortal):
             'tz': request.env['ems.datetime_utils'].company_tz_name(),
             'submitted': kwargs.get('submitted'),
             'guardian_mobilities': partner._ems_erasmus_guardian_mobilities(),
+            'guardian_applications': partner._ems_erasmus_guardian_applications(),
             'guardian_error': kwargs.get('error'),
             'satisfaction_surveys': partner._ems_erasmus_satisfaction_pending(),
             'satisfaction_answered': kwargs.get('satisfaction_answered'),
@@ -224,6 +225,34 @@ class EmsPortalErasmusController(CustomerPortal):
         if post.get('submit'):
             return request.redirect(f'{self._redirect}?submitted=1')
         return request.redirect(f'{page}?saved=1')
+
+    @http.route('/my/erasmus/call/<int:call_id>/file/<int:attachment_id>/remove', type='http', auth='user',
+                methods=['POST'], website=True)
+    def portal_erasmus_remove_file(self, call_id, attachment_id, **post):
+        """The applicant removes a file uploaded by mistake, while the application is a draft."""
+        call = self._ems_erasmus_call(call_id)
+        if not call:
+            return request.redirect('/my/home')
+        page = f'{self._redirect}/call/{call.id}'
+        application = request.env['ems.erasmus.application'].sudo().search([
+            ('call_id', '=', call.id), ('partner_id', '=', request.env.user.partner_id.id)])
+        try:
+            application._ems_portal_remove_file(attachment_id)
+        except UserError as error:
+            return self._ems_error_redirect(page, error)
+        return request.redirect(f'{page}?saved=1')
+
+    @http.route('/my/erasmus/call/<int:call_id>/template/<int:document_id>', type='http', auth='user', website=True)
+    def portal_erasmus_template(self, call_id, document_id, **kwargs):
+        """Download the model of a document of a call the logged-in user can see (e.g. the family
+        authorisation)."""
+        call = self._ems_erasmus_call(call_id) or request.env.user.partner_id._ems_erasmus_guardian_applications(
+            ).call_id.filtered(lambda call: call.id == call_id)
+        document = call and call.sudo().document_ids.filtered(lambda line: line.id == document_id and line.template_file)
+        if not document:
+            return request.redirect(self._redirect)
+        return request.env['ir.binary']._get_stream_from(
+            document, 'template_file', filename=document.template_filename).get_response(as_attachment=True)
 
     @http.route('/my/erasmus/call/<int:call_id>/rules', type='http', auth='user', website=True)
     def portal_erasmus_rules(self, call_id, **kwargs):

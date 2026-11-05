@@ -39,6 +39,10 @@ The call's tabs are in two blocks: **Selection** (modalities, documents, informa
 
 Tick **Confidential** for documents only the Erasmus team may see, such as the evidence of fewer opportunities.
 
+**One file** (ticked by default): only the newest file the student uploads counts; the earlier ones are kept and shown as *Earlier version*, and the receipt lists only the newest. Untick it for a document with several files, such as the language certificates (one per language). **Model to download**: a file the student (and the family of a minor) downloads from the portal, fills in and hands in, for example the family authorisation.
+
+The default documents, the checklist and the questions are already on a new call before you save it; if you change **Applicants**, they change to those of the staff call (or the students' call).
+
 **Information for applicants** tab: the text shown on the portal above the form.
 
 > **Tip:** next year, open this call and use **Duplicate**: the modalities and documents are copied.
@@ -55,11 +59,12 @@ Publishing sends no email. To tell everyone who can apply, click **Actions > Not
 
 ## 3. Review the applications
 
-Go to **Erasmus+ > Calls > Applications** (or the **Applications** button on the call, which groups them by modality). Filters: *To review*, *Corrections requested*, *Admitted*, *Excluded*. **Documents to review** counts the files waiting for your check.
+Go to **Erasmus+ > Calls > Applications** (or the **Applications** button on the call, which groups them by modality). Filters: *To review*, *Corrections requested*, *Admitted*, *Excluded*. **Documents to review** counts the files waiting for your check (a draft not submitted yet does not count).
 
 Open an application:
 
-- **Documents** tab: each document with its files. Every file the student uploaded is kept, also the earlier versions. Mark each one as **Valid** (✓) or **Needs changes** (✗), and write a **Comment for the applicant** when it needs changes.
+- **Documents** tab: each document with its **Status** (*Missing*, *Pending review*, *Needs changes*, *Complete*; in grey, the optional ones and those that do not apply, such as the family authorisation of an adult), its **Files** (the ones that count) and, for a link, the **Link** itself. Every file the student uploaded is kept: the optional column **Every version** shows the earlier ones too. Mark each one as **Valid** (✓) or **Needs changes** (✗), and write a **Comment for the applicant** when it needs changes. A document without any file cannot be marked valid.
+- While the application is a draft, the student can remove from the portal a file uploaded by mistake. Once submitted, only you remove it, with **Remove a file** and the reason.
 - **Admission** tab:
     - **Requirements**: enrolled in a level of the call, no previous Erasmus+ internship in this cycle, family authorization if a minor. EMS records who checked it and when.
     - **Conduct this course**: the **conduct warnings** the student has in EMS during the call's course. With as many as the number that sends the case to the coexistence team (3, the EMS setting) or more, **Conduct to review** is ticked and the form shows a notice at the top. It does not rule the student out: having heard the teaching team and the coexistence team, you may **exclude** the application with the reason (article 6 of the call). If it goes on, every warning takes points off (criterion F).
@@ -68,7 +73,7 @@ Open an application:
 
 ## 4. Ask for corrections
 
-When a document needs changes or a required one is missing, mark it and click **Actions > Request corrections**. The student receives an email with the list and the call's corrections deadline, and can upload only those documents. When they submit again, the application is back to *Submitted*, the new files are pending review and each member of the Erasmus team gets a task to review it (also in their daily summary of pending tasks). The task is closed on its own when you admit it, exclude it or ask for corrections again.
+When a document needs changes or a required one is missing, mark it and click **Actions > Request corrections**. The call needs a **Corrections deadline** still to come: without it EMS does not let you ask. The student receives an email with the list and that deadline, and can upload only those documents. When they submit again, the application is back to *Submitted*, the new files are pending review and each member of the Erasmus team gets a task to review it (also in their daily summary of pending tasks). The task is closed on its own when you admit it, exclude it or ask for corrections again.
 
 ## 5. Admit or exclude
 

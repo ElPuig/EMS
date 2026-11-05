@@ -48,7 +48,8 @@ comments without the name; only the coordinator sees who answered.
 **Low scores** lists every answer of 6 or lower with what did not work. Open one and choose
 **Actions › Create an improvement action**: EMS creates it in the **Quality** app, without the
 participant's name, and you follow it there like any other action. It is the evidence the ISO audit
-asks for.
+asks for. A member of the team who is not a teacher cannot open Quality actions: EMS tells them it
+is created, and the quality committee manages it.
 
 ## Quality report and Mobilitat FP evidence
 

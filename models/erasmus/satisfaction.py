@@ -249,6 +249,12 @@ class EmsErasmusSatisfaction(models.Model):
             'responsible_employee_ids': [(6, 0, employee.ids)] if employee else False,
         })
         survey.improvement_action_id = action
+        # The 2026-11-04 usage test: one who may not see the Quality app's actions got an access
+        # error opening it; they are told the quality committee manages it.
+        if not action.with_env(self.env).has_access('read'):
+            return {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {
+                'type': 'success', 'message': _("The improvement action is created: the quality committee manages it."),
+                'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'}}}
         return {'type': 'ir.actions.act_window', 'res_model': 'ems.quality.action', 'res_id': action.id,
                 'view_mode': 'form'}
 

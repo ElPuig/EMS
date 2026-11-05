@@ -649,7 +649,7 @@ class EmsErasmusMobility(models.Model):
             for user in mobility._ems_validators():
                 mobility.sudo().activity_schedule(
                     activity_type_id=activity_type.id, user_id=user.id,
-                    summary=_("Erasmus+: validate the proposal of %s", mobility.partner_id.name))
+                    summary=self.env['ems.base'].ems_elide(_("Erasmus+: validate the proposal of %s", mobility.partner_id.name)))
 
     def _ems_activities_done(self):
         self.sudo().activity_ids.action_feedback()

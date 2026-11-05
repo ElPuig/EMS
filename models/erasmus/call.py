@@ -199,11 +199,22 @@ class EmsErasmusCall(models.Model):
 
     @api.onchange('audience')
     def _onchange_audience(self):
-        """A staff call has no minimum score and starts with the documents of art. 8 of the staff call."""
-        self.min_score = 0.0 if self.audience == 'staff' else 50.0
-        if self.audience == 'staff' and not self.document_ids:
+        """A staff call has no minimum score and starts with the documents of art. 8 of the staff call;
+        a new call, unsaved, swaps its defaults for those of the audience chosen."""
+        staff = self.audience == 'staff'
+        self.min_score = 0.0 if staff else 50.0
+        if not self._origin.id:
+            # Each list is given as new records, not as commands: both document lists are lines of
+            # the same model, and replacing one with commands brought back lines of the other.
+            for name, value in self._ems_audience_defaults(self.audience).items():
+                field = self._fields[name]
+                if field.type == 'one2many':
+                    Lines = self.env[field.comodel_name]
+                    value = Lines.concat(Lines, *(Lines.new(command[2]) for command in value))
+                self[name] = value
+        if staff and not self.document_ids:
             self.document_ids = self._ems_staff_documents()
-        if self.audience == 'staff' and not self.modality_ids:
+        if staff and not self.modality_ids:
             self.modality_ids = self._ems_staff_modalities()
         if self.audience == 'staff' and not self.staff_level_ids:
             self.staff_level_ids = self._ems_staff_levels()
@@ -254,23 +265,36 @@ class EmsErasmusCall(models.Model):
                 vals.setdefault('validator_ids', [(6, 0, self._ems_staff_validators(levels).ids)])
                 if not vals.get('interview_deadline'):
                     vals['interview_deadline'] = self._ems_rating_deadline(vals.get('date_close'))
-            if audience == 'staff' and not vals.get('document_ids'):
-                vals['document_ids'] = self._ems_staff_documents()
-            elif audience == 'student' and not vals.get('document_ids'):
-                vals['document_ids'] = self._ems_student_documents()
-            if audience == 'staff' and not vals.get('modality_ids'):
-                vals['modality_ids'] = self._ems_staff_modalities()
-            # Issue #687: the documents and checklist of art. 17 (students) and art. 15 (staff), editable.
             # Checked by value, not by key: the form always sends these fields, empty on a new call.
-            if not vals.get('preparation_document_ids'):
-                vals['preparation_document_ids'] = self._ems_preparation_documents(audience)
-            if not vals.get('task_ids'):
-                vals['task_ids'] = self._ems_preparation_tasks(audience)
-            if audience == 'student' and not vals.get('self_assessment_question_ids'):
-                vals['self_assessment_question_ids'] = self._ems_self_assessment_questions()
-            if audience == 'student' and not vals.get('commitment_text'):
-                vals['commitment_text'] = self._ems_commitment_text()
+            for name, value in self._ems_audience_defaults(audience).items():
+                if not vals.get(name):
+                    vals[name] = value
         return super().create(vals_list)
+
+    @api.model
+    def default_get(self, fields_list):
+        """The 2026-11-04 usage test: a new call shows its default documents, steps and questions
+        before it is saved (the Documents tab was empty until then)."""
+        values = super().default_get(fields_list)
+        for name, value in self._ems_audience_defaults(values.get('audience', 'student')).items():
+            if name in fields_list:
+                values.setdefault(name, value)
+        return values
+
+    @api.model
+    def _ems_audience_defaults(self, audience):
+        """What a new call of `audience` starts with: the documents of art. 8, the staff call's
+        modalities, and (issue #687) the documents and checklist of art. 17 (students) and art. 15
+        (staff), the self-assessment questions and the commitment letter, all editable."""
+        staff = audience == 'staff'
+        return {
+            'modality_ids': self._ems_staff_modalities() if staff else [],
+            'preparation_document_ids': self._ems_preparation_documents(audience),
+            'task_ids': self._ems_preparation_tasks(audience),
+            'self_assessment_question_ids': [] if staff else self._ems_self_assessment_questions(),
+            'commitment_text': False if staff else self._ems_commitment_text(),
+            'document_ids': self._ems_staff_documents() if staff else self._ems_student_documents(),
+        }
 
     @api.model
     def _ems_staff_modalities(self):
@@ -297,6 +321,7 @@ class EmsErasmusCall(models.Model):
                               "click Share and, under General access, choose Institut Puig Castellar as Viewer. Copy "
                               "the link and paste it here.")},
             {'sequence': 3, 'name': _("Official language certificates"), 'requirement': 'optional',
+             'single_file': False,
              'description': _("Official certificates of foreign languages, if you have any.")},
             {'sequence': 4, 'name': _("Evidence of fewer opportunities"), 'requirement': 'fewer_opportunities',
              'confidential': True,
@@ -311,7 +336,7 @@ class EmsErasmusCall(models.Model):
         mobility plan is written in the form (issue #697); the CV is no longer asked for and the
         identity document only of whoever goes (a mobility document, the 2026-11-03 review)."""
         return [(0, 0, {'sequence': 1, 'name': _("Language certificates"), 'requirement': 'optional',
-                         'description': _("Official, B2 or higher.")})]
+                         'single_file': False, 'description': _("Official, B2 or higher.")})]
 
     @api.model
     def _ems_preparation_documents(self, audience):
@@ -518,6 +543,17 @@ class EmsErasmusCall(models.Model):
                     lambda document: document.requirement == 'required'):
                 raise UserError(_("Add at least one required document before publishing the call."))
         self._ems_set_state('draft', 'published')
+        # The 2026-11-04 usage test: a staff call opens without its places (they are added later,
+        # with the projects), but it was only noticed when preparing the resolution: warned now.
+        without_places = self.filtered(lambda call: call.audience == 'staff'
+                                       and not sum(call.modality_ids.mapped('places')))
+        if not without_places:
+            return None
+        return {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {
+            'type': 'warning', 'sticky': True,
+            'message': _("Published without places: add them to the modalities before preparing the resolution "
+                         "lists (%s).", ", ".join(without_places.mapped('name'))),
+            'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'}}}
 
     def action_back_to_draft(self):
         if self.application_ids.filtered(lambda application: application.state != 'draft'):
@@ -979,6 +1015,18 @@ class EmsErasmusCallDocument(models.Model):
         help="A link: the applicant pastes it on the portal instead of uploading a file.")
     help_url = fields.Char(string="Instructions link",
                            help="Shown with the instructions, e.g. the Europass CV editor.")
+    # The 2026-11-04 usage test: uploading a CV twice showed two files with the same name, and
+    # nobody knew which one counted. A document handed in as one file counts its newest upload; the
+    # earlier ones stay, shown as earlier versions. Some take several (one certificate per language).
+    single_file = fields.Boolean(string="One file", default=True,
+                                 help="Only the newest file counts: the earlier ones stay as earlier versions and the "
+                                      "receipt lists only the newest. Untick it for a document with several files, "
+                                      "e.g. one certificate per language.")
+    # The 2026-11-04 usage test: a model to download (e.g. the family authorisation of a minor),
+    # instead of every family writing its own.
+    template_file = fields.Binary(string="Model to download", attachment=True,
+                                  help="The applicant downloads it from the portal, fills it in and hands it in.")
+    template_filename = fields.Char(string="Model file name")
     confidential = fields.Boolean(string="Confidential",
                                   help="Only the Erasmus team sees these files (e.g. evidence of fewer opportunities).")
     stage = fields.Selection(string="When", required=True, default='application', selection=[

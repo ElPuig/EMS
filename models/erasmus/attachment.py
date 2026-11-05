@@ -14,6 +14,10 @@ class IrAttachment(models.Model):
     but the file itself could be deleted, overwritten or moved to another record directly."""
     _inherit = 'ir.attachment'
 
+    def _ems_erasmus_labels(self):
+        """How the files are named to their owner: a link by its address, a file by its name."""
+        return [attachment.url if attachment.type == 'url' else attachment.name for attachment in self]
+
     def write(self, vals):
         if CONTENT_FIELDS & set(vals):
             self._ems_erasmus_check_kept()

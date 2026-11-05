@@ -63,7 +63,9 @@ stateDiagram-v2
 in the Quality app (no scope, the survey's course), with the participant type, host entity, score,
 what did not work and the comment, and **never the participant's name**. It is created as the team
 member who presses the button (they then manage it like any action they create) or, for one who
-may not create actions, with sudo, left to the quality committee. One action per survey.
+may not create actions, with sudo, left to the quality committee; one who may not even read it (not a
+teacher) gets a notification instead of the form, which would end in an access error. One action per
+survey.
 
 ## Panel
 

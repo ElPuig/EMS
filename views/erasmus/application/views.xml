@@ -101,14 +101,22 @@
                         <notebook>
                             <page string="Documents" name="documents">
                                 <field name="document_ids" readonly="not can_manage">
-                                    <list editable="bottom" create="false" delete="false">
+                                    <!-- The 2026-11-04 usage test: what each document is at now (missing, to review,
+                                         complete, not applicable...), the not applicable ones greyed out. -->
+                                    <list editable="bottom" create="false" delete="false"
+                                          decoration-muted="file_state in ('not_applicable', 'optional')">
                                         <field name="name"/>
                                         <field name="is_required"/>
-                                        <field name="attachment_ids" widget="many2many_binary" readonly="1"/>
-                                        <field name="review_state"/>
+                                        <field name="file_state" widget="badge" decoration-danger="file_state == 'missing'"
+                                               decoration-warning="file_state in ('to_review', 'needs_change')"
+                                               decoration-success="file_state == 'complete'"/>
+                                        <field name="current_attachment_ids" widget="many2many_binary"/>
+                                        <field name="link_url" widget="url" optional="show"/>
+                                        <field name="attachment_ids" widget="many2many_binary" readonly="1" optional="hide"/>
+                                        <field name="review_state" optional="hide"/>
                                         <field name="review_comment"/>
                                         <button name="action_mark_valid" type="object" icon="fa-check" title="Valid"
-                                                invisible="review_state == 'valid'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                                invisible="review_state == 'valid' or file_state in ('missing', 'optional', 'not_applicable')" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                         <button name="action_mark_needs_change" type="object" icon="fa-times" title="Needs changes"
                                                 invisible="review_state == 'needs_change'" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                         <field name="signers" column_invisible="1"/>

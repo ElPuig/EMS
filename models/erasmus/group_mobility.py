@@ -443,7 +443,7 @@ class EmsErasmusGroupMobility(models.Model):
             mobility.chatter(_("Enrolment closed: %s students enrolled, ranking calculated.",
                                mobility.registration_count))
             leader = mobility.leader_id.user_id or mobility._ems_team_users()
-            mobility._ems_schedule(leader, _("Erasmus+: review the selection of %s", mobility.name))
+            mobility._ems_schedule(leader, self.env['ems.base'].ems_elide(_("Erasmus+: review the selection of %s", mobility.name)))
 
     # --- ranking and selection (issue #702) ------------------------------------------------------
 
@@ -504,7 +504,7 @@ class EmsErasmusGroupMobility(models.Model):
                             return_note=False)
         for mobility in self:
             mobility._ems_schedule(mobility._ems_coordinators(),
-                                   _("Erasmus+: validate the selection of %s", mobility.name))
+                                   self.env['ems.base'].ems_elide(_("Erasmus+: validate the selection of %s", mobility.name)))
 
     def action_draw_ties(self):
         """The Erasmus coordinator resolves the ties that remain after the record average and the
@@ -536,7 +536,7 @@ class EmsErasmusGroupMobility(models.Model):
         self._ems_set_state('selection')
         for mobility in self:
             leader = mobility.leader_id.user_id or mobility._ems_team_users()
-            mobility._ems_schedule(leader, _("Erasmus+: review the selection of %s again", mobility.name))
+            mobility._ems_schedule(leader, self.env['ems.base'].ems_elide(_("Erasmus+: review the selection of %s again", mobility.name)))
 
     def _ems_published_list(self, kind):
         self.ensure_one()
@@ -744,10 +744,10 @@ class EmsErasmusGroupMobility(models.Model):
         for mobility in self:
             deadline = mobility.eu_survey_deadline or today + timedelta(days=30)
             mobility._ems_set_state('return', eu_survey_deadline=deadline)
-            mobility._ems_schedule(mobility._ems_eu_survey_user(), _("Erasmus+: answer the EU Survey of %s",
-                                                                     mobility.name), deadline)
-            mobility._ems_schedule(mobility.leader_id.user_id or mobility._ems_team_users(), _(
-                "Erasmus+: say whether the programme of %s was carried out as planned", mobility.name))
+            mobility._ems_schedule(mobility._ems_eu_survey_user(), self.env['ems.base'].ems_elide(
+                _("Erasmus+: answer the EU Survey of %s", mobility.name)), deadline)
+            mobility._ems_schedule(mobility.leader_id.user_id or mobility._ems_team_users(), self.env['ems.base'].ems_elide(_(
+                "Erasmus+: say whether the programme of %s was carried out as planned", mobility.name)))
 
     def _ems_check_programme_answered(self):
         """On return the leader says whether the programme went as planned, and what changed."""

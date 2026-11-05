@@ -21,7 +21,7 @@ In **Erasmus+ > Calls > Calls**, create the call, set **Applicants** to *Staff*,
 - The **Score correction deadline** is set two weeks after the closing date: the panel's tasks are due that day, and after it the members can no longer change their ratings. It follows the closing date when you change it, unless you changed it by hand.
 - **Teachers of:** the levels whose teachers can apply. A new staff call has every vocational training level (basic, intermediate and higher cycles, specialisation courses and PFI). EMS shows the call only to the teachers who teach a group of those levels and to the people in **Validates the activities**: not to the administration staff nor to the teachers of ESO or Batxillerat only.
 - **Validates the activities:** the Direction that validates each selected person's activity and its later changes. It comes filled in with the Director and the Head of Studies of FP (the one above most of the FP teachers), and only they get the to-do, even for a teacher who hangs below another Head of Studies in the organisation chart.
-- The **places** are not needed to open it: the published call gives the indicative ones, and they may change with the projects. You add them later (step 5).
+- The **places** are not needed to open it: the published call gives the indicative ones, and they may change with the projects. You add them later (step 5); when you publish without them, EMS warns you, so that they are not forgotten.
 
 Once published, every member of the staff with an employee file sees the call on the portal (**Erasmus+** card, `/my/erasmus`). To email it to all of them, use **Actions > Notify who can apply** (see [Calls and applications](calls-and-applications.md)).
 
@@ -67,7 +67,7 @@ A new staff call has two **modalities**, one per project: *FP staff (KA121-VET)*
 
 The staff are ranked **in one list** for the whole call (**Ranking** button of the call). Ties are broken by the mobility plan score, then by who has been at the centre longer (the month and year of joining declared in the form, not the points of criterion 5: someone who joined in 2000 goes before someone who joined six years ago, although both get 2 points) and, last, by the draw the Erasmus coordinator runs from the call (**Draw the ties**).
 
-The resolutions are published as in the students' call: the lists show only four digits of the identity document, never names. For the staff it is taken from their **employee file** (DNI or NIE, otherwise the passport); if someone has none, ask the Secretariat to add it.
+The resolutions are published as in the students' call: the lists show only four digits of the identity document, never names. For the staff it is taken from their **employee file** (DNI or NIE, otherwise the passport); if someone has none, ask the Secretariat to add it. EMS warns you already when you admit their application, and the lists cannot be prepared until it is there. If the score of someone is not complete when you prepare a resolution, EMS says what is missing for each person (for example *Merits reviewed* or *Seniority*).
 
 The selected are those within the call's places (the sum of every modality); each person gets one place at most. Then assign each one their project (VET or HED) in the application's **Modality** field; their mobility goes on that project of the year.
 

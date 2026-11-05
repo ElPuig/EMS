@@ -256,8 +256,12 @@ class TestErasmusResolution(ErasmusResolutionCase):
         self.assertIn(self.erasmus_user, tasks.user_id, "The Erasmus team gets a task to offer the free place.")
         self.assertEqual(len(tasks), len(tasks.user_id), "One task each.")
         self.assertIn(modality.name, tasks[0].summary)
+        # The 2026-11-04 usage test: it comes with as long to answer as the definitive offers had.
+        definitive = self.call.resolution_ids.filtered(lambda resolution: resolution.kind == 'definitive')
         wizard = self.env['ems.erasmus.offer.wizard'].with_user(self.erasmus_user).with_context(
-            active_id=self.call.id).create({'deadline': fields.Datetime.now() + timedelta(days=3)})
+            active_id=self.call.id).create({})
+        expected = self.call._ems_now() + (self.call.acceptance_deadline - definitive.publish_date)
+        self.assertAlmostEqual(wizard.deadline, expected, delta=timedelta(minutes=1))
         self.assertEqual(wizard.application_id, second)
         wizard.action_confirm()
         self.assertFalse(self._free_place_tasks(), "Done once the place is offered.")

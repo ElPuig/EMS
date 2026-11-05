@@ -3,8 +3,8 @@
     <!-- Issue #701 - group mobilities on the portal's Erasmus+ page: one card per mobility the
          student can enrol in or enrolled in, with a one-click enrolment (controllers/portal_erasmus_group.py). -->
     <template id="portal_erasmus_group_cards" name="Erasmus+ group mobilities" inherit_id="ems.portal_erasmus">
-        <xpath expr="//p[@t-if='not calls and not guardian_mobilities']" position="attributes">
-            <attribute name="t-if">not calls and not guardian_mobilities and not group_mobilities and not group_partner._ems_erasmus_guardian_group_participants() and not satisfaction_surveys</attribute>
+        <xpath expr="//p[@t-if='not calls and not guardian_mobilities and not guardian_applications']" position="attributes">
+            <attribute name="t-if">not calls and not guardian_mobilities and not guardian_applications and not group_mobilities and not group_partner._ems_erasmus_guardian_group_participants() and not satisfaction_surveys</attribute>
         </xpath>
         <xpath expr="//h3" position="after">
             <t t-set="group_partner" t-value="request.env.user.partner_id"/>
@@ -38,7 +38,12 @@
                         <p class="small">
                             <t t-esc="guardian_participant.partner_id.name"/> is a minor, so the family accepts the commitment letter of the Erasmus+ group mobility too.
                         </p>
-                        <div class="border rounded p-3 mb-2 small" t-out="guardian_participant._ems_commitment_text()"/>
+                        <!-- The 2026-11-04 usage test: the family's own sentence, not the student's first person. -->
+                        <p class="small mb-1 o_ems_erasmus_guardian_statement">As the family, we know the commitments that <t t-esc="guardian_participant.partner_id.name"/> takes on in this stay and we accept them:</p>
+                        <div class="border rounded p-3 mb-2 small">
+                            <p class="text-muted mb-1">Commitments of the student:</p>
+                            <t t-out="guardian_participant._ems_commitment_text()"/>
+                        </div>
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" name="accepted" t-attf-id="group_guardian_accepted_#{guardian_participant.id}" required="required"/>
                             <label class="form-check-label" t-attf-for="group_guardian_accepted_#{guardian_participant.id}">As the family, we have read these commitments and we accept them.</label>

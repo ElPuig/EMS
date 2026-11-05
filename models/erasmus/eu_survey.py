@@ -31,7 +31,7 @@ class EmsErasmusEuSurvey(models.AbstractModel):
         team = self.env['ems.erasmus.call']._ems_erasmus_team()
         for record in self:
             record.sudo().chatter(_("EU Survey answered."))
-            record._ems_schedule(team, _("Erasmus+: validate the EU Survey of %s", record._ems_eu_survey_name()))
+            record._ems_schedule(team, self.env['ems.base'].ems_elide(_("Erasmus+: validate the EU Survey of %s", record._ems_eu_survey_name())))
 
     def _ems_eu_survey_validate(self):
         for record in self:

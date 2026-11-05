@@ -10,7 +10,7 @@
                     <i class="fa fa-check-circle me-1"/> Your application has been submitted. You will receive a receipt by email.
                 </div>
 
-                <p t-if="not calls and not guardian_mobilities" class="text-muted">There are no Erasmus+ calls for you right now.</p>
+                <p t-if="not calls and not guardian_mobilities and not guardian_applications" class="text-muted">There are no Erasmus+ calls for you right now.</p>
 
                 <!-- The satisfaction survey of every stay already over (docs/en/developers/erasmus/quality.md). -->
                 <div t-if="satisfaction_answered" class="alert alert-success mb-3 o_ems_erasmus_satisfaction_thanks">
@@ -41,13 +41,41 @@
                             <p class="small">
                                 <t t-esc="mobility.partner_id.name"/> is a minor, so the family signs the commitment letter of the Erasmus+ stay too.
                             </p>
-                            <div class="border rounded p-3 mb-2 small" t-out="mobility._ems_commitment_text()"/>
+                            <!-- The 2026-11-04 usage test: the family's own sentence, not the student's first person. -->
+                            <p class="small mb-1 o_ems_erasmus_guardian_statement">As the family, we know the commitments that <t t-esc="mobility.partner_id.name"/> takes on in this stay and we accept them:</p>
+                            <div class="border rounded p-3 mb-2 small">
+                                <p class="text-muted mb-1">Commitments of the student:</p>
+                                <t t-out="mobility._ems_commitment_text()"/>
+                            </div>
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" name="accepted" t-attf-id="guardian_accepted_#{mobility.id}" required="required"/>
                                 <label class="form-check-label" t-attf-for="guardian_accepted_#{mobility.id}">As the family, we have read these commitments and we accept them.</label>
                             </div>
                             <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_guardian_sign">Accept and sign</button>
                         </form>
+                    </div>
+                </div>
+
+                <!-- The 2026-11-04 usage test: the family of a minor follows their application from the
+                     start, read only (the student fills it in), with the models to download. -->
+                <div t-foreach="guardian_applications" t-as="child_application" class="card shadow-sm mb-4 o_ems_erasmus_guardian_application">
+                    <div class="card-header d-flex justify-content-between gap-2">
+                        <span><strong t-esc="child_application.partner_id.name"/> - <t t-esc="child_application.call_id.name"/></span>
+                        <span t-attf-class="badge text-bg-#{state_badges.get(child_application.state, 'secondary')}"
+                              t-esc="dict(child_application._fields['state']._description_selection(request.env)).get(child_application.state)"/>
+                    </div>
+                    <div class="card-body small">
+                        <p class="text-muted mb-2">The student fills in and submits the application. If a document needs the family's signature, download its model, sign it and give it to them to upload.</p>
+                        <ul class="list-unstyled mb-0">
+                            <li t-foreach="child_application.document_ids.filtered(lambda line: line.stage == 'application' and not line.confidential and line.file_state != 'not_applicable')"
+                                t-as="line" class="mb-1">
+                                <strong t-esc="line.name"/>: <t t-esc="line._ems_file_state_label()"/>
+                                <a t-if="line.call_document_id.template_filename" class="ms-2 o_ems_erasmus_template"
+                                   t-attf-href="/my/erasmus/call/#{child_application.call_id.id}/template/#{line.call_document_id.id}">
+                                    <i class="fa fa-download me-1"/>Download the model
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
@@ -493,13 +521,31 @@
                 <p t-if="document.help_url" class="small mb-1">
                     <a t-att-href="document.help_url" target="_blank" rel="noopener"><i class="fa fa-external-link me-1"/><t t-esc="document.help_url"/></a>
                 </p>
-                <p t-if="line and line.attachment_ids" class="small mb-1">
-                    <i class="fa fa-paperclip me-1"/>
-                    <t t-foreach="line.attachment_ids" t-as="attachment">
-                        <a t-if="attachment.type == 'url'" t-att-href="attachment.url" target="_blank" rel="noopener" t-esc="attachment.url"/>
-                        <span t-else="" t-esc="attachment.name"/><t t-if="not attachment_last">, </t>
-                    </t>
+                <p t-if="document.template_filename" class="small mb-1">
+                    <a t-attf-href="/my/erasmus/call/#{call.id}/template/#{document.id}" class="o_ems_erasmus_template">
+                        <i class="fa fa-download me-1"/>Download the model: <t t-esc="document.template_filename"/>
+                    </a>
                 </p>
+                <!-- The 2026-11-04 usage test: each file with its date, the earlier versions of a
+                     document handed in as one file marked as such, and, while the application is a
+                     draft, a button to remove one uploaded by mistake. -->
+                <div t-if="line and line.attachment_ids" class="small mb-1 o_ems_erasmus_files">
+                    <t t-set="current" t-value="line._ems_current_files()"/>
+                    <t t-set="removable" t-value="editable and application.state == 'draft'"/>
+                    <div t-foreach="line.attachment_ids.sorted('id', reverse=True)" t-as="attachment"
+                         t-attf-class="#{'' if attachment in current else 'text-muted'}">
+                        <i class="fa fa-paperclip me-1"/>
+                        <a t-if="attachment.type == 'url'" t-att-href="attachment.url" target="_blank" rel="noopener" t-esc="attachment.url"/>
+                        <span t-else="" t-esc="attachment.name"/>
+                        <span class="text-muted">(<t t-out="attachment.create_date" t-options="{'widget': 'date'}"/>)</span>
+                        <span t-if="attachment not in current" class="badge text-bg-light o_ems_erasmus_earlier_version">Earlier version</span>
+                        <button t-if="removable" type="submit" formnovalidate="formnovalidate"
+                                t-attf-formaction="/my/erasmus/call/#{call.id}/file/#{attachment.id}/remove"
+                                class="btn btn-link btn-sm text-danger p-0 ms-1 align-baseline o_ems_erasmus_remove_file">
+                            <i class="fa fa-times me-1"/>Remove
+                        </button>
+                    </div>
+                </div>
                 <p t-if="line and (line.correction_requested or line.review_state == 'needs_change')" class="small text-danger mb-1 o_ems_erasmus_needs_change">
                     <i class="fa fa-exclamation-circle me-1"/>Needs changes<t t-if="line.review_comment">: <t t-esc="line.review_comment"/></t>
                 </p>
@@ -535,6 +581,18 @@
                         <t t-if="mobility.audience == 'staff'">Your proposal is waiting for the Direction's validation.</t>
                         <t t-else="">Your own destination is waiting for the Erasmus team's validation.</t>
                     </p>
+                    <!-- The 2026-11-04 usage test: what was sent, while it waits. -->
+                    <dl t-if="mobility.proposal_state == 'pending'" class="row small mb-0 o_ems_erasmus_proposal_sent">
+                        <t t-if="mobility.proposal_activity"><dt class="col-sm-4">Activity</dt><dd class="col-sm-8" t-esc="activity_labels.get(mobility.proposal_activity)"/></t>
+                        <t t-if="mobility.proposal_host"><dt class="col-sm-4">Host entity or course</dt><dd class="col-sm-8" t-esc="mobility.proposal_host"/></t>
+                        <t t-if="mobility.proposal_contact"><dt class="col-sm-4">Contact</dt><dd class="col-sm-8" t-esc="mobility.proposal_contact"/></t>
+                        <t t-if="mobility.proposal_city or mobility.proposal_country_id"><dt class="col-sm-4">Destination</dt>
+                            <dd class="col-sm-8" t-esc="', '.join(part for part in [mobility.proposal_city, mobility.proposal_country_id.name] if part)"/></t>
+                        <t t-if="mobility.proposal_date_start"><dt class="col-sm-4">Dates</dt>
+                            <dd class="col-sm-8"><t t-out="mobility.proposal_date_start" t-options="{'widget': 'date'}"/> - <t t-out="mobility.proposal_date_end" t-options="{'widget': 'date'}"/></dd></t>
+                        <t t-if="mobility.proposal_notes"><dt class="col-sm-4">Notes</dt><dd class="col-sm-8" style="white-space: pre-line;" t-esc="mobility.proposal_notes"/></t>
+                        <t t-if="mobility.proposal_attachment_ids"><dt class="col-sm-4">Files</dt><dd class="col-sm-8" t-esc="', '.join(mobility.proposal_attachment_ids.mapped('name'))"/></t>
+                    </dl>
 
                     <!-- Students: the destination, by turns in rank order (art. 15). -->
                     <t t-if="mobility.audience == 'student' and mobility.proposal_state != 'pending'">
@@ -753,9 +811,11 @@
                                             <p t-if="line.description" class="small text-muted mb-1" t-esc="line.description"/>
                                             <p t-if="line.review_state == 'needs_change' and line.review_comment" class="small text-danger mb-1" t-esc="line.review_comment"/>
                                             <p t-if="line.attachment_ids" class="small mb-1">Received:
+                                                <t t-set="current" t-value="line._ems_current_files()"/>
                                                 <t t-foreach="line.attachment_ids" t-as="received">
                                                     <a t-attf-href="/my/erasmus/call/#{call.id}/mobility/file/#{received.id}" class="o_ems_erasmus_received_file" t-esc="received.name"/>
-                                                    <span class="text-muted">(<t t-out="received.create_date" t-options="{'widget': 'date'}"/>)</span><t t-if="not received_last">, </t>
+                                                    <span class="text-muted">(<t t-out="received.create_date" t-options="{'widget': 'date'}"/>)</span>
+                                                    <span t-if="received not in current" class="badge text-bg-light o_ems_erasmus_earlier_version">Earlier version</span><t t-if="not received_last">, </t>
                                                 </t>
                                             </p>
                                             <t t-if="mobility.state == 'preparing' and line_open and line.review_state != 'valid' and line.handled_by != 'team' and (line.handled_by != 'team_to_sign' or line.prepared_attachment_ids)">

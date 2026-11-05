@@ -4,20 +4,21 @@ from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 # Annex 2 of the staff call: each aspect 0, 0.5 or 1.
-# Annex 2 of the staff call: the panel picks a description, stored as its points (1, 0.5 or 0).
+# Annex 2 of the staff call: the panel picks a description, stored as its points (1, 0.5 or 0), which
+# its label shows (the 2026-11-04 usage test).
 RELEVANCE_RUBRIC = [
-    ('1', "The relation with the job, the department and the training cycles is clear, with concrete objectives "
+    ('1', "1 point: The relation with the job, the department and the training cycles is clear, with concrete objectives "
           "and the entity or course named."),
-    ('0.5', "The relation is general, or the objectives and the activity are not very concrete."),
-    ('0', "The relation with the job or the training cycles is not explained, and the objectives and the activity "
+    ('0.5', "0.5 points: The relation is general, or the objectives and the activity are not very concrete."),
+    ('0', "0 points: The relation with the job or the training cycles is not explained, and the objectives and the activity "
           "are generic."),
 ]
 # The dissemination is the same obligation for everyone (a news item on the website), so the
 # second criterion rates the application to the job only (issue #697).
 TRANSFER_RUBRIC = [
-    ('1', "A concrete application to the job and the students, with defined actions."),
-    ('0.5', "An application not very concrete."),
-    ('0', "No application planned."),
+    ('1', "1 point: A concrete application to the job and the students, with defined actions."),
+    ('0.5', "0.5 points: An application not very concrete."),
+    ('0', "0 points: No application planned."),
 ]
 PLAN_CRITERIA = ('relevance', 'transfer')
 # Art. 11 of the staff call, criteria 3 and 6: points per merit and the criterion it counts for.
@@ -124,7 +125,7 @@ class EmsErasmusPlanRating(models.Model):
             rating.display_name = f"{rating.partner_id.name} - {rating.panel_member_id.name}"
 
     def _ems_activity_summary(self):
-        return _("Rate the Erasmus+ mobility plan of %s", self.partner_id.name)
+        return self.env['ems.base'].ems_elide(_("Rate the Erasmus+ mobility plan of %s", self.partner_id.name))
 
     def action_submit_next(self):
         """Submit and open the next plan this member still has to rate (each one rates 10 to 30)."""

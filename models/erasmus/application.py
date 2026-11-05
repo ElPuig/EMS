@@ -413,6 +413,23 @@ class EmsErasmusApplication(models.Model):
                 seniority = 'y0' if months < 12 else 'y1' if months < 24 else 'y2' if months < 60 else 'y5'
             application.declared_seniority = seniority
 
+    def _ems_score_missing(self):
+        """What keeps the score from being complete, by the names the team sees on the form (the
+        2026-11-04 usage test: the list only gave who, not what)."""
+        self.ensure_one()
+        if self.audience == 'staff':
+            missing = [name for name in ('plan_complete', 'merits_checked') if not self[name]]
+            missing += ['last_staff_mobility'] if not self._ems_staff_last_mobility() else []
+            missing += ['seniority'] if not self._ems_staff_seniority() else []
+        else:
+            missing = ['score_a_pending'] if self.score_a_pending else []
+            missing += [] if self.interview_complete else ['interview_complete']
+            missing += [name for name in ('language_level', 'fewer_opportunities_check', 'first_mobility')
+                        if not self[name]]
+        missing += ['needs_draw'] if self.needs_draw else []
+        labels = self.fields_get(missing, ['string'])
+        return [labels[name]['string'] for name in missing]
+
     def _ems_staff_last_mobility(self):
         """Criterion 2: the Erasmus team's correction, else what the applicant declared."""
         return self.last_staff_mobility or self.declared_last_staff_mobility
@@ -539,6 +556,12 @@ class EmsErasmusApplication(models.Model):
         missing, and email them the list and the deadline."""
         for application in self:
             application._ems_check_state(('submitted',))
+            # The 2026-11-04 usage test: without a deadline the email gave none and the corrections
+            # never closed.
+            deadline = application.call_id.subsanation_deadline
+            if not deadline or deadline <= application.call_id._ems_now():
+                raise UserError(_("Set a corrections deadline in the future on the call first: the email tells the "
+                                  "applicant until when they can correct the documents."))
             to_correct = application._ems_documents_to_correct()
             if not to_correct:
                 raise UserError(_("Mark which documents need changes before asking for corrections."))
@@ -557,6 +580,20 @@ class EmsErasmusApplication(models.Model):
                                   application.partner_id.name))
         self._ems_activities_done()
         self._ems_set_state('admitted')
+        # The 2026-11-04 usage test: a teacher without a DNI in their employee file stops the list of
+        # who goes; it is only the Secretary's to fill in, so the team is told now, not then.
+        missing = self.filtered(lambda application: application.audience == 'staff'
+                                and not application._ems_identity_document())
+        if not missing:
+            return None
+        message = _("Ask the Secretary to fill in the identity document (DNI/NIE or passport) in the employee file "
+                    "of: %s. Without it, the resolution lists cannot be prepared.",
+                    ", ".join(missing.partner_id.mapped('name')))
+        for application in missing:
+            application.chatter(message)
+        return {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {
+            'type': 'warning', 'sticky': True, 'message': message,
+            'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'}}}
 
     def action_exclude(self):
         """Also on an admitted application: not attending the interview excludes (art. 11). The
@@ -598,10 +635,11 @@ class EmsErasmusApplication(models.Model):
             application.ranking_result = application.score_complete and application.rank and \
                 application._ems_ranking_result()
 
-    @api.depends('document_ids.review_state', 'document_ids.attachment_ids')
+    @api.depends('state', 'document_ids.review_state', 'document_ids.attachment_ids')
     def _compute_documents_to_review(self):
+        """A draft is not the team's to review yet (the 2026-11-04 usage test)."""
         for application in self:
-            application.documents_to_review = len(application.document_ids.filtered(
+            application.documents_to_review = application.state != 'draft' and len(application.document_ids.filtered(
                 lambda line: line.stage == 'application' and line.file_state == 'to_review'))
 
     def _ems_ranking_result(self):
@@ -1039,7 +1077,7 @@ class EmsErasmusApplication(models.Model):
             for user in team:
                 application.sudo().activity_schedule(
                     activity_type_id=activity_type.id, user_id=user.id,
-                    summary=_("Erasmus+: review the corrections of %s", application.partner_id.name))
+                    summary=self.env['ems.base'].ems_elide(_("Erasmus+: review the corrections of %s", application.partner_id.name)))
 
     def _ems_activities_done(self):
         self.sudo().activity_ids.action_feedback()
@@ -1091,13 +1129,29 @@ class EmsErasmusApplication(models.Model):
                 application = record if record._name == self._name else record.application_id
                 (application or record).sudo().chatter(_("No email sent: the applicant has no email address."))
 
+    def _ems_portal_remove_file(self, attachment_id):
+        """The 2026-11-04 usage test: while the application is a draft, the applicant removes a file
+        uploaded by mistake (nobody has reviewed it yet, so it is deleted). Once submitted, only the
+        Erasmus team removes one, saying why (Remove a file)."""
+        self.ensure_one()
+        if self.state != 'draft' or not self._ems_portal_editable():
+            raise UserError(_("Once the application is submitted, ask the Erasmus team to remove a file."))
+        line = self.document_ids.filtered(lambda line: attachment_id in line.attachment_ids.ids)
+        if not line:
+            raise UserError(_("The file is not one of your application's."))
+        attachment = line.attachment_ids.filtered(lambda attachment: attachment.id == attachment_id)
+        line.sudo().write({'attachment_ids': [(3, attachment.id)]})
+        attachment.sudo().unlink()
+
     def _ems_mail_document_list(self, lines):
-        """The files of `lines` as an HTML list, for the emails."""
-        return self.env['ems.base'].build_html_list([
-            Markup("{}: {}").format(line.name, ", ".join(line.attachment_ids.mapped('name')) or "-")
-            if line.attachment_ids else line.name
-            for line in lines
-        ])
+        """The files of `lines` as an HTML list, for the emails: only those that count (the newest of a
+        document handed in as one file), and a link as its address, so the applicant can check it."""
+        items = []
+        for line in lines:
+            files = line._ems_current_files()
+            items.append(Markup("{}: {}").format(line.name, ", ".join(files._ems_erasmus_labels()))
+                         if files else line.name)
+        return self.env['ems.base'].build_html_list(items)
 
 
 class EmsErasmusApplicationDocument(models.Model):
@@ -1130,8 +1184,15 @@ class EmsErasmusApplicationDocument(models.Model):
     sequence = fields.Integer(string="Sequence", related='call_document_id.sequence', store=True)
     confidential = fields.Boolean(string="Confidential", related='call_document_id.confidential', store=True)
     is_required = fields.Boolean(string="Required", compute='_compute_is_required')
-    attachment_ids = fields.Many2many(string="Files", comodel_name='ir.attachment',
-                                      relation='ems_erasmus_application_document_attachment_rel')
+    attachment_ids = fields.Many2many(string="Every version", comodel_name='ir.attachment',
+                                      relation='ems_erasmus_application_document_attachment_rel',
+                                      help="Every file uploaded, the earlier versions too: none is ever replaced.")
+    current_attachment_ids = fields.Many2many(string="Files", comodel_name='ir.attachment',
+                                              compute='_compute_current_attachment_ids',
+                                              help="The files that count: the newest one, for a document handed in "
+                                                   "as one file.")
+    link_url = fields.Char(string="Link", compute='_compute_current_attachment_ids',
+                           help="A document handed in as a link: the address that counts.")
     review_state = fields.Selection(string="Review", required=True, default='pending', selection=[
         ('pending', "Pending review"), ('valid', "Valid"), ('needs_change', "Needs changes")])
     review_comment = fields.Char(string="Comment for the applicant")
@@ -1152,6 +1213,13 @@ class EmsErasmusApplicationDocument(models.Model):
         ('missing', "Missing"), ('waiting_team', "The Erasmus team uploads it"), ('not_yet', "Not yet"),
         ('to_review', "Pending review"), ('needs_change', "Needs changes"), ('complete', "Complete"),
         ('optional', "Optional"), ('not_applicable', "Not applicable")])
+
+    @api.depends('attachment_ids', 'call_document_id.single_file')
+    def _compute_current_attachment_ids(self):
+        for line in self:
+            current = line._ems_current_files()
+            line.current_attachment_ids = current
+            line.link_url = current.filtered(lambda attachment: attachment.type == 'url')[-1:].url or False
 
     @api.depends('call_document_id.requirement', 'application_id.is_minor', 'mobility_id.placement_type',
                  'mobility_id.is_short_blended', 'application_id.fewer_opportunities')
@@ -1176,10 +1244,7 @@ class EmsErasmusApplicationDocument(models.Model):
         someone has to sign is never complete only because a file is there, whoever uploaded it."""
         for line in self:
             checked = line.handled_by != 'team' or bool(line.signers)
-            if line.handled_by == 'team':
-                uploaded = bool(line.prepared_attachment_ids or line.attachment_ids)
-            else:
-                uploaded = bool(line.attachment_ids)
+            uploaded = line._ems_has_files()
             if uploaded and (line.review_state == 'valid' or not checked):
                 line.file_state = 'complete'
             elif line.review_state == 'needs_change' and checked:
@@ -1223,6 +1288,19 @@ class EmsErasmusApplicationDocument(models.Model):
         for line in self:
             start, days = line.mobility_id.date_start, line.call_document_id.open_days
             line.open_date = days and start and start - timedelta(days=days)
+
+    def _ems_has_files(self):
+        """Whether the document is handed in: a file of the participant, or of the team for one the
+        team provides."""
+        self.ensure_one()
+        return bool(self.attachment_ids or (self.handled_by == 'team' and self.prepared_attachment_ids))
+
+    def _ems_current_files(self):
+        """The files that count: every one, or only the newest of a document handed in as one file (the
+        earlier ones are kept as earlier versions)."""
+        self.ensure_one()
+        files = self.attachment_ids.sorted('id')
+        return files[-1:] if self.call_document_id.single_file else files
 
     def _ems_file_state_label(self):
         self.ensure_one()

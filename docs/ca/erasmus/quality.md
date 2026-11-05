@@ -49,7 +49,8 @@ els comentaris sense el nom; només la coordinació veu qui ha respost.
 **Puntuacions baixes** llista totes les respostes de 6 o menys amb el que no ha funcionat. Obre'n una
 i tria **Accions › Crear una acció de millora**: EMS la crea a l'aplicació **Qualitat**, sense el nom
 del participant, i la segueixes allà com qualsevol altra acció. És l'evidència que demana
-l'auditoria ISO.
+l'auditoria ISO. Un membre de l'equip que no és docent no pot obrir les accions de Qualitat: l'EMS
+li diu que s'ha creat, i la gestiona la comissió de qualitat.
 
 ## Informe de qualitat i evidències de Mobilitat FP
 

@@ -311,6 +311,8 @@ class TestErasmusInterview(ErasmusScoringCase):
         notices = Message.search([('model', '=', 'ems.erasmus.call'), ('res_id', '=', self.call.id),
                                   ('partner_ids', 'in', self.evaluator_1.partner_id.ids)])
         self.assertEqual(len(notices), 1)
+        self.assertEqual(notices.partner_ids, (self.evaluator_1 | self.evaluator_2).partner_id,
+                         "The 2026-11-04 usage test: the same list is one notice to both, not one each.")
         self.assertIn('Room 12', notices.body)
         self.assertIn(first.partner_id.name, notices.body)
         self.assertIn(second.partner_id.name, notices.body)

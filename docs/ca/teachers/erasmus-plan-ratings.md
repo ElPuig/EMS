@@ -18,7 +18,7 @@ Cada valoració mostra en pantalla el **pla de mobilitat i transferència** de l
 
 ## 2. Valorar la rúbrica
 
-Per a cada aspecte, tria la descripció que s'ajusta més al pla: són les de l'annex 2 de la convocatòria, i l'EMS les converteix en punts (1, 0,5 o 0).
+Per a cada aspecte, tria la descripció que s'ajusta més al pla: són les de l'annex 2 de la convocatòria, i cadascuna comença amb els punts que dona (1, 0,5 o 0).
 
 | Aspecte | 1 punt | 0,5 punts | 0 punts |
 |---|---|---|---|

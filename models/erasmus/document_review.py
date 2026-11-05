@@ -143,6 +143,10 @@ class EmsErasmusApplicationDocument(models.Model):
         someone signs is valid only once every signature that applies is ticked (audit D-1)."""
         files = [name for name in ('attachment_ids', 'prepared_attachment_ids') if name in vals]
         before = {(line, name): line[name] for line in self for name in files} if not self.env.su else {}
+        # The 2026-11-04 usage test: a document without any file could be marked valid, and an
+        # application admitted without it.
+        if vals.get('review_state') == 'valid' and (empty := self.filtered(lambda line: not line._ems_has_files())):
+            raise UserError(_("A document without any file cannot be valid: %s", ", ".join(empty.mapped('name'))))
         if vals.get('review_state') == 'valid' and (unsigned := self.filtered('signatures_missing')):
             raise UserError(_("Tick the signatures first: %s", "; ".join(
                 f"{line.name} ({line.signatures_missing})" for line in unsigned)))

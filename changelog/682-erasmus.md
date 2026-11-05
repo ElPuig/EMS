@@ -112,6 +112,20 @@
 - Diffusion actions register: every call notice and closing reminder EMS emails is recorded by itself; the team adds the rest by hand (sessions, ErasmusDays, web, social media).
 - Earlier courses (manual load, with their source) feed the evolution by course; the coordination's figures for 2022-2023 to 2025-2026 are seeded as centre data.
 
+## Usage test by role, second batch (files, corrections, families, staff call, team):
+
+- Repeated files: a call document is handed in as **One file** by default (unticked for the language certificates); its newest upload counts and the earlier ones show as *Earlier version* with their dates, on the portal and in the backend (*Files*, optional *Every version*), and the receipt lists only the newest. While the application is a draft the student removes a file uploaded by mistake from the portal.
+- The receipt and the backend show a link document's address, not "Video (link)".
+- Corrections can only be requested with a corrections deadline still to come (the email had no date and the corrections never closed).
+- A document line without any file can never be *Valid* (it let an application be admitted without the document).
+- The application's documents show their status (missing, to review, complete...) and the ones that do not apply are greyed out, instead of every line saying "Pending review"; a draft no longer counts documents to review.
+- "Offer a free place" comes with a default answer deadline: as long as the definitive offers had, or three days.
+- A staff call published without places warns the team (it still opens without them, as the call allows); admitting a teacher without a DNI in their employee file warns the team to ask the Secretary; preparing a resolution says what is missing of each incomplete score.
+- The family of a minor reads its own sentence above the commitment letter, sees the application read only on its portal from the start, and downloads a call document's **Model to download** (e.g. the family authorisation).
+- A member of the Erasmus team who is not a teacher lands on the calls instead of an access error, and creating an improvement action no longer opens a screen they cannot read.
+- A teacher sees the activity proposal they sent while it waits for validation.
+- Smaller: Catalan "de" elided before a name in the to-dos' subjects ("d'Alumna"), one interviews notice for evaluators with the same list, a new call shows its documents and steps before saving (also when switching between students and staff), and the panel's options show their points.
+
 # Fixes
 
 ## Erasmus+ result and free-place emails reached Catalan and Spanish readers in English (2026-11-03):

@@ -39,6 +39,10 @@ Pestaña **Documentos**: una línea por cada documento que pide la convocatoria,
 
 Marca **Confidencial** en los documentos que solo puede ver el equipo Erasmus, como la acreditación de menos oportunidades.
 
+**Un solo archivo** (marcado por defecto): solo cuenta el archivo más reciente que sube el alumno; los anteriores se conservan y se muestran como *Versión anterior*, y el justificante solo muestra el más reciente. Desmárcalo para un documento con varios archivos, como los certificados de idiomas (uno por idioma). **Modelo para descargar**: un archivo que el alumno (y la familia de un menor) descarga desde el portal, rellena y entrega, por ejemplo la autorización familiar.
+
+Los documentos por defecto, la lista de comprobación y las preguntas ya aparecen en una convocatoria nueva antes de guardarla; si cambias **Solicitantes**, cambian por los de la convocatoria de personal (o de alumnado).
+
 Pestaña **Información para los solicitantes**: el texto que se muestra en el portal encima del formulario.
 
 > **Consejo:** el año que viene, abre esta convocatoria y usa **Duplicar**: se copian las modalidades y los documentos.
@@ -55,11 +59,12 @@ Publicar no envía ningún correo. Para avisar a todas las personas que pueden p
 
 ## 3. Revisar las solicitudes
 
-Ve a **Erasmus+ > Convocatorias > Solicitudes** (o al botón **Solicitudes** de la convocatoria, que las agrupa por modalidad). Filtros: *Por revisar*, *Subsanación requerida*, *Admitida*, *Excluida*. **Documentos por revisar** cuenta los archivos que esperan vuestra comprobación.
+Ve a **Erasmus+ > Convocatorias > Solicitudes** (o al botón **Solicitudes** de la convocatoria, que las agrupa por modalidad). Filtros: *Por revisar*, *Subsanación requerida*, *Admitida*, *Excluida*. **Documentos por revisar** cuenta los archivos que esperan vuestra comprobación (un borrador aún no enviado no cuenta).
 
 Abre una solicitud:
 
-- Pestaña **Documentos**: cada documento con sus archivos. Se conservan todos los archivos que ha subido el alumno, también las versiones anteriores. Márcalos como **Válido** (✓) o **Hay que corregir** (✗), y escribe un **Comentario para el solicitante** cuando haya que corregirlo.
+- Pestaña **Documentos**: cada documento con su **Estado** (*Falta*, *Pendiente de revisión*, *Hay que corregir*; en gris, los opcionales y los que no se aplican, como la autorización familiar de un adulto), sus **Archivos** (los que cuentan) y, si es un enlace, el **Enlace** mismo. Se conservan todos los archivos que ha subido el alumno: la columna opcional **Todas las versiones** muestra también los anteriores. Márcalos como **Válido** (✓) o **Hay que corregir** (✗), y escribe un **Comentario para el solicitante** cuando haya que corregirlo. Un documento sin ningún archivo no se puede marcar como válido.
+- Mientras la solicitud es un borrador, el alumno puede quitar desde el portal un archivo subido por error. Una vez enviada, solo lo quitas tú, con **Quitar un archivo** y el motivo.
 - Pestaña **Admisión**:
     - **Requisitos**: matriculado en un nivel de la convocatoria, ninguna práctica Erasmus+ anterior en este ciclo y autorización familiar si es menor de edad. EMS registra quién lo ha comprobado y cuándo.
     - **Conducta este curso**: las **amonestaciones** que el alumno tiene en EMS durante el curso de la convocatoria. Si tiene tantas como las que hacen saltar el aviso a convivencia (3, el ajuste de EMS) o más, se marca **Conducta por revisar** y la ficha lo avisa arriba. No lo excluye: oídos el equipo docente y el equipo de convivencia, puedes **excluir** la solicitud indicando el motivo (artículo 6 de la convocatoria). Si sigue adelante, cada amonestación resta puntos (criterio F).
@@ -68,7 +73,7 @@ Abre una solicitud:
 
 ## 4. Pedir subsanaciones
 
-Cuando hay que corregir un documento o falta uno obligatorio, márcalo y haz clic en **Acciones > Pedir la subsanación**. El alumno recibe un correo con la lista y el plazo de subsanación de la convocatoria, y solo puede subir esos documentos. Cuando vuelve a enviar la solicitud, esta vuelve a *Enviado*, los archivos nuevos quedan pendientes de revisión y cada miembro del equipo Erasmus recibe una tarea para revisarla (también en su resumen diario de tareas pendientes). La tarea se cierra sola al admitirla, excluirla o pedir otra subsanación.
+Cuando hay que corregir un documento o falta uno obligatorio, márcalo y haz clic en **Acciones > Pedir la subsanación**. La convocatoria debe tener un **Plazo de subsanación** aún por llegar: sin él, EMS no te deja pedirla. El alumno recibe un correo con la lista y ese plazo, y solo puede subir esos documentos. Cuando vuelve a enviar la solicitud, esta vuelve a *Enviado*, los archivos nuevos quedan pendientes de revisión y cada miembro del equipo Erasmus recibe una tarea para revisarla (también en su resumen diario de tareas pendientes). La tarea se cierra sola al admitirla, excluirla o pedir otra subsanación.
 
 ## 5. Admitir o excluir
 

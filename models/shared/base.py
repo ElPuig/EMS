@@ -183,6 +183,15 @@ class EmsBase(models.AbstractModel):
         })
 
     # Writes a regular log message in the chatter. 
+    def ems_elide(self, text):
+        """Catalan elision of "de" before a vowel or an h in a text built with a name ("revisar l'esmena
+        de Anna" -> "d'Anna"), only when `self.env` is in Catalan; not before a semivowel i/u ("de
+        Iolanda", "de Huelva")."""
+        if not (self.env.lang or '').startswith('ca'):
+            return text
+        return re.sub(r"\b([Dd])e (?![IiUu][aeiouàèéíòóú]|[Hh][iu][aeiou])(?=[aeiouàèéíïòóúüh])", r"\1'", text,
+                      flags=re.IGNORECASE)
+
     def chatter(self, message):
         self.message_post(
             body = message,

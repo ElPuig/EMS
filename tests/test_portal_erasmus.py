@@ -1,3 +1,4 @@
+import base64
 from datetime import timedelta
 
 from odoo import fields
@@ -5,7 +6,7 @@ from odoo.http import Request
 from odoo.tests.common import HttpCase, tagged
 
 from .common import mock_outgoing_email
-from .test_erasmus import PDF, create_erasmus_fixtures
+from .test_erasmus import PDF, create_erasmus_fixtures, upload
 
 
 def create_portal_erasmus_fixtures(cls):
@@ -83,11 +84,55 @@ class TestPortalErasmus(HttpCase):
         self.assertIn(f'document_{self.cv.id}', response.text)
         self.assertNotIn(f'document_{self.authorization.id}', response.text, "Minors-only document hidden to adults")
 
+    def test_a_draft_shows_earlier_versions_and_removes_a_file_and_downloads_the_model(self):
+        """The 2026-11-04 usage test: two files with the same name and no way to remove one."""
+        self.certificate.write({'template_file': base64.b64encode(PDF), 'template_filename': 'model.pdf'})
+        self.cv.single_file = True
+        self._login(self.student_user)
+        self._save()
+        self._save()
+        page = self.url_open(f'/my/erasmus/call/{self.call.id}').text
+        self.assertIn('o_ems_erasmus_earlier_version', page)
+        self.assertIn('o_ems_erasmus_remove_file', page)
+        self.assertIn(f'/my/erasmus/call/{self.call.id}/template/{self.certificate.id}', page)
+        download = self.url_open(f'/my/erasmus/call/{self.call.id}/template/{self.certificate.id}')
+        self.assertEqual(download.content, PDF)
+        line = self._application().document_ids.filtered(lambda line: line.call_document_id == self.cv)
+        first = line.attachment_ids.sorted('id')[:1]
+        self.url_open(f'/my/erasmus/call/{self.call.id}/file/{first.id}/remove',
+                      data={'csrf_token': Request.csrf_token(self)})
+        self.assertEqual(len(line.attachment_ids), 1)
+        self.assertNotIn('o_ems_erasmus_earlier_version', self.url_open(f'/my/erasmus/call/{self.call.id}').text)
+
+    def test_the_family_of_a_minor_sees_the_application_read_only(self):
+        """The 2026-11-04 usage test: the family saw nothing of Erasmus+ until the commitment letter."""
+        family = self.env['res.partner'].create({'name': 'Erasmus Test Family', 'contact_type': 'family'})
+        self.env['res.partner.relation'].create({
+            'left_partner_id': family.id, 'type_id': self.env.ref('ems.relation_type_father').id,
+            'right_partner_id': self.minor.id})
+        family_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': family.name, 'login': 'test_portal_erasmus_family', 'password': 'test_portal_erasmus_family',
+            'partner_id': family.id, 'lang': 'en_US', 'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])]})
+        self.authorization.write({'template_file': base64.b64encode(PDF), 'template_filename': 'model.pdf'})
+        application = self.env['ems.erasmus.application']._ems_portal_get_or_create(self.call, self.minor)
+        upload(application, self.cv)
+        self._login(family_user)
+        page = self.url_open('/my/erasmus').text
+        self.assertIn('o_ems_erasmus_guardian_application', page)
+        self.assertIn('Erasmus Test Minor', page)
+        self.assertIn(self.authorization.name, page)
+        self.assertNotIn(self.evidence.name, page, "Not a confidential document.")
+        self.assertNotIn('/save', page, "Read only.")
+        model = f'/my/erasmus/call/{self.call.id}/template/{self.authorization.id}'
+        self.assertIn(model, page)
+        self.assertEqual(self.url_open(model).content, PDF)
+
     def test_subsanation_only_offers_the_documents_asked_for(self):
         self._login(self.student_user)
         self._save(submit=True)
         application = self._application()
         application.document_ids.filtered(lambda line: line.call_document_id == self.cv).action_mark_needs_change()
+        self.call.subsanation_deadline = fields.Datetime.now() + timedelta(days=10)
         application.action_request_subsanation()
         self.call.action_close()
         page = self.url_open(f'/my/erasmus/call/{self.call.id}').text

@@ -39,6 +39,10 @@ Pestanya **Documents**: una línia per a cada document que demana la convocatòr
 
 Marca **Confidencial** per als documents que només pot veure l'equip Erasmus, com l'acreditació de menys oportunitats.
 
+**Un sol fitxer** (marcat per defecte): només compta el fitxer més recent que puja l'alumne; els anteriors es conserven i es mostren com a *Versió anterior*, i el justificant només mostra el més recent. Desmarca-ho per a un document amb diversos fitxers, com els certificats de llengües (un per idioma). **Model per descarregar**: un fitxer que l'alumne (i la família d'un menor) descarrega des del portal, emplena i lliura, per exemple l'autorització familiar.
+
+Els documents per defecte, la llista de comprovació i les preguntes ja surten en una convocatòria nova abans de desar-la; si canvies **Sol·licitants**, canvien pels de la convocatòria de personal (o d'alumnat).
+
 Pestanya **Informació per als sol·licitants**: el text que es mostra al portal a sobre del formulari.
 
 > **Consell:** l'any vinent, obre aquesta convocatòria i fes servir **Duplica**: es copien les modalitats i els documents.
@@ -55,11 +59,12 @@ Publicar no envia cap correu. Per avisar tothom qui s'hi pot presentar, fes clic
 
 ## 3. Revisar les sol·licituds
 
-Ves a **Erasmus+ > Convocatòries > Sol·licituds** (o al botó **Sol·licituds** de la convocatòria, que les agrupa per modalitat). Filtres: *Per revisar*, *Esmena requerida*, *Admesa*, *Exclosa*. **Documents per revisar** compta els fitxers que esperen la vostra comprovació.
+Ves a **Erasmus+ > Convocatòries > Sol·licituds** (o al botó **Sol·licituds** de la convocatòria, que les agrupa per modalitat). Filtres: *Per revisar*, *Esmena requerida*, *Admesa*, *Exclosa*. **Documents per revisar** compta els fitxers que esperen la vostra comprovació (un esborrany encara no enviat no compta).
 
 Obre una sol·licitud:
 
-- Pestanya **Documents**: cada document amb els seus fitxers. Es conserven tots els fitxers que ha pujat l'alumne, també les versions anteriors. Marca'ls com a **Vàlid** (✓) o **Cal corregir** (✗), i escriu un **Comentari per al sol·licitant** quan calgui corregir-lo.
+- Pestanya **Documents**: cada document amb el seu **Estat** (*Falta*, *Pendent de revisió*, *Cal corregir*, *Completa*; en gris, els opcionals i els que no s'apliquen, com l'autorització familiar d'un adult), els seus **Fitxers** (els que compten) i, si és un enllaç, l'**Enllaç** mateix. Es conserven tots els fitxers que ha pujat l'alumne: la columna opcional **Totes les versions** mostra també els anteriors. Marca'ls com a **Vàlid** (✓) o **Cal corregir** (✗), i escriu un **Comentari per al sol·licitant** quan calgui corregir-lo. Un document sense cap fitxer no es pot marcar com a vàlid.
+- Mentre la sol·licitud és un esborrany, l'alumne pot treure des del portal un fitxer pujat per error. Un cop enviada, només el treus tu, amb **Treure un fitxer** i el motiu.
 - Pestanya **Admissió**:
     - **Requisits**: matriculat en un nivell de la convocatòria, cap pràctica Erasmus+ anterior en aquest cicle i autorització familiar si és menor d'edat. EMS registra qui ho ha comprovat i quan.
     - **Conducta aquest curs**: les **amonestacions** que l'alumne té a l'EMS durant el curs de la convocatòria. Si en té tantes com les que fan saltar l'avís a convivència (3, l'ajust de l'EMS) o més, es marca **Conducta per revisar** i la fitxa ho avisa a dalt. No l'exclou: escoltats l'equip docent i l'equip de convivència, pots **excloure** la sol·licitud indicant-ne el motiu (article 6 de la convocatòria). Si continua, cada amonestació resta punts (criteri F).
@@ -68,7 +73,7 @@ Obre una sol·licitud:
 
 ## 4. Demanar esmenes
 
-Quan un document s'ha de corregir o en falta un d'obligatori, marca'l i fes clic a **Accions > Demana l'esmena**. L'alumne rep un correu amb la llista i el termini d'esmena de la convocatòria, i només pot pujar aquests documents. Quan torna a enviar la sol·licitud, aquesta torna a *Enviat*, els fitxers nous queden pendents de revisió i cada membre de l'equip Erasmus rep una tasca per revisar-la (també al seu resum diari de tasques pendents). La tasca es tanca sola en admetre-la, excloure-la o demanar una altra esmena.
+Quan un document s'ha de corregir o en falta un d'obligatori, marca'l i fes clic a **Accions > Demana l'esmena**. La convocatòria ha de tenir un **Termini d'esmena** encara per arribar: sense aquest termini, EMS no et deixa demanar-la. L'alumne rep un correu amb la llista i aquest termini, i només pot pujar aquests documents. Quan torna a enviar la sol·licitud, aquesta torna a *Enviat*, els fitxers nous queden pendents de revisió i cada membre de l'equip Erasmus rep una tasca per revisar-la (també al seu resum diari de tasques pendents). La tasca es tanca sola en admetre-la, excloure-la o demanar una altra esmena.
 
 ## 5. Admetre o excloure
 

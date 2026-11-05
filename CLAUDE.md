@@ -909,8 +909,16 @@ a pedir, estaríamos metiendo código sucio en el proyecto"*).
 - Refactoring: duplicated logic (server and client), code that grew convoluted through iterations
   and can be restructured, two paths or two UIs doing the same job, leftovers (unused labels, methods,
   translations, stale comments and docstrings).
-- Runtime efficiency, per "Efficiency first" above: measured on this box's real data (`odoo shell`,
-  cold, read-only and rolled back), with the numbers reported.
+- "Odoo way" (developer, 2026-11-05): every new custom mechanism (model, helper, widget, script,
+  cron) compared with what Odoo or OCA already offer; when the built-in one is ruled out, the reason is
+  written in a code comment or the developer doc.
+- Runtime efficiency, per "Efficiency first" above: what runs often (screens, RPCs, scheduled jobs,
+  summaries) measured on this box's real data (`odoo shell`, cold and warm, read-only and rolled
+  back), with the numbers reported; filtering in the search domain, no `search()`/`filtered()` inside
+  loops.
+- Memory efficiency (developer, 2026-11-05): no whole tables loaded into memory, batch reads instead
+  of one per record, large exports and files built in parts (streamed), no caches that grow without
+  limit.
 - Tests: redundant or overlapping ones (same code path, same assertion), and **missing** ones,
   especially where the code is most complex.
 
@@ -1002,23 +1010,25 @@ Issue items:
 
 | # | Item |
 |---|------|
-| 1 | Quality audit over the whole branch diff: missing tests first, run on the current code |
-| 2 | Refactoring: duplication (server/client), convoluted code, two paths/UIs, leftovers |
-| 3 | Efficiency measured on real data, with numbers |
-| 4 | Redundant tests removed or merged |
-| 5 | Permission audit of the touched area, re-run with 0 mismatches |
-| 6 | Backend tests + tour (least-privileged role, every view mode); scoped `./test.sh` green |
-| 7 | `./upgrade.sh` clean (no WARNING/ERROR) |
-| 8 | Migrations (upgrade and clean-install paths) when xmlids or data change |
-| 9 | Developer docs describe current behavior |
-| 10 | User manuals ca/es/en per role, linked from `index.md` |
-| 11 | Screenshots (audience's role, no personal data) |
-| 12 | ca/es translations, verified in the DB; `TestI18nCoverage` green |
-| 13 | LanguageTool on Catalan/Spanish text |
-| 14 | `pylint` redefined-builtin on touched files |
-| 15 | `changelog/<branch>.md` up to date |
-| 16 | Nothing deferred left untracked |
-| 17 | `git status` clean, branch pushed, card in "Ready to merge" (GitHub issue left open) |
+| 1 | Test coverage first: the missing tests for what is about to be touched, written and run on the current code before refactoring |
+| 2 | Refactoring: duplicated logic (server/client and across files), convoluted code, two paths/UIs for the same job, leftovers (methods, labels, translations, comments) |
+| 3 | "Odoo way": every new custom mechanism compared with Odoo/OCA; a built-in ruled out has its reason written in the code or the developer doc |
+| 4 | Efficiency, time: what runs often (screens, RPCs, scheduled jobs, summaries) measured on real data, cold and warm, numbers in the note; filtering in the domain, no search/filtered inside loops |
+| 5 | Efficiency, memory: no whole tables in memory, batch reads, large exports and files streamed, no unbounded caches |
+| 6 | Redundant tests (same path, same assertion) removed or merged |
+| 7 | Permission audit of the touched area, re-run with 0 mismatches |
+| 8 | Backend tests + tour (least-privileged role, every view mode); scoped `./test.sh` green |
+| 9 | `./upgrade.sh` clean (no WARNING/ERROR) |
+| 10 | Migrations (upgrade and clean-install paths) when xmlids or data change |
+| 11 | Developer docs describe current behavior |
+| 12 | User manuals ca/es/en per role, linked from `index.md` |
+| 13 | Screenshots (audience's role, no personal data) |
+| 14 | ca/es translations, verified in the DB; `TestI18nCoverage` green |
+| 15 | LanguageTool on Catalan/Spanish text |
+| 16 | `pylint` redefined-builtin on touched files |
+| 17 | `changelog/<branch>.md` up to date |
+| 18 | Nothing deferred left untracked |
+| 19 | `git status` clean, branch pushed, card in "Ready to merge" (GitHub issue left open) |
 
 Release PR items:
 
@@ -1026,17 +1036,21 @@ Release PR items:
 |---|------|
 | 1 | Every "Ready to merge" branch integrated in ascending order, cards moved |
 | 2 | Conflicts resolved keeping both sides (`.po` blocks checked, migrations above the last tag) |
-| 3 | Quality audit over everything integrated |
-| 4 | Permission audit over everything integrated, 0 mismatches |
-| 5 | Developer docs current; user manuals in three-language parity |
-| 6 | Translations verified in the DB |
-| 7 | LanguageTool `--since <last tag>` |
-| 8 | Backend, feature tours and the role-smoke crawler tours green (scoped run) |
-| 9 | PR text: every changelog reassembled in template order, condensed, `Related with` checked, put on the PR |
-| 10 | CI green on the newest head |
-| 11 | `/changelog-clean` and then `/deploy-check` green |
-| 12 | Developer's go-ahead to merge |
-| 13 | Squash merge, release and deploy confirmed |
+| 3 | Refactoring across branches: what no single branch could see (helpers or methods written twice, renamed differently, name clashes, overlapping tests) |
+| 4 | "Odoo way" over everything integrated, as in the issue table |
+| 5 | Efficiency, time: combined cost of what was integrated (scheduled jobs, daily summary, most used screens), measured, with numbers |
+| 6 | Efficiency, memory over everything integrated, as in the issue table |
+| 7 | Redundant tests across branches (two branches testing the same thing) |
+| 8 | Permission audit over everything integrated, 0 mismatches |
+| 9 | Developer docs current; user manuals in three-language parity |
+| 10 | Translations verified in the DB |
+| 11 | LanguageTool `--since <last tag>` |
+| 12 | Backend, feature tours and the role-smoke crawler tours green (scoped run) |
+| 13 | PR text: every changelog reassembled in template order, condensed, `Related with` checked, put on the PR |
+| 14 | CI green on the newest head |
+| 15 | `/changelog-clean` and then `/deploy-check` green |
+| 16 | Developer's go-ahead to merge |
+| 17 | Squash merge, release and deploy confirmed |
 
 ## "Prepara la release" — integrate every ready branch into the release branch (2026-09-25)
 

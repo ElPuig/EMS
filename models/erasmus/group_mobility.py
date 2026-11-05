@@ -1031,8 +1031,10 @@ class EmsErasmusGroupRegistration(models.Model):
                                            and registration.result_override != 'excluded')
 
     def _compute_substitute_id(self):
+        # One search for the whole list, not one per registration.
+        substitutes = self.search([('substitute_for_id', 'in', self.ids)]).grouped('substitute_for_id')
         for registration in self:
-            registration.substitute_id = self.search([('substitute_for_id', '=', registration.id)], limit=1)
+            registration.substitute_id = substitutes.get(registration, self.browse())[:1]
 
     def _compute_display_name(self):
         for registration in self:

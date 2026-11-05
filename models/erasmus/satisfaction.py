@@ -561,11 +561,13 @@ class EmsErasmusQualityPanel(models.TransientModel):
         """Each call's way from the applications to the mobilities done, in total and by cycle
         (the study of the applicant's group; staff have none)."""
         rows = []
-        Mobility = self.env['ems.erasmus.mobility'].sudo()
+        # The mobilities of every call in one search, not one per call.
+        mobilities_by_call = self.env['ems.erasmus.mobility'].sudo().search(
+            [('call_id', 'in', calls.ids)]).grouped('call_id')
         for call in calls.sorted(lambda call: (call.course_id.name or '', call.name or '')):
             applications = call.sudo().application_ids.filtered(
                 lambda application: application.state not in NOT_APPLIED)
-            mobilities = Mobility.search([('call_id', '=', call.id)])
+            mobilities = mobilities_by_call.get(call, self.env['ems.erasmus.mobility'].sudo())
             by_study = applications.grouped(lambda application: application.partner_id.main_group_id.study_id)
             groups = [(_("Total"), applications)]
             if call.audience == 'student' and len(by_study) > 1:

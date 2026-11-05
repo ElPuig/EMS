@@ -108,12 +108,22 @@ jobs:
           # where this let a broken pre-migrate.py through as a false green.
           path: pr-checkout/ems
 
+      # The OCA repositories come from the PR's own scripts/oca_repos.sh: production's copy of each
+      # one, or, for a repository the PR adds and production does not have yet, a fresh clone next
+      # to the PR checkout (production's folders are only touched by the deploy itself).
       - name: Write isolated odoo config
         run: |
-          cat <<EOF | sudo tee /tmp/odoo-deploy-check.conf
-          [options]
-          addons_path = /usr/lib/python3/dist-packages/odoo/addons,${{ github.workspace }}/pr-checkout,/root/myModules/queue,/root/myModules/partner-contact
-          EOF
+          source pr-checkout/ems/scripts/oca_repos.sh
+          ADDONS="/usr/lib/python3/dist-packages/odoo/addons,${{ github.workspace }}/pr-checkout"
+          for url in "${OCA_REPOS[@]}"; do
+            dir="/root/myModules/$(basename "$url" .git)"
+            if [ ! -d "$dir/.git" ]; then
+              dir="${{ github.workspace }}/oca/$(basename "$url" .git)"
+              [ -d "$dir/.git" ] || git clone --depth 1 --branch "$OCA_BRANCH" "$url" "$dir"
+            fi
+            ADDONS="$ADDONS,$dir"
+          done
+          printf '[options]\naddons_path = %s\n' "$ADDONS" | sudo tee /tmp/odoo-deploy-check.conf
 
       - name: Clone production data into a scratch database
         run: |

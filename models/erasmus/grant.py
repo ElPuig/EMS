@@ -39,7 +39,7 @@ def _undo_wizard_action(records):
 def _secretary_users(env):
     """Who pays: whoever holds the Secretary role (ems.role_secretary); without anyone, the
     administrators."""
-    users = env['hr.employee'].sudo().search([('role_ids', '=', env.ref('ems.role_secretary').id)]).user_id
+    users = env['ems.base'].role_task_users('ems.role_secretary')
     return users.filtered(lambda user: not user.share) or env['res.users'].sudo().search(
         [('groups_id', '=', env.ref('ems.group_academic_admin').id), ('share', '=', False)])
 

@@ -51,7 +51,7 @@ sudo nano /etc/odoo/odoo.conf
 
 Edit the following lines or add them if does not exist:
 ```
-addons_path = /usr/lib/python3/dist-packages/odoo/addons, /root/myModules, /root/myModules/queue, /root/myModules/partner-contact
+addons_path = /usr/lib/python3/dist-packages/odoo/addons, /root/myModules
 
 server_wide_modules = web,queue_job
 ```
@@ -75,7 +75,7 @@ python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().
 
 ```
 
-> **Note:** the required OCA modules (`queue` and `partner-contact`) are cloned automatically by `install.sh` when you run it for the first time. System (apt) Python dependencies are also installed/kept up to date automatically by `install.sh` and `upgrade.sh`, from the list in [`apt-requirements.txt`](apt-requirements.txt) — do not install them with pip.
+> **Note:** the required OCA repositories (`queue`, `partner-contact` and `sign`, listed in [`scripts/oca_repos.sh`](scripts/oca_repos.sh)) are cloned automatically next to `ems` and added to the `addons_path` above by `install.sh`, and any repository added to that list later is cloned and added the same way by the next `update.sh` (or `upgrade.sh`). System (apt) Python dependencies are also installed/kept up to date automatically by `install.sh` and `upgrade.sh`, from the list in [`apt-requirements.txt`](apt-requirements.txt) — do not install them with pip.
 
 Copy the generated secret key and use it to setup the odoo configuration file as follows:
 ```

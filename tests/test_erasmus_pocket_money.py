@@ -3,6 +3,7 @@ import io
 import openpyxl
 
 from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.http import Request
 from odoo.tests.common import HttpCase, tagged
 
 from odoo.addons.ems.models.erasmus.grant import _secretary_users
@@ -238,3 +239,30 @@ class TestErasmusPocketMoneyTour(HttpCase, ErasmusPocketMoneyCase):
         self.start_tour('/odoo/action-ems.action_erasmus_payment', 'ems_erasmus_pocket_money_secretary',
                         login=self.secretary_user.login)
         self.assertEqual(set(payments.mapped('state')), {'paid'})
+
+    def test_leader_tour(self):
+        """The leader reads the Collective expenses tab: grants, shares and pocket money."""
+        self._ready()
+        self._collective(7000)
+        self.start_tour(f'/odoo/action-ems.action_erasmus_my_group_mobility/{self.mobility.id}',
+                        'ems_erasmus_pocket_money_leader', login=self.leader_user.login)
+
+    def test_student_gives_the_account_on_the_portal(self):
+        self._ready(iban=False)
+        self._collective(7000)
+        participant = self.students[:1]
+        user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': participant.partner_id.name, 'login': 'test_pocket_portal_student', 'password': 'test_pocket_portal_student',
+            'partner_id': participant.partner_id.id, 'lang': 'en_US',
+            'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])]})
+        self.authenticate(user.login, user.login)
+        page = self.url_open(f'/my/erasmus/group/{self.mobility.id}').text
+        self.assertIn('o_ems_erasmus_grant_net', page)
+        self.assertIn('o_ems_erasmus_group_bank', page)
+        self.url_open(f'/my/erasmus/group/{self.mobility.id}/bank', data={
+            'csrf_token': Request.csrf_token(self), 'bank_account': IBAN, 'bank_holder': 'Family Holder'})
+        self.assertEqual((participant.bank_account, participant.bank_holder), (IBAN, 'Family Holder'))
+        response = self.url_open(f'/my/erasmus/group/{self.mobility.id}/bank', data={
+            'csrf_token': Request.csrf_token(self), 'bank_account': 'ES00 1234', 'bank_holder': ''})
+        self.assertIn('error', response.url)
+        self.assertEqual(participant.bank_account, IBAN, "An invalid IBAN is refused.")

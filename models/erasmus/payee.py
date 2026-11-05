@@ -20,6 +20,13 @@ def split_amount(amount, count, currency):
     return [share + (amount - share * count if index == 0 else 0) for index in range(count)]
 
 
+def check_prefinancing_percent(records):
+    """The part paid before leaving, of an individual mobility or a group mobility's pocket money."""
+    for record in records:
+        if not 0 < record.prefinancing_percent <= 100:
+            raise ValidationError(_("The prefinancing is a percentage above 0 and up to 100."))
+
+
 def normalize_iban(value):
     """`value` without spaces and in capitals, once its check digits are right (ISO 13616, mod 97);
     empty stays empty."""

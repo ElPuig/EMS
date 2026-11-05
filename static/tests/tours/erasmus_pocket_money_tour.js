@@ -65,3 +65,27 @@ registry.category("web_tour.tours").add("ems_erasmus_pocket_money_secretary", {
         },
     ],
 });
+
+// The leader teacher reads the group's grants and pocket money (never the bank accounts).
+registry.category("web_tour.tours").add("ems_erasmus_pocket_money_leader", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_notebook a[name='expenses']",
+            content: "Open the Collective expenses tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='grant_participant_ids'] .o_data_row td[name='pocket_amount']:contains('500')",
+            content: "The leader sees each participant's pocket money",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='invoice_ids'] .o_data_row td[name='amount']:contains('7,000')",
+            content: "and the group's collective invoices",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='grant_participant_ids']:not(:has(th[data-name='bank_account']))",
+            content: "but no bank account",
+        },
+    ],
+});

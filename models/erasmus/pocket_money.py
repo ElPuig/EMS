@@ -10,9 +10,9 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tools import formatLang
 
 from .economy import ECONOMY_READERS
-from .grant import PAYERS, _secretary_users, _transfer_wizard_action
+from .grant import PAYERS, _secretary_users
 from .group_mobility import FILE_STATES
-from .payee import normalize_iban, split_amount
+from .payee import check_prefinancing_percent, normalize_iban, split_amount
 
 # Who reads a participant's grant and pocket money: also the group's leader and accompanying teachers.
 POCKET_READERS = f'{ECONOMY_READERS},ems.group_erasmus_group_teacher'
@@ -126,9 +126,7 @@ class EmsErasmusGroupMobility(models.Model):
 
     @api.constrains('prefinancing_percent')
     def _check_prefinancing_percent(self):
-        for mobility in self:
-            if not 0 < mobility.prefinancing_percent <= 100:
-                raise ValidationError(_("The prefinancing is a percentage above 0 and up to 100."))
+        check_prefinancing_percent(self)
 
     @api.constrains('no_direct_costs', 'invoice_ids')
     def _check_no_direct_costs(self):
@@ -185,12 +183,6 @@ class EmsErasmusGroupMobility(models.Model):
             raise UserError(_("You do not take part in %s as a teacher.", self.name))
         return {'type': 'ir.actions.act_window', 'name': _("My bank account"), 'res_model': 'ems.erasmus.bank.wizard',
                 'view_mode': 'form', 'target': 'new', 'context': {'default_group_participant_id': participant.id}}
-
-    def action_register_pocket_transfer(self):
-        """The Secretary opens the transfer of every pocket money payment of the group still to pay."""
-        self.ensure_one()
-        return _transfer_wizard_action(self.env['ems.erasmus.payment'].search(
-            [('group_mobility_id', '=', self.id), ('state', '=', 'to_pay')]))
 
     def _ems_sync_transfer_task(self):
         """One task for the Secretary per group with pocket money to pay, on the group's first
@@ -281,7 +273,7 @@ class EmsErasmusBankWizard(models.TransientModel):
     def action_confirm(self):
         self.ensure_one()
         participant = self.group_participant_id.sudo()
-        if participant.partner_id != self.env.user.partner_id and not participant.group_mobility_id._ems_role() == 'team':
+        if participant.partner_id != self.env.user.partner_id and participant.group_mobility_id._ems_role() != 'team':
             raise UserError(_("Only the participant gives their own bank account."))
         participant._ems_portal_set_bank(self.bank_account, self.bank_holder)
         return {'type': 'ir.actions.act_window_close'}

@@ -10,6 +10,7 @@ from odoo.tools import format_date
 
 from .application import STAFF_ACTIVITIES
 from .call import PROJECTS
+from .payee import check_prefinancing_percent
 from .records import check_upload
 from .workflow import check_applicant_action, check_kept, check_workflow_create, check_workflow_write
 
@@ -356,9 +357,7 @@ class EmsErasmusMobility(models.Model):
 
     @api.constrains('prefinancing_percent')
     def _check_prefinancing_percent(self):
-        for mobility in self:
-            if not 0 < mobility.prefinancing_percent <= 100:
-                raise ValidationError(_("The prefinancing is a percentage above 0 and up to 100."))
+        check_prefinancing_percent(self)
 
     @api.depends_context('uid')
     @api.depends('audience')

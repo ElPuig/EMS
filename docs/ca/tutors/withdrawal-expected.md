@@ -41,7 +41,7 @@ Quan saps que un alumne no tornarà, demanes la baixa, però la tramitació trig
 
 ## Què canvia mentre dura
 
-- **La fitxa** mostra el banderí **Baixa prevista** i un avís amb la data, qui la va marcar i la nota.
+- **La fitxa** mostra el banderí **Baixa prevista** i un avís amb la data, qui la va marcar i la nota. La targeta de l'alumne a la llista d'alumnes mostra el mateix banderí.
 
   ![La fitxa de l'alumne amb el banderí Baixa prevista i l'avís](../../assets/tutors/baixa-prevista-03-fitxa.png)
 

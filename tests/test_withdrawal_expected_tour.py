@@ -8,7 +8,8 @@ from .common import create_level_study, create_role_employee, create_role_user, 
 @tagged('post_install', '-at_install')
 class TestWithdrawalExpectedTour(HttpCase):
     """Issue #644: the expected withdrawal in a browser - the tutor (least privileged role that
-    marks one) on the student's form, and a teacher's roll-call listing the student off it."""
+    marks one) on the student's form and the students' kanban (#757), and a teacher's roll-call
+    listing the student off it."""
 
     @classmethod
     def setUpClass(cls):
@@ -68,6 +69,11 @@ class TestWithdrawalExpectedTour(HttpCase):
         self.assertFalse(self.student.withdrawal_expected)
         self.assertEqual(self.student.message_ids.tracking_value_ids.filtered(
             lambda value: value.field_id.name == 'withdrawal_expected').mapped('new_value_integer'), [0, 1])
+
+    def test_kanban_card_shows_the_ribbon(self):
+        """Issue #757: the ribbon was only on the form."""
+        self.student.with_user(self.tutor_user)._ems_mark_withdrawal_expected()
+        self.start_tour("/odoo", "ems_withdrawal_expected_kanban", login=self.tutor_user.login)
 
     def test_roll_call_lists_the_student_off(self):
         self.student.with_user(self.tutor_user)._ems_mark_withdrawal_expected()

@@ -32,9 +32,22 @@ EXPENSE_STATES = [('to_pay', "Registered, to pay"), ('paid', "Paid"), ('cancelle
 EXPENSE_ECONOMIC_FIELDS = {'project_id', 'amount', 'category', 'concept', 'date', 'mobility_id'}
 INCOME_KINDS = [('prefinancing', "Prefinancing"), ('further', "Further prefinancing"), ('balance', "Balance"),
                 ('other', "Other")]
-# Who generates organisational support, per kind of mobility (accompanying teachers never do).
-SUPPORT_TYPES = [('student', "Students' individual mobilities"), ('staff', "Staff mobilities"),
-                 ('group', "Students of group mobilities")]
+# The kinds of mobility the funding rules give an organisational support rate to (accompanying
+# teachers never generate it). The last two are only chosen by hand on the mobility.
+SUPPORT_TYPES = [('student_short', "Students: short-term individual mobility"),
+                 ('student_long', "Students: long-term mobility (ErasmusPro)"),
+                 ('student_group', "Students: group mobility"),
+                 ('staff_job', "Staff: job shadowing or teaching"),
+                 ('staff_course', "Staff: courses and training"),
+                 ('non_associated', "Individual activity in a third country not associated to the programme"),
+                 ('other', "Skills competitions, invited experts or hosted teachers in training")]
+MANUAL_SUPPORT_TYPES = ('non_associated', 'other')
+# How a rate's band counts the participants: those of the same kind of mobility (KA121-VET, e.g.
+# 350 € up to the 100th job shadowing, 200 € beyond) or every participant of the project (KA131-HED:
+# 400 € for the first 100, students and staff together, 230 € beyond).
+BAND_SCOPES = [('same', "Same kind of mobility"), ('project', "Whole project")]
+# A students' stay of this many days or more is a long-term mobility (ErasmusPro).
+LONG_TERM_DAYS = 90
 # A group mobility before its selection is approved plans its student places; afterwards, its students.
 GROUP_PLANNING_STATES = ('draft', 'enrolment', 'selection', 'validation')
 GROUP_DONE_STATES = ('return', 'done')
@@ -131,6 +144,24 @@ class EmsErasmusMobility(models.Model):
     _name = 'ems.erasmus.mobility'
     _inherit = ['ems.erasmus.mobility', 'ems.erasmus.economy']
 
+    support_type = fields.Selection(
+        string="Organisational support as", selection=SUPPORT_TYPES, compute='_compute_support_type', store=True,
+        readonly=False, groups=ECONOMY_READERS,
+        help="The kind of mobility whose organisational support rate applies: from the participant, the dates and "
+             "the staff activity. A third country not associated to the programme, or a skills competition, an "
+             "invited expert or a hosted teacher, is chosen by hand.")
+
+    @api.depends('audience', 'proposal_activity', 'date_start', 'date_end')
+    def _compute_support_type(self):
+        for mobility in self:
+            if mobility.support_type in MANUAL_SUPPORT_TYPES:
+                continue
+            if mobility.audience == 'staff':
+                mobility.support_type = 'staff_course' if mobility.proposal_activity == 'course' else 'staff_job'
+            else:
+                days = mobility.date_start and mobility.date_end and (mobility.date_end - mobility.date_start).days + 1
+                mobility.support_type = 'student_long' if days and days >= LONG_TERM_DAYS else 'student_short'
+
     def _ems_economic_depends(self):
         return super()._ems_economic_depends() + [
             'state', 'grant_amount', 'payment_ids.amount', 'payment_ids.state', 'provision_ids.amount',
@@ -148,17 +179,39 @@ class EmsErasmusMobility(models.Model):
         return self.grant_amount, spent, paid, phase
 
 
+class EmsErasmusGroupParticipant(models.Model):
+    """Each participant of a group mobility, student or accompanying teacher, has their own grant,
+    as calculated in the Beneficiary Module. It is counted once, in the group mobility's figures."""
+    _inherit = 'ems.erasmus.group.participant'
+
+    currency_id = fields.Many2one(string="Currency", comodel_name='res.currency', compute='_compute_currency_id')
+    grant_amount = fields.Monetary(string="Grant", tracking=True, groups=ECONOMY_READERS,
+                                   help="The participant's grant, as calculated in the Beneficiary Module.")
+
+    def _compute_currency_id(self):
+        self.currency_id = self.env.company.currency_id
+
+
 class EmsErasmusGroupMobility(models.Model):
-    """A group mobility's grant, counted once for the whole group (its participants and accompanying
-    teachers have none of their own): a forecast until its selection is approved, committed
-    afterwards, and its collective invoices as what has been paid."""
+    """A group mobility's grant: the sum of its participants' grants (students and accompanying
+    teachers), each counted once, a forecast until the selection is approved and committed
+    afterwards; its collective invoices are what has been paid of it."""
     _name = 'ems.erasmus.group.mobility'
     _inherit = ['ems.erasmus.group.mobility', 'ems.erasmus.economy']
 
-    grant_amount = fields.Monetary(string="Group grant", tracking=True, groups=ECONOMY_READERS,
-                                   help="The grants of every participant of the group (students and accompanying "
-                                        "teachers), as calculated in the Beneficiary Module, counted once for the "
-                                        "whole group.")
+    grant_amount = fields.Monetary(string="Grants of the participants", compute='_compute_grant_amount', store=True,
+                                   groups=ECONOMY_READERS,
+                                   help="The sum of the grants of the participants taking part, students and "
+                                        "accompanying teachers.")
+    grant_participant_ids = fields.One2many(
+        string="Participants' grants", comodel_name='ems.erasmus.group.participant', inverse_name='group_mobility_id',
+        groups=ECONOMY_READERS, help="Each participant's grant, as calculated in the Beneficiary Module.")
+
+    @api.depends('participant_ids.grant_amount', 'participant_ids.state')
+    def _compute_grant_amount(self):
+        for mobility in self:
+            mobility.grant_amount = sum(mobility.participant_ids.filtered(
+                lambda participant: participant.state == 'active').mapped('grant_amount'))
 
     def _ems_economic_depends(self):
         return super()._ems_economic_depends() + ['state', 'grant_amount', 'invoice_ids.amount',
@@ -285,7 +338,7 @@ class EmsErasmusProject(models.Model):
             project.support_balance = project.support_generated - project.support_expense_amount
 
     @api.depends('call_year', 'kind', 'support_adjustment', 'legacy_support_generated', 'mobility_ids.state',
-                 'mobility_ids.audience', 'mobility_ids.date_start', 'mobility_ids.date_end',
+                 'mobility_ids.support_type', 'mobility_ids.date_start', 'mobility_ids.date_end',
                  'group_mobility_ids.state', 'group_mobility_ids.student_places', 'group_mobility_ids.date_start',
                  'group_mobility_ids.date_end', 'group_mobility_ids.date_start_planned',
                  'group_mobility_ids.participant_ids.state', 'group_mobility_ids.participant_ids.role')
@@ -336,7 +389,7 @@ class EmsErasmusProject(models.Model):
             [('call_year', '=', project.call_year), ('kind', '=', project.kind)])
         people = []
         for mobility in project.mobility_ids.filtered(lambda mobility: mobility.state != 'cancelled'):
-            people.append({'name': mobility.partner_id.name, 'type': 'staff' if mobility.audience == 'staff' else 'student',
+            people.append({'name': mobility.partner_id.name, 'type': mobility.support_type,
                            'start': mobility.date_start, 'end': mobility.date_end,
                            'done': mobility.state == 'done', 'key': (mobility._name, mobility.id)})
         for group in project.group_mobility_ids.filtered(lambda group: group.state != 'cancelled'):
@@ -348,7 +401,7 @@ class EmsErasmusProject(models.Model):
                 names = group.participant_ids.filtered(
                     lambda participant: participant.role == 'student' and participant.state == 'active'
                 ).partner_id.mapped('name')
-            people += [{'name': name, 'type': 'group', 'start': start, 'end': end, 'group': group.name,
+            people += [{'name': name, 'type': 'student_group', 'start': start, 'end': end, 'group': group.name,
                         'done': group.state in GROUP_DONE_STATES, 'key': (group._name, group.id, index)}
                        for index, name in enumerate(names)]
         people.sort(key=lambda person: (person['start'] or fields.Date.to_date('9999-12-31'), person['key']))
@@ -359,9 +412,12 @@ class EmsErasmusProject(models.Model):
             for measure, counts in (('forecast', True), ('generated', person['done'])):
                 if not counts:
                     continue
+                # The participant's position among those of their kind and among the whole project.
+                counters[(measure, person['type'])] += 1
                 counters[measure] += 1
-                person[f'{measure}_position'] = counters[measure]
-                rate, missing = rates._ems_rate_for(person['type'], counters[measure], person['days'])
+                positions = {'same': counters[(measure, person['type'])], 'project': counters[measure]}
+                person[f'{measure}_position'] = positions['same']
+                rate, missing = rates._ems_rate_for(person['type'], positions, person['days'])
                 person['missing'] = missing
                 person['rate'] = rate
                 person[measure] = rate.amount if rate else 0.0
@@ -521,9 +577,16 @@ class EmsErasmusSupportRate(models.Model):
 
     call_year = fields.Integer(string="Call year", required=True, aggregator=False)
     kind = fields.Selection(string="Action", selection=PROJECTS, required=True)
-    mobility_type = fields.Selection(string="Mobility", selection=SUPPORT_TYPES, required=True, default='student')
+    mobility_type = fields.Selection(string="Mobility", selection=SUPPORT_TYPES, required=True,
+                                     default='student_short')
+    band_scope = fields.Selection(string="Count the participants of", selection=BAND_SCOPES, required=True,
+                                  default='same',
+                                  help="For the band: the participant's position among those of the same kind of "
+                                       "mobility (KA121-VET), or among every participant of the project, students "
+                                       "and staff together (KA131-HED).")
     band_from = fields.Integer(string="From participant", required=True, default=1,
-                               help="Position of the participant in the project, in order of start date.")
+                               help="Position of the participant, in order of start date: e.g. 101 for a lower "
+                                    "amount from the 101st participant on.")
     band_to = fields.Integer(string="Up to participant", help="Empty or 0: no limit.")
     min_days = fields.Integer(string="Minimum days", help="Shorter stays generate no organisational support.")
     currency_id = fields.Many2one(string="Currency", comodel_name='res.currency',
@@ -548,10 +611,12 @@ class EmsErasmusSupportRate(models.Model):
         for rate in self:
             rate.display_name = f"{rate.call_year} {kinds.get(rate.kind, '')} - {types.get(rate.mobility_type, '')}"
 
-    def _ems_rate_for(self, mobility_type, position, days):
-        """The rate among self for this participant, and why there is none."""
-        rates = self.filtered(lambda rate: rate.mobility_type == mobility_type and rate.band_from <= position
-                              and (not rate.band_to or position <= rate.band_to))
+    def _ems_rate_for(self, mobility_type, positions, days):
+        """The rate among self for this participant, its position counted as each rate says
+        (`positions`: {'same': ..., 'project': ...}), and why there is none."""
+        rates = self.filtered(lambda rate: rate.mobility_type == mobility_type
+                              and rate.band_from <= positions[rate.band_scope]
+                              and (not rate.band_to or positions[rate.band_scope] <= rate.band_to))
         if not rates:
             return self.browse(), _("no organisational support rate for this call year and mobility")
         rate = rates[:1]

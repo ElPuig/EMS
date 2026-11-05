@@ -375,6 +375,7 @@
                     <field name="call_year"/>
                     <field name="kind"/>
                     <field name="mobility_type"/>
+                    <field name="band_scope"/>
                     <field name="band_from"/>
                     <field name="band_to"/>
                     <field name="min_days" optional="show"/>
@@ -422,6 +423,7 @@
                     <field name="econ_paid"/>
                     <field name="econ_pending"/>
                     <field name="recovered_amount" invisible="state != 'cancelled' and not recovered_amount"/>
+                    <field name="support_type"/>
                 </field>
             </field>
         </record>
@@ -432,11 +434,37 @@
             <field name="inherit_id" ref="view_erasmus_group_mobility_form"/>
             <field name="arch" type="xml">
                 <field name="expense_amount" position="before">
-                    <field name="grant_amount" readonly="user_role != 'team'"/>
+                    <field name="grant_amount"/>
                     <field name="econ_state" widget="badge"/>
                     <field name="econ_committed"/>
                     <field name="econ_paid"/>
                     <field name="econ_pending"/>
+                </field>
+                <field name="invoice_ids" position="before">
+                    <separator string="Participants' grants" invisible="not grant_participant_ids"/>
+                    <field name="grant_participant_ids" invisible="not grant_participant_ids"
+                           readonly="user_role != 'team'">
+                        <list editable="bottom" create="false" delete="false" decoration-muted="state == 'withdrawn'">
+                            <field name="role" readonly="1"/>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="state" column_invisible="1"/>
+                            <field name="currency_id" column_invisible="1"/>
+                            <field name="grant_amount" sum="Total"/>
+                        </list>
+                    </field>
+                    <separator string="Collective invoices"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_erasmus_group_participant_form_economy" model="ir.ui.view">
+            <field name="name">ems.erasmus.group.participant.form.economy</field>
+            <field name="model">ems.erasmus.group.participant</field>
+            <field name="inherit_id" ref="view_erasmus_group_participant_form"/>
+            <field name="arch" type="xml">
+                <field name="insurance_collective" position="after">
+                    <field name="currency_id" invisible="1"/>
+                    <field name="grant_amount"/>
                 </field>
             </field>
         </record>

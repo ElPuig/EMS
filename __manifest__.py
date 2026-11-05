@@ -560,6 +560,7 @@
         'data/custom/ems.authorization.template.csv',
         'data/custom/ir.sequence-enrollment_number.csv',
         'data/custom/erasmus/ems.erasmus.project.csv',
+        'data/custom/erasmus/ems.erasmus.support.rate.csv',
         'data/custom/erasmus/ems.erasmus.quality.history.csv',
 
         # Quality management system: the centre's process map. Load order matters - a procedure

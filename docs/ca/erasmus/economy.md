@@ -38,7 +38,7 @@ A la pestanya **Beca** d'una mobilitat veieu el seu *estat econòmic* (previst, 
 
 **Una mobilitat cancel·lada** només manté compromès el que ja s'ha pagat. Si el participant retorna diners, escriviu-ho a **Retornat pel participant**. Mentrestant, el projecte mostra un avís.
 
-**Mobilitats de grup:** a la pestanya **Despeses col·lectives**, introduïu la **Beca del grup**: les beques de tots els participants i els docents acompanyants, tal com les calcula el Beneficiary Module, una sola vegada per a tot el grup. Les factures del grup són el que se n'ha pagat.
+**Mobilitats de grup:** cada participant, alumne o docent acompanyant, té la seva beca, tal com la calcula el Beneficiary Module. Introduïu-les a la pestanya **Despeses col·lectives**, a *Beques dels participants* (un cop aprovada la selecció). Les xifres del grup les sumen, cadascuna una sola vegada. Les factures del grup són el que se n'ha pagat.
 
 ## Despeses
 
@@ -51,10 +51,11 @@ A la pestanya **Beca** d'una mobilitat veieu el seu *estat econòmic* (previst, 
 
 ## Suport organitzatiu
 
-El suport organitzatiu es calcula per participant amb les **tarifes de l'any de la convocatòria del projecte**, no les de l'any actual. Introduïu-les a **Erasmus+ > Configuració > Tarifes de suport organitzatiu**, una línia per any de convocatòria, acció i tipus de mobilitat, tal com les fixen les normes de finançament de la convocatòria:
+El suport organitzatiu són diners per gestionar les mobilitats, separats de les beques dels participants. L'EMS el calcula per participant amb les **tarifes de l'any de la convocatòria del projecte**, no les de l'any actual. Les tarifes de KA121-VET 2025 i 2026 i de KA131-HED 2026 ja són a **Erasmus+ > Configuració > Tarifes de suport organitzatiu**; quan arribi una convocatòria nova, afegiu-hi les del seu any.
 
-- **Des del participant / Fins al participant:** un tram. Per exemple, fins al participant 100 un import i a partir del 101 un altre (deixeu *Fins al* buit si no hi ha límit).
-- **Dies mínims:** les estades més curtes no generen suport.
+**La regla dels 100 participants (les columnes «Des del participant / Fins al participant»):** algunes tarifes baixen a partir del participant 100. A KA121-VET es compten els participants del mateix tipus d'activitat: unes pràctiques curtes d'alumnat o un job shadowing són 350 € fins al participant 100 i 200 € a partir del 101. A KA131-HED es compta tothom del projecte, alumnat i personal junts: 400 € per als 100 primers i 230 € a partir del 101. L'EMS els compta per data d'inici; no cal que feu res.
+
+**Quina tarifa té cada mobilitat:** l'EMS ho dedueix. Una estada d'alumnat de 90 dies o més és de llarga durada (ErasmusPro), i més curta, de curta durada; un curs estructurat del personal és *cursos i formació*, i el job shadowing o la docència, l'altra; cada alumne d'una mobilitat de grup, 100 €. Si una mobilitat és en un país tercer no associat al programa, o és un concurs de competències, un expert convidat o un docent acollit, trieu-ho a mà a **Suport organitzatiu com a**, a la pestanya **Beca**.
 
 A la pestanya Economia veieu:
 

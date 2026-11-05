@@ -38,7 +38,7 @@ On the **Grant** tab of a mobility you see its *economic state* (forecast, commi
 
 **A cancelled mobility** only keeps committed what has already been paid. If the participant gives money back, write it in **Given back by the participant**. Until then, the project shows a warning.
 
-**Group mobilities:** on the **Collective expenses** tab, enter the **Group grant**: the grants of all its participants and accompanying teachers, as calculated in the Beneficiary Module, once for the whole group. The group's invoices are what has been paid of it.
+**Group mobilities:** each participant, student or accompanying teacher, has their own grant, as calculated in the Beneficiary Module. Enter them on the **Collective expenses** tab, in *Participants' grants* (once the selection is approved). The group's figures add them up, each one once. The group's invoices are what has been paid of them.
 
 ## Expenses
 
@@ -51,10 +51,11 @@ On the **Grant** tab of a mobility you see its *economic state* (forecast, commi
 
 ## Organisational support
 
-The organisational support is calculated per participant with the **rates of the project's call year**, not the current year's. Enter them in **Erasmus+ > Configuration > Organisational support rates**, one line per call year, action and kind of mobility, as the call's funding rules set them:
+The organisational support is money to manage the mobilities, separate from the participants' grants. EMS calculates it per participant with the **rates of the project's call year**, not the current year's. The rates of KA121-VET 2025 and 2026 and KA131-HED 2026 are already in **Erasmus+ > Configuration > Organisational support rates**; when a new call comes, add its year's rates there.
 
-- **From participant / Up to participant:** a band. For example, up to the 100th participant one amount and from the 101st another one (leave *Up to* empty for no limit).
-- **Minimum days:** shorter stays don't generate support.
+**The 100-participant rule (the "From participant / Up to participant" columns):** some rates drop after the 100th participant. In KA121-VET it counts the participants of the same kind of activity: a short-term student or a job shadowing is 350 € up to the 100th and 200 € from the 101st. In KA131-HED it counts everyone in the project, students and staff together: 400 € for the first 100 and 230 € from the 101st. EMS counts them by start date; you don't need to do anything.
+
+**Which rate each mobility takes:** EMS works it out. A student's stay of 90 days or more is long-term (ErasmusPro), shorter is short-term; a staff member's structured course is *courses and training*, job shadowing or teaching the other one; each student of a group mobility, 100 €. If a mobility is in a third country not associated to the programme, or is a skills competition, an invited expert or a hosted teacher, choose it by hand in **Organisational support as** on its **Grant** tab.
 
 On the Economy tab you see:
 

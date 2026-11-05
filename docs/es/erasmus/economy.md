@@ -38,7 +38,7 @@ En la pestaña **Beca** de una movilidad ves su *estado económico* (previsto, c
 
 **Una movilidad cancelada** solo mantiene comprometido lo que ya se ha pagado. Si el participante devuelve dinero, escríbelo en **Devuelto por el participante**. Mientras tanto, el proyecto muestra un aviso.
 
-**Movilidades de grupo:** en la pestaña **Gastos colectivos**, introduce la **Beca del grupo**: las becas de todos los participantes y docentes acompañantes, tal como las calcula el Beneficiary Module, una sola vez para todo el grupo. Las facturas del grupo son lo pagado de ella.
+**Movilidades de grupo:** cada participante, alumno o docente acompañante, tiene su propia beca, tal como la calcula el Beneficiary Module. Introdúcelas en la pestaña **Gastos colectivos**, en *Becas de los participantes* (una vez aprobada la selección). Las cifras del grupo las suman, cada una una sola vez. Las facturas del grupo son lo pagado de ellas.
 
 ## Gastos
 
@@ -51,10 +51,11 @@ En la pestaña **Beca** de una movilidad ves su *estado económico* (previsto, c
 
 ## Apoyo organizativo
 
-El apoyo organizativo se calcula por participante con las **tarifas del año de la convocatoria del proyecto**, no las del año actual. Introdúcelas en **Erasmus+ > Configuración > Tarifas de apoyo organizativo**, una línea por año de convocatoria, acción y tipo de movilidad, tal como las fijan las normas de financiación de la convocatoria:
+El apoyo organizativo es dinero para gestionar las movilidades, separado de las becas de los participantes. EMS lo calcula por participante con las **tarifas del año de la convocatoria del proyecto**, no las del año actual. Las tarifas de KA121-VET 2025 y 2026 y de KA131-HED 2026 ya están en **Erasmus+ > Configuración > Tarifas de apoyo organizativo**; cuando llegue una convocatoria nueva, añade allí las de su año.
 
-- **Desde el participante / Hasta el participante:** un tramo. Por ejemplo, hasta el participante 100 un importe y a partir del 101 otro (deja *Hasta* vacío si no hay límite).
-- **Días mínimos:** las estancias más cortas no generan apoyo.
+**La regla de los 100 participantes (las columnas «Desde el participante / Hasta el participante»):** algunas tarifas bajan a partir del participante 100. En KA121-VET se cuentan los participantes del mismo tipo de actividad: unas prácticas cortas de alumnado o un job shadowing son 350 € hasta el participante 100 y 200 € a partir del 101. En KA131-HED se cuenta a todo el proyecto, alumnado y personal juntos: 400 € para los 100 primeros y 230 € a partir del 101. EMS los cuenta por fecha de inicio; no tienes que hacer nada.
+
+**Qué tarifa tiene cada movilidad:** EMS lo deduce. Una estancia de alumnado de 90 días o más es de larga duración (ErasmusPro), y más corta, de corta duración; un curso estructurado del personal es *cursos y formación*, y el job shadowing o la docencia, la otra; cada alumno de una movilidad de grupo, 100 €. Si una movilidad es en un país tercero no asociado al programa, o es un concurso de competencias, un experto invitado o un docente acogido, elígelo a mano en **Apoyo organizativo como**, en la pestaña **Beca**.
 
 En la pestaña Economía ves:
 

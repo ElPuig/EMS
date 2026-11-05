@@ -9,7 +9,7 @@ registry.category("web_tour.tours").add("ems_erasmus_economy_tour", {
     url: "/odoo/action-ems.action_erasmus_economy_panel",
     steps: () => [
         {
-            trigger: ".o_list_view .o_data_row td[name='name']:contains('2025-1-ES01-KA131-HED-000000762')",
+            trigger: ".o_list_view .o_data_row td[name='name']:contains('2019-1-ES01-KA131-HED-000000762')",
             content: "The project is on the panel",
         },
         {

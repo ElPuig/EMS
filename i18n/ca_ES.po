@@ -10051,6 +10051,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_economy_panel_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form_economy
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form_economy
 msgid "Total"
 msgstr "Total"
 
@@ -35521,6 +35522,7 @@ msgstr "Taxes del curs"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__currency_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_line__currency_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__currency_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__currency_id
 msgid "Currency"
 msgstr "Moneda"
 
@@ -35562,6 +35564,7 @@ msgstr "Pagament final"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 #: code:addons/ems/models/erasmus/economy.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form_economy
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__grant_amount
 msgid "Grant"
 msgstr "Beca"
 
@@ -35823,6 +35826,7 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__grant_amount
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_participant__grant_amount
 msgid "The participant's grant, as calculated in the Beneficiary Module."
 msgstr ""
 "La beca de la persona participant, tal com s'ha calculat al Beneficiary "
@@ -37667,6 +37671,7 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_export__scope__project
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_support_rate__band_scope__project
 msgid "Whole project"
 msgstr "Projecte sencer"
 
@@ -45540,11 +45545,6 @@ msgid "Grants"
 msgstr "Beques"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__grant_amount
-msgid "Group grant"
-msgstr "Beca del grup"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/economy.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__attachment_ids
@@ -45772,11 +45772,6 @@ msgid "Pending payment"
 msgstr "Pendent de pagament"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_support_rate__band_from
-msgid "Position of the participant in the project, in order of start date."
-msgstr "Posició del participant en el projecte, per ordre de data d'inici."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__support_adjustment_reason
 msgid "Reason for the correction"
 msgstr "Motiu de la correcció"
@@ -45850,21 +45845,6 @@ msgid "Shorter stays generate no organisational support."
 msgstr "Les estades més curtes no generen suport organitzatiu."
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_support_rate__mobility_type__staff
-msgid "Staff mobilities"
-msgstr "Mobilitats del personal"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_support_rate__mobility_type__group
-msgid "Students of group mobilities"
-msgstr "Alumnat de mobilitats de grup"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_support_rate__mobility_type__student
-msgid "Students' individual mobilities"
-msgstr "Mobilitats individuals de l'alumnat"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_economy_panel_list
 msgid "Support generated"
 msgstr "Suport generat"
@@ -45927,17 +45907,6 @@ msgstr "La subvenció concedida més les modificacions."
 msgid "The grant of a mobility not confirmed yet: it commits no budget."
 msgstr ""
 "La beca d'una mobilitat encara no confirmada: no compromet pressupost."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_group_mobility__grant_amount
-msgid ""
-"The grants of every participant of the group (students and accompanying "
-"teachers), as calculated in the Beneficiary Module, counted once for the "
-"whole group."
-msgstr ""
-"Les beques de tots els participants del grup (alumnat i docents "
-"acompanyants), tal com les calcula el Beneficiary Module, comptades una sola"
-" vegada per a tot el grup."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_project__forecast_amount
@@ -46148,3 +46117,125 @@ msgstr ""
 #: code:addons/ems/models/erasmus/economy.py:0
 msgid "the mobility has no dates"
 msgstr "la mobilitat no té dates"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form_economy
+msgid "Collective invoices"
+msgstr "Factures col·lectives"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__band_scope
+msgid "Count the participants of"
+msgstr "Compta els participants de"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_mobility__grant_participant_ids
+msgid "Each participant's grant, as calculated in the Beneficiary Module."
+msgstr ""
+"La beca de cada participant, tal com la calcula el Beneficiary Module."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_support_rate__band_scope
+msgid ""
+"For the band: the participant's position among those of the same kind of "
+"mobility (KA121-VET), or among every participant of the project, students "
+"and staff together (KA131-HED)."
+msgstr ""
+"Per al tram: la posició del participant entre els del mateix tipus de "
+"mobilitat (KA121-VET), o entre tots els participants del projecte, alumnat i"
+" personal junts (KA131-HED)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__grant_amount
+msgid "Grants of the participants"
+msgstr "Beques dels participants"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__support_type__non_associated
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_support_rate__mobility_type__non_associated
+msgid "Individual activity in a third country not associated to the programme"
+msgstr "Activitat individual en un país tercer no associat al programa"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__support_type
+msgid "Organisational support as"
+msgstr "Suport organitzatiu com a"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__grant_participant_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form_economy
+msgid "Participants' grants"
+msgstr "Beques dels participants"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_support_rate__band_from
+msgid ""
+"Position of the participant, in order of start date: e.g. 101 for a lower "
+"amount from the 101st participant on."
+msgstr ""
+"Posició del participant, per ordre de data d'inici: p. ex. 101 per a un "
+"import més baix a partir del participant 101."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_support_rate__band_scope__same
+msgid "Same kind of mobility"
+msgstr "Mateix tipus de mobilitat"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__support_type__other
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_support_rate__mobility_type__other
+msgid "Skills competitions, invited experts or hosted teachers in training"
+msgstr ""
+"Concursos de competències, experts convidats o docents en formació acollits"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__support_type__staff_course
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_support_rate__mobility_type__staff_course
+msgid "Staff: courses and training"
+msgstr "Personal: cursos i formació"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__support_type__staff_job
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_support_rate__mobility_type__staff_job
+msgid "Staff: job shadowing or teaching"
+msgstr "Personal: job shadowing o docència"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__support_type__student_group
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_support_rate__mobility_type__student_group
+msgid "Students: group mobility"
+msgstr "Alumnat: mobilitat de grup"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__support_type__student_long
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_support_rate__mobility_type__student_long
+msgid "Students: long-term mobility (ErasmusPro)"
+msgstr "Alumnat: mobilitat de llarga durada (ErasmusPro)"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__support_type__student_short
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_support_rate__mobility_type__student_short
+msgid "Students: short-term individual mobility"
+msgstr "Alumnat: mobilitat individual de curta durada"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__support_type
+msgid ""
+"The kind of mobility whose organisational support rate applies: from the "
+"participant, the dates and the staff activity. A third country not "
+"associated to the programme, or a skills competition, an invited expert or a"
+" hosted teacher, is chosen by hand."
+msgstr ""
+"El tipus de mobilitat la tarifa de suport organitzatiu del qual s'aplica: "
+"segons el participant, les dates i l'activitat del personal. Un país tercer "
+"no associat al programa, o un concurs de competències, un expert convidat o "
+"un docent acollit, es tria a mà."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_mobility__grant_amount
+msgid ""
+"The sum of the grants of the participants taking part, students and "
+"accompanying teachers."
+msgstr ""
+"La suma de les beques dels participants que hi prenen part, alumnat i "
+"docents acompanyants."

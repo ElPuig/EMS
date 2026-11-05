@@ -16,7 +16,7 @@ from .test_erasmus_group_mobility import ErasmusGroupMobilityCase
 class ErasmusEconomyMixin:
     """Issue #762 - shared steps: a project's rates, its expenses and their payment."""
 
-    def _rates(self, project, *bands, mobility_type='student', year=None, **vals):
+    def _rates(self, project, *bands, mobility_type='student_short', year=None, **vals):
         """One rate per (band_from, band_to, amount) of the project's call year."""
         return self.env['ems.erasmus.support.rate'].create([{
             'call_year': year or project.call_year, 'kind': project.kind, 'mobility_type': mobility_type,
@@ -41,8 +41,9 @@ class TestErasmusEconomy(ErasmusEconomyMixin, ErasmusGrantCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.director_user = create_role_user(cls, 'director', 'test_economy_director')
+        # A call year with no seeded rates: each test sets its own (the seeded ones are tested apart).
         cls.project = cls.env['ems.erasmus.project'].create({
-            'name': '2025-1-ES01-KA121-VET-000000762', 'kind': 'ka121_vet', 'budget': 10000})
+            'name': '2019-1-ES01-KA121-VET-000000762', 'kind': 'ka121_vet', 'budget': 10000})
 
     def _committed_mobility(self, grant=1500):
         first, second = self._preparing()
@@ -50,7 +51,7 @@ class TestErasmusEconomy(ErasmusEconomyMixin, ErasmusGrantCase):
         return first, second
 
     def test_call_year_comes_from_the_agreement_number_and_the_grant_is_available(self):
-        self.assertEqual(self.project.call_year, 2025)
+        self.assertEqual(self.project.call_year, 2019)
         self.assertEqual((self.project.grant_current, self.project.available_amount), (10000, 10000))
         self.env['ems.erasmus.project.amendment'].create({'project_id': self.project.id, 'amount': 500,
                                                           'name': 'Amendment 1'})
@@ -181,11 +182,11 @@ class TestErasmusEconomy(ErasmusEconomyMixin, ErasmusGrantCase):
         first.write({'date_start': date(2027, 6, 1), 'date_end': date(2027, 6, 30)})
         second.write({'date_start': date(2027, 7, 1), 'date_end': date(2027, 7, 5)})
         self._rates(self.project, (1, 1, 500), (2, 0, 300))
-        self._rates(self.project, (1, 0, 999), year=2026)
+        self._rates(self.project, (1, 0, 999), year=2018)
         self.assertEqual((self.project.support_forecast, self.project.support_generated), (800, 0))
         (first | second)._ems_set_state('done')
         self.assertEqual(self.project.support_generated, 800, "The second participant is in the second band.")
-        self.env['ems.erasmus.support.rate'].search([('call_year', '=', 2025)]).min_days = 10
+        self.env['ems.erasmus.support.rate'].search([('call_year', '=', 2019)]).min_days = 10
         self.assertEqual(self.project.support_generated, 500, "A stay shorter than the minimum generates none.")
         self.project.write({'support_adjustment': 50, 'support_adjustment_reason': 'Agreement annex'})
         self._expense(self.project, 120, category='organisational_support')
@@ -201,6 +202,31 @@ class TestErasmusEconomy(ErasmusEconomyMixin, ErasmusGrantCase):
         self.assertEqual(self.project.support_generated, 350)
         self._rates(self.project, (1, 0, 999), year=2027)
         self.assertEqual(self.project.support_generated, 350)
+
+    def test_seeded_rates_follow_the_funding_rules_of_each_action(self):
+        Rate = self.env['ems.erasmus.support.rate']
+        vet = Rate.search([('call_year', '=', 2025), ('kind', '=', 'ka121_vet')])
+        hed = Rate.search([('call_year', '=', 2026), ('kind', '=', 'ka131_hed')])
+        amount = lambda rates, kind, same, project: rates._ems_rate_for(
+            kind, {'same': same, 'project': project}, 30)[0].amount
+        self.assertEqual(amount(vet, 'student_short', 100, 250), 350, "VET counts the same kind of mobility.")
+        self.assertEqual(amount(vet, 'student_short', 101, 101), 200)
+        self.assertEqual((amount(vet, 'student_long', 500, 500), amount(vet, 'student_group', 1, 1),
+                          amount(vet, 'staff_course', 1, 1), amount(vet, 'non_associated', 1, 1)), (500, 100, 100, 500))
+        self.assertEqual(amount(hed, 'staff_job', 3, 100), 400, "HED counts students and staff together.")
+        self.assertEqual(amount(hed, 'student_short', 3, 101), 230)
+
+    def test_the_kind_of_mobility_comes_from_its_dates_and_activity_unless_set_by_hand(self):
+        first, _second = self._committed_mobility()
+        project = self.env['ems.erasmus.project'].create({'name': '2025-1-ES01-KA121-VET-000000765',
+                                                          'kind': 'ka121_vet', 'budget': 1})
+        first.write({'project_id': project.id, 'date_start': date(2027, 6, 1), 'date_end': date(2027, 6, 30)})
+        self.assertEqual((first.support_type, project.support_forecast), ('student_short', 350))
+        first.date_end = date(2027, 9, 30)
+        self.assertEqual((first.support_type, project.support_forecast), ('student_long', 500))
+        first.support_type = 'non_associated'
+        first.date_end = date(2027, 6, 30)
+        self.assertEqual(first.support_type, 'non_associated', "A type chosen by hand is kept.")
 
     def test_missing_rates_and_overspending_are_warned(self):
         first, _second = self._committed_mobility(grant=12000)
@@ -259,24 +285,33 @@ class TestErasmusGroupEconomy(ErasmusEconomyMixin, ErasmusGroupMobilityCase):
         super().setUpClass()
         cls.secretary_user = create_role_user(cls, 'secretary', 'test_economy_group_secretary')
 
-    def test_a_group_counts_its_grant_once_and_only_its_students_generate_support(self):
-        self.mobility.grant_amount = 9000
+    def test_each_participant_has_a_grant_counted_once_and_only_students_generate_support(self):
+        """The seeded 2025 KA121-VET rates: 100 € per student of a group mobility, none for its
+        accompanying teachers (8 students and 2 teachers: 800 €)."""
         self.project.write({'name': '2025-1-ES01-KA121-VET-000000764', 'budget': 20000})
-        self._rates(self.project, (1, 0, 100), mobility_type='group')
-        self.assertEqual((self.mobility.econ_state, self.project.forecast_amount), ('forecast', 9000))
         self.assertEqual(self.project.support_forecast, 100 * self.mobility.student_places)
         self._approved()
-        students = self.mobility.participant_ids.filtered(lambda participant: participant.role == 'student')
-        self.assertTrue(self.mobility.participant_ids - students, "The accompanying teachers take part too.")
-        self.assertEqual((self.mobility.econ_state, self.project.committed_amount), ('committed', 9000))
+        participants = self.mobility.grant_participant_ids
+        students = participants.filtered(lambda participant: participant.role == 'student')
+        teachers = participants - students
+        self.assertTrue(teachers, "The accompanying teachers take part too.")
+        students.write({'grant_amount': 900})
+        teachers.write({'grant_amount': 1200})
+        total = 900 * len(students) + 1200 * len(teachers)
+        self.assertEqual((self.mobility.grant_amount, self.mobility.econ_state), (total, 'committed'))
+        self.assertEqual(self.project.committed_amount, total, "Each participant's grant counts once.")
         self.mobility.sudo()._ems_set_state('return')
         self.assertEqual(self.project.support_generated, 100 * len(students))
+        if len(students) == 8 and len(teachers) == 2:
+            self.assertEqual(self.project.support_generated, 800)
         invoice = self.env['ems.erasmus.invoice'].create({
             'name': 'F-GROUP-1', 'amount': 4000, 'project_id': self.project.id,
             'group_mobility_id': self.mobility.id})
-        self.assertEqual(self.project.committed_amount, 9000, "A collective invoice is part of the group's grant.")
+        self.assertEqual(self.project.committed_amount, total, "A collective invoice is part of the grants.")
         self._pay(invoice, self.secretary_user)
         self.assertEqual((self.mobility.econ_paid, self.mobility.econ_state), (4000, 'partial'))
+        with self.assertRaises(AccessError):
+            students[:1].with_user(self.leader_user).grant_amount = 1
 
 
 @tagged('post_install', '-at_install')
@@ -286,7 +321,7 @@ class TestErasmusEconomyTour(ErasmusEconomyMixin, HttpCase, ErasmusGrantCase):
 
     def test_economy_tour(self):
         project = self.env['ems.erasmus.project'].create({
-            'name': '2025-1-ES01-KA131-HED-000000762', 'kind': 'ka131_hed', 'budget': 5000})
+            'name': '2019-1-ES01-KA131-HED-000000762', 'kind': 'ka131_hed', 'budget': 5000})
         self._expense(project, 75, concept='Merchandising')
         self.secretary_user.lang = 'en_US'
         self.start_tour('/odoo/action-ems.action_erasmus_economy_panel', 'ems_erasmus_economy_tour', login=self.secretary_user.login)

@@ -35,7 +35,7 @@ erDiagram
 | `ems.erasmus.project.income` | A transfer SEPIE made: date, kind (prefinancing, further prefinancing, balance, other), amount (> 0), files. A *balance* sets the project's `final_payment_date` if empty (the documents' keeping period counts from it). |
 | `ems.erasmus.expense` | An expense of the project outside the participants' grants (working meals, merchandising, dissemination, language preparation...): reference `DESP-<year>-<id>`, project, concept, category (*Organisational support* or *Other project expenses*), date, amount (> 0), supplier, optional mobility (of the same project), invoice or receipt files, notes; `state` to pay / paid / cancelled. |
 | `ems.erasmus.expense.correct.wizard` | *Correct*: the only way to change a paid (or cancelled) expense's figures, with a required reason posted in its chatter; sets `corrected`. |
-| `ems.erasmus.support.rate` | Organisational support per participant: call year, action (KA121-VET / KA131-HED), kind of mobility (students' individual, staff, students of group mobilities), band of participants (`band_from`-`band_to`, 0 = no limit), `min_days`, amount, conditions. Bands of the same year, action and kind never overlap. |
+| `ems.erasmus.support.rate` | Organisational support per participant: call year, action (KA121-VET / KA131-HED), kind of mobility (`SUPPORT_TYPES`), band of participants (`band_from`-`band_to`, 0 = no limit) counted as `band_scope` says (`same`: among the same kind of mobility, KA121-VET; `project`: among every participant of the project, KA131-HED), `min_days`, amount, conditions. Bands of the same year, action and kind never overlap. Seeded from `data/custom/erasmus/ems.erasmus.support.rate.csv` (KA121-VET 2025 and 2026, KA131-HED 2026), frozen afterwards like every `data/custom/` record: a new year's rates are added in the app. |
 
 ## Economic state of a mobility
 
@@ -49,8 +49,11 @@ The economic state never replaces the mobility's own state; it is derived from i
 
 `economic_figures(planned, spent, paid, phase, recovered)`:
 
-- **planned**: the grant (`grant_amount`; for a group, its one *Group grant*, the grants of all its
-  participants and accompanying teachers counted **once**: they have none of their own).
+- **planned**: the grant (`grant_amount`; for a group, the sum of its active participants' own
+  grants, `ems.erasmus.group.participant.grant_amount`, students and accompanying teachers alike,
+  entered on the group's *Collective expenses* tab; each is counted **once**, in the group, never as
+  a mobility of its own). Before the selection is approved a group has no participants, so no
+  forecast.
 - **spent**: what has been requested or invoiced out of it: the grant payments plus the provisions
   of services (individual), the collective invoices (group).
 - **paid**: payments with state *paid* plus provisions whose invoice is paid (individual), paid
@@ -89,13 +92,19 @@ which no field links: `ems.erasmus.support.rate`'s create/write/unlink call
 
 `_ems_support_lines()` lists every eligible participant of the project, ordered by start date:
 
-- individual mobilities not cancelled (kind *student* or *staff* from `audience`);
+- individual mobilities not cancelled, with their `support_type` (stored compute, editable): a
+  staff mobility is *courses and training* when its activity is a structured course, *job shadowing
+  or teaching* otherwise; a student's is *long-term (ErasmusPro)* from 90 days on, *short-term*
+  below. *Third country not associated* and *skills competitions, invited experts or hosted
+  teachers* are only set by hand, and a later change of dates keeps them;
 - group mobilities not cancelled: before the selection is approved, one line per **student place**
   (forecast only); afterwards, its active **student** participants. Leaders and accompanying
   teachers are never lines.
 
 Each line takes the rate of the project's `call_year` and `kind` (never the current year's) for its
-kind and its **position** in the project (the band), separately for the forecast (every line) and
+kind and its **position** (the band; e.g. KA121-VET: 350 € up to the 100th short-term student, 200 €
+from the 101st; KA131-HED: 400 € for the first 100 participants, students and staff together, 230 €
+beyond), separately for the forecast (every line) and
 for what is generated (only completed ones: individual *Closed*, group *on return* or *closed*). A
 stay shorter than `min_days` generates nothing. A line with no rate, or with no dates when a rate
 needs a minimum, has a `missing` reason, shown in the warnings and the Excel. The organisational
@@ -134,8 +143,9 @@ enough information for the organisational support.
   dropdown's **Export Excel**.
 - *Financial management > Expenses* (`action_erasmus_expense`), *Configuration > Organisational
   support rates* (`action_erasmus_support_rate`).
-- The mobility's *Grant* tab and the group mobility's *Collective expenses* tab show their economic
-  figures; the group's *Group grant* is entered there.
+- The mobility's *Grant* tab shows its economic figures and its *Organisational support as*; the
+  group mobility's *Collective expenses* tab, its figures and each participant's grant (editable by
+  the team), also on the participant's form.
 
 ## Excel export
 
@@ -166,4 +176,5 @@ them.
 
 New models and stored fields only: on an upgrade, Odoo creates the columns and computes every
 stored figure for the existing projects and mobilities (`call_year` from each agreement number). No
-migration and no seeded rates: the coordination enters each call's rates from the funding rules.
+migration. The rates of the calls known so far are seeded once from `data/custom/` (clean install and
+upgrade alike); the coordination adds the next years' in the app.

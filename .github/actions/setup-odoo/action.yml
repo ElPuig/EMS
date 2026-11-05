@@ -85,7 +85,7 @@ runs:
         SECRET=$(python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
         sudo tee /etc/odoo/odoo.conf > /dev/null <<EOF
         [options]
-        addons_path = /usr/lib/python3/dist-packages/odoo/addons,/opt/modules,/opt/modules/queue,/opt/modules/partner-contact
+        addons_path = /usr/lib/python3/dist-packages/odoo/addons,/opt/modules
         db_host = localhost
         db_port = 5432
         db_user = odoo
@@ -94,6 +94,8 @@ runs:
         secret = ${SECRET}
         EOF
 
+    # install.sh clones the OCA repositories (scripts/oca_repos.sh) and adds them to the
+    # addons_path above, as on any other installation.
     # 'dev' is required: install.sh interactively prompts for prod/dev when called with no
     # argument (see CLAUDE.md's "Development vs. production environment declaration"), and a
     # runner has no stdin/TTY to answer it - without it every job hangs on this step (confirmed

@@ -131,6 +131,9 @@ class TestErasmusStaffCall(ErasmusStaffCase):
             self.staff_call.audience = 'student'
 
     def test_a_staff_call_opens_without_places_and_with_the_call_documents(self):
+        # The validators default to the Director: the test's own, not whoever the database has.
+        self.env.company.director_id = create_role_employee(
+            self, create_role_user(self, 'director', 'test_erasmus_staff_open_director'))
         call = self.env['ems.erasmus.call'].create({
             'name': 'Staff call without places', 'audience': 'staff', 'date_open': self.staff_call.date_open,
             'date_close': self.staff_call.date_close})

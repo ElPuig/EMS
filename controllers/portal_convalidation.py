@@ -19,7 +19,7 @@ class EmsPortalConvalidationController(CustomerPortal):
     answering and cancelling are always possible. sudo because portal users have no ACL on
     ems.convalidation - see docs/en/developers/grades/convalidation.md."""
 
-    _redirect = '/my/convalidaciones'
+    _convalidation_redirect = '/my/convalidaciones'
 
     def _ems_convalidation_student(self):
         """The student the portal user may file and follow up requests for, or an empty
@@ -79,13 +79,13 @@ class EmsPortalConvalidationController(CustomerPortal):
     def portal_convalidation_submit(self, **post):
         student = self._ems_convalidation_student()
         if not student:
-            return request.redirect(self._redirect)
+            return request.redirect(self._convalidation_redirect)
         if not self._ems_convalidation_company()._ems_convalidation_period_open():
-            return request.redirect(f'{self._redirect}?error=closed')
+            return request.redirect(f'{self._convalidation_redirect}?error=closed')
         Convalidation = request.env['ems.convalidation'].sudo()
         study = Convalidation._ems_portal_study(student)
         if not study:
-            return request.redirect(f'{self._redirect}?error=no_study')
+            return request.redirect(f'{self._convalidation_redirect}?error=no_study')
 
         requestable = Convalidation._ems_portal_requestable_subjects(student, study)
         requested_ids = set()
@@ -94,27 +94,27 @@ class EmsPortalConvalidationController(CustomerPortal):
                 requested_ids.add(int(value))
         subjects = requestable.filtered(lambda subject: subject.id in requested_ids)
         if not subjects:
-            return request.redirect(f'{self._redirect}?error=no_subjects')
+            return request.redirect(f'{self._convalidation_redirect}?error=no_subjects')
 
         basis = post.get('basis')
         if basis not in dict(Convalidation._fields['basis'].selection):
-            return request.redirect(f'{self._redirect}?error=no_basis')
+            return request.redirect(f'{self._convalidation_redirect}?error=no_basis')
 
         # Prior studies say where they were passed; nothing else does.
         origin = post.get('prior_studies_origin') if basis == 'prior_studies' else False
         if basis == 'prior_studies' and origin not in dict(Convalidation._fields['prior_studies_origin'].selection):
-            return request.redirect(f'{self._redirect}?error=no_origin')
+            return request.redirect(f'{self._convalidation_redirect}?error=no_origin')
 
         # Supporting documents are mandatory unless the studies were passed here (issue #579): the
         # centre looks its own records up, and can always ask for more afterwards.
         files = [upload for upload in request.httprequest.files.getlist('documents') if upload.filename]
         if not files and Convalidation._ems_documents_required(basis, origin):
-            return request.redirect(f'{self._redirect}?error=no_documents')
+            return request.redirect(f'{self._convalidation_redirect}?error=no_documents')
 
         # Issue #644: the attendance notice must be accepted, and each subject says whether the
         # student will attend it until the resolution.
         if not post.get('attendance_notice_accepted'):
-            return request.redirect(f'{self._redirect}?error=no_notice')
+            return request.redirect(f'{self._convalidation_redirect}?error=no_notice')
 
         requester = request.env.user.partner_id
         convalidation = Convalidation.create({
@@ -133,7 +133,7 @@ class EmsPortalConvalidationController(CustomerPortal):
         })
         attachments = self._ems_store_uploads(convalidation, files)
         convalidation.attachment_ids = [(6, 0, attachments.ids)]
-        return request.redirect(f'{self._redirect}?submitted=1')
+        return request.redirect(f'{self._convalidation_redirect}?submitted=1')
 
     def _ems_store_uploads(self, convalidation, files):
         """Uploaded files as attachments of the request itself, so they follow its access
@@ -154,13 +154,13 @@ class EmsPortalConvalidationController(CustomerPortal):
         convalidation = request.env['ems.convalidation'].sudo().browse(convalidation_id)
         if not (student and convalidation.exists() and convalidation.student_id == student
                 and convalidation.state in REVIEW_STATES):
-            return request.redirect(self._redirect)
+            return request.redirect(self._convalidation_redirect)
         files = [upload for upload in request.httprequest.files.getlist('documents') if upload.filename]
         message = (post.get('message') or '').strip()[:2000]
         if not files and not message:
-            return request.redirect(f'{self._redirect}?error=no_reply')
+            return request.redirect(f'{self._convalidation_redirect}?error=no_reply')
         convalidation._ems_portal_add_documents(self._ems_store_uploads(convalidation, files), message)
-        return request.redirect(f'{self._redirect}?replied=1')
+        return request.redirect(f'{self._convalidation_redirect}?replied=1')
 
     @http.route('/my/convalidaciones/cancel/<int:convalidation_id>', type='http', auth='user',
                 methods=['POST'], website=True)
@@ -170,7 +170,7 @@ class EmsPortalConvalidationController(CustomerPortal):
         if student and convalidation.exists() and convalidation.student_id == student \
                 and convalidation._ems_is_cancellable():
             convalidation._ems_cancel()
-        return request.redirect(self._redirect)
+        return request.redirect(self._convalidation_redirect)
 
     @http.route('/my/convalidaciones/resolution/<int:convalidation_id>', type='http', auth='user', website=True)
     def portal_convalidation_resolution(self, convalidation_id, **kwargs):
@@ -180,10 +180,10 @@ class EmsPortalConvalidationController(CustomerPortal):
         if not (partner._ems_convalidation_portal_visible() and convalidation.exists()
                 and convalidation.student_id == partner.get_portal_student()
                 and convalidation._ems_resolution_is_official()):
-            return request.redirect(self._redirect)
+            return request.redirect(self._convalidation_redirect)
         document = convalidation.resolution_pdf_id
         if not document:
-            return request.redirect(self._redirect)
+            return request.redirect(self._convalidation_redirect)
         return request.make_response(document.raw, headers=[
             ('Content-Type', document.mimetype or 'application/pdf'),
             ('Content-Disposition', http.content_disposition(document.name)),

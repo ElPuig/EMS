@@ -214,9 +214,9 @@ class ems_contact_portal(models.Model):
 
     def _ems_informed_recipients(self):
         """Whoever is kept informed about this student (convalidations, issue #529; Erasmus+
-        results and place offers; ex officio withdrawal, issue #726): the student always, and his family too while he is a minor or
-        when he authorized sharing with it (auth_share). Informing only: acting or signing for him
-        is _ems_notification_recipients' rule."""
+        results and place offers; ex officio withdrawal, issue #726): the student always, and his
+        family too while he is a minor or when he authorized sharing with it (auth_share).
+        Informing only: acting or signing for him is _ems_notification_recipients' rule."""
         self.ensure_one()
         if self.is_adult and not self.auth_share:
             return self

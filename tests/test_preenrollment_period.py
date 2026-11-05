@@ -67,14 +67,16 @@ class TestPreenrollmentPeriod(TransactionCase):
                 self.assertNotIn(self.enrollment_menu.id, visible, "an empty folder is left behind")
 
     def test_folders_above_stay_while_they_have_something_to_open(self):
-        """A tutor keeps Academic management for the authorizations; guidance and coexistence had
-        nothing else there, so it goes too."""
+        """A tutor keeps Academic management for the authorizations; guidance and coexistence for
+        the ex officio withdrawals (issue #726)."""
         close_yearly_period(self.env, 'preenrollment')
         self.assertIn(self.academic_menu.id, self._visible(self.tutor))
         self.assertIn(self.env.ref('ems.menu_ems_authorization_root').id, self._visible(self.tutor))
         for user in self.restricted_users[2:]:
             with self.subTest(user=user.login):
-                self.assertNotIn(self.academic_menu.id, self._visible(user))
+                visible = self._visible(user)
+                self.assertIn(self.academic_menu.id, visible)
+                self.assertIn(self.env.ref('ems.menu_ems_ex_officio_withdrawals').id, visible)
 
     def test_always_roles_see_enrollment_while_closed(self):
         close_yearly_period(self.env, 'preenrollment')

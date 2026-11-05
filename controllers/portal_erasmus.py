@@ -22,7 +22,7 @@ class EmsPortalErasmusController(CustomerPortal):
     have no ACL on the Erasmus models; every route checks eligibility itself. See
     docs/en/developers/erasmus/erasmus.md."""
 
-    _redirect = '/my/erasmus'
+    _erasmus_redirect = '/my/erasmus'
     # Staff apply and prepare their mobility in the backend, never on the portal (the 2026-11-04 review).
     _staff_redirect = '/odoo/action-ems.action_erasmus_staff_calls'
 
@@ -86,7 +86,7 @@ class EmsPortalErasmusController(CustomerPortal):
     def portal_erasmus_satisfaction(self, survey_id, **kwargs):
         survey = self._ems_satisfaction_survey(survey_id)
         if not survey:
-            return request.redirect(self._redirect)
+            return request.redirect(self._erasmus_redirect)
         return self._ems_satisfaction_render(survey)
 
     @http.route('/my/erasmus/satisfaction/<int:survey_id>/answer', type='http', auth='user', methods=['POST'],
@@ -96,7 +96,7 @@ class EmsPortalErasmusController(CustomerPortal):
         what did not work; any other score is saved at once."""
         survey = self._ems_satisfaction_survey(survey_id)
         if not survey:
-            return request.redirect(self._redirect)
+            return request.redirect(self._erasmus_redirect)
         score = int(post['score']) if (post.get('score') or '').isdigit() else 0
         what_failed = (post.get('what_failed') or '').strip()[:4000]
         comment = (post.get('comment') or '').strip()[:4000]
@@ -109,7 +109,7 @@ class EmsPortalErasmusController(CustomerPortal):
             survey._ems_portal_answer(score, what_failed, comment)
         except UserError:
             return self._ems_satisfaction_render(survey, error=True, comment=comment)
-        return request.redirect(f'{self._redirect}?satisfaction_answered=1')
+        return request.redirect(f'{self._erasmus_redirect}?satisfaction_answered=1')
 
     @http.route('/my/erasmus/commitment/<int:mobility_id>', type='http', auth='user', methods=['POST'], website=True)
     def portal_erasmus_guardian_commitment(self, mobility_id, **post):
@@ -118,12 +118,12 @@ class EmsPortalErasmusController(CustomerPortal):
         mobility = request.env.user.partner_id._ems_erasmus_guardian_mobilities().filtered(
             lambda mobility: mobility.id == mobility_id)
         if not mobility:
-            return request.redirect(f'{self._redirect}?error=1')
+            return request.redirect(f'{self._erasmus_redirect}?error=1')
         try:
             mobility.action_sign_commitment(bool(post.get('accepted')), request.httprequest.remote_addr, guardian=True)
         except UserError:
-            return request.redirect(f'{self._redirect}?error=1')
-        return request.redirect(self._redirect)
+            return request.redirect(f'{self._erasmus_redirect}?error=1')
+        return request.redirect(self._erasmus_redirect)
 
     @http.route('/my/erasmus/call/<int:call_id>', type='http', auth='user', website=True)
     def portal_erasmus_application(self, call_id, **kwargs):
@@ -189,7 +189,7 @@ class EmsPortalErasmusController(CustomerPortal):
         call = self._ems_erasmus_call(call_id)
         if not call:
             return request.redirect('/my/home')
-        page = f'{self._redirect}/call/{call.id}'
+        page = f'{self._erasmus_redirect}/call/{call.id}'
         Application = request.env['ems.erasmus.application'].sudo()
         try:
             application = Application._ems_portal_get_or_create(call, request.env.user.partner_id)
@@ -218,14 +218,14 @@ class EmsPortalErasmusController(CustomerPortal):
         except UserError:
             return request.redirect(f'{page}?error=1')
         if post.get('submit'):
-            return request.redirect(f'{self._redirect}?submitted=1')
+            return request.redirect(f'{self._erasmus_redirect}?submitted=1')
         return request.redirect(f'{page}?saved=1')
 
     @http.route('/my/erasmus/call/<int:call_id>/rules', type='http', auth='user', website=True)
     def portal_erasmus_rules(self, call_id, **kwargs):
         call = self._ems_erasmus_call(call_id)
         if not (call and call.rules_document):
-            return request.redirect(self._redirect)
+            return request.redirect(self._erasmus_redirect)
         return request.env['ir.binary']._get_stream_from(
             call, 'rules_document', filename_field='rules_filename').get_response(
             as_attachment=True)
@@ -244,9 +244,9 @@ class EmsPortalErasmusController(CustomerPortal):
     def portal_erasmus_resolution(self, call_id, resolution_id, **kwargs):
         resolution = self._ems_erasmus_resolution(call_id, resolution_id)
         if not resolution:
-            return request.redirect(self._redirect)
-        return self._ems_render_resolution(resolution, f'{self._redirect}/call/{call_id}',
-                                           f'{self._redirect}/call/{call_id}/resolution/{resolution.id}')
+            return request.redirect(self._erasmus_redirect)
+        return self._ems_render_resolution(resolution, f'{self._erasmus_redirect}/call/{call_id}',
+                                           f'{self._erasmus_redirect}/call/{call_id}/resolution/{resolution.id}')
 
     def _ems_render_resolution(self, resolution, back_url, list_url):
         """A published list's page (a call's or a group mobility's)."""
@@ -261,7 +261,7 @@ class EmsPortalErasmusController(CustomerPortal):
     def portal_erasmus_resolution_pdf(self, call_id, resolution_id, **kwargs):
         resolution = self._ems_erasmus_resolution(call_id, resolution_id)
         if not resolution:
-            return request.redirect(self._redirect)
+            return request.redirect(self._erasmus_redirect)
         return self._ems_resolution_pdf(resolution)
 
     def _ems_resolution_pdf(self, resolution):
@@ -273,7 +273,7 @@ class EmsPortalErasmusController(CustomerPortal):
         call = self._ems_erasmus_call(call_id)
         if not call:
             return request.redirect('/my/home')
-        page = f'{self._redirect}/call/{call.id}'
+        page = f'{self._erasmus_redirect}/call/{call.id}'
         application = request.env['ems.erasmus.application'].sudo().search([
             ('call_id', '=', call.id), ('partner_id', '=', request.env.user.partner_id.id)])
         files = [(upload.filename, upload.read()) for upload in request.httprequest.files.getlist('claim_files')
@@ -292,7 +292,7 @@ class EmsPortalErasmusController(CustomerPortal):
         call = self._ems_erasmus_call(call_id)
         if not call:
             return request.redirect('/my/home')
-        page = f'{self._redirect}/call/{call.id}'
+        page = f'{self._erasmus_redirect}/call/{call.id}'
         offer = request.env['ems.erasmus.offer'].sudo().search([
             ('call_id', '=', call.id), ('partner_id', '=', request.env.user.partner_id.id),
             ('state', '=', 'pending')], limit=1)
@@ -318,7 +318,7 @@ class EmsPortalErasmusController(CustomerPortal):
         call = self._ems_erasmus_call(call_id)
         if not call:
             return request.redirect('/my/home')
-        page = f'{self._redirect}/call/{call.id}'
+        page = f'{self._erasmus_redirect}/call/{call.id}'
         mobility = request.env['ems.erasmus.mobility'].sudo().search([
             ('call_id', '=', call.id), ('partner_id', '=', request.env.user.partner_id.id)], limit=1)
         if not mobility:
@@ -377,5 +377,5 @@ class EmsPortalErasmusController(CustomerPortal):
         attachment = mobility and (lines.prepared_attachment_ids | lines.attachment_ids).filtered(
             lambda attachment: attachment.id == attachment_id)
         if not attachment:
-            return request.redirect(self._redirect)
+            return request.redirect(self._erasmus_redirect)
         return request.env['ir.binary']._get_stream_from(attachment).get_response(as_attachment=True)

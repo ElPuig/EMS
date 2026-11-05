@@ -165,13 +165,17 @@ registry.category("web_tour.tours").add("ems_absence_coverage", {
 });
 
 // Next Monday, the day the tour moved the board to - shown on the date input, in the URL, and
-// with the absences table active.
-function assertBoardOnNextMonday() {
+// with the absences table active. The board can be drawn before the router has pushed its URL
+// back (after leaving a notice's form), so the URL gets up to 5 seconds to follow.
+async function assertBoardOnNextMonday() {
     const value = document.querySelector(".o_guard_board_date_input").value;
     const picked = new Date(value + "T00:00:00");
     const days = (picked - new Date(new Date().toDateString())) / 86400000;
     if (picked.getDay() !== 1 || days < 1 || days > 7) {
         throw new Error(`Expected next Monday on the board, got ${value}`);
+    }
+    for (let waited = 0; waited < 5000 && !window.location.search.includes(`date=${value}`); waited += 50) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
     }
     if (!window.location.search.includes(`date=${value}`)) {
         throw new Error(`The URL does not keep the date: ${window.location.href}`);

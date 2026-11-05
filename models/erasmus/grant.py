@@ -235,7 +235,10 @@ class EmsErasmusPayment(models.Model):
         for a minor, may be in the guardian's name)."""
         for payment in self:
             bank = payment.partner_id.sudo().bank_ids[:1]
-            payment.bank_account = bank.acc_number
+            # Grouped by four as the Secretary types it into the bank, whether or not base_iban
+            # (which stores it that way) is installed.
+            iban = bank.sanitized_acc_number
+            payment.bank_account = ' '.join(iban[i:i + 4] for i in range(0, len(iban), 4)) if iban else False
             payment.bank_holder = bank.acc_holder_name or (payment.partner_id.name if bank else False)
 
     def write(self, vals):

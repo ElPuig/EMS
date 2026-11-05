@@ -293,11 +293,6 @@ class EmsErasmusMobility(models.Model):
             'host_partner_id': self.host_partner_id.id, 'country_id': self.country_id.id,
         }
 
-    def _ems_portal_satisfaction(self):
-        """The survey the participant still has to answer on the portal, if any."""
-        self.ensure_one()
-        return self.sudo().satisfaction_ids.filtered(lambda survey: survey.state == 'pending')
-
     def action_open_satisfaction(self):
         """The Erasmus team opens the survey (the coordinator, to close it without an answer)."""
         self.ensure_one()

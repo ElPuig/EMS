@@ -411,8 +411,6 @@ class EmsErasmusCall(models.Model):
                  'file_category': '01_Dades_i_autoritzacions',
                  'description': _("Only if it applies to you: evidence of fewer opportunities, grants, special needs. "
                                   "Only the Erasmus team sees it.")},
-                {'name': _("Family authorisation to travel"), 'requirement': 'minor', 'sign_guardian': True,
-                 'file_category': '01_Dades_i_autoritzacions'},
                 {'name': _("Authorisation for minors to travel abroad"), 'requirement': 'minor',
                  'file_category': '01_Dades_i_autoritzacions',
                  'description': _("Processed with the Mossos d'Esquadra.")},
@@ -478,9 +476,23 @@ class EmsErasmusCall(models.Model):
             _("Hand in the certificate of stay, answer the final report (EU Survey) and take part in the "
               "dissemination activities."),
         ]
-        return Markup("<p>{}</p>{}").format(
-            _("I declare that I know the rules of the call for Erasmus+ internship grants and I commit to:"),
-            Markup("<ol>{}</ol>").format(Markup().join(Markup("<li>{}</li>").format(item) for item in commitments)))
+        # The terms of the "assumpció de responsabilitat" the centre had families and adult students sign
+        # on paper before EMS (2026-11-05): the letter replaces it, so the family no longer authorises
+        # taking part when applying, but by accepting this letter.
+        accepted = [
+            _("The responsibility of the centre and, where applicable, of the accompanying teachers is limited to the "
+              "activities of the programme agreed with the host entity, and they are not responsible for the "
+              "consequences of my inappropriate conduct."),
+            _("If I seriously break the rules, I may be sent back immediately, and the extra expenses arising from "
+              "it, like the contingencies of the trip, will be borne by me (or by my family, if I am a minor)."),
+        ]
+        items = Markup("<ol>{}</ol>").format(Markup().join(Markup("<li>{}</li>").format(item) for item in commitments))
+        terms = Markup("<ul>{}</ul>").format(Markup().join(Markup("<li>{}</li>").format(item) for item in accepted))
+        return Markup("<p>{}</p>{}<p>{}</p>{}<p><em>{}</em></p>").format(
+            _("I declare that I know the rules of the call for Erasmus+ internship grants and I commit to:"), items,
+            _("And I accept that:"), terms,
+            _("If the student is a minor, their father, mother or legal guardian also accepts this letter from their "
+              "EMS access and, by doing so, authorises them to take part in the stay."))
 
     @api.model
     def _ems_preparation_tasks(self, audience):

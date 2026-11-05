@@ -11,7 +11,7 @@ from odoo.tools import format_date
 from .application import STAFF_ACTIVITIES
 from .call import PROJECTS
 from .records import check_upload
-from .workflow import check_kept, check_workflow_create, check_workflow_write
+from .workflow import check_applicant_action, check_kept, check_workflow_create, check_workflow_write
 
 # A mobility still going on: its place is held and a graduate keeps the portal (issue #687).
 OPEN_STATES = ('choosing', 'preparing')
@@ -478,6 +478,7 @@ class EmsErasmusMobility(models.Model):
 
     def action_choose_destination(self, destination):
         """The participant chooses `destination` during their turn (portal)."""
+        check_applicant_action(self)
         self.ensure_one()
         if not (self in self._ems_choosing() and (self.turn_deadline or self.free_choice)):
             raise UserError(_("It is not your turn to choose a destination."))
@@ -651,8 +652,14 @@ class EmsErasmusMobility(models.Model):
                     activity_type_id=activity_type.id, user_id=user.id,
                     summary=self.env['ems.base'].ems_elide(_("Erasmus+: validate the proposal of %s", mobility.partner_id.name)))
 
-    def _ems_activities_done(self):
-        self.sudo().activity_ids.action_feedback()
+    def _ems_activities_done(self, everything=False):
+        """The team's tasks on the mobility are done; the participant's own to-do of what is missing
+        (`_ems_sync_documents_tasks`) stays, unless `everything` (the mobility is cancelled)."""
+        activities = self.sudo().activity_ids
+        if not everything:
+            documents = self.env.ref('ems.mail_activity_erasmus_documents')
+            activities = activities.filtered(lambda activity: activity.activity_type_id != documents)
+        activities.action_feedback()
 
     # --- preparation and return ---------------------------------------------------------------
 
@@ -672,14 +679,14 @@ class EmsErasmusMobility(models.Model):
         mobilities._ems_remind_guardians()
 
     def _ems_sync_documents_tasks(self):
-        """Staff (adriamt, 2026-11-03): instead of the weekly email, one to-do of their own (on their
-        contact, since staff don't open mobilities in the backend) listing what is still to hand in
-        on the portal, refreshed every week; it goes away once nothing is (`self` being every staff
+        """Staff (adriamt, 2026-11-03): instead of the weekly email, one to-do of their own on their
+        mobility (which opens in their backend form, the 2026-11-04 review) listing what is still to
+        hand in, refreshed every week; it goes away once nothing is (`self` being every staff
         mobility with something pending). Students keep the email: they only have the portal."""
         activity_type = self.env.ref('ems.mail_activity_erasmus_documents')
         Activity = self.env['mail.activity'].sudo()
-        tasks = Activity.search([('activity_type_id', '=', activity_type.id), ('res_model', '=', 'res.partner')])
-        by_partner = {(task.res_id, task.user_id.id): task for task in tasks}
+        tasks = Activity.search([('activity_type_id', '=', activity_type.id), ('res_model', '=', self._name)])
+        by_mobility = {(task.res_id, task.user_id.id): task for task in tasks}
         kept = Activity
         for mobility in self:
             user = mobility.application_id.employee_id.user_id
@@ -689,11 +696,11 @@ class EmsErasmusMobility(models.Model):
             local = mobility.with_context(lang=user.lang or self.env.lang)
             note = local._ems_documents_task_note()
             deadlines = mobility._ems_documents_to_correct().filtered('deadline').mapped('deadline')
-            task = by_partner.get((mobility.partner_id.id, user.id))
+            task = by_mobility.get((mobility.id, user.id))
             if task:
                 task.write({'note': note, 'date_deadline': min(deadlines) if deadlines else task.date_deadline})
             else:
-                task = mobility.partner_id.sudo().activity_schedule(
+                task = mobility.sudo().activity_schedule(
                     activity_type_id=activity_type.id, user_id=user.id, note=note,
                     summary=local._ems_documents_task_summary(),
                     **({'date_deadline': min(deadlines)} if deadlines else {}))
@@ -715,7 +722,8 @@ class EmsErasmusMobility(models.Model):
         if weeks:
             items.append(_("Weekly self-assessment: %s week(s)", len(weeks)))
         return Markup("<p>{}</p>{}").format(
-            _("Hand it in on your Erasmus+ page of the portal (/my/erasmus):"), self.env['ems.base'].build_html_list(items))
+            _("Hand it in from your mobility (Erasmus+ > My participation > My mobilities):"),
+            self.env['ems.base'].build_html_list(items))
 
     def action_notify_documents(self):
         """Email the participant the documents still missing or needing changes."""
@@ -956,8 +964,16 @@ class EmsErasmusMobility(models.Model):
                 raise UserError(_("Write the reason for cancelling first."))
         self._ems_cancel(False)
 
+    def action_sign_commitment(self, accepted=False, ip_address=False, guardian=False):
+        """The participant (from the portal, or staff from the backend) or their family signs: only
+        as the applicant's own step (staff read their own mobility since the 2026-11-04 review)."""
+        check_applicant_action(self)
+        return super().action_sign_commitment(accepted, ip_address, guardian=guardian)
+
     def action_renounce(self, reason=False):
-        """The participant renounces the place from the portal (art. 18 of the call)."""
+        """The participant renounces the place (art. 18 of the call): from the portal, or staff from
+        the backend."""
+        check_applicant_action(self)
         self._ems_cancel(reason or _("Renounced by the participant."))
 
     def _ems_cancel(self, reason):
@@ -966,7 +982,7 @@ class EmsErasmusMobility(models.Model):
         for mobility in self:
             if mobility.state not in OPEN_STATES:
                 raise UserError(_("The mobility of %s is no longer open.", mobility.partner_id.name))
-        self._ems_activities_done()
+        self._ems_activities_done(everything=True)
         for mobility in self:
             mobility._ems_set_state('cancelled', turn_deadline=False,
                                     **(reason and {'cancel_reason': reason} or {}))

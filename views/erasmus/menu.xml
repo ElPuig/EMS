@@ -15,17 +15,20 @@
              ("My participation", like Staff attendance's "My time off"); and the configuration. Each
              one shows only to whoever sees one of its entries. Opening the app runs its first entry:
              "My participation" goes after the management sections so the team lands on the calls,
-             and "My application" (the portal page) last in it so an interviewer or a panel member
-             lands on their own scoring; a teacher with nothing else lands on their portal page. -->
-        <record id="action_erasmus_my_portal" model="ir.actions.act_url">
-            <field name="name">My application</field>
-            <field name="url">/my/erasmus</field>
-            <field name="target">self</field>
-        </record>
+             and the staff call entries last in it so an interviewer or a panel member lands on their own
+             scoring; a teacher with nothing else lands on the staff calls. -->
         <menuitem name="My participation" sequence="80" id="menu_erasmus_section_mine" parent="menu_erasmus"
                   groups="ems.group_teacher,ems.group_erasmus_evaluator,ems.group_erasmus_panel,ems.group_erasmus_group_teacher"/>
-        <menuitem name="My application" sequence="9" id="menu_erasmus_my_portal"
-                  parent="menu_erasmus_section_mine" action="action_erasmus_my_portal"
+        <!-- The 2026-11-04 review: staff apply and prepare their mobility here, never on the portal
+             (views/erasmus/staff/views.xml). -->
+        <menuitem name="Staff calls" sequence="9" id="menu_erasmus_staff_calls"
+                  parent="menu_erasmus_section_mine" action="action_erasmus_staff_calls"
+                  groups="ems.group_teacher"/>
+        <menuitem name="My applications" sequence="10" id="menu_erasmus_my_applications"
+                  parent="menu_erasmus_section_mine" action="action_erasmus_my_applications"
+                  groups="ems.group_teacher"/>
+        <menuitem name="My mobilities" sequence="11" id="menu_erasmus_my_mobilities"
+                  parent="menu_erasmus_section_mine" action="action_erasmus_my_mobilities"
                   groups="ems.group_teacher"/>
         <menuitem name="Calls" sequence="10" id="menu_erasmus_section_calls" parent="menu_erasmus"
                   groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>

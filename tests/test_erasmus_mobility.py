@@ -581,8 +581,7 @@ class TestErasmusStaffMobility(ErasmusStaffMobilityCase):
 
         def tasks():
             return self.env['mail.activity'].search([('activity_type_id', '=', activity_type.id),
-                                                     ('res_model', '=', 'res.partner'),
-                                                     ('res_id', '=', mobility.partner_id.id)])
+                                                     ('res_model', '=', mobility._name), ('res_id', '=', mobility.id)])
 
         def mails():
             return self.env['mail.mail'].search([('model', '=', mobility._name), ('res_id', '=', mobility.id),

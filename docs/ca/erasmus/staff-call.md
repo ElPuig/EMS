@@ -4,7 +4,7 @@
 
 # La convocatòria Erasmus+ del personal
 
-Gestiona la convocatòria per al personal de formació professional (job shadowing, cursos estructurats i estades de docència): el personal sol·licita des del portal, el tribunal valora els plans de mobilitat, i tu revises la resta, publiques les resolucions i ofereixes les places.
+Gestiona la convocatòria per al personal de formació professional (job shadowing, cursos estructurats i estades de docència): el personal sol·licita des de l'EMS (**Erasmus+ > La meva participació**), el tribunal valora els plans de mobilitat, i tu revises la resta, publiques les resolucions i ofereixes les places.
 
 **Rol necessari:** *Coordinador/a Erasmus* o *Tècnic/a de mobilitat Erasmus* (Erasmus+ > Gestor/a).
 
@@ -23,7 +23,7 @@ A **Erasmus+ > Convocatòries > Convocatòries**, crea la convocatòria, posa *P
 - **Valida les activitats:** la direcció que valida l'activitat de cada persona seleccionada i els canvis posteriors. Ve omplert amb la directora o el director i el cap d'estudis de FP (el que hi ha per sobre de la majoria del professorat de FP), i només ells reben la tasca, encara que un professor depengui d'un altre cap d'estudis a l'organigrama.
 - Per obrir-la no cal indicar les **places**: la convocatòria publicada ja dona les orientatives, i poden canviar segons els projectes. Les afegeixes més endavant (pas 5); si la publiques sense places, EMS t'ho avisa perquè no te n'oblidis.
 
-Un cop publicada, tot el personal amb fitxa d'empleat veu la convocatòria al portal (targeta **Erasmus+**, `/my/erasmus`). Per enviar-la per correu a tots ells, fes servir **Accions > Avisa qui s'hi pot presentar** (vegeu [Convocatòries i sol·licituds](calls-and-applications.md)).
+Un cop publicada, tot el personal amb fitxa d'empleat veu la convocatòria a l'EMS, a **Erasmus+ > La meva participació > Convocatòries de personal**. Per enviar-la per correu a tots ells, fes servir **Accions > Avisa qui s'hi pot presentar** (vegeu [Convocatòries i sol·licituds](calls-and-applications.md)).
 
 ## 2. Què omple el personal
 
@@ -73,7 +73,7 @@ Són seleccionades les persones que entren dins de les places de la convocatòri
 
 ## 6. Ofertes i full de càlcul
 
-Les persones seleccionades responen l'oferta al portal, com l'alumnat. Una plaça lliure s'ofereix a la següent persona de reserva de tota la convocatòria (**Accions > Ofereix una plaça lliure**, sense triar modalitat).
+Les persones seleccionades responen l'oferta des de la seva sol·licitud a l'EMS (**Accions > Accepta la plaça** o **Renuncia a la plaça**). Una plaça lliure s'ofereix a la següent persona de reserva de tota la convocatòria (**Accions > Ofereix una plaça lliure**, sense triar modalitat).
 
 **Exporta a full de càlcul** treu les dades del personal de la seva fitxa d'empleat. Les columnes del cicle, el curs i el tutor legal queden buides.
 

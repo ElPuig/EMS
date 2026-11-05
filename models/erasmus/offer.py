@@ -8,6 +8,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 from .resolution import FINAL_KINDS
+from .workflow import check_applicant_action
 
 # Offers that hold a place: waiting for an answer, or accepted.
 HOLDING_STATES = ('pending', 'accepted')
@@ -56,11 +57,13 @@ class EmsErasmusOffer(models.Model):
     def action_accept(self):
         """The applicant accepts in writing from the portal, before the deadline. Issue #687: the
         mobility starts."""
+        check_applicant_action(self)
         self._ems_answer('accepted', 'accepted')
         self.env['ems.erasmus.mobility']._ems_create_for(self.application_id)
         self._ems_notify_tutor()
 
     def action_renounce(self, reason=False):
+        check_applicant_action(self)
         self._ems_answer('renounced', 'renounced', renounce_reason=reason)
         self.call_id._ems_sync_free_place_tasks()
 

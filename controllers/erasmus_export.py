@@ -37,6 +37,17 @@ class EmsErasmusExportController(http.Controller):
             ('Content-Disposition', content_disposition(f"{_('Erasmus+ participants')}.xlsx")),
         ])
 
+    @http.route('/ems/erasmus/resolution/<int:resolution_id>/pdf', type='http', auth='user', methods=['GET'])
+    def download_resolution(self, resolution_id):
+        """A published resolution's PDF, for a staff member who appears on it (staff never use the
+        portal, where students download it). It lists everyone in it, so it renders as superuser."""
+        resolution = request.env['ems.erasmus.resolution'].sudo().browse(resolution_id).exists()
+        partner = request.env.user.partner_id
+        if request.env.user.share or not resolution or resolution.state != 'published' \
+                or partner not in resolution.line_ids.application_id.partner_id:
+            raise request.not_found()
+        return resolution._ems_pdf_response()
+
     @http.route('/ems/erasmus/export/<int:export_id>', type='http', auth='user', methods=['GET'])
     def download_export(self, export_id):
         """Erasmus+ documents export (a participant's record or a whole project) as a ZIP built on

@@ -2,14 +2,15 @@ from odoo.tests.common import HttpCase, tagged
 
 from .common import mock_outgoing_email
 from .test_erasmus import PDF
+from .test_erasmus_mobility import ErasmusStaffMobilityCase
 from .test_erasmus_staff import STAFF_PLAN, create_staff_call_fixtures
 
 
 @tagged('post_install', '-at_install')
 class TestErasmusStaffTour(HttpCase):
     """Issue #686 - the staff call's screens, each driven by the least-privileged user that uses
-    it: a teacher applying on the portal, a teacher of the panel rating, the Erasmus team for the
-    rest."""
+    it: a teacher applying (in the backend, the 2026-11-04 review), a teacher of the panel rating,
+    the Erasmus team for the rest."""
 
     @classmethod
     def setUpClass(cls):
@@ -30,10 +31,14 @@ class TestErasmusStaffTour(HttpCase):
         self.staff_call.action_close()
         return application
 
-    def test_portal_staff_apply_tour(self):
-        self.start_tour('/my/erasmus', 'ems_portal_erasmus_staff_apply', login='test_erasmus_staff_1')
+    def test_staff_backend_apply_tour(self):
+        """The 2026-11-04 review: a teacher applies in the backend, never on the portal."""
+        self.staff_users[0].lang = 'en_US'  # the date fields are typed in
+        self.start_tour('/odoo/action-ems.action_erasmus_staff_calls', 'ems_erasmus_staff_backend_apply',
+                        login='test_erasmus_staff_1')
         application = self.env['ems.erasmus.application'].search([('call_id', '=', self.staff_call.id)])
         self.assertEqual(application.state, 'submitted')
+        self.assertEqual(str(application.declared_centre_start_date), '2015-09-01')
         self.assertEqual((application.proposal_a, application.proposal_b),
                          ('Job shadowing at the Tour host school, in April', 'An English course in Malta, in July'))
         self.assertEqual((application.declared_last_staff_mobility, application.declared_seniority), ('never', 'y5'))
@@ -66,3 +71,17 @@ class TestErasmusStaffTour(HttpCase):
         self.staff_call.action_send_to_panel()
         self.start_tour('/odoo/action-ems.action_erasmus_plan_rating', 'ems_erasmus_plan_ratings',
                         login='test_erasmus_team')
+
+
+@tagged('post_install', '-at_install')
+class TestErasmusStaffMobilityTour(HttpCase, ErasmusStaffMobilityCase):
+    """The 2026-11-04 review: a selected teacher prepares their mobility in the backend."""
+
+    def test_staff_backend_mobility_tour(self):
+        mobility = self._accepted_staff()
+        mobility.partner_id.user_ids.lang = 'en_US'  # the date fields are typed in
+        self.start_tour('/odoo/action-ems.action_erasmus_my_mobilities', 'ems_erasmus_staff_backend_mobility',
+                        login='test_erasmus_staff_1')
+        self.assertEqual((mobility.proposal_state, mobility.proposal_activity, mobility.proposal_host),
+                         ('pending', 'course', 'Tour Course Provider'))
+        self.assertEqual(str(mobility.proposal_date_start), '2027-07-05')

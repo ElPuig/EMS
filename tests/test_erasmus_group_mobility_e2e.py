@@ -311,8 +311,10 @@ class TestErasmusGroupMobilityEndToEnd(TransactionCase):
         self.assertIn('Reason:', self._mails_to('jan@example.com').body_html, "The excluded learn why.")
         self.assertEqual(self.env['ems.erasmus.resolution.line'].with_user(self.hos).search_count(
             [('resolution_id', '=', provisional.id)]), 10, "The Head of Studies reads the lists.")
-        with self.assertRaises(AccessError, msg="The leader does not read the published lists."):
-            self.env['ems.erasmus.resolution'].with_user(self.leader_user).search_read([], ['name'])
+        # The leader is a teacher: since the 2026-11-04 review teachers read the lists they are on
+        # themselves (a staff call's), never a group mobility's.
+        self.assertFalse(self.env['ems.erasmus.resolution'].with_user(self.leader_user).search_read(
+            [('id', '=', provisional.id)], ['name']), "The leader does not read the published lists.")
 
         # 7. hugo claims from the portal (as in the calls): a module was missing; the team enters
         # the right average and answers. The selection waits for the answer.
@@ -332,8 +334,9 @@ class TestErasmusGroupMobilityEndToEnd(TransactionCase):
                          self.technician | self.coordinator, "The Erasmus team answers it.")
         self.assertEqual(self.env['ems.erasmus.claim'].with_user(self.hos).search_count(
             [('group_mobility_id', '=', self.mobility.id)]), 1, "The Head of Studies reads it.")
-        with self.assertRaises(AccessError, msg="The leader does not read the claims."):
-            self.env['ems.erasmus.claim'].with_user(self.leader_user).search_read([], ['description'])
+        # Teachers read their own staff call claims since the 2026-11-04 review, never this one.
+        self.assertFalse(self.env['ems.erasmus.claim'].with_user(self.leader_user).search_read(
+            [('id', '=', claim.id)], ['description']), "The leader does not read the claims.")
         registrations['hugo'].with_user(self.technician).write({
             'grade_manual': True, 'grade_average_manual': 8.5,
             'grade_manual_reason': "Claim: module 3 was not in EMS (academic record)"})
@@ -439,8 +442,8 @@ class TestErasmusGroupMobilityEndToEnd(TransactionCase):
         self.assertFalse(self._line(self._participant('ana'), 'Authorisation for minors to travel abroad').is_required)
         documents = self.env['ems.erasmus.application.document']
         self.assertNotIn(card, documents.with_user(self.leader_user).search([]), "Confidential: the team only.")
-        with self.assertRaises(AccessError):
-            documents.with_user(self.other_user).search([('group_mobility_id', '=', self.mobility.id)])
+        # Teachers read their own staff call documents since the 2026-11-04 review: none of these.
+        self.assertFalse(documents.with_user(self.other_user).search([('group_mobility_id', '=', self.mobility.id)]))
         ivet._ems_portal_upload({card.call_document_id.id: [('card.pdf', PDF)],
                                  authorisation.call_document_id.id: [('mossos.pdf', PDF)]})
         self.assertEqual(card.attachment_ids.mapped('name'), ['card.pdf'])

@@ -4,7 +4,7 @@
 
 # The Erasmus+ staff call
 
-Run the call for vocational training staff (job shadowing, structured courses and teaching assignments): the staff apply from the portal, the panel rates their mobility plans, and you review the rest, publish the resolutions and offer the places.
+Run the call for vocational training staff (job shadowing, structured courses and teaching assignments): the staff apply from EMS (**Erasmus+ > My participation**), the panel rates their mobility plans, and you review the rest, publish the resolutions and offer the places.
 
 **Required role:** *Erasmus coordinator* or *Erasmus mobility technician* (Erasmus+ > Manager).
 
@@ -23,7 +23,7 @@ In **Erasmus+ > Calls > Calls**, create the call, set **Applicants** to *Staff*,
 - **Validates the activities:** the Direction that validates each selected person's activity and its later changes. It comes filled in with the Director and the Head of Studies of FP (the one above most of the FP teachers), and only they get the to-do, even for a teacher who hangs below another Head of Studies in the organisation chart.
 - The **places** are not needed to open it: the published call gives the indicative ones, and they may change with the projects. You add them later (step 5); when you publish without them, EMS warns you, so that they are not forgotten.
 
-Once published, every member of the staff with an employee file sees the call on the portal (**Erasmus+** card, `/my/erasmus`). To email it to all of them, use **Actions > Notify who can apply** (see [Calls and applications](calls-and-applications.md)).
+Once published, every member of the staff with an employee file sees the call in EMS, under **Erasmus+ > My participation > Staff calls**. To email it to all of them, use **Actions > Notify who can apply** (see [Calls and applications](calls-and-applications.md)).
 
 ## 2. What the staff fill in
 
@@ -73,7 +73,7 @@ The selected are those within the call's places (the sum of every modality); eac
 
 ## 6. Offers and spreadsheet
 
-The selected answer the offer on the portal, as the students do. A free place is offered to the next reserve of the whole call (**Actions > Offer a free place**, with no modality to choose).
+The selected answer the offer from their application in EMS (**Actions > Accept the place** or **Renounce the place**). A free place is offered to the next reserve of the whole call (**Actions > Offer a free place**, with no modality to choose).
 
 **Export to spreadsheet** takes the staff's data from their employee file. The columns of the cycle, the year and the legal guardian stay empty.
 

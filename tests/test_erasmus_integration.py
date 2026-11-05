@@ -302,8 +302,10 @@ class TestErasmusGroupDocumentAccess(HttpCase, ErasmusGroupRecordsCase):
         self._approved()
         grant = self._upload(self._line(self._student().document_ids, 'Grant agreement'))
         Line = self.env['ems.erasmus.application.document'].with_user(self.other_teacher_user)
+        # Teachers read their own staff call documents since the 2026-11-04 review: none of these.
+        self.assertFalse(Line.search_count([('group_mobility_id', '=', self.mobility.id)]))
         with self.assertRaises(AccessError):
-            Line.search_count([('group_mobility_id', '=', self.mobility.id)])
+            grant.with_user(self.other_teacher_user).read(['name'])
         with self.assertRaises(AccessError):
             grant.attachment_ids.with_user(self.other_teacher_user).read(['datas'])
         self.authenticate(self.other_teacher_user.login, self.other_teacher_user.login)

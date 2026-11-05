@@ -66,7 +66,7 @@
                                 </p>
                                 <t t-elif="object.result == 'selected'">
                                     <p>
-                                        You have been <strong>selected</strong>. Accept or renounce the place on the school portal
+                                        You have been <strong>selected</strong>. Accept or renounce the place <t t-out="object._ems_mail_place()"/>
                                         before <strong t-out="call._ems_local_format(call.acceptance_deadline)"/>:
                                         without an answer by then, the place is considered renounced.
                                     </p>
@@ -87,12 +87,12 @@
                         </t>
                         <p t-if="object.resolution_id.kind in ('definitive', 'rectification')" t-out="object.resolution_id._ems_appeal_notice()"/>
                         <p t-if="object.result in ('excluded', 'admitted')">
-                            You can see the published list on the school portal:
-                            <a t-attf-href="{{ object.get_base_url() }}/my/erasmus">Erasmus+</a>.
+                            You can see the published list <t t-out="object._ems_mail_place()"/>:
+                            <a t-attf-href="{{ object._ems_mail_url() }}">Erasmus+</a>.
                         </p>
                         <p t-else="">
-                            You can see the detail of your score and the published list on the school portal:
-                            <a t-attf-href="{{ object.get_base_url() }}/my/erasmus">Erasmus+</a>.
+                            You can see the detail of your score and the published list <t t-out="object._ems_mail_place()"/>:
+                            <a t-attf-href="{{ object._ems_mail_url() }}">Erasmus+</a>.
                         </p>
                         <p>
                             Kind regards,<br/>
@@ -133,8 +133,8 @@
                             A place of <strong t-out="object.call_id.name"/> has become free and it is offered to you.
                         </p>
                         <p>
-                            Accept or renounce it on the school portal
-                            (<a t-attf-href="{{ object.get_base_url() }}/my/erasmus">Erasmus+</a>)
+                            Accept or renounce it <t t-out="object._ems_mail_place()"/>
+                            (<a t-attf-href="{{ object._ems_mail_url() }}">Erasmus+</a>)
                             before <strong t-out="object.call_id._ems_local_format(object.deadline)"/>.
                             Without an answer by then, the place is considered renounced.
                         </p>
@@ -198,8 +198,8 @@
                         <p t-else="">Your claim has been answered:</p>
                         <p style="white-space: pre-line; border-left: 3px solid #dadce0; padding-left: 8px;" t-out="object.response"/>
                         <p>
-                            You can also see it on the school portal:
-                            <a t-attf-href="{{ object.get_base_url() }}/my/erasmus">Erasmus+</a>.
+                            You can also see it <t t-out="object._ems_mail_place()"/>:
+                            <a t-attf-href="{{ object._ems_mail_url() }}">Erasmus+</a>.
                         </p>
                         <p>
                             Kind regards,<br/>
@@ -232,8 +232,7 @@
                                 on <strong t-out="call._ems_local_format(object.answer_date)"/>.
                             </p>
                             <p>
-                                On the school portal (<a t-attf-href="{{ object.get_base_url() }}/my/erasmus">Erasmus+</a>)
-                                you will find the next steps. We will email you whenever you have to do something.
+                                You will find the next steps <t t-out="object._ems_mail_place()"/> (<a t-attf-href="{{ object._ems_mail_url() }}">Erasmus+</a>). We will email you whenever you have to do something.
                             </p>
                         </t>
                         <p t-elif="object.state == 'renounced'">

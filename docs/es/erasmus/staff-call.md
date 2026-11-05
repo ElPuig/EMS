@@ -4,7 +4,7 @@
 
 # La convocatoria Erasmus+ del personal
 
-Gestiona la convocatoria para el personal de formación profesional (job shadowing, cursos estructurados y estancias de docencia): el personal solicita desde el portal, el tribunal valora los planes de movilidad, y tú revisas el resto, publicas las resoluciones y ofreces las plazas.
+Gestiona la convocatoria para el personal de formación profesional (job shadowing, cursos estructurados y estancias de docencia): el personal solicita desde EMS (**Erasmus+ > Mi participación**), el tribunal valora los planes de movilidad, y tú revisas el resto, publicas las resoluciones y ofreces las plazas.
 
 **Rol necesario:** *Coordinador/a Erasmus* o *Técnico/a de movilidad Erasmus* (Erasmus+ > Gestor/a).
 
@@ -23,7 +23,7 @@ En **Erasmus+ > Convocatorias > Convocatorias**, crea la convocatoria, pon *Pers
 - **Valida las actividades:** la dirección que valida la actividad de cada persona seleccionada y sus cambios posteriores. Viene rellenado con la directora o el director y el jefe de estudios de FP (el que está por encima de la mayoría del profesorado de FP), y solo ellos reciben la tarea, aunque un profesor dependa de otro jefe de estudios en el organigrama.
 - Para abrirla no hace falta indicar las **plazas**: la convocatoria publicada ya da las orientativas, y pueden cambiar según los proyectos. Las añades más adelante (paso 5); si la publicas sin plazas, EMS te lo avisa para que no se te olvide.
 
-Una vez publicada, todo el personal con ficha de empleado ve la convocatoria en el portal (tarjeta **Erasmus+**, `/my/erasmus`). Para enviarla por correo a todos ellos, usa **Acciones > Avisar a quien puede presentarse** (ver [Convocatorias y solicitudes](calls-and-applications.md)).
+Una vez publicada, todo el personal con ficha de empleado ve la convocatoria en EMS, en **Erasmus+ > Mi participación > Convocatorias de personal**. Para enviarla por correo a todos ellos, usa **Acciones > Avisar a quien puede presentarse** (ver [Convocatorias y solicitudes](calls-and-applications.md)).
 
 ## 2. Qué rellena el personal
 
@@ -73,7 +73,7 @@ Quedan seleccionadas las personas que entran dentro de las plazas de la convocat
 
 ## 6. Ofertas y hoja de cálculo
 
-Las personas seleccionadas responden la oferta en el portal, como el alumnado. Una plaza libre se ofrece a la siguiente persona de reserva de toda la convocatoria (**Acciones > Ofrecer una plaza libre**, sin elegir modalidad).
+Las personas seleccionadas responden la oferta desde su solicitud en EMS (**Acciones > Acepta la plaza** o **Renunciar a la plaza**). Una plaza libre se ofrece a la siguiente persona de reserva de toda la convocatoria (**Acciones > Ofrecer una plaza libre**, sin elegir modalidad).
 
 **Exportar a hoja de cálculo** toma los datos del personal de su ficha de empleado. Las columnas del ciclo, el curso y el tutor legal quedan vacías.
 

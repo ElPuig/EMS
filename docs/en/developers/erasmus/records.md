@@ -240,7 +240,6 @@ one it is signed outside EMS and uploaded, as in this table:
 | Europass mobility document | coordinator | Team uploads it |
 | Certificate of stay | host | Participant (or team) uploads it |
 | Report with evidence | participant | Participant uploads it |
-| Family authorisation to travel (individual) | family of a minor | Participant uploads it |
 | Authorisation for minors to travel abroad | Mossos d'Esquadra procedure | Participant uploads it; never replaced by the commitment letter |
 
 - The signers of each document are configured per call document (`sign_participant`, `sign_guardian`

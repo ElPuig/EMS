@@ -14,7 +14,7 @@ from odoo.exceptions import AccessError, UserError
 
 from .plan_rating import PROJECT_MERITS
 from .records import PARTICIPANT_CATEGORIES, STAGE_CATEGORIES, check_upload
-from .workflow import check_kept, check_workflow_create, check_workflow_write
+from .workflow import check_applicant_action, check_kept, check_workflow_create, check_workflow_write
 
 # Who reads what only the Erasmus team handles (confidential evidence, the criteria of the score).
 TEAM = 'ems.group_erasmus,ems.group_academic_admin'
@@ -554,6 +554,7 @@ class EmsErasmusApplication(models.Model):
     def action_request_subsanation(self):
         """Ask the applicant to correct or complete the documents marked as needing changes or
         missing, and email them the list and the deadline."""
+        self._ems_check_manager()
         for application in self:
             application._ems_check_state(('submitted',))
             # The 2026-11-04 usage test: without a deadline the email gave none and the corrections
@@ -571,6 +572,7 @@ class EmsErasmusApplication(models.Model):
         self._ems_send('ems.email_template_erasmus_application_subsanation')
 
     def action_admit(self):
+        self._ems_check_manager()
         for application in self:
             application._ems_check_state(('submitted',))
             if application.requirements_check != 'met':
@@ -599,6 +601,7 @@ class EmsErasmusApplication(models.Model):
         """Also on an admitted application: not attending the interview excludes (art. 11). The
         evaluations still to score go away with their tasks; once the admission list is published,
         the applicant learns the reason by email instead of waiting for the next list."""
+        self._ems_check_manager()
         for application in self:
             application._ems_check_state(('submitted', 'subsanation', 'admitted'))
             if not (application.exclusion_reason or '').strip():
@@ -611,12 +614,14 @@ class EmsErasmusApplication(models.Model):
             'kind'))._ems_send('ems.email_template_erasmus_application_excluded')
 
     def action_back_to_review(self):
+        self._ems_check_manager()
         for application in self:
             application._ems_check_state(('admitted', 'excluded'))
         self._ems_set_state('submitted')
 
     def action_send_interview_call(self):
         """Email the applicant the interview's date and place, at least 24 hours ahead (art. 11)."""
+        self._ems_check_manager()
         limit = self.call_id._ems_now() + timedelta(hours=24)
         for application in self:
             application._ems_check_state(('admitted',))
@@ -1029,6 +1034,7 @@ class EmsErasmusApplication(models.Model):
         """Submit (or submit again) the application: every required document needs a file. Emails
         the applicant a receipt with the files received. A correction the team was waiting for
         becomes a task for the Erasmus team to review it."""
+        check_applicant_action(self)
         for application in self:
             if not (application._ems_portal_editable() or application._ems_subsanation_open()):
                 raise UserError(_("The application can no longer be submitted."))
@@ -1098,6 +1104,12 @@ class EmsErasmusApplication(models.Model):
         self.ensure_one()
         return self.env['ems.erasmus.claim']._ems_portal_create(
             {'application_id': self.id, 'resolution_id': self._ems_portal_claimable().id}, description, files)
+
+    def _ems_check_manager(self):
+        """The team's actions write the application's workflow fields as superuser: only once this
+        is checked (reading it is not enough: the Head of Studies, and staff their own, read it)."""
+        if not self._ems_can_manage():
+            raise AccessError(_("Only the Erasmus team changes an application."))
 
     def _ems_can_manage(self):
         user = self.env.user

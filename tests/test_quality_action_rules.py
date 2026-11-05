@@ -129,8 +129,9 @@ class TestQualityActionRules(TransactionCase):
         self.action.responsible_role_id = role
         self._only_follows_up(self.teacher_d)
 
-    def test_the_people_involved_read_it_and_hear_of_its_progress(self):
-        """They are the ones who have to do something about it, not the ones who manage it."""
+    def test_the_people_involved_read_it_but_are_not_told_of_its_progress(self):
+        """They are the ones who have to do something about it, not the ones who manage it. The
+        minute tells them what was agreed: they neither follow it nor get its follow-up (#753)."""
         self.assertTrue(self._reads(self.teacher_d, self.action))
         self.assertTrue(self._reads(self.teacher_d, self.followup))
         self.assertFalse(self.action.with_user(self.teacher_d).can_follow_up)
@@ -139,12 +140,13 @@ class TestQualityActionRules(TransactionCase):
             self.action.with_user(self.teacher_d).write({'description': '<p>Not mine to explain</p>'})
         with self.assertRaises(AccessError):
             self._follows_up(self.teacher_d)
-        self.assertIn(self.teacher_d.partner_id, self.action.message_partner_ids)
+        self.assertNotIn(self.teacher_d.partner_id, self.action.message_partner_ids)
         self.assertIn(self.teacher_b.partner_id, self.action.message_partner_ids)
-        self._follows_up(self.teacher_b)
-        message = self.action.message_ids.filtered(lambda message: 'Follow-up by ARules Teacher B' in (message.body or ''))
-        self.assertTrue(message, "adding a follow-up entry tells the agreement's followers")
-        self.assertIn(self.teacher_d.partner_id, message.notified_partner_ids)
+        self._follows_up(self.chief_b)
+        self.assertTrue(self.env['ems.info_notice'].sudo().search(
+            [('user_id', '=', self.teacher_b.id), ('res_model', '=', self.action._name), ('res_id', '=', self.action.id)]),
+            "the responsible person hears of it in their daily summary")
+        self.assertFalse(self.env['ems.info_notice'].sudo().search([('user_id', '=', self.teacher_d.id)]))
 
     def _default_facets_domain(self, action, user):
         """The domain the web client builds from the action's search_default_* facets: filters of

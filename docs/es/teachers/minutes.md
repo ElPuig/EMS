@@ -81,8 +81,8 @@ veáis (la de una reunión a la que asististeis, la de vuestro departamento) se 
    Las marcadas como obligatorias hay que rellenarlas antes de poder aprobar el acta.
 7. En **Acuerdos**, añadid los acuerdos: qué se acuerda, quién se hace responsable (quien lleva su avance), quién está implicado
    (quien tiene que hacer algo, sin gestionarlo) y para cuándo. En la **descripción** explicad cómo
-   llevarlo a cabo (enlaces, instrucciones); sale en el PDF. Una vez aprobada el acta, la mantienen los
-   responsables desde el formulario del acuerdo. El
+   llevarlo a cabo (enlaces, instrucciones); sale en el PDF. Una vez aprobada el acta, los responsables
+   lo reciben en su [resumen diario](daily-summary.md) y lo mantienen al día desde el formulario del acuerdo. El
    código de cada acuerdo se asigna solo.
 8. Guardad. El **código** del acta, que habéis visto formarse en la parte superior del formulario a medida
    que informabais el tipo, el ámbito y la fecha, queda asignado.
@@ -159,7 +159,8 @@ primero a esas personas; se puede elegir a cualquier otra escribiendo su nombre 
 
 
 Cuando el acta esté lista, **Acciones → Enviar a aprobar**. Quien tenga que dar el visto bueno la encontrará en su
-pantalla con la faceta *Pendientes de que yo apruebe*, y al aprobarla:
+pantalla con la faceta *Pendientes de que yo apruebe*, y también recibe la tarea *Aprobar el acta* en su
+[resumen diario](daily-summary.md). Al aprobarla:
 
 - Queda registrado **quién la ha aprobado y cuándo**.
 - Se genera el **PDF**, que queda adjunto al acta.

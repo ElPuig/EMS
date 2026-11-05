@@ -156,7 +156,7 @@ class EmsMinuteAgreementReview(models.Model):
             if review.followup_id:
                 review.followup_id.write(vals)
             else:
-                review.followup_id = self.env['ems.quality.followup'].sudo().create(vals)
+                review.followup_id = self.env['ems.quality.followup'].sudo().with_context(ems_quality_minute_entry=True).create(vals)
 
 
 class EmsMinuteMemberLine(models.Model):

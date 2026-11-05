@@ -16,6 +16,9 @@ from .minute_type import SCOPE_FIELDS
 # What the old free-text 'type' column held, kept in step with the new type's scope so the column
 # stays meaningful for anything reading the database directly. It is no longer used by the
 # application and can be dropped by a version that ships a migration for it.
+# The task of whoever is to approve a minute sent for approval (issue #753).
+APPROVAL_TASK_XMLID = 'ems.mail_activity_minute_approval'
+
 _LEGACY_TYPE_BY_SCOPE = {
     'department': 'department',
     'workgroup': 'workgroup',
@@ -433,7 +436,45 @@ class EmsMinute(models.Model):
         result = super().write(vals)
         if {'attendance_mode', 'start_datetime', 'duration', 'space_id'} & set(vals):
             self._ems_sync_presence()
+        if {'state', 'approver_employee_id', 'approver_role_id'} & set(vals):
+            self._ems_sync_approval_task()
+        if vals.get('state') == 'approved':
+            self._ems_announce_agreements()
         return result
+
+    # --- Telling the people concerned (issue #753) -----------------------------------------------
+
+    def _ems_approver_users(self):
+        """Who gets the approval task: the person named to approve it, or else the holders of the
+        post that approves it."""
+        self.ensure_one()
+        minute = self.sudo()
+        users = minute.approver_employee_id.user_id or minute.approver_role_id.employee_ids.user_id
+        return users.filtered(lambda user: user.active and not user.share)
+
+    def _ems_sync_approval_task(self):
+        """An "Approve the minute" task, due the day it is sent, for whoever is to approve it while
+        it waits for approval: done once approved, gone if it goes back to the meeting or to draft
+        or somebody else is named (mail.thread._ems_sync_user_tasks)."""
+        activity_type = self.env.ref(APPROVAL_TASK_XMLID)
+        today = self.env['ems.datetime_utils'].get_local_today()
+        for minute in self.sudo():
+            users = minute._ems_approver_users() if minute.state == 'to_approve' else self.env['res.users']
+            minute._ems_sync_user_tasks(activity_type, users, today, done=minute.state == 'approved')
+
+    def _ems_announce_agreements(self):
+        """Once the minute is approved, its agreements reach their responsible people: a task for
+        each open one (and a notice when it is due later), a notice for each one agreed and done in
+        the meeting, and the follow-up written for each agreement it reviewed. Never the people
+        involved: the minute itself tells them."""
+        for minute in self.sudo():
+            agreements = minute.agreement_ids
+            agreements._ems_sync_tasks()
+            for action in agreements.filtered('minute_followup_id'):
+                action._ems_queue_notice(action._ems_responsible_users() - self.env.user, 'done_in_meeting')
+            for review in minute.agreement_review_ids.filtered('followup_id'):
+                action = review.action_id
+                action._ems_queue_notice(action._ems_responsible_users() - self.env.user, 'followup', review.followup_id)
 
     @api.ondelete(at_uninstall=False)
     def _unlink_only_draft(self):

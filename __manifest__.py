@@ -453,6 +453,7 @@
         'mails/erasmus/satisfaction.xml',
         'mails/contacts/ex_officio_withdrawal.xml',
         'mails/shared/daily_summary.xml',
+        'mails/quality/agreement_notice.xml',
         'mails/contacts/contact_data_request.xml',
 
         ### Reports templates ###

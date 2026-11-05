@@ -28260,7 +28260,6 @@ msgstr "Color en el carné de estudiante"
 #: model:ir.model.fields,field_description:ems.field_res_company__ems_card_stamp
 #: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_card_stamp
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
-
 msgid "Student card stamp"
 msgstr "Sello del carné de estudiante"
 
@@ -29837,7 +29836,6 @@ msgstr "Sale en el horario de guardias como ausencia pendiente hasta que se resu
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
-
 msgid "(due"
 msgstr "(fecha límite"
 
@@ -30065,7 +30063,6 @@ msgstr "| de"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_session.py:0
-
 msgid "%(label)s: %(reason)s"
 msgstr "%(label)s: %(reason)s"
 
@@ -34886,6 +34883,7 @@ msgstr "Días"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
 msgid "Deadline:"
 msgstr "Fecha límite:"
 
@@ -36726,7 +36724,6 @@ msgstr "erasmus@example.com"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
-
 msgid "centre's tutor"
 msgstr "tutor/a del centro"
 
@@ -36800,7 +36797,6 @@ msgstr "Tutor/a del centro"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
-
 msgid "Mobility agreement"
 msgstr "Acuerdo de movilidad"
 
@@ -41983,7 +41979,6 @@ msgstr ""
 
 #. module: ems
 #: model:mail.template,body_html:ems.email_template_erasmus_claim_received
-
 msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
@@ -42029,7 +42024,6 @@ msgstr ""
 
 #. module: ems
 #: model:mail.template,body_html:ems.email_template_erasmus_claim_resolved
-
 msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
@@ -42067,7 +42061,6 @@ msgstr ""
 
 #. module: ems
 #: model:mail.template,body_html:ems.email_template_erasmus_application_excluded
-
 msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
@@ -42109,7 +42102,6 @@ msgstr ""
 
 #. module: ems
 #: model:mail.template,body_html:ems.email_template_erasmus_group_result
-
 msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
@@ -42178,7 +42170,6 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/resolution.py:0
-
 msgid ""
 "Against this resolution you can lodge an administrative appeal before the "
 "Head of Studies within one month from the day after its publication."
@@ -42189,69 +42180,58 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_claim__kind__appeal
-
 msgid "Appeal before the Head of Studies"
 msgstr "Recurso de alzada ante el jefe de estudios"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__can_resolve
-
 msgid "Can answer"
 msgstr "Puede responder"
 
 #. module: ems
 #: model:mail.template,name:ems.email_template_erasmus_offer_answer
-
 msgid "EMS: Erasmus+, answer to the place offer"
 msgstr "EMS: Erasmus+, respuesta a la oferta de plaza"
 
 #. module: ems
 #: model:mail.template,name:ems.email_template_erasmus_application_excluded
-
 msgid "EMS: Erasmus+, application excluded"
 msgstr "EMS: Erasmus+, solicitud excluida"
 
 #. module: ems
 #: model:mail.template,name:ems.email_template_erasmus_claim_resolved
-
 msgid "EMS: Erasmus+, claim answered"
 msgstr "EMS: Erasmus+, reclamación resuelta"
 
 #. module: ems
 #: model:mail.template,name:ems.email_template_erasmus_claim_received
-
 msgid "EMS: Erasmus+, claim received"
 msgstr "EMS: Erasmus+, reclamación recibida"
 
 #. module: ems
 #: model:ir.actions.server,name:ems.ir_cron_erasmus_remind_closing_ir_actions_server
-
 msgid "EMS: Erasmus+, reminder before a call closes"
 msgstr "EMS: Erasmus+, recordatorio antes de que cierre una convocatoria"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/offer.py:0
-
 msgid "Erasmus+: %s"
 msgstr "Erasmus+: %s"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/claim.py:0
-
 msgid "Erasmus+: answer the appeal of %s"
 msgstr "Erasmus+: responde el recurso de alzada de %s"
 
 #. module: ems
 #: model:mail.template,subject:ems.email_template_erasmus_claim_received
-
 msgid "Erasmus+: we have received your claim - {{ object.call_id.name }}"
 msgstr "Erasmus+: hemos recibido tu reclamación - {{ object.call_id.name }}"
 
 #. module: ems
 #: model:mail.template,subject:ems.email_template_erasmus_application_excluded
-
 msgid ""
 "Erasmus+: your application has been excluded - {{ object.call_id.name }}"
 msgstr ""
@@ -42259,27 +42239,23 @@ msgstr ""
 
 #. module: ems
 #: model:mail.template,subject:ems.email_template_erasmus_claim_resolved
-
 msgid "Erasmus+: your claim has been answered - {{ object.call_id.name }}"
 msgstr "Erasmus+: se ha resuelto tu reclamación - {{ object.call_id.name }}"
 
 #. module: ems
 #: model:mail.template,subject:ems.email_template_erasmus_offer_answer
-
 msgid "Erasmus+: your place - {{ object.call_id.name }}"
 msgstr "Erasmus+: tu plaza - {{ object.call_id.name }}"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/claim.py:0
-
 msgid "Only the Erasmus team records a claim."
 msgstr "Solo el equipo Erasmus registra las reclamaciones."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/claim.py:0
-
 msgid ""
 "The Erasmus team answers the claims, and the Head of Studies the appeals."
 msgstr ""
@@ -42288,7 +42264,6 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_claim__can_edit
-
 msgid ""
 "The Erasmus team records the claims; whoever answers an appeal only writes "
 "the response."
@@ -42299,7 +42274,6 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
-
 msgid ""
 "You did not answer the place offer in time: the place goes to the next "
 "person on the reserve list."
@@ -42310,14 +42284,12 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
-
 msgid "Your application has been excluded."
 msgstr "Tu solicitud ha quedado excluida."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
-
 msgid "Your application has been excluded. Reason: %s"
 msgstr "Tu solicitud ha quedado excluida. Motivo: %s"
 
@@ -42542,7 +42514,6 @@ msgstr "amonestaciones): el equipo Erasmus puede excluir la solicitud (art. 6 de
 
 #. module: ems
 #: model:mail.template,body_html:ems.email_template_erasmus_resolution_published
-
 msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <t t-set=\"call\" t-value=\"object.resolution_id.call_id\"/>\n"
@@ -42785,7 +42756,6 @@ msgstr ""
 
 #. module: ems
 #: model:mail.template,body_html:ems.email_template_erasmus_offer_answer
-
 msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <t t-set=\"call\" t-value=\"object.call_id\"/>\n"
@@ -44750,7 +44720,6 @@ msgstr "en el portal del centro"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_staff_form
-
 msgid "Apply to the call"
 msgstr "Presenta la solicitud"
 
@@ -46335,3 +46304,63 @@ msgstr "Sí que vino"
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid "This attendance has already been checked."
 msgstr "Esta asistencia ya se ha comprobado."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "<strong>You are responsible for this agreement.</strong> You will find it among your pending tasks on its deadline."
+msgstr "<strong>Eres responsable de este acuerdo.</strong> Lo encontrarás entre tus tareas pendientes en la fecha límite."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "<strong>Agreed and done in the meeting:</strong> there is nothing left for you to do."
+msgstr "<strong>Acordado y hecho en la reunión:</strong> no te queda nada por hacer."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "<strong>New follow-up entry:</strong>"
+msgstr "<strong>Nueva entrada de seguimiento:</strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "Written by:"
+msgstr "Escrita por:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "Date of the entry:"
+msgstr "Fecha de la entrada:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "Meeting:"
+msgstr "Reunión:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "Scope:"
+msgstr "Ámbito:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "Responsible:"
+msgstr "Responsables:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "not set"
+msgstr "sin fecha"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.quality_agreement_notice
+msgid "State:"
+msgstr "Estado:"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_quality_agreement
+msgid "Carry out the agreement"
+msgstr "Llevar a cabo el acuerdo"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_minute_approval
+msgid "Approve the minute"
+msgstr "Aprobar el acta"

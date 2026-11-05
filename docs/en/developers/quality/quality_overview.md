@@ -174,8 +174,8 @@ stateDiagram-v2
 | (in draft) Delete | `action_delete` (`unlink`) | whoever can write it (`rule_minute_teacher_unlink`, draft only) | its agenda, lines and agreements go with it, and its NFC session while still a draft; `_unlink_only_draft` refuses any other state, for every role |
 | Start the meeting | `action_start_meeting` | whoever can write it | the minute opens for writing; with the NFC tag, its kiosk can be opened |
 | Back to preparing / to the meeting / to draft | `action_back_to_draft`, `action_back_to_meeting` | whoever can write it | back to preparing is refused once its NFC session has been opened |
-| Send for approval | `action_submit` | whoever can write it | NFC attendance copied into the lists; the development composed from the items |
-| Approve | `action_approve` | **whoever gives the approval** (`can_approve`) | approval date set, PDF rendered and attached; irreversible |
+| Send for approval | `action_submit` | whoever can write it | NFC attendance copied into the lists; the development composed from the items; *Approve the minute* task for the approver |
+| Approve | `action_approve` | **whoever gives the approval** (`can_approve`) | approval date set, PDF rendered and attached; approval task done; its agreements announced (tasks and notices); irreversible |
 
 "Whoever can write it" is the write rule (`rule_minute_teacher_write`): the writer and their chain of
 command (`redactor_scope_user_ids`: a Seminar Chief above the teacher who writes it edits it even when a
@@ -297,7 +297,7 @@ and signed as the minute (`_ems_sync_minute_closure`, sudo, the same reasoning a
 in a later minute), kept in `minute_followup_id` so unticking it removes that entry again. The minute's PDF
 prints "Done" in its deadline column, and it is not carried into the next minute.
 The text EMS writes into a follow-up entry on its own (an agreement done or reviewed in a minute with
-nothing written about it), and the comment every entry posts to the agreement's followers, are stored, so
+nothing written about it), and the internal note every entry posts on the agreement, are stored, so
 they are in the centre's language (`res.company._ems_centre_env()`), whatever language the writer works in.
 
 ## Numbering
@@ -361,13 +361,14 @@ approved.
   itself is editable only for `is_responsible` (the responsible people, the post's holders, their chain and the
   administrator); the minute's writers edit it from the minute's agreement cards instead, and the minute's PDF
   prints it under each agreement.
-- **People involved** (`involved_employee_ids`) only read it and its follow-up.
+- **People involved** (`involved_employee_ids`) only read it and its follow-up. They neither follow it
+  nor get any notice: the minute tells them what was agreed (issue #753).
 
 Reading also reaches whoever reads a minute of the same scope (its department, workgroup or group, a staff
 meeting; the minute's attendees, writer and approver). The committee, quality coordination and the
-administrator see and write them all. Responsible and involved people are subscribed as followers
-(`_ems_subscribe_people`, sudo) and every follow-up entry is posted to the agreement as a comment
-(`ems.quality.followup._ems_notify_followers`), which is how they hear of its progress. The scope is one at a
+administrator see and write them all. The responsible people are subscribed as followers
+(`_ems_subscribe_people`, sudo) and hear of the agreement through their daily summary (see "Telling the
+people concerned" below). The scope is one at a
 time: `is_centre` empties department, group and workgroup in the form, and the other way round. The form uses
 `ems_can_edit_form` (`static/src/js/backend/can_edit_form.js`, also the base of the minute's form controller)
 to open read-only for whoever may not write it.
@@ -393,3 +394,49 @@ someone given the group by hand without being a member is never touched, and qua
 it on leaving. `data/main/sync_quality_committee.xml` runs it (add-only) on every install and upgrade, for
 an installation whose committee already had members. Only `group_academic_admin` may write workgroups. A
 change to an employee's user is not followed until the workgroup changes again.
+
+---
+
+## Telling the people concerned (issue #753)
+
+Quality never emails the staff on its own (the meeting call aside, which has a date and goes to people
+outside EMS too): everything reaches them through their [daily summary](../shared/daily_summary.md), as a
+task (`mail.activity`, scheduled quietly with `mail_activity_quick_update`) or an informative notice
+(`ems.info_notice`). Only the people who answer for an agreement in person are told:
+`ems.quality.action._ems_responsible_users()`, its responsible people plus the holders of its responsible
+post. Never the people involved, nor the chain of command, who oversee agreements from their screen.
+
+```mermaid
+flowchart TD
+    A[Agreement created / responsible people or deadline changed] --> B{_ems_is_announced?<br/>no minute, or minute approved}
+    B -- no --> W[Wait for the minute's approval]
+    B -- yes --> C[_ems_sync_tasks]
+    W --> M[ems.minute write state=approved<br/>_ems_announce_agreements]
+    M --> C
+    M --> N1[Notice 'done_in_meeting'<br/>agreements with minute_followup_id]
+    M --> N2[Notice 'followup'<br/>each review's follow-up entry]
+    C --> T[Task 'Carry out the agreement' per responsible user,<br/>due on deadline or today; done when closed;<br/>removed for who stops being responsible]
+    C --> N3[Notice 'assigned' for new users,<br/>only when the deadline is later than today]
+    F[Follow-up entry added by hand] --> NOTE[Internal note on the agreement: mt_note, notifies nobody]
+    F --> N4[Notice 'followup' to responsible users<br/>except its writer, if announced]
+    F --> C2[_ems_sync_tasks announce=False]
+```
+
+| What | When | Who | How |
+|---|---|---|---|
+| *Carry out the agreement* (`ems.mail_activity_quality_agreement`) | agreement announced and open | each responsible user | task due on `deadline_date`, today without one; moved with the deadline; `action_feedback` once `state` is closed; unlinked for a user who stops being responsible |
+| "You are responsible for this agreement" | a user gets the task and the deadline is later than today (the summary only lists a task once due) | the new responsible users, except whoever made the change | notice |
+| A follow-up entry | created by hand on an announced agreement | responsible users except its writer | notice; the entry is also posted on the agreement as an internal note (`mail.mt_note`) |
+| A follow-up entry written by a minute (review of an agreement, "Done" closing entry) | the minute is approved, with its final wording | responsible users except the approver | notice (`ems_quality_minute_entry` context keeps it from being queued when the minute writes it) |
+| "Agreed and done in the meeting" | the minute that took and closed it is approved | responsible users except the approver | notice, no task |
+| *Approve the minute* (`ems.mail_activity_minute_approval`) | the minute is `to_approve` | `approver_employee_id`'s user, or the holders of `approver_role_id` when nobody is named | task due the day it is sent; done when approved; removed when it goes back to the meeting or to draft or another approver is named (`ems.minute._ems_sync_approval_task`, from `write`) |
+
+The notice (`ems.quality_agreement_notice`, `mails/quality/agreement_notice.xml`) is rendered in the
+recipient's language and says what happened plus the agreement's meeting, scope, responsible people,
+deadline and state; the summary heads it with the agreement's code and content. An agreement taken in a
+minute is only announced once the minute is approved, since what was agreed and who answers for it may
+still change until then.
+
+Upgrade (`migrations/18.0.0.46.0/post-migrate.py`): the people involved who are not also responsible (nor
+the agreement's creator) are unsubscribed from the agreements they followed. No task is created for
+agreements that already existed: they are created as their responsible people or deadline next change.

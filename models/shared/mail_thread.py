@@ -21,6 +21,28 @@ class ResPartner(models.Model):
 class MailThread(models.AbstractModel):
     _inherit = 'mail.thread'
 
+    def _ems_sync_user_tasks(self, activity_type, users, date_deadline, done=False):
+        """Keeps one `activity_type` task per user of `users` on this record, due on
+        `date_deadline`: the ones of anybody else are removed, the due date is kept in step, and
+        with `done` they are all marked as done instead. Scheduled quietly
+        (mail_activity_quick_update): the daily summary is how their owners hear of them. Returns
+        the users who got a new task. Call it with sudo: a task for somebody else is not what the
+        record rules decide. Used by the Quality agreements and minutes (issue #753)."""
+        self.ensure_one()
+        tasks = self.activity_ids.filtered(lambda activity: activity.activity_type_id == activity_type)
+        if done:
+            tasks.action_feedback()
+            return users.browse()
+        stale = tasks.filtered(lambda task: task.user_id not in users)
+        stale.unlink()
+        tasks -= stale
+        tasks.filtered(lambda task: task.date_deadline != date_deadline).date_deadline = date_deadline
+        new_users = users - tasks.user_id
+        for user in new_users:
+            self.with_context(mail_activity_quick_update=True).activity_schedule(
+                activity_type_id=activity_type.id, user_id=user.id, date_deadline=date_deadline)
+        return new_users
+
     def _ems_notify(self, partners, message):
         """A note addressed to these partners only: unlike a comment, it is not sent to every
         follower of the record - whoever else follows it does not need each reminder. Used by

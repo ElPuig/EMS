@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import _, api, fields, models
+from odoo import _, api, fields, models, tools
 from odoo.exceptions import AccessError
 from odoo.tools.safe_eval import safe_eval
 
@@ -10,6 +10,9 @@ from .common import QUALITY_STATE_CLOSED, QUALITY_STATES, scope_code
 # What the responsible people may write on an agreement whose content they do not manage: the
 # description, which explains how to carry it out. Its progress goes in follow-up entries.
 PROGRESS_FIELDS = {'description'}
+
+# The task each responsible person gets while the agreement is open (issue #753).
+AGREEMENT_TASK_XMLID = 'ems.mail_activity_quality_agreement'
 
 
 class EmsQualityAction(models.Model):
@@ -236,6 +239,7 @@ class EmsQualityAction(models.Model):
         actions = super().create(vals_list)
         actions._ems_subscribe_people()
         actions.filtered('is_closed_in_minute')._ems_sync_minute_closure()
+        actions._ems_sync_tasks()
         return actions
 
     def write(self, vals):
@@ -243,10 +247,12 @@ class EmsQualityAction(models.Model):
             raise AccessError(_("Only whoever manages this agreement may change what was agreed: its responsible people "
                                 "edit its description and report its progress in the follow-up."))
         result = super().write(vals)
-        if {'responsible_employee_ids', 'involved_employee_ids'} & set(vals):
+        if 'responsible_employee_ids' in vals:
             self._ems_subscribe_people()
         if 'is_closed_in_minute' in vals:
             self._ems_sync_minute_closure()
+        if {'responsible_employee_ids', 'responsible_role_id', 'deadline_date', 'active'} & set(vals):
+            self._ems_sync_tasks()
         return result
 
     def _ems_content_managed(self):
@@ -268,12 +274,72 @@ class EmsQualityAction(models.Model):
         return self.sudo().search([('id', 'in', saved.ids)] + domain).with_env(self.env)
 
     def _ems_subscribe_people(self):
-        """The responsible people and the people involved follow the agreement, so its progress
-        reaches them. With sudo: subscribing somebody else is not what the record rules decide."""
+        """The responsible people follow the agreement. Not the people involved (issue #753): the
+        minute already tells them what was agreed, and following it would bring them every message.
+        With sudo: subscribing somebody else is not what the record rules decide."""
         for action in self.sudo():
-            partners = (action.responsible_employee_ids | action.involved_employee_ids).user_id.partner_id
+            partners = action.responsible_employee_ids.user_id.partner_id
             if partners:
                 action.message_subscribe(partner_ids=partners.ids)
+
+    # --- Telling the responsible people (issue #753) -------------------------------------------
+
+    def _ems_responsible_users(self):
+        """Who answers for the agreement in person: its responsible people and the holders of its
+        responsible post. Not their chain of command, which oversees it from the agreements screen."""
+        self.ensure_one()
+        action = self.sudo()
+        users = action.responsible_employee_ids.user_id | action.responsible_role_id.employee_ids.user_id
+        return users.filtered(lambda user: user.active and not user.share)
+
+    def _ems_is_announced(self):
+        """An agreement taken in a minute is told to its people once the minute is approved: until
+        then what was agreed, and who answers for it, may still change. Any other, from the start."""
+        self.ensure_one()
+        return not self.minute_id or self.minute_id.state == 'approved'
+
+    def _ems_sync_tasks(self, announce=True):
+        """One "Carry out the agreement" task per responsible person while it is open, due on its
+        deadline (today without one) and marked done once it is closed; whoever stops answering for
+        it loses theirs (mail.thread._ems_sync_user_tasks). With `announce`, whoever gets a task due
+        later is also told of the agreement in their next daily summary, which only lists a task
+        once it is due."""
+        activity_type = self.env.ref(AGREEMENT_TASK_XMLID)
+        today = self.env['ems.datetime_utils'].get_local_today()
+        for action in self.sudo().filtered(lambda action: action.active and action._ems_is_announced()):
+            deadline = action.deadline_date or today
+            new_users = action._ems_sync_user_tasks(activity_type, action._ems_responsible_users(), deadline,
+                                                    done=action.state == QUALITY_STATE_CLOSED)
+            if announce and deadline > today:
+                action._ems_queue_notice(new_users - self.env.user, 'assigned')
+
+    def _ems_queue_notice(self, users, kind, followup=None):
+        """A notice about the agreement for the daily summary of each of `users`, in their own
+        language: 'assigned' (they answer for it now), 'followup' (an entry was added to it) or
+        'done_in_meeting' (agreed and done in the meeting that took it)."""
+        self.ensure_one()
+        for user in users:
+            self.env['ems.info_notice']._ems_queue(
+                user, self, lambda recipient: self._ems_notice_body(recipient, kind, followup))
+
+    def _ems_notice_body(self, user, kind, followup=None):
+        """The notice itself: what happened, and enough about the agreement (its meeting, scope,
+        responsible people, deadline and state) to understand it without opening it."""
+        self.ensure_one()
+        lang = user.lang or self.env.lang
+        action = self.sudo().with_context(lang=lang)
+        env = action.env
+        state_labels = dict(action._fields['state']._description_selection(env))
+        followup = followup and followup.sudo().with_context(lang=lang)
+        return env['ir.qweb']._render('ems.quality_agreement_notice', {
+            'kind': kind,
+            'action': action,
+            'followup': followup,
+            'state': state_labels.get(action.state, ''),
+            'responsible': ", ".join((action.responsible_employee_ids.mapped('name')
+                                      + action.responsible_role_id.mapped('name'))),
+            'format_date': lambda value: tools.format_date(env, value),
+        }, minimal_qcontext=True)
 
     def _ems_sync_minute_closure(self):
         """Keep the closing entry of "Done" in the minute in step with the tick: added once, dated
@@ -284,7 +350,7 @@ class EmsQualityAction(models.Model):
                 action.minute_followup_id.unlink()
             elif not action.minute_followup_id:
                 minute = action.minute_id
-                action.minute_followup_id = self.env['ems.quality.followup'].sudo().create({
+                action.minute_followup_id = self.env['ems.quality.followup'].sudo().with_context(ems_quality_minute_entry=True).create({
                     'action_id': action.id,
                     'date': minute.date,
                     'state': QUALITY_STATE_CLOSED,

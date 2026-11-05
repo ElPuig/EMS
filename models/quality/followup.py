@@ -25,13 +25,31 @@ class EmsQualityFollowup(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         followups = super().create(vals_list)
-        followups._ems_notify_followers()
+        followups._ems_record_on_agreement()
+        # What a minute writes (an agreement done in it, or reviewed) is told once it is approved,
+        # with its final wording (ems.minute._ems_announce_agreements).
+        if not self.env.context.get('ems_quality_minute_entry'):
+            followups._ems_queue_notices()
+        followups.action_id._ems_sync_tasks(announce=False)
         return followups
 
-    def _ems_notify_followers(self):
-        """Every entry is told to the agreement's followers (its responsible people and the people
-        involved), so they hear of its progress without having to look. With sudo and the writer as
-        author: posting on a record is a write the people reporting progress do not have."""
+    def write(self, vals):
+        result = super().write(vals)
+        if 'state' in vals:
+            self.action_id._ems_sync_tasks(announce=False)
+        return result
+
+    def unlink(self):
+        actions = self.action_id
+        result = super().unlink()
+        actions.exists()._ems_sync_tasks(announce=False)
+        return result
+
+    def _ems_record_on_agreement(self):
+        """Every entry is kept in the agreement's history, as an internal note: nobody gets an
+        email for it, the responsible people hear of it in their daily summary (issue #753). With
+        sudo and the writer as author: posting on a record is a write the people reporting progress
+        do not have."""
         # Stored text, read by everybody: in the centre's language, not in that of whoever writes it.
         centre_env = self.env['res.company']._ems_centre_env()
         state_labels = dict(self._fields['state']._description_selection(centre_env))
@@ -40,8 +58,16 @@ class EmsQualityFollowup(models.Model):
                 body=Markup("<p>%s</p>") % centre_env._("Follow-up (%(state)s): %(description)s",
                                                         state=state_labels.get(followup.state, ''), description=followup.description),
                 author_id=self.env.user.partner_id.id,
-                subtype_xmlid='mail.mt_comment',
+                subtype_xmlid='mail.mt_note',
             )
+
+    def _ems_queue_notices(self):
+        """Each entry reaches the agreement's responsible people in their daily summary, except
+        whoever wrote it. Not the people involved: the minutes keep them informed."""
+        for followup in self:
+            action = followup.action_id
+            if action._ems_is_announced():
+                action._ems_queue_notice(action._ems_responsible_users() - self.env.user, 'followup', followup)
 
     @api.depends('date', 'state')
     def _compute_display_name(self):

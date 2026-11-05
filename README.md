@@ -75,7 +75,7 @@ python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().
 
 ```
 
-> **Note:** the required OCA repositories (`queue`, `partner-contact` and `sign`, listed in [`scripts/oca_repos.sh`](scripts/oca_repos.sh)) are cloned automatically next to `ems` and added to the `addons_path` above by `install.sh`, and any repository added to that list later is cloned and added the same way by the next `update.sh` (or `upgrade.sh`). System (apt) Python dependencies are also installed/kept up to date automatically by `install.sh` and `upgrade.sh`, from the list in [`apt-requirements.txt`](apt-requirements.txt) — do not install them with pip.
+> **Note:** the required OCA repositories (`queue`, `partner-contact` and `sign`, listed in [`scripts/oca_repos.sh`](scripts/oca_repos.sh)) are cloned automatically next to `ems` and added to the `addons_path` above by `install.sh`, and any repository added to that list later is cloned and added the same way by the next `update.sh`. System (apt) Python dependencies are also installed/kept up to date automatically by `install.sh` and `upgrade.sh`, from the list in [`apt-requirements.txt`](apt-requirements.txt) — do not install them with pip.
 
 Copy the generated secret key and use it to setup the odoo configuration file as follows:
 ```

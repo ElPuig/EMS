@@ -268,9 +268,9 @@ one it is signed outside EMS and uploaded, as in this table:
 ### Electronic signature (sign_oca)
 
 `models/erasmus/electronic_signature.py`, on top of OCA's `sign_oca` (repository `OCA/sign`, branch
-18.0, a dependency of EMS, listed in `scripts/oca_repos.sh`: `install.sh`, `update.sh` and `upgrade.sh`
-clone it next to `queue` and `partner-contact` and add it to the `addons_path` of `odoo.conf`). It is a simple electronic signature
-(the signer draws or types it on a page reached by a personal link), with sign_oca's log of each
+18.0, a dependency of EMS, listed in `scripts/oca_repos.sh`: `install.sh` and `update.sh` clone
+it next to `queue` and `partner-contact` and add it to the `addons_path` of `odoo.conf`). It is a
+simple electronic signature (the signer draws or types it on a page reached by a personal link), with sign_oca's log of each
 step (date, IP, hash of the PDF after each signature), not a qualified one with a certificate.
 
 ```mermaid

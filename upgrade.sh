@@ -30,13 +30,6 @@ sudo service odoo stop || true
 # psql connection args (DB_PASS, PSQL_ARGS) from odoo.conf - see odoo_psql_setup.
 source "$SCRIPT_DIR/scripts/odoo_modules.sh"
 CONF=/etc/odoo/odoo.conf
-
-# The OCA repositories EMS depends on, in case update.sh did not add them: during a deploy,
-# deploy.sh runs the update.sh it found before pulling (the previous release's), while this script
-# starts afterwards from the pulled code. Does nothing when every repository is already there.
-source "$SCRIPT_DIR/scripts/oca_repos.sh"
-oca_clone_missing "$(dirname "$SCRIPT_DIR")"
-oca_sync_addons_path "$CONF" "$(dirname "$SCRIPT_DIR")"
 odoo_psql_setup "$CONF" ems
 
 # Job queue must be cleaned

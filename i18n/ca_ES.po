@@ -482,50 +482,6 @@ msgid ""
 msgstr ""
 
 #. module: ems
-#: model:mail.template,body_html:ems.mail_template_google_welcome
-msgid ""
-"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
-"                    <p>Hello <t t-out=\"object.firstname or object.name or ''\" />,</p>\n"
-"                    <p>Your school corporate account has been created to access Google Workspace\n"
-"                       (email, Drive, Classroom...) and the services that use this account.</p>\n"
-"                    <table style=\"border-collapse:collapse;margin:16px 0;\">\n"
-"                        <tr>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Username (email)</strong></td>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_email') or ''\" /></td>\n"
-"                        </tr>\n"
-"                        <tr>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Temporary password</strong></td>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_password') or ''\" /></td>\n"
-"                        </tr>\n"
-"                    </table>\n"
-"                    <p style=\"color:#b00;\"><strong>Important:</strong> for security reasons, you will be\n"
-"                       required to change the password on your first login.</p>\n"
-"                    <p>You can sign in at <a t-attf-href=\"https://mail.google.com/a/#{object.env.company.google_ws_domain}/\">mail.google.com</a>.</p>\n"
-"                    <p>Best regards,<br />School Secretariat</p>\n"
-"                </div>"
-msgstr ""
-"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
-"                    <p>Hola <t t-out=\"object.firstname or object.name or ''\"/>,</p>\n"
-"                    <p>El teu compte corporatiu del centre ha estat creat per accedir a Google Workspace\n"
-"                       (correu electrònic, Drive, Classroom...) i els serveis que utilitzen aquest compte.</p>\n"
-"                    <table style=\"border-collapse:collapse;margin:16px 0;\">\n"
-"                        <tr>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Usuari (email)</strong></td>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_email') or ''\"/></td>\n"
-"                        </tr>\n"
-"                        <tr>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Contrasenya temporal</strong></td>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_password') or ''\"/></td>\n"
-"                        </tr>\n"
-"                    </table>\n"
-"                    <p style=\"color:#b00;\"><strong>Important:</strong> per motius de seguretat, hauràs\n"
-"                       de canviar la contrasenya en el primer inici de sessió.</p>\n"
-"                    <p>Pots iniciar sessió a <a t-attf-href=\"https://mail.google.com/a/#{object.env.company.google_ws_domain}/\">mail.google.com</a>.</p>\n"
-"                    <p>Salutacions,<br/>Secretaria del centre</p>\n"
-"                </div>\n"
-"            "
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid ""
 "<i class=\"fa fa-bank me-2 text-ems-primary\"/>\n"
@@ -11945,56 +11901,6 @@ msgid "Sign in with Google is not pre-linked (Google user id unavailable)."
 msgstr "L'inici de sessió amb Google no queda previnculat (ID d'usuari de Google no disponible)."
 
 #. module: ems
-#: model:mail.template,body_html:ems.mail_template_google_welcome_employee
-msgid ""
-"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
-"                    <p>Hello <t t-out=\"object.name or ''\" />,</p>\n"
-"                    <p>Your school corporate account has been created to access Google Workspace\n"
-"                       (email, Drive, Classroom...) and the services that use this account.</p>\n"
-"                    <table style=\"border-collapse:collapse;margin:16px 0;\">\n"
-"                        <tr>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Username (email)</strong></td>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_email') or ''\" /></td>\n"
-"                        </tr>\n"
-"                        <tr>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Temporary password</strong></td>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_password') or ''\" /></td>\n"
-"                        </tr>\n"
-"                    </table>\n"
-"                    <p style=\"color:#b00;\"><strong>Important:</strong> for security reasons, you will be\n"
-"                       required to change the password on your first login.</p>\n"
-"                    <p>You can sign in at <a t-attf-href=\"https://mail.google.com/a/#{object.env.company.google_ws_domain}/\">mail.google.com</a>.</p>\n"
-"                    <p>You can also access the school management platform (EMS) at\n"
-"                       <a t-att-href=\"object.get_base_url()\"><t t-out=\"object.get_base_url()\" /></a>:\n"
-"                       use the <strong>Sign in with Google</strong> button with this same corporate account.</p>\n"
-"                    <p>Best regards,<br />School Secretariat</p>\n"
-"                </div>"
-msgstr ""
-"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
-"                    <p>Hola <t t-out=\"object.name or ''\"/>,</p>\n"
-"                    <p>El teu compte corporatiu del centre ha estat creat per accedir a Google Workspace\n"
-"                       (correu electrònic, Drive, Classroom...) i els serveis que utilitzen aquest compte.</p>\n"
-"                    <table style=\"border-collapse:collapse;margin:16px 0;\">\n"
-"                        <tr>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Usuari (email)</strong></td>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_email') or ''\"/></td>\n"
-"                        </tr>\n"
-"                        <tr>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Contrasenya temporal</strong></td>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_password') or ''\"/></td>\n"
-"                        </tr>\n"
-"                    </table>\n"
-"                    <p style=\"color:#b00;\"><strong>Important:</strong> per motius de seguretat, hauràs\n"
-"                       de canviar la contrasenya en el primer inici de sessió.</p>\n"
-"                    <p>Pots iniciar sessió a <a t-attf-href=\"https://mail.google.com/a/#{object.env.company.google_ws_domain}/\">mail.google.com</a>.</p>\n"
-"                    <p>També pots accedir a la plataforma de gestió del centre (EMS) a\n"
-"                       <a t-att-href=\"object.get_base_url()\"><t t-out=\"object.get_base_url()\"/></a>:\n"
-"                       fes servir el botó <strong>Inicia la sessió amb Google</strong> amb aquest mateix compte corporatiu.</p>\n"
-"                    <p>Salutacions,<br/>Secretaria del centre</p>\n"
-"                </div>\n"
-"            "
-
-#. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_student_year_record_unique_student_course
 msgid "A year record already exists for this student and course!"
 msgstr "Ja existeix un registre d'històric per a aquest/a alumne/a i aquest curs!"
@@ -14824,93 +14730,6 @@ msgid ""
 "Your corporate account @{{ object.env.company.google_ws_domain }} will be "
 "deactivated and deleted"
 msgstr "El teu compte corporatiu @{{ object.env.company.google_ws_domain }} es desactivarà i s'eliminarà"
-
-#. module: ems
-#: model:mail.template,body_html:ems.mail_template_google_deactivation_student
-msgid ""
-"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
-"                    <p>Hello <t t-out=\"object.firstname or object.name or ''\"/>,</p>\n"
-"                    <p>Now that you are no longer enrolled at the school, your corporate\n"
-"                       Google Workspace account\n"
-"                       <strong><t t-out=\"object.student_email or ''\"/></strong>\n"
-"                       is scheduled to be <strong>deactivated</strong> on\n"
-"                       <strong><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></strong>.</p>\n"
-"                    <p style=\"color:#b00;\">Once deactivated, the account is\n"
-"                       <strong>deleted for good</strong> on\n"
-"                       <strong><t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/></strong>.\n"
-"                       After that date your email and your Drive files cannot be recovered.</p>\n"
-"                    <p>You can use your account as usual before\n"
-"                       <t t-out=\"format_date(object.google_ws_deactivation_date)\"/>; from\n"
-"                       <t t-out=\"format_date(object.google_ws_deactivation_date)\"/> (included)\n"
-"                       you will no longer be able to access it; on\n"
-"                       <t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/> it will be deleted\n"
-"                       for good. Please make sure you download everything you want to keep\n"
-"                       before then, and that you have moved any personal service using this\n"
-"                       address to another one.</p>\n"
-"                    <p>If you enrol again at the school before those dates, the account is kept\n"
-"                       and nothing is lost.</p>\n"
-"                    <p>Best regards,<br/>School Secretariat</p>\n"
-"                </div>"
-msgstr ""
-"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
-"                    <p>Hola <t t-out=\"object.firstname or object.name or ''\"/>,</p>\n"
-"                    <p>Ara que ja no estàs matriculat al centre, està previst que el teu compte\n"
-"                       corporatiu de Google Workspace\n"
-"                       <strong><t t-out=\"object.student_email or ''\"/></strong>\n"
-"                       es <strong>desactivi</strong> el\n"
-"                       <strong><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></strong>.</p>\n"
-"                    <p style=\"color:#b00;\">Un cop desactivat, el compte s'<strong>elimina\n"
-"                       definitivament</strong> el\n"
-"                       <strong><t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/></strong>.\n"
-"                       A partir d'aquesta data el teu correu i els teus fitxers de Drive no es\n"
-"                       podran recuperar.</p>\n"
-"                    <p>Podràs accedir al teu compte amb normalitat abans del\n"
-"                       <t t-out=\"format_date(object.google_ws_deactivation_date)\"/>; a partir del\n"
-"                       <t t-out=\"format_date(object.google_ws_deactivation_date)\"/> (inclòs) ja no\n"
-"                       hi podràs accedir; el dia\n"
-"                       <t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/> s'eliminarà\n"
-"                       definitivament. Assegura't de descarregar abans tot el que vulguis\n"
-"                       conservar, i de traslladar a una altra adreça qualsevol servei personal que\n"
-"                       faci servir aquesta.</p>\n"
-"                    <p>Si tornes a matricular-te al centre abans d'aquestes dates, el compte es\n"
-"                       conserva i no es perd res.</p>\n"
-"                    <p>Salutacions,<br/>Secretaria del centre</p>\n"
-"                </div>"
-
-#. module: ems
-#: model:mail.template,body_html:ems.mail_template_google_deactivation_employee
-msgid ""
-"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
-"                    <p>Hello <t t-out=\"object.name or ''\"/>,</p>\n"
-"                    <p>Now that you are no longer part of the school staff, your corporate\n"
-"                       Google Workspace account\n"
-"                       <strong><t t-out=\"object.work_email or ''\"/></strong>\n"
-"                       is scheduled to be <strong>deactivated</strong> on\n"
-"                       <strong><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></strong>.</p>\n"
-"                    <p>Until that date the account keeps working normally. Please make sure\n"
-"                       you have saved anything you need from your email and your Drive files\n"
-"                       before then, and that you have moved any personal service using this\n"
-"                       address to another one.</p>\n"
-"                    <p>If you come back to the school before that date, the account is kept\n"
-"                       and nothing is lost.</p>\n"
-"                    <p>Best regards,<br/>School Secretariat</p>\n"
-"                </div>"
-msgstr ""
-"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
-"                    <p>Hola <t t-out=\"object.name or ''\"/>,</p>\n"
-"                    <p>Ara que ja no formes part del personal del centre, està previst que el teu\n"
-"                       compte corporatiu de Google Workspace\n"
-"                       <strong><t t-out=\"object.work_email or ''\"/></strong>\n"
-"                       es <strong>desactivi</strong> el\n"
-"                       <strong><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></strong>.</p>\n"
-"                    <p>Fins aquesta data el compte continua funcionant amb normalitat. Assegura't de\n"
-"                       desar abans tot el que necessitis del teu correu i dels teus fitxers de Drive,\n"
-"                       i de traslladar a una altra adreça qualsevol servei personal que faci servir\n"
-"                       aquesta.</p>\n"
-"                    <p>Si tornes al centre abans d'aquesta data, el compte es conserva i no es perd\n"
-"                       res.</p>\n"
-"                    <p>Salutacions,<br/>Secretaria del centre</p>\n"
-"                </div>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_search
@@ -28776,3 +28595,246 @@ msgstr "Idioma del centre"
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "The language EMS writes in, whatever the language of whoever uses it: the codes of minutes and agreements, the minutes and their calls, the convalidation resolutions, the public group schedules and the texts EMS adds by itself. It is also the language new contacts and users get."
 msgstr "L'idioma en què escriu EMS, sigui quin sigui l'idioma de qui el fa servir: els codis de les actes i els acords, les actes i les seves convocatòries, les resolucions de convalidació, els horaris públics dels grups i els textos que EMS afegeix pel seu compte. També és l'idioma que reben els contactes i els usuaris nous."
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_reactivated_student
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">ACCOUNT REACTIVATED</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your account is active again</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.firstname or object.name or ''\"/>, your school corporate Google Workspace account has been reactivated.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.student_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Status</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\">Active</p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#ecf7ef;border-left:3px solid #5fb27a;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#2f4a38;\">You can sign in again with the same address and password as before. Your email and your Drive files are as you left them.</td></tr></table></td></tr></table>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">COMPTE REACTIVAT</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">El teu compte torna a estar actiu</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.firstname or object.name or ''\"/>. S'ha reactivat el teu compte corporatiu de Google Workspace.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Compte corporatiu</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.student_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Estat</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\">Actiu</p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#ecf7ef;border-left:3px solid #5fb27a;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#2f4a38;\">Pots tornar a iniciar la sessió amb la mateixa adreça i contrasenya que abans. El correu i els fitxers de Drive són tal com els vas deixar.</td></tr></table></td></tr></table>\n"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_reactivated_employee
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">ACCOUNT REACTIVATED</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your account is active again</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.name or ''\"/>, your school corporate Google Workspace account has been reactivated.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.work_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Status</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\">Active</p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#ecf7ef;border-left:3px solid #5fb27a;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#2f4a38;\">You can sign in again with the same address and password as before. Your email and your Drive files are as you left them.</td></tr></table></td></tr></table>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">COMPTE REACTIVAT</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">El teu compte torna a estar actiu</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.name or ''\"/>. S'ha reactivat el teu compte corporatiu de Google Workspace.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Compte corporatiu</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.work_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Estat</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\">Actiu</p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#ecf7ef;border-left:3px solid #5fb27a;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#2f4a38;\">Pots tornar a iniciar la sessió amb la mateixa adreça i contrasenya que abans. El correu i els fitxers de Drive són tal com els vas deixar.</td></tr></table></td></tr></table>\n"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_deactivation_cancelled_student
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">DEACTIVATION CANCELLED</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your account stays active</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.firstname or object.name or ''\"/>, the scheduled deactivation of your school corporate Google Workspace account has been cancelled.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.student_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Status</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\">Active</p></td><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Planned deactivation</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"text-decoration:line-through;color:#8894a3;font-weight:normal;\"><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></span> Cancelled</p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#ecf7ef;border-left:3px solid #5fb27a;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#2f4a38;\">The account keeps working as usual and nothing is lost: your email and your Drive files are kept.</td></tr></table></td></tr></table>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">DESACTIVACIÓ ANUL·LADA</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">El teu compte es manté actiu</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.firstname or object.name or ''\"/>. S'ha anul·lat la desactivació programada del teu compte corporatiu de Google Workspace.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Compte corporatiu</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.student_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Estat</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\">Actiu</p></td><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Desactivació prevista</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"text-decoration:line-through;color:#8894a3;font-weight:normal;\"><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></span> Anul·lada</p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#ecf7ef;border-left:3px solid #5fb27a;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#2f4a38;\">El compte continua funcionant amb normalitat i no es perd res: es conserven el correu i els fitxers de Drive.</td></tr></table></td></tr></table>\n"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_deactivation_cancelled_employee
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">DEACTIVATION CANCELLED</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your account stays active</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.name or ''\"/>, the scheduled deactivation of your school corporate Google Workspace account has been cancelled.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.work_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Status</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\">Active</p></td><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Planned deactivation</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"text-decoration:line-through;color:#8894a3;font-weight:normal;\"><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></span> Cancelled</p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#ecf7ef;border-left:3px solid #5fb27a;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#2f4a38;\">The account keeps working as usual and nothing is lost: your email and your Drive files are kept.</td></tr></table></td></tr></table>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">DESACTIVACIÓ ANUL·LADA</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">El teu compte es manté actiu</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.name or ''\"/>. S'ha anul·lat la desactivació programada del teu compte corporatiu de Google Workspace.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Compte corporatiu</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.work_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Estat</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\">Actiu</p></td><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Desactivació prevista</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"text-decoration:line-through;color:#8894a3;font-weight:normal;\"><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></span> Anul·lada</p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#ecf7ef;border-left:3px solid #5fb27a;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#2f4a38;\">El compte continua funcionant amb normalitat i no es perd res: es conserven el correu i els fitxers de Drive.</td></tr></table></td></tr></table>\n"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_welcome
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">NEW ACCOUNT</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your corporate account is ready</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.firstname or object.name or ''\"/>, your school corporate account has been created to access Google Workspace (email, Drive, Classroom...) and the services that use this account.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"ctx.get('gw_email') or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Temporary password</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"font-family:Consolas,Menlo,monospace;font-size:17px;letter-spacing:1px;\"><t t-out=\"ctx.get('gw_password') or ''\"/></span></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff7e8;border-left:3px solid #e0a526;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5c4510;\">For security reasons, you will be asked to change this password the first time you sign in.</td></tr></table></td></tr></table>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">COMPTE NOU</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">El teu compte corporatiu ja està a punt</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.firstname or object.name or ''\"/>. S'ha creat el teu compte corporatiu del centre per accedir a Google Workspace (correu electrònic, Drive, Classroom...) i als serveis que utilitzen aquest compte.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Compte corporatiu</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"ctx.get('gw_email') or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Contrasenya temporal</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"font-family:Consolas,Menlo,monospace;font-size:17px;letter-spacing:1px;\"><t t-out=\"ctx.get('gw_password') or ''\"/></span></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff7e8;border-left:3px solid #e0a526;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5c4510;\">Per motius de seguretat, hauràs de canviar aquesta contrasenya el primer cop que iniciïs la sessió.</td></tr></table></td></tr></table>\n"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_welcome_employee
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">NEW ACCOUNT</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your corporate account is ready</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.name or ''\"/>, your school corporate account has been created to access Google Workspace (email, Drive, Classroom...) and the services that use this account.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"ctx.get('gw_email') or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Temporary password</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"font-family:Consolas,Menlo,monospace;font-size:17px;letter-spacing:1px;\"><t t-out=\"ctx.get('gw_password') or ''\"/></span></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff7e8;border-left:3px solid #e0a526;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5c4510;\">For security reasons, you will be asked to change this password the first time you sign in.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">You can also access the school management platform (EMS) at <a t-att-href=\"object.get_base_url()\"><t t-out=\"object.get_base_url()\"/></a>: use the <strong>Sign in with Google</strong> button with this same corporate account.</p>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">COMPTE NOU</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">El teu compte corporatiu ja està a punt</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.name or ''\"/>. S'ha creat el teu compte corporatiu del centre per accedir a Google Workspace (correu electrònic, Drive, Classroom...) i als serveis que utilitzen aquest compte.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Compte corporatiu</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"ctx.get('gw_email') or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Contrasenya temporal</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"font-family:Consolas,Menlo,monospace;font-size:17px;letter-spacing:1px;\"><t t-out=\"ctx.get('gw_password') or ''\"/></span></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff7e8;border-left:3px solid #e0a526;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5c4510;\">Per motius de seguretat, hauràs de canviar aquesta contrasenya el primer cop que iniciïs la sessió.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">També pots accedir a la plataforma de gestió del centre (EMS) a <a t-att-href=\"object.get_base_url()\"><t t-out=\"object.get_base_url()\"/></a>: fes servir el botó <strong>Inicia la sessió amb Google</strong> amb aquest mateix compte corporatiu.</p>\n"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_password_reset_student
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">PASSWORD RESET</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your password has been reset</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.firstname or object.name or ''\"/>, the password of your school corporate account has been reset. Use this temporary password to sign in.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"ctx.get('gw_email') or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Temporary password</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"font-family:Consolas,Menlo,monospace;font-size:17px;letter-spacing:1px;\"><t t-out=\"ctx.get('gw_password') or ''\"/></span></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff7e8;border-left:3px solid #e0a526;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5c4510;\">For security reasons, you will be asked to change this password the first time you sign in.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">If you were not expecting this change, please let the school know.</p>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">CONTRASENYA RESTABLERTA</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">S'ha restablert la teva contrasenya</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.firstname or object.name or ''\"/>. S'ha restablert la contrasenya del teu compte corporatiu del centre. Fes servir aquesta contrasenya temporal per iniciar la sessió.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Compte corporatiu</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"ctx.get('gw_email') or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Contrasenya temporal</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"font-family:Consolas,Menlo,monospace;font-size:17px;letter-spacing:1px;\"><t t-out=\"ctx.get('gw_password') or ''\"/></span></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff7e8;border-left:3px solid #e0a526;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5c4510;\">Per motius de seguretat, hauràs de canviar aquesta contrasenya el primer cop que iniciïs la sessió.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">Si no esperaves aquest canvi, avisa el centre.</p>\n"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_password_reset_employee
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">PASSWORD RESET</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your password has been reset</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.name or ''\"/>, the password of your school corporate account has been reset. Use this temporary password to sign in.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"ctx.get('gw_email') or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Temporary password</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"font-family:Consolas,Menlo,monospace;font-size:17px;letter-spacing:1px;\"><t t-out=\"ctx.get('gw_password') or ''\"/></span></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff7e8;border-left:3px solid #e0a526;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5c4510;\">For security reasons, you will be asked to change this password the first time you sign in.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">You can also access the school management platform (EMS) at <a t-att-href=\"object.get_base_url()\"><t t-out=\"object.get_base_url()\"/></a>: use the <strong>Sign in with Google</strong> button with this same corporate account.</p>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">If you were not expecting this change, please let the school know.</p>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">CONTRASENYA RESTABLERTA</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">S'ha restablert la teva contrasenya</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.name or ''\"/>. S'ha restablert la contrasenya del teu compte corporatiu del centre. Fes servir aquesta contrasenya temporal per iniciar la sessió.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Compte corporatiu</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"ctx.get('gw_email') or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Contrasenya temporal</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"font-family:Consolas,Menlo,monospace;font-size:17px;letter-spacing:1px;\"><t t-out=\"ctx.get('gw_password') or ''\"/></span></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff7e8;border-left:3px solid #e0a526;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5c4510;\">Per motius de seguretat, hauràs de canviar aquesta contrasenya el primer cop que iniciïs la sessió.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">També pots accedir a la plataforma de gestió del centre (EMS) a <a t-att-href=\"object.get_base_url()\"><t t-out=\"object.get_base_url()\"/></a>: fes servir el botó <strong>Inicia la sessió amb Google</strong> amb aquest mateix compte corporatiu.</p>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">Si no esperaves aquest canvi, avisa el centre.</p>\n"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_deactivation_student
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#fff0ee;border:1px solid #f5cbc6;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#b33126;\">SCHEDULED DEACTIVATION</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your account will be deactivated</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.firstname or object.name or ''\"/>, now that you are no longer enrolled at the school, your corporate Google Workspace account will be deactivated and then deleted.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.student_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Deactivation</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></p></td><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Permanent deletion</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff0ee;border-left:3px solid #d9534f;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#6b2620;\">You can use your account as usual until the day before <t t-out=\"format_date(object.google_ws_deactivation_date)\"/>. From <t t-out=\"format_date(object.google_ws_deactivation_date)\"/> you will no longer be able to access it, and on <t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/> it will be deleted for good: after that date your email and your Drive files <strong>cannot be recovered</strong>. Download everything you want to keep before then, and move any personal service using this address to another one.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">If you enrol again at the school before those dates, the account is kept and nothing is lost.</p>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#fff0ee;border:1px solid #f5cbc6;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#b33126;\">DESACTIVACIÓ PROGRAMADA</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">El teu compte es desactivarà</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.firstname or object.name or ''\"/>. Ara que ja no estàs matriculat al centre, el teu compte corporatiu de Google Workspace es desactivarà i després s'eliminarà.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Compte corporatiu</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.student_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Desactivació</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></p></td><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Eliminació definitiva</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff0ee;border-left:3px solid #d9534f;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#6b2620;\">Pots fer servir el compte amb normalitat fins al dia abans del <t t-out=\"format_date(object.google_ws_deactivation_date)\"/>. A partir del <t t-out=\"format_date(object.google_ws_deactivation_date)\"/> ja no hi podràs accedir, i el <t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/> s'eliminarà definitivament: a partir d'aquesta data el teu correu i els teus fitxers de Drive <strong>no es podran recuperar</strong>. Descarrega abans tot el que vulguis conservar i trasllada a una altra adreça qualsevol servei personal que faci servir aquesta.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">Si tornes a matricular-te al centre abans d'aquestes dates, el compte es conserva i no es perd res.</p>\n"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_deactivation_employee
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#fff0ee;border:1px solid #f5cbc6;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#b33126;\">SCHEDULED DEACTIVATION</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your account will be deactivated</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.name or ''\"/>, now that you are no longer part of the school staff, your corporate Google Workspace account will be deactivated.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.work_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Deactivation</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff0ee;border-left:3px solid #d9534f;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#6b2620;\">Until that date the account keeps working as usual. Save everything you need from your email and your Drive files before then, and move any personal service using this address to another one.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">If you come back to the school before that date, the account is kept and nothing is lost.</p>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#fff0ee;border:1px solid #f5cbc6;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#b33126;\">DESACTIVACIÓ PROGRAMADA</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">El teu compte es desactivarà</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.name or ''\"/>. Ara que ja no formes part del personal del centre, el teu compte corporatiu de Google Workspace es desactivarà.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Compte corporatiu</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.work_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Desactivació</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff0ee;border-left:3px solid #d9534f;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#6b2620;\">Fins aquesta data el compte continua funcionant amb normalitat. Desa abans tot el que necessitis del teu correu i dels teus fitxers de Drive, i trasllada a una altra adreça qualsevol servei personal que faci servir aquesta.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">Si tornes al centre abans d'aquesta data, el compte es conserva i no es perd res.</p>\n"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_card
+msgid ""
+"Automatic email sent from EMS · There is no need to reply to this message."
+msgstr "Correu automàtic enviat des d'EMS · No cal respondre aquest missatge."
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_deactivation_cancelled_employee
+msgid "Google Workspace - Account deactivation cancelled (staff)"
+msgstr "Google Workspace - Desactivació de compte anul·lada (personal)"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_deactivation_cancelled_student
+msgid "Google Workspace - Account deactivation cancelled (students)"
+msgstr "Google Workspace - Desactivació de compte anul·lada (alumnat)"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_reactivated_employee
+msgid "Google Workspace - Account reactivated (staff)"
+msgstr "Google Workspace - Compte reactivat (personal)"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_reactivated_student
+msgid "Google Workspace - Account reactivated (students)"
+msgstr "Google Workspace - Compte reactivat (alumnat)"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_password_reset_employee
+msgid "Google Workspace - Password reset (staff)"
+msgstr "Google Workspace - Restabliment de contrasenya (personal)"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_password_reset_student
+msgid "Google Workspace - Password reset (students)"
+msgstr "Google Workspace - Restabliment de contrasenya (alumnat)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_google
+msgid "Google accounts"
+msgstr "Comptes Google"
+
+#. module: ems
+#: model:mail.template,subject:ems.mail_template_google_password_reset_employee
+#: model:mail.template,subject:ems.mail_template_google_password_reset_student
+msgid ""
+"New password for your corporate account @{{ "
+"object.env.company.google_ws_domain }}"
+msgstr ""
+"Nova contrasenya del teu compte corporatiu @{{ "
+"object.env.company.google_ws_domain }}"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_google
+msgid "Open my email"
+msgstr "Obre el meu correu"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_google
+msgid "School Secretariat"
+msgstr "Secretaria del centre"
+
+#. module: ems
+#: model:mail.template,subject:ems.mail_template_google_reactivated_employee
+#: model:mail.template,subject:ems.mail_template_google_reactivated_student
+msgid ""
+"Your corporate account @{{ object.env.company.google_ws_domain }} is active "
+"again"
+msgstr ""
+"El teu compte corporatiu @{{ object.env.company.google_ws_domain }} torna a "
+"estar actiu"
+
+#. module: ems
+#: model:mail.template,subject:ems.mail_template_google_deactivation_cancelled_employee
+#: model:mail.template,subject:ems.mail_template_google_deactivation_cancelled_student
+msgid ""
+"Your corporate account @{{ object.env.company.google_ws_domain }} will not "
+"be deactivated"
+msgstr ""
+"El teu compte corporatiu @{{ object.env.company.google_ws_domain }} no es "
+"desactivarà"

@@ -404,6 +404,7 @@
 
         'views/shared/attachment/form.xml',
         'views/shared/mail_activity/list.xml',  
+        'views/shared/mail_layout/card.xml',
 
 
         ### Mailing templates ###

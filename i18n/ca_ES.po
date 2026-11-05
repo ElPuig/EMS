@@ -10457,7 +10457,7 @@ msgstr "NIF"
 #. module: ems
 #: model:ems.role,name:ems.role_vetcoord
 msgid "VET coordinator"
-msgstr "Coordinador/a de FP"
+msgstr "Coordinador/a d'FP"
 
 #. module: ems
 #. odoo-python
@@ -31113,7 +31113,7 @@ msgid ""
 "I consent to the use of my image in the project's dissemination activities "
 "(voluntary)"
 msgstr ""
-"Consenteixo l'ús de la meva imatge en les activitats de difusió del projecte"
+"Consento l'ús de la meva imatge en les activitats de difusió del projecte"
 " (voluntari)"
 
 #. module: ems
@@ -36509,7 +36509,7 @@ msgid ""
 msgstr ""
 "Convocatòria del personal: la direcció que valida l'activitat de cada "
 "persona seleccionada i els seus canvis (la directora o el director i el cap "
-"d'estudis de FP), sigui quin sigui el seu lloc a l'organigrama. També hi "
+"d'estudis d'FP), sigui quin sigui el seu lloc a l'organigrama. També hi "
 "poden sol·licitar."
 
 #. module: ems
@@ -42077,10 +42077,10 @@ msgstr ""
 "                        <p>La teva sol·licitud a <strong t-out=\"object.call_id.name\"/> ha quedat exclosa del procés de selecció.</p>\n"
 "                        <p>Motiu: <t t-out=\"object.exclusion_reason\"/></p>\n"
 "                        <p t-if=\"'provisional' in object.call_id._ems_published_resolutions().mapped('kind')\">\n"
-"                            L'exclusió apareixerà a la propera llista que es publiqui. Si creus que és un error, parla amb l'equip Erasmus.\n"
+"                            L'exclusió apareixerà a la pròxima llista que es publiqui. Si creus que és un error, parla amb l'equip Erasmus.\n"
 "                        </p>\n"
 "                        <p t-else=\"\">\n"
-"                            L'exclusió apareixerà a la propera llista que es publiqui. Si no hi estàs d'acord, podràs\n"
+"                            L'exclusió apareixerà a la pròxima llista que es publiqui. Si no hi estàs d'acord, podràs\n"
 "                            reclamar contra la resolució provisional <t t-out=\"object._ems_mail_place()\"/> (<a t-attf-href=\"{{ object._ems_mail_url() }}\">Erasmus+</a>).\n"
 "                        </p>\n"
 "                        <p>\n"
@@ -42495,7 +42495,7 @@ msgstr "Incidències greus de convivència aquest curs ("
 #. odoo-python
 #: code:addons/ems/models/erasmus/mobility.py:0
 msgid "Weekly self-assessment: %s week(s)"
-msgstr "Autoavaluació setmanal: %s setmana(es)"
+msgstr "Autoavaluació setmanal (setmanes: %s)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
@@ -42857,7 +42857,7 @@ msgstr "Un enllaç: la persona sol·licitant l'enganxa al portal en lloc de puja
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "A student has fewer opportunities when they face obstacles to take part for socio-economic reasons (for instance a general grant of the Ministry of Education, the Minimum Living Income or the Guaranteed Citizenship Income, a large or single-parent family, social services' report), a disability of 33 % or more, health, educational needs (report of the guidance service), cultural differences (refugee or international protection), discrimination or geography. Annex 2 of the call lists the documents that prove each one."
-msgstr "Té menys oportunitats l'alumnat que troba obstacles per participar per motius socioeconòmics (per exemple, una beca general del Ministeri d'Educació, l'Ingrés Mínim Vital o la Renda Garantida de Ciutadania, família nombrosa o monoparental, un informe dels serveis socials), una discapacitat igual o superior al 33 %, de salut, educatius (informe del servei d'orientació), de diferències culturals (persona refugiada o amb protecció internacional), de discriminació o geogràfics. L'annex 2 de la convocatòria diu quins documents acrediten cadascun."
+msgstr "Té menys oportunitats l'alumnat que troba obstacles per participar per motius socioeconòmics (per exemple, una beca general del Ministeri d'Educació, l'ingrés mínim vital o la renda garantida de ciutadania, família nombrosa o monoparental, un informe dels serveis socials), una discapacitat igual o superior al 33 %, de salut, educatius (informe del servei d'orientació), de diferències culturals (persona refugiada o amb protecció internacional), de discriminació o geogràfics. L'annex 2 de la convocatòria diu quins documents acrediten cadascun."
 
 #. module: ems
 #. odoo-python

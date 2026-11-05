@@ -6,7 +6,7 @@
 
 La convocatòria del personal estableix que la direcció valida l'activitat, l'entitat d'acollida o el curs, la destinació i les dates de cada persona seleccionada abans de formalitzar la mobilitat, tenint en compte l'organització del centre, la cobertura de l'activitat lectiva, els objectius del projecte i el pressupost.
 
-**Rol necessari:** les persones que la convocatòria del personal indica a **Valida les activitats**: la directora o el director i el cap d'estudis de FP. Només ells reben la tasca, per a totes les persones sol·licitants, i un altre cap d'estudis (ESO, batxillerat) no la pot validar.
+**Rol necessari:** les persones que la convocatòria del personal indica a **Valida les activitats**: la directora o el director i el cap d'estudis d'FP. Només ells reben la tasca, per a totes les persones sol·licitants, i un altre cap d'estudis (ESO, batxillerat) no la pot validar.
 
 ---
 
@@ -23,4 +23,4 @@ Mentre el tribunal encara valora els plans, la pestanya **Baremació** d'una sol
 
 ---
 
-[← Tornar a l'índex de Cap d'Estudis](index.md)
+[← Tornar a l'índex de cap d'estudis](index.md)

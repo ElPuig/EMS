@@ -8,13 +8,13 @@ Un cop acceptada una plaça, la mobilitat es prepara a l'EMS: la destinació, l'
 
 > **On ho fan els participants:** l'alumnat i les famílies, al portal; el personal, a l'EMS, a **Erasmus+ > La meva participació > Les meves mobilitats** (vegeu [Sol·licitar una mobilitat Erasmus+ de personal](../teachers/erasmus-staff-call.md)). On aquest manual diu "al portal", per al personal vol dir "a l'EMS".
 
-**Rol necessari:** *Coordinador/a Erasmus* o *Tècnic/a de mobilitat Erasmus* (Erasmus+ > Gestor/a). El cap d'estudis i la directora o el director poden consultar les mobilitats; la direcció (la directora o el director, o el cap d'estudis de FP, indicats a la convocatòria) valida les activitats del personal (vegeu [Validar les activitats del personal Erasmus+](../head_of_studies/erasmus-staff-validation.md)).
+**Rol necessari:** *Coordinador/a Erasmus* o *Tècnic/a de mobilitat Erasmus* (Erasmus+ > Gestor/a). El cap d'estudis i la directora o el director poden consultar les mobilitats; la direcció (la directora o el director, o el cap d'estudis d'FP, indicats a la convocatòria) valida les activitats del personal (vegeu [Validar les activitats del personal Erasmus+](../head_of_studies/erasmus-staff-validation.md)).
 
 ---
 
 ## 1. Abans de començar: els projectes i la convocatòria
 
-A **Erasmus+ > Gestió econòmica > Projectes**, manteniu els projectes Erasmus+ actius del centre: el número de conveni i el tipus (**KA121-VET** per a CFGM, **KA131-HED** per a CFGS). En pot haver diversos del mateix tipus actius alhora (un per any de convocatòria); arxiveu un projecte quan s'acabi.
+A **Erasmus+ > Gestió econòmica > Projectes**, manteniu els projectes Erasmus+ actius del centre: el número de conveni i el tipus (**KA121-VET** per a CFGM, **KA131-HED** per a CFGS). N'hi pot haver diversos del mateix tipus actius alhora (un per any de convocatòria); arxiveu un projecte quan s'acabi.
 
 A la convocatòria, reviseu aquestes pestanyes:
 

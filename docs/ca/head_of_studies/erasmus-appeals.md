@@ -18,4 +18,4 @@ Si s'estima el recurs, digues-ho a l'equip Erasmus: corregirà la sol·licitud i
 
 ---
 
-[← Tornar a l'índex de Cap d'Estudis](index.md)
+[← Tornar a l'índex de cap d'estudis](index.md)

@@ -25,7 +25,7 @@ Quan acaba una estada, EMS fa una pregunta al portal a cada participant (alumnat
 els participants d'una mobilitat de grup): *«En general, quin és el teu grau de satisfacció amb la
 teva experiència de mobilitat Erasmus+?»*, de l'1 al 10, amb un comentari opcional.
 
-- L'alumnat rep un correu, i un recordatori als 3 i als 7 dies si no ha respost.
+- L'alumnat rep un correu, i un recordatori al cap de 3 i de 7 dies si no ha respost.
 - El professorat té una tasca al resum diari fins que respon.
 - Una puntuació de 6 o menys demana confirmar-la i explicar què no ha funcionat.
 

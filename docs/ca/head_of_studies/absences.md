@@ -25,7 +25,7 @@
 
 | Àrea | Aprova |
 |---|---|
-| VET | Cap d'Estudis Adjunt/a de FP |
+| VET | Cap d'Estudis Adjunt/a d'FP |
 | ESO / BTX | Cap d'Estudis |
 | ASP | Secretari/ària |
 

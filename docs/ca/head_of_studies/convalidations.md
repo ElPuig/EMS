@@ -204,4 +204,4 @@ Només poden rebre sol·licituds els estudis dels nivells de la llista **Nivells
 
 ---
 
-[← Tornar a l'índex de Cap d'Estudis](index.md)
+[← Tornar a l'índex de cap d'estudis](index.md)

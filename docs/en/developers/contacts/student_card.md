@@ -130,8 +130,13 @@ login at all: the code is the credential (see "Card check page" above).
   sheets.
 - Double-sided printing: each sheet of fronts (up to ten cards) is followed by its sheet of backs,
   flipped on the long edge. A back row lists its cards right to left (`[::-1]`), so every back, and
-  its own QR, lands behind its own front, and an odd last card's back sits on the right; left and
-  right margins are equal so the columns line up.
+  its own QR, lands behind its own front. An odd last card keeps its column on both sides: the front
+  sits on the left with an empty cell on its right, the back on the right with an empty cell on its
+  left (a lone front centred on the sheet would not land on its back). Left and right margins are
+  equal so the columns line up.
+- Download file name: `print_report_name` is `Student card - <student> - <course>` (translated).
+  Odoo only uses it when a single card is downloaded; a download of several cards is named after
+  the report.
   Cards are `box-sizing: border-box` so five 54 mm rows fit an A4 sheet.
 - The barcode uses Odoo's own `barcode` QWeb widget (an inline PNG), Code128, from the IDALU. No
   barcode is printed for a student without IDALU. It is rastered at 400 x 80 px for a 36 x 8 mm print

@@ -38,7 +38,7 @@ En la pestaña **Beca** de una movilidad ves su *estado económico* (previsto, c
 
 **Una movilidad cancelada** solo mantiene comprometido lo que ya se ha pagado. Si el participante devuelve dinero, escríbelo en **Devuelto por el participante**. Mientras tanto, el proyecto muestra un aviso.
 
-**Movilidades de grupo:** cada participante, alumno o docente acompañante, tiene su propia beca, tal como la calcula el Beneficiary Module. Introdúcelas en la pestaña **Gastos colectivos**, en *Becas de los participantes* (una vez aprobada la selección). Las cifras del grupo las suman, cada una una sola vez: la beca del grupo que hay encima de la lista es el total (un participante que se ha dado de baja no cuenta nunca). Las facturas del grupo son lo pagado de ellas.
+**Movilidades de grupo:** cada participante, alumno o docente acompañante, tiene su propia beca, tal como la calcula el Beneficiary Module. Introdúcelas en la pestaña **Gastos colectivos**, en *Becas de los participantes* (una vez aprobada la selección). Las cifras del grupo las suman, cada una una sola vez: la beca del grupo que hay encima de la lista es el total (un participante que se ha dado de baja no cuenta nunca). Lo gastado de ellas son las facturas colectivas del grupo más el dinero de bolsillo de cada participante (su beca menos la parte que le toca de las facturas), que se solicita al grupo y paga la Secretaría: nada se cuenta dos veces. Consulta *Becas y dinero de bolsillo* en [Movilidades de grupo](group-mobilities.md).
 
 ## Gastos
 

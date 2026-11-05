@@ -255,7 +255,7 @@ class EmsErasmusProject(models.Model):
                                       over=money(-participant.pocket_amount)))
                 if participant.state == 'withdrawn' and participant.pocket_paid > 0:
                     warnings.append(_("%(name)s withdrew from %(group)s after being paid %(paid)s: record what they "
-                                      "gave back in the group's Given back.", name=participant.partner_id.name,
+                                      "gave back in the group's \"Given back by the participant\".", name=participant.partner_id.name,
                                       group=group.name, paid=money(participant.pocket_paid)))
         return warnings
 

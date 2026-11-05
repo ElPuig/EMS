@@ -38,7 +38,7 @@ On the **Grant** tab of a mobility you see its *economic state* (forecast, commi
 
 **A cancelled mobility** only keeps committed what has already been paid. If the participant gives money back, write it in **Given back by the participant**. Until then, the project shows a warning.
 
-**Group mobilities:** each participant, student or accompanying teacher, has their own grant, as calculated in the Beneficiary Module. Enter them on the **Collective expenses** tab, in *Participants' grants* (once the selection is approved). The group's figures add them up, each one once: the group's grant above the list is the total (a withdrawn participant never counts). The group's invoices are what has been paid of them.
+**Group mobilities:** each participant, student or accompanying teacher, has their own grant, as calculated in the Beneficiary Module. Enter them on the **Collective expenses** tab, in *Participants' grants* (once the selection is approved). The group's figures add them up, each one once: the group's grant above the list is the total (a withdrawn participant never counts). What has been spent of them is the group's collective invoices plus each participant's pocket money (their grant minus their equal share of the invoices), requested from the group and paid by the Secretary: nothing is counted twice. See *Grants and pocket money* in [Group mobilities](group-mobilities.md).
 
 ## Expenses
 

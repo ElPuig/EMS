@@ -65,10 +65,24 @@ In **Actions**, **Export the documents** downloads a ZIP with the group's common
 
 ## Participants' spreadsheet
 
-In **Actions**, **Export participants (Excel)** downloads the selected students and the accompanying teachers in the same spreadsheet as the calls (same columns). Teachers have the cycle, year and legal guardian columns empty; the bank columns are empty for everyone, since a group mobility pays its expenses collectively.
+In **Actions**, **Export participants (Excel)** downloads the selected students and the accompanying teachers in the same spreadsheet as the calls (same columns). Teachers have the cycle, year and legal guardian columns empty; the bank columns are empty for everyone: the account each participant gives for the pocket money is in the grant payments.
 
 ## Stay, EU Survey and closure
 
-Before leaving, the mobility lists who is not ready yet (a required document or the commitment letter pending), and **The stay starts** asks for confirmation. The leader teacher says when the stay starts and when they are back. Then EMS creates the **EU Survey** task for the leader teacher (or the person set) with its deadline. When they say it is answered, you validate it. The group's expenses (flights, accommodation...) are recorded as invoices in the **Collective expenses** tab, never split among the participants. On return the leader teacher also gets the task of saying whether the **programme was carried out as planned** (**Return and closure** tab): yes, or no and what changed. The closure cannot be proposed nor done without that answer. When the leader teacher proposes the closure and every required document is valid (the executed group learning agreement among them), click **Close the mobility**.
+Before leaving, the mobility lists who is not ready yet (a required document or the commitment letter pending), and **The stay starts** asks for confirmation. The leader teacher says when the stay starts and when they are back. Then EMS creates the **EU Survey** task for the leader teacher (or the person set) with its deadline. When they say it is answered, you validate it. The group's expenses (flights, accommodation...) are recorded as invoices in the **Collective expenses** tab (see *Grants and pocket money* below). On return the leader teacher also gets the task of saying whether the **programme was carried out as planned** (**Return and closure** tab): yes, or no and what changed. The closure cannot be proposed nor done without that answer. When the leader teacher proposes the closure, every required document is valid (the executed group learning agreement among them) and every participant's pocket money and every collective invoice is paid, click **Close the mobility**.
+
+## Grants and pocket money
+
+In the **Collective expenses** tab you enter each participant's **grant** (students and accompanying teachers), as calculated in the Beneficiary Module. The centre usually pays the flights and the accommodation of the whole group: record them as **collective invoices**. EMS splits every collective invoice **equally among the participants taking part** and shows, for each one, their share and their **pocket money**: their grant minus their share. That is what the Secretary transfers to them.
+
+*Example:* 8 students with a 1,200 € grant and 2 teachers with 1,500 €. The flights cost 2,000 € and the hotel 5,000 €: 700 € per person. Each student receives 500 € and each teacher 800 €.
+
+- **Pocket money before leaving (%)**: 100 by default, a single payment. With a lower percentage, that part is paid before leaving and the rest on return.
+- **The centre pays nothing directly**: check it when the centre pays no flight nor hotel; each participant then receives their whole grant. A group with this option cannot have collective invoices (EMS stops you, and it cannot be checked while the group has some).
+- Once the selection is approved, in **Actions**, **Request the pocket money** creates one payment for each participant with something to receive. The Secretary gets **one task for the whole group** and pays them from **Financial management > Grant payments**, all at once with one receipt. With a percentage below 100, on return use **Request the final pocket money** for the rest.
+- Each participant needs a **bank account**: students give it on the portal (if they don't, the one of their enrolment is used), teachers with **My bank account** on the group mobility, and you can also write it in their file. If someone has none, EMS names them and requests nothing.
+- If a participant withdraws after being paid, the project's economy shows a warning: record what they give back in the group's *Given back by the participant*. A warning also shows if the collective invoices are above someone's grant.
+
+The leader teacher sees this tab too (the invoices, the grants, the pocket money and whether it is paid), never the bank accounts.
 
 The kanban and list of **Group mobilities** show the state of all of them: enrolled, selected, documents missing or to review, ties and late tasks.

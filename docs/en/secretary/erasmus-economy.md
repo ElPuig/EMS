@@ -25,6 +25,16 @@ Pay it like a grant or an invoice: select one or more expenses in the list and c
 
 An expense counts against the project's budget from the moment it is registered: paying it doesn't take it off again, it only marks it as paid.
 
+## Pocket money of group mobilities
+
+Each participant of an Erasmus+ group mobility (students and accompanying teachers) receives part of their grant as **pocket money**. When the Erasmus team requests it, you get **one task for the whole group** ("pay the pocket money of …: N payments, total"), not one per person. To pay it:
+
+1. Go to **Erasmus+ > Financial management > Grant payments**. The **Group mobility** column says which group each payment belongs to (you can filter or group by it).
+2. Select the group's payments and click **Register transfer**, or open one of them and use **Actions > Register the transfer of the whole group**.
+3. Enter the transfer date and attach the bank's receipt. The task is done once nothing of the group is left to pay; if you pay only some, it stays with the number and amount still pending.
+
+Each payment shows the **IBAN** and the **holder** the participant gave (a student without one uses the account of their enrolment). If a transfer was registered by mistake, **Undo the transfer** works as for any other payment and the group's task comes back.
+
 ## Checking a project's budget
 
 **Erasmus+ > Financial management > Economic panel** shows each project's grant, what is committed, what has been paid and what is available. Open a project to see its **Economy** tab, and use **Actions > Export Excel** to download its economic report (summary, grants and payments, expenses, organisational support and SEPIE's transfers). The warnings and the Excel show each participant's name and grant, because you pay them, but you do not open the mobilities themselves.

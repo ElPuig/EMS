@@ -38,7 +38,7 @@ A la pestanya **Beca** d'una mobilitat veieu el seu *estat econòmic* (previst, 
 
 **Una mobilitat cancel·lada** només manté compromès el que ja s'ha pagat. Si el participant retorna diners, escriviu-ho a **Retornat pel participant**. Mentrestant, el projecte mostra un avís.
 
-**Mobilitats de grup:** cada participant, alumne o docent acompanyant, té la seva beca, tal com la calcula el Beneficiary Module. Introduïu-les a la pestanya **Despeses col·lectives**, a *Beques dels participants* (un cop aprovada la selecció). Les xifres del grup les sumen, cadascuna una sola vegada: la beca del grup que hi ha a sobre de la llista és el total (un participant que s'ha donat de baixa no compta mai). Les factures del grup són el que se n'ha pagat.
+**Mobilitats de grup:** cada participant, alumne o docent acompanyant, té la seva beca, tal com la calcula el Beneficiary Module. Introduïu-les a la pestanya **Despeses col·lectives**, a *Beques dels participants* (un cop aprovada la selecció). Les xifres del grup les sumen, cadascuna una sola vegada: la beca del grup que hi ha a sobre de la llista és el total (un participant que s'ha donat de baixa no compta mai). El que se n'ha gastat és les factures col·lectives del grup més els diners de butxaca de cada participant (la seva beca menys la part que li toca de les factures), que se sol·liciten al grup i paga la Secretaria: res no es compta dues vegades. Vegeu *Beques i diners de butxaca* a [Mobilitats de grup](group-mobilities.md).
 
 ## Despeses
 

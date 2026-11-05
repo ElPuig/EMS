@@ -66,10 +66,24 @@ A **Accions**, **Exporta els documents** descarrega un ZIP amb els documents com
 
 ## Full de càlcul de participants
 
-A **Accions**, **Exporta els participants (Excel)** descarrega els alumnes seleccionats i els docents acompanyants amb el mateix full de càlcul que les convocatòries (les mateixes columnes). Els docents tenen buides les columnes de cicle, curs i tutor legal; les columnes bancàries són buides per a tothom, perquè una mobilitat de grup paga les despeses de manera col·lectiva.
+A **Accions**, **Exporta els participants (Excel)** descarrega els alumnes seleccionats i els docents acompanyants amb el mateix full de càlcul que les convocatòries (les mateixes columnes). Els docents tenen buides les columnes de cicle, curs i tutor legal; les columnes bancàries són buides per a tothom: el compte que cada participant indica per als diners de butxaca és als pagaments de beques.
 
 ## Estada, EU Survey i tancament
 
-Abans de marxar, la mobilitat mostra qui encara no està a punt (falta un document obligatori o la carta de compromís), i **Comença l'estada** demana confirmació. El docent responsable indica quan comença l'estada i quan tornen. Aleshores l'EMS crea la tasca de l'**EU Survey** per al docent responsable (o la persona indicada) amb el termini. Quan diu que està resposta, la valides. Les despeses del grup (vols, allotjament...) es registren com a factures a la pestanya **Despeses col·lectives**, sense repartir-les entre els participants. En tornar, el docent responsable també rep la tasca de dir si **el programa s'ha fet tal com estava previst** (pestanya **Retorn i tancament**): sí, o no i què ha canviat. Sense aquesta resposta no es pot proposar ni fer el tancament. Quan el docent responsable proposa el tancament i tots els documents obligatoris són vàlids (entre ells, l'acord d'aprenentatge del grup executat), fes clic a **Tanca la mobilitat**.
+Abans de marxar, la mobilitat mostra qui encara no està a punt (falta un document obligatori o la carta de compromís), i **Comença l'estada** demana confirmació. El docent responsable indica quan comença l'estada i quan tornen. Aleshores l'EMS crea la tasca de l'**EU Survey** per al docent responsable (o la persona indicada) amb el termini. Quan diu que està resposta, la valides. Les despeses del grup (vols, allotjament...) es registren com a factures a la pestanya **Despeses col·lectives** (vegeu *Beques i diners de butxaca* més avall). En tornar, el docent responsable també rep la tasca de dir si **el programa s'ha fet tal com estava previst** (pestanya **Retorn i tancament**): sí, o no i què ha canviat. Sense aquesta resposta no es pot proposar ni fer el tancament. Quan el docent responsable proposa el tancament, tots els documents obligatoris són vàlids (entre ells, l'acord d'aprenentatge del grup executat) i els diners de butxaca de cada participant i totes les factures col·lectives estan pagats, fes clic a **Tanca la mobilitat**.
+
+## Beques i diners de butxaca
+
+A la pestanya **Despeses col·lectives** introduïu la **beca** de cada participant (alumnes i docents acompanyants), tal com la calcula el Beneficiary Module. El centre acostuma a pagar els vols i l'allotjament de tot el grup: registreu-los com a **factures col·lectives**. L'EMS reparteix cada factura col·lectiva **a parts iguals entre els participants que hi van** i mostra, per a cadascun, la seva part i els seus **diners de butxaca**: la seva beca menys la seva part. És el que la Secretaria els transfereix.
+
+*Exemple:* 8 alumnes amb una beca de 1.200 € i 2 docents amb 1.500 €. Els vols costen 2.000 € i l'hotel 5.000 €: 700 € per persona. Cada alumne rep 500 € i cada docent 800 €.
+
+- **Diners de butxaca abans de marxar (%)**: 100 per defecte, un sol pagament. Amb un percentatge menor, aquesta part es paga abans de marxar i la resta en tornar.
+- **El centre no paga res directament**: marqueu-ho quan el centre no paga ni vols ni hotel; cada participant rep aleshores tota la seva beca. Un grup amb aquesta opció no pot tenir factures col·lectives (l'EMS ho impedeix, i no es pot marcar mentre el grup en tingui).
+- Un cop aprovada la selecció, a **Accions**, **Demana els diners de butxaca** crea un pagament per a cada participant que tingui res a rebre. La Secretaria rep **una sola tasca per a tot el grup** i els paga des de **Gestió econòmica > Pagaments de beques**, tots alhora amb un sol justificant. Amb un percentatge inferior a 100, en tornar feu servir **Demana la resta dels diners de butxaca** per a la resta.
+- Cada participant necessita un **compte bancari**: els alumnes l'indiquen al portal (si no ho fan, s'usa el de la seva matrícula), els docents amb **El meu compte bancari** a la mobilitat de grup, i també podeu escriure'l a la seva fitxa. Si algú no en té, l'EMS el nomena i no demana res.
+- Si un participant es dona de baixa després d'haver cobrat, l'economia del projecte mostra un avís: registreu el que retorna a *Retornat pel participant* del grup. També surt un avís si les factures col·lectives superen la beca d'algú.
+
+El docent responsable també veu aquesta pestanya (les factures, les beques, els diners de butxaca i si està pagat), però mai els comptes bancaris.
 
 La vista kanban i la llista de **Mobilitats de grup** mostren l'estat de totes: inscrits, seleccionats, documents que falten o per revisar, empats i tasques endarrerides.

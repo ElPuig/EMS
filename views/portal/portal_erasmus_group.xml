@@ -244,9 +244,10 @@
                     <form t-if="mobility.state != 'done'" t-att-action="action + 'bank'" method="post" class="mb-3 o_ems_erasmus_group_bank">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <h6>Bank account for your pocket money</h6>
-                        <p t-if="bank[0] and not pocket.bank_account" class="small text-muted mb-2">
-                            We will use the account of your enrolment, ending in <t t-esc="bank[0][-4:]"/>. Write another one only if you want it paid elsewhere.
-                        </p>
+                        <t t-if="bank[0] and not pocket.bank_account">
+                            <p class="small text-muted mb-0">We will use the account of your enrolment. Write another one only if you want it paid elsewhere.</p>
+                            <p class="small text-muted mb-2">Account ending in: <strong t-esc="bank[0][-4:]"/></p>
+                        </t>
                         <p t-elif="not bank[0]" class="small text-warning mb-2">Write the account your pocket money is transferred to: until then it cannot be paid.</p>
                         <div class="row g-2 mb-2">
                             <div class="col-md-7"><input type="text" name="bank_account" class="form-control form-control-sm" required="required"

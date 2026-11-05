@@ -188,7 +188,9 @@ The administrator (`ems.group_academic_admin`) can do everything the team does. 
 economic lines are checked in Python too (`_check_manager()`), and every amendment and SEPIE transfer
 added, changed or deleted is posted in the project's chatter. The mobilities' and group mobilities'
 `econ_*` fields and `grant_amount` (group) carry `groups=` so a teacher or a leader never reads
-them.
+them; a group participant's own `grant_amount` and pocket money figures are also readable by the
+group's leader and accompanying teachers (`ems.group_erasmus_group_teacher`, issue #764), its
+`bank_account`/`bank_holder` only by the team, the Secretary and the administrator.
 
 ## Pocket money of group participants (issue #764)
 
@@ -212,7 +214,7 @@ erDiagram
 
 ### What is shared with the individual mobilities
 
-`ems.erasmus.payee` (abstract, `grant.py`) holds the grant-payment logic both kinds of payee use:
+`ems.erasmus.payee` (abstract, `models/erasmus/payee.py`, loaded before the mobilities) holds the grant-payment logic both kinds of payee use:
 `can_request_prefinancing` / `can_request_final`, the first payment (`prefinancing` or, at 100 %,
 `single`) as the prefinancing percentage of the amount to transfer, the final one as what is left,
 `_ems_left_to_pay()` and the portal's rows (`_ems_portal_grant()`). Each payee says what it transfers
@@ -238,12 +240,19 @@ percentage, when a payment may be requested and how a payment points at it (`mob
   with something to receive and none yet, from **Preparation** to **Closed**; *Request the final
   pocket money* only **on return** or **closed**, when the percentage is below 100. A participant
   with no IBAN (their own or the contact's) blocks the request, naming them.
-- **One task per group for the Secretary** (not one per payment): an activity of type *Erasmus+
-  transfer* on the project, "pay the pocket money of <group>: N payments, total", kept up to date
-  as payments are requested, paid or undone, and marked done once none is left to pay
-  (`group._ems_sync_transfer_task()`).
+- **One task per group for the Secretary** (not one per payment): an activity of type *Pay
+  Erasmus+ pocket money* (`ems.mail_activity_erasmus_transfer`) on the group's first payment still
+  to pay (the Secretary cannot open the group mobility), "pay the pocket money of <group> (N
+  payments, total)", kept up to date as payments are requested, paid or undone (moved to the next
+  payment to pay when its own is paid) and marked done once none is left
+  (`group._ems_sync_transfer_task()`, called from `_ask_transfer()` and `_mark_paid()`).
 - The Secretary pays them from *Financial management > Grant payments* (filter and group by group
-  mobility), several at once with one receipt.
+  mobility), several at once with one receipt, or from a payment's *Register the transfer of the
+  whole group*.
+- A teacher gives their account with *My bank account* (`ems.erasmus.bank.wizard`, only for their
+  own participant record); a student on the group's portal page (`/my/erasmus/group/<id>/bank`).
+  The portal's grant table is one template for both kinds of payee
+  (`ems.portal_erasmus_grant_table`).
 - **Closing** the group waits until every active participant's pocket money is requested and paid
   and no collective invoice is left to pay.
 

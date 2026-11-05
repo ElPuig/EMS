@@ -119,6 +119,7 @@ class EmsErasmusProjectDocument(models.Model):
     participant that is not in the call's documents."""
     _name = 'ems.erasmus.project.document'
     _description = 'Erasmus+ project document'
+    _inherit = ['ems.attachment_link_mixin']
     _order = 'category, date desc, id desc'
 
     project_id = fields.Many2one(string="Project", comodel_name='ems.erasmus.project', required=True,

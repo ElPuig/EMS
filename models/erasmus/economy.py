@@ -30,6 +30,8 @@ EXPENSE_CATEGORIES = [('organisational_support', "Organisational support"), ('ot
 EXPENSE_STATES = [('to_pay', "Registered, to pay"), ('paid', "Paid"), ('cancelled', "Cancelled")]
 # What changes an expense's figures: once paid, only the correction wizard changes it, with a reason.
 EXPENSE_ECONOMIC_FIELDS = {'project_id', 'amount', 'category', 'concept', 'date', 'mobility_id'}
+# Set only by the workflow (paying, correcting), never typed.
+EXPENSE_WORKFLOW_FIELDS = ('state', 'corrected', 'transferred_amount', 'corrected_from_id')
 INCOME_KINDS = [('prefinancing', "Prefinancing"), ('further', "Further prefinancing"), ('balance', "Balance"),
                 ('other', "Other")]
 # The kinds of mobility the funding rules give an organisational support rate to (accompanying
@@ -314,15 +316,16 @@ class EmsErasmusProject(models.Model):
                  'mobility_ids.econ_forecast', 'mobility_ids.econ_committed', 'mobility_ids.econ_paid',
                  'group_mobility_ids.econ_forecast', 'group_mobility_ids.econ_committed',
                  'group_mobility_ids.econ_paid', 'expense_ids.amount', 'expense_ids.state', 'expense_ids.category',
+                 'expense_ids.transferred_amount',
                  'invoice_ids.amount', 'invoice_ids.state', 'invoice_ids.mobility_ids',
                  'invoice_ids.group_mobility_id', 'support_generated')
     def _compute_economy(self):
         for project in self:
             mobilities = (project.mobility_ids, project.group_mobility_ids)
-            expenses = project.expense_ids.filtered(lambda expense: expense.state != 'cancelled')
+            values = {expense: expense._ems_value() for expense in project.expense_ids}
             invoices = project._ems_loose_invoices()
-            other = sum(expenses.mapped('amount')) + sum(invoices.mapped('amount'))
-            paid_other = sum(expenses.filtered(lambda expense: expense.state == 'paid').mapped('amount')) \
+            other = sum(committed for committed, _paid in values.values()) + sum(invoices.mapped('amount'))
+            paid_other = sum(paid for _committed, paid in values.values()) \
                 + sum(invoices.filtered(lambda invoice: invoice.state == 'paid').mapped('amount'))
             project.grant_current = project.budget + sum(project.amendment_ids.mapped('amount'))
             project.received_amount = sum(project.income_ids.mapped('amount'))
@@ -333,8 +336,9 @@ class EmsErasmusProject(models.Model):
             project.paid_amount = sum(sum(records.mapped('econ_paid')) for records in mobilities) + paid_other + project.legacy_paid
             project.pending_amount = project.committed_amount - project.paid_amount
             project.available_amount = project.grant_current - project.committed_amount
-            project.support_expense_amount = sum(expenses.filtered(
-                lambda expense: expense.category == 'organisational_support').mapped('amount'))
+            project.support_expense_amount = sum(
+                committed for expense, (committed, _paid) in values.items()
+                if expense.category == 'organisational_support')
             project.support_balance = project.support_generated - project.support_expense_amount
 
     @api.depends('call_year', 'kind', 'support_adjustment', 'legacy_support_generated', 'mobility_ids.state',
@@ -416,9 +420,10 @@ class EmsErasmusProject(models.Model):
                 counters[(measure, person['type'])] += 1
                 counters[measure] += 1
                 positions = {'same': counters[(measure, person['type'])], 'project': counters[measure]}
-                person[f'{measure}_position'] = positions['same']
                 rate, missing = rates._ems_rate_for(person['type'], positions, person['days'])
-                person['missing'] = missing
+                # The position the rate counted: among the same kind, or the whole project (KA131-HED).
+                person[f'{measure}_position'] = positions[rate.band_scope or 'same']
+                person['missing'] = person.get('missing') or missing
                 person['rate'] = rate
                 person[measure] = rate.amount if rate else 0.0
         return people
@@ -435,7 +440,8 @@ class EmsErasmusProject(models.Model):
                               over=money(project.committed_amount - project.grant_current)))
         expenses = project.expense_ids.filtered(lambda expense: expense.state != 'cancelled')
         if without := expenses.filtered(lambda expense: not expense.attachment_ids):
-            warnings.append(_("Expenses without an invoice or receipt: %s.", ", ".join(without.mapped('name'))))
+            warnings.append(_("Expenses without an invoice or receipt: %s.",
+                              ", ".join(expense.name or expense.concept for expense in without)))
         pending_payments = project.payment_ids.filtered(lambda payment: payment.state == 'to_pay')
         pending_invoices = project._ems_invoices().filtered(lambda invoice: invoice.state == 'to_pay')
         pending_expenses = expenses.filtered(lambda expense: expense.state == 'to_pay')
@@ -447,6 +453,11 @@ class EmsErasmusProject(models.Model):
         if corrected := project.expense_ids.filtered('corrected'):
             warnings.append(_("Expenses changed after being paid (see their history): %s.",
                               ", ".join(corrected.mapped('name'))))
+        for expense in expenses.filtered(lambda expense: expense.state == 'paid'
+                                         and expense.transferred_amount > expense.amount):
+            warnings.append(_("%(name)s was paid %(over)s above its corrected amount: ask for it back, then "
+                              "undo the transfer and register the right one.", name=expense.name,
+                              over=money(expense.transferred_amount - expense.amount)))
         for mobility in project.mobility_ids:
             if mobility.state != 'cancelled' and mobility.grant_amount and mobility.econ_paid > mobility.grant_amount:
                 warnings.append(_("%(name)s has been paid %(paid)s, above their grant of %(grant)s: was the grant "
@@ -550,13 +561,13 @@ class EmsErasmusProject(models.Model):
                 expense_states.get(expense.state, ''), expense.paid_date,
                 ", ".join(expense.attachment_ids.mapped('name') + expense.receipt_ids.mapped('name')),
                 _("Yes") if expense.corrected else '') for expense in project.expense_ids])
-        types = dict(SUPPORT_TYPES)
+        types = dict(self.env['ems.erasmus.support.rate']._fields['mobility_type']._description_selection(self.env))
         sheet(_("Organisational support"), [_("Participant"), _("Kind"), _("Start"), _("Days"), _("Position"),
                                             _("Forecast"), _("Generated"), _("Missing information")],
               [(line['name'], types.get(line['type'], ''), line['start'], line['days'] or '',
                 line.get('generated_position') or line.get('forecast_position') or '', float(line['forecast']),
                 float(line['generated']), line.get('missing') or '') for line in project._ems_support_lines()])
-        income_kinds = dict(INCOME_KINDS)
+        income_kinds = dict(self.env['ems.erasmus.project.income']._fields['kind']._description_selection(self.env))
         sheet(_("Grant and income"), [_("Kind"), _("Date"), _("Amount"), _("Description")],
               [(_("Grant awarded"), project.date_start, float(project.budget), '')]
               + [(_("Amendment"), amendment.date, float(amendment.amount), amendment.name or '')
@@ -603,7 +614,10 @@ class EmsErasmusSupportRate(models.Model):
                                   ('mobility_type', '=', rate.mobility_type)])
             for other in others:
                 if rate.band_from <= (other.band_to or float('inf')) and other.band_from <= (rate.band_to or float('inf')):
-                    raise ValidationError(_("Two rates of the same call year, action and mobility overlap."))
+                    raise ValidationError(_(
+                        "This band overlaps another rate of %(rate)s, from participant %(start)s to %(end)s. Change "
+                        "one of them so that each participant falls in a single band.", rate=other.display_name,
+                        start=other.band_from, end=other.band_to or _("no limit")))
 
     def _compute_display_name(self):
         types = dict(self._fields['mobility_type']._description_selection(self.env))
@@ -658,6 +672,7 @@ class EmsErasmusProjectLine(models.AbstractModel):
     project's history."""
     _name = 'ems.erasmus.project.line'
     _description = 'Erasmus+ project economic line'
+    _inherit = ['ems.attachment_link_mixin']
 
     project_id = fields.Many2one(string="Project", comodel_name='ems.erasmus.project', required=True,
                                  ondelete='cascade', index=True)
@@ -726,7 +741,7 @@ class EmsErasmusProjectIncome(models.Model):
     _inherit = ['ems.erasmus.project.line']
     _order = 'date, id'
 
-    kind = fields.Selection(string="Transfer", selection=INCOME_KINDS, required=True, default='prefinancing')
+    kind = fields.Selection(string="Type", selection=INCOME_KINDS, required=True, default='prefinancing')
     attachment_ids = fields.Many2many(relation='ems_erasmus_project_income_attachment_rel')
 
     def _ems_label(self):
@@ -755,7 +770,7 @@ class EmsErasmusExpense(models.Model):
     paid, its figures change only through the correction wizard, which keeps the reason."""
     _name = 'ems.erasmus.expense'
     _description = 'Erasmus+ project expense'
-    _inherit = ['ems.base']
+    _inherit = ['ems.base', 'ems.attachment_link_mixin']
     _order = 'date desc, id desc'
 
     name = fields.Char(string="Reference", compute='_compute_name', store=True, index=True)
@@ -783,17 +798,33 @@ class EmsErasmusExpense(models.Model):
                                    relation='ems_erasmus_expense_receipt_rel', readonly=True,
                                    help="Added by the Secretary when registering the transfer.")
     corrected = fields.Boolean(string="Changed after payment", readonly=True, tracking=True)
+    counted_amount = fields.Monetary(string="Counted", compute='_compute_counted_amount', store=True,
+                                     help="What it consumes of the project's budget: nothing once cancelled; what "
+                                          "was transferred, if more than its corrected amount.")
+    transferred_amount = fields.Monetary(string="Transferred", readonly=True,
+                                         help="What the Secretary transferred when registering the payment.")
+    corrected_from_id = fields.Many2one(string="Difference of", comodel_name='ems.erasmus.expense', readonly=True,
+                                        ondelete='restrict',
+                                        help="The paid expense whose correction raised its amount: this one is "
+                                             "the difference still to pay.")
     can_manage = fields.Boolean(compute='_compute_can_manage')
 
     @api.depends('create_date')
     def _compute_name(self):
         for expense in self:
-            year = (expense.create_date or fields.Datetime.now()).year
-            expense.name = f"DESP-{year}-{expense.id:05d}" if expense.id else False
+            # _origin: in a form not saved yet (the project's Economy tab) a saved expense is a new record.
+            origin = expense._origin
+            year = (origin.create_date or fields.Datetime.now()).year
+            expense.name = f"DESP-{year}-{origin.id:05d}" if origin.id else False
 
     @api.depends_context('uid')
     def _compute_can_manage(self):
         self.can_manage = _is_manager(self.env)
+
+    @api.depends('amount', 'state', 'transferred_amount')
+    def _compute_counted_amount(self):
+        for expense in self:
+            expense.counted_amount = expense._ems_value()[0]
 
     @api.constrains('amount')
     def _check_amount(self):
@@ -809,18 +840,34 @@ class EmsErasmusExpense(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        check_workflow_create(self, vals_list, extra=('state', 'corrected'))
+        check_workflow_create(self, vals_list, extra=EXPENSE_WORKFLOW_FIELDS)
         expenses = super().create(vals_list)
         _ask_transfer(expenses)
         return expenses
 
     def write(self, vals):
         _check_transfer_fields(self, vals)
-        check_workflow_write(self, vals, extra=('state', 'corrected'))
+        check_workflow_write(self, vals, extra=EXPENSE_WORKFLOW_FIELDS)
         if not self.env.su and EXPENSE_ECONOMIC_FIELDS & set(vals) \
                 and self.filtered(lambda expense: expense.state != 'to_pay'):
             raise UserError(_("A paid or cancelled expense changes only through \"Correct\", which keeps the reason."))
-        return super().write(vals)
+        result = super().write(vals)
+        # What was really transferred: a later correction downwards does not change it.
+        if 'state' in vals:
+            for expense in self.sudo():
+                transferred = expense.amount if expense.state == 'paid' else 0.0
+                if expense.transferred_amount != transferred:
+                    super(EmsErasmusExpense, expense).write({'transferred_amount': transferred})
+        return result
+
+    def _ems_value(self):
+        """What the expense consumes of the project and what has been paid of it: its amount, or what
+        was transferred if that is more (corrected downwards after paying, until it is given back)."""
+        self.ensure_one()
+        if self.state == 'cancelled':
+            return 0.0, 0.0
+        paid = self.transferred_amount if self.state == 'paid' else 0.0
+        return max(self.amount, paid), paid
 
     def unlink(self):
         if self.filtered(lambda expense: expense.state == 'paid'):
@@ -892,13 +939,26 @@ class EmsErasmusExpenseCorrectWizard(models.TransientModel):
             raise UserError(_("Write the reason for the correction first."))
         expense = self.expense_id
         before = expense._ems_correction_summary()
+        # adriamt, 2026-11-05: corrected upwards once paid, what was transferred stays paid and the
+        # difference is a new expense the Secretary is asked to pay.
+        difference = self.amount - expense.transferred_amount if expense.state == 'paid' else 0.0
+        amount = expense.transferred_amount if difference > 0 else self.amount
         expense.sudo().write({'project_id': self.project_id.id, 'concept': self.concept, 'category': self.category,
-                              'date': self.date, 'amount': self.amount,
+                              'date': self.date, 'amount': amount,
                               'corrected': expense.corrected or expense.state != 'to_pay'})
-        expense.message_post(
-            body=_("Corrected by %(user)s: %(reason)s. Before: %(before)s.", user=self.env.user.name,
-                   reason=self.reason.strip(), before=before),
-            message_type='notification', subtype_xmlid='mail.mt_note')
+        body = _("Corrected by %(user)s: %(reason)s. Before: %(before)s.", user=self.env.user.name,
+                 reason=self.reason.strip(), before=before)
+        if difference > 0:
+            pending = expense.sudo().create({
+                'project_id': expense.project_id.id, 'category': expense.category, 'date': expense.date,
+                'supplier_id': expense.supplier_id.id, 'mobility_id': expense.mobility_id.id,
+                'amount': difference, 'corrected_from_id': expense.id,
+                'concept': _("%(concept)s (difference after correcting %(reference)s)", concept=self.concept,
+                             reference=expense.name)})
+            body = _("%(body)s The %(difference)s above what was paid is to pay in %(reference)s.", body=body,
+                     difference=formatLang(self.env, difference, currency_obj=expense.currency_id),
+                     reference=pending.name)
+        expense.message_post(body=body, message_type='notification', subtype_xmlid='mail.mt_note')
         return {'type': 'ir.actions.act_window_close'}
 
 

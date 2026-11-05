@@ -5,6 +5,7 @@ from datetime import date
 import openpyxl
 
 from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.tests import Form
 from odoo.tests.common import HttpCase, tagged
 
 from .common import create_role_user
@@ -58,6 +59,45 @@ class TestErasmusEconomy(ErasmusEconomyMixin, ErasmusGrantCase):
         self.assertEqual((self.project.grant_current, self.project.available_amount), (10500, 10500))
         self.assertIn('Amendment 1', self.project.message_ids[0].body + self.project.message_ids[0].preview,
                       "Every economic change stays in the project's history.")
+
+    def test_lines_are_added_from_the_project_form_of_a_project_with_mobilities(self):
+        """Review 2026-11-05 (B2): adding an amendment or a SEPIE transfer in the Economy tab of a
+        project with mobilities recomputed their records while unsaved and crashed."""
+        self._committed_mobility()
+        self.assertTrue(self.project.mobility_ids._ems_record_lines(), "The mobility has documents to sort.")
+        expense = self._expense(self.project, 40)
+        self.assertIn(expense.name, self.project.economy_warnings, "An expense without a receipt is warned about.")
+        with Form(self.project.with_user(self.erasmus_user)) as form:
+            with form.amendment_ids.new() as amendment:
+                amendment.amount = 300
+                amendment.name = 'Amendment from the form'
+            with form.income_ids.new() as income:
+                income.amount = 1000
+            form.support_adjustment = 25
+            form.support_adjustment_reason = 'Agreement annex'
+        self.assertEqual((self.project.grant_current, self.project.received_amount), (10300, 1000))
+
+    def test_files_uploaded_with_a_new_record_follow_its_access(self):
+        """Review 2026-11-05 (B1): a file uploaded in a form before saving has no res_id, and Odoo
+        only lets its uploader read it: the team and the Director could not open the expense nor
+        the project. Saved, every economic record owns its files."""
+        def upload(user, model):
+            return self.env['ir.attachment'].with_user(user).create(
+                {'name': 'invoice.pdf', 'raw': PDF, 'res_model': model, 'res_id': 0})
+        expense = self._expense(self.project, 90, user=self.secretary_user, attachment_ids=[
+            (6, 0, upload(self.secretary_user, 'ems.erasmus.expense').ids)])
+        amendment = self.env['ems.erasmus.project.amendment'].with_user(self.erasmus_user).create({
+            'project_id': self.project.id, 'amount': 100,
+            'attachment_ids': [(6, 0, upload(self.erasmus_user, 'ems.erasmus.project.amendment').ids)]})
+        diffusion = self.env['ems.erasmus.diffusion'].with_user(self.erasmus_user).create({
+            'name': 'Information session',
+            'attachment_ids': [(6, 0, upload(self.erasmus_user, 'ems.erasmus.diffusion').ids)]})
+        for record, reader in ((expense, self.director_user), (expense, self.erasmus_user),
+                               (amendment, self.director_user), (diffusion, self.erasmus_user)):
+            self.assertEqual(record.attachment_ids.res_id, record.id)
+            self.assertEqual(record.with_user(reader).attachment_ids.with_user(reader).raw, PDF)
+        self.env.invalidate_all()
+        self.project.with_user(self.director_user).read(['expense_ids', 'economy_warnings'])
 
     def test_sepie_transfers_are_received_money_not_budget(self):
         self.env['ems.erasmus.project.income'].create([
@@ -126,6 +166,34 @@ class TestErasmusEconomy(ErasmusEconomyMixin, ErasmusGrantCase):
         self.assertEqual((first.econ_state, first.econ_committed, self.project.available_amount),
                          ('cancelled', 0, 10000))
 
+    def test_part_of_a_cancelled_mobility_given_back_still_counts_the_rest(self):
+        first, _second = self._committed_mobility()
+        first.action_request_prefinancing()
+        self._pay(first.payment_ids, self.secretary_user)
+        first.cancel_reason = 'Illness'
+        first.action_cancel()
+        first.recovered_amount = 500
+        self.assertEqual((first.econ_state, first.econ_committed, first.econ_paid), ('adjusted', 700, 700))
+        self.assertEqual((self.project.committed_amount, self.project.paid_amount), (700, 700))
+
+    def test_each_warning_names_what_to_check(self):
+        """Review 2026-11-05: only one warning was tested."""
+        first, second = self._committed_mobility()
+        second.write({'project_id': self.project.id, 'grant_amount': 300})
+        self._transfer(self._invoice(second, 500, project_id=self.project.id), self.secretary_user)
+        first.action_request_prefinancing()
+        expense = self._expense(self.project, 40)
+        warnings = self.project.economy_warnings
+        self.assertIn(f'{expense.name}', warnings, "An expense without an invoice or receipt.")
+        self.assertIn('payments to make', warnings, "The prefinancing and the expense still to transfer.")
+        self.assertIn(second.partner_id.name, warnings, "Paid above their grant.")
+        self.assertIn('organisational support', warnings, "No rate for the call year.")
+        self._pay(first.payment_ids, self.secretary_user)
+        first.cancel_reason = 'Illness'
+        first.action_cancel()
+        self.assertIn('is cancelled with', self.project.economy_warnings)
+        self.assertEqual(self.project.economy_warning_count, len(self.project._ems_economy_warnings()))
+
     def test_moving_a_mobility_to_another_project_moves_its_figures(self):
         first, _second = self._committed_mobility()
         other = self.env['ems.erasmus.project'].create({'name': '2026-1-ES01-KA121-VET-000000763',
@@ -157,6 +225,36 @@ class TestErasmusEconomy(ErasmusEconomyMixin, ErasmusGrantCase):
         self.assertIn('changed after being paid', self.project.economy_warnings)
         with self.assertRaises(AccessError):
             expense.with_user(self.secretary_user).action_correct()
+
+    def _correct(self, expense, amount, reason='Corrected invoice'):
+        action = expense.with_user(self.erasmus_user).action_correct()
+        wizard = self.env[action['res_model']].with_user(self.erasmus_user).with_context(action['context']).create(
+            {'reason': reason})
+        wizard.amount = amount
+        wizard.action_confirm()
+
+    def test_a_paid_expense_corrected_upwards_leaves_the_difference_to_pay(self):
+        """Review 2026-11-05, adriamt's decision: what was transferred stays paid and the difference
+        is a new expense for the Secretary to pay; corrected downwards, what was paid above it is
+        still paid and the project warns about it."""
+        expense = self._expense(self.project, 75, concept='Working meal')
+        self._pay(expense, self.secretary_user)
+        self._correct(expense, 80)
+        difference = self.project.expense_ids - expense
+        self.assertEqual((expense.amount, expense.state), (75, 'paid'))
+        self.assertEqual((difference.amount, difference.state, difference.corrected_from_id), (5, 'to_pay', expense))
+        self.assertTrue(difference.activity_ids, "A task for the Secretary to pay the difference.")
+        self.assertIn(difference.name, expense.message_ids[0].body)
+        self.assertEqual((self.project.committed_amount, self.project.paid_amount, self.project.pending_amount),
+                         (80, 75, 5))
+        other = self._expense(self.project, 100)
+        self._pay(other, self.secretary_user)
+        self._correct(other, 90)
+        self.assertEqual((other.amount, other.transferred_amount), (90, 100))
+        self.assertEqual((self.project.committed_amount, self.project.paid_amount), (180, 175),
+                         "What was really transferred counts until it is given back.")
+        self.assertIn(f'{other.name} was paid', self.project.economy_warnings)
+        self.assertIn('above its corrected amount', self.project.economy_warnings)
 
     def test_an_expense_transfer_is_undone_with_its_reason_and_a_cancelled_one_restored(self):
         expense = self._expense(self.project, 300)
@@ -194,6 +292,19 @@ class TestErasmusEconomy(ErasmusEconomyMixin, ErasmusGrantCase):
         self.assertEqual(self.project.grant_current, 10000, "The support is never added to the grant.")
         with self.assertRaises(ValidationError):
             self.project.support_adjustment_reason = False
+
+    def test_a_whole_project_band_counts_every_kind_of_mobility_and_shows_that_position(self):
+        """Review 2026-11-05 (D5): with band_scope 'project' (KA131-HED) the rate was right but the
+        position shown (Excel) was the one among the same kind of mobility."""
+        first, second = self._committed_mobility()
+        second.project_id = self.project
+        first.write({'date_start': date(2027, 6, 1), 'date_end': date(2027, 6, 30)})
+        second.write({'date_start': date(2027, 7, 1), 'date_end': date(2027, 10, 30)})
+        self.assertEqual((first.support_type, second.support_type), ('student_short', 'student_long'))
+        self._rates(self.project, (1, 1, 400), (2, 0, 230), band_scope='project')
+        self._rates(self.project, (1, 1, 400), (2, 0, 230), mobility_type='student_long', band_scope='project')
+        lines = self.project._ems_support_lines()
+        self.assertEqual([(line['forecast_position'], line['forecast']) for line in lines], [(1, 400), (2, 230)])
 
     def test_an_old_project_keeps_its_call_year_rates(self):
         first, _second = self._committed_mobility()
@@ -312,6 +423,8 @@ class TestErasmusGroupEconomy(ErasmusEconomyMixin, ErasmusGroupMobilityCase):
         self.assertEqual((self.mobility.econ_paid, self.mobility.econ_state), (4000, 'partial'))
         with self.assertRaises(AccessError):
             students[:1].with_user(self.leader_user).grant_amount = 1
+        students[:1].sudo().state = 'withdrawn'
+        self.assertEqual(self.mobility.grant_amount, total - 900, "A withdrawn participant's grant never counts.")
 
 
 @tagged('post_install', '-at_install')

@@ -16,10 +16,10 @@
                 <list string="Economic panel" decoration-muted="not active">
                     <field name="name"/>
                     <field name="kind"/>
-                    <field name="call_year" optional="show"/>
+                    <field name="call_year" optional="show" options="{'format': false}"/>
                     <field name="active" column_invisible="1"/>
                     <field name="currency_id" column_invisible="1"/>
-                    <field name="grant_current" string="Awarded" sum="Total"/>
+                    <field name="grant_current" sum="Total"/>
                     <field name="received_amount" optional="hide" sum="Total"/>
                     <field name="committed_amount" sum="Total"/>
                     <field name="paid_amount" sum="Total"/>
@@ -105,7 +105,7 @@
                 </field>
                 <field name="budget" position="before">
                     <field name="can_manage_economy" invisible="1"/>
-                    <field name="call_year" readonly="not can_manage_economy"/>
+                    <field name="call_year" readonly="not can_manage_economy" options="{'format': false}"/>
                 </field>
                 <page name="documents" position="before">
                     <page string="Economy" name="economy"
@@ -176,7 +176,8 @@
                                 <field name="category"/>
                                 <field name="supplier_id" optional="show"/>
                                 <field name="currency_id" column_invisible="1"/>
-                                <field name="amount" sum="Total"/>
+                                <field name="amount"/>
+                                <field name="counted_amount" sum="Total" optional="show"/>
                                 <field name="attachment_ids" widget="many2many_tags" optional="show"/>
                                 <field name="state" widget="badge" decoration-warning="state == 'to_pay'"
                                        decoration-success="state == 'paid'"/>
@@ -224,7 +225,11 @@
             <field name="name">ems.erasmus.expense.list</field>
             <field name="model">ems.erasmus.expense</field>
             <field name="arch" type="xml">
-                <list string="Expenses" decoration-muted="state == 'cancelled'">
+                <list string="Expenses" decoration-muted="state == 'cancelled'" duplicate="0">
+                    <header>
+                        <button name="action_register_transfer" type="object" string="Register transfer"
+                                groups="ems.group_secretary,ems.group_academic_admin"/>
+                    </header>
                     <field name="name"/>
                     <field name="date"/>
                     <field name="project_id"/>
@@ -233,7 +238,8 @@
                     <field name="supplier_id" optional="show"/>
                     <field name="mobility_id" optional="hide"/>
                     <field name="currency_id" column_invisible="1"/>
-                    <field name="amount" sum="Total"/>
+                    <field name="amount"/>
+                    <field name="counted_amount" sum="Total" optional="show"/>
                     <field name="corrected" optional="hide"/>
                     <field name="state" widget="badge" decoration-warning="state == 'to_pay'"
                            decoration-success="state == 'paid'"/>
@@ -272,7 +278,7 @@
             <field name="name">ems.erasmus.expense.form</field>
             <field name="model">ems.erasmus.expense</field>
             <field name="arch" type="xml">
-                <form string="Expense">
+                <form string="Expense" duplicate="0">
                     <header>
                         <div name="ems_actions" string="Actions">
                             <button name="action_register_transfer" type="object" string="Register transfer"
@@ -311,9 +317,11 @@
                             </group>
                             <group>
                                 <field name="supplier_id"/>
-                                <field name="mobility_id" readonly="state != 'to_pay'" options="{'no_create': True}"/>
+                                <field name="mobility_id" readonly="state != 'to_pay' or not can_manage" options="{'no_create': True}"/>
                                 <field name="attachment_ids" widget="many2many_binary"/>
                                 <field name="corrected" invisible="not corrected"/>
+                                <field name="transferred_amount" invisible="state != 'paid' or transferred_amount == amount"/>
+                                <field name="corrected_from_id" invisible="not corrected_from_id"/>
                                 <field name="paid_date" invisible="state != 'paid'"/>
                                 <field name="paid_by_id" invisible="state != 'paid'"/>
                                 <field name="receipt_ids" widget="many2many_binary" invisible="not receipt_ids"/>
@@ -372,13 +380,13 @@
             <field name="model">ems.erasmus.support.rate</field>
             <field name="arch" type="xml">
                 <list string="Organisational support rates" editable="bottom">
-                    <field name="call_year"/>
+                    <field name="call_year" options="{'format': false}"/>
                     <field name="kind"/>
                     <field name="mobility_type"/>
                     <field name="band_scope"/>
                     <field name="band_from"/>
-                    <field name="band_to"/>
-                    <field name="min_days" optional="show"/>
+                    <field name="band_to" placeholder="No limit"/>
+                    <field name="min_days" optional="show" placeholder="Any"/>
                     <field name="currency_id" column_invisible="1"/>
                     <field name="amount"/>
                     <field name="note" optional="show"/>
@@ -449,7 +457,7 @@
                             <field name="partner_id" readonly="1"/>
                             <field name="state" column_invisible="1"/>
                             <field name="currency_id" column_invisible="1"/>
-                            <field name="grant_amount" sum="Total"/>
+                            <field name="grant_amount"/>
                         </list>
                     </field>
                     <separator string="Collective invoices"/>

@@ -124,11 +124,11 @@
                   groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
 
         <!-- Erasmus+ quality (ISO 9001 and the Mobilitat FP network): the indicators and the
-             satisfaction surveys, for the team; names only for the coordinator (field groups). -->
+             satisfaction surveys, for the team (names included; the reports carry none). -->
         <menuitem name="Quality" sequence="40" id="menu_erasmus_section_quality" parent="menu_erasmus"
                   groups="ems.group_erasmus,ems.group_academic_admin"/>
         <menuitem name="Indicators" sequence="1" id="menu_erasmus_quality_panel"
-                  parent="menu_erasmus_section_quality" action="action_erasmus_quality_panel"
+                  parent="menu_erasmus_section_quality" action="action_erasmus_quality_panel_open"
                   groups="ems.group_erasmus,ems.group_academic_admin"/>
         <menuitem name="Satisfaction surveys" sequence="2" id="menu_erasmus_satisfaction"
                   parent="menu_erasmus_section_quality" action="action_erasmus_satisfaction"

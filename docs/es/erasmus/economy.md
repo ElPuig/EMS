@@ -38,15 +38,18 @@ En la pestaña **Beca** de una movilidad ves su *estado económico* (previsto, c
 
 **Una movilidad cancelada** solo mantiene comprometido lo que ya se ha pagado. Si el participante devuelve dinero, escríbelo en **Devuelto por el participante**. Mientras tanto, el proyecto muestra un aviso.
 
-**Movilidades de grupo:** cada participante, alumno o docente acompañante, tiene su propia beca, tal como la calcula el Beneficiary Module. Introdúcelas en la pestaña **Gastos colectivos**, en *Becas de los participantes* (una vez aprobada la selección). Las cifras del grupo las suman, cada una una sola vez. Las facturas del grupo son lo pagado de ellas.
+**Movilidades de grupo:** cada participante, alumno o docente acompañante, tiene su propia beca, tal como la calcula el Beneficiary Module. Introdúcelas en la pestaña **Gastos colectivos**, en *Becas de los participantes* (una vez aprobada la selección). Las cifras del grupo las suman, cada una una sola vez: la beca del grupo que hay encima de la lista es el total (un participante que se ha dado de baja no cuenta nunca). Las facturas del grupo son lo pagado de ellas.
 
 ## Gastos
 
 **Gestión económica > Gastos** (o la lista *Gastos del proyecto* de la pestaña Economía) recoge los gastos del proyecto que no forman parte de la beca de ningún participante: comidas de trabajo, merchandising, servicios de difusión, preparación lingüística...
 
-1. Haz clic en **Nuevo** y rellena el proyecto, el concepto, la categoría (*Apoyo organizativo* u *Otros gastos del proyecto*), la fecha y el importe. Opcionalmente, el proveedor, la movilidad a la que se refiere y la factura o el justificante.
+1. Haz clic en **Nuevo** y rellena el proyecto, el concepto, la categoría (*Apoyo organizativo* u *Otros gastos del proyecto*), la fecha y el importe. Opcionalmente, el proveedor, la movilidad a la que se refiere (solo el equipo Erasmus la puede elegir) y la factura o el justificante.
 2. El gasto cuenta como comprometido desde que se guarda, y Secretaría recibe una tarea para pagarlo. Pagarlo no lo vuelve a descontar.
 3. Mientras no está pagado, puedes cambiarlo. Una vez pagado, sus cifras solo cambian con **Acciones > Corregir**: escribe las cifras nuevas y el motivo. El motivo queda en su historial y el proyecto avisa de que se cambió después del pago.
+   - **Si el importe nuevo es superior al que se transfirió**, el gasto conserva el importe ya pagado y EMS crea un gasto nuevo por la diferencia, *por pagar*, con una tarea para la Secretaría. Ejemplo: se pagó una comida de trabajo de 75 €, pero el ticket real era de 80 €. La corriges a 80 €: el original queda en 75 € (pagado) y hay un gasto nuevo de 5 € por pagar. El historial del original lo dice.
+   - **Si el importe nuevo es inferior al que se transfirió**, el gasto pasa al importe nuevo, pero el proyecto sigue contando lo que se transfirió de verdad y avisa: «<referencia> se pagó X por encima de su importe corregido: pide que se devuelva y, después, deshaz la transferencia y registra la correcta.»
+   En las listas de gastos, el total está en la columna **Contabilizado** (un gasto anulado cuenta 0), no en *Importe*.
 4. Un gasto que no se pagará: **Acciones > Anular el gasto** (deja de contar). **Restaurar** lo vuelve a activar.
 
 ## Apoyo organizativo
@@ -54,6 +57,8 @@ En la pestaña **Beca** de una movilidad ves su *estado económico* (previsto, c
 El apoyo organizativo es dinero para gestionar las movilidades, separado de las becas de los participantes. EMS lo calcula por participante con las **tarifas del año de la convocatoria del proyecto**, no las del año actual. Las tarifas de KA121-VET 2025 y 2026 y de KA131-HED 2026 ya están en **Erasmus+ > Configuración > Tarifas de apoyo organizativo**; cuando llegue una convocatoria nueva, añade allí las de su año.
 
 **La regla de los 100 participantes (las columnas «Desde el participante / Hasta el participante»):** algunas tarifas bajan a partir del participante 100. En KA121-VET se cuentan los participantes del mismo tipo de actividad: unas prácticas cortas de alumnado o un job shadowing son 350 € hasta el participante 100 y 200 € a partir del 101. En KA131-HED se cuenta a todo el proyecto, alumnado y personal juntos: 400 € para los 100 primeros y 230 € a partir del 101. EMS los cuenta por fecha de inicio; no tienes que hacer nada.
+
+**Vacío significa sin límite:** un *Hasta el participante* vacío es una franja sin final, y unos *Días mínimos* vacíos se aplican a cualquier duración de la estancia. Si dos franjas se solapan, EMS te dice con qué otra tarifa y franja chocan. En el Excel, la *Posición* es la que ha contado la tarifa: entre la misma clase de actividad o, en KA131-HED, entre todo el proyecto.
 
 **Qué tarifa tiene cada movilidad:** EMS lo deduce. Una estancia de alumnado de 90 días o más es de larga duración (ErasmusPro), y más corta, de corta duración; un curso estructurado del personal es *cursos y formación*, y el job shadowing o la docencia, la otra; cada alumno de una movilidad de grupo, 100 €. Si una movilidad es en un país tercero no asociado al programa, o es un concurso de competencias, un experto invitado o un docente acogido, elígelo a mano en **Apoyo organizativo como**, en la pestaña **Beca**.
 
@@ -67,7 +72,7 @@ La diferencia es un indicador interno, no una certificación del SEPIE. El apoyo
 
 ## Avisos
 
-Arriba de la pestaña Economía, EMS avisa de lo que puede ser un error, sin bloquear nada: compromisos por encima de la subvención, gastos sin factura ni justificante, pagos pendientes, gastos cambiados después del pago, una movilidad pagada por encima de su beca, una movilidad cancelada con dinero pagado, y participantes sin información suficiente para calcular el apoyo organizativo (por ejemplo, sin tarifa para su año de convocatoria, o sin fechas).
+Arriba de la pestaña Economía, EMS avisa de lo que puede ser un error, sin bloquear nada: compromisos por encima de la subvención, gastos sin factura ni justificante, pagos pendientes, gastos cambiados después del pago, gastos pagados por encima de su importe corregido, una movilidad pagada por encima de su beca, una movilidad cancelada con dinero pagado, y participantes sin información suficiente para calcular el apoyo organizativo (por ejemplo, sin tarifa para su año de convocatoria, o sin fechas).
 
 ## Excel
 

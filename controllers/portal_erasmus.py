@@ -101,7 +101,11 @@ class EmsPortalErasmusController(CustomerPortal):
     def portal_erasmus_satisfaction(self, survey_id, **kwargs):
         survey = self._ems_satisfaction_survey(survey_id)
         if not survey:
-            return request.redirect(self._redirect)
+            # Already answered (e.g. the link of an old reminder): say so instead of a silent redirect.
+            answered = request.env['ems.erasmus.satisfaction'].sudo().search_count([
+                ('id', '=', survey_id), ('partner_id', '=', request.env.user.partner_id.id),
+                ('state', '!=', 'pending')])
+            return request.redirect(f'{self._redirect}?satisfaction_answered=1' if answered else self._redirect)
         return self._ems_satisfaction_render(survey)
 
     @http.route('/my/erasmus/satisfaction/<int:survey_id>/answer', type='http', auth='user', methods=['POST'],

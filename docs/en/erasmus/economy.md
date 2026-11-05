@@ -38,15 +38,18 @@ On the **Grant** tab of a mobility you see its *economic state* (forecast, commi
 
 **A cancelled mobility** only keeps committed what has already been paid. If the participant gives money back, write it in **Given back by the participant**. Until then, the project shows a warning.
 
-**Group mobilities:** each participant, student or accompanying teacher, has their own grant, as calculated in the Beneficiary Module. Enter them on the **Collective expenses** tab, in *Participants' grants* (once the selection is approved). The group's figures add them up, each one once. The group's invoices are what has been paid of them.
+**Group mobilities:** each participant, student or accompanying teacher, has their own grant, as calculated in the Beneficiary Module. Enter them on the **Collective expenses** tab, in *Participants' grants* (once the selection is approved). The group's figures add them up, each one once: the group's grant above the list is the total (a withdrawn participant never counts). The group's invoices are what has been paid of them.
 
 ## Expenses
 
 **Financial management > Expenses** (or the *Expenses of the project* list on the Economy tab) holds the project's expenses that are not part of a participant's grant: working meals, merchandising, dissemination services, language preparation...
 
-1. Click **New** and fill in the project, the concept, the category (*Organisational support* or *Other project expenses*), the date and the amount. Optionally, the supplier, the mobility it is about and the invoice or receipt.
+1. Click **New** and fill in the project, the concept, the category (*Organisational support* or *Other project expenses*), the date and the amount. Optionally, the supplier, the mobility it is about (only the Erasmus team can choose it) and the invoice or receipt.
 2. The expense counts as committed as soon as it is saved, and the Secretary gets a task to pay it. Paying it doesn't take it off the budget again.
 3. While it is not paid you can change it. Once paid, its figures only change with **Actions > Correct**: write the new figures and the reason. The reason stays in its history and the project warns that it was changed after payment.
+   - **If the new amount is higher than what was transferred**, the expense keeps the amount already paid and EMS creates a new expense for the difference, *to pay*, with a task for the Secretary. Example: a working meal of 75 € was paid, but the real ticket was 80 €. You correct it to 80 €: the original stays at 75 € (paid) and a new expense of 5 € is to pay. The original's history says so.
+   - **If the new amount is lower than what was transferred**, the expense takes the new amount, but the project keeps counting what was really transferred and warns: "<reference> was paid X above its corrected amount: ask for it back, then undo the transfer and register the right one."
+   In the expense lists, the total is on the **Counted** column (a cancelled expense counts 0), not on *Amount*.
 4. An expense that won't be paid: **Actions > Cancel the expense** (it stops counting). **Restore** brings it back.
 
 ## Organisational support
@@ -54,6 +57,8 @@ On the **Grant** tab of a mobility you see its *economic state* (forecast, commi
 The organisational support is money to manage the mobilities, separate from the participants' grants. EMS calculates it per participant with the **rates of the project's call year**, not the current year's. The rates of KA121-VET 2025 and 2026 and KA131-HED 2026 are already in **Erasmus+ > Configuration > Organisational support rates**; when a new call comes, add its year's rates there.
 
 **The 100-participant rule (the "From participant / Up to participant" columns):** some rates drop after the 100th participant. In KA121-VET it counts the participants of the same kind of activity: a short-term student or a job shadowing is 350 € up to the 100th and 200 € from the 101st. In KA131-HED it counts everyone in the project, students and staff together: 400 € for the first 100 and 230 € from the 101st. EMS counts them by start date; you don't need to do anything.
+
+**Empty means no limit:** an empty *Up to participant* is a band with no end, and an empty *Minimum days* applies to any length of stay. If two bands overlap, EMS tells you which other rate and band they clash with. In the Excel, the *Position* is the one the rate counted: among the same kind of activity or, in KA131-HED, among the whole project.
 
 **Which rate each mobility takes:** EMS works it out. A student's stay of 90 days or more is long-term (ErasmusPro), shorter is short-term; a staff member's structured course is *courses and training*, job shadowing or teaching the other one; each student of a group mobility, 100 €. If a mobility is in a third country not associated to the programme, or is a skills competition, an invited expert or a hosted teacher, choose it by hand in **Organisational support as** on its **Grant** tab.
 
@@ -67,7 +72,7 @@ The difference is an internal indicator, not a certification of SEPIE. The suppo
 
 ## Warnings
 
-At the top of the Economy tab, EMS warns about anything that may be a mistake, without blocking anything: commitments above the grant, expenses without an invoice or receipt, payments still to make, expenses changed after payment, a mobility paid above its grant, a cancelled mobility with money paid, and participants without enough information to calculate the organisational support (for example, no rate for their call year, or no dates).
+At the top of the Economy tab, EMS warns about anything that may be a mistake, without blocking anything: commitments above the grant, expenses without an invoice or receipt, payments still to make, expenses changed after payment, expenses paid above their corrected amount, a mobility paid above its grant, a cancelled mobility with money paid, and participants without enough information to calculate the organisational support (for example, no rate for their call year, or no dates).
 
 ## Excel
 

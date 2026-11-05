@@ -109,20 +109,17 @@ class TestErasmusSatisfaction(ErasmusSatisfactionCase):
         self.assertEqual((other.state, other.not_answered_by_id), ('not_answered', self.erasmus_user))
         second.with_user(self.erasmus_user)._ems_check_satisfaction()
 
-    def test_the_team_reads_the_answers_without_the_name_and_the_coordinator_with_it(self):
+    def test_the_whole_erasmus_team_reads_the_answers_with_the_name_and_nobody_else(self):
+        """adriamt, 2026-11-05: the answers are not anonymous for the Erasmus+ team (coordinator and
+        mobility technician); they stay out of anyone else's reach, and out of the reports."""
         survey, _other = self._open()
         survey._ems_portal_answer(4, what_failed='Nobody met me at the airport')
         self.env.invalidate_all()
-        team = survey.with_user(self.technician_user)
-        self.assertEqual(team.read(['score', 'what_failed'])[0]['score'], 4)
-        self.assertNotIn(self.student.name, team.display_name)
-        for name in ('partner_id', 'mobility_id', 'group_participant_id'):
-            with self.assertRaises(AccessError, msg=name):
-                team.read([name])
-        with self.assertRaises(AccessError):
-            self.env['ems.erasmus.satisfaction'].with_user(self.technician_user).search(
-                [('partner_id', '=', self.student.id)])
-        self.assertEqual(survey.with_user(self.erasmus_user).partner_id, self.student)
+        for user in (self.technician_user, self.erasmus_user):
+            team = survey.with_user(user)
+            self.assertEqual(team.read(['score', 'partner_id'])[0]['partner_id'][0], self.student.id)
+            self.assertEqual(self.env['ems.erasmus.satisfaction'].with_user(user).search(
+                [('partner_id', '=', self.student.id)]), survey)
         with self.assertRaises(AccessError):
             survey.with_user(self.hos_user).read(['score'])
 
@@ -178,7 +175,7 @@ class TestErasmusQualityPanel(ErasmusSatisfactionCase):
         self.assertEqual(Panel._ems_stats([]), (None, None, 0))
         self.assertEqual(Panel._ems_stats([10, 8, 6, 9]), (8.25, 8.5, 4))
         self.assertEqual(Panel._ems_stats([7, 3, 10]), (20 / 3, 7, 3))
-        self.assertEqual(Panel._ems_number(8.25), '8,2')
+        self.assertEqual(Panel._ems_number(8.25), '8,3', "Half up, as people round.")
         self.assertEqual(Panel._ems_number(None), '-')
 
     def test_interest_percentage_adds_the_calls_up(self):
@@ -211,6 +208,16 @@ class TestErasmusQualityPanel(ErasmusSatisfactionCase):
         for name in (self.student.name, self.second.name):
             self.assertNotIn(name, html)
         self.assertEqual(self._panel(participant_type='staff')._ems_data()['indicators'][2]['n'], 0)
+
+    def test_the_funnel_counts_each_renounced_or_cancelled_person_once(self):
+        """Review 2026-11-05 (C2): cancelling a mobility also marks its application renounced, and the
+        funnel added both, so one cancellation showed as two."""
+        first, _second = self._accepted()
+        first.sudo().cancel_reason = 'Found a job'
+        first.sudo().action_cancel()
+        self.assertEqual(first.sudo().application_id.state, 'renounced')
+        total = self._panel(call_id=self.call.id)._ems_funnel(self.call)[0]
+        self.assertEqual((total[1], total[-1]), ('Total', 1))
 
     def test_only_the_team_opens_the_panel(self):
         with self.assertRaises(AccessError):

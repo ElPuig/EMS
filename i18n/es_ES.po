@@ -8560,7 +8560,7 @@ msgstr "Ámbito de aplicación"
 #: code:addons/ems/models/erasmus/satisfaction.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_satisfaction__score
 msgid "Score"
-msgstr "Puntaje"
+msgstr "Puntuación"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_planning_form
@@ -10153,6 +10153,7 @@ msgstr "Tutorías"
 #: model:ir.model.fields,field_description:ems.field_ems_minute__type_id model_terms:ir.ui.view,arch_db:ems.view_minute_search
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__kind
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__kind
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__kind
 msgid "Type"
 msgstr "Tipo"
 
@@ -12123,7 +12124,6 @@ msgstr "Alimenta el rótulo «Archivado» que se muestra en la tarjeta kanban y 
 
 #. module: ems
 #: model:hr.departure.reason,name:ems.departure_reason_transfer
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__kind
 msgid "Transfer"
 msgstr "Traslado"
 
@@ -19142,10 +19142,12 @@ msgid "Last reminder"
 msgstr "Último recordatorio"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__missing_fields
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__missing
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__file_state__missing
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__todo_state__missing
+#: code:addons/ems/models/erasmus/quality.py:0
 msgid "Missing"
 msgstr "Falta"
 
@@ -35824,11 +35826,6 @@ msgstr ""
 "El primer pago de %s ya se ha solicitado, o la beca no está informada."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__grant_net
-msgid "The grant minus the services the centre pays directly."
-msgstr "La beca menos los servicios que paga directamente el centro."
-
-#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_invoice__unassigned_amount
 msgid "The invoice's amount minus its shares: zero once fully assigned."
 msgstr ""
@@ -36146,6 +36143,7 @@ msgstr "Nombre del archivo del justificante"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_transfer_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_list
 msgid "Register transfer"
 msgstr "Registrar la transferencia"
 
@@ -43148,11 +43146,6 @@ msgstr ""
 "aplicarás a tu trabajo."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
-msgid ") is over: tell us how it went."
-msgstr ") ha terminado: cuéntanos cómo ha ido."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_satisfaction
 msgid "1: not satisfied at all - 10: completely satisfied"
 msgstr "1: nada satisfecho - 10: totalmente satisfecho"
@@ -43206,15 +43199,6 @@ msgstr ""
 "satisfacción."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
-msgid ""
-"<i class=\"fa fa-star-half-o me-1\"/>\n"
-"                    Your Erasmus+ stay ("
-msgstr ""
-"<i class=\"fa fa-star-half-o me-1\"/>\n"
-"                    Tu estancia Erasmus+ ("
-
-#. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_erasmus_satisfaction_participant_unique
 msgid "A group participant has one satisfaction survey."
 msgstr ""
@@ -43241,6 +43225,7 @@ msgstr "Respóndela en el portal: %s"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_satisfaction_banners
 msgid "Answer the survey"
 msgstr "Responde la encuesta"
 
@@ -43286,11 +43271,6 @@ msgstr "Elige una puntuación del 1 al 10."
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_form
 msgid "Close without an answer"
 msgstr "Cerrar sin respuesta"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_form
-msgid "Closed without an answer"
-msgstr "Cerrada sin respuesta"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_satisfaction__not_answered_by_id
@@ -43517,7 +43497,10 @@ msgid "Participant type"
 msgstr "Tipo de participante"
 
 #. module: ems
+#. odoo-python
 #: model:ir.actions.act_window,name:ems.action_erasmus_quality_panel
+#: code:addons/ems/models/erasmus/quality.py:0
+#: model:ir.actions.server,name:ems.action_erasmus_quality_panel_open
 msgid "Quality indicators"
 msgstr "Indicadores de calidad"
 
@@ -43584,23 +43567,6 @@ msgid "Student interest"
 msgstr "Interés del alumnado"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_quality_panel_form
-msgid ""
-"Student interest: applicants out of every student of the call's levels (intermediate,\n"
-"                            higher and specialisation courses). Staff interest: applicants out of the teachers of\n"
-"                            the FP levels and the Direction that validates. Both are frozen when the definitive\n"
-"                            resolution is published, and only follow the course, call and participant type\n"
-"                            filters. Satisfaction: average of the scores from 1 to 10."
-msgstr ""
-"Interés del alumnado: solicitantes sobre todo el alumnado de los niveles de "
-"la convocatoria (grado medio, grado superior y cursos de especialización). "
-"Interés del profesorado: solicitantes sobre el profesorado de los niveles de"
-" FP y la dirección que valida. Ambos se congelan cuando se publica la "
-"resolución definitiva, y solo tienen en cuenta los filtros de curso, "
-"convocatoria y tipo de participante. Satisfacción: media de las puntuaciones"
-" del 1 al 10."
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_quality_panel__participant_type__student_gs
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_satisfaction__participant_type__student_gs
 msgid "Students, higher level"
@@ -43654,14 +43620,6 @@ msgid ""
 msgstr ""
 "El curso de la convocatoria (o de la movilidad de grupo), no el año en que "
 "termina la estancia."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_form
-msgid ""
-"The mobility can then be closed without this participant's answer. Continue?"
-msgstr ""
-"Entonces la movilidad se podrá cerrar sin la respuesta de este participante."
-" ¿Quieres continuar?"
 
 #. module: ems
 #. odoo-python
@@ -45217,11 +45175,6 @@ msgid "Archived too"
 msgstr "También los archivados"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_economy_panel_list
-msgid "Awarded"
-msgstr "Concedido"
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_project_income__kind__balance
 msgid "Balance"
 msgstr "Saldo"
@@ -46013,13 +45966,6 @@ msgstr ""
 " menos lo que ha devuelto."
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/economy.py:0
-msgid "Two rates of the same call year, action and mobility overlap."
-msgstr ""
-"Dos tarifas del mismo año de convocatoria, acción y movilidad se solapan."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__band_to
 msgid "Up to participant"
 msgstr "Hasta el participante"
@@ -46264,3 +46210,182 @@ msgid ""
 msgstr ""
 "La suma de las becas de los participantes que toman parte, alumnado y "
 "docentes acompañantes."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/economy.py:0
+msgid ""
+"%(body)s The %(difference)s above what was paid is to pay in %(reference)s."
+msgstr ""
+"%(body)s Los %(difference)s por encima de lo pagado quedan por pagar en "
+"%(reference)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/economy.py:0
+msgid "%(concept)s (difference after correcting %(reference)s)"
+msgstr "%(concept)s (diferencia al corregir %(reference)s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/economy.py:0
+msgid ""
+"%(name)s was paid %(over)s above its corrected amount: ask for it back, then"
+" undo the transfer and register the right one."
+msgstr ""
+"%(name)s se pagó %(over)s por encima de su importe corregido: pide que se "
+"devuelva y, después, deshaz la transferencia y registra la correcta."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_satisfaction_banners
+msgid ""
+") is over: tell us how it went in the centre's satisfaction survey (it is "
+"not the EU Survey)."
+msgstr ""
+") ha terminado: cuéntanos cómo ha ido en la encuesta de satisfacción del "
+"centro (no es la EU Survey)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_satisfaction_banners
+msgid ""
+"<i class=\"fa fa-star-half-o me-1\"/>\n"
+"            Your Erasmus+ stay ("
+msgstr ""
+"<i class=\"fa fa-star-half-o me-1\"/>\n"
+"            Tu estancia Erasmus+ ("
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_support_rate_list
+msgid "Any"
+msgstr "Cualquiera"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_satisfaction__can_open_improvement
+msgid "Can Open Improvement"
+msgstr "Puede abrir la acción de mejora"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__counted_amount
+msgid "Counted"
+msgstr "Contabilizado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__corrected_from_id
+msgid "Difference of"
+msgstr "Diferencia de"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attachment_link_mixin
+msgid "EMS attachments linked to their record"
+msgstr "Adjuntos de EMS ligados a su registro"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_support_rate_list
+msgid "No limit"
+msgstr "Sin límite"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/quality.py:0
+msgid "Read me"
+msgstr "Léeme"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_quality_panel_form
+msgid ""
+"Student interest: applicants out of every student of the call's levels (intermediate,\n"
+"                            higher and specialisation courses). Staff interest: applicants out of the teachers of\n"
+"                            the FP levels and the Direction that validates. Both are frozen when the definitive\n"
+"                            resolution is published, and only follow the course, call and participant type\n"
+"                            filters: filtered by project, they are those of the calls of its mobilities, shared\n"
+"                            with any other project of the same calls. Satisfaction: average of the scores from 1\n"
+"                            to 10."
+msgstr ""
+"Interés del alumnado: solicitantes sobre todo el alumnado de los niveles de "
+"la convocatoria (grado medio, grado superior y cursos de especialización). "
+"Interés del profesorado: solicitantes sobre el profesorado de los niveles de"
+" FP y la dirección que valida. Ambos se congelan cuando se publica la "
+"resolución definitiva, y solo tienen en cuenta los filtros de curso, "
+"convocatoria y tipo de participante: filtrando por proyecto, son los de las "
+"convocatorias de sus movilidades, compartidas con cualquier otro proyecto de"
+" las mismas convocatorias. Satisfacción: media de las puntuaciones del 1 al "
+"10."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/quality.py:0
+msgid ""
+"The Erasmus+ team's meetings are listed here once the setting \"Erasmus+ "
+"team meetings\" (EMS settings) says which workgroup's minutes they are."
+msgstr ""
+"Las reuniones del equipo Erasmus+ se listan aquí una vez que el parámetro "
+"\"Reuniones del equipo Erasmus+\" (configuración de EMS) indica de qué grupo"
+" de trabajo son las actas."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__grant_net
+msgid ""
+"The grant minus the services the centre pays directly. Below zero, the "
+"centre paid more than the grant: the project warns about it."
+msgstr ""
+"La beca menos los servicios que el centro paga directamente. Por debajo de "
+"cero, el centro ha pagado más que la beca: el proyecto da un aviso."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_expense__corrected_from_id
+msgid ""
+"The paid expense whose correction raised its amount: this one is the "
+"difference still to pay."
+msgstr ""
+"El gasto pagado cuya corrección aumentó su importe: este es la diferencia "
+"que aún se debe pagar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/economy.py:0
+msgid ""
+"This band overlaps another rate of %(rate)s, from participant %(start)s to "
+"%(end)s. Change one of them so that each participant falls in a single band."
+msgstr ""
+"Este tramo se superpone con otra tarifa de %(rate)s, del participante "
+"%(start)s al %(end)s. Cambia una de ellas para que cada participante quede "
+"en un solo tramo."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__transferred_amount
+msgid "Transferred"
+msgstr "Transferido"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_expense__counted_amount
+msgid ""
+"What it consumes of the project's budget: nothing once cancelled; what was "
+"transferred, if more than its corrected amount."
+msgstr ""
+"Lo que consume del presupuesto del proyecto: nada si está anulado; lo que se"
+" transfirió, si es más que su importe corregido."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_expense__transferred_amount
+msgid "What the Secretary transferred when registering the payment."
+msgstr "Lo que la secretaría transfirió al registrar el pago."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_form
+msgid "Without an answer"
+msgstr "Sin respuesta"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_form
+msgid ""
+"Write first why it is closed without an answer: the mobility can then be "
+"closed without it."
+msgstr ""
+"Escribe primero por qué se cierra sin respuesta: entonces la movilidad se "
+"podrá cerrar sin esa respuesta."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/economy.py:0
+msgid "no limit"
+msgstr "sin límite"

@@ -26,46 +26,47 @@ mobility) one question on the portal: *"In general, how satisfied are you with y
 mobility experience?"*, from 1 to 10, with an optional comment.
 
 - Students receive an email, and a reminder 3 and 7 days later if they have not answered.
-- Staff get a to-do in their daily summary until they answer.
+- Staff get a to-do, due the day the survey opens, in their daily summary until they answer.
+- Participants with a portal account also see a banner on the portal's home page and in Erasmus+, saying it is the centre's satisfaction survey (not the EU Survey). The link of a survey already answered shows a thank-you message.
 - A score of 6 or lower asks the participant to confirm it and to say what did not work.
 
 A mobility cannot be closed until its survey is answered. If a participant does not answer at all,
-the **coordinator** opens the survey (from the mobility, *Satisfaction survey › Open*), writes why
-and presses **Close without an answer**.
+the **coordinator** opens the survey (from the mobility, *Satisfaction survey › Open*), writes the reason in the *Without an answer* section and then presses **Close without an answer** (there is no confirmation; without a reason EMS asks for it). The rest of the team can open the survey but not close it.
 
 ## Indicators screen
 
-**Erasmus+ › Quality › Indicators** shows the figures for the filters you choose (course, call,
+**Erasmus+ › Quality › Indicators** (the panel is titled *Quality indicators*) shows the figures for the filters you choose (course, call,
 project, participant type, cycle, host entity), in four tabs: the indicators with their target, the
 satisfaction by participant type and by host entity, each call's way from the applications to the
-mobilities done, and the evolution course by course. It never shows anybody's name.
+mobilities done, and the evolution course by course. It never shows anybody's name. Figures are rounded half up to one decimal (81.25 % shows 81.3 %). Filtered by project, the interest figures are those of the calls of its mobilities, shared with any other project of the same calls.
 
 ## Answers and improvement actions
 
-**Erasmus+ › Quality › Satisfaction surveys** lists the answers. The team sees the score and the
-comments without the name; only the coordinator sees who answered.
+**Erasmus+ › Quality › Satisfaction surveys** lists the answers. The whole Erasmus+ team (the coordinator
+and the mobility technician) sees the score, the comments and who answered, with their mobility;
+nobody else does.
 
 **Low scores** lists every answer of 6 or lower with what did not work. Open one and choose
 **Actions › Create an improvement action**: EMS creates it in the **Quality** app, without the
 participant's name, and you follow it there like any other action. It is the evidence the ISO audit
 asks for. A member of the team who is not a teacher cannot open Quality actions: EMS tells them it
-is created, and the quality committee manages it.
+is created, and the quality committee manages it. On the survey, they see the action's name and state without a link.
 
 ## Quality report and Mobilitat FP evidence
 
 From **Indicators**, the **Actions** menu offers:
 
 - **Print the quality report (PDF)**: the figures for the filters chosen, the improvement actions,
-  how each figure is calculated and the date. Without names, ready for the ISO audit. It also goes
+  how each figure is calculated and the date. Without names, ready for the ISO audit; each heading stays with its table, and the file is named *Erasmus+ quality report - <course or call>*. It also goes
   by itself into each project's export, in the folder *05 Final report and audit*.
 - **Mobilitat FP evidence (ZIP)**, once a course is chosen: everything the network's report asks
   for, in the same folders as its Drive: *1-gestio* (the Erasmus+ team's meetings), *2-documentacio*
   (the calls with their calendar and rules, the totals of each published list and the percentage of
   participants with their documentation complete), *3-mobilitats* (the quality report) and
   *4-difusio* (the diffusion actions with their evidence). Upload it to the network's Drive as it
-  is: it carries no personal data.
+  is: it carries no personal data (dates in the diffusion list are dd/mm/yyyy). Only the Erasmus+ team and the administrator can export it.
 
-For the meetings to appear, set the Erasmus+ team's workgroup once in **Settings > EMS Management > Center Data > Erasmus+ team meetings** and minute the meetings in the **Quality** app with that workgroup.
+For the meetings to appear, set the Erasmus+ team's workgroup once in **Settings > EMS Management > Center Data > Erasmus+ team meetings** and minute the meetings in the **Quality** app with that workgroup. Without that setting, the *1-gestio* folder holds a "Read me" text saying so.
 
 ## Diffusion actions
 

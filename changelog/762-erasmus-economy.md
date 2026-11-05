@@ -10,6 +10,32 @@
 - "Export Excel" on each project: summary (the same figures as the panel), grants, payments and invoices with their receipts, expenses, organisational support and the grant's amendments and SEPIE's transfers.
 - Permissions enforced in the backend: the Erasmus team manages everything, the Secretary reads the budgets, registers and pays expenses and exports, the Director reads everything (including invoices and grant payments, never the participants' bank accounts) and changes nothing. Manuals for the Erasmus team, the Secretary and the Director, developer doc docs/en/developers/erasmus/economy.md, Catalan and Spanish translations.
 
+# Changes
+
+## Erasmus+ satisfaction surveys visible with names to the whole Erasmus+ team (role review 2026-11-05):
+
+- adriamt decided the answers are not anonymous for the Erasmus+ team: the mobility technician now sees who answered, like the coordinator (models/erasmus/satisfaction.py NAMES_GROUPS). Nobody else does, and the PDF report and the Mobilitat FP ZIP still carry no names. Only the coordinator closes a survey without an answer, writing the reason first (no confirmation dialog).
+
+## Correcting a paid expense upwards leaves the difference to pay (role review 2026-11-05):
+
+- adriamt's decision: what was transferred stays paid and the difference is a new expense (`corrected_from_id`) with a task for the Secretary; corrected downwards, the project keeps counting what was really transferred (`transferred_amount`) and warns to ask for it back. Expense lists total a new "Counted" column (a cancelled expense counts nothing).
+
+## Erasmus+ economy and quality polish from the role review (2026-11-05):
+
+- Expenses: the Secretary pays several from the list ("Register transfer" header button, as the manual said); only the Erasmus team links an expense to a mobility; no Duplicate. Rates: empty limits explained, the overlap error names the other band. Call year shown without a thousands separator, one label for the current grant, the SEPIE transfer column is "Type", the Excel kinds of mobility and transfers translated, the group's participant list no longer totals a withdrawn participant's grant, a negative "to transfer" explained.
+- Quality: the panel opens titled "Quality indicators" and explains that a project's interest is that of its calls; the PDF keeps each heading with its table and gets a proper file name; the Mobilitat FP ZIP says why the management folder is empty and writes dates as dd/mm/yyyy; a pending survey shows on the portal's home too and says it is not the EU Survey; reopening an answered survey thanks instead of a silent redirect; the staff to-do is due the day it opens; figures rounded half up; the quality panel counts each call's interest once (faster).
+
+# Fixes
+
+## Erasmus+ economy and quality fixes from the role review (2026-11-05):
+
+- Adding a grant amendment, a SEPIE transfer or a document, or changing the support correction, in the Economy tab of a project with mobilities or expenses crashed (records sorted, and expense references built, from an id they did not have yet in the unsaved form).
+- A file uploaded with a new expense, amendment, SEPIE transfer, project document or diffusion action stayed readable only by its uploader, so the team and the Director got an access error opening the expense or the whole project: files now belong to their record (new `ems.attachment_link_mixin`, which `ems.attachment_mixin` builds on).
+- The calls' funnel counted a cancelled mobility twice (as renounced and as cancelled).
+- The organisational support position shown for whole-project bands (KA131-HED) was the one among the same kind; a missing-rate warning could be lost.
+- The survey's improvement action link gave an access error to team members outside the Quality app; it now shows without a link for them. The Secretary got an access error saving an expense linked to a mobility. Spanish "Puntaje" is now "Puntuación".
+- New tests for each of these, plus the warnings, a partially given back cancelled mobility and a withdrawn group participant.
+
 # Related with
 
 - Closes #762

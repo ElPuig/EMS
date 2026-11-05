@@ -48,9 +48,11 @@ class TestLevel(TransactionCase):
         self.assertEqual(sorted(Level.search([('allows_convalidation', '=', True)]).mapped('acronym')),
                          ['CFGM', 'CFGS'])
 
-    def test_educational_stage_of_the_catalog(self):
-        stages = {level.acronym: level.education_stage for level in self.env['ems.level'].search(
+    def test_regulation_data_of_the_catalog(self):
+        # Educational stage (#726) and schedule declaration code (#751), both set by the Departament.
+        catalog = {level.acronym: (level.education_stage, level.declaration_code) for level in self.env['ems.level'].search(
             [('acronym', 'in', ['ESO', 'CFGB', 'CFGM', 'CFGS', 'EFPS', 'PFI', 'BTX'])])}
-        self.assertEqual(stages, {'ESO': 'compulsory', 'CFGB': 'compulsory', 'CFGM': 'post_compulsory',
-                                  'CFGS': 'post_compulsory', 'EFPS': 'post_compulsory', 'PFI': 'post_compulsory',
-                                  'BTX': 'post_compulsory'})
+        self.assertEqual(catalog, {
+            'ESO': ('compulsory', 'eso'), 'CFGB': ('compulsory', 'cfgb'), 'CFGM': ('post_compulsory', 'cfgm'),
+            'CFGS': ('post_compulsory', 'cfgs'), 'EFPS': ('post_compulsory', 'cefp'), 'PFI': ('post_compulsory', 'pfi'),
+            'BTX': ('post_compulsory', 'bat')})

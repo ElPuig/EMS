@@ -21,7 +21,7 @@ Some of what you do as a chief is explained in a teachers' manual, next to what 
 
 | Manual | What concerns you as a chief |
 |--------|-------------|
-| [Meeting minutes](../teachers/minutes.md) | Writing your department's minutes, giving them the sign-off (also in place of an absent chief), and their approval in the next meeting |
+| [Meeting minutes](../teachers/minutes.md) | Writing your department's minutes, approving them, and approving in place of an absent chief |
 | [Attendance: Reviewing Your Check-ins and Requesting Corrections](../teachers/attendance-corrections.md) | Consulting the check-ins of the people of your department (read-only) |
 | [A Student's Public and Private Notes](../teachers/student-notes.md) | Who can read and write the private tutoring notes, a tutor's chief included |
 | [Requesting an absence](../teachers/absences.md) | The email you receive when a teacher of your department requests an absence |

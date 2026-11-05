@@ -30,8 +30,8 @@
                 ('approver_role_id.employee_ids.user_id', '=', user.id)]</field>
         </record>
 
-        <!-- Writing is narrower than reading, and never on a signed-off or approved minute: a
-             correction then is the next meeting's "not approved", or a new version, not an edit. Whoever writes it and whoever approves it write
+        <!-- Writing is narrower than reading, and never on an approved minute: to correct it, its
+             approval is undone first (ems.minute.action_reopen) and given again. Whoever writes it and whoever approves it write
              it, and so does the chain of command above each of them (redactor_scope_user_ids,
              approver_scope_user_ids): a Seminar Chief above the teacher who writes it, or whoever
              stands in for the approver when they are away. -->
@@ -43,7 +43,7 @@
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="False"/>
-            <field name="domain_force">[('state', 'not in', ('signed_off', 'approved')), '|', '|', '|',
+            <field name="domain_force">[('state', '!=', 'approved'), '|', '|', '|',
                 ('approver_scope_user_ids', '=', user.id),
                 ('redactor_scope_user_ids', '=', user.id),
                 ('approver_role_id.employee_ids.user_id', '=', user.id),
@@ -127,7 +127,7 @@
                 ('department_id.seminar_chief_id.tutor_scope_user_ids', '=', user.id),
                 ('group_id.tutor_id.tutor_scope_user_ids', '=', user.id),
                 '&amp;', ('minute_id', '=', False), ('create_uid', '=', user.id),
-                '&amp;', ('minute_id', 'any', [('state', 'not in', ('signed_off', 'approved'))]), '|', '|', '|', ('minute_id.approver_scope_user_ids', '=', user.id), ('minute_id.redactor_scope_user_ids', '=', user.id), ('minute_id.approver_role_id.employee_ids.user_id', '=', user.id), ('create_uid', '=', user.id)]</field>
+                '&amp;', ('minute_id', 'any', [('state', '!=', 'approved')]), '|', '|', '|', ('minute_id.approver_scope_user_ids', '=', user.id), ('minute_id.redactor_scope_user_ids', '=', user.id), ('minute_id.approver_role_id.employee_ids.user_id', '=', user.id), ('create_uid', '=', user.id)]</field>
         </record>
 
         <!-- The responsible people, the holders of the responsible post and their chain of command
@@ -186,7 +186,7 @@
                     ('department_id.seminar_chief_id.tutor_scope_user_ids', '=', user.id),
                     ('group_id.tutor_id.tutor_scope_user_ids', '=', user.id),
                     '&amp;', ('minute_id', '=', False), ('create_uid', '=', user.id),
-                    '&amp;', ('minute_id', 'any', [('state', 'not in', ('signed_off', 'approved'))]), '|', '|', '|', ('minute_id.approver_scope_user_ids', '=', user.id), ('minute_id.redactor_scope_user_ids', '=', user.id), ('minute_id.approver_role_id.employee_ids.user_id', '=', user.id), ('create_uid', '=', user.id)])]</field>
+                    '&amp;', ('minute_id', 'any', [('state', '!=', 'approved')]), '|', '|', '|', ('minute_id.approver_scope_user_ids', '=', user.id), ('minute_id.redactor_scope_user_ids', '=', user.id), ('minute_id.approver_role_id.employee_ids.user_id', '=', user.id), ('create_uid', '=', user.id)])]</field>
         </record>
 
         <record model="ir.rule" id="rule_quality_action_oversight">
@@ -213,14 +213,14 @@
             <field name="name">Meeting attendance: whoever writes its minute corrects it, until it is approved</field>
             <field name="model_id" ref="ems.model_ems_meeting_presence"/>
             <field name="groups" eval="[(6, 0, [ref('ems.group_teacher')])]"/>
-            <field name="domain_force">[('minute_ids', 'any', [('state', 'not in', ('signed_off', 'approved')), '|', '|', ('redactor_scope_user_ids', '=', user.id), ('approver_scope_user_ids', '=', user.id), ('approver_role_id.employee_ids.user_id', '=', user.id)])]</field>
+            <field name="domain_force">[('minute_ids', 'any', [('state', '!=', 'approved'), '|', '|', ('redactor_scope_user_ids', '=', user.id), ('approver_scope_user_ids', '=', user.id), ('approver_role_id.employee_ids.user_id', '=', user.id)])]</field>
         </record>
 
         <record model="ir.rule" id="rule_meeting_presence_line_minute_writer">
             <field name="name">Meeting attendance line: whoever writes its minute corrects it, until it is approved</field>
             <field name="model_id" ref="ems.model_ems_meeting_presence_line"/>
             <field name="groups" eval="[(6, 0, [ref('ems.group_teacher')])]"/>
-            <field name="domain_force">[('presence_id.minute_ids', 'any', [('state', 'not in', ('signed_off', 'approved')), '|', '|', ('redactor_scope_user_ids', '=', user.id), ('approver_scope_user_ids', '=', user.id), ('approver_role_id.employee_ids.user_id', '=', user.id)])]</field>
+            <field name="domain_force">[('presence_id.minute_ids', 'any', [('state', '!=', 'approved'), '|', '|', ('redactor_scope_user_ids', '=', user.id), ('approver_scope_user_ids', '=', user.id), ('approver_role_id.employee_ids.user_id', '=', user.id)])]</field>
         </record>
 
         <record model="ir.rule" id="rule_meeting_presence_oversight">

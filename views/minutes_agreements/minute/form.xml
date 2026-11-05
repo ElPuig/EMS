@@ -9,34 +9,36 @@
                     <header>
                         <div name="ems_actions" string="Actions">
                             <button name="action_send_call" string="Send the call" type="object"
-                                    invisible="not can_edit or state in ('to_approve', 'signed_off', 'approved') or type_kind == 'record' or call_sent_datetime"
+                                    invisible="not can_edit or state in ('to_approve', 'approved') or type_kind == 'record' or call_sent_datetime"
                                     confirm="The call will be emailed to everybody convened, with the date, time and place of the meeting and its agenda. Send it?"/>
                             <button name="action_send_call" string="Send the call again" type="object"
-                                    invisible="not can_edit or state in ('to_approve', 'signed_off', 'approved') or type_kind == 'record' or not call_sent_datetime"
+                                    invisible="not can_edit or state in ('to_approve', 'approved') or type_kind == 'record' or not call_sent_datetime"
                                     confirm="Everybody convened will receive the call again, as an update of the one already sent. Send it?"/>
                             <!-- Every change of state asks first: a click in the wrong place must not move a
-                                 minute on, and approving cannot be undone. -->
+                                 minute on. -->
                             <button name="action_start_meeting" string="Start the meeting" type="object" invisible="not can_edit or state != 'draft' or type_kind == 'record'"
                                     confirm="The meeting starts and its minute opens for writing. Start it?"/>
                             <button name="action_back_to_draft" string="Back to preparing the meeting" type="object" invisible="not can_edit or state != 'meeting' or presence_state in ('open', 'closed')"
                                     confirm="The meeting goes back to being prepared. Go back?"/>
                             <button name="action_correct_attendance" string="Correct the attendance" type="object"
-                                    invisible="not can_edit or not presence_id or attendance_mode != 'nfc' or state in ('draft', 'signed_off', 'approved') or type_kind == 'record'"
+                                    invisible="not can_edit or not presence_id or attendance_mode != 'nfc' or state in ('draft', 'approved') or type_kind == 'record'"
                                     help="Mark by hand whoever left their tag at home or had it fail, or justify an absence."/>
                             <!-- A meeting's minute asks in a dialog, which also offers to send the draft
                                  to the participants; an evidence record has no meeting. -->
-                            <button name="action_open_submit_dialog" string="Send for sign-off" type="object"
+                            <button name="action_open_submit_dialog" string="Send for approval" type="object"
                                     invisible="not can_edit or state != 'meeting' or type_kind == 'record'"/>
-                            <button name="action_submit" string="Send for sign-off" type="object"
+                            <button name="action_submit" string="Send for approval" type="object"
                                     invisible="not can_edit or state != 'draft' or type_kind != 'record'"
-                                    confirm="The record is sent to whoever signs it off, and can no longer be written until it comes back. Send it?"/>
+                                    confirm="The record is sent to whoever approves it, and can no longer be written until it comes back. Send it?"/>
                             <button name="action_send_draft" string="Send the draft to the participants" type="object"
                                     invisible="not can_edit or state not in ('meeting', 'to_approve') or type_kind == 'record'"
                                     confirm="Everybody convened, whether they came or not, will get it: the staff, a link to the draft's PDF; the guests, the PDF attached. Send it?"/>
-                            <!-- Only for whoever gives the sign-off (can_approve), not for whoever can edit. Issue
-                                 #756: a meeting's minute is then approved by the next meeting. -->
-                            <button name="action_sign_off" string="Give the sign-off" type="object" invisible="not can_approve or state != 'to_approve'"
-                                    confirm="Once signed off, the minute can no longer be changed: its PDF is filed and its agreements reach their responsible people. Sign it off?"/>
+                            <!-- Only for whoever gives the approval (can_approve), not for whoever can edit. -->
+                            <button name="action_approve" string="Approve" type="object" invisible="not can_approve or state != 'to_approve'"
+                                    confirm="Once approved, its PDF is filed and the minute can only be changed by undoing the approval. Approve it?"/>
+                            <!-- Whoever approves it, answers for the scope or wrote it (can_reopen). -->
+                            <button name="action_reopen" string="Undo the approval" type="object" invisible="not can_reopen"
+                                    confirm="The minute goes back to waiting for approval so it can be changed, and will have to be approved again: the new approval date will say when. Undo the approval?"/>
                             <button name="action_back_to_meeting" string="Back to the meeting" type="object" invisible="not can_edit or state != 'to_approve' or type_kind == 'record'"
                                     confirm="The minute goes back to the meeting to be corrected. Go back?"/>
                             <button name="action_back_to_draft" string="Back to draft" type="object" invisible="not can_edit or state != 'to_approve' or type_kind != 'record'"
@@ -47,6 +49,7 @@
                         <field name="call_sent_datetime" invisible="1"/>
                         <field name="can_edit" invisible="1"/>
                         <field name="can_approve" invisible="1"/>
+                        <field name="can_reopen" invisible="1"/>
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>
@@ -59,8 +62,6 @@
                         </div>
                         <button name="action_open_draft_pdf" string="Open the draft of the minute" type="object" class="oe_link ps-0" icon="fa-file-pdf-o"
                                 invisible="state not in ('meeting', 'to_approve')"/>
-                        <button name="action_open_pdf" string="Open the PDF" type="object" class="oe_link ps-0" icon="fa-file-pdf-o"
-                                invisible="not pdf_attachment_id"/>
                         <!-- Laid out in the order a meeting is actually set up: what it is, whose it
                              is, then when and where. -->
                         <group invisible="state != 'draft' and type_kind != 'record'">
@@ -114,18 +115,18 @@
                                 </div>
                                 <group>
                                     <!-- Nobody is both: adding somebody to one list takes them off the other, and a tag is dragged between them. -->
-                                    <field name="attendee_ids" widget="ems_exclusive_tags" options="{'no_create': True, 'exclusive_with': 'absentee_ids'}" readonly="attendance_mode == 'nfc' or state in ('signed_off', 'approved')"/>
-                                    <field name="absentee_ids" widget="ems_exclusive_tags" options="{'no_create': True, 'exclusive_with': 'attendee_ids'}" readonly="attendance_mode == 'nfc' or state in ('signed_off', 'approved')"/>
-                                    <field name="absence_notes" placeholder="For example, which of them were justified" readonly="attendance_mode == 'nfc' or state in ('signed_off', 'approved')"/>
+                                    <field name="attendee_ids" widget="ems_exclusive_tags" options="{'no_create': True, 'exclusive_with': 'absentee_ids'}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
+                                    <field name="absentee_ids" widget="ems_exclusive_tags" options="{'no_create': True, 'exclusive_with': 'attendee_ids'}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
+                                    <field name="absence_notes" placeholder="For example, which of them were justified" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
                                 </group>
                                 <!-- People from outside EMS: written by hand even with the NFC tag (they have none).
                                      Only a switch until somebody is added, so the block stays short. -->
-                                <div class="d-flex align-items-center gap-2 mt-2" invisible="guest_ids or state in ('signed_off', 'approved')">
+                                <div class="d-flex align-items-center gap-2 mt-2" invisible="guest_ids or state == 'approved'">
                                     <field name="show_guests" widget="boolean_toggle" nolabel="1"/>
                                     <label for="show_guests" class="mb-0"/>
                                 </div>
                                 <separator string="People from outside EMS" invisible="not show_guests and not guest_ids"/>
-                                <field name="guest_ids" readonly="state in ('signed_off', 'approved')" nolabel="1" invisible="not show_guests and not guest_ids">
+                                <field name="guest_ids" readonly="state == 'approved'" nolabel="1" invisible="not show_guests and not guest_ids">
                                     <list editable="bottom">
                                         <field name="sequence" widget="handle"/>
                                         <field name="name"/>
@@ -171,7 +172,7 @@
                                 </field>
                             </page>
                             <page string="Content" name="content" invisible="type_kind != 'record'">
-                                <field name="section_value_ids" readonly="state in ('signed_off', 'approved')">
+                                <field name="section_value_ids" readonly="state == 'approved'">
                                     <list editable="bottom" create="0">
                                         <field name="sequence" widget="handle"/>
                                         <!-- Present on purpose: the layout is filled in by an onchange,
@@ -216,18 +217,18 @@
                                 </div>
                                 <group>
                                     <!-- Nobody is both: adding somebody to one list takes them off the other, and a tag is dragged between them. -->
-                                    <field name="attendee_ids" widget="ems_exclusive_tags" options="{'no_create': True, 'exclusive_with': 'absentee_ids'}" readonly="attendance_mode == 'nfc' or state in ('signed_off', 'approved')"/>
-                                    <field name="absentee_ids" widget="ems_exclusive_tags" options="{'no_create': True, 'exclusive_with': 'attendee_ids'}" readonly="attendance_mode == 'nfc' or state in ('signed_off', 'approved')"/>
-                                    <field name="absence_notes" placeholder="For example, which of them were justified" readonly="attendance_mode == 'nfc' or state in ('signed_off', 'approved')"/>
+                                    <field name="attendee_ids" widget="ems_exclusive_tags" options="{'no_create': True, 'exclusive_with': 'absentee_ids'}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
+                                    <field name="absentee_ids" widget="ems_exclusive_tags" options="{'no_create': True, 'exclusive_with': 'attendee_ids'}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
+                                    <field name="absence_notes" placeholder="For example, which of them were justified" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
                                 </group>
                                 <!-- People from outside EMS: written by hand even with the NFC tag (they have none).
                                      Only a switch until somebody is added, so the block stays short. -->
-                                <div class="d-flex align-items-center gap-2 mt-2" invisible="guest_ids or state in ('signed_off', 'approved')">
+                                <div class="d-flex align-items-center gap-2 mt-2" invisible="guest_ids or state == 'approved'">
                                     <field name="show_guests" widget="boolean_toggle" nolabel="1"/>
                                     <label for="show_guests" class="mb-0"/>
                                 </div>
                                 <separator string="People from outside EMS" invisible="not show_guests and not guest_ids"/>
-                                <field name="guest_ids" readonly="state in ('signed_off', 'approved')" nolabel="1" invisible="not show_guests and not guest_ids">
+                                <field name="guest_ids" readonly="state == 'approved'" nolabel="1" invisible="not show_guests and not guest_ids">
                                     <list editable="bottom">
                                         <field name="sequence" widget="handle"/>
                                         <field name="name"/>
@@ -250,14 +251,14 @@
                                     <field name="previous_minute_id" readonly="1" force_save="1"/>
                                     <button name="action_open_previous_pdf" string="Open the previous minute's PDF" type="object" class="oe_link"
                                             icon="fa-file-pdf-o" colspan="2"/>
-                                    <field name="previous_approved" widget="radio" options="{'horizontal': true}" readonly="state in ('signed_off', 'approved')"/>
-                                    <field name="previous_approval_notes" readonly="state in ('signed_off', 'approved')" placeholder="Amendments, or why it was not approved"/>
+                                    <field name="previous_approved" widget="radio" options="{'horizontal': true}" readonly="state == 'approved'"/>
+                                    <field name="previous_approval_notes" readonly="state == 'approved'" placeholder="Amendments, or why it was not approved"/>
                                 </group>
                             </div>
 
                             <div class="o_ems_minute_block" name="block_reviews" invisible="not agreement_review_ids">
                                 <h3>Follow-up of the agreements</h3>
-                                <field name="agreement_review_ids" readonly="state in ('signed_off', 'approved')" widget="ems_record_cards"
+                                <field name="agreement_review_ids" readonly="state == 'approved'" widget="ems_record_cards"
                                        options="{'header_fields': ['code', 'deadline_date', 'responsible_employee_ids', 'new_deadline_date', 'is_closed'], 'body_fields': ['name', 'note']}">
                                     <list>
                                         <field name="action_id"/>
@@ -275,7 +276,7 @@
 
                             <div class="o_ems_minute_block" name="block_items">
                                 <h3>Items to discuss</h3>
-                                <field name="agenda_ids" widget="ems_text_blocks" readonly="state in ('signed_off', 'approved')"
+                                <field name="agenda_ids" widget="ems_text_blocks" readonly="state == 'approved'"
                                        options="{'body_field': 'notes', 'title_editable': true, 'can_add': true, 'can_delete': true, 'numbered': true}">
                                     <list>
                                         <field name="sequence"/>
@@ -289,7 +290,7 @@
                                 <!-- Any other business and whatever other text the type asks for.
                                      The development of the session is not here when the minute has
                                      items: it is put together from them. -->
-                                <field name="section_value_ids" widget="ems_text_blocks" readonly="state in ('signed_off', 'approved')"
+                                <field name="section_value_ids" widget="ems_text_blocks" readonly="state == 'approved'"
                                        options="{'body_field': 'content', 'filter_field': 'is_written'}">
                                     <list>
                                         <field name="section_id"/>
@@ -303,7 +304,7 @@
 
                             <div class="o_ems_minute_block" name="block_agreements">
                                 <h3>Agreements</h3>
-                                <field name="agreement_ids" readonly="state in ('signed_off', 'approved')" widget="ems_record_cards" context="{'default_type': 'agreement', 'default_course_id': course_id, 'default_department_id': department_id, 'default_workgroup_id': workgroup_id, 'default_group_id': group_id, 'default_is_centre': is_centre}"
+                                <field name="agreement_ids" readonly="state == 'approved'" widget="ems_record_cards" context="{'default_type': 'agreement', 'default_course_id': course_id, 'default_department_id': department_id, 'default_workgroup_id': workgroup_id, 'default_group_id': group_id, 'default_is_centre': is_centre}"
                                        options="{'header_fields': ['code', 'deadline_date', 'deadline_text', 'responsible_role_id', 'responsible_employee_ids', 'involved_employee_ids', 'state', 'is_closed_in_minute'], 'body_fields': ['name', 'description'], 'can_add': true, 'can_delete': true}">
                                     <list>
                                         <field name="code" readonly="1"/>
@@ -324,7 +325,7 @@
 
                             <div class="o_ems_minute_block" name="block_pending">
                                 <h3>Pending topics</h3>
-                                <field name="pending_topic_ids" readonly="state in ('signed_off', 'approved')">
+                                <field name="pending_topic_ids" readonly="state == 'approved'">
                                     <list editable="bottom">
                                         <field name="sequence" widget="handle"/>
                                         <field name="name"/>
@@ -384,15 +385,9 @@
                             <group>
                                 <field name="approver_role_id" invisible="1"/>
                                 <field name="approver_candidate_ids" invisible="1"/>
-                                <field name="approver_employee_id" readonly="state in ('signed_off', 'approved')" options="{'no_create': True}"
+                                <field name="approver_employee_id" readonly="state == 'approved'" options="{'no_create': True}"
                                        context="{'ems_first_ids': approver_candidate_ids}"/>
-                                <field name="approval_mode" invisible="1"/>
-                                <field name="signoff_date" readonly="1" invisible="not signoff_date"/>
                                 <field name="approval_date" readonly="1" invisible="state != 'approved'"/>
-                                <field name="approved_in_minute_id" readonly="1" invisible="not approved_in_minute_id"/>
-                                <div class="text-muted" colspan="2" invisible="state != 'signed_off'">
-                                    Signed off: the next meeting of this type and scope approves it, in its "Approval of the previous minute".
-                                </div>
                                 <field name="pdf_attachment_id" invisible="1"/>
                                 <button name="action_open_pdf" string="Open the PDF" type="object" class="oe_link" icon="fa-file-pdf-o"
                                         colspan="2" invisible="not pdf_attachment_id"/>

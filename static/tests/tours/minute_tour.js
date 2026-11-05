@@ -81,7 +81,7 @@ registry.category("web_tour.tours").add("ems_minute_write", {
             trigger: ".o_notebook .alert-info:not(:has(button[name='action_open_attendance_kiosk']))",
             content: "The kiosk waits for the meeting to start",
         },
-        ...checkActions({ offered: ["action_send_call", "action_start_meeting", "action_delete"], notOffered: ["action_open_submit_dialog", "action_sign_off"] },
+        ...checkActions({ offered: ["action_send_call", "action_start_meeting", "action_delete"], notOffered: ["action_submit", "action_approve"] },
             "While it is prepared, a meeting offers to send its call, to start and to be deleted"),
         ...clickAction("action_start_meeting", "Start the meeting"),
         {
@@ -380,65 +380,39 @@ registry.category("web_tour.tours").add("ems_minute_submit_with_draft", {
     ],
 });
 
-// Issue #756: whoever answers for the minute gives it the sign-off, which closes it; the next
-// meeting then approves it.
-registry.category("web_tour.tours").add("ems_minute_sign_off", {
-    test: true,
-    steps: () => [
-        ...clickAction("action_sign_off", "Give the sign-off"),
-        {
-            trigger: ".o_dialog .modal-footer .btn-primary",
-            content: "Confirm it",
-            run: "click",
-        },
-        {
-            trigger: ".o_statusbar_status button[data-value='signed_off'].o_arrow_button_current",
-            content: "The minute is signed off",
-        },
-        {
-            trigger: ".o_form_view button[name='action_open_pdf']",
-            content: "Its PDF, pending approval, is filed",
-        },
-        {
-            trigger: ".o_form_view .o_form_readonly",
-            content: "It can no longer be written",
-        },
-    ],
-});
 
-registry.category("web_tour.tours").add("ems_minute_approve_previous", {
+// Issue #756: an approved minute's approval is undone to change it, and given again.
+registry.category("web_tour.tours").add("ems_minute_undo_approval", {
     test: true,
     steps: () => [
         {
-            trigger: ".o_form_view .o_field_widget[name='previous_approved'] input[data-value='yes']",
-            content: "The meeting approves the previous minute",
-            run: "click",
+            trigger: ".o_form_view .o_field_widget[name='state'] .o_arrow_button_current[data-value='approved']",
+            content: "The minute is approved",
         },
-        ...clickAction("action_open_submit_dialog", "Send it for sign-off"),
-        {
-            trigger: ".o_dialog .o_field_widget[name='send_draft'] input",
-            content: "Do not send the draft this time",
-            run: "click",
-        },
-        {
-            trigger: ".o_dialog .modal-footer .btn-primary[name='action_confirm']",
-            content: "Send it",
-            run: "click",
-        },
-        {
-            trigger: ".o_statusbar_status button[data-value='to_approve'].o_arrow_button_current",
-            content: "Waiting for its sign-off",
-        },
-        ...clickAction("action_sign_off", "Give it the sign-off"),
+        ...clickAction("action_reopen", "Undo the approval to change it"),
         {
             trigger: ".o_dialog .modal-footer .btn-primary",
-            content: "Confirm it",
+            content: "Confirm",
             run: "click",
         },
         {
-            trigger: ".o_statusbar_status button[data-value='signed_off'].o_arrow_button_current",
-            content: "Signed off, and with it the previous minute is approved",
+            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='state'] .o_arrow_button_current[data-value='to_approve']",
+            content: "Waiting for approval again",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='absence_notes']:not(.o_readonly_modifier) input:visible",
+            content: "It can be written again",
+            run: "edit Corrected after undoing the approval",
+        },
+        ...clickAction("action_approve", "Approve it again"),
+        {
+            trigger: ".o_dialog .modal-footer .btn-primary",
+            content: "Confirm",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='state'] .o_arrow_button_current[data-value='approved']",
+            content: "Approved again",
         },
     ],
 });
-

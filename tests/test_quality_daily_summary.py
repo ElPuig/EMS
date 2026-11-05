@@ -152,7 +152,7 @@ class TestQualityDailySummary(TransactionCase):
         minute.action_back_to_meeting()
         self.assertFalse(self._tasks(minute, self.approval_type), "no longer waiting for approval")
         minute.action_submit()
-        minute.action_sign_off()
+        minute.action_approve()
         self.assertFalse(self._tasks(minute, self.approval_type), "approved: done")
 
     def test_the_holders_of_the_approving_post_get_the_task_when_nobody_is_named(self):
@@ -178,7 +178,7 @@ class TestQualityDailySummary(TransactionCase):
         self.assertFalse(self._notices(self.responsible) | self._notices(self.other_responsible))
 
         minute.action_submit()
-        minute.action_sign_off()
+        minute.action_approve()
         self.assertEqual(self._tasks(open_one, self.task_type).user_id, self.responsible)
         self.assertIn('You are responsible', self._notices(self.responsible, open_one).body)
         self.assertIn(minute.code, self._notices(self.responsible, open_one).body, "names the meeting it comes from")
@@ -196,10 +196,44 @@ class TestQualityDailySummary(TransactionCase):
         minute.agreement_review_ids.note = 'Two thirds of the units are done.'
         self.assertFalse(self._notices(self.responsible, action), "the minute may still change what it says")
         minute.action_submit()
-        minute.action_sign_off()
+        minute.action_approve()
         notice = self._notices(self.responsible, action)
         self.assertEqual(len(notice), 1)
         self.assertIn('Two thirds of the units', notice.body, "its final wording")
+
+    def test_approving_again_after_undoing_it_tells_only_what_changed(self):
+        """Undoing the approval to correct the minute and approving it again (issue #756) does not
+        repeat what its people were already told; a reworded review is told again, and a person
+        no longer responsible loses the task."""
+        minute = self._minute()
+        minute.write({'agreement_ids': [
+            (0, 0, {'name': 'Open agreement', 'deadline_date': self.today + timedelta(days=20),
+                    'responsible_employee_ids': [(6, 0, (self.responsible_employee | self.other_responsible_employee).ids)]}),
+            (0, 0, {'name': 'Decided and done', 'is_closed_in_minute': True,
+                    'responsible_employee_ids': [(6, 0, self.other_responsible_employee.ids)]}),
+        ]})
+        open_one, done = minute.agreement_ids.sorted('id')
+        action = self._action()
+        minute.agreement_review_ids = [(0, 0, {'action_id': action.id, 'note': 'Half the units are done.'})]
+        minute.action_submit()
+        minute.action_approve()
+        before = {user: len(self._notices(user)) for user in (self.responsible, self.other_responsible)}
+
+        minute.action_reopen()
+        self.assertEqual(self._tasks(minute, self.approval_type).user_id, self.approver_employee.user_id,
+                         "waiting for approval again")
+        open_one.responsible_employee_ids = self.responsible_employee
+        minute.agreement_review_ids.note = 'Two thirds of the units are done.'
+        minute.action_approve()
+
+        self.assertEqual(len(self._notices(self.other_responsible)), before[self.other_responsible],
+                         "the agreement done in the meeting is not told twice")
+        self.assertFalse(self._tasks(open_one, self.task_type).filtered(lambda task: task.user_id == self.other_responsible))
+        self.assertEqual(len(self._notices(self.responsible, open_one)), 1, "nor the open one")
+        reviews = self._notices(self.responsible, action).filtered(lambda notice: 'units are done' in notice.body)
+        self.assertEqual(len(reviews), 2, "the reworded review is told again")
+        self.assertIn('Two thirds', reviews[-1].body)
+        self.assertEqual(len(self._notices(self.responsible)), before[self.responsible] + 1)
 
     def test_the_notice_reaches_the_daily_summary(self):
         action = self._action(deadline_date=self.today + timedelta(days=5))

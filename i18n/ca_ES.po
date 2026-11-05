@@ -1744,7 +1744,6 @@ msgstr "Aprovar"
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_head_state__approved
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__approved
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute__previous_approved__yes model:ir.model.fields.selection,name:ems.selection__ems_minute__state__approved model:ir.model.fields.selection,name:ems.selection__ems_signed_record__state__approved model_terms:ir.ui.view,arch_db:ems.view_minute_search
-#: model:ir.model.fields,field_description:ems.field_ems_minute__approval_mode
 msgid "Approved"
 msgstr "Aprovat"
 
@@ -25835,8 +25834,8 @@ msgstr "L'acta s'envia a qui l'ha d'aprovar i ja no es pot redactar fins que tor
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
-msgid "Once approved, the minute can no longer be changed and its PDF is filed. Approve it?"
-msgstr "Un cop aprovada, l'acta ja no es pot modificar i se n'arxiva el PDF. L'aproveu?"
+msgid "Once approved, its PDF is filed and the minute can only be changed by undoing the approval. Approve it?"
+msgstr "Un cop aprovada, se n'arxiva el PDF i l'acta només es pot modificar si se'n desfà l'aprovació. L'aproveu?"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
@@ -28873,13 +28872,13 @@ msgstr "Esborrany enviat a %s persones."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
-msgid "Hello! Here is the draft of the minute of our meeting, so you can review it while it is fresh."
-msgstr "Hola! Aquí teniu l'esborrany de l'acta de la nostra reunió, perquè el pugueu revisar ara que la teniu fresca."
+msgid "Please find the draft of the minute of the meeting below, for your review."
+msgstr "Us fem arribar l'esborrany de l'acta de la reunió perquè el pugueu revisar."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
-msgid "If anything needs correcting, reply to this email before the minute is approved."
-msgstr "Si cal corregir alguna cosa, responeu aquest correu abans que s'aprovi l'acta."
+msgid "If anything needs correcting, please reply to this email."
+msgstr "Si cal corregir-hi alguna cosa, us preguem que respongueu aquest correu."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
@@ -28955,217 +28954,39 @@ msgid "There is nobody to send the draft to: none of the people convened has an 
 msgstr "No hi ha ningú a qui enviar l'esborrany: cap de les persones convocades té adreça de correu."
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/quality/minute.py:0
-msgid "A minute needs to say who wrote it before it can be signed off."
-msgstr "Una acta ha d'indicar qui l'ha redactada abans de poder-li donar el vistiplau."
+#: model:ir.model.fields,field_description:ems.field_ems_minute__can_reopen
+msgid "Can reopen"
+msgstr "Pot desfer l'aprovació"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/quality/minute.py:0
-msgid "A minute that has been signed off cannot go back to draft: the next meeting decides whether it is approved."
-msgstr "Una acta que ja té el vistiplau no pot tornar a esborrany: la reunió següent decideix si s'aprova."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_minute__approved_in_minute_id
-#: model_terms:ir.ui.view,arch_db:ems.report_minute
-msgid "Approved in the meeting"
-msgstr "Aprovada a la reunió"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/quality/minute.py:0
-msgid "Approved in the meeting %s."
-msgstr "Aprovada a la reunió %s."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
-msgid "Awaiting my sign-off"
-msgstr "Pendents del meu vistiplau"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_minute__state__to_approve
-msgid "Awaiting sign-off"
-msgstr "Pendent de vistiplau"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_minute__can_approve
-msgid "Can sign off"
-msgstr "Pot donar el vistiplau"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_minute
-msgid "Draft, not signed off yet"
-msgstr "Esborrany, encara sense vistiplau"
+#: model:ir.model.fields,help:ems.field_ems_minute__can_reopen
+msgid "Whether the current user may take back the approval of this minute to change it."
+msgstr "Si l'usuari actual pot desfer l'aprovació d'aquesta acta per modificar-la."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
-msgid "Give the sign-off"
-msgstr "Donar el vistiplau"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
-msgid "If anything needs correcting, reply to this email before the minute is signed off."
-msgstr "Si cal corregir alguna cosa, responeu aquest correu abans que l'acta rebi el vistiplau."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_minute
-msgid "In the meeting:"
-msgstr "A la reunió:"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_minute_type__approval_mode__next_meeting
-msgid "In the next meeting"
-msgstr "A la reunió següent"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_minute__approval_mode
-#: model:ir.model.fields,help:ems.field_ems_minute_type__approval_mode
-msgid "In the next meeting: the sign-off closes the minute and the next meeting of the same type and scope approves it. With the sign-off: the sign-off approves it, for records and meetings with no next one."
-msgstr "A la reunió següent: el vistiplau tanca l'acta i la reunió següent del mateix tipus i àmbit l'aprova. Amb el vistiplau: el vistiplau l'aprova, per als registres i les reunions que no en tenen cap de següent."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/quality/minute.py:0
-msgid "Not approved in the meeting %(meeting)s: it goes back to the meeting to be corrected. %(notes)s"
-msgstr "No aprovada a la reunió %(meeting)s: torna a la reunió per corregir-la. %(notes)s"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/quality/minute.py:0
-msgid "Not approved in the meeting %(meeting)s: the minute is open again to be corrected and signed off. %(notes)s"
-msgstr "No aprovada a la reunió %(meeting)s: l'acta torna a estar oberta per corregir-la i donar-li el vistiplau. %(notes)s"
+msgid "Undo the approval"
+msgstr "Desfés l'aprovació"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
-msgid "Once signed off, the minute can no longer be changed: its PDF is filed and its agreements reach their responsible people. Sign it off?"
-msgstr "Amb el vistiplau, l'acta ja no es pot modificar: se'n desa el PDF i els acords arriben a les persones responsables. Hi doneu el vistiplau?"
+msgid "The minute goes back to waiting for approval so it can be changed, and will have to be approved again: the new approval date will say when. Undo the approval?"
+msgstr "L'acta torna a quedar pendent d'aprovació perquè es pugui modificar, i s'haurà de tornar a aprovar: la nova data d'aprovació indicarà quan. Voleu desfer l'aprovació?"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/quality/minute.py:0
-msgid "Only %s can sign off this minute."
-msgstr "Només %s pot donar el vistiplau a aquesta acta."
+msgid "Only an approved minute can be reopened."
+msgstr "Només es pot desfer l'aprovació d'una acta aprovada."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/quality/minute.py:0
-msgid "Only a minute awaiting its sign-off can be signed off."
-msgstr "Només es pot donar el vistiplau a una acta que l'estigui esperant."
+msgid "Only whoever approves this minute, whoever answers for the scope that met or whoever wrote it can reopen it."
+msgstr "Només qui aprova aquesta acta, qui respon de l'àmbit que s'ha reunit o qui l'ha redactada en pot desfer l'aprovació."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/quality/minute.py:0
-msgid "Say whether this meeting approves the previous minute (%s) before signing this one off."
-msgstr "Indiqueu si aquesta reunió aprova l'acta anterior (%s) abans de donar el vistiplau a aquesta."
-
-#. module: ems
-#: model:ir.model,name:ems.model_ems_minute_submit_wizard
-msgid "Send a minute for sign-off, optionally emailing its draft to the participants."
-msgstr "Enviar una acta al vistiplau i, si es vol, enviar-ne l'esborrany als participants."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/quality/minute.py:0
-#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
-#: model_terms:ir.ui.view,arch_db:ems.view_minute_submit_wizard_form
-msgid "Send for sign-off"
-msgstr "Enviar al vistiplau"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_minute
-msgid "Sent for sign-off in EMS"
-msgstr "Enviada al vistiplau a l'EMS"
-
-#. module: ems
-#: model:mail.activity.type,name:ems.mail_activity_minute_approval
-msgid "Sign off the minute"
-msgstr "Donar el vistiplau a l'acta"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
-msgid "Sign-off by"
-msgstr "Vistiplau de"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_minute__state__signed_off
-msgid "Signed off"
-msgstr "Amb vistiplau"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_minute__approver_employee_id
-#: model:ir.model.fields,field_description:ems.field_ems_minute_type__approver_role_id
-#: model_terms:ir.ui.view,arch_db:ems.report_minute
-msgid "Signed off by"
-msgstr "Vistiplau"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_minute__approver_role_id
-msgid "Signed off by (post)"
-msgstr "Vistiplau (càrrec)"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_minute
-msgid "Signed off in EMS"
-msgstr "Vistiplau a l'EMS"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_minute__signoff_date
-msgid "Signed off on"
-msgstr "Vistiplau el"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_minute
-msgid "Signed off, pending approval in the next meeting"
-msgstr "Amb vistiplau, pendent d'aprovació a la reunió següent"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
-msgid "Signed off, to be approved"
-msgstr "Amb vistiplau, per aprovar"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
-msgid "Signed off: the next meeting of this type and scope approves it, in its \"Approval of the previous minute\"."
-msgstr "Amb vistiplau: l'aprova la reunió següent d'aquest tipus i àmbit, a la seva «Aprovació de l'acta anterior»."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_minute_submit_wizard_form
-msgid "The minute is sent to whoever signs it off, and can no longer be written until it comes back."
-msgstr "L'acta s'envia a qui li ha de donar el vistiplau i ja no es pot redactar fins que torni."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_minute__approved_in_minute_id
-msgid "The next meeting, whose minute recorded that this one is approved."
-msgstr "La reunió següent, l'acta de la qual recull que aquesta s'aprova."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_minute_type__approver_role_id
-msgid "The post that normally gives the minute its sign-off."
-msgstr "El càrrec que normalment dona el vistiplau a l'acta."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
-msgid "The record is sent to whoever signs it off, and can no longer be written until it comes back. Send it?"
-msgstr "El registre s'envia a qui li ha de donar el vistiplau i ja no es pot redactar fins que torni. L'envieu?"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_minute__can_approve
-msgid "Whether the current user is the one who gives this minute its sign-off."
-msgstr "Si l'usuari actual és qui dona el vistiplau a aquesta acta."
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_minute_type__approval_mode__sign_off
-msgid "With the sign-off"
-msgstr "Amb el vistiplau"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/quality/minute.py:0
-msgid "the person who signs it off"
-msgstr "la persona que li dona el vistiplau"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_minute_type__approval_mode
-msgid "Approval"
-msgstr "Aprovació"
+msgid "Approval taken back to change the minute."
+msgstr "S'ha desfet l'aprovació per modificar l'acta."

@@ -28,8 +28,8 @@ Un acord distingeix tres maneres d'estar-hi:
 
 - **Qui en gestiona el contingut** (què s'ha acordat, l'àmbit, els responsables, les persones
   implicades, el termini): la cadena de comandament del departament o del tutor del grup (cap de
-  departament o de seminari, cap d'estudis o cap d'estudis adjunt, director) i, fins que l'acta té el
-  vistiplau, qui la redacta o li dona el vistiplau. Una acció que no surt de cap acta, també qui la va crear.
+  departament o de seminari, cap d'estudis o cap d'estudis adjunt, director) i, mentre l'acta no està
+  aprovada, qui la redacta o la valida. Una acció que no surt de cap acta, també qui la va crear.
 - **Les persones responsables** i qui ocupa el **càrrec responsable**: en porten l'avanç. Hi afegeixen
   entrades de seguiment amb **Accions → Afegeix seguiment** i n'escriuen la **descripció** (com s'ha
   de dur a terme: enllaços, instruccions), però no canvien el que es va acordar. La seva
@@ -56,7 +56,7 @@ Tot els arriba al seu [resum diari](../teachers/daily-summary.md), mai en un cor
   passat i l'estat en què deixa l'acord.
 
 Cada avís també indica de quina reunió surt l'acord, el seu àmbit, les persones responsables, la data límit
-i l'estat. Un acord pres en una reunió s'avisa quan l'acta rep el vistiplau; un acord acordat i fet en la mateixa
+i l'estat. Un acord pres en una reunió s'avisa quan se n'aprova l'acta; un acord acordat i fet en la mateixa
 reunió arriba com un avís que ja no queda res per fer. Les persones implicades i la cadena de comandament no
 reben res de tot això.
 

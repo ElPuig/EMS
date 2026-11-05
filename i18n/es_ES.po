@@ -1744,7 +1744,6 @@ msgstr "Aprobar"
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_head_state__approved
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__approved
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute__previous_approved__yes model:ir.model.fields.selection,name:ems.selection__ems_minute__state__approved model:ir.model.fields.selection,name:ems.selection__ems_signed_record__state__approved model_terms:ir.ui.view,arch_db:ems.view_minute_search
-#: model:ir.model.fields,field_description:ems.field_ems_minute__approval_mode
 msgid "Approved"
 msgstr "Aprobado"
 
@@ -25837,8 +25836,8 @@ msgstr "El acta se envía a quien debe aprobarla y ya no se puede redactar hasta
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
-msgid "Once approved, the minute can no longer be changed and its PDF is filed. Approve it?"
-msgstr "Una vez aprobada, el acta ya no se puede modificar y se archiva su PDF. ¿La aprobáis?"
+msgid "Once approved, its PDF is filed and the minute can only be changed by undoing the approval. Approve it?"
+msgstr "Una vez aprobada, se archiva su PDF y el acta solo se puede modificar deshaciendo la aprobación. ¿La aprobáis?"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
@@ -28878,13 +28877,13 @@ msgstr "Borrador enviado a %s personas."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
-msgid "Hello! Here is the draft of the minute of our meeting, so you can review it while it is fresh."
-msgstr "¡Hola! Aquí tenéis el borrador del acta de nuestra reunión, para que podáis revisarlo ahora que la tenéis fresca."
+msgid "Please find the draft of the minute of the meeting below, for your review."
+msgstr "Os hacemos llegar el borrador del acta de la reunión para que podáis revisarlo."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
-msgid "If anything needs correcting, reply to this email before the minute is approved."
-msgstr "Si hay que corregir algo, responded a este correo antes de que se apruebe el acta."
+msgid "If anything needs correcting, please reply to this email."
+msgstr "Si hay que corregir algo, os rogamos que respondáis a este correo."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
@@ -28960,217 +28959,39 @@ msgid "There is nobody to send the draft to: none of the people convened has an 
 msgstr "No hay nadie a quien enviar el borrador: ninguna de las personas convocadas tiene dirección de correo."
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/quality/minute.py:0
-msgid "A minute needs to say who wrote it before it can be signed off."
-msgstr "Un acta debe indicar quién la ha redactado antes de poder darle el visto bueno."
+#: model:ir.model.fields,field_description:ems.field_ems_minute__can_reopen
+msgid "Can reopen"
+msgstr "Puede deshacer la aprobación"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/quality/minute.py:0
-msgid "A minute that has been signed off cannot go back to draft: the next meeting decides whether it is approved."
-msgstr "Un acta que ya tiene el visto bueno no puede volver a borrador: la reunión siguiente decide si se aprueba."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_minute__approved_in_minute_id
-#: model_terms:ir.ui.view,arch_db:ems.report_minute
-msgid "Approved in the meeting"
-msgstr "Aprobada en la reunión"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/quality/minute.py:0
-msgid "Approved in the meeting %s."
-msgstr "Aprobada en la reunión %s."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
-msgid "Awaiting my sign-off"
-msgstr "Pendientes de mi visto bueno"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_minute__state__to_approve
-msgid "Awaiting sign-off"
-msgstr "Pendiente de visto bueno"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_minute__can_approve
-msgid "Can sign off"
-msgstr "Puede dar el visto bueno"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_minute
-msgid "Draft, not signed off yet"
-msgstr "Borrador, todavía sin visto bueno"
+#: model:ir.model.fields,help:ems.field_ems_minute__can_reopen
+msgid "Whether the current user may take back the approval of this minute to change it."
+msgstr "Si el usuario actual puede deshacer la aprobación de esta acta para modificarla."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
-msgid "Give the sign-off"
-msgstr "Dar el visto bueno"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
-msgid "If anything needs correcting, reply to this email before the minute is signed off."
-msgstr "Si hay que corregir algo, responded a este correo antes de que el acta reciba el visto bueno."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_minute
-msgid "In the meeting:"
-msgstr "En la reunión:"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_minute_type__approval_mode__next_meeting
-msgid "In the next meeting"
-msgstr "En la reunión siguiente"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_minute__approval_mode
-#: model:ir.model.fields,help:ems.field_ems_minute_type__approval_mode
-msgid "In the next meeting: the sign-off closes the minute and the next meeting of the same type and scope approves it. With the sign-off: the sign-off approves it, for records and meetings with no next one."
-msgstr "En la reunión siguiente: el visto bueno cierra el acta y la reunión siguiente del mismo tipo y ámbito la aprueba. Con el visto bueno: el visto bueno la aprueba, para los registros y las reuniones que no tienen una siguiente."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/quality/minute.py:0
-msgid "Not approved in the meeting %(meeting)s: it goes back to the meeting to be corrected. %(notes)s"
-msgstr "No aprobada en la reunión %(meeting)s: vuelve a la reunión para corregirla. %(notes)s"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/quality/minute.py:0
-msgid "Not approved in the meeting %(meeting)s: the minute is open again to be corrected and signed off. %(notes)s"
-msgstr "No aprobada en la reunión %(meeting)s: el acta vuelve a estar abierta para corregirla y darle el visto bueno. %(notes)s"
+msgid "Undo the approval"
+msgstr "Deshacer la aprobación"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
-msgid "Once signed off, the minute can no longer be changed: its PDF is filed and its agreements reach their responsible people. Sign it off?"
-msgstr "Con el visto bueno, el acta ya no se puede modificar: se guarda su PDF y los acuerdos llegan a las personas responsables. ¿Le dais el visto bueno?"
+msgid "The minute goes back to waiting for approval so it can be changed, and will have to be approved again: the new approval date will say when. Undo the approval?"
+msgstr "El acta vuelve a quedar pendiente de aprobación para que se pueda modificar, y habrá que volver a aprobarla: la nueva fecha de aprobación indicará cuándo. ¿Deshacer la aprobación?"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/quality/minute.py:0
-msgid "Only %s can sign off this minute."
-msgstr "Solo %s puede dar el visto bueno a esta acta."
+msgid "Only an approved minute can be reopened."
+msgstr "Solo se puede deshacer la aprobación de un acta aprobada."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/quality/minute.py:0
-msgid "Only a minute awaiting its sign-off can be signed off."
-msgstr "Solo se puede dar el visto bueno a un acta que lo esté esperando."
+msgid "Only whoever approves this minute, whoever answers for the scope that met or whoever wrote it can reopen it."
+msgstr "Solo quien aprueba esta acta, quien responde del ámbito que se ha reunido o quien la ha redactado puede deshacer su aprobación."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/quality/minute.py:0
-msgid "Say whether this meeting approves the previous minute (%s) before signing this one off."
-msgstr "Indicad si esta reunión aprueba el acta anterior (%s) antes de dar el visto bueno a esta."
-
-#. module: ems
-#: model:ir.model,name:ems.model_ems_minute_submit_wizard
-msgid "Send a minute for sign-off, optionally emailing its draft to the participants."
-msgstr "Enviar un acta al visto bueno y, si se quiere, enviar su borrador a los participantes."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/quality/minute.py:0
-#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
-#: model_terms:ir.ui.view,arch_db:ems.view_minute_submit_wizard_form
-msgid "Send for sign-off"
-msgstr "Enviar al visto bueno"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_minute
-msgid "Sent for sign-off in EMS"
-msgstr "Enviada al visto bueno en el EMS"
-
-#. module: ems
-#: model:mail.activity.type,name:ems.mail_activity_minute_approval
-msgid "Sign off the minute"
-msgstr "Dar el visto bueno al acta"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
-msgid "Sign-off by"
-msgstr "Visto bueno de"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_minute__state__signed_off
-msgid "Signed off"
-msgstr "Con visto bueno"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_minute__approver_employee_id
-#: model:ir.model.fields,field_description:ems.field_ems_minute_type__approver_role_id
-#: model_terms:ir.ui.view,arch_db:ems.report_minute
-msgid "Signed off by"
-msgstr "Visto bueno"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_minute__approver_role_id
-msgid "Signed off by (post)"
-msgstr "Visto bueno (cargo)"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_minute
-msgid "Signed off in EMS"
-msgstr "Visto bueno en el EMS"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_minute__signoff_date
-msgid "Signed off on"
-msgstr "Visto bueno el"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_minute
-msgid "Signed off, pending approval in the next meeting"
-msgstr "Con visto bueno, pendiente de aprobación en la reunión siguiente"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
-msgid "Signed off, to be approved"
-msgstr "Con visto bueno, por aprobar"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
-msgid "Signed off: the next meeting of this type and scope approves it, in its \"Approval of the previous minute\"."
-msgstr "Con visto bueno: la aprueba la reunión siguiente de este tipo y ámbito, en su «Aprobación del acta anterior»."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_minute_submit_wizard_form
-msgid "The minute is sent to whoever signs it off, and can no longer be written until it comes back."
-msgstr "El acta se envía a quien debe darle el visto bueno y ya no se puede redactar hasta que vuelva."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_minute__approved_in_minute_id
-msgid "The next meeting, whose minute recorded that this one is approved."
-msgstr "La reunión siguiente, cuya acta recoge que esta se aprueba."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_minute_type__approver_role_id
-msgid "The post that normally gives the minute its sign-off."
-msgstr "El cargo que normalmente da el visto bueno al acta."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
-msgid "The record is sent to whoever signs it off, and can no longer be written until it comes back. Send it?"
-msgstr "El registro se envía a quien debe darle el visto bueno y ya no se puede redactar hasta que vuelva. ¿Lo enviáis?"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_minute__can_approve
-msgid "Whether the current user is the one who gives this minute its sign-off."
-msgstr "Si el usuario actual es quien da el visto bueno a esta acta."
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_minute_type__approval_mode__sign_off
-msgid "With the sign-off"
-msgstr "Con el visto bueno"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/quality/minute.py:0
-msgid "the person who signs it off"
-msgstr "la persona que le da el visto bueno"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_minute_type__approval_mode
-msgid "Approval"
-msgstr "Aprobación"
+msgid "Approval taken back to change the minute."
+msgstr "Se ha deshecho la aprobación para modificar el acta."

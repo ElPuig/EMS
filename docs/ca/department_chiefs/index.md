@@ -21,7 +21,7 @@ Part del que fas com a cap s'explica en un manual dels professors, al costat del
 
 | Manual | El que t'afecta com a cap |
 |--------|-------------|
-| [Actes de reunió](../teachers/minutes.md) | Redactar les actes del teu departament, donar-los el vistiplau (també en lloc d'un cap absent) i la seva aprovació a la reunió següent |
+| [Actes de reunió](../teachers/minutes.md) | Redactar les actes del teu departament, aprovar-les i aprovar-les en lloc d'un cap absent |
 | [Fitxatges: revisar les teves entrades/sortides i sol·licitar correccions](../teachers/attendance-corrections.md) | Consultar els fitxatges de les persones del teu departament (només lectura) |
 | [Notes públiques i notes privades de l'alumne](../teachers/student-notes.md) | Qui pot llegir i escriure les notes privades de tutoria, el cap del tutor inclòs |
 | [Sol·licitar una absència](../teachers/absences.md) | El correu que reps quan un docent del teu departament sol·licita una absència |

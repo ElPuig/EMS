@@ -28,8 +28,8 @@ An agreement tells apart three ways of being in it:
 
 - **Whoever manages its content** (what was agreed, its scope, the responsible people, the people
   involved, the deadline): the chain of command of the department or of the group's tutor (Department
-  or Seminar Chief, Head or Deputy Head of Studies, Director) and, until the minute is signed off,
-  whoever writes it or gives it the sign-off. An action that comes from no minute, also whoever created it.
+  or Seminar Chief, Head or Deputy Head of Studies, Director) and, while the minute is not approved,
+  whoever writes or approves it. An action that comes from no minute, also whoever created it.
 - **The responsible people** and whoever holds the **responsible post**: they carry its progress.
   They add follow-up entries with **Actions → Add follow-up** and write its **description** (how to
   carry it out: links, instructions), but do not change what was agreed. Their
@@ -55,7 +55,7 @@ Everything reaches them in their [daily summary](../teachers/daily-summary.md), 
   leaves the agreement in.
 
 Each notice also says which meeting the agreement comes from, its scope, the responsible people, the
-deadline and its state. An agreement taken in a meeting is notified once its minute gets the sign-off; one agreed
+deadline and its state. An agreement taken in a meeting is notified once its minute is approved; one agreed
 and done in that same meeting arrives as a notice that there is nothing left to do. The people involved and
 the chain of command get none of this.
 

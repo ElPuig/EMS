@@ -293,11 +293,10 @@ class EmsQualityAction(models.Model):
         return users.filtered(lambda user: user.active and not user.share)
 
     def _ems_is_announced(self):
-        """An agreement taken in a minute is told to its people once the minute is closed, signed
-        off or approved (issue #756): until then what was agreed, and who answers for it, may still
-        change. Any other, from the start."""
+        """An agreement taken in a minute is told to its people once the minute is approved: until
+        then what was agreed, and who answers for it, may still change. Any other, from the start."""
         self.ensure_one()
-        return not self.minute_id or self.minute_id.state in ('signed_off', 'approved')
+        return not self.minute_id or self.minute_id.state == 'approved'
 
     def _ems_sync_tasks(self, announce=True):
         """One "Carry out the agreement" task per responsible person while it is open, due on its
@@ -314,14 +313,25 @@ class EmsQualityAction(models.Model):
             if announce and deadline > today:
                 action._ems_queue_notice(new_users - self.env.user, 'assigned')
 
-    def _ems_queue_notice(self, users, kind, followup=None):
+    def _ems_queue_notice(self, users, kind, followup=None, once=False):
         """A notice about the agreement for the daily summary of each of `users`, in their own
         language: 'assigned' (they answer for it now), 'followup' (an entry was added to it) or
-        'done_in_meeting' (agreed and done in the meeting that took it)."""
+        'done_in_meeting' (agreed and done in the meeting that took it). With `once`, a user who
+        already had a notice about it in exactly these words gets none: a minute approved again
+        after being reopened tells only what changed."""
         self.ensure_one()
+        Notice = self.env['ems.info_notice'].sudo()
+
+        def words(html):
+            # Compared by its text: the stored copy has been through the HTML sanitizer.
+            return " ".join(tools.html2plaintext(html or "").split())
+
         for user in users:
-            self.env['ems.info_notice']._ems_queue(
-                user, self, lambda recipient: self._ems_notice_body(recipient, kind, followup))
+            body = self._ems_notice_body(user, kind, followup)
+            if once and words(body) in Notice.search([('user_id', '=', user.id), ('res_model', '=', self._name),
+                                                      ('res_id', '=', self.id)]).mapped(lambda notice: words(notice.body)):
+                continue
+            Notice._ems_queue(user, self, lambda recipient, body=body: body)
 
     def _ems_notice_body(self, user, kind, followup=None):
         """The notice itself: what happened, and enough about the agreement (its meeting, scope,

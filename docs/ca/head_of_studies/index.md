@@ -34,6 +34,7 @@ Aquesta secció conté els manuals per a **Cap d'Estudis, Cap d'Estudis Adjunt/a
 - [Horari de guàrdies](../teachers/guard-duty-schedule.md) — Qui falta a cada franja horària, i qui està de guàrdia per cobrir-ho.
 - [Organitzar les absències](../department_chiefs/absences.md) — Enviar guàrdies, reorganitzar les classes i avisar les famílies d'un canvi d'horari quan falta un docent.
 - [Notes públiques i notes privades de l'alumne](../teachers/student-notes.md) — On tot el professorat llegeix les notes públiques d'un alumne, i qui pot llegir i escriure les privades de tutoria.
+- [Erasmus+: consultar l'economia dels projectes](erasmus-economy.md) — La direcció consulta la subvenció, els compromisos, els pagaments, les despeses i el suport organitzatiu de cada projecte Erasmus+, i els exporta a Excel.
 
 ---
 

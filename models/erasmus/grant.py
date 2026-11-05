@@ -10,6 +10,10 @@ from .workflow import check_workflow_create
 # What the centre may pay directly out of a participant's grant (issue #697).
 CONCEPTS = [('travel', "Travel"), ('accommodation', "Accommodation"), ('course', "Course fees"), ('other', "Other")]
 PAYMENT_KINDS = [('prefinancing', "Prefinancing"), ('final', "Final payment"), ('single', "Single payment")]
+# The transfer wizards' field for each kind of record they pay (issue #762 added the expenses).
+TRANSFER_FIELDS = {'ems.erasmus.payment': 'payment_ids', 'ems.erasmus.invoice': 'invoice_ids',
+                   'ems.erasmus.expense': 'expense_ids'}
+PAYERS = 'ems.group_erasmus,ems.group_secretary,ems.group_academic_admin'
 # Only the transfer wizard and action_mark_unpaid() write them.
 PAYMENT_STATE_FIELDS = {'state', 'paid_date', 'paid_by_id', 'receipt_ids'}
 
@@ -24,7 +28,7 @@ def _wizard_action(records, model, name):
     _check_payer(records.env)
     return {
         'type': 'ir.actions.act_window', 'name': name, 'res_model': model, 'view_mode': 'form', 'target': 'new',
-        'context': {f'default_{"payment" if records._name == "ems.erasmus.payment" else "invoice"}_ids': records.ids},
+        'context': {f'default_{TRANSFER_FIELDS[records._name]}': records.ids},
     }
 
 
@@ -204,8 +208,10 @@ class EmsErasmusPayment(models.Model):
                                    relation='ems_erasmus_payment_receipt_rel', readonly=True,
                                    help="Added by the Secretary when registering the transfer; one receipt can cover "
                                         "several payments.")
-    bank_account = fields.Char(string="IBAN", compute='_compute_bank_account')
-    bank_holder = fields.Char(string="Account holder", compute='_compute_bank_account')
+    # Who transfers, and the team that requests it: the Director reads the payments' figures, never
+    # the participants' bank accounts (issue #762).
+    bank_account = fields.Char(string="IBAN", compute='_compute_bank_account', groups=PAYERS)
+    bank_holder = fields.Char(string="Account holder", compute='_compute_bank_account', groups=PAYERS)
 
     def _compute_display_name(self):
         kinds = dict(self._fields['kind']._description_selection(self.env))
@@ -303,21 +309,29 @@ class EmsErasmusTransferWizard(models.TransientModel):
     receipt = fields.Binary(string="Receipt", help="The bank's receipt of the transfer (PDF).")
     receipt_filename = fields.Char(string="Receipt file name")
 
-    @api.depends('payment_ids.amount', 'invoice_ids.amount')
+    @api.depends(lambda self: [f'{name}.amount' for name in self._ems_record_fields()])
     def _compute_total(self):
         for wizard in self:
-            wizard.total = sum(wizard.payment_ids.mapped('amount')) + sum(wizard.invoice_ids.mapped('amount'))
+            wizard.total = sum(sum(records.mapped('amount')) for records in wizard._ems_records())
+
+    def _ems_record_fields(self):
+        """The wizard's fields holding what it pays, extended by the models that add one."""
+        return [name for name in TRANSFER_FIELDS.values() if name in self._fields]
+
+    def _ems_records(self):
+        self.ensure_one()
+        return [self[name] for name in self._ems_record_fields()]
 
     def action_confirm(self):
         self.ensure_one()
         _check_payer(self.env)
-        records = [records.filtered(lambda record: record.state == 'to_pay')
-                   for records in (self.payment_ids, self.invoice_ids)]
+        records = [records.filtered(lambda record: record.state == 'to_pay') for records in self._ems_records()]
         if not any(records):
             raise UserError(_("Everything selected is already paid."))
+        first = next(paid for paid in records if paid)
         receipt = self.receipt and self.env['ir.attachment'].sudo().create({
             'name': self.receipt_filename or _("Transfer receipt %s.pdf", self.date), 'datas': self.receipt,
-            'res_model': (records[0] or records[1])._name, 'res_id': (records[0] or records[1])[:1].id})
+            'res_model': first._name, 'res_id': first[:1].id})
         for paid in records:
             _mark_paid(paid, self.date, receipt)
         return {'type': 'ir.actions.act_window_close'}
@@ -335,11 +349,14 @@ class EmsErasmusUndoTransferWizard(models.TransientModel):
                                    relation='ems_erasmus_undo_transfer_wizard_invoice_rel')
     reason = fields.Text(string="Reason", required=True, help="Why the transfer is undone: it stays in the history.")
 
+    _ems_record_fields = EmsErasmusTransferWizard._ems_record_fields
+    _ems_records = EmsErasmusTransferWizard._ems_records
+
     def action_confirm(self):
         self.ensure_one()
         _check_payer(self.env)
         if not (self.reason or '').strip():
             raise UserError(_("Write the reason for undoing the transfer first."))
-        for records in (self.payment_ids, self.invoice_ids):
+        for records in self._ems_records():
             _mark_paid(records.filtered(lambda record: record.state == 'paid'), False, reason=self.reason.strip())
         return {'type': 'ir.actions.act_window_close'}

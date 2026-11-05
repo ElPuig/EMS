@@ -323,3 +323,4 @@ from . import test_docs_screenshots_schedule_declaration
 from . import test_docs_screenshots_ex_officio_withdrawal
 from . import test_ex_officio_withdrawal
 from . import test_ex_officio_withdrawal_tour
+from . import test_erasmus_economy

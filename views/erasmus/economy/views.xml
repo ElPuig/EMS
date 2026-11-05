@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #762 - the economic management of the Erasmus+ projects: the economic panel (one
+             row per project, and the comparison by call), each project's Economy tab, the project's
+             expenses, the organisational support rates, and the economic figures of each mobility.
+             The Erasmus team manages them, the Secretary registers and pays expenses, the Director
+             reads everything (the access rights enforce it; the views only follow them). -->
+
+        <!-- The economic panel. -->
+        <record id="view_erasmus_economy_panel_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.project.economy.list</field>
+            <field name="model">ems.erasmus.project</field>
+            <field name="priority">20</field>
+            <field name="arch" type="xml">
+                <list string="Economic panel" decoration-muted="not active">
+                    <field name="name"/>
+                    <field name="kind"/>
+                    <field name="call_year" optional="show" options="{'format': false}"/>
+                    <field name="active" column_invisible="1"/>
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="grant_current" sum="Total"/>
+                    <field name="received_amount" optional="hide" sum="Total"/>
+                    <field name="committed_amount" sum="Total"/>
+                    <field name="paid_amount" sum="Total"/>
+                    <field name="pending_amount" optional="hide" sum="Total"/>
+                    <field name="available_amount" sum="Total" decoration-danger="available_amount &lt; 0"/>
+                    <field name="support_generated" string="Support generated" sum="Total"/>
+                    <field name="support_expense_amount" optional="hide" sum="Total"/>
+                    <field name="economy_warning_count" string="Warnings" decoration-warning="economy_warning_count"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_economy_panel_pivot" model="ir.ui.view">
+            <field name="name">ems.erasmus.project.economy.pivot</field>
+            <field name="model">ems.erasmus.project</field>
+            <field name="arch" type="xml">
+                <pivot string="Comparison by call" disable_linking="0">
+                    <field name="call_year" type="row"/>
+                    <field name="kind" type="col"/>
+                    <field name="grant_current" type="measure"/>
+                    <field name="committed_amount" type="measure"/>
+                    <field name="paid_amount" type="measure"/>
+                    <field name="available_amount" type="measure"/>
+                    <field name="support_generated" type="measure"/>
+                    <field name="support_expense_amount" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record id="view_erasmus_economy_panel_search" model="ir.ui.view">
+            <field name="name">ems.erasmus.project.economy.search</field>
+            <field name="model">ems.erasmus.project</field>
+            <field name="priority">20</field>
+            <field name="arch" type="xml">
+                <search string="Economic panel">
+                    <field name="name"/>
+                    <field name="call_year"/>
+                    <filter name="vet" string="KA121-VET" domain="[('kind', '=', 'ka121_vet')]"/>
+                    <filter name="hed" string="KA131-HED" domain="[('kind', '=', 'ka131_hed')]"/>
+                    <separator/>
+                    <filter name="running" string="Final payment pending" domain="[('final_payment_date', '=', False)]"/>
+                    <filter name="closed" string="Final payment received" domain="[('final_payment_date', '!=', False)]"/>
+                    <separator/>
+                    <filter name="overspent" string="Above the grant" domain="[('available_amount', '&lt;', 0)]"/>
+                    <separator/>
+                    <filter name="all" string="Archived too" domain="['|', ('active', '=', True), ('active', '=', False)]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_call_year" string="Call year" context="{'group_by': 'call_year'}"/>
+                        <filter name="group_kind" string="Action" context="{'group_by': 'kind'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_erasmus_economy_panel" model="ir.actions.act_window">
+            <field name="name">Economic panel</field>
+            <field name="res_model">ems.erasmus.project</field>
+            <field name="view_mode">list,pivot,form</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'list', 'view_id': ref('view_erasmus_economy_panel_list')}),
+                (0, 0, {'view_mode': 'pivot', 'view_id': ref('view_erasmus_economy_panel_pivot')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('view_erasmus_project_form')})]"/>
+            <field name="search_view_id" ref="view_erasmus_economy_panel_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">No Erasmus+ project yet</p>
+                <p>One row per project: its grant, what its mobilities and expenses commit, what has been paid, what is available and the organisational support generated. Open a project for its Economy tab.</p>
+            </field>
+        </record>
+
+        <!-- The project's Economy tab, its first one, and its Excel export. -->
+        <record id="view_erasmus_project_form_economy" model="ir.ui.view">
+            <field name="name">ems.erasmus.project.form.economy</field>
+            <field name="model">ems.erasmus.project</field>
+            <field name="inherit_id" ref="view_erasmus_project_form"/>
+            <field name="arch" type="xml">
+                <div name="ems_actions" position="inside">
+                    <button name="action_export_economy" type="object" string="Export Excel" invisible="not id"
+                            groups="ems.group_erasmus,ems.group_secretary,ems.group_director,ems.group_academic_admin"
+                            help="The project's economy as a spreadsheet: summary, grants, payments, expenses, organisational support and SEPIE's transfers."/>
+                </div>
+                <field name="budget" position="attributes">
+                    <attribute name="readonly">not can_manage_economy</attribute>
+                </field>
+                <field name="budget" position="before">
+                    <field name="can_manage_economy" invisible="1"/>
+                    <field name="call_year" readonly="not can_manage_economy" options="{'format': false}"/>
+                </field>
+                <page name="documents" position="before">
+                    <page string="Economy" name="economy"
+                          groups="ems.group_erasmus,ems.group_secretary,ems.group_director,ems.group_academic_admin">
+                        <div class="alert alert-warning" role="alert" invisible="not economy_warnings">
+                            <field name="economy_warnings" readonly="1"/>
+                        </div>
+                        <group>
+                            <group string="Grant">
+                                <field name="grant_current"/>
+                                <field name="final_grant" readonly="not can_manage_economy"/>
+                                <field name="received_amount"/>
+                                <field name="to_receive_amount"/>
+                            </group>
+                            <group string="Budget">
+                                <field name="forecast_amount"/>
+                                <field name="committed_amount"/>
+                                <field name="paid_amount"/>
+                                <field name="pending_amount"/>
+                                <field name="available_amount" class="fw-bold" decoration-danger="available_amount &lt; 0"/>
+                                <field name="other_expense_amount"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Grant amendments">
+                                <field name="amendment_ids" nolabel="1" colspan="2" readonly="not can_manage_economy">
+                                    <list editable="bottom">
+                                        <field name="date"/>
+                                        <field name="name" placeholder="e.g. Amendment 1"/>
+                                        <field name="currency_id" column_invisible="1"/>
+                                        <field name="amount" sum="Total"/>
+                                        <field name="attachment_ids" widget="many2many_binary" optional="show"/>
+                                    </list>
+                                </field>
+                            </group>
+                            <group string="SEPIE transfers">
+                                <field name="income_ids" nolabel="1" colspan="2" readonly="not can_manage_economy">
+                                    <list editable="bottom">
+                                        <field name="date"/>
+                                        <field name="kind"/>
+                                        <field name="name" optional="hide"/>
+                                        <field name="currency_id" column_invisible="1"/>
+                                        <field name="amount" sum="Total"/>
+                                        <field name="attachment_ids" widget="many2many_binary" optional="show"/>
+                                    </list>
+                                </field>
+                            </group>
+                        </group>
+                        <separator string="Grant agreement, annexes and economic documents"/>
+                        <field name="economy_document_ids"
+                               context="{'default_project_id': id, 'default_category': '03_Economia'}"
+                               readonly="not can_manage_economy">
+                            <list editable="bottom">
+                                <field name="project_id" column_invisible="1"/>
+                                <field name="category" column_invisible="1"/>
+                                <field name="name" placeholder="e.g. Grant agreement and annexes"/>
+                                <field name="date"/>
+                                <field name="attachment_ids" widget="many2many_binary"/>
+                                <field name="notes" optional="hide"/>
+                            </list>
+                        </field>
+                        <separator string="Expenses of the project"/>
+                        <field name="expense_ids" context="{'default_project_id': id}">
+                            <list decoration-muted="state == 'cancelled'">
+                                <field name="name"/>
+                                <field name="date"/>
+                                <field name="concept"/>
+                                <field name="category"/>
+                                <field name="supplier_id" optional="show"/>
+                                <field name="currency_id" column_invisible="1"/>
+                                <field name="amount"/>
+                                <field name="counted_amount" sum="Total" optional="show"/>
+                                <field name="attachment_ids" widget="many2many_tags" optional="show"/>
+                                <field name="state" widget="badge" decoration-warning="state == 'to_pay'"
+                                       decoration-success="state == 'paid'"/>
+                            </list>
+                        </field>
+                        <separator string="Organisational support"/>
+                        <p class="text-muted">
+                            Computed with the rates of the project's call year (Configuration > Organisational support rates). An internal indicator: it is part of the grant awarded and is not a certification of funds recognised by SEPIE.
+                        </p>
+                        <group>
+                            <group>
+                                <field name="support_forecast"/>
+                                <field name="support_generated"/>
+                                <field name="support_adjustment" readonly="not can_manage_economy"/>
+                                <field name="support_adjustment_reason" readonly="not can_manage_economy"
+                                       invisible="not support_adjustment" required="support_adjustment"/>
+                            </group>
+                            <group>
+                                <field name="support_expense_amount"/>
+                                <field name="support_balance" class="fw-bold"/>
+                            </group>
+                        </group>
+                        <group string="Figures from before EMS" name="legacy">
+                            <group>
+                                <field name="legacy_committed" readonly="not can_manage_economy"/>
+                                <field name="legacy_paid" readonly="not can_manage_economy"/>
+                            </group>
+                            <group>
+                                <field name="legacy_support_generated" readonly="not can_manage_economy"/>
+                            </group>
+                        </group>
+                    </page>
+                </page>
+                <page name="invoices" position="attributes">
+                    <attribute name="groups">ems.group_erasmus,ems.group_secretary,ems.group_director,ems.group_academic_admin</attribute>
+                </page>
+                <page name="payments" position="attributes">
+                    <attribute name="groups">ems.group_erasmus,ems.group_secretary,ems.group_director,ems.group_academic_admin</attribute>
+                </page>
+            </field>
+        </record>
+
+        <!-- The project's expenses. -->
+        <record id="view_erasmus_expense_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.expense.list</field>
+            <field name="model">ems.erasmus.expense</field>
+            <field name="arch" type="xml">
+                <list string="Expenses" decoration-muted="state == 'cancelled'" duplicate="0">
+                    <header>
+                        <button name="action_register_transfer" type="object" string="Register transfer"
+                                groups="ems.group_secretary,ems.group_academic_admin"/>
+                    </header>
+                    <field name="name"/>
+                    <field name="date"/>
+                    <field name="project_id"/>
+                    <field name="concept"/>
+                    <field name="category"/>
+                    <field name="supplier_id" optional="show"/>
+                    <field name="mobility_id" optional="hide"/>
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="amount"/>
+                    <field name="counted_amount" sum="Total" optional="show"/>
+                    <field name="corrected" optional="hide"/>
+                    <field name="state" widget="badge" decoration-warning="state == 'to_pay'"
+                           decoration-success="state == 'paid'"/>
+                    <field name="paid_date" optional="show"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_expense_search" model="ir.ui.view">
+            <field name="name">ems.erasmus.expense.search</field>
+            <field name="model">ems.erasmus.expense</field>
+            <field name="arch" type="xml">
+                <search string="Expenses">
+                    <field name="name"/>
+                    <field name="concept"/>
+                    <field name="project_id"/>
+                    <field name="supplier_id"/>
+                    <filter name="to_pay" string="To pay" domain="[('state', '=', 'to_pay')]"/>
+                    <filter name="paid" string="Paid" domain="[('state', '=', 'paid')]"/>
+                    <separator/>
+                    <filter name="support" string="Organisational support" domain="[('category', '=', 'organisational_support')]"/>
+                    <filter name="other" string="Other project expenses" domain="[('category', '=', 'other')]"/>
+                    <separator/>
+                    <filter name="no_receipt" string="Without invoice or receipt" domain="[('attachment_ids', '=', False), ('state', '!=', 'cancelled')]"/>
+                    <filter name="corrected" string="Changed after payment" domain="[('corrected', '=', True)]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_project" string="Project" context="{'group_by': 'project_id'}"/>
+                        <filter name="group_category" string="Category" context="{'group_by': 'category'}"/>
+                        <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_erasmus_expense_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.expense.form</field>
+            <field name="model">ems.erasmus.expense</field>
+            <field name="arch" type="xml">
+                <form string="Expense" duplicate="0">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_register_transfer" type="object" string="Register transfer"
+                                    class="btn-primary" invisible="state != 'to_pay' or not id"
+                                    groups="ems.group_secretary,ems.group_academic_admin"/>
+                            <button name="action_mark_unpaid" type="object" string="Undo the transfer"
+                                    invisible="state != 'paid'" groups="ems.group_secretary,ems.group_academic_admin"/>
+                            <button name="action_correct" type="object" string="Correct"
+                                    invisible="state == 'to_pay' or not can_manage"
+                                    help="Change a paid or cancelled expense's figures, saying why: it stays in its history."/>
+                            <button name="action_cancel" type="object" string="Cancel the expense"
+                                    invisible="state != 'to_pay' or not id or not can_manage"
+                                    confirm="The expense will not be paid nor counted. Continue?"/>
+                            <button name="action_restore" type="object" string="Restore"
+                                    invisible="state != 'cancelled' or not can_manage"/>
+                        </div>
+                        <field name="state" widget="statusbar" statusbar_visible="to_pay,paid"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name" readonly="1" placeholder="New expense"/></h1>
+                        </div>
+                        <div class="alert alert-info" role="alert" invisible="state == 'to_pay'">
+                            Its figures change only through "Correct", which keeps the reason in its history.
+                        </div>
+                        <field name="can_manage" invisible="1"/>
+                        <group>
+                            <group>
+                                <field name="project_id" readonly="state != 'to_pay'" options="{'no_create': True}"/>
+                                <field name="concept" readonly="state != 'to_pay'"
+                                       placeholder="e.g. Working meal with the host company"/>
+                                <field name="category" readonly="state != 'to_pay'"/>
+                                <field name="date" readonly="state != 'to_pay'"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="amount" readonly="state != 'to_pay'"/>
+                            </group>
+                            <group>
+                                <field name="supplier_id"/>
+                                <field name="mobility_id" readonly="state != 'to_pay' or not can_manage" options="{'no_create': True}"/>
+                                <field name="attachment_ids" widget="many2many_binary"/>
+                                <field name="corrected" invisible="not corrected"/>
+                                <field name="transferred_amount" invisible="state != 'paid' or transferred_amount == amount"/>
+                                <field name="corrected_from_id" invisible="not corrected_from_id"/>
+                                <field name="paid_date" invisible="state != 'paid'"/>
+                                <field name="paid_by_id" invisible="state != 'paid'"/>
+                                <field name="receipt_ids" widget="many2many_binary" invisible="not receipt_ids"/>
+                            </group>
+                        </group>
+                        <field name="notes" placeholder="Notes"/>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_erasmus_expense" model="ir.actions.act_window">
+            <field name="name">Expenses</field>
+            <field name="res_model">ems.erasmus.expense</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">Register a new expense</p>
+                <p>The project's expenses outside the participants' grants: working meals, merchandising, dissemination, language preparation... The Secretary pays them with the same transfer as the grants.</p>
+            </field>
+        </record>
+
+        <record id="view_erasmus_expense_correct_wizard_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.expense.correct.wizard.form</field>
+            <field name="model">ems.erasmus.expense.correct.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Correct the expense">
+                    <p class="text-muted">The new figures and the reason stay in the expense's history, and the project warns about it.</p>
+                    <group>
+                        <group>
+                            <field name="expense_id" readonly="1"/>
+                            <field name="project_id" options="{'no_create': True}"/>
+                            <field name="concept"/>
+                            <field name="category"/>
+                        </group>
+                        <group>
+                            <field name="date"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="amount"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="reason" placeholder="e.g. The supplier sent a corrected invoice"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Correct" class="btn-primary"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- The organisational support rates, per call year: an old project keeps its own. -->
+        <record id="view_erasmus_support_rate_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.support.rate.list</field>
+            <field name="model">ems.erasmus.support.rate</field>
+            <field name="arch" type="xml">
+                <list string="Organisational support rates" editable="bottom">
+                    <field name="call_year" options="{'format': false}"/>
+                    <field name="kind"/>
+                    <field name="mobility_type"/>
+                    <field name="band_scope"/>
+                    <field name="band_from"/>
+                    <field name="band_to" placeholder="No limit"/>
+                    <field name="min_days" optional="show" placeholder="Any"/>
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="amount"/>
+                    <field name="note" optional="show"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_support_rate_search" model="ir.ui.view">
+            <field name="name">ems.erasmus.support.rate.search</field>
+            <field name="model">ems.erasmus.support.rate</field>
+            <field name="arch" type="xml">
+                <search string="Organisational support rates">
+                    <field name="call_year"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_call_year" string="Call year" context="{'group_by': 'call_year'}"/>
+                        <filter name="group_kind" string="Action" context="{'group_by': 'kind'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_erasmus_support_rate" model="ir.actions.act_window">
+            <field name="name">Organisational support rates</field>
+            <field name="res_model">ems.erasmus.support.rate</field>
+            <field name="view_mode">list</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">No organisational support rate yet</p>
+                <p>One line per call year, Erasmus+ action and kind of mobility, as the call's funding rules set them (a band of participants for a different amount from a given participant on). Accompanying teachers never generate organisational support.</p>
+            </field>
+        </record>
+
+        <!-- The figures of each mobility, where its grant is. -->
+        <record id="view_erasmus_mobility_form_economy" model="ir.ui.view">
+            <field name="name">ems.erasmus.mobility.form.economy</field>
+            <field name="model">ems.erasmus.mobility</field>
+            <field name="inherit_id" ref="view_erasmus_mobility_form"/>
+            <field name="arch" type="xml">
+                <field name="prefinancing_percent" position="after">
+                    <field name="econ_state" widget="badge"/>
+                    <field name="econ_forecast" invisible="not econ_forecast"/>
+                    <field name="econ_committed"/>
+                    <field name="econ_paid"/>
+                    <field name="econ_pending"/>
+                    <field name="recovered_amount" invisible="state != 'cancelled' and not recovered_amount"/>
+                    <field name="support_type"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_erasmus_group_mobility_form_economy" model="ir.ui.view">
+            <field name="name">ems.erasmus.group.mobility.form.economy</field>
+            <field name="model">ems.erasmus.group.mobility</field>
+            <field name="inherit_id" ref="view_erasmus_group_mobility_form"/>
+            <field name="arch" type="xml">
+                <field name="expense_amount" position="before">
+                    <field name="grant_amount"/>
+                    <field name="econ_state" widget="badge"/>
+                    <field name="econ_committed"/>
+                    <field name="econ_paid"/>
+                    <field name="econ_pending"/>
+                </field>
+                <field name="invoice_ids" position="before">
+                    <separator string="Participants' grants" invisible="not grant_participant_ids"/>
+                    <field name="grant_participant_ids" invisible="not grant_participant_ids"
+                           readonly="user_role != 'team'">
+                        <list editable="bottom" create="false" delete="false" decoration-muted="state == 'withdrawn'">
+                            <field name="role" readonly="1"/>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="state" column_invisible="1"/>
+                            <field name="currency_id" column_invisible="1"/>
+                            <field name="grant_amount"/>
+                        </list>
+                    </field>
+                    <separator string="Collective invoices"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_erasmus_group_participant_form_economy" model="ir.ui.view">
+            <field name="name">ems.erasmus.group.participant.form.economy</field>
+            <field name="model">ems.erasmus.group.participant</field>
+            <field name="inherit_id" ref="view_erasmus_group_participant_form"/>
+            <field name="arch" type="xml">
+                <field name="insurance_collective" position="after">
+                    <field name="currency_id" invisible="1"/>
+                    <field name="grant_amount"/>
+                </field>
+            </field>
+        </record>
+
+        <!-- The Secretary pays and undoes expenses with the same wizards. -->
+        <record id="view_erasmus_transfer_wizard_form_expense" model="ir.ui.view">
+            <field name="name">ems.erasmus.transfer.wizard.form.expense</field>
+            <field name="model">ems.erasmus.transfer.wizard</field>
+            <field name="inherit_id" ref="view_erasmus_transfer_wizard_form"/>
+            <field name="arch" type="xml">
+                <field name="invoice_ids" position="after">
+                    <field name="expense_ids" readonly="1" invisible="not expense_ids">
+                        <list>
+                            <field name="name"/>
+                            <field name="concept"/>
+                            <field name="supplier_id"/>
+                            <field name="currency_id" column_invisible="1"/>
+                            <field name="amount"/>
+                            <field name="state" column_invisible="1"/>
+                        </list>
+                    </field>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_erasmus_undo_transfer_wizard_form_expense" model="ir.ui.view">
+            <field name="name">ems.erasmus.undo.transfer.wizard.form.expense</field>
+            <field name="model">ems.erasmus.undo.transfer.wizard</field>
+            <field name="inherit_id" ref="view_erasmus_undo_transfer_wizard_form"/>
+            <field name="arch" type="xml">
+                <field name="invoice_ids" position="after">
+                    <field name="expense_ids" readonly="1" invisible="not expense_ids">
+                        <list>
+                            <field name="name"/>
+                            <field name="concept"/>
+                            <field name="amount"/>
+                            <field name="paid_date"/>
+                        </list>
+                    </field>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

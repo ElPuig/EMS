@@ -403,6 +403,7 @@
         'views/erasmus/project/views.xml',
         'views/erasmus/grant/views.xml',
         'views/erasmus/group_mobility/views.xml',
+        'views/erasmus/economy/views.xml',
         'views/erasmus/document_review/views.xml',
         'views/erasmus/history/views.xml',
         'views/erasmus/staff/views.xml',
@@ -568,6 +569,7 @@
         'data/custom/ems.authorization.template.csv',
         'data/custom/ir.sequence-enrollment_number.csv',
         'data/custom/erasmus/ems.erasmus.project.csv',
+        'data/custom/erasmus/ems.erasmus.support.rate.csv',
         'data/custom/erasmus/ems.erasmus.quality.history.csv',
 
         # Quality management system: the centre's process map. Load order matters - a procedure

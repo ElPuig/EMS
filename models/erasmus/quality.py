@@ -66,6 +66,7 @@ class EmsErasmusDiffusion(models.Model):
     generic ("Students of CFGS"), never a name."""
     _name = 'ems.erasmus.diffusion'
     _description = 'Erasmus+ diffusion action'
+    _inherit = ['ems.attachment_link_mixin']
     _order = 'date desc, id desc'
 
     date = fields.Date(string="Date", required=True,
@@ -113,6 +114,17 @@ class EmsErasmusCall(models.Model):
 class EmsErasmusQualityPanel(models.TransientModel):
     _inherit = 'ems.erasmus.quality.panel'
 
+    def _compute_display_name(self):
+        self.display_name = _("Quality indicators")
+
+    @api.model
+    def action_open_panel(self):
+        """The menu opens a panel already created, so that its title is its name and not "New"
+        (review 2026-11-05)."""
+        self._ems_check_access()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_erasmus_quality_panel')
+        return dict(action, res_id=self.create({}).id)
+
     def action_print_report(self):
         self._ems_check_access()
         self.ensure_one()
@@ -155,10 +167,10 @@ class EmsErasmusQualityPanel(models.TransientModel):
             calls &= self.env['ems.erasmus.mobility'].sudo().search([('project_id', '=', self.project_id.id)]).call_id
         return calls
 
-    def _ems_evolution(self):
+    def _ems_evolution(self, memo=None):
         """EMS's own figures for every course it has data of, and the manual load for the earlier
         ones (marked as such), oldest first."""
-        rows = super()._ems_evolution()
+        rows = super()._ems_evolution(memo)
         known = {row[0] for row in rows}
         for history in self.env['ems.erasmus.quality.history'].sudo().search([]):
             if history.course_name in known:
@@ -226,6 +238,12 @@ class EmsErasmusExport(models.Model):
                 [_("Date"), _("Code"), _("Title")],
                 [[minute.start_datetime and self._ems_local(minute.start_datetime) or '', minute.code or '',
                   minute.name or ''] for minute in minutes]))
+        else:
+            # Review 2026-11-05: the folder used to be missing with no word on why.
+            note = _("The Erasmus+ team's meetings are listed here once the setting \"Erasmus+ team meetings\" "
+                     "(EMS settings) says which workgroup's minutes they are.")
+            entries.append({'path': f"{management}/{safe_name(_('Read me'))}.txt", 'content': note.encode(),
+                            'category': management, 'document': _("Meetings"), 'status': _("Missing")})
         # 2. Documentation: the calls published and their calendar, the lists (totals only) and the
         # records complete.
         entries.append(self._ems_csv_entry(
@@ -272,7 +290,7 @@ class EmsErasmusExport(models.Model):
         entries.append(self._ems_csv_entry(
             f"{diffusion}/{safe_name(_('Diffusion actions'))}.csv", diffusion, _("Diffusion actions"),
             [_("Date"), _("Action"), _("Channel"), _("Audience"), _("People reached")],
-            [[str(action.date), action.name, channel_labels.get(action.channel, ''), action.audience or '',
+            [[action.date.strftime('%d/%m/%Y'), action.name, channel_labels.get(action.channel, ''), action.audience or '',
               action.recipient_count or ''] for action in actions]))
         for action in actions.filtered('attachment_ids'):
             folder = f"{diffusion}/{safe_name(f'{action.date} {action.name}')}"

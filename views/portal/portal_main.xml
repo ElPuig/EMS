@@ -25,6 +25,12 @@
                     There is no student whose information you can consult. A student of legal age must authorize sharing his information with the family before you can consult it again.
                 </div>
 
+                <div t-if="request.env.user.share" class="mt-3">
+                    <t t-call="ems.portal_erasmus_satisfaction_banners">
+                        <t t-set="surveys" t-value="_ems_partner._ems_erasmus_satisfaction_pending()"/>
+                    </t>
+                </div>
+
                 <div class="row g-4 mt-2">
                     
                     <t t-call="portal.portal_docs_entry">

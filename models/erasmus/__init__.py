@@ -6,6 +6,8 @@ from . import commitment, eu_survey
 from . import (evaluation, call, application, interview, plan_rating, partner, resolution, offer, claim,
                mobility, self_assessment, project, grant, export)
 from . import group_mobility
+# economy after group_mobility: it adds the economic figures to both kinds of mobility (issue #762).
+from . import economy
 # document_review after group_mobility: it extends the documents of both kinds of mobility.
 from . import document_review
 from . import attachment

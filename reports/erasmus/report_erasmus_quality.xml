@@ -10,7 +10,7 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">ems.report_erasmus_quality</field>
             <field name="report_file">ems.report_erasmus_quality</field>
-            <field name="print_report_name">'Erasmus+ - ' + (object.course_id.name or object.call_id.name or '')</field>
+            <field name="print_report_name">'Erasmus+ quality report' + ((' - ' + (object.course_id.name or object.call_id.name)) if (object.course_id or object.call_id) else '')</field>
         </record>
 
         <template id="report_erasmus_quality_table">
@@ -34,41 +34,48 @@
                                 Generated on <t t-esc="values['date']"/>.
                             </p>
 
-                            <h5>Indicators</h5>
-                            <t t-call="ems.report_erasmus_quality_table">
-                                <t t-set="header" t-value="values['headers']['indicators']"/>
-                                <t t-set="rows" t-value="values['indicators']"/>
-                            </t>
-
-                            <h5>Satisfaction by participant type</h5>
-                            <t t-call="ems.report_erasmus_quality_table">
-                                <t t-set="header" t-value="values['headers']['by_type']"/>
-                                <t t-set="rows" t-value="values['by_type']"/>
-                            </t>
-
-                            <h5>Satisfaction by host entity</h5>
-                            <t t-call="ems.report_erasmus_quality_table">
-                                <t t-set="header" t-value="values['headers']['by_host']"/>
-                                <t t-set="rows" t-value="values['by_host']"/>
-                            </t>
-
-                            <h5>Calls</h5>
-                            <t t-call="ems.report_erasmus_quality_table">
-                                <t t-set="header" t-value="values['headers']['funnel']"/>
-                                <t t-set="rows" t-value="values['funnel']"/>
-                            </t>
-
-                            <h5>Evolution by course</h5>
-                            <t t-call="ems.report_erasmus_quality_table">
-                                <t t-set="header" t-value="values['headers']['evolution']"/>
-                                <t t-set="rows" t-value="values['evolution']"/>
-                            </t>
-
-                            <h5>Improvement actions</h5>
-                            <t t-call="ems.report_erasmus_quality_table">
-                                <t t-set="header" t-value="values['headers']['actions']"/>
-                                <t t-set="rows" t-value="values['actions']"/>
-                            </t>
+                            <div style="page-break-inside: avoid;">
+                                <h5>Indicators</h5>
+                                <t t-call="ems.report_erasmus_quality_table">
+                                    <t t-set="header" t-value="values['headers']['indicators']"/>
+                                    <t t-set="rows" t-value="values['indicators']"/>
+                                </t>
+                            </div>
+                            <div style="page-break-inside: avoid;">
+                                <h5>Satisfaction by participant type</h5>
+                                <t t-call="ems.report_erasmus_quality_table">
+                                    <t t-set="header" t-value="values['headers']['by_type']"/>
+                                    <t t-set="rows" t-value="values['by_type']"/>
+                                </t>
+                            </div>
+                            <div style="page-break-inside: avoid;">
+                                <h5>Satisfaction by host entity</h5>
+                                <t t-call="ems.report_erasmus_quality_table">
+                                    <t t-set="header" t-value="values['headers']['by_host']"/>
+                                    <t t-set="rows" t-value="values['by_host']"/>
+                                </t>
+                            </div>
+                            <div style="page-break-inside: avoid;">
+                                <h5>Calls</h5>
+                                <t t-call="ems.report_erasmus_quality_table">
+                                    <t t-set="header" t-value="values['headers']['funnel']"/>
+                                    <t t-set="rows" t-value="values['funnel']"/>
+                                </t>
+                            </div>
+                            <div style="page-break-inside: avoid;">
+                                <h5>Evolution by course</h5>
+                                <t t-call="ems.report_erasmus_quality_table">
+                                    <t t-set="header" t-value="values['headers']['evolution']"/>
+                                    <t t-set="rows" t-value="values['evolution']"/>
+                                </t>
+                            </div>
+                            <div style="page-break-inside: avoid;">
+                                <h5>Improvement actions</h5>
+                                <t t-call="ems.report_erasmus_quality_table">
+                                    <t t-set="header" t-value="values['headers']['actions']"/>
+                                    <t t-set="rows" t-value="values['actions']"/>
+                                </t>
+                            </div>
 
                             <h5>How it is calculated</h5>
                             <ul class="small">

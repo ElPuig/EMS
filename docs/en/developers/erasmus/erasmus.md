@@ -1204,6 +1204,10 @@ number, kind, dates; maintained in the app afterwards, like every `data/custom/`
 also has its `budget` (grant awarded), `final_payment_date` and `keep_until`: SEPIE asks to keep the
 documents 3 years after the final payment of the grant, 5 when it is above 60,000 €.
 
+**Economy:** what each mobility commits and has been paid, the grant's amendments, SEPIE's
+transfers, the project's own expenses, the organisational support, the economic panel and its Excel
+export are described in [economy.md](economy.md) (issue #762).
+
 **Documents and exports:** the project's documents in five categories, each participant's record in
 four, and the ZIP exports (a record or a whole project, with index, manifest and SHA-256 hashes,
 logged) are described in [records.md](records.md). The host entity also has its Erasmus+
@@ -1213,10 +1217,10 @@ logged) are described in [records.md](records.md). The host entity also has its 
 
 | Model | Erasmus team | Secretary | Head of Studies / Director |
 |---|---|---|---|
-| `ems.erasmus.provision`, `.invoice` | rwcu | r (+ register the invoice's transfer) | - |
+| `ems.erasmus.provision`, `.invoice` | rwcu | r (+ register the invoice's transfer) | r (Director, issue #762) |
 | `ems.erasmus.project.document` | rwcu | rwc | r |
 | `ems.erasmus.transfer.wizard`, `.undo.transfer.wizard` | - | rwcu | - |
-| `ems.erasmus.payment` | rwcu (unpaid only; `write()` guard) | r + register the transfer (wizard) | - |
+| `ems.erasmus.payment` | rwcu (unpaid only; `write()` guard) | r + register the transfer (wizard) | r (Director, without the bank account) |
 
 Undoing a transfer (`action_mark_unpaid`, Secretary, through its wizard) posts in the payment's or
 invoice's chatter who undid it and why, when it had been paid and by whom, with its receipts attached; its state is tracked. A paid
@@ -1231,7 +1235,7 @@ mobility in preparation or closed.
 The mobility's *Grant* tab and its grant columns are only for the team (`groups=`), so the Head of
 Studies and the Director, who read mobilities, never load the grant models. Menus *Erasmus+ >
 Configuration > Host entities* (team) and *Erasmus+ > Financial management > Projects*, *Invoices*
-and *Grant payments* (team and Secretary; the Secretary sees only that section under *Erasmus+*). The project form's tabs follow the same split (mobilities:
+and *Grant payments* (team, Secretary and, read-only, the Director; the Secretary sees only that section under *Erasmus+*). The project form's tabs follow the same split (mobilities:
 team and Head of Studies; invoices and payments: team and Secretary).
 
 ## Erasmus+ history (`ems.erasmus.history`)

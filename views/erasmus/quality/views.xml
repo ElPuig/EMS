@@ -2,8 +2,8 @@
 <odoo>
     <data>
         <!-- Erasmus+ › Quality: the satisfaction surveys and the indicators panel. The participant's
-             name (partner_id) is only for the coordinator and the administrator (field groups on the
-             model); the rest of the team reads the answers without it.
+             name (partner_id) is for the Erasmus+ team and the administrator (field groups on the
+             model); the reports carry none.
              See docs/en/developers/erasmus/quality.md. -->
         <record id="view_erasmus_satisfaction_list" model="ir.ui.view">
             <field name="name">ems.erasmus.satisfaction.list</field>
@@ -13,7 +13,7 @@
                     <field name="course_id" optional="show"/>
                     <field name="call_id" optional="show"/>
                     <field name="group_mobility_id" optional="hide"/>
-                    <field name="partner_id" groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>
+                    <field name="partner_id" groups="ems.group_erasmus,ems.group_academic_admin"/>
                     <field name="participant_type"/>
                     <field name="study_id" optional="show"/>
                     <field name="host_partner_id" optional="show"/>
@@ -41,14 +41,14 @@
                             <button name="action_mark_not_answered" type="object" string="Close without an answer"
                                     invisible="state != 'pending'"
                                     groups="ems.group_erasmus_coordinator,ems.group_academic_admin"
-                                    confirm="The mobility can then be closed without this participant's answer. Continue?"/>
+                                    help="Write first why it is closed without an answer: the mobility can then be closed without it."/>
                         </div>
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>
                         <group>
                             <group>
-                                <field name="partner_id" groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>
+                                <field name="partner_id" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                 <field name="participant_type"/>
                                 <field name="kind"/>
                                 <field name="call_id" invisible="not call_id"/>
@@ -72,10 +72,13 @@
                             <field name="comment" invisible="not comment"/>
                         </group>
                         <group string="Improvement" invisible="not is_low">
-                            <field name="improvement_action_id"/>
+                            <field name="can_open_improvement" invisible="1"/>
+                            <field name="improvement_action_id" invisible="not can_open_improvement"/>
+                            <field name="improvement_action_id" invisible="can_open_improvement"
+                                   options="{'no_open': True}"/>
                             <field name="improvement_state" invisible="not improvement_action_id"/>
                         </group>
-                        <group string="Closed without an answer" invisible="state == 'answered'"
+                        <group string="Without an answer" invisible="state == 'answered'"
                                groups="ems.group_erasmus_coordinator,ems.group_academic_admin">
                             <field name="not_answered_reason" readonly="state != 'pending'"
                                    placeholder="E.g. the participant could not be reached after the reminders."/>
@@ -96,7 +99,7 @@
                     <field name="course_id"/>
                     <field name="host_partner_id"/>
                     <field name="study_id"/>
-                    <field name="partner_id" groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>
+                    <field name="partner_id" groups="ems.group_erasmus,ems.group_academic_admin"/>
                     <filter string="Score of 6 or lower" name="low" domain="[('is_low', '=', True)]"/>
                     <filter string="Without an improvement action" name="no_action"
                             domain="[('is_low', '=', True), ('improvement_action_id', '=', False)]"/>
@@ -177,7 +180,9 @@
                             higher and specialisation courses). Staff interest: applicants out of the teachers of
                             the FP levels and the Direction that validates. Both are frozen when the definitive
                             resolution is published, and only follow the course, call and participant type
-                            filters. Satisfaction: average of the scores from 1 to 10.
+                            filters: filtered by project, they are those of the calls of its mobilities, shared
+                            with any other project of the same calls. Satisfaction: average of the scores from 1
+                            to 10.
                         </p>
                         <notebook>
                             <page string="Indicators" name="indicators">
@@ -205,6 +210,13 @@
             <field name="target">current</field>
         </record>
 
+        <record id="action_erasmus_quality_panel_open" model="ir.actions.server">
+            <field name="name">Quality indicators</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_quality_panel"/>
+            <field name="state">code</field>
+            <field name="code">action = model.action_open_panel()</field>
+        </record>
+
         <!-- The survey on the mobility forms: its state, and the coordinator opens it. -->
         <record id="view_erasmus_mobility_form_satisfaction" model="ir.ui.view">
             <field name="name">ems.erasmus.mobility.form.satisfaction</field>
@@ -217,7 +229,7 @@
                         <field name="satisfaction_state" widget="badge" decoration-success="satisfaction_state == 'answered'"
                                decoration-warning="satisfaction_state == 'pending'"/>
                         <button name="action_open_satisfaction" type="object" string="Open" class="btn-link"
-                                groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>
+                                groups="ems.group_erasmus,ems.group_academic_admin"/>
                     </div>
                 </xpath>
             </field>

@@ -34,6 +34,7 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 - [Horario de guardias](../teachers/guard-duty-schedule.md) — Quién falta en cada franja horaria, y quién está de guardia para cubrirlo.
 - [Organizar las ausencias](../department_chiefs/absences.md) — Enviar guardias, reorganizar las clases y avisar a las familias de un cambio de horario cuando falta un docente.
 - [Notas públicas y notas privadas del alumno](../teachers/student-notes.md) — Dónde todo el profesorado lee las notas públicas de un alumno, y quién puede leer y escribir las privadas de tutoría.
+- [Erasmus+: consultar la economía de los proyectos](erasmus-economy.md) — La dirección consulta la subvención, los compromisos, los pagos, los gastos y el apoyo organizativo de cada proyecto Erasmus+, y los exporta a Excel.
 
 ---
 

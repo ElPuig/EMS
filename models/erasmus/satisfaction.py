@@ -7,6 +7,7 @@ from markupsafe import Markup, escape
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
+from odoo.tools import float_round
 
 # The two indicators of the Erasmus+ quality system (ISO 9001) and the Mobilitat FP network.
 SATISFACTION_TARGET = 8.5
@@ -27,7 +28,7 @@ PARTICIPANT_TYPES = [
 ]
 LEVEL_TYPES = {'CFGM': 'student_gm', 'CFGS': 'student_gs', 'EFPS': 'student_specialisation'}
 # Who sees each participant's name: the coordinator alone (and the administrator, above everyone).
-NAMES_GROUPS = 'ems.group_erasmus_coordinator,ems.group_academic_admin'
+NAMES_GROUPS = 'ems.group_erasmus,ems.group_academic_admin'
 # An application counts as an applicant once submitted: a draft never sent does not.
 NOT_APPLIED = ('draft', 'not_submitted')
 ADMITTED = ('admitted', 'selected', 'reserve', 'not_selected', 'accepted', 'renounced')
@@ -39,8 +40,8 @@ class EmsErasmusSatisfaction(models.Model):
     mobility's student or teacher): one question, a score from 1 to 10, what did not work when the
     score is 6 or lower, and an optional comment. It opens on its own the day after the stay ends and
     the mobility does not close until it is answered, or the coordinator marks it as not answered.
-    The Erasmus team sees every answer without the name; only the coordinator sees who answered
-    what. See docs/en/developers/erasmus/quality.md."""
+    The Erasmus team (coordinator and mobility technician) sees every answer with the name; nobody
+    else does, and the reports carry none. See docs/en/developers/erasmus/quality.md."""
     _name = 'ems.erasmus.satisfaction'
     _description = 'Erasmus+ satisfaction survey'
     _order = 'open_date desc, id desc'
@@ -87,6 +88,15 @@ class EmsErasmusSatisfaction(models.Model):
                                             readonly=True, ondelete='set null')
     improvement_state = fields.Selection(string="Improvement action state",
                                          related='improvement_action_id.state', related_sudo=True)
+    can_open_improvement = fields.Boolean(compute='_compute_can_open_improvement')
+
+    @api.depends_context('uid')
+    @api.depends('improvement_action_id')
+    def _compute_can_open_improvement(self):
+        """Review 2026-11-05: the Quality app's actions are for teachers and the quality committee; a
+        team member who is neither sees the action's name and state, without a link to an access error."""
+        for survey in self:
+            survey.can_open_improvement = survey.improvement_action_id.has_access('read')
 
     @api.depends('score')
     def _compute_is_low(self):
@@ -178,7 +188,7 @@ class EmsErasmusSatisfaction(models.Model):
             summary, note = survey.with_context(lang=user.lang or self.env.lang)._ems_todo_texts()
             survey.activity_id = survey.partner_id.with_context(mail_activity_quick_update=True).activity_schedule(
                 activity_type_id=activity_type.id, user_id=user.id, summary=summary, note=note,
-                date_deadline=survey.open_date + timedelta(days=REMINDER_DAYS[-1]))
+                date_deadline=survey.open_date)
 
     def _ems_todo_texts(self):
         """The staff to-do's summary and note, in the language of `self.env`."""
@@ -289,7 +299,7 @@ class EmsErasmusMobility(models.Model):
         return self.sudo().satisfaction_ids.filtered(lambda survey: survey.state == 'pending')
 
     def action_open_satisfaction(self):
-        """The coordinator opens the survey (to close it without an answer, with the reason)."""
+        """The Erasmus team opens the survey (the coordinator, to close it without an answer)."""
         self.ensure_one()
         survey = self.satisfaction_ids[:1]
         return {'type': 'ir.actions.act_window', 'res_model': 'ems.erasmus.satisfaction', 'res_id': survey.id,
@@ -499,11 +509,16 @@ class EmsErasmusQualityPanel(models.TransientModel):
         return statistics.fmean(scores), statistics.median(scores), len(scores)
 
     @api.model
-    def _ems_interest(self, calls):
-        """Applicants out of the target population of `calls`, as a percentage, and both counts."""
+    def _ems_interest(self, calls, memo=None):
+        """Applicants out of the target population of `calls`, as a percentage, and both counts.
+        `memo` (call -> counts) shares a call's counts between the indicators and the evolution of one
+        panel: counting who could apply is the panel's most expensive step (review 2026-11-05)."""
+        memo = {} if memo is None else memo
         applicants = target = 0
         for call in calls:
-            call_applicants, call_target = call._ems_interest()
+            if call not in memo:
+                memo[call] = call._ems_interest()
+            call_applicants, call_target = memo[call]
             applicants += call_applicants
             target += call_target
         return (100.0 * applicants / target if target else None), applicants, target
@@ -515,10 +530,11 @@ class EmsErasmusQualityPanel(models.TransientModel):
         surveys = Survey.search(self._ems_survey_domain())
         answered = surveys.filtered(lambda survey: survey.state == 'answered')
         calls = self._ems_calls()
+        memo = {}
         student_rate, student_applicants, student_target = self._ems_interest(
-            calls.filtered(lambda call: call.audience == 'student'))
+            calls.filtered(lambda call: call.audience == 'student'), memo)
         staff_rate, staff_applicants, staff_target = self._ems_interest(
-            calls.filtered(lambda call: call.audience == 'staff'))
+            calls.filtered(lambda call: call.audience == 'staff'), memo)
         average, median, count = self._ems_stats(answered.mapped('score'))
         indicators = [
             {'name': _("Student interest"), 'value': student_rate, 'unit': '%', 'target': STUDENT_INTEREST_TARGET,
@@ -538,7 +554,7 @@ class EmsErasmusQualityPanel(models.TransientModel):
         return {
             'indicators': indicators, 'by_type': by_type,
             'by_host': sorted(by_host, key=lambda row: str(row[0])),
-            'funnel': self._ems_funnel(calls), 'evolution': self._ems_evolution(),
+            'funnel': self._ems_funnel(calls), 'evolution': self._ems_evolution(memo),
             'surveys': surveys,
         }
 
@@ -567,14 +583,16 @@ class EmsErasmusQualityPanel(models.TransientModel):
                     len(group.filtered(lambda application: application.state in ADMITTED)),
                     len(group.filtered(lambda application: application.state in SELECTED)),
                     len(group_mobilities.filtered(lambda mobility: mobility.state == 'done')),
-                    len(group.filtered(lambda application: application.state == 'renounced'))
-                    + len(group_mobilities.filtered(lambda mobility: mobility.state == 'cancelled')),
+                    # Cancelling a mobility also marks its application renounced: each person once.
+                    len(group.filtered(lambda application: application.state == 'renounced')
+                        | group_mobilities.filtered(lambda mobility: mobility.state == 'cancelled').application_id),
                 ])
         return rows
 
-    def _ems_evolution(self):
+    def _ems_evolution(self, memo=None):
         """The two indicators course by course (every course with a call or a survey), with the
         filters other than the course."""
+        memo = {} if memo is None else memo
         Survey = self.env['ems.erasmus.satisfaction'].sudo()
         answered = Survey.search(self._ems_survey_domain(course=False) + [('state', '=', 'answered')])
         calls = self._ems_calls(course=False)
@@ -582,8 +600,8 @@ class EmsErasmusQualityPanel(models.TransientModel):
         rows = []
         for course in courses:
             course_calls = calls.filtered(lambda call: call.course_id == course)
-            student_rate = self._ems_interest(course_calls.filtered(lambda call: call.audience == 'student'))[0]
-            staff_rate = self._ems_interest(course_calls.filtered(lambda call: call.audience == 'staff'))[0]
+            student_rate = self._ems_interest(course_calls.filtered(lambda call: call.audience == 'student'), memo)[0]
+            staff_rate = self._ems_interest(course_calls.filtered(lambda call: call.audience == 'staff'), memo)[0]
             average, _median, count = self._ems_stats(
                 answered.filtered(lambda survey: survey.course_id == course).mapped('score'))
             rows.append([course.name, self._ems_number(student_rate, '%'), self._ems_number(staff_rate, '%'),
@@ -596,6 +614,8 @@ class EmsErasmusQualityPanel(models.TransientModel):
     def _ems_number(self, value, unit=''):
         if value is None:
             return '-'
+        # Half up, as people round (81.25 % is 81.3 %, not Python's 81.2).
+        value = float_round(value, precision_digits=1, rounding_method='HALF-UP')
         return f"{value:.1f}{' ' + unit if unit else ''}".replace('.', ',')
 
     def _ems_indicator_row(self, row):

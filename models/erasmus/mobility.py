@@ -252,7 +252,8 @@ class EmsErasmusMobility(models.Model):
                                          "course fees...")
     provision_amount = fields.Monetary(string="Paid by the centre", compute='_compute_grant_net')
     grant_net = fields.Monetary(string="To transfer to the participant", compute='_compute_grant_net',
-                                help="The grant minus the services the centre pays directly.")
+                                help="The grant minus the services the centre pays directly. Below zero, the "
+                                     "centre paid more than the grant: the project warns about it.")
     payment_ids = fields.One2many(string="Payments", comodel_name='ems.erasmus.payment', inverse_name='mobility_id')
     can_request_prefinancing = fields.Boolean(string="Can request the first payment",
                                               compute='_compute_can_request_payment')
@@ -326,7 +327,9 @@ class EmsErasmusMobility(models.Model):
         those of the mobility, never another mobility's."""
         self.ensure_one()
         application = self.application_id.document_ids.filtered(lambda line: line.stage == 'application')
-        return (application | self.document_ids).sorted(lambda line: (line.file_category or '', line.sequence, line.id))
+        # _origin: in a form not saved yet (e.g. the project's Economy tab) the lines are new records.
+        return (application | self.document_ids).sorted(
+            lambda line: (line.file_category or '', line.sequence, line._origin.id or 0))
 
     @api.constrains('project_id', 'modality_id')
     def _check_project(self):

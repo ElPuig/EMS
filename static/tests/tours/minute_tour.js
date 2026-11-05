@@ -380,3 +380,39 @@ registry.category("web_tour.tours").add("ems_minute_submit_with_draft", {
     ],
 });
 
+
+// Issue #756: an approved minute's approval is undone to change it, and given again.
+registry.category("web_tour.tours").add("ems_minute_undo_approval", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_field_widget[name='state'] .o_arrow_button_current[data-value='approved']",
+            content: "The minute is approved",
+        },
+        ...clickAction("action_reopen", "Undo the approval to change it"),
+        {
+            trigger: ".o_dialog .modal-footer .btn-primary",
+            content: "Confirm",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='state'] .o_arrow_button_current[data-value='to_approve']",
+            content: "Waiting for approval again",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='absence_notes']:not(.o_readonly_modifier) input:visible",
+            content: "It can be written again",
+            run: "edit Corrected after undoing the approval",
+        },
+        ...clickAction("action_approve", "Approve it again"),
+        {
+            trigger: ".o_dialog .modal-footer .btn-primary",
+            content: "Confirm",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='state'] .o_arrow_button_current[data-value='approved']",
+            content: "Approved again",
+        },
+    ],
+});

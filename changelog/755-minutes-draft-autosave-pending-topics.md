@@ -15,6 +15,6 @@
 # Internal changes
 
 ## Minutes (issue #755):
-- New transient model `ems.minute.submit.wizard` (access for teacher, secretary, quality admin and academic admin); `ems.minute.action_open_submit_dialog`/`action_send_draft`; the call and the draft share `_ems_meeting_mail` (QWeb `ems.minute_call_email` / new `ems.minute_draft_email`).
+- New transient model `ems.minute.submit.wizard` (access for teacher, secretary and academic admin: whoever can write minutes); `ems.minute.action_open_submit_dialog`/`action_send_draft`; the call and the draft share `_ems_meeting_mail` (QWeb `ems.minute_call_email` / new `ems.minute_draft_email`).
 - `minute_form.js` autosave: `reload: false` unless the changes create one2many lines; otherwise the caret is remembered and restored after the redraw. Regression tour `ems_minute_autosave_keeps_focus`.
 - `force_save` on `previous_minute_id`, `followed_agreement_ids` and `carried_from_minute_id`; `_ems_preload_previous` carries each topic once. Migration `18.0.0.46.0/post-migrate.py` deletes repeated pending topics of non-approved minutes.

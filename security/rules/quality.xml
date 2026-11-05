@@ -30,8 +30,8 @@
                 ('approver_role_id.employee_ids.user_id', '=', user.id)]</field>
         </record>
 
-        <!-- Writing is narrower than reading, and never on an approved minute: a correction after
-             approval is a new version, not an edit. Whoever writes it and whoever approves it write
+        <!-- Writing is narrower than reading, and never on an approved minute: to correct it, its
+             approval is undone first (ems.minute.action_reopen) and given again. Whoever writes it and whoever approves it write
              it, and so does the chain of command above each of them (redactor_scope_user_ids,
              approver_scope_user_ids): a Seminar Chief above the teacher who writes it, or whoever
              stands in for the approver when they are away. -->

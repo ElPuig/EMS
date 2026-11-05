@@ -171,8 +171,18 @@ pantalla amb la faceta *Pendents que jo aprovi*, i també rep la tasca *Aprovar 
 
 - Queda registrat **qui l'ha aprovada i quan**.
 - Es genera el **PDF**, que queda adjunt a l'acta.
-- L'acta **ja no es pot modificar**. Si cal corregir alguna cosa, es fa una versió nova; no es reescriu
-  la que ja estava aprovada.
+- L'acta **ja no es pot modificar**.
+
+### Corregir una acta aprovada
+
+Si cal canviar alguna cosa després de l'aprovació, feu servir el botó **Desfés l'aprovació**. Ho pot fer qui aprova l'acta,
+qui respon de l'àmbit que s'ha reunit (el cap de departament o de seminari, el tutor del grup, el director) i qui
+l'ha redactada. L'acta torna a *Per aprovar*: es pot tornar a editar i se'n pot tornar a enviar l'esborrany als
+participants. Un cop corregida, es torna a aprovar com s'explica més amunt: la data d'aprovació indica llavors quan
+es van aprovar els canvis, i es genera un PDF nou (l'anterior queda adjunt a l'acta). Els acords segueixen el que
+diu ara l'acta, i als seus responsables només se'ls torna a avisar del que ha canviat.
+
+![Acta aprovada amb el botó Desfés l'aprovació](../../assets/teachers/actes-10-desfer-aprovacio.png)
 
 ## Els meus acords
 

@@ -169,6 +169,7 @@ stateDiagram-v2
     to_approve --> meeting: Back to the meeting
     to_approve --> draft: Back to draft (evidence record)
     to_approve --> approved: Approve
+    approved --> to_approve: Undo the approval
     approved --> [*]
 ```
 
@@ -180,7 +181,8 @@ stateDiagram-v2
 | Back to preparing / to the meeting / to draft | `action_back_to_draft`, `action_back_to_meeting` | whoever can write it | back to preparing is refused once its NFC session has been opened |
 | Send for approval | `action_open_submit_dialog` → `ems.minute.submit.wizard.action_confirm` → `action_submit` (an evidence record calls `action_submit` straight away) | whoever can write it | NFC attendance copied into the lists; the development composed from the items; *Approve the minute* task for the approver |
 | (meeting or waiting for approval) Send the draft to the participants | `action_send_draft`, also from the submit dialog's *Also send the draft to the participants* | whoever can write it | emails everybody convened, whether they came or not: the attendees and absentees who have a `work_email` (one message, with a link to `/report/pdf/ems.report_minute/<id>`, the draft as it stands) and each guest with an email (a message of their own with the PDF attached, having no account); a note "Draft sent to N people" |
-| Approve | `action_approve` | **whoever gives the approval** (`can_approve`) | approval date set, PDF rendered and attached; approval task done; its agreements announced (tasks and notices); irreversible |
+| Approve | `action_approve` | **whoever gives the approval** (`can_approve`) | approval date set, PDF rendered and attached; approval task done; its agreements announced (tasks and notices) |
+| (approved) Undo the approval | `action_reopen` | whoever gives the approval, whoever answers for the scope (`_ems_approver_candidates`) and whoever wrote it with their chain of command (`redactor_scope_user_ids`): `can_reopen` / `_ems_user_may_reopen` | back to `to_approve` (written with sudo, since the record rules never let anybody write an approved minute); `approval_date` and `pdf_attachment_id` cleared, the previous PDF stays attached to the record; a note in its history; the approval task comes back. Approving again sets the new date and PDF and announces its agreements again: `_ems_sync_tasks` brings the tasks in line with what the minute now says, and `_ems_queue_notice(once=True)` skips a notice a user already had in the same words (compared as plain text), so only what changed is told |
 
 "Whoever can write it" is the write rule (`rule_minute_teacher_write`): the writer and their chain of
 command (`redactor_scope_user_ids`: a Seminar Chief above the teacher who writes it edits it even when a

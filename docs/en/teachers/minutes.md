@@ -169,8 +169,18 @@ under the *Awaiting my approval* facet, and also gets an *Approve the minute* ta
 
 - Records **who approved it and when**.
 - Generates the **PDF**, kept as an attachment on the minute.
-- Makes the minute **read-only**. If something needs correcting, a new version is produced; what was
-  approved is not rewritten.
+- Makes the minute **read-only**.
+
+### Correcting an approved minute
+
+If something needs changing after the approval, use the **Undo the approval** button. Whoever approves the minute,
+whoever answers for the scope that met (the Department or Seminar Chief, the group's tutor, the Director) and
+whoever wrote it can do it. The minute goes back to *To approve*: it can be edited again and its draft sent again to
+the participants. Once corrected, it is approved again as above: the approval date then says when the changes were
+approved, and a new PDF is generated (the previous one stays attached to the minute). Its agreements follow what the
+minute now says, and their responsible people are only told again about what changed.
+
+![An approved minute with the Undo the approval button](../../assets/teachers/actes-10-desfer-aprovacio.png)
 
 ## My agreements
 

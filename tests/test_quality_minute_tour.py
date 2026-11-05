@@ -114,3 +114,24 @@ class TestQualityMinuteTour(HttpCase):
         self.assertEqual(len(drafts), 2, "with the approval, and again from the Actions")
         self.assertIn('minute.tour@example.com', drafts[0].email_to)
 
+    def test_undo_the_approval_to_change_the_minute_tour(self):
+        """Issue #756: whoever approved a minute undoes the approval to change it, and approves
+        it again."""
+        writer = self.env['hr.employee.public'].browse(self.user.employee_id.id)
+        minute = self.env['ems.minute'].create({
+            'type_id': self.env.ref('__import__.minute_type_dep').id,
+            'department_id': self.department.id,
+            'attendance_mode': 'manual',
+            'attendee_ids': [(6, 0, writer.ids)],
+            'redactor_employee_id': writer.id,
+            'approver_employee_id': writer.id,
+        })
+        minute.section_value_ids.filtered('required').content = "<p>Discussed.</p>"
+        minute.action_start_meeting()
+        minute.action_submit()
+        minute.action_approve()
+        first_pdf = minute.pdf_attachment_id
+        self.start_tour(f"/odoo/action-ems.action_minute/{minute.id}", "ems_minute_undo_approval", login="minute.tour@example.com")
+        self.assertEqual(minute.state, 'approved')
+        self.assertEqual(minute.absence_notes, 'Corrected after undoing the approval')
+        self.assertNotEqual(minute.pdf_attachment_id, first_pdf, "a new PDF, with the change")

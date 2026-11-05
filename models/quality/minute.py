@@ -13,12 +13,12 @@ from odoo.tools import format_date
 from .common import scope_code
 from .minute_type import SCOPE_FIELDS
 
-# What the old free-text 'type' column held, kept in step with the new type's scope so the column
-# stays meaningful for anything reading the database directly. It is no longer used by the
-# application and can be dropped by a version that ships a migration for it.
 # The task of whoever is to approve a minute sent for approval (issue #753).
 APPROVAL_TASK_XMLID = 'ems.mail_activity_minute_approval'
 
+# What the old free-text 'type' column held, kept in step with the new type's scope so the column
+# stays meaningful for anything reading the database directly. It is no longer used by the
+# application and can be dropped by a version that ships a migration for it.
 _LEGACY_TYPE_BY_SCOPE = {
     'department': 'department',
     'workgroup': 'workgroup',
@@ -200,6 +200,8 @@ class EmsMinute(models.Model):
     submission_date = fields.Date(string="Sent for approval on", readonly=True, copy=False)
     submitted_by_id = fields.Many2one(string="Sent for approval by", comodel_name="res.users", readonly=True, copy=False)
     can_approve = fields.Boolean(string="Can approve", compute="_compute_can_approve", help="Whether the current user is the one who approves this minute.")
+    can_reopen = fields.Boolean(string="Can reopen", compute="_compute_can_reopen",
+                                help="Whether the current user may take back the approval of this minute to change it.")
     # Whoever may stand in for the person named to approve it: that person and their chain of
     # command (hr.employee.tutor_scope_user_ids: every chief above them, the Director). Searchable
     # for the record rules; not stored, so it always follows the current hierarchy.
@@ -466,15 +468,17 @@ class EmsMinute(models.Model):
         """Once the minute is approved, its agreements reach their responsible people: a task for
         each open one (and a notice when it is due later), a notice for each one agreed and done in
         the meeting, and the follow-up written for each agreement it reviewed. Never the people
-        involved: the minute itself tells them."""
+        involved: the minute itself tells them. Approved again after being reopened, only what
+        changed is told again: the tasks follow the agreements as they now stand, and a notice
+        already given in the same words is not repeated."""
         for minute in self.sudo():
             agreements = minute.agreement_ids
             agreements._ems_sync_tasks()
             for action in agreements.filtered('minute_followup_id'):
-                action._ems_queue_notice(action._ems_responsible_users() - self.env.user, 'done_in_meeting')
+                action._ems_queue_notice(action._ems_responsible_users() - self.env.user, 'done_in_meeting', once=True)
             for review in minute.agreement_review_ids.filtered('followup_id'):
                 action = review.action_id
-                action._ems_queue_notice(action._ems_responsible_users() - self.env.user, 'followup', review.followup_id)
+                action._ems_queue_notice(action._ems_responsible_users() - self.env.user, 'followup', review.followup_id, once=True)
 
     @api.ondelete(at_uninstall=False)
     def _unlink_only_draft(self):
@@ -722,6 +726,22 @@ class EmsMinute(models.Model):
         if self.approver_employee_id:
             return user in self.approver_scope_user_ids
         return user in self.approver_role_id.sudo().employee_ids.user_id
+
+    @api.depends('state', 'approver_employee_id', 'approver_role_id', 'redactor_employee_id')
+    @api.depends_context('uid')
+    def _compute_can_reopen(self):
+        for minute in self:
+            minute.can_reopen = minute.state == 'approved' and minute._ems_user_may_reopen()
+
+    def _ems_user_may_reopen(self):
+        """Who may take back the approval to change the minute (issue #756): whoever gives it
+        (_ems_user_may_approve), whoever answers for the scope that met (a department's chiefs, a
+        group's tutor, the director) and whoever wrote it, with the chain of command above them."""
+        self.ensure_one()
+        user = self.env.user
+        return (self._ems_user_may_approve()
+                or user in self.redactor_scope_user_ids
+                or user in self._ems_approver_candidates().user_id)
 
     def _ems_google_calendar_url(self):
         """A link that opens Google Calendar with this meeting filled in, for each person to add
@@ -1032,8 +1052,23 @@ class EmsMinute(models.Model):
             # Who actually approves it, when that is somebody other than the person it was meant for.
             if employee:
                 minute.approver_employee_id = employee
-            minute.approval_date = fields.Date.context_today(minute)
+            # Approved again after being reopened: the date says when the changes were approved.
+            minute.approval_date = self.env['ems.datetime_utils'].get_local_today()
         return super().action_approve()
+
+    def action_reopen(self):
+        """Take back the approval to change the minute (issue #756): it goes back to waiting for
+        approval, open to whoever writes it, and is approved again once corrected - on a new date,
+        with a new PDF. The PDF approved before stays attached to it, for the record."""
+        for minute in self:
+            if minute.state != 'approved':
+                raise UserError(_("Only an approved minute can be reopened."))
+            if not minute._ems_user_may_reopen():
+                raise UserError(_("Only whoever approves this minute, whoever answers for the scope that met or whoever wrote it can reopen it."))
+            # With sudo: nobody writes an approved minute, which is what this checked exception undoes.
+            minute.sudo().write({'state': 'to_approve', 'approval_date': False, 'pdf_attachment_id': False})
+            minute.message_post(body=_("Approval taken back to change the minute."), subtype_xmlid='mail.mt_note')
+        return True
 
     @api.model
     def _ems_people_label(self, people):

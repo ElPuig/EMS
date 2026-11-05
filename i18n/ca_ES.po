@@ -27582,8 +27582,8 @@ msgstr "L'acta s'envia a qui l'ha d'aprovar i ja no es pot redactar fins que tor
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
-msgid "Once approved, the minute can no longer be changed and its PDF is filed. Approve it?"
-msgstr "Un cop aprovada, l'acta ja no es pot modificar i se n'arxiva el PDF. L'aproveu?"
+msgid "Once approved, its PDF is filed and the minute can only be changed by undoing the approval. Approve it?"
+msgstr "Un cop aprovada, se n'arxiva el PDF i l'acta només es pot modificar si se'n desfà l'aprovació. L'aproveu?"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
@@ -46370,13 +46370,13 @@ msgstr "Esborrany enviat a %s persones."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
-msgid "Hello! Here is the draft of the minute of our meeting, so you can review it while it is fresh."
-msgstr "Hola! Aquí teniu l'esborrany de l'acta de la nostra reunió, perquè el pugueu revisar ara que la teniu fresca."
+msgid "Please find the draft of the minute of the meeting below, for your review."
+msgstr "Us fem arribar l'esborrany de l'acta de la reunió perquè el pugueu revisar."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
-msgid "If anything needs correcting, reply to this email before the minute is approved."
-msgstr "Si cal corregir alguna cosa, responeu aquest correu abans que s'aprovi l'acta."
+msgid "If anything needs correcting, please reply to this email."
+msgstr "Si cal corregir-hi alguna cosa, us preguem que respongueu aquest correu."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
@@ -46450,3 +46450,41 @@ msgstr "El rebrà tothom qui estava convocat, hi hagi assistit o no: el personal
 #: code:addons/ems/models/quality/minute.py:0
 msgid "There is nobody to send the draft to: none of the people convened has an email address."
 msgstr "No hi ha ningú a qui enviar l'esborrany: cap de les persones convocades té adreça de correu."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__can_reopen
+msgid "Can reopen"
+msgstr "Pot desfer l'aprovació"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute__can_reopen
+msgid "Whether the current user may take back the approval of this minute to change it."
+msgstr "Si l'usuari actual pot desfer l'aprovació d'aquesta acta per modificar-la."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Undo the approval"
+msgstr "Desfés l'aprovació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "The minute goes back to waiting for approval so it can be changed, and will have to be approved again: the new approval date will say when. Undo the approval?"
+msgstr "L'acta torna a quedar pendent d'aprovació perquè es pugui modificar, i s'haurà de tornar a aprovar: la nova data d'aprovació indicarà quan. Voleu desfer l'aprovació?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Only an approved minute can be reopened."
+msgstr "Només es pot desfer l'aprovació d'una acta aprovada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Only whoever approves this minute, whoever answers for the scope that met or whoever wrote it can reopen it."
+msgstr "Només qui aprova aquesta acta, qui respon de l'àmbit que s'ha reunit o qui l'ha redactada en pot desfer l'aprovació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Approval taken back to change the minute."
+msgstr "S'ha desfet l'aprovació per modificar l'acta."

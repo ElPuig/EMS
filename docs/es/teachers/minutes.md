@@ -171,8 +171,19 @@ pantalla con la faceta *Pendientes de que yo apruebe*, y también recibe la tare
 
 - Queda registrado **quién la ha aprobado y cuándo**.
 - Se genera el **PDF**, que queda adjunto al acta.
-- El acta **ya no se puede modificar**. Si hay que corregir algo, se hace una versión nueva; no se
-  reescribe la que ya estaba aprobada.
+- El acta **ya no se puede modificar**.
+
+### Corregir un acta aprobada
+
+Si hay que cambiar algo después de la aprobación, usad el botón **Deshacer la aprobación**. Puede hacerlo quien
+aprueba el acta, quien responde del ámbito que se ha reunido (el jefe de departamento o de seminario, el tutor del
+grupo, el director) y quien la ha redactado. El acta vuelve a *Por aprobar*: se puede volver a editar y se puede
+volver a enviar su borrador a los participantes. Una vez corregida, se vuelve a aprobar como se explica más arriba:
+la fecha de aprobación indica entonces cuándo se aprobaron los cambios, y se genera un PDF nuevo (el anterior queda
+adjunto al acta). Los acuerdos siguen lo que dice ahora el acta, y a sus responsables solo se les vuelve a avisar de
+lo que ha cambiado.
+
+![Acta aprobada con el botón Deshacer la aprobación](../../assets/teachers/actes-10-desfer-aprovacio.png)
 
 ## Mis acuerdos
 

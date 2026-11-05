@@ -319,3 +319,4 @@ from . import test_erasmus_call_announce
 from . import test_erasmus_staff_backend
 from . import test_docs_screenshots_student_card
 from . import test_docs_screenshots_schedule_declaration
+from . import test_erasmus_economy

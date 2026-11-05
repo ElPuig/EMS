@@ -397,6 +397,7 @@
         'views/erasmus/project/views.xml',
         'views/erasmus/grant/views.xml',
         'views/erasmus/group_mobility/views.xml',
+        'views/erasmus/economy/views.xml',
         'views/erasmus/document_review/views.xml',
         'views/erasmus/history/views.xml',
         'views/erasmus/staff/views.xml',

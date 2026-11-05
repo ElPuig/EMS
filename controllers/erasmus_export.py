@@ -69,3 +69,19 @@ class EmsErasmusExportController(http.Controller):
         ])
         response.direct_passthrough = True
         return response
+
+    @http.route('/ems/erasmus/project/<int:project_id>/economy', type='http', auth='user', methods=['GET'])
+    def download_economy(self, project_id):
+        """Issue #762 - a project's economy as an .xlsx, built on the fly: the same figures as the
+        economic panel. For the Erasmus team, the Secretary and the Director."""
+        project = request.env['ems.erasmus.project'].browse(project_id).exists()
+        try:
+            content = project and project._ems_economy_xlsx()
+        except AccessError:
+            content = None
+        if not content:
+            raise request.not_found()
+        return request.make_response(content, headers=[
+            ('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+            ('Content-Disposition', content_disposition(f"{_('Economy')} {project.name}.xlsx")),
+        ])

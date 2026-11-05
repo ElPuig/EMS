@@ -35,9 +35,9 @@ Fes clic a **Desa l'esborrany** per continuar més tard.
 
 ## 3. Enviar-la
 
-Fes clic a **Envia la sol·licitud**. Només la pots enviar quan hi has adjuntat tots els documents obligatoris. Rebràs per correu un justificant amb els fitxers rebuts (si és un enllaç, l'enllaç mateix, perquè puguis comprovar-lo).
+Fes clic a **Envia la sol·licitud**. Només la pots enviar quan hi has adjuntat tots els documents obligatoris. Rebràs per correu un justificant amb els fitxers rebuts (si és un enllaç, l'enllaç mateix, perquè puguis comprovar-lo). Si l'alumne és menor d'edat, la família en rep una còpia.
 
-Si tornes a pujar un document, compta el fitxer més recent: els anteriors es conserven marcats com a *Versió anterior*, i el justificant només mostra el més recent (un document amb diversos fitxers, com els certificats de llengües, els conserva tots). Cada fitxer mostra el dia que el vas pujar. Mentre la sol·licitud és un esborrany, **Treu-lo** elimina un fitxer pujat per error; un cop enviada, demana-ho a l'equip Erasmus. Si un document té un model (per exemple, l'autorització familiar), al costat hi ha **Descarrega el model**.
+Si tornes a pujar un document, compta el fitxer més recent: els anteriors es conserven marcats com a *Versió anterior*, i el justificant només mostra el més recent (un document amb diversos fitxers, com els certificats de llengües, els conserva tots). Cada fitxer mostra el dia que el vas pujar. Mentre la sol·licitud és un esborrany, **Treu-lo** elimina un fitxer pujat per error; un cop enviada, demana-ho a l'equip Erasmus. Si un document té un model, al costat hi ha **Descarrega el model**.
 
 Fins a la data de tancament encara la pots modificar: el formulari mostra quan la vas enviar, i el botó passa a dir **Envia els canvis**. Cada vegada que l'envies rebràs un justificant nou. Després de la data de tancament ja no es pot modificar.
 

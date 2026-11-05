@@ -35,9 +35,9 @@ Click **Save draft** to continue later.
 
 ## 3. Submit it
 
-Click **Submit application**. You can only submit it when every required document is attached. You will receive a receipt by email with the files received (for a link, the link itself, so you can check it).
+Click **Submit application**. You can only submit it when every required document is attached. You will receive a receipt by email with the files received (for a link, the link itself, so you can check it). If the student is a minor, the family receives a copy.
 
-If you upload a document again, the newest file is the one that counts: the earlier ones are kept and marked *Earlier version*, and the receipt lists only the newest (a document with several files, such as the language certificates, keeps them all). Each file shows the day it was uploaded. While the application is a draft, **Remove** takes away a file uploaded by mistake; once it is submitted, ask the Erasmus team. If a document has a model (for example the family authorisation), **Download the model** is next to it.
+If you upload a document again, the newest file is the one that counts: the earlier ones are kept and marked *Earlier version*, and the receipt lists only the newest (a document with several files, such as the language certificates, keeps them all). Each file shows the day it was uploaded. While the application is a draft, **Remove** takes away a file uploaded by mistake; once it is submitted, ask the Erasmus team. If a document has a model, **Download the model** is next to it.
 
 Until the closing date you can still change it: the form shows when you submitted it, and the button becomes **Send the changes**. Each time you send it you will receive a new receipt. After the closing date the application can no longer be changed.
 

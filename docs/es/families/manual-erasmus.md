@@ -35,9 +35,9 @@ Haz clic en **Guardar borrador** para continuar más tarde.
 
 ## 3. Enviarla
 
-Haz clic en **Enviar la solicitud**. Solo puedes enviarla cuando has adjuntado todos los documentos obligatorios. Recibirás por correo un justificante con los archivos recibidos (si es un enlace, el enlace mismo, para que puedas comprobarlo).
+Haz clic en **Enviar la solicitud**. Solo puedes enviarla cuando has adjuntado todos los documentos obligatorios. Recibirás por correo un justificante con los archivos recibidos (si es un enlace, el enlace mismo, para que puedas comprobarlo). Si el alumno es menor de edad, la familia recibe una copia.
 
-Si vuelves a subir un documento, cuenta el archivo más reciente: los anteriores se conservan marcados como *Versión anterior*, y el justificante solo muestra el más reciente (un documento con varios archivos, como los certificados de idiomas, los conserva todos). Cada archivo muestra el día que lo subiste. Mientras la solicitud es un borrador, **Quitarlo** elimina un archivo subido por error; una vez enviada, pídeselo al equipo Erasmus. Si un documento tiene un modelo (por ejemplo, la autorización familiar), al lado aparece **Descarga el modelo**.
+Si vuelves a subir un documento, cuenta el archivo más reciente: los anteriores se conservan marcados como *Versión anterior*, y el justificante solo muestra el más reciente (un documento con varios archivos, como los certificados de idiomas, los conserva todos). Cada archivo muestra el día que lo subiste. Mientras la solicitud es un borrador, **Quitarlo** elimina un archivo subido por error; una vez enviada, pídeselo al equipo Erasmus. Si un documento tiene un modelo, al lado aparece **Descarga el modelo**.
 
 Hasta la fecha de cierre todavía puedes modificarla: el formulario muestra cuándo la enviaste, y el botón pasa a decir **Enviar los cambios**. Cada vez que la envíes recibirás un justificante nuevo. Después de la fecha de cierre ya no se puede modificar.
 

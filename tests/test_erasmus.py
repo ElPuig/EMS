@@ -68,7 +68,7 @@ class TestErasmusCall(TransactionCase):
     def test_a_new_call_shows_its_defaults_before_saving(self):
         """The 2026-11-04 usage test: the Documents tab was empty until the call was saved."""
         form = Form(self.env['ems.erasmus.call'])
-        self.assertEqual(len(form.document_ids), 5)
+        self.assertEqual(len(form.document_ids), 4, "No family authorisation: the receipt's copy informs the family")
         self.assertTrue(form.task_ids)
         form.audience = 'staff'
         self.assertEqual(len(form.document_ids), 1, "The staff call's own documents")
@@ -169,13 +169,13 @@ class TestErasmusApplication(TransactionCase):
 
     def test_a_new_students_call_brings_its_documents(self):
         """The 2026-11-03 review: the CV (PDF, with the Europass link), the video (a Drive link),
-        the certificates, the evidence of fewer opportunities (only if declared) and the family
-        authorisation of minors."""
+        the certificates and the evidence of fewer opportunities (only if declared). No family
+        authorisation (2026-11-05): a minor's family gets a copy of the receipt instead."""
         call = self.env['ems.erasmus.call'].create({'name': 'Test defaults call', 'date_open': self.call.date_open,
                                                    'date_close': self.call.date_close})
         self.assertEqual([(document.upload_kind, document.requirement) for document in call.document_ids.sorted('sequence')],
                          [('pdf', 'required'), ('link', 'required'), ('file', 'optional'),
-                          ('file', 'fewer_opportunities'), ('file', 'minor')])
+                          ('file', 'fewer_opportunities')])
         self.assertTrue(call.document_ids[:1].help_url.startswith('https://europass.europa.eu'))
         self.assertTrue(call.document_ids.filtered(lambda document: document.requirement == 'fewer_opportunities').confidential)
 

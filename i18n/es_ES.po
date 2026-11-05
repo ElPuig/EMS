@@ -26732,6 +26732,7 @@ msgstr "Se muestra a quien redacta el acta, encima de la sección."
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_document_list
 msgid "Signatures"
 msgstr "Firmas"
 
@@ -30961,6 +30962,7 @@ msgstr "Modalidad:"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_form
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__todo_state__needs_change
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_document_list
 msgid "Needs changes"
 msgstr "Hay que corregir"
 
@@ -31244,6 +31246,7 @@ msgstr "Primero sube los documentos obligatorios: %s"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_document_list
 msgid "Valid"
 msgstr "Válido"
 
@@ -38205,13 +38208,6 @@ msgstr "Mis movilidades de grupo"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/group_mobility.py:0
-msgid "No email sent: the student has no email address."
-msgstr ""
-"No se ha enviado ningún correo: el alumno no tiene dirección de correo."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid "No substitution of %s is waiting for approval."
 msgstr "No hay ninguna sustitución de %s pendiente de aprobar."
 
@@ -38423,11 +38419,6 @@ msgstr "Número de reserva"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__reserve_count
 msgid "Reserves"
 msgstr "Reservas"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
-msgid "Result:"
-msgstr "Resultado:"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
@@ -38855,11 +38846,6 @@ msgstr "Tus documentos"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
-msgid "Your enrolment: <span class=\"badge text-bg-primary\">Enrolled</span>"
-msgstr "Tu inscripción: <span class=\"badge text-bg-primary\">Inscrito</span>"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
 msgid "Your enrolment: <span class=\"badge text-bg-secondary\">Withdrawn</span>"
 msgstr "Tu inscripción: <span class=\"badge text-bg-secondary\">Retirada</span>"
 
@@ -38919,14 +38905,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid ""
-"Enrolled within the period, in the eligible group and with fewer conduct "
-"warnings this course than the number that rules a student out. Ordered by "
+"Enrolled within the period and in the eligible group. Ordered by "
 "the record average, from highest to lowest. Tie-break: the fewer "
 "opportunities accredited by the Erasmus team. If the tie persists, it is "
 "resolved by a draw."
 msgstr ""
-"Inscrito dentro del plazo, del grupo que puede inscribirse y con menos "
-"amonestaciones este curso que el número que excluye a un alumno. Ordenado "
+"Inscrito dentro del plazo y del grupo que puede inscribirse. Ordenado "
 "por la nota media del expediente, de más alta a más baja. Desempate: las "
 "menos oportunidades acreditadas por el equipo Erasmus. Si el empate "
 "continúa, se resuelve por sorteo."
@@ -39248,15 +39232,6 @@ msgid "Students with no grades"
 msgstr "Alumnos sin notas"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_group_registration__grade_manual
-msgid ""
-"The Erasmus team enters the record average of a student EMS has no grades of"
-" (e.g. from the academic record), with the reason."
-msgstr ""
-"El equipo Erasmus introduce la media del expediente de un alumno del que EMS"
-" no tiene notas (por ejemplo, del expediente académico), con el motivo."
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid ""
@@ -39270,12 +39245,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid ""
-"The family and the student commit to communicate and collaborate with the "
+"The family and %(student)s commit to communicate and collaborate with the "
 "centre: to keep their contact details up to date, to be reachable during the"
 " stay and to tell the accompanying teachers and the Erasmus team about any "
 "incident, health need or circumstance that may affect the mobility."
 msgstr ""
-"La familia y el alumno se comprometen a comunicarse y colaborar con el "
+"La familia y %(student)s se comprometen a comunicarse y colaborar con el "
 "centro: mantener actualizados los datos de contacto, estar localizables "
 "durante la estancia e informar a los docentes acompañantes y al equipo "
 "Erasmus de cualquier incidencia, necesidad de salud o circunstancia que "
@@ -39322,12 +39297,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid ""
-"The student commits to communicate and collaborate with the centre: to keep "
+"%(student)s commits to communicate and collaborate with the centre: to keep "
 "their contact details up to date, to be reachable during the stay and to "
 "tell the accompanying teachers and the Erasmus team about any incident, "
 "health need or circumstance that may affect the mobility."
 msgstr ""
-"El alumno se compromete a comunicarse y colaborar con el centro: mantener "
+"%(student)s se compromete a comunicarse y colaborar con el centro: mantener "
 "actualizados los datos de contacto, estar localizable durante la estancia e "
 "informar a los docentes acompañantes y al equipo Erasmus de cualquier "
 "incidencia, necesidad de salud o circunstancia que pueda afectar a la "
@@ -39337,11 +39312,11 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid ""
-"The student commits to respect the centre's rules of coexistence, those of "
+"%(student)s commits to respect the centre's rules of coexistence, those of "
 "the host entity and of the accommodation, and to follow the instructions of "
 "the accompanying teachers at all times."
 msgstr ""
-"El alumno se compromete a respetar las normas de convivencia del centro, las"
+"%(student)s se compromete a respetar las normas de convivencia del centro, las"
 " de la entidad de acogida y las del alojamiento, y a seguir en todo momento "
 "las instrucciones de los docentes acompañantes."
 
@@ -39349,10 +39324,10 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid ""
-"The student commits to take part in every activity of the programme, on the "
+"%(student)s commits to take part in every activity of the programme, on the "
 "dates and at the times set."
 msgstr ""
-"El alumno se compromete a participar en todas las actividades del programa, "
+"%(student)s se compromete a participar en todas las actividades del programa, "
 "en las fechas y los horarios fijados."
 
 #. module: ems
@@ -39409,15 +39384,6 @@ msgstr ""
 "Erasmus resuelve antes de que se pueda cerrar la clasificación, nunca un 0."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
-msgid ""
-"eligible students have no evaluated module, so they have no record average:\n"
-"                            the Erasmus team enters it by hand with its reason, or the coordinator excludes them with a reason (Selection tab). The ranking cannot be closed until then."
-msgstr ""
-"alumnos admisibles no tienen ningún módulo evaluado y, por tanto, no tienen media de expediente:\n"
-"                            el equipo Erasmus la introduce a mano con el motivo, o la coordinación los excluye con un motivo (pestaña Selección). Hasta entonces no se puede cerrar la clasificación."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_cards
 msgid ""
 "is a minor, so the family accepts the commitment letter of the Erasmus+ "
@@ -39425,15 +39391,6 @@ msgid ""
 msgstr ""
 "es menor de edad, por eso la familia también acepta la carta de compromiso "
 "de la movilidad de grupo Erasmus+."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
-msgid ""
-"selected students have not accepted the commitment letter on the portal yet "
-"(they or, for a minor, their family)."
-msgstr ""
-"alumnos seleccionados todavía no han aceptado la carta de compromiso en el "
-"portal (ellos o, si son menores, su familia)."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
@@ -41562,6 +41519,7 @@ msgstr "Envía esta valoración y abre el siguiente plan que aún tienes que val
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__todo_state__waiting_team
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
 msgid "The Erasmus team uploads it"
 msgstr "Lo sube el equipo Erasmus"
 
@@ -42178,6 +42136,7 @@ msgstr "Tantas amonestaciones este curso como el número que lleva el caso a la 
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__conduct_review
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__conduct_review
 msgid "Conduct to review"
 msgstr "Conducta por revisar"
 
@@ -42610,12 +42569,6 @@ msgid "Evidence of fewer opportunities"
 msgstr "Acreditación de menos oportunidades"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/call.py:0
-msgid "Family authorisation to take part"
-msgstr "Autorización familiar para participar"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "Fewer opportunities"
 msgstr "Menos oportunidades"
@@ -42673,12 +42626,6 @@ msgstr "Vídeo de presentación en inglés"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_call_document__requirement
 msgid "Required for curricular work placement: when the student's stay is a work placement managed in sBID (the mobility's Placement type); optional for an extracurricular stay or a recent graduate. Short blended mobilities only: asked for in a KA131-HED stay of 30 days or fewer, and not shown otherwise. Required if fewer opportunities are declared: the portal shows it only once the student ticks that they can prove a situation of fewer opportunities."
 msgstr "Obligatorio para la formación en empresa curricular: cuando la estancia del alumno es una formación en empresa gestionada en sBID (el tipo de estancia de la movilidad); opcional en una estancia extracurricular o de una persona titulada reciente. Solo movilidades combinadas cortas: se pide en una estancia KA131-HED de 30 días o menos, y no se muestra en ningún otro caso. Obligatorio si se declaran menos oportunidades: el portal lo muestra solo cuando el alumno marca que puede acreditar una situación de menos oportunidades."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/call.py:0
-msgid "Required for minors."
-msgstr "Obligatoria para menores de edad."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__requirement__fewer_opportunities
@@ -44064,3 +44011,211 @@ msgstr "El alumno rellena y envía la solicitud. Si un documento necesita la fir
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_cards
 msgid "takes on in this stay and we accept them:"
 msgstr "adquiere en esta estancia y los aceptamos:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>A place is free and you have been "
+"proposed for it: the Erasmus coordination has to approve it, and you will "
+"receive an email."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>Hay una plaza libre y te han propuesto "
+"para ella: la tiene que aprobar la coordinación Erasmus, y recibirás un "
+"correo electrónico."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_registration__conduct_review
+msgid ""
+"As many conduct warnings this course as the number that sends the case to "
+"the coexistence team, or more: the coordinator decides whether to exclude "
+"the student, after hearing the teaching team and the coexistence team."
+msgstr ""
+"Tantas amonestaciones este curso como el número que lleva el caso al equipo "
+"de convivencia, o más: la coordinación decide si excluye al alumno, oídos el"
+" equipo docente y el equipo de convivencia."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__ranking_average
+msgid "Average used"
+msgstr "Media aplicada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "Eligible students with no evaluated module, so with no record average:"
+msgstr ""
+"Alumnos admisibles sin ningún módulo evaluado y, por tanto, sin nota media "
+"del expediente:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid ""
+"The Erasmus team enters it by hand with its reason, or the coordinator "
+"excludes them with a reason (Selection tab). The ranking cannot be closed "
+"until then."
+msgstr ""
+"El equipo Erasmus la introduce a mano con el motivo, o la coordinación los "
+"excluye con un motivo (pestaña Selección). Hasta entonces no se puede cerrar"
+" la clasificación."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_mobility__conduct_reviews
+msgid ""
+"Enrolled students not excluded with as many conduct warnings this course as "
+"the number that sends the case to the coexistence team, or more."
+msgstr ""
+"Alumnos inscritos no excluidos con tantas amonestaciones este curso como el "
+"número que lleva el caso al equipo de convivencia, o más."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__exception_activity_ids
+msgid "Exception tasks"
+msgstr "Tareas de la excepción"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__not_ready
+msgid "Not ready to leave"
+msgstr "Todavía no listos para marchar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid ""
+"Not ready to leave yet (a required document or the commitment letter "
+"pending):"
+msgstr ""
+"Todavía no están listos para marchar (falta un documento obligatorio o la "
+"carta de compromiso):"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_mobility__not_ready
+msgid ""
+"Participants with a required document or the commitment letter still "
+"pending."
+msgstr ""
+"Participantes con un documento obligatorio o la carta de compromiso todavía "
+"pendientes."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "Participants' documents"
+msgstr "Documentos de los participantes"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "Participants' documents - %s"
+msgstr "Documentos de los participantes - %s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid ""
+"Selected students who have not accepted the commitment letter on the portal "
+"yet (they or, for a minor, their family):"
+msgstr ""
+"Alumnos seleccionados que todavía no han aceptado la carta de compromiso en "
+"el portal (ellos o, si son menores, su familia):"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__required_signers
+msgid "Signs it"
+msgstr "Quién lo firma"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid ""
+"Students with as many conduct warnings this course as the number that sends "
+"the case to the coexistence team, or more:"
+msgstr ""
+"Alumnos con tantas amonestaciones este curso como el número que lleva el "
+"caso al equipo de convivencia, o más:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid ""
+"They are not excluded on their own: the coordinator decides, with an "
+"exception and its reason, after hearing the teaching team and the "
+"coexistence team (column \"Conduct to review\")."
+msgstr ""
+"Las amonestaciones no excluyen a nadie por sí solas: lo decide la "
+"coordinación, con una excepción y su motivo, oídos el equipo docente y el "
+"equipo de convivencia (columna «Conducta por revisar»)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__conduct_reviews
+msgid "Students with conduct to review"
+msgstr "Alumnos con la conducta por revisar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
+msgid ""
+"Students with the same average are ordered by the fewer opportunities "
+"accredited and, if still tied, by a draw."
+msgstr ""
+"Los alumnos con la misma media se ordenan por las menores oportunidades "
+"acreditadas y, si siguen empatados, por sorteo."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_registration__grade_manual
+msgid ""
+"The Erasmus team enters the record average by hand, with the reason: for a "
+"student EMS has no grades of (e.g. from the academic record), or to apply an"
+" upheld claim."
+msgstr ""
+"El equipo Erasmus introduce a mano la nota media del expediente, con el "
+"motivo: para un alumno del que EMS no tiene notas (por ejemplo, del "
+"expediente académico) o para aplicar una reclamación aceptada."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_registration__ranking_average
+msgid ""
+"The average the ranking uses: EMS's, or the one the Erasmus team entered by "
+"hand."
+msgstr ""
+"La media que usa la clasificación: la de EMS, o la que el equipo Erasmus ha "
+"introducido a mano."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_registration__exception_activity_ids
+msgid ""
+"The coordinator's tasks to answer this exception request, open until the "
+"coordinator sets the exception or approves the selection."
+msgstr ""
+"Las tareas de la coordinación para responder esta petición de excepción, "
+"abiertas hasta que la coordinación pone la excepción o aprueba la selección."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid ""
+"The stay starts now: check first that everyone is ready to leave (the "
+"warning on top lists who is not). Continue?"
+msgstr ""
+"La estancia empieza ahora: comprueba antes que todos están listos para "
+"marchar (el aviso de arriba dice quién no lo está). ¿Quieres continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "More students selected than places (with the exceptions):"
+msgstr "Más alumnos seleccionados que plazas (con las excepciones):"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "Move someone to reserve with an exception before approving."
+msgstr "Antes de aprobar, pasa a alguien a reserva con una excepción."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application_document__required_signers
+msgid ""
+"Who signs this line: the document's signers that apply to this participant "
+"(e.g. the family only for a minor)."
+msgstr ""
+"Quién firma esta línea: los firmantes del documento que corresponden a este "
+"participante (por ejemplo, la familia solo si es menor)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
+msgid "Your enrolment:"
+msgstr "Tu inscripción:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
+msgid "Your enrolment: <span class=\"badge text-bg-primary\">Received</span>"
+msgstr "Tu inscripción: <span class=\"badge text-bg-primary\">Recibida</span>"

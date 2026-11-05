@@ -35,7 +35,7 @@ The call's tabs are in two blocks: **Selection** (modalities, documents, informa
 - *Required for minors*: only asked to students under 18 (for example the family authorization).
 - *Required if fewer opportunities are declared*: the portal shows it right below the fewer opportunities box, only once the student ticks it, and then it is required.
 
-**Handed in as**: *Files* (any), *PDF only* (the CV: other files are refused) or *A link* (the presentation video: the student pastes the Google Drive link instead of uploading it). **Instructions** and **Instructions link** (e.g. the Europass editor) are shown to the student with the document. A new students' call already brings the CV (PDF), the video (link), the language certificates, the evidence of fewer opportunities and the family authorisation, with their instructions: adjust them if needed.
+**Handed in as**: *Files* (any), *PDF only* (the CV: other files are refused) or *A link* (the presentation video: the student pastes the Google Drive link instead of uploading it). **Instructions** and **Instructions link** (e.g. the Europass editor) are shown to the student with the document. A new students' call already brings the CV (PDF), the video (link), the language certificates, and the evidence of fewer opportunities, with their instructions. No family authorisation is asked for to apply: the receipt of a minor's application goes to the family too, and the family signs the commitment letter and the travel authorisation once the place is accepted: adjust them if needed.
 
 Tick **Confidential** for documents only the Erasmus team may see, such as the evidence of fewer opportunities.
 

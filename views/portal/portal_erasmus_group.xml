@@ -85,14 +85,25 @@
                     <p class="mt-1 mb-0" style="white-space: pre-line;" t-esc="group_mobility.tie_break"/>
                 </details>
 
-                <!-- Each student sees only their own result. -->
+                <!-- Each student sees only their own result: withdrawn, the result, or enrolled (one of them). -->
                 <div t-if="registration and registration.state == 'withdrawn'" class="mb-2 o_ems_erasmus_group_withdrawn">
                     Your enrolment: <span class="badge text-bg-secondary">Withdrawn</span>
                 </div>
                 <div t-elif="registration and published and registration.result" t-attf-class="mb-2 o_ems_erasmus_group_result o_ems_erasmus_group_result_#{registration.result}">
-                    Result: <span t-attf-class="badge #{'text-bg-success' if registration.result == 'selected' else 'text-bg-info' if registration.result == 'reserve' else 'text-bg-secondary'}"
+                    Your enrolment: <span t-attf-class="badge #{'text-bg-success' if registration.result == 'selected' else 'text-bg-info' if registration.result == 'reserve' else 'text-bg-secondary'}"
                                   t-esc="result_labels.get(registration.result)"/>
                     <t t-if="registration.result == 'reserve'"> - number <t t-esc="registration.reserve_position"/> on the reserve list</t>
+                    <t t-if="registration.result == 'excluded' and registration._ems_exclusion_reason()"> - <t t-esc="registration._ems_exclusion_reason()"/></t>
+                    <!-- The 2026-11-05 usage test: a reserve proposed for a free place did not know. -->
+                    <span t-if="registration.result == 'reserve' and registration.substitution_state == 'proposed'"
+                          class="d-block alert alert-info small mt-2 mb-0 o_ems_erasmus_group_substitution_proposed">
+                        <i class="fa fa-info-circle me-1"/>A place is free and you have been proposed for it: the Erasmus coordination has to approve it, and you will receive an email.
+                    </span>
+                </div>
+                <div t-elif="registration" class="mb-2 o_ems_erasmus_group_registered">
+                    Your enrolment: <span class="badge text-bg-primary">Received</span>
+                    <span class="small text-muted">on <t t-out="registration.enrol_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': request.env['ems.datetime_utils'].company_tz_name()}"/></span>
+                    <span t-if="not group_mobility.is_enrolling" class="d-block small text-muted">The selection is in progress: you will receive your result by email.</span>
                 </div>
                 <details t-if="registration and registration.state == 'enrolled' and registration.result == 'reserve' and group_mobility.state in ('preparation', 'stay')"
                          class="mb-2 small o_ems_erasmus_group_reserve_renounce">
@@ -103,20 +114,16 @@
                         <button type="submit" class="btn btn-outline-danger btn-sm o_ems_erasmus_group_reserve_renounce_submit">Leave the reserve list</button>
                     </form>
                 </details>
-                <div t-elif="registration" class="mb-2 o_ems_erasmus_group_registered">
-                    Your enrolment: <span class="badge text-bg-primary">Enrolled</span>
-                    <span class="small text-muted">on <t t-out="registration.enrol_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': request.env['ems.datetime_utils'].company_tz_name()}"/></span>
-                    <span t-if="not group_mobility.is_enrolling" class="d-block small text-muted">The selection is in progress: you will receive your result by email.</span>
-                </div>
 
                 <!-- The published lists (only four digits of each identity document), and this
                      student's provisional result while the claims are open. -->
-                <t t-set="lists" t-value="registration and group_mobility.resolution_ids.filtered(lambda resolution: resolution.state == 'published')"/>
+                <t t-set="lists" t-value="registration.state == 'enrolled' and group_mobility.resolution_ids.filtered(lambda resolution: resolution.state == 'published')"/>
                 <div t-if="lists" class="small mb-2 o_ems_erasmus_group_lists">
                     <t t-set="provisional_line" t-value="lists.line_ids.filtered(lambda line: line.kind == 'provisional' and line.group_registration_id == registration)"/>
                     <div t-if="provisional_line and not published and registration.state == 'enrolled'" class="mb-1 o_ems_erasmus_group_provisional">
                         Provisional result:
                         <span class="badge text-bg-secondary" t-esc="dict(provisional_line._fields['result']._description_selection(request.env)).get(provisional_line.result)"/>
+                        <t t-if="provisional_line.result == 'reserve'"> - number <t t-esc="registration.reserve_position"/> on the reserve list</t>
                         <t t-if="provisional_line.result == 'excluded' and provisional_line.exclusion_reason"> - <t t-esc="provisional_line.exclusion_reason"/></t>
                         <t t-if="registration._ems_portal_claimable()">
                             <span class="d-block text-muted">
@@ -257,7 +264,8 @@
                     <div t-elif="participant.commitment_signed_text" class="border rounded p-3 mb-3 small" t-out="participant.commitment_signed_text"/>
                 </t>
 
-                <t t-set="lines" t-value="participant.document_ids"/>
+                <!-- The 2026-11-05 usage test: what does not apply is not listed (e.g. the minors' authorisation for an adult). -->
+                <t t-set="lines" t-value="participant.document_ids.filtered(lambda line: line.file_state != 'not_applicable')"/>
                 <t t-if="lines">
                     <h6>Your documents</h6>
                     <form t-att-action="action + 'upload'" method="post" enctype="multipart/form-data" class="ems-loading-form o_ems_erasmus_group_documents">
@@ -270,7 +278,10 @@
                                         <span class="small text-muted"> - <t t-esc="category_labels.get(line.file_category)"/></span>
                                         <span t-if="not line.is_required" class="small text-muted"> (optional)</span>
                                     </span>
-                                    <span t-attf-class="badge o_ems_erasmus_file_state #{'text-bg-success' if line.file_state == 'complete' else 'text-bg-danger' if line.file_state in ('missing', 'needs_change') else 'text-bg-warning' if line.file_state == 'to_review' else 'text-bg-light'}"
+                                    <!-- Missing but the team's to upload first: nothing for the student to do yet. -->
+                                    <t t-set="team_pending" t-value="line.file_state == 'missing' and (line.handled_by == 'team' or (line.handled_by == 'team_to_sign' and not line.prepared_attachment_ids))"/>
+                                    <span t-if="team_pending" class="badge text-bg-light o_ems_erasmus_file_state o_ems_erasmus_team_pending">The Erasmus team uploads it</span>
+                                    <span t-else="" t-attf-class="badge o_ems_erasmus_file_state #{'text-bg-success' if line.file_state == 'complete' else 'text-bg-danger' if line.file_state in ('missing', 'needs_change') else 'text-bg-warning' if line.file_state == 'to_review' else 'text-bg-light'}"
                                           t-esc="file_state_labels.get(line.file_state)"/>
                                 </div>
                                 <p t-if="line.description" class="small text-muted mb-1" t-esc="line.description"/>

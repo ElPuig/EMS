@@ -126,6 +126,11 @@
 - A teacher sees the activity proposal they sent while it waits for validation.
 - Smaller: Catalan "de" elided before a name in the to-dos' subjects ("d'Alumna"), one interviews notice for evaluators with the same list, a new call shows its documents and steps before saving (also when switching between students and staff), and the panel's options show their points.
 
+## Students apply without a family authorisation (the family gets the receipt instead):
+
+- A new students' call no longer brings the "Family authorisation to take part" document (decided 2026-11-05 with adriamt): the family's consent comes once the place is accepted (commitment letter and travel authorisation, both signed by the family).
+- Instead, the application's receipt goes with a copy to the family whenever EMS keeps it informed about the student (a minor, or an adult who shares with the family), like the result, the place offered and the answer already did.
+
 # Fixes
 
 ## Erasmus+ result and free-place emails reached Catalan and Spanish readers in English (2026-11-03):
@@ -171,6 +176,17 @@
 - A refused file no longer loses the rest of the same form (e.g. the video link pasted with a CV that is not a PDF): valid documents are kept and the refused ones listed together.
 - After choosing a destination, signing the commitment letter, uploading mobility documents or answering a self-assessment, the portal no longer says "remember to submit the application before the closing date".
 - To-dos created by the scheduled jobs (staff satisfaction survey, staff "hand in what is missing", the team's "a place is free") are written in the recipient's language, not in English.
+
+## Erasmus+ group mobilities usage test by role (2026-11-05):
+
+- A group mobility created from the app asked for no document (the same cause as the calls': the form always sends the field, empty). Now it gets the default KA121-VET documents.
+- The default selection criteria said students with too many conduct warnings were left out, which is no longer the rule (2026-11-03): the text now says only the period, the eligible group, the average, the fewer opportunities and the draw.
+- A student the coordinator excludes with an exception stayed in the ranking, so their place was lost (one student fewer selected than places, with no warning). Now they leave the ranking and the next one moves up.
+- The leader teacher could not save an exception request from the Selection tab, and that also blocked sending the proposal.
+- A photo attached to the follow-up during the stay (or the leader's EU Survey evidence) could only be read by whoever uploaded it: the leader and the Erasmus team got an access error opening the mobility. The files now follow the mobility's access.
+- On the portal, a withdrawn enrolment showed "Withdrawn" and "Enrolled" at once (and a published result also showed "Enrolled"): only one status is shown.
+- Improvements agreed with adriamt after that test: the coordinator's task to answer a leader's exception request stays pending until the coordinator decides; the team can enter a corrected average for a student with grades (an upheld claim) and everyone sees the average the ranking uses; the mobility warns when more students are selected than places, when a student has a serious conduct record (only a warning, the coordinator decides) and, before the stay starts, who is not ready to leave (the button asks for confirmation); the team sees who enrolled during the enrolment; a new "Participants' documents" list shows every participant's documents on one screen (e.g. to upload the grant agreements at once), each line saying who signs it.
+- Portal and emails: the family of a minor gets a copy of the provisional and definitive results; a reserve proposed for a free place is told so; documents the team uploads first say "The Erasmus team uploads it" instead of a red "Missing" and what does not apply is not listed; the card shows the exclusion reason and the reserve number; the commitment letter names the student instead of "the student"; the published list explains the group's tie-break; a teacher who answers their last satisfaction survey sees the thanks.
 
 # Internal changes
 

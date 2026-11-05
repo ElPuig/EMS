@@ -40,9 +40,12 @@ LOG_KINDS = [('attendance', "Attendance"), ('incident', "Incident"), ('change', 
 # What the commitment letter states: changing it once a letter is accepted asks for a new acceptance.
 COMMITMENT_TERMS = ('city', 'country_id', 'host_partner_id', 'date_start', 'date_end', 'travel_date_out',
                     'travel_date_back', 'leader_id', 'companion_ids', 'commitment_extra')
+# The leader's exception request is saved through `registration_ids` (the form's Selection tab):
+# the enrolment's own write() lets the leader change that field only.
 COMPANION_FIELDS = {'log_ids'}
 LEADER_FIELDS = COMPANION_FIELDS | {'programme', 'leader_notes', 'eu_survey_attachment_ids', 'closure_note',
-                                    'proposal_note', 'document_ids', 'programme_execution', 'programme_changes'}
+                                    'proposal_note', 'document_ids', 'programme_execution', 'programme_changes',
+                                    'registration_ids'}
 
 
 class EmsErasmusGroupMobility(models.Model):
@@ -84,9 +87,9 @@ class EmsErasmusGroupMobility(models.Model):
     tie_break = fields.Text(
         string="Selection criteria", tracking=True,
         default=lambda self: _(
-            "Enrolled within the period, in the eligible group and with fewer conduct warnings this course than the "
-            "number that rules a student out. Ordered by the record average, from highest to lowest. Tie-break: the "
-            "fewer opportunities accredited by the Erasmus team. If the tie persists, it is resolved by a draw."),
+            "Enrolled within the period and in the eligible group. Ordered by the record average, from highest to "
+            "lowest. Tie-break: the fewer opportunities accredited by the Erasmus team. If the tie persists, it is "
+            "resolved by a draw."),
         help="Published on the portal before the enrolment opens. EMS ranks by the record average, then the fewer "
              "opportunities accredited, then the draw the Erasmus coordinator runs in EMS for a remaining tie.")
     # Destination, host entity and dates: may be pending during the enrolment.
@@ -176,6 +179,13 @@ class EmsErasmusGroupMobility(models.Model):
                                               "minor, by their family.")
     draw_ids = fields.One2many(string="Draws", comodel_name='ems.erasmus.group.draw',
                                inverse_name='group_mobility_id', readonly=True)
+    conduct_reviews = fields.Integer(
+        string="Students with conduct to review", compute='_compute_conduct_reviews',
+        groups='ems.group_erasmus,ems.group_academic_admin',
+        help="Enrolled students not excluded with as many conduct warnings this course as the number that sends the "
+             "case to the coexistence team, or more.")
+    not_ready = fields.Char(string="Not ready to leave", compute='_compute_not_ready',
+                            help="Participants with a required document or the commitment letter still pending.")
     next_reserve = fields.Char(string="Next reserve", compute='_compute_counts',
                                help="With a place free, the best-ranked reserve without a substitution proposed.")
     user_role = fields.Selection(string="Your role", selection=[('team', "Erasmus team"), *ROLES[1:]],
@@ -195,7 +205,8 @@ class EmsErasmusGroupMobility(models.Model):
             role = mobility._ems_role()
             mobility = mobility.sudo()
             registrations = mobility.registration_ids.filtered(lambda registration: registration.state == 'enrolled')
-            results = registrations.mapped(lambda registration: registration.result or registration.proposed_result)
+            # With the coordinator's exceptions: what the lists publish and the approval freezes.
+            results = [registration._ems_list_result() for registration in registrations]
             mobility.registration_count = len(registrations)
             mobility.selected_count = results.count('selected')
             mobility.reserve_count = results.count('reserve')
@@ -209,6 +220,23 @@ class EmsErasmusGroupMobility(models.Model):
             mobility.documents_missing = len(lines.filtered(lambda line: line.file_state in MISSING_STATES))
             mobility.documents_to_review = len(lines.filtered(lambda line: line.file_state == 'to_review'))
             mobility.next_reserve = role in ('team', 'leader') and mobility._ems_next_reserve().partner_id.name
+
+    @api.depends('registration_ids.strike_count', 'registration_ids.result_override', 'registration_ids.state')
+    def _compute_conduct_reviews(self):
+        """The 2026-11-05 usage test: the conduct warnings were only in a hidden column."""
+        for mobility in self:
+            mobility.conduct_reviews = len(mobility.sudo().registration_ids.filtered(
+                lambda registration: registration.state == 'enrolled' and registration.conduct_review
+                and registration.result_override != 'excluded'))
+
+    @api.depends('participant_ids.preparation_complete', 'participant_ids.state')
+    def _compute_not_ready(self):
+        """Who is not ready to leave, shown before the stay starts (the 2026-11-05 usage test: it
+        started with commitment letters still pending)."""
+        for mobility in self:
+            participants = mobility.sudo().participant_ids.filtered(
+                lambda participant: participant.state == 'active' and not participant.preparation_complete)
+            mobility.not_ready = ", ".join(participants.partner_id.mapped('name'))
 
     @api.depends('resolution_ids.kind', 'resolution_ids.state')
     def _compute_provisional_published(self):
@@ -277,7 +305,8 @@ class EmsErasmusGroupMobility(models.Model):
         """A new group mobility asks for the documents of a KA121-VET group mobility by default."""
         check_workflow_create(self, vals_list)
         for vals in vals_list:
-            if 'requirement_ids' not in vals:
+            # By value, not by key: the form always sends the field, empty on a new mobility.
+            if not vals.get('requirement_ids'):
                 vals['requirement_ids'] = self._ems_default_requirements()
         mobilities = super().create(vals_list)
         mobilities._ems_sync_teachers()
@@ -298,6 +327,10 @@ class EmsErasmusGroupMobility(models.Model):
         result = super().write(vals)
         if {'leader_id', 'companion_ids'} & set(vals):
             self._ems_sync_teachers()
+        if 'eu_survey_attachment_ids' in vals:
+            # Uploaded from the form with no res_id: tied to the mobility so the team can read it.
+            for mobility in self:
+                mobility.eu_survey_attachment_ids._ems_link_to(mobility)
         for mobility, before in terms.items():
             if mobility._ems_commitment_terms() != before:
                 mobility.sudo().participant_ids._ems_commitment_supersede(
@@ -394,8 +427,14 @@ class EmsErasmusGroupMobility(models.Model):
         users = self.env.ref('ems.group_erasmus_coordinator').sudo().users.filtered(lambda user: not user.share)
         return users - self.env.ref('base.user_root') or self._ems_team_users()
 
-    def _ems_activities_done(self):
-        self.sudo().activity_ids.action_feedback()
+    def _ems_activities_done(self, keep_exceptions=False):
+        """Mark the mobility's tasks done. `keep_exceptions`: not the coordinator's tasks to answer an
+        exception the leader requested (the 2026-11-05 usage test: sending the proposal closed them,
+        so the coordinator never had them pending); they close once the coordinator decides it."""
+        activities = self.sudo().activity_ids
+        if keep_exceptions:
+            activities -= self.sudo().registration_ids.exception_activity_ids
+        activities.action_feedback()
 
     # --- enrolment (issue #701) ------------------------------------------------------------------
 
@@ -451,7 +490,7 @@ class EmsErasmusGroupMobility(models.Model):
         """The rank of the eligible enrolments: record average descending, then the fewer
         opportunities accredited, then the draw order the coordination sets for a tie it resolves.
         The first ones, as many as places, are proposed as selected; the rest, as reserves in that
-        order. Not eligible: excluded. An eligible student with no average (no evaluated module and
+        order. Not eligible, or excluded by the coordinator's exception: excluded, not ranked. An eligible student with no average (no evaluated module and
         none entered by the Erasmus team) is not ranked: never as a 0, it is an incident to resolve.
         A tie is resolved once every one in it has a different draw position: someone joining an
         already drawn tie (a later accreditation, an average entered) reopens it for a new draw.
@@ -460,7 +499,10 @@ class EmsErasmusGroupMobility(models.Model):
             if mobility.state not in ('selection', 'validation'):
                 continue
             enrolled = mobility.registration_ids.filtered(lambda registration: registration.state == 'enrolled')
-            eligible = enrolled.filtered('eligible')
+            # Excluded by the coordinator's exception: out of the ranking, so their place goes to the
+            # next one (the 2026-11-05 usage test: the place was lost, one student fewer selected).
+            eligible = enrolled.filtered(lambda registration: registration.eligible
+                                         and registration.result_override != 'excluded')
             ranked = eligible.filtered('has_average').sorted(lambda registration: registration._ems_rank_key())
             ties = ranked.grouped(lambda registration: registration._ems_tie_key())
             for registration in enrolled - eligible:
@@ -499,7 +541,7 @@ class EmsErasmusGroupMobility(models.Model):
         self._ems_check_role('team', 'leader')
         self._ems_check_state('selection')
         self._ems_check_selection_ready()
-        self._ems_activities_done()
+        self._ems_activities_done(keep_exceptions=True)
         self._ems_set_state('validation', proposal_date=fields.Datetime.now(), proposal_user_id=self.env.uid,
                             return_note=False)
         for mobility in self:
@@ -532,7 +574,7 @@ class EmsErasmusGroupMobility(models.Model):
         for mobility in self:
             if not (mobility.return_note or '').strip():
                 raise UserError(_("Write why the proposal goes back first."))
-        self._ems_activities_done()
+        self._ems_activities_done(keep_exceptions=True)
         self._ems_set_state('selection')
         for mobility in self:
             leader = mobility.leader_id.user_id or mobility._ems_team_users()
@@ -838,6 +880,20 @@ class EmsErasmusGroupMobility(models.Model):
         return self.env['ems.erasmus.export']._ems_open_wizard(group_mobility_id=self.id,
                                                                project_id=self.project_id.id)
 
+    def action_view_participant_documents(self):
+        """Every participant's documents on one list, grouped by document (the 2026-11-05 usage
+        test: the team opened each file to upload its grant agreement)."""
+        self.ensure_one()
+        self._ems_check_role('team', 'leader')
+        return {
+            'type': 'ir.actions.act_window', 'name': _("Participants' documents - %s", self.name),
+            'res_model': 'ems.erasmus.application.document', 'view_mode': 'list',
+            'views': [(self.env.ref('ems.view_erasmus_group_participant_document_list').id, 'list')],
+            'domain': [('group_mobility_id', '=', self.id), ('group_participant_id', '!=', False),
+                       ('group_participant_id.state', '=', 'active')],
+            'context': {'group_by': 'call_document_id'},
+        }
+
     def action_view_participants(self):
         self.ensure_one()
         action = self.env['ir.actions.act_window']._for_xml_id('ems.action_erasmus_group_participant')
@@ -884,8 +940,9 @@ class EmsErasmusGroupRegistration(models.Model):
                                  help="Without any evaluated module there is no average: an incident the Erasmus "
                                       "team resolves before the ranking can be closed, never a 0.")
     grade_manual = fields.Boolean(string="Average entered by hand", tracking=True,
-                                  help="The Erasmus team enters the record average of a student EMS has no grades of "
-                                       "(e.g. from the academic record), with the reason.")
+                                  help="The Erasmus team enters the record average by hand, with the reason: for a "
+                                       "student EMS has no grades of (e.g. from the academic record), or to apply an "
+                                       "upheld claim.")
     grade_average_manual = fields.Float(string="Average entered", digits=(4, 2), tracking=True)
     grade_manual_reason = fields.Text(string="Where the average comes from", tracking=True)
     has_average = fields.Boolean(string="Has an average", compute='_compute_grade_incident', store=True)
@@ -912,9 +969,22 @@ class EmsErasmusGroupRegistration(models.Model):
                                             "result.")
     override_reason = fields.Text(string="Reason for the exception", tracking=True)
     exception_request = fields.Text(string="Exception requested by the leader", tracking=True)
+    exception_activity_ids = fields.Many2many(
+        string="Exception tasks", comodel_name='mail.activity', relation='ems_erasmus_group_registration_activity_rel',
+        readonly=True, copy=False, groups='ems.group_erasmus,ems.group_academic_admin',
+        help="The coordinator's tasks to answer this exception request, open until the coordinator sets the "
+             "exception or approves the selection.")
     result = fields.Selection(string="Result", selection=RESULTS, readonly=True, tracking=True,
                               help="Published when the coordinator approves the selection.")
     reserve_position = fields.Integer(string="Reserve number", compute='_compute_reserve_position')
+    ranking_average = fields.Float(string="Average used", digits=(4, 2), compute='_compute_ranking_average',
+                                   help="The average the ranking uses: EMS's, or the one the Erasmus team entered by "
+                                        "hand.")
+    conduct_review = fields.Boolean(string="Conduct to review", compute='_compute_conduct_review',
+                                    groups='ems.group_erasmus,ems.group_academic_admin',
+                                    help="As many conduct warnings this course as the number that sends the case to "
+                                         "the coexistence team, or more: the coordinator decides whether to exclude "
+                                         "the student, after hearing the teaching team and the coexistence team.")
     claim_ids = fields.One2many(string="Claims", comodel_name='ems.erasmus.claim', inverse_name='group_registration_id',
                                 groups='ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin')
     renounce_date = fields.Datetime(string="Renounced on", readonly=True)
@@ -940,6 +1010,17 @@ class EmsErasmusGroupRegistration(models.Model):
                 lambda other: other.result == 'reserve' or other.proposed_result == 'reserve' and not other.result)
             ranks = sorted(reserves.mapped('rank'))
             registration.reserve_position = ranks.index(registration.rank) + 1 if registration in reserves else 0
+
+    @api.depends('grade_average', 'grade_manual', 'grade_average_manual')
+    def _compute_ranking_average(self):
+        for registration in self:
+            registration.ranking_average = registration._ems_average()
+
+    @api.depends('strike_count')
+    def _compute_conduct_review(self):
+        Call = self.env['ems.erasmus.call']
+        for registration in self:
+            registration.conduct_review = Call._ems_conduct_blocked_count(registration.strike_count)
 
     @api.depends('state', 'eligible', 'grade_found', 'grade_manual', 'result_override')
     def _compute_grade_incident(self):
@@ -973,7 +1054,9 @@ class EmsErasmusGroupRegistration(models.Model):
             if {'result_override', 'override_reason'} & set(vals):
                 self.group_mobility_id._ems_check_coordinator()
         result = super().write(vals)
-        if {'fewer_opportunities_check', *GRADE_FIELDS} & set(vals):
+        if 'result_override' in vals:
+            self.sudo().exception_activity_ids.action_feedback()
+        if {'fewer_opportunities_check', 'result_override', *GRADE_FIELDS} & set(vals):
             self.group_mobility_id._ems_rank()
         return result
 
@@ -1086,8 +1169,11 @@ class EmsErasmusGroupRegistration(models.Model):
             if not (registration.exception_request or '').strip():
                 raise UserError(_("Write the exception you request and why first."))
             mobility = registration.group_mobility_id
+            before = mobility.sudo().activity_ids
             mobility._ems_schedule(mobility._ems_coordinators(), _("Erasmus+: exception requested for %s in %s",
                                                                    registration.partner_id.name, mobility.name))
+            registration._ems_write({'exception_activity_ids': [(4, activity.id) for activity in
+                                                                mobility.sudo().activity_ids - before]})
 
     def _ems_open_file(self):
         """The participant file of each selected student."""
@@ -1106,15 +1192,10 @@ class EmsErasmusGroupRegistration(models.Model):
             participant._ems_remind_guardians()
 
     def _ems_send_result(self):
-        """Each student's own result, to their own address (noted in the chatter when there is none)."""
-        template = self.env.ref('ems.email_template_erasmus_group_result')
-        for registration in self.sudo():
-            partner = registration.partner_id
-            if partner.email:
-                template.with_context(lang=partner.lang).send_mail(
-                    registration.id, force_send=False, email_values={'email_to': partner.email})
-            else:
-                registration.chatter(_("No email sent: the student has no email address."))
+        """Each student's own result, to their own address (noted in the chatter when there is none),
+        with a copy to the family whenever EMS keeps it informed (a minor), as the calls' results."""
+        self.env['ems.erasmus.application']._ems_mail(
+            self.sudo(), 'ems.email_template_erasmus_group_result', family_copy=True)
 
     def _ems_portal_claimable(self):
         """The provisional list the student can claim against from the portal: published, with them
@@ -1263,7 +1344,8 @@ class EmsErasmusGroupParticipant(models.Model):
         the individual mobilities: a document to sign only once the team checked it) and, for a
         student, the commitment letter accepted (also by the family of a minor), not provisionally."""
         for participant in self:
-            lines = participant.document_ids
+            # Counted as the team, confidential lines included: the same figures for everyone.
+            lines = participant.sudo().document_ids
             required = lines.filtered('is_required')
             complete = required.filtered(lambda line: line.file_state == 'complete')
             participant.documents_missing = len(lines.filtered(lambda line: line.file_state in MISSING_STATES))
@@ -1343,19 +1425,20 @@ class EmsErasmusGroupParticipant(models.Model):
             participation += " " + _("The group travels with its accompanying teachers: %(teachers)s.", **values)
         commitments = [
             participation,
-            _("The student commits to take part in every activity of the programme, on the dates and at the times "
-              "set."),
-            _("The student commits to respect the centre's rules of coexistence, those of the host entity and of the "
-              "accommodation, and to follow the instructions of the accompanying teachers at all times."),
+            _("%(student)s commits to take part in every activity of the programme, on the dates and at the times "
+              "set.", **values),
+            _("%(student)s commits to respect the centre's rules of coexistence, those of the host entity and of the "
+              "accommodation, and to follow the instructions of the accompanying teachers at all times.", **values),
             _("A serious breach of these commitments or of those rules may lead to the measures that the centre's "
               "rules of organisation and operation and its applicable protocols provide for."),
-            _("The family and the student commit to communicate and collaborate with the centre: to keep their "
+            _("The family and %(student)s commit to communicate and collaborate with the centre: to keep their "
               "contact details up to date, to be reachable during the stay and to tell the accompanying teachers and "
-              "the Erasmus team about any incident, health need or circumstance that may affect the mobility.")
+              "the Erasmus team about any incident, health need or circumstance that may affect the mobility.",
+              **values)
             if minor else
-            _("The student commits to communicate and collaborate with the centre: to keep their contact details up "
+            _("%(student)s commits to communicate and collaborate with the centre: to keep their contact details up "
               "to date, to be reachable during the stay and to tell the accompanying teachers and the Erasmus team "
-              "about any incident, health need or circumstance that may affect the mobility."),
+              "about any incident, health need or circumstance that may affect the mobility.", **values),
         ]
         intro = (_("Commitments accepted by %(student)s and their family or legal guardians for the Erasmus+ group "
                    "mobility %(mobility)s (project %(project)s):", **values) if minor else
@@ -1579,7 +1662,21 @@ class EmsErasmusGroupLog(models.Model):
     def create(self, vals_list):
         logs = super().create(vals_list)
         logs.group_mobility_id._ems_check_role('team', 'leader', 'companion')
+        logs._ems_link_attachments()
         return logs
+
+    def write(self, vals):
+        result = super().write(vals)
+        if 'attachment_ids' in vals:
+            self._ems_link_attachments()
+        return result
+
+    def _ems_link_attachments(self):
+        """A file uploaded from the form has no res_id, so only its uploader could read it, and the
+        other teachers and the team got an access error opening the mobility (the 2026-11-05 usage
+        test): tie it to its line."""
+        for log in self:
+            log.attachment_ids._ems_link_to(log)
 
 
 class EmsErasmusCallDocument(models.Model):
@@ -1616,6 +1713,17 @@ class EmsErasmusApplicationDocument(models.Model):
                                         ondelete='cascade', index=True)
     group_participant_id = fields.Many2one(string="Participant", comodel_name='ems.erasmus.group.participant',
                                            ondelete='cascade', index=True)
+    required_signers = fields.Char(string="Signs it", compute='_compute_required_signers',
+                                   help="Who signs this line: the document's signers that apply to this participant "
+                                        "(e.g. the family only for a minor).")
+
+    @api.depends('signature_ids.is_required', 'signature_ids.signer')
+    def _compute_required_signers(self):
+        """The 2026-11-05 usage test: a teacher's grant agreement said "participant, legal guardian,
+        director", the document's signers, not the line's."""
+        for line in self:
+            line.required_signers = ", ".join(signature._ems_label() for signature in
+                                              line.sudo().signature_ids.filtered('is_required'))
 
     @api.constrains('group_mobility_id', 'group_participant_id')
     def _check_participant(self):
@@ -1804,13 +1912,9 @@ class EmsErasmusResolution(models.Model):
             return super()._ems_after_publish()
         if self.kind != 'provisional':
             return
-        template = self.env.ref('ems.email_template_erasmus_resolution_published')
-        for line in self.line_ids:
-            if line.partner_id.email:
-                template.with_context(lang=line.partner_id.lang).sudo().send_mail(
-                    line.id, force_send=False, email_values={'email_to': line.partner_id.email})
-            else:
-                line.group_registration_id.chatter(_("No email sent: the student has no email address."))
+        # The family gets a copy whenever EMS keeps it informed (a minor): the 2026-11-05 usage test.
+        self.env['ems.erasmus.application']._ems_mail(
+            self.line_ids, 'ems.email_template_erasmus_resolution_published', family_copy=True)
 
     def _ems_registrations(self):
         return self.group_mobility_id.sudo().registration_ids.filtered(

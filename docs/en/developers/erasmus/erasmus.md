@@ -105,7 +105,10 @@ stateDiagram-v2
 - The state only changes through these actions (`write()` refuses a direct change).
 - **Submit** checks that every required document has a file (documents required for minors only
   when the applicant is a minor) and emails a receipt listing the files
-  (`email_template_erasmus_application_submitted`). Each new submission sends a new receipt.
+  (`email_template_erasmus_application_submitted`), with a copy to the family when EMS keeps it
+  informed (a minor's, `_ems_mail(family_copy=True)`). Each new submission sends a new receipt. A
+  new students' call asks for no family authorisation to apply: the family is informed by that copy
+  and signs the commitment letter once the place is accepted.
   The receipt (and every document list in an email, `_ems_mail_document_list`) shows only the files
   that count (`ems.erasmus.application.document._ems_current_files()`): every file, or only the
   newest of a call document with `single_file` (the default; unticked for the language

@@ -326,8 +326,6 @@ class EmsErasmusCall(models.Model):
             {'sequence': 4, 'name': _("Evidence of fewer opportunities"), 'requirement': 'fewer_opportunities',
              'confidential': True,
              'description': _("Confidential: only the Erasmus team sees it (annex 2 of the call).")},
-            {'sequence': 5, 'name': _("Family authorisation to take part"), 'requirement': 'minor',
-             'description': _("Required for minors.")},
         )]
 
     @api.model

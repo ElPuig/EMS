@@ -7,6 +7,7 @@ import openpyxl
 from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.http import Request
+from odoo.tests import Form
 from odoo.tests.common import HttpCase, TransactionCase, tagged
 from odoo.addons.ems.models.erasmus.application import PARTICIPANT_HEADERS
 
@@ -182,6 +183,15 @@ class TestErasmusGroupEnrolment(ErasmusGroupMobilityCase):
         with self.assertRaises(AccessError):
             self.mobility.copy().with_user(self.leader_user).action_open_enrolment()
 
+    def test_a_mobility_created_from_the_form_asks_for_the_default_documents(self):
+        """The form sends `requirement_ids` empty on a new mobility: the defaults still apply (found in
+        the 2026-11-05 usage test, a mobility created from the app asked for no document)."""
+        with Form(self.env['ems.erasmus.group.mobility'].with_user(self.technician_user)) as form:
+            form.name = 'Form defaults group'
+            form.project_id = self.project
+        self.assertEqual(len(form.record.requirement_ids),
+                         len(self.env['ems.erasmus.group.mobility']._ems_default_requirements()))
+
     def test_only_a_ka121_vet_project(self):
         hed = self.env['ems.erasmus.project'].create({'name': 'TEST-GROUP-HED', 'kind': 'ka131_hed'})
         with self.assertRaises(ValidationError):
@@ -222,6 +232,19 @@ class TestErasmusGroupRanking(ErasmusGroupMobilityCase):
         self.assertEqual(registrations[8:].mapped('reserve_position'), [1, 2])
         self.assertEqual(self.mobility.selected_count, 8)
 
+    def test_a_student_excluded_by_the_coordinator_frees_the_place(self):
+        """The 2026-11-05 usage test: excluding a selected student kept them in the ranking, so the
+        first reserve never moved up and a place was lost (7 selected of 8)."""
+        registrations = self._ranked()
+        registrations[0].with_user(self.coordinator_user).write(
+            {'result_override': 'excluded', 'override_reason': 'Serious conduct record, heard the teams'})
+        self.assertEqual((registrations[0].rank, registrations[0].proposed_result), (0, 'excluded'))
+        self.assertEqual(registrations[1:].mapped('rank'), list(range(1, 10)))
+        self.assertEqual(registrations[8].proposed_result, 'selected', "The first reserve moves up.")
+        self.mobility.with_user(self.leader_user).action_submit_proposal()
+        self._approve()
+        self.assertEqual(len(registrations.filtered(lambda registration: registration.result == 'selected')), 8)
+
     def test_conduct_warnings_are_counted_and_rule_nobody_out(self):
         registrations = self._enrol(self.students[:3])
         self._strikes(self.students[0], 2)
@@ -230,6 +253,17 @@ class TestErasmusGroupRanking(ErasmusGroupMobilityCase):
         self.assertEqual(registrations[:2].mapped('strike_count'), [2, 3])
         self.assertTrue(all(registrations.mapped('eligible')))
         self.assertFalse(registrations.filtered(lambda registration: registration.exclusion))
+
+    def test_the_team_is_warned_of_a_serious_conduct_record(self):
+        """The 2026-11-05 usage test: the conduct warnings were only in a hidden column."""
+        registrations = self._enrol(self.students[:2])
+        self._strikes(self.students[0], 3)
+        self._close({student: 7.0 for student in self.students[:2]})
+        self.assertEqual(registrations.mapped('conduct_review'), [True, False])
+        self.assertEqual(self.mobility.conduct_reviews, 1)
+        registrations[0].with_user(self.coordinator_user).write(
+            {'result_override': 'excluded', 'override_reason': 'Heard the teams'})
+        self.assertEqual(self.mobility.conduct_reviews, 0, "Decided: no longer pending.")
 
     def test_out_of_the_group_at_closing_is_excluded(self):
         registration = self._enrol(self.students[:1])
@@ -402,6 +436,38 @@ class TestErasmusGroupCommitment(ErasmusGroupMobilityCase):
         with self.assertRaises(UserError):
             minor.action_sign_commitment(True, guardian=True)
 
+    def test_the_family_of_a_minor_gets_a_copy_of_the_results(self):
+        """The 2026-11-05 usage test: as in the calls, the family of a minor gets the results too."""
+        family = self._family()
+        minor = self._approved_with_minor()
+        registration = minor.registration_ids
+        for model, res_ids in (('ems.erasmus.group.registration', registration.ids),
+                               ('ems.erasmus.resolution.line', self.mobility.resolution_ids.line_ids.filtered(
+                                   lambda line: line.group_registration_id == registration).ids)):
+            mails = self.env['mail.mail'].search([('model', '=', model), ('res_id', 'in', res_ids)])
+            self.assertTrue(mails, model)
+            self.assertTrue(all(family.email in (mail.email_cc or '') for mail in mails), model)
+        adult = self.mobility.registration_ids.filtered(lambda registration: registration.partner_id == self.students[0])
+        mail = self.env['mail.mail'].search([('model', '=', adult._name), ('res_id', '=', adult.id)])
+        self.assertFalse(mail.email_cc, "An adult's result goes to them alone.")
+
+    def test_who_is_not_ready_to_leave_and_who_signs_each_line(self):
+        minor = self._approved_with_minor()
+        self.assertIn(self.minor.name, self.mobility.not_ready)
+        adult = self.mobility.participant_ids.filtered(lambda participant: participant.partner_id == self.students[0])
+        agreement = adult.document_ids.filtered(lambda line: line.handled_by == 'team_to_sign')
+        self.assertNotIn('guardian', agreement.required_signers.lower(), "An adult signs without the family.")
+        self.assertIn('guardian', minor.document_ids.filtered(
+            lambda line: line.handled_by == 'team_to_sign').required_signers.lower())
+
+    def test_every_participants_documents_on_one_list(self):
+        self._approved()
+        action = self.mobility.with_user(self.leader_user).action_view_participant_documents()
+        lines = self.env['ems.erasmus.application.document'].search(action['domain'])
+        self.assertEqual(lines.group_participant_id, self.mobility.participant_ids)
+        with self.assertRaises(AccessError):
+            self.mobility.with_user(self.companion_user).action_view_participant_documents()
+
     def test_an_adult_signs_alone(self):
         self._approved()
         adult = self.mobility.participant_ids.filtered(lambda participant: participant.role == 'student')[:1]
@@ -471,6 +537,45 @@ class TestErasmusGroupSelection(ErasmusGroupMobilityCase):
         registrations[9].with_user(self.leader_user).action_request_exception()
         with self.assertRaises(AccessError):
             self.mobility.with_user(self.leader_user).write({'student_places': 9})
+        # From the form (the Selection tab saves through the mobility): the request, nothing else
+        # (the 2026-11-05 usage test, the leader could not save the request at all).
+        self.mobility.with_user(self.leader_user).write(
+            {'registration_ids': [(1, registrations[8].id, {'exception_request': 'Missing module'})]})
+        self.assertEqual(registrations[8].exception_request, 'Missing module')
+        for command in ((1, registrations[8].id, {'rank': 1}), (2, registrations[8].id, 0),
+                        (0, 0, {'partner_id': self.afternoon_student.id})):
+            with self.assertRaises(AccessError):
+                self.mobility.with_user(self.leader_user).write({'registration_ids': [command]})
+
+    def test_the_exception_task_waits_for_the_coordinator(self):
+        """The 2026-11-05 usage test: sending the proposal closed the coordinator's task to answer the
+        leader's exception request."""
+        registrations = self._ranked()
+        registrations[9].with_user(self.leader_user).exception_request = 'A module is missing'
+        registrations[9].with_user(self.leader_user).action_request_exception()
+        task = registrations[9].sudo().exception_activity_ids
+        self.assertIn(self.coordinator_user, task.user_id)
+        self.mobility.with_user(self.leader_user).action_submit_proposal()
+        self.assertTrue(task.exists(), "Still pending after the proposal.")
+        registrations[9].with_user(self.coordinator_user).write(
+            {'result_override': 'selected', 'override_reason': 'Claim accepted'})
+        self.assertFalse(task.exists(), "Done once the coordinator decides.")
+
+    def test_more_selected_than_places_is_counted_with_the_exceptions(self):
+        registrations = self._ranked()
+        registrations[9].with_user(self.coordinator_user).write(
+            {'result_override': 'selected', 'override_reason': 'Claim accepted'})
+        self.assertEqual(self.mobility.selected_count, 9, "The warning shows 9 selected for 8 places.")
+        self.mobility.with_user(self.leader_user).action_submit_proposal()
+        with self.assertRaises(UserError):
+            self._approve()
+
+    def test_an_upheld_claim_corrects_the_average_of_a_student_with_grades(self):
+        registrations = self._ranked()
+        self.assertTrue(registrations[9].grade_found)
+        registrations[9].with_user(self.technician_user).write({
+            'grade_manual': True, 'grade_average_manual': 9.5, 'grade_manual_reason': 'Claim: module 3 was missing'})
+        self.assertEqual((registrations[9].rank, registrations[9].ranking_average), (1, 9.5))
 
     def test_coordinator_exception_needs_a_reason(self):
         registrations = self._ranked()
@@ -851,6 +956,22 @@ class TestErasmusGroupSecurity(ErasmusGroupMobilityCase):
         with self.assertRaises(AccessError):
             student.document_ids[:1].with_user(self.companion_user).review_comment = 'Not mine'
 
+    def test_files_uploaded_from_the_form_are_readable_by_the_others(self):
+        """The 2026-11-05 usage test: a photo the accompanying teacher attached to the follow-up (and
+        the leader's EU Survey evidence) had no res_id, so the leader and the team got an access
+        error opening the mobility."""
+        photo = self.env['ir.attachment'].with_user(self.companion_user).create(
+            {'name': 'photo.jpg', 'raw': b'jpg', 'res_model': 'ems.erasmus.group.log', 'res_id': 0})
+        self.mobility.with_user(self.companion_user).write({'log_ids': [(0, 0, {
+            'kind': 'incident', 'name': 'Fever', 'attachment_ids': [(6, 0, photo.ids)]})]})
+        evidence = self.env['ir.attachment'].with_user(self.leader_user).create(
+            {'name': 'survey.pdf', 'raw': PDF, 'res_model': 'ems.erasmus.group.mobility', 'res_id': 0})
+        self.mobility.with_user(self.leader_user).eu_survey_attachment_ids = evidence
+        self.assertEqual((photo.res_id, evidence.res_id), (self.mobility.log_ids.id, self.mobility.id))
+        for user in (self.leader_user, self.technician_user):
+            self.mobility.with_user(user).log_ids.attachment_ids.read(['name'])
+            self.mobility.with_user(user).eu_survey_attachment_ids.read(['name'])
+
     def test_follow_up_only_in_own_mobility(self):
         with self.assertRaises(AccessError):
             self.env['ems.erasmus.group.log'].with_user(self.companion_user).create({
@@ -900,6 +1021,10 @@ class TestPortalErasmusGroup(HttpCase, ErasmusGroupMobilityCase):
         self.assertIn('o_ems_erasmus_group_withdraw', self.url_open('/my/erasmus').text)
         self._post(f'/my/erasmus/group/{self.mobility.id}/withdraw')
         self.assertEqual(registration.state, 'withdrawn')
+        # The 2026-11-05 usage test: a withdrawn card showed "Withdrawn" and "Enrolled" at once.
+        page = self.url_open('/my/erasmus').text
+        self.assertIn('o_ems_erasmus_group_withdrawn', page)
+        self.assertNotIn('o_ems_erasmus_group_registered', page)
 
     def test_student_of_another_group_is_kept_out(self):
         self.authenticate(self.afternoon_user.login, self.afternoon_user.login)
@@ -907,6 +1032,14 @@ class TestPortalErasmusGroup(HttpCase, ErasmusGroupMobilityCase):
         response = self._post(f'/my/erasmus/group/{self.mobility.id}/enrol')
         self.assertTrue(response.url.endswith('/my/home'))
         self.assertFalse(self.mobility.registration_ids)
+
+    def test_thanks_after_the_last_survey_even_with_nothing_else_to_show(self):
+        """The 2026-11-05 usage test: a teacher who answered their last pending survey was sent to the
+        portal's home and never saw the thanks."""
+        self.authenticate(self.afternoon_user.login, self.afternoon_user.login)
+        self.assertTrue(self.url_open('/my/erasmus').url.endswith('/my/home'))
+        page = self.url_open('/my/erasmus?satisfaction_answered=1')
+        self.assertIn('o_ems_erasmus_satisfaction_thanks', page.text)
 
     def test_never_another_students_enrolment_or_file(self):
         self._approved()
@@ -985,7 +1118,9 @@ class TestPortalErasmusGroup(HttpCase, ErasmusGroupMobilityCase):
             'name': reserve.partner_id.name, 'login': 'test_group_portal_reserve', 'password': 'test_group_portal_reserve',
             'partner_id': reserve.partner_id.id, 'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])]})
         self.authenticate(user.login, user.login)
-        self.assertIn('o_ems_erasmus_group_result_reserve', self.url_open('/my/erasmus').text)
+        card = self.url_open('/my/erasmus').text
+        self.assertIn('o_ems_erasmus_group_result_reserve', card)
+        self.assertNotIn('o_ems_erasmus_group_registered', card, "The result, not also 'Enrolled'.")
         response = self.url_open(f'/my/erasmus/group/{self.mobility.id}')
         self.assertFalse(response.url.endswith(f'/my/erasmus/group/{self.mobility.id}'))
 
@@ -1006,6 +1141,26 @@ class TestPortalErasmusGroup(HttpCase, ErasmusGroupMobilityCase):
         self._post(f'/my/erasmus/group/{self.mobility.id}/reserve/renounce', reason='I found a job')
         self.assertEqual((first.result, first.renounce_reason), ('renounced', 'I found a job'))
         self.assertEqual(second.reserve_position, 1)
+
+    def test_portal_tells_a_proposed_reserve_and_what_the_team_uploads(self):
+        """The 2026-11-05 usage test: a reserve proposed for a place did not know; documents the team
+        uploads showed a red "Missing"; and what does not apply was listed."""
+        registrations = self._approved()
+        selected = registrations.filtered(lambda registration: registration.partner_id == self.students[0])
+        reserve = registrations.filtered(lambda registration: registration.result == 'reserve').sorted('rank')[:1]
+        user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': reserve.partner_id.name, 'login': 'test_group_portal_proposed', 'lang': 'en_US',
+            'password': 'test_group_portal_proposed', 'partner_id': reserve.partner_id.id,
+            'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])]})
+        self.authenticate(self.student_user.login, self.student_user.login)
+        page = self.url_open(f'/my/erasmus/group/{self.mobility.id}').text
+        self.assertIn('o_ems_erasmus_team_pending', page, "The grant agreement, before the team uploads it.")
+        self.assertNotIn('Authorisation for minors to travel abroad', page, "Not for an adult.")
+        self.assertNotIn('o_ems_erasmus_group_registered', self.url_open('/my/erasmus').text)
+        selected.with_user(self.leader_user).action_renounce('Cannot travel')
+        self.mobility.with_user(self.leader_user).action_propose_substitution()
+        self.authenticate(user.login, user.login)
+        self.assertIn('o_ems_erasmus_group_substitution_proposed', self.url_open('/my/erasmus').text)
 
     def test_student_and_family_accept_the_letter_on_the_portal(self):
         family = self._family()

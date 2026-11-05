@@ -563,6 +563,18 @@ class TestErasmusResolutionNotices(ErasmusResolutionCase):
         first.offer_ids.action_accept()
         self.assertEqual((self.call.places_accepted, self.call.offers_pending), (1, 0))
 
+    def test_a_minors_application_receipt_goes_to_the_family_too(self):
+        """A minor's family is informed when the application is submitted (2026-11-05: no family
+        authorisation document is asked for to apply)."""
+        self.call.document_ids.filtered(lambda document: document.requirement == 'minor').unlink()
+        self._make_minor(self.second)
+        minor = self.env['ems.erasmus.application']._ems_portal_get_or_create(self.call, self.second)
+        upload(minor, self.cv)
+        minor.action_submit()
+        self.assertEqual(self._mails(minor).email_cc, 'notice.mother@example.com')
+        adult = self._admitted()
+        self.assertFalse(self._mails(adult).filtered('email_cc'), "An adult: no copy.")
+
     def test_answers_to_the_offer_are_confirmed_with_a_copy_to_a_minors_family(self):
         first, second = self._scored_call()
         self.call.modality_ids.places = 2

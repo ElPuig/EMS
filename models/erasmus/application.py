@@ -1044,7 +1044,7 @@ class EmsErasmusApplication(models.Model):
         self._ems_set_state('submitted')
         self.sudo().write({'submit_date': fields.Datetime.now()})
         self.document_ids.sudo().correction_requested = False
-        self._ems_send('ems.email_template_erasmus_application_submitted')
+        self._ems_mail(self, 'ems.email_template_erasmus_application_submitted', family_copy=True)
         corrected._ems_ask_review()
 
     # --- helpers -----------------------------------------------------------------------------
@@ -1110,8 +1110,8 @@ class EmsErasmusApplication(models.Model):
     def _ems_mail(self, records, xmlid, family_copy=False):
         """Email `xmlid` (a template of `records`' model: applications, resolution lines, offers,
         claims) to each applicant's own address; note it in the application's chatter when there is
-        none. `family_copy`: the family gets a copy (the result, the place offered and the answer to
-        it) whenever EMS keeps it informed about the student: a minor, or an adult who authorized
+        none. `family_copy`: the family gets a copy (the application's receipt, the result, the place
+        offered and the answer to it) whenever EMS keeps it informed about the student: a minor, or an adult who authorized
         sharing with it (res.partner._ems_informed_recipients)."""
         template = self.env.ref(xmlid, raise_if_not_found=False)
         if not template:
@@ -1126,8 +1126,12 @@ class EmsErasmusApplication(models.Model):
                 template.with_context(lang=partner.lang).sudo().send_mail(
                     record.id, force_send=False, email_values=email_values)
             else:
-                application = record if record._name == self._name else record.application_id
-                (application or record).sudo().chatter(_("No email sent: the applicant has no email address."))
+                # Noted where the team reads it: the application, or a group mobility's enrolment.
+                owner = record if record._name == self._name else (
+                    record['application_id'] if 'application_id' in record._fields else self.browse())
+                if not owner and 'group_registration_id' in record._fields:
+                    owner = record.group_registration_id
+                (owner or record).sudo().chatter(_("No email sent: the applicant has no email address."))
 
     def _ems_portal_remove_file(self, attachment_id):
         """The 2026-11-04 usage test: while the application is a draft, the applicant removes a file

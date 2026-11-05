@@ -48,7 +48,9 @@ class EmsPortalErasmusController(CustomerPortal):
     @http.route('/my/erasmus', type='http', auth='user', website=True)
     def portal_erasmus(self, **kwargs):
         partner = request.env.user.partner_id
-        if not partner._ems_erasmus_portal_visible():
+        # Right after answering the last pending satisfaction survey the page may have nothing else to
+        # show: it still opens, to thank them (the 2026-11-05 usage test, a teacher saw no thanks).
+        if not partner._ems_erasmus_portal_visible() and not kwargs.get('satisfaction_answered'):
             return request.redirect('/my/home')
         applications = partner._ems_erasmus_applications()
         calls = partner._ems_erasmus_calls() | applications.call_id

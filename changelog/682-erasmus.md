@@ -138,6 +138,16 @@
 - The Erasmus+ emails say where to go and link there: "on the school portal" for a student, "in EMS" (and the record itself) for a staff member, from the same template (ems.erasmus.mail.link).
 - Catalan and Spanish translations for the new screens, wizards, messages and the reworded emails; the staff "Apply" button has its own label ("Apply to the call") so it is no longer translated as Odoo's generic "Apply". The teachers' manual and the Erasmus team's and Direction's manuals describe the new screens.
 
+## Erasmus+ economic management of the projects (issue #762):
+
+- Each project now has an Economy tab (its first one) with the grant awarded, its amendments and the final grant, SEPIE's transfers (received and still to receive), what its mobilities and expenses commit, what has been paid, what is pending and what is available, plus the grant agreement and economic documents (category 03 of the project's documents, so they stay in its export). The call year comes from the agreement number and decides the organisational support rates (models/erasmus/economy.py, views/erasmus/economy/).
+- Every amount comes from what EMS already holds: a mobility's grant is a forecast while its destination is being defined (a group mobility, until its selection is approved) and committed once confirmed; the grant payments and the invoices paid out of it move it from pending to paid, never as a second expense; a grant change, a cancellation (only what was paid and not given back stays committed) or a change of project just recomputes. A group mobility has one "Group grant" for all its participants and accompanying teachers, counted once, and its collective invoices are what has been paid of it.
+- New project expenses (Financial management > Expenses) outside the participants' grants, in two categories (organisational support, other project expenses), with a reference, receipt and supplier: registered by the Erasmus team or the Secretary, paid by the Secretary with the same transfer wizard as grants and invoices, and once paid only changed through "Correct", which keeps the reason in its history.
+- Organisational support calculated participant by participant with the rates of the project's call year (Configuration > Organisational support rates: per action, kind of mobility, band of participants and minimum days), forecast on the planned mobilities and generated on the completed ones, never counting accompanying teachers; a justified manual correction, the support expenses and the difference between generated and spent, as an internal indicator.
+- Economic panel (Financial management > Economic panel): one row per project with awarded, committed, paid, available, support generated and warnings, filters by action and final payment, and a pivot view to compare calls; aggregated figures can be entered for projects managed before EMS. Warnings (never blocking) for commitments above the grant, expenses without receipt, payments to make, changes after payment, cancelled mobilities with money paid and participants without enough data for the organisational support.
+- "Export Excel" on each project: summary (the same figures as the panel), grants, payments and invoices with their receipts, expenses, organisational support and the grant's amendments and SEPIE's transfers.
+- Permissions enforced in the backend: the Erasmus team manages everything, the Secretary reads the budgets, registers and pays expenses and exports, the Director reads everything (including invoices and grant payments, never the participants' bank accounts) and changes nothing. Manuals for the Erasmus team, the Secretary and the Director, developer doc docs/en/developers/erasmus/economy.md, Catalan and Spanish translations.
+
 # Fixes
 
 ## Erasmus+ result and free-place emails reached Catalan and Spanish readers in English (2026-11-03):
@@ -223,6 +233,7 @@
 - Closes #685
 - Closes #686
 - Closes #687
+- Closes #762
 - Closes #697
 - Closes #701
 - Closes #702

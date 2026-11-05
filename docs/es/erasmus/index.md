@@ -19,6 +19,7 @@ Esta sección contiene los manuales para el **equipo Erasmus+**: la coordinació
 | [Preparar las movilidades](mobility-preparation.md) | Los proyectos del centro, destinos elegidos por turnos, destinos propios, entidades de acogida, documentos con quién los firma y los plazos, la carta de compromiso firmada en EMS, la firma electrónica de los convenios, la lista de pasos y el cierre de cada movilidad |
 | [Movilidades de grupo](group-mobilities.md) | Crear una movilidad de grupo, la inscripción del alumnado desde el portal, la clasificación, la aprobación de la selección, las renuncias, los expedientes y el cierre |
 | [Calidad Erasmus+](quality.md) | Los indicadores de interés y de satisfacción, la encuesta de satisfacción de los participantes, las puntuaciones bajas y sus acciones de mejora |
+| [Gestión económica de los proyectos](economy.md) | El panel económico, la subvención de cada proyecto, las transferencias del SEPIE, los compromisos y los pagos, los gastos del proyecto, el apoyo organizativo y la exportación a Excel |
 
 ---
 

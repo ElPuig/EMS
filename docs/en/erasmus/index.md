@@ -19,6 +19,7 @@ This section contains the manuals for the **Erasmus+ team**: the Erasmus coordin
 | [Preparing the mobilities](mobility-preparation.md) | The centre's projects, destinations chosen by turns, own destinations, host entities, documents with their signers and deadlines, the commitment letter signed in EMS, the electronic signature of the agreements, the checklist and closing each mobility |
 | [Group mobilities](group-mobilities.md) | Creating a group mobility, the students' enrolment from the portal, the ranking, approving the selection, withdrawals, the files and the closure |
 | [Erasmus+ quality](quality.md) | The interest and satisfaction indicators, the participants' satisfaction survey, the low scores and their improvement actions |
+| [Economic management of the projects](economy.md) | The economic panel, each project's grant, SEPIE's transfers, commitments and payments, the project's expenses, the organisational support and the Excel export |
 
 ---
 

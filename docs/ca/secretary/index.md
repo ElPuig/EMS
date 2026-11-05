@@ -30,6 +30,7 @@ Aquesta secció conté els manuals per al **personal de secretaria**.
 - [Importar alumnat des d'Esfera (SAGA)](student-import-esfera.md) — Actualitzar massivament les dades de l'alumnat ja matriculat (no confondre amb la importació de preinscripció GEDAC), què es fa coincidir/crea, i les limitacions conegudes de deduplicació.
 - [Actualitzar dades de l'alumnat des d'un CSV](student-update-csv.md) — Actualització massiva genèrica, de qualsevol format CSV, per a alumnat existent (mai en crea), amb columnes mapejables i actualització opcional del compte bancari.
 - [Aprovar les absències del personal PAS](absences.md) — Qui aprova les absències de l'àrea ASP i en què es diferencia de prefectura d'estudis.
+- [Erasmus+: despeses dels projectes i panell econòmic](erasmus-economy.md) — Registrar i pagar les altres despeses dels projectes Erasmus+, i consultar el pressupost de cada projecte.
 
 ## Temes previstos
 

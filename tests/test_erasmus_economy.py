@@ -278,6 +278,6 @@ class TestErasmusEconomyTour(ErasmusEconomyMixin, HttpCase, ErasmusGrantCase):
             'name': '2025-1-ES01-KA131-HED-000000762', 'kind': 'ka131_hed', 'budget': 5000})
         self._expense(project, 75, concept='Merchandising')
         self.secretary_user.lang = 'en_US'
-        self.start_tour('/odoo', 'ems_erasmus_economy_tour', login=self.secretary_user.login)
+        self.start_tour('/odoo/action-ems.action_erasmus_economy_panel', 'ems_erasmus_economy_tour', login=self.secretary_user.login)
         expense = self.env['ems.erasmus.expense'].search([('concept', '=', 'Tour dissemination service')])
         self.assertEqual((expense.project_id, expense.amount), (project, 120))

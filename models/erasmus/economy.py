@@ -42,8 +42,12 @@ GROUP_DONE_STATES = ('return', 'done')
 CALL_YEAR = re.compile(r'^\s*(20\d\d)-')
 
 
+def _is_manager(env):
+    return any(env.user.has_group(group) for group in ECONOMY_MANAGERS)
+
+
 def _check_manager(env):
-    if not env.su and not any(env.user.has_group(group) for group in ECONOMY_MANAGERS):
+    if not env.su and not _is_manager(env):
         raise AccessError(_("Only the Erasmus+ coordination changes the economic figures of a project."))
 
 
@@ -245,9 +249,7 @@ class EmsErasmusProject(models.Model):
 
     @api.depends_context('uid')
     def _compute_can_manage_economy(self):
-        manager = any(self.env.user.has_group(group) for group in ECONOMY_MANAGERS)
-        for project in self:
-            project.can_manage_economy = manager
+        self.can_manage_economy = _is_manager(self.env)
 
     @api.depends('name')
     def _compute_call_year(self):
@@ -726,9 +728,7 @@ class EmsErasmusExpense(models.Model):
 
     @api.depends_context('uid')
     def _compute_can_manage(self):
-        manager = any(self.env.user.has_group(group) for group in ECONOMY_MANAGERS)
-        for expense in self:
-            expense.can_manage = manager
+        self.can_manage = _is_manager(self.env)
 
     @api.constrains('amount')
     def _check_amount(self):

@@ -157,6 +157,17 @@ class TestErasmusEconomy(ErasmusEconomyMixin, ErasmusGrantCase):
         with self.assertRaises(AccessError):
             expense.with_user(self.secretary_user).action_correct()
 
+    def test_an_expense_transfer_is_undone_with_its_reason_and_a_cancelled_one_restored(self):
+        expense = self._expense(self.project, 300)
+        self._pay(expense, self.secretary_user)
+        self._undo(expense, self.secretary_user, reason='Wrong expense')
+        self.assertEqual((expense.state, self.project.paid_amount, self.project.available_amount), ('to_pay', 0, 9700))
+        self.assertIn('Wrong expense', expense.message_ids[0].body)
+        expense.with_user(self.erasmus_user).action_cancel()
+        expense.with_user(self.erasmus_user).action_restore()
+        self.assertEqual((expense.state, self.project.available_amount), ('to_pay', 9700))
+        self.assertTrue(expense.activity_ids, "Restored, it is a task for the Secretary again.")
+
     def test_a_cancelled_expense_counts_nothing(self):
         expense = self._expense(self.project, 300)
         expense.with_user(self.erasmus_user).action_cancel()

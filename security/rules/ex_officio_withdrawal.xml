@@ -13,7 +13,8 @@
         </record>
 
         <!-- Coexistence (COCOBE), Guidance and the Head of Studies / Director: every case file.
-             Opening one stays within the tutor scope (perm_create off). -->
+             Opening one stays within the tutor scope (perm_create off; developer, 2026-11-04).
+             The administrators (academic and Settings) have every case file below. -->
         <record id="rule_ex_officio_withdrawal_reader" model="ir.rule">
             <field name="name">Ex officio withdrawal: centre-wide</field>
             <field name="model_id" ref="ems.model_ems_ex_officio_withdrawal"/>
@@ -26,7 +27,7 @@
         <record id="rule_ex_officio_withdrawal_admin" model="ir.rule">
             <field name="name">Ex officio withdrawal: administrator</field>
             <field name="model_id" ref="ems.model_ems_ex_officio_withdrawal"/>
-            <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_academic_admin')), (4, ref('base.group_system'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>
 
@@ -51,7 +52,7 @@
         <record id="rule_ex_officio_withdrawal_step_admin" model="ir.rule">
             <field name="name">Ex officio withdrawal step: administrator</field>
             <field name="model_id" ref="ems.model_ems_ex_officio_withdrawal_step"/>
-            <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_academic_admin')), (4, ref('base.group_system'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>
         <record id="rule_ex_officio_withdrawal_review_tutor" model="ir.rule">
@@ -71,7 +72,7 @@
         <record id="rule_ex_officio_withdrawal_review_admin" model="ir.rule">
             <field name="name">Ex officio withdrawal review: administrator</field>
             <field name="model_id" ref="ems.model_ems_ex_officio_withdrawal_review"/>
-            <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_academic_admin')), (4, ref('base.group_system'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>
 
@@ -96,7 +97,7 @@
         <record id="rule_ex_officio_withdrawal_check_admin" model="ir.rule">
             <field name="name">Ex officio withdrawal check: administrator</field>
             <field name="model_id" ref="ems.model_ems_ex_officio_withdrawal_check"/>
-            <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_academic_admin')), (4, ref('base.group_system'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>
     </data>

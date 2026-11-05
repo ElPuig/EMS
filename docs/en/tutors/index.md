@@ -29,6 +29,7 @@ This section contains the manuals for **group tutors**.
 | [Attendance Reports](attendance-reports.md) | Print the 3 PDF attendance reports (by group/student/subject) and explore attendance data yourself with the Attendance analysis pivot/graph screen |
 | [Your Students' Attendance Issues Report](attendance-issues-report.md) | Your students' absences and delays in your daily summary, and choosing when they arrive |
 | [A Student's Expected Withdrawal](withdrawal-expected.md) | Taking a student who is leaving the centre off the roll-calls while their withdrawal is processed, so they don't pile up absences, and undoing it if they don't leave after all |
+| [A Student's Ex Officio Withdrawal](ex-officio-withdrawal.md) | What to do when a student stops coming: the proposal, your step (the phone call and the email to the family) and what happens if the roll-calls say otherwise |
 | [A Group's Weekly Schedule](../admin/group-schedule.md) | View a group's aggregated timetable (subjects, teachers, classrooms, breaks) and export it to PDF |
 | [A Student's Weekly Schedule](../admin/student-schedule.md) | View one of your tutorands' own timetable (subjects, teachers, classrooms, breaks), including overlapping classes, and export it to PDF |
 | [A Student's Public and Private Notes](../teachers/student-notes.md) | Where every teacher reads a student's public notes, and who can read and write the private tutoring ones |

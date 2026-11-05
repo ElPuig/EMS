@@ -6,7 +6,7 @@
                   name="Ex officio withdrawals"
                   parent="menu_ems_academic_management"
                   action="action_ex_officio_withdrawal"
-                  groups="ems.group_tutor,ems.group_student_data_reader,ems.group_secretary,ems.group_academic_admin"
+                  groups="ems.group_tutor,ems.group_student_data_reader,ems.group_secretary,ems.group_academic_admin,base.group_system"
                   sequence="16"/>
     </data>
 </odoo>

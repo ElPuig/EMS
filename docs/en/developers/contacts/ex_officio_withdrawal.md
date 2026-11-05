@@ -272,23 +272,35 @@ Measured on the dev database (11 open case files, 2026-11-04): 37 ms cold.
 
 | Role | Sees | Does |
 |---|---|---|
-| Tutor (and the chain above them: `tutor_scope_user_ids`) | Their students' case files | Opens one, starts or dismisses it |
+| Tutor (and the chain above them: `tutor_scope_user_ids`) | Their students' case files | Opens one for their students, starts or dismisses it, their steps, reviews the roll-calls |
 | Coexistence (COCOBE), Guidance | All | Read; the Coexistence coordinator does its steps |
-| Head of Studies / Deputy, Director | All | Open, start, dismiss; the tutor's and Coexistence's steps; the Director, Direction's |
-| Secretariat | All | Its steps |
-| Academic administrator | All | Everything, deletion included |
+| Head of Studies / Deputy, Director | All | Open one only within their own chain (tutor scope); start, dismiss, review the roll-calls and do the tutor's and Coexistence's steps of any case file; the Director, Direction's |
+| Secretariat | All | Its steps; processes the withdrawal |
+| Academic administrator, Settings administrator (`base.group_system`) | All | Everything, deletion included; processing the withdrawal needs the withdrawal wizard (academic administrator) |
 | Other teachers | None | - |
 
 Record rules: `security/rules/ex_officio_withdrawal.xml` (tutor scope for `ems.group_tutor`,
-everything for `ems.group_student_data_reader`, `ems.group_secretary` and
-`ems.group_academic_admin`). Who may start or dismiss a proposal: `can_decide_proposal`
-(non-stored, `depends_context('uid')`), checked again on the server.
+read and write, not create, for `ems.group_student_data_reader` and `ems.group_secretary`, and
+everything for `ems.group_academic_admin` and `base.group_system`). Who may open one:
+`_ems_user_may_open_for()` (the request button, the new-file picker); who may start or dismiss a
+proposal or review its roll-calls: `can_decide_proposal`, `can_review` (non-stored,
+`depends_context('uid')`, `_ems_user_acts_as('tutor')`), checked again on the server. The
+administrators: `_ems_user_is_admin()`. Audited 2026-11-04 with one user per role of
+`tests/common.py` against every button the case file offers: 0 mismatches.
 
 ## Screens
 
-- *Academic management > Ex officio withdrawals*: list (open ones by default) and form, with the
-  Actions dropdown (Start the procedure, Dismiss, Accept and continue). The form has three parts
-  under the header:
+- *Academic management > Ex officio withdrawals*: list (open ones by default; the current step by
+  its name, the step's `display_name`) and form, with the Actions dropdown (Start the procedure,
+  Dismiss, Accept and continue, Process the withdrawal, Close without a withdrawal, Print the case
+  file; a single applicable entry shows as a button of its own). The form has these parts under
+  the header:
+  - **The roll-calls to review** (phase 6, above the rest): the attendances to check, a warning
+    with *They did come* / *It was a mistake* on each row (for whoever `can_review`; a one-line
+    notice for everybody else), and the justified absences, with *Close: the absences are
+    justified* / *Go on* below them. The two row buttons take the place of a status column and
+    stay whole side by side through `static/src/css/backend/ex_officio_withdrawal.css`: without
+    it Odoo caps a list's button cells at 32px and their text wraps word by word.
   - **The responsible's block** (`can_accept_step`): `current_step_instructions`, what to do
     (`_step_instructions()`, per circuit and step), from which day and before which one (the next
     step's day), and whether it is not open yet or late; the current step's checks
@@ -301,9 +313,10 @@ everything for `ems.group_student_data_reader`, `ems.group_secretary` and
   - **The history** (`history_html`, read-only): every step in order with its due day (and, below it
     in grey, the protocol's day when a late step moved it) and when it was really done and by whom,
     each check with its day and the notes; the current one in bold and the pending ones greyed out.
-- A new case file only offers the students the user may open one for (`student_domain`): their
-  tutor scope's students (all of them for the Head of Studies and the administrators) whose level
-  has a circuit.
+- A new case file only offers the students the user may open one for (`student_domain`, as ids
+  found with sudo, so the picker needs no read access to groups and levels): their tutor scope's
+  students (the Head of Studies' too: only within their chain; all of them for the
+  administrators) whose level has a circuit.
 - Student form: smart button with the student's case files, and *Request ex officio withdrawal*
   in its Actions dropdown (`res.partner.can_request_ex_officio_withdrawal`: a student whose level
   has a circuit and no open case file, for the same people who may open one; checked again by

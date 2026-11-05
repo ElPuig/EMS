@@ -122,11 +122,12 @@
                                     if they came, the case file closes; if it was a mistake, the roll-call becomes an
                                     absence. The case file does not go on until every one is checked.
                                 </p>
-                                <field name="attendance_review_ids" nolabel="1" readonly="1">
+                                <!-- Both buttons whole on the row (static/src/css/backend/ex_officio_withdrawal.css):
+                                     Odoo otherwise squeezes a list's button cells until their text wraps. -->
+                                <field name="attendance_review_ids" nolabel="1" readonly="1" class="o_ems_attendance_review">
                                     <list create="0" delete="0">
                                         <field name="date"/>
                                         <field name="session_label"/>
-                                        <field name="status_id"/>
                                         <button name="action_came_back" type="object" string="They did come" icon="fa-check"
                                                 class="btn-link" confirm="The case file closes: the student is back."/>
                                         <button name="action_mark_absent" type="object" string="It was a mistake" icon="fa-times"
@@ -284,7 +285,7 @@
             <field name="context">{'search_default_open': 1}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">No ex officio withdrawal case files</p>
-                <p>A tutor opens one when a student of theirs stops coming to the centre.</p>
+                <p>EMS proposes one when a student misses 5 school days in a row; their tutor can also request it from the student's form.</p>
             </field>
         </record>
 

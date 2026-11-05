@@ -21,6 +21,9 @@ Navega a: **Configuració → EMS Management → Configuració de convalidacions
 Només l'alumnat dels estudis d'aquests nivells pot sol·licitar convalidacions, des del portal o a través de la secretaria. Una instal·lació nova comença amb **CFGM** i **CFGS**.
 
 1. A **Nivells que admeten convalidacions**, afegeix o treu nivells.
+
+   ![Nivells que admeten convalidacions a la configuració](../../assets/admin/convalidations-settings-levels.png)
+
 2. Desa.
 
 ---

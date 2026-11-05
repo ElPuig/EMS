@@ -302,11 +302,8 @@ class EmsExOfficioWithdrawal(models.Model):
     def _compute_can_decide_proposal(self):
         """The student's tutor and the chain above them (tutor scope), the Head of Studies (and
         the Director, who implies it), and the administrators, always on top."""
-        manages = self._ems_user_manages()
-        base = self.env['ems.base']
         for withdrawal in self:
-            withdrawal.can_decide_proposal = withdrawal.state == 'proposal' and (
-                manages or base.user_acts_as_tutor(withdrawal.student_id.sudo().tutor_id))
+            withdrawal.can_decide_proposal = withdrawal.state == 'proposal' and withdrawal._ems_user_acts_as('tutor')
 
     @api.depends('state', 'current_step_id')
     @api.depends_context('uid')
@@ -324,8 +321,9 @@ class EmsExOfficioWithdrawal(models.Model):
         for withdrawal in self:
             step = withdrawal.current_step_id
             open_step = withdrawal.can_accept_step and withdrawal._ems_current_step_open()
+            # Processed with the student's withdrawal wizard: only for whoever may use it.
             withdrawal.can_process_withdrawal = open_step and step.code == 'withdrawal' \
-                and not withdrawal.attendance_pending \
+                and not withdrawal.attendance_pending and self.env['ems.withdrawal_wizard'].has_access('create') \
                 and all(step.check_ids.mapped('done'))
             withdrawal.can_close_without_withdrawal = open_step and step.code == 'direction_approval'
 
@@ -488,11 +486,14 @@ class EmsExOfficioWithdrawal(models.Model):
     @api.depends('state')
     @api.depends_context('uid')
     def _compute_student_domain(self):
+        """As the students' ids, found in one search with sudo: the picker's domain must not need
+        read access to groups and levels, which the Settings administrator does not have."""
         domain = self._ems_circuit_student_domain()
-        if not self._ems_user_manages():
+        if not self._ems_user_is_admin():
             domain.append(('tutor_id.tutor_scope_user_ids', '=', self.env.uid))
+        allowed = str([('id', 'in', self.env['res.partner'].sudo().search(domain).ids)])
         for withdrawal in self:
-            withdrawal.student_domain = str(domain)
+            withdrawal.student_domain = allowed
 
     @api.depends('review_ids.kind', 'review_ids.state')
     def _compute_review_pending(self):
@@ -528,7 +529,7 @@ class EmsExOfficioWithdrawal(models.Model):
         students = self.env['res.partner'].browse([vals['student_id'] for vals in vals_list]).sudo()
         for vals, student in zip(vals_list, students):
             group = student.main_group_id
-            level = group.study_id.level_id or group.level_id
+            level = self._ems_student_level(student)
             circuit = self._ems_circuit_for_level(level)
             if not circuit:
                 raise UserError(_("%(student)s's level is not of compulsory nor post-compulsory education: no ex "
@@ -589,10 +590,7 @@ class EmsExOfficioWithdrawal(models.Model):
     def action_dismiss(self, note):
         """The tutor dismisses the proposal, saying why."""
         self._ems_check_can_decide_proposal()
-        self.sudo().write({'state': 'cancelled', 'cancel_reason': 'dismissed', 'cancel_note': note})
-        self._ems_close_tasks()
-        for withdrawal in self:
-            withdrawal._message_log(body=_("Proposal dismissed: %(note)s", note=note))
+        self._ems_cancel('dismissed', note, _("Proposal dismissed: %(note)s", note=note))
 
     def action_accept_step(self):
         """The current step is done: never before its day, and only with every off-EMS action it
@@ -671,11 +669,9 @@ class EmsExOfficioWithdrawal(models.Model):
             raise UserError(_("Only Direction can close the case file at its step."))
         if reason not in ('came_back', 'justified'):
             raise UserError(_("Say why the case file closes without a withdrawal."))
-        self.sudo().write({'state': 'cancelled', 'cancel_reason': reason, 'cancel_note': note})
-        self._ems_close_tasks()
         reasons = dict(self._fields['cancel_reason']._description_selection(self.env))
-        self._message_log(body=_("Closed by Direction without a withdrawal: %(reason)s. %(note)s",
-                                 reason=reasons[reason], note=note))
+        self._ems_cancel(reason, note, _("Closed by Direction without a withdrawal: %(reason)s. %(note)s",
+                                         reason=reasons[reason], note=note))
 
     @api.model
     def _ems_on_student_exit(self, students, kind, mode):
@@ -695,12 +691,9 @@ class EmsExOfficioWithdrawal(models.Model):
             ready._ems_close_tasks()
             ready._message_log(body=_("Ex officio withdrawal processed: the student has left the centre."))
             withdrawals -= ready
-        reason = 'expelled' if kind == 'expulsion' else 'voluntary'
-        for withdrawal in withdrawals:
-            withdrawal.write({'state': 'cancelled', 'cancel_reason': reason,
-                              'cancel_note': _("The student left the centre before the procedure ended.")})
-            withdrawal._ems_close_tasks()
-            withdrawal._message_log(body=_("Cancelled: the student left the centre before the procedure ended."))
+        withdrawals._ems_cancel('expelled' if kind == 'expulsion' else 'voluntary',
+                                _("The student left the centre before the procedure ended."),
+                                _("Cancelled: the student left the centre before the procedure ended."))
 
     @api.model
     def _cron_ems_due_step_tasks(self):
@@ -734,6 +727,14 @@ class EmsExOfficioWithdrawal(models.Model):
                 last=format_date(self.env, days[-1])))
 
     @api.model
+    def _ems_attended_statuses(self):
+        """The roll-call statuses that mean the student was there: every one of the attendance
+        category (a minor delay, an issue) and the severe delay, archived ones included (old lines
+        keep them). Detection breaks a run on them and a case file checks them."""
+        return self.env['ems.attendance_status'].sudo().with_context(active_test=False).search([
+            '|', ('category', '=', 'assistance'), ('id', '=', self.env.ref('ems.attendance_status_delayed_severe').id)])
+
+    @api.model
     def _ems_absence_runs(self, since, until):
         """The days each student who could get a proposal has missed in a row, up to `until`: the
         days after their last attendance (or delay) and after their last case file closed, on which
@@ -748,16 +749,16 @@ class EmsExOfficioWithdrawal(models.Model):
             return {}
         closed = dict(Withdrawal._read_group([('student_id', 'in', students.ids), ('closed_date', '!=', False)],
                                              ['student_id'], ['closed_date:max']))
+        attended = self._ems_attended_statuses()
+        justified = self.env.ref('ems.attendance_status_justified')
         self.env['ems.attendance_session_line'].flush_model(['student_id', 'date', 'status_id', 'active',
                                                              'session_active'])
-        self.env['ems.attendance_status'].flush_model(['category'])
         self.env.cr.execute("""
             WITH days AS (
                 SELECT line.student_id, line.date,
-                       bool_or(status.category = 'assistance' OR line.status_id = %(severe)s) AS attended,
-                       bool_and(status.category = 'absence' AND line.status_id NOT IN %(not_missed)s) AS missed
+                       bool_or(line.status_id IN %(attended)s) AS attended,
+                       bool_and(line.status_id NOT IN %(not_missed)s) AS missed
                   FROM ems_attendance_session_line line
-                  JOIN ems_attendance_status status ON status.id = line.status_id
                  WHERE line.active AND line.session_active AND line.student_id = ANY(%(students)s)
                    AND line.date BETWEEN %(since)s AND %(until)s
                  GROUP BY line.student_id, line.date
@@ -769,9 +770,7 @@ class EmsExOfficioWithdrawal(models.Model):
              WHERE days.missed AND (last_attended.date IS NULL OR days.date > last_attended.date)
              GROUP BY days.student_id
         """, {
-            'severe': self.env.ref('ems.attendance_status_delayed_severe').id,
-            'not_missed': (self.env.ref('ems.attendance_status_delayed_severe').id,
-                           self.env.ref('ems.attendance_status_justified').id),
+            'attended': tuple(attended.ids), 'not_missed': tuple((attended | justified).ids),
             'students': students.ids, 'since': since, 'until': until,
         })
         closed_by_student = {student.id: day for student, day in closed.items()}
@@ -794,11 +793,9 @@ class EmsExOfficioWithdrawal(models.Model):
         if not withdrawals:
             return
         justified = self.env.ref('ems.attendance_status_justified')
-        statuses = self.env['ems.attendance_status'].search([
-            '|', ('category', '=', 'assistance'), ('id', 'in', [self.env.ref('ems.attendance_status_delayed_severe').id,
-                                                                 justified.id])])
         lines = self.env['ems.attendance_session_line'].sudo().search([
-            ('student_id', 'in', withdrawals.student_id.ids), ('status_id', 'in', statuses.ids),
+            ('student_id', 'in', withdrawals.student_id.ids),
+            ('status_id', 'in', (self._ems_attended_statuses() | justified).ids),
             ('date', '>=', min(withdrawals.mapped('first_absence_date'))),
             ('active', '=', True), ('session_active', '=', True),
             ('attendance_session_id.end_date', '<=', fields.Datetime.now())])
@@ -864,9 +861,7 @@ class EmsExOfficioWithdrawal(models.Model):
         days = self.justification_review_ids._ems_days()
         note = _("Absences justified on %(days)s.", days=days)
         self.justification_review_ids.sudo().state = 'cancelled_case'
-        self.sudo().write({'state': 'cancelled', 'cancel_reason': 'justified', 'cancel_note': note})
-        self._ems_close_tasks()
-        self._message_log(body=_("Cancelled by the tutor: %(note)s", note=note))
+        self._ems_cancel('justified', note, _("Cancelled by the tutor: %(note)s", note=note))
 
     def action_keep_justified(self):
         """The tutor reviews the justified absences: the case file goes on as it was."""
@@ -917,7 +912,7 @@ class EmsExOfficioWithdrawal(models.Model):
         administrators always on top."""
         self.ensure_one()
         user = self.env.user
-        if self.env.su or user.has_group('ems.group_academic_admin') or user.has_group('base.group_system'):
+        if self._ems_user_is_admin():
             return True
         if responsible == 'tutor':
             return self._ems_user_manages() or self.env['ems.base'].user_acts_as_tutor(self.student_id.sudo().tutor_id)
@@ -946,6 +941,14 @@ class EmsExOfficioWithdrawal(models.Model):
             label = _("Ex officio withdrawal proposal")
         return f"{label}: {self.student_id.display_name}"
 
+    def _ems_cancel(self, reason, note, message):
+        """Close these case files without a withdrawal: why, the note, their tasks dropped and
+        `message` in their history."""
+        self.sudo().write({'state': 'cancelled', 'cancel_reason': reason, 'cancel_note': note})
+        self._ems_close_tasks()
+        for withdrawal in self:
+            withdrawal._message_log(body=message)
+
     def _ems_close_tasks(self):
         """Drop every pending task of the case file: what had to be done is done."""
         task_types = self.env.ref(PROPOSAL_TASK) | self.env.ref(STEP_TASK)
@@ -953,12 +956,23 @@ class EmsExOfficioWithdrawal(models.Model):
             task_types |= self.env.ref(xmlid)
         self.sudo().activity_ids.filtered(lambda activity: activity.activity_type_id in task_types).unlink()
 
+    @api.model
+    def _ems_user_may_open_for(self, student):
+        """Whoever may open a case file for `student`: the tutor and the chain above them (tutor
+        scope), and the administrators on top (developer, 2026-11-04: the Head of Studies only
+        within their own chain)."""
+        return self._ems_user_is_admin() or self.env['ems.base'].user_acts_as_tutor(student.sudo().tutor_id)
+
     def _ems_user_manages(self):
         """Whoever may act on every case file: the Head of Studies (the Director implies it) and
         the administrators."""
+        return self._ems_user_is_admin() or self.env.user.has_group('ems.group_head_of_studies')
+
+    def _ems_user_is_admin(self):
+        """The administrators, on top of every rule: the academic one and the Settings one
+        (base.group_system)."""
         user = self.env.user
-        return self.env.su or any(user.has_group(group) for group in (
-            'ems.group_head_of_studies', 'ems.group_academic_admin', 'base.group_system'))
+        return self.env.su or user.has_group('ems.group_academic_admin') or user.has_group('base.group_system')
 
     def _ems_check_can_decide_proposal(self):
         for withdrawal in self:
@@ -1039,6 +1053,12 @@ class EmsExOfficioWithdrawal(models.Model):
         return lines
 
     @api.model
+    def _ems_student_level(self, student):
+        """The level of `student`'s main group (its study's, when the group has one)."""
+        group = student.sudo().main_group_id
+        return group.study_id.level_id or group.level_id
+
+    @api.model
     def _ems_circuit_for_level(self, level):
         """The protocol a student of `level` follows, from its educational stage (False: none)."""
         return CIRCUIT_BY_STAGE.get(level.education_stage, False)
@@ -1106,6 +1126,7 @@ class EmsExOfficioWithdrawal(models.Model):
                 step.sudo().due_date = due
             previous, previous_day = step, due
 
+
 class EmsExOfficioWithdrawalStep(models.Model):
     """One step of a case file's protocol: who does it, by when, and what they did."""
     _name = 'ems.ex_officio_withdrawal.step'
@@ -1130,6 +1151,14 @@ class EmsExOfficioWithdrawalStep(models.Model):
                                     help="Its responsible already got the task (on its day).")
     # Stored, so the case file's current_check_ids can filter its checks on it.
     is_current = fields.Boolean(string="Current step", compute='_compute_is_current', store=True)
+
+    @api.depends('code')
+    @api.depends_context('lang')
+    def _compute_display_name(self):
+        """The step's name (the list's "Current step" column)."""
+        labels = dict(self._fields['code']._description_selection(self.env))
+        for step in self:
+            step.display_name = labels.get(step.code, '')
 
     @api.depends('withdrawal_id.current_step_id')
     def _compute_is_current(self):
@@ -1277,9 +1306,7 @@ class EmsExOfficioWithdrawalReview(models.Model):
         note = _("The student came on %(day)s (%(session)s).", day=format_date(self.env, self.date),
                  session=self.session_label)
         self.sudo().state = 'came_back'
-        withdrawal.sudo().write({'state': 'cancelled', 'cancel_reason': 'came_back', 'cancel_note': note})
-        withdrawal._ems_close_tasks()
-        withdrawal._message_log(body=_("Cancelled by the tutor: %(note)s", note=note))
+        withdrawal._ems_cancel('came_back', note, _("Cancelled by the tutor: %(note)s", note=note))
 
     def action_mark_absent(self):
         """The roll-call was a mistake: the line becomes the absence it was, noted on it and in
@@ -1424,7 +1451,8 @@ class EmsExOfficioWithdrawalPartner(models.Model):
     # Only for who may read case files at all; each sees the ones their rules let them.
     ex_officio_withdrawal_count = fields.Integer(
         string="Ex officio withdrawals", compute='_compute_ex_officio_withdrawal_count',
-        groups='ems.group_tutor,ems.group_student_data_reader,ems.group_secretary,ems.group_academic_admin')
+        groups='ems.group_tutor,ems.group_student_data_reader,ems.group_secretary,ems.group_academic_admin,'
+               'base.group_system')
 
     def _compute_ex_officio_withdrawal_count(self):
         counts = dict(self.env['ems.ex_officio_withdrawal']._read_group(
@@ -1447,23 +1475,18 @@ class EmsExOfficioWithdrawalPartner(models.Model):
         students = self.filtered(lambda partner: partner.contact_type == 'student' and partner.active)
         with_open = set(Withdrawal.sudo().search([('student_id', 'in', students._origin.ids),
                                                   ('state', 'in', OPEN_STATES)]).student_id.ids)
-        manages = Withdrawal._ems_user_manages()
-        base = self.env['ems.base']
         for partner in self:
-            student = partner.sudo()
-            group = student.main_group_id
             partner.can_request_ex_officio_withdrawal = (
                 partner in students and partner._origin.id not in with_open
-                and bool(Withdrawal._ems_circuit_for_level(group.study_id.level_id or group.level_id))
-                and (manages or base.user_acts_as_tutor(student.tutor_id)))
+                and bool(Withdrawal._ems_circuit_for_level(Withdrawal._ems_student_level(partner)))
+                and Withdrawal._ems_user_may_open_for(partner))
 
     def action_request_ex_officio_withdrawal(self):
         """Open a new case file for this student, to fill in the first day of absence."""
         self.ensure_one()
         if not self.can_request_ex_officio_withdrawal:
-            raise UserError(_("Only the student's tutor, the people above them and the Head of Studies can request "
-                              "an ex officio withdrawal, for a student whose level has a circuit and no open case "
-                              "file."))
+            raise UserError(_("Only the student's tutor and the people above them can request an ex officio "
+                              "withdrawal, for a student whose level has a circuit and no open case file."))
         return {
             'type': 'ir.actions.act_window',
             'name': _("Ex officio withdrawal"),

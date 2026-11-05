@@ -45,6 +45,8 @@ class TestExOfficioWithdrawal(TransactionCase):
         (cls.post_group | cls.comp_group | cls.none_group).tutor_id = cls.tutor
         cls.director_user = create_role_user(cls, 'director', 'test_eow_director', name='EOW Director')
         cls.admin_user = create_role_user(cls, 'academic_admin', 'test_eow_admin', name='EOW Admin')
+        cls.settings_admin_user = create_role_user(cls, 'settings_admin', 'test_eow_settings_admin',
+                                                   name='EOW Settings Admin')
         # A Coexistence coordinator under the tutor's own Head of Studies, and one under another.
         role_coexistence = cls.env.ref('ems.role_coexistence')
         create_role_employee(cls, cls.coexistence_user, parent_id=cls.head_of_studies.employee_id.id,
@@ -110,6 +112,8 @@ class TestExOfficioWithdrawal(TransactionCase):
             date(2042, 1, 8), date(2042, 1, 15), date(2042, 1, 22), date(2042, 1, 22)])
         self.assertEqual(case_file.step_ids.mapped('responsible'),
                          ['tutor', 'secretariat', 'direction', 'secretariat'])
+        self.assertEqual(case_file.current_step_id.display_name, 'Contact with the family',
+                         "The list's Current step column names it")
 
     def test_compulsory_deadlines_are_calendar_days_and_months(self):
         case_file = self._open(self.comp_student, date(2041, 3, 4))
@@ -154,14 +158,6 @@ class TestExOfficioWithdrawal(TransactionCase):
         first.action_dismiss('A test reason')
         self._open(self.post_student, date(2041, 12, 18))
 
-    def test_start_moves_to_in_progress_once(self):
-        case_file = self._open(self.post_student, date(2041, 12, 17))
-        case_file.action_start()
-        self.assertEqual(case_file.state, 'in_progress')
-        self.assertEqual(case_file.current_step_id.code, 'tutor_contact')
-        with self.assertRaises(UserError):
-            case_file.action_start()
-
     def test_dismiss_wizard_cancels_with_the_reason(self):
         case_file = self._open(self.post_student, date(2041, 12, 17))
         wizard = self.env['ems.ex_officio_withdrawal.dismiss_wizard'].with_user(self.tutor_user).create({
@@ -198,18 +194,24 @@ class TestExOfficioWithdrawal(TransactionCase):
             self._open(self.post_student, date(2041, 12, 17), user=self.other_tutor_user)
         with self.assertRaises(AccessError):
             self._open(self.post_student, date(2041, 12, 17), user=self.secretary_user)
+        with self.assertRaises(AccessError):
+            self._open(self.post_student, date(2041, 12, 17), user=self.other_head_of_studies)
         self._open(self.post_student, date(2041, 12, 17), user=self.department_chief)
+        self._open(self.comp_student, date(2041, 12, 17), user=self.settings_admin_user)
 
     def test_who_decides_the_proposal(self):
         case_file = self._open(self.post_student, date(2041, 12, 17))
-        for user in (self.tutor_user, self.department_chief, self.head_of_studies):
+        for user in (self.tutor_user, self.department_chief, self.head_of_studies, self.admin_user,
+                     self.settings_admin_user):
             self.assertTrue(case_file.with_user(user).can_decide_proposal, user.login)
         for user in (self.coexistence_user, self.secretary_user):
             self.assertFalse(case_file.with_user(user).can_decide_proposal, user.login)
             with self.assertRaises(UserError):
                 case_file.with_user(user).action_start()
         case_file.with_user(self.tutor_user).action_start()
-        self.assertEqual(case_file.state, 'in_progress')
+        self.assertEqual((case_file.state, case_file.current_step_id.code), ('in_progress', 'tutor_contact'))
+        with self.assertRaises(UserError):
+            case_file.action_start()
 
     def test_student_smart_button_count(self):
         self._open(self.post_student, date(2041, 12, 17))
@@ -266,13 +268,6 @@ class TestExOfficioWithdrawal(TransactionCase):
         self._accept(case_file, self.coexistence_user, date(2041, 3, 19))
         self.assertEqual(case_file.current_step_id.code, 'secretariat_notice')
 
-    def test_no_step_is_done_before_its_day(self):
-        case_file = self._open(self.post_student, date(2041, 12, 17))
-        case_file.action_start()
-        with self.assertRaises(UserError):
-            self._accept(case_file, self.tutor_user, date(2042, 1, 7))
-        self.assertFalse(case_file.step_ids[0].done_date)
-
     def test_who_does_each_step(self):
         case_file = self._open(self.post_student, date(2041, 12, 17))
         case_file.action_start()
@@ -324,7 +319,7 @@ class TestExOfficioWithdrawal(TransactionCase):
         self.assertIn('01/16/2042', body)
 
     def test_nothing_is_touched_before_the_step_opens(self):
-        """Before its day the block is read-only: no ticks, no notes, no button."""
+        """Before its day the block is read-only: no ticks, no notes, no button, no accepting it."""
         case_file = self._open(self.comp_student, date(2041, 3, 4))
         case_file.action_start()
         tutor_view = case_file.with_user(self.tutor_user)
@@ -338,6 +333,9 @@ class TestExOfficioWithdrawal(TransactionCase):
                 case_file.current_step_id.with_user(self.tutor_user).write({'notes': 'Too early'})
         with self._on(date(2041, 3, 10)), self.assertRaises(UserError):
             tutor_view.with_context(call_outcome='reached').action_open_contact()
+        with self._on(date(2041, 3, 10)), self.assertRaises(UserError):
+            tutor_view.action_accept_step()
+        self.assertFalse(case_file.step_ids[0].done_date)
         with self._on(date(2041, 3, 11)):
             self.assertTrue(tutor_view._ems_current_step_open())
             self.assertTrue(tutor_view.call_pending)
@@ -429,15 +427,20 @@ class TestExOfficioWithdrawal(TransactionCase):
         students = (self.post_student | self.comp_student | self.none_student | other_student).ids
         for user, expected in ((self.tutor_user, self.post_student | self.comp_student),
                                (self.other_tutor_user, other_student),
-                               (self.head_of_studies, self.post_student | self.comp_student | other_student)):
+                               (self.head_of_studies, self.post_student | self.comp_student),
+                               (self.other_head_of_studies, self.env['res.partner']),
+                               (self.admin_user, self.post_student | self.comp_student | other_student),
+                               (self.settings_admin_user, self.post_student | self.comp_student | other_student)):
             domain = eval(self.Withdrawal.with_user(user).new({}).student_domain)
             found = Partner.with_user(user).search(domain + [('id', 'in', students)])
             self.assertEqual(found, expected, user.login)
 
     def test_student_form_requests_an_ex_officio_withdrawal(self):
         self.assertTrue(self.post_student.with_user(self.tutor_user).can_request_ex_officio_withdrawal)
-        self.assertTrue(self.post_student.with_user(self.head_of_studies).can_request_ex_officio_withdrawal)
-        for user in (self.other_tutor_user, self.secretary_user, self.coexistence_user):
+        for user in (self.department_chief, self.head_of_studies, self.admin_user, self.settings_admin_user):
+            self.assertTrue(self.post_student.with_user(user).can_request_ex_officio_withdrawal, user.login)
+        # A Head of Studies only opens within their own chain (developer, 2026-11-04).
+        for user in (self.other_tutor_user, self.other_head_of_studies, self.secretary_user, self.coexistence_user):
             self.assertFalse(self.post_student.with_user(user).can_request_ex_officio_withdrawal, user.login)
             with self.assertRaises(UserError):
                 self.post_student.with_user(user).action_request_ex_officio_withdrawal()
@@ -677,7 +680,7 @@ class TestExOfficioWithdrawal(TransactionCase):
             self.assertEqual(withdrawal_wizard.withdrawal_mode, 'ex_officio')
             self.assertIn(case_file.name, withdrawal_wizard.exit_reason)
             withdrawal_wizard.action_apply()
-        self.assertEqual(case_file.state, 'done')
+        self.assertEqual((case_file.state, case_file.closed_date), ('done', date(2042, 1, 22)))
         self.assertEqual(case_file.step_ids[-1].done_by_id, self.secretary_user)
         self.assertFalse(case_file.activity_ids)
         student = self.post_student.with_context(active_test=False)
@@ -720,6 +723,17 @@ class TestExOfficioWithdrawal(TransactionCase):
         self.assertEqual((case_file.state, case_file.cancel_reason), ('cancelled', 'voluntary'))
         student = self.post_student.with_context(active_test=False)
         self.assertEqual((student.exit_type, student.withdrawal_mode), ('withdrawal', 'voluntary'))
+
+    def test_an_expulsion_cancels_the_open_case_file(self):
+        case_file = self._open(self.post_student, date(2041, 12, 17))
+        case_file.action_start()
+        self._withdrawal_wizard(self.secretary_user, {
+            'active_model': 'res.partner', 'active_ids': self.post_student.ids,
+            'default_exit_kind': 'expulsion'}).action_apply()
+        self.assertEqual((case_file.state, case_file.cancel_reason), ('cancelled', 'expelled'))
+        self.assertFalse(case_file.activity_ids)
+        student = self.post_student.with_context(active_test=False)
+        self.assertEqual((student.exit_type, student.withdrawal_mode), ('expulsion', False))
 
     # --- phase 5: detection in the roll-calls -------------------------------------------------
 
@@ -875,7 +889,7 @@ class TestExOfficioWithdrawal(TransactionCase):
 
     def test_a_teacher_correcting_the_roll_call_drops_the_check(self):
         case_file = self._started()
-        self._roll_call(self.post_student, date(2041, 3, 6), 'attended')
+        self._roll_call(self.post_student, date(2041, 3, 6), 'delayed_severe')
         self._collect(date(2041, 3, 6))
         self.assertTrue(case_file.attendance_pending)
         self._line_of(self.post_student, date(2041, 3, 6)).status_id = self.env.ref('ems.attendance_status_miss')

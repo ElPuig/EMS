@@ -54,7 +54,7 @@
                     </button>
                     <button name="action_view_ex_officio_withdrawals" type="object" class="oe_stat_button" icon="fa-user-times"
                             invisible="contact_type != 'student' or ex_officio_withdrawal_count == 0"
-                            groups="ems.group_tutor,ems.group_student_data_reader,ems.group_secretary,ems.group_academic_admin">
+                            groups="ems.group_tutor,ems.group_student_data_reader,ems.group_secretary,ems.group_academic_admin,base.group_system">
                         <field name="ex_officio_withdrawal_count" widget="statinfo" string="Ex officio withdrawals"/>
                     </button>
                 </xpath>

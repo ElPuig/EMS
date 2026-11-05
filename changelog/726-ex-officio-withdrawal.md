@@ -40,6 +40,14 @@
 - A justified absence among the case file's days gives the tutor a task to review it, without stopping anything: close the case file (absences justified) or go on.
 - Only the tutor scope, the Head of Studies and the administrators review them; a teacher correcting the roll-call removes the pending check by itself. New model `ems.ex_officio_withdrawal.review`, one search per hourly run (37 ms on the dev database).
 
+## Ex officio withdrawal close (phase 7):
+
+- User manuals in Catalan, Spanish and English for tutors, the Secretariat and Direction / Head of Studies / Coexistence, with screenshots taken as each role on fictitious data (`tests/test_docs_screenshots_ex_officio_withdrawal.py`), plus the levels that allow convalidations in the settings manual.
+- Permission audit with one user per role against every button the case file offers: the Head of Studies and the Director were offered "Request ex officio withdrawal" and every student in the new-file picker, but could only open one within their chain; now both only offer that chain (developer's choice, 2026-11-04). The Settings administrator (`base.group_system`), counted as an administrator by the code but without any access, now has the academic administrator's full access to case files (developer's choice); processing the withdrawal still needs the withdrawal wizard. Re-run: 0 mismatches.
+- Fixes found on the screenshots: the list's current step showed a technical id (the step now has a display name); the attendances to check showed their buttons cut off (they now take the status column's place, whole, side by side; developer's choice); "Accepta i continua" in Catalan everywhere.
+- Quality audit: one helper each for who may act as the student's tutor, who may open a case file, the administrators, the student's level, cancelling a case file (five copies) and the statuses that count as attended (detection and reviews, the detection query without its join); two redundant tests merged; missing tests added (an expulsion, the administrator's rights, a severe delay to check, the closing day of a processed withdrawal).
+- Clean install checked on a throwaway database: levels with their stage, CFGM and CFGS allowing convalidations, every case file record and job created.
+
 # Changes
 
 ## Levels: tidier form, convalidations set in Settings:

@@ -4,7 +4,7 @@ from datetime import datetime
 
 from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import Form, TransactionCase
 
 from .common import create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email
 
@@ -118,6 +118,37 @@ class TestQualityMinute(TransactionCase):
                          "a closed agreement is not carried over")
         self.assertEqual(current.pending_topic_ids.mapped('name'), ['Still to discuss'])
         self.assertEqual(current.pending_topic_ids.carried_from_minute_id, previous)
+
+    def _minute_from_form(self):
+        """A minute created as the web client does: the readonly fields filled by the onchange
+        (the previous minute, where each topic comes from) reach the server only if they are
+        force-saved."""
+        with Form(self.env['ems.minute']) as form:
+            form.type_id = self.type
+            form.department_id = self.department
+            form.redactor_employee_id = self.env['hr.employee.public'].browse(self.employee.id)
+        return form.record
+
+    def test_pending_topics_are_carried_once_meeting_after_meeting(self):
+        """Issue #755: each minute created from the form carried its pending topics twice, and the
+        next one twice again."""
+        first = self._minute()
+        first.pending_topic_ids = [(0, 0, {'name': 'Projects jury'}), (0, 0, {'name': 'Room changes'})]
+        second = self._minute_from_form()
+        self.assertEqual(second.previous_minute_id, first)
+        self.assertEqual(sorted(second.pending_topic_ids.mapped('name')), ['Projects jury', 'Room changes'])
+        self.assertEqual(second.pending_topic_ids.carried_from_minute_id, first)
+        second.pending_topic_ids.filtered(lambda topic: topic.name == 'Room changes').is_done = True
+        third = self._minute_from_form()
+        self.assertEqual(third.previous_minute_id, second)
+        self.assertEqual(third.pending_topic_ids.mapped('name'), ['Projects jury'])
+
+    def test_a_topic_already_written_is_not_carried_again(self):
+        previous = self._minute()
+        previous.pending_topic_ids = [(0, 0, {'name': 'Projects jury'})]
+        current = self._minute(pending_topic_ids=[(0, 0, {'name': 'Projects jury'})], previous_minute_id=False)
+        current._ems_preload_previous()
+        self.assertEqual(current.pending_topic_ids.mapped('name'), ['Projects jury'])
 
     def test_carry_over_does_not_cross_scopes(self):
         other_department = self.env['hr.department'].create({'name': 'Minute Other Department'})
@@ -493,6 +524,82 @@ class TestQualityMinute(TransactionCase):
             with self.assertRaises(UserError):
                 minute.action_send_call()
         self.mail_transport.assert_not_called()
+
+    # --- Draft for the participants (issue #755) ------------------------------------------------
+
+    def _held_minute(self):
+        absentee = create_role_employee(self, create_role_user(self, 'teacher', 'minute.absent@example.com', name='Minute Absent Teacher'),
+                                        department_id=self.department.id)
+        absentee.work_email = 'minute.absent@example.com'
+        minute = self._minute(attendance_mode='manual')
+        minute.write({
+            'attendee_ids': [(6, 0, [self.employee.id])],
+            'absentee_ids': [(6, 0, [absentee.id])],
+            'guest_ids': [(0, 0, {'name': 'Ana', 'surname': 'Guest', 'email': 'ana.guest@example.com'}),
+                          (0, 0, {'name': 'Pau', 'surname': 'Away', 'email': 'pau.away@example.com', 'attended': False})],
+        })
+        minute.section_value_ids.filtered('required').content = "<p>Discussed.</p>"
+        minute.action_start_meeting()
+        return minute
+
+    def _draft_mails(self, minute):
+        return self.env['mail.mail'].sudo().search([('model', '=', 'ems.minute'), ('res_id', '=', minute.id),
+                                                    ('subject', 'like', 'Draft minute')])
+
+    def test_the_draft_goes_to_everybody_convened(self):
+        minute = self._held_minute()
+        minute.with_user(self.user).action_send_draft()
+        mails = self._draft_mails(minute)
+        staff = mails.filtered(lambda mail: 'minute.writer@example.com' in mail.email_to)
+        self.assertEqual(len(staff), 1)
+        self.assertIn('minute.absent@example.com', staff.email_to, "whoever was absent gets it too")
+        self.assertIn(f'/report/pdf/ems.report_minute/{minute.id}', staff.body_html, "the staff get the link to the draft's PDF")
+        self.assertFalse(staff.attachment_ids)
+        guest = mails.filtered(lambda mail: 'ana.guest@example.com' in mail.email_to)
+        self.assertEqual(len(guest), 1, "a guest gets a message of their own")
+        self.assertEqual(guest.attachment_ids.mimetype, 'application/pdf', "with the PDF attached, having no account")
+        self.assertNotIn('/report/pdf', guest.body_html)
+        self.assertTrue(mails.filtered(lambda mail: 'pau.away@example.com' in mail.email_to), "and so does a guest who did not come")
+        self.assertTrue(minute.message_ids.filtered(lambda message: 'Draft sent to 4 people' in (message.body or '')))
+
+    def test_the_draft_is_sent_with_the_minute_for_approval(self):
+        minute = self._held_minute()
+        wizard = self.env['ems.minute.submit.wizard'].with_user(self.user).create({'minute_id': minute.id, 'send_draft': True})
+        self.assertEqual(wizard.recipient_count, 4)
+        wizard.action_confirm()
+        self.assertEqual(minute.state, 'to_approve')
+        self.assertEqual(len(self._draft_mails(minute)), 3, "one for the staff, one per guest")
+        minute.with_user(self.user).action_send_draft()
+        self.assertEqual(len(self._draft_mails(minute)), 6, "and again while it waits for approval")
+
+    def test_sending_for_approval_without_the_draft(self):
+        minute = self._held_minute()
+        self.env['ems.minute.submit.wizard'].with_user(self.user).create({'minute_id': minute.id, 'send_draft': False}).action_confirm()
+        self.assertEqual(minute.state, 'to_approve')
+        self.assertFalse(self._draft_mails(minute))
+
+    def test_whoever_only_reads_the_minute_cannot_send_its_draft(self):
+        minute = self._held_minute()
+        other = self.env['hr.department'].create({'name': 'Minute Reader Department'})
+        reader = create_role_user(self, 'teacher', 'minute.draft.reader@example.com', name='Minute Draft Reader')
+        reader_employee = create_role_employee(self, reader, department_id=other.id)
+        minute.attendee_ids |= self.env['hr.employee.public'].browse(reader_employee.id)
+        self.assertTrue(minute.with_user(reader).search([('id', '=', minute.id)]), "an attendee reads it")
+        with self.assertRaises(AccessError):
+            minute.with_user(reader).action_send_draft()
+        with self.assertRaises(AccessError):
+            minute.with_user(reader).action_open_submit_dialog()
+
+    def test_no_draft_before_the_meeting_or_once_approved(self):
+        minute = self._minute()
+        with self.assertRaises(UserError):
+            minute.action_send_draft()
+        minute.action_start_meeting()
+        minute.section_value_ids.filtered('required').content = "<p>Discussed.</p>"
+        minute.action_submit()
+        minute.action_approve()
+        with self.assertRaises(UserError):
+            minute.action_send_draft()
 
     # --- Deleting ---------------------------------------------------------------------------------
 

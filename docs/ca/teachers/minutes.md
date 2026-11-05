@@ -142,7 +142,7 @@ mesura que avança la reunió.
   ![Bloc Acords durant la reunió: fitxa d'un acord amb data límit, persones responsables, persones implicades, contingut i descripció](../../assets/teachers/actes-08-acords.png)
 - **Temes pendents:** al final, com a llista.
 
-L'acta es desa sola mentre escriviu, a les pauses. **Obre l'esborrany de l'acta**, a dalt i a baix de la
+L'acta es desa sola mentre escriviu, a les pauses, sense moure el cursor d'on escriviu. **Obre l'esborrany de l'acta**, a dalt i a baix de la
 pantalla, mostra el PDF tal com quedaria, marcat com a esborrany, mentre l'acta és en reunió o pendent
 d'aprovar. Si cal tornar a canviar la data o els convocats, **Accions → Torna
 a la preparació**.
@@ -158,7 +158,14 @@ persones; es pot triar qualsevol altra escrivint-ne el nom o amb **Cerca més**.
 (1) Qui aprovarà l'acta.
 
 
-Quan l'acta estigui llesta, **Accions → Enviar a aprovar**. Qui hagi de donar el vistiplau la trobarà a la seva
+Quan l'acta estigui llesta, **Accions → Enviar a aprovar**. Un diàleg us demana que ho confirmeu i ofereix **Envia
+també l'esborrany als participants**, marcat. El rep tothom qui estava convocat, hi hagi assistit o no: el personal,
+un correu amb un enllaç al PDF de l'esborrany; els convidats de fora de l'EMS, el PDF adjunt. Així el poden revisar
+ara que tenen fresca la reunió i respondre amb qualsevol correcció abans que s'aprovi. Mentre es fa la reunió o l'acta
+espera l'aprovació, **Accions → Envia l'esborrany als participants** el torna a enviar (per exemple, després d'una
+correcció).
+
+Qui hagi de donar el vistiplau la trobarà a la seva
 pantalla amb la faceta *Pendents que jo aprovi*, i també rep la tasca *Aprovar l'acta* al seu
 [resum diari](daily-summary.md). En aprovar-la:
 

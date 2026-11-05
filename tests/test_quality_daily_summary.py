@@ -19,7 +19,8 @@ class TestQualityDailySummary(TransactionCase):
         super().setUpClass()
         cls.mail_transport = mock_outgoing_email(cls)
         # Notices and the follow-up's note are written in the source language in these tests.
-        centre_lang = patch.object(type(cls.env['ems.minute']), '_ems_centre_lang', lambda self: 'en_US')
+        centre_lang = patch.object(type(cls.env['res.company']), '_ems_centre_env',
+                                   lambda self: self.env(context=dict(self.env.context, lang='en_US')))
         centre_lang.start()
         cls.addClassCleanup(centre_lang.stop)
         cls.course = cls.env['ems.course'].search([('is_current', '=', True)], limit=1)

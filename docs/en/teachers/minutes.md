@@ -141,7 +141,7 @@ meeting goes on.
   ![Agreements block during the meeting: card of an agreement with deadline, responsible people, people involved, content and description](../../assets/teachers/actes-08-acords.png)
 - **Pending topics:** at the end, as a list.
 
-The minute saves itself while you write, in your pauses. **Open the draft of the minute**, at the top and
+The minute saves itself while you write, in your pauses, without moving the cursor from where you are writing. **Open the draft of the minute**, at the top and
 at the bottom of the screen, shows the PDF as it would come out, marked as a draft, while the minute is in
 the meeting or waiting for approval. To change the date or the people convened again, **Actions → Back to preparing
 the meeting**.
@@ -157,7 +157,13 @@ shows those people first; anybody else can be chosen by typing their name or wit
 (1) Who will approve the minute.
 
 
-When the minute is ready, **Actions → Send for approval**. Whoever gives the approval finds it on their own screen
+When the minute is ready, **Actions → Send for approval**. A dialog asks you to confirm it and offers **Also send the
+draft to the participants**, ticked. Everybody convened gets it, whether they came or not: the staff, an email with a
+link to the draft's PDF; the guests from outside EMS, the PDF attached. That way they can review it while the meeting
+is fresh and reply with any correction before it is approved. While the meeting is held or the minute waits for approval, **Actions → Send the
+draft to the participants** sends it again (for instance, after a correction).
+
+Whoever gives the approval finds it on their own screen
 under the *Awaiting my approval* facet, and also gets an *Approve the minute* task in their
 [daily summary](daily-summary.md). Approving it:
 

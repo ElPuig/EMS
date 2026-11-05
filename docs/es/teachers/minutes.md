@@ -142,7 +142,7 @@ rellenándolos a medida que avanza la reunión.
   ![Bloque Acuerdos durante la reunión: ficha de un acuerdo con fecha límite, personas responsables, personas implicadas, contenido y descripción](../../assets/teachers/actes-08-acords.png)
 - **Temas pendientes:** al final, como lista.
 
-El acta se guarda sola mientras escribís, en las pausas. **Abrir el borrador del acta**, arriba y abajo de
+El acta se guarda sola mientras escribís, en las pausas, sin mover el cursor de donde escribís. **Abrir el borrador del acta**, arriba y abajo de
 la pantalla, muestra el PDF tal como quedaría, marcado como borrador, mientras el acta está en reunión o
 pendiente de aprobar. Si hay que volver a cambiar la fecha o los convocados,
 **Acciones → Volver a la preparación**.
@@ -158,7 +158,14 @@ primero a esas personas; se puede elegir a cualquier otra escribiendo su nombre 
 (1) Quién aprobará el acta.
 
 
-Cuando el acta esté lista, **Acciones → Enviar a aprobar**. Quien tenga que dar el visto bueno la encontrará en su
+Cuando el acta esté lista, **Acciones → Enviar a aprobar**. Un diálogo os pide que lo confirméis y ofrece **Enviar
+también el borrador a los participantes**, marcado. Lo recibe todo el mundo que estaba convocado, haya asistido o
+no: el personal, un correo con un enlace al PDF del borrador; los invitados de fuera de EMS, el PDF adjunto. Así
+pueden revisarlo ahora que tienen fresca la reunión y responder con cualquier corrección antes de que se apruebe. Mientras se celebra
+la reunión o el acta espera la aprobación, **Acciones → Enviar el borrador a los participantes** lo vuelve a enviar
+(por ejemplo, después de una corrección).
+
+Quien tenga que dar el visto bueno la encontrará en su
 pantalla con la faceta *Pendientes de que yo apruebe*, y también recibe la tarea *Aprobar el acta* en su
 [resumen diario](daily-summary.md). Al aprobarla:
 

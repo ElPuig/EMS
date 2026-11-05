@@ -153,6 +153,7 @@ ACCESS_MATRIX = {
     # A minute's own lines carry no record rule of their own: the minute's rules decide who reaches them.
     'ems.minute.agenda': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
     'ems.minute.agreement.review': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
+    'ems.minute.submit.wizard': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
     'ems.minute.guest': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
     'ems.minute.member.line': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
     'ems.minute.objective.line': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},

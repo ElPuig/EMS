@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.45.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.46.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -73,6 +73,7 @@
         'security/rules/portal.xml',
         'security/rules/student_data_reader.xml',
         'security/rules/task_assignment.xml',
+        'security/rules/ex_officio_withdrawal.xml',
         'security/ir.model.access.csv',
 
 
@@ -350,6 +351,7 @@
             'views/academic_management/enrollment_configuration/enrollment_items_view.xml',
             'reports/authorizations/report_authorization_certificate.xml',
             'reports/contacts/report_google_credentials.xml',
+            'reports/contacts/report_ex_officio_withdrawal.xml',
             'reports/employees/report_google_credentials_employee.xml',
             'reports/employees/report_working_schedule.xml',
             'reports/employees/report_schedule_declaration.xml',
@@ -376,6 +378,8 @@
             'views/academic_management/task_assignment/menu.xml',
             'views/academic_management/convalidations/views.xml',
             'views/academic_management/convalidations/menu.xml',
+            'views/academic_management/ex_officio_withdrawal/views.xml',
+            'views/academic_management/ex_officio_withdrawal/menu.xml',
             'views/academic_management/convalidation_info_reason/list.xml',
             'views/academic_management/convalidation_info_reason/form.xml',
             'views/academic_management/convalidation_info_reason/menu.xml',
@@ -447,6 +451,7 @@
         'mails/erasmus/mobility.xml',
         'mails/erasmus/group_mobility.xml',
         'mails/erasmus/satisfaction.xml',
+        'mails/contacts/ex_officio_withdrawal.xml',
         'mails/shared/daily_summary.xml',
         'mails/contacts/contact_data_request.xml',
 
@@ -480,6 +485,7 @@
         'data/main/sign.oca.role-erasmus.csv',
         'data/main/ir.cron-daily_summary.csv',
         'data/main/ir.cron-preenrollment_period.csv',
+        'data/main/ir.cron-ex_officio_withdrawal.csv',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
         'data/main/ems.convalidation.info_reason.csv',

@@ -62,3 +62,15 @@ class TestActivitySnooze(TransactionCase):
         self.assertEqual(action['params']['activity_ids'], activities.ids)
         activities.action_ems_snooze(3)
         self.assertEqual(set(activities.mapped('date_deadline')), {self.today + timedelta(days=3)})
+
+    def test_choices_come_from_the_server_rule(self):
+        """The web client shows what the server offers: the days and, for one task, the date it
+        would move to by the same rule action_ems_snooze applies."""
+        overdue = self._activity(self.today - timedelta(days=2))
+        later = self._activity(self.today + timedelta(days=5))
+        self.assertEqual(overdue.ems_snooze_choices(), [
+            {'days': days, 'date': str(self.today + timedelta(days=days))} for days in (1, 3, 7)])
+        self.assertEqual([choice['date'] for choice in later.ems_snooze_choices()],
+                         [str(self.today + timedelta(days=5 + days)) for days in (1, 3, 7)])
+        self.assertEqual((overdue | later).ems_snooze_choices(),
+                         [{'days': days, 'date': False} for days in (1, 3, 7)])

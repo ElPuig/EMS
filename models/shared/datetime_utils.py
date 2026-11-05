@@ -43,6 +43,12 @@ class EmsDatetimeUtils(models.AbstractModel):
     def get_local_today(self):
         return self.get_local_datetime().date()
 
+    def utc_to_local_date(self, utc_naive):
+        """The company's date at a naive UTC moment (how Odoo stores and returns datetimes). For
+        code that must read "today" from the same `now` it compares with (fields.Datetime.now()),
+        such as the daily summary and the task snooze."""
+        return self.utc_datetime_to_local(UTC.localize(utc_naive)).date()
+
     @api.model
     def get_server_epoch_ms(self):
         """The server's clock, for the web client to measure how far off the browser's own is:

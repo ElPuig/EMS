@@ -2,7 +2,7 @@
 
 ## Overview
 
-`ems.level` is a configuration model at the top of the EMS curriculum hierarchy. It represents a study level (e.g., Secondary Education, VET, Baccalaureate) and groups related studies under a common classification. Besides a computed `display_name`, its only behaviour flag is `allows_convalidation`, which opens its studies to [convalidation requests](../grades/convalidation.md).
+`ems.level` is a configuration model at the top of the EMS curriculum hierarchy. It represents a study level (e.g., Secondary Education, VET, Baccalaureate) and groups related studies under a common classification. Besides a computed `display_name`, it says which educational stage it belongs to (`education_stage`, compulsory or post-compulsory, set by the regulation: part of the catalog and read-only on the form; the [ex officio withdrawal](../contacts/ex_officio_withdrawal.md) picks its circuit from it), and whether its studies are open to [convalidation requests](../grades/convalidation.md) (`allows_convalidation`, edited as a list in Settings > Convalidations).
 
 **Module file:** `models/curriculum/level.py`
 
@@ -17,7 +17,8 @@
 | `acronym` | `Char` | Yes | Yes | Short code (e.g., `BTX`, `CFGM`) |
 | `name` | `Char` | Yes | Yes | Full descriptive name |
 | `study_ids` | `One2many → ems.study` | No | No | Studies at this level (inverse of `study.level_id`) |
-| `allows_convalidation` | `Boolean` | No | Yes | Students of this level's studies can request subject convalidations. Set for `CFGM`/`CFGS` in `data/cat/ems.level.csv` |
+| `allows_convalidation` | `Boolean` | No | Yes | Students of this level's studies can request subject convalidations. Not part of the catalog, so upgrades keep the centre's choice: a new installation seeds `CFGM`/`CFGS` (`_ems_seed_convalidation_levels()`, `post_init_hook`), then it is edited in Settings > Convalidations (`res.config.settings.convalidation_level_ids`), not on the level's form |
+| `education_stage` | `Selection` | No | Yes | `compulsory` / `post_compulsory`, set by the regulation: in `data/cat/ems.level.csv` (re-applied on every upgrade) and read-only on the form |
 | `declaration_code` | `Selection` | No | Yes | Row of the [official schedule declaration](../employees/working_schedule.md#official-schedule-declaration-emsreport_schedule_declaration-issue-723)'s summary table this level's teaching hours go to (empty: Altres). Seeded once by `_ems_seed_declaration_codes()`, then configured by the centre |
 | `notes` | `Text` | No | Yes | Free-form administrative notes |
 | `display_name` | `Char` (computed) | — | No | Format: `ACRONYM: Name` |

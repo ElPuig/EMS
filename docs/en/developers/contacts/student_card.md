@@ -82,13 +82,13 @@ are never counted, so a teacher scanning a whole queue is never stopped. The cou
 worker process's memory, which is enough against guessing a 192-bit code; behind a reverse proxy
 it needs Odoo's `proxy_mode` so `remote_addr` is the client's, not the proxy's.
 
-The page is rendered in the centre's language (Catalan), like the card itself.
+The page is rendered in the centre language (`res.company.ems_lang`), like the card itself.
 
 ## Model changes
 
 | Model | Field / method | Notes |
 |---|---|---|
-| `ems.level` | `card_color` (Selection, stored compute, `readonly=False`) | The level's colour on the card, one of a closed pastel palette (`CARD_PALETTE` in `models/curriculum/level.py`, key → hex). The palette has no red or green, which the card keeps for the exit block, so no level can be confused with it. Computed from the acronym when the level is created (`CARD_COLORS` for the official levels, grey for any other) and editable afterwards in the level form. Not in `data/cat/ems.level.csv`, so an upgrade never reverts a colour the centre changed. |
+| `ems.level` | `card_color` (Selection, stored compute, `readonly=False`) | The level's colour on the card, one of a closed pastel palette (`CARD_PALETTE` in `models/curriculum/level.py`, key → (label, hex), from which the field's selection is built too). The palette has no red or green, which the card keeps for the exit block, so no level can be confused with it. Computed from the acronym when the level is created (`CARD_COLORS` for the official levels, grey for any other) and editable afterwards in the level form. Not in `data/cat/ems.level.csv`, so an upgrade never reverts a colour the centre changed. |
 | `res.company` | `ems_card_stamp` (Image) | The centre's stamp, uploaded in Settings > EMS > Center Data. |
 | `res.config.settings` | `ems_card_stamp` (related) | |
 | `res.partner` | `can_print_student_card` (Boolean, non-stored, `depends_context('uid')`) | Reads the Actions dropdown entry's `invisible=`. |

@@ -30,7 +30,7 @@ Opening the menu shows a list of all levels sorted alphabetically by acronym. Ea
 2. Fill in the required fields:
    - **Acronym** *(required)*: Short code used across the system (e.g., `BTX`, `CFGM`).
    - **Name** *(required)*: Full descriptive name (e.g., `Batxillerat`, `Cicles Formatius Grau Mitjà`).
-3. Tick **Allows convalidations** if the students of this level's studies can request subject convalidations (see [Convalidations](../head_of_studies/convalidations.md)).
+3. The **Educational stage** (compulsory or post-compulsory education) is read-only: the regulation sets it, and EMS keeps it for the official levels. Which levels allow convalidations is set in [Convalidation settings](convalidation-settings.md#levels-that-allow-convalidations).
 4. Optionally, add free-form notes in the **Notes** tab.
 5. Click **Save** (or use the breadcrumb to navigate away — Odoo saves automatically).
 

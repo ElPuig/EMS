@@ -70,6 +70,8 @@ def post_init_hook(env):
     _translate_area_names(env)
     # Issue #723: the official schedule declaration's codes, configured by the centre from then on.
     _seed_declaration_codes(env)
+    # The levels that allow convalidations: not part of the catalog, so upgrades keep the centre's choice.
+    env['ems.level']._ems_seed_convalidation_levels()
 
 
 def _seed_declaration_codes(env):

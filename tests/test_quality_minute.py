@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-from unittest.mock import patch
 
 from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
@@ -25,9 +24,7 @@ class TestQualityMinute(TransactionCase):
         cls.mail_transport = mock_outgoing_email(cls)
         # The call and the PDF are written in the centre's language, which depends on what each
         # database has installed; the tests read them in the source language.
-        centre_lang = patch.object(type(cls.env['ems.minute']), '_ems_centre_lang', lambda self: 'en_US')
-        centre_lang.start()
-        cls.addClassCleanup(centre_lang.stop)
+        cls.env.company.ems_lang = 'en_US'
 
     def _minute(self, **overrides):
         vals = {
@@ -269,12 +266,12 @@ class TestQualityMinute(TransactionCase):
         department = self.env['hr.department'].create({'name': 'Computer Science Test'})
         department.update_field_translations('name', {'ca_ES': 'Informàtica Prova', 'es_ES': 'Informática Prueba'})
         # The class reads everything in the source language; this test needs the real centre language.
-        with patch.object(type(self.env['ems.minute']), '_ems_centre_lang', lambda minute: 'ca_ES'):
-            minute = self.env['ems.minute'].with_context(lang='es_ES').create({
-                'type_id': self.type.id, 'department_id': department.id, 'course_id': self.course.id,
-                'redactor_employee_id': self.employee.id,
-            })
-            minute.flush_recordset()  # stored computes run lazily: before the patch goes away
+        self.env.company.ems_lang = 'ca_ES'
+        minute = self.env['ems.minute'].with_context(lang='es_ES').create({
+            'type_id': self.type.id, 'department_id': department.id, 'course_id': self.course.id,
+            'redactor_employee_id': self.employee.id,
+        })
+        minute.flush_recordset()
         self.assertEqual(minute.scope_name, 'Informàtica Prova')
         self.assertTrue(minute.name.endswith(' - Informàtica Prova'), minute.name)
 
@@ -283,17 +280,17 @@ class TestQualityMinute(TransactionCase):
         about it) is stored text: in Catalan, whatever language the writer works in."""
         if not (self.env['res.lang']._lang_get('ca_ES') and self.env['res.lang']._lang_get('es_ES')):
             self.skipTest("needs Catalan and Spanish installed")
-        with patch.object(type(self.env['ems.minute']), '_ems_centre_lang', lambda minute: 'ca_ES'):
-            first = self._minute().with_user(self.user).with_context(lang='es_ES')
-            first.write({'agreement_ids': [(0, 0, {'name': 'Done here', 'is_closed_in_minute': True}),
-                                           (0, 0, {'name': 'Reviewed later'})]})
-            done, open_one = first.agreement_ids.sorted('id')
-            self.assertTrue(done.followup_ids.description.startswith('Acordat i fet a la reunió'), done.followup_ids.description)
-            second = self._minute().with_user(self.user).with_context(lang='es_ES')
-            second.agreement_review_ids.is_closed = True
-            self.assertTrue(open_one.followup_ids.description.startswith('Revisat a la reunió'), open_one.followup_ids.description)
-            self.assertTrue(open_one.message_ids.filtered(lambda message: 'Seguiment (' in (message.body or '')),
-                            "and so is what is posted to its followers")
+        self.env.company.ems_lang = 'ca_ES'
+        first = self._minute().with_user(self.user).with_context(lang='es_ES')
+        first.write({'agreement_ids': [(0, 0, {'name': 'Done here', 'is_closed_in_minute': True}),
+                                       (0, 0, {'name': 'Reviewed later'})]})
+        done, open_one = first.agreement_ids.sorted('id')
+        self.assertTrue(done.followup_ids.description.startswith('Acordat i fet a la reunió'), done.followup_ids.description)
+        second = self._minute().with_user(self.user).with_context(lang='es_ES')
+        second.agreement_review_ids.is_closed = True
+        self.assertTrue(open_one.followup_ids.description.startswith('Revisat a la reunió'), open_one.followup_ids.description)
+        self.assertTrue(open_one.message_ids.filtered(lambda message: 'Seguiment (' in (message.body or '')),
+                        "and so is what is posted to its followers")
 
     def test_the_nfc_box_is_translated(self):
         """The box's messages are plain spans side by side, which Odoo extracts as one term: a
@@ -403,6 +400,7 @@ class TestQualityMinute(TransactionCase):
         """A department's name is translated; its minutes are one series all the same, coded from
         its Catalan name whoever saves them."""
         self.env['res.lang']._activate_lang('ca_ES')
+        self.env.company.ems_lang = 'ca_ES'
         self.department.with_context(lang='ca_ES').name = 'Llengua Catalana'
         first = self._minute()
         second = self.env['ems.minute'].with_context(lang='ca_ES').create({
@@ -558,6 +556,16 @@ class TestQualityMinute(TransactionCase):
         self.assertIn('Draft, not approved yet', html)
         self.assertIn('Said about it.', html, "what was written on each item is printed, without waiting for the approval to put it together")
         self.assertEqual(self.env['ems.minute']._ems_people_label(self.env['hr.employee.public'].browse(self.employee.id)), self.employee.name)
+
+    def test_the_pdf_is_printed_in_the_centre_language_whoever_prints_it(self):
+        # The class sets the centre language to the source one (en_US): a user working in Spanish
+        # still gets the minute in it.
+        if not self.env['res.lang']._lang_get('es_ES'):
+            self.skipTest("needs Spanish installed")
+        minute = self._minute()
+        html = self.env['ir.actions.report'].with_context(lang='es_ES')._render_qweb_html(
+            'ems.action_report_minute', minute.ids)[0].decode()
+        self.assertIn('lang="en-US"', html)
 
     def test_the_development_is_put_together_from_the_items(self):
         minute = self._minute(agenda_ids=[

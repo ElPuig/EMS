@@ -127,7 +127,7 @@ class ems_group_schedule(models.Model):
 
     def _generate_public_schedule(self):
         # One public PDF per group, in the centre language (res.company.ems_lang).
-        report = self.env['ir.actions.report'].sudo().with_context(lang=self.env.company.ems_lang)
+        report = self.env['ir.actions.report'].sudo().with_env(self.env['res.company'].sudo()._ems_centre_env())
         for group in self:
             content, _content_type = report._render_qweb_pdf('ems.report_group_schedule', group.ids)
             group.write({'public_schedule_pdf': base64.b64encode(content), 'public_schedule_dirty': False})

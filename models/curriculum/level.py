@@ -4,6 +4,16 @@ from odoo import api, fields, models
 
 from ..employees.non_teaching_type import LEVEL_DECLARATION_CODES
 
+# The educational stage a level belongs to, as the regulation sets it (issue #726): EMS decides with
+# it what applies to the level's students (e.g. the ex officio withdrawal protocol).
+EDUCATION_STAGES = [
+	('compulsory', 'Compulsory education'),
+	('post_compulsory', 'Post-compulsory education'),
+]
+
+# Seeded once on a new installation (post_init_hook), then configured by the centre in Settings.
+CONVALIDATION_LEVEL_SEED = ['CFGM', 'CFGS']
+
 # Issue #723: seeded once (post_init_hook and migrations/18.0.0.43.0), then configured by the centre.
 LEVEL_DECLARATION_SEED = {
 	'ESO': 'eso', 'BTX': 'bat', 'CFGB': 'cfgb', 'CFGM': 'cfgm', 'CFGS': 'cfgs', 'EFPS': 'cefp', 'PFI': 'pfi',
@@ -11,15 +21,15 @@ LEVEL_DECLARATION_SEED = {
 
 # The student card's level colours: pastel, so the card is not garish, and never red or green, which
 # the card keeps for "may / may not leave the centre". A closed palette, so no level can pick them.
-CARD_PALETTE = {
-	'blue': '#BBDEFB',
-	'lavender': '#D1C4E9',
-	'peach': '#FFE0B2',
-	'yellow': '#FFF3B0',
-	'cyan': '#B2EBF2',
-	'sand': '#E6D5C3',
-	'orchid': '#E1BEE7',
-	'grey': '#CFD8DC',
+CARD_PALETTE = {  # key: (label, colour)
+	'blue': ("Blue", '#BBDEFB'),
+	'lavender': ("Lavender", '#D1C4E9'),
+	'peach': ("Peach", '#FFE0B2'),
+	'yellow': ("Yellow", '#FFF3B0'),
+	'cyan': ("Cyan", '#B2EBF2'),
+	'sand': ("Sand", '#E6D5C3'),
+	'orchid': ("Orchid", '#E1BEE7'),
+	'grey': ("Grey", '#CFD8DC'),
 }
 CARD_COLORS = {
 	'ESO': 'blue',
@@ -54,19 +64,16 @@ class EmsLevel(models.Model):
 		help="Row of the summary table of the official schedule declaration this level's teaching hours are "
 			"added to. Empty: they go to 'Altres'.")
 
+	# Set by the regulation, so part of EMS's catalog (data/cat/ems.level.csv) and read-only on the form.
+	education_stage = fields.Selection(selection=EDUCATION_STAGES, string="Educational stage",
+		help="Compulsory or post-compulsory education, as the regulation sets it.")
+
 	# The level's colour on the student card (issue #524). Computed from the acronym only when the
 	# level is created, then the centre's to change: not in data/cat/ems.level.csv, so an upgrade
 	# never reverts it.
-	card_color = fields.Selection([
-		('blue', "Blue"),
-		('lavender', "Lavender"),
-		('peach', "Peach"),
-		('yellow', "Yellow"),
-		('cyan', "Cyan"),
-		('sand', "Sand"),
-		('orchid', "Orchid"),
-		('grey', "Grey"),
-	], string="Student card colour", compute="_compute_card_color", store=True, readonly=False,
+	card_color = fields.Selection(
+		[(key, label) for key, (label, _colour) in CARD_PALETTE.items()], string="Student card colour",
+		compute="_compute_card_color", store=True, readonly=False,
 		help="Colour of this level on the student card. Red and green are not offered: the card "
 		     "uses them to say whether the student may leave the centre.")
 
@@ -84,6 +91,12 @@ class EmsLevel(models.Model):
 			acronym = level.acronym or ''
 			name = level.name or ''
 			level.display_name = f"{acronym}: {name}".strip(': ')
+
+	@api.model
+	def _ems_seed_convalidation_levels(self):
+		"""A new installation starts with the vocational training cycles allowing convalidations;
+		from then on the centre sets the list in Settings > Convalidations."""
+		self.search([('acronym', 'in', CONVALIDATION_LEVEL_SEED)]).allows_convalidation = True
 
 	@api.model
 	def _ems_seed_declaration_codes(self):

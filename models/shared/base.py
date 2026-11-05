@@ -1,7 +1,9 @@
-import hashlib, re, traceback
+import hashlib, logging, re, traceback
 from lxml import etree
 from markupsafe import Markup
-from odoo import models, fields, _
+from odoo import SUPERUSER_ID, models, fields, _
+
+_logger = logging.getLogger(__name__)
 
 class EmsBase(models.AbstractModel):
     _name = 'ems.base'
@@ -17,6 +19,53 @@ class EmsBase(models.AbstractModel):
     def action_archive(self):
         for record in self:
             record.active = False
+
+    def next_course_number(self, key, label, prefix, course):
+        """Next registry entry of `course` for one kind of record: <prefix>-<start>-<end, two
+        digits>-<4-digit counter>, the counter starting again every course. One ir.sequence per
+        kind and course (code `<key>.course.<course id>`), created the first time it is needed,
+        so nothing has to be prepared before a new year opens. Shared by convalidations (CONV) and
+        ex officio withdrawals (BO). sudo: the record may be created from the portal or by a
+        role that cannot read sequences."""
+        if not course:
+            return False
+        Sequence = self.env['ir.sequence'].sudo()
+        code = f'{key}.course.{course.id}'
+        if not Sequence.search_count([('code', '=', code)]):
+            Sequence.create({
+                'name': f"{label} {course.name}",
+                'code': code,
+                'prefix': f"{prefix}-{course.start}-{str(course.end)[-2:]}-",
+                'padding': 4,
+                'company_id': False,
+            })
+        return Sequence.next_by_code(code)
+
+    def task_users(self, users, what):
+        """The users of `users` who can get a task: archived users and OdooBot never do, nobody
+        reads their inbox. Logs a warning when nobody is left, naming `what` the task was for."""
+        users = users.filtered(lambda user: user.active and user.id != SUPERUSER_ID)
+        if not users:
+            _logger.warning("Nobody can take the task for %s: none will be scheduled.", what)
+        return users
+
+    def role_task_users(self, role_xmlid):
+        """The users holding a position of the centre (ems.role), for a task that is theirs."""
+        role = self.env.ref(role_xmlid, raise_if_not_found=False)
+        users = self.env['res.users']
+        if role:
+            users = self.env['hr.employee'].sudo().browse(role.sudo().employee_ids.ids).exists().user_id
+        return self.task_users(users, role_xmlid)
+
+    def secretariat_task_users(self):
+        """The whole secretariat, for a task that is its. The EMS administrator is left out: it
+        implies every group, so a group alone would hand it every task of every kind - the very
+        reason Task Assignment stopped deriving its recipients from groups."""
+        users = self.env.ref('ems.group_secretary').sudo().users
+        administrators = self.env.ref('ems.group_academic_admin', raise_if_not_found=False)
+        if administrators:
+            users -= administrators.sudo().users
+        return self.task_users(users, 'ems.group_secretary')
 
     # The current user is admin.
     def get_user_is_admin(self):

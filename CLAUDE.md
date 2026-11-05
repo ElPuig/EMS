@@ -152,6 +152,8 @@ recipient is the developer's redirect account (or one of its `+` aliases) or in 
 newsletter). A refused email ends in "Delivery failed" with the reason. Details:
 `docs/en/developers/shared/dev_mail_guard.md`. If a send you expected fails on a dev machine with
 "Email blocked", that's the guard: add the address to the allowlist only if the developer says so.
+OdooBot's emails (daily summaries, automatic notices) are cancelled on such a machine unless the
+system parameter `ems.dev_mail_odoobot` is `True` (issue #752): set it to test one of them.
 
 ## Naming roles: never "chiefs"/"heads"/"jefes" on its own (developer, 2026-10-14)
 
@@ -985,6 +987,15 @@ problems (say which), ➖ doesn't apply (say why). One row per item, a short not
 merged into prose. An ❌ or ⚠️ is stated, never hidden: the table is how the developer decides whether
 to go ahead.
 
+**Every row green before moving on (developer, 2026-11-04).** *"Todas deberían estar en verde. Si alguna
+no lo está, hay que verificarlo. Que podría ser correcto, pero hay que asegurarse bien."* Before an issue
+goes to "Ready to merge" and before a release PR is merged, every row must be ✅. Any ⚠️, ❌ or ➖ means
+stopping to verify it thoroughly: do the missing item, or prove with evidence that it really doesn't
+apply. Never report it and carry on, never lean on each issue's own close for a release, and never under
+"piloto automático" either. On v18.0.0.45.0 (PR #747) the release's quality audit was marked ⚠️
+("relied on each issue's close") and merged anyway, the third time this happened: the audit done
+afterwards found duplication between the integrated branches already in production (issue #749).
+
 Issue items:
 
 | # | Item |
@@ -1074,7 +1085,12 @@ Run it on the current release branch (e.g. `v18.0.0.29.0`), in this order:
    anything else on GitHub — every other GitHub write still needs the developer's explicit go-ahead
    first.
 3. **Run the "revisión del cierre"** (section above) over everything integrated, and **fix**
-   whatever it finds (docs, translations, tests), not just report it. Commit the fixes.
+   whatever it finds (docs, translations, tests), not just report it. Commit the fixes. **This step
+   blocks the first push of the release branch**, and it includes the full quality audit over
+   `git diff <last tag>..HEAD`: read every changed code file, looking above all for what no single
+   branch could see (duplication between branches touching the same area, overlapping tests, combined
+   runtime cost), and report the findings with numbers. The release closing table must then be all ✅
+   (see "Every row green before moving on" above) before going on to step 4.
 4. **Prepare the PR text** exactly as "PR changelog" below describes (every `changelog/` file,
    reassembled by section, condensed, `Related with` from merge history, delivered as a
    scratchpad file) and **put it on the release PR itself** (see "Putting the text on the open

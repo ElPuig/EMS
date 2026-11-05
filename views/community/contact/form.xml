@@ -52,6 +52,11 @@
                             groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies">
                         <field name="convalidation_count" widget="statinfo" string="Convalidations"/>
                     </button>
+                    <button name="action_view_ex_officio_withdrawals" type="object" class="oe_stat_button" icon="fa-user-times"
+                            invisible="contact_type != 'student' or ex_officio_withdrawal_count == 0"
+                            groups="ems.group_tutor,ems.group_student_data_reader,ems.group_secretary,ems.group_academic_admin,base.group_system">
+                        <field name="ex_officio_withdrawal_count" widget="statinfo" string="Ex officio withdrawals"/>
+                    </button>
                 </xpath>
 
                 <xpath expr="//sheet" position="before">
@@ -74,6 +79,13 @@
                             <!-- Issue #644: the student's tutor (and everyone above them), the
                                  secretary, the Head of Studies or an administrator; re-checked
                                  server-side. -->
+                            <!-- Issue #726: the student's tutor (and the chain above them), the Head of
+                                 Studies or an administrator, for a student whose level has a circuit
+                                 and no open case file; re-checked server-side. -->
+                            <field name="can_request_ex_officio_withdrawal" invisible="1"/>
+                            <button name="action_request_ex_officio_withdrawal" type="object"
+                                    string="Request ex officio withdrawal"
+                                    invisible="not can_request_ex_officio_withdrawal"/>
                             <field name="can_mark_withdrawal_expected" invisible="1"/>
                             <button name="action_withdrawal_expected_wizard" type="object"
                                     string="Mark expected withdrawal"
@@ -716,6 +728,7 @@
                         <group cols="2">
                             <group>
                                 <field name="exit_type"/>
+                                <field name="withdrawal_mode" invisible="exit_type != 'withdrawal'"/>
                                 <field name="exit_course_id"/>
                                 <field name="exit_date"/>
                             </group>

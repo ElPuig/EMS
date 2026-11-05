@@ -150,6 +150,9 @@ class EmsWithdrawalWizard(models.TransientModel):
     exit_date = fields.Date(string='Exit date', required=True,
                             default=fields.Date.context_today)
     exit_reason = fields.Text(string='Exit reason')
+    # Ex officio only when opened from its case file (issue #726), which fills it in.
+    withdrawal_mode = fields.Selection(string="Withdrawal mode", readonly=True, default='voluntary', selection=[
+        ('voluntary', 'Voluntary'), ('ex_officio', 'Ex officio')])
     line_ids = fields.One2many(
         'ems.withdrawal_wizard.line', 'wizard_id', string='Students')
 
@@ -188,7 +191,7 @@ class EmsWithdrawalWizard(models.TransientModel):
             student = line.student_id
             if student.contact_type != 'student':
                 continue
-            summary = student._ems_register_exit(self.exit_kind, self.exit_date, self.exit_reason)
+            summary = student._ems_register_exit(self.exit_kind, self.exit_date, self.exit_reason, self.withdrawal_mode)
             revoked += summary['revoked']
             skipped += summary['skipped']
             issues += summary['issues']

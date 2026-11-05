@@ -41,6 +41,13 @@ for dir in "$MODULES_DIR"/*/; do
     fi
 done
 
+# Repositories added to scripts/oca_repos.sh since the last update: cloned (then pulled by the
+# loop above from the next update on) and added to odoo.conf's addons_path. Sourced after the loop,
+# so it is the list just pulled.
+source "$MODULES_DIR/ems/scripts/oca_repos.sh"
+oca_clone_missing "$MODULES_DIR"
+oca_sync_addons_path /etc/odoo/odoo.conf "$MODULES_DIR"
+
 echo "# Updating apt package index..."
 sudo apt-get update -qq
 

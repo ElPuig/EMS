@@ -97,24 +97,32 @@ class TestGuardSupport(AbsenceCoverageCase):
         with self.assertRaises(UserError):
             self._support(user=self.eso_chief, hour_from=9, hour_to=10)
 
-    def test_only_a_guard_who_cannot_cover_looks_disabled(self):
-        """A badge looks disabled only when the guard cannot cover anything then (away, not checked
-        in, busy): a free guard is available to everybody, though only whoever manages a class may
-        send them as support, and only the user themselves takes a class from their own badge."""
+    def test_only_a_guard_the_user_can_assign_looks_available(self):
+        """A badge looks available only when the user can do something with that guard then
+        (issue #770): send them to cover a class (whoever organises absences, only their own area's
+        guards, as in the absence's candidates, issue #721) or, for the guard themselves, take a
+        class. A guard who cannot cover anything then (away, not checked in, busy) never does."""
+        self._two_areas()
         self._morning()
+        self.teacher_guard.department_id = self.department  # VET; teacher_guard_2 is ESO
 
-        line = self._board_line(user=self.guard_user)
-        guards = self.teacher_guard | self.teacher_guard_2
-        self.assertEqual({badge['id']: (badge['available'], badge['can_support'], badge['is_me_free'])
-                          for badge in line['guards'] if badge['id'] in guards.ids},
-                         {self.teacher_guard.id: (True, False, True), self.teacher_guard_2.id: (True, False, False)})
+        def badges(user):
+            line = self._board_line(user=user)
+            return {badge['id']: (badge['available'], badge['is_me_free'], badge['idle'])
+                    for badge in line['guards'] if badge['id'] in (self.teacher_guard | self.teacher_guard_2).ids}
+
+        # A teacher who organises nobody's absences only takes a class themselves.
+        self.assertEqual(badges(self.guard_user), {
+            self.teacher_guard.id: (True, True, False), self.teacher_guard_2.id: (False, False, 'not_yours')})
+        # Each area's chief, only their own area's guards; the other area's are told apart.
+        self.assertEqual(badges(self.department_chief), {
+            self.teacher_guard.id: (True, False, False), self.teacher_guard_2.id: (False, False, 'other_area')})
+        self.assertEqual(badges(self.eso_chief), {
+            self.teacher_guard.id: (False, False, 'other_area'), self.teacher_guard_2.id: (True, False, False)})
+        # Away: nobody can assign them, not even themselves, and they are not merely idle.
         self._absence(self.teacher_guard, self.day)
-        badge = self._guard(self._board_line(user=self.guard_user), self.teacher_guard)
-        self.assertEqual((badge['available'], badge['is_me_free']), (False, False))
-        # Whoever manages the classes may send the free one as support.
-        line = self._board_line()
-        self.assertTrue(self._guard(line, self.teacher_guard_2)['can_support'])
-        self.assertFalse(self._guard(line, self.teacher_guard_2)['is_me_free'])
+        self.assertEqual(badges(self.guard_user)[self.teacher_guard.id], (False, False, False))
+        self.assertEqual(badges(self.department_chief)[self.teacher_guard.id], (False, False, False))
 
     def test_only_a_class_whose_teacher_is_in_can_be_supported(self):
         self._morning()

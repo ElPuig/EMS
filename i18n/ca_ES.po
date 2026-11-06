@@ -48584,3 +48584,15 @@ msgstr "la teva part de les despeses col·lectives del grup"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
 msgid "We will use the account of your enrolment. Write another one only if you want it paid elsewhere."
 msgstr "Farem servir el compte de la teva matrícula. Escriu-ne un altre només si vols que t'ho paguem en un altre compte."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Another area's guard: only whoever organises that area can assign them"
+msgstr "Docent de guàrdia d'una altra àrea: només l'assigna qui organitza aquella àrea"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Free on guard"
+msgstr "De guàrdia i lliure"

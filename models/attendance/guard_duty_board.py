@@ -2405,9 +2405,15 @@ class EmsCourseGuardDutyBoard(models.Model):
                 guard['can_support'] = bool(
                     (supportable and employee in line['guard_spans'] and course._can_move_teacher(employee, movable))
                     or (may_support and guard['support_cover_id']))
-                # Free on guard then, so they can be sent to a class (issue #725: only a guard who
-                # cannot cover anything then - away, not checked in, busy - looks disabled).
-                guard['available'] = editable and employee in line['guard_spans']
+                # Free on guard then and the user can assign them (issue #770): whoever organises
+                # absences sends their own area's guards, as in guard_candidates (issue #721), and a
+                # guard takes a class themselves (issue #601). Any other badge looks disabled.
+                free = editable and employee in line['guard_spans']
+                guard['available'] = free and (
+                    employee == me or (may_support and course._can_move_teacher(employee, movable)))
+                # Free but not the user's to assign, and why (issue #770): another area's guard, or
+                # the user organises nobody's absences. Told apart from a guard who cannot cover.
+                guard['idle'] = free and not guard['available'] and ('other_area' if may_support else 'not_yours')
                 # The user themselves, free on guard then: they may take a class (issue #601).
                 guard['is_me_free'] = guard['available'] and employee == me
                 # A guard on duty now who has not checked in (issue #692): whoever is on guard then,

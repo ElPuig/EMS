@@ -1,0 +1,8 @@
+# Fixes
+
+## Guard duty board greys out the guards you cannot assign (issue #770):
+
+- On the absences table's guard column, a free guard only keeps the usual look when the user can assign them: whoever organises absences sees their own area's guards (the same rule as the absence's list of candidates, issue #721), and a guard on duty sees their own badge, since they can take a class themselves (issue #601). Until now every free guard looked usable to everybody, although clicking them did nothing and another area's guards could not be assigned.
+- A free guard the user cannot assign is shown light grey with a solid border; its tooltip says why: another area's guard (only whoever organises that area assigns them), or simply "Free on guard" for a teacher who organises nobody's absences. The server sends the reason as the new badge flag `idle` (`other_area` / `not_yours`).
+- A guard who cannot cover anything then (away, not checked in, busy with a group) keeps the grey dashed box and is now also struck through, so it is not mistaken for another area's guard.
+- Badge class and tooltip moved from the template into the component (`guardStateClass()`, `guardTooltip()`); tests, the unchecked-guard tour, the developer doc, the teachers' manual (ca/es/en), three of its screenshots and the ca/es translations updated.

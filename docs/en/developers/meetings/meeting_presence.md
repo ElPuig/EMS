@@ -164,8 +164,6 @@ A session can be created on its own (Head of Studies, secretariat) or **by a min
 - **The session follows the minute while it is a draft** (start, duration, room, name), and is deleted if the minute goes back to a hand-written list before anybody opened it. Once opened it is left alone.
 - **The result goes back to the minute** (`ems.minute._ems_sync_attendance()`): lines `present` become `attendee_ids`, every other line `absentee_ids`, and justified absences are written to `absence_notes` with their reason. It runs when the session is closed, from the minute's *Close attendance* button or from the session's own screen, when a line is changed by hand (`ems.meeting.presence.line._ems_sync_minutes()`, so a correction reaches the minute without closing the session again), and again when the minute is sent for approval. An approved minute is never touched.
 
-Still to do, in `plans/meeting_presence_minute_integration.md`: the quality roles as session managers.
-
 ## The agenda and the call (`ems.minute`)
 
 Only the meeting's own items are stored (`ems.minute.agenda_ids`, the *Items to discuss* tab). The agenda is computed (`agenda_html`, from `_ems_agenda_entries()`): the sections the minute type marks with `ems.minute.section.in_agenda`, in the type's order, where the section of kind `previous_approval` only counts when the minute has a previous one, `agreement_followup` only when agreements are still open, and the section of kind `agenda` unfolds into the items. The minute's PDF prints the same thing.

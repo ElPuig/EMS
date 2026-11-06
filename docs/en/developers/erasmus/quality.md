@@ -133,24 +133,6 @@ laid out like the network's Drive:
 
 No personal data: only totals, generic audiences and documents that are public anyway (the rules).
 
-## Why not Odoo's survey module
-
-EMS depends on `survey`, but none of its own surveys use it: the centre's surveys go through
-LimeSurvey (`docs/en/developers/communications/limesurvey.md`). The satisfaction survey and the
-weekly self-assessment (`ems.erasmus.self_assessment`, questions per call in
-`ems.erasmus.call.question`) are own models because:
-
-- **Each answer belongs to one participant of one mobility**, and that link is what everything
-  else uses: closing an individual or group mobility waits for it, the indicators are counted by
-  participant type and course, a low score can be turned into an improvement action, reminders go
-  to whoever has not answered, and the self-assessments go into the mobility's records PDF. A
-  `survey.user_input` has no such link; it would need the same fields added and kept in sync.
-- **The questions are tiny.** The satisfaction survey is one score (1 to 10) and a comment when it
-  is low; a self-assessment is a few questions per week of stay, one answer per week
-  (`week_unique`). A `survey.survey` per call or per week would be more set-up than content.
-- **One portal.** Both are answered inside the participant's Erasmus+ page (`/my/erasmus`), with
-  the rest of their tasks, instead of the separate `/survey` pages.
-
 ## Access control
 
 | Who | Panel | Surveys | Participant's name | Close without answer | Improvement action |

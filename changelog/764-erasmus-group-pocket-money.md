@@ -17,6 +17,6 @@
 
 - New abstract ems.erasmus.payee (models/erasmus/payee.py) with the first/final payment logic, what is left to pay and the portal rows, used by individual mobilities and group participants; ems.erasmus.payment gets group_participant_id/group_mobility_id (mobility_id no longer required, exactly one of the two, checked in SQL), and its participant, call and project are stored computes. Invoice shares and the pocket money use the same split helper. No migration: new columns only.
 
-## Why Erasmus+ does not use Odoo's accounting and survey modules:
+## Why the Erasmus+ economy does not use Odoo's accounting:
 
-- The Erasmus+ developer docs now say why the economy (grants, payments, invoices, expenses) uses its own models instead of `account.move`/`account.payment`, and why the satisfaction survey and the weekly self-assessment do not use the `survey` module (asked in the review of v18.0.0.46.0). One question is left open for the Secretary: whether the centre's official accounting is kept outside EMS.
+- The Erasmus+ developer docs now say why the economy (grants, payments, invoices, expenses) uses its own models instead of `account.move`/`account.payment` (asked in the review of v18.0.0.46.0). One question is left open for the Secretary: whether the centre's official accounting is kept outside EMS.

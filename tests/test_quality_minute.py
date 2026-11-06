@@ -716,3 +716,10 @@ class TestQualityMinute(TransactionCase):
         self.assertFalse(third.agreement_review_ids, "a closed agreement is not brought to the next meeting")
         review.write({'note': False, 'is_closed': False})
         self.assertFalse(agreement.followup_ids, "taking back what was written takes the entry back too")
+
+    def test_report_title_cells_get_a_solid_faded_brand_colour(self):
+        """The PDF paints no gradient, so the faded title-cell colour is a plain hex colour."""
+        minute = self.env['ems.minute']
+        self.assertEqual(minute._ems_report_tint('#a51d2d'), '#f2dfe2')
+        self.assertEqual(minute._ems_report_tint('#000'), '#dbdbdb')
+        self.assertEqual(minute._ems_report_tint('not a colour'), '#f2dfe2', "a broken setting falls back")

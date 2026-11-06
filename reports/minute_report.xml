@@ -60,12 +60,11 @@
                                 .o_ems_minute table td p, .o_ems_minute table th p { margin: 0 !important; line-height: 1.3 !important; }
                                 .o_ems_minute table.o_ems_minute_facts { margin: 6pt 0 4pt 0; font-size: 9pt; }
                                 .o_ems_minute table.o_ems_minute_facts td, .o_ems_minute table.o_ems_minute_facts th { padding: 5pt 8pt !important; vertical-align: middle; }
-                                /* Title cells in the brand colour, faded: a white veil over it. */
+                                /* Title cells in the brand colour, on that colour faded towards white
+                                   (computed on the server: wkhtmltopdf paints no gradient veil). */
                                 .o_ems_minute table.o_ems_minute_facts th {
                                     white-space: nowrap; width: 1% !important; font-weight: bold; color: <t t-out="brand"/>;
-                                    background-color: <t t-out="brand"/>;
-                                    background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.86));
-                                    background-image: linear-gradient(rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.86));
+                                    background-color: <t t-out="doc._ems_report_tint(brand)"/> !important;
                                 }
                                 .o_ems_minute table.o_ems_minute_signatures { margin-top: 18pt; }
                                 .o_ems_minute table.o_ems_minute_signatures th { width: 50% !important; }

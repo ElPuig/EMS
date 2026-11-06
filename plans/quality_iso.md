@@ -557,10 +557,19 @@ access or connectivity. Rules:
    catalogue post, or a gender/slash variant) and **presented for validation when it is not** (several
    posts, a post that does not exist in EMS, free text), in a review screen before importing. The
    original text is always kept in `legacy_responsible`.
-   **External dependency:** the most frequent out-of-catalogue value is the *management team*, which does
-   not exist in EMS as a role or a group. Tracked as **issue #494** (priority backlog). Until it lands,
-   those entries stay in manual validation; mapping them to "Director" would be wrong, as that is a
-   single-person post meaning something else.
+   **Management team, to solve inside F3:** the most frequent out-of-catalogue value is the *management
+   team* ("Equip directiu", alone or as "Equip directiu i caps de departament"). Mapping it to "Director"
+   would be wrong, as that is a single-person post meaning something else. Issue #494 asked for it as an
+   assignable role up front; dropped on 2026-11-06 because the current agreements don't need it: an
+   "Equip directiu" workgroup can be created from the UI today and serves as the scope of its own
+   minutes and agreements, and when it answers for an agreement of another scope its members go in
+   *Responsible people* by hand. What F3 has to decide is the import mapping, starting from
+   `ems.workgroup` (Fer's suggestion on #494, and the quality committee is already a workgroup whose
+   membership drives access): either a *responsible workgroup* field on `ems.quality.action`, resolved
+   to its members by the record rules, `is_responsible` and notifications (its `workgroup_id` is the
+   scope and numbers the code, so it can't double as the responsible), or expanding the workgroup's
+   current members into `responsible_employee_ids` on import (simpler, but the list won't follow later
+   changes in the team).
 5. Origins are mapped to the catalogue, keeping the original text.
 6. Indicator references are linked by code where recognised; the rest becomes a note.
 7. Hyperlink targets are extracted and linked to the document registry where the name matches a coded
@@ -668,7 +677,8 @@ graph LR
   department minutes with agreements and PDF; teaching team and staff meeting with attendee preloading;
   improvement team with constitution, objectives and closure; remaining types as configuration.
 - **F3 — System records** *(medium)*. The five types, origin catalogue, computed rating and state, and the
-  historical import. Also the short form any teacher uses to open an improvement.
+  historical import. Also the short form any teacher uses to open an improvement. Includes mapping
+  "Equip directiu" as responsible through a workgroup (section 8, item 4).
 - **F4 — Complaints** *(small)*. Small in code, delicate in permissions.
 - **F5 — Objectives, indicators, work plans** *(medium-large)*. Where academic results stop being typed
   in. Start with one department and validate the figures against last year's document before
@@ -753,12 +763,12 @@ implementation:
 | A | Indicator values are three fields plus a required reason for overrides |
 | A | Complaint indicators are stored as closed values per course, never recomputed live |
 | A | DNI printed only by flagged minute types, read with a narrow `sudo()` |
-| A | "Management team" is not mapped to any existing post on import (issue #494) |
+| A | "Management team" is not mapped to any existing post on import; mapped through an `ems.workgroup` in F3 (section 8, item 4) |
 
 ## 11. Open dependencies
 
-- **Issue #494** — define the management team as an assignable role. Blocks the responsible mapping in
-  F3.
+- Management team as responsible in the F3 import: resolve with workgroups, see section 8, item 4
+  (issue #494 dropped as a prerequisite, 2026-11-06).
 - Supplier homologation criteria to be confirmed against the current procedure before F7.
 - Whether the improvement-team **closure** minute also prints the DNI, as the constitution one does.
 

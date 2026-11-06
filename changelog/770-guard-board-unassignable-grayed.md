@@ -7,3 +7,9 @@
 - A guard who cannot cover anything then (away, not checked in, busy with a group) keeps the grey dashed box and is now also struck through, so it is not mistaken for another area's guard.
 - Badge class and tooltip moved from the template into the component (`guardStateClass()`, `guardTooltip()`); tests, the unchecked-guard tour, the developer doc, the teachers' manual (ca/es/en), three of its screenshots and the ca/es translations updated.
 - Closing audit: the unused badge flag `is_me_free` (computed on every badge, read by no client code) removed; tests added for Direction and the administrator, who see every free guard as assignable, and for a busy guard, who is struck out rather than idle. Checked on this box's data for every role (admin, Director, Head of Studies, Department Chiefs of both areas, a guard teacher): a usable badge always matches the absence's assignable candidates (0 mismatches), with the board's load time unchanged (0.1-0.4 s, same as before).
+
+# Internal changes
+
+## Guard duty board manual screenshots no longer depend on the real date:
+
+- The screenshot test of the board's two views (manual pictures 01 and 02) used this week's real Monday, so it waited forever for a guard badge whenever that Monday was a public holiday (the board lists nobody then, issue #740). It now pins the clock to a Monday morning that is a school day (`shift_ems_clock`, `make_working_day`), like the other time-dependent tests; both pictures regenerated.

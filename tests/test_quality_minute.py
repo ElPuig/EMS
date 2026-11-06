@@ -664,6 +664,12 @@ class TestQualityMinute(TransactionCase):
         self.assertIn('Said about it.', html, "what was written on each item is printed, without waiting for the approval to put it together")
         self.assertEqual(self.env['ems.minute']._ems_people_label(self.env['hr.employee.public'].browse(self.employee.id)), self.employee.name)
 
+    def test_every_page_names_the_iso_document_the_minute_is_printed_on(self):
+        html = self.env['ir.actions.report']._render_qweb_html('ems.action_report_minute', self._minute().ids)[0].decode()
+        footer = html[html.index('o_ems_footer_note'):]
+        self.assertIn('PE3.01.22', footer[:300], "the note goes in the layout's footer, repeated on each page")
+        self.assertIn('Revisió: 02/11/2026', footer[:300])
+
     def test_the_pdf_is_printed_in_the_centre_language_whoever_prints_it(self):
         # The class sets the centre language to the source one (en_US): a user working in Spanish
         # still gets the minute in it.

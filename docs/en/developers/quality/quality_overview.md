@@ -208,6 +208,14 @@ approver; until then the same room is left blank. The stamp is the shared QWeb t
 convalidation resolution prints; like there, it is EMS's record of who did it, not a qualified electronic
 signature (issue #530).
 
+Every page of the minute's PDF names, under the company footer, the ISO 9001 controlled document it is
+printed on ("PE3.01.22 Model d'acta i de registre d'evidències (EMS) – Revisió: 02/11/2026"). The text is
+fixed in `reports/minute_report.xml` (`ems_footer_note`), verbatim and not translatable, so a new revision
+of that model means editing it there. Any report can do the same: `ems_footer_note`, set before calling
+`web.external_layout`, is printed by `ems.external_layout_footer_note`
+(`reports/shared/report_layout_footer_note.xml`), hooked under `company.report_footer` in each of Odoo's
+seven layouts, since the company can pick any of them (issue #769).
+
 **Attendees and absentees** (`attendee_ids`, `absentee_ids`) exclude each other: `_check_attendee_not_absent`
 refuses anybody in both, and the form shows both with `ems_exclusive_tags`
 (`static/src/js/backend/exclusive_tags_field.js`, option `exclusive_with` naming the sibling field), a

@@ -80,6 +80,7 @@
         'views/menu.xml',
         'views/quality/menu.xml',
         'reports/shared/report_validation_stamp.xml',
+        'reports/shared/report_layout_footer_note.xml',
         'reports/minute_report.xml',
         'views/minutes_agreements/minute/call_email.xml',
         'views/minutes_agreements/minute/draft_email.xml',

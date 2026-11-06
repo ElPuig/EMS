@@ -6,7 +6,7 @@ from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import Form, TransactionCase
 
-from .common import create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email
+from .common import course_monday, create_absence, create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email
 
 
 class TestQualityMinute(TransactionCase):
@@ -355,6 +355,59 @@ class TestQualityMinute(TransactionCase):
         presence.line_ids.filtered(lambda line: line.employee_id.id == self.employee.id).state = 'present'
         presence.action_close()
         self.assertEqual(minute.attendee_ids.ids, [self.employee.id])
+
+    # -- absences (issue #776) ------------------------------------------------------------
+
+    def _on_leave_colleague(self, day, **absence):
+        user = create_role_user(self, 'teacher', 'minute.on.leave@example.com', name='Minute On Leave')
+        colleague = create_role_employee(self, user, department_id=self.department.id)
+        return colleague, create_absence(self.env, colleague, day, **absence)
+
+    def _start_on(self, day, hour=10.0):
+        return self.env['ems.datetime_utils'].time_float_to_utc_datetime(day, hour).replace(tzinfo=None)
+
+    def test_someone_on_leave_is_written_down_as_absent(self):
+        """Attendance written by hand: EMS moves them to the absentees itself, saying only that
+        they have an absence, and the writer's own notes are kept."""
+        day = course_monday(self.env)
+        colleague, _leave = self._on_leave_colleague(day, approve=False)
+        minute = self._minute(date=False, start_datetime=self._start_on(day), absence_notes='Somebody: late')
+        self.assertNotIn(colleague.id, minute.attendee_ids.ids)
+        self.assertIn(colleague.id, minute.absentee_ids.ids)
+        self.assertIn(self.employee.id, minute.attendee_ids.ids)
+        self.assertEqual(minute.absence_notes, f'Somebody: late; {colleague.name}: Has an absence')
+
+    def test_the_writer_puts_back_whoever_came_and_ems_leaves_them(self):
+        day = course_monday(self.env)
+        colleague, _leave = self._on_leave_colleague(day)
+        minute = self._minute(date=False, start_datetime=self._start_on(day))
+        minute.write({'attendee_ids': [(4, colleague.id)], 'absentee_ids': [(3, colleague.id)]})
+        minute.action_start_meeting()
+        self.assertIn(colleague.id, minute.attendee_ids.ids)
+
+    def test_an_absence_filed_later_counts_and_a_refused_one_is_undone(self):
+        day = course_monday(self.env)
+        minute = self._minute(date=False, start_datetime=self._start_on(day))
+        colleague, leave = self._on_leave_colleague(day, approve=False)
+        minute.attendee_ids |= self.env['hr.employee.public'].browse(colleague.id)
+        self.assertIn(colleague.id, minute.absentee_ids.ids)
+        leave.action_refuse()
+        minute.action_start_meeting()
+        self.assertIn(colleague.id, minute.attendee_ids.ids)
+        self.assertNotIn(colleague.id, minute.absentee_ids.ids)
+        self.assertFalse(minute.absence_notes)
+
+    def test_with_the_tag_the_absence_reaches_the_minute(self):
+        day = course_monday(self.env)
+        colleague, _leave = self._on_leave_colleague(day)
+        minute = self._nfc_minute(start_datetime=self._start_on(day))
+        line = minute.presence_id.sudo().line_ids.filtered(lambda item: item.employee_id.id == colleague.id)
+        self.assertEqual(line.state, 'justified')
+        minute.action_start_meeting()
+        minute.action_open_attendance_kiosk()
+        minute.action_close_attendance()
+        self.assertIn(colleague.id, minute.absentee_ids.ids)
+        self.assertIn(f'{colleague.name}: Has an absence', minute.absence_notes)
 
     def test_the_agenda_is_put_together_from_the_minute(self):
         """Only the items to discuss are typed in; the rest of the agenda follows from the minute."""

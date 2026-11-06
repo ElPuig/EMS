@@ -90,6 +90,16 @@ Cada persona veu les reunions:
 
 ---
 
+## Persones amb una absència
+
+Qui té una absència o una sol·licitud d'absència (aprovada o pendent d'aprovar) el dia i a l'hora de la reunió apareix com a **Justificat**, amb la nota «Té una absència». El motiu no es mostra mai. L'EMS ho comprova quan es carreguen les persones, quan canvia la data o l'hora de la reunió i de nou quan s'obre i es tanca l'assistència:
+
+- Si l'absència es cancel·la o es rebutja abans de tancar, la persona torna a **Pendent**.
+- Si ve igualment i passa la targeta, queda com a **Present**.
+- Un estat que canviïs a mà es queda tal com el deixes.
+
+---
+
 ## Marcar una persona a mà
 
 A la pestanya **Persones**, canvia la columna **Estat** de la fila:

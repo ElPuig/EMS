@@ -48584,3 +48584,26 @@ msgstr "la teva part de les despeses col·lectives del grup"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
 msgid "We will use the account of your enrolment. Write another one only if you want it paid elsewhere."
 msgstr "Farem servir el compte de la teva matrícula. Escriu-ne un altre només si vols que t'ho paguem en un altre compte."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Has an absence"
+msgstr "Té una absència"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_meeting_presence_line__on_leave
+msgid ""
+"Justified by EMS itself because the person has an absence or a leave request"
+" overlapping the meeting. It goes back to pending if that absence is "
+"cancelled or refused before the attendance is closed."
+msgstr ""
+"Justificada pel mateix EMS perquè la persona té una absència o una "
+"sol·licitud d'absència que coincideix amb la reunió. Torna a pendent si "
+"l'absència es cancel·la o es rebutja abans de tancar l'assistència."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__on_leave
+#: model:ir.model.fields,field_description:ems.field_ems_minute__on_leave_ids
+msgid "On leave"
+msgstr "Amb absència"

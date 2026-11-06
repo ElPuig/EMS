@@ -63,7 +63,7 @@ class EmsSignedRecord(models.AbstractModel):
         if file_ids and self._ems_drive_folder_id():
             for file_id in file_ids:
                 self.browse().with_delay(identity_key=f"ems_drive_trash_{file_id}",
-                                description=f"Send to the Drive bin: {file_id}")._ems_drive_trash(file_id)
+                                         description=f"Send to the Drive bin: {file_id}")._ems_drive_trash(file_id)
         return result
 
     @api.model
@@ -165,21 +165,23 @@ class EmsSignedRecord(models.AbstractModel):
                 _logger.info("[GW dry-run] file %s in Drive folder %s (%d bytes)", name, folder_id, len(pdf))
                 continue
             service = gw._gw_get_drive_service()
-            media = MediaIoBaseUpload(io.BytesIO(pdf), mimetype='application/pdf', resumable=False)
+
+            def media():
+                return MediaIoBaseUpload(io.BytesIO(pdf), mimetype='application/pdf', resumable=False)
+
             result = False
             if record.drive_file_id:
                 try:
                     result = service.files().update(
-                        fileId=record.drive_file_id, body={'name': name}, media_body=media,
+                        fileId=record.drive_file_id, body={'name': name}, media_body=media(),
                         fields='id,webViewLink', supportsAllDrives=True).execute()
                 except HttpError as error:
                     # Deleted or moved out of reach in Drive: file it again.
-                    if getattr(getattr(error, 'resp', None), 'status', None) != 404:
+                    if gw._gw_http_status(error) != 404:
                         raise
-                    media = MediaIoBaseUpload(io.BytesIO(pdf), mimetype='application/pdf', resumable=False)
             if not result:
                 result = service.files().create(
-                    body={'name': name, 'parents': [folder_id]}, media_body=media,
+                    body={'name': name, 'parents': [folder_id]}, media_body=media(),
                     fields='id,webViewLink', supportsAllDrives=True).execute()
             record.write({'drive_file_id': result['id'], 'drive_url': result.get('webViewLink')})
         return True
@@ -190,10 +192,11 @@ class EmsSignedRecord(models.AbstractModel):
         if self.env.company.google_ws_dry_run:
             _logger.info("[GW dry-run] send Drive file %s to the bin", file_id)
             return True
-        service = self.env['google.workspace.mixin']._gw_get_drive_service()
+        gw = self.env['google.workspace.mixin']
         try:
-            service.files().update(fileId=file_id, body={'trashed': True}, supportsAllDrives=True).execute()
+            gw._gw_get_drive_service().files().update(fileId=file_id, body={'trashed': True}, supportsAllDrives=True).execute()
         except HttpError as error:
-            if getattr(getattr(error, 'resp', None), 'status', None) != 404:
+            # Already gone from Drive: nothing left to send to the bin.
+            if gw._gw_http_status(error) != 404:
                 raise
         return True

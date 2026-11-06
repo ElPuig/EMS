@@ -242,13 +242,17 @@ class GoogleWorkspaceMixin(models.AbstractModel):
         try:
             service.users().patch(userKey=email, body=body).execute()
         except HttpError as e:
-            status = getattr(getattr(e, 'resp', None), 'status', None)
-            if status in (404, 403):
+            if self._gw_http_status(e) in (404, 403):
                 record.sudo().message_post(body=unreachable_note)
                 return False
             _logger.exception("Could not patch Google account %s", email)
             raise
         return True
+
+    @api.model
+    def _gw_http_status(self, error):
+        """The HTTP status of a Google API error (404, 403...), or None for any other error."""
+        return getattr(getattr(error, 'resp', None), 'status', None)
 
     @api.model
     def _gw_format_phone(self, raw):

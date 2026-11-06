@@ -496,7 +496,7 @@ class ResPartnerGoogleWorkspace(models.Model):
                     email = cand
                     break
                 except HttpError as e:
-                    status = getattr(getattr(e, 'resp', None), 'status', None)
+                    status = self._gw()._gw_http_status(e)
                     if status == 409:
                         # Email already taken in Google: try the next candidate.
                         continue
@@ -661,7 +661,7 @@ class ResPartnerGoogleWorkspace(models.Model):
                     body={'suspended': True, 'orgUnitPath': ou},
                 ).execute()
             except HttpError as e:
-                status = getattr(getattr(e, 'resp', None), 'status', None)
+                status = self._gw()._gw_http_status(e)
                 if status in (404, 403):
                     # Account no longer exists in Google: nothing to suspend, and nothing
                     # left to delete either - no deletion date is scheduled.
@@ -719,7 +719,7 @@ class ResPartnerGoogleWorkspace(models.Model):
             try:
                 service.users().delete(userKey=self.student_email).execute()
             except HttpError as e:
-                status = getattr(getattr(e, 'resp', None), 'status', None)
+                status = self._gw()._gw_http_status(e)
                 if status not in (404, 403):
                     _logger.exception("Could not delete Google account for %s", self.name)
                     self.message_post(body=_(
@@ -842,7 +842,7 @@ class ResPartnerGoogleWorkspace(models.Model):
                 body={'suspended': False, 'orgUnitPath': ou},
             ).execute()
         except HttpError as e:
-            status = getattr(getattr(e, 'resp', None), 'status', None)
+            status = self._gw()._gw_http_status(e)
             if status in (404, 403):
                 # The account was deleted in Admin: recreate it from scratch.
                 self.message_post(body=_(

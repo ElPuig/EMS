@@ -1076,22 +1076,6 @@ class EmsMinute(models.Model):
         they are beyond that (a whole department answering for an agreement is said as a number)."""
         return ", ".join(people.mapped('name')) if len(people) <= 3 else _("%s people", len(people))
 
-    @api.model
-    def _ems_report_tint(self, color, veil=0.86):
-        """The colour faded towards white (`veil` of white over it), as a plain hex colour: the
-        PDF renderer (wkhtmltopdf) does not paint a CSS gradient veil, which left the minute's title
-        cells in solid brand colour under text of that same colour."""
-        hex_digits = (color or '').lstrip('#')
-        if len(hex_digits) == 3:
-            hex_digits = ''.join(digit * 2 for digit in hex_digits)
-        try:
-            channels = [int(hex_digits[i:i + 2], 16) for i in (0, 2, 4)] if len(hex_digits) == 6 else None
-        except ValueError:
-            channels = None
-        if not channels:
-            return self._ems_report_tint('#a51d2d', veil)
-        return '#' + ''.join(f"{round(channel + (255 - channel) * veil):02x}" for channel in channels)
-
     def action_open_draft_pdf(self):
         """Show the minute as it stands, before it is approved: the same document the approval
         will file, rendered on the spot and marked as a draft. Nothing is stored."""

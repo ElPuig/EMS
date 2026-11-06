@@ -60,11 +60,11 @@
                                 .o_ems_minute table td p, .o_ems_minute table th p { margin: 0 !important; line-height: 1.3 !important; }
                                 .o_ems_minute table.o_ems_minute_facts { margin: 6pt 0 4pt 0; font-size: 9pt; }
                                 .o_ems_minute table.o_ems_minute_facts td, .o_ems_minute table.o_ems_minute_facts th { padding: 5pt 8pt !important; vertical-align: middle; }
-                                /* Title cells in the brand colour, on that colour faded towards white
-                                   (computed on the server: wkhtmltopdf paints no gradient veil). */
+                                /* Title cells like the header row of the other tables (the layout's
+                                   thead th): brand colour, white uppercase text. */
                                 .o_ems_minute table.o_ems_minute_facts th {
-                                    white-space: nowrap; width: 1% !important; font-weight: bold; color: <t t-out="brand"/>;
-                                    background-color: <t t-out="doc._ems_report_tint(brand)"/> !important;
+                                    white-space: nowrap; width: 1% !important; font-weight: normal; text-transform: uppercase;
+                                    color: #fff; background-color: <t t-out="brand"/>;
                                 }
                                 .o_ems_minute table.o_ems_minute_signatures { margin-top: 18pt; }
                                 .o_ems_minute table.o_ems_minute_signatures th { width: 50% !important; }

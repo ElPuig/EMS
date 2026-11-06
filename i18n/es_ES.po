@@ -27215,12 +27215,8 @@ msgstr "· versión"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_minute_type__template_document_id
-msgid ""
-"The controlled document this type is written against. Its code is quoted in "
-"the PDF."
-msgstr ""
-"El documento controlado según el cual se redacta este tipo. Su código se "
-"cita en el PDF."
+msgid "The controlled document this type is written against."
+msgstr "El documento controlado según el cual se redacta este tipo."
 
 #. module: ems
 #. odoo-python

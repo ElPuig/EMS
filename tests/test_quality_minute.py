@@ -170,7 +170,7 @@ class TestQualityMinute(TransactionCase):
     def test_approval_renders_the_pdf(self):
         minute = self._minute()
         self.assertEqual(minute.template_document_id, self.type.template_document_id,
-                         "the minute takes its controlled template from the type, for the PDF footer")
+                         "the minute takes its controlled template from the type")
         minute.section_value_ids.filtered(lambda value: value.required).content = "<p>Discussed.</p>"
         minute.action_submit()
         minute.action_approve()

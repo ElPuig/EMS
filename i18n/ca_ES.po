@@ -3259,6 +3259,7 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -3410,6 +3411,7 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3874,6 +3876,7 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -5443,6 +5446,7 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__id
 msgid "ID"
 msgstr "ID"
 
@@ -6176,6 +6180,7 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -6327,6 +6332,7 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -6598,6 +6604,7 @@ msgstr "Text llarg"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__main_group_id model:ir.model.fields,field_description:ems.field_res_users__main_group_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__main_group_id
 msgid "Main Group"
 msgstr "Grup principal"
 
@@ -6908,6 +6915,7 @@ msgstr "NUSS"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__name
 #: model:ir.model.fields,field_description:ems.field_sign_oca_role__name
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 msgid "Name"
 msgstr "Nom"
 
@@ -9309,6 +9317,7 @@ msgstr "Carrer 2"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_history__role__student
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__student_id
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__student_id
 msgid "Student"
 msgstr "Estudiant"
 
@@ -26249,8 +26258,8 @@ msgid "Student Domain"
 msgstr "Domini d'alumnes"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__target_student_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__line_ids
 msgid "Students to justify"
 msgstr "Alumnes per justificar"
 
@@ -48584,3 +48593,29 @@ msgstr "la teva part de les despeses col·lectives del grup"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
 msgid "We will use the account of your enrolment. Write another one only if you want it paid elsewhere."
 msgstr "Farem servir el compte de la teva matrícula. Escriu-ne un altre només si vols que t'ho paguem en un altre compte."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_justification_wizard_line
+msgid "Student of the absence justification assistant"
+msgstr "Alumne de l'assistent de justificació de faltes"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__wizard_id
+msgid "Assistant"
+msgstr "Assistent"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__excluded
+msgid "Do not justify"
+msgstr "No justificar"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification_wizard_line__excluded
+msgid "Mark it if this student's absences must not be justified."
+msgstr "Marca-ho si les faltes d'aquest alumne no s'han de justificar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
+msgid "Not justified, as marked: %s"
+msgstr "Sense justificar, tal com s'han marcat: %s"

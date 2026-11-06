@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import _, api, fields, models
+from odoo import _, api, Command, fields, models
 from odoo.exceptions import UserError, ValidationError
 
 from ..shared import base
@@ -36,10 +36,11 @@ class EmsAttendanceJustificationWizard(models.TransientModel):
     # allowed students are the whole centre, too many ids to send to the browser.
     student_domain = fields.Char(compute='_compute_domains')
     group_domain = fields.Char(compute='_compute_domains')
-    target_student_ids = fields.Many2many(
-        'res.partner', relation='ems_attendance_justification_wizard_target_rel',
-        column1='wizard_id', column2='partner_id', string='Students to justify',
-        compute='_compute_target_student_ids')
+    # One line per student about to be justified, where the tutor marks who must not be (issue
+    # #763: in a strike, not every student of the group joins it).
+    line_ids = fields.One2many(
+        'ems.attendance_justification_wizard_line', 'wizard_id', string='Students to justify',
+        compute='_compute_line_ids', store=True, readonly=False)
     overlap_student_ids = fields.Many2many(
         'res.partner', relation='ems_attendance_justification_wizard_overlap_rel',
         column1='wizard_id', column2='partner_id', string='Already justified',
@@ -68,10 +69,16 @@ class EmsAttendanceJustificationWizard(models.TransientModel):
             wizard.overlap_student_ids = wizard._overlapping_students(wizard._resolve_students())
 
     @api.depends('mode', 'student_ids', 'group_ids', 'overlap_student_ids')
-    def _compute_target_student_ids(self):
+    def _compute_line_ids(self):
         # Only who will really be justified: the students skipped for an overlap are listed apart.
+        # Rebuilt whenever the selection or the period changes, keeping the students already
+        # marked "Do not justify" marked.
         for wizard in self:
-            wizard.target_student_ids = wizard._resolve_students() - wizard.overlap_student_ids._origin
+            excluded = wizard.line_ids.filtered('excluded').student_id._origin
+            students = wizard._resolve_students() - wizard.overlap_student_ids._origin
+            wizard.line_ids = [Command.clear()] + [
+                Command.create({'student_id': student.id, 'excluded': student in excluded})
+                for student in students]
 
     @api.model
     def default_get(self, fields_list):
@@ -123,7 +130,9 @@ class EmsAttendanceJustificationWizard(models.TransientModel):
                     students=", ".join(refused.mapped('name'))))
 
         skipped = self._overlapping_students(students)
-        students -= skipped
+        # The lines only take students out: who is justified is still resolved here, server-side.
+        excluded = self.line_ids.filtered('excluded').student_id & students
+        students -= skipped | excluded
         lines = Justification._justifiable_lines(students, self.start_date, self.end_date)
         attachments = self.attachment_ids
         justifications = Justification.create([{
@@ -145,6 +154,8 @@ class EmsAttendanceJustificationWizard(models.TransientModel):
             message += "\n" + _(
                 "Skipped, they already have a justification overlapping this period: %s",
                 ", ".join(skipped.mapped('name')))
+        if excluded:
+            message += "\n" + _("Not justified, as marked: %s", ", ".join(excluded.mapped('name')))
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -156,3 +167,16 @@ class EmsAttendanceJustificationWizard(models.TransientModel):
                 'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'},
             },
         }
+
+
+class EmsAttendanceJustificationWizardLine(models.TransientModel):
+    """A student listed by the assistant, which the tutor can mark as not to be justified."""
+    _name = 'ems.attendance_justification_wizard_line'
+    _description = 'Student of the absence justification assistant'
+
+    wizard_id = fields.Many2one(
+        'ems.attendance_justification_wizard', string='Assistant', required=True, ondelete='cascade')
+    student_id = fields.Many2one('res.partner', string='Student', required=True, readonly=True)
+    main_group_id = fields.Many2one(related='student_id.main_group_id')
+    excluded = fields.Boolean(
+        string='Do not justify', help="Mark it if this student's absences must not be justified.")

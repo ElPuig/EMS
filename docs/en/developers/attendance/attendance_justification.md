@@ -36,18 +36,22 @@ justification still shows its own form, to edit or delete it.
 |-------|-------|
 | `mode` | "Students" (pick them by hand, any number) or "Groups" (every active student whose main group is one of the picked groups). |
 | `start_date` / `end_date`, `teacher_id`, `notes`, `attachment_ids` | Copied to every justification created. Each one gets its own copy of the files (same content, the filestore keeps it once), so each file follows the access rights of the justification it belongs to. |
-| `allowed_student_ids` / `allowed_group_ids` | What the pickers offer, from the justifying teacher (`teacher_id`): an administrator, everything; anyone else, the students (and main groups) of the groups they act as tutor of (`tutor_scope_user_ids`), the same rule as the form's own `allowed_student_ids`. |
-| `target_student_ids` | Preview: the students the selection resolves to that will really be justified (without the skipped ones below). |
+| `student_domain` / `group_domain` | What the pickers offer (the view's `domain=`), from the justifying teacher (`teacher_id`): an administrator, everything; anyone else, the students (and main groups) of the groups they act as tutor of (`tutor_scope_user_ids`), the same rule as the form's own `allowed_student_ids`. Sent as domain text, not ids: for an administrator the ids would be the whole centre. |
+| `line_ids` | `One2many → ems.attendance_justification_wizard_line`, computed + stored, `readonly=False`: one line per student the selection resolves to (without the skipped ones below). Each line has a "Do not justify" checkbox (`excluded`, issue #763: in a strike, not every student of the group joins it). Rebuilt whenever the mode, the selection or the period changes, keeping the students already marked as marked. |
 | `overlap_student_ids` | Preview: those already holding a justification overlapping the period. They are **skipped**, not an error, and the closing notification names them. |
 
 ```mermaid
 flowchart TD
     A["action_justify()"] --> B["_check_permissions per student\n(admin, or acts as their tutor) or raise"]
-    B --> C["skip students with an overlapping justification"]
+    B --> C["skip students with an overlapping justification\nand those marked 'Do not justify'"]
     C --> D["_justifiable_lines(students, period)\none search for every student"]
     D --> E["create() one justification per student\nwith its lines and its own copy of the files"]
-    E --> F["notification: N justified, M skipped (names)"]
+    E --> F["notification: N justified, M skipped, K marked (names)"]
 ```
+
+Who is justified is still resolved server-side from the selection (`_resolve_students()`): the
+lines can only take students out, never add one, so a crafted line cannot reach a student
+outside the tutor's scope.
 
 `EmsAttendanceJustification._justifiable_lines(students, start_date, end_date)` is the one place
 that finds the session lines a period covers (shared with the form's onchange): a single search

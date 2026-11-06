@@ -20,12 +20,12 @@ Pots justificar un alumne, diversos o grups sencers alhora (per exemple, per a u
 2. A **Període**, indica la data i l'hora d'inici i de fi.
 3. A **Mode**, tria com els selecciones:
     - **Estudiants**: tria un o més alumnes a **Estudiants**.
-    - **Grups**: tria un o més grups a **Grups**. Es justifiquen tots els alumnes d'aquests grups.
+    - **Grups**: tria un o més grups a **Grups**. Es justifiquen tots els alumnes d'aquests grups, excepte els que marquis al pas següent.
 
     Només hi surten els teus grups i els seus alumnes.
-4. La pestanya **Alumnes per justificar** mostra qui es justificarà. Si algun ja té un justificant que se superposa amb el període, un avís groc l'indica: se l'ometrà.
+4. La pestanya **Alumnes per justificar** mostra qui es justificarà. Marca **No justificar** al costat de qui no s'hagi de justificar (per exemple, en una vaga, els alumnes que no l'han secundat). Si algun ja té un justificant que se superposa amb el període, un avís groc l'indica: se l'ometrà.
 5. Si vols, adjunta el document a la pestanya **Fitxers adjunts** (cada alumne en rep una còpia) i afegeix un comentari a **Notes**.
-6. Clica **Justifica**. EMS crea un justificant per a cada alumne: les seves faltes del període passen a **Falta justificada**, sigui quin sigui el docent que les va posar, i els seus retards greus a **Retard lleu**. Un missatge t'indica quants alumnes s'han justificat i quins s'han omès.
+6. Clica **Justifica**. EMS crea un justificant per a cada alumne: les seves faltes del període passen a **Falta justificada**, sigui quin sigui el docent que les va posar, i els seus retards greus a **Retard lleu**. Un missatge t'indica quants alumnes s'han justificat, quins s'han omès i quins has marcat per no justificar.
 
 ![L'assistent Justifica faltes sobre un grup sencer](../../assets/tutors/justificants-02-nou.png)
 

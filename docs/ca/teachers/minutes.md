@@ -184,6 +184,15 @@ diu ara l'acta, i als seus responsables només se'ls torna a avisar del que ha c
 
 ![Acta aprovada amb el botó Desfés l'aprovació](../../assets/teachers/actes-10-desfer-aprovacio.png)
 
+### La còpia a Drive
+
+Quan el centre ho té configurat, EMS guarda una còpia del PDF de cada acta en una carpeta del Drive del centre, amb
+el codi de l'acta com a nom. La còpia se substitueix cada vegada que l'acta canvia d'estat (quan es crea, quan
+comença la reunió, quan s'envia a aprovar, s'aprova o es desfà l'aprovació), de manera que a la carpeta sempre hi ha
+un sol fitxer per acta, tal com era en l'últim canvi d'estat: el que escriviu entremig arriba a Drive en el
+següent. Un cop desada, **A Drive → Obre a Drive**, a **Signatures**, l'obre. Si s'esborra una acta, la seva còpia va
+a la paperera de Drive.
+
 ## Els meus acords
 
 **Reunions → Acords** obre amb els acords **oberts** on sou **persona responsable** (pel vostre nom o pel

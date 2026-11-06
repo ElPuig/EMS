@@ -185,6 +185,15 @@ lo que ha cambiado.
 
 ![Acta aprobada con el botón Deshacer la aprobación](../../assets/teachers/actes-10-desfer-aprovacio.png)
 
+### La copia en Drive
+
+Cuando el centro lo tiene configurado, EMS guarda una copia del PDF de cada acta en una carpeta del Drive del
+centro, con el código del acta como nombre. La copia se sustituye cada vez que el acta cambia de estado (cuando se
+crea, cuando empieza la reunión, cuando se envía a aprobar, se aprueba o se deshace la aprobación), de modo que en
+la carpeta siempre hay un solo archivo por acta, tal como estaba en el último cambio de estado: lo que escribáis
+entre medias llega a Drive en el siguiente. Una vez guardada, **En Drive → Abrir en Drive**, en **Firmas**, la abre.
+Si se borra un acta, su copia va a la papelera de Drive.
+
 ## Mis acuerdos
 
 **Reuniones → Acuerdos** abre con los acuerdos **abiertos** en los que sois **persona responsable** (por

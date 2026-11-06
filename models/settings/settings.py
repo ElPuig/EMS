@@ -95,6 +95,7 @@ class ems_settings(models.TransientModel):
    google_ws_ou_staff_suspended = fields.Char(related="company_id.google_ws_ou_staff_suspended", readonly=False)
    google_ws_dry_run  = fields.Boolean(related="company_id.google_ws_dry_run", readonly=False)
    google_ws_sa_json  = fields.Text(related="company_id.google_ws_sa_json", readonly=False)
+   minute_drive_folder_url = fields.Char(related="company_id.minute_drive_folder_url", readonly=False)
 
    # A default, not a compute: the settings form gets its values from onchange(), which never
    # computes a field with no dependencies. latest_version is the version the database was last

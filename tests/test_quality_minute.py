@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+from unittest.mock import MagicMock, patch
+
+from googleapiclient.errors import HttpError
 
 from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
@@ -722,3 +725,106 @@ class TestQualityMinute(TransactionCase):
         self.assertFalse(third.agreement_review_ids, "a closed agreement is not brought to the next meeting")
         review.write({'note': False, 'is_closed': False})
         self.assertFalse(agreement.followup_ids, "taking back what was written takes the entry back too")
+
+    # --- Filing in Drive (issue #769) ------------------------------------------------------------
+
+    def _drive_jobs(self, key_start):
+        return self.env['queue.job'].search([('identity_key', '=like', f'{key_start}%')])
+
+    def _enable_drive(self, dry_run=False):
+        self.env.company.write({
+            'google_ws_enabled': True,
+            'google_ws_dry_run': dry_run,
+            'minute_drive_folder_url': 'https://drive.google.com/drive/folders/18CzLabbkkD6vkAOkhDAuu1jZiFCNC-0z?usp=drive_link',
+        })
+
+    def _drive_service(self):
+        service = MagicMock()
+        service.files.return_value.create.return_value.execute.return_value = {'id': 'FILE1', 'webViewLink': 'https://drive.google.com/file/d/FILE1/view'}
+        service.files.return_value.update.return_value.execute.return_value = {'id': 'FILE1', 'webViewLink': 'https://drive.google.com/file/d/FILE1/view'}
+        patcher = patch.object(type(self.env['google.workspace.mixin']), '_gw_get_drive_service', return_value=service)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        return service.files.return_value
+
+    def test_nothing_goes_to_drive_without_a_folder(self):
+        self.env.company.minute_drive_folder_url = False
+        minute = self._minute()
+        minute.action_start_meeting()
+        self.assertFalse(self._drive_jobs(f'ems_drive_upload_ems.minute_{minute.id}'))
+
+    def test_the_folder_is_read_from_its_link_or_its_id(self):
+        self._enable_drive()
+        self.assertEqual(self.env['ems.minute']._ems_drive_folder_id(), '18CzLabbkkD6vkAOkhDAuu1jZiFCNC-0z')
+        self.env.company.minute_drive_folder_url = '18CzLabbkkD6vkAOkhDAuu1jZiFCNC-0z'
+        self.assertEqual(self.env['ems.minute']._ems_drive_folder_id(), '18CzLabbkkD6vkAOkhDAuu1jZiFCNC-0z')
+        self.env.company.google_ws_enabled = False
+        self.assertFalse(self.env['ems.minute']._ems_drive_folder_id(), "Google Workspace switched off files nothing")
+
+    def test_creating_and_each_change_of_state_file_the_minute_once(self):
+        self._enable_drive()
+        minute = self._minute()
+        key = f'ems_drive_upload_ems.minute_{minute.id}'
+        self.assertEqual(len(self._drive_jobs(key)), 1, "queued when it is created")
+        minute.with_user(self.user).action_start_meeting()
+        self.assertEqual(len(self._drive_jobs(key)), 1, "a change of state while one is waiting files it once")
+        self._drive_jobs(key).unlink()
+        minute.agenda_html = '<p>Edited</p>'
+        self.assertFalse(self._drive_jobs(key), "an edit waits for the next change of state")
+        minute.with_user(self.user).action_back_to_draft()
+        self.assertEqual(len(self._drive_jobs(key)), 1, "whoever writes the minute queues it, without rights on the job queue")
+        files = self._drive_service()
+        minute.with_user(self.user)._ems_upload_to_drive()
+        self.assertEqual(files.create.call_count, 1, "and the job, run as them, files it")
+
+    def test_the_file_is_created_once_and_then_replaced(self):
+        self._enable_drive()
+        files = self._drive_service()
+        minute = self._minute()
+        minute._ems_upload_to_drive()
+        body = files.create.call_args.kwargs['body']
+        self.assertEqual(body, {'name': f'{minute.code}.pdf', 'parents': ['18CzLabbkkD6vkAOkhDAuu1jZiFCNC-0z']})
+        self.assertTrue(files.create.call_args.kwargs['supportsAllDrives'], "the folder is in a shared drive")
+        self.assertEqual(minute.drive_file_id, 'FILE1')
+        self.assertEqual(minute.drive_url, 'https://drive.google.com/file/d/FILE1/view')
+        minute.action_start_meeting()
+        minute._ems_upload_to_drive()
+        self.assertEqual(files.create.call_count, 1, "only one version is kept: the same file")
+        self.assertEqual(files.update.call_args.kwargs['fileId'], 'FILE1')
+
+    def test_a_file_deleted_in_drive_is_filed_again(self):
+        self._enable_drive()
+        files = self._drive_service()
+        minute = self._minute()
+        minute.drive_file_id = 'GONE'
+        files.update.return_value.execute.side_effect = HttpError(MagicMock(status=404), b'not found')
+        minute._ems_upload_to_drive()
+        self.assertEqual(files.create.call_count, 1)
+        self.assertEqual(minute.drive_file_id, 'FILE1')
+
+    def test_an_approved_minute_files_the_pdf_of_its_approval(self):
+        self._enable_drive()
+        minute = self._minute()
+        minute.section_value_ids.filtered(lambda value: value.required).content = "<p>Discussed.</p>"
+        minute.action_submit()
+        minute.action_approve()
+        self.assertEqual(minute._ems_drive_pdf(), minute.pdf_attachment_id.raw)
+
+    def test_deleting_the_minute_sends_its_file_to_the_bin(self):
+        self._enable_drive()
+        files = self._drive_service()
+        minute = self._minute()
+        minute.drive_file_id = 'FILE1'
+        minute.unlink()
+        self.assertEqual(len(self._drive_jobs('ems_drive_trash_FILE1')), 1)
+        self.env['ems.minute']._ems_drive_trash('FILE1')
+        files.update.assert_called_once_with(fileId='FILE1', body={'trashed': True}, supportsAllDrives=True)
+
+    def test_dry_run_never_calls_google(self):
+        self._enable_drive(dry_run=True)
+        files = self._drive_service()
+        minute = self._minute()
+        minute._ems_upload_to_drive()
+        self.env['ems.minute']._ems_drive_trash('FILE1')
+        self.assertFalse(files.create.called or files.update.called)
+        self.assertFalse(minute.drive_file_id)

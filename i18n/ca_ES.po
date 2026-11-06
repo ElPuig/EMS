@@ -48580,3 +48580,43 @@ msgstr "la teva part de les despeses col·lectives del grup"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
 msgid "We will use the account of your enrolment. Write another one only if you want it paid elsewhere."
 msgstr "Farem servir el compte de la teva matrícula. Escriu-ne un altre només si vols que t'ho paguem en un altre compte."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "In Drive"
+msgstr "A Drive"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Link to a folder of a shared drive. Every minute's PDF is kept there, in "
+"whatever state the minute is, as a single file named after its code that is "
+"replaced each time the minute changes state. The service account must be a "
+"member of the shared drive (Content manager)."
+msgstr ""
+"Enllaç a una carpeta d'una unitat compartida. Hi queda el PDF de cada acta, "
+"sigui quin sigui el seu estat, en un únic fitxer amb el codi de l'acta com a"
+" nom, que se substitueix cada vegada que l'acta canvia d'estat. El compte de"
+" servei ha de ser membre de la unitat compartida (Gestor de contingut)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__minute_drive_folder_url
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__minute_drive_folder_url
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Minutes folder in Drive"
+msgstr "Carpeta de les actes a Drive"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Open in Drive"
+msgstr "Obre a Drive"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_company__minute_drive_folder_url
+#: model:ir.model.fields,help:ems.field_res_config_settings__minute_drive_folder_url
+msgid ""
+"Shared drive folder where every minute's PDF is kept up to date, one file "
+"per minute named after its code."
+msgstr ""
+"Carpeta d'una unitat compartida on es manté al dia el PDF de cada acta, un "
+"fitxer per acta amb el seu codi com a nom."

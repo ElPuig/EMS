@@ -1017,7 +1017,6 @@ flowchart LR
     the user themselves (they take a class, #601) or the user may organise absences
     (`_may_manage_absences()`) and may send that guard (`_can_move_teacher`, #721), the same rule
     that filters `guard_candidates`. Its tooltip says they are assigned from an absence's row.
-    `is_me_free` (the user's own available badge) is `available` restricted to the user.
   - **Idle** (`o_guard_board_guard_idle`: grey text on a grey box with the usual solid border,
     #770): free, but not the user's to assign. `idle` says why, for the tooltip: `'other_area'`
     (the user organises absences, but this guard is another area's) or `'not_yours'` (the user

@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from odoo.exceptions import AccessError, UserError
 
+from .common import create_role_employee, create_role_user
 from .test_absence_coverage import AbsenceCoverageCase
 
 
@@ -53,6 +54,7 @@ class TestGuardSupport(AbsenceCoverageCase):
         self.assertTrue(badge['support_cover_id'])
         self.assertEqual(badge['cover_count'], 1)
         self.assertFalse(badge['available'])
+        self.assertFalse(badge['idle'])  # cannot cover: struck out, not merely another area's (#770)
         # Busy: nobody can send them to cover an absence then, and they cannot take one themselves.
         self.assertNotIn(self.teacher_guard.id, [candidate['id'] for candidate in line['guard_candidates']])
         cell = next(cell for cell in line['cells'] if cell['group_id'] == self.group_a.id)
@@ -108,21 +110,28 @@ class TestGuardSupport(AbsenceCoverageCase):
 
         def badges(user):
             line = self._board_line(user=user)
-            return {badge['id']: (badge['available'], badge['is_me_free'], badge['idle'])
+            return {badge['id']: (badge['available'], badge['idle'])
                     for badge in line['guards'] if badge['id'] in (self.teacher_guard | self.teacher_guard_2).ids}
 
         # A teacher who organises nobody's absences only takes a class themselves.
         self.assertEqual(badges(self.guard_user), {
-            self.teacher_guard.id: (True, True, False), self.teacher_guard_2.id: (False, False, 'not_yours')})
+            self.teacher_guard.id: (True, False), self.teacher_guard_2.id: (False, 'not_yours')})
         # Each area's chief, only their own area's guards; the other area's are told apart.
         self.assertEqual(badges(self.department_chief), {
-            self.teacher_guard.id: (True, False, False), self.teacher_guard_2.id: (False, False, 'other_area')})
+            self.teacher_guard.id: (True, False), self.teacher_guard_2.id: (False, 'other_area')})
         self.assertEqual(badges(self.eso_chief), {
-            self.teacher_guard.id: (False, False, 'other_area'), self.teacher_guard_2.id: (True, False, False)})
+            self.teacher_guard.id: (False, 'other_area'), self.teacher_guard_2.id: (True, False)})
+        # Direction and the administrator, above every area, assign anybody (issue #770).
+        director = create_role_user(self, 'director', 'test_director_770_tgs', name='TGS 770 Director')
+        self.env.company.director_id = create_role_employee(self, director)
+        for user in (director, self.env.ref('base.user_admin')):
+            with self.subTest(user=user.login):
+                self.assertEqual(badges(user), {
+                    self.teacher_guard.id: (True, False), self.teacher_guard_2.id: (True, False)})
         # Away: nobody can assign them, not even themselves, and they are not merely idle.
         self._absence(self.teacher_guard, self.day)
-        self.assertEqual(badges(self.guard_user)[self.teacher_guard.id], (False, False, False))
-        self.assertEqual(badges(self.department_chief)[self.teacher_guard.id], (False, False, False))
+        self.assertEqual(badges(self.guard_user)[self.teacher_guard.id], (False, False))
+        self.assertEqual(badges(self.department_chief)[self.teacher_guard.id], (False, False))
 
     def test_only_a_class_whose_teacher_is_in_can_be_supported(self):
         self._morning()

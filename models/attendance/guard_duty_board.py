@@ -2414,8 +2414,6 @@ class EmsCourseGuardDutyBoard(models.Model):
                 # Free but not the user's to assign, and why (issue #770): another area's guard, or
                 # the user organises nobody's absences. Told apart from a guard who cannot cover.
                 guard['idle'] = free and not guard['available'] and ('other_area' if may_support else 'not_yours')
-                # The user themselves, free on guard then: they may take a class (issue #601).
-                guard['is_me_free'] = guard['available'] and employee == me
                 # A guard on duty now who has not checked in (issue #692): whoever is on guard then,
                 # or manages them, may say they are in the centre (ems.absence_cover.board_mark_present).
                 guard['can_mark_present'] = bool(

@@ -12,4 +12,4 @@
 
 ## Guard duty board manual screenshots no longer depend on the real date:
 
-- The screenshot test of the board's two views (manual pictures 01 and 02) used this week's real Monday, so it waited forever for a guard badge whenever that Monday was a public holiday (the board lists nobody then, issue #740). It now pins the clock to a Monday morning that is a school day (`shift_ems_clock`, `make_working_day`), like the other time-dependent tests; both pictures regenerated.
+- The screenshot test of the board's two views (manual pictures 01 and 02) used this week's real Monday, so it waited forever for a guard badge whenever that Monday was a public holiday (the board lists nobody then, issue #740). It now pins the clock to a Monday morning that is a school day (`shift_ems_clock`, `make_working_day`), like the other time-dependent tests; both pictures regenerated. The board's other screenshot tests, which already skipped weekends to the next Monday, now also make sure it is not a public holiday (`make_working_day`), and the "moved guard" picture (13) was regenerated with the new badge look.

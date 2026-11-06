@@ -275,6 +275,32 @@ invoices + paid pocket payments. A withdrawn participant who was paid is warned 
 the groups they lead or accompany (plus an *all* rule for the team, the Secretary, the Director and
 the administrator, so holding both never narrows them).
 
+## Why not Odoo's accounting (`account.move`, `account.payment`)
+
+EMS depends on `account` for enrolments (customer invoices to families), but the Erasmus+ economy
+is its own models. Reasons:
+
+- **What it records is not accounting.** Most of it is the SEPIE grant: the budget lines of the
+  grant agreement, the prefinancing and final transfers, what each mobility commits, the
+  organisational support generated per participant, what is given back. None of this has a place
+  in `account.move`; it would have to be kept beside it anyway.
+- **A participant's grant is not a vendor bill.** It is part of the subvention transferred to a
+  student or teacher, with no invoice behind it. Recording it as a bill or a payment would need a
+  journal, accounts and every participant set up as a vendor, for no use of the centre.
+- **Collective invoices are split.** A group's flight or hotel invoice is divided among its
+  active participants and lowers each one's pocket money (`invoice_share`, `pocket_amount`); an
+  individual invoice becomes provisions of one or more mobilities. A vendor bill knows nothing of
+  this.
+- **Access.** The Erasmus team are teachers. Creating and paying vendor bills needs accounting
+  rights (`account.group_account_invoice`), which also let them edit and pay every invoice of the
+  centre, the families' enrolment invoices included. With own models their rights stop at the
+  Erasmus+ economy.
+
+Open question (to check with the Secretary): if the centre's official accounting is kept outside
+EMS, entries generated here would be a second, unofficial copy of it. The supplier invoices
+(`ems.erasmus.invoice`: hotels, flights) are the part closest to a native vendor bill, and could
+become one if the centre ever keeps its accounting in Odoo.
+
 ## Install and upgrade
 
 New models and stored fields only (issue #764: `ems.erasmus.payment.mobility_id` stops being required; the payment's `partner_id`/`project_id`/`call_id` become stored computes that keep their values): on an upgrade, Odoo creates the columns and computes every

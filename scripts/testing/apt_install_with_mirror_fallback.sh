@@ -38,7 +38,7 @@ ubuntu_source_files() {
 show_ubuntu_sources() {
     # shellcheck disable=SC2046
     grep -h -E '^[[:space:]]*(URIs:|deb )' $(ubuntu_source_files) 2>/dev/null \
-        | grep -E 'ubuntu|mirror\+file' | sort -u | sed 's/^/    /' || true
+        | grep -E 'ubuntu\.com|kernel\.org|mirror\+file' | sort -u | sed 's/^/    /' || true
 }
 
 # Points every Ubuntu source at http://<host>/ubuntu/, whether it names a mirror directly or goes

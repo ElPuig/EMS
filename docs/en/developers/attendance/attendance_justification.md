@@ -12,7 +12,7 @@ as a *prevision*: a new session created within its range gets each covered stude
 pre-filled as justified instead of the usual default status. See
 [`attendance_session.md`](attendance_session.md#_auto_populate_lines-continuation-vs-fresh-roll-call)
 for how the prevision side is consumed (`get_current_justification_by_student()`, a dict
-student id → justification built once per session).
+student id → justification built once per session, from a single `sudo()` search).
 
 **Module file:** `models/attendance/attendance_justification.py` (`EmsAttendanceJustification`)
 
@@ -62,7 +62,10 @@ The reason, details and files are shared by every student, so changing them need
 them, like adding or removing one. A tutor therefore only ever creates justifications for their
 own students; one mixing groups of different tutors is managed by whoever is above all of them
 (Head of Studies/Deputy, Director) or an administrator. `default_get()` still refuses to open an
-empty form for anyone who is neither an administrator nor a tutor.
+empty form for anyone who is neither an administrator nor a tutor, and `get_view()` removes New,
+Edit and Delete from the list and form for them (`ems.base.view_without_operations()`, the same
+per-user post-processing as the enrollment screens of issue #654): a teacher without tutorship only
+reads the justifications covering their sessions.
 
 Reading is wider: `rule_attendance_justification_teacher_tutor` grants a tutor read access when
 **any** student is theirs (`student_ids.tutor_id.tutor_scope_user_ids`), and

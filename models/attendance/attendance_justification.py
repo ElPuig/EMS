@@ -17,7 +17,7 @@ SYSTEM_FIELDS = {'attendance_session_line_ids', 'session_teacher_ids'}
 
 class EmsAttendanceJustification(models.Model):
     """A proof of attendance covering a period, shared by one or several students (issue #795:
-    a strike, a competition), with a single comment and a single set of files."""
+    a strike, a competition), with a single reason, notes and set of files."""
     _name = "ems.attendance_justification"
     _description = "Attendance justification: contains the data about an abscence justification (proof of attendance)."
     _inherit = ['ems.base', 'ems.datetime_utils', 'ems.attachment_mixin']
@@ -104,16 +104,19 @@ class EmsAttendanceJustification(models.Model):
 
     def _inverse_day(self):
         # Only for a full-day reason: otherwise the day just follows the period's start (the form
-        # sends it back on save) and must not turn the period into a whole day.
-        for justification in self.filtered(lambda justification: justification.day and justification.full_day):
-            start, end = justification._day_period(justification.day)
-            justification.write({'start_date': start, 'end_date': end})
+        # sends it back on save) and must not turn the period into a whole day. One write: the
+        # constraints must see both dates changed.
+        for justification in self._with_full_day():
+            justification.write(justification._whole_day_vals(justification.day))
 
-    def _day_period(self, day):
-        """The whole of a local day, as naive UTC datetimes (from 00:00 to 23:59:59)."""
+    def _with_full_day(self):
+        return self.filtered(lambda justification: justification.day and justification.full_day)
+
+    def _whole_day_vals(self, day):
+        """The period of a whole local day, as naive UTC datetimes (from 00:00 to 23:59:59)."""
         start = self.time_float_to_utc_datetime(day, 0.0)
         end = self.time_float_to_utc_datetime(day + timedelta(days=1), 0.0) - timedelta(seconds=1)
-        return self.datetime_to_odoo(start), self.datetime_to_odoo(end)
+        return {'start_date': self.datetime_to_odoo(start), 'end_date': self.datetime_to_odoo(end)}
 
     def _default_reason_id(self):
         return self.env['ems.attendance_justification_reason'].search([], limit=1)
@@ -143,29 +146,36 @@ class EmsAttendanceJustification(models.Model):
     @api.constrains('reason_id', 'start_date', 'end_date')
     def _check_full_day(self):
         for justification in self.filtered('full_day'):
-            day = justification.utc_to_local_date(justification.start_date)
-            if (justification.start_date, justification.end_date) != justification._day_period(day):
+            period = {'start_date': justification.start_date, 'end_date': justification.end_date}
+            if period != justification._whole_day_vals(justification.day):
                 raise ValidationError(_("A justification for %(reason)s covers one whole day: pick the day.",
                                         reason=justification.reason_id.name))
 
-    @api.onchange('day')
+    @api.onchange('day', 'reason_id')
     def _onchange_day(self):
-        for justification in self.filtered(lambda justification: justification.day and justification.full_day):
-            justification.start_date, justification.end_date = justification._day_period(justification.day)
+        # A full-day reason: the period becomes the whole day picked (or the one it started on).
+        for justification in self._with_full_day():
+            justification.update(justification._whole_day_vals(justification.day))
 
     @api.onchange('reason_id')
     def _onchange_reason_id(self):
-        for justification in self:
-            # A full-day reason: the period becomes the whole day it started on.
-            if justification.full_day and justification.start_date:
-                justification.start_date, justification.end_date = justification._day_period(
-                    justification.utc_to_local_date(justification.start_date))
-            if not justification.requires_details:
-                justification.details = False
+        for justification in self.filtered(lambda justification: not justification.requires_details):
+            justification.details = False
+
+    @api.model
+    def get_view(self, view_id=None, view_type='form', **options):
+        # Only tutors (and administrators) justify: every other teacher reads the justifications
+        # covering their sessions, without New, Edit or Delete, which create()/write()/unlink()
+        # would refuse anyway (their ACL is the teachers' one).
+        result = super().get_view(view_id, view_type, **options)
+        if self.get_user_is_admin() or self.get_user_is_tutor():
+            return result
+        return self.view_without_operations(
+            result, ['ems.view_attendance_justification_list', 'ems.view_attendance_justification_form'],
+            ('create', 'edit', 'delete'))
 
     @api.model
     def default_get(self, fields_list):
-        # TODO: unable to hide the "NEW" button to non-tutor teachers.
         res = super().default_get(fields_list)
         if "user_is_admin" in fields_list and  "user_is_tutor" in fields_list:
             # This happens when opening the form, when storing fires again but field per field
@@ -281,20 +291,12 @@ class EmsAttendanceJustification(models.Model):
         if not self._user_may_justify(self.student_ids):
             raise UserError(message)
 
-    def get_current_justifications(self, start_date, end_date):
-        return self.sudo().env["ems.attendance_justification"].search([
-            ("start_date", "<", end_date),
-            ("end_date", ">", start_date),
-        ])
-
     @api.model
     def get_current_justification_by_student(self, start_date, end_date):
-        """The justification covering each student over that period, by student id (previsions)."""
-        return {
-            student.id: justification
-            for justification in self.get_current_justifications(start_date, end_date)
-            for student in justification.student_ids
-        }
+        """The justification covering each student over that period, by student id (previsions).
+        sudo: the teacher taking the roll-call usually can't read the tutor's justification yet."""
+        justifications = self.sudo().search([("start_date", "<", end_date), ("end_date", ">", start_date)])
+        return {student.id: justification for justification in justifications for student in justification.student_ids}
 
     # NOTE: 'vals' must already be plain ems.attendance_session_line create()/write() vals - the
     # caller normalizes an existing record via its own 'ems.attendance_session_line._justification_
@@ -339,7 +341,7 @@ class EmsAttendanceJustification(models.Model):
             # (the form already sends both, from _onchange_day). The NOT NULL columns can't wait for
             # the inverse, which runs after the insert.
             if vals.get('day') and not vals.get('start_date'):
-                vals['start_date'], vals['end_date'] = self._day_period(fields.Date.to_date(vals.pop('day')))
+                vals.update(self._whole_day_vals(fields.Date.to_date(vals.pop('day'))))
         records = super().create(vals_list)
         unjustified = self.env.ref("ems.attendance_status_miss") | self.env.ref("ems.attendance_status_delayed_severe")
         for justification, vals in zip(records, vals_list):

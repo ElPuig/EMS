@@ -17,7 +17,13 @@
 - Migration: every existing justification becomes "Other reasons", its notes text moving to the details (the notes field stays, empty).
 - Admin manual for the reasons (ca/es/en), tutors' manual, screenshots, translations, tests and a strike tour added.
 
+## Justifications read only for teachers who aren't tutors:
+- The justifications list and form no longer offer New, Edit or Delete to a teacher who isn't a tutor (or above one), who could only get an error from them; they still read the justifications covering their sessions. The reasons' configuration menu is limited to the EMS administrator and the Heads of Studies.
+
 # Internal changes
 
 ## Justification tours search their fixture instead of relying on the first page:
 - The justification tours now filter the list by the fixture's student before opening it: with a real database the fixture can fall on the second page of the list.
+
+## Shared helper for read-only views:
+- The per-user "remove New/Edit/Delete from these views" post-processing of the enrollment screens is now a generic `ems.base` helper, reused by the justifications.

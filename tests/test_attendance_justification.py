@@ -4,6 +4,8 @@ import os
 import re
 from datetime import date, datetime, timedelta
 
+from lxml import etree
+
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import Form
 from odoo.tests.common import TransactionCase
@@ -33,7 +35,8 @@ class TestAttendanceJustification(TransactionCase):
             'end_date': datetime(2026, 1, 5, 11, 0),
         })
 
-        with self.assertRaises(ValidationError):
+        # The error names the student in conflict (a justification can list many).
+        with self.assertRaisesRegex(ValidationError, re.escape(self.student.name)):
             self.env['ems.attendance_justification'].create({
                 'teacher_id': self.teacher.id,
                 'student_ids': [(6, 0, self.student.ids)],
@@ -205,13 +208,6 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
                 'teacher_id': self.other_teacher.id, 'student_ids': [(6, 0, self.student.ids)],
                 **self._today_range(),
             })
-
-    def test_tutor_can_create_justification(self):
-        justification = self.env['ems.attendance_justification'].with_user(self.tutor_user).create({
-            'teacher_id': self.tutor_employee.id, 'student_ids': [(6, 0, self.student.ids)],
-            **self._today_range(),
-        })
-        self.assertTrue(justification.id)
 
     def test_create_auto_justifies_linked_miss_lines(self):
         line = self._line()
@@ -522,12 +518,6 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
         self.assertEqual(mate_line.status_id, self.env.ref('ems.attendance_status_justified'))
         self.assertEqual(mate_line.attendance_justification_id, justification)
 
-    def test_overlap_names_the_students_in_conflict(self):
-        mate, __ = self._group_mate_with_miss()
-        self._shared_justification(mate)
-        with self.assertRaisesRegex(ValidationError, re.escape(mate.name)):
-            self._shared_justification(self.student | mate)
-
     def test_add_groups_adds_the_group_students_but_the_overlapping_ones(self):
         mate, __ = self._group_mate_with_miss()
         self._shared_justification(self.student)
@@ -559,6 +549,40 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
             justification.with_user(self.tutor_user).unlink()
         # Reading it is enough with one student of theirs.
         justification.with_user(self.tutor_user).read(['reason_id'])
+
+    def test_tutor_cannot_add_a_student_of_another_tutor(self):
+        justification = self._shared_justification(self.student, self.tutor_user)
+        with self.assertRaises(UserError):
+            justification.with_user(self.tutor_user).write({'student_ids': [(4, self._other_tutor_student().id)]})
+
+    def test_administrator_manages_a_justification_of_several_tutors(self):
+        # The administrator is at the top of the permission pyramid, outside every tutor chain.
+        admin = create_role_user(self, 'academic_admin', 'test_admin_taj')
+        other = self._other_tutor_student()
+        justification = self._shared_justification(self.student | other, admin)
+        justification.with_user(admin).write({'student_ids': [(3, other.id)], 'notes': 'Revisat'})
+        self.assertEqual(justification.student_ids, self.student)
+        justification.with_user(admin).unlink()
+        self.assertFalse(justification.exists())
+
+    def _view_operations(self, user, view_type):
+        arch = self.env['ems.attendance_justification'].with_user(user).get_view(view_type=view_type)['arch']
+        node = etree.fromstring(arch)
+        return {operation: node.get(operation) for operation in ('create', 'edit', 'delete')}
+
+    def test_non_tutor_teacher_reads_justifications_without_new_edit_delete(self):
+        # Only tutors justify: create()/write()/unlink() would refuse the rest anyway.
+        for view_type in ('list', 'form'):
+            self.assertEqual(self._view_operations(self.other_teacher_user, view_type),
+                             {'create': '0', 'edit': '0', 'delete': '0'})
+            self.assertNotIn('0', self._view_operations(self.tutor_user, view_type).values())
+
+    def test_reasons_menu_only_for_administrators_and_heads_of_studies(self):
+        menu = self.env.ref('ems.menu_attendance_justification_reasons')
+        hos = create_role_user(self, 'head_of_studies', 'test_hos_reasons_taj')
+        for user, expected in ((self.tutor_user, False), (self.other_teacher_user, False), (hos, True)):
+            visible = self.env['ir.ui.menu'].with_user(user)._visible_menu_ids()
+            self.assertEqual(menu.id in visible, expected, user.login)
 
     def test_domains_offer_only_the_tutor_scope(self):
         other_student = self._other_tutor_student()
@@ -643,6 +667,16 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
             form.student_ids.add(self.student)
             form.start_date, form.end_date = start, start + timedelta(hours=2)
         self.assertEqual((form.record.start_date, form.record.end_date), (start, start + timedelta(hours=2)))
+
+    def test_switching_to_strike_turns_the_period_into_its_whole_day(self):
+        start = datetime.combine(self.today, datetime.min.time()) + timedelta(hours=8)
+        with Form(self.env['ems.attendance_justification'].with_user(self.tutor_user)) as form:
+            form.student_ids.add(self.student)
+            form.start_date, form.end_date = start, start + timedelta(hours=2)
+            form.reason_id = self._reason('strike')
+        justification = form.record
+        self.assertEqual(justification.day, justification.utc_to_local_date(start))
+        self.assertGreater(justification.end_date - justification.start_date, timedelta(hours=23))
 
     def test_strike_refuses_a_partial_period(self):
         with self.assertRaises(ValidationError):

@@ -48339,6 +48339,7 @@ msgstr "tu parte de los gastos colectivos del grupo"
 msgid "We will use the account of your enrolment. Write another one only if you want it paid elsewhere."
 msgstr "Usaremos la cuenta de tu matrícula. Escribe otra solo si quieres que te lo paguemos en otra cuenta."
 
+#. module: ems
 #: model:mail.template,body_html:ems.mail_template_google_reactivated_student
 msgid ""
 "\n"
@@ -48700,6 +48701,8 @@ msgstr ""
 msgid "On leave"
 msgstr "Con ausencia"
 
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
 msgid "%s students"
 msgstr "%s alumnos"

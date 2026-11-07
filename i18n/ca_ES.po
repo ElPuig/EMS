@@ -48314,6 +48314,7 @@ msgstr "la teva part de les despeses col·lectives del grup"
 msgid "We will use the account of your enrolment. Write another one only if you want it paid elsewhere."
 msgstr "Farem servir el compte de la teva matrícula. Escriu-ne un altre només si vols que t'ho paguem en un altre compte."
 
+#. module: ems
 #: model:mail.template,body_html:ems.mail_template_google_reactivated_student
 msgid ""
 "\n"
@@ -48672,6 +48673,8 @@ msgstr ""
 msgid "On leave"
 msgstr "Amb absència"
 
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
 msgid "%s students"
 msgstr "%s alumnes"

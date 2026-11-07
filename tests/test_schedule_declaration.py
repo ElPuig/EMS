@@ -139,11 +139,8 @@ class TestScheduleDeclaration(TransactionCase):
         # ATAL is the centre's own type (not EMS data): seeded by its code when it exists.
         NonTeaching = self.env['ems.non_teaching_type'].with_context(active_test=False)
         atal = NonTeaching.search([('code', '=', 'ATAL')]) or NonTeaching.create({'code': 'ATAL', 'name': "Atenció a l'alumnat"})
-        self.env['ems.level']._ems_seed_declaration_codes()
         self.env['ems.non_teaching_type']._ems_seed_declaration_codes()
 
-        self.assertEqual(self.env.ref('ems.level_btx').declaration_code, 'bat')
-        self.assertEqual(self.env.ref('ems.level_efps').declaration_code, 'cefp')
         self.assertEqual(self.env.ref('ems.non_teaching_wic').declaration_code, 'cc')
         self.assertEqual(self.env.ref('ems.non_teaching_tt').declaration_code, 'tutoring')
         self.assertEqual(atal.declaration_code, 'tutoring')

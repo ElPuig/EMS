@@ -1127,15 +1127,9 @@ msgstr "Falta justificada por: "
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
-#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
 msgid "The completion date must be later than the start date."
 msgstr "La fecha de finalización debe ser posterior a la fecha de inicio."
 
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_justification.py:0
-msgid "The student %(student)s has another justification which overlaps with the current one."
-msgstr "El alumno %(student)s tiene otra justificación que se solapa con la actual."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__abstent_ids
@@ -1322,6 +1316,7 @@ msgstr "Acción Necesária"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__active
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__active
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__active
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__active
 msgid "Active"
 msgstr "Activo"
 
@@ -1954,8 +1949,6 @@ msgstr "Aviso"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attachment_ids model:ir.model.fields,field_description:ems.field_ems_study__attachment_ids model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_study_form
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__attachment_ids
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 msgid "Attached files"
 msgstr "Archivos adjuntos"
 
@@ -2490,7 +2483,6 @@ msgstr "Puede editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_title_register_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_close_wizard_form
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_leave_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_review_wizard_form
@@ -3117,7 +3109,6 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__create_uid
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__create_uid
@@ -3215,7 +3206,6 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__create_uid
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -3269,7 +3259,6 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__create_date
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__create_date
@@ -3367,7 +3356,6 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__create_date
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3651,6 +3639,7 @@ msgstr "Descripción y notas"
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_log__description
 #: code:addons/ems/models/erasmus/export.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__details
 msgid "Details"
 msgstr "Detalles"
 
@@ -3732,7 +3721,6 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__display_name
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__display_name
@@ -3832,7 +3820,6 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__display_name
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -4214,7 +4201,6 @@ msgstr "Tiempo final"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__end_date model:ir.model.fields,field_description:ems.field_ems_attendance_template__end_date
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__end_date
 msgid "End date"
 msgstr "Fecha de finalización"
 
@@ -5022,6 +5008,7 @@ msgstr "Otorgar acceso"
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_search
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
 #: code:addons/ems/models/erasmus/economy.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
 msgid "Group"
 msgstr "Grupo"
 
@@ -5045,6 +5032,7 @@ msgstr "Grupo"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_search
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_support_rate_search
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
 msgid "Group By"
 msgstr "Agrupar por"
 
@@ -5078,8 +5066,6 @@ msgstr "Grupo:"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_template__group_ids model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__group_ids model:ir.model.fields,field_description:ems.field_ems_notice__group_ids model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__group_ids model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__group_ids model:ir.ui.menu,name:ems.menu_groups
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__group_ids
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__group_ids
-#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_justification_wizard__mode__groups
 msgid "Groups"
 msgstr "Grupos"
 
@@ -5302,7 +5288,6 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__id
 #: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__id
@@ -5402,7 +5387,6 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__id
 msgid "ID"
 msgstr "ID"
 
@@ -5954,6 +5938,7 @@ msgstr "Justificación"
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_justifications
+#: model:ir.ui.menu,name:ems.menu_attendance_config_justifications
 msgid "Justifications"
 msgstr "Justificaciones"
 
@@ -6038,7 +6023,6 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__write_uid
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__write_uid
@@ -6136,7 +6120,6 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__write_uid
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -6190,7 +6173,6 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__write_date
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__write_date
@@ -6288,7 +6270,6 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__write_date
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -6560,7 +6541,6 @@ msgstr "Texto largo"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__main_group_id model:ir.model.fields,field_description:ems.field_res_users__main_group_id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__main_group_id
 msgid "Main Group"
 msgstr "Grupo principal"
 
@@ -6770,7 +6750,6 @@ msgstr "Modalidad"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__mode model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__mode model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__mode model:ir.model.fields,field_description:ems.field_hr_attendance__in_mode
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_grant_wizard__mode
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__mode
 msgid "Mode"
 msgstr "Modo"
 
@@ -6871,7 +6850,7 @@ msgstr "NUSS"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__name
 #: model:ir.model.fields,field_description:ems.field_sign_oca_role__name
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__name
 msgid "Name"
 msgstr "Nombre"
 
@@ -7118,15 +7097,13 @@ msgstr "Nota"
 #. module: ems
 #. odoo-javascript
 #. odoo-python
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__notes model:ir.model.fields,field_description:ems.field_ems_attendance_justification__notes model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__notes model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__notes model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__notes model:ir.model.fields,field_description:ems.field_ems_content__notes model:ir.model.fields,field_description:ems.field_ems_criteria__notes model:ir.model.fields,field_description:ems.field_ems_group__notes model:ir.model.fields,field_description:ems.field_ems_level__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__notes model:ir.model.fields,field_description:ems.field_ems_outcome__notes model:ir.model.fields,field_description:ems.field_ems_role__notes model:ir.model.fields,field_description:ems.field_ems_student_benefit__notes model:ir.model.fields,field_description:ems.field_ems_study__notes model:ir.model.fields,field_description:ems.field_ems_subject__notes model:ir.model.fields,field_description:ems.field_ems_tracking__notes model:ir.model.fields,field_description:ems.field_ems_workgroup__notes model:ir.model.fields,field_description:ems.field_hr_employee__notes model:ir.model.fields,field_description:ems.field_hr_employee_base__notes model:ir.model.fields,field_description:ems.field_hr_employee_public__notes model_terms:ir.ui.view,arch_db:ems.attendance_report_session model_terms:ir.ui.view,arch_db:ems.level_view_form model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form model_terms:ir.ui.view,arch_db:ems.view_content_form model_terms:ir.ui.view,arch_db:ems.view_criteria_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form model_terms:ir.ui.view,arch_db:ems.view_outcome_form model_terms:ir.ui.view,arch_db:ems.view_role_form model_terms:ir.ui.view,arch_db:ems.view_study_form model_terms:ir.ui.view,arch_db:ems.view_subject_form model_terms:ir.ui.view,arch_db:ems.view_workgroup_form model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__notes model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__notes model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__notes model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__notes model:ir.model.fields,field_description:ems.field_ems_content__notes model:ir.model.fields,field_description:ems.field_ems_criteria__notes model:ir.model.fields,field_description:ems.field_ems_group__notes model:ir.model.fields,field_description:ems.field_ems_level__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__notes model:ir.model.fields,field_description:ems.field_ems_outcome__notes model:ir.model.fields,field_description:ems.field_ems_role__notes model:ir.model.fields,field_description:ems.field_ems_student_benefit__notes model:ir.model.fields,field_description:ems.field_ems_study__notes model:ir.model.fields,field_description:ems.field_ems_subject__notes model:ir.model.fields,field_description:ems.field_ems_tracking__notes model:ir.model.fields,field_description:ems.field_ems_workgroup__notes model:ir.model.fields,field_description:ems.field_hr_employee__notes model:ir.model.fields,field_description:ems.field_hr_employee_base__notes model:ir.model.fields,field_description:ems.field_hr_employee_public__notes model_terms:ir.ui.view,arch_db:ems.attendance_report_session model_terms:ir.ui.view,arch_db:ems.level_view_form model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form model_terms:ir.ui.view,arch_db:ems.view_content_form model_terms:ir.ui.view,arch_db:ems.view_criteria_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form model_terms:ir.ui.view,arch_db:ems.view_outcome_form model_terms:ir.ui.view,arch_db:ems.view_role_form model_terms:ir.ui.view,arch_db:ems.view_study_form model_terms:ir.ui.view,arch_db:ems.view_subject_form model_terms:ir.ui.view,arch_db:ems.view_workgroup_form model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__notes model_terms:ir.ui.view,arch_db:ems.report_meeting_presence_section
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__note
 #: model:ir.model.fields,field_description:ems.field_res_partner__comment
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__notes
 #: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__notes
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__notes
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__notes
 #: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_record_form
@@ -7143,6 +7120,8 @@ msgstr "Nota"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__notes
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_form
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__notes
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
 msgid "Notes"
 msgstr "Notas"
 
@@ -7451,7 +7430,6 @@ msgstr "Solo el tutor del estudiante puede actualizar sus justificaciones de asi
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
-#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
 msgid "Only tutors can justify student's attendances."
 msgstr "Solo los tutores pueden justificar las faltas de los alumnos."
 
@@ -7740,7 +7718,6 @@ msgstr "Pendiente de revisión"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_modality__period
 msgid "Period"
 msgstr "Período"
@@ -8873,6 +8850,7 @@ msgstr "Enviado el"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_document_signature__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__sequence
 msgid "Sequence"
 msgstr "Secuencia"
 
@@ -9098,7 +9076,6 @@ msgstr "Hora de inicio"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__start_date model:ir.model.fields,field_description:ems.field_ems_attendance_template__start_date
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__start_date
 msgid "Start date"
 msgstr "Fecha de inicio"
 
@@ -9273,7 +9250,6 @@ msgstr "Calle 2"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_history__role__student
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__student_id
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__student_id
 msgid "Student"
 msgstr "Alumno"
 
@@ -9389,10 +9365,11 @@ msgstr "Alumno/a:"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__student_ids model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
 #: model:ir.ui.menu,name:ems.menu_students_root
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__line_ids
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__student_ids
-#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_justification_wizard__mode__students
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__audience__student
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_search
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__student_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_list
 msgid "Students"
 msgstr "Estudiantes"
 
@@ -9680,7 +9657,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__employee_id
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__teacher_id
 msgid "Teacher"
 msgstr "Profesor"
 
@@ -10466,7 +10442,6 @@ msgstr "Usuario"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_strike__user_is_admin
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_evaluation__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__user_is_admin
@@ -11637,6 +11612,8 @@ msgstr "Salida original"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_staff_renounce_wizard__reason
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_dismiss_wizard__note
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense_correct_wizard__reason
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__reason_id
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
 msgid "Reason"
 msgstr "Motivo"
 
@@ -13157,6 +13134,7 @@ msgstr "Motivo de strike: motivos predefinidos que un profesor puede elegir al p
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_strike_reason_list model:ir.ui.menu,name:ems.menu_coexistence_strike_reasons
+#: model:ir.ui.menu,name:ems.menu_attendance_justification_reasons
 msgid "Reasons"
 msgstr "Motivos"
 
@@ -21566,6 +21544,7 @@ msgstr "sesión(es) del horario personalizado de este alumno ya no están en el 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__day
 msgid "Day"
 msgstr "Día"
 
@@ -26021,79 +26000,6 @@ msgstr "Mes de cierre de la preinscripción"
 #: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_end_time
 msgid "Preenrollment End Time"
 msgstr "Hora de cierre de la preinscripción"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
-msgid "%s student(s) justified."
-msgstr "Alumnos justificados: %s."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__overlap_student_ids
-msgid "Already justified"
-msgstr "Ya justificados"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
-msgid "Choose at least one student or group."
-msgstr "Elegid al menos un alumno o un grupo."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__group_domain
-msgid "Group Domain"
-msgstr "Dominio de grupos"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
-msgid "Justify"
-msgstr "Justificar"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
-#: model:ir.actions.act_window,name:ems.action_attendance_justification_wizard
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
-msgid "Justify absences"
-msgstr "Justificar faltas"
-
-#. module: ems
-#: model:ir.model,name:ems.model_ems_attendance_justification_wizard
-msgid "Justify the absences of several students or groups"
-msgstr "Justificar las faltas de varios alumnos o grupos"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
-msgid "Only the student's tutor can justify its attendances: %(students)s"
-msgstr "Solo el tutor del alumno puede justificar sus faltas: %(students)s"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
-msgid "Skipped, they already have a justification overlapping this period: %s"
-msgstr ""
-"Omitidos porque ya tienen un justificante que se solapa con este periodo: %s"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__student_domain
-msgid "Student Domain"
-msgstr "Dominio de alumnos"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__line_ids
-msgid "Students to justify"
-msgstr "Alumnos por justificar"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
-msgid ""
-"These students already have a justification overlapping this period and will"
-" be skipped:"
-msgstr ""
-"Estos alumnos ya tienen un justificante que se solapa con este periodo y se "
-"omitirán:"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_convalidation__student_document_id
@@ -48678,24 +48584,39 @@ msgstr ""
 "desactivará"
 
 #. module: ems
-#: model:ir.model,name:ems.model_ems_attendance_justification_wizard_line
-msgid "Student of the absence justification assistant"
-msgstr "Alumno del asistente de justificación de faltas"
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__add_group_ids
+msgid "Add groups"
+msgstr "Añadir grupos"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__wizard_id
-msgid "Assistant"
-msgstr "Asistente"
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification__add_group_ids
+msgid "Adds every student of these groups to the list. Remove afterwards the ones who must not be justified."
+msgstr "Añade a la lista todos los alumnos de estos grupos. Después, quitad los que no se deban justificar."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard_line__excluded
-msgid "Do not justify"
-msgstr "No justificar"
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__overlap_student_ids
+msgid "Already justified"
+msgstr "Ya justificados"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_attendance_justification_wizard_line__excluded
-msgid "Mark it if this student's absences must not be justified."
-msgstr "Márcalo si las faltas de este alumno no se deben justificar."
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__student_domain
+msgid "Student Domain"
+msgstr "Dominio de alumnos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__group_domain
+msgid "Group Domain"
+msgstr "Dominio de grupos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__student_summary
+msgid "Students (summary)"
+msgstr "Alumnos (resumen)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+msgid "These students already have a justification overlapping this period. Remove them from the list to save:"
+msgstr "Estos alumnos ya tienen un justificante que se solapa con este periodo. Quitadlos de la lista para guardar:"
 
 #. module: ems
 #. odoo-python
@@ -48778,3 +48699,128 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_minute__on_leave_ids
 msgid "On leave"
 msgstr "Con ausencia"
+
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "%s students"
+msgstr "%s alumnos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "%(students)s (from %(start)s to %(end)s)"
+msgstr "%(students)s (de %(start)s a %(end)s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "A justification needs at least one student."
+msgstr "Un justificante necesita al menos un alumno."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "These students have another justification which overlaps with the current one: %(students)s"
+msgstr "Estos alumnos tienen otro justificante que se solapa con el actual: %(students)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "Students not added"
+msgstr "Alumnos no añadidos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "They already have a justification overlapping this period: %(students)s"
+msgstr "Ya tienen un justificante que se solapa con este periodo: %(students)s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__requires_details
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__requires_details
+msgid "Requires details"
+msgstr "Pide detalles"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__full_day
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__full_day
+msgid "Full day"
+msgstr "Día completo"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification__requires_details
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification_reason__requires_details
+msgid "The tutor must describe the reason in a details field (e.g. 'Other')."
+msgstr "El tutor debe describir el motivo en un campo de detalles (p. ej., «Otros»)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification__full_day
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification_reason__full_day
+msgid "The tutor picks a single day instead of a period, and the justification covers the student's whole day (e.g. a strike)."
+msgstr "El tutor elige un solo día en lugar de un periodo, y el justificante cubre toda la jornada del alumno (p. ej., una huelga)."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_justification_reason
+msgid "Justification reason: predefined reasons why absences are justified."
+msgstr "Motivo de justificación: motivos predefinidos por los que se justifican las faltas."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_attendance_justification_reason_list
+msgid "Justification reasons"
+msgstr "Motivos de justificación"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_reason_form
+msgid "Justification reason"
+msgstr "Motivo de justificación"
+
+#. module: ems
+#: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_health
+msgid "Health reasons"
+msgstr "Motivos de salud"
+
+#. module: ems
+#: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_expulsion
+msgid "Expulsion from the centre"
+msgstr "Expulsión del centro"
+
+#. module: ems
+#: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_activity
+msgid "Attendance at an authorised activity outside the centre"
+msgstr "Asistencia a una actividad autorizada fuera del centro"
+
+#. module: ems
+#: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_family
+msgid "Family reasons (death or serious illness of a relative)"
+msgstr "Motivos familiares (fallecimiento o enfermedad grave de un familiar)"
+
+#. module: ems
+#: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_duty
+msgid "Unavoidable duty (court summons, official procedures)"
+msgstr "Deber inexcusable (citación judicial, trámites oficiales)"
+
+#. module: ems
+#: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_exam
+msgid "Official exam (driving licence, languages, university entrance)"
+msgstr "Examen oficial (carné de conducir, idiomas, acceso a la universidad)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "Describe the reason in the details: %(reason)s"
+msgstr "Describid el motivo en los detalles: %(reason)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "A justification for %(reason)s covers one whole day: pick the day."
+msgstr "Un justificante por %(reason)s cubre un día entero: elegid el día."
+
+#. module: ems
+#: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_strike
+msgid "Labour strike"
+msgstr "Huelga"
+
+#. module: ems
+#: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_other
+msgid "Other reasons"
+msgstr "Otros"

@@ -1523,7 +1523,7 @@ class TestCourseTransition(TransactionCase):
     def test_apply_archives_an_orphaned_justification_referencing_an_archived_session(self):
         student, line = self._archived_session_line_fixture('CTW Stranded Justification')
         justification = self.env['ems.attendance_justification'].create({
-            'teacher_id': self.teacher.id, 'student_id': student.id,
+            'teacher_id': self.teacher.id, 'student_ids': [(6, 0, student.ids)],
             'start_date': datetime(2020, 9, 15, 8, 0), 'end_date': datetime(2020, 9, 15, 11, 0),
             'attendance_session_line_ids': [(6, 0, line.ids)],
         })
@@ -1543,7 +1543,7 @@ class TestCourseTransition(TransactionCase):
         left to ever populate it now that the course it covered is over."""
         student = self._student('CTW Past No Session Justification', group=self.group1)
         justification = self.env['ems.attendance_justification'].create({
-            'teacher_id': self.teacher.id, 'student_id': student.id,
+            'teacher_id': self.teacher.id, 'student_ids': [(6, 0, student.ids)],
             'start_date': datetime(2020, 9, 15, 8, 0), 'end_date': datetime(2020, 9, 15, 11, 0),
         })
 
@@ -1564,7 +1564,7 @@ class TestCourseTransition(TransactionCase):
         # date must be later than start date" constraint below).
         future = datetime.now().replace(year=datetime.now().year + 5, hour=8, minute=0, second=0, microsecond=0)
         justification = self.env['ems.attendance_justification'].create({
-            'teacher_id': self.teacher.id, 'student_id': student.id,
+            'teacher_id': self.teacher.id, 'student_ids': [(6, 0, student.ids)],
             'start_date': future, 'end_date': future.replace(hour=23, minute=0),
         })
 

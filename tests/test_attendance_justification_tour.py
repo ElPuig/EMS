@@ -21,7 +21,8 @@ class TestAttendanceJustificationTour(HttpCase):
             'name': 'Attendance Justification Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         cls.justification = cls.env['ems.attendance_justification'].create({
-            'teacher_id': cls.teacher.id, 'student_id': cls.student.id,
+            'teacher_id': cls.teacher.id, 'student_ids': [(6, 0, cls.student.ids)],
+            'reason_id': cls.env.ref('ems.attendance_justification_reason_other').id, 'details': 'Tour detail',
             'start_date': datetime(2026, 1, 5, 9, 0), 'end_date': datetime(2026, 1, 5, 11, 0),
         })
         cls._setup_tutor_justification()
@@ -42,7 +43,7 @@ class TestAttendanceJustificationTour(HttpCase):
             'name': 'Attendance Justification Tutor Tour Student', 'contact_type': 'student',
             'student_id': next_student_id(), 'main_group_id': group.id,
         })
-        # Issue #763: a groupmate the tutor marks as not to be justified from the assistant.
+        # Issues #763/#795: a groupmate the tutor takes out of the justification.
         cls.excluded_student = cls.env['res.partner'].create({
             'name': 'Attendance Justification Tour Excluded Student', 'contact_type': 'student',
             'student_id': next_student_id(), 'main_group_id': group.id,
@@ -74,7 +75,7 @@ class TestAttendanceJustificationTour(HttpCase):
         line = session.attendance_session_line_ids.filtered(lambda l: l.student_id == student)
         line.status_id = cls.env.ref('ems.attendance_status_miss')
         cls.tutor_justification = cls.env['ems.attendance_justification'].create({
-            'teacher_id': tutor.id, 'student_id': student.id,
+            'teacher_id': tutor.id, 'student_ids': [(6, 0, student.ids)],
             'start_date': datetime(2026, 2, 4, 0, 0), 'end_date': datetime(2026, 2, 4, 23, 59),
             'attendance_session_line_ids': [(6, 0, [line.id])],
             # Uploaded the way the form's list does it: without a res_id (issue #553).
@@ -88,31 +89,46 @@ class TestAttendanceJustificationTour(HttpCase):
 
     def test_attendance_justification_open_and_edit_tour(self):
         force_user_language_to_english(self, self.env.ref('base.user_admin'))
-        self.assertFalse(self.justification.notes)
+        self.assertEqual(self.justification.details, 'Tour detail')
 
         self.start_tour("/odoo", "ems_attendance_justification_open_and_edit", login="admin")
 
-        self.assertEqual(self.justification.notes, 'Tour note')
+        self.assertEqual(self.justification.details, 'Tour note')
 
     def test_attendance_justification_create_tour(self):
-        # Issue #656: a tutor justifies their whole group from the assistant, but for the student
-        # they mark as not to be justified (issue #763).
+        # Issue #795: a tutor adds their whole group from the form and takes out the student who
+        # must not be justified: one justification for the rest.
+        student = self.tutor_justification.student_ids
         self.start_tour("/odoo", "ems_attendance_justification_create", login=self.tutor_user.login)
 
         justification = self.env['ems.attendance_justification'].search([
-            ('student_id', '=', self.tutor_justification.student_id.id),
-            ('id', '!=', self.tutor_justification.id),
+            ('student_ids', 'in', student.ids), ('id', '!=', self.tutor_justification.id),
         ])
         self.assertEqual(len(justification), 1)
+        self.assertEqual(justification.student_ids, student)
         self.assertEqual(justification.teacher_id.user_id, self.tutor_user)
         self.assertFalse(self.env['ems.attendance_justification'].search([
-            ('student_id', '=', self.excluded_student.id)]))
+            ('student_ids', 'in', self.excluded_student.ids)]))
         # The web client reads the typed 09:00-11:00 in the company's timezone (issue #518, see
         # docs/en/developers/shared/timezones.md), and the database stores it in UTC.
         utils = self.env['ems.datetime_utils']
         typed_day = date(2026, 2, 5)
         self.assertEqual(justification.start_date, utils.datetime_to_odoo(utils.time_float_to_utc_datetime(typed_day, 9.0)))
         self.assertEqual(justification.end_date, utils.datetime_to_odoo(utils.time_float_to_utc_datetime(typed_day, 11.0)))
+
+    def test_attendance_justification_strike_tour(self):
+        # Issue #795: the reason "Strike" picks a day, which covers the student's whole day.
+        self.start_tour("/odoo", "ems_attendance_justification_strike", login=self.tutor_user.login)
+
+        justification = self.env['ems.attendance_justification'].search([
+            ('reason_id', '=', self.env.ref('ems.attendance_justification_reason_strike').id),
+            ('student_ids', 'in', self.excluded_student.ids),
+        ])
+        self.assertEqual(len(justification), 1)
+        utils = self.env['ems.datetime_utils']
+        day = date(2026, 2, 6)
+        self.assertEqual(justification.start_date, utils.datetime_to_odoo(utils.time_float_to_utc_datetime(day, 0.0)))
+        self.assertEqual(utils.utc_to_local_date(justification.end_date), day)
 
     def test_attendance_justification_tutor_open_tour(self):
         # Logs in as a plain tutor, not admin: the bug (issue #469) only exists for a user

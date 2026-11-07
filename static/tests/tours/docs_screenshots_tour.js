@@ -29,20 +29,25 @@ registry.category("web_tour.tours").add("ems_doc_shot_tutor_send", {
     ],
 });
 
-// Tutors' justification manual: the "Justify absences" assistant (issue #656) on the tutor's
-// whole group, so the students to justify are listed and Pau, already justified that morning, is
-// flagged as skipped. The capture opens the assistant itself; the dates are typed in ca_ES format,
-// as a Catalan tutor would.
+// Tutors' justification manual: a new justification (issue #795) over the tutor's whole group.
+// Pau, already justified that morning, is not added (Odoo's warning is closed); Nerea, who must
+// not be justified, is taken out of the list. The dates are typed in ca_ES format, as a Catalan
+// tutor would.
 registry.category("web_tour.tours").add("ems_doc_shot_tutor_justification", {
     test: true,
     steps: () => [
         {
-            trigger: ".modal div[name='mode'] select",
-            content: "Justify by groups",
-            run: "selectByLabel Grups",
+            trigger: ".o_form_view div[name='start_date'] input[data-field='start_date']",
+            content: "Start of the period",
+            run: "edit 02/03/2026 08:00:00",
         },
         {
-            trigger: ".modal div[name='group_ids'] input",
+            trigger: ".o_form_view div[name='start_date'] input[data-field='end_date']",
+            content: "End of the period",
+            run: "edit 02/03/2026 14:00:00",
+        },
+        {
+            trigger: ".o_form_view div[name='add_group_ids'] input",
             content: "Type the tutor's group",
             run: "edit DAM1A",
         },
@@ -51,40 +56,18 @@ registry.category("web_tour.tours").add("ems_doc_shot_tutor_justification", {
             run: "click",
         },
         {
-            trigger: ".modal div[name='start_date'] input[data-field='start_date']",
-            content: "Start of the period",
-            run: "edit 02/03/2026 08:00:00",
-        },
-        {
-            trigger: ".modal div[name='start_date'] input[data-field='end_date']",
-            content: "End of the period",
-            run: "edit 02/03/2026 14:00:00",
-        },
-        {
-            trigger: ".modal .o_notebook .nav-item:first-child .nav-link",
-            content: "Leave the date picker, back on the students to justify",
+            trigger: ".modal:contains(Pau Mostra) .modal-footer .btn-primary",
+            content: "Pau, already justified, was not added: close the warning",
             run: "click",
         },
         {
-            trigger: ".modal div[name='line_ids'] .o_data_row:nth-child(3)",
-            content: "The group's three students are listed",
-        },
-        {
-            trigger: ".modal div[name='line_ids'] .o_data_row:contains(Nerea Prova) td[name='excluded']",
-            content: "Nerea is marked as not to be justified (issue #763)",
+            trigger: ".o_form_view div[name='student_ids'] .o_data_row:contains(Nerea Prova) .o_list_record_remove",
+            content: "Nerea must not be justified: taken out of the list",
             run: "click",
         },
         {
-            trigger: ".modal div[name='line_ids'] .o_data_row:contains(Nerea Prova) td[name='excluded'] input:checked",
-        },
-        {
-            trigger: ".modal .o_notebook .nav-item:first-child .nav-link",
-            content: "Leave the row's edition, so the list shows as it reads",
-            run: "click",
-        },
-        {
-            trigger: ".modal .o_justification_wizard_overlap:visible:contains(Pau Mostra)",
-            content: "Pau, already justified, is flagged as skipped",
+            trigger: ".o_form_view div[name='student_ids']:not(:has(.o_data_row:contains(Nerea Prova))) .o_data_row",
+            content: "The rest of the group stays listed",
         },
     ],
 });

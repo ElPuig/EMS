@@ -4,7 +4,7 @@
 
 # Justifying Your Students' Absences
 
-A justification covers a period (start and end date and time) for one student of your group. Every absence within that period becomes a **Justified Miss**, whichever teacher recorded it, and every **Severe Delay** (which counts as an absence) becomes a **Minor Delay**.
+A justification covers a period (start and end date and time) for one or several students: one student with a medical appointment, or a whole group on strike or at a competition. Every absence within that period becomes a **Justified Miss**, whichever teacher recorded it, and every **Severe Delay** (which counts as an absence) becomes a **Minor Delay**. The justification has a single reason and a single set of attached files, shared by all its students.
 
 Unless the centre allows it in its settings, a justification is the only way to justify an absence: teachers can't mark a student as Justified Miss when taking the roll-call.
 
@@ -14,26 +14,27 @@ Unless the centre allows it in its settings, a justification is the only way to 
 
 ## Recording a justification
 
-You can justify one student, several, or whole groups at once (for example, for a group outing).
+1. Go to **Student's Attendances → Justifications** and click **New**.
+2. In **Reason**, pick why (by default, **Health reasons**). Then:
+    - For most reasons, set the start and end date and time in **Period**.
+    - For a **Labour strike**, pick the **Day** instead: the justification covers the student's whole day.
+    - For **Other reasons**, describe it in **Details**, which only appears for that reason.
+3. Add the students, in the **Students** tab:
+    - **A whole group:** pick it in **Add groups**. All its students are added to the list, which shows each student's name and main group. You can add several groups, one after another.
+    - **One or more students:** click **Add a line** and pick them (you can tick several at once).
 
-1. Go to **Student's Attendances → Justifications** and click **New**. The **Justify absences** window opens.
-2. In **Period**, set the start and end date and time.
-3. In **Mode**, choose how to pick them:
-    - **Students**: pick one or more students in **Students**.
-    - **Groups**: pick one or more groups in **Groups**. Every student of those groups is justified, except those you mark in the next step.
+    Only your groups and their students are offered.
+4. Remove from the list, with the cross (×), anyone who must not be justified (for example, during a strike, the students who didn't sign the document).
+5. If you want, attach the document in the **Attached files** tab and add a comment in **Notes**.
+6. Save. The absences of every student in the list within the period become **Justified Miss**, whichever teacher recorded them, and their severe delays become **Minor Delay**.
 
-    Only your groups and their students are listed.
-4. The **Students to justify** tab lists who will be justified. Tick **Do not justify** next to anyone who must not be justified (for example, during a strike, the students who didn't join it). If any of them already has a justification overlapping the period, a yellow notice names them: they will be skipped.
-5. If you want, attach the document in the **Attached files** tab (every student gets their own copy) and add a comment in **Notes**.
-6. Click **Justify**. EMS creates one justification per student: their absences within the period become **Justified Miss**, whichever teacher recorded them, and their severe delays become **Minor Delay**. A message tells you how many students were justified, which ones were skipped and which ones you marked as not to justify.
+![A new justification for a whole group](../../assets/tutors/justificants-02-nou.png)
 
-![The Justify absences assistant on a whole group](../../assets/tutors/justificants-02-nou.png)
-
-Each justification lists, in its **Affected sessions** tab, the sessions within the period where the student had an absence or a severe delay.
+The **Affected sessions** tab lists, for every student, the sessions within the period where they had an absence or a severe delay.
 
 In the roll-call, the justified lines show a shield and can no longer be changed by the teacher. Their note says who justified them ("Absence justified by: ..." or "Severe delay justified by: ...").
 
-A student cannot have two justifications with overlapping periods.
+A student cannot have two justifications with overlapping periods. When you add a group, the students who already have one are not added, and a message names them. If you add one by hand, a yellow notice names them: remove them from the list to save.
 
 ### Days still to come
 
@@ -63,9 +64,13 @@ The attached files can be opened by everyone who can see the justification: the 
 
 ![Justifications list](../../assets/tutors/justificants-01-llista.png)
 
-- **Changing the period:** open the justification, change the **Period** and save. Absences left outside it go back to **Miss** (or **Severe Delay**, if they were one), and the new ones are justified.
+- **Changing the period or the reason:** open the justification, change the **Period** (or the **Day**, for a strike) or the **Reason** and save. Absences left outside it go back to **Miss** (or **Severe Delay**, if they were one), and the new ones are justified.
+- **Adding or removing students:** add them or remove them from the **Students** tab and save. The absences of a removed student go back to **Miss** (or **Severe Delay**).
 - **Deleting it:** the absences it covered go back to **Miss**, and the delays to **Severe Delay**.
-- The **Student** cannot be changed once saved: delete the justification and create a new one.
+
+A justification that includes students from groups you aren't the tutor of can only be changed or deleted by someone responsible for all of them (Head of Studies, or the academic administration). You can still open it.
+
+The list shows each justification's reason and details. You can search it by student, by group or by reason, and group it by reason.
 
 ---
 

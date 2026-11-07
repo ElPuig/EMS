@@ -428,6 +428,28 @@ def mock_outgoing_email(cls):
     return mock
 
 
+def capture_template_emails(case):
+    """Patch mail.template.send_mail for the test and return a function listing what was sent,
+    as (template xmlid, res_id, recipients) tuples; recipients is the gw_recipients context the
+    Google Workspace lifecycle emails use (None when the template doesn't take it). Calling it
+    again in the same test starts the list afresh."""
+    send_mail = getattr(case, '_captured_send_mail', None)
+    if send_mail:
+        send_mail.reset_mock()
+    else:
+        patcher = patch.object(type(case.env['mail.template']), 'send_mail', autospec=True)
+        send_mail = case._captured_send_mail = patcher.start()
+        case.addCleanup(patcher.stop)
+        case.addCleanup(delattr, case, '_captured_send_mail')
+
+    def sent():
+        return [
+            (template.get_external_id()[template.id], res_id, template.env.context.get('gw_recipients'))
+            for (template, res_id), _kwargs in send_mail.call_args_list
+        ]
+    return sent
+
+
 class _ShiftedClockMeta(type):
     """Stands in for datetime.datetime/date inside odoo.fields (see shift_ems_clock): every
     attribute, call and isinstance() check goes to the real class, except the overridden now()/

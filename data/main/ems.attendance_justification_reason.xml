@@ -8,18 +8,18 @@
             <field name="name">Health reasons</field>
             <field name="sequence">1</field>
         </record>
+        <record id="attendance_justification_reason_strike" model="ems.attendance_justification_reason">
+            <field name="name">Labour strike</field>
+            <field name="sequence">2</field>
+            <field name="full_day" eval="True"/>
+        </record>
         <record id="attendance_justification_reason_expulsion" model="ems.attendance_justification_reason">
             <field name="name">Expulsion from the centre</field>
-            <field name="sequence">2</field>
+            <field name="sequence">3</field>
         </record>
         <record id="attendance_justification_reason_activity" model="ems.attendance_justification_reason">
             <field name="name">Attendance at an authorised activity outside the centre</field>
-            <field name="sequence">3</field>
-        </record>
-        <record id="attendance_justification_reason_strike" model="ems.attendance_justification_reason">
-            <field name="name">Labour strike</field>
             <field name="sequence">4</field>
-            <field name="full_day" eval="True"/>
         </record>
         <record id="attendance_justification_reason_family" model="ems.attendance_justification_reason">
             <field name="name">Family reasons (death or serious illness of a relative)</field>

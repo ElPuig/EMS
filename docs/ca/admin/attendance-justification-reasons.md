@@ -16,7 +16,7 @@ Ves a: **Assistència dels estudiants → Configuració → Justificants → Mot
 - **Dia complet:** el tutor tria un sol dia en lloc d'un període, i el justificant cobreix tota la jornada de l'alumne (per defecte, **Vaga**).
 - Per deixar d'oferir un motiu sense perdre els justificants que el fan servir, arxiva'l.
 
-El centre comença amb: Motius de salut, Expulsió del centre, Assistència a una activitat autoritzada fora del centre, Vaga, Motius familiars (defunció o malaltia greu d'un familiar), Deure inexcusable (citació judicial, tràmits oficials), Examen oficial (carnet de conduir, idiomes, accés a la universitat) i Altres.
+El centre comença amb: Motius de salut, Vaga, Expulsió del centre, Assistència a una activitat autoritzada fora del centre, Motius familiars (defunció o malaltia greu d'un familiar), Deure inexcusable (citació judicial, tràmits oficials), Examen oficial (carnet de conduir, idiomes, accés a la universitat) i Altres.
 
 ---
 

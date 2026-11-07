@@ -16,7 +16,7 @@ Ve a: **Asistencia de los estudiantes → Configuración → Justificaciones →
 - **Día completo:** el tutor elige un solo día en lugar de un periodo, y el justificante cubre toda la jornada del alumno (por defecto, **Huelga**).
 - Para dejar de ofrecer un motivo sin perder los justificantes que lo usan, archívalo.
 
-El centro empieza con: Motivos de salud, Expulsión del centro, Asistencia a una actividad autorizada fuera del centro, Huelga, Motivos familiares (fallecimiento o enfermedad grave de un familiar), Deber inexcusable (citación judicial, trámites oficiales), Examen oficial (carné de conducir, idiomas, acceso a la universidad) y Otros.
+El centro empieza con: Motivos de salud, Huelga, Expulsión del centro, Asistencia a una actividad autorizada fuera del centro, Motivos familiares (fallecimiento o enfermedad grave de un familiar), Deber inexcusable (citación judicial, trámites oficiales), Examen oficial (carné de conducir, idiomas, acceso a la universidad) y Otros.
 
 ---
 

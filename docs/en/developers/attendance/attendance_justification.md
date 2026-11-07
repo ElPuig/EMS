@@ -34,8 +34,8 @@ the behaviour never depends on a reason's name or xmlid:
 
 The seed (`data/main/ems.attendance_justification_reason.xml`) is `noupdate="1"`: the centre
 reorders, renames and adds reasons from the app, and an upgrade must not undo it. It holds: Health
-reasons (default), Expulsion from the centre, Attendance at an authorised activity outside the
-centre, Labour strike, Family reasons, Unavoidable duty, Official exam, Other reasons. The English
+reasons (default), Labour strike, Expulsion from the centre, Attendance at an authorised activity
+outside the centre, Family reasons, Unavoidable duty, Official exam, Other reasons. The English
 names "Labour strike" and "Other reasons" avoid the existing translations of "Strike" (a
 coexistence strike) and "Other".
 

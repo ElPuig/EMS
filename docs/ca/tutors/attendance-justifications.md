@@ -4,7 +4,7 @@
 
 # Justificar les faltes del teu alumnat
 
-Un justificant cobreix un període (data i hora d'inici i de fi) d'un alumne del teu grup. Totes les faltes d'aquell període passen a **Falta justificada**, les hagi posat qualsevol docent, i tots els **Retard greu** (que compten com a falta) passen a **Retard lleu**.
+Un justificant cobreix un període (data i hora d'inici i de fi) d'un o de diversos alumnes: un alumne amb hora al metge, o un grup sencer en vaga o en un concurs. Totes les faltes d'aquell període passen a **Falta justificada**, les hagi posat qualsevol docent, i cada **Retard greu** (que compta com a falta) passa a **Retard lleu**. El justificant té un sol comentari i un sol conjunt de fitxers adjunts, compartits per tots els seus alumnes.
 
 Llevat que el centre ho permeti a la seva configuració, una justificació és l'única manera de justificar una falta: el professorat no pot marcar un alumne com a Falta justificada en passar llista.
 
@@ -14,26 +14,24 @@ Llevat que el centre ho permeti a la seva configuració, una justificació és l
 
 ## Registrar un justificant
 
-Pots justificar un alumne, diversos o grups sencers alhora (per exemple, per a una sortida d'un grup).
-
-1. Ves a **Assistència dels estudiants → Justificants** i clica **Nou**. S'obre la finestra **Justifica faltes**.
+1. Ves a **Assistència dels estudiants → Justificants** i clica **Nou**.
 2. A **Període**, indica la data i l'hora d'inici i de fi.
-3. A **Mode**, tria com els selecciones:
-    - **Estudiants**: tria un o més alumnes a **Estudiants**.
-    - **Grups**: tria un o més grups a **Grups**. Es justifiquen tots els alumnes d'aquests grups, excepte els que marquis al pas següent.
+3. Afegeix-hi els alumnes, a la pestanya **Estudiants**:
+    - **Un grup sencer:** tria'l a **Afegeix grups**. S'afegeixen a la llista tots els seus alumnes, amb el nom i el grup principal de cadascun. Pots afegir diversos grups, un rere l'altre.
+    - **Un o més alumnes:** clica **Afegir una línia** i tria'ls (en pots marcar diversos alhora).
 
     Només hi surten els teus grups i els seus alumnes.
-4. La pestanya **Alumnes per justificar** mostra qui es justificarà. Marca **No justificar** al costat de qui no s'hagi de justificar (per exemple, en una vaga, els alumnes que no l'han secundat). Si algun ja té un justificant que se superposa amb el període, un avís groc l'indica: se l'ometrà.
-5. Si vols, adjunta el document a la pestanya **Fitxers adjunts** (cada alumne en rep una còpia) i afegeix un comentari a **Notes**.
-6. Clica **Justifica**. EMS crea un justificant per a cada alumne: les seves faltes del període passen a **Falta justificada**, sigui quin sigui el docent que les va posar, i els seus retards greus a **Retard lleu**. Un missatge t'indica quants alumnes s'han justificat, quins s'han omès i quins has marcat per no justificar.
+4. Treu de la llista, amb la creu (×), qui no s'hagi de justificar (per exemple, en una vaga, els alumnes que no han signat el document).
+5. Si vols, adjunta el document a la pestanya **Fitxers adjunts** i afegeix un comentari a **Notes**.
+6. Desa. Les faltes del període de tots els alumnes de la llista passen a **Falta justificada**, sigui quin sigui el docent que les va posar, i els seus retards greus a **Retard lleu**.
 
-![L'assistent Justifica faltes sobre un grup sencer](../../assets/tutors/justificants-02-nou.png)
+![Un justificant nou per a un grup sencer](../../assets/tutors/justificants-02-nou.png)
 
-Cada justificant mostra, a la pestanya **Sessions afectades**, les sessions del període en què l'alumne tenia una falta o un retard greu.
+La pestanya **Sessions afectades** mostra, per a cada alumne, les sessions del període en què tenia una falta o un retard greu.
 
 Al passi de llista, les línies justificades mostren un escut i el docent ja no les pot canviar. La seva nota indica qui les ha justificat ("Falta justificada per: ..." o "Retard greu justificat per: ...").
 
-Un alumne no pot tenir dos justificants amb períodes que se superposin.
+Un alumne no pot tenir dos justificants amb períodes que se superposin. Quan afegeixes un grup, els alumnes que ja en tenen un no s'afegeixen, i un missatge t'indica quins són. Si n'afegeixes algun manualment, un avís groc l'indica: treu-lo de la llista per poder desar.
 
 ### Dies que encara no han arribat
 
@@ -64,8 +62,12 @@ Els fitxers adjunts els pot obrir tothom qui pot veure el justificant: el profes
 ![Llista de justificants](../../assets/tutors/justificants-01-llista.png)
 
 - **Canviar el període:** obre el justificant, modifica el **Període** i desa. Les faltes que en queden fora tornen a **Falta** (o a **Retard greu**, si ho eren) i les noves queden justificades.
+- **Afegir-hi o treure'n alumnes:** afegeix-los o treu-los a la pestanya **Estudiants** i desa. Les faltes d'un alumne que treus tornen a **Falta** (o a **Retard greu**).
 - **Esborrar-lo:** les faltes que cobria tornen a **Falta**, i els retards a **Retard greu**.
-- L'**Estudiant** no es pot canviar un cop desat: esborra el justificant i crea'n un de nou.
+
+Un justificant que inclou alumnes de grups dels quals no ets tutor només el pot modificar o esborrar qui en sigui responsable de tots (la Prefectura d'Estudis o l'administració acadèmica). El pots obrir igualment.
+
+Pots cercar a la llista per alumne o per grup.
 
 ---
 

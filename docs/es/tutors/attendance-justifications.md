@@ -4,7 +4,7 @@
 
 # Justificar las faltas de tu alumnado
 
-Un justificante cubre un período (fecha y hora de inicio y de fin) de un alumno de tu grupo. Todas las faltas de ese período pasan a **Falta justificada**, las haya puesto cualquier docente, y todos los **Retraso grave** (que cuentan como falta) pasan a **Retraso leve**.
+Un justificante cubre un período (fecha y hora de inicio y de fin) de uno o de varios alumnos: un alumno con cita médica, o un grupo entero en huelga o en un concurso. Todas las faltas de ese período pasan a **Falta justificada**, las haya puesto cualquier docente, y cada **Retraso grave** (que cuenta como falta) pasa a **Retraso leve**. El justificante tiene un solo comentario y un solo conjunto de archivos adjuntos, compartidos por todos sus alumnos.
 
 Salvo que el centro lo permita en su configuración, una justificación es la única forma de justificar una falta: el profesorado no puede marcar a un alumno como Falta justificada al pasar lista.
 
@@ -14,26 +14,24 @@ Salvo que el centro lo permita en su configuración, una justificación es la ú
 
 ## Registrar un justificante
 
-Puedes justificar a un alumno, a varios o a grupos enteros a la vez (por ejemplo, para una salida de un grupo).
-
-1. Ve a **Asistencia de los estudiantes → Justificaciones** y pulsa **Nuevo**. Se abre la ventana **Justificar faltas**.
+1. Ve a **Asistencia de los estudiantes → Justificaciones** y pulsa **Nuevo**.
 2. En **Período**, indica la fecha y la hora de inicio y de fin.
-3. En **Modo**, elige cómo seleccionarlos:
-    - **Estudiantes**: elige uno o más alumnos en **Estudiantes**.
-    - **Grupos**: elige uno o más grupos en **Grupos**. Se justifica a todos los alumnos de esos grupos, excepto a los que marques en el paso siguiente.
+3. Añade los alumnos, en la pestaña **Estudiantes**:
+    - **Un grupo entero:** elígelo en **Añadir grupos**. Se añaden a la lista todos sus alumnos, con el nombre y el grupo principal de cada uno. Puedes añadir varios grupos, uno tras otro.
+    - **Uno o más alumnos:** pulsa **Añadir una línea** y elígelos (puedes marcar varios a la vez).
 
     Solo aparecen tus grupos y sus alumnos.
-4. La pestaña **Alumnos por justificar** muestra a quién se justificará. Marca **No justificar** junto a quien no se deba justificar (por ejemplo, en una huelga, los alumnos que no la han secundado). Si alguno ya tiene un justificante que se solapa con el período, un aviso amarillo lo indica: se omitirá.
-5. Si quieres, adjunta el documento en la pestaña **Archivos adjuntos** (cada alumno recibe su propia copia) y añade un comentario en **Notas**.
-6. Pulsa **Justificar**. EMS crea un justificante para cada alumno: sus faltas del período pasan a **Falta justificada**, sea cual sea el docente que las puso, y sus retrasos graves a **Retraso leve**. Un mensaje te indica cuántos alumnos se han justificado, cuáles se han omitido y cuáles has marcado para no justificar.
+4. Quita de la lista, con la cruz (×), a quien no deba justificarse (por ejemplo, en una huelga, los alumnos que no han firmado el documento).
+5. Si quieres, adjunta el documento en la pestaña **Archivos adjuntos** y añade un comentario en **Notas**.
+6. Guarda. Las faltas del período de todos los alumnos de la lista pasan a **Falta justificada**, sea cual sea el docente que las puso, y sus retrasos graves a **Retraso leve**.
 
-![El asistente Justificar faltas sobre un grupo entero](../../assets/tutors/justificants-02-nou.png)
+![Un justificante nuevo para un grupo entero](../../assets/tutors/justificants-02-nou.png)
 
-Cada justificante muestra, en la pestaña **Sesiones afectadas**, las sesiones del período en las que el alumno tenía una falta o un retraso grave.
+La pestaña **Sesiones afectadas** muestra, para cada alumno, las sesiones del período en las que tenía una falta o un retraso grave.
 
 En el pase de lista, las líneas justificadas muestran un escudo y el docente ya no puede cambiarlas. Su nota indica quién las ha justificado ("Falta justificada por: ..." o "Retraso grave justificado por: ...").
 
-Un alumno no puede tener dos justificantes con períodos que se solapen.
+Un alumno no puede tener dos justificantes con períodos que se solapen. Al añadir un grupo, los alumnos que ya tienen uno no se añaden, y un mensaje te indica cuáles son. Si añades uno a mano, un aviso amarillo lo indica: quítalo de la lista para poder guardar.
 
 ### Días que aún no han llegado
 
@@ -64,8 +62,12 @@ Los archivos adjuntos los puede abrir cualquiera que pueda ver el justificante: 
 ![Lista de justificantes](../../assets/tutors/justificants-01-llista.png)
 
 - **Cambiar el período:** abre el justificante, modifica el **Período** y guarda. Las faltas que queden fuera vuelven a **Falta** (o a **Retraso grave**, si lo eran) y las nuevas quedan justificadas.
+- **Añadir o quitar alumnos:** añádelos o quítalos en la pestaña **Estudiantes** y guarda. Las faltas de un alumno que quitas vuelven a **Falta** (o a **Retraso grave**).
 - **Borrarlo:** las faltas que cubría vuelven a **Falta**, y los retrasos a **Retraso grave**.
-- El **Alumno** no se puede cambiar una vez guardado: borra el justificante y crea uno nuevo.
+
+Un justificante que incluye alumnos de grupos de los que no eres tutor solo puede modificarlo o borrarlo quien sea responsable de todos ellos (Jefatura de Estudios o la administración académica). Puedes abrirlo igualmente.
+
+Puedes buscar en la lista por alumno o por grupo.
 
 ---
 

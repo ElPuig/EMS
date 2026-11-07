@@ -43,7 +43,10 @@ Tick **Confidential** for documents only the Erasmus team may see, such as the e
 
 The default documents, the checklist and the questions are already on a new call before you save it; if you change **Applicants**, they change to those of the staff call (or the students' call).
 
-**Information for applicants** tab: the text shown on the portal above the form.
+**Information for applicants** tab: the text shown on the portal above the form. Click in the text and the editor's toolbar appears. To paste an information card prepared elsewhere (for example with the portal's colours and boxes), use the **`</>`** button (code view) at the end of the toolbar (1), paste its HTML code there and press the button again to go back to the editor: the card keeps its design. Pasting the card directly into the editor loses it.
+
+![The code view button in the editor](../../assets/erasmus/convocatoria-informacio-codi.png)
+
 
 > **Tip:** next year, open this call and use **Duplicate**: the modalities and documents are copied.
 

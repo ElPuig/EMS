@@ -263,7 +263,7 @@
                                 <label for="tie_break"/>
                                 <field name="tie_break" readonly="user_role != 'team' or state != 'draft'"/>
                                 <label for="description"/>
-                                <field name="description" readonly="user_role != 'team'"/>
+                                <field name="description" widget="ems_html_codeview" readonly="user_role != 'team'"/>
                             </page>
                             <page string="Selection" name="selection"
                                   invisible="state == 'draft' or (state == 'enrolment' and user_role != 'team') or user_role == 'companion'">

@@ -43,7 +43,10 @@ Marca **Confidencial** en los documentos que solo puede ver el equipo Erasmus, c
 
 Los documentos por defecto, la lista de comprobación y las preguntas ya aparecen en una convocatoria nueva antes de guardarla; si cambias **Solicitantes**, cambian por los de la convocatoria de personal (o de alumnado).
 
-Pestaña **Información para los solicitantes**: el texto que se muestra en el portal encima del formulario.
+Pestaña **Información para los solicitantes**: el texto que se muestra en el portal encima del formulario. Haz clic dentro del texto y aparece la barra del editor. Para pegar una ficha informativa preparada en otro sitio (por ejemplo, con los colores y los recuadros del portal), usa el botón **`</>`** (vista de código) del final de la barra (1), pega ahí el código HTML y vuelve a pulsar el botón para volver al editor: la ficha conserva el diseño. Si la pegas directamente en el editor, lo pierde.
+
+![El botón de vista de código en el editor](../../assets/erasmus/convocatoria-informacio-codi.png)
+
 
 > **Consejo:** el año que viene, abre esta convocatoria y usa **Duplicar**: se copian las modalidades y los documentos.
 

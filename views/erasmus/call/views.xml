@@ -181,7 +181,8 @@
                                         </field>
                                     </page>
                                     <page string="Information for applicants" name="description">
-                                        <field name="description"/>
+                                        <!-- Issue #774: the code view, to paste a prepared card's HTML. -->
+                                        <field name="description" widget="ems_html_codeview"/>
                                     </page>
                                     <!-- Issue #686: who rates the staff's mobility plans. -->
                                     <page string="Panel" name="panel" invisible="audience != 'staff'">

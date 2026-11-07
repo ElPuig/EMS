@@ -56,7 +56,9 @@ States of the mobility: `draft` → `enrolment` → `selection` → `validation`
 ## Enrolment (issue #701)
 
 - The coordinator creates the mobility (*Erasmus+ > Mobilities > Group mobilities*), fills in the groups, the
-  enrolment period and the selection criteria (a default text with the agreed rule), and opens the
+  enrolment period and the selection criteria (a default text with the agreed rule), the
+  information for students (`description`, with the code view of `ems_html_codeview`, see
+  erasmus.md's Portal section), and opens the
   enrolment (`action_open_enrolment`, which refuses without groups, period or criteria). Dates
   and destination may stay empty until they are confirmed.
 - `/my/erasmus` shows a card per group mobility the student can see

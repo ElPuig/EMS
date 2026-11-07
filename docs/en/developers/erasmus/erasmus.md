@@ -194,6 +194,15 @@ evaluators' list of interviews) is an `ems.info_notice` for that same summary (s
 
 ## Portal (`controllers/portal_erasmus.py`)
 
+The call's *Information for applicants* (`description`, shown above the form) and the group
+mobility's *Information for students* use the `ems_html_codeview` widget
+(`static/src/js/backend/html_codeview_field.js`, issue #774): Odoo's own html field with its code
+view (`</>`) in a fixed toolbar, so the Erasmus team can paste a card prepared elsewhere with the
+Bootstrap classes the portal already ships. Pasting rendered HTML into the editor drops the
+classes; the code view keeps them, and the field's default sanitizing keeps `class` (not
+`style`). Odoo's own `codeview` option only shows the button in developer mode, which is why
+the widget turns it on itself; the fixed toolbar is `EmsHtmlBlockField`'s, the minutes' one.
+
 | Route | What |
 |---|---|
 | `GET /my/erasmus` | The person's own applications, the calls open to them now, and the others folded. |

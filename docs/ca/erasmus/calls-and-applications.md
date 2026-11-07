@@ -43,7 +43,10 @@ Marca **Confidencial** per als documents que només pot veure l'equip Erasmus, c
 
 Els documents per defecte, la llista de comprovació i les preguntes ja surten en una convocatòria nova abans de desar-la; si canvies **Sol·licitants**, canvien pels de la convocatòria de personal (o d'alumnat).
 
-Pestanya **Informació per als sol·licitants**: el text que es mostra al portal a sobre del formulari.
+Pestanya **Informació per als sol·licitants**: el text que es mostra al portal a sobre del formulari. Fes clic dins del text i apareix la barra de l'editor. Per enganxar-hi una fitxa informativa preparada en un altre lloc (per exemple, amb els colors i els requadres del portal), fes servir el botó **`</>`** (vista de codi) del final de la barra (1), enganxa-hi el codi HTML i torna a prémer el botó per tornar a l'editor: la fitxa conserva el disseny. Si l'enganxes directament a l'editor, el perd.
+
+![El botó de vista de codi a l'editor](../../assets/erasmus/convocatoria-informacio-codi.png)
+
 
 > **Consell:** l'any vinent, obre aquesta convocatòria i fes servir **Duplica**: es copien les modalitats i els documents.
 

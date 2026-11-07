@@ -452,17 +452,30 @@
     cursor: pointer;
 }
 
-/* Issue #725: on the absences table, a guard the user can do nothing with (send as support, or
-   be themselves while free on guard) looks disabled, so the ones they can are told apart at a
-   glance. A guard covering a class keeps its cover colour, which pairs it with the class. */
+/* Issue #725: on the absences table, a guard who cannot cover anything then (away, not checked in,
+   busy) looks disabled, so the ones who can are told apart at a glance. A guard covering a class
+   keeps its cover colour, which pairs it with the class. */
 .o_guard_board_guard_badge.o_guard_board_guard_disabled {
     color: #adb5bd;
     opacity: 0.8;
+    /* Struck out too, so it is not mistaken for another area's guard (issue #770). */
+    text-decoration: line-through;
 }
 
 .o_guard_board_guard_badge.o_guard_board_guard_disabled:not([class*="o_guard_board_cover_"]) {
     background: #f1f3f5;
     border: 1px dashed #ced4da;
+}
+
+/* Issue #770: a free guard who is not the user's to assign (another area's, or the user organises
+   nobody's absences) is greyed out too, but without the dashed border of one who cannot cover. */
+.o_guard_board_guard_badge.o_guard_board_guard_idle {
+    color: #868e96;
+    opacity: 0.8;
+}
+
+.o_guard_board_guard_badge.o_guard_board_guard_idle:not([class*="o_guard_board_cover_"]) {
+    background: #f1f3f5;
 }
 
 /* A guard who is with a group through an internal arrangement: struck out of the guard column,

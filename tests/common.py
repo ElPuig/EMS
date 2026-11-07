@@ -415,6 +415,42 @@ def allow_every_absence_change(env):
     })
 
 
+def course_monday(env):
+    """A Monday inside the current course's window. Inside the window because the absence form's
+    own health-allowance computation filters on it (see hr.leave._compute_ems_health_allowance)."""
+    from datetime import timedelta
+    day = env.company.current_course_id.date_range()[0] + timedelta(days=30)
+    while day.weekday() != 0:
+        day += timedelta(days=1)
+    return day
+
+
+def create_absence(env, employee, day, hour_from=None, hour_to=None, approve=True):
+    """An absence request of `employee` for `day`: the whole day, or `hour_from`-`hour_to`.
+    Approved unless `approve` is False, which leaves it requested."""
+    vals = {
+        'employee_id': employee.id,
+        'holiday_status_id': env.ref('ems.leave_type_justified').id,
+        'request_date_from': day,
+        'request_date_to': day,
+        # What the "Send request" button does - a request that was never sent cannot be saved at
+        # all (see hr.leave._check_ems_submitted).
+        'ems_submitted': True,
+        'ems_responsible_declaration': True,
+    }
+    if hour_from is None:
+        # 'leave_type_justified' does not seed 'Whole day?' on its own (its ems_full_day_default
+        # is False), and a request that is neither a whole day nor a span of hours is worth zero -
+        # which hr_holidays itself refuses to approve.
+        vals['ems_full_day'] = True
+    else:
+        vals.update({'ems_full_day': False, 'request_hour_from': hour_from, 'request_hour_to': hour_to})
+    leave = env['hr.leave'].create(vals)
+    if approve:
+        leave.action_approve()
+    return leave
+
+
 def mock_outgoing_email(cls):
     """Neutralizes real SMTP delivery for the duration of the test class - see CLAUDE.md's
     'Email safety in tests'. Call once from setUpClass. Returns the mock (e.g. to later assert
@@ -426,6 +462,28 @@ def mock_outgoing_email(cls):
     mock = patcher.start()
     cls.addClassCleanup(patcher.stop)
     return mock
+
+
+def capture_template_emails(case):
+    """Patch mail.template.send_mail for the test and return a function listing what was sent,
+    as (template xmlid, res_id, recipients) tuples; recipients is the gw_recipients context the
+    Google Workspace lifecycle emails use (None when the template doesn't take it). Calling it
+    again in the same test starts the list afresh."""
+    send_mail = getattr(case, '_captured_send_mail', None)
+    if send_mail:
+        send_mail.reset_mock()
+    else:
+        patcher = patch.object(type(case.env['mail.template']), 'send_mail', autospec=True)
+        send_mail = case._captured_send_mail = patcher.start()
+        case.addCleanup(patcher.stop)
+        case.addCleanup(delattr, case, '_captured_send_mail')
+
+    def sent():
+        return [
+            (template.get_external_id()[template.id], res_id, template.env.context.get('gw_recipients'))
+            for (template, res_id), _kwargs in send_mail.call_args_list
+        ]
+    return sent
 
 
 class _ShiftedClockMeta(type):

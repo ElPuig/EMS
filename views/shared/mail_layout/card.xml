@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Card layout for EMS emails (design by Luis, issue #728), used as a mail.template's
+         email_layout_xmlid: Odoo renders the template's own body and passes it here as
+         message.body, together with the record and its company. Colours come from the
+         company's email colours (Settings > General > Emails), so a change of house style
+         needs no code. The area, unit and button are set by each family's layout below. -->
+    <template id="mail_layout_card">
+        <t t-set="brand_color" t-value="company.email_primary_color or '#a51d2d'"/>
+        <t t-set="stripe_color" t-value="company.email_secondary_color or '#e66100'"/>
+        <div style="margin:0;padding:0;background-color:#f2f4f7;font-family:Arial,Helvetica,sans-serif;color:#243044;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;background-color:#f2f4f7;">
+                <tr><td align="center" style="padding:32px 12px;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"
+                           t-attf-style="border-collapse:separate;max-width:600px;background-color:#ffffff;border:1px solid #e1e5eb;border-top:4px solid {{ stripe_color }};border-radius:12px;">
+                        <tr><td style="padding:23px 30px 19px 30px;border-bottom:1px solid #e8ebf0;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr>
+                                <td valign="middle" style="font-size:12px;line-height:18px;font-weight:bold;letter-spacing:1px;color:#526477;text-transform:uppercase;">
+                                    <span t-attf-style="color:{{ brand_color }};">EMS</span>
+                                    <span style="color:#cbd2dc;padding:0 6px;">/</span>
+                                    <t t-out="area"/>
+                                </td>
+                                <td align="right" valign="middle" style="font-size:12px;line-height:18px;color:#778396;" t-out="company.name"/>
+                            </tr></table>
+                        </td></tr>
+                        <tr><td style="padding:27px 30px 8px 30px;font-size:14px;line-height:22px;color:#596679;">
+                            <t t-out="message.body"/>
+                        </td></tr>
+                        <tr t-if="button_url"><td align="center" style="padding:8px 30px 26px 30px;">
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;"><tr>
+                                <td align="center" t-att-bgcolor="brand_color" t-attf-style="background-color:{{ brand_color }};border-radius:6px;">
+                                    <a t-att-href="button_url" target="_blank" style="display:inline-block;padding:12px 25px;font-size:14px;line-height:20px;font-weight:bold;color:#ffffff;text-decoration:none;" t-out="button_label"/>
+                                </td>
+                            </tr></table>
+                        </td></tr>
+                        <tr><td style="padding:19px 30px 23px 30px;border-top:1px solid #e9edf1;background-color:#fafbfc;border-radius:0 0 12px 12px;">
+                            <p style="margin:0 0 7px 0;font-size:12px;line-height:17px;font-weight:bold;color:#45566c;">
+                                <t t-out="company.name"/><t t-if="unit"> · <t t-out="unit"/></t>
+                            </p>
+                            <p style="margin:0;font-size:11px;line-height:18px;color:#8894a3;">Automatic email sent from EMS · There is no need to reply to this message.</p>
+                        </td></tr>
+                    </table>
+                </td></tr>
+            </table>
+        </div>
+    </template>
+
+    <!-- Google Workspace account emails: welcome, password reset, deactivation notice,
+         deactivation cancelled and reactivation, for students and staff alike. -->
+    <template id="mail_layout_google">
+        <t t-call="ems.mail_layout_card">
+            <t t-set="area">Google accounts</t>
+            <t t-set="unit">School Secretariat</t>
+            <t t-set="button_label">Open my email</t>
+            <t t-set="button_url" t-value="'https://mail.google.com/a/%s/' % company.google_ws_domain if company.google_ws_domain else False"/>
+        </t>
+    </template>
+</odoo>

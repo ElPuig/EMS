@@ -88,7 +88,11 @@ class TestMeetingPresence(MeetingPresenceFixtures, TransactionCase):
         self.assertIn(self._public(self.child_teacher), convened)
         self.assertNotIn(self._public(self.asp), convened)
         self.assertNotIn(self._public(self.archived_teacher), convened)
-        self.assertTrue(all(line.state == 'pending' and line.is_convened for line in session.line_ids))
+        self.assertTrue(all(line.is_convened for line in session.line_ids))
+        # Every real teacher of the database is convened: whoever has an absence right now is
+        # justified by EMS (issue #776), everybody else starts pending.
+        self.assertTrue(all(line.state == ('justified' if line.on_leave else 'pending') for line in session.line_ids))
+        self.assertEqual(self._line(session, self._public(self.teacher)).state, 'pending')
 
     def test_all_staff_scope_includes_asp(self):
         convened = self._session(scope='all_staff').line_ids.employee_id

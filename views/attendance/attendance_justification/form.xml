@@ -66,6 +66,9 @@
                             <page string="Attached files">
                                 <field name="attachment_ids" widget="ems_attachments" nolabel="1" readonly="not user_is_admin and not user_is_tutor"/>
                             </page>
+                            <page string="Notes">
+                                <field name="notes"/>
+                            </page>
                         </notebook>
                     </sheet>
                 </form>

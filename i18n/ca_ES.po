@@ -7164,6 +7164,8 @@ msgstr "Nota"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__notes
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_form
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__notes
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
 msgid "Notes"
 msgstr "Notes"
 

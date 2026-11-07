@@ -693,6 +693,17 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
         self.assertEqual(mate_line.status_id, self.env.ref('ems.attendance_status_justified'))
         self.assertEqual(kept.attachment_ids.mapped('name'), ['vaga.pdf'])
 
+    def test_migration_moves_notes_to_details_and_keeps_the_notes_field(self):
+        justification = self._shared_justification(self.student)
+        justification.notes = 'Vaga 11/11'
+        self.env.flush_all()
+
+        self._post_migrate().move_notes_to_details(self.env.cr)
+        self.env.invalidate_all()
+
+        self.assertEqual(justification.details, 'Vaga 11/11')
+        self.assertFalse(justification.notes)
+
     def test_migration_keeps_justifications_created_one_by_one(self):
         Justification = self.env['ems.attendance_justification']
         mate, __ = self._group_mate_with_miss()

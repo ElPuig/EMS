@@ -6,6 +6,7 @@ _logger = logging.getLogger(__name__)
 
 def migrate(cr, version):
     _copy_student_to_student_list(cr)
+    move_notes_to_details(cr)
     merge_batch_justifications(cr)
     _set_reason_other(cr)
 
@@ -28,15 +29,25 @@ def _copy_student_to_student_list(cr):
     _logger.info("Migration #795: %d justification(s) moved to the student list.", cr.rowcount)
 
 
+def move_notes_to_details(cr):
+    """Issue #795: every existing justification becomes 'Other reasons' (_set_reason_other), whose
+    text is its details: the notes move there, and the notes field stays, empty."""
+    cr.execute("""
+        UPDATE ems_attendance_justification SET details = notes, notes = NULL
+         WHERE COALESCE(notes, '') <> ''
+    """)
+    _logger.info("Migration #795: %d justification(s) moved their notes to the details.", cr.rowcount)
+
+
 def merge_batch_justifications(cr):
     """Issue #795: the 'Justify absences' assistant (issues #656, #763) created one justification
     per student, with the same comment and a copy of every file. Each batch becomes one
     justification with all its students.
 
-    A batch is recognized by everything the assistant copied (its notes are the details by now, see
-    pre-migrate) plus the moment it was created: it
-    created them all in a single create() (same create_uid and create_date, the transaction's
-    time), which justifications created one by one never share. The oldest one is kept."""
+    A batch is recognized by everything the assistant copied (its notes, in the details by now) plus
+    the moment it was created: it created them all in a single create() (same create_uid and
+    create_date, the transaction's time), which justifications created one by one never share. The
+    oldest one is kept."""
     cr.execute("""
         SELECT MIN(id), ARRAY_AGG(id ORDER BY id)
           FROM ems_attendance_justification
@@ -85,8 +96,8 @@ def merge_batch_justifications(cr):
 
 def _set_reason_other(cr):
     """Issue #795: every justification from before the reasons existed becomes 'Other', with its old
-    notes as details (pre-migrate). Before Odoo adds the NOT NULL on reason_id (at the end of the
-    upgrade). The reasons are loaded by now."""
+    notes as details (move_notes_to_details()). Before Odoo adds the NOT NULL on reason_id (at the
+    end of the upgrade). The reasons are loaded by now."""
     cr.execute("""
         SELECT res_id FROM ir_model_data
          WHERE module = 'ems' AND name = 'attendance_justification_reason_other'

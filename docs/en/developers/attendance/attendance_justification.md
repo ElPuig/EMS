@@ -29,7 +29,7 @@ the behaviour never depends on a reason's name or xmlid:
 
 | Flag | Effect on the justification |
 |------|-----------------------------|
-| `requires_details` | The `details` field (the free text, formerly `notes`) is shown and required (`_check_details`); picking another reason clears it. Seeded on "Other reasons". |
+| `requires_details` | The `details` field is shown and required (`_check_details`); picking another reason clears it. Seeded on "Other reasons". |
 | `full_day` | The form shows a single `day` instead of the period. `day` is a non-stored compute (the local date of `start_date`) whose inverse, and `_onchange_day()`, set the period to that whole local day (`_day_period()`: 00:00 to 23:59:59 in the company's timezone, stored as naive UTC). Both only act for a full-day reason, since the client sends `day` back on every save. `_check_full_day` refuses any other period; `create()` also accepts `day` alone (the NOT NULL dates can't wait for the inverse). Seeded on "Labour strike". |
 
 The seed (`data/main/ems.attendance_justification_reason.xml`) is `noupdate="1"`: the centre
@@ -39,7 +39,8 @@ centre, Labour strike, Family reasons, Unavoidable duty, Official exam, Other re
 names "Labour strike" and "Other reasons" avoid the existing translations of "Strike" (a
 coexistence strike) and "Other".
 
-The list shows `reason_id` and `details`; the search view filters and groups by reason.
+The free `notes` (their own tab, as before) stay apart from the details. The list shows
+`reason_id` and `details`; the search view filters and groups by reason.
 
 ---
 
@@ -252,11 +253,11 @@ covered `_check_time_overlap`'s overlap branch.
 
 ## Migration 18.0.0.47.0 (issue #795)
 
-`pre-migrate.py` renames the old `notes` column to `details` (before the schema sync, so Odoo
-neither drops it nor creates an empty one). `post-migrate.py` copies the old `student_id` into the
-student list (the column still exists in
+`post-migrate.py` copies the old `student_id` into the student list (the column still exists in
 post-migrate; Odoo drops it at the end of the upgrade), then `merge_batch_justifications()` turns
-each batch the assistant created into one justification. A batch is every justification sharing
+each batch the assistant created into one justification (after `move_notes_to_details()`, which
+moves every justification's notes to its details and leaves the notes empty: the field stays, in
+its own tab, for any further comment). A batch is every justification sharing
 teacher, period, notes, `create_uid` and `create_date`: the assistant created them in one
 `create()`, so they share the transaction's timestamp, which justifications created one by one
 never do. The oldest is kept and receives the others' students, session line links (both

@@ -12,9 +12,9 @@
 ## Justification reasons:
 - Every justification has a reason, picked from a list maintained in Student's Attendances > Configuration > Justifications > Reasons (EMS administrator and Heads of Studies; create, edit, reorder, archive), like the convalidation refusal reasons. The first one is the default.
 - Seeded with: Health reasons (default), Expulsion from the centre, Attendance at an authorised activity outside the centre, Labour strike, Family reasons, Unavoidable duty, Official exam and Other reasons. The seed is noupdate, so the centre's changes survive upgrades.
-- Two flags per reason drive the form: "Requires details" shows (and requires) a Details field, which replaces the old free notes (on "Other reasons"); "Full day" replaces the period with a single day covering the student's whole day (on "Labour strike").
+- Two flags per reason drive the form: "Requires details" shows (and requires) a Details field (on "Other reasons"); the free Notes tab stays as before; "Full day" replaces the period with a single day covering the student's whole day (on "Labour strike").
 - The list shows the reason and its details, and can be filtered and grouped by reason.
-- Migration: every existing justification becomes "Other reasons", its notes moving to the details.
+- Migration: every existing justification becomes "Other reasons", its notes text moving to the details (the notes field stays, empty).
 - Admin manual for the reasons (ca/es/en), tutors' manual, screenshots, translations, tests and a strike tour added.
 
 # Internal changes

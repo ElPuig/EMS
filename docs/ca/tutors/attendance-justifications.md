@@ -25,7 +25,7 @@ Llevat que el centre ho permeti a la seva configuració, una justificació és l
 
     Només hi surten els teus grups i els seus alumnes.
 4. Treu de la llista, amb la creu (×), qui no s'hagi de justificar (per exemple, en una vaga, els alumnes que no han signat el document).
-5. Si vols, adjunta el document a la pestanya **Fitxers adjunts**.
+5. Si vols, adjunta el document a la pestanya **Fitxers adjunts** i afegeix un comentari a **Notes**.
 6. Desa. Les faltes del període de tots els alumnes de la llista passen a **Falta justificada**, sigui quin sigui el docent que les va posar, i els seus retards greus a **Retard lleu**.
 
 ![Un justificant nou per a un grup sencer](../../assets/tutors/justificants-02-nou.png)
@@ -52,7 +52,7 @@ També pots adjuntar fitxers a un justificant després de crear-lo:
 
 ![Pestanya Fitxers adjunts d'un justificant](../../assets/tutors/justificants-03-adjunts.png)
 
-Amb la icona de l'ull previsualitzes el fitxer sense sortir de l'EMS (PDF, imatges i fitxers de text); amb la icona de descàrrega el descarregues; amb la paperera l'esborres quan desis el justificant.
+Amb la icona de l'ull previsualitzes el fitxer sense sortir de l'EMS (PDF, imatges i fitxers de text); amb la icona de descàrrega el descarregues; amb la paperera l'esborres quan desis el justificant. A la pestanya **Notes** pots afegir-hi un comentari.
 
 Els fitxers adjunts els pot obrir tothom qui pot veure el justificant: el professorat de les sessions afectades, la Prefectura d'Estudis i l'administració acadèmica.
 

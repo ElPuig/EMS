@@ -25,7 +25,7 @@ Unless the centre allows it in its settings, a justification is the only way to 
 
     Only your groups and their students are offered.
 4. Remove from the list, with the cross (×), anyone who must not be justified (for example, during a strike, the students who didn't sign the document).
-5. If you want, attach the document in the **Attached files** tab.
+5. If you want, attach the document in the **Attached files** tab and add a comment in **Notes**.
 6. Save. The absences of every student in the list within the period become **Justified Miss**, whichever teacher recorded them, and their severe delays become **Minor Delay**.
 
 ![A new justification for a whole group](../../assets/tutors/justificants-02-nou.png)
@@ -52,7 +52,7 @@ You can also attach files to a justification after creating it:
 
 ![Attached files tab of a justification](../../assets/tutors/justificants-03-adjunts.png)
 
-The eye icon previews the file without leaving EMS (PDFs, images and text files); the download icon downloads it; the bin deletes it once you save the justification.
+The eye icon previews the file without leaving EMS (PDFs, images and text files); the download icon downloads it; the bin deletes it once you save the justification. Use the **Notes** tab to add a comment.
 
 The attached files can be opened by everyone who can see the justification: the teachers of the affected sessions, Head of Studies and the academic administration.
 

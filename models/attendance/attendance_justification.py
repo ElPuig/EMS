@@ -43,6 +43,7 @@ class EmsAttendanceJustification(models.Model):
     requires_details = fields.Boolean(related='reason_id.requires_details')
     full_day = fields.Boolean(related='reason_id.full_day')
     details = fields.Text(string="Details")
+    notes = fields.Text("Notes")
     # A full-day reason picks one day: the period becomes that whole day, in the company's timezone.
     day = fields.Date(string="Day", compute='_compute_day', inverse='_inverse_day')
 

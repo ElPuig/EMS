@@ -25,7 +25,7 @@ Salvo que el centro lo permita en su configuración, una justificación es la ú
 
     Solo aparecen tus grupos y sus alumnos.
 4. Quita de la lista, con la cruz (×), a quien no deba justificarse (por ejemplo, en una huelga, los alumnos que no han firmado el documento).
-5. Si quieres, adjunta el documento en la pestaña **Archivos adjuntos**.
+5. Si quieres, adjunta el documento en la pestaña **Archivos adjuntos** y añade un comentario en **Notas**.
 6. Guarda. Las faltas del período de todos los alumnos de la lista pasan a **Falta justificada**, sea cual sea el docente que las puso, y sus retrasos graves a **Retraso leve**.
 
 ![Un justificante nuevo para un grupo entero](../../assets/tutors/justificants-02-nou.png)
@@ -52,7 +52,7 @@ También puedes adjuntar ficheros a un justificante después de crearlo:
 
 ![Pestaña Archivos adjuntos de un justificante](../../assets/tutors/justificants-03-adjunts.png)
 
-Con el icono del ojo previsualizas el fichero sin salir del EMS (PDF, imágenes y ficheros de texto); con el icono de descarga lo descargas; con la papelera lo borras al guardar el justificante.
+Con el icono del ojo previsualizas el fichero sin salir del EMS (PDF, imágenes y ficheros de texto); con el icono de descarga lo descargas; con la papelera lo borras al guardar el justificante. En la pestaña **Notas** puedes añadir un comentario.
 
 Los archivos adjuntos los puede abrir cualquiera que pueda ver el justificante: el profesorado de las sesiones afectadas, Jefatura de Estudios y la administración académica.
 

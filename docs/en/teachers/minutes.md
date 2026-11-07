@@ -182,6 +182,15 @@ minute now says, and their responsible people are only told again about what cha
 
 ![An approved minute with the Undo the approval button](../../assets/teachers/actes-10-desfer-aprovacio.png)
 
+### The copy in Drive
+
+When the centre has set it up, EMS keeps a copy of every minute's PDF in a folder of the centre's Drive, named
+after the minute's code. The copy is replaced each time the minute changes state (when it is created, when the
+meeting starts, when it is sent for approval, approved or reopened), so the folder always holds a single file per
+minute, as the minute stood at its last change of state: what you write in between reaches Drive at the next one.
+Once filed, **In Drive → Open in Drive**, under **Signatures**, opens it. Deleting a minute sends its copy to the
+Drive bin.
+
 ## My agreements
 
 **Meetings → Agreements** opens on the **open** agreements where you are a **responsible person** (by your

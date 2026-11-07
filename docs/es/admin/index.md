@@ -17,6 +17,7 @@ Esta sección contiene los manuales para **administradores**.
 - [Versión de EMS instalada](ems-version.md) — Qué versión de EMS funciona en esta instalación, y si hay una más nueva.
 - [Configuración de convalidaciones](convalidation-settings.md) — El periodo anual para solicitar convalidaciones desde el portal y los textos de la resolución oficial.
 - [Idioma del centro](centre-language.md) — El idioma en el que EMS escribe por su cuenta y que reciben los usuarios nuevos.
+- [Carpeta de las actas en Drive](minutes-drive.md) — Guardar una copia del PDF de cada acta en una carpeta de una unidad compartida.
 - [Grupos de trabajo](workgroups.md) — Agrupaciones libres de empleados (equipos de proyecto, comisiones).
 - [Espacios y tipos de espacio](facilities.md) — Aulas físicas y sus tipos, usados en sesiones/grupos/actas/horarios.
 - [Roles de profesorado y niveles de permisos](teacher-roles.md) — Cómo asignar roles (Tutor, Jefe de departamento, Jefe de estudios, Director...) para conceder niveles de permisos.

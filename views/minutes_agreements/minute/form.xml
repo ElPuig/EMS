@@ -381,6 +381,7 @@
                             <group>
                                 <field name="redactor_employee_id"/>
                                 <field name="template_document_id" readonly="1"/>
+                                <field name="drive_url" widget="url" string="In Drive" text="Open in Drive" invisible="not drive_url"/>
                             </group>
                             <group>
                                 <field name="approver_role_id" invisible="1"/>

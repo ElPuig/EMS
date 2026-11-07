@@ -27044,12 +27044,8 @@ msgstr "· versión"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_minute_type__template_document_id
-msgid ""
-"The controlled document this type is written against. Its code is quoted in "
-"the PDF."
-msgstr ""
-"El documento controlado según el cual se redacta este tipo. Su código se "
-"cita en el PDF."
+msgid "The controlled document this type is written against."
+msgstr "El documento controlado según el cual se redacta este tipo."
 
 #. module: ems
 #. odoo-python
@@ -48706,3 +48702,44 @@ msgstr "Márcalo si las faltas de este alumno no se deben justificar."
 #: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
 msgid "Not justified, as marked: %s"
 msgstr "Sin justificar, tal como se han marcado: %s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "In Drive"
+msgstr "En Drive"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Link to a folder of a shared drive. Every minute's PDF is kept there, in "
+"whatever state the minute is, as a single file named after its code that is "
+"replaced each time the minute changes state. The service account must be a "
+"member of the shared drive (Content manager)."
+msgstr ""
+"Enlace a una carpeta de una unidad compartida. Allí queda el PDF de cada "
+"acta, sea cual sea su estado, en un único archivo con el código del acta "
+"como nombre, que se sustituye cada vez que el acta cambia de estado. La "
+"cuenta de servicio debe ser miembro de la unidad compartida (Gestor de "
+"contenido)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__minute_drive_folder_url
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__minute_drive_folder_url
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Minutes folder in Drive"
+msgstr "Carpeta de las actas en Drive"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Open in Drive"
+msgstr "Abrir en Drive"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_company__minute_drive_folder_url
+#: model:ir.model.fields,help:ems.field_res_config_settings__minute_drive_folder_url
+msgid ""
+"Shared drive folder where every minute's PDF is kept up to date, one file "
+"per minute named after its code."
+msgstr ""
+"Carpeta de una unidad compartida donde se mantiene al día el PDF de cada "
+"acta, un archivo por acta con su código como nombre."

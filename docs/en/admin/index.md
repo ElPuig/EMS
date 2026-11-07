@@ -17,6 +17,7 @@ This section contains the manuals for **administrators**.
 - [Installed EMS version](ems-version.md) — Which EMS version is running on this installation, and whether a newer one exists.
 - [Convalidations settings](convalidation-settings.md) — The yearly period to request convalidations from the portal and the texts of the official resolution.
 - [Centre Language](centre-language.md) — The language EMS writes in by itself and that new users get.
+- [Minutes folder in Drive](minutes-drive.md) — Keeping a copy of every minute's PDF in a shared drive folder.
 - [Workgroups](workgroups.md) — Free-form employee groupings (project teams, committees).
 - [Spaces and Space Types](facilities.md) — Physical rooms and their types, used across sessions/groups/minutes/schedules.
 - [Teacher Roles and Permission Levels](teacher-roles.md) — How to assign roles (Tutor, Department Chief, Head of Studies, Director...) to grant permission levels.

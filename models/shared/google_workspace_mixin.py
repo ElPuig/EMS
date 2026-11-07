@@ -19,11 +19,13 @@ try:
     from google.oauth2 import service_account
     from googleapiclient.discovery import build
     from googleapiclient.errors import HttpError
+    from googleapiclient.http import MediaIoBaseUpload
     GOOGLE_LIBS_AVAILABLE = True
 except ImportError:
     service_account = None
     build = None
     HttpError = Exception
+    MediaIoBaseUpload = None
     GOOGLE_LIBS_AVAILABLE = False
 
 try:
@@ -32,6 +34,10 @@ except ImportError:
     phonenumbers = None
 
 GW_SCOPES = ['https://www.googleapis.com/auth/admin.directory.user']
+# Drive, for filing PDFs in a shared drive the service account is a member of (issue #769).
+# The service account acts as itself: no domain-wide delegation, so this scope needs no
+# approval in the Admin console, only the account added to the shared drive.
+GW_DRIVE_SCOPES = ['https://www.googleapis.com/auth/drive']
 
 # Grace periods, in days, between archiving someone and the Google account actually
 # changing (issue #388). Archiving warns and schedules; a daily cron does the work once
@@ -76,6 +82,13 @@ class GoogleWorkspaceMixin(models.AbstractModel):
         Uses a custom admin role scoped to the managed OUs (no domain-wide
         delegation, so NO .with_subject() impersonation).
         """
+        return build('admin', 'directory_v1', credentials=self._gw_credentials(GW_SCOPES), cache_discovery=False)
+
+    def _gw_get_drive_service(self):
+        """Build the Drive API client from the same service account (issue #769)."""
+        return build('drive', 'v3', credentials=self._gw_credentials(GW_DRIVE_SCOPES), cache_discovery=False)
+
+    def _gw_credentials(self, scopes):
         if not GOOGLE_LIBS_AVAILABLE:
             raise UserError(_(
                 "Google API libraries are not installed on the server "
@@ -87,8 +100,7 @@ class GoogleWorkspaceMixin(models.AbstractModel):
             info = json.loads(raw)
         except Exception:
             raise UserError(_("The Google Workspace Service Account JSON is not valid."))
-        creds = service_account.Credentials.from_service_account_info(info, scopes=GW_SCOPES)
-        return build('admin', 'directory_v1', credentials=creds, cache_discovery=False)
+        return service_account.Credentials.from_service_account_info(info, scopes=scopes)
 
     @api.model
     def _gw_domain(self):
@@ -230,13 +242,17 @@ class GoogleWorkspaceMixin(models.AbstractModel):
         try:
             service.users().patch(userKey=email, body=body).execute()
         except HttpError as e:
-            status = getattr(getattr(e, 'resp', None), 'status', None)
-            if status in (404, 403):
+            if self._gw_http_status(e) in (404, 403):
                 record.sudo().message_post(body=unreachable_note)
                 return False
             _logger.exception("Could not patch Google account %s", email)
             raise
         return True
+
+    @api.model
+    def _gw_http_status(self, error):
+        """The HTTP status of a Google API error (404, 403...), or None for any other error."""
+        return getattr(getattr(error, 'resp', None), 'status', None)
 
     @api.model
     def _gw_format_phone(self, raw):

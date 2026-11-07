@@ -208,6 +208,33 @@ approver; until then the same room is left blank. The stamp is the shared QWeb t
 convalidation resolution prints; like there, it is EMS's record of who did it, not a qualified electronic
 signature (issue #530).
 
+Every page of the minute's PDF names, under the company footer, the ISO 9001 controlled document it is
+printed on ("PE3.01.22 Model d'acta i de registre d'evidències (EMS) – Revisió: 02/11/2026"). The text is
+fixed in `reports/minute_report.xml` (`ems_footer_note`), verbatim and not translatable, so a new revision
+of that model means editing it there. Any report can do the same: `ems_footer_note`, set before calling
+`web.external_layout`, is printed by `ems.external_layout_footer_note`
+(`reports/shared/report_layout_footer_note.xml`), hooked under `company.report_footer` in each of Odoo's
+seven layouts, since the company can pick any of them (issue #769).
+
+**Filing in Drive (issue #769).** `ems.signed.record` keeps one copy of each record's PDF in the shared drive
+folder of the setting `res.company.minute_drive_folder_url` (a folder link or its bare id, read by
+`_ems_drive_folder_id()`; nothing is filed while it is empty or `google_ws_enabled` is off). Its `create()`, and
+its `write()` whenever `state` is written, queue `_ems_upload_to_drive` (queue_job, `identity_key`
+`ems_drive_upload_<model>_<id>`, so several changes in a row file it once); the job renders the record as it stands,
+or takes the approval's `pdf_attachment_id` once approved, and creates `<code>.pdf` in the folder or replaces the
+content of the file it already has (`drive_file_id`, `drive_url`, shown on the minute's form), filing it again if
+that file was deleted in Drive (404). It locks the record's row first (`_gw_lock_for_creation`), so two jobs of
+the same record never both create a file. `unlink()` queues `_ems_drive_trash` for the deleted records' files
+(sent to the shared drive's bin). Edits between two changes of state reach Drive at the next one, deliberately:
+the minute saves itself while being written, and an upload per autosave would be one render and one Drive call
+every few seconds. The client is `google.workspace.mixin._gw_get_drive_service()`, the same service account as the
+Directory integration with the `drive` scope; it acts as itself (no domain-wide delegation), so it only needs to
+be a member (Content manager) of the shared drive, and a service account has no storage of its own, which is why
+the folder must be in a shared drive (`supportsAllDrives`). `google_ws_dry_run` only logs. Built on Drive's own API
+rather than a module: Odoo 18's `cloud_storage_google` stores chatter attachments in a Google Cloud Storage
+bucket, not in Drive, and storage backends move every attachment, while this is one named file per record in a
+folder people browse.
+
 **Attendees and absentees** (`attendee_ids`, `absentee_ids`) exclude each other: `_check_attendee_not_absent`
 refuses anybody in both, and the form shows both with `ems_exclusive_tags`
 (`static/src/js/backend/exclusive_tags_field.js`, option `exclusive_with` naming the sibling field), a

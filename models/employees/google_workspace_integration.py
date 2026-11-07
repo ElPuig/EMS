@@ -494,7 +494,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
                     google_id = created.get('id')
                     break
                 except HttpError as e:
-                    status = getattr(getattr(e, 'resp', None), 'status', None)
+                    status = self._gw()._gw_http_status(e)
                     if status == 409:
                         # Email already taken in Google: try the next candidate.
                         continue
@@ -854,7 +854,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
                     body={'suspended': True, 'orgUnitPath': ou},
                 ).execute()
             except HttpError as e:
-                status = getattr(getattr(e, 'resp', None), 'status', None)
+                status = self._gw()._gw_http_status(e)
                 if status in (404, 403):
                     # Account no longer exists in Google: nothing to suspend.
                     emp.write({'google_ws_suspended': True,
@@ -908,7 +908,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
                 body={'suspended': False, 'orgUnitPath': ou},
             ).execute()
         except HttpError as e:
-            status = getattr(getattr(e, 'resp', None), 'status', None)
+            status = self._gw()._gw_http_status(e)
             if status in (404, 403):
                 # The account was deleted in Admin: recreate it from scratch.
                 self.message_post(body=_(

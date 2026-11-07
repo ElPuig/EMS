@@ -20,12 +20,12 @@ Puedes justificar a un alumno, a varios o a grupos enteros a la vez (por ejemplo
 2. En **Período**, indica la fecha y la hora de inicio y de fin.
 3. En **Modo**, elige cómo seleccionarlos:
     - **Estudiantes**: elige uno o más alumnos en **Estudiantes**.
-    - **Grupos**: elige uno o más grupos en **Grupos**. Se justifica a todos los alumnos de esos grupos.
+    - **Grupos**: elige uno o más grupos en **Grupos**. Se justifica a todos los alumnos de esos grupos, excepto a los que marques en el paso siguiente.
 
     Solo aparecen tus grupos y sus alumnos.
-4. La pestaña **Alumnos por justificar** muestra a quién se justificará. Si alguno ya tiene un justificante que se solapa con el período, un aviso amarillo lo indica: se omitirá.
+4. La pestaña **Alumnos por justificar** muestra a quién se justificará. Marca **No justificar** junto a quien no se deba justificar (por ejemplo, en una huelga, los alumnos que no la han secundado). Si alguno ya tiene un justificante que se solapa con el período, un aviso amarillo lo indica: se omitirá.
 5. Si quieres, adjunta el documento en la pestaña **Archivos adjuntos** (cada alumno recibe su propia copia) y añade un comentario en **Notas**.
-6. Pulsa **Justificar**. EMS crea un justificante para cada alumno: sus faltas del período pasan a **Falta justificada**, sea cual sea el docente que las puso, y sus retrasos graves a **Retraso leve**. Un mensaje te indica cuántos alumnos se han justificado y cuáles se han omitido.
+6. Pulsa **Justificar**. EMS crea un justificante para cada alumno: sus faltas del período pasan a **Falta justificada**, sea cual sea el docente que las puso, y sus retrasos graves a **Retraso leve**. Un mensaje te indica cuántos alumnos se han justificado, cuáles se han omitido y cuáles has marcado para no justificar.
 
 ![El asistente Justificar faltas sobre un grupo entero](../../assets/tutors/justificants-02-nou.png)
 

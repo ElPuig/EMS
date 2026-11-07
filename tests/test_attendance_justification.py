@@ -2,6 +2,7 @@ import ast
 from datetime import date, datetime, timedelta
 
 from odoo.exceptions import UserError, ValidationError
+from odoo.tests import Form
 from odoo.tests.common import TransactionCase
 
 from .common import create_level_study, create_role_user, shift_ems_clock, mock_outgoing_email, next_student_id
@@ -476,7 +477,7 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
         mate, mate_line = self._group_mate_with_miss()
 
         wizard = self._wizard(self.tutor_user, mode='groups', group_ids=[(6, 0, [self.group.id])])
-        self.assertEqual(wizard.target_student_ids, self.student | mate)
+        self.assertEqual(wizard.line_ids.student_id, self.student | mate)
         wizard.action_justify()
 
         justifications = self.env['ems.attendance_justification'].search([('student_id', 'in', (self.student | mate).ids)])
@@ -495,13 +496,45 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
 
         wizard = self._wizard(self.tutor_user, student_ids=[(6, 0, (self.student | mate).ids)])
         self.assertEqual(wizard.overlap_student_ids, self.student)
-        self.assertEqual(wizard.target_student_ids, mate)
+        self.assertEqual(wizard.line_ids.student_id, mate)
         result = wizard.action_justify()
 
         self.assertEqual(self.env['ems.attendance_justification'].search([('student_id', '=', self.student.id)]), existing)
         self.assertEqual(mate_line.status_id, self.env.ref('ems.attendance_status_justified'))
         self.assertEqual(result['params']['type'], 'warning')
         self.assertIn(self.student.name, result['params']['message'])
+
+    def test_wizard_does_not_justify_students_marked_as_excluded(self):
+        # Issue #763: a strike of a whole group, which one student did not join.
+        own_line = self._line()
+        own_line.status_id = self.env.ref('ems.attendance_status_miss')
+        mate, mate_line = self._group_mate_with_miss()
+
+        wizard = self._wizard(self.tutor_user, mode='groups', group_ids=[(6, 0, [self.group.id])])
+        wizard.line_ids.filtered(lambda line: line.student_id == mate).excluded = True
+        result = wizard.action_justify()
+
+        Justification = self.env['ems.attendance_justification']
+        self.assertEqual(Justification.search([('student_id', 'in', (self.student | mate).ids)]).student_id, self.student)
+        self.assertEqual(own_line.status_id, self.env.ref('ems.attendance_status_justified'))
+        self.assertEqual(mate_line.status_id, self.env.ref('ems.attendance_status_miss'))
+        self.assertIn(mate.name, result['params']['message'])
+
+    def test_wizard_keeps_exclusions_when_the_period_changes(self):
+        # Changing the period (or the groups) rebuilds the lines: the marks already made stay.
+        mate, __ = self._group_mate_with_miss()
+        with Form(self.env['ems.attendance_justification_wizard'].with_user(self.tutor_user)) as form:
+            form.start_date, form.end_date = self._today_range().values()
+            form.mode = 'groups'
+            form.group_ids.add(self.group)
+            students = [vals['student_id'] for vals in form.line_ids._records]
+            with form.line_ids.edit(students.index(mate.id)) as line:
+                line.excluded = True
+            form.start_date = form.start_date + timedelta(hours=1)
+        wizard = form.record
+
+        self.assertEqual(wizard.line_ids.student_id, self.student | mate)
+        self.assertEqual(wizard.line_ids.filtered('excluded').student_id, mate)
 
     def test_wizard_refuses_students_outside_tutor_scope(self):
         stranger = self.env['res.partner'].create({

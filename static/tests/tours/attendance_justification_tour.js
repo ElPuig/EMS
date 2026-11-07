@@ -175,7 +175,8 @@ registry.category("web_tour.tours").add("ems_attendance_justification_tutor_atta
 });
 
 // Issue #656: "New" opens the assistant; a tutor justifies a whole group of theirs at once
-// (mode "Groups"), and every student of the group gets their own justification.
+// (mode "Groups"), and every student of the group gets their own justification, except the one
+// marked "Do not justify" (issue #763).
 registry.category("web_tour.tours").add("ems_attendance_justification_create", {
     test: true,
     url: "/odoo/action-ems.action_attendance_justification_tree",
@@ -198,8 +199,17 @@ registry.category("web_tour.tours").add("ems_attendance_justification_create", {
             run: "click",
         },
         {
-            trigger: ".modal .o_field_widget[name='target_student_ids'] td:contains('Attendance Justification Tutor Tour Student')",
+            trigger: ".modal .o_field_widget[name='line_ids'] td:contains('Attendance Justification Tutor Tour Student')",
             content: "The group's student is listed as about to be justified",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row:contains('Tour Excluded Student') td[name='excluded']",
+            content: "Mark the groupmate as not to be justified",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row:contains('Tour Excluded Student') td[name='excluded'] input:checked",
+            content: "The groupmate is marked",
         },
         {
             trigger: ".modal .o_field_widget[name='start_date'] input[data-field='start_date']",

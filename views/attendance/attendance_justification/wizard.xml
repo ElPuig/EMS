@@ -33,9 +33,11 @@
                     </group>
                     <notebook>
                         <page string="Students to justify" name="students">
-                            <field name="target_student_ids" readonly="1">
-                                <list create="0" edit="0" delete="0" no_open="1">
-                                    <field name="name"/>
+                            <!-- Issue #763: the tutor marks who must not be justified. -->
+                            <field name="line_ids" nolabel="1">
+                                <list editable="bottom" create="0" delete="0" no_open="1">
+                                    <field name="student_id" string="Name" force_save="1" options="{'no_open': True}"/>
+                                    <field name="excluded"/>
                                     <field name="main_group_id"/>
                                 </list>
                             </field>

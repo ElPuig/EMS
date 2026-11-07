@@ -30,6 +30,7 @@ ACCESS_MATRIX = {
     'ems.attendance_report_wizard': {'teacher': 'rwc', 'secretary': 'rwc'},
     # Issue #656: tutors justify absences from it; the secretariat only reads justifications.
     'ems.attendance_justification_wizard': {'teacher': 'rwcu', 'secretary': ''},
+    'ems.attendance_justification_wizard_line': {'teacher': 'rwcu', 'secretary': ''},
     'ems.attendance_status': {'teacher': 'r'},
     'ems.content': {'teacher': 'r', 'secretary': 'r'},
     # Heads of Studies maintain the reasons they pick from, archiving instead of deleting (issue #654).

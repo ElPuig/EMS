@@ -66,8 +66,21 @@ registry.category("web_tour.tours").add("ems_doc_shot_tutor_justification", {
             run: "click",
         },
         {
-            trigger: ".modal div[name='target_student_ids'] .o_data_row:nth-child(3)",
+            trigger: ".modal div[name='line_ids'] .o_data_row:nth-child(3)",
             content: "The group's three students are listed",
+        },
+        {
+            trigger: ".modal div[name='line_ids'] .o_data_row:contains(Nerea Prova) td[name='excluded']",
+            content: "Nerea is marked as not to be justified (issue #763)",
+            run: "click",
+        },
+        {
+            trigger: ".modal div[name='line_ids'] .o_data_row:contains(Nerea Prova) td[name='excluded'] input:checked",
+        },
+        {
+            trigger: ".modal .o_notebook .nav-item:first-child .nav-link",
+            content: "Leave the row's edition, so the list shows as it reads",
+            run: "click",
         },
         {
             trigger: ".modal .o_justification_wizard_overlap:visible:contains(Pau Mostra)",

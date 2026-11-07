@@ -20,12 +20,12 @@ You can justify one student, several, or whole groups at once (for example, for 
 2. In **Period**, set the start and end date and time.
 3. In **Mode**, choose how to pick them:
     - **Students**: pick one or more students in **Students**.
-    - **Groups**: pick one or more groups in **Groups**. Every student of those groups is justified.
+    - **Groups**: pick one or more groups in **Groups**. Every student of those groups is justified, except those you mark in the next step.
 
     Only your groups and their students are listed.
-4. The **Students to justify** tab lists who will be justified. If any of them already has a justification overlapping the period, a yellow notice names them: they will be skipped.
+4. The **Students to justify** tab lists who will be justified. Tick **Do not justify** next to anyone who must not be justified (for example, during a strike, the students who didn't join it). If any of them already has a justification overlapping the period, a yellow notice names them: they will be skipped.
 5. If you want, attach the document in the **Attached files** tab (every student gets their own copy) and add a comment in **Notes**.
-6. Click **Justify**. EMS creates one justification per student: their absences within the period become **Justified Miss**, whichever teacher recorded them, and their severe delays become **Minor Delay**. A message tells you how many students were justified and which ones were skipped.
+6. Click **Justify**. EMS creates one justification per student: their absences within the period become **Justified Miss**, whichever teacher recorded them, and their severe delays become **Minor Delay**. A message tells you how many students were justified, which ones were skipped and which ones you marked as not to justify.
 
 ![The Justify absences assistant on a whole group](../../assets/tutors/justificants-02-nou.png)
 

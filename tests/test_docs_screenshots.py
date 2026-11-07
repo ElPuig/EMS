@@ -527,6 +527,11 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             'message': "Adjunta el certificat de notes del CFGM, segellat pel centre on el vas cursar.",
         }).action_send()
         # Issue #644: one module marked, not attended until the resolution; the attendance notice below.
+        # The form only lists what the student hasn't asked for yet (issue #719): one more module.
+        self.env['ems.subject'].create({
+            'code': 'DOCSUB5', 'acronym': 'DEI', 'name': 'Empresa i iniciativa emprenedora',
+            'study_ids': [(6, 0, self.study.ids)],
+        })
         self._capture(
             '/my/convalidaciones?new=1', '.o_ems_convalidation_new',
             'convalidations-portal-new.png',

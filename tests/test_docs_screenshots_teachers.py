@@ -18,9 +18,8 @@ from odoo import fields
 from odoo.tests.common import HttpCase, tagged
 
 from .common import (
-    shift_ems_clock,
     DocsScreenshotMixin, allow_every_absence_change, create_level_study_group, create_role_employee, create_role_user,
-    mock_outgoing_email, next_student_id,
+    make_working_day, mock_outgoing_email, next_student_id, shift_ems_clock,
 )
 
 
@@ -454,8 +453,11 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         employees |= jordi
         employees |= self._guard_board_calendar('0000 Laia Mostra', [duty(q[3], guard_wc)])
 
-        today = self.env['ems.datetime_utils'].get_local_today()
-        monday = today - timedelta(days=today.weekday())
+        # A Monday morning before classes, and a school day: on the real clock this week's Monday
+        # could be a public holiday, when the board lists nobody (issue #740), and the shot waited
+        # for a guard badge forever (found 2026-11-06, issue #770).
+        monday = shift_ems_clock(self, hour=7.5, weekdays=[0]).date()
+        make_working_day(self, monday)
         self.env['hr.leave'].create({
             'employee_id': absent.id, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
             'request_date_from': monday, 'request_date_to': monday,
@@ -547,6 +549,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         laia = self._partial_cover_teacher('0000 Laia Mostra', [{'hour_from': 11, 'hour_to': 12, 'non_teaching': guard, 'name': 'G'}])
         today = self.env['ems.datetime_utils'].get_local_today()
         monday = today + timedelta(days=7 - today.weekday())
+        make_working_day(self, monday)  # a public holiday lists nobody (issue #740)
         self.env['hr.leave'].create({
             'employee_id': anna.id, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
             'request_date_from': monday, 'request_date_to': monday,
@@ -669,6 +672,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         day = self.env['ems.datetime_utils'].get_local_today() + timedelta(days=1)
         while day.weekday() != 0:
             day += timedelta(days=1)
+        make_working_day(self, day)  # a public holiday lists nobody (issue #740)
         for employee, hours in ((berta, (8, 10)), (pau, (9, 10)), (laura, (9, 10))):
             self.env['hr.leave'].create({
                 'employee_id': employee.id, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
@@ -765,6 +769,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         day = self.env['ems.datetime_utils'].get_local_today() + timedelta(days=1)
         while day.weekday() != 0:
             day += timedelta(days=1)
+        make_working_day(self, day)  # a public holiday lists nobody (issue #740)
 
         fixture_ids = department.member_ids.ids
         course_model = type(self.env['ems.course'])
@@ -846,6 +851,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         day = self.env['ems.datetime_utils'].get_local_today() + timedelta(days=1)
         while day.weekday() != 0:
             day += timedelta(days=1)
+        make_working_day(self, day)  # a public holiday lists nobody (issue #740)
         self.env['hr.leave'].create({
             'employee_id': carla.id, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
             'request_date_from': day, 'request_date_to': day, 'ems_full_day': True,
@@ -941,6 +947,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         day = self.env['ems.datetime_utils'].get_local_today() + timedelta(days=1)
         while day.weekday() != 0:
             day += timedelta(days=1)
+        make_working_day(self, day)  # a public holiday lists nobody (issue #740)
         for employee, hour_from, hour_to in ((laura, 9, 13), (carla, 9, 13), (pau, 8, 11)):
             self.env['hr.leave'].create({
                 'employee_id': employee.id, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
@@ -1013,6 +1020,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         day = self.env['ems.datetime_utils'].get_local_today() + timedelta(days=1)
         while day.weekday() != 0:
             day += timedelta(days=1)
+        make_working_day(self, day)  # a public holiday lists nobody (issue #740)
 
         def absence(hour_from, hour_to):
             leave = self.env['hr.leave'].create({

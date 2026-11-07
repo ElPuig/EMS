@@ -48716,3 +48716,15 @@ msgid ""
 msgstr ""
 "Carpeta d'una unitat compartida on es manté al dia el PDF de cada acta, un "
 "fitxer per acta amb el seu codi com a nom."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Another area's guard: only whoever organises that area can assign them"
+msgstr "Docent de guàrdia d'una altra àrea: només l'assigna qui organitza aquella àrea"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Free on guard"
+msgstr "De guàrdia i lliure"

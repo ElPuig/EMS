@@ -373,16 +373,39 @@ export class GuardDutyBoard extends Component {
         return _t("(WC)");
     }
 
-    get markPresentTooltip() {
-        return _t("Not checked in: say they are in the centre");
+    // What the user can do with a guard's badge then (issues #725, #770): click it (support, check
+    // them in), assign them from an absence's row, nothing because they are not the user's to assign
+    // (another area, or the user organises nobody's absences), or nothing because they cannot cover.
+    guardStateClass(guard) {
+        if (guard.can_support || guard.can_mark_present) {
+            return " o_guard_board_guard_supportable";
+        }
+        if (guard.available) {
+            return "";
+        }
+        return guard.idle ? " o_guard_board_guard_idle" : " o_guard_board_guard_disabled";
     }
 
-    get supportTooltip() {
-        return _t("Send as support to a teacher in class");
-    }
-
-    get availableTooltip() {
-        return _t("Available: assign them from the row of an absence");
+    guardTooltip(guard) {
+        if (guard.busy) {
+            return guard.busy;
+        }
+        if (guard.can_mark_present) {
+            return _t("Not checked in: say they are in the centre");
+        }
+        if (guard.can_support) {
+            return _t("Send as support to a teacher in class");
+        }
+        if (guard.available) {
+            return _t("Available: assign them from the row of an absence");
+        }
+        if (guard.idle === "other_area") {
+            return _t("Another area's guard: only whoever organises that area can assign them");
+        }
+        if (guard.idle === "not_yours") {
+            return _t("Free on guard");
+        }
+        return false;
     }
 
     get coverCountTitle() {

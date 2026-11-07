@@ -4,43 +4,59 @@
             <field name="name">ems.attendance_justification.form</field>
             <field name="model">ems.attendance_justification</field>
             <field name="arch" type="xml">
-                <!-- create="0": new justifications come from the assistant (issue #656). -->
-                <form string="justification" create="0">
+                <form string="justification">
+                    <field name="student_domain" invisible="1"/>
+                    <field name="group_domain" invisible="1"/>
                     <sheet>
                          <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                          <field name="active" invisible="1"/>
+                         <div class="alert alert-warning o_justification_overlap" role="alert" invisible="not overlap_student_ids">
+                            These students already have a justification overlapping this period. Remove them from the list to save:
+                            <field name="overlap_student_ids" widget="many2many_tags" readonly="1"/>
+                         </div>
                          <group string="Main data" col="4">
                             <group colspan="4">
                                 <field string="Period" name="start_date" widget="daterange" options='{"end_date_field": "end_date"}' />
                                 <!-- Needed in order to fire 'onchange' for the 'end_date' field -->
                                 <field name="end_date" invisible="True"/>
-                            </group>                         
+                            </group>
                             <group colspan="2">
-                                <field name="student_id" domain="[('id', 'in', allowed_student_ids)]" widget="many2one_avatar" readonly="id"/>
-                            </group>                                             
+                                <!-- Issue #795: adds every student of the groups picked, then clears itself. -->
+                                <field name="add_group_ids" widget="many2many_tags" domain="group_domain"
+                                       options="{'no_create': True}" invisible="not user_is_admin and not user_is_tutor"/>
+                            </group>
                             <group colspan="2">
-                                <field name="teacher_id" string="Teacher" widget="many2one_avatar_employee" readonly="id or not user_is_admin"/>                              
-                            </group>                             
-                        </group>                      
+                                <field name="teacher_id" string="Teacher" widget="many2one_avatar_employee" readonly="id or not user_is_admin"/>
+                            </group>
+                        </group>
 
                         <notebook>
-                            <page string="Affected sessions">                                
+                            <page string="Students" name="students">
+                                <field name="student_ids" domain="student_domain" options="{'no_create': True}">
+                                    <list default_order="name asc" create="0" edit="0">
+                                        <field name="name" string="Name"/>
+                                        <field name="main_group_id"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Affected sessions">
                                 <field name="attendance_session_line_ids" readonly="True" force_save="True">
                                     <!-- NOTE: force_save needed with readonly because otherwise the changes won't be sent to the server (the field does not appear within 'values' field on 'write' method). -->
-                                    <list default_order="student_id asc" create="False" edit="False" delete="False" no_open="True">                                                                               
+                                    <list default_order="student_id asc" create="False" edit="False" delete="False" no_open="True">
+                                        <field name="student_id"/>
                                         <field string="Session" name="display_name" />
                                         <field name="status_id" width="175px" />
                                     </list>
                                 </field>
-                            </page> 
-                            <page string="Affected teachers">                                
+                            </page>
+                            <page string="Affected teachers">
                                 <field name="session_teacher_ids" readonly="True">
                                     <!-- NOTE: fully computed. -->
-                                    <list default_order="name asc" create="False" edit="False" delete="False" no_open="True">                                                                               
+                                    <list default_order="name asc" create="False" edit="False" delete="False" no_open="True">
                                         <field string="Name" name="name" />
                                     </list>
                                 </field>
-                            </page>        
+                            </page>
                             <page string="Attached files">
                                 <field name="attachment_ids" widget="ems_attachments" nolabel="1" readonly="not user_is_admin and not user_is_tutor"/>
                             </page>
@@ -48,9 +64,9 @@
                                 <field name="notes"/>
                             </page>
                         </notebook>
-                    </sheet>	
-                </form>              
-            </field>			
+                    </sheet>
+                </form>
+            </field>
         </record>
     </data>
 </odoo>

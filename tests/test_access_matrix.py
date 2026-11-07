@@ -28,9 +28,6 @@ ACCESS_MATRIX = {
         'teacher': '', 'department_chief': '', 'head_of_studies': 'rwc', 'academic_admin': 'rwc'},
     # Secretariat prints the attendance PDFs too, from the 'Reports' screen they see (issue #633).
     'ems.attendance_report_wizard': {'teacher': 'rwc', 'secretary': 'rwc'},
-    # Issue #656: tutors justify absences from it; the secretariat only reads justifications.
-    'ems.attendance_justification_wizard': {'teacher': 'rwcu', 'secretary': ''},
-    'ems.attendance_justification_wizard_line': {'teacher': 'rwcu', 'secretary': ''},
     'ems.attendance_status': {'teacher': 'r'},
     'ems.content': {'teacher': 'r', 'secretary': 'r'},
     # Heads of Studies maintain the reasons they pick from, archiving instead of deleting (issue #654).

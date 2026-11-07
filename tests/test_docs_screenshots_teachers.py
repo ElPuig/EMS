@@ -305,7 +305,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         # (an @api.onchange, never fired by a plain ORM create()).
         line_c = lines.filtered(lambda line: line.student_id == student_c)
         justification = self.env['ems.attendance_justification'].create({
-            'teacher_id': self.teacher_employee.id, 'student_id': student_c.id,
+            'teacher_id': self.teacher_employee.id, 'student_ids': [(6, 0, student_c.ids)],
             'start_date': datetime.combine(today, datetime.min.time()),
             'end_date': datetime.combine(today, datetime.max.time()),
             'notes': 'Visita mèdica',

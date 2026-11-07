@@ -52,11 +52,13 @@ veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **nom
 5. Trieu com es recull l'**assistència**:
    - **Anotada a mà:** a la pestanya **Assistència** ja hi trobareu la llista **omplerta**, treta de
      l'àmbit (els membres del departament, els de l'equip de treball o el professorat que fa classe al
-     grup i el seu tutor). Només cal moure a **Persones que hi manquen** qui no hi hagi vingut.
+     grup i el seu tutor). Només cal moure a **Persones que hi manquen** qui no hi hagi vingut. Qui té una
+     absència o una sol·licitud d'absència a l'hora de la reunió ja hi és, amb la nota «Té una absència» a
+     **Sobre les absències** (mai el motiu); si ve igualment, torneu-lo a moure a **Assistents**.
    - **Amb el tag NFC:** indiqueu la **durada** i deseu l'acta. El quiosc s'ofereix un cop ha començat la
      reunió (vegeu «Fer la reunió i redactar l'acta», més avall): aleshores, al bloc **Assistència**, **Obre el quiosc** obre la
      pantalla on cada persona passa el seu tag; **Tanca l'assistència** acaba la recollida
-     i omple les dues llistes: qui ha passat el tag hi ha assistit, la resta consta com a absent. Si algú
+     i omple les dues llistes: qui ha passat el tag hi ha assistit, la resta consta com a absent (qui té una absència, com a justificat amb la nota «Té una absència»). Si algú
      s'ha deixat el tag o no li ha funcionat, **Accions → Corregeix l'assistència** obre la sessió: si ja
      està tancada, **Reobrir**, marqueu-lo a mà (present, o justificat amb la nota) i torneu a tancar-la.
      Les llistes de l'acta s'actualitzen soles. Es pot fer fins que l'acta estigui aprovada.

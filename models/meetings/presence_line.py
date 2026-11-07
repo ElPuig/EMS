@@ -24,6 +24,13 @@ class EmsMeetingPresenceLine(models.Model):
     method = fields.Selection(string="How", selection=[('nfc', "NFC tag"), ('manual', "By hand")], readonly=True, copy=False)
     is_convened = fields.Boolean(string="Convened", default=True, help="Not ticked for someone who passed the tag without being convened.")
     notes = fields.Char(string="Notes", help="For example, why an absence is justified.")
+    on_leave = fields.Boolean(
+        string="On leave",
+        readonly=True,
+        copy=False,
+        help="Justified by EMS itself because the person has an absence or a leave request overlapping the "
+             "meeting. It goes back to pending if that absence is cancelled or refused before the attendance is closed.",
+    )
 
     def _check_session_not_closed(self):
         if self.presence_id.filtered(lambda presence: presence.state == 'closed'):
@@ -42,6 +49,10 @@ class EmsMeetingPresenceLine(models.Model):
 
     def write(self, vals):
         self._check_session_not_closed()
+        leave_sync = self.env.context.get('ems_leave_sync')
+        if 'state' in vals and not leave_sync:
+            # Somebody else decided this line (a scan, a manager): EMS no longer answers for it.
+            vals = {**vals, 'on_leave': False}
         if 'state' not in vals or self.env.context.get('ems_presence_scan'):
             return super().write(vals)
         # A manager changes a state by hand: the time and the way are bookkeeping, not something
@@ -52,7 +63,10 @@ class EmsMeetingPresenceLine(models.Model):
             if line.state != vals['state']:
                 line_vals.update(self._manual_vals(vals))
             result = super(EmsMeetingPresenceLine, line).write(line_vals) and result
-        self._ems_sync_minutes()
+        if not leave_sync:
+            # The absences found by EMS reach the minute when the attendance is closed, together
+            # with everybody else's result (ems.meeting.presence.action_close).
+            self._ems_sync_minutes()
         return result
 
     def _ems_sync_minutes(self):

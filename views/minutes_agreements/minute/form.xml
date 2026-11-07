@@ -109,6 +109,7 @@
                             <page string="Attendance" name="attendance" invisible="type_kind == 'record'">
                                 <field name="presence_id" invisible="1"/>
                                 <field name="presence_state" invisible="1"/>
+                                <field name="on_leave_ids" invisible="1"/>
                                 <div class="alert alert-info d-flex align-items-center gap-3" role="status" invisible="attendance_mode != 'nfc'">
                                     <span invisible="presence_id">Save the minute to prepare its attendance kiosk.</span>
                                     <span invisible="not presence_id">The kiosk opens once the meeting starts: then the lists fill in by themselves from the tags passed at it.</span>

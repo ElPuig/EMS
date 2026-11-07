@@ -48755,3 +48755,26 @@ msgstr "Docente de guardia de otra área: solo lo asigna quien organiza esa áre
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Free on guard"
 msgstr "De guardia y libre"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Has an absence"
+msgstr "Tiene una ausencia"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_meeting_presence_line__on_leave
+msgid ""
+"Justified by EMS itself because the person has an absence or a leave request"
+" overlapping the meeting. It goes back to pending if that absence is "
+"cancelled or refused before the attendance is closed."
+msgstr ""
+"Justificada por el propio EMS porque la persona tiene una ausencia o una "
+"solicitud de ausencia que coincide con la reunión. Vuelve a pendiente si la "
+"ausencia se cancela o se rechaza antes de cerrar la asistencia."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__on_leave
+#: model:ir.model.fields,field_description:ems.field_ems_minute__on_leave_ids
+msgid "On leave"
+msgstr "Con ausencia"

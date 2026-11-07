@@ -240,6 +240,19 @@ refuses anybody in both, and the form shows both with `ems_exclusive_tags`
 (`static/src/js/backend/exclusive_tags_field.js`, option `exclusive_with` naming the sibling field), a
 `many2many_tags` that takes whoever is added to one off the other and lets a tag be dragged between them.
 
+**People on leave** (issue #776). With attendance written by hand, `_ems_sync_leaves()` moves to
+`absentee_ids` every attendee with an absence overlapping the meeting (`start_datetime` + `duration`), using
+the attendance session's `ems.meeting.presence._ems_on_leave()` (the guard duty board's absences, approved
+or requested), and appends "<name>: Has an absence" to `absence_notes` (`_ems_leave_note()`, centre
+language), keeping whatever the writer typed. `on_leave_ids` records whom EMS moved: somebody the writer
+puts back among the attendees is not moved again, and somebody whose absence is gone goes back to the
+attendees (if still among the absentees) and loses the note. It runs in `create()` and on `write()` of
+`attendance_mode`, `start_datetime`, `duration`, `attendee_ids` or `state` (so moving to the meeting looks
+again), only for `draft`/`meeting` minutes of kind `meeting`, guarded by the `ems_leave_sync` context.
+`_ems_preload_attendees()` clears `on_leave_ids` and takes the new attendees off the absentees, so a new scope
+is looked at from scratch. With the NFC tag, the session does it (see `meeting_presence.md`); its lines are
+created from the attendees plus `on_leave_ids`, so switching from by hand to the tag loses nobody.
+
 **People from outside EMS** (`ems.minute.guest`, the minute's `guest_ids`): a student's family, a teacher
 from another school, a speaker. No employee record and no account: first name, surname, an optional email
 (validated with `email_normalize`), an optional organisation or relationship, and *Present* (ticked by

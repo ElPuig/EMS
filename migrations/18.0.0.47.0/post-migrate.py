@@ -7,6 +7,7 @@ _logger = logging.getLogger(__name__)
 def migrate(cr, version):
     _copy_student_to_student_list(cr)
     merge_batch_justifications(cr)
+    _set_reason_other(cr)
 
 
 def _copy_student_to_student_list(cr):
@@ -32,13 +33,14 @@ def merge_batch_justifications(cr):
     per student, with the same comment and a copy of every file. Each batch becomes one
     justification with all its students.
 
-    A batch is recognized by everything the assistant copied plus the moment it was created: it
+    A batch is recognized by everything the assistant copied (its notes are the details by now, see
+    pre-migrate) plus the moment it was created: it
     created them all in a single create() (same create_uid and create_date, the transaction's
     time), which justifications created one by one never share. The oldest one is kept."""
     cr.execute("""
         SELECT MIN(id), ARRAY_AGG(id ORDER BY id)
           FROM ems_attendance_justification
-         GROUP BY teacher_id, start_date, end_date, COALESCE(notes, ''), create_uid, create_date
+         GROUP BY teacher_id, start_date, end_date, COALESCE(details, ''), create_uid, create_date
         HAVING COUNT(*) > 1
     """)
     batches = cr.fetchall()
@@ -79,6 +81,21 @@ def merge_batch_justifications(cr):
         cr.execute("DELETE FROM ems_attendance_justification WHERE id IN %(merged)s", params)
     if batches:
         _logger.info("Migration #795: %d batch(es) of justifications merged into one each.", len(batches))
+
+
+def _set_reason_other(cr):
+    """Issue #795: every justification from before the reasons existed becomes 'Other', with its old
+    notes as details (pre-migrate). Before Odoo adds the NOT NULL on reason_id (at the end of the
+    upgrade). The reasons are loaded by now."""
+    cr.execute("""
+        SELECT res_id FROM ir_model_data
+         WHERE module = 'ems' AND name = 'attendance_justification_reason_other'
+    """)
+    row = cr.fetchone()
+    if not row:
+        return
+    cr.execute("UPDATE ems_attendance_justification SET reason_id = %s WHERE reason_id IS NULL", row)
+    _logger.info("Migration #795: %d justification(s) set to the reason 'Other'.", cr.rowcount)
 
 
 def _merge_attachments(cr, kept, merged):

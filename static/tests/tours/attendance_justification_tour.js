@@ -17,7 +17,7 @@ function searchStudent(name) {
 // non-trivial bespoke-widget investigation of its own) - this tour instead opens a
 // pre-seeded justification, walks its three read-only notebook tabs (Affected sessions /
 // Affected teachers / Attached files) to confirm none crash on render, and edits+saves the
-// plain "Notes" tab to prove the form is genuinely interactive.
+// details of its reason ('Other') to prove the form is genuinely interactive.
 registry.category("web_tour.tours").add("ems_attendance_justification_open_and_edit", {
     test: true,
     url: "/odoo/action-ems.action_attendance_justification_tree",
@@ -60,13 +60,8 @@ registry.category("web_tour.tours").add("ems_attendance_justification_open_and_e
             content: "The (empty) attachments list renders without crashing",
         },
         {
-            trigger: ".o_notebook .nav-link:contains('Notes')",
-            content: "Open Notes tab",
-            run: "click",
-        },
-        {
-            trigger: ".o_field_widget[name='notes'] textarea",
-            content: "Edit the notes",
+            trigger: ".o_field_widget[name='details'] textarea",
+            content: "Edit the details of the reason 'Other' (issue #795)",
             run: "edit Tour note",
         },
         {
@@ -229,6 +224,48 @@ registry.category("web_tour.tours").add("ems_attendance_justification_create", {
         {
             trigger: ".o_field_widget[name='student_ids']:not(:has(.o_data_row:contains('Tour Excluded Student')))",
             content: "The groupmate is no longer listed",
+        },
+        { trigger: ".o_form_button_save", content: "Save", run: "click" },
+        { trigger: ".o_form_view .o_form_saved", content: "Saved" },
+    ],
+});
+
+// Issue #795: a strike covers whole days. Choosing the reason "Strike" replaces the period with a
+// single day, and the justification covers the student's whole day.
+registry.category("web_tour.tours").add("ems_attendance_justification_strike", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_justification_tree",
+    steps: () => [
+        { trigger: ".o_list_view", content: "Justifications list loaded" },
+        { trigger: ".o_list_button_add", content: "New justification", run: "click" },
+        {
+            trigger: ".o_form_view .o_field_widget[name='reason_id'] input",
+            content: "Search for the reason",
+            run: "edit Labour strike",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Labour strike')",
+            content: "Pick Labour strike",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view:not(:has(.o_field_widget[name='start_date'] input[data-field='start_date'])) .o_field_widget[name='day'] input",
+            content: "The period gives way to a single day",
+            run: "edit 02/06/2026",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='add_group_ids'] input",
+            content: "Search for the tutor's group",
+            run: "edit TJT1A",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('TJT1A')",
+            content: "Pick the group",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='student_ids'] .o_data_row:contains('Attendance Justification Tutor Tour Student')",
+            content: "The group's students are listed",
         },
         { trigger: ".o_form_button_save", content: "Save", run: "click" },
         { trigger: ".o_form_view .o_form_saved", content: "Saved" },

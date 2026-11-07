@@ -128,7 +128,7 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
             'name': 'Test Tutor (Attendance Justification)', 'employee_type': 'teacher',
         })
         cls.tutor_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Test Tutor User (Attendance Justification)', 'login': 'test_tutor_taj',
+            'name': 'Test Tutor User (Attendance Justification)', 'login': 'test_tutor_taj', 'lang': 'en_US',
             'groups_id': [(4, cls.env.ref('ems.group_teacher').id), (4, cls.env.ref('base.group_user').id)],
         })
         cls.tutor_employee.user_id = cls.tutor_user.id
@@ -483,7 +483,7 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
         Justification = self.env['ems.attendance_justification']
         return (Justification.with_user(user) if user else Justification).create({
             'teacher_id': self.tutor_employee.id, 'student_ids': [(6, 0, students.ids)],
-            'notes': 'Strike', **self._today_range(),
+            **self._today_range(),
         })
 
     def test_one_justification_justifies_every_student(self):
@@ -554,11 +554,11 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
         # Shared by students of two tutors: its comment and files belong to all of them.
         justification = self._shared_justification(self.student | self._other_tutor_student())
         with self.assertRaises(UserError):
-            justification.with_user(self.tutor_user).write({'notes': 'Changed'})
+            justification.with_user(self.tutor_user).write({'reason_id': self._reason('activity').id})
         with self.assertRaises(UserError):
             justification.with_user(self.tutor_user).unlink()
         # Reading it is enough with one student of theirs.
-        justification.with_user(self.tutor_user).read(['notes'])
+        justification.with_user(self.tutor_user).read(['reason_id'])
 
     def test_domains_offer_only_the_tutor_scope(self):
         other_student = self._other_tutor_student()
@@ -587,6 +587,72 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
         self.assertEqual(lines.attendance_prevision_id, justification)
         self.assertEqual(lines.student_id, self.student | mate)
 
+    # Issue #795: justification reasons.
+
+    def _reason(self, key):
+        return self.env.ref(f'ems.attendance_justification_reason_{key}')
+
+    def test_default_reason_is_the_first_one(self):
+        justification = self._shared_justification(self.student)
+        self.assertEqual(justification.reason_id, self.env['ems.attendance_justification_reason'].search([], limit=1))
+        self.assertEqual(justification.reason_id, self._reason('health'))
+
+    def test_other_requires_details(self):
+        with self.assertRaises(ValidationError):
+            self.env['ems.attendance_justification'].create({
+                'teacher_id': self.tutor_employee.id, 'student_ids': [(6, 0, self.student.ids)],
+                'reason_id': self._reason('other').id, **self._today_range(),
+            })
+
+    def test_other_reason_in_the_form_keeps_details_only_for_it(self):
+        with Form(self.env['ems.attendance_justification'].with_user(self.tutor_user)) as form:
+            form.start_date, form.end_date = self._today_range().values()
+            form.student_ids.add(self.student)
+            form.reason_id = self._reason('other')
+            form.details = 'Visita a la família'
+            form.reason_id = self._reason('health')
+            self.assertFalse(form.details)
+
+    def test_strike_covers_the_whole_day_picked(self):
+        line = self._line()
+        line.status_id = self.env.ref('ems.attendance_status_miss')
+        justification = self.env['ems.attendance_justification'].with_user(self.tutor_user).create({
+            'teacher_id': self.tutor_employee.id, 'student_ids': [(6, 0, self.student.ids)],
+            'reason_id': self._reason('strike').id, 'day': self.today,
+        })
+        utils = self.env['ems.datetime_utils']
+        self.assertEqual(justification.start_date, utils.datetime_to_odoo(utils.time_float_to_utc_datetime(self.today, 0.0)))
+        self.assertEqual(utils.utc_to_local_date(justification.end_date), self.today)
+        self.assertEqual(justification.day, self.today)
+        self.assertEqual(line.status_id, self.env.ref('ems.attendance_status_justified'))
+
+    def test_strike_in_the_form_picks_a_day(self):
+        with Form(self.env['ems.attendance_justification'].with_user(self.tutor_user)) as form:
+            form.student_ids.add(self.student)
+            form.reason_id = self._reason('strike')
+            form.day = self.today
+        justification = form.record
+        self.assertEqual(justification.utc_to_local_date(justification.start_date), self.today)
+        self.assertEqual(justification.utc_to_local_date(justification.end_date), self.today)
+        self.assertGreater(justification.end_date - justification.start_date, timedelta(hours=23))
+
+    def test_partial_period_keeps_its_hours_in_the_form(self):
+        # The day follows the period's start: it must only set a whole day for a full-day reason.
+        start = datetime.combine(self.today, datetime.min.time()) + timedelta(hours=8)
+        with Form(self.env['ems.attendance_justification'].with_user(self.tutor_user)) as form:
+            form.student_ids.add(self.student)
+            form.start_date, form.end_date = start, start + timedelta(hours=2)
+        self.assertEqual((form.record.start_date, form.record.end_date), (start, start + timedelta(hours=2)))
+
+    def test_strike_refuses_a_partial_period(self):
+        with self.assertRaises(ValidationError):
+            self.env['ems.attendance_justification'].create({
+                'teacher_id': self.tutor_employee.id, 'student_ids': [(6, 0, self.student.ids)],
+                'reason_id': self._reason('strike').id,
+                'start_date': datetime.combine(self.today, datetime.min.time()) + timedelta(hours=8),
+                'end_date': datetime.combine(self.today, datetime.min.time()) + timedelta(hours=10),
+            })
+
     def _post_migrate(self):
         path = os.path.join(os.path.dirname(__file__), '..', 'migrations', '18.0.0.47.0', 'post-migrate.py')
         spec = importlib.util.spec_from_file_location('ems_post_migrate_18_0_0_47_0', path)
@@ -603,13 +669,14 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
         Justification = self.env['ems.attendance_justification']
         batch = Justification.create([{
             'teacher_id': self.tutor_employee.id, 'student_ids': [(6, 0, student.ids)],
-            'notes': 'Strike', **self._today_range(),
+            'reason_id': self._reason('other').id, 'details': 'Vaga', **self._today_range(),
             'attachment_ids': [self._attachment_command('vaga.pdf')],
         } for student in (self.student, mate)])
         tomorrow = self.today + timedelta(days=1)
         alone = Justification.create({
             'teacher_id': self.tutor_employee.id, 'student_ids': [(6, 0, self.student.ids)],
-            'notes': 'Strike', 'start_date': datetime.combine(tomorrow, datetime.min.time()),
+            'reason_id': self._reason('other').id, 'details': 'Vaga',
+            'start_date': datetime.combine(tomorrow, datetime.min.time()),
             'end_date': datetime.combine(tomorrow, datetime.max.time()),
         })
         self.env.flush_all()

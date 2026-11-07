@@ -284,6 +284,9 @@
 
             'views/attendance/attendance_schedule/form.xml',
 
+            'views/attendance/attendance_justification_reason/list.xml',
+            'views/attendance/attendance_justification_reason/form.xml',
+            'views/attendance/attendance_justification_reason/menu.xml',
             'views/attendance/attendance_justification/menu.xml',
             'views/attendance/attendance_justification/list.xml',
             'views/attendance/attendance_justification/form.xml',
@@ -493,6 +496,7 @@
         'data/main/ems.strike.reason.csv',
         'data/main/ems.convalidation.info_reason.csv',
         'data/main/ems.convalidation.rejection_reason.csv',
+        'data/main/ems.attendance_justification_reason.xml',
         'data/main/ems.attendance_status.csv',
         'data/main/ems.non_teaching_type.csv',
         'data/main/ems.teaching_reduction_type.csv',

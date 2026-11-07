@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import timedelta
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools.translate import _lt
@@ -33,7 +35,16 @@ class EmsAttendanceJustification(models.Model):
     # NOTE: relation name should be forced to <63 chars (PSQL restriction).
     attendance_session_line_ids = fields.Many2many(string="Affected sessions", comodel_name="ems.attendance_session_line")
     session_teacher_ids = fields.Many2many(string="Affected teachers", comodel_name="hr.employee", compute='_compute_session_teacher_ids', store=True, readonly=False)
-    notes = fields.Text("Notes")
+    # Issue #795 (follow-up): why the absences are justified. The first reason by sequence (health)
+    # is the default; "Other" asks for details, "Strike" covers the student's whole day.
+    reason_id = fields.Many2one(
+        string="Reason", comodel_name="ems.attendance_justification_reason", required=True,
+        ondelete='restrict', default=lambda self: self._default_reason_id())
+    requires_details = fields.Boolean(related='reason_id.requires_details')
+    full_day = fields.Boolean(related='reason_id.full_day')
+    details = fields.Text(string="Details")
+    # A full-day reason picks one day: the period becomes that whole day, in the company's timezone.
+    day = fields.Date(string="Day", compute='_compute_day', inverse='_inverse_day')
 
     # Form helpers, never stored.
     # Picking groups adds their students to the list, then clears itself (_onchange_add_group_ids).
@@ -85,6 +96,27 @@ class EmsAttendanceJustification(models.Model):
             justification.student_summary = students.name if len(students) == 1 else (
                 _("%s students", len(students)) if students else False)
 
+    @api.depends('start_date')
+    def _compute_day(self):
+        for justification in self:
+            justification.day = justification.start_date and justification.utc_to_local_date(justification.start_date)
+
+    def _inverse_day(self):
+        # Only for a full-day reason: otherwise the day just follows the period's start (the form
+        # sends it back on save) and must not turn the period into a whole day.
+        for justification in self.filtered(lambda justification: justification.day and justification.full_day):
+            start, end = justification._day_period(justification.day)
+            justification.write({'start_date': start, 'end_date': end})
+
+    def _day_period(self, day):
+        """The whole of a local day, as naive UTC datetimes (from 00:00 to 23:59:59)."""
+        start = self.time_float_to_utc_datetime(day, 0.0)
+        end = self.time_float_to_utc_datetime(day + timedelta(days=1), 0.0) - timedelta(seconds=1)
+        return self.datetime_to_odoo(start), self.datetime_to_odoo(end)
+
+    def _default_reason_id(self):
+        return self.env['ems.attendance_justification_reason'].search([], limit=1)
+
     def _default_teacher_id(self):
         return self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")]) or False
 
@@ -100,6 +132,35 @@ class EmsAttendanceJustification(models.Model):
                 raise ValidationError(_(
                     "These students have another justification which overlaps with the current one: %(students)s",
                     students=", ".join(overlapping.mapped('name'))))
+
+    @api.constrains('reason_id', 'details')
+    def _check_details(self):
+        for justification in self:
+            if justification.requires_details and not (justification.details or '').strip():
+                raise ValidationError(_("Describe the reason in the details: %(reason)s", reason=justification.reason_id.name))
+
+    @api.constrains('reason_id', 'start_date', 'end_date')
+    def _check_full_day(self):
+        for justification in self.filtered('full_day'):
+            day = justification.utc_to_local_date(justification.start_date)
+            if (justification.start_date, justification.end_date) != justification._day_period(day):
+                raise ValidationError(_("A justification for %(reason)s covers one whole day: pick the day.",
+                                        reason=justification.reason_id.name))
+
+    @api.onchange('day')
+    def _onchange_day(self):
+        for justification in self.filtered(lambda justification: justification.day and justification.full_day):
+            justification.start_date, justification.end_date = justification._day_period(justification.day)
+
+    @api.onchange('reason_id')
+    def _onchange_reason_id(self):
+        for justification in self:
+            # A full-day reason: the period becomes the whole day it started on.
+            if justification.full_day and justification.start_date:
+                justification.start_date, justification.end_date = justification._day_period(
+                    justification.utc_to_local_date(justification.start_date))
+            if not justification.requires_details:
+                justification.details = False
 
     @api.model
     def default_get(self, fields_list):
@@ -272,6 +333,12 @@ class EmsAttendanceJustification(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         # NOTE: don't worry, wont be saved if there's an exception (wihtin transaction)
+        for vals in vals_list:
+            # A full-day reason created from code with only the day: the period is that whole day
+            # (the form already sends both, from _onchange_day). The NOT NULL columns can't wait for
+            # the inverse, which runs after the insert.
+            if vals.get('day') and not vals.get('start_date'):
+                vals['start_date'], vals['end_date'] = self._day_period(fields.Date.to_date(vals.pop('day')))
         records = super().create(vals_list)
         unjustified = self.env.ref("ems.attendance_status_miss") | self.env.ref("ems.attendance_status_delayed_severe")
         for justification, vals in zip(records, vals_list):

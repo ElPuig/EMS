@@ -1,0 +1,17 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_attendance_justification_reason_list">
+            <field name="name">ems.attendance_justification_reason.list</field>
+            <field name="model">ems.attendance_justification_reason</field>
+            <field name="arch" type="xml">
+                <!-- The first reason is the default one: drag to reorder. -->
+                <list default_order="sequence, name">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="requires_details"/>
+                    <field name="full_day"/>
+                </list>
+            </field>
+        </record>
+    </data>
+</odoo>

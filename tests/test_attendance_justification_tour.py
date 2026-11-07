@@ -22,6 +22,7 @@ class TestAttendanceJustificationTour(HttpCase):
         })
         cls.justification = cls.env['ems.attendance_justification'].create({
             'teacher_id': cls.teacher.id, 'student_ids': [(6, 0, cls.student.ids)],
+            'reason_id': cls.env.ref('ems.attendance_justification_reason_other').id, 'details': 'Tour detail',
             'start_date': datetime(2026, 1, 5, 9, 0), 'end_date': datetime(2026, 1, 5, 11, 0),
         })
         cls._setup_tutor_justification()
@@ -88,11 +89,11 @@ class TestAttendanceJustificationTour(HttpCase):
 
     def test_attendance_justification_open_and_edit_tour(self):
         force_user_language_to_english(self, self.env.ref('base.user_admin'))
-        self.assertFalse(self.justification.notes)
+        self.assertEqual(self.justification.details, 'Tour detail')
 
         self.start_tour("/odoo", "ems_attendance_justification_open_and_edit", login="admin")
 
-        self.assertEqual(self.justification.notes, 'Tour note')
+        self.assertEqual(self.justification.details, 'Tour note')
 
     def test_attendance_justification_create_tour(self):
         # Issue #795: a tutor adds their whole group from the form and takes out the student who
@@ -114,6 +115,20 @@ class TestAttendanceJustificationTour(HttpCase):
         typed_day = date(2026, 2, 5)
         self.assertEqual(justification.start_date, utils.datetime_to_odoo(utils.time_float_to_utc_datetime(typed_day, 9.0)))
         self.assertEqual(justification.end_date, utils.datetime_to_odoo(utils.time_float_to_utc_datetime(typed_day, 11.0)))
+
+    def test_attendance_justification_strike_tour(self):
+        # Issue #795: the reason "Strike" picks a day, which covers the student's whole day.
+        self.start_tour("/odoo", "ems_attendance_justification_strike", login=self.tutor_user.login)
+
+        justification = self.env['ems.attendance_justification'].search([
+            ('reason_id', '=', self.env.ref('ems.attendance_justification_reason_strike').id),
+            ('student_ids', 'in', self.excluded_student.ids),
+        ])
+        self.assertEqual(len(justification), 1)
+        utils = self.env['ems.datetime_utils']
+        day = date(2026, 2, 6)
+        self.assertEqual(justification.start_date, utils.datetime_to_odoo(utils.time_float_to_utc_datetime(day, 0.0)))
+        self.assertEqual(utils.utc_to_local_date(justification.end_date), day)
 
     def test_attendance_justification_tutor_open_tour(self):
         # Logs in as a plain tutor, not admin: the bug (issue #469) only exists for a user

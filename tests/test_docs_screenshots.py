@@ -202,7 +202,7 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             'start_date': datetime(2026, 3, 2, 7, 0), 'end_date': datetime(2026, 3, 2, 13, 0),
             'attendance_session_line_ids': [(6, 0, cls.env['ems.attendance_session_line'].search([
                 ('student_id', '=', pau.id), ('date', '=', cls.JUSTIFIED_DAY)]).ids)],
-            'notes': 'Visita mèdica',
+            'reason_id': cls.env.ref('ems.attendance_justification_reason_health').id,
         })
         cls.justification.attachment_ids = cls.env['ir.attachment'].create({
             'name': 'Justificant_metge.pdf', 'datas': base64.b64encode(b'%PDF-1.4 x'),

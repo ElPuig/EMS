@@ -25,6 +25,7 @@ This section contains the manuals for **administrators**.
 - [Setting up the student card](student-card-settings.md) — Upload the centre's stamp and change each level's colour on the card.
 - [Strikes: Managing Reasons and Escalation Threshold](strike.md) — Configuring the strike reasons list and the coexistence escalation threshold.
 - [Attendance Statuses: Managing the Passlist Options](attendance-status.md) — Adding, reordering or retiring the statuses teachers can pick from in the roll-call view.
+- [Justification Reasons](attendance-justification-reasons.md) — The reasons tutors pick when justifying absences: order, default, details and full-day reasons.
 - [Teacher Working Schedules & Schedule Frameworks](working-schedules.md) — Setting up bell-schedule templates, the default framework, and editing/importing a teacher's weekly schedule.
 - [Task Assignment: Who Handles the Tasks EMS Creates](task-assignment.md) — Choosing who reviews the documents students upload and the comments families write, independently of roles and permissions.
 - [Groups](groups.md) — Creating and managing Main/Reinforcement groups, tutors, delegates and switching group type.

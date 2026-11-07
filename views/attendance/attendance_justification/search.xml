@@ -7,7 +7,11 @@
                 <search string="Only mine">
                     <field name="student_ids"/>
                     <field name="student_ids" string="Group" filter_domain="[('student_ids.main_group_id', 'ilike', self)]"/>
+                    <field name="reason_id"/>
                     <filter string="Show only mine" name="only_mine" domain="[('teacher_id.user_id.id', '=', uid)]"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Reason" name="group_by_reason" context="{'group_by': 'reason_id'}"/>
+                    </group>
                 </search>
             </field>
         </record>

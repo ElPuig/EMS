@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Justification reasons (issue #795). noupdate: the centre reorders, renames and adds
+         reasons from Configuration, and an upgrade must not undo it. The first one by sequence is
+         the default; "Other" asks for details and "Strike" covers a whole day. -->
+    <data noupdate="1">
+        <record id="attendance_justification_reason_health" model="ems.attendance_justification_reason">
+            <field name="name">Health reasons</field>
+            <field name="sequence">1</field>
+        </record>
+        <record id="attendance_justification_reason_expulsion" model="ems.attendance_justification_reason">
+            <field name="name">Expulsion from the centre</field>
+            <field name="sequence">2</field>
+        </record>
+        <record id="attendance_justification_reason_activity" model="ems.attendance_justification_reason">
+            <field name="name">Attendance at an authorised activity outside the centre</field>
+            <field name="sequence">3</field>
+        </record>
+        <record id="attendance_justification_reason_strike" model="ems.attendance_justification_reason">
+            <field name="name">Labour strike</field>
+            <field name="sequence">4</field>
+            <field name="full_day" eval="True"/>
+        </record>
+        <record id="attendance_justification_reason_family" model="ems.attendance_justification_reason">
+            <field name="name">Family reasons (death or serious illness of a relative)</field>
+            <field name="sequence">5</field>
+        </record>
+        <record id="attendance_justification_reason_duty" model="ems.attendance_justification_reason">
+            <field name="name">Unavoidable duty (court summons, official procedures)</field>
+            <field name="sequence">6</field>
+        </record>
+        <record id="attendance_justification_reason_exam" model="ems.attendance_justification_reason">
+            <field name="name">Official exam (driving licence, languages, university entrance)</field>
+            <field name="sequence">7</field>
+        </record>
+        <record id="attendance_justification_reason_other" model="ems.attendance_justification_reason">
+            <field name="name">Other reasons</field>
+            <field name="sequence">99</field>
+            <field name="requires_details" eval="True"/>
+        </record>
+    </data>
+</odoo>

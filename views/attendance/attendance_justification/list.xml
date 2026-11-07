@@ -11,7 +11,8 @@
                     <field name="session_teacher_ids" widget="many2many_tags"/>
                     <field name="start_date" width="125px"/>
                     <field name="end_date" width="125px"/>
-                    <field name="notes" optional="show"/>
+                    <field name="reason_id"/>
+                    <field name="details" optional="show"/>
                 </list>
             </field>
         </record>

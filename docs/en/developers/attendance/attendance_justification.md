@@ -5,7 +5,7 @@
 An `ems.attendance_justification` is a tutor-entered proof-of-attendance covering a
 date/time range for **one or several students** (`student_ids`, issue #795): one student's
 medical appointment, or a whole group on strike or at a competition, with a single comment
-(`notes`) and a single set of files. It retroactively re-marks any `miss` line of those
+and a single set of files. It retroactively re-marks any `miss` line of those
 students within that range as `justified` and any `delayed_severe` line (a severe delay,
 which counts as an absence) as `delayed` (a minor delay, issue #578), and going forward acts
 as a *prevision*: a new session created within its range gets each covered student's line
@@ -15,6 +15,31 @@ for how the prevision side is consumed (`get_current_justification_by_student()`
 student id → justification built once per session).
 
 **Module file:** `models/attendance/attendance_justification.py` (`EmsAttendanceJustification`)
+
+---
+
+## Reasons (`ems.attendance_justification_reason`)
+
+Every justification has a `reason_id` (required, `ondelete='restrict'`), picked from a catalog the
+EMS administrator and the Heads of Studies maintain under **Student's Attendances → Configuration →
+Justifications → Reasons** (`models/attendance/attendance_justification_reason.py`, same shape as
+`ems.convalidation.rejection_reason`: `name` translatable, `sequence` with a drag handle, `active`).
+The first reason by sequence is the default (`_default_reason_id()`). Two flags drive the form, so
+the behaviour never depends on a reason's name or xmlid:
+
+| Flag | Effect on the justification |
+|------|-----------------------------|
+| `requires_details` | The `details` field (the free text, formerly `notes`) is shown and required (`_check_details`); picking another reason clears it. Seeded on "Other reasons". |
+| `full_day` | The form shows a single `day` instead of the period. `day` is a non-stored compute (the local date of `start_date`) whose inverse, and `_onchange_day()`, set the period to that whole local day (`_day_period()`: 00:00 to 23:59:59 in the company's timezone, stored as naive UTC). Both only act for a full-day reason, since the client sends `day` back on every save. `_check_full_day` refuses any other period; `create()` also accepts `day` alone (the NOT NULL dates can't wait for the inverse). Seeded on "Labour strike". |
+
+The seed (`data/main/ems.attendance_justification_reason.xml`) is `noupdate="1"`: the centre
+reorders, renames and adds reasons from the app, and an upgrade must not undo it. It holds: Health
+reasons (default), Expulsion from the centre, Attendance at an authorised activity outside the
+centre, Labour strike, Family reasons, Unavoidable duty, Official exam, Other reasons. The English
+names "Labour strike" and "Other reasons" avoid the existing translations of "Strike" (a
+coexistence strike) and "Other".
+
+The list shows `reason_id` and `details`; the search view filters and groups by reason.
 
 ---
 
@@ -32,7 +57,7 @@ otherwise, and is called from:
 | `write()` of any field but the system ones (`SYSTEM_FIELDS`: `attendance_session_line_ids`, `session_teacher_ids`) | before the write (the students taken out) and after it (the ones added) |
 | `unlink()` | the justification's |
 
-The comment and files are shared by every student, so changing them needs the right over all of
+The reason, details and files are shared by every student, so changing them needs the right over all of
 them, like adding or removing one. A tutor therefore only ever creates justifications for their
 own students; one mixing groups of different tutors is managed by whoever is above all of them
 (Head of Studies/Deputy, Director) or an administrator. `default_get()` still refuses to open an
@@ -227,7 +252,9 @@ covered `_check_time_overlap`'s overlap branch.
 
 ## Migration 18.0.0.47.0 (issue #795)
 
-`post-migrate.py` copies the old `student_id` into the student list (the column still exists in
+`pre-migrate.py` renames the old `notes` column to `details` (before the schema sync, so Odoo
+neither drops it nor creates an empty one). `post-migrate.py` copies the old `student_id` into the
+student list (the column still exists in
 post-migrate; Odoo drops it at the end of the upgrade), then `merge_batch_justifications()` turns
 each batch the assistant created into one justification. A batch is every justification sharing
 teacher, period, notes, `create_uid` and `create_date`: the assistant created them in one
@@ -235,5 +262,7 @@ teacher, period, notes, `create_uid` and `create_date`: the assistant created th
 never do. The oldest is kept and receives the others' students, session line links (both
 `attendance_justification_id` and `attendance_prevision_id`), affected teachers and files (a copy
 with the same name and checksum as one it already has is deleted); the rest are deleted in SQL,
-never through `unlink()`, which would unjustify their lines. Covered by
+never through `unlink()`, which would unjustify their lines. Finally every justification gets the
+reason "Other reasons" (its old notes being its details), before Odoo adds the NOT NULL on
+`reason_id` at the end of the upgrade. Covered by
 `test_migration_merges_each_batch_into_one_justification`.

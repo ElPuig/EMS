@@ -143,9 +143,9 @@ class TestCourseTransition(TransactionCase):
             order.state = state
         return order
 
-    def _session(self, group, subject, round="1", state='final'):
+    def _session(self, group, subject, grade_round="1", state='final'):
         session = self.env['ems.grade_session'].create({
-            'group_id': group.id, 'subject_id': subject.id, 'round': round})
+            'group_id': group.id, 'subject_id': subject.id, 'round': grade_round})
         session.state = state
         return session
 
@@ -234,7 +234,7 @@ class TestCourseTransition(TransactionCase):
         self.assertFalse(wizard.has_blockers)
 
     def test_blocks_when_the_last_round_is_not_final(self):
-        self._session(self.group1, self.subject_int, round="1", state='open')
+        self._session(self.group1, self.subject_int, grade_round="1", state='open')
         wizard = self._wizard()
         wizard.action_preview()
         self.assertTrue(wizard.has_blockers)
@@ -242,14 +242,14 @@ class TestCourseTransition(TransactionCase):
     def test_does_not_block_when_only_an_earlier_round_is_open(self):
         """Only the LAST round has to be closed: an earlier one left open is the
         normal state of affairs once a later round exists."""
-        self._session(self.group1, self.subject_int, round="1", state='open')
-        self._session(self.group1, self.subject_int, round="2", state='final')
+        self._session(self.group1, self.subject_int, grade_round="1", state='open')
+        self._session(self.group1, self.subject_int, grade_round="2", state='final')
         wizard = self._wizard()
         wizard.action_preview()
         self.assertFalse(wizard.has_blockers)
 
     def test_sessions_of_a_study_out_of_scope_do_not_block(self):
-        self._session(self.group_other, self.subject_int, round="1", state='open')
+        self._session(self.group_other, self.subject_int, grade_round="1", state='open')
         wizard = self._wizard()
         wizard.action_preview()
         self.assertFalse(wizard.has_blockers)
@@ -465,7 +465,7 @@ class TestCourseTransition(TransactionCase):
             self._wizard(backup_done=True).action_apply()
 
     def test_apply_refuses_while_there_are_blockers(self):
-        self._session(self.group1, self.subject_int, round="1", state='open')
+        self._session(self.group1, self.subject_int, grade_round="1", state='open')
         wizard = self._wizard(backup_done=True)
         wizard.action_preview()
         with self.assertRaises(UserError):
@@ -744,7 +744,7 @@ class TestCourseTransition(TransactionCase):
         """Freezing a history half-way is worse than refusing to run."""
         student = self._student('CTW Cross Open', group=self.group2)
         self._cross_order(student).action_confirm()
-        self._session(self.group2, self.subject_int, round="1", state='open')
+        self._session(self.group2, self.subject_int, grade_round="1", state='open')
         wizard = self._wizard(studies=self.study_other)
         wizard.action_preview()
         self.assertTrue(wizard.has_blockers)
@@ -1413,9 +1413,9 @@ class TestCourseTransition(TransactionCase):
     def test_a_session_can_be_recreated_after_the_transition(self):
         """The reason the deletion is mandatory: UNIQUE(group, subject, round)
         carries no course, so next year's round 1 needs the old one gone."""
-        self._session(self.group1, self.subject_int, round="1")
+        self._session(self.group1, self.subject_int, grade_round="1")
         self._applied()
-        recreated = self._session(self.group1, self.subject_int, round="1")
+        recreated = self._session(self.group1, self.subject_int, grade_round="1")
         self.assertTrue(recreated.exists())
 
     def test_apply_deletes_the_attendance_issues(self):

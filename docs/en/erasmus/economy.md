@@ -78,7 +78,7 @@ At the top of the Economy tab, EMS warns about anything that may be a mistake, w
 
 ## Excel
 
-**Actions > Export Excel** downloads the project's economy: a summary with the same figures as the panel, each mobility's grant (forecast, committed and paid separately), the payments and invoices with their receipts, the expenses, the organisational support participant by participant, and the grant amendments and SEPIE transfers.
+**Actions > Download the economy (Excel)** downloads the project's economy: a summary with the same figures as the panel, each mobility's grant (forecast, committed and paid separately), the payments and invoices with their receipts, the expenses, the organisational support participant by participant, and the grant amendments and SEPIE transfers.
 
 ---
 

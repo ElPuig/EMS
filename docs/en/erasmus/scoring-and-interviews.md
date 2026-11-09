@@ -19,6 +19,10 @@ When the application period is over, click **Actions > Close applications** on t
 
 Later changes in grades or warnings do not change these values. You see them on the **Scoring** tab of each application, with the list of modules used.
 
+Each criterion shows its points over its maximum (*36 / 40*), and the date is under **Scoring data frozen on**.
+
+![A criterion's points over their maximum](../../assets/erasmus/puntuacio-sobre-maxim.png)
+
 > **Tip:** close the call right after the closing date, so the data is the one EMS had on that date.
 
 A student who joined the centre this year only has this year's modules: their average is the provisional grade of the learning outcomes already graded. If a student has no learning outcome graded at all, the average stays *pending* and the application has no complete score.

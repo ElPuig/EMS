@@ -219,7 +219,7 @@
                     <field name="group_mobility_id" optional="show"/>
                     <field name="call_id" optional="hide"/>
                     <field name="project_id" optional="show"/>
-                    <field name="kind"/>
+                    <field name="kind" string="Type"/>
                     <field name="currency_id" column_invisible="1"/>
                     <field name="amount" sum="Total"/>
                     <field name="bank_account"/>
@@ -227,7 +227,7 @@
                     <field name="state" widget="badge" decoration-warning="state == 'to_pay'"
                            decoration-success="state == 'paid'"/>
                     <field name="paid_date" optional="show"/>
-                    <field name="receipt_ids" widget="many2many_binary" optional="show"/>
+                    <field name="receipt_ids" string="Receipt" widget="many2many_binary" optional="show"/>
                 </list>
             </field>
         </record>

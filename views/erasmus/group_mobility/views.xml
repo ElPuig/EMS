@@ -10,14 +10,14 @@
             <field name="arch" type="xml">
                 <list string="Group mobilities" decoration-muted="state in ('done', 'cancelled')">
                     <field name="name"/>
-                    <field name="group_ids" widget="many2many_tags" optional="show"/>
+                    <field name="group_ids" string="Groups" widget="many2many_tags" optional="show"/>
                     <field name="leader_id"/>
                     <field name="country_id" optional="show"/>
                     <field name="date_start_planned" optional="show"/>
                     <field name="registration_count" optional="show"/>
-                    <field name="selected_count"/>
-                    <field name="documents_missing" optional="show" decoration-danger="documents_missing > 0"/>
-                    <field name="documents_to_review" optional="show" decoration-warning="documents_to_review > 0"/>
+                    <field name="selected_count" string="Selected"/>
+                    <field name="documents_missing" string="Docs. pending" optional="show" decoration-danger="documents_missing > 0"/>
+                    <field name="documents_to_review" string="To review" optional="show" decoration-warning="documents_to_review > 0"/>
                     <field name="eu_survey_state" optional="hide"/>
                     <field name="activity_ids" widget="list_activity" optional="show"/>
                     <field name="project_id" optional="hide"/>
@@ -180,7 +180,7 @@
                                  upload the filled grant agreements without opening each file. -->
                             <button name="action_view_participant_documents" type="object" class="oe_stat_button"
                                     icon="fa-files-o" invisible="state not in ('preparation', 'stay', 'return', 'done') or user_role not in ('team', 'leader')">
-                                <field name="documents_missing" widget="statinfo" string="Participants' documents"/>
+                                <field name="documents_missing" widget="statinfo" string="Pending documents"/>
                             </button>
                         </div>
                         <div class="oe_title">
@@ -419,7 +419,9 @@
                                         <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
                                                 invisible="file_state != 'to_review' or parent.user_role not in ('team', 'leader')"/>
                                         <button name="action_mark_needs_change" type="object" string="Needs changes" icon="fa-pencil"
-                                                invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers) or parent.user_role not in ('team', 'leader')"/>
+                                                invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers) or parent.user_role not in ('team', 'leader') or file_state == 'complete'"/>
+                                        <button name="action_mark_needs_change" type="object" string="Reopen" icon="fa-undo"
+                                                invisible="file_state != 'complete' or review_state == 'needs_change' or (handled_by == 'team' and not signers) or parent.user_role not in ('team', 'leader')"/>
                                         <field name="signatures_missing" optional="show"/>
                                         <button name="action_open_signatures" type="object" string="Signatures" icon="fa-check-square-o"
                                                 invisible="not signers or parent.user_role not in ('team', 'leader')"/>
@@ -567,7 +569,9 @@
                     <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
                             invisible="file_state != 'to_review'"/>
                     <button name="action_mark_needs_change" type="object" string="Needs changes" icon="fa-pencil"
-                            invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers)"/>
+                            invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers) or file_state == 'complete'"/>
+                    <button name="action_mark_needs_change" type="object" string="Reopen" icon="fa-undo"
+                            invisible="file_state != 'complete' or review_state == 'needs_change' or (handled_by == 'team' and not signers)"/>
                     <button name="action_open_signatures" type="object" string="Signatures" icon="fa-check-square-o"
                             invisible="not signers"/>
                 </list>
@@ -663,7 +667,9 @@
                                 <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
                                         invisible="file_state != 'to_review'"/>
                                 <button name="action_mark_needs_change" type="object" string="Needs changes"
-                                        icon="fa-pencil" invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers)"/>
+                                        icon="fa-pencil" invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers) or file_state == 'complete'"/>
+                                <button name="action_mark_needs_change" type="object" string="Reopen"
+                                        icon="fa-undo" invisible="file_state != 'complete' or review_state == 'needs_change' or (handled_by == 'team' and not signers)"/>
                                 <field name="signatures_missing" optional="show"/>
                                 <button name="action_open_signatures" type="object" string="Signatures" icon="fa-check-square-o"
                                         invisible="not signers"/>

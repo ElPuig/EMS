@@ -15,7 +15,7 @@
                     <field name="modality_id"/>
                     <field name="submit_date" options="{'show_time': False}"/>
                     <field name="requirements_check" optional="show"/>
-                    <field name="documents_to_review" optional="show" invisible="not documents_to_review"/>
+                    <field name="documents_to_review" string="To review" optional="show" invisible="not documents_to_review"/>
                     <field name="course_strike_count" optional="hide"/>
                     <field name="score_total" optional="hide"/>
                     <field name="score_complete" optional="hide"/>
@@ -154,8 +154,8 @@
                                         <field name="interview_call_date" options="{'show_time': False}"/>
                                     </group>
                                     <group>
-                                        <field name="interview_general"/>
-                                        <field name="interview_english"/>
+                                        <field name="interview_general" widget="ems_score_out_of" options="{'max': 20}"/>
+                                        <field name="interview_english" widget="ems_score_out_of" options="{'max': 15}"/>
                                         <field name="interview_complete"/>
                                     </group>
                                 </group>
@@ -180,43 +180,43 @@
                                 </div>
                                 <group invisible="scores_hidden">
                                     <group string="Total">
-                                        <field name="score_total"/>
+                                        <field name="score_total" widget="ems_score_out_of" options="{'max': 10}"/>
                                         <field name="score_complete"/>
                                         <field name="rank"/>
                                         <field name="needs_draw" invisible="not needs_draw"/>
                                         <field name="draw_order" invisible="not needs_draw and not draw_order"/>
                                     </group>
                                     <group string="Criteria">
-                                        <field name="score_plan"/>
-                                        <field name="score_last_mobility"/>
-                                        <field name="score_projects"/>
-                                        <field name="score_staff_language"/>
-                                        <field name="score_seniority"/>
-                                        <field name="score_internationalisation"/>
+                                        <field name="score_plan" widget="ems_score_out_of" options="{'max': 2}"/>
+                                        <field name="score_last_mobility" widget="ems_score_out_of" options="{'max': 1.5}"/>
+                                        <field name="score_projects" widget="ems_score_out_of" options="{'max': 1.5}"/>
+                                        <field name="score_staff_language" widget="ems_score_out_of" options="{'max': 2}"/>
+                                        <field name="score_seniority" widget="ems_score_out_of" options="{'max': 2}"/>
+                                        <field name="score_internationalisation" widget="ems_score_out_of" options="{'max': 1}"/>
                                     </group>
                                 </group>
                                 <group>
                                     <group string="1. Mobility plan" invisible="scores_hidden">
-                                        <field name="plan_score"/>
+                                        <field name="plan_score" widget="ems_score_out_of" options="{'max': 2}"/>
                                         <field name="plan_complete"/>
                                     </group>
                                     <group string="Checked by the Erasmus team">
                                         <field name="declared_last_staff_mobility"/>
-                                        <field name="last_staff_mobility" string="Last staff mobility checked" readonly="not can_manage"/>
+                                        <field name="last_staff_mobility" string="Correction" placeholder="Correct, as declared" readonly="not can_manage"/>
                                         <field name="declared_seniority"/>
-                                        <field name="seniority" string="Seniority checked" readonly="not can_manage"/>
+                                        <field name="seniority" string="Correction" placeholder="Correct, as declared" readonly="not can_manage"/>
                                         <field name="declared_language_level"/>
-                                        <field name="language_level" string="Language certificate checked" readonly="not can_manage"
+                                        <field name="language_level" string="Correction" placeholder="Correct, as declared" readonly="not can_manage"
                                                help="Only when the certificate does not match what the applicant declared: this level counts instead."/>
                                         <field name="merits_checked" readonly="not can_manage"/>
                                     </group>
                                 </group>
+                                <separator string="Commission's ratings" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                 <field name="plan_rating_ids" readonly="1" groups="ems.group_erasmus,ems.group_academic_admin">
                                     <list>
                                         <field name="panel_member_id"/>
-                                        <field name="evaluator_id"/>
                                         <field name="abstention_reason" optional="show"/>
-                                        <field name="score"/>
+                                        <field name="score" string="Score" widget="ems_score_out_of" options="{'max': 2}"/>
                                         <field name="state" widget="badge" decoration-success="state == 'submitted'"/>
                                     </list>
                                 </field>
@@ -231,7 +231,7 @@
                             <page string="Scoring" name="scoring" invisible="audience != 'student' or not scoring_frozen_date">
                                 <group>
                                     <group string="Total">
-                                        <field name="score_total"/>
+                                        <field name="score_total" widget="ems_score_out_of" options="{'max': 100}"/>
                                         <field name="score_complete"/>
                                         <field name="is_eligible"/>
                                         <field name="rank"/>
@@ -241,12 +241,12 @@
                                     </group>
                                     <!-- Audit D-14: the criteria are the Erasmus team's; the Head of Studies sees the total. -->
                                     <group string="Criteria" groups="ems.group_erasmus,ems.group_academic_admin">
-                                        <field name="score_a"/>
-                                        <field name="score_b"/>
-                                        <field name="score_c"/>
-                                        <field name="score_d"/>
-                                        <field name="score_e"/>
-                                        <field name="score_f"/>
+                                        <field name="score_a" widget="ems_score_out_of" options="{'max': 40}"/>
+                                        <field name="score_b" widget="ems_score_out_of" options="{'max': 35}"/>
+                                        <field name="score_c" widget="ems_score_out_of" options="{'max': 10}"/>
+                                        <field name="score_d" widget="ems_score_out_of" options="{'max': 10}"/>
+                                        <field name="score_e" widget="ems_score_out_of" options="{'max': 5}"/>
+                                        <field name="score_f" widget="ems_score_out_of"/>
                                     </group>
                                 </group>
                                 <group>
@@ -358,7 +358,7 @@
                     <field name="needs_draw" optional="show"/>
                     <field name="ranking_result" widget="badge" decoration-success="ranking_result == 'selected'"
                            decoration-warning="ranking_result == 'reserve'"/>
-                    <field name="state" widget="badge" optional="show"/>
+                    <field name="state" string="Current status" widget="badge" optional="show"/>
                 </list>
             </field>
         </record>
@@ -386,7 +386,7 @@
                     <field name="ranking_result" widget="badge" decoration-success="ranking_result == 'selected'"
                            decoration-warning="ranking_result == 'reserve'"/>
                     <field name="modality_id" optional="show"/>
-                    <field name="state" widget="badge" optional="show"/>
+                    <field name="state" string="Current status" widget="badge" optional="show"/>
                 </list>
             </field>
         </record>

@@ -1345,3 +1345,19 @@ flowchart LR
   known (`diffusion.recipient_count`). Odoo has no option for this and `invisible` would hide the
   input of an editable list's row. Only the display changes: the column still holds 0.
 
+### Texts of the screens (issue #779)
+
+- **Commission:** the call's rules (art. 10) say *Comissió*, so every Catalan and Spanish text of an
+  Erasmus+ record says so too, never *Tribunal*. The English source and the code keep "panel".
+- **One English word, two translations:** a label that needs another translation only in Erasmus+
+  (e.g. "Submitted" feminine, "Students" as *Alumnat*) has its own block in the `.po`, with the same
+  msgid and only the Erasmus+ references. Odoo binds a block to its references, so it works; never
+  merge those blocks.
+- **Short list headers** are `string=` on the list's field, so a form keeps its full label. The
+  earlier courses' list hides the source, which reads in full in its own form.
+- **`ems_score_out_of`** (`static/src/js/backend/score_out_of_field.js`): Odoo's float widget with
+  `options="{'max': 40}"`, printing "36 / 40". The maximums are the call rules' and
+  `TestErasmusLabels` checks them against the code's scales (they add up to 100 and 10).
+- **A complete document** offers `action_mark_needs_change` as **Reopen**: the same button twice in
+  the view, each `invisible` on the other's condition.
+

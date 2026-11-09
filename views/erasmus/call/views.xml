@@ -9,10 +9,10 @@
                 <list string="Calls" decoration-muted="state == 'closed'">
                     <field name="name"/>
                     <field name="audience"/>
-                    <field name="course_id" optional="show"/>
-                    <field name="date_open" options="{'show_time': False, 'show_seconds': False}"/>
-                    <field name="date_close" options="{'show_time': False, 'show_seconds': False}"/>
-                    <field name="application_count"/>
+                    <field name="course_id" string="Course of the call" optional="show"/>
+                    <field name="date_open" string="Opens" options="{'show_time': False, 'show_seconds': False}"/>
+                    <field name="date_close" string="Closes" options="{'show_time': False, 'show_seconds': False}"/>
+                    <field name="application_count" string="Applications"/>
                     <field name="state" widget="badge" decoration-info="state == 'draft'"
                            decoration-success="state == 'published'"/>
                 </list>
@@ -118,7 +118,7 @@
                                        required="audience == 'staff' and state != 'draft'"/>
                                 <field name="validator_ids" widget="many2many_tags" invisible="audience != 'staff'"
                                        required="audience == 'staff' and state != 'draft'"/>
-                                <field name="course_id"/>
+                                <field name="course_id" string="Course of the call"/>
                                 <field name="rules_document" filename="rules_filename"/>
                                 <field name="rules_filename" invisible="1"/>
                             </group>
@@ -126,7 +126,10 @@
                                 <field name="date_open" options="{'show_time': False, 'show_seconds': False}"/>
                                 <field name="date_close" options="{'show_time': False, 'show_seconds': False}"/>
                                 <field name="subsanation_deadline" options="{'show_time': False, 'show_seconds': False}"/>
-                                <field name="interview_deadline" options="{'show_time': False, 'show_seconds': False}"/>
+                                <!-- In a staff call this is the commission's time to rate the plans. -->
+                                <label for="interview_deadline" invisible="audience == 'staff'"/>
+                                <label for="interview_deadline" string="Commission's rating deadline" invisible="audience != 'staff'"/>
+                                <field name="interview_deadline" nolabel="1" options="{'show_time': False, 'show_seconds': False}"/>
                                 <field name="claims_deadline" options="{'show_time': False, 'show_seconds': False}"/>
                                 <field name="acceptance_deadline" options="{'show_time': False, 'show_seconds': False}"/>
                                 <field name="min_score" invisible="audience == 'staff'"/>
@@ -249,7 +252,7 @@
                                                 <field name="country_id"/>
                                                 <field name="city"/>
                                                 <field name="places"/>
-                                                <field name="free_places"/>
+                                                <field name="free_places" string="Free"/>
                                                 <field name="level_ids" widget="many2many_tags"/>
                                                 <field name="date_start"/>
                                                 <field name="date_end"/>

@@ -15,9 +15,13 @@ Puntua les sol·licituds admeses amb els criteris de l'article 12 de la convocat
 Quan s'acabi el termini de sol·licitud, fes clic a **Accions > Tanca les sol·licituds** a la convocatòria. En aquell moment, l'EMS desa per a cada sol·licitud presentada:
 
 - **A. Mitjana de l'expedient:** tots els mòduls del cicle que cursa l'alumne, de tots els seus cursos. Els cursos anteriors compten amb la nota final; els mòduls d'aquest curs, amb la nota provisional dels resultats d'aprenentatge avaluats fins al moment. Un mòdul repetit compta una sola vegada, amb la nota més recent. Els mòduls convalidats i els que encara no tenen res avaluat queden fora. La mitjana es pondera per les hores de cada mòdul.
-- **F. Avisos de conducta:** els avisos de l'alumne en aquest cicle fins a la data de tancament. L'EMS només té els avisos registrats des que es fa servir.
+- **F. Amonestacions:** els avisos de l'alumne en aquest cicle fins a la data de tancament. L'EMS només té els avisos registrats des que es fa servir.
 
 Els canvis posteriors de notes o d'avisos no modifiquen aquests valors. Els veuràs a la pestanya **Baremació** de cada sol·licitud, amb la llista de mòduls utilitzats.
+
+Cada criteri mostra els punts sobre el màxim (*36 / 40*), i la data és a **Puntuació fixada el**.
+
+![Els punts de cada criteri sobre el màxim](../../assets/erasmus/puntuacio-sobre-maxim.png)
 
 > **Consell:** tanca la convocatòria just després de la data de tancament, perquè les dades siguin les que tenia l'EMS aquell dia.
 
@@ -55,7 +59,7 @@ Si un alumne no es presenta a l'entrevista, escriu-ne el motiu i fes clic a **Ac
 
 ## 4. La classificació
 
-Fes clic a **Classificació** a la convocatòria (o a **Erasmus+ > Convocatòries > Classificació**, ordenada per convocatòria i modalitat, amb la convocatòria en una columna): les sol·licituds admeses de cada modalitat per ordre, amb la puntuació de cada criteri. **Dins de les places** marca el tall: en verd les sol·licituds que entren a les places de la modalitat (*Seleccionada*) i, després, les de *Reserva*.
+Fes clic a **Classificació** a la convocatòria (o a **Erasmus+ > Convocatòries > Classificació**, ordenada per convocatòria i modalitat, amb la convocatòria en una columna): les sol·licituds admeses de cada modalitat per ordre, amb la puntuació de cada criteri. **Resultat** marca el tall: en verd les sol·licituds que entren a les places de la modalitat (*Seleccionada*) i, després, les de *Reserva*.
 
 - Una modalitat només es classifica quan **totes** les seves sol·licituds admeses tenen la puntuació completa. Fins llavors la posició és 0.
 - Els empats es desfan, per aquest ordre, amb menys oportunitats, primera mobilitat, la part en anglès de l'entrevista i la mitjana de l'expedient.

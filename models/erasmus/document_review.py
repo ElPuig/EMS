@@ -120,7 +120,7 @@ class EmsErasmusApplicationDocument(models.Model):
                                      help="Signatures the Erasmus team has not ticked yet: the document is valid "
                                           "once every one is ticked.")
 
-    signature_progress = fields.Char(string="Signed", compute='_compute_signatures_missing',
+    signature_progress = fields.Char(string="Signature progress", compute='_compute_signatures_missing',
                                      help="Signatures ticked out of those the document needs.")
 
     @api.depends('signature_ids.signed', 'signature_ids.is_required')

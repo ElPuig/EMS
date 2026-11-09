@@ -83,3 +83,5 @@ guardés, introduïts per la coordinació amb la seva font. Surten a l'evolució
 *càrrega manual*. Els cursos 2022-2023 a 2025-2026 ja hi són.
 
 Les columnes de professorat queden buides quan no hi ha dada: una cel·la buida i un 0 volen dir el mateix, i el panell deixa aquests cursos en blanc.
+
+Fes clic en una línia per veure-la sencera, amb la font: la llista amaga la font perquè es llegeixi bé.

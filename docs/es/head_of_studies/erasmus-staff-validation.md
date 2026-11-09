@@ -10,7 +10,7 @@ La convocatoria del personal establece que la dirección valida la actividad, la
 
 ---
 
-1. Cuando una persona del personal envía la propuesta con las fechas exactas, recibís una tarea pendiente. Id a **Erasmus+ > Movilidades > Pendiente de validación**: aparecen las propuestas que esperan una decisión.
+1. Cuando una persona del personal envía la propuesta con las fechas exactas, recibís una tarea pendiente. Id a **Erasmus+ > Movilidades > Pendientes de validar**: aparecen las propuestas que esperan una decisión.
 2. Abrid la movilidad y revisad la pestaña **Propuesta**: actividad, entidad de acogida o curso, contacto, país, ciudad, fechas y notas.
 3. Para validarla, podéis escribir un **Comentario de la decisión** (opcional: la persona lo lee) y hacer clic en **Acciones > Validar la propuesta**. La movilidad pasa a *En preparación* con esas fechas, el equipo Erasmus la prepara con la persona interesada y EMS solicita su ausencia por formación para esos días, con la declaración responsable que dio con la propuesta.
 4. Si no la validáis, escribid antes el **Comentario de la decisión** y haced clic en **Acciones > Rechazar la propuesta**. La persona recibe el motivo por correo y propone otra actividad desde su movilidad en EMS; recibís una tarea pendiente nueva.
@@ -19,7 +19,7 @@ La convocatoria del personal establece que la dirección valida la actividad, la
 
 EMS registra quién ha decidido y cuándo. Podéis consultar el resto de la movilidad, pero la gestiona el equipo Erasmus.
 
-Mientras el tribunal todavía valora los planes, la pestaña **Baremación** de una solicitud del personal indica que los puntos están ocultos hasta que el tribunal ha valorado todos los planes de la convocatoria: ningún miembro ve las notas de los demás antes de poner las suyas. Las ofertas de plaza y las reclamaciones no aparecen en vuestro menú: si las necesitáis, abridlas desde la convocatoria.
+Mientras la comisión todavía valora los planes, la pestaña **Baremación** de una solicitud del personal indica que los puntos están ocultos hasta que la comisión ha valorado todos los planes de la convocatoria: ningún miembro ve las notas de los demás antes de poner las suyas. Las ofertas de plaza y las reclamaciones no aparecen en vuestro menú: si las necesitáis, abridlas desde la convocatoria.
 
 ---
 

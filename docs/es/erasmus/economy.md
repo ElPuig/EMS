@@ -78,7 +78,7 @@ Arriba de la pestaña Economía, EMS avisa de lo que puede ser un error, sin blo
 
 ## Excel
 
-**Acciones > Exportar a Excel** descarga la economía del proyecto: un resumen con las mismas cifras que el panel, la beca de cada movilidad (previsto, comprometido y pagado por separado), los pagos y las facturas con sus justificantes, los gastos, el apoyo organizativo participante por participante, y las modificaciones de la subvención y las transferencias del SEPIE.
+**Acciones > Descargar la economía (Excel)** descarga la economía del proyecto: un resumen con las mismas cifras que el panel, la beca de cada movilidad (previsto, comprometido y pagado por separado), los pagos y las facturas con sus justificantes, los gastos, el apoyo organizativo participante por participante, y las modificaciones de la subvención y las transferencias del SEPIE.
 
 ---
 

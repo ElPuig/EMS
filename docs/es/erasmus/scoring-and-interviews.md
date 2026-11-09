@@ -15,9 +15,13 @@ Puntúa las solicitudes admitidas con los criterios del artículo 12 de la convo
 Cuando termine el plazo de solicitud, haz clic en **Acciones > Cerrar las solicitudes** en la convocatoria. En ese momento, EMS guarda para cada solicitud presentada:
 
 - **A. Nota media del expediente:** todos los módulos del ciclo que cursa el alumno, de todos sus cursos. Los cursos anteriores cuentan con la nota final; los módulos de este curso, con la nota provisional de los resultados de aprendizaje evaluados hasta el momento. Un módulo repetido cuenta una sola vez, con la nota más reciente. Los módulos convalidados y los que aún no tienen nada evaluado quedan fuera. La media se pondera por las horas de cada módulo.
-- **F. Avisos de conducta:** los avisos del alumno en este ciclo hasta la fecha de cierre. EMS solo tiene los avisos registrados desde que se usa.
+- **F. Amonestaciones:** los avisos del alumno en este ciclo hasta la fecha de cierre. EMS solo tiene los avisos registrados desde que se usa.
 
 Los cambios posteriores de notas o de avisos no modifican estos valores. Los verás en la pestaña **Baremación** de cada solicitud, con la lista de módulos usados.
+
+Cada criterio muestra los puntos sobre el máximo (*36 / 40*), y la fecha está en **Puntuación fijada el**.
+
+![Los puntos de cada criterio sobre el máximo](../../assets/erasmus/puntuacio-sobre-maxim.png)
 
 > **Consejo:** cierra la convocatoria justo después de la fecha de cierre, para que los datos sean los que tenía EMS ese día.
 
@@ -55,7 +59,7 @@ Si un alumno no se presenta a la entrevista, escribe el motivo y haz clic en **A
 
 ## 4. La clasificación
 
-Haz clic en **Clasificación** en la convocatoria (o en **Erasmus+ > Convocatorias > Clasificación**, ordenada por convocatoria y modalidad, con la convocatoria en una columna): las solicitudes admitidas de cada modalidad por orden, con la puntuación de cada criterio. **Dentro de las plazas** marca el corte: en verde las solicitudes que entran en las plazas de la modalidad (*Seleccionada*) y, después, las de *Reserva*.
+Haz clic en **Clasificación** en la convocatoria (o en **Erasmus+ > Convocatorias > Clasificación**, ordenada por convocatoria y modalidad, con la convocatoria en una columna): las solicitudes admitidas de cada modalidad por orden, con la puntuación de cada criterio. **Resultado** marca el corte: en verde las solicitudes que entran en las plazas de la modalidad (*Seleccionada*) y, después, las de *Reserva*.
 
 - Una modalidad solo se clasifica cuando **todas** sus solicitudes admitidas tienen la puntuación completa. Hasta entonces la posición es 0.
 - Los empates se deshacen, por este orden, con menos oportunidades, primera movilidad, la parte en inglés de la entrevista y la nota media del expediente.

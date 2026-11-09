@@ -78,7 +78,7 @@ A dalt de la pestanya Economia, l'EMS avisa del que pot ser un error, sense bloq
 
 ## Excel
 
-**Accions > Exporta a Excel** descarrega l'economia del projecte: un resum amb les mateixes xifres que el panell, la beca de cada mobilitat (previst, compromès i pagat per separat), els pagaments i les factures amb els justificants, les despeses, el suport organitzatiu participant per participant, i les modificacions de la subvenció i les transferències del SEPIE.
+**Accions > Descarrega l'economia (Excel)** descarrega l'economia del projecte: un resum amb les mateixes xifres que el panell, la beca de cada mobilitat (previst, compromès i pagat per separat), els pagaments i les factures amb els justificants, les despeses, el suport organitzatiu participant per participant, i les modificacions de la subvenció i les transferències del SEPIE.
 
 ---
 

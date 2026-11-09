@@ -149,7 +149,7 @@ enough information for the organisational support.
   calls; a row opens the project's form, whose first tab is **Economy**.
 - The project's **Economy** tab: warnings, grant, budget, amendments, SEPIE transfers, the economic
   documents, the expenses, the organisational support and the figures from before EMS; the Actions
-  dropdown's **Export Excel**.
+  dropdown's **Download the economy (Excel)**.
 - *Financial management > Expenses* (`action_erasmus_expense`; its list has the *Register transfer* header button for the Secretary, who can select several), *Configuration > Organisational
   support rates* (`action_erasmus_support_rate`).
 - The mobility's *Grant* tab shows its economic figures and its *Organisational support as*; the

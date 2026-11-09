@@ -308,7 +308,7 @@ state and the late tasks (Odoo activities). Each card opens the mobility's panel
 
 ### Screens added in the 2026-11-05 usage test
 
-- **Participants' documents** (stat button, team and leader, `action_view_participant_documents`):
+- **Pending documents** (stat button, team and leader, `action_view_participant_documents`):
   every active participant's lines on one editable list grouped by document
   (`view_erasmus_group_participant_document_list`), to upload each grant agreement or review without
   opening each file. The record rules decide what each one sees (the leader, no confidential line).

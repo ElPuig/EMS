@@ -83,3 +83,5 @@ los guardara, introducidos por la coordinación con su fuente. Salen en la evolu
 marcados como *carga manual*. Los cursos 2022-2023 a 2025-2026 ya están.
 
 Las columnas de profesorado quedan vacías cuando no hay dato: una celda vacía y un 0 significan lo mismo, y el panel deja esos cursos en blanco.
+
+Haz clic en una línea para verla entera, con la fuente: la lista oculta la fuente para que se lea bien.

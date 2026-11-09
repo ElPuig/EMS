@@ -26,7 +26,7 @@ Ve a **Erasmus+ > Convocatorias > Convocatorias** y haz clic en **Nuevo**:
 
 > Las respuestas a los correos que EMS envía sin que nadie del equipo los mande (acuses de recibo y recordatorios) llegan al buzón de Erasmus+ que está en **Ajustes > Gestión del EMS > Datos del centro > Erasmus+** (erasmus@elpuig.xeill.net), el mismo para todas las convocatorias.
 
-Las pestañas de la convocatoria están en dos bloques: **Selección** (modalidades, documentos, información para las personas solicitantes, tribunal y resoluciones) y **Movilidad** (destinos, documentos de la movilidad, carta de compromiso, lista de pasos y autoevaluación semanal). Los botones de arriba siguen la fase de la convocatoria, la más reciente primero: antes de la resolución definitiva, la clasificación y las entrevistas (o las valoraciones de los planes); después, las movilidades y las ofertas de plaza; las reclamaciones, a partir de la resolución provisional. Un empate por sortear se avisa arriba del todo de la convocatoria.
+Las pestañas de la convocatoria están en dos bloques: **Selección** (modalidades, documentos, información para las personas solicitantes, comisión y resoluciones) y **Movilidad** (destinos, documentos de la movilidad, carta de compromiso, lista de pasos y autoevaluación semanal). Los botones de arriba siguen la fase de la convocatoria, la más reciente primero: antes de la resolución definitiva, la clasificación y las entrevistas (o las valoraciones de los planes); después, las movilidades y las ofertas de plaza; las reclamaciones, a partir de la resolución provisional. Un empate por sortear se avisa arriba del todo de la convocatoria.
 
 Pestaña **Modalidades**: una línea por cada lista de selección con plazas propias, por ejemplo *GM* y *GS*. En **Niveles** elige los niveles del alumnado que solicita en esa modalidad (por ejemplo *CFGM* para GM, y *CFGS* y los cursos de especialización para GS, porque ese alumnado va al proyecto de educación superior). Cualquier alumno cuyo grupo principal sea de uno de esos niveles puede solicitar, sea del curso que sea. Rellena también el proyecto, las plazas, el periodo y los destinos.
 
@@ -78,7 +78,7 @@ Abre una solicitud:
 
 ## 4. Pedir subsanaciones
 
-Cuando hay que corregir un documento o falta uno obligatorio, márcalo y haz clic en **Acciones > Pedir la subsanación**. La convocatoria debe tener un **Plazo de subsanación** aún por llegar: sin él, EMS no te deja pedirla. El alumno recibe un correo con la lista y ese plazo, y solo puede subir esos documentos. Cuando vuelve a enviar la solicitud, esta vuelve a *Enviado*, los archivos nuevos quedan pendientes de revisión y cada miembro del equipo Erasmus recibe una tarea para revisarla (también en su resumen diario de tareas pendientes). La tarea se cierra sola al admitirla, excluirla o pedir otra subsanación.
+Cuando hay que corregir un documento o falta uno obligatorio, márcalo y haz clic en **Acciones > Pedir la subsanación**. La convocatoria debe tener un **Plazo de subsanación** aún por llegar: sin él, EMS no te deja pedirla. El alumno recibe un correo con la lista y ese plazo, y solo puede subir esos documentos. Cuando vuelve a enviar la solicitud, esta vuelve a *Enviada*, los archivos nuevos quedan pendientes de revisión y cada miembro del equipo Erasmus recibe una tarea para revisarla (también en su resumen diario de tareas pendientes). La tarea se cierra sola al admitirla, excluirla o pedir otra subsanación.
 
 ## 5. Admitir o excluir
 

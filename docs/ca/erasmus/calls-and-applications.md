@@ -26,7 +26,7 @@ Ves a **Erasmus+ > Convocatòries > Convocatòries** i fes clic a **Nou**:
 
 > Les respostes als correus que l'EMS envia sense que ningú de l'equip els enviï (acusaments de recepció i recordatoris) arriben a la bústia d'Erasmus+ que hi ha a **Configuració > Gestió de l'EMS > Dades del centre > Erasmus+** (erasmus@elpuig.xeill.net), la mateixa per a totes les convocatòries.
 
-Les pestanyes de la convocatòria estan en dos blocs: **Selecció** (modalitats, documents, informació per a les persones sol·licitants, tribunal i resolucions) i **Mobilitat** (destinacions, documents de la mobilitat, carta de compromís, llista de passos i autoavaluació setmanal). Els botons de dalt segueixen la fase de la convocatòria, la més recent primer: abans de la resolució definitiva, la classificació i les entrevistes (o les valoracions dels plans); després, les mobilitats i les ofertes de plaça; les reclamacions, a partir de la resolució provisional. Un empat per sortejar s'avisa a dalt de tot de la convocatòria.
+Les pestanyes de la convocatòria estan en dos blocs: **Selecció** (modalitats, documents, informació per a les persones sol·licitants, comissió i resolucions) i **Mobilitat** (destinacions, documents de la mobilitat, carta de compromís, llista de passos i autoavaluació setmanal). Els botons de dalt segueixen la fase de la convocatòria, la més recent primer: abans de la resolució definitiva, la classificació i les entrevistes (o les valoracions dels plans); després, les mobilitats i les ofertes de plaça; les reclamacions, a partir de la resolució provisional. Un empat per sortejar s'avisa a dalt de tot de la convocatòria.
 
 Pestanya **Modalitats**: una línia per a cada llista de selecció amb places pròpies, per exemple *GM* i *GS*. A **Nivells** tria els nivells de l'alumnat que sol·licita en aquesta modalitat (per exemple *CFGM* per a GM, i *CFGS* i els cursos d'especialització per a GS, perquè aquest alumnat va al projecte d'educació superior). Qualsevol alumne el grup principal del qual sigui d'un d'aquests nivells pot sol·licitar, sigui del curs que sigui. Omple també el projecte, les places, el període i les destinacions.
 
@@ -78,7 +78,7 @@ Obre una sol·licitud:
 
 ## 4. Demanar esmenes
 
-Quan un document s'ha de corregir o en falta un d'obligatori, marca'l i fes clic a **Accions > Demana l'esmena**. La convocatòria ha de tenir un **Termini d'esmena** encara per arribar: sense aquest termini, EMS no et deixa demanar-la. L'alumne rep un correu amb la llista i aquest termini, i només pot pujar aquests documents. Quan torna a enviar la sol·licitud, aquesta torna a *Enviat*, els fitxers nous queden pendents de revisió i cada membre de l'equip Erasmus rep una tasca per revisar-la (també al seu resum diari de tasques pendents). La tasca es tanca sola en admetre-la, excloure-la o demanar una altra esmena.
+Quan un document s'ha de corregir o en falta un d'obligatori, marca'l i fes clic a **Accions > Demana l'esmena**. La convocatòria ha de tenir un **Termini d'esmena** encara per arribar: sense aquest termini, EMS no et deixa demanar-la. L'alumne rep un correu amb la llista i aquest termini, i només pot pujar aquests documents. Quan torna a enviar la sol·licitud, aquesta torna a *Enviada*, els fitxers nous queden pendents de revisió i cada membre de l'equip Erasmus rep una tasca per revisar-la (també al seu resum diari de tasques pendents). La tasca es tanca sola en admetre-la, excloure-la o demanar una altra esmena.
 
 ## 5. Admetre o excloure
 

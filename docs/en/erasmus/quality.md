@@ -83,3 +83,5 @@ typed in by the coordination with their source. They appear in the evolution by 
 *manual load*. The courses 2022-2023 to 2025-2026 are already there.
 
 The staff columns are empty when there is no data: an empty cell and a 0 mean the same, and the panel leaves those courses blank.
+
+Click a line to see it whole, the source included: the list hides the source so that it reads well.

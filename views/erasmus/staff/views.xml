@@ -14,8 +14,8 @@
             <field name="arch" type="xml">
                 <list string="Staff calls" create="false" delete="false">
                     <field name="name"/>
-                    <field name="date_open" options="{'show_time': False, 'show_seconds': False}"/>
-                    <field name="date_close" options="{'show_time': False, 'show_seconds': False}"/>
+                    <field name="date_open" string="Opens" options="{'show_time': False, 'show_seconds': False}"/>
+                    <field name="date_close" string="Closes" options="{'show_time': False, 'show_seconds': False}"/>
                     <field name="is_accepting" widget="boolean"/>
                     <field name="staff_application_id" string="My application"/>
                 </list>

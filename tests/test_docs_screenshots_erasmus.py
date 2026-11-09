@@ -8,6 +8,7 @@ with:
     sudo -u odoo bash -c "odoo -d ems -u ems --test-enable --test-tags='*/ems:TestDocsScreenshotsErasmus' --stop-after-init -c /etc/odoo/odoo.conf"
 """
 
+from odoo import fields
 from odoo.tests.common import HttpCase, tagged
 
 from .common import DocsScreenshotMixin, create_role_user, mock_outgoing_email
@@ -65,3 +66,15 @@ class TestDocsScreenshotsErasmus(DocsScreenshotMixin, HttpCase):
         self._capture('/odoo/action-ems.action_erasmus_support_rate', '.o_list_renderer',
                       'tarifes-suport-organitzatiu.png', login=self.TECHNICIAN,
                       wait_for='.o_list_renderer .o_data_row', max_height=320)
+
+    def test_capture_points_over_maximum(self):
+        """Issue #779: a criterion's points over their maximum."""
+        application = self.env['ems.erasmus.application'].create({
+            'call_id': self.call.id, 'partner_id': self.student.id, 'modality_id': self.call.modality_ids.id,
+            'fewer_opportunities_check': 'yes', 'first_mobility': 'yes', 'language_level': 'b2', 'state': 'admitted',
+            'scoring_frozen_date': fields.Datetime.now()})
+        tab = '.o_notebook a.nav-link[name=scoring]'
+        self._capture(f'/odoo/action-ems.action_erasmus_application/{application.id}', '.o_notebook .tab-content',
+                      'puntuacio-sobre-maxim.png', login=self.TECHNICIAN, wait_for=tab, click=[tab],
+                      wait_after=['.o_field_widget[name=score_total]'], max_height=320)
+

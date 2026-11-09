@@ -16,10 +16,10 @@
                 <list string="Economic panel" decoration-muted="not active">
                     <field name="name"/>
                     <field name="kind"/>
-                    <field name="call_year" optional="show" options="{'enable_formatting': false}"/>
+                    <field name="call_year" string="Year" optional="show" options="{'enable_formatting': false}"/>
                     <field name="active" column_invisible="1"/>
                     <field name="currency_id" column_invisible="1"/>
-                    <field name="grant_current" sum="Total"/>
+                    <field name="grant_current" string="Awarded grant" sum="Total"/>
                     <field name="received_amount" optional="hide" sum="Total"/>
                     <field name="committed_amount" sum="Total"/>
                     <field name="paid_amount" sum="Total"/>
@@ -96,7 +96,7 @@
             <field name="inherit_id" ref="view_erasmus_project_form"/>
             <field name="arch" type="xml">
                 <div name="ems_actions" position="inside">
-                    <button name="action_export_economy" type="object" string="Export Excel" invisible="not id"
+                    <button name="action_export_economy" type="object" string="Download the economy (Excel)" invisible="not id"
                             groups="ems.group_erasmus,ems.group_secretary,ems.group_director,ems.group_academic_admin"
                             help="The project's economy as a spreadsheet: summary, grants, payments, expenses, organisational support and SEPIE's transfers."/>
                 </div>
@@ -380,15 +380,15 @@
             <field name="model">ems.erasmus.support.rate</field>
             <field name="arch" type="xml">
                 <list string="Organisational support rates" editable="bottom">
-                    <field name="call_year" options="{'enable_formatting': false}"/>
+                    <field name="call_year" string="Year" options="{'enable_formatting': false}"/>
                     <field name="kind"/>
                     <field name="mobility_type"/>
                     <field name="band_scope"/>
-                    <field name="band_from"/>
-                    <field name="band_to" widget="ems_blank_zero" placeholder="No limit"/>
-                    <field name="min_days" widget="ems_blank_zero" optional="show" placeholder="Any"/>
+                    <field name="band_from" string="From"/>
+                    <field name="band_to" string="Up to" widget="ems_blank_zero" placeholder="No limit"/>
+                    <field name="min_days" string="Min. days" widget="ems_blank_zero" optional="show" placeholder="Any"/>
                     <field name="currency_id" column_invisible="1"/>
-                    <field name="amount"/>
+                    <field name="amount" string="Amount"/>
                     <field name="note" optional="show"/>
                 </list>
             </field>

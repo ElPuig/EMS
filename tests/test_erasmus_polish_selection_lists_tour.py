@@ -38,6 +38,8 @@ class TestErasmusSelectionListsTour(HttpCase):
     def test_mobility_documents_student_tour(self):
         self.env['ems.erasmus.call.document'].create({'call_id': self.call.id, 'name': 'Tour Agreement',
                                                       'stage': 'preparation'})
+        # Issue #767: the Mobility block shows from the definitive resolution on.
+        self.env['ems.erasmus.resolution'].create({'call_id': self.call.id, 'kind': 'definitive', 'state': 'published'})
         self.start_tour(f'/odoo/action-ems.action_erasmus_call/{self.call.id}', 'ems_erasmus_list_documents_student',
                         login=self.technician.login)
 
@@ -91,5 +93,7 @@ class TestErasmusStaffSelectionListsTour(HttpCase):
     def test_mobility_documents_staff_tour(self):
         self.env['ems.erasmus.call.document'].create({'call_id': self.staff_call.id, 'name': 'Tour Agreement',
                                                       'stage': 'preparation'})
+        self.env['ems.erasmus.resolution'].create({'call_id': self.staff_call.id, 'kind': 'definitive',
+                                                   'state': 'published'})
         self.start_tour(f'/odoo/action-ems.action_erasmus_call/{self.staff_call.id}',
                         'ems_erasmus_list_documents_staff', login=self.technician.login)

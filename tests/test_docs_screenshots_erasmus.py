@@ -58,6 +58,18 @@ class TestDocsScreenshotsErasmus(DocsScreenshotMixin, HttpCase):
                       wait_after=[f'{field} .note-editable .card', button],
                       marks=[(button, 1, 'left')])
 
+    def test_capture_call_calendar(self):
+        """Issue #767: the call's two blocks, Settings and Calendar, with the deadlines unfolded."""
+        utils = self.env['ems.datetime_utils']
+        close = utils.datetime_to_odoo(utils.time_float_to_utc_datetime(fields.Date.to_date('2026-11-20'), 23.0))
+        self.call.write({'date_open': utils.datetime_to_odoo(utils.time_float_to_utc_datetime(
+            fields.Date.to_date('2026-11-09'), 9.0)), 'date_close': close, **self.call._ems_deadlines(close)})
+        summary = '.o_form_sheet details.o_ems_erasmus_call_deadlines > summary'
+        self._capture(f'/odoo/action-ems.action_erasmus_call/{self.call.id}',
+                      '.o_form_sheet .o_group:has(details.o_ems_erasmus_call_deadlines)',
+                      'convocatoria-calendari.png', login=self.TECHNICIAN, wait_for=summary, click=[summary],
+                      wait_after=['.o_form_sheet details.o_ems_erasmus_call_deadlines[open] [name=claims_deadline]'])
+
     def test_capture_host_entity(self):
         """Issue #777: the host entity's address, country, website and OID, for the Erasmus team."""
         self._capture(f'/odoo/res.partner/{self.host.id}', '.o_form_sheet', 'entitat-acollida-dades.png',

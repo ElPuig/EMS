@@ -111,30 +111,40 @@
                         <div class="oe_title">
                             <h1><field name="name" placeholder="e.g. Erasmus+ internships 2026-27"/></h1>
                         </div>
+                        <!-- Note 2.4 of the 46.0 review: dates out of the process order, warned (not refused). -->
+                        <div class="alert alert-warning" role="alert" invisible="not date_order_warning">
+                            The dates do not follow the order of the process: <field name="date_order_warning" class="fw-bold"/>.
+                        </div>
+                        <!-- Note 2.3 of the 46.0 review: two blocks, the settings and the calendar in the
+                             order of the process. Issue #767: the deadlines after closing are filled in from
+                             the closing date, folded; the reminder is always 3 days before closing. -->
                         <group>
-                            <group>
+                            <group string="Settings" name="settings">
                                 <field name="audience" readonly="application_count"/>
                                 <field name="staff_level_ids" widget="many2many_tags" invisible="audience != 'staff'"
                                        required="audience == 'staff' and state != 'draft'"/>
                                 <field name="validator_ids" widget="many2many_tags" invisible="audience != 'staff'"
                                        required="audience == 'staff' and state != 'draft'"/>
                                 <field name="course_id" string="Course of the call"/>
+                                <field name="min_score" invisible="audience == 'staff'"/>
                                 <field name="rules_document" filename="rules_filename"/>
                                 <field name="rules_filename" invisible="1"/>
                             </group>
-                            <group>
+                            <group string="Calendar" name="calendar">
                                 <field name="date_open" options="{'show_time': False, 'show_seconds': False}"/>
                                 <field name="date_close" options="{'show_time': False, 'show_seconds': False}"/>
-                                <field name="subsanation_deadline" options="{'show_time': False, 'show_seconds': False}"/>
-                                <!-- In a staff call this is the commission's time to rate the plans. -->
-                                <label for="interview_deadline" invisible="audience == 'staff'"/>
-                                <label for="interview_deadline" string="Commission's rating deadline" invisible="audience != 'staff'"/>
-                                <field name="interview_deadline" nolabel="1" options="{'show_time': False, 'show_seconds': False}"/>
-                                <field name="claims_deadline" options="{'show_time': False, 'show_seconds': False}"/>
-                                <field name="acceptance_deadline" options="{'show_time': False, 'show_seconds': False}"/>
-                                <field name="min_score" invisible="audience == 'staff'"/>
-                                <field name="is_accepting"/>
-                                <field name="reminder_days"/>
+                                <details class="o_ems_erasmus_call_deadlines" colspan="2">
+                                    <summary class="text-primary">Deadlines after closing (filled in from the closing date)</summary>
+                                    <group>
+                                        <field name="subsanation_deadline" options="{'show_time': False, 'show_seconds': False}"/>
+                                        <!-- In a staff call this is the commission's time to rate the plans. -->
+                                        <label for="interview_deadline" invisible="audience == 'staff'"/>
+                                        <label for="interview_deadline" string="Commission's rating deadline" invisible="audience != 'staff'"/>
+                                        <field name="interview_deadline" nolabel="1" options="{'show_time': False, 'show_seconds': False}"/>
+                                        <field name="claims_deadline" options="{'show_time': False, 'show_seconds': False}"/>
+                                        <field name="acceptance_deadline" options="{'show_time': False, 'show_seconds': False}"/>
+                                    </group>
+                                </details>
                                 <label for="announce_date" invisible="not announce_date"/>
                                 <div class="o_row" invisible="not announce_date">
                                     <field name="announce_date" options="{'show_time': False}"/>
@@ -158,14 +168,14 @@
                                                 <field name="name"/>
                                                 <field name="level_ids" widget="many2many_tags"
                                                        column_invisible="parent.audience == 'staff'"/>
-                                                <field name="project"/>
+                                                <!-- Issue #767: a students' modality takes it from its levels. -->
+                                                <field name="project" column_invisible="parent.audience != 'staff'"/>
                                                 <field name="places"/>
-                                                <field name="period" column_invisible="parent.audience == 'staff'"/>
-                                                <field name="destinations" column_invisible="parent.audience == 'staff'"/>
                                             </list>
                                         </field>
                                     </page>
-                                    <page string="Documents" name="documents">
+                                    <!-- Issue #767: a staff call asks for the form only (and language certificates, already there). -->
+                                    <page string="Documents" name="documents" invisible="audience == 'staff'">
                                         <field name="document_ids">
                                             <list editable="bottom">
                                                 <field name="sequence" widget="handle"/>
@@ -188,7 +198,8 @@
                                         <field name="description" widget="ems_html_codeview"/>
                                     </page>
                                     <!-- Issue #686: who rates the staff's mobility plans. -->
-                                    <page string="Panel" name="panel" invisible="audience != 'staff'">
+                                    <!-- Issue #767: only used once closed ("Send plans to the panel"). -->
+                                    <page string="Panel" name="panel" invisible="audience != 'staff' or state != 'closed'">
                                         <field name="panel_ids">
                                             <list editable="bottom">
                                                 <field name="sequence" widget="handle"/>
@@ -235,7 +246,9 @@
                                     </page>
                                 </notebook>
                             </page>
-                            <page string="Mobility" name="mobility_block">
+                            <!-- Issue #767: only for the selected participants: hidden until the definitive
+                                 resolution, a new call already starts with its defaults. -->
+                            <page string="Mobility" name="mobility_block" invisible="not has_final_resolution">
                                 <notebook>
                                     <!-- Issue #687: mobility preparation. -->
                                     <page string="Destinations" name="destinations" invisible="audience != 'student'">

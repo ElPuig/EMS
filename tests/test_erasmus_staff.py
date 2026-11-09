@@ -57,6 +57,8 @@ def create_staff_call_fixtures(cls):
             (cls.hos_user, 'Head of Studies'), (cls.panel_teacher, 'Head of department'),
             (cls.staff_users[2], 'Seminar chief'))],
     })
+    # Issue #767 fills the deadlines in from the closing date: the tests set the ones they need.
+    cls.staff_call.write({'subsanation_deadline': False, 'claims_deadline': False})
     cls.staff_call.action_publish()
     cls.id_document, cls.staff_certificate = cls.staff_call.document_ids.sorted('sequence')
 
@@ -193,13 +195,8 @@ class TestErasmusStaffCall(ErasmusStaffCase):
             'name': 'Staff call defaults', 'audience': 'staff', 'date_open': self.staff_call.date_open,
             'date_close': self.staff_call.date_close})
         self.assertEqual(call.min_score, 0.0, "Its criteria add up to 10: a minimum would leave everyone out.")
-        self.assertEqual(call.interview_deadline, call.date_close + timedelta(days=14))
-        call.date_close += timedelta(days=3)
-        self.assertEqual(call.interview_deadline, call.date_close + timedelta(days=14), "It follows the closing date.")
-        changed = call.date_close + timedelta(days=20)
-        call.interview_deadline = changed
-        call.date_close += timedelta(days=1)
-        self.assertEqual(call.interview_deadline, changed, "Unless it was changed by hand.")
+        # Issue #767: the panel's deadline follows the same rule as a students' call's score correction.
+        self.assertEqual(call.interview_deadline, call._ems_deadlines(call.date_close)['interview_deadline'])
 
     def test_staff_declare_their_last_mobility_and_seniority(self):
         """The 2026-11-03 review: the applicant only ticks that they never had one at the Puig; the

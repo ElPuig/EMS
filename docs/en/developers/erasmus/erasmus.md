@@ -35,7 +35,7 @@ erDiagram
 | Model | Purpose |
 |---|---|
 | `ems.erasmus.call` | One call: who applies (`audience`: students or staff), course, dates (`date_open`, `date_close`, optional `subsanation_deadline`), the published call PDF, the text shown on the portal, state. |
-| `ems.erasmus.call.modality` | A selection list with its own places (GM, GS): project (KA121-VET / KA131-HED), places, period, destinations, and the **levels** whose students compete in it. |
+| `ems.erasmus.call.modality` | A selection list with its own places (GM, GS): places, the **levels** whose students compete in it, and the project kind (KA121-VET / KA131-HED), computed from the levels on a students' call (issue #767: CFGS and EFPS on KA131-HED, any other level on KA121-VET; stored, editable, so a staff modality keeps the one set). The real destinations are `ems.erasmus.destination` lines. |
 | `ems.erasmus.call.document` | A document the call asks for: required, optional or required for minors; confidential (only the Erasmus team sees it). |
 | `ems.erasmus.application` | One student's application to one call (unique per call and student). |
 | `ems.erasmus.application.document` | The files uploaded for one document of the call, with the team's review. |
@@ -62,6 +62,25 @@ A published call is shown on the portal to every student who can apply to it. Ap
 accepted only while it is published **and** the company's local time is between `date_open` and
 `date_close` (`is_accepting`, computed with `ems.datetime_utils`, never the browser's clock).
 Closing turns every application still in draft into *Not submitted*.
+
+### Deadlines from the closing date (issue #767)
+
+The four deadlines after closing are filled in by EMS from `date_close` (`_ems_deadlines()`, the
+same for students' and staff calls): that many days after the closing day (`DEADLINE_DAYS`:
+corrections 7, score correction 14, claims 19, acceptance 25), at 14:00 in the centre
+(`DEADLINE_HOUR`), moved to the next school day when that day is a weekend, a public holiday or a
+school break (`resource.calendar.leaves._ems_nth_school_day()`, shared with the ex officio
+withdrawal circuit). `create()` fills the ones not given; `write()` and the onchange of
+`date_close` move the ones still empty or equal to what the old closing date gave
+(`_ems_following_deadlines()`), so a deadline changed by hand stays. A new, unsaved call has no
+earlier closing date to compare with: in the form, all four follow every closing date set.
+
+`date_order_warning` (non-stored) lists the dates out of the process order (`PROCESS_DATES`:
+open, close, then the four deadlines), each against the first earlier step that comes after it.
+The form shows it as a warning above the settings; saving is not refused, since a deadline is
+sometimes moved on purpose (e.g. the claims one brought forward once every claim is answered).
+
+`reminder_days` stays 3 and is no longer in the form (the notice wizard still shows it).
 
 ### Notice of the open call and reminder before closing
 
@@ -756,11 +775,11 @@ what differs:
 | Scoring | Art. 12 (A-F), A and F frozen at closing | Art. 11 of the staff call (1-6): the panel, what the applicant declares (last mobility, seniority, language) and the merits the team records |
 | Ranking | Per modality | One list for the whole call |
 | Places | Per modality | The sum of every modality, offered as one pool |
-| Modalities | Levels, places, period, destinations | One per project, added on their own (`_ems_staff_modalities`: FP KA121-VET and higher education KA131-HED), places only, no period; never shown to staff. The team assigns each selected person one, so their mobility goes on that project of the year |
+| Modalities | Levels and places; the project from the levels | One per project, added on their own (`_ems_staff_modalities`: FP KA121-VET and higher education KA131-HED), places only, no period; never shown to staff. The team assigns each selected person one, so their mobility goes on that project of the year |
 | Dissemination | - | Not part of the plan nor of the rubric (criterion 2 rates the application to the job only): the same obligation for everyone, a news item on the website and sharing it at a meeting if needed (two return steps of the checklist) |
 | Identity document of the lists | `res.partner.document_id` / `passport_id` | `hr.employee.identification_id` / `passport_id` (`_ems_identity_document`) |
 | Minimum score | 50 | 0 (set by `create()` and the onchange of `audience`; hidden in the form) |
-| Score correction deadline (`interview_deadline`) | Set by hand | `date_close` + 14 days (`STAFF_RATING_DAYS`), set by `create()`/onchange and moved with `date_close` while it still holds that default |
+| Score correction deadline (`interview_deadline`) | From `date_close` (`_ems_deadlines()`), like every deadline | The same rule: it is the panel's deadline |
 
 ```mermaid
 erDiagram
@@ -1300,7 +1319,12 @@ flowchart LR
   signature columns in the record's list.
 - **Call form**: the stat buttons follow the phase (`has_provisional_resolution`,
   `has_final_resolution`), the latest first; the tabs are two nested notebooks (`selection_block`,
-  `mobility_block`); the tie warning is above the title.
+  `mobility_block`); the tie warning is above the title. Issue #767: the top has two blocks,
+  *Settings* and *Calendar* (notes 2.3 and 2.6 of the 46.0 review: no `is_accepting` nor
+  `reminder_days`), with the four deadlines folded in a `<details>` element (an Odoo 18 form has no foldable group of its own; the form compiler keeps plain HTML elements); `mobility_block` only
+  shows with `has_final_resolution` (lines added later still reach every mobility through
+  `_ems_sync_requirements`); on a staff call, *Documents* is hidden and *Panel* only shows once
+  closed. The modalities list shows the project only on a staff call.
 - **Ranking**: `ranking_result` (non-stored) gives the cut of the places; the menu's ranking is
   ordered by call, with its column. The application list counts `documents_to_review` (never on a
   draft). The application's Documents tab shows each line's `file_state` as a badge (greyed out when

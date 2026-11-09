@@ -31,6 +31,9 @@ def create_erasmus_fixtures(cls):
                     'confidential': True, 'sequence': 4}),
         ],
     })
+    # Issue #767 fills the deadlines in from the closing date: the tests set the ones they need.
+    cls.call.write({'subsanation_deadline': False, 'interview_deadline': False, 'claims_deadline': False,
+                    'acceptance_deadline': False})
     cls.call.action_publish()
     cls.cv, cls.certificate, cls.authorization, cls.evidence = cls.call.document_ids.sorted('sequence')
     cls.student, cls.minor, cls.outsider = cls.env['res.partner'].create([
@@ -73,8 +76,9 @@ class TestErasmusCall(TransactionCase):
         form.audience = 'staff'
         self.assertEqual(len(form.document_ids), 1, "The staff call's own documents")
         self.assertEqual(len(form.modality_ids), 2)
-        with form.document_ids.edit(0) as certificates:
-            self.assertFalse(certificates.single_file, "A certificate per language")
+        self.assertFalse(form.document_ids._records[0]['single_file'], "A certificate per language")
+        # Issue #767: a staff call hides its Documents tab.
+        self.assertTrue(form._get_modifier('document_ids', 'invisible'))
 
     def test_publish_needs_a_modality_and_a_required_document(self):
         draft = self.env['ems.erasmus.call'].create({

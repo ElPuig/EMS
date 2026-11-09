@@ -7776,7 +7776,6 @@ msgstr "Pendent de revisió"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_modality__period
 msgid "Period"
 msgstr "Període"
 
@@ -31099,7 +31098,6 @@ msgid "Declares fewer opportunities"
 msgstr "Declara menys oportunitats"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_modality__destinations
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__destination_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 msgid "Destinations"
@@ -36429,15 +36427,8 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_call__interview_deadline
-msgid ""
-"Until when evaluators can reopen and change their interviews or mobility "
-"plan ratings, and the due date of the panel's tasks. A staff call sets it "
-"two weeks after closing."
-msgstr ""
-"Fins quan les persones avaluadores poden reobrir i canviar les seves "
-"entrevistes o valoracions de plans de mobilitat, i la data de venciment de "
-"les tasques de la comissió. En una convocatòria del personal es posa dues "
-"setmanes després del tancament."
+msgid "Until when evaluators can reopen and change their interviews or mobility plan ratings, and the due date of the panel's tasks."
+msgstr "Fins quan les persones avaluadores poden reobrir i canviar les seves entrevistes o valoracions de plans de mobilitat, i la data de venciment de les tasques de la comissió."
 
 #. module: ems
 #: model:mail.template,body_html:ems.email_template_erasmus_proposal_validated
@@ -41757,11 +41748,6 @@ msgid "Destinations and places of the modality (you will choose one by turns, by
 msgstr "Destinacions i places de la modalitat (en triaràs una per torns, segons la teva posició):"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "Destinations:"
-msgstr "Destinacions:"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_interview_schedule_form
 msgid "EMS gives each applicant, in the order of the list, the next slot from the first interview on, in the same place, and assigns them the evaluators."
 msgstr "L'EMS dona a cada persona, en l'ordre de la llista, la franja següent a partir de la primera entrevista, al mateix lloc, i li assigna les persones avaluadores."
@@ -41856,11 +41842,6 @@ msgstr "Fora de l'equip Erasmus, els punts d'una sol·licitud del personal estan
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "Period of your modality ("
 msgstr "Període de la teva modalitat ("
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "Period:"
-msgstr "Període:"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__has_provisional_resolution
@@ -48797,3 +48778,34 @@ msgstr "E. 1a mob."
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_ranking_list
 msgid "F. Warnings"
 msgstr "F. Amon."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "%(later)s is before %(earlier)s"
+msgstr "%(later)s és anterior a: %(earlier)s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "Calendar"
+msgstr "Calendari"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "Settings"
+msgstr "Ajustos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__date_order_warning
+msgid "Dates out of order"
+msgstr "Dates fora d'ordre"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "Deadlines after closing (filled in from the closing date)"
+msgstr "Terminis després del tancament (omplerts a partir de la data de tancament)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "The dates do not follow the order of the process:"
+msgstr "Les dates no segueixen l'ordre del procés:"

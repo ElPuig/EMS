@@ -7776,7 +7776,6 @@ msgstr "Pendiente de revisión"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_modality__period
 msgid "Period"
 msgstr "Período"
 
@@ -31103,7 +31102,6 @@ msgid "Declares fewer opportunities"
 msgstr "Declara menos oportunidades"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_modality__destinations
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__destination_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 msgid "Destinations"
@@ -36440,15 +36438,8 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_call__interview_deadline
-msgid ""
-"Until when evaluators can reopen and change their interviews or mobility "
-"plan ratings, and the due date of the panel's tasks. A staff call sets it "
-"two weeks after closing."
-msgstr ""
-"Hasta cuándo las personas evaluadoras pueden reabrir y cambiar sus "
-"entrevistas o valoraciones de planes de movilidad, y la fecha de vencimiento"
-" de las tareas de la comisión. En una convocatoria del personal se pone dos "
-"semanas después del cierre."
+msgid "Until when evaluators can reopen and change their interviews or mobility plan ratings, and the due date of the panel's tasks."
+msgstr "Hasta cuándo las personas evaluadoras pueden reabrir y cambiar sus entrevistas o valoraciones de planes de movilidad, y la fecha de vencimiento de las tareas de la comisión."
 
 #. module: ems
 #: model:mail.template,body_html:ems.email_template_erasmus_proposal_validated
@@ -41776,11 +41767,6 @@ msgid "Destinations and places of the modality (you will choose one by turns, by
 msgstr "Destinos y plazas de la modalidad (elegirás uno por turnos, según tu posición):"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "Destinations:"
-msgstr "Destinos:"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_interview_schedule_form
 msgid "EMS gives each applicant, in the order of the list, the next slot from the first interview on, in the same place, and assigns them the evaluators."
 msgstr "EMS da a cada persona, en el orden de la lista, la franja siguiente a partir de la primera entrevista, en el mismo lugar, y le asigna las personas evaluadoras."
@@ -41875,11 +41861,6 @@ msgstr "Fuera del equipo Erasmus, los puntos de una solicitud del personal está
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "Period of your modality ("
 msgstr "Periodo de tu modalidad ("
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "Period:"
-msgstr "Periodo:"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__has_provisional_resolution
@@ -48820,3 +48801,34 @@ msgstr "E. 1.ª mov."
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_ranking_list
 msgid "F. Warnings"
 msgstr "F. Amon."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "%(later)s is before %(earlier)s"
+msgstr "%(later)s es anterior a: %(earlier)s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "Calendar"
+msgstr "Calendario"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "Settings"
+msgstr "Ajustes"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__date_order_warning
+msgid "Dates out of order"
+msgstr "Fechas fuera de orden"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "Deadlines after closing (filled in from the closing date)"
+msgstr "Plazos después del cierre (rellenados a partir de la fecha de cierre)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "The dates do not follow the order of the process:"
+msgstr "Las fechas no siguen el orden del proceso:"

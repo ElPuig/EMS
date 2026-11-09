@@ -6,6 +6,11 @@ from pytz import UTC
 
 from odoo import api, models
 
+# A school-day count never reaches further than this many calendar days per school day (weekends
+# plus the longest break), the window the holidays are read for in one search.
+SCHOOL_DAY_WINDOW_FACTOR = 2
+SCHOOL_DAY_WINDOW_MARGIN = 120
+
 
 class EmsPublicHoliday(models.Model):
     """Public holidays (resource.calendar.leaves with no resource) and the "absence" technical
@@ -42,6 +47,23 @@ class EmsPublicHoliday(models.Model):
                 days.add(day)
                 day += timedelta(days=1)
         return days
+
+    @api.model
+    def _ems_nth_school_day(self, start, count, include_start=False):
+        """The `count`-th school day from `start` (`start` itself counted when `include_start`),
+        skipping weekends and the centre's holidays and breaks; `start` when `count` is 0. Used by
+        the ex officio withdrawal circuit and the Erasmus+ call deadlines (issue #767)."""
+        if not count:
+            return start
+        window_end = start + timedelta(days=count * SCHOOL_DAY_WINDOW_FACTOR + SCHOOL_DAY_WINDOW_MARGIN)
+        closed = self._ems_holiday_dates(start, window_end)
+        day, seen = (start, 0) if include_start else (start + timedelta(days=1), 0)
+        while True:
+            if day.weekday() < 5 and day not in closed:
+                seen += 1
+                if seen == count:
+                    return day
+            day += timedelta(days=1)
 
     @api.model_create_multi
     def create(self, vals_list):

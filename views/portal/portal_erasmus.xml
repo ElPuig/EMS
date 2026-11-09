@@ -202,7 +202,6 @@
                         <h5 class="card-title"><i class="fa fa-plane me-1"/>A place is offered to you</h5>
                         <t t-if="offer.modality_id and call.audience == 'student'">
                             <p class="mb-1">Modality: <strong t-esc="offer.modality_id.name"/></p>
-                            <p t-if="offer.modality_id.period" class="mb-1">Period: <t t-esc="offer.modality_id.period"/></p>
                             <t t-set="offer_destinations" t-value="offer.modality_id._ems_offer_destinations()"/>
                             <div t-if="offer_destinations" class="mb-2 o_ems_erasmus_offer_destinations">
                                 Destinations and places of the modality (you will choose one by turns, by your position):
@@ -211,7 +210,6 @@
                                 </ul>
                                 <span t-if="offer.application_id.rank" class="small">Your position in the modality: <strong t-esc="offer.application_id.rank"/></span>
                             </div>
-                            <p t-elif="offer.modality_id.destinations" class="mb-1">Destinations: <t t-esc="offer.modality_id.destinations"/></p>
                         </t>
                         <p class="mb-1">Answer before: <strong t-out="offer.deadline" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/></p>
                         <p class="mb-2">Without an answer by then, the place is considered renounced.</p>

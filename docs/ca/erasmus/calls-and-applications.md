@@ -22,13 +22,25 @@ Ves a **Erasmus+ > Convocatòries > Convocatòries** i fes clic a **Nou**:
 | Curs | El curs escolar de la convocatòria |
 | Convocatòria publicada | El PDF de la convocatòria, que l'alumnat pot descarregar des del portal |
 | Obertura / Tancament de sol·licituds | Quan pot sol·licitar l'alumnat. Després de la data de tancament ningú no pot modificar la seva sol·licitud |
-| Termini d'esmena | Fins quan els sol·licitants poden pujar les esmenes que demanis. Es pot omplir més endavant |
+
+La part de dalt de la convocatòria té dos blocs: **Ajustos** (per a qui és, el curs, la puntuació mínima i el PDF de la convocatòria) i **Calendari** (les dates, en l'ordre del procés). L'EMS omple els quatre terminis posteriors al tancament a partir de la data de tancament, a les 14:00, i els mostra plegats a **Terminis després del tancament**: fes-hi clic per veure'ls o canviar-los.
+
+| Termini | Quan el posa l'EMS | Convocatòria 2026-27 (tanca el divendres 20/11) |
+|---|---|---|
+| Termini d'esmena | 7 dies després del tancament | Divendres 27/11, 14:00 |
+| Termini per corregir puntuacions | 14 dies després del tancament | Divendres 04/12, 14:00 |
+| Termini de reclamacions | 19 dies després del tancament | Dimecres 09/12, 14:00 |
+| Termini d'acceptació | 25 dies després del tancament | Dimarts 15/12, 14:00 |
+
+Un termini que cau en cap de setmana, festiu o vacances escolars passa al següent dia lectiu. Si canvies la data de tancament, els terminis la segueixen, tret dels que hagis canviat a mà. Si les dates no segueixen l'ordre del procés (per exemple, un termini de reclamacions anterior al tancament de sol·licituds), la convocatòria t'avisa a dalt; et deixa desar-la igualment.
+
+![Els blocs Ajustos i Calendari de la convocatòria, amb els terminis desplegats](../../assets/erasmus/convocatoria-calendari.png)
 
 > Les respostes als correus que l'EMS envia sense que ningú de l'equip els enviï (acusaments de recepció i recordatoris) arriben a la bústia d'Erasmus+ que hi ha a **Configuració > Gestió de l'EMS > Dades del centre > Erasmus+** (erasmus@elpuig.xeill.net), la mateixa per a totes les convocatòries.
 
-Les pestanyes de la convocatòria estan en dos blocs: **Selecció** (modalitats, documents, informació per a les persones sol·licitants, comissió i resolucions) i **Mobilitat** (destinacions, documents de la mobilitat, carta de compromís, llista de passos i autoavaluació setmanal). Els botons de dalt segueixen la fase de la convocatòria, la més recent primer: abans de la resolució definitiva, la classificació i les entrevistes (o les valoracions dels plans); després, les mobilitats i les ofertes de plaça; les reclamacions, a partir de la resolució provisional. Un empat per sortejar s'avisa a dalt de tot de la convocatòria.
+Les pestanyes de la convocatòria estan en dos blocs: **Selecció** (modalitats, documents, informació per a les persones sol·licitants, comissió i resolucions) i **Mobilitat** (destinacions, documents de la mobilitat, carta de compromís, llista de passos i autoavaluació setmanal). El bloc **Mobilitat** només apareix un cop publicada la resolució definitiva: és per a les persones seleccionades, i una convocatòria nova ja porta el que cal, de manera que per obrir una convocatòria només veus **Selecció**. Els botons de dalt segueixen la fase de la convocatòria, la més recent primer: abans de la resolució definitiva, la classificació i les entrevistes (o les valoracions dels plans); després, les mobilitats i les ofertes de plaça; les reclamacions, a partir de la resolució provisional. Un empat per sortejar s'avisa a dalt de tot de la convocatòria.
 
-Pestanya **Modalitats**: una línia per a cada llista de selecció amb places pròpies, per exemple *GM* i *GS*. A **Nivells** tria els nivells de l'alumnat que sol·licita en aquesta modalitat (per exemple *CFGM* per a GM, i *CFGS* i els cursos d'especialització per a GS, perquè aquest alumnat va al projecte d'educació superior). Qualsevol alumne el grup principal del qual sigui d'un d'aquests nivells pot sol·licitar, sigui del curs que sigui. Omple també el projecte, les places, el període i les destinacions.
+Pestanya **Modalitats**: una línia per a cada llista de selecció amb places pròpies, per exemple *GM* i *GS*. A **Nivells** tria els nivells de l'alumnat que sol·licita en aquesta modalitat (per exemple *CFGM* per a GM, i *CFGS* i els cursos d'especialització per a GS, perquè aquest alumnat va al projecte d'educació superior). Qualsevol alumne el grup principal del qual sigui d'un d'aquests nivells pot sol·licitar, sigui del curs que sigui. Omple també les places. L'EMS posa el projecte a partir dels nivells (CFGM al KA121-VET; CFGS i els cursos d'especialització al KA131-HED); el projecte concret de cada persona es tria a la seva mobilitat. Les destinacions reals, amb les dates i les places, van a la pestanya **Destinacions** del bloc **Mobilitat**, abans d'obrir l'elecció de destinació.
 
 Pestanya **Documents**: una línia per a cada document que demana la convocatòria, amb el seu **Caràcter**:
 
@@ -60,7 +72,7 @@ A **Accions**, fes clic a **Publica**. La convocatòria apareix al portal de tot
 
 Publicar no envia cap correu. Per avisar tothom qui s'hi pot presentar, fes clic a **Accions > Avisa qui s'hi pot presentar**: l'EMS et mostra quantes persones el rebran (i quantes no tenen adreça de correu i no el rebran) i l'envia quan fas clic a **Envia l'avís**. És la mateixa regla que el portal: en una convocatòria d'alumnat, l'alumnat dels nivells de les seves modalitats, excepte qui té massa amonestacions; en una de personal, el professorat dels seus nivells i la direcció que valida les activitats. Cada persona rep el seu propi correu, amb les dates de la convocatòria i l'enllaç per sol·licitar-la. La família no el rep. El pots enviar abans que s'obri la convocatòria; si el tornes a enviar (per exemple després d'afegir un nivell), tothom el torna a rebre: l'assistent t'ho avisa.
 
-**Recordatori abans del tancament:** a **Recordatori (dies abans del tancament)** (3 per defecte), l'EMS envia un correu, tants dies abans del tancament i a partir de les 9:00, a qui es pot presentar i encara no ha enviat la sol·licitud (un esborrany no compta). S'envia una sola vegada, i només si l'avís s'ha enviat des de l'EMS. Posa-hi 0 perquè no n'hi hagi. La convocatòria mostra quan s'ha enviat cada correu i a quantes persones.
+**Recordatori abans del tancament:** 3 dies abans de la data de tancament, a partir de les 9:00, l'EMS envia un correu a qui es pot presentar i encara no ha enviat la sol·licitud (un esborrany no compta). S'envia una sola vegada, i només si l'avís s'ha enviat des de l'EMS. La convocatòria mostra quan s'ha enviat cada correu i a quantes persones.
 
 ## 3. Revisar les sol·licituds
 

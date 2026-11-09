@@ -334,3 +334,5 @@ from . import test_erasmus_polish_labels
 from . import test_erasmus_polish_labels_tour
 from . import test_erasmus_polish_selection_lists
 from . import test_erasmus_polish_selection_lists_tour
+from . import test_erasmus_call_fewer_fields
+from . import test_erasmus_call_fewer_fields_tour

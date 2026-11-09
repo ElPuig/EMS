@@ -143,9 +143,8 @@ mesura que avança la reunió.
 
   ![Bloc Acords durant la reunió: fitxa d'un acord amb data límit, persones responsables, persones implicades, contingut i descripció](../../assets/teachers/actes-08-acords.png)
 - **Temes pendents:** al final, com a llista.
-- **Documents annexos:** els documents que acompanyen l'acta. **Afegir una línia** enllaça un document controlat
-  que ja és a l'EMS; el botó **Fitxers adjunts** hi adjunta fitxers del vostre ordinador (un PDF, un full de
-  càlcul...). Qui pot llegir l'acta els pot descarregar, i el PDF els llista.
+- **Documents annexos:** els documents que acompanyen l'acta. El botó **Fitxers adjunts** hi adjunta fitxers del
+  vostre ordinador (un PDF, un full de càlcul...). Qui pot llegir l'acta els pot descarregar, i el PDF els llista.
 
 L'acta es desa sola mentre escriviu, a les pauses, sense moure el cursor d'on escriviu. **Obre l'esborrany de l'acta**, a dalt i a baix de la
 pantalla, mostra el PDF tal com quedaria, marcat com a esborrany, mentre l'acta és en reunió o pendent

@@ -369,13 +369,6 @@
 
                         <div class="o_ems_minute_block" name="block_annexes" invisible="not type_id">
                             <h3>Annexes</h3>
-                                <field name="annex_document_ids" widget="many2many" readonly="state == 'approved'">
-                                    <list>
-                                        <field name="code"/>
-                                        <field name="name"/>
-                                        <field name="url" widget="url"/>
-                                    </list>
-                                </field>
                                 <field name="annex_attachment_ids" widget="many2many_binary" readonly="state == 'approved'"/>
                             
                         </div>

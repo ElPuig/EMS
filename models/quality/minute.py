@@ -181,15 +181,8 @@ class EmsMinute(models.Model):
     )
     agreement_review_ids = fields.One2many(string="Agreements reviewed", comodel_name="ems.minute.agreement.review", inverse_name="minute_id")
     pending_topic_ids = fields.One2many(string="Pending topics", comodel_name="ems.minute.pending.topic", inverse_name="minute_id")
-    annex_document_ids = fields.Many2many(
-        string="Annexes",
-        comodel_name="ems.quality.document",
-        relation="ems_minute_annex_rel",
-        column1="minute_id",
-        column2="document_id",
-    )
-    # Issue #803: files of the writer's own (a budget, a report...), besides the controlled
-    # documents above, which already live in EMS.
+    # Issue #803: the files that go with the minute (a budget, a report...), uploaded from the
+    # writer's computer.
     annex_attachment_ids = fields.Many2many(
         string="Attached files",
         comodel_name="ir.attachment",

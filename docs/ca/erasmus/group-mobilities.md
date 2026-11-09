@@ -74,7 +74,7 @@ Abans de marxar, la mobilitat mostra qui encara no està a punt (falta un docume
 
 ## Beques i diners de butxaca
 
-A la pestanya **Despeses col·lectives** introduïu la **beca** de cada participant (alumnes i docents acompanyants), tal com la calcula el Beneficiary Module. El centre acostuma a pagar els vols i l'allotjament de tot el grup: registreu-los com a **factures col·lectives**. L'EMS reparteix cada factura col·lectiva **a parts iguals entre els participants que hi van** i mostra, per a cadascun, la seva part i els seus **diners de butxaca**: la seva beca menys la seva part. És el que la Secretaria els transfereix.
+A la pestanya **Despeses col·lectives** introduïu la **beca** de cada participant (alumnes i docents acompanyants), tal com la calcula el Beneficiary Module. El centre acostuma a pagar els vols i l'allotjament de tot el grup: registreu-los com a **factures col·lectives**. L'EMS reparteix cada factura col·lectiva **a parts iguals entre els participants que hi van** i mostra, per a cadascun, la seva part i els seus **diners de butxaca**: la seva beca menys la seva part. És el que la Secretaria els transfereix. Una factura és o bé del grup o bé d'uns participants concrets, mai de totes dues coses, perquè comptaria dues vegades: l'EMS no us deixa desar-la si ompliu totes dues.
 
 *Exemple:* 8 alumnes amb una beca de 1.200 € i 2 docents amb 1.500 €. Els vols costen 2.000 € i l'hotel 5.000 €: 700 € per persona. Cada alumne rep 500 € i cada docent 800 €.
 

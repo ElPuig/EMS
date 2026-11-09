@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import fields, models
+from odoo import api, fields, models
 
 from .mobility import OPEN_STATES
 
@@ -17,6 +17,18 @@ class ResPartner(models.Model):
     erasmus_oid = fields.Char(string="OID", help="The Erasmus+ organisation ID of the host entity (e.g. E10150031).")
     erasmus_history_ids = fields.One2many(string="Erasmus+ participations", comodel_name='ems.erasmus.history',
                                           inverse_name='partner_id', readonly=True)
+    # Issue #777 (13.3): the contact form hides its details block (address, website, OID...) from
+    # whoever is not admin, Secretary, Head of Studies or the contact's tutor (read_only_user),
+    # meant for the students' data; the Erasmus team needs it on host entities and their tutors.
+    can_edit_erasmus_host = fields.Boolean(string="Can edit the host entity",
+                                           compute='_compute_can_edit_erasmus_host')
+
+    @api.depends('is_erasmus_host', 'parent_id.is_erasmus_host')
+    @api.depends_context('uid')
+    def _compute_can_edit_erasmus_host(self):
+        is_team = self.env.user.has_group('ems.group_erasmus')
+        for partner in self:
+            partner.can_edit_erasmus_host = is_team and (partner.is_erasmus_host or partner.parent_id.is_erasmus_host)
 
     def _ems_erasmus_calls(self):
         """Published calls this person can apply to, open or not yet: the students' calls with a

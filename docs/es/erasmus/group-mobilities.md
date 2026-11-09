@@ -73,7 +73,7 @@ Antes de marchar, la movilidad muestra quién todavía no está listo (falta un 
 
 ## Becas y dinero de bolsillo
 
-En la pestaña **Gastos colectivos** introduces la **beca** de cada participante (alumnos y docentes acompañantes), tal como la calcula el Beneficiary Module. El centro suele pagar los vuelos y el alojamiento de todo el grupo: regístralos como **facturas colectivas**. EMS reparte cada factura colectiva **a partes iguales entre los participantes que van** y muestra, para cada uno, su parte y su **dinero de bolsillo**: su beca menos su parte. Es lo que la Secretaría les transfiere.
+En la pestaña **Gastos colectivos** introduces la **beca** de cada participante (alumnos y docentes acompañantes), tal como la calcula el Beneficiary Module. El centro suele pagar los vuelos y el alojamiento de todo el grupo: regístralos como **facturas colectivas**. EMS reparte cada factura colectiva **a partes iguales entre los participantes que van** y muestra, para cada uno, su parte y su **dinero de bolsillo**: su beca menos su parte. Es lo que la Secretaría les transfiere. Una factura es o bien del grupo o bien de unos participantes concretos, nunca de ambos, porque contaría dos veces: EMS no te deja guardarla si rellenas las dos cosas.
 
 *Ejemplo:* 8 alumnos con una beca de 1.200 € y 2 docentes con 1.500 €. Los vuelos cuestan 2.000 € y el hotel 5.000 €: 700 € por persona. Cada alumno recibe 500 € y cada docente 800 €.
 

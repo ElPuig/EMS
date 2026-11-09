@@ -327,3 +327,4 @@ from . import test_ex_officio_withdrawal_tour
 from . import test_erasmus_economy
 from . import test_erasmus_pocket_money
 from . import test_erasmus_info_codeview_tour
+from . import test_erasmus_polish_bugs_tour

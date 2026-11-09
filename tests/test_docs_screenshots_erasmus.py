@@ -34,7 +34,15 @@ class TestDocsScreenshotsErasmus(DocsScreenshotMixin, HttpCase):
         mock_outgoing_email(cls)
         create_portal_erasmus_fixtures(cls)
         cls.call.write({'name': 'Mobilitats de pràctiques 2026-2027', 'description': INFO_CARD})
-        create_role_user(cls, 'erasmus', cls.TECHNICIAN, lang='ca_ES', tz='Europe/Madrid', name='Laia Exemple')
+        technician = create_role_user(cls, 'erasmus', cls.TECHNICIAN, lang='ca_ES', tz='Europe/Madrid', name='Laia Exemple')
+        # The team's members are teachers too: the contact form needs it (see erasmus.md).
+        technician.groups_id = [(4, cls.env.ref('ems.group_teacher').id)]
+        cls.host = cls.env['res.partner'].create({
+            'name': 'Musterschule Reutlingen', 'is_company': True, 'is_erasmus_host': True,
+            'contact_type': 'provider', 'street': 'Beispielstrasse 1', 'city': 'Reutlingen', 'zip': '72764',
+            'country_id': cls.env.ref('base.de').id, 'website': 'https://musterschule.example.com',
+            'erasmus_oid': 'E00000000',
+        })
 
     def test_capture_call_information(self):
         """Issue #774: the code view button in the call's Information for applicants."""
@@ -46,3 +54,8 @@ class TestDocsScreenshotsErasmus(DocsScreenshotMixin, HttpCase):
                       click=['.o_notebook a.nav-link[name=description]', f'mouse:{field} .note-editable'],
                       wait_after=[f'{field} .note-editable .card', button],
                       marks=[(button, 1, 'left')])
+
+    def test_capture_host_entity(self):
+        """Issue #777: the host entity's address, country, website and OID, for the Erasmus team."""
+        self._capture(f'/odoo/res.partner/{self.host.id}', '.o_form_sheet', 'entitat-acollida-dades.png',
+                      login=self.TECHNICIAN, wait_for='.o_field_widget[name=erasmus_oid]', max_height=540)

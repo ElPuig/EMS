@@ -1222,6 +1222,21 @@ four, and the ZIP exports (a record or a whole project, with index, manifest and
 logged) are described in [records.md](records.md). The host entity also has its Erasmus+
 `erasmus_oid`.
 
+**The host entity's form** is the general contact form (`base.view_partner_form` plus EMS's
+views), whose details block (address, country, website, email, phone, OID) is hidden by
+`read_only_user`, meant for the students' data. `res.partner.can_edit_erasmus_host` (non-stored:
+`ems.group_erasmus` and the contact is a host entity or a host entity's tutor, issue #777) shows it
+to the Erasmus team there and nowhere else. **Known limit, decided with the coordinator
+(2026-11-09):** that form also reads student data (`ems.enrollment`, `ems.enrollment.slot`,
+`ems.authorization`, `ems.student.benefit`, `ems.student.document`, `ems.study`), which
+`ems.group_erasmus` alone cannot, so a team member must also be a teacher (both are today), or the form
+ends in an access error. A form of its own for host entities would lift this limit.
+
+**An invoice is either a group's or some participants'** (`_check_group_or_participants`, issue
+#777): `mobility_ids` makes shares of the participants' grants and `group_mobility_id` counts in the
+group's figures and pocket money, so both at once would count it twice. A group's invoice has no
+shares, so its `unassigned_amount` is 0. The constraint only checks what is written from now on.
+
 ### Access (phase 6)
 
 | Model | Erasmus team | Secretary | Head of Studies / Director |

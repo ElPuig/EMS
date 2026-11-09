@@ -73,7 +73,7 @@ Before leaving, the mobility lists who is not ready yet (a required document or 
 
 ## Grants and pocket money
 
-In the **Collective expenses** tab you enter each participant's **grant** (students and accompanying teachers), as calculated in the Beneficiary Module. The centre usually pays the flights and the accommodation of the whole group: record them as **collective invoices**. EMS splits every collective invoice **equally among the participants taking part** and shows, for each one, their share and their **pocket money**: their grant minus their share. That is what the Secretary transfers to them.
+In the **Collective expenses** tab you enter each participant's **grant** (students and accompanying teachers), as calculated in the Beneficiary Module. The centre usually pays the flights and the accommodation of the whole group: record them as **collective invoices**. EMS splits every collective invoice **equally among the participants taking part** and shows, for each one, their share and their **pocket money**: their grant minus their share. That is what the Secretary transfers to them. An invoice is either the group's or for some individual participants, never both, because it would count twice: EMS stops you if you fill in both.
 
 *Example:* 8 students with a 1,200 € grant and 2 teachers with 1,500 €. The flights cost 2,000 € and the hotel 5,000 €: 700 € per person. Each student receives 500 € and each teacher 800 €.
 

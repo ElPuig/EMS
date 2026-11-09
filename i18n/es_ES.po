@@ -9687,11 +9687,10 @@ msgstr "Sistema"
 
 #. module: ems
 #. odoo-python
-#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__target
 #: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__target_value model_terms:ir.ui.view,arch_db:ems.report_minute
 #: code:addons/ems/models/erasmus/satisfaction.py:0
 msgid "Target"
-msgstr "Destinatarios"
+msgstr "Objetivo"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__target_state
@@ -43841,6 +43840,7 @@ msgstr "Como EMS llama a los cursos, p. ej. 2022-2023."
 #. odoo-python
 #: code:addons/ems/models/erasmus/quality.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_diffusion__audience
+#: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__target
 msgid "Audience"
 msgstr "Destinatarios"
 
@@ -48607,3 +48607,15 @@ msgstr "tu parte de los gastos colectivos del grupo"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
 msgid "We will use the account of your enrolment. Write another one only if you want it paid elsewhere."
 msgstr "Usaremos la cuenta de tu matrícula. Escribe otra solo si quieres que te lo paguemos en otra cuenta."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_edit_erasmus_host
+#: model:ir.model.fields,field_description:ems.field_res_users__can_edit_erasmus_host
+msgid "Can edit the host entity"
+msgstr "Puede editar la entidad de acogida"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "The invoice %s is either for a group mobility or for some participants, not both: it would be counted twice."
+msgstr "La factura %s es o bien de una movilidad de grupo o bien de unos participantes, no de ambos: se contaría dos veces."

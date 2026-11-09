@@ -16,7 +16,7 @@
                 <list string="Economic panel" decoration-muted="not active">
                     <field name="name"/>
                     <field name="kind"/>
-                    <field name="call_year" optional="show" options="{'format': false}"/>
+                    <field name="call_year" optional="show" options="{'enable_formatting': false}"/>
                     <field name="active" column_invisible="1"/>
                     <field name="currency_id" column_invisible="1"/>
                     <field name="grant_current" sum="Total"/>
@@ -105,7 +105,7 @@
                 </field>
                 <field name="budget" position="before">
                     <field name="can_manage_economy" invisible="1"/>
-                    <field name="call_year" readonly="not can_manage_economy" options="{'format': false}"/>
+                    <field name="call_year" readonly="not can_manage_economy" options="{'enable_formatting': false}"/>
                 </field>
                 <page name="documents" position="before">
                     <page string="Economy" name="economy"
@@ -380,7 +380,7 @@
             <field name="model">ems.erasmus.support.rate</field>
             <field name="arch" type="xml">
                 <list string="Organisational support rates" editable="bottom">
-                    <field name="call_year" options="{'format': false}"/>
+                    <field name="call_year" options="{'enable_formatting': false}"/>
                     <field name="kind"/>
                     <field name="mobility_type"/>
                     <field name="band_scope"/>

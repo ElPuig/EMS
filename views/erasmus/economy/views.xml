@@ -385,8 +385,8 @@
                     <field name="mobility_type"/>
                     <field name="band_scope"/>
                     <field name="band_from"/>
-                    <field name="band_to" placeholder="No limit"/>
-                    <field name="min_days" optional="show" placeholder="Any"/>
+                    <field name="band_to" widget="ems_blank_zero" placeholder="No limit"/>
+                    <field name="min_days" widget="ems_blank_zero" optional="show" placeholder="Any"/>
                     <field name="currency_id" column_invisible="1"/>
                     <field name="amount"/>
                     <field name="note" optional="show"/>

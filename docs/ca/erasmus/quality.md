@@ -74,10 +74,12 @@ Perquè hi surtin les reunions, tria una vegada el grup de treball de l'equip Er
 l'any). Cada avís de convocatòria oberta i cada recordatori que EMS envia per correu hi queda
 registrat sol. Afegeix la resta amb **Nou**: sessions informatives, ErasmusDays, el web, les xarxes
 socials. Escriu els destinataris de manera general («alumnat de CFGS»), mai noms, i adjunta-hi una
-captura o el cartell si en tens.
+captura o el cartell si en tens. Si no saps a quantes persones ha arribat, deixa aquesta xifra buida.
 
 ## Cursos anteriors
 
 **Erasmus+ › Qualitat › Cursos anteriors** guarda els indicadors dels cursos d'abans que EMS els
 guardés, introduïts per la coordinació amb la seva font. Surten a l'evolució per curs marcats com a
 *càrrega manual*. Els cursos 2022-2023 a 2025-2026 ja hi són.
+
+Les columnes de professorat queden buides quan no hi ha dada: una cel·la buida i un 0 volen dir el mateix, i el panell deixa aquests cursos en blanc.

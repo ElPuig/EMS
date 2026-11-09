@@ -74,10 +74,12 @@ For the meetings to appear, set the Erasmus+ team's workgroup once in **Settings
 year). Every notice of an open call and every reminder EMS emails is recorded by itself. Add the
 rest with **New**: information sessions, ErasmusDays, the website, social media. Write the audience
 in general terms ("students of CFGS"), never names, and attach a capture or the poster if you have
-one.
+one. If you don't know how many people it reached, leave that figure empty.
 
 ## Earlier courses
 
 **Erasmus+ › Quality › Earlier courses** holds the indicators of the courses before EMS kept them,
 typed in by the coordination with their source. They appear in the evolution by course marked
 *manual load*. The courses 2022-2023 to 2025-2026 are already there.
+
+The staff columns are empty when there is no data: an empty cell and a 0 mean the same, and the panel leaves those courses blank.

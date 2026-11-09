@@ -74,10 +74,12 @@ Para que salgan las reuniones, elige una vez el grupo de trabajo del equipo Eras
 año). Cada aviso de convocatoria abierta y cada recordatorio que EMS envía por correo queda
 registrado solo. Añade el resto con **Nuevo**: sesiones informativas, ErasmusDays, la web, las redes
 sociales. Escribe los destinatarios de forma general («alumnado de CFGS»), nunca nombres, y adjunta
-una captura o el cartel si lo tienes.
+una captura o el cartel si lo tienes. Si no sabes a cuántas personas ha llegado, deja esa cifra vacía.
 
 ## Cursos anteriores
 
 **Erasmus+ › Calidad › Cursos anteriores** guarda los indicadores de los cursos de antes de que EMS
 los guardara, introducidos por la coordinación con su fuente. Salen en la evolución por curso
 marcados como *carga manual*. Los cursos 2022-2023 a 2025-2026 ya están.
+
+Las columnas de profesorado quedan vacías cuando no hay dato: una celda vacía y un 0 significan lo mismo, y el panel deja esos cursos en blanco.

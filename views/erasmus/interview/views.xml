@@ -72,7 +72,7 @@
                             <group>
                                 <field name="interview_date" options="{'show_seconds': False}"/>
                                 <field name="interview_place"/>
-                                <field name="submit_date"/>
+                                <field name="submit_date" options="{'show_time': False}"/>
                             </group>
                         </group>
                         <group>

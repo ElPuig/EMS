@@ -14,6 +14,8 @@ Crea y publica una convocatoria Erasmus+, revisa las solicitudes que el alumnado
 
 Ve a **Erasmus+ > Convocatorias > Convocatorias** y haz clic en **Nuevo**:
 
+> **Fechas y horas:** las listas y las fechas que no se pueden editar muestran solo el día. Un plazo que puedes editar conserva la hora, porque es la hora lo que decide cuándo acaba: *20/11/2026 23:59* cierra al final de ese día. También la conservan la fecha de una entrevista, el turno para elegir destino y el plazo para responder una oferta.
+
 | Campo | Qué hay que poner |
 |---|---|
 | Nombre | Por ejemplo, *Prácticas Erasmus+ 2026-27* |

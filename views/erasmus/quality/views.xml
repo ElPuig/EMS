@@ -62,7 +62,7 @@
                                 <field name="country_id"/>
                                 <field name="open_date"/>
                                 <field name="reminder_count"/>
-                                <field name="answer_date" invisible="state != 'answered'"/>
+                                <field name="answer_date" options="{'show_time': False}" invisible="state != 'answered'"/>
                             </group>
                         </group>
                         <group string="Answer" invisible="state != 'answered'">
@@ -255,8 +255,8 @@
                     <field name="course_name" placeholder="2022-2023"/>
                     <field name="student_applicants"/>
                     <field name="student_target"/>
-                    <field name="staff_applicants" optional="show"/>
-                    <field name="staff_target" optional="show"/>
+                    <field name="staff_applicants" widget="ems_blank_zero" optional="show" placeholder="No data"/>
+                    <field name="staff_target" widget="ems_blank_zero" optional="show" placeholder="No data"/>
                     <field name="satisfaction"/>
                     <field name="satisfaction_count"/>
                     <field name="source"/>
@@ -284,7 +284,7 @@
                     <field name="name"/>
                     <field name="channel"/>
                     <field name="audience"/>
-                    <field name="recipient_count" optional="show"/>
+                    <field name="recipient_count" widget="ems_blank_zero" optional="show"/>
                     <field name="course_id" optional="show"/>
                     <field name="call_id" optional="hide"/>
                     <field name="is_automatic" optional="show"/>
@@ -306,7 +306,7 @@
                                 <field name="audience" placeholder="E.g. students of CFGS (never names)"/>
                             </group>
                             <group>
-                                <field name="recipient_count"/>
+                                <field name="recipient_count" widget="ems_blank_zero" placeholder="Not known"/>
                                 <field name="course_id" options="{'no_create': True}"/>
                                 <field name="call_id" options="{'no_create': True}"/>
                                 <field name="is_automatic" invisible="not is_automatic"/>

@@ -60,6 +60,8 @@ The organisational support is money to manage the mobilities, separate from the 
 
 **Empty means no limit:** an empty *Up to participant* is a band with no end, and an empty *Minimum days* applies to any length of stay. If two bands overlap, EMS tells you which other rate and band they clash with. In the Excel, the *Position* is the one the rate counted: among the same kind of activity or, in KA131-HED, among the whole project.
 
+![The rates of a year: the empty cells mean no limit and any length of stay](../../assets/erasmus/tarifes-suport-organitzatiu.png)
+
 **Which rate each mobility takes:** EMS works it out. A student's stay of 90 days or more is long-term (ErasmusPro), shorter is short-term; a staff member's structured course is *courses and training*, job shadowing or teaching the other one; each student of a group mobility, 100 €. If a mobility is in a third country not associated to the programme, or is a skills competition, an invited expert or a hosted teacher, choose it by hand in **Organisational support as** on its **Grant** tab.
 
 On the Economy tab you see:

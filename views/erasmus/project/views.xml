@@ -155,7 +155,7 @@
                             <page string="Exports" name="exports" groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin">
                                 <field name="export_ids" readonly="1">
                                     <list>
-                                        <field name="date"/>
+                                        <field name="date" options="{'show_time': False}"/>
                                         <field name="requester_id"/>
                                         <field name="scope"/>
                                         <field name="mobility_id" optional="show"/>

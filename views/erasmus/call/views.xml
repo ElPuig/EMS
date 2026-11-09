@@ -10,8 +10,8 @@
                     <field name="name"/>
                     <field name="audience"/>
                     <field name="course_id" optional="show"/>
-                    <field name="date_open"/>
-                    <field name="date_close"/>
+                    <field name="date_open" options="{'show_time': False, 'show_seconds': False}"/>
+                    <field name="date_close" options="{'show_time': False, 'show_seconds': False}"/>
                     <field name="application_count"/>
                     <field name="state" widget="badge" decoration-info="state == 'draft'"
                            decoration-success="state == 'published'"/>
@@ -123,23 +123,23 @@
                                 <field name="rules_filename" invisible="1"/>
                             </group>
                             <group>
-                                <field name="date_open" options="{'show_seconds': False}"/>
-                                <field name="date_close" options="{'show_seconds': False}"/>
-                                <field name="subsanation_deadline" options="{'show_seconds': False}"/>
-                                <field name="interview_deadline" options="{'show_seconds': False}"/>
-                                <field name="claims_deadline" options="{'show_seconds': False}"/>
-                                <field name="acceptance_deadline" options="{'show_seconds': False}"/>
+                                <field name="date_open" options="{'show_time': False, 'show_seconds': False}"/>
+                                <field name="date_close" options="{'show_time': False, 'show_seconds': False}"/>
+                                <field name="subsanation_deadline" options="{'show_time': False, 'show_seconds': False}"/>
+                                <field name="interview_deadline" options="{'show_time': False, 'show_seconds': False}"/>
+                                <field name="claims_deadline" options="{'show_time': False, 'show_seconds': False}"/>
+                                <field name="acceptance_deadline" options="{'show_time': False, 'show_seconds': False}"/>
                                 <field name="min_score" invisible="audience == 'staff'"/>
                                 <field name="is_accepting"/>
                                 <field name="reminder_days"/>
                                 <label for="announce_date" invisible="not announce_date"/>
                                 <div class="o_row" invisible="not announce_date">
-                                    <field name="announce_date" options="{'show_seconds': False}"/>
+                                    <field name="announce_date" options="{'show_time': False}"/>
                                     <span>(<field name="announce_count" class="oe_inline"/> people)</span>
                                 </div>
                                 <label for="reminder_date" invisible="not reminder_date"/>
                                 <div class="o_row" invisible="not reminder_date">
-                                    <field name="reminder_date" options="{'show_seconds': False}"/>
+                                    <field name="reminder_date" options="{'show_time': False}"/>
                                     <span>(<field name="reminder_count" class="oe_inline"/> people)</span>
                                 </div>
                             </group>
@@ -199,7 +199,7 @@
                                             <!-- A published resolution is never deleted: no bin here (a draft one, from its own form). -->
                                             <list delete="false">
                                                 <field name="kind"/>
-                                                <field name="publish_date"/>
+                                                <field name="publish_date" options="{'show_time': False}"/>
                                                 <field name="state" widget="badge" decoration-info="state == 'draft'"
                                                        decoration-success="state == 'published'"/>
                                             </list>
@@ -207,7 +207,7 @@
                                         <group string="Draws" invisible="not draw_ids">
                                             <field name="draw_ids" nolabel="1" colspan="2">
                                                 <list>
-                                                    <field name="date"/>
+                                                    <field name="date" options="{'show_time': False}"/>
                                                     <field name="user_id"/>
                                                     <field name="score_total"/>
                                                     <field name="tied_count"/>
@@ -339,7 +339,7 @@
                         EMS emails the call, with the link to apply on the portal, to each person who can apply to it, at their own address.
                     </p>
                     <div class="alert alert-warning" role="alert" invisible="not announce_date">
-                        The notice was already sent on <field name="announce_date" readonly="1" class="oe_inline"/>
+                        The notice was already sent on <field name="announce_date" options="{'show_time': False}" readonly="1" class="oe_inline"/>
                         to <field name="announce_count" class="oe_inline"/> people. Sending it again emails all of them again.
                     </div>
                     <group>

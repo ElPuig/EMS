@@ -48596,3 +48596,19 @@ msgstr "Pot editar l'entitat d'acollida"
 #: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid "The invoice %s is either for a group mobility or for some participants, not both: it would be counted twice."
 msgstr "La factura %s és o bé d'una mobilitat de grup o bé d'uns participants, no de tots dos: es comptaria dues vegades."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_quality_history_list
+msgid "No data"
+msgstr "Sense dada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_diffusion_form
+msgid "Not known"
+msgstr "No se sap"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_quality_history__staff_applicants
+#: model:ir.model.fields,help:ems.field_ems_erasmus_quality_history__staff_target
+msgid "Empty or 0: no data."
+msgstr "Buit o 0: sense dada."

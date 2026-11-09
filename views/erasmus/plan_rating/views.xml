@@ -72,7 +72,7 @@
                             <group>
                                 <field name="plan_attachment_ids" widget="many2many_binary" readonly="1"
                                        invisible="not plan_attachment_ids"/>
-                                <field name="submit_date"/>
+                                <field name="submit_date" options="{'show_time': False}"/>
                             </group>
                         </group>
                         <!-- Issue #697: the plan as written in the application form (annex 1). -->

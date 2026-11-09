@@ -59,3 +59,9 @@ class TestDocsScreenshotsErasmus(DocsScreenshotMixin, HttpCase):
         """Issue #777: the host entity's address, country, website and OID, for the Erasmus team."""
         self._capture(f'/odoo/res.partner/{self.host.id}', '.o_form_sheet', 'entitat-acollida-dades.png',
                       login=self.TECHNICIAN, wait_for='.o_field_widget[name=erasmus_oid]', max_height=540)
+
+    def test_capture_support_rates(self):
+        """Issue #778: the organisational support rates, no limit and any length left empty."""
+        self._capture('/odoo/action-ems.action_erasmus_support_rate', '.o_list_renderer',
+                      'tarifes-suport-organitzatiu.png', login=self.TECHNICIAN,
+                      wait_for='.o_list_renderer .o_data_row', max_height=320)

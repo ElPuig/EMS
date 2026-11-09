@@ -14,6 +14,8 @@ Create and publish an Erasmus+ call, review the applications students send from 
 
 Go to **Erasmus+ > Calls > Calls** and click **New**:
 
+> **Dates and hours:** lists and read-only dates show the day alone. A deadline you can edit keeps its hour, because that hour decides when it ends: *20/11/2026 23:59* closes at the end of that day. So do an interview's date, the turn to choose a destination and the deadline to answer an offer.
+
 | Field | What to enter |
 |---|---|
 | Name | For example, *Erasmus+ internships 2026-27* |

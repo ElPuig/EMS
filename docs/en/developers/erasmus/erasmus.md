@@ -1328,3 +1328,20 @@ flowchart LR
   headed "Erasmus+" instead of "Your <model>" ("El vostre Sol·licitud Erasmus+").
 - **Team**: the administrator is not in `group_erasmus`/`group_erasmus_coordinator` (they got every
   team to-do); they keep every right through `group_academic_admin`.
+
+### Dates and numbers in the screens (issue #778)
+
+- **Dates:** every datetime in an Erasmus+ view has Odoo's `show_time: False`, so it reads as a day
+  in lists and read-only fields. Odoo's own datetime input ignores that option while editing, which
+  is what we want: an editable deadline keeps its hour (`show_seconds: False` removes the seconds),
+  because a typed date with no time would close it at 00:00, a day early. Hours are kept on purpose
+  on `application/interview.interview_date`, `interview.schedule.date_start` (appointments),
+  `mobility.turn_deadline` (counted in hours) and the `deadline` of `offer` and `offer.wizard` (any
+  time of the day). The portal still shows hours. `TestErasmusDatesNumbers` walks every view and
+  fails on a new datetime that doesn't follow this.
+- **A 0 that means nothing:** `ems_blank_zero` (`static/src/js/backend/blank_zero_field.js`) is
+  Odoo's integer widget printing nothing for 0, with the view's placeholder while editing: no limit
+  and any length (`support.rate.band_to`, `min_days`), no data (`quality.history.staff_*`), not
+  known (`diffusion.recipient_count`). Odoo has no option for this and `invisible` would hide the
+  input of an editable list's row. Only the display changes: the column still holds 0.
+

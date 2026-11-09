@@ -60,6 +60,8 @@ El apoyo organizativo es dinero para gestionar las movilidades, separado de las 
 
 **Vacío significa sin límite:** un *Hasta el participante* vacío es una franja sin final, y unos *Días mínimos* vacíos se aplican a cualquier duración de la estancia. Si dos franjas se solapan, EMS te dice con qué otra tarifa y franja chocan. En el Excel, la *Posición* es la que ha contado la tarifa: entre la misma clase de actividad o, en KA131-HED, entre todo el proyecto.
 
+![Las tarifas de un año: las celdas vacías significan sin límite y cualquier duración](../../assets/erasmus/tarifes-suport-organitzatiu.png)
+
 **Qué tarifa tiene cada movilidad:** EMS lo deduce. Una estancia de alumnado de 90 días o más es de larga duración (ErasmusPro), y más corta, de corta duración; un curso estructurado del personal es *cursos y formación*, y el job shadowing o la docencia, la otra; cada alumno de una movilidad de grupo, 100 €. Si una movilidad es en un país tercero no asociado al programa, o es un concurso de competencias, un experto invitado o un docente acogido, elígelo a mano en **Apoyo organizativo como**, en la pestaña **Beca**.
 
 En la pestaña Economía ves:

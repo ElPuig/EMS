@@ -70,7 +70,7 @@ The grant agreement, the learning or mobility agreement, the certificate of stay
 
 1. Fill in the document outside EMS as usual, save it as **PDF** and attach it in **Files from the team** (for a document the participant uploads, such as the report, use their file).
 2. Click **Send to sign** on the document's line. EMS prepares the request with the participant, the family of a minor (the first family contact with an email: you can change it), the Director, the Erasmus coordinator and the host entity's contact person, as each document asks. If anything is missing (for example the host contact's email), EMS tells you what before going on.
-3. Check that the boxes are in place (**Configure**) and click **Send**. Every signer gets the email at the same time; the participant also sees **Sign it here** on the portal.
+3. Check that the boxes are in place (**Configure**) and click **Send**. Every signer gets the email at the same time; the participant also sees **Sign it here** on the portal. This email is the only Erasmus+ one a student gets at their personal address: the signature module always writes to a contact's main address.
 4. Each signature is ticked on its own in **Signatures** (and can't be unticked). When the last person signs, the signed PDF is added to the document's files: check it and mark it **Valid**.
 
 If you click **Send to sign** again while the request is still open, EMS opens the same one. If you cancel it, you can prepare a new one.

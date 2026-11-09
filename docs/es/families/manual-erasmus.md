@@ -8,6 +8,8 @@ Solicita unas prácticas Erasmus+ en el extranjero y sigue tu solicitud desde el
 
 **Quién:** alumnado de un ciclo formativo (CFGM o CFGS), de cualquier curso, mientras haya una convocatoria abierta.
 
+**Tus correos:** los correos de Erasmus+ te llegan a tu dirección del centro (la del Puig), no a la personal. La única excepción es el correo para firmar un documento electrónicamente, que también puedes firmar desde el portal. Cuando tu familia recibe una copia, la recibe en su dirección.
+
 ---
 
 ## 1. Abrir la página Erasmus+

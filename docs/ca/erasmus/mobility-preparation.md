@@ -70,7 +70,7 @@ El conveni de subvenció, l'acord d'aprenentatge o de mobilitat, el certificat d
 
 1. Empleneu el document fora de l'EMS com sempre, deseu-lo en **PDF** i adjunteu-lo a **Fitxers de l'equip** (per a un document que puja el participant, com l'informe, es fa servir el seu fitxer).
 2. Feu clic a **Envia a signar** a la línia del document. L'EMS prepara la sol·licitud amb el participant, la família d'un menor (el primer contacte familiar amb correu electrònic: el podeu canviar), el director, el coordinador Erasmus i la persona de contacte de l'entitat d'acollida, segons el que demani cada document. Si falta alguna cosa (per exemple, el correu electrònic del contacte d'acollida), l'EMS us diu què és abans de continuar.
-3. Comproveu que les caselles són al seu lloc (**Configura**) i feu clic a **Envia**. Tots els signants reben el correu alhora; el participant també veu **Signa-ho aquí** al portal.
+3. Comproveu que les caselles són al seu lloc (**Configura**) i feu clic a **Envia**. Tots els signants reben el correu alhora; el participant també veu **Signa-ho aquí** al portal. Aquest és l'únic correu d'Erasmus+ que l'alumnat rep a la seva adreça personal: el mòdul de signatura sempre escriu a l'adreça principal del contacte.
 4. Cada signatura es marca sola a **Signatures** (i no es pot desmarcar). Quan signa l'última persona, el PDF signat s'afegeix als fitxers del document: reviseu-lo i marqueu-lo com a **Vàlid**.
 
 Si torneu a fer clic a **Envia a signar** mentre la sol·licitud encara és oberta, l'EMS obre la mateixa. Si la cancel·leu, en podeu preparar una de nova.

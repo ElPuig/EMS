@@ -38,7 +38,8 @@ class ErasmusScoringCase(TransactionCase):
         cls.past_course = cls.env['ems.course'].create({'start': 2001, 'end': 2002})
         cls.second = cls.env['res.partner'].create({
             'name': 'Erasmus Second Student', 'contact_type': 'student', 'student_id': next_student_id(),
-            'main_group_id': cls.group.id, 'birth_date': '2000-01-01', 'email': 'erasmus.second@example.com'})
+            'main_group_id': cls.group.id, 'birth_date': '2000-01-01', 'email': 'erasmus.second@example.com',
+            'student_email': 'erasmus.second@example.com'})
         cls.evaluator_1 = create_role_user(cls, 'teacher', 'test_erasmus_evaluator_1')
         cls.evaluator_2 = create_role_user(cls, 'teacher', 'test_erasmus_evaluator_2')
         cls.secretary_user = create_role_user(cls, 'secretary', 'test_erasmus_secretary')

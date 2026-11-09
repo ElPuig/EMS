@@ -22,7 +22,7 @@ Go to **Erasmus+ > Calls > Calls** and click **New**:
 | Applications open / close | When students can apply. After the closing date nobody can change their application |
 | Corrections deadline | Until when applicants can upload the corrections you ask for. You can fill it in later |
 
-> Replies to the emails EMS sends without anyone of the team sending them (receipts and reminders) go to the Erasmus+ mailbox in **Settings > EMS Management > Center Data > Erasmus+** (erasmus@elpuig.xeill.net), the same for every call.
+> Replies to the emails EMS sends without anyone of the team sending them (receipts and reminders) go to the Erasmus+ mailbox in **Settings > EMS Management > Center Data > Erasmus+** (erasmus@elpuig.xeill.net), the same for every call. EMS emails students at their school address (the Puig one), not the personal one (only the electronic signature request goes there, see [Preparing the mobilities](mobility-preparation.md)): a student without it gets no Erasmus+ email, and the application says so in its history. The family gets its copies at its own address.
 
 The call's tabs are in two blocks: **Selection** (modalities, documents, information for applicants, panel and resolutions) and **Mobility** (destinations, mobility documents, commitment letter, checklist and weekly self-assessment). The buttons at the top follow the call's phase, the latest first: before the definitive resolution, the ranking and the interviews (or plan ratings); then the mobilities and place offers; the claims, from the provisional resolution. A tie to draw is warned at the top of the call.
 

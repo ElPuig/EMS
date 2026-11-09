@@ -662,23 +662,22 @@ class EmsErasmusCall(models.Model):
         it closes (`xmlid`, the students' email template). Returns how many were told.
 
         - A students' call: the template, rendered on the call, emailed to each student's school
-          address (student_email, the one they read and sign in to the portal with; never the
-          personal one, adriamt 2026-11-09), one email each so nobody sees the others' addresses,
-          rendered once per language. A student without it gets nothing.
+          address (res.partner._ems_erasmus_email), one email each so nobody sees the others'
+          addresses, rendered once per language. A student without it gets nothing.
         - A staff call: a notice in each person's next daily summary, never an email on the spot:
           it asks for no action and isn't urgent (the daily summary rule, issue #802)."""
         self.ensure_one()
         if self.audience == 'staff':
             return self._ems_announce_to_staff(partners, xmlid == 'ems.email_template_erasmus_call_reminder')
         template = self.env.ref(xmlid).sudo()
-        partners = partners.filtered('student_email')
+        partners = partners.filtered(lambda partner: partner._ems_erasmus_email())
         Mail = self.env['mail.mail'].sudo()
         for lang, recipients in partners.grouped('lang').items():
             first = Mail.browse(template.with_context(lang=lang).send_mail(
-                self.id, email_values={'email_to': recipients[0].student_email}))
+                self.id, email_values={'email_to': recipients[0]._ems_erasmus_email()}))
             values = {name: first[name] for name in ('subject', 'body_html', 'email_from', 'reply_to', 'auto_delete',
                                                       'model', 'res_id')}
-            Mail.create([{**values, 'email_to': partner.student_email} for partner in recipients[1:]])
+            Mail.create([{**values, 'email_to': partner._ems_erasmus_email()} for partner in recipients[1:]])
         return len(partners)
 
     def _ems_announce_to_staff(self, partners, reminder):
@@ -1154,7 +1153,7 @@ class EmsErasmusCallAnnounce(models.TransientModel):
             wizard.recipient_count = len(partners)
             # Staff get it in their daily summary, which needs no address.
             wizard.without_email_count = 0 if wizard.audience == 'staff' else len(
-                partners.filtered(lambda partner: not partner.student_email))
+                partners.filtered(lambda partner: not partner._ems_erasmus_email()))
 
     def action_send(self):
         self.ensure_one()

@@ -75,7 +75,7 @@ team only), which counts the recipients and calls `_ems_send_announce()`; the ho
 | Triggered by | the Erasmus team, from the call (any number of times) | the cron, once per call (`reminder_date`) |
 | When | while published and not closed (before `date_open` too) | from `reminder_days` days before the closing day (local), from 9:00 (`REMINDER_HOUR`), while `is_accepting`, and only if `announce_date` is set |
 | To | `_ems_eligible_partners()` | the same, minus the partners with an application not in draft |
-| Students' call | `email_template_erasmus_call_open`, to `student_email` | `email_template_erasmus_call_reminder`, to `student_email` |
+| Students' call | `email_template_erasmus_call_open`, to the school address | `email_template_erasmus_call_reminder`, to the school address |
 | Staff call | an `ems.info_notice` on the call, for the daily summary | the same |
 | Recorded in | `announce_date`, `announce_count`, chatter | `reminder_date`, `reminder_count`, chatter |
 
@@ -84,8 +84,8 @@ other direction, for the whole centre in a few queries: students whose main grou
 level (conduct warnings rule nobody out); staff, the internal users of the teachers of
 `staff_level_ids` plus `validator_ids`.
 
-- **Students' call:** the email goes to the student's school address (`student_email`), the one
-  they read every day and sign in to the portal with, never the personal one (adriamt, 2026-11-09).
+- **Students' call:** the email goes to the student's school address (`res.partner._ems_erasmus_email()`),
+  the one they read every day and sign in to the portal with.
   `_ems_announce()` renders the template once per language (`send_mail` for the first recipient)
   and creates one `mail.mail` per recipient with the same values, so nobody sees another address.
   Students without a school address get nothing and are counted in the wizard ("Without a school
@@ -150,7 +150,12 @@ stateDiagram-v2
   the admission list is published (e.g. not attending the interview), emails the reason
   (`email_template_erasmus_application_excluded`) instead of leaving it for the next list; the
   portal's "what to do now" box shows the reason too.
-- Emails go to the applicant's own address (the family gets a copy only of the place offered and of
+- Emails go to the applicant's Erasmus+ address, `res.partner._ems_erasmus_email()`: a student's
+  school address (`student_email`, never the personal one, adriamt 2026-11-09, issue #802), anybody
+  else's `email`. Every Erasmus+ email to a student goes through it (`_ems_mail()`, the call's
+  notice and reminder, the satisfaction survey), except the electronic signature request, which
+  `sign_oca` sends with `message_notify` to the signer's main `email` (the participant can also sign
+  from the portal). The family gets its copies at its own address (a copy only of the place offered and of
   the answer to it, see *Place offers*, whenever EMS keeps it informed about the student: a minor, or
   an adult who authorized sharing with the family, `res.partner._ems_informed_recipients()`, the same
   rule as convalidations); a recipient without one is noted in the chatter.

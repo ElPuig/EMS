@@ -1121,8 +1121,8 @@ class EmsErasmusApplication(models.Model):
     @api.model
     def _ems_mail(self, records, xmlid, family_copy=False):
         """Email `xmlid` (a template of `records`' model: applications, resolution lines, offers,
-        claims) to each applicant's own address; note it in the application's chatter when there is
-        none. `family_copy`: the family gets a copy (the application's receipt, the result, the place
+        claims) to each applicant's Erasmus+ address (res.partner._ems_erasmus_email: a student's
+        school address); note it in the application's chatter when there is none. `family_copy`: the family gets a copy (the application's receipt, the result, the place
         offered and the answer to it) whenever EMS keeps it informed about the student: a minor, or an adult who authorized
         sharing with it (res.partner._ems_informed_recipients)."""
         template = self.env.ref(xmlid, raise_if_not_found=False)
@@ -1130,8 +1130,9 @@ class EmsErasmusApplication(models.Model):
             return
         for record in records:
             partner = record.partner_id
-            if partner.email:
-                email_values = {'email_to': partner.email}
+            address = partner._ems_erasmus_email() if partner else False
+            if address:
+                email_values = {'email_to': address}
                 family = family_copy and (partner._ems_informed_recipients() - partner).filtered('email')
                 if family:
                     email_values['email_cc'] = ",".join(family.mapped('email'))

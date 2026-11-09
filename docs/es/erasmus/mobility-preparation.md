@@ -70,7 +70,7 @@ El convenio de subvención, el acuerdo de aprendizaje o de movilidad, el certifi
 
 1. Rellenad el documento fuera de EMS como siempre, guardadlo en **PDF** y adjuntadlo en **Ficheros del equipo** (para un documento que sube el participante, como el informe, se usa su fichero).
 2. Haced clic en **Enviar a firmar** en la línea del documento. EMS prepara la solicitud con el participante, la familia de un menor (el primer contacto familiar con correo electrónico: lo podéis cambiar), el director, el coordinador Erasmus y la persona de contacto de la entidad de acogida, según lo que pida cada documento. Si falta algo (por ejemplo, el correo electrónico del contacto de acogida), EMS os dice qué antes de continuar.
-3. Comprobad que las casillas están en su sitio (**Configurar**) y haced clic en **Enviar**. Todos los firmantes reciben el correo a la vez; el participante también ve **Fírmalo aquí** en el portal.
+3. Comprobad que las casillas están en su sitio (**Configurar**) y haced clic en **Enviar**. Todos los firmantes reciben el correo a la vez; el participante también ve **Fírmalo aquí** en el portal. Este es el único correo de Erasmus+ que el alumnado recibe en su dirección personal: el módulo de firma siempre escribe a la dirección principal del contacto.
 4. Cada firma se marca sola en **Firmas** (y no se puede desmarcar). Cuando firma la última persona, el PDF firmado se añade a los ficheros del documento: revisadlo y marcadlo como **Válido**.
 
 Si volvéis a hacer clic en **Enviar a firmar** mientras la solicitud sigue abierta, EMS abre la misma. Si la canceláis, podéis preparar una nueva.

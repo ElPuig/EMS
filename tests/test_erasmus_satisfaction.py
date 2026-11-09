@@ -246,8 +246,6 @@ class TestErasmusQualityEvidence(ErasmusSatisfactionCase):
     def test_every_call_email_is_a_diffusion_action_with_a_generic_audience(self):
         Diffusion = self.env['ems.erasmus.diffusion']
         before = Diffusion.search_count([])
-        self.student.student_email = 'erasmus.school.first@example.com'
-        self.second.student_email = 'erasmus.school.second@example.com'
         count = self.call._ems_announce(self.student | self.second, 'ems.email_template_erasmus_call_open')
         action = Diffusion.search([], order='id desc', limit=1)
         self.assertEqual(Diffusion.search_count([]), before + 1)

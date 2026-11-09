@@ -8,6 +8,8 @@ Apply for an Erasmus+ internship abroad and follow your application from the stu
 
 **Who:** students of a vocational training cycle (CFGM or CFGS), any year, while a call is open.
 
+**Your emails:** Erasmus+ emails reach you at your school address (the Puig one), not your personal one. The only exception is the email to sign a document electronically, which you can also sign from the portal. When your family gets a copy, it gets it at its own address.
+
 ---
 
 ## 1. Open the Erasmus+ page

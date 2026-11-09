@@ -18,7 +18,7 @@ class TestWorkgroup(TransactionCase):
 
 class TestWorkgroupQualityCommittee(TransactionCase):
     """The quality committee's access (group_quality, the Quality menu) follows the members of the
-    committee workgroup (the catalogue's ems.quality): joining gives it, leaving takes it away, and
+    committee workgroup (ems.quality): joining gives it, leaving takes it away, and
     nothing else touches it - neither another workgroup nor someone given it by hand."""
 
     @classmethod
@@ -73,3 +73,9 @@ class TestWorkgroupQualityCommittee(TransactionCase):
         self.env.invalidate_all()
         self.env['ems.workgroup']._ems_sync_quality_committee()
         self.assertIn(self.user, self.group.users)
+
+    def test_committee_is_not_reset_by_upgrades(self):
+        """The centre renames the committee from the app; its data must be noupdate so an upgrade
+        never puts the original name back (issue #804)."""
+        xmlid = self.env['ir.model.data'].search([('module', '=', 'ems'), ('name', '=', 'quality')])
+        self.assertTrue(xmlid.noupdate)

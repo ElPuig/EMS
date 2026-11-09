@@ -42,6 +42,10 @@ Revisa els documents i admet o exclou com a la convocatòria de l'alumnat (les a
 
 Omple la pestanya **Comissió** de la convocatòria: les persones que valoren els plans de mobilitat (la direcció i els caps de departament i de seminari). Després de **Tanca les sol·licituds**, fes clic a **Accions > Envia els plans a la comissió**. Cada membre rep una tasca per valorar tots els plans des d'**Erasmus+ > La meva participació > Les meves valoracions de plans**, que venç el **Termini de valoració de la comissió** (el botó te'l demana si és buit; si el canvies després, les tasques obertes el segueixen). Hi pots tornar a fer clic després d'admetre més sol·licituds: només crea les valoracions que falten.
 
+**Erasmus+ > Convocatòries > Valoracions del pla de mobilitat** s'obre amb una fila per sol·licitant: quants han valorat i la mitjana del pla. Fes clic en una fila per veure la valoració de cada membre.
+
+![Una fila per sol·licitant amb la mitjana del seu pla](../../assets/erasmus/valoracions-per-sollicitant.png)
+
 **Abstencions:** un membre de la comissió que es presenta a la convocatòria no valora (art. 10): les seves valoracions es creen com a abstencions, amb el motiu *Candidat en aquesta convocatòria*. Per a un altre conflicte d'interessos, obre la valoració des del botó **Valoracions de plans** de la convocatòria i escriu el **Motiu de l'abstenció**. No hi ha persones substitutes: la puntuació del pla (criteri 1) és la mitjana dels membres que el valoren. **Una valoració pendent la bloqueja** fins que s'envia. A **Valoracions de plans**, una abstenció surt com a *Abstenció*, i la vista de taula dinàmica (persones candidates × estat) mostra d'un cop d'ull quins plans encara tenen valoracions per enviar.
 
 **La direcció no veu els punts mentre la comissió valora:** el cap d'estudis i la directora poden obrir les sol·licituds del personal, però fins que no s'han valorat tots els plans de la convocatòria en veuen la puntuació del pla, els criteris i el total a 0, també si són a la comissió. Així cap membre no veu la mitjana dels altres abans de valorar. Quan s'envia l'última valoració, ho veuen tot.

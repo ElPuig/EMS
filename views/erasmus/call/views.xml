@@ -200,7 +200,7 @@
                                     <page string="Resolutions" name="resolutions" invisible="state != 'closed'">
                                         <field name="resolution_ids" context="{'default_call_id': id}">
                                             <!-- A published resolution is never deleted: no bin here (a draft one, from its own form). -->
-                                            <list delete="false">
+                                            <list delete="false" default_order="publish_date, id">
                                                 <field name="kind"/>
                                                 <field name="publish_date" options="{'show_time': False}"/>
                                                 <field name="state" widget="badge" decoration-info="state == 'draft'"
@@ -212,7 +212,7 @@
                                                 <list>
                                                     <field name="date" options="{'show_time': False}"/>
                                                     <field name="user_id"/>
-                                                    <field name="score_total"/>
+                                                    <field name="score_total" string="Total"/>
                                                     <field name="tied_count"/>
                                                     <field name="line_ids" widget="many2many_tags" string="Order drawn"/>
                                                 </list>
@@ -264,29 +264,51 @@
                                     <page string="Mobility documents" name="preparation_documents">
                                         <field name="preparation_document_ids"
                                                context="{'default_stage': 'preparation', 'default_due_basis': 'destination', 'default_due_days': 30}">
-                                            <list editable="bottom">
+                                            <!-- The note of the review of 46.0: the five columns that tell the documents apart; the rest when opening the line. -->
+                                            <list>
                                                 <field name="call_id" column_invisible="1"/>
                                                 <field name="sequence" widget="handle"/>
                                                 <field name="stage"/>
                                                 <field name="name"/>
                                                 <field name="requirement"/>
-                                                <field name="modality_ids" widget="many2many_tags" options="{'no_create': True}"/>
-                                                <field name="project"/>
-                                                <field name="sign_participant" string="Participant"/>
-                                                <field name="sign_guardian" string="Legal guardian"/>
-                                                <field name="sign_director" string="Director"/>
-                                                <field name="sign_coordinator" string="Erasmus coordinator"/>
-                                                <field name="sign_tutor" string="Centre's tutor"/>
-                                                <field name="sign_host" string="Host entity"/>
-                                                <field name="sign_template_id" optional="show"
-                                                       invisible="not (sign_participant or sign_guardian or sign_director or sign_coordinator or sign_tutor or sign_host)"/>
-                                                <field name="open_days" optional="show"/>
+                                                <field name="modality_ids" widget="many2many_tags" optional="hide"/>
+                                                <field name="project" optional="hide"/>
                                                 <field name="due_basis"/>
-                                                <field name="due_days"/>
+                                                <field name="due_days" optional="hide"/>
                                                 <field name="handled_by"/>
-                                                <field name="description"/>
-                                                <field name="file_category" optional="show"/>
                                             </list>
+                                            <form>
+                                                <sheet>
+                                                    <group>
+                                                        <group>
+                                                            <field name="stage"/>
+                                                            <field name="name"/>
+                                                            <field name="requirement"/>
+                                                            <field name="modality_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                                                            <field name="project"/>
+                                                            <field name="handled_by"/>
+                                                            <field name="due_basis"/>
+                                                            <field name="due_days"/>
+                                                            <field name="open_days"/>
+                                                            <field name="file_category"/>
+                                                        </group>
+                                                        <group string="Signatures">
+                                                            <field name="sign_participant" string="Participant"/>
+                                                            <!-- A teacher has neither a legal guardian nor a centre's tutor. -->
+                                                            <field name="sign_guardian" string="Legal guardian" invisible="parent.audience == 'staff'"/>
+                                                            <field name="sign_director" string="Director"/>
+                                                            <field name="sign_coordinator" string="Erasmus coordinator"/>
+                                                            <field name="sign_tutor" string="Centre's tutor" invisible="parent.audience == 'staff'"/>
+                                                            <field name="sign_host" string="Host entity"/>
+                                                            <field name="sign_template_id"
+                                                                   invisible="not (sign_participant or sign_guardian or sign_director or sign_coordinator or sign_tutor or sign_host)"/>
+                                                        </group>
+                                                    </group>
+                                                    <group>
+                                                        <field name="description"/>
+                                                    </group>
+                                                </sheet>
+                                            </form>
                                         </field>
                                     </page>
                                     <page string="Commitment letter" name="commitment_letter" invisible="audience != 'student'">

@@ -64,7 +64,7 @@ Publishing sends no email. To tell everyone who can apply, click **Actions > Not
 
 ## 3. Review the applications
 
-Go to **Erasmus+ > Calls > Applications** (or the **Applications** button on the call, which groups them by modality). Filters: *To review*, *Corrections requested*, *Admitted*, *Excluded*. **Documents to review** counts the files waiting for your check (a draft not submitted yet does not count).
+Go to **Erasmus+ > Calls > Applications**, grouped by call, with each application's score and position once they exist (or the **Applications** button on the call, which groups them by modality). Filters: *To review*, *Corrections requested*, *Admitted*, *Excluded*. **Documents to review** counts the files waiting for your check (a draft not submitted yet does not count).
 
 Open an application:
 

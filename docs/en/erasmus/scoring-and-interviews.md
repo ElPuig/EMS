@@ -59,7 +59,11 @@ If a student does not attend the interview, write the reason and click **Actions
 
 ## 4. The ranking
 
-Click **Ranking** on the call (or **Erasmus+ > Calls > Ranking**, ordered by call and modality, with the call in its own column): the admitted applications of each modality in order, with the score of each criterion. **Within the places** shows the cut: in green the applications within the places of the modality (*Selected*), then the *Reserve* ones.
+Click **Ranking** on the call: the admitted applications, grouped by modality and in order, with the score of each criterion. **Erasmus+ > Calls > Ranking** shows every call grouped, with only what they all have: position, applicant, total, result and current status.
+
+![The ranking of a call, grouped by modality](../../assets/erasmus/classificacio-convocatoria.png)
+
+ **Within the places** shows the cut: in green the applications within the places of the modality (*Selected*), then the *Reserve* ones.
 
 - A modality is only ranked when **every** admitted application in it has a complete score. Until then the rank is 0.
 - Ties are broken, in this order, by fewer opportunities, first mobility, the English part of the interview and the record average.

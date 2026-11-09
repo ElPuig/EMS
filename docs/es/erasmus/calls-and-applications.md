@@ -64,7 +64,7 @@ Publicar no envía ningún correo. Para avisar a todas las personas que pueden p
 
 ## 3. Revisar las solicitudes
 
-Ve a **Erasmus+ > Convocatorias > Solicitudes** (o al botón **Solicitudes** de la convocatoria, que las agrupa por modalidad). Filtros: *Por revisar*, *Subsanación requerida*, *Admitida*, *Excluida*. **Documentos por revisar** cuenta los archivos que esperan vuestra comprobación (un borrador aún no enviado no cuenta).
+Ve a **Erasmus+ > Convocatorias > Solicitudes**, agrupadas por convocatoria, con la puntuación y la posición de cada solicitud cuando ya las hay (o al botón **Solicitudes** de la convocatoria, que las agrupa por modalidad). Filtros: *Por revisar*, *Subsanación requerida*, *Admitida*, *Excluida*. **Documentos por revisar** cuenta los archivos que esperan vuestra comprobación (un borrador aún no enviado no cuenta).
 
 Abre una solicitud:
 

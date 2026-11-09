@@ -611,9 +611,11 @@ class EmsErasmusCall(models.Model):
         self.ensure_one()
         action = self.env['ir.actions.act_window']._for_xml_id('ems.action_erasmus_ranking')
         action['domain'] = [('call_id', '=', self.id), ('state', 'in', RANKED_STATES)]
-        action['context'] = {'default_call_id': self.id}
-        if self.audience == 'staff':
-            action['views'] = [(self.env.ref('ems.view_erasmus_staff_ranking_list').id, 'list'), (False, 'form')]
+        # The menu's list only has what every call has: from here, each kind of call its own criteria.
+        staff = self.audience == 'staff'
+        action['context'] = {'default_call_id': self.id, 'group_by': [] if staff else ['modality_id']}
+        list_view = 'ems.view_erasmus_staff_ranking_list' if staff else 'ems.view_erasmus_ranking_list'
+        action['views'] = [(self.env.ref(list_view).id, 'list'), (False, 'form')]
         return action
 
     def action_announce(self):

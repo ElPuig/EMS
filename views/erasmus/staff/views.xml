@@ -184,13 +184,14 @@
                             <page string="Results" name="results" invisible="not resolution_line_ids and not offer_ids and not claim_ids">
                                 <field name="resolution_line_ids">
                                     <list>
-                                        <field name="resolution_id"/>
-                                        <field name="rank"/>
-                                        <field name="score_total"/>
+                                        <field name="kind"/>
+                                        <field name="rank" invisible="kind == 'admission' or not rank"/>
+                                        <field name="score_total" invisible="kind == 'admission'"/>
                                         <field name="result" widget="badge"/>
                                         <button name="action_staff_download" type="object" string="PDF" icon="fa-download"/>
                                     </list>
                                 </field>
+                                <separator string="Place offers" invisible="not offer_ids"/>
                                 <field name="offer_ids" invisible="not offer_ids">
                                     <list>
                                         <field name="offer_date" options="{'show_time': False}"/>
@@ -199,6 +200,7 @@
                                         <field name="state" widget="badge"/>
                                     </list>
                                 </field>
+                                <separator string="Claims" invisible="not claim_ids"/>
                                 <field name="claim_ids" invisible="not claim_ids">
                                     <list>
                                         <field name="received_date"/>

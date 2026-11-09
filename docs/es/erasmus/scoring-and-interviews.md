@@ -59,7 +59,11 @@ Si un alumno no se presenta a la entrevista, escribe el motivo y haz clic en **A
 
 ## 4. La clasificación
 
-Haz clic en **Clasificación** en la convocatoria (o en **Erasmus+ > Convocatorias > Clasificación**, ordenada por convocatoria y modalidad, con la convocatoria en una columna): las solicitudes admitidas de cada modalidad por orden, con la puntuación de cada criterio. **Resultado** marca el corte: en verde las solicitudes que entran en las plazas de la modalidad (*Seleccionada*) y, después, las de *Reserva*.
+Haz clic en **Clasificación** en la convocatoria: las solicitudes admitidas, agrupadas por modalidad y por orden, con la puntuación de cada criterio. **Erasmus+ > Convocatorias > Clasificación** muestra todas las convocatorias agrupadas, solo con lo que tienen todas: posición, solicitante, total, resultado y situación actual.
+
+![La clasificación de una convocatoria, agrupada por modalidad](../../assets/erasmus/classificacio-convocatoria.png)
+
+ **Resultado** marca el corte: en verde las solicitudes que entran en las plazas de la modalidad (*Seleccionada*) y, después, las de *Reserva*.
 
 - Una modalidad solo se clasifica cuando **todas** sus solicitudes admitidas tienen la puntuación completa. Hasta entonces la posición es 0.
 - Los empates se deshacen, por este orden, con menos oportunidades, primera movilidad, la parte en inglés de la entrevista y la nota media del expediente.

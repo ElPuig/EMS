@@ -68,7 +68,7 @@ Si se estima una reclamación, corrige los datos de la solicitud (por ejemplo, e
 - El alumnado acepta o renuncia en el portal antes del plazo y recibe un correo que confirma su respuesta (con copia a la familia de un menor). Si no responde a tiempo, EMS marca la renuncia y le comunica por correo que el plazo ha terminado; el portal dice que no respondió a tiempo, no que renunció.
 - Cuando un alumno acepta, el tutor de su grupo recibe un aviso (no una tarea) de que hará una estancia Erasmus+.
 - Cuando queda una plaza libre y hay reservas, todo el equipo Erasmus recibe una tarea en la convocatoria (*Erasmus+: plaza libre en ...*). Se marca como hecha cuando se ofrece la plaza. **EMS nunca la ofrece por su cuenta**. En la convocatoria, la pestaña **Resoluciones** muestra las plazas libres de cada modalidad y la **Siguiente reserva**. Haz clic en **Acciones > Ofrecer una plaza libre**: comprueba la persona propuesta y el plazo de **Responder antes de** (viene con el mismo tiempo que tuvieron las ofertas de la resolución definitiva, o tres días; cámbialo si hace falta) y haz clic en **Ofrecer la plaza**. La persona recibe un correo.
-- Para retirar una oferta pendiente (por ejemplo, hecha por error), haz clic en **Retirar la oferta**.
+- Para retirar una oferta pendiente (por ejemplo, hecha por error), haz clic en **Retirar**. La fecha de la respuesta es una columna opcional, y el color está en la etiqueta de estado, no en la fila.
 
 Una rectificación nunca deshace una oferta ya aceptada o renunciada: a esas personas se les dice que mantienen la plaza aceptada (o que habían renunciado). Si alguien con una oferta aún pendiente deja de estar seleccionado con la rectificación, EMS retira esa oferta y la plaza pasa a quien selecciona la rectificación.
 

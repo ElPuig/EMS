@@ -12,6 +12,8 @@ from odoo import fields
 from odoo.tests.common import HttpCase, tagged
 
 from .common import DocsScreenshotMixin, create_role_user, mock_outgoing_email
+from .test_erasmus_staff import STAFF_PLAN, create_staff_call_fixtures
+from .test_erasmus import PDF
 from .test_portal_erasmus import create_portal_erasmus_fixtures
 
 INFO_CARD = (
@@ -77,4 +79,49 @@ class TestDocsScreenshotsErasmus(DocsScreenshotMixin, HttpCase):
         self._capture(f'/odoo/action-ems.action_erasmus_application/{application.id}', '.o_notebook .tab-content',
                       'puntuacio-sobre-maxim.png', login=self.TECHNICIAN, wait_for=tab, click=[tab],
                       wait_after=['.o_field_widget[name=score_total]'], max_height=320)
+
+    def test_capture_ranking_of_a_call(self):
+        """Issue #781: a call's ranking, grouped by modality, the row with no colour."""
+        self.call.state = 'closed'
+        self.env['ems.erasmus.application'].create({
+            'call_id': self.call.id, 'partner_id': self.student.id, 'modality_id': self.call.modality_ids.id,
+            'fewer_opportunities_check': 'yes', 'first_mobility': 'yes', 'language_level': 'b2', 'state': 'admitted',
+            'scoring_frozen_date': fields.Datetime.now()})
+        ranking = 'button[name=action_view_ranking]'
+        self._capture(f'/odoo/action-ems.action_erasmus_call/{self.call.id}', '.o_list_renderer',
+                      'classificacio-convocatoria.png', login=self.TECHNICIAN, wait_for=ranking, click=[ranking],
+                      wait_after=['.o_list_renderer .o_data_row'], max_height=220)
+
+
+@tagged('-standard', 'ems_screenshots', 'post_install', '-at_install')
+class TestDocsScreenshotsErasmusStaff(DocsScreenshotMixin, HttpCase):
+    """The staff call's shots, on made-up teachers."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        mock_outgoing_email(cls)
+        create_staff_call_fixtures(cls)
+        create_role_user(cls, 'erasmus', TestDocsScreenshotsErasmus.TECHNICIAN, lang='ca_ES', tz='Europe/Madrid',
+                         name='Laia Exemple')
+
+    def test_capture_plan_ratings(self):
+        """Issue #781: one row per applicant, with how many rated and the mean."""
+        application = self.env['ems.erasmus.application']._ems_portal_get_or_create(
+            self.staff_call, self.staff_users[0].partner_id)
+        application._ems_portal_save(
+            {'declared_never_staff_mobility': True, 'declared_centre_start_date': '2015-09-01', **STAFF_PLAN},
+            {self.id_document.id: [('id.pdf', PDF)]})
+        application.action_submit()
+        application.requirements_check = 'met'
+        application.document_ids.filtered('attachment_ids').action_mark_valid()
+        application.action_admit()
+        self.staff_call.action_close()
+        self.staff_call.action_send_to_panel()
+        rating = application.plan_rating_ids[:1]
+        rating.write({'relevance': '1', 'transfer': '1'})
+        rating.sudo().with_user(rating.panel_member_id).action_submit()
+        self._capture('/odoo/action-ems.action_erasmus_plan_rating', '.o_list_renderer',
+                      'valoracions-per-sollicitant.png', login=TestDocsScreenshotsErasmus.TECHNICIAN,
+                      wait_for='.o_list_renderer .o_group_header', max_height=180)
 

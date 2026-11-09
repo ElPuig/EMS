@@ -332,3 +332,5 @@ from . import test_erasmus_polish_dates_numbers
 from . import test_erasmus_polish_dates_numbers_tour
 from . import test_erasmus_polish_labels
 from . import test_erasmus_polish_labels_tour
+from . import test_erasmus_polish_selection_lists
+from . import test_erasmus_polish_selection_lists_tour

@@ -70,10 +70,14 @@ class EmsErasmusPlanRating(models.Model):
                                  help="Annex 2 of the staff call: 1, 0.5 or 0 points.")
     transfer = fields.Selection(string="Application to the job", selection=TRANSFER_RUBRIC, tracking=True,
                                 help="Annex 2 of the staff call: 1, 0.5 or 0 points.")
-    score = fields.Float(string="Score (max 2)", digits=(3, 1), compute='_compute_score', store=True)
+    score = fields.Float(string="Score (max 2)", digits=(3, 1), compute='_compute_score', store=True, aggregator=None)
     # The issue-#682 review: an abstention is not a plan still to rate (it read "To score", 0.0).
     rating_status = fields.Selection(string="Status", compute='_compute_rating_status', store=True, selection=[
         ('draft', "To score"), ('submitted', "Submitted"), ('abstention', "Abstention")])
+    # The list's row per applicant (issue #781). The mean is the application's plan score: averaging
+    # the rows would count an abstention and a rating still to come as a 0.
+    rated_count = fields.Integer(string="Rated", compute='_compute_rating_status', store=True)
+    plan_mean = fields.Float(string="Mean", related='application_id.plan_score', store=True, aggregator='max')
     # Issue #697: the mobility plan (annex 1) as the applicant wrote it in the form, the only part of
     # the application the panel sees.
     # Both proposals, A (main) and B (backup), are rated together with one score.
@@ -93,6 +97,7 @@ class EmsErasmusPlanRating(models.Model):
     def _compute_rating_status(self):
         for rating in self:
             rating.rating_status = 'abstention' if rating.abstention_reason else rating.state
+            rating.rated_count = int(rating.rating_status == 'submitted')
 
     @api.depends('application_id.document_ids.attachment_ids')
     def _compute_plan_attachment_ids(self):

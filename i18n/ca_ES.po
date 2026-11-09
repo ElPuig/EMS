@@ -8676,6 +8676,8 @@ msgstr "Àmbit d'aplicació"
 #: code:addons/ems/models/erasmus/satisfaction.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_satisfaction__score
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_list
 msgid "Score"
 msgstr "Puntuació"
 
@@ -10173,6 +10175,10 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form_economy
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form_economy
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_ranking_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_ranking_common_list
 msgid "Total"
 msgstr "Total"
 
@@ -27081,6 +27087,7 @@ msgstr "Es mostra a qui redacta l'acta, damunt de la secció."
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_document_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 msgid "Signatures"
 msgstr "Signatures"
 
@@ -32191,6 +32198,7 @@ msgstr "Posició"
 #: model:ir.ui.menu,name:ems.menu_erasmus_ranking
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_ranking_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_ranking_common_list
 msgid "Ranking"
 msgstr "Classificació"
 
@@ -32462,6 +32470,8 @@ msgstr "Reclamació"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__claim_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__claim_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_staff_form
 msgid "Claims"
 msgstr "Reclamacions"
 
@@ -32757,6 +32767,8 @@ msgstr "Oferta de plaça"
 #: model:ir.ui.menu,name:ems.menu_erasmus_offers
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_search
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_staff_form
 msgid "Place offers"
 msgstr "Ofertes de plaça"
 
@@ -32771,6 +32783,7 @@ msgstr "Places no acceptades ni ofertes a algú que encara ha de respondre."
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw_line__position
 #: code:addons/ems/models/erasmus/export.py:0
 #: code:addons/ems/models/erasmus/economy.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_list
 msgid "Position"
 msgstr "Posició"
 
@@ -32983,7 +32996,6 @@ msgstr "Què es reclama"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_form
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_list
 msgid "Withdraw offer"
 msgstr "Retira l'oferta"
 
@@ -33294,6 +33306,7 @@ msgstr "Menys d'1 any"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application__plan_score
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__plan_mean
 msgid "Mean of the panel's ratings."
 msgstr "Mitjana de les valoracions de la comissió."
 
@@ -48627,6 +48640,7 @@ msgstr "Valoracions de la comissió"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_ranking_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_ranking_common_list
 msgid "Current status"
 msgstr "Situació actual"
 
@@ -48748,3 +48762,38 @@ msgstr "Sense dada"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__signature_progress
 msgid "Signature progress"
 msgstr "Signatures"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_mean
+msgid "Mean"
+msgstr "Mitjana"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__rated_count
+msgid "Rated"
+msgstr "Valorades"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_list
+msgid "Withdraw"
+msgstr "Retira"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_list
+msgid "From reserve"
+msgstr "A reserva"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_ranking_list
+msgid "D. Fewer opp."
+msgstr "D. Menys op."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_ranking_list
+msgid "E. First mob."
+msgstr "E. 1a mob."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_ranking_list
+msgid "F. Warnings"
+msgstr "F. Amon."

@@ -8,7 +8,7 @@
             <field name="arch" type="xml">
                 <list string="Resolutions">
                     <field name="call_id"/>
-                    <field name="group_mobility_id" optional="show"/>
+                    <field name="group_mobility_id" optional="hide"/>
                     <field name="kind"/>
                     <field name="publish_date" options="{'show_time': False}"/>
                     <field name="state" widget="badge" decoration-info="state == 'draft'"

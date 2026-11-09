@@ -59,7 +59,11 @@ Si un alumne no es presenta a l'entrevista, escriu-ne el motiu i fes clic a **Ac
 
 ## 4. La classificació
 
-Fes clic a **Classificació** a la convocatòria (o a **Erasmus+ > Convocatòries > Classificació**, ordenada per convocatòria i modalitat, amb la convocatòria en una columna): les sol·licituds admeses de cada modalitat per ordre, amb la puntuació de cada criteri. **Resultat** marca el tall: en verd les sol·licituds que entren a les places de la modalitat (*Seleccionada*) i, després, les de *Reserva*.
+Fes clic a **Classificació** a la convocatòria: les sol·licituds admeses, agrupades per modalitat i per ordre, amb la puntuació de cada criteri. **Erasmus+ > Convocatòries > Classificació** mostra totes les convocatòries agrupades, només amb el que tenen totes: posició, sol·licitant, total, resultat i situació actual.
+
+![La classificació d'una convocatòria, agrupada per modalitat](../../assets/erasmus/classificacio-convocatoria.png)
+
+ **Resultat** marca el tall: en verd les sol·licituds que entren a les places de la modalitat (*Seleccionada*) i, després, les de *Reserva*.
 
 - Una modalitat només es classifica quan **totes** les seves sol·licituds admeses tenen la puntuació completa. Fins llavors la posició és 0.
 - Els empats es desfan, per aquest ordre, amb menys oportunitats, primera mobilitat, la part en anglès de l'entrevista i la mitjana de l'expedient.

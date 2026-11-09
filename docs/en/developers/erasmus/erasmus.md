@@ -1313,8 +1313,7 @@ flowchart LR
   call (`_ems_notify_evaluators`), in their next daily summary, not one email per interview. The interview
   form writes annex 4's descriptors under each criterion; interviews and plan ratings have
   **Submit and next** (`action_submit_next`).
-- **Plan ratings**: `rating_status` (stored) shows an abstention as such; a pivot view
-  (applicants x status) in the team's action.
+- **Plan ratings**: `rating_status` (stored) shows an abstention as such.
 - **Direction**: `scores_hidden` (non-stored, `depends_context('uid')`) replaces the zeros of a staff
   application with an explanation while the panel rates (`_ems_panel_pending`, shared with
   `_read_format`); **Mobilities > Pending validation** (`action_erasmus_mobility_to_validate`); the
@@ -1361,3 +1360,23 @@ flowchart LR
 - **A complete document** offers `action_mark_needs_change` as **Reopen**: the same button twice in
   the view, each `invisible` on the other's condition.
 
+### Selection lists (issue #781)
+
+- **Ranking:** `action_erasmus_ranking` opens `view_erasmus_ranking_common_list` from the menu
+  (what every call has, grouped by call); `action_view_ranking` opens a call's own list, with the
+  student criteria grouped by modality or the staff criteria in one list. The menu doesn't group by
+  modality because a staff call ranks everyone together, and a modality would split it. No list
+  colours its rows (the resolution does, with its legend); the state badge has the colour.
+- **`aggregator=None` on ranks and scores:** Odoo sums an integer or a float in a group's row, which
+  means nothing for a position or a score. It must be `None`: `fields_get()` then leaves the key out,
+  and the client leaves the field out of the group's order. `False` reaches the server, which fails
+  with "Aggregate method is mandatory" when a `default_order` or a click on the column orders by it.
+- **Plan ratings** open grouped by applicant (`search_default_group_applicant`), with two stored
+  fields for the group's row: `rated_count` (1 for a submitted rating, summed) and `plan_mean`
+  (related to the application's `plan_score`, `max`). An average of `score` would be wrong: an
+  abstention and a rating still to come are stored as 0, and Odoo's float column has no NULL. Both
+  are computed on upgrade; the row's own cell is `invisible`.
+- **Mobility documents of a call:** the list has five columns and a line opens a dialog with the rest;
+  `parent.audience` hides the legal guardian's and the centre's tutor's signature on a staff call.
+- **Documents of an application:** `review_comment` only shows where it says something, and the
+  results tab says the resolution's kind, with no zeros on an admission list.

@@ -64,7 +64,7 @@ Publicar no envia cap correu. Per avisar tothom qui s'hi pot presentar, fes clic
 
 ## 3. Revisar les sol·licituds
 
-Ves a **Erasmus+ > Convocatòries > Sol·licituds** (o al botó **Sol·licituds** de la convocatòria, que les agrupa per modalitat). Filtres: *Per revisar*, *Esmena requerida*, *Admesa*, *Exclosa*. **Documents per revisar** compta els fitxers que esperen la vostra comprovació (un esborrany encara no enviat no compta).
+Ves a **Erasmus+ > Convocatòries > Sol·licituds**, agrupades per convocatòria, amb la puntuació i la posició de cada sol·licitud quan ja n'hi ha (o al botó **Sol·licituds** de la convocatòria, que les agrupa per modalitat). Filtres: *Per revisar*, *Esmena requerida*, *Admesa*, *Exclosa*. **Documents per revisar** compta els fitxers que esperen la vostra comprovació (un esborrany encara no enviat no compta).
 
 Obre una sol·licitud:
 

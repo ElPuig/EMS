@@ -315,7 +315,27 @@ A new call shows its defaults before it is saved: `default_get()` and the `audie
 unsaved call) fill them from `_ems_audience_defaults()`, the same dict `create()` uses for whatever
 is still empty. The onchange assigns each list as new records, not as commands: `document_ids` and
 `preparation_document_ids` are lines of the same model, and replacing one with commands brought back
-lines of the other. Subjects of the to-dos built with a name go through
+lines of the other.
+
+**Default texts in every language (issue #780).** The texts a new call starts with are translatable
+fields (`translate=True`): the modality's `name`, the call document's and checklist step's `name` and
+`description`, the self-assessment question's `name` and the call's `commitment_text`; a group
+mobility's `tie_break` and its documents (`requirement_ids`) too. Odoo stores a new text only in the
+creator's language, so after `create()` (and after a `write()` that adds lines from the form, e.g.
+on changing `audience`) `models/erasmus/default_data.py` rebuilds the defaults once per installed
+language and gives every line still holding a default (matched by name, then instructions) that
+default's translations (`update_field_translations`). A line renamed in the form before saving is
+not matched and keeps what was written, with Odoo's usual fallback. A copy keeps the translations
+(Odoo's `copy_translations`). Calls created before keep their texts: the upgrade only turns the
+columns into translatable ones, with the old value as the source. The trade-off: changing a
+default text later in one language leaves the others as they were (the form's language button edits
+them). A staff call's modalities are *FP staff* and *Higher education staff* (the project has its
+own column), its first step has the students' name (*Preparation sessions*), and *Share it at a
+department or cycles meeting* is `requirement='optional'` (art. 15): an optional step
+(`TASK_REQUIREMENTS`) is listed (on the portal with "(optional)") but never counts towards
+`preparation_complete`/`return_complete` (`is_required` False).
+
+Subjects of the to-dos built with a name go through
 `ems.base.ems_elide()`, which elides "de" in Catalan ("d'Anna").
 ### Staff in the backend
 

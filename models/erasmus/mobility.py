@@ -28,7 +28,8 @@ EU_SURVEY_DAYS = 30
 # A student's stay: curricular work placement (sBID, with academic recognition), or not.
 PLACEMENT_TYPES = [('curricular', "Curricular work placement (sBID)"), ('extracurricular', "Extracurricular"),
                    ('graduate', "Recent graduate")]
-TASK_REQUIREMENTS = [('required', "Required"), ('short_blended', "Short blended mobilities only")]
+TASK_REQUIREMENTS = [('required', "Required"), ('optional', "Optional"),
+                     ('short_blended', "Short blended mobilities only")]
 
 
 class EmsErasmusDestination(models.Model):
@@ -100,7 +101,7 @@ class EmsErasmusCallTask(models.Model):
     call_id = fields.Many2one(string="Call", comodel_name='ems.erasmus.call', required=True, ondelete='cascade',
                               index=True)
     sequence = fields.Integer(string="Sequence", default=10)
-    name = fields.Char(string="Name", required=True)
+    name = fields.Char(string="Name", required=True, translate=True)
     stage = fields.Selection(string="When", selection=STAGES, required=True, default='preparation')
     requirement = fields.Selection(string="Requirement", selection=TASK_REQUIREMENTS, required=True, default='required',
                                    help="Short blended mobilities only: KA131-HED stays of 30 days or fewer (e.g. "
@@ -109,7 +110,7 @@ class EmsErasmusCallTask(models.Model):
                                     domain="[('call_id', '=', call_id)]", help="Empty: every modality.")
     project = fields.Selection(string="Only for project", selection=PROJECTS,
                                help="Only for the modalities of this project. Empty: both projects.")
-    description = fields.Text(string="Instructions", help="Shown to the participant on the portal.")
+    description = fields.Text(string="Instructions", translate=True, help="Shown to the participant on the portal.")
 
 
 class EmsErasmusMobility(models.Model):
@@ -1039,10 +1040,12 @@ class EmsErasmusMobilityTask(models.Model):
 
     @api.depends('call_task_id.requirement', 'mobility_id.is_short_blended')
     def _compute_is_required(self):
-        """A short blended step (the virtual component) only counts in a short KA131-HED stay."""
+        """A short blended step (the virtual component) only counts in a short KA131-HED stay; an
+        optional one (e.g. sharing the stay at a department meeting, issue #780) never does."""
         for task in self:
             requirement = task.call_task_id.requirement
-            task.is_required = requirement != 'short_blended' or task.mobility_id.is_short_blended
+            task.is_required = requirement == 'required' or (
+                requirement == 'short_blended' and task.mobility_id.is_short_blended)
 
     def write(self, vals):
         if 'done' in vals:

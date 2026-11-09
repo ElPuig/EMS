@@ -11,6 +11,7 @@ from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools.sql import column_exists
 
 from .application import RANKED_STATES, SUBMITTED_STATES
+from .default_data import translate_default_lines, translate_default_value
 from .offer import HOLDING_STATES
 from .records import LEGACY_FOLDER_SQL, PARTICIPANT_CATEGORIES
 from .workflow import check_workflow_create, check_workflow_write
@@ -25,6 +26,9 @@ DEADLINE_DAYS = {'subsanation_deadline': 7, 'interview_deadline': 14, 'claims_de
 DEADLINE_HOUR = 14.0
 # The dates of a call, in the order of its process (issue #767, note 2.4 of the 46.0 review).
 PROCESS_DATES = ['date_open', 'date_close', *DEADLINE_DAYS]
+# Issue #780: the lists a new call starts with, stored in every installed language.
+DEFAULT_LINE_FIELDS = ['modality_ids', 'document_ids', 'preparation_document_ids', 'task_ids',
+                       'self_assessment_question_ids']
 # The levels whose students go on KA131-HED (higher education); any other level, on KA121-VET.
 HED_LEVELS = ['ems.level_cfgs', 'ems.level_efps']
 # Who a new staff call is for (art. 6 of the staff call): the teachers of every FP level.
@@ -91,7 +95,7 @@ class EmsErasmusCall(models.Model):
                                    inverse_name='call_id', copy=True, domain=[('stage', '=', 'application')])
     # Issue #687: mobility preparation.
     commitment_text = fields.Html(
-        string="Commitment letter", sanitize=True,
+        string="Commitment letter", sanitize=True, translate=True,
         help="Annex 3 of the call: what the selected accept and sign in EMS before leaving. Empty: no commitment "
              "letter is asked for.")
     preparation_document_ids = fields.One2many(
@@ -311,7 +315,21 @@ class EmsErasmusCall(models.Model):
             for name, value in self._ems_audience_defaults(audience).items():
                 if not vals.get(name):
                     vals[name] = value
-        return super().create(vals_list)
+        calls = super().create(vals_list)
+        calls._ems_translate_defaults()
+        return calls
+
+    def _ems_translate_defaults(self, new_lines=None):
+        """Issue #780: the default texts in every installed language (see default_data).
+        `new_lines`: {field: lines just added to an existing call}, the only ones looked at then;
+        by default, all the lines of a new call and its commitment letter."""
+        for call in self:
+            for name in DEFAULT_LINE_FIELDS:
+                lines = call[name] if new_lines is None else call[name] & new_lines.get(name, call[name].browse())
+                translate_default_lines(lines, lambda model, name=name, audience=call.audience: (
+                    model.env['ems.erasmus.call']._ems_audience_defaults(audience)[name]))
+            if new_lines is None and call.audience == 'student':
+                translate_default_value(call, 'commitment_text', lambda model: model._ems_commitment_text())
 
     @api.model
     def default_get(self, fields_list):
@@ -343,8 +361,8 @@ class EmsErasmusCall(models.Model):
         """A staff call's places, by project (issue #697): each selected person goes on an FP
         (KA121-VET) or a higher education (KA131-HED) staff mobility, with no period: they propose
         their own dates."""
-        return [(0, 0, {'sequence': 1, 'name': _("FP staff (KA121-VET)"), 'project': 'ka121_vet'}),
-                (0, 0, {'sequence': 2, 'name': _("Higher education staff (KA131-HED)"), 'project': 'ka131_hed'})]
+        return [(0, 0, {'sequence': 1, 'name': _("FP staff"), 'project': 'ka121_vet'}),
+                (0, 0, {'sequence': 2, 'name': _("Higher education staff"), 'project': 'ka131_hed'})]
 
     @api.model
     def _ems_student_documents(self):
@@ -539,10 +557,12 @@ class EmsErasmusCall(models.Model):
     @api.model
     def _ems_preparation_tasks(self, audience):
         if audience == 'staff':
-            names = [('preparation', _("Preparation meetings")),
+            # Issue #780: the same name as the students' step; sharing it is up to them (art. 15).
+            names = [('preparation', _("Preparation sessions")),
                      ('preparation', _("Activities left for your groups")),
                      ('return', _("News item on the centre's website, following the Erasmus+ visual identity")),
-                     ('return', _("Share it at a department or cycles meeting, if it is considered necessary"))]
+                     ('return', _("Share it at a department or cycles meeting, if it is considered necessary"),
+                      {'requirement': 'optional'})]
         else:
             names = [('preparation', _("Preparation sessions")),
                      ('return', _("Dissemination activities"))]
@@ -562,7 +582,11 @@ class EmsErasmusCall(models.Model):
                     call.date_close, vals['date_close']).items() if name not in vals}
                 if deadlines:
                     following[call] = deadlines
+        before = {name: self[name] for name in DEFAULT_LINE_FIELDS if name in vals}
         result = super().write(vals)
+        if before:
+            # The defaults the form added to an existing call (e.g. on changing who it is for).
+            self._ems_translate_defaults(new_lines={name: self[name] - old for name, old in before.items()})
         for call, deadlines in following.items():
             call.write(deadlines)
         if 'interview_deadline' in vals or any('interview_deadline' in deadlines for deadlines in following.values()):
@@ -1007,7 +1031,7 @@ class EmsErasmusCallModality(models.Model):
     call_id = fields.Many2one(string="Call", comodel_name='ems.erasmus.call', required=True, ondelete='cascade',
                               index=True)
     sequence = fields.Integer(string="Sequence", default=10)
-    name = fields.Char(string="Name", required=True)
+    name = fields.Char(string="Name", required=True, translate=True)
     level_ids = fields.Many2many(string="Levels", comodel_name='ems.level',
                                  help="Students' call: students whose main group is of one of these levels apply in "
                                       "this modality.")
@@ -1069,8 +1093,8 @@ class EmsErasmusCallDocument(models.Model):
     call_id = fields.Many2one(string="Call", comodel_name='ems.erasmus.call', required=True, ondelete='cascade',
                               index=True)
     sequence = fields.Integer(string="Sequence", default=10)
-    name = fields.Char(string="Name", required=True)
-    description = fields.Text(string="Instructions", help="Shown to the applicant next to the upload.")
+    name = fields.Char(string="Name", required=True, translate=True)
+    description = fields.Text(string="Instructions", translate=True, help="Shown to the applicant next to the upload.")
     requirement = fields.Selection(string="Requirement", required=True, default='required', selection=[
         ('required', "Required"), ('optional', "Optional"), ('minor', "Required for minors"),
         ('curricular', "Required for curricular work placement"), ('short_blended', "Short blended mobilities only"),

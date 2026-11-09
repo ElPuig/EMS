@@ -31394,6 +31394,7 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__requirement__optional
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_task__requirement__optional
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__file_state__optional
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__todo_state__optional
@@ -34318,12 +34319,6 @@ msgstr "Participant"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
-msgid "Preparation meetings"
-msgstr "Reunions de preparació"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/call.py:0
 msgid "Preparation sessions"
 msgstr "Sessions de preparació"
 
@@ -36761,8 +36756,8 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
-msgid "FP staff (KA121-VET)"
-msgstr "Personal d'FP (KA121-VET)"
+msgid "FP staff"
+msgstr "Personal d'FP"
 
 #. module: ems
 #. odoo-python
@@ -36779,8 +36774,8 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
-msgid "Higher education staff (KA131-HED)"
-msgstr "Personal d'educació superior (KA131-HED)"
+msgid "Higher education staff"
+msgstr "Personal d'educació superior"
 
 #. module: ems
 #. odoo-python

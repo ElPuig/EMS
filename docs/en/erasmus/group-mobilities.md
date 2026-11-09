@@ -15,7 +15,10 @@ Group mobilities (KA121-VET) are stays of a group of students of one or more of 
 1. Go to **Erasmus+ > Mobilities > Group mobilities** and click **New**.
 2. Fill in the name (e.g. *SMX2 morning*), the KA121-VET **project**, the **shift** (it only helps to find the groups) and the **eligible groups** (the centre's real groups, e.g. SMX2A and SMX2B).
 3. Set the student places (8 by default), the accompanying teachers (2), the **leader teacher** and the other accompanying teacher.
-4. In the **Enrolment** tab, set the enrolment period, check the **selection criteria** (published on the portal) and, if needed, the information for students (to paste a card prepared elsewhere, use the **`</>`** button, as in the call's information for applicants).
+4. In the **Enrolment** tab, set the enrolment period, check the **selection criteria** (published on the portal, in each family's language: a new group mobility brings them, and its documents, in Catalan, Spanish and English) and, if needed, the information for students (to paste a card prepared elsewhere, use the **`</>`** button, as in the call's information for applicants).
+
+   ![A new group mobility's selection criteria, in Catalan although an account in English created it](../../assets/erasmus/mobilitat-grup-criteris.png)
+
 5. The destination, host entity and dates can stay pending until they are confirmed.
 6. In **Actions**, click **Open the enrolment**.
 

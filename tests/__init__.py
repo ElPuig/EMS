@@ -336,3 +336,5 @@ from . import test_erasmus_polish_selection_lists
 from . import test_erasmus_polish_selection_lists_tour
 from . import test_erasmus_call_fewer_fields
 from . import test_erasmus_call_fewer_fields_tour
+from . import test_erasmus_polish_default_data
+from . import test_erasmus_polish_default_data_tour

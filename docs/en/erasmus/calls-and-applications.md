@@ -55,7 +55,7 @@ Tick **Confidential** for documents only the Erasmus team may see, such as the e
 
 **One file** (ticked by default): only the newest file the student uploads counts; the earlier ones are kept and shown as *Earlier version*, and the receipt lists only the newest. Untick it for a document with several files, such as the language certificates (one per language). **Model to download**: a file the student (and the family of a minor) downloads from the portal, fills in and hands in, for example the family authorisation.
 
-The default documents, the checklist and the questions are already on a new call before you save it; if you change **Applicants**, they change to those of the staff call (or the students' call).
+The default documents, the checklist and the questions are already on a new call before you save it; if you change **Applicants**, they change to those of the staff call (or the students' call). These default texts (documents, steps, questions, commitment letter) are saved in Catalan, Spanish and English, whoever creates the call: each student, family or teacher reads them in their own language. If you change one, the other languages keep the old text: change them too with the language button next to the field. Calls created before keep their texts as they were.
 
 **Information for applicants** tab: the text shown on the portal above the form. Click in the text and the editor's toolbar appears. To paste an information card prepared elsewhere (for example with the portal's colours and boxes), use the **`</>`** button (code view) at the end of the toolbar (1), paste its HTML code there and press the button again to go back to the editor: the card keeps its design. Pasting the card directly into the editor loses it.
 

@@ -10,6 +10,7 @@ from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools import format_date
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 
+from .default_data import translate_default_lines, translate_default_value
 from .resolution import mask_document_id
 from .workflow import check_kept, check_workflow_create, check_workflow_write
 
@@ -85,11 +86,8 @@ class EmsErasmusGroupMobility(models.Model):
     enrolment_close = fields.Datetime(string="Enrolment closes", tracking=True)
     description = fields.Html(string="Information for students", help="Shown on the portal, with the enrolment.")
     tie_break = fields.Text(
-        string="Selection criteria", tracking=True,
-        default=lambda self: _(
-            "Enrolled within the period and in the eligible group. Ordered by the record average, from highest to "
-            "lowest. Tie-break: the fewer opportunities accredited by the Erasmus team. If the tie persists, it is "
-            "resolved by a draw."),
+        string="Selection criteria", tracking=True, translate=True,
+        default=lambda self: self._ems_default_tie_break(),
         help="Published on the portal before the enrolment opens. EMS ranks by the record average, then the fewer "
              "opportunities accredited, then the draw the Erasmus coordinator runs in EMS for a remaining tie.")
     # Destination, host entity and dates: may be pending during the enrolment.
@@ -310,6 +308,11 @@ class EmsErasmusGroupMobility(models.Model):
                 vals['requirement_ids'] = self._ems_default_requirements()
         mobilities = super().create(vals_list)
         mobilities._ems_sync_teachers()
+        # Issue #780: the default texts in every installed language (see default_data).
+        for mobility in mobilities:
+            translate_default_lines(mobility.requirement_ids, lambda model: (
+                model.env['ems.erasmus.group.mobility']._ems_default_requirements()))
+            translate_default_value(mobility, 'tie_break', lambda model: model._ems_default_tie_break())
         return mobilities
 
     def write(self, vals):
@@ -679,6 +682,12 @@ class EmsErasmusGroupMobility(models.Model):
                                    _("Erasmus+: validate the substitution in %s", mobility.name))
 
     # --- the files (issue #703) ------------------------------------------------------------------
+
+    @api.model
+    def _ems_default_tie_break(self):
+        return _("Enrolled within the period and in the eligible group. Ordered by the record average, from highest "
+                 "to lowest. Tie-break: the fewer opportunities accredited by the Erasmus team. If the tie persists, "
+                 "it is resolved by a draw.")
 
     @api.model
     def _ems_default_requirements(self):

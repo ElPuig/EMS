@@ -23,7 +23,7 @@ A **Erasmus+ > Convocatòries > Convocatòries**, crea la convocatòria, posa *P
 - **Valida les activitats:** la direcció que valida l'activitat de cada persona seleccionada i els canvis posteriors. Ve omplert amb la directora o el director i el cap d'estudis d'FP (el que hi ha per sobre de la majoria del professorat d'FP), i només ells reben la tasca, encara que un professor depengui d'un altre cap d'estudis a l'organigrama.
 - Per obrir-la no cal indicar les **places**: la convocatòria publicada ja dona les orientatives, i poden canviar segons els projectes. Les afegeixes més endavant (pas 5); si la publiques sense places, EMS t'ho avisa perquè no te n'oblidis.
 
-Un cop publicada, tot el personal amb fitxa d'empleat veu la convocatòria a l'EMS, a **Erasmus+ > La meva participació > Convocatòries de personal**. Per enviar-la per correu a tots ells, fes servir **Accions > Avisa qui s'hi pot presentar** (vegeu [Convocatòries i sol·licituds](calls-and-applications.md)).
+Un cop publicada, tot el personal amb fitxa d'empleat veu la convocatòria a l'EMS, a **Erasmus+ > La meva participació > Convocatòries de personal**. Per avisar-los a tots, fes servir **Accions > Avisa qui s'hi pot presentar**: ho reben al seu resum diari, no en un correu a part (vegeu [Convocatòries i sol·licituds](calls-and-applications.md)).
 
 ## 2. Què omple el personal
 

@@ -46,6 +46,9 @@ class TestErasmusTour(HttpCase):
                         login='test_erasmus_hos')
 
     def test_call_announce_tour(self):
+        # The notice goes to the school address only (issue #802).
+        self.student.student_email = 'erasmus.student@school.example.com'
+        self.minor.student_email = 'erasmus.minor@school.example.com'
         self.start_tour('/odoo/action-ems.action_erasmus_call', 'ems_erasmus_call_announce', login='test_erasmus_team')
         self.assertEqual(self.call.announce_count, 2)
         self.assertEqual(len(self.env['mail.mail'].search([('model', '=', 'ems.erasmus.call'),

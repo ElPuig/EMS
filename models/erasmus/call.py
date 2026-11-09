@@ -137,14 +137,14 @@ class EmsErasmusCall(models.Model):
     # before it closes to those who have not submitted (the issue-#682 review).
     announce_date = fields.Datetime(string="Notice sent on", readonly=True, copy=False)
     announce_count = fields.Integer(string="Notice sent to", readonly=True, copy=False,
-                                    help="How many people the notice of the open call was emailed to.")
+                                    help="How many people the notice of the open call was sent to.")
     reminder_days = fields.Integer(string="Reminder (days before closing)", default=3,
-                                   help="That many days before the closing date, EMS emails whoever can apply and "
-                                        "has not submitted an application yet. Only once, and only after the notice "
-                                        "of the open call. 0: no reminder.")
+                                   help="That many days before the closing date, EMS reminds whoever can apply and "
+                                        "has not submitted an application yet, the same way as the notice of the open "
+                                        "call. Only once, and only after that notice. 0: no reminder.")
     reminder_date = fields.Datetime(string="Reminder sent on", readonly=True, copy=False)
     reminder_count = fields.Integer(string="Reminder sent to", readonly=True, copy=False,
-                                    help="How many people the reminder before the closing date was emailed to.")
+                                    help="How many people the reminder before the closing date was sent to.")
 
     @api.depends('application_ids')
     def _compute_application_count(self):
@@ -625,23 +625,23 @@ class EmsErasmusCall(models.Model):
         return action
 
     def _ems_send_announce(self):
-        """Email the notice of the open call to whoever can apply. Again if asked again: the team
-        decides (for example after adding a level)."""
+        """Send the notice of the open call to whoever can apply (_ems_announce). Again if asked
+        again: the team decides (for example after adding a level)."""
         self.ensure_one()
         self._ems_check_manager()
         if self.state != 'published' or self.date_close <= self._ems_now():
             raise UserError(_("Only a published call that has not closed yet can be announced."))
         count = self._ems_announce(self._ems_eligible_partners(), 'ems.email_template_erasmus_call_open')
         self.sudo().write({'announce_date': self._ems_now(), 'announce_count': count})
-        self.sudo().chatter(_("Notice of the open call emailed to %(count)s people.", count=count))
+        self.sudo().chatter(_("Notice of the open call sent to %(count)s people.", count=count))
 
     @api.model
     def _cron_remind_closing(self):
         """The reminder before the closing date, once per call: on the first run from `reminder_days`
         days before the closing day on, to whoever can apply and has not submitted an application
-        (a draft counts as not submitted). Only for a call whose notice was sent, so that a call
-        announced some other way never emails anybody on its own. Hourly, from 9:00 in the centre:
-        never a mass email at night."""
+        (a draft counts as not submitted), as the notice goes (_ems_announce). Only for a call whose
+        notice was sent, so that a call announced some other way never tells anybody on its own.
+        Hourly, from 9:00 in the centre: never a mass email at night."""
         local_now = self.env['ems.datetime_utils'].get_local_datetime()
         if local_now.hour < REMINDER_HOUR:
             return
@@ -655,23 +655,51 @@ class EmsErasmusCall(models.Model):
             count = call._ems_announce(call._ems_eligible_partners() - submitted,
                                        'ems.email_template_erasmus_call_reminder')
             call.write({'reminder_date': call._ems_now(), 'reminder_count': count})
-            call.chatter(_("Reminder before the closing date emailed to %(count)s people.", count=count))
+            call.chatter(_("Reminder before the closing date sent to %(count)s people.", count=count))
 
     def _ems_announce(self, partners, xmlid):
-        """Email the template `xmlid` (rendered on the call) to each of `partners` with an address:
-        one email each, so nobody sees the others' addresses, rendered once per language. Returns
-        how many were emailed."""
+        """Tell each of `partners` about the call: the notice of the open call or the reminder before
+        it closes (`xmlid`, the students' email template). Returns how many were told.
+
+        - A students' call: the template, rendered on the call, emailed to each student's school
+          address (student_email, the one they read and sign in to the portal with; never the
+          personal one, adriamt 2026-11-09), one email each so nobody sees the others' addresses,
+          rendered once per language. A student without it gets nothing.
+        - A staff call: a notice in each person's next daily summary, never an email on the spot:
+          it asks for no action and isn't urgent (the daily summary rule, issue #802)."""
         self.ensure_one()
+        if self.audience == 'staff':
+            return self._ems_announce_to_staff(partners, xmlid == 'ems.email_template_erasmus_call_reminder')
         template = self.env.ref(xmlid).sudo()
-        partners = partners.filtered('email')
+        partners = partners.filtered('student_email')
         Mail = self.env['mail.mail'].sudo()
         for lang, recipients in partners.grouped('lang').items():
             first = Mail.browse(template.with_context(lang=lang).send_mail(
-                self.id, email_values={'email_to': recipients[0].email}))
+                self.id, email_values={'email_to': recipients[0].student_email}))
             values = {name: first[name] for name in ('subject', 'body_html', 'email_from', 'reply_to', 'auto_delete',
                                                       'model', 'res_id')}
-            Mail.create([{**values, 'email_to': partner.email} for partner in recipients[1:]])
+            Mail.create([{**values, 'email_to': partner.student_email} for partner in recipients[1:]])
         return len(partners)
+
+    def _ems_announce_to_staff(self, partners, reminder):
+        """The staff call's notice (or its `reminder`) queued for the daily summary of each of
+        `partners`' internal users (ems.info_notice), in their language. The summary links the call,
+        which opens in the staff's own form (staff_backend.py). Returns how many were told."""
+        close = self._ems_local_format(self.date_close)
+
+        def compose(user):
+            env = self.with_context(lang=user.lang or self.env.lang).env
+            if reminder:
+                text = env._("Erasmus+: the call %(call)s closes on %(close)s and you have not submitted an "
+                             "application. If you started one, remember to submit it: a draft does not count.",
+                             call=self.name, close=close)
+            else:
+                text = env._("Erasmus+: the call %(call)s for the vocational training staff is open: job shadowing, "
+                             "structured courses and teaching assignments abroad. You can apply until %(close)s in "
+                             "Erasmus+ > My participation > Staff calls.", call=self.name, close=close)
+            return Markup("<p>{}</p>").format(text)
+
+        return len(self.env['ems.info_notice']._ems_queue(partners.user_ids, self, compose))
 
     def _ems_eligible_partners(self):
         """Whoever can apply to the call, by the portal's rule (res.partner._ems_erasmus_calls): the
@@ -1113,7 +1141,8 @@ class EmsErasmusCallAnnounce(models.TransientModel):
     call_id = fields.Many2one(string="Call", comodel_name='ems.erasmus.call', required=True, ondelete='cascade')
     audience = fields.Selection(string="Applicants", related='call_id.audience')
     recipient_count = fields.Integer(string="People who can apply", compute='_compute_recipients')
-    without_email_count = fields.Integer(string="Without an email address", compute='_compute_recipients')
+    without_email_count = fields.Integer(string="Without a school email address", compute='_compute_recipients',
+                                         help="Students who will not get the notice: it goes to the school address only.")
     announce_date = fields.Datetime(string="Notice sent on", related='call_id.announce_date')
     announce_count = fields.Integer(string="Notice sent to", related='call_id.announce_count')
     reminder_days = fields.Integer(string="Reminder (days before closing)", related='call_id.reminder_days')
@@ -1123,7 +1152,9 @@ class EmsErasmusCallAnnounce(models.TransientModel):
         for wizard in self:
             partners = wizard.call_id._ems_eligible_partners() if wizard.call_id else self.env['res.partner']
             wizard.recipient_count = len(partners)
-            wizard.without_email_count = len(partners.filtered(lambda partner: not partner.email))
+            # Staff get it in their daily summary, which needs no address.
+            wizard.without_email_count = 0 if wizard.audience == 'staff' else len(
+                partners.filtered(lambda partner: not partner.student_email))
 
     def action_send(self):
         self.ensure_one()

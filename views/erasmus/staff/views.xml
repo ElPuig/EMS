@@ -113,6 +113,7 @@
                     </header>
                     <sheet>
                         <field name="staff_editable" invisible="1"/>
+                        <field name="staff_answered" invisible="1"/>
                         <field name="staff_can_submit" invisible="1"/>
                         <field name="staff_claimable" invisible="1"/>
                         <field name="staff_offer_id" invisible="1"/>
@@ -152,7 +153,8 @@
                             </group>
                         </group>
                         <notebook>
-                            <page string="Form" name="answers">
+                            <!-- Nothing filled in yet: no grey empty labels; the box above says where to write. -->
+                            <page string="Form" name="answers" invisible="not staff_answered">
                                 <group>
                                     <field name="proposal_a"/>
                                     <field name="proposal_b"/>

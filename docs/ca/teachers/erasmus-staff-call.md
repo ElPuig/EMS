@@ -14,11 +14,11 @@ Ho tens tot a l'aplicació **Erasmus+** (a sota de **Reunions**), a **La meva pa
 
 ## 1. Obre la convocatòria
 
-Quan l'equip Erasmus publica una convocatòria del personal a la qual et pots presentar, reps un correu electrònic i apareix a **Convocatòries de personal**, amb les dates. Obre-la: hi pots descarregar la convocatòria publicada, i **Accions > Presenta la sol·licitud** obre la teva sol·licitud.
+Quan l'equip Erasmus publica una convocatòria del personal a la qual et pots presentar, apareix a **Convocatòries de personal**, amb les dates, i te n'assabentes al teu [resum diari](daily-summary.md). Obre-la: hi pots descarregar la convocatòria publicada, i **Accions > Presenta la sol·licitud** obre directament el formulari.
 
 ## 2. Omple el formulari
 
-A la teva sol·licitud, **Accions > Omple el formulari** obre el formulari. Té quatre blocs curts:
+El formulari s'obre quan presentes la sol·licitud. Per canviar-lo més endavant, a la teva sol·licitud, **Accions > Omple el formulari** el torna a obrir; mentre no hi hagis omplert res, la sol·licitud només mostra un requadre que t'ho diu. Té quatre blocs curts:
 
 1. **Pla de mobilitat**, amb les teves dues propostes, totes dues obligatòries, en una o dues frases cadascuna: l'activitat (job shadowing, un curs o docència), l'entitat d'acollida o el curs, on i quan. La **proposta A** és la principal, per exemple "Job shadowing en un centre d'FP alemany, el Berufskolleg X de Colònia, a l'abril"; la **proposta B** és la de reserva si la A no surt, per exemple "Un curs d'anglès en una acadèmia de Malta, al juliol". Preferiblement en el període no lectiu (juny, juliol); en un altre moment, com l'abril, només una setmana que no afecti les avaluacions, i amb la validació de la direcció. En trobaràs opcions al [web Erasmus+ del centre](https://elpuig.xeill.net/el-centre/erasmus/recursos-i-formacio).
 2. **Què vols aprendre i com ho aplicaràs** (annex 1): breument, les competències que vols observar o aprendre i com les aplicaràs a les teves classes, al teu departament o al centre, 1.500 caràcters com a màxim. El tribunal només llegeix això i les teves dues propostes.

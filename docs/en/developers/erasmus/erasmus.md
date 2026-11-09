@@ -65,25 +65,41 @@ Closing turns every application still in draft into *Not submitted*.
 
 ### Notice of the open call and reminder before closing
 
-Publishing emails nobody. `action_announce` opens the `ems.erasmus.call.announce` wizard (Erasmus
+Publishing tells nobody. `action_announce` opens the `ems.erasmus.call.announce` wizard (Erasmus
 team only), which counts the recipients and calls `_ems_send_announce()`; the hourly cron
-`ir_cron_erasmus_remind_closing` (`_cron_remind_closing()`) sends the reminder.
+`ir_cron_erasmus_remind_closing` (`_cron_remind_closing()`) sends the reminder. Both go through
+`_ems_announce()`, which tells each recipient the way their audience is reached (issue #802):
 
-| | Notice (`email_template_erasmus_call_open`) | Reminder (`email_template_erasmus_call_reminder`) |
+| | Notice | Reminder |
 |---|---|---|
 | Triggered by | the Erasmus team, from the call (any number of times) | the cron, once per call (`reminder_date`) |
 | When | while published and not closed (before `date_open` too) | from `reminder_days` days before the closing day (local), from 9:00 (`REMINDER_HOUR`), while `is_accepting`, and only if `announce_date` is set |
 | To | `_ems_eligible_partners()` | the same, minus the partners with an application not in draft |
+| Students' call | `email_template_erasmus_call_open`, to `student_email` | `email_template_erasmus_call_reminder`, to `student_email` |
+| Staff call | an `ems.info_notice` on the call, for the daily summary | the same |
 | Recorded in | `announce_date`, `announce_count`, chatter | `reminder_date`, `reminder_count`, chatter |
 
 `_ems_eligible_partners()` mirrors the portal's rule (`res.partner._ems_erasmus_calls()`) in the
 other direction, for the whole centre in a few queries: students whose main group is of a modality's
-level, minus `_ems_conduct_blocked_partners()` (one `_read_group` over `ems.strike` from
-`_ems_course_start()`); staff, the internal users of the teachers of `staff_level_ids` plus
-`validator_ids`. `_ems_announce()` renders the template once per language (`send_mail` for the
-first recipient) and creates one `mail.mail` per recipient with the same values, so nobody sees
-another address. Partners without an email are skipped and counted in the wizard. Families never
-receive these emails.
+level (conduct warnings rule nobody out); staff, the internal users of the teachers of
+`staff_level_ids` plus `validator_ids`.
+
+- **Students' call:** the email goes to the student's school address (`student_email`), the one
+  they read every day and sign in to the portal with, never the personal one (adriamt, 2026-11-09).
+  `_ems_announce()` renders the template once per language (`send_mail` for the first recipient)
+  and creates one `mail.mail` per recipient with the same values, so nobody sees another address.
+  Students without a school address get nothing and are counted in the wizard ("Without a school
+  email address"). Families never receive these emails.
+- **Staff call:** never an email on the spot. The notice asks for no action and isn't urgent, so,
+  following the daily summary rule (see [Daily summary](../shared/daily_summary.md)),
+  `_ems_announce_to_staff()` queues an `ems.info_notice` on the call for each recipient's next
+  daily summary, written in their language with the closing date and where to apply (Erasmus+ >
+  My participation > Staff calls). The summary links the call; `get_formview_id()`
+  (`staff_backend.py`) opens it in the staff's own form for whoever can apply and doesn't manage
+  the calls.
+
+Every notice and reminder sent is also recorded as a diffusion action (`quality.py`, channel
+"Email from EMS", which covers the daily summary too).
 
 ## Application states
 
@@ -313,9 +329,18 @@ participation* (`views/erasmus/staff/views.xml`, `models/erasmus/staff_backend.p
 - **Computed flags** (`staff_own`, `staff_editable`, `staff_can_submit`, `staff_claimable`,
   `staff_can_propose`, `staff_self_assessment_open`, ...; non-stored, `@api.depends_context('uid')`)
   drive the `invisible=` of each action; `staff_next_step`/`staff_next_deadline` show the portal's
-  "what to do now" (`_ems_portal_progress()`).
+  "what to do now" (`_ems_portal_progress()`), which for an application still in draft that can be
+  changed says where to write: *Actions > Fill in the form*.
+- **Somewhere to write (issue #802).** A new application shows only its answers, read only, so an
+  empty one used to be a page of grey labels with nowhere to type. Now `staff_answered` (any of
+  `ANSWER_FIELDS['staff']` filled in) hides the *Form* tab until something is answered, and
+  `action_staff_apply()` (the call's *Apply* / *Open my application*) opens the form's dialog
+  straight away while the application can be changed and nothing is answered yet. That dialog
+  carries `open_application`, so saving it opens the application instead of refreshing the call
+  behind it. The entry stays in the *Actions* dropdown, as every form action does.
 - **Forms by owner.** `get_formview_id()` opens the staff form for the user's own application or
-  mobility (a task, a link, a mention), and the team's management form for everyone else.
+  mobility (a task, a link, a mention), and for a staff call the user can apply to (the notice in
+  their daily summary); the team's management form for everyone else.
 - **Portal redirect.** `/my/erasmus` and `/my/erasmus/call/<id>` redirect an internal user to *Staff
   calls* (`controllers/portal_erasmus.py`, `_staff_redirect`); the user menu's *Erasmus+* entry
   (`static/src/js/backend/user_menu_erasmus.js`) opens the same action, shown when `session_info`'s

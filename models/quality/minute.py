@@ -188,6 +188,15 @@ class EmsMinute(models.Model):
         column1="minute_id",
         column2="document_id",
     )
+    # Issue #803: files of the writer's own (a budget, a report...), besides the controlled
+    # documents above, which already live in EMS.
+    annex_attachment_ids = fields.Many2many(
+        string="Attached files",
+        comodel_name="ir.attachment",
+        relation="ems_minute_annex_attachment_rel",
+        column1="minute_id",
+        column2="attachment_id",
+    )
 
     redactor_employee_id = fields.Many2one(
         string="Written by",
@@ -420,6 +429,7 @@ class EmsMinute(models.Model):
                 derived = self._ems_vals_from_start(vals['start_datetime'])
                 vals.update({key: value for key, value in derived.items() if key != 'course_id' or not vals.get('course_id')})
         minutes = super().create(vals_list)
+        minutes._ems_link_annex_files()
         for minute in minutes:
             # The onchange only fires in the form: a minute created by code, by an import or by a
             # future wizard must end up laid out the same way, or its PDF would quote no template.
@@ -448,6 +458,8 @@ class EmsMinute(models.Model):
             derived = self._ems_vals_from_start(vals['start_datetime'])
             vals = {**derived, **vals, 'date': derived['date'], 'time': derived['time']}
         result = super().write(vals)
+        if 'annex_attachment_ids' in vals:
+            self._ems_link_annex_files()
         if {'attendance_mode', 'start_datetime', 'duration', 'attendee_ids', 'state'} & set(vals) \
                 and not self.env.context.get('ems_leave_sync'):
             self._ems_sync_leaves()
@@ -458,6 +470,15 @@ class EmsMinute(models.Model):
         if vals.get('state') == 'approved':
             self._ems_announce_agreements()
         return result
+
+    def _ems_link_annex_files(self):
+        """A file uploaded while the minute was still unsaved belongs to no record, so only whoever
+        uploaded it could open it: it becomes the minute's, readable by whoever reads the minute.
+        Only the files the person saving uploaded, never somebody else's."""
+        for minute in self:
+            minute.annex_attachment_ids.filtered(
+                lambda attachment: not attachment.res_id and (self.env.su or attachment.create_uid == self.env.user)
+            ).write({'res_model': self._name, 'res_id': minute.id})
 
     # --- Telling the people concerned (issue #753) -----------------------------------------------
 

@@ -143,6 +143,9 @@ meeting goes on.
 
   ![Agreements block during the meeting: card of an agreement with deadline, responsible people, people involved, content and description](../../assets/teachers/actes-08-acords.png)
 - **Pending topics:** at the end, as a list.
+- **Annexes:** the documents that go with the minute. **Add a line** links a controlled document already in
+  EMS; the **Attached files** button attaches files from your computer (a PDF, a spreadsheet...). Whoever can
+  read the minute can download them, and the PDF lists them.
 
 The minute saves itself while you write, in your pauses, without moving the cursor from where you are writing. **Open the draft of the minute**, at the top and
 at the bottom of the screen, shows the PDF as it would come out, marked as a draft, while the minute is in

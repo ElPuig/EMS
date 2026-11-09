@@ -1948,7 +1948,7 @@ msgid "Attention notice"
 msgstr "Toc d'atenció"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attachment_ids model:ir.model.fields,field_description:ems.field_ems_study__attachment_ids model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_study_form
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attachment_ids model:ir.model.fields,field_description:ems.field_ems_minute__annex_attachment_ids model:ir.model.fields,field_description:ems.field_ems_study__attachment_ids model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_study_form
 msgid "Attached files"
 msgstr "Fitxers adjunts"
 

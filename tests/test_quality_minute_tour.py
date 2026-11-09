@@ -30,6 +30,9 @@ class TestQualityMinuteTour(HttpCase):
 
     def test_write_a_minute_tour(self):
         self.start_tour("/odoo", "ems_minute_write", login="minute.tour@example.com")
+        minute = self.env['ems.minute'].search([('department_id', '=', self.department.id)])
+        self.assertEqual(minute.annex_attachment_ids.mapped('name'), ['Budget 2026.pdf'])
+        self.assertEqual(minute.annex_attachment_ids.res_id, minute.id)
 
     def test_attendee_reads_a_minute_tour(self):
         """A teacher who attended a meeting of another department opens its minute: they may read
@@ -44,6 +47,8 @@ class TestQualityMinuteTour(HttpCase):
             'redactor_employee_id': writer.id,
             'approver_employee_id': writer.id,
         })
+        minute.annex_attachment_ids = self.env['ir.attachment'].create({
+            'name': 'Annex.pdf', 'raw': b'%PDF-1.4', 'mimetype': 'application/pdf', 'res_model': 'ems.minute', 'res_id': minute.id})
         minute.action_start_meeting()
         self.start_tour(f"/odoo/action-ems.action_minute/{minute.id}", "ems_minute_read_only", login="minute.reader@example.com")
 

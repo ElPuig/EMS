@@ -238,12 +238,13 @@
                                 </ul>
                             </t>
 
-                            <t t-if="doc.annex_document_ids">
+                            <t t-if="doc.annex_document_ids or doc.annex_attachment_ids">
                                 <h4>Annexes</h4>
                                 <ul>
                                     <li t-foreach="doc.annex_document_ids" t-as="annex">
                                         <span t-out="annex.code or ''"/> <span t-out="annex.name"/>
                                     </li>
+                                    <li t-foreach="doc.annex_attachment_ids" t-as="annex" t-out="annex.name"/>
                                 </ul>
                             </t>
 

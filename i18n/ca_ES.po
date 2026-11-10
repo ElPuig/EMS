@@ -8689,6 +8689,8 @@ msgstr "Àmbit d'aplicació"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_list
+#: code:addons/ems/models/erasmus/export.py
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__score
 msgid "Score"
 msgstr "Puntuació"
 
@@ -49080,3 +49082,47 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 msgid "Assigned"
 msgstr "Assignades"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid ""
+"Enrolled within the period and in the eligible group. Ordered by the score, "
+"from highest to lowest: the record average (0 to 10), plus 1 point for fewer"
+" opportunities accredited by the Erasmus team, minus 0.5 points per conduct "
+"warning this course (at most 1.5). Tie-break: the fewer opportunities "
+"accredited. If the tie persists, it is resolved by a draw."
+msgstr ""
+"Inscrit dins del termini i del grup que s'hi pot inscriure. Ordenat per la "
+"puntuació, de més alta a més baixa: la mitjana de l'expedient (de 0 a 10), "
+"més 1 punt per menys oportunitats acreditades per l'equip Erasmus, menys 0,5"
+" punts per cada amonestació d'aquest curs (com a màxim 1,5). Desempat: les "
+"menys oportunitats acreditades. Si l'empat continua, es resol per sorteig."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__rank_by_score
+msgid "Ranked by the score"
+msgstr "Classificada per puntuació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
+msgid ""
+"Students with the same score are ordered by the fewer opportunities "
+"accredited and, if still tied, by a draw."
+msgstr ""
+"Els alumnes amb la mateixa puntuació s'ordenen per les menys oportunitats "
+"acreditades i, si continuen empatats, per sorteig."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_registration__score
+msgid ""
+"The record average, +1 for fewer opportunities accredited by the Erasmus "
+"team, -0.5 per conduct warning this course (at most -1.5)."
+msgstr ""
+"La mitjana de l'expedient, +1 per menys oportunitats acreditades per l'equip"
+" Erasmus, -0,5 per cada amonestació d'aquest curs (com a màxim -1,5)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "Tied on the score"
+msgstr "Empatats amb la puntuació"

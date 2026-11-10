@@ -8,6 +8,9 @@ with:
     sudo -u odoo bash -c "odoo -d ems -u ems --test-enable --test-tags='*/ems:TestDocsScreenshotsErasmus' --stop-after-init -c /etc/odoo/odoo.conf"
 """
 
+from datetime import timedelta
+from unittest.mock import patch
+
 from odoo import fields
 from odoo.tests.common import HttpCase, tagged
 
@@ -175,3 +178,22 @@ class TestDocsScreenshotsErasmusGroup(DocsScreenshotMixin, HttpCase):
         self._capture(f'/odoo/action-ems.action_erasmus_group_mobility/{self.mobility.id}',
                       '.o_notebook .tab-content', 'mobilitat-grup-criteris.png', login=TestDocsScreenshotsErasmus.TECHNICIAN,
                       wait_for=field, max_height=260)
+
+    def test_capture_selection_score(self):
+        """Issue #773: the selection ranked by the score, next to the average."""
+        Registration = self.env['ems.erasmus.group.registration']
+        first = Registration._ems_portal_enrol(self.mobility, self.students[0], fewer_opportunities=True)
+        for student in self.students[1:4]:
+            Registration._ems_portal_enrol(self.mobility, student)
+        self.env['ems.strike'].create({'student_id': self.students[1].id, 'teacher_id': self.other_teacher.id,
+                                       'date': fields.Datetime.now() - timedelta(minutes=5)})
+        averages = dict(zip(self.students[:4], (7.0, 8.4, 7.6, 6.9)))
+        with patch.object(type(self.env['ems.erasmus.application']), '_ems_partner_grade_values',
+                          side_effect=lambda partner, _course: [{'grade': averages[partner], 'hours': 100}]):
+            self.mobility.with_user(self.coordinator_user).action_close_enrolment()
+        first.fewer_opportunities_check = 'yes'
+        field = '.o_field_widget[name=registration_ids]'
+        self._capture(f'/odoo/action-ems.action_erasmus_group_mobility/{self.mobility.id}', field,
+                      'mobilitat-grup-puntuacio.png', login=TestDocsScreenshotsErasmus.TECHNICIAN,
+                      wait_for='.o_notebook a.nav-link[name=selection]',
+                      click=['.o_notebook a.nav-link[name=selection]'], wait_after=[f'{field} .o_data_row'])

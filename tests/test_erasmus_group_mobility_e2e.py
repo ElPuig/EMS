@@ -254,8 +254,10 @@ class TestErasmusGroupMobilityEndToEnd(TransactionCase):
             'result_override': 'excluded',
             'override_reason': "Serious conduct incidents this course, heard the teaching team"})
         self.assertEqual(self.mobility.grade_incidents, 0)
-        self.assertEqual([registrations[name].rank for name in ('ana', 'ivet', 'bel', 'cai')], [1, 2, 3, 4],
-                         "The accredited fewer opportunities break the tie at 8.")
+        # Issue #773: bel's accredited fewer opportunities add a point (9.0), tied with ivet: the
+        # accreditation breaks the tie. cai's are not accredited: 8.0.
+        self.assertEqual([registrations[name].rank for name in ('ana', 'bel', 'ivet', 'cai')], [1, 2, 3, 4],
+                         "The score, and the accredited fewer opportunities break the tie at 9.")
         self.assertTrue(registrations['dani'].needs_draw and registrations['eva'].needs_draw)
         with self.assertRaises(UserError, msg="The tie at 7 first."):
             self._as(self.leader_user).action_submit_proposal()
@@ -293,7 +295,7 @@ class TestErasmusGroupMobilityEndToEnd(TransactionCase):
         provisional = self.mobility.resolution_ids
         self.assertEqual(provisional.kind, 'provisional')
         self.assertEqual(self._list(provisional), {
-            'ana': ('selected', 1), 'ivet': ('selected', 2), 'bel': ('selected', 3), 'cai': ('selected', 4),
+            'ana': ('selected', 1), 'bel': ('selected', 2), 'ivet': ('selected', 3), 'cai': ('selected', 4),
             first.name.removeprefix('E2E '): ('reserve', 5), second.name.removeprefix('E2E '): ('reserve', 6),
             'fiona': ('reserve', 7), 'hugo': ('reserve', 8), 'gil': ('excluded', 0), 'jan': ('excluded', 0)})
         self.assertEqual(len(set(provisional.line_ids.mapped('public_id'))), 10, "Every masked DNI differs.")
@@ -303,8 +305,9 @@ class TestErasmusGroupMobilityEndToEnd(TransactionCase):
         self.assertIn('***5050**', html)
         self.assertNotIn('E2E ana', html, "The published list never names anyone.")
         self.assertNotIn('conduct', html.lower(), "Nor why someone is excluded.")
-        self.assertIn('Average', html, "A group mobility ranks by the record average, not by a score.")
-        self.assertNotIn('>Score<', html)
+        # Issue #773: a group mobility ranks by its score (average, fewer opportunities, warnings).
+        self.assertIn('>Score<', html)
+        self.assertNotIn('>Average<', html)
         mail = self._mails_to('hugo@example.com').filtered(lambda mail: provisional.name in (mail.subject or ''))
         self.assertTrue(mail, "Each student gets their provisional result.")
         self.assertIn('claim from the Erasmus+ page of the EMS portal', mail.body_html)
@@ -340,7 +343,7 @@ class TestErasmusGroupMobilityEndToEnd(TransactionCase):
         registrations['hugo'].with_user(self.technician).write({
             'grade_manual': True, 'grade_average_manual': 8.5,
             'grade_manual_reason': "Claim: module 3 was not in EMS (academic record)"})
-        self.assertEqual(registrations['hugo'].rank, 3)
+        self.assertEqual(registrations['hugo'].rank, 4, "8.5: after ana (10), bel and ivet (9), ahead of cai (8).")
 
         # 8. The definitive list waits for the claims deadline (as the calls' one).
         with self.assertRaises(UserError, msg="The students can still claim."):

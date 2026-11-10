@@ -13,6 +13,7 @@ from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
 
 from .common import (
+    capture_template_emails,
     create_head_of_studies_branch, create_level_study_group, create_role_employee, create_role_user,
     mock_outgoing_email, next_student_id,
 )
@@ -458,6 +459,53 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
         student.action_cancel_scheduled_deactivation()
         self.assertFalse(student.google_ws_deactivation_date)
 
+    def test_cancelling_tells_the_student(self):
+        """Issue #728: unarchiving and the button both send the cancellation to the addresses
+        that got the warning; nothing goes out when nothing was scheduled."""
+        for cancel in ('unarchive', 'button'):
+            with self.subTest(cancel=cancel):
+                student = self._new_student(
+                    student_id=next_student_id(), student_email=f'laia.{cancel}@elpuig.xeill.net')
+                recipients = f'laia.personal@example.com,laia.{cancel}@elpuig.xeill.net'
+                student.write({'active': False})
+                sent = capture_template_emails(self)
+                if cancel == 'unarchive':
+                    student.write({'active': True})
+                else:
+                    student.action_cancel_scheduled_deactivation()
+                self.assertIn(('ems.mail_template_google_deactivation_cancelled_student',
+                               student.id, recipients), sent())
+        student = self._new_student(student_id=next_student_id(), student_email='laia2@elpuig.xeill.net')
+        sent = capture_template_emails(self)
+        student.action_cancel_scheduled_deactivation()
+        self.assertFalse(sent())
+
+    def test_reactivating_a_suspended_account_tells_the_student(self):
+        """Issue #728: only an account that was really suspended gets the reactivation email
+        (unarchiving within the grace period already sent the cancellation)."""
+        student = self._new_student(student_email='laia@elpuig.xeill.net', google_ws_suspended=True)
+        sent = capture_template_emails(self)
+        student.action_reactivate_google_account()
+        self.assertEqual(sent(), [('ems.mail_template_google_reactivated_student', student.id,
+                                   'laia.personal@example.com,laia@elpuig.xeill.net')])
+        sent = capture_template_emails(self)
+        student.action_reactivate_google_account()
+        self.assertFalse(sent(), "an account that was not suspended needs no email")
+
+    def test_lifecycle_emails_use_the_ems_layout(self):
+        """Issue #728: the real email is wrapped in the EMS card layout, in the company's
+        email colours."""
+        self.company.email_primary_color = '#123456'
+        student = self._new_student(student_email='laia@elpuig.xeill.net')
+        # Keep the mail.mail (sending would auto-delete it) to read the body actually built.
+        with patch.object(type(self.env['mail.mail']), 'send'):
+            student.write({'active': False})
+        mail = self.env['mail.mail'].search([('email_to', 'like', 'laia@elpuig.xeill.net')], limit=1)
+        self.assertIn('#123456', mail.body_html, "the company's email colour")
+        self.assertIn('max-width:600px', mail.body_html, "the card layout wraps the body")
+        self.assertIn('https://mail.google.com/a/elpuig.xeill.net/', mail.body_html)
+        self.assertIn(student.student_email, mail.body_html)
+
     # --- stage 2: suspension schedules the deletion -----------------------
 
     def test_suspending_schedules_the_deletion(self):
@@ -738,6 +786,19 @@ class TestStudentGooglePasswordReset(GoogleAccountTutorScopeCase):
         note = self.student.message_ids[:1]
         self.assertIn('reset.student@elpuig.xeill.net', note.body)
         self.assertEqual(note.author_id, self.tac.partner_id)
+
+    def test_reset_sends_the_reset_email_not_the_welcome(self):
+        """Issue #728: the person already had the account, so the reset email says so."""
+        deliver = self._reset(self.tac)
+        self.assertIs(deliver.call_args.kwargs.get('reset'), True)
+        for reset, xmlid in ((True, 'ems.mail_template_google_password_reset_student'),
+                             (False, 'ems.mail_template_google_welcome')):
+            with self.subTest(reset=reset), \
+                    patch('odoo.addons.base.models.ir_actions_report.IrActionsReport._render_qweb_pdf',
+                          return_value=(b'%PDF', 'pdf')):
+                sent = capture_template_emails(self)
+                self.student._gw_deliver_credentials('reset.student@elpuig.xeill.net', 'Secret123', reset=reset)
+                self.assertEqual([email[0] for email in sent()], [xmlid])
 
     def test_academic_admin_can_reset(self):
         admin = create_role_user(self, 'academic_admin', 'test_admin_gw_reset')

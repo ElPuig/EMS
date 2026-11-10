@@ -102,7 +102,7 @@ The account is not touched the day the student leaves — it keeps working for 3
 
 On the student's record, at the top:
 
-- **Cancel scheduled deactivation** — keeps the account even though the student has left.
+- **Cancel scheduled deactivation** — keeps the account even though the student has left. EMS emails the student (personal and corporate address) that the account will not be deactivated; unarchiving the student before the date does the same.
 - **Suspend Google account** — suspends it straight away, without waiting out the 30 days. This also starts the 30-day countdown to deletion.
 - **Delete Google account** — deletes it for good, without waiting. Asks for confirmation first; it cannot be undone.
 - **Reactivate Google account** — brings a suspended account back and calls off its deletion.

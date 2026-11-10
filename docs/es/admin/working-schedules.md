@@ -286,7 +286,7 @@ Cada página tiene el código, el nombre y el municipio del centro (de la config
 
 **La fila a la que va cada hora** es configuración, que la instalación deja preparada y que puedes cambiar después:
 
-- Una clase cuenta en la fila del **nivel** de su grupo: se elige en el **Código en la declaración horaria** del nivel (**Comunidad Educativa → Configuración → Currículum → Niveles**). Un desdoble o una optativa sin nivel propio toma el nivel de sus grupos principales. Un nivel sin código va a *Altres*.
+- Una clase cuenta en la fila del **nivel** de su grupo: el **Código en la declaración horaria** del nivel (**Comunidad Educativa → Configuración → Currículum → Niveles**). EMS lo fija para los niveles oficiales (ESO, BTX, CFGB, CFGM, CFGS, EFPS, PFI), tal como lo define el Departament, y por eso no se puede cambiar en el formulario. Un desdoble o una optativa sin nivel propio toma el nivel de sus grupos principales. Un nivel sin código (por ejemplo, uno creado por el centro) va a *Altres*.
 - Una tutoría (una asignatura de tutoría, o un tipo no lectivo con el código de tutoría: por defecto *Tutoría* y *Atención al alumnado*) cuenta en T-ESO, T-BAT o T-FP (o PFI) según el nivel del grupo tutorizado. Si el docente no es tutor de ningún grupo, según el nivel donde da más horas de clase.
 - Cualquier otra hora no lectiva cuenta en la fila elegida en el **Código en la declaración horaria** de su tipo (**Configuración → Profesorado → Tipos de hora no lectiva**); vacío significa que no se declara.
 - Las reducciones lectivas solo aparecen como horas, en "Si disposeu de reducció de jornada", y se suman al TOTAL de lectivas.

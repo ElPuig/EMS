@@ -90,6 +90,16 @@ Cada persona ve las reuniones:
 
 ---
 
+## Personas con una ausencia
+
+Quien tiene una ausencia o una solicitud de ausencia (aprobada o pendiente de aprobar) el día y a la hora de la reunión aparece como **Justificado**, con la nota «Tiene una ausencia». El motivo no se muestra nunca. EMS lo comprueba cuando se cargan las personas, cuando cambia la fecha o la hora de la reunión y de nuevo cuando se abre y se cierra la asistencia:
+
+- Si la ausencia se cancela o se rechaza antes de cerrar, la persona vuelve a **Pendiente**.
+- Si viene igualmente y pasa la tarjeta, queda como **Presente**.
+- Un estado que cambies a mano se queda tal como lo dejes.
+
+---
+
 ## Marcar a una persona a mano
 
 En la pestaña **Personas**, cambia la columna **Estado** de la fila:

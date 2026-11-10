@@ -13,7 +13,7 @@ from odoo.addons.ems.models.shared.google_workspace_mixin import (
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 from odoo.tools import mute_logger
-from .common import create_role_user, mock_outgoing_email, next_student_id
+from .common import capture_template_emails, create_role_user, mock_outgoing_email, next_student_id
 
 
 class TestEmployeeGoogleWorkspace(TransactionCase):
@@ -614,6 +614,36 @@ class TestEmployeeGoogleWorkspaceLifecycle(TransactionCase):
         teacher.action_cancel_scheduled_deactivation()
         self.assertFalse(teacher.google_ws_deactivation_date)
 
+    def test_cancelling_tells_the_employee(self):
+        """Issue #728: unarchiving and the button both send the cancellation to the addresses
+        that got the warning; nothing goes out when nothing was scheduled."""
+        for cancel in ('unarchive', 'button'):
+            with self.subTest(cancel=cancel):
+                teacher = self._new_teacher(name=f'Ada Cancel {cancel}', work_email=f'ada.{cancel}@elpuig.xeill.net')
+                teacher.write({'active': False})
+                sent = capture_template_emails(self)
+                if cancel == 'unarchive':
+                    teacher.write({'active': True})
+                else:
+                    teacher.action_cancel_scheduled_deactivation()
+                self.assertIn(('ems.mail_template_google_deactivation_cancelled_employee', teacher.id,
+                               f'ada@example.com,ada.{cancel}@elpuig.xeill.net'), sent())
+        teacher = self._new_teacher(name='Ada Cancel None', work_email='ada.none@elpuig.xeill.net')
+        sent = capture_template_emails(self)
+        teacher.action_cancel_scheduled_deactivation()
+        self.assertFalse(sent())
+
+    def test_reactivating_a_suspended_account_tells_the_employee(self):
+        """Issue #728: only an account that was really suspended gets the reactivation email."""
+        teacher = self._new_teacher(google_ws_suspended=True)
+        sent = capture_template_emails(self)
+        teacher.action_reactivate_google_account()
+        self.assertEqual(sent(), [('ems.mail_template_google_reactivated_employee', teacher.id,
+                                   'ada@example.com,alovelace@elpuig.xeill.net')])
+        sent = capture_template_emails(self)
+        teacher.action_reactivate_google_account()
+        self.assertFalse(sent(), "an account that was not suspended needs no email")
+
     def test_suspending_clears_the_schedule(self):
         teacher = self._new_teacher()
         teacher.write({'active': False})
@@ -766,6 +796,16 @@ class TestEmployeeGooglePasswordReset(TransactionCase):
                 self.assertRaises(UserError):
             self._reset(self.tac)
         self.assertEqual(base64.b64decode(self.teacher.google_credentials_pdf), b'old pdf')
+
+    def test_reset_sends_the_reset_email_not_the_welcome(self):
+        """Issue #728: the person already had the account, so the reset email says so."""
+        self.assertIs(self._reset(self.tac).call_args.kwargs.get('reset'), True)
+        for reset, xmlid in ((True, 'ems.mail_template_google_password_reset_employee'),
+                             (False, 'ems.mail_template_google_welcome_employee')):
+            with self.subTest(reset=reset), self._patch_pdf(b'%PDF'):
+                sent = capture_template_emails(self)
+                self.teacher._gw_deliver_credentials('reset.teacher@elpuig.xeill.net', 'Secret123', reset=reset)
+                self.assertEqual([email[0] for email in sent()], [xmlid])
 
     def test_credentials_pdf_replaces_the_previous_one(self):
         Attachment = self.env['ir.attachment']

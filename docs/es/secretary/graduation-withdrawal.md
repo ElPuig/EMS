@@ -102,7 +102,7 @@ La cuenta no se toca el día en que el alumno se va: sigue funcionando 30 días,
 
 En la parte superior de la ficha del alumno:
 
-- **Cancelar la desactivación programada** — conserva la cuenta aunque el alumno se haya ido.
+- **Cancelar la desactivación programada** — conserva la cuenta aunque el alumno se haya ido. EMS envía un correo al alumno (a la dirección personal y a la corporativa) para decirle que la cuenta no se desactivará; si se desarchiva al alumno antes de la fecha, ocurre lo mismo.
 - **Suspender la cuenta de Google** — la suspende de inmediato, sin esperar los 30 días. Esto también inicia la cuenta atrás de 30 días hasta la eliminación.
 - **Eliminar la cuenta de Google** — la elimina definitivamente, sin esperar. Pide confirmación antes; no se puede deshacer.
 - **Reactivar la cuenta de Google** — recupera una cuenta suspendida y anula su eliminación.

@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { inputFiles } from "@web/../tests/utils";
 import { checkActions, clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // A department head writes a department minute end to end: the type lays out the sections, the
@@ -182,6 +183,28 @@ registry.category("web_tour.tours").add("ems_minute_write", {
             trigger: ".o_form_saved .o_field_widget[name='agreement_ids'] .o_ems_record_card_cell[data-name='is_closed_in_minute'] input:checked",
             content: "It stays done once saved",
         },
+        {
+            // Issue #803: a file from the writer's own computer, not only a document already in EMS.
+            trigger: ".o_field_widget[name='annex_attachment_ids'] .o_attach",
+            content: "Attach a file of one's own as an annex",
+            async run() {
+                const files = [new File(["%PDF-1.4"], "Budget 2026.pdf", { type: "application/pdf" })];
+                await inputFiles(".o_field_widget[name='annex_attachment_ids'] .o_input_file", files);
+            },
+        },
+        {
+            trigger: ".o_field_widget[name='annex_attachment_ids'] .o_attachment[title='Budget 2026.pdf']:not(.o_attachment_uploading)",
+            content: "The file is listed among the annexes",
+        },
+        {
+            trigger: ".o_form_button_save",
+            content: "Save the annex",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_saved .o_field_widget[name='annex_attachment_ids'] .o_attachment[title='Budget 2026.pdf']",
+            content: "It stays once saved",
+        },
         ...clickAction("action_open_submit_dialog", "Send it for approval"),
         {
             // Everybody convened gets the draft, whether they passed the tag or not.
@@ -218,6 +241,11 @@ registry.category("web_tour.tours").add("ems_minute_read_only", {
         {
             trigger: ".o_form_view:not(:has(.o_form_editable)):not(:has([contenteditable='true'])):not(:has(.o_field_x2many_list_row_add))",
             content: "Nothing can be typed in or added",
+        },
+        {
+            // Issue #803: the files attached are there to open, with no button to attach another.
+            trigger: ".o_field_widget[name='annex_attachment_ids']:not(:has(.o_attach)) .o_attachment[title='Annex.pdf'] a[download]",
+            content: "The annexes can be downloaded, not changed",
         },
         {
             trigger: ".o_form_view:not(:has(.o_form_status_indicator_buttons:not(.invisible)))",

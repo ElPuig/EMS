@@ -12,6 +12,7 @@ from odoo import fields
 from odoo.tests.common import HttpCase, tagged
 
 from .common import DocsScreenshotMixin, create_role_user, mock_outgoing_email
+from .test_erasmus_group_mobility import create_group_mobility_fixtures
 from .test_erasmus_staff import STAFF_PLAN, create_staff_call_fixtures
 from .test_erasmus import PDF
 from .test_portal_erasmus import create_portal_erasmus_fixtures
@@ -137,3 +138,40 @@ class TestDocsScreenshotsErasmusStaff(DocsScreenshotMixin, HttpCase):
                       'valoracions-per-sollicitant.png', login=TestDocsScreenshotsErasmus.TECHNICIAN,
                       wait_for='.o_list_renderer .o_group_header', max_height=180)
 
+    def test_capture_places_per_project(self):
+        """Issue #772: the staff call's places, split among the projects that pay them."""
+        self.staff_vet_project.code, self.staff_hed_project.code = '2026-VET', '2026-HED'
+        self.staff_call.project_place_ids.filtered(lambda line: line.project_id == self.staff_vet_project).places = 2
+        application = self.env['ems.erasmus.application']._ems_portal_get_or_create(
+            self.staff_call, self.staff_users[0].partner_id)
+        application.write({'state': 'accepted'})
+        self.env['ems.erasmus.mobility'].create({'application_id': application.id,
+                                                 'project_id': self.staff_vet_project.id})
+        field = '.o_field_widget[name=project_place_ids]'
+        self._capture(f'/odoo/action-ems.action_erasmus_call/{self.staff_call.id}', field,
+                      'convocatoria-personal-places-projecte.png', login=TestDocsScreenshotsErasmus.TECHNICIAN,
+                      wait_for='.o_notebook a.nav-link[name=project_places]',
+                      click=['.o_notebook a.nav-link[name=project_places]'], wait_after=[f'{field} .o_data_row'])
+
+
+
+@tagged('-standard', 'ems_screenshots', 'post_install', '-at_install')
+class TestDocsScreenshotsErasmusGroup(DocsScreenshotMixin, HttpCase):
+    """The group mobilities' shots, on made-up groups and students."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        mock_outgoing_email(cls)
+        # Created by a coordinator whose language is English.
+        create_group_mobility_fixtures(cls)
+        technician = create_role_user(cls, 'erasmus', TestDocsScreenshotsErasmus.TECHNICIAN, lang='ca_ES',
+                                      tz='Europe/Madrid', name='Laia Exemple')
+        technician.groups_id = [(4, cls.env.ref('ems.group_teacher').id)]
+
+    def test_capture_selection_criteria(self):
+        """Issue #780: the default selection criteria, read in Catalan."""
+        field = '.o_field_widget[name=tie_break]'
+        self._capture(f'/odoo/action-ems.action_erasmus_group_mobility/{self.mobility.id}',
+                      '.o_notebook .tab-content', 'mobilitat-grup-criteris.png', login=TestDocsScreenshotsErasmus.TECHNICIAN,
+                      wait_for=field, max_height=260)

@@ -70,13 +70,15 @@ Registra cada mérito con su justificación, a partir de lo que la persona ha es
 
 ## 5. Plazas, clasificación y resoluciones
 
-Una convocatoria del personal nueva tiene dos **modalidades**, una por proyecto: *Personal de FP (KA121-VET)* y *Personal de educación superior (KA131-HED)*, sin periodo (cada persona propone sus fechas). Antes de preparar la resolución provisional, rellena las plazas que tengas finalmente en cada una. El profesorado no las ve.
+Una convocatoria del personal no tiene modalidades: el profesorado compite en una sola lista y solo ve el total de plazas de la convocatoria. En la pestaña **Selección**, **Plazas por proyecto** es vuestra planificación: una línea por cada proyecto activo que paga plazas, con sus plazas (por ejemplo, 6 en *2025-VET*, 2 en *2026-VET* y 2 en *2026-HED*). Las plazas de la convocatoria son su suma; la columna **Asignadas** cuenta las movilidades que ya están en cada proyecto. Rellénala antes de preparar la resolución provisional. Esta tabla solo la ve el equipo Erasmus+.
+
+![Las plazas por proyecto de una convocatoria del personal, con las movilidades asignadas a cada uno](../../assets/erasmus/convocatoria-personal-places-projecte.png)
 
 El personal se clasifica **en una sola lista** para toda la convocatoria (botón **Clasificación** de la convocatoria). Los empates se deshacen por la puntuación del plan de movilidad, después por quien lleva más tiempo en el centro (el mes y el año de incorporación declarados en el formulario, no los puntos del criterio 5: quien se incorporó en 2000 va antes que quien se incorporó hace seis años, aunque ambos tengan 2 puntos) y, por último, por el sorteo que hace la coordinación Erasmus desde la convocatoria (**Sortear los empates**).
 
 Las resoluciones se publican como en la convocatoria del alumnado: las listas solo muestran cuatro cifras del documento de identidad, nunca nombres. Para el personal se toma de su **ficha de empleado** (DNI o NIE; si no, el pasaporte); si alguien no lo tiene, pide a secretaría que lo añada. EMS ya te lo avisa cuando admites su solicitud, y las listas no se pueden preparar hasta que esté. Si la puntuación de alguien no está completa cuando preparas una resolución, EMS dice qué falta a cada persona (por ejemplo, *Méritos revisados* o *Antigüedad en el centro*).
 
-Quedan seleccionadas las personas que entran dentro de las plazas de la convocatoria (la suma de todas las modalidades); cada persona obtiene como máximo una plaza. Después asigna a cada una su proyecto (VET o HED) en el campo **Modalidad** de la solicitud; su movilidad va a ese proyecto del año.
+Quedan seleccionadas las personas que entran dentro de las plazas de la convocatoria (la suma de las plazas por proyecto); cada persona obtiene como máximo una plaza. Cuando una persona acepta, elige el **Proyecto** en su movilidad: EMS solo ofrece los proyectos de la tabla de la convocatoria y, al lado, muestra cuántas plazas quedan (por ejemplo, *2026-VET: quedan 1 de 2 plazas*). Puedes elegir un proyecto sin plazas libres, pero la movilidad muestra un aviso hasta que le añadas una plaza o elijas otro. El proyecto trae los documentos de su tipo (KA121-VET o KA131-HED). El profesorado nunca ve qué proyecto paga su movilidad. Mientras una plaza aceptada no tiene proyecto, la convocatoria te lo avisa (*N plazas aceptadas sin proyecto*), y las **Solicitudes** de la convocatoria muestran el **Proyecto** de cada persona.
 
 ## 6. Ofertas y hoja de cálculo
 

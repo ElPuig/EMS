@@ -37,8 +37,13 @@ registry.category("web_tour.tours").add("ems_erasmus_pocket_money_secretary", {
     test: true,
     steps: () => [
         {
-            trigger: ".o_list_view .o_data_row td[name='group_mobility_id']",
-            content: "The payments say which group mobility they belong to",
+            trigger: ".o_list_view .o_data_row td[name='partner_id']",
+            content: "The payments to make",
+        },
+        {
+            // Issue #782 (11.6): the group mobility column only when asked for.
+            trigger: ".o_list_view:not(:has(th[data-name='group_mobility_id']))",
+            content: "Hidden by default",
         },
         {
             trigger: ".o_list_view thead .o_list_record_selector input",

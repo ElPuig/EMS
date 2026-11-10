@@ -117,22 +117,12 @@
             </field>
         </record>
 
-        <record id="view_erasmus_satisfaction_pivot" model="ir.ui.view">
-            <field name="name">ems.erasmus.satisfaction.pivot</field>
-            <field name="model">ems.erasmus.satisfaction</field>
-            <field name="arch" type="xml">
-                <pivot>
-                    <field name="course_id" type="row"/>
-                    <field name="participant_type" type="col"/>
-                    <field name="score" type="measure"/>
-                </pivot>
-            </field>
-        </record>
-
+        <!-- Issue #782 (12.9): no pivot view; the quality panel's satisfaction breakdown already gives the
+             mean per kind of participant and course. -->
         <record id="action_erasmus_satisfaction" model="ir.actions.act_window">
             <field name="name">Satisfaction surveys</field>
             <field name="res_model">ems.erasmus.satisfaction</field>
-            <field name="view_mode">list,form,pivot</field>
+            <field name="view_mode">list,form</field>
             <field name="search_view_id" ref="view_erasmus_satisfaction_search"/>
             <field name="context">{'search_default_answered': 1}</field>
         </record>

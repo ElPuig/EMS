@@ -70,13 +70,15 @@ Registra cada mèrit amb la seva justificació, a partir del que la persona ha e
 
 ## 5. Places, classificació i resolucions
 
-Una convocatòria del personal nova té dues **modalitats**, una per projecte: *Personal d'FP (KA121-VET)* i *Personal d'educació superior (KA131-HED)*, sense període (cada persona proposa les seves dates). Abans de preparar la resolució provisional, omple les places que tinguis finalment a cadascuna. El professorat no les veu.
+Una convocatòria del personal no té modalitats: el professorat competeix en una sola llista i només veu el total de places de la convocatòria. A la pestanya **Selecció**, **Places per projecte** és la vostra planificació: una línia per cada projecte actiu que paga places, amb les seves places (per exemple, 6 a *2025-VET*, 2 a *2026-VET* i 2 a *2026-HED*). Les places de la convocatòria en són la suma; la columna **Assignades** compta les mobilitats que ja són a cada projecte. Omple-la abans de preparar la resolució provisional. Aquesta taula només la veu l'equip Erasmus+.
+
+![Les places per projecte d'una convocatòria del personal, amb les mobilitats assignades a cadascun](../../assets/erasmus/convocatoria-personal-places-projecte.png)
 
 El personal es classifica **en una sola llista** per a tota la convocatòria (botó **Classificació** de la convocatòria). Els empats es desfan per la puntuació del pla de mobilitat, després per qui fa més temps que és al centre (el mes i l'any d'incorporació declarats al formulari, no els punts del criteri 5: qui s'hi va incorporar el 2000 va abans que qui s'hi va incorporar fa sis anys, encara que tots dos tinguin 2 punts) i, finalment, pel sorteig que fa la coordinació Erasmus des de la convocatòria (**Sorteja els empats**).
 
 Les resolucions es publiquen com a la convocatòria de l'alumnat: les llistes només mostren quatre xifres del document d'identitat, mai noms. Per al personal es treu de la seva **fitxa d'empleat** (DNI o NIE; si no, el passaport); si algú no en té, demana a la secretaria que l'afegeixi. EMS ja t'ho avisa quan n'admets la sol·licitud, i les llistes no es poden preparar fins que hi sigui. Si la puntuació d'algú no és completa quan prepares una resolució, EMS diu què falta a cada persona (per exemple, *Mèrits revisats* o *Antiguitat al centre*).
 
-Són seleccionades les persones que entren dins de les places de la convocatòria (la suma de totes les modalitats); cada persona obté com a màxim una plaça. Després assigna a cadascuna el projecte (VET o HED) al camp **Modalitat** de la sol·licitud; la seva mobilitat va a aquest projecte de l'any.
+Són seleccionades les persones que entren dins de les places de la convocatòria (la suma de les places per projecte); cada persona obté com a màxim una plaça. Quan una persona accepta, tria el **Projecte** a la seva mobilitat: l'EMS només ofereix els projectes de la taula de la convocatòria i, al costat, mostra quantes places en queden (per exemple, *2026-VET: queden 1 de 2 places*). Pots triar un projecte sense places lliures, però la mobilitat mostra un avís fins que hi afegeixis una plaça o en triïs un altre. El projecte porta els documents del seu tipus (KA121-VET o KA131-HED). El professorat no veu mai quin projecte paga la seva mobilitat. Mentre una plaça acceptada no té projecte, la convocatòria t'ho avisa (*N places acceptades sense projecte*), i les **Sol·licituds** de la convocatòria mostren el **Projecte** de cada persona.
 
 ## 6. Ofertes i full de càlcul
 

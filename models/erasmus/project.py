@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import re
+
 from dateutil.relativedelta import relativedelta
 
 from odoo import _, api, fields, models
@@ -12,6 +14,9 @@ from .workflow import check_kept
 
 # SEPIE: keep the documents 3 years after the final payment of the grant, 5 when it is above 60,000 € (issue #697).
 LARGE_PROJECT = 60000
+# Issue #772: the short name a project takes from its agreement number, e.g. "2026-VET" from
+# "2026-1-ES01-KA121-VET-000123456".
+AGREEMENT_NUMBER = re.compile(r'^(\d{4})-.*-(VET|HED)-')
 
 
 class EmsErasmusProject(models.Model):
@@ -24,8 +29,12 @@ class EmsErasmusProject(models.Model):
     _description = 'Erasmus+ project'
     _inherit = ['ems.base']
     _order = 'active desc, kind, name desc'
+    _rec_names_search = ['code', 'name']
 
     name = fields.Char(string="Agreement number", required=True, help="e.g. 2026-1-ES01-KA121-VET-000123456")
+    code = fields.Char(string="Short name", compute='_compute_code', store=True, readonly=False, precompute=True,
+                       help="What lists and dropdowns show, e.g. 2026-VET. Taken from the agreement number, "
+                            "editable.")
     kind = fields.Selection(string="Kind", selection=PROJECTS, required=True)
     date_start = fields.Date(string="Start")
     date_end = fields.Date(string="End")
@@ -67,6 +76,15 @@ class EmsErasmusProject(models.Model):
             project.keep_until = project.final_payment_date and project.budget and \
                 project.final_payment_date + relativedelta(years=years)
 
+    @api.depends('name')
+    def _compute_code(self):
+        for project in self:
+            match = AGREEMENT_NUMBER.match(project.name or '')
+            if match:
+                project.code = f"{match[1]}-{match[2]}"
+            elif not project.code:
+                project.code = False
+
     @api.depends('mobility_ids.state', 'mobility_ids.record_missing')
     def _compute_record_counts(self):
         for project in self:
@@ -75,11 +93,13 @@ class EmsErasmusProject(models.Model):
             project.record_complete_count = len(mobilities.filtered(lambda mobility: not mobility.record_missing))
             project.record_missing_count = sum(mobilities.mapped('record_missing'))
 
-    @api.depends('name', 'kind')
+    @api.depends('code', 'name', 'kind')
     def _compute_display_name(self):
+        """Issue #772: the short name, or the agreement number with its kind when it has none."""
         kinds = dict(self._fields['kind'].selection)
         for project in self:
-            project.display_name = f"{project.name} ({kinds.get(project.kind, '')})" if project.kind else project.name
+            project.display_name = project.code or (
+                f"{project.name} ({kinds.get(project.kind, '')})" if project.kind else project.name)
 
     def write(self, vals):
         """A new keeping date (the final payment or the grant corrected) is told again when it comes."""

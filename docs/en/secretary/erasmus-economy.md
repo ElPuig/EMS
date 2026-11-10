@@ -29,7 +29,7 @@ An expense counts against the project's budget from the moment it is registered:
 
 Each participant of an Erasmus+ group mobility (students and accompanying teachers) receives part of their grant as **pocket money**. When the Erasmus team requests it, you get **one task for the whole group** ("pay the pocket money of …: N payments, total"), not one per person. To pay it:
 
-1. Go to **Erasmus+ > Financial management > Grant payments**. The **Group mobility** column says which group each payment belongs to (you can filter or group by it).
+1. Go to **Erasmus+ > Financial management > Grant payments**. To see which group each payment belongs to, add the **Group mobility** column from the column selector, or group the list by it.
 2. Select the group's payments and click **Register transfer**, or open one of them and use **Actions > Register the transfer of the whole group**.
 3. Enter the transfer date and attach the bank's receipt. The task is done once nothing of the group is left to pay; if you pay only some, it stays with the number and amount still pending.
 

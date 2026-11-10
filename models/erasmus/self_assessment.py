@@ -16,7 +16,7 @@ class EmsErasmusCallQuestion(models.Model):
     call_id = fields.Many2one(string="Call", comodel_name='ems.erasmus.call', required=True, ondelete='cascade',
                               index=True)
     sequence = fields.Integer(string="Sequence", default=10)
-    name = fields.Char(string="Question", required=True)
+    name = fields.Char(string="Question", required=True, translate=True)
     kind = fields.Selection(string="Answer", selection=QUESTION_KINDS, required=True, default='text')
 
 

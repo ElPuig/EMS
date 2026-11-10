@@ -307,6 +307,7 @@ from . import test_erasmus_records
 from . import test_erasmus_grant_tour
 from . import test_erasmus_staff_tour
 from . import test_erasmus_group_mobility
+from . import test_erasmus_staff_places_tour
 from . import test_erasmus_group_mobility_tour
 from . import test_erasmus_group_mobility_e2e
 from . import test_erasmus_integration
@@ -334,5 +335,9 @@ from . import test_erasmus_polish_labels
 from . import test_erasmus_polish_labels_tour
 from . import test_erasmus_polish_selection_lists
 from . import test_erasmus_polish_selection_lists_tour
+from . import test_erasmus_polish_other_lists
+from . import test_erasmus_polish_other_lists_tour
 from . import test_erasmus_call_fewer_fields
 from . import test_erasmus_call_fewer_fields_tour
+from . import test_erasmus_polish_default_data
+from . import test_erasmus_polish_default_data_tour

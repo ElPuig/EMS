@@ -15,13 +15,18 @@ Group mobilities (KA121-VET) are stays of a group of students of one or more of 
 1. Go to **Erasmus+ > Mobilities > Group mobilities** and click **New**.
 2. Fill in the name (e.g. *SMX2 morning*), the KA121-VET **project**, the **shift** (it only helps to find the groups) and the **eligible groups** (the centre's real groups, e.g. SMX2A and SMX2B).
 3. Set the student places (8 by default), the accompanying teachers (2), the **leader teacher** and the other accompanying teacher.
-4. In the **Enrolment** tab, set the enrolment period, check the **selection criteria** (published on the portal) and, if needed, the information for students (to paste a card prepared elsewhere, use the **`</>`** button, as in the call's information for applicants).
+4. In the **Enrolment** tab, set the enrolment period, check the **selection criteria** (published on the portal, in each family's language: a new group mobility brings them, and its documents, in Catalan, Spanish and English) and, if needed, the information for students (to paste a card prepared elsewhere, use the **`</>`** button, as in the call's information for applicants).
+
+   ![A new group mobility's selection criteria, in Catalan although an account in English created it](../../assets/erasmus/mobilitat-grup-criteris.png)
+
 5. The destination, host entity and dates can stay pending until they are confirmed.
 6. In **Actions**, click **Open the enrolment**.
 
 Teachers go through no staff call: once saved, they see the mobility in **Erasmus+ > My participation > My group mobilities**.
 
 ## Ranking and selection
+
+The **Selection** tab starts with the students' table: rank, name, group, the **Average** used and the proposed and final result. The other columns (record average, conduct warnings, fewer opportunities, exception, average entered by hand, reserve position...) are added from the column selector, at the right end of the table's header. The dates of each step, the notes and the published lists are at the end of the tab.
 
 - During the enrolment, the **Selection** tab already lists who has enrolled (only the Erasmus team sees it).
 - When the enrolment period ends (or with **Close the enrolment now**), EMS freezes each enrolment's data: the group, the **record average** (the same formula as the internship call) and this course's conduct warnings. A student not in an eligible group is excluded. Conduct warnings exclude nobody on their own: with a serious conduct record, the coordinator may exclude the student with an **Exception**, giving the reason, after hearing the teaching team and the coexistence team.
@@ -30,7 +35,7 @@ Teachers go through no staff call: once saved, they see the mobility in **Erasmu
 - **Students with no grades:** if an eligible student has no evaluated module, EMS does not give them a 0: they are left out of the ranking and the mobility shows a red warning. Neither the proposal nor the approval can go ahead until it is solved, in the **Selection** tab: tick *Average entered by hand* and write the average and *Where the average comes from* (for example, the academic record), or the coordinator excludes the student with an *Exception* and its reason.
 - The leader teacher reviews the ranking and sends the proposal. If they ask for an exception, the coordinator gets a task that stays pending until they set the exception or approve the selection. You get a task: publish the lists or, in **Actions**, **Send the proposal back** with the reason.
 - **Provisional list:** in the **Selection** tab, set the *Claims deadline*. Then, in **Actions**, **Publish the provisional list**: each student receives their provisional result by email and can claim from the portal until that deadline. Each claim arrives with its files, the whole Erasmus team gets a task to answer it, and it appears in the **Selection** tab (*Claims*) and in **Erasmus+ > Calls > Claims**: write the *Response* and click **Resolve**; the student receives it by email. The list shows each student only by four digits of their identity document, with their rank, record average and result (selected, reserve or excluded); EMS refuses to publish it while a student has no identity document recorded.
-- To make an exception to the ranking (for example, after accepting a claim), set the *Exception* and its *Reason for the exception* in the **Selection** tab before approving. If a claim shows that an average was wrong, correct it with *Average entered by hand* and *Where the average comes from*, also for a student who has grades: the ranking uses the *Average used* column. A student excluded with an exception leaves the ranking and their place goes to the next one. If you select someone with an exception instead, move someone else to reserve: EMS does not approve more selected students than places, and the mobility warns you while there are more.
+- To make an exception to the ranking (for example, after accepting a claim), set the *Exception* and its *Reason for the exception* in the **Selection** tab (add both columns from the column selector) before approving. If a claim shows that an average was wrong, correct it with *Average entered by hand* and *Where the average comes from*, also for a student who has grades: the ranking uses the *Average used* column. A student excluded with an exception leaves the ranking and their place goes to the next one. If you select someone with an exception instead, move someone else to reserve: EMS does not approve more selected students than places, and the mobility warns you while there are more.
 - **Definitive list:** in **Actions**, **Approve and publish the selection** publishes the definitive list, emails each student their own result and opens the files. It is not available until the provisional list is published, its claims deadline has passed and every claim is answered. Both lists stay in the **Selection** tab (*Published lists*), on the portal of the students who enrolled, as a PDF, and in the documents export.
 
 ## Withdrawals and substitutions
@@ -53,7 +58,9 @@ Every Erasmus+ document is prepared outside EMS: EMS keeps the files, the signat
 - **Green Travel: sworn statement and evidence**, optional: only when Green Travel is declared.
 - **Group inclusion documentation**, optional and confidential: evidence of the fewer opportunities and, when there are real inclusion costs, why the support was needed. Their invoices go in the **Collective expenses** tab.
 - **Europass mobility document** (students) and **Certificate of stay** (teachers): optional, they never stop the mobility from closing.
-- The **image rights** are not asked for again: the *Image rights* column of the **Participants** tab shows each student's authorisation of the course, the one EMS already uses. The **European Health Insurance Card** is confidential, as in the calls: only the Erasmus team sees it. The files of a valid document or of a closed mobility cannot be removed (upload a new version instead), and every review is written in the mobility's chatter.
+- The **image rights** are not asked for again: the *Image rights* column of the **Participants** tab (column selector) shows each student's authorisation of the course, the one EMS already uses. The **European Health Insurance Card** is confidential, as in the calls: only the Erasmus team sees it. The files of a valid document or of a closed mobility cannot be removed (upload a new version instead), and every review is written in the mobility's chatter.
+
+The **Participants** tab shows each person's role, name, group, whether they are a minor, the **Docs. pending**, whether they are **Ready** to leave and their state; a withdrawn participant is greyed out, with nothing in red. Email, phone, image rights, the collective insurance and the commitment letters are in the column selector.
 
 ## Commitment letter
 

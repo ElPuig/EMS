@@ -95,8 +95,9 @@ registry.category("web_tour.tours").add("ems_erasmus_call_fewer_fields_staff", {
             content: "In a staff call it is the commission's deadline",
         },
         {
-            trigger: ".o_field_widget[name='modality_ids'] table th[data-name='project']",
-            content: "A staff modality keeps its project",
+            // Issue #772: no modalities, the places per project instead.
+            trigger: ".o_form_view .o_notebook:not(:has(a.nav-link[name='modalities'])) .o_field_widget[name='project_place_ids'] table th[data-name='project_id']",
+            content: "Places per project, no modalities",
         },
         {
             trigger: ".o_form_view .o_notebook:not(:has(a.nav-link[name='documents'])):not(:has(a.nav-link[name='panel'])):not(:has(a.nav-link[name='mobility_block']))",

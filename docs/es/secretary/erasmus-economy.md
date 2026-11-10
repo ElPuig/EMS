@@ -29,7 +29,7 @@ Un gasto cuenta en el presupuesto del proyecto desde que se registra: pagarlo no
 
 Cada participante de una movilidad de grupo Erasmus+ (alumnos y docentes acompañantes) recibe parte de su beca como **dinero de bolsillo**. Cuando el equipo Erasmus lo solicita, recibes **una sola tarea para todo el grupo** («pagar el dinero de bolsillo de …: N pagos, total»), no una por persona. Para pagarlo:
 
-1. Ve a **Erasmus+ > Gestión económica > Pagos de becas**. La columna **Movilidad de grupo** dice a qué grupo pertenece cada pago (puedes filtrar o agrupar por ella).
+1. Ve a **Erasmus+ > Gestión económica > Pagos de becas**. Para ver a qué grupo pertenece cada pago, añade la columna **Movilidad de grupo** desde el selector de columnas, o agrupa la lista por ella.
 2. Selecciona los pagos del grupo y haz clic en **Registrar la transferencia**, o abre uno y usa **Acciones > Registrar la transferencia de todo el grupo**.
 3. Introduce la fecha de la transferencia y adjunta el justificante del banco. La tarea se da por hecha cuando no queda nada del grupo por pagar; si solo pagas una parte, sigue con el número y el importe que faltan.
 

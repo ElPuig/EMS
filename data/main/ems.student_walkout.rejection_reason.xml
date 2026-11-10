@@ -25,14 +25,6 @@
             <field name="name">The call is for another autonomous community</field>
             <field name="sequence">5</field>
         </record>
-        <record id="student_walkout_rejection_duplicate" model="ems.student_walkout.rejection_reason">
-            <field name="name">Duplicate call</field>
-            <field name="sequence">6</field>
-        </record>
-        <record id="student_walkout_rejection_not_delegate" model="ems.student_walkout.rejection_reason">
-            <field name="name">Opened by someone who is not the delegate or sub-delegate</field>
-            <field name="sequence">7</field>
-        </record>
         <record id="student_walkout_rejection_other" model="ems.student_walkout.rejection_reason">
             <field name="name">Other reasons</field>
             <field name="sequence">99</field>

@@ -295,7 +295,7 @@
                             <p>
                                 As the group's tutor, check the union's call: you can abort the call while it is voted
                                 or joined, only for a formal defect (no valid call of a students' union for that day,
-                                one that does not cover the group, a duplicate...), never because of its cause.
+                                one that does not cover the group...), never because of its cause.
                             </p>
                         </t>
                         <p t-elif="event == 'join'">

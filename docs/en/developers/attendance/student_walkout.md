@@ -135,8 +135,9 @@ walkouts → Rejection reasons; academic administrators and Heads of Studies), l
 reasons: `name` (translatable), `sequence`, `active`, `requires_details`. Seeded with
 `noupdate="1"` (the centre edits it) with the formal defects only: no official call that day, the
 attached document is not a valid call, the call does not include the group's level or studies,
-another sector (not students), another autonomous community, duplicate call, opened by someone who
-is not the delegate or sub-delegate, and "Other reasons" (`requires_details`). Both are done from
+another sector (not students), another autonomous community, and "Other reasons"
+(`requires_details`). A duplicate call or one opened by someone who is not the delegate cannot
+happen (the portal refuses both), so they are not reasons. Both are done from
 `ems.student_walkout.reject.wizard`; while aborting, it shows what the law allows (LODE art. 8: the
 centre cannot stop a walkout because of its cause, only for a formal defect) and what it does not
 (disagreeing with the cause, an exam or an outing that day, low attendance, putting pressure on the

@@ -8,13 +8,15 @@
             <field name="name">ems.erasmus.project.list</field>
             <field name="model">ems.erasmus.project</field>
             <field name="arch" type="xml">
+                <!-- Issue #782 (10.9): no switch that archives a project with one click: it is archived
+                     from Actions, as everywhere in Odoo. -->
                 <list string="Projects" decoration-muted="not active">
                     <field name="name"/>
                     <field name="kind"/>
                     <field name="date_start"/>
                     <field name="date_end"/>
-                    <field name="keep_until" optional="show"/>
-                    <field name="active" widget="boolean_toggle"/>
+                    <field name="keep_until" optional="hide"/>
+                    <field name="active" column_invisible="1"/>
                 </list>
             </field>
         </record>
@@ -99,7 +101,9 @@
                                 </field>
                             </page>
                             <page string="Mobilities" name="mobilities" groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
-                                <field name="mobility_ids" readonly="1">
+                                <!-- Issue #782 (10.11): both tables with a title, shown only when there is any. -->
+                                <separator string="Individual mobilities" invisible="not mobility_ids"/>
+                                <field name="mobility_ids" readonly="1" invisible="not mobility_ids">
                                     <list decoration-muted="state == 'cancelled'">
                                         <field name="partner_id"/>
                                         <field name="call_id"/>
@@ -108,7 +112,7 @@
                                         <field name="date_start"/>
                                         <field name="date_end"/>
                                         <field name="record_progress"/>
-                                        <field name="record_missing" decoration-danger="record_missing"
+                                        <field name="record_missing" string="Pending" decoration-danger="record_missing"
                                                decoration-success="not record_missing"/>
                                         <field name="state" widget="badge"/>
                                         <button name="action_open" type="object" string="Open the record" icon="fa-folder-open-o"/>
@@ -120,10 +124,10 @@
                                         <field name="name"/>
                                         <field name="date_start"/>
                                         <field name="date_end"/>
-                                        <field name="selected_count"/>
-                                        <field name="documents_missing" decoration-danger="documents_missing"
+                                        <field name="selected_count" string="Selected"/>
+                                        <field name="documents_missing" string="Pending" decoration-danger="documents_missing"
                                                decoration-success="not documents_missing"/>
-                                        <field name="documents_to_review"/>
+                                        <field name="documents_to_review" string="To review"/>
                                         <field name="state" widget="badge"/>
                                     </list>
                                 </field>
@@ -154,15 +158,18 @@
                             </page>
                             <page string="Exports" name="exports" groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin">
                                 <field name="export_ids" readonly="1">
+                                    <!-- Issue #782 (10.12): the log the audits ask for, readable: when, who, what
+                                         (with the participant's or the group's name), confidential, files. -->
                                     <list>
-                                        <field name="date" options="{'show_time': False}"/>
-                                        <field name="requester_id"/>
-                                        <field name="scope"/>
-                                        <field name="mobility_id" optional="show"/>
-                                        <field name="include_confidential"/>
-                                        <field name="reason" optional="show"/>
-                                        <field name="file_count"/>
-                                        <field name="missing_count"/>
+                                        <field name="date" string="Date" options="{'show_time': False}"/>
+                                        <field name="requester_id" string="Who"/>
+                                        <field name="subject"/>
+                                        <field name="scope" optional="hide"/>
+                                        <field name="mobility_id" optional="hide"/>
+                                        <field name="include_confidential" string="Confidential"/>
+                                        <field name="reason" optional="hide"/>
+                                        <field name="file_count" widget="ems_blank_zero"/>
+                                        <field name="missing_count" widget="ems_blank_zero" optional="hide"/>
                                         <field name="zip_sha256" optional="hide"/>
                                     </list>
                                 </field>

@@ -1909,6 +1909,7 @@ msgstr "Aprovat"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_search
 #: code:addons/ems/models/erasmus/export.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_partner_erasmus_host_search
 msgid "Archived"
 msgstr "Arxivat"
 
@@ -3016,6 +3017,8 @@ msgstr "No s'han pogut llegir les capçaleres de columnes del fitxer CSV."
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_history__country_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_satisfaction__country_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_staff_proposal_wizard__proposal_country_id
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
+#: model_terms:ir.ui.view,arch_db:ems.view_partner_erasmus_host_search
 msgid "Country"
 msgstr "País"
 
@@ -3539,6 +3542,7 @@ msgstr "Dades descarregades"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_amendment__date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_line__date
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 msgid "Date"
 msgstr "Data"
 
@@ -5084,6 +5088,7 @@ msgstr "Grup"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_search
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_support_rate_search
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search
+#: model_terms:ir.ui.view,arch_db:ems.view_partner_erasmus_host_search
 msgid "Group By"
 msgstr "Agrupar per"
 
@@ -7751,6 +7756,7 @@ msgstr "Pla de pagament"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_search
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_review__state__pending
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 msgid "Pending"
 msgstr "Pendent"
 
@@ -8889,6 +8895,7 @@ msgstr "Enviat per"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__sent_date
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__sent_date model:ir.model.fields,field_description:ems.field_ems_info_notice__sent_date
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
 msgid "Sent on"
 msgstr "Enviat el"
 
@@ -9210,6 +9217,7 @@ msgstr "Estat / Província"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__file_state
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__rating_status
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__status_id
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 msgid "Status"
 msgstr "Estat"
 
@@ -12221,6 +12229,7 @@ msgstr "Això expulsa immediatament els estudiants seleccionats. Vols continuar?
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_history__kind
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__kind
 #: code:addons/ems/models/erasmus/economy.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_economy_panel_search
 msgid "Kind"
 msgstr "Tipus"
 
@@ -19657,6 +19666,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_search
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 msgid "To review"
 msgstr "Per revisar"
 
@@ -21180,6 +21190,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__pending_validation
 #: model:ir.actions.act_window,name:ems.action_erasmus_mobility_to_validate
 #: model:ir.ui.menu,name:ems.menu_erasmus_mobilities_to_validate
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
 msgid "Pending validation"
 msgstr "Pendents de validar"
 
@@ -28704,6 +28715,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__record_progress
 #: code:addons/ems/models/erasmus/export.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_staff_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_kanban
 msgid "Record"
 msgstr "Expedient"
 
@@ -31077,6 +31089,7 @@ msgstr "Comentari per al sol·licitant"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__confidential
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__confidential
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_document__confidential
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 msgid "Confidential"
 msgstr "Confidencial"
 
@@ -31311,6 +31324,7 @@ msgstr "Compleix"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__is_minor
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__is_minor
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
 msgid "Minor"
 msgstr "Menor d'edat"
 
@@ -33470,6 +33484,7 @@ msgstr "La veu la comissió"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_history__role__staff
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_quality_panel__participant_type__staff
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_satisfaction__participant_type__staff
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_search
 msgid "Staff"
 msgstr "Personal"
 
@@ -34129,6 +34144,8 @@ msgstr "Persona de contacte de l'entitat"
 #: model:ir.actions.act_window,name:ems.action_erasmus_host_entity
 #: model:ir.ui.menu,name:ems.menu_erasmus_host_entities
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__host_partner_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_partner_erasmus_host_list
+#: model_terms:ir.ui.view,arch_db:ems.view_partner_erasmus_host_search
 msgid "Host entities"
 msgstr "Entitats d'acollida"
 
@@ -34181,6 +34198,8 @@ msgstr "Tutor legal"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_search
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__mobility_ids
 #: model:ir.ui.menu,name:ems.menu_erasmus_section_mobilities
+#: model:ir.model.fields,field_description:ems.field_res_partner__erasmus_mobility_count
+#: model:ir.model.fields,field_description:ems.field_res_users__erasmus_mobility_count
 msgid "Mobilities"
 msgstr "Mobilitats"
 
@@ -34313,6 +34332,8 @@ msgstr "Obre l'elecció de destinació"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_satisfaction__partner_id
 #: code:addons/ems/models/erasmus/economy.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__group_participant_id
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__responsible__participant
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
 msgid "Participant"
 msgstr "Participant"
 
@@ -35637,6 +35658,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__amount
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_line__amount
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_support_rate_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form_economy
 msgid "Amount"
 msgstr "Import"
 
@@ -38357,6 +38380,7 @@ msgstr "Inscripcions"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__user_role__team
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__responsible__team
 msgid "Erasmus team"
 msgstr "Equip Erasmus"
 
@@ -41130,6 +41154,7 @@ msgstr "p. ex. La família ha dit al professor líder que no pot viatjar"
 #. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
 #: code:addons/ems/models/erasmus/satisfaction.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
 msgid "Average"
 msgstr "Mitjana"
 
@@ -41172,6 +41197,7 @@ msgstr "Gestió econòmica"
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_erasmus_mobilities
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 msgid "Individual mobilities"
 msgstr "Mobilitats individuals"
 
@@ -45675,6 +45701,8 @@ msgstr "Correu a la família enviat"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__family_email_state__ready
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_list
 msgid "Ready"
 msgstr "A punt"
 
@@ -48589,6 +48617,7 @@ msgstr "Enviada"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__audience__student
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_search
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_search
 msgid "Students"
 msgstr "Alumnat"
 
@@ -48597,11 +48626,6 @@ msgstr "Alumnat"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_kanban
 msgid "Enrolled"
 msgstr "Inscrits"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__todo_state__waiting_team
-msgid "The Erasmus team uploads it"
-msgstr "Equip Erasmus"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
@@ -48660,11 +48684,13 @@ msgstr "Tornada"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 msgid "Selected"
 msgstr "Seleccionats"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
 msgid "Docs. pending"
 msgstr "Docs. pendents"
 
@@ -48686,6 +48712,7 @@ msgstr "Subvenció"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_support_rate_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
 msgid "From"
 msgstr "Des de"
 
@@ -48804,3 +48831,56 @@ msgstr "Terminis després del tancament (omplerts a partir de la data de tancame
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 msgid "The dates do not follow the order of the process:"
 msgstr "Les dates no segueixen l'ordre del procés:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_kanban
+msgid "<i class=\"fa fa-folder-open-o me-1\" role=\"img\" aria-label=\"Record\"/>"
+msgstr "<i class=\"fa fa-folder-open-o me-1\" role=\"img\" aria-label=\"Expedient\"/>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form_economy
+msgid "Amount entered"
+msgstr "Import introduït"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_list
+msgid "Back"
+msgstr "Tornada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_export__subject
+msgid "Exported"
+msgstr "Què"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__erasmus_mobility_count
+#: model:ir.model.fields,help:ems.field_res_users__erasmus_mobility_count
+msgid "Individual and group mobilities hosted, cancelled ones aside."
+msgstr "Mobilitats individuals i de grup acollides, sense comptar les cancel·lades."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
+msgid "Proposed entity"
+msgstr "Entitat proposada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__responsible__team_to_sign
+msgid "Team and participant"
+msgstr "Equip i participant"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
+msgid "To"
+msgstr "Fins a"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__todo_state__waiting_team
+msgid "Waiting for the team"
+msgstr "Pendent de l'equip"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__responsible
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
+msgid "Who"
+msgstr "Qui"

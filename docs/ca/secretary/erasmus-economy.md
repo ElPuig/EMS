@@ -29,7 +29,7 @@ Una despesa compta en el pressupost del projecte des que es registra: pagar-la n
 
 Cada participant d'una mobilitat de grup Erasmus+ (alumnes i docents acompanyants) rep part de la seva beca com a **diners de butxaca**. Quan l'equip Erasmus els demana, rebeu **una sola tasca per a tot el grup** («pagar els diners de butxaca de …: N pagaments, total»), no una per persona. Per pagar-los:
 
-1. Aneu a **Erasmus+ > Gestió econòmica > Pagaments de beques**. La columna **Mobilitat de grup** diu a quin grup pertany cada pagament (podeu filtrar o agrupar per aquesta columna).
+1. Aneu a **Erasmus+ > Gestió econòmica > Pagaments de beques**. Per veure a quin grup pertany cada pagament, afegiu la columna **Mobilitat de grup** des del selector de columnes, o agrupeu-hi la llista.
 2. Seleccioneu els pagaments del grup i feu clic a **Registra la transferència**, o obriu-ne un i feu servir **Accions > Registra la transferència de tot el grup**.
 3. Introduïu la data de la transferència i adjunteu el justificant del banc. La tasca es dona per feta quan no queda res del grup per pagar; si només en pagueu una part, continua amb el nombre i l'import que falten.
 

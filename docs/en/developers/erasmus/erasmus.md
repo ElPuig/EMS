@@ -1239,7 +1239,7 @@ with its state. The call's page also links the published call.
 
 **Host entities:** `res.partner.is_erasmus_host` marks a company, school or course provider that
 hosts participants; its contacts are the tutors at destination, with their email. Menu *Erasmus+ >
-Configuration > Host entities* (`action_erasmus_host_entity`, the native contact views). The mobility's and the
+Configuration > Host entities* (`action_erasmus_host_entity`: its own list and search view, the native kanban and form). The mobility's and the
 destination's host fields only offer host entities, the mobility shows the tutor's email
 (`host_contact_email`) and picks the tutor automatically when the entity has only one contact. The
 Learning Agreement already says it is signed by the host entity (`sign_host`); sending it to the
@@ -1424,3 +1424,36 @@ flowchart LR
   `parent.audience` hides the legal guardian's and the centre's tutor's signature on a staff call.
 - **Documents of an application:** `review_comment` only shows where it says something, and the
   results tab says the resolution's kind, with no zeros on an admission list.
+
+### Mobility, group, project, economy and configuration lists (issue #782)
+
+- **Mobilities:** the list shows `record_progress` (non-stored, computed for the page only) and
+  short headers (`Ready`, `Back`); the proposal's state and the rank are optional. The search view
+  has *Students* / *Staff* filters on the stored `audience`. `view_erasmus_mobility_kanban` groups
+  the cards by `state` (no drag and drop: a phase changes through the form's actions).
+  *Pending validation* (`action_erasmus_mobility_to_validate`) has its own list,
+  `view_erasmus_mobility_to_validate_list`: what was proposed (`proposal_*`), the same for the
+  Direction and the Erasmus team.
+- **A mobility's record table:** who handles each line is `responsible` (non-stored, the call
+  document's `handled_by` with one-word labels), apart from `todo_state`, whose `waiting_team` reads
+  *Waiting for the team* (also on the portal). The table shows `current_attachment_ids`;
+  `prepared_attachment_ids` (the team's upload) only on lines the team hands over, `attachment_ids`
+  (every version, editable) optional.
+- **Group mobility:** the Selection tab starts with `registration_ids` (the columns of the ranking:
+  rank, name, group, `ranking_average`, proposed and final result); the history of the selection
+  (`selection_history`: dates, notes, published lists, claims) closes the tab. The Participants tab
+  shows seven columns and never colours a withdrawal's missing documents.
+- **Projects:** the list has no `active` toggle (archived from Actions); both mobility tables have
+  a separator and hide when empty. The exports log reads `ems.erasmus.export.subject` (non-stored:
+  the scope plus the participant's or the group's name, from `_ems_target_name()`, shared with the
+  display name) and leaves the counts blank on a participants' spreadsheet (`ems_blank_zero`).
+- **Economy:** the comparison pivot opens with three measures (grant, committed, available); the
+  expense lists show one amount, `counted_amount`, titled *Amount* (`amount` is optional, *Amount
+  entered*). The economic panel and the project list both call `kind` *Kind*.
+- **Quality:** `ems.erasmus.satisfaction` has no pivot view: the quality panel's satisfaction
+  breakdown gives the same means.
+- **Configuration:** *Host entities* has its own list and search view (no student-group search
+  panel): name, country, city, OID and `res.partner.erasmus_mobility_count` (non-stored, one
+  `_read_group` per mobility model for the whole page, cancelled ones aside). The organisational
+  support rates open grouped by year, newest first; `call_year` has `aggregator=None` on rates and
+  projects so that a group's row never sums years.

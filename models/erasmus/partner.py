@@ -22,6 +22,9 @@ class ResPartner(models.Model):
     # meant for the students' data; the Erasmus team needs it on host entities and their tutors.
     can_edit_erasmus_host = fields.Boolean(string="Can edit the host entity",
                                            compute='_compute_can_edit_erasmus_host')
+    # Issue #782 (13.4): how much a host entity has been used, on its list.
+    erasmus_mobility_count = fields.Integer(string="Mobilities", compute='_compute_erasmus_mobility_count',
+                                            help="Individual and group mobilities hosted, cancelled ones aside.")
 
     @api.depends('is_erasmus_host', 'parent_id.is_erasmus_host')
     @api.depends_context('uid')
@@ -29,6 +32,17 @@ class ResPartner(models.Model):
         is_team = self.env.user.has_group('ems.group_erasmus')
         for partner in self:
             partner.can_edit_erasmus_host = is_team and (partner.is_erasmus_host or partner.parent_id.is_erasmus_host)
+
+    def _compute_erasmus_mobility_count(self):
+        """One grouped count per model for the whole list, never a search per row."""
+        counts = dict.fromkeys(self.ids, 0)
+        for model in ('ems.erasmus.mobility', 'ems.erasmus.group.mobility'):
+            for host, count in self.env[model].sudo()._read_group(
+                    [('host_partner_id', 'in', self.ids), ('state', '!=', 'cancelled')], ['host_partner_id'],
+                    ['__count']):
+                counts[host.id] += count
+        for partner in self:
+            partner.erasmus_mobility_count = counts.get(partner.id, 0)
 
     def _ems_erasmus_calls(self):
         """Published calls this person can apply to, open or not yet: the students' calls with a

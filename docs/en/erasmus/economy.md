@@ -12,7 +12,7 @@ For each Erasmus+ project EMS shows how much grant it has, how much has been rec
 
 ## The economic panel
 
-**Erasmus+ > Financial management > Economic panel** shows one row per project: *Awarded*, *Committed*, *Paid*, *Available*, *Support generated* and how many warnings it has. You can filter by action (KA121-VET, KA131-HED), by whether the final payment has been received, or the projects *Above the grant*, and group them by call year. The **pivot** view compares calls and actions side by side. To see older, archived projects, use the **Archived too** filter.
+**Erasmus+ > Financial management > Economic panel** shows one row per project: *Awarded*, *Committed*, *Paid*, *Available*, *Support generated* and how many warnings it has. You can filter by kind (KA121-VET, KA131-HED), by whether the final payment has been received, or the projects *Above the grant*, and group them by call year. The **pivot** view compares calls and kinds of project side by side: it opens with the grant, what is committed and what is available (the other figures, under **Measures**). To see older, archived projects, use the **Archived too** filter.
 
 Click a project to open its **Economy** tab.
 
@@ -49,12 +49,12 @@ On the **Grant** tab of a mobility you see its *economic state* (forecast, commi
 3. While it is not paid you can change it. Once paid, its figures only change with **Actions > Correct**: write the new figures and the reason. The reason stays in its history and the project warns that it was changed after payment.
    - **If the new amount is higher than what was transferred**, the expense keeps the amount already paid and EMS creates a new expense for the difference, *to pay*, with a task for the Secretary. Example: a working meal of 75 € was paid, but the real ticket was 80 €. You correct it to 80 €: the original stays at 75 € (paid) and a new expense of 5 € is to pay. The original's history says so.
    - **If the new amount is lower than what was transferred**, the expense takes the new amount, but the project keeps counting what was really transferred and warns: "<reference> was paid X above its corrected amount: ask for it back, then undo the transfer and register the right one."
-   In the expense lists, the total is on the **Counted** column (a cancelled expense counts 0), not on *Amount*.
+   The expense lists show one amount per row, **Amount**: the one that counts (a cancelled expense counts 0; a corrected one, what was really transferred). The amount typed in is on the expense, or in the *Amount entered* column of the column selector.
 4. An expense that won't be paid: **Actions > Cancel the expense** (it stops counting). **Restore** brings it back.
 
 ## Organisational support
 
-The organisational support is money to manage the mobilities, separate from the participants' grants. EMS calculates it per participant with the **rates of the project's call year**, not the current year's. The rates of KA121-VET 2025 and 2026 and KA131-HED 2026 are already in **Erasmus+ > Configuration > Organisational support rates**; when a new call comes, add its year's rates there.
+The organisational support is money to manage the mobilities, separate from the participants' grants. EMS calculates it per participant with the **rates of the project's call year**, not the current year's. The rates of KA121-VET 2025 and 2026 and KA131-HED 2026 are already in **Erasmus+ > Configuration > Organisational support rates**, grouped by year, the newest year first; when a new call comes, add its year's rates there.
 
 **The 100-participant rule (the "From participant / Up to participant" columns):** some rates drop after the 100th participant. In KA121-VET it counts the participants of the same kind of activity: a short-term student or a job shadowing is 350 € up to the 100th and 200 € from the 101st. In KA131-HED it counts everyone in the project, students and staff together: 400 € for the first 100 and 230 € from the 101st. EMS counts them by start date; you don't need to do anything.
 

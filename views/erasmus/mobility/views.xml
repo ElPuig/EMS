@@ -7,21 +7,23 @@
             <field name="name">ems.erasmus.mobility.list</field>
             <field name="model">ems.erasmus.mobility</field>
             <field name="arch" type="xml">
+                <!-- Issue #782 (5.1, 8.12): how each record is going, and short headers that fit; the
+                     proposal and the destination only say something in some mobilities. -->
                 <list string="Mobilities" create="false" decoration-muted="state in ('done', 'cancelled')">
                     <field name="call_id" optional="hide"/>
                     <field name="modality_id"/>
-                    <field name="rank" optional="show"/>
+                    <field name="rank" optional="hide"/>
                     <field name="partner_id"/>
                     <field name="destination_id" optional="show"/>
                     <field name="host_partner_id" optional="show"/>
                     <field name="date_start"/>
                     <field name="date_end"/>
-                    <field name="proposal_state" optional="show" widget="badge" decoration-warning="proposal_state == 'pending'"
+                    <field name="record_progress"/>
+                    <field name="proposal_state" optional="hide" widget="badge" decoration-warning="proposal_state == 'pending'"
                            decoration-success="proposal_state == 'validated'" decoration-danger="proposal_state == 'rejected'"/>
-                    <field name="preparation_complete" string="Ready to go" optional="show"/>
-                    <field name="return_complete" string="Back home" optional="show"/>
+                    <field name="preparation_complete" string="Ready" optional="show"/>
+                    <field name="return_complete" string="Back" optional="show"/>
                     <field name="eu_survey_state" optional="hide"/>
-                    <field name="record_progress" optional="hide"/>
                     <field name="project_id" optional="show"/>
                     <field name="currency_id" column_invisible="1" groups="ems.group_erasmus,ems.group_academic_admin"/>
                     <field name="grant_amount" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
@@ -44,6 +46,9 @@
                     <filter name="open" string="Open" domain="[('state', 'in', ('choosing', 'preparing'))]"/>
                     <filter name="proposal_pending" string="Proposal to validate"
                             domain="[('proposal_state', '=', 'pending'), ('state', 'in', ('choosing', 'preparing'))]"/>
+                    <separator/>
+                    <filter name="students" string="Students" domain="[('audience', '=', 'student')]"/>
+                    <filter name="staff" string="Staff" domain="[('audience', '=', 'staff')]"/>
                     <separator/>
                     <group expand="0" string="Group By">
                         <filter name="group_call" string="Call" context="{'group_by': 'call_id'}"/>
@@ -196,7 +201,10 @@
                                 </group>
                                 <field name="document_ids">
                                     <!-- The issue-#682 review: the record in a few columns that fit, ordered by
-                                         category; only what the participant has to do now in red (todo_state). -->
+                                         category; only what the participant has to do now in red (todo_state).
+                                         Issue #782 (5.8, 8.7): who handles it apart from what it is at, the
+                                         files that count, the team's upload only on the documents the team hands over, and
+                                         every version hidden (it is in the files' history and the export). -->
                                     <list editable="bottom" create="false" delete="false"
                                           decoration-muted="file_state == 'not_applicable'">
                                         <field name="file_category" optional="hide"/>
@@ -204,17 +212,19 @@
                                         <field name="stage" optional="hide"/>
                                         <field name="signers" optional="hide"/>
                                         <field name="signatures_missing" optional="hide"/>
-                                        <field name="signature_progress" optional="show"/>
+                                        <field name="signature_progress" string="Signatures" optional="show"/>
                                         <field name="open_date" optional="hide"/>
                                         <field name="deadline"/>
                                         <field name="is_required" optional="hide"/>
-                                        <field name="handled_by" optional="hide"/>
-                                        <field name="prepared_attachment_ids" widget="many2many_binary"
-                                               readonly="handled_by == 'participant'"/>
-                                        <field name="attachment_ids" widget="many2many_binary"
+                                        <field name="handled_by" column_invisible="1"/>
+                                        <field name="responsible" optional="show"/>
+                                        <field name="current_attachment_ids" widget="many2many_binary" readonly="1" optional="show"/>
+                                        <field name="prepared_attachment_ids" widget="many2many_binary" optional="show"
+                                               invisible="handled_by == 'participant'"/>
+                                        <field name="attachment_ids" widget="many2many_binary" optional="hide"
                                                readonly="handled_by == 'team'"/>
                                         <field name="file_state" optional="hide"/>
-                                        <field name="todo_state" widget="badge" decoration-success="todo_state == 'complete'"
+                                        <field name="todo_state" string="Status" widget="badge" decoration-success="todo_state == 'complete'"
                                                decoration-danger="todo_state in ('missing', 'needs_change')"
                                                decoration-warning="todo_state == 'to_review'"/>
                                         <field name="review_state" optional="hide"/>
@@ -363,10 +373,62 @@
             </field>
         </record>
 
+        <!-- Issue #782 (5.2): who is at each phase, at a glance. -->
+        <record id="view_erasmus_mobility_kanban" model="ir.ui.view">
+            <field name="name">ems.erasmus.mobility.kanban</field>
+            <field name="model">ems.erasmus.mobility</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="state" create="false" group_create="false" group_delete="false"
+                        group_edit="false" records_draggable="false" sample="1">
+                    <field name="record_missing"/>
+                    <templates>
+                        <t t-name="card">
+                            <field name="partner_id" class="fw-bold"/>
+                            <field name="modality_id" class="text-muted"/>
+                            <div>
+                                <field name="destination_id" invisible="not destination_id"/>
+                                <field name="country_id" invisible="destination_id or not country_id"/>
+                                <field name="host_partner_id" invisible="not host_partner_id" class="ms-1 text-muted"/>
+                            </div>
+                            <footer class="pt-1">
+                                <field name="date_start" invisible="not date_start"/>
+                                <div class="ms-auto" title="Record">
+                                    <i class="fa fa-folder-open-o me-1" role="img" aria-label="Record"/>
+                                    <span t-att-class="record.record_missing.raw_value ? 'text-danger' : 'text-success'">
+                                        <field name="record_progress"/>
+                                    </span>
+                                </div>
+                            </footer>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- Issue #782 (5.18): to decide on a proposal, what was proposed. The same list for the
+             Direction (staff activities) and the Erasmus team (the students' own destinations). -->
+        <record id="view_erasmus_mobility_to_validate_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.mobility.to_validate.list</field>
+            <field name="model">ems.erasmus.mobility</field>
+            <field name="priority">30</field>
+            <field name="arch" type="xml">
+                <list string="Pending validation" create="false" default_order="proposal_date">
+                    <field name="partner_id" string="Participant"/>
+                    <field name="call_id" optional="hide"/>
+                    <field name="proposal_host" string="Proposed entity"/>
+                    <field name="proposal_country_id" string="Country"/>
+                    <field name="proposal_city" optional="hide"/>
+                    <field name="proposal_date_start" string="From"/>
+                    <field name="proposal_date_end" string="To"/>
+                    <field name="proposal_date" string="Sent on" options="{'show_time': False}"/>
+                </list>
+            </field>
+        </record>
+
         <record id="action_erasmus_mobility" model="ir.actions.act_window">
             <field name="name">Mobilities</field>
             <field name="res_model">ems.erasmus.mobility</field>
-            <field name="view_mode">list,form</field>
+            <field name="view_mode">list,kanban,form</field>
             <field name="context">{'search_default_open': 1}</field>
         </record>
 
@@ -376,6 +438,9 @@
             <field name="name">Pending validation</field>
             <field name="res_model">ems.erasmus.mobility</field>
             <field name="view_mode">list,form</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'list', 'view_id': ref('view_erasmus_mobility_to_validate_list')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('view_erasmus_mobility_form')})]"/>
             <field name="context">{'search_default_proposal_pending': 1}</field>
         </record>
     </data>

@@ -267,7 +267,79 @@
                             </page>
                             <page string="Selection" name="selection"
                                   invisible="state == 'draft' or (state == 'enrolment' and user_role != 'team') or user_role == 'companion'">
-                                <group>
+                                <!-- Issue #782 (9.8): the students, average and result first, as in the
+                                     ranking (4.1); the rest of the columns, hidden. -->
+                                <field name="registration_ids">
+                                    <list create="false" delete="false" editable="bottom"
+                                          decoration-muted="state == 'withdrawn' or result == 'renounced'"
+                                          decoration-danger="proposed_result == 'excluded'">
+                                        <field name="rank" invisible="not rank"/>
+                                        <field name="partner_id"/>
+                                        <field name="group_id" optional="show"/>
+                                        <field name="state" optional="hide"/>
+                                        <field name="enrol_date" options="{'show_time': False}" optional="hide"/>
+                                        <field name="grade_average" invisible="not grade_found" optional="hide"/>
+                                        <field name="ranking_average" string="Average" invisible="not has_average"/>
+                                        <field name="has_average" column_invisible="1"/>
+                                        <field name="grade_found" optional="hide"/>
+                                        <field name="grade_incident" widget="boolean_toggle" readonly="1" optional="hide"
+                                               decoration-danger="grade_incident"/>
+                                        <field name="grade_manual" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <field name="grade_average_manual" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"
+                                               invisible="not grade_manual" required="grade_manual"/>
+                                        <field name="grade_manual_reason" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"
+                                               invisible="not grade_manual" required="grade_manual"/>
+                                        <field name="eligible" optional="hide"/>
+                                        <field name="exclusion" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <field name="strike_count" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <field name="conduct_review" widget="boolean_toggle" readonly="1" optional="hide"
+                                               groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <field name="fewer_opportunities" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <field name="fewer_opportunities_check" optional="hide"
+                                               groups="ems.group_erasmus,ems.group_academic_admin"
+                                               invisible="not fewer_opportunities"/>
+                                        <field name="needs_draw" widget="boolean_toggle" readonly="1" optional="hide"/>
+                                        <field name="draw_order" optional="hide" invisible="not draw_order"/>
+                                        <field name="proposed_result" widget="badge" decoration-success="proposed_result == 'selected'"
+                                               decoration-info="proposed_result == 'reserve'" decoration-danger="proposed_result == 'excluded'"/>
+                                        <field name="result_override" optional="hide"
+                                               groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>
+                                        <field name="override_reason" optional="hide"
+                                               groups="ems.group_erasmus_coordinator,ems.group_academic_admin"
+                                               required="result_override"/>
+                                        <field name="exception_request" optional="hide"/>
+                                        <field name="result" widget="badge" decoration-success="result == 'selected'"
+                                               decoration-info="result == 'reserve'" decoration-danger="result == 'excluded'"/>
+                                        <field name="reserve_position" optional="hide"/>
+                                        <field name="substitution_state" optional="hide"/>
+                                        <button name="action_request_exception" type="object" string="Request the exception" icon="fa-flag"
+                                                title="Ask the coordinator for the exception written in Exception requested"
+                                                invisible="not exception_request or parent.state != 'selection' or parent.user_role not in ('team', 'leader')"/>
+                                        <button name="action_open_renounce" type="object" string="Renounce" icon="fa-sign-out"
+                                                title="Record that the student renounces the place or the reserve place, with the reason"
+                                                invisible="state != 'enrolled' or result not in ('selected', 'reserve') or parent.state not in ('preparation', 'stay') or parent.user_role not in ('team', 'leader')"/>
+                                        <button name="action_approve_substitution" type="object" string="Approve" icon="fa-check"
+                                                invisible="substitution_state != 'proposed'"
+                                                groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>
+                                        <button name="action_reject_substitution" type="object" string="Reject" icon="fa-times"
+                                                invisible="substitution_state != 'proposed'"
+                                                groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>
+                                    </list>
+                                </field>
+                                <group string="Draws" invisible="not draw_ids">
+                                    <field name="draw_ids" nolabel="1" colspan="2">
+                                        <list>
+                                            <field name="date" options="{'show_time': False}"/>
+                                            <field name="user_id"/>
+                                            <field name="grade_average"/>
+                                            <field name="fewer_opportunities" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                            <field name="tied_count"/>
+                                            <field name="line_ids" widget="many2many_tags" string="Order drawn"/>
+                                        </list>
+                                    </field>
+                                </group>
+                                <!-- Issue #782 (9.8): what is decided first; the dates of each step at the end. -->
+                                <group name="selection_history">
                                     <group>
                                         <field name="ranking_date" options="{'show_time': False}"/>
                                         <field name="proposal_date" options="{'show_time': False}"/>
@@ -299,93 +371,26 @@
                                        groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
                                     <field name="claim_ids" nolabel="1" colspan="2"/>
                                 </group>
-                                <field name="registration_ids">
-                                    <list create="false" delete="false" editable="bottom"
-                                          decoration-muted="state == 'withdrawn' or result == 'renounced'"
-                                          decoration-danger="proposed_result == 'excluded'">
-                                        <field name="rank" invisible="not rank"/>
-                                        <field name="partner_id"/>
-                                        <field name="group_id" optional="show"/>
-                                        <field name="state" optional="show"/>
-                                        <field name="enrol_date" options="{'show_time': False}" optional="hide"/>
-                                        <field name="grade_average" invisible="not grade_found" optional="show"/>
-                                        <field name="ranking_average" invisible="not has_average"/>
-                                        <field name="has_average" column_invisible="1"/>
-                                        <field name="grade_found" optional="hide"/>
-                                        <field name="grade_incident" widget="boolean_toggle" readonly="1" optional="show"
-                                               decoration-danger="grade_incident"/>
-                                        <field name="grade_manual" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"/>
-                                        <field name="grade_average_manual" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"
-                                               invisible="not grade_manual" required="grade_manual"/>
-                                        <field name="grade_manual_reason" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"
-                                               invisible="not grade_manual" required="grade_manual"/>
-                                        <field name="eligible"/>
-                                        <field name="exclusion" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"/>
-                                        <field name="strike_count" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"/>
-                                        <field name="conduct_review" widget="boolean_toggle" readonly="1" optional="show"
-                                               groups="ems.group_erasmus,ems.group_academic_admin"/>
-                                        <field name="fewer_opportunities" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"/>
-                                        <field name="fewer_opportunities_check" optional="show"
-                                               groups="ems.group_erasmus,ems.group_academic_admin"
-                                               invisible="not fewer_opportunities"/>
-                                        <field name="needs_draw" widget="boolean_toggle" readonly="1" optional="show"/>
-                                        <field name="draw_order" optional="show" invisible="not draw_order"/>
-                                        <field name="proposed_result" widget="badge" decoration-success="proposed_result == 'selected'"
-                                               decoration-info="proposed_result == 'reserve'" decoration-danger="proposed_result == 'excluded'"/>
-                                        <field name="result_override" optional="show"
-                                               groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>
-                                        <field name="override_reason" optional="show"
-                                               groups="ems.group_erasmus_coordinator,ems.group_academic_admin"
-                                               required="result_override"/>
-                                        <field name="exception_request" optional="show"/>
-                                        <field name="result" widget="badge" decoration-success="result == 'selected'"
-                                               decoration-info="result == 'reserve'" decoration-danger="result == 'excluded'"/>
-                                        <field name="reserve_position" optional="show"/>
-                                        <field name="substitution_state" optional="show"/>
-                                        <button name="action_request_exception" type="object" string="Request the exception" icon="fa-flag"
-                                                title="Ask the coordinator for the exception written in Exception requested"
-                                                invisible="not exception_request or parent.state != 'selection' or parent.user_role not in ('team', 'leader')"/>
-                                        <button name="action_open_renounce" type="object" string="Renounce" icon="fa-sign-out"
-                                                title="Record that the student renounces the place or the reserve place, with the reason"
-                                                invisible="state != 'enrolled' or result not in ('selected', 'reserve') or parent.state not in ('preparation', 'stay') or parent.user_role not in ('team', 'leader')"/>
-                                        <button name="action_approve_substitution" type="object" string="Approve" icon="fa-check"
-                                                invisible="substitution_state != 'proposed'"
-                                                groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>
-                                        <button name="action_reject_substitution" type="object" string="Reject" icon="fa-times"
-                                                invisible="substitution_state != 'proposed'"
-                                                groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>
-                                    </list>
-                                </field>
-                                <group string="Draws" invisible="not draw_ids">
-                                    <field name="draw_ids" nolabel="1" colspan="2">
-                                        <list>
-                                            <field name="date" options="{'show_time': False}"/>
-                                            <field name="user_id"/>
-                                            <field name="grade_average"/>
-                                            <field name="fewer_opportunities" groups="ems.group_erasmus,ems.group_academic_admin"/>
-                                            <field name="tied_count"/>
-                                            <field name="line_ids" widget="many2many_tags" string="Order drawn"/>
-                                        </list>
-                                    </field>
-                                </group>
                             </page>
                             <page string="Participants" name="participants" invisible="not participant_ids">
                                 <field name="participant_ids" readonly="1">
+                                    <!-- Issue #782 (9.10): seven columns; nothing red on a withdrawal. -->
                                     <list decoration-muted="state == 'withdrawn'">
                                         <field name="role"/>
                                         <field name="partner_id"/>
                                         <field name="group_id" optional="show"/>
-                                        <field name="email" widget="email" optional="show"/>
-                                        <field name="phone" widget="phone" optional="show"/>
-                                        <field name="is_minor" optional="show"/>
-                                        <field name="auth_image" optional="show"/>
-                                        <field name="insurance_collective" optional="show"/>
-                                        <field name="documents_missing" decoration-danger="documents_missing > 0"/>
-                                        <field name="documents_valid"/>
-                                        <field name="commitment_pending" optional="show"/>
-                                        <field name="commitment_guardian_pending" optional="show"/>
-                                        <field name="preparation_complete"/>
-                                        <field name="state" optional="show"/>
+                                        <field name="email" widget="email" optional="hide"/>
+                                        <field name="phone" widget="phone" optional="hide"/>
+                                        <field name="is_minor" string="Minor" optional="show"/>
+                                        <field name="auth_image" optional="hide"/>
+                                        <field name="insurance_collective" optional="hide"/>
+                                        <field name="documents_missing" string="Docs. pending"
+                                               decoration-danger="documents_missing > 0 and state != 'withdrawn'"/>
+                                        <field name="documents_valid" optional="hide"/>
+                                        <field name="commitment_pending" optional="hide"/>
+                                        <field name="commitment_guardian_pending" optional="hide"/>
+                                        <field name="preparation_complete" string="Ready"/>
+                                        <field name="state"/>
                                     </list>
                                 </field>
                                 <label for="commitment_extra"/>

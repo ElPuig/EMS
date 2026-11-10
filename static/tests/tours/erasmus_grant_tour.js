@@ -64,7 +64,7 @@ registry.category("web_tour.tours").add("ems_erasmus_grant_team", {
         },
         {
             // The mobilities' own list, not the invoice's shares still on screen while the page reloads.
-            trigger: ".o_list_view:not(.o_field_x2many) .o_data_row td[name='rank']:contains('1')",
+            trigger: ".o_list_view:not(.o_field_x2many) .o_data_row td[name='partner_id']:contains('Erasmus Test Student')",
             content: "Open the first student's mobility",
             run: "click",
         },

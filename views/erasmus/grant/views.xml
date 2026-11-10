@@ -12,7 +12,7 @@
                     <field name="name"/>
                     <field name="supplier_id"/>
                     <field name="concept"/>
-                    <field name="description" optional="show"/>
+                    <field name="description" optional="hide"/>
                     <field name="project_id" optional="show"/>
                     <field name="currency_id" column_invisible="1"/>
                     <field name="amount" sum="Total"/>
@@ -216,7 +216,7 @@
                     </header>
                     <field name="request_date"/>
                     <field name="partner_id"/>
-                    <field name="group_mobility_id" optional="show"/>
+                    <field name="group_mobility_id" optional="hide"/>
                     <field name="call_id" optional="hide"/>
                     <field name="project_id" optional="show"/>
                     <field name="kind" string="Type"/>
@@ -309,11 +309,52 @@
             </field>
         </record>
 
+        <!-- Issue #782 (13.4): where each entity is and how much it has been used, not the students'
+             contact columns; no side panel of student groups. -->
+        <record id="view_partner_erasmus_host_list" model="ir.ui.view">
+            <field name="name">res.partner.erasmus.host.list</field>
+            <field name="model">res.partner</field>
+            <field name="priority">90</field>
+            <field name="arch" type="xml">
+                <list string="Host entities">
+                    <field name="name"/>
+                    <field name="country_id"/>
+                    <field name="city"/>
+                    <field name="erasmus_oid"/>
+                    <field name="erasmus_mobility_count" widget="ems_blank_zero"/>
+                    <field name="email" widget="email" optional="hide"/>
+                    <field name="phone" widget="phone" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_partner_erasmus_host_search" model="ir.ui.view">
+            <field name="name">res.partner.erasmus.host.search</field>
+            <field name="model">res.partner</field>
+            <field name="priority">90</field>
+            <field name="arch" type="xml">
+                <search string="Host entities">
+                    <field name="name"/>
+                    <field name="country_id"/>
+                    <field name="city"/>
+                    <field name="erasmus_oid"/>
+                    <separator/>
+                    <filter name="inactive" string="Archived" domain="[('active', '=', False)]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_country" string="Country" context="{'group_by': 'country_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
         <!-- Issue #697 - the host entities (companies, schools, course providers) and their tutors. -->
         <record id="action_erasmus_host_entity" model="ir.actions.act_window">
             <field name="name">Host entities</field>
             <field name="res_model">res.partner</field>
             <field name="view_mode">list,kanban,form</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'list', 'view_id': ref('view_partner_erasmus_host_list')})]"/>
+            <field name="search_view_id" ref="view_partner_erasmus_host_search"/>
             <field name="domain">[('is_erasmus_host', '=', True)]</field>
             <field name="context">{'default_is_company': True, 'default_is_erasmus_host': True, 'default_contact_type': 'provider'}</field>
             <field name="help" type="html">

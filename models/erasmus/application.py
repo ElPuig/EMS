@@ -1187,6 +1187,9 @@ class EmsErasmusApplicationDocument(models.Model):
     stage = fields.Selection(string="When", related='call_document_id.stage', store=True)
     signers = fields.Char(string="Signed by", related='call_document_id.signers')
     handled_by = fields.Selection(string="Handled by", related='call_document_id.handled_by')
+    # Issue #782 (8.7): who handles the document, in a word, apart from what it is at now (todo_state).
+    responsible = fields.Selection(string="Who", compute='_compute_responsible', selection=[
+        ('participant', "Participant"), ('team_to_sign', "Team and participant"), ('team', "Erasmus team")])
     prepared_attachment_ids = fields.Many2many(
         string="Files from the team", comodel_name='ir.attachment',
         relation='ems_erasmus_application_document_prepared_rel',
@@ -1226,9 +1229,14 @@ class EmsErasmusApplicationDocument(models.Model):
     # is red. A missing document the Erasmus team uploads, or one that is not due yet (the destination
     # not set, it opens later, a return document before the end of the stay), is not.
     todo_state = fields.Selection(string="To do", compute='_compute_todo_state', selection=[
-        ('missing', "Missing"), ('waiting_team', "The Erasmus team uploads it"), ('not_yet', "Not yet"),
+        ('missing', "Missing"), ('waiting_team', "Waiting for the team"), ('not_yet', "Not yet"),
         ('to_review', "Pending review"), ('needs_change', "Needs changes"), ('complete', "Complete"),
         ('optional', "Optional"), ('not_applicable', "Not applicable")])
+
+    @api.depends('handled_by')
+    def _compute_responsible(self):
+        for line in self:
+            line.responsible = line.handled_by
 
     @api.depends('attachment_ids', 'call_document_id.single_file')
     def _compute_current_attachment_ids(self):

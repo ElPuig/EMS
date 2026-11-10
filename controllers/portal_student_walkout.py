@@ -7,6 +7,8 @@ from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.exceptions import UserError
 from odoo.http import request
 
+from ..models.attendance.student_walkout import REQUEST_DAYS_BEFORE
+
 WALKOUTS = '/my/vagues'
 
 
@@ -61,17 +63,14 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
         if not group:
             return request.redirect(WALKOUTS)
         Walkout = request.env['ems.student_walkout'].sudo()
-        notice = request.env.company.sudo().walkout_notice_days
-        first_day = Walkout.get_local_today() + timedelta(days=notice)
+        first_day = Walkout.get_local_today() + timedelta(days=REQUEST_DAYS_BEFORE)
         return self._ems_render('ems.portal_student_walkout_new', {
             'group': group,
-            'notice_days': notice,
             'first_day': fields.Date.to_string(first_day),
-            'tomorrow': fields.Date.to_string(Walkout.get_local_today() + timedelta(days=1)),
         }, **kwargs)
 
     @http.route(f'{WALKOUTS}/nova', type='http', auth='user', methods=['POST'], website=True)
-    def portal_walkout_open(self, walkout_date=None, close_date=None, notes=None, **post):
+    def portal_walkout_open(self, walkout_date=None, notes=None, **post):
         partner = self._ems_partner()
         if not partner:
             return request.redirect('/my/home')
@@ -79,12 +78,8 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
                  if upload.filename]
         Walkout = request.env['ems.student_walkout'].sudo()
         try:
-            walkout_day = fields.Date.to_date(walkout_date) if walkout_date else None
-            # The latest close day the notice period allows, unless the delegate picks an earlier one.
-            if walkout_day and not close_date:
-                close_date = walkout_day - timedelta(days=request.env.company.sudo().walkout_notice_days)
             walkout = Walkout._ems_portal_open(partner, {
-                'walkout_date': walkout_day, 'close_date': close_date, 'notes': notes}, files)
+                'walkout_date': fields.Date.to_date(walkout_date) if walkout_date else None, 'notes': notes}, files)
         except (UserError, ValueError) as error:
             return self._ems_error_redirect(f'{WALKOUTS}/nova', error)
         return request.redirect(f'{WALKOUTS}/{walkout.id}?opened=1')
@@ -99,8 +94,9 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
         return self._ems_render('ems.portal_student_walkout', {
             'walkout': walkout,
             'line': line,
-            'can_vote': bool(line.has_portal) and walkout._ems_voting_open(),
-            'can_manage': walkout.state in ('pending', 'voting') and (
+            'can_vote': bool(line.has_portal) and walkout._ems_phase_open('voting'),
+            'can_join': bool(line.has_portal) and walkout._ems_phase_open('joining'),
+            'can_manage': walkout.state in ('pending', 'voting', 'joining') and (
                 partner == walkout.opener_id or partner in (walkout.group_ids.delegate_id
                                                             | walkout.group_ids.subdelegate_id)),
             'state_labels': dict(walkout._fields['state']._description_selection(request.env)),
@@ -111,7 +107,7 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
     @http.route(f'{WALKOUTS}/<int:walkout_id>/<string:step>', type='http', auth='user', methods=['POST'],
                 website=True)
     def portal_walkout_step(self, walkout_id, step, **post):
-        """Vote, close the vote now or cancel the call."""
+        """Vote, say whether one joins, or cancel the request."""
         walkout = self._ems_walkout(walkout_id)
         if not walkout:
             return request.redirect(WALKOUTS)
@@ -119,9 +115,9 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
         page = f'{WALKOUTS}/{walkout.id}'
         try:
             if step == 'vota':
-                walkout._ems_portal_vote(partner, post.get('group_vote'), post.get('joins') == 'yes')
-            elif step == 'tanca':
-                walkout._ems_portal_close(partner)
+                walkout._ems_portal_vote(partner, post.get('group_vote'))
+            elif step == 'suma':
+                walkout._ems_portal_join(partner, post.get('joins') == 'yes')
             elif step == 'anulla':
                 walkout._ems_portal_cancel(partner)
                 return request.redirect(WALKOUTS)

@@ -77,7 +77,7 @@ registry.category("web_tour.tours").add("ems_student_walkout", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='group_yes_count']:contains('1')",
+            trigger: ".o_form_view .o_field_widget[name='group_yes_count']:contains('3')",
             content: "The form shows the anonymous group vote",
         },
         {

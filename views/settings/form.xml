@@ -179,10 +179,6 @@
 
                          <!-- Issue #800: student walkouts called from the portal by a group's delegate. -->
                          <block title="Student Walkout Settings" name="ems_walkout_settings">
-                            <setting string="Notice period" help="A student walkout call must be opened at least this many days before the walkout, and its vote must close at least this many days before it, so that the Head of Studies gets the minute in time." id="walkout_notice_days">
-                                <field name="walkout_notice_days" class="text-center" style="width: 5ch;"/>
-                                <span class="ms-2">days</span>
-                            </setting>
                             <setting string="Levels and courses" help="The groups whose delegate or sub-delegate may call a student walkout. By law, from the 3rd year of ESO." id="walkout_levels">
                                 <div class="content-group mt8">
                                     <span><field name="walkout_level_count" class="d-inline"/> levels allowed</span>

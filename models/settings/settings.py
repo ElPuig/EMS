@@ -27,7 +27,6 @@ class ems_settings(models.TransientModel):
    attendance_issue_tutor_default = fields.Float(related="company_id.attendance_issue_tutor_default", readonly=False)
    attendance_manual_justified = fields.Boolean(related="company_id.attendance_manual_justified", readonly=False)
    strike_escalation_threshold = fields.Integer(related="company_id.strike_escalation_threshold", readonly=False)
-   walkout_notice_days = fields.Integer(related="company_id.walkout_notice_days", readonly=False)
    walkout_level_count = fields.Integer(compute="_compute_walkout_level_count")
    strike_duplicate_window = fields.Integer(related="company_id.strike_duplicate_window", readonly=False)
    strike_family_notification_mode = fields.Selection(related="company_id.strike_family_notification_mode", readonly=False)

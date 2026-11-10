@@ -16,7 +16,6 @@ class TestPortalStudentWalkout(HttpCase):
     def setUpClass(cls):
         super().setUpClass()
         mock_outgoing_email(cls)
-        cls.env.company.walkout_notice_days = 2
         create_walkout_fixtures(cls, 'WLP')
 
     def _login(self, partner):
@@ -26,51 +25,58 @@ class TestPortalStudentWalkout(HttpCase):
     def _post(self, url, files=None, **data):
         return self.url_open(url, data={'csrf_token': Request.csrf_token(self), **data}, files=files)
 
-    def test_delegate_sees_the_card_and_opens_a_call(self):
+    def test_delegate_sees_the_card_and_requests_a_walkout(self):
         self._login(self.delegate)
         home = self.url_open('/my/home').text
         self.assertIn('href="/my/vagues" class="nav-link"', home)
         self.assertIn('/my/vagues/nova', self.url_open('/my/vagues').text)
         self.assertEqual(self.url_open('/my/vagues/nova').status_code, 200)
-        walkout_date = self.today + timedelta(days=3)
+        walkout_date = self.today + timedelta(days=4)
         response = self._post('/my/vagues/nova', walkout_date=fields.Date.to_string(walkout_date), notes='Union',
                               files=[('union_call', ('call.pdf', PDF, 'application/pdf'))])
         self.assertIn('opened=1', response.url)
         walkout = self.env['ems.student_walkout'].search([('group_id', '=', self.group.id)])
-        self.assertEqual(walkout.close_date, walkout_date - timedelta(days=2), "The latest close day by default.")
+        self.assertEqual(walkout.walkout_date, walkout_date)
         self.assertEqual(walkout.attachment_ids.mapped('name'), ['call.pdf'])
 
-    def test_refused_call_shows_why(self):
+    def test_refused_request_shows_why(self):
         self._login(self.delegate)
         response = self._post('/my/vagues/nova', walkout_date=fields.Date.to_string(self.today + timedelta(days=1)),
                               files=[('union_call', ('call.pdf', PDF, 'application/pdf'))])
         self.assertIn('error=1', response.url)
-        self.assertIn('in advance', response.text)
+        self.assertIn('72', response.text)
 
-    def test_classmate_votes_and_sees_the_banner(self):
+    def test_classmate_votes_then_joins(self):
         walkout = open_walkout(self)
         self._login(self.classmate)
         self.assertIn('o_ems_walkout_banner', self.url_open('/my/home').text)
-        self.assertNotIn('/my/vagues/nova', self.url_open('/my/vagues').text, "Only the delegates call one.")
+        self.assertNotIn('/my/vagues/nova', self.url_open('/my/vagues').text, "Only the delegates request one.")
         page = self.url_open(f'/my/vagues/{walkout.id}').text
         self.assertIn('o_ems_walkout_vote', page)
-        self.assertNotIn('o_ems_walkout_manage', page)
-        self._post(f'/my/vagues/{walkout.id}/vota', group_vote='yes', joins='yes')
+        self.assertNotIn('o_ems_walkout_join', page, "Joining comes after the group vote.")
+        self._post(f'/my/vagues/{walkout.id}/vota', group_vote='yes')
         self.assertEqual(walkout.group_yes_count, 1)
-        self.assertTrue(walkout.line_ids.filtered(lambda line: line.student_id == self.classmate).joins)
         self.assertNotIn('o_ems_walkout_banner', self.url_open('/my/home').text)
-        # Somebody else's vote can't be sent for them: the student is always the logged-in one.
-        self._post(f'/my/vagues/{walkout.id}/tanca')
-        self.assertEqual(walkout.state, 'voting', "A classmate cannot close the vote.")
+        # A classmate cannot cancel it: the student is always the logged-in one, and not its delegate.
+        self._post(f'/my/vagues/{walkout.id}/anulla')
+        self.assertEqual(walkout.state, 'voting')
+        walkout._ems_portal_vote(self.delegate, 'yes')
+        walkout._ems_portal_vote(self.subdelegate, 'no')
+        self.assertEqual(walkout.state, 'joining')
+        page = self.url_open(f'/my/vagues/{walkout.id}').text
+        self.assertIn('o_ems_walkout_join', page)
+        self.assertIn('o_ems_walkout_banner', self.url_open('/my/home').text, "A pending answer: whether to join.")
+        self._post(f'/my/vagues/{walkout.id}/suma', joins='yes')
+        self.assertEqual(walkout.joining_student_ids, self.classmate)
 
-    def test_delegate_closes_the_vote(self):
+    def test_delegate_cancels_the_request(self):
         walkout = open_walkout(self)
         self._login(self.subdelegate)
-        self.assertIn('o_ems_walkout_manage', self.url_open(f'/my/vagues/{walkout.id}').text)
-        self._post(f'/my/vagues/{walkout.id}/tanca')
-        self.assertEqual(walkout.state, 'closed')
         page = self.url_open(f'/my/vagues/{walkout.id}').text
-        self.assertIn(f'/fitxer/{walkout.pdf_attachment_id.id}', page)
+        self.assertIn('o_ems_walkout_manage', page)
+        self.assertNotIn('/tanca', page, "The calendar is fixed: no closing by hand.")
+        self._post(f'/my/vagues/{walkout.id}/anulla')
+        self.assertEqual(walkout.state, 'cancelled')
 
     def test_a_call_waiting_for_the_head_of_studies_is_only_for_its_delegate(self):
         walkout = open_walkout(self, accept=False)
@@ -92,5 +98,5 @@ class TestPortalStudentWalkout(HttpCase):
         self.authenticate(family_user.login, family_user.login)
         self.assertNotIn('/my/vagues"', self.url_open('/my/home').text)
         self.assertTrue(self.url_open(f'/my/vagues/{walkout.id}').url.endswith('/my/home'))
-        self._post(f'/my/vagues/{walkout.id}/vota', group_vote='yes', joins='yes')
+        self._post(f'/my/vagues/{walkout.id}/vota', group_vote='yes')
         self.assertEqual(walkout.group_yes_count, 0)

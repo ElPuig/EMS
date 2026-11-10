@@ -14,7 +14,7 @@
                     <field name="walkout_date"/>
                     <field name="group_id"/>
                     <field name="opener_id"/>
-                    <field name="close_date"/>
+                    <field name="join_until"/>
                     <field name="group_supports" widget="boolean" optional="show"/>
                     <field name="joining_count" optional="show"/>
                     <field name="state" widget="badge"
@@ -41,7 +41,7 @@
                             <button name="action_open_justification" type="object" string="Open the justification"
                                     icon="fa-external-link" invisible="not justification_id"/>
                         </div>
-                        <field name="state" widget="statusbar" statusbar_visible="pending,voting,closed,justified"/>
+                        <field name="state" widget="statusbar" statusbar_visible="pending,voting,joining,closed,justified"/>
                         <field name="can_generate_justification" invisible="1"/>
                         <field name="can_decide" invisible="1"/>
                         <field name="can_reject" invisible="1"/>
@@ -51,8 +51,8 @@
                             <h1><field name="name"/></h1>
                         </div>
                         <div class="alert alert-info" role="alert" invisible="state != 'pending'">
-                            Check the union's call before accepting it: the group hears of it only once accepted.
-                            If nobody decides by the last day to vote, it expires.
+                            Check the union's call before accepting it: the group hears of it only once accepted, and
+                            votes as soon as you accept it. If nobody accepts it by its last day, it expires.
                         </div>
                         <group invisible="state != 'rejected'">
                             <field name="rejection_reason_id"/>
@@ -64,7 +64,9 @@
                                 <field name="group_ids" widget="many2many_tags"/>
                                 <field name="opener_id"/>
                                 <field name="walkout_date"/>
-                                <field name="last_vote_date"/>
+                                <field name="review_until"/>
+                                <field name="vote_until"/>
+                                <field name="join_until"/>
                                 <field name="attachment_ids" widget="many2many_binary"/>
                             </group>
                             <group>
@@ -89,8 +91,10 @@
                                         <field name="student_id"/>
                                         <field name="has_portal"/>
                                         <field name="voted"/>
+                                        <field name="join_answered"/>
                                         <field name="joins"/>
                                         <field name="vote_date" optional="hide"/>
+                                        <field name="join_date" optional="hide"/>
                                     </list>
                                 </field>
                             </page>

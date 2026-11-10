@@ -39,8 +39,6 @@ class ems_company(models.Model):
     # the roll-call can't (issue #587). Read through ems.attendance_status.roll_call_selectable.
     attendance_manual_justified = fields.Boolean(default=False)
     strike_escalation_threshold = fields.Integer(default=3)
-    # Issue #800: days of notice a student walkout call needs (ems.student_walkout).
-    walkout_notice_days = fields.Integer(default=2)
     # Minutes; 0 disables the possible-duplicate warning (ems.strike.get_duplicate_warning).
     strike_duplicate_window = fields.Integer(default=1)
     # NOTE: defaults to 'all' so an installation upgrading into this version keeps today's

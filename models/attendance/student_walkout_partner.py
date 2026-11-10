@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from datetime import timedelta
+
 from odoo import models
 
-from .student_walkout import VISIBLE_STATES
+from .student_walkout import JOIN_DAYS_BEFORE, VISIBLE_STATES, VOTE_DAYS_BEFORE
 
 
 class ResPartner(models.Model):
@@ -44,12 +46,18 @@ class ResPartner(models.Model):
                                                            or self._ems_walkout_calls())
 
     def _ems_walkout_pending_votes(self):
-        """The calls still waiting for this student's group vote, for the portal home's banner."""
+        """The calls waiting for this student: the group vote not cast, or whether they join not said
+        yet, for the portal home's banner."""
         self.ensure_one()
         if not self._ems_walkout_portal_student():
             return self.env['ems.student_walkout']
         Walkout = self.env['ems.student_walkout'].sudo()
+        today = Walkout.get_local_today()
+        mine = [('student_id', '=', self.id), ('has_portal', '=', True)]
         return Walkout.search([
-            ('state', '=', 'voting'), ('close_date', '>', Walkout.get_local_today()),
-            ('line_ids', 'any', [('student_id', '=', self.id), ('has_portal', '=', True), ('voted', '=', False)]),
+            '|',
+            '&', '&', ('state', '=', 'voting'), ('walkout_date', '>=', today + timedelta(days=VOTE_DAYS_BEFORE)),
+            ('line_ids', 'any', mine + [('voted', '=', False)]),
+            '&', '&', ('state', '=', 'joining'), ('walkout_date', '>=', today + timedelta(days=JOIN_DAYS_BEFORE)),
+            ('line_ids', 'any', mine + [('join_answered', '=', False)]),
         ])

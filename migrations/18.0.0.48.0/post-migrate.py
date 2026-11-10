@@ -60,6 +60,14 @@ def _staff_places_per_project(env):
     _logger.info("Issue #772: %s staff modalities turned into places per project.", len(ids))
 
 
+def _keep_group_rankings_by_average(cr):
+    """Issue #773: a group mobility ranked before the score keeps its ranking by the record average
+    (its selection criteria were published so): no recomputation."""
+    cr.execute("UPDATE ems_erasmus_group_mobility SET rank_by_score = FALSE WHERE ranking_date IS NOT NULL")
+    _logger.info("Issue #773: %s group mobilities keep their ranking by the average.", cr.rowcount)
+
+
 def migrate(cr, version):
     env = api.Environment(cr, SUPERUSER_ID, {})
     _staff_places_per_project(env)
+    _keep_group_rankings_by_average(cr)

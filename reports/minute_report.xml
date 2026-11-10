@@ -35,6 +35,10 @@
         <template id="report_minute">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
+                    <!-- ISO 9001: the controlled document every minute is printed on, on each page.
+                         Kept verbatim, in Catalan, as in the centre's documentation (not a
+                         translatable term); a new revision of the model means editing it here. -->
+                    <t t-set="ems_footer_note" t-value="&quot;PE3.01.22 Model d'acta i de registre d'evidències (EMS) – Revisió: 02/11/2026&quot;"/>
                     <t t-call="web.external_layout">
                         <div class="page o_ems_minute">
                             <!-- A minute is read on paper and filed: compact, but airy enough to read,
@@ -60,12 +64,11 @@
                                 .o_ems_minute table td p, .o_ems_minute table th p { margin: 0 !important; line-height: 1.3 !important; }
                                 .o_ems_minute table.o_ems_minute_facts { margin: 6pt 0 4pt 0; font-size: 9pt; }
                                 .o_ems_minute table.o_ems_minute_facts td, .o_ems_minute table.o_ems_minute_facts th { padding: 5pt 8pt !important; vertical-align: middle; }
-                                /* Title cells in the brand colour, faded: a white veil over it. */
+                                /* Title cells like the header row of the other tables (the layout's
+                                   thead th): brand colour, white uppercase text. */
                                 .o_ems_minute table.o_ems_minute_facts th {
-                                    white-space: nowrap; width: 1% !important; font-weight: bold; color: <t t-out="brand"/>;
-                                    background-color: <t t-out="brand"/>;
-                                    background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.86));
-                                    background-image: linear-gradient(rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.86));
+                                    white-space: nowrap; width: 1% !important; font-weight: normal; text-transform: uppercase;
+                                    color: #fff; background-color: <t t-out="brand"/>;
                                 }
                                 .o_ems_minute table.o_ems_minute_signatures { margin-top: 18pt; }
                                 .o_ems_minute table.o_ems_minute_signatures th { width: 50% !important; }
@@ -279,11 +282,6 @@
                                     </tr>
                                 </tbody>
                             </table>
-
-                            <p class="o_ems_minute_muted" style="margin-top: 10pt; font-size: 8pt;" t-if="doc.template_document_id">
-                                <span t-out="doc.template_document_id.code or ''"/>
-                                <span t-out="doc.template_document_id.name"/>
-                            </p>
                         </div>
                     </t>
                 </t>

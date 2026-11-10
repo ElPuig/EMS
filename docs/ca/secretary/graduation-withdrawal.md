@@ -102,7 +102,7 @@ El compte no es toca el dia que l'alumne marxa: continua funcionant 30 dies, des
 
 A la part superior de la fitxa de l'alumne:
 
-- **Cancel·la la desactivació programada** — conserva el compte encara que l'alumne hagi marxat.
+- **Cancel·la la desactivació programada** — conserva el compte encara que l'alumne hagi marxat. EMS envia un correu a l'alumne (a l'adreça personal i a la corporativa) per dir-li que el compte no es desactivarà; si es desarxiva l'alumne abans de la data, passa el mateix.
 - **Suspèn el compte de Google** — el suspèn immediatament, sense esperar els 30 dies. Això també inicia el compte enrere de 30 dies fins a l'eliminació.
 - **Elimina el compte de Google** — l'elimina definitivament, sense esperar. Demana confirmació abans; no es pot desfer.
 - **Reactiva el compte de Google** — recupera un compte suspès i anul·la la seva eliminació.

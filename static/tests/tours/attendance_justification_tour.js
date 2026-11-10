@@ -2,12 +2,22 @@
 
 import { registry } from "@web/core/registry";
 
+// The list has real justifications too (the dev database's): find the fixture by its student
+// instead of hoping it is on the first page.
+function searchStudent(name) {
+    return [
+        { trigger: ".o_searchview_input", content: `Search for ${name}`, run: `edit ${name}` },
+        { trigger: ".o_searchview_input", content: "Search by student (the first field)", run: "press Enter" },
+        { trigger: ".o_searchview_facet", content: "Filtered by student" },
+    ];
+}
+
 // ems.attendance_justification (Attendances > Justifications): had zero browser coverage.
 // Creating a NEW justification through the UI needs widget="daterange" (a separate,
 // non-trivial bespoke-widget investigation of its own) - this tour instead opens a
 // pre-seeded justification, walks its three read-only notebook tabs (Affected sessions /
 // Affected teachers / Attached files) to confirm none crash on render, and edits+saves the
-// plain "Notes" tab to prove the form is genuinely interactive.
+// details of its reason ('Other') to prove the form is genuinely interactive.
 registry.category("web_tour.tours").add("ems_attendance_justification_open_and_edit", {
     test: true,
     url: "/odoo/action-ems.action_attendance_justification_tree",
@@ -16,6 +26,7 @@ registry.category("web_tour.tours").add("ems_attendance_justification_open_and_e
             trigger: ".o_list_view",
             content: "Justifications list loaded",
         },
+        ...searchStudent("Attendance Justification Tour Student"),
         {
             trigger: ".o_list_view .o_data_row td:contains('Attendance Justification Tour Student')",
             content: "Open the seeded justification",
@@ -49,13 +60,8 @@ registry.category("web_tour.tours").add("ems_attendance_justification_open_and_e
             content: "The (empty) attachments list renders without crashing",
         },
         {
-            trigger: ".o_notebook .nav-link:contains('Notes')",
-            content: "Open Notes tab",
-            run: "click",
-        },
-        {
-            trigger: ".o_field_widget[name='notes'] textarea",
-            content: "Edit the notes",
+            trigger: ".o_field_widget[name='details'] textarea",
+            content: "Edit the details of the reason 'Other' (issue #795)",
             run: "edit Tour note",
         },
         {
@@ -78,6 +84,7 @@ registry.category("web_tour.tours").add("ems_attendance_justification_tutor_open
     url: "/odoo/action-ems.action_attendance_justification_tree",
     steps: () => [
         { trigger: ".o_list_view", content: "Justifications list loaded" },
+        ...searchStudent("Attendance Justification Tutor Tour Student"),
         {
             trigger: ".o_list_view .o_data_row td:contains('Attendance Justification Tutor Tour Student')",
             content: "Open the justification",
@@ -102,6 +109,7 @@ registry.category("web_tour.tours").add("ems_attendance_justification_hos_attach
     url: "/odoo/action-ems.action_attendance_justification_tree",
     steps: () => [
         { trigger: ".o_list_view", content: "Justifications list loaded" },
+        ...searchStudent("Attendance Justification Tutor Tour Student"),
         {
             trigger: ".o_list_view .o_data_row td:contains('Attendance Justification Tutor Tour Student')",
             content: "Open the justification",
@@ -135,6 +143,7 @@ registry.category("web_tour.tours").add("ems_attendance_justification_tutor_atta
     url: "/odoo/action-ems.action_attendance_justification_tree",
     steps: () => [
         { trigger: ".o_list_view", content: "Justifications list loaded" },
+        ...searchStudent("Attendance Justification Tutor Tour Student"),
         {
             trigger: ".o_list_view .o_data_row td:contains('Attendance Justification Tutor Tour Student')",
             content: "Open the justification",
@@ -174,21 +183,27 @@ registry.category("web_tour.tours").add("ems_attendance_justification_tutor_atta
     ],
 });
 
-// Issue #656: "New" opens the assistant; a tutor justifies a whole group of theirs at once
-// (mode "Groups"), and every student of the group gets their own justification.
+// Issue #795: "New" opens the justification form; a tutor adds a whole group of theirs at once
+// ("Add groups"), takes out the groupmate who must not be justified, and saves a single
+// justification shared by the rest.
 registry.category("web_tour.tours").add("ems_attendance_justification_create", {
     test: true,
     url: "/odoo/action-ems.action_attendance_justification_tree",
     steps: () => [
         { trigger: ".o_list_view", content: "Justifications list loaded" },
-        { trigger: ".o_list_button_add_justification", content: "Open the assistant", run: "click" },
+        { trigger: ".o_list_button_add", content: "New justification", run: "click" },
         {
-            trigger: ".modal .o_field_widget[name='mode'] select",
-            content: "Justify by groups",
-            run: "selectByLabel Groups",
+            trigger: ".o_form_view .o_field_widget[name='start_date'] input[data-field='start_date']",
+            content: "Fill in the start date (widget=\"daterange\", combined widget on start_date)",
+            run: "edit 02/05/2026 09:00:00",
         },
         {
-            trigger: ".modal .o_field_widget[name='group_ids'] input",
+            trigger: ".o_form_view .o_field_widget[name='start_date'] input[data-field='end_date']",
+            content: "Fill in the end date",
+            run: "edit 02/05/2026 11:00:00",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='add_group_ids'] input",
             content: "Search for the tutor's group",
             run: "edit TJT1A",
         },
@@ -198,24 +213,61 @@ registry.category("web_tour.tours").add("ems_attendance_justification_create", {
             run: "click",
         },
         {
-            trigger: ".modal .o_field_widget[name='target_student_ids'] td:contains('Attendance Justification Tutor Tour Student')",
-            content: "The group's student is listed as about to be justified",
+            trigger: ".o_field_widget[name='student_ids'] .o_data_row:contains('Attendance Justification Tutor Tour Student')",
+            content: "The group's students are listed, with their group",
         },
         {
-            trigger: ".modal .o_field_widget[name='start_date'] input[data-field='start_date']",
-            content: "Fill in the start date (widget=\"daterange\", combined widget on start_date)",
-            run: "edit 02/05/2026 09:00:00",
+            trigger: ".o_field_widget[name='student_ids'] .o_data_row:contains('Tour Excluded Student') .o_list_record_remove",
+            content: "Take out the groupmate who must not be justified",
+            run: "click",
         },
         {
-            trigger: ".modal .o_field_widget[name='start_date'] input[data-field='end_date']",
-            content: "Fill in the end date",
-            run: "edit 02/05/2026 11:00:00",
+            trigger: ".o_field_widget[name='student_ids']:not(:has(.o_data_row:contains('Tour Excluded Student')))",
+            content: "The groupmate is no longer listed",
         },
-        { trigger: ".modal .o_justification_wizard_justify", content: "Justify", run: "click" },
-        { trigger: "body:not(:has(.modal))", content: "Assistant closed" },
+        { trigger: ".o_form_button_save", content: "Save", run: "click" },
+        { trigger: ".o_form_view .o_form_saved", content: "Saved" },
+    ],
+});
+
+// Issue #795: a strike covers whole days. Choosing the reason "Strike" replaces the period with a
+// single day, and the justification covers the student's whole day.
+registry.category("web_tour.tours").add("ems_attendance_justification_strike", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_justification_tree",
+    steps: () => [
+        { trigger: ".o_list_view", content: "Justifications list loaded" },
+        { trigger: ".o_list_button_add", content: "New justification", run: "click" },
         {
-            trigger: ".o_list_view .o_data_row:nth-child(2) td:contains('Attendance Justification Tutor Tour Student')",
-            content: "The new justification is listed next to the student's earlier one",
+            trigger: ".o_form_view .o_field_widget[name='reason_id'] input",
+            content: "Search for the reason",
+            run: "edit Labour strike",
         },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Labour strike')",
+            content: "Pick Labour strike",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view:not(:has(.o_field_widget[name='start_date'] input[data-field='start_date'])) .o_field_widget[name='day'] input",
+            content: "The period gives way to a single day",
+            run: "edit 02/06/2026",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='add_group_ids'] input",
+            content: "Search for the tutor's group",
+            run: "edit TJT1A",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('TJT1A')",
+            content: "Pick the group",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='student_ids'] .o_data_row:contains('Attendance Justification Tutor Tour Student')",
+            content: "The group's students are listed",
+        },
+        { trigger: ".o_form_button_save", content: "Save", run: "click" },
+        { trigger: ".o_form_view .o_form_saved", content: "Saved" },
     ],
 });

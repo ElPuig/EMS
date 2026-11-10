@@ -1,3 +1,4 @@
+import ast
 from odoo import fields
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
@@ -72,8 +73,8 @@ class TestTutorScope(TransactionCase):
         for user, expected in ((self.department_chief, True), (self.other_head_of_studies, False)):
             justification = self.env['ems.attendance_justification'].with_user(user).new(
                 {'teacher_id': user.employee_id.id})
-            justification._onchange_allowed_student_ids()
-            self.assertEqual(self.student in justification.allowed_student_ids._origin, expected)
+            students = self.env['res.partner'].search(ast.literal_eval(justification.student_domain))
+            self.assertEqual(self.student in students, expected)
 
     def test_search_on_public_employee(self):
         public = self.env['hr.employee.public'].search([('tutor_scope_user_ids', 'in', [self.head_of_studies.id])])

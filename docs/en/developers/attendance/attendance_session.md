@@ -60,7 +60,7 @@ flowchart TD
     D -- no --> F["FRESH: one line per\ntemplate.student_ids\n_setup_new_line_data() — default 'attended'"]
     E --> G["justified -> miss\ndelayed -> attended\nelse -> carried as-is"]
     F --> H
-    G --> H["for each line: check active\nprevisions/justifications\n(EmsAttendanceJustification.get_current_justifications)\n— a matching prevision overrides the default"]
+    G --> H["for each line: check active\nprevisions/justifications\n(get_current_justification_by_student)\n— a matching prevision overrides the default"]
     H --> I["ems.attendance_session_line.create(...)"]
 ```
 
@@ -71,10 +71,11 @@ in the first carries forward as an unconfirmed `miss` in the second (not automat
 re-justified — the justification's own date range decides that, via the prevision check
 below).
 
-**`EmsAttendanceJustification.get_current_justifications(self, start_date, end_date)`** is
-called unbound — `self` here is the *session*, not a justification recordset. This works
-because the method's body only uses `self.env` (universal to any recordset), not any
-justification-specific field — a deliberate, if unusual, code-reuse idiom in this codebase.
+**`ems.attendance_justification.get_current_justification_by_student(start_date, end_date)`**
+returns the justification covering each student over the session's period, as a dict keyed by
+student id: built once per session, then looked up per line (a justification can cover many
+students, issue #795). It searches with `sudo()`: the teacher taking the roll-call usually can't
+read the tutor's justification yet.
 See [`attendance_justification.md`](attendance_justification.md).
 
 ---

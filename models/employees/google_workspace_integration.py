@@ -304,15 +304,28 @@ class HrEmployeeGoogleWorkspace(models.Model):
             employee.google_ws_deactivation_date = due
             self._gw()._gw_send_lifecycle_warning(
                 employee, 'ems.mail_template_google_deactivation_employee',
-                [employee.private_email, employee.work_email])
+                employee._gw_lifecycle_recipients())
             employee.message_post(body=_(
                 "Google Workspace: the corporate account %(email)s will be suspended on "
                 "%(date)s. Unarchiving this employee before that date cancels it.") % {
                     'email': employee.work_email, 'date': due})
 
+    def _gw_lifecycle_recipients(self):
+        """Addresses every account lifecycle email goes to: the personal one and the corporate
+        one, which still works during the grace period and is the one read day to day."""
+        self.ensure_one()
+        employee = self.sudo()
+        return [employee.private_email, employee.work_email]
+
     def _gw_cancel_scheduled_deactivation(self):
-        """Call off a pending deactivation (the employee is back before the deadline)."""
+        """Call off a pending deactivation (the employee is back before the deadline) and tell
+        the employee, who was warned when it was scheduled (issue #728). The email goes out
+        before the date is cleared, since it shows the date that no longer applies."""
         for employee in self.sudo().filtered('google_ws_deactivation_date'):
+            if self.env.company.google_ws_enabled:
+                self._gw()._gw_send_lifecycle_warning(
+                    employee, 'ems.mail_template_google_deactivation_cancelled_employee',
+                    employee._gw_lifecycle_recipients())
             employee.google_ws_deactivation_date = False
             employee.message_post(body=_(
                 "Google Workspace: the scheduled suspension of %s has been cancelled.")
@@ -481,7 +494,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
                     google_id = created.get('id')
                     break
                 except HttpError as e:
-                    status = getattr(getattr(e, 'resp', None), 'status', None)
+                    status = self._gw()._gw_http_status(e)
                     if status == 409:
                         # Email already taken in Google: try the next candidate.
                         continue
@@ -542,7 +555,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
 
         email = self.sudo().work_email
         password = self._gw()._gw_reset_password(email)
-        pdf_saved, emailed = self._gw_deliver_credentials(email, password)
+        pdf_saved, emailed = self._gw_deliver_credentials(email, password, reset=True)
         self.sudo().message_post(body=_(
             "Google Workspace password reset: %(email)s%(dry)s. %(pdf)s%(mail)s.") % {
                 'email': email,
@@ -550,8 +563,11 @@ class HrEmployeeGoogleWorkspace(models.Model):
                 **self._gw_delivery_note(pdf_saved, emailed),
         })
 
-    def _gw_deliver_credentials(self, email, password):
-        """Generate the credentials PDF (always) and send the welcome email (if any).
+    def _gw_deliver_credentials(self, email, password, reset=False):
+        """Generate the credentials PDF (always) and email the credentials (if any address).
+
+        The email is the welcome one for a new account, or the password reset one when
+        `reset` is set (issue #728).
 
         The PDF replaces the previous one in google_credentials_pdf: an older one holds a
         password that no longer works. Returns (pdf_saved, emailed).
@@ -572,11 +588,13 @@ class HrEmployeeGoogleWorkspace(models.Model):
         except Exception:
             _logger.exception("Could not generate Google credentials PDF for %s", self.name)
 
-        # 2) Welcome email to the personal address (if any)
+        # 2) Credentials email to the personal address (if any)
         emailed = False
         recovery_email = self.sudo().private_email
         if recovery_email:
-            template = self.env.ref('ems.mail_template_google_welcome_employee', raise_if_not_found=False)
+            template = self.env.ref(
+                'ems.mail_template_google_password_reset_employee' if reset
+                else 'ems.mail_template_google_welcome_employee', raise_if_not_found=False)
             if template:
                 template.sudo().with_context(
                     gw_email=email, gw_password=password,
@@ -836,7 +854,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
                     body={'suspended': True, 'orgUnitPath': ou},
                 ).execute()
             except HttpError as e:
-                status = getattr(getattr(e, 'resp', None), 'status', None)
+                status = self._gw()._gw_http_status(e)
                 if status in (404, 403):
                     # Account no longer exists in Google: nothing to suspend.
                     emp.write({'google_ws_suspended': True,
@@ -861,7 +879,9 @@ class HrEmployeeGoogleWorkspace(models.Model):
     def action_reactivate_google_account(self):
         """Reactivate a suspended account; if it was deleted in Admin, recreate it.
 
-        Triggered when a former employee is unarchived. Idempotent.
+        Triggered when a former employee is unarchived. Idempotent. Only an account that was
+        really suspended gets the reactivation email: one still in its grace period was never
+        touched, and its employee already got the cancellation email.
         """
         self.ensure_one()
         company = self.env.company
@@ -874,9 +894,11 @@ class HrEmployeeGoogleWorkspace(models.Model):
         ou = company.google_ws_ou_asp if emp.employee_type == 'asp' else company.google_ws_ou_teacher
         if company.google_ws_dry_run:
             _logger.info("[GW dry-run] reactivate %s -> suspended=False, OU=%s", emp.work_email, ou)
+            was_suspended = emp.google_ws_suspended
             emp.google_ws_suspended = False
             self.message_post(body=_(
                 "Google Workspace account reactivated: %s [dry-run].") % emp.work_email)
+            self._gw_notify_reactivated(was_suspended)
             return
 
         service = self._gw()._gw_get_service()
@@ -886,7 +908,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
                 body={'suspended': False, 'orgUnitPath': ou},
             ).execute()
         except HttpError as e:
-            status = getattr(getattr(e, 'resp', None), 'status', None)
+            status = self._gw()._gw_http_status(e)
             if status in (404, 403):
                 # The account was deleted in Admin: recreate it from scratch.
                 self.message_post(body=_(
@@ -898,10 +920,19 @@ class HrEmployeeGoogleWorkspace(models.Model):
             _logger.exception("Could not reactivate Google account for %s", self.name)
             raise
 
+        was_suspended = emp.google_ws_suspended
         emp.write({'google_ws_suspended': False, 'google_ws_deactivation_date': False})
         self.message_post(body=_(
             "Google Workspace account reactivated: %(email)s (moved to OU %(ou)s).") % {
                 'email': emp.work_email, 'ou': ou})
+        self._gw_notify_reactivated(was_suspended)
+
+    def _gw_notify_reactivated(self, was_suspended):
+        """Tell the employee their suspended account works again (issue #728)."""
+        if was_suspended:
+            self._gw()._gw_send_lifecycle_warning(
+                self.sudo(), 'ems.mail_template_google_reactivated_employee',
+                self._gw_lifecycle_recipients())
 
     def action_sync_google_account_name(self):
         """Copy the employee's current name onto their Google account.

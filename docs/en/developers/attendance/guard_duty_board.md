@@ -1009,20 +1009,26 @@ flowchart LR
   line (`guard_spans`), may be sent by the user (`_can_move_teacher`, issue #721) and some class of
   the line has its teacher in and is managed by the user; or when the badge is a support already
   given (`support_cover_id`), to show it and remove it.
-- **Which badges look usable.** A badge of the absences table's guard column looks disabled
-  (`o_guard_board_guard_disabled`: pale text, and a grey dashed box unless it carries a cover colour,
-  which keeps pairing it with its class) only when the guard cannot cover anything then and the
-  user cannot act on it either: a guard who is free in that line (`available`, i.e. in
-  `guard_spans` on an editable day) keeps the usual look for everybody, with a tooltip saying they
-  are assigned from an absence's row, even when their own line has nothing to support (a break
-  block); so do badges with `can_support`, and with `can_mark_present`. A guard away, busy with a
-  group or not checked in yet is disabled to whoever cannot check them in. `is_me_free` (the user's
-  own available badge, #601) is `available` restricted to the user. A guard who has not checked in
-  yet today (#692) carries the same clock icon as a "Not checked in" row, on both views, so a
-  disabled badge is not mistaken for a permission problem. While their guard is going on, whoever
-  is on guard then or manages them clicks that badge to say they are in the centre
-  (`can_mark_present`, see "Teachers who have not checked in"); once checked in, the badge is
-  available.
+- **Which badges look usable.** A badge of the absences table's guard column has one of three
+  looks, decided by the client's `guardStateClass()`/`guardTooltip()` from the badge's flags:
+  - **Usable** (the usual look): the user can do something with that guard then. `can_support` and
+    `can_mark_present` make it clickable; `available` means the user can assign them from an
+    absence's row: the guard is free in that line (`guard_spans`, on an editable day) and either is
+    the user themselves (they take a class, #601) or the user may organise absences
+    (`_may_manage_absences()`) and may send that guard (`_can_move_teacher`, #721), the same rule
+    that filters `guard_candidates`. Its tooltip says they are assigned from an absence's row.
+  - **Idle** (`o_guard_board_guard_idle`: grey text on a grey box with the usual solid border,
+    #770): free, but not the user's to assign. `idle` says why, for the tooltip: `'other_area'`
+    (the user organises absences, but this guard is another area's) or `'not_yours'` (the user
+    organises nobody's absences: a plain teacher on guard sees their free colleagues this way).
+  - **Disabled** (`o_guard_board_guard_disabled`: pale text struck through, and a grey dashed box
+    unless it carries a cover colour, which keeps pairing it with its class): the guard cannot cover
+    anything then, being away, busy with a group or not checked in yet (and the user cannot check
+    them in). The strike-through tells it apart from an idle badge at a glance (#770).
+  A guard who has not checked in yet today (#692) carries the same clock icon as a "Not checked in"
+  row, on both views. While their guard is going on, whoever is on guard then or manages them
+  clicks that badge to say they are in the centre (`can_mark_present`, see "Teachers who have not
+  checked in"); once checked in, the badge is usable or idle like any other free guard.
 - **Which classes.** `ems.course._get_support_options(day, hour_from, hour_to, guard)`: the guard's
   part of the period (`_get_guard_candidates()`, so an absent, busy or non-regular guard gets none),
   every lesson overlapping it whose teacher is in (absences and, today, not checked in count as

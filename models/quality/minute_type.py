@@ -84,7 +84,7 @@ class EmsMinuteType(models.Model):
     template_document_id = fields.Many2one(
         string="Controlled template",
         comodel_name="ems.quality.document",
-        help="The controlled document this type is written against. Its code is quoted in the PDF.",
+        help="The controlled document this type is written against.",
     )
     approver_role_id = fields.Many2one(string="Approved by", comodel_name="ems.role", help="The post that normally gives the approval.")
     print_identification = fields.Boolean(

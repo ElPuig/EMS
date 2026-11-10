@@ -68,14 +68,14 @@ def post_init_hook(env):
     # groups' classes (the centre's schedules, data/custom); from then on it is set on its form.
     env['ems.study']._backfill_managing_department()
     _translate_area_names(env)
-    # Issue #723: the official schedule declaration's codes, configured by the centre from then on.
+    # Issue #723: the non-teaching types' schedule declaration codes, configured by the centre from then on
+    # (the levels' codes are catalog data, data/cat/ems.level.csv, issue #751).
     _seed_declaration_codes(env)
     # The levels that allow convalidations: not part of the catalog, so upgrades keep the centre's choice.
     env['ems.level']._ems_seed_convalidation_levels()
 
 
 def _seed_declaration_codes(env):
-    env['ems.level']._ems_seed_declaration_codes()
     env['ems.non_teaching_type']._ems_seed_declaration_codes()
 
 

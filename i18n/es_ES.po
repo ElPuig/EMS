@@ -483,50 +483,6 @@ msgid ""
 msgstr ""
 
 #. module: ems
-#: model:mail.template,body_html:ems.mail_template_google_welcome
-msgid ""
-"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
-"                    <p>Hello <t t-out=\"object.firstname or object.name or ''\" />,</p>\n"
-"                    <p>Your school corporate account has been created to access Google Workspace\n"
-"                       (email, Drive, Classroom...) and the services that use this account.</p>\n"
-"                    <table style=\"border-collapse:collapse;margin:16px 0;\">\n"
-"                        <tr>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Username (email)</strong></td>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_email') or ''\" /></td>\n"
-"                        </tr>\n"
-"                        <tr>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Temporary password</strong></td>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_password') or ''\" /></td>\n"
-"                        </tr>\n"
-"                    </table>\n"
-"                    <p style=\"color:#b00;\"><strong>Important:</strong> for security reasons, you will be\n"
-"                       required to change the password on your first login.</p>\n"
-"                    <p>You can sign in at <a t-attf-href=\"https://mail.google.com/a/#{object.env.company.google_ws_domain}/\">mail.google.com</a>.</p>\n"
-"                    <p>Best regards,<br />School Secretariat</p>\n"
-"                </div>"
-msgstr ""
-"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
-"                    <p>Hola <t t-out=\"object.firstname or object.name or ''\"/>,</p>\n"
-"                    <p>Tu cuenta corporativa del centro ha sido creada para acceder a Google Workspace\n"
-"                       (correo electrónico, Drive, Classroom...) y los servicios que utilizan esta cuenta.</p>\n"
-"                    <table style=\"border-collapse:collapse;margin:16px 0;\">\n"
-"                        <tr>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Usuario (email)</strong></td>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_email') or ''\"/></td>\n"
-"                        </tr>\n"
-"                        <tr>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Contraseña temporal</strong></td>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_password') or ''\"/></td>\n"
-"                        </tr>\n"
-"                    </table>\n"
-"                    <p style=\"color:#b00;\"><strong>Importante:</strong> por motivos de seguridad, deberás\n"
-"                       cambiar la contraseña en el primer inicio de sesión.</p>\n"
-"                    <p>Puedes iniciar sesión en <a t-attf-href=\"https://mail.google.com/a/#{object.env.company.google_ws_domain}/\">mail.google.com</a>.</p>\n"
-"                    <p>Saludos,<br/>Secretaría del centro</p>\n"
-"                </div>\n"
-"            "
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid ""
 "<i class=\"fa fa-bank me-2 text-ems-primary\"/>\n"
@@ -1171,15 +1127,9 @@ msgstr "Falta justificada por: "
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
-#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
 msgid "The completion date must be later than the start date."
 msgstr "La fecha de finalización debe ser posterior a la fecha de inicio."
 
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_justification.py:0
-msgid "The student %(student)s has another justification which overlaps with the current one."
-msgstr "El alumno %(student)s tiene otra justificación que se solapa con la actual."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__abstent_ids
@@ -1366,6 +1316,7 @@ msgstr "Acción Necesária"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__active
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__active
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__active
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__active
 msgid "Active"
 msgstr "Activo"
 
@@ -1998,8 +1949,6 @@ msgstr "Aviso"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attachment_ids model:ir.model.fields,field_description:ems.field_ems_study__attachment_ids model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_study_form
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__attachment_ids
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 msgid "Attached files"
 msgstr "Archivos adjuntos"
 
@@ -2534,7 +2483,6 @@ msgstr "Puede editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_title_register_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_close_wizard_form
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_leave_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_review_wizard_form
@@ -3161,7 +3109,6 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__create_uid
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__create_uid
@@ -3312,7 +3259,6 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__create_date
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__create_date
@@ -3693,6 +3639,7 @@ msgstr "Descripción y notas"
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_log__description
 #: code:addons/ems/models/erasmus/export.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__details
 msgid "Details"
 msgstr "Detalles"
 
@@ -3774,7 +3721,6 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__display_name
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__display_name
@@ -4255,7 +4201,6 @@ msgstr "Tiempo final"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__end_date model:ir.model.fields,field_description:ems.field_ems_attendance_template__end_date
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__end_date
 msgid "End date"
 msgstr "Fecha de finalización"
 
@@ -5063,6 +5008,7 @@ msgstr "Otorgar acceso"
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_search
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
 #: code:addons/ems/models/erasmus/economy.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
 msgid "Group"
 msgstr "Grupo"
 
@@ -5086,6 +5032,7 @@ msgstr "Grupo"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_search
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_support_rate_search
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
 msgid "Group By"
 msgstr "Agrupar por"
 
@@ -5119,8 +5066,6 @@ msgstr "Grupo:"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_template__group_ids model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__group_ids model:ir.model.fields,field_description:ems.field_ems_notice__group_ids model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__group_ids model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__group_ids model:ir.ui.menu,name:ems.menu_groups
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__group_ids
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__group_ids
-#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_justification_wizard__mode__groups
 msgid "Groups"
 msgstr "Grupos"
 
@@ -5343,7 +5288,6 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__id
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__id
 #: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__id
@@ -5994,6 +5938,7 @@ msgstr "Justificación"
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_justifications
+#: model:ir.ui.menu,name:ems.menu_attendance_config_justifications
 msgid "Justifications"
 msgstr "Justificaciones"
 
@@ -6078,7 +6023,6 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__write_uid
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__write_uid
@@ -6229,7 +6173,6 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__write_date
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__write_date
@@ -6807,7 +6750,6 @@ msgstr "Modalidad"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__mode model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__mode model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__mode model:ir.model.fields,field_description:ems.field_hr_attendance__in_mode
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_grant_wizard__mode
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__mode
 msgid "Mode"
 msgstr "Modo"
 
@@ -6908,6 +6850,7 @@ msgstr "NUSS"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__name
 #: model:ir.model.fields,field_description:ems.field_sign_oca_role__name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__name
 msgid "Name"
 msgstr "Nombre"
 
@@ -7154,15 +7097,13 @@ msgstr "Nota"
 #. module: ems
 #. odoo-javascript
 #. odoo-python
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__notes model:ir.model.fields,field_description:ems.field_ems_attendance_justification__notes model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__notes model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__notes model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__notes model:ir.model.fields,field_description:ems.field_ems_content__notes model:ir.model.fields,field_description:ems.field_ems_criteria__notes model:ir.model.fields,field_description:ems.field_ems_group__notes model:ir.model.fields,field_description:ems.field_ems_level__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__notes model:ir.model.fields,field_description:ems.field_ems_outcome__notes model:ir.model.fields,field_description:ems.field_ems_role__notes model:ir.model.fields,field_description:ems.field_ems_student_benefit__notes model:ir.model.fields,field_description:ems.field_ems_study__notes model:ir.model.fields,field_description:ems.field_ems_subject__notes model:ir.model.fields,field_description:ems.field_ems_tracking__notes model:ir.model.fields,field_description:ems.field_ems_workgroup__notes model:ir.model.fields,field_description:ems.field_hr_employee__notes model:ir.model.fields,field_description:ems.field_hr_employee_base__notes model:ir.model.fields,field_description:ems.field_hr_employee_public__notes model_terms:ir.ui.view,arch_db:ems.attendance_report_session model_terms:ir.ui.view,arch_db:ems.level_view_form model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form model_terms:ir.ui.view,arch_db:ems.view_content_form model_terms:ir.ui.view,arch_db:ems.view_criteria_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form model_terms:ir.ui.view,arch_db:ems.view_outcome_form model_terms:ir.ui.view,arch_db:ems.view_role_form model_terms:ir.ui.view,arch_db:ems.view_study_form model_terms:ir.ui.view,arch_db:ems.view_subject_form model_terms:ir.ui.view,arch_db:ems.view_workgroup_form model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__notes model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__notes model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__notes model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__notes model:ir.model.fields,field_description:ems.field_ems_content__notes model:ir.model.fields,field_description:ems.field_ems_criteria__notes model:ir.model.fields,field_description:ems.field_ems_group__notes model:ir.model.fields,field_description:ems.field_ems_level__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__notes model:ir.model.fields,field_description:ems.field_ems_outcome__notes model:ir.model.fields,field_description:ems.field_ems_role__notes model:ir.model.fields,field_description:ems.field_ems_student_benefit__notes model:ir.model.fields,field_description:ems.field_ems_study__notes model:ir.model.fields,field_description:ems.field_ems_subject__notes model:ir.model.fields,field_description:ems.field_ems_tracking__notes model:ir.model.fields,field_description:ems.field_ems_workgroup__notes model:ir.model.fields,field_description:ems.field_hr_employee__notes model:ir.model.fields,field_description:ems.field_hr_employee_base__notes model:ir.model.fields,field_description:ems.field_hr_employee_public__notes model_terms:ir.ui.view,arch_db:ems.attendance_report_session model_terms:ir.ui.view,arch_db:ems.level_view_form model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form model_terms:ir.ui.view,arch_db:ems.view_content_form model_terms:ir.ui.view,arch_db:ems.view_criteria_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form model_terms:ir.ui.view,arch_db:ems.view_outcome_form model_terms:ir.ui.view,arch_db:ems.view_role_form model_terms:ir.ui.view,arch_db:ems.view_study_form model_terms:ir.ui.view,arch_db:ems.view_subject_form model_terms:ir.ui.view,arch_db:ems.view_workgroup_form model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__notes model_terms:ir.ui.view,arch_db:ems.report_meeting_presence_section
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__note
 #: model:ir.model.fields,field_description:ems.field_res_partner__comment
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__notes
 #: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__notes
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__notes
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__notes
 #: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_record_form
@@ -7179,6 +7120,8 @@ msgstr "Nota"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__notes
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_form
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__notes
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
 msgid "Notes"
 msgstr "Notas"
 
@@ -7487,7 +7430,6 @@ msgstr "Solo el tutor del estudiante puede actualizar sus justificaciones de asi
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
-#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
 msgid "Only tutors can justify student's attendances."
 msgstr "Solo los tutores pueden justificar las faltas de los alumnos."
 
@@ -7776,7 +7718,6 @@ msgstr "Pendiente de revisión"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_modality__period
 msgid "Period"
 msgstr "Período"
@@ -8909,6 +8850,7 @@ msgstr "Enviado el"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_document_signature__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__sequence
 msgid "Sequence"
 msgstr "Secuencia"
 
@@ -9134,7 +9076,6 @@ msgstr "Hora de inicio"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__start_date model:ir.model.fields,field_description:ems.field_ems_attendance_template__start_date
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__start_date
 msgid "Start date"
 msgstr "Fecha de inicio"
 
@@ -9424,10 +9365,11 @@ msgstr "Alumno/a:"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__student_ids model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
 #: model:ir.ui.menu,name:ems.menu_students_root
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__line_ids
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__student_ids
-#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_justification_wizard__mode__students
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__audience__student
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_search
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__student_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_list
 msgid "Students"
 msgstr "Estudiantes"
 
@@ -9715,7 +9657,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__employee_id
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__teacher_id
 msgid "Teacher"
 msgstr "Profesor"
 
@@ -10501,7 +10442,6 @@ msgstr "Usuario"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_strike__user_is_admin
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_evaluation__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__user_is_admin
@@ -11672,6 +11612,8 @@ msgstr "Salida original"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_staff_renounce_wizard__reason
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_dismiss_wizard__note
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense_correct_wizard__reason
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__reason_id
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
 msgid "Reason"
 msgstr "Motivo"
 
@@ -13192,6 +13134,7 @@ msgstr "Motivo de strike: motivos predefinidos que un profesor puede elegir al p
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_strike_reason_list model:ir.ui.menu,name:ems.menu_coexistence_strike_reasons
+#: model:ir.ui.menu,name:ems.menu_attendance_justification_reasons
 msgid "Reasons"
 msgstr "Motivos"
 
@@ -13675,56 +13618,6 @@ msgstr "El inicio de sesión con Google queda previnculado."
 #: code:addons/ems/models/employees/google_workspace_integration.py:0
 msgid "Sign in with Google is not pre-linked (Google user id unavailable)."
 msgstr "El inicio de sesión con Google no queda previnculado (ID de usuario de Google no disponible)."
-
-#. module: ems
-#: model:mail.template,body_html:ems.mail_template_google_welcome_employee
-msgid ""
-"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
-"                    <p>Hello <t t-out=\"object.name or ''\" />,</p>\n"
-"                    <p>Your school corporate account has been created to access Google Workspace\n"
-"                       (email, Drive, Classroom...) and the services that use this account.</p>\n"
-"                    <table style=\"border-collapse:collapse;margin:16px 0;\">\n"
-"                        <tr>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Username (email)</strong></td>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_email') or ''\" /></td>\n"
-"                        </tr>\n"
-"                        <tr>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Temporary password</strong></td>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_password') or ''\" /></td>\n"
-"                        </tr>\n"
-"                    </table>\n"
-"                    <p style=\"color:#b00;\"><strong>Important:</strong> for security reasons, you will be\n"
-"                       required to change the password on your first login.</p>\n"
-"                    <p>You can sign in at <a t-attf-href=\"https://mail.google.com/a/#{object.env.company.google_ws_domain}/\">mail.google.com</a>.</p>\n"
-"                    <p>You can also access the school management platform (EMS) at\n"
-"                       <a t-att-href=\"object.get_base_url()\"><t t-out=\"object.get_base_url()\" /></a>:\n"
-"                       use the <strong>Sign in with Google</strong> button with this same corporate account.</p>\n"
-"                    <p>Best regards,<br />School Secretariat</p>\n"
-"                </div>"
-msgstr ""
-"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
-"                    <p>Hola <t t-out=\"object.name or ''\"/>,</p>\n"
-"                    <p>Tu cuenta corporativa del centro ha sido creada para acceder a Google Workspace\n"
-"                       (correo electrónico, Drive, Classroom...) y los servicios que utilizan esta cuenta.</p>\n"
-"                    <table style=\"border-collapse:collapse;margin:16px 0;\">\n"
-"                        <tr>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Usuario (email)</strong></td>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_email') or ''\"/></td>\n"
-"                        </tr>\n"
-"                        <tr>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><strong>Contraseña temporal</strong></td>\n"
-"                            <td style=\"padding:6px 10px;border:1px solid #ddd;\"><t t-out=\"ctx.get('gw_password') or ''\"/></td>\n"
-"                        </tr>\n"
-"                    </table>\n"
-"                    <p style=\"color:#b00;\"><strong>Importante:</strong> por motivos de seguridad, deberás\n"
-"                       cambiar la contraseña en el primer inicio de sesión.</p>\n"
-"                    <p>Puedes iniciar sesión en <a t-attf-href=\"https://mail.google.com/a/#{object.env.company.google_ws_domain}/\">mail.google.com</a>.</p>\n"
-"                    <p>También puedes acceder a la plataforma de gestión del centro (EMS) en\n"
-"                       <a t-att-href=\"object.get_base_url()\"><t t-out=\"object.get_base_url()\"/></a>:\n"
-"                       usa el botón <strong>Iniciar sesión con Google</strong> con esta misma cuenta corporativa.</p>\n"
-"                    <p>Saludos,<br/>Secretaría del centro</p>\n"
-"                </div>\n"
-"            "
 
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_student_year_record_unique_student_course
@@ -16569,92 +16462,6 @@ msgid ""
 "Your corporate account @{{ object.env.company.google_ws_domain }} will be "
 "deactivated and deleted"
 msgstr "Tu cuenta corporativa @{{ object.env.company.google_ws_domain }} se desactivará y se eliminará"
-
-#. module: ems
-#: model:mail.template,body_html:ems.mail_template_google_deactivation_student
-msgid ""
-"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
-"                    <p>Hello <t t-out=\"object.firstname or object.name or ''\"/>,</p>\n"
-"                    <p>Now that you are no longer enrolled at the school, your corporate\n"
-"                       Google Workspace account\n"
-"                       <strong><t t-out=\"object.student_email or ''\"/></strong>\n"
-"                       is scheduled to be <strong>deactivated</strong> on\n"
-"                       <strong><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></strong>.</p>\n"
-"                    <p style=\"color:#b00;\">Once deactivated, the account is\n"
-"                       <strong>deleted for good</strong> on\n"
-"                       <strong><t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/></strong>.\n"
-"                       After that date your email and your Drive files cannot be recovered.</p>\n"
-"                    <p>You can use your account as usual before\n"
-"                       <t t-out=\"format_date(object.google_ws_deactivation_date)\"/>; from\n"
-"                       <t t-out=\"format_date(object.google_ws_deactivation_date)\"/> (included)\n"
-"                       you will no longer be able to access it; on\n"
-"                       <t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/> it will be deleted\n"
-"                       for good. Please make sure you download everything you want to keep\n"
-"                       before then, and that you have moved any personal service using this\n"
-"                       address to another one.</p>\n"
-"                    <p>If you enrol again at the school before those dates, the account is kept\n"
-"                       and nothing is lost.</p>\n"
-"                    <p>Best regards,<br/>School Secretariat</p>\n"
-"                </div>"
-msgstr ""
-"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
-"                    <p>Hola <t t-out=\"object.firstname or object.name or ''\"/>,</p>\n"
-"                    <p>Ahora que ya no estás matriculado en el centro, está previsto que tu cuenta\n"
-"                       corporativa de Google Workspace\n"
-"                       <strong><t t-out=\"object.student_email or ''\"/></strong>\n"
-"                       se <strong>desactive</strong> el\n"
-"                       <strong><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></strong>.</p>\n"
-"                    <p style=\"color:#b00;\">Una vez desactivada, la cuenta se\n"
-"                       <strong>elimina definitivamente</strong> el\n"
-"                       <strong><t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/></strong>.\n"
-"                       A partir de esa fecha tu correo y tus archivos de Drive no se podrán\n"
-"                       recuperar.</p>\n"
-"                    <p>Podrás acceder a tu cuenta con normalidad antes del\n"
-"                       <t t-out=\"format_date(object.google_ws_deactivation_date)\"/>; a partir del\n"
-"                       <t t-out=\"format_date(object.google_ws_deactivation_date)\"/> (incluido) ya\n"
-"                       no podrás acceder a ella; el día\n"
-"                       <t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/> se eliminará\n"
-"                       definitivamente. Asegúrate de descargar antes todo lo que quieras\n"
-"                       conservar, y de trasladar a otra dirección cualquier servicio personal que\n"
-"                       use esta.</p>\n"
-"                    <p>Si vuelves a matricularte en el centro antes de esas fechas, la cuenta se\n"
-"                       conserva y no se pierde nada.</p>\n"
-"                    <p>Un saludo,<br/>Secretaría del centro</p>\n"
-"                </div>"
-
-#. module: ems
-#: model:mail.template,body_html:ems.mail_template_google_deactivation_employee
-msgid ""
-"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
-"                    <p>Hello <t t-out=\"object.name or ''\"/>,</p>\n"
-"                    <p>Now that you are no longer part of the school staff, your corporate\n"
-"                       Google Workspace account\n"
-"                       <strong><t t-out=\"object.work_email or ''\"/></strong>\n"
-"                       is scheduled to be <strong>deactivated</strong> on\n"
-"                       <strong><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></strong>.</p>\n"
-"                    <p>Until that date the account keeps working normally. Please make sure\n"
-"                       you have saved anything you need from your email and your Drive files\n"
-"                       before then, and that you have moved any personal service using this\n"
-"                       address to another one.</p>\n"
-"                    <p>If you come back to the school before that date, the account is kept\n"
-"                       and nothing is lost.</p>\n"
-"                    <p>Best regards,<br/>School Secretariat</p>\n"
-"                </div>"
-msgstr ""
-"<div style=\"margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;\">\n"
-"                    <p>Hola <t t-out=\"object.name or ''\"/>,</p>\n"
-"                    <p>Ahora que ya no formas parte del personal del centro, está previsto que tu\n"
-"                       cuenta corporativa de Google Workspace\n"
-"                       <strong><t t-out=\"object.work_email or ''\"/></strong>\n"
-"                       se <strong>desactive</strong> el\n"
-"                       <strong><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></strong>.</p>\n"
-"                    <p>Hasta esa fecha la cuenta sigue funcionando con normalidad. Asegúrate de\n"
-"                       guardar antes todo lo que necesites de tu correo y de tus archivos de Drive,\n"
-"                       y de trasladar a otra dirección cualquier servicio personal que use esta.</p>\n"
-"                    <p>Si vuelves al centro antes de esa fecha, la cuenta se conserva y no se pierde\n"
-"                       nada.</p>\n"
-"                    <p>Un saludo,<br/>Secretaría del centro</p>\n"
-"                </div>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_search
@@ -21737,6 +21544,7 @@ msgstr "sesión(es) del horario personalizado de este alumno ya no están en el 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__day
 msgid "Day"
 msgstr "Día"
 
@@ -26194,79 +26002,6 @@ msgid "Preenrollment End Time"
 msgstr "Hora de cierre de la preinscripción"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
-msgid "%s student(s) justified."
-msgstr "Alumnos justificados: %s."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__overlap_student_ids
-msgid "Already justified"
-msgstr "Ya justificados"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
-msgid "Choose at least one student or group."
-msgstr "Elegid al menos un alumno o un grupo."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__group_domain
-msgid "Group Domain"
-msgstr "Dominio de grupos"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
-msgid "Justify"
-msgstr "Justificar"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
-#: model:ir.actions.act_window,name:ems.action_attendance_justification_wizard
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
-msgid "Justify absences"
-msgstr "Justificar faltas"
-
-#. module: ems
-#: model:ir.model,name:ems.model_ems_attendance_justification_wizard
-msgid "Justify the absences of several students or groups"
-msgstr "Justificar las faltas de varios alumnos o grupos"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
-msgid "Only the student's tutor can justify its attendances: %(students)s"
-msgstr "Solo el tutor del alumno puede justificar sus faltas: %(students)s"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
-msgid "Skipped, they already have a justification overlapping this period: %s"
-msgstr ""
-"Omitidos porque ya tienen un justificante que se solapa con este periodo: %s"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__student_domain
-msgid "Student Domain"
-msgstr "Dominio de alumnos"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__target_student_ids
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
-msgid "Students to justify"
-msgstr "Alumnos por justificar"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
-msgid ""
-"These students already have a justification overlapping this period and will"
-" be skipped:"
-msgstr ""
-"Estos alumnos ya tienen un justificante que se solapa con este periodo y se "
-"omitirán:"
-
-#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_convalidation__student_document_id
 msgid "The student's identity document, to look them up in other applications."
 msgstr "El documento de identidad del alumno, para encontrarlo en otras aplicaciones."
@@ -27215,12 +26950,8 @@ msgstr "· versión"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_minute_type__template_document_id
-msgid ""
-"The controlled document this type is written against. Its code is quoted in "
-"the PDF."
-msgstr ""
-"El documento controlado según el cual se redacta este tipo. Su código se "
-"cita en el PDF."
+msgid "The controlled document this type is written against."
+msgstr "El documento controlado según el cual se redacta este tipo."
 
 #. module: ems
 #. odoo-python
@@ -48607,3 +48338,492 @@ msgstr "tu parte de los gastos colectivos del grupo"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
 msgid "We will use the account of your enrolment. Write another one only if you want it paid elsewhere."
 msgstr "Usaremos la cuenta de tu matrícula. Escribe otra solo si quieres que te lo paguemos en otra cuenta."
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_reactivated_student
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">ACCOUNT REACTIVATED</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your account is active again</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.firstname or object.name or ''\"/>, your school corporate Google Workspace account has been reactivated.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.student_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Status</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\">Active</p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#ecf7ef;border-left:3px solid #5fb27a;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#2f4a38;\">You can sign in again with the same address and password as before. Your email and your Drive files are as you left them.</td></tr></table></td></tr></table>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">CUENTA REACTIVADA</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Tu cuenta vuelve a estar activa</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.firstname or object.name or ''\"/>. Se ha reactivado tu cuenta corporativa de Google Workspace.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Cuenta corporativa</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.student_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Estado</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\">Activa</p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#ecf7ef;border-left:3px solid #5fb27a;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#2f4a38;\">Puedes volver a iniciar sesión con la misma dirección y contraseña que antes. El correo y los archivos de Drive están tal como los dejaste.</td></tr></table></td></tr></table>\n"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_reactivated_employee
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">ACCOUNT REACTIVATED</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your account is active again</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.name or ''\"/>, your school corporate Google Workspace account has been reactivated.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.work_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Status</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\">Active</p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#ecf7ef;border-left:3px solid #5fb27a;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#2f4a38;\">You can sign in again with the same address and password as before. Your email and your Drive files are as you left them.</td></tr></table></td></tr></table>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">CUENTA REACTIVADA</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Tu cuenta vuelve a estar activa</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.name or ''\"/>. Se ha reactivado tu cuenta corporativa de Google Workspace.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Cuenta corporativa</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.work_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Estado</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\">Activa</p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#ecf7ef;border-left:3px solid #5fb27a;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#2f4a38;\">Puedes volver a iniciar sesión con la misma dirección y contraseña que antes. El correo y los archivos de Drive están tal como los dejaste.</td></tr></table></td></tr></table>\n"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_deactivation_cancelled_student
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">DEACTIVATION CANCELLED</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your account stays active</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.firstname or object.name or ''\"/>, the scheduled deactivation of your school corporate Google Workspace account has been cancelled.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.student_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Status</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\">Active</p></td><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Planned deactivation</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"text-decoration:line-through;color:#8894a3;font-weight:normal;\"><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></span> Cancelled</p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#ecf7ef;border-left:3px solid #5fb27a;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#2f4a38;\">The account keeps working as usual and nothing is lost: your email and your Drive files are kept.</td></tr></table></td></tr></table>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">DESACTIVACIÓN ANULADA</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Tu cuenta sigue activa</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.firstname or object.name or ''\"/>. Se ha anulado la desactivación programada de tu cuenta corporativa de Google Workspace.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Cuenta corporativa</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.student_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Estado</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\">Activa</p></td><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Desactivación prevista</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"text-decoration:line-through;color:#8894a3;font-weight:normal;\"><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></span> Anulada</p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#ecf7ef;border-left:3px solid #5fb27a;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#2f4a38;\">La cuenta sigue funcionando con normalidad y no se pierde nada: se conservan el correo y los archivos de Drive.</td></tr></table></td></tr></table>\n"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_deactivation_cancelled_employee
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">DEACTIVATION CANCELLED</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your account stays active</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.name or ''\"/>, the scheduled deactivation of your school corporate Google Workspace account has been cancelled.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.work_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Status</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\">Active</p></td><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Planned deactivation</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"text-decoration:line-through;color:#8894a3;font-weight:normal;\"><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></span> Cancelled</p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#ecf7ef;border-left:3px solid #5fb27a;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#2f4a38;\">The account keeps working as usual and nothing is lost: your email and your Drive files are kept.</td></tr></table></td></tr></table>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">DESACTIVACIÓN ANULADA</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Tu cuenta sigue activa</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.name or ''\"/>. Se ha anulado la desactivación programada de tu cuenta corporativa de Google Workspace.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Cuenta corporativa</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.work_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Estado</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\">Activa</p></td><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Desactivación prevista</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"text-decoration:line-through;color:#8894a3;font-weight:normal;\"><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></span> Anulada</p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#ecf7ef;border-left:3px solid #5fb27a;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#2f4a38;\">La cuenta sigue funcionando con normalidad y no se pierde nada: se conservan el correo y los archivos de Drive.</td></tr></table></td></tr></table>\n"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_welcome
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">NEW ACCOUNT</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your corporate account is ready</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.firstname or object.name or ''\"/>, your school corporate account has been created to access Google Workspace (email, Drive, Classroom...) and the services that use this account.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"ctx.get('gw_email') or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Temporary password</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"font-family:Consolas,Menlo,monospace;font-size:17px;letter-spacing:1px;\"><t t-out=\"ctx.get('gw_password') or ''\"/></span></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff7e8;border-left:3px solid #e0a526;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5c4510;\">For security reasons, you will be asked to change this password the first time you sign in.</td></tr></table></td></tr></table>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">CUENTA NUEVA</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Tu cuenta corporativa ya está lista</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.firstname or object.name or ''\"/>. Se ha creado tu cuenta corporativa del centro para acceder a Google Workspace (correo electrónico, Drive, Classroom...) y a los servicios que utilizan esta cuenta.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Cuenta corporativa</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"ctx.get('gw_email') or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Contraseña temporal</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"font-family:Consolas,Menlo,monospace;font-size:17px;letter-spacing:1px;\"><t t-out=\"ctx.get('gw_password') or ''\"/></span></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff7e8;border-left:3px solid #e0a526;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5c4510;\">Por motivos de seguridad, deberás cambiar esta contraseña la primera vez que inicies sesión.</td></tr></table></td></tr></table>\n"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_welcome_employee
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">NEW ACCOUNT</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your corporate account is ready</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.name or ''\"/>, your school corporate account has been created to access Google Workspace (email, Drive, Classroom...) and the services that use this account.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"ctx.get('gw_email') or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Temporary password</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"font-family:Consolas,Menlo,monospace;font-size:17px;letter-spacing:1px;\"><t t-out=\"ctx.get('gw_password') or ''\"/></span></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff7e8;border-left:3px solid #e0a526;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5c4510;\">For security reasons, you will be asked to change this password the first time you sign in.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">You can also access the school management platform (EMS) at <a t-att-href=\"object.get_base_url()\"><t t-out=\"object.get_base_url()\"/></a>: use the <strong>Sign in with Google</strong> button with this same corporate account.</p>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">CUENTA NUEVA</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Tu cuenta corporativa ya está lista</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.name or ''\"/>. Se ha creado tu cuenta corporativa del centro para acceder a Google Workspace (correo electrónico, Drive, Classroom...) y a los servicios que utilizan esta cuenta.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Cuenta corporativa</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"ctx.get('gw_email') or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Contraseña temporal</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"font-family:Consolas,Menlo,monospace;font-size:17px;letter-spacing:1px;\"><t t-out=\"ctx.get('gw_password') or ''\"/></span></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff7e8;border-left:3px solid #e0a526;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5c4510;\">Por motivos de seguridad, deberás cambiar esta contraseña la primera vez que inicies sesión.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">También puedes acceder a la plataforma de gestión del centro (EMS) en <a t-att-href=\"object.get_base_url()\"><t t-out=\"object.get_base_url()\"/></a>: usa el botón <strong>Iniciar sesión con Google</strong> con esta misma cuenta corporativa.</p>\n"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_password_reset_student
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">PASSWORD RESET</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your password has been reset</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.firstname or object.name or ''\"/>, the password of your school corporate account has been reset. Use this temporary password to sign in.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"ctx.get('gw_email') or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Temporary password</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"font-family:Consolas,Menlo,monospace;font-size:17px;letter-spacing:1px;\"><t t-out=\"ctx.get('gw_password') or ''\"/></span></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff7e8;border-left:3px solid #e0a526;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5c4510;\">For security reasons, you will be asked to change this password the first time you sign in.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">If you were not expecting this change, please let the school know.</p>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">CONTRASEÑA RESTABLECIDA</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Se ha restablecido tu contraseña</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.firstname or object.name or ''\"/>. Se ha restablecido la contraseña de tu cuenta corporativa del centro. Usa esta contraseña temporal para iniciar sesión.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Cuenta corporativa</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"ctx.get('gw_email') or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Contraseña temporal</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"font-family:Consolas,Menlo,monospace;font-size:17px;letter-spacing:1px;\"><t t-out=\"ctx.get('gw_password') or ''\"/></span></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff7e8;border-left:3px solid #e0a526;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5c4510;\">Por motivos de seguridad, deberás cambiar esta contraseña la primera vez que inicies sesión.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">Si no esperabas este cambio, avisa al centro.</p>\n"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_password_reset_employee
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">PASSWORD RESET</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your password has been reset</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.name or ''\"/>, the password of your school corporate account has been reset. Use this temporary password to sign in.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"ctx.get('gw_email') or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Temporary password</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"font-family:Consolas,Menlo,monospace;font-size:17px;letter-spacing:1px;\"><t t-out=\"ctx.get('gw_password') or ''\"/></span></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff7e8;border-left:3px solid #e0a526;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5c4510;\">For security reasons, you will be asked to change this password the first time you sign in.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">You can also access the school management platform (EMS) at <a t-att-href=\"object.get_base_url()\"><t t-out=\"object.get_base_url()\"/></a>: use the <strong>Sign in with Google</strong> button with this same corporate account.</p>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">If you were not expecting this change, please let the school know.</p>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">CONTRASEÑA RESTABLECIDA</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Se ha restablecido tu contraseña</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.name or ''\"/>. Se ha restablecido la contraseña de tu cuenta corporativa del centro. Usa esta contraseña temporal para iniciar sesión.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Cuenta corporativa</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"ctx.get('gw_email') or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Contraseña temporal</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><span style=\"font-family:Consolas,Menlo,monospace;font-size:17px;letter-spacing:1px;\"><t t-out=\"ctx.get('gw_password') or ''\"/></span></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff7e8;border-left:3px solid #e0a526;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5c4510;\">Por motivos de seguridad, deberás cambiar esta contraseña la primera vez que inicies sesión.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">También puedes acceder a la plataforma de gestión del centro (EMS) en <a t-att-href=\"object.get_base_url()\"><t t-out=\"object.get_base_url()\"/></a>: usa el botón <strong>Iniciar sesión con Google</strong> con esta misma cuenta corporativa.</p>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">Si no esperabas este cambio, avisa al centro.</p>\n"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_deactivation_student
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#fff0ee;border:1px solid #f5cbc6;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#b33126;\">SCHEDULED DEACTIVATION</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your account will be deactivated</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.firstname or object.name or ''\"/>, now that you are no longer enrolled at the school, your corporate Google Workspace account will be deactivated and then deleted.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.student_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Deactivation</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></p></td><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Permanent deletion</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff0ee;border-left:3px solid #d9534f;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#6b2620;\">You can use your account as usual until the day before <t t-out=\"format_date(object.google_ws_deactivation_date)\"/>. From <t t-out=\"format_date(object.google_ws_deactivation_date)\"/> you will no longer be able to access it, and on <t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/> it will be deleted for good: after that date your email and your Drive files <strong>cannot be recovered</strong>. Download everything you want to keep before then, and move any personal service using this address to another one.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">If you enrol again at the school before those dates, the account is kept and nothing is lost.</p>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#fff0ee;border:1px solid #f5cbc6;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#b33126;\">DESACTIVACIÓN PROGRAMADA</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Tu cuenta se desactivará</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.firstname or object.name or ''\"/>. Ahora que ya no estás matriculado en el centro, tu cuenta corporativa de Google Workspace se desactivará y después se eliminará.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Cuenta corporativa</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.student_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Desactivación</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></p></td><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Eliminación definitiva</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff0ee;border-left:3px solid #d9534f;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#6b2620;\">Puedes usar la cuenta con normalidad hasta el día antes del <t t-out=\"format_date(object.google_ws_deactivation_date)\"/>. A partir del <t t-out=\"format_date(object.google_ws_deactivation_date)\"/> ya no podrás acceder a ella, y el <t t-out=\"format_date(ctx.get('gw_deletion_date'))\"/> se eliminará definitivamente: a partir de esa fecha tu correo y tus archivos de Drive <strong>no se podrán recuperar</strong>. Descarga antes todo lo que quieras conservar y traslada a otra dirección cualquier servicio personal que use esta.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">Si vuelves a matricularte en el centro antes de esas fechas, la cuenta se conserva y no se pierde nada.</p>\n"
+
+#. module: ems
+#: model:mail.template,body_html:ems.mail_template_google_deactivation_employee
+msgid ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#fff0ee;border:1px solid #f5cbc6;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#b33126;\">SCHEDULED DEACTIVATION</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your account will be deactivated</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello <t t-out=\"object.name or ''\"/>, now that you are no longer part of the school staff, your corporate Google Workspace account will be deactivated.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Corporate account</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.work_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Deactivation</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff0ee;border-left:3px solid #d9534f;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#6b2620;\">Until that date the account keeps working as usual. Save everything you need from your email and your Drive files before then, and move any personal service using this address to another one.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">If you come back to the school before that date, the account is kept and nothing is lost.</p>\n"
+msgstr ""
+"\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#fff0ee;border:1px solid #f5cbc6;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#b33126;\">DESACTIVACIÓN PROGRAMADA</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Tu cuenta se desactivará</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, <t t-out=\"object.name or ''\"/>. Ahora que ya no formas parte del personal del centro, tu cuenta corporativa de Google Workspace se desactivará.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:21px 21px 18px 21px;border-bottom:1px solid #e8ebf0;background-color:#fafbfc;border-radius:9px 9px 0 0;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Cuenta corporativa</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.work_email or ''\"/></p></td></tr><tr><td style=\"padding:18px 21px 20px 21px;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td valign=\"top\" style=\"padding-right:12px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Desactivación</p><p style=\"margin:0;font-size:15px;line-height:22px;font-weight:bold;color:#243044;\"><t t-out=\"format_date(object.google_ws_deactivation_date)\"/></p></td></tr></table><table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin-top:16px;background-color:#fff0ee;border-left:3px solid #d9534f;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#6b2620;\">Hasta esa fecha la cuenta sigue funcionando con normalidad. Guarda antes todo lo que necesites de tu correo y de tus archivos de Drive, y traslada a otra dirección cualquier servicio personal que use esta.</td></tr></table></td></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">Si vuelves al centro antes de esa fecha, la cuenta se conserva y no se pierde nada.</p>\n"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_card
+msgid ""
+"Automatic email sent from EMS · There is no need to reply to this message."
+msgstr ""
+"Correo automático enviado desde EMS · No es necesario responder a este "
+"mensaje."
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_deactivation_cancelled_employee
+msgid "Google Workspace - Account deactivation cancelled (staff)"
+msgstr "Google Workspace - Desactivación de cuenta anulada (personal)"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_deactivation_cancelled_student
+msgid "Google Workspace - Account deactivation cancelled (students)"
+msgstr "Google Workspace - Desactivación de cuenta anulada (alumnado)"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_reactivated_employee
+msgid "Google Workspace - Account reactivated (staff)"
+msgstr "Google Workspace - Cuenta reactivada (personal)"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_reactivated_student
+msgid "Google Workspace - Account reactivated (students)"
+msgstr "Google Workspace - Cuenta reactivada (alumnado)"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_password_reset_employee
+msgid "Google Workspace - Password reset (staff)"
+msgstr "Google Workspace - Restablecimiento de contraseña (personal)"
+
+#. module: ems
+#: model:mail.template,name:ems.mail_template_google_password_reset_student
+msgid "Google Workspace - Password reset (students)"
+msgstr "Google Workspace - Restablecimiento de contraseña (alumnado)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_google
+msgid "Google accounts"
+msgstr "Cuentas de Google"
+
+#. module: ems
+#: model:mail.template,subject:ems.mail_template_google_password_reset_employee
+#: model:mail.template,subject:ems.mail_template_google_password_reset_student
+msgid ""
+"New password for your corporate account @{{ "
+"object.env.company.google_ws_domain }}"
+msgstr ""
+"Nueva contraseña de tu cuenta corporativa @{{ "
+"object.env.company.google_ws_domain }}"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_google
+msgid "Open my email"
+msgstr "Abrir mi correo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_google
+msgid "School Secretariat"
+msgstr "Secretaría del centro"
+
+#. module: ems
+#: model:mail.template,subject:ems.mail_template_google_reactivated_employee
+#: model:mail.template,subject:ems.mail_template_google_reactivated_student
+msgid ""
+"Your corporate account @{{ object.env.company.google_ws_domain }} is active "
+"again"
+msgstr ""
+"Tu cuenta corporativa @{{ object.env.company.google_ws_domain }} vuelve a "
+"estar activa"
+
+#. module: ems
+#: model:mail.template,subject:ems.mail_template_google_deactivation_cancelled_employee
+#: model:mail.template,subject:ems.mail_template_google_deactivation_cancelled_student
+msgid ""
+"Your corporate account @{{ object.env.company.google_ws_domain }} will not "
+"be deactivated"
+msgstr ""
+"Tu cuenta corporativa @{{ object.env.company.google_ws_domain }} no se "
+"desactivará"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__add_group_ids
+msgid "Add groups"
+msgstr "Añadir grupos"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification__add_group_ids
+msgid "Adds every student of these groups to the list. Remove afterwards the ones who must not be justified."
+msgstr "Añade a la lista todos los alumnos de estos grupos. Después, quitad los que no se deban justificar."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__overlap_student_ids
+msgid "Already justified"
+msgstr "Ya justificados"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__student_domain
+msgid "Student Domain"
+msgstr "Dominio de alumnos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__group_domain
+msgid "Group Domain"
+msgstr "Dominio de grupos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__student_summary
+msgid "Students (summary)"
+msgstr "Alumnos (resumen)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+msgid "These students already have a justification overlapping this period. Remove them from the list to save:"
+msgstr "Estos alumnos ya tienen un justificante que se solapa con este periodo. Quitadlos de la lista para guardar:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
+msgid "Not justified, as marked: %s"
+msgstr "Sin justificar, tal como se han marcado: %s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "In Drive"
+msgstr "En Drive"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Link to a folder of a shared drive. Every minute's PDF is kept there, in "
+"whatever state the minute is, as a single file named after its code that is "
+"replaced each time the minute changes state. The service account must be a "
+"member of the shared drive (Content manager)."
+msgstr ""
+"Enlace a una carpeta de una unidad compartida. Allí queda el PDF de cada "
+"acta, sea cual sea su estado, en un único archivo con el código del acta "
+"como nombre, que se sustituye cada vez que el acta cambia de estado. La "
+"cuenta de servicio debe ser miembro de la unidad compartida (Gestor de "
+"contenido)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__minute_drive_folder_url
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__minute_drive_folder_url
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Minutes folder in Drive"
+msgstr "Carpeta de las actas en Drive"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Open in Drive"
+msgstr "Abrir en Drive"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_company__minute_drive_folder_url
+#: model:ir.model.fields,help:ems.field_res_config_settings__minute_drive_folder_url
+msgid ""
+"Shared drive folder where every minute's PDF is kept up to date, one file "
+"per minute named after its code."
+msgstr ""
+"Carpeta de una unidad compartida donde se mantiene al día el PDF de cada "
+"acta, un archivo por acta con su código como nombre."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Another area's guard: only whoever organises that area can assign them"
+msgstr "Docente de guardia de otra área: solo lo asigna quien organiza esa área"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Free on guard"
+msgstr "De guardia y libre"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Has an absence"
+msgstr "Tiene una ausencia"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_meeting_presence_line__on_leave
+msgid ""
+"Justified by EMS itself because the person has an absence or a leave request"
+" overlapping the meeting. It goes back to pending if that absence is "
+"cancelled or refused before the attendance is closed."
+msgstr ""
+"Justificada por el propio EMS porque la persona tiene una ausencia o una "
+"solicitud de ausencia que coincide con la reunión. Vuelve a pendiente si la "
+"ausencia se cancela o se rechaza antes de cerrar la asistencia."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__on_leave
+#: model:ir.model.fields,field_description:ems.field_ems_minute__on_leave_ids
+msgid "On leave"
+msgstr "Con ausencia"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "%s students"
+msgstr "%s alumnos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "%(students)s (from %(start)s to %(end)s)"
+msgstr "%(students)s (de %(start)s a %(end)s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "A justification needs at least one student."
+msgstr "Un justificante necesita al menos un alumno."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "These students have another justification which overlaps with the current one: %(students)s"
+msgstr "Estos alumnos tienen otro justificante que se solapa con el actual: %(students)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "Students not added"
+msgstr "Alumnos no añadidos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "They already have a justification overlapping this period: %(students)s"
+msgstr "Ya tienen un justificante que se solapa con este periodo: %(students)s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__requires_details
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__requires_details
+msgid "Requires details"
+msgstr "Pide detalles"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__full_day
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__full_day
+msgid "Full day"
+msgstr "Día completo"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification__requires_details
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification_reason__requires_details
+msgid "The tutor must describe the reason in a details field (e.g. 'Other')."
+msgstr "El tutor debe describir el motivo en un campo de detalles (p. ej., «Otros»)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification__full_day
+#: model:ir.model.fields,help:ems.field_ems_attendance_justification_reason__full_day
+msgid "The tutor picks a single day instead of a period, and the justification covers the student's whole day (e.g. a strike)."
+msgstr "El tutor elige un solo día en lugar de un periodo, y el justificante cubre toda la jornada del alumno (p. ej., una huelga)."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_justification_reason
+msgid "Justification reason: predefined reasons why absences are justified."
+msgstr "Motivo de justificación: motivos predefinidos por los que se justifican las faltas."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_attendance_justification_reason_list
+msgid "Justification reasons"
+msgstr "Motivos de justificación"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_reason_form
+msgid "Justification reason"
+msgstr "Motivo de justificación"
+
+#. module: ems
+#: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_health
+msgid "Health reasons"
+msgstr "Motivos de salud"
+
+#. module: ems
+#: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_expulsion
+msgid "Expulsion from the centre"
+msgstr "Expulsión del centro"
+
+#. module: ems
+#: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_activity
+msgid "Attendance at an authorised activity outside the centre"
+msgstr "Asistencia a una actividad autorizada fuera del centro"
+
+#. module: ems
+#: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_family
+msgid "Family reasons (death or serious illness of a relative)"
+msgstr "Motivos familiares (fallecimiento o enfermedad grave de un familiar)"
+
+#. module: ems
+#: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_duty
+msgid "Unavoidable duty (court summons, official procedures)"
+msgstr "Deber inexcusable (citación judicial, trámites oficiales)"
+
+#. module: ems
+#: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_exam
+msgid "Official exam (driving licence, languages, university entrance)"
+msgstr "Examen oficial (carné de conducir, idiomas, acceso a la universidad)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "Describe the reason in the details: %(reason)s"
+msgstr "Describid el motivo en los detalles: %(reason)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "A justification for %(reason)s covers one whole day: pick the day."
+msgstr "Un justificante por %(reason)s cubre un día entero: elegid el día."
+
+#. module: ems
+#: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_strike
+msgid "Labour strike"
+msgstr "Huelga"
+
+#. module: ems
+#: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_other
+msgid "Other reasons"
+msgstr "Otros"

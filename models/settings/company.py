@@ -39,6 +39,11 @@ class ems_company(models.Model):
     # the roll-call can't (issue #587). Read through ems.attendance_status.roll_call_selectable.
     attendance_manual_justified = fields.Boolean(default=False)
     strike_escalation_threshold = fields.Integer(default=3)
+    # Issue #800: a student walkout call's calendar, in school hours (ems.datetime_utils): the group vote
+    # and the joining last a phase each, and the Head of Studies gets the minute this long before the
+    # walkout. Each call keeps the values it was opened with.
+    walkout_phase_hours = fields.Integer(string="Student walkout phase (school hours)", default=24)
+    walkout_notice_hours = fields.Integer(string="Student walkout notice (school hours)", default=48)
     # Minutes; 0 disables the possible-duplicate warning (ems.strike.get_duplicate_warning).
     strike_duplicate_window = fields.Integer(default=1)
     # NOTE: defaults to 'all' so an installation upgrading into this version keeps today's
@@ -213,6 +218,13 @@ class ems_company(models.Model):
             for email in (company.secretariat_email, company.erasmus_contact_email):
                 if email and not email_normalize(email):
                     raise ValidationError(_("%(email)s is not a valid email address.", email=email))
+
+    @api.constrains('walkout_phase_hours', 'walkout_notice_hours')
+    def _check_walkout_calendar(self):
+        for company in self:
+            if company.walkout_phase_hours < 1 or company.walkout_notice_hours < 0:
+                raise ValidationError(_("A student walkout phase lasts at least one hour, and its notice cannot be "
+                                        "negative."))
 
     @api.constrains('convalidation_start_day', 'convalidation_start_month', 'convalidation_start_time',
                     'convalidation_end_day', 'convalidation_end_month', 'convalidation_end_time')

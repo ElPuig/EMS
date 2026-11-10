@@ -68,6 +68,61 @@ class EmsDatetimeUtils(models.AbstractModel):
             target_local += timedelta(days=1)
         return self.datetime_to_odoo(self.local_datetime_to_utc(target_local))
 
+    def format_local_datetime(self, value):
+        """A stored (naive UTC) datetime as the centre reads it, for emails and messages."""
+        if not value:
+            return ''
+        return self.utc_datetime_to_local(UTC.localize(value)).strftime('%d/%m/%Y %H:%M')
+
+    # School hours (issue #800): only the time of school days counts, every hour of them (the night
+    # included), weekends, public holidays and school breaks never. 24 school hours from a Friday
+    # 13:00 end on the Monday at 13:00. Counted on the company's wall clock, naive UTC in and out.
+
+    def _ems_school_days(self, date_from, date_to):
+        """The school days between both dates (included): weekdays that are no public holiday nor
+        school break, in one search."""
+        closed = self.env['resource.calendar.leaves']._ems_holiday_dates(date_from, date_to)
+        days, day = set(), date_from
+        while day <= date_to:
+            if day.weekday() < 5 and day not in closed:
+                days.add(day)
+            day += timedelta(days=1)
+        return days
+
+    def _ems_local_wall(self, utc_naive):
+        return self.utc_datetime_to_local(UTC.localize(utc_naive)).replace(tzinfo=None)
+
+    def _ems_utc_from_wall(self, wall):
+        return self.datetime_to_odoo(self.local_datetime_to_utc(wall.replace(tzinfo=self.current_tz())))
+
+    def ems_add_school_hours(self, moment, hours):
+        """`moment` (naive UTC) plus `hours` school hours, as naive UTC."""
+        wall = self._ems_local_wall(moment)
+        # Enough days for the hours plus any weekends and breaks in between.
+        school_days = self._ems_school_days(wall.date(), wall.date() + timedelta(days=int(hours / 24) * 3 + 60))
+        remaining = timedelta(hours=hours)
+        while True:
+            day_end = datetime.combine(wall.date() + timedelta(days=1), datetime.min.time())
+            if wall.date() in school_days:
+                if remaining <= day_end - wall:
+                    return self._ems_utc_from_wall(wall + remaining)
+                remaining -= day_end - wall
+            wall = day_end
+
+    def ems_school_hours_between(self, start, end):
+        """The school hours from `start` to `end` (naive UTC), 0 when `end` is not after it."""
+        wall, wall_end = self._ems_local_wall(start), self._ems_local_wall(end)
+        if wall_end <= wall:
+            return 0.0
+        school_days = self._ems_school_days(wall.date(), wall_end.date())
+        total = timedelta()
+        while wall < wall_end:
+            day_end = min(datetime.combine(wall.date() + timedelta(days=1), datetime.min.time()), wall_end)
+            if wall.date() in school_days:
+                total += day_end - wall
+            wall = day_end
+        return total.total_seconds() / 3600
+
     def ranges_overlap(self, start_a, end_a, start_b, end_b):
         return start_a < end_b and end_a > start_b
 

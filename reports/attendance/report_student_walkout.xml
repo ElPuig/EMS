@@ -39,10 +39,10 @@
                             <tr><th>Walkout day</th><td><span t-field="doc.walkout_date"/></td></tr>
                             <tr><th>Opened by</th><td t-out="doc.opener_id.name"/></tr>
                             <tr><th>Opened on</th><td><span t-field="doc.create_date" t-options="{'widget': 'date'}"/></td></tr>
-                            <tr><th>Accepted on</th><td><span t-field="doc.decision_datetime"/></td></tr>
-                            <tr><th>Group vote until</th><td><span t-field="doc.vote_until"/></td></tr>
-                            <tr t-if="doc.group_supports"><th>Joining until</th><td><span t-field="doc.join_until"/></td></tr>
-                            <tr><th>Closed on</th><td><span t-field="doc.closed_datetime"/></td></tr>
+                            <!-- Formatted in the centre's timezone: the minute is rendered by the cron too. -->
+                            <tr><th>Group vote</th><td><t t-esc="doc.format_local_datetime(doc.vote_start)"/> - <t t-esc="doc.format_local_datetime(doc.vote_until)"/></td></tr>
+                            <tr t-if="doc.join_start"><th>Joining</th><td><t t-esc="doc.format_local_datetime(doc.join_start)"/> - <t t-esc="doc.format_local_datetime(doc.join_until)"/></td></tr>
+                            <tr><th>Closed on</th><td><t t-esc="doc.format_local_datetime(doc.closed_datetime)"/></td></tr>
                             <tr><th>Union's call</th><td t-out="', '.join(doc.attachment_ids.mapped('name'))"/></tr>
                             <tr t-if="doc.notes"><th>Notes</th><td t-out="doc.notes"/></tr>
                         </tbody>

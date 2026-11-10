@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import timedelta
+from markupsafe import Markup
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
@@ -8,18 +8,10 @@ from odoo.tools import format_date
 
 GROUP_VOTES = ('yes', 'no', 'abstain')
 JUSTIFY_TASK = 'ems.mail_activity_student_walkout_justify'
-REVIEW_TASK = 'ems.mail_activity_student_walkout_review'
-# What the group sees: a call the Head of Studies has not accepted is only its delegate's.
-VISIBLE_STATES = ('voting', 'joining', 'closed', 'justified')
+# What the group sees: a call cancelled by its delegate is only theirs.
+VISIBLE_STATES = ('voting', 'joining', 'closed', 'justified', 'rejected')
 # The Head of Studies may reject a call at any moment, even justified (the justification goes).
-REJECTABLE_STATES = ('pending', 'voting', 'joining', 'closed', 'justified')
-# The fixed calendar, in days before the walkout (the centre's days): the request at least 72 h
-# before it, one day for the Head of Studies to accept it, one for the group vote, one to join.
-# Each phase starts as soon as the one before ends; its last day is fixed.
-REQUEST_DAYS_BEFORE = 4
-REVIEW_DAYS_BEFORE = 3
-VOTE_DAYS_BEFORE = 2
-JOIN_DAYS_BEFORE = 1
+REJECTABLE_STATES = ('voting', 'joining', 'closed', 'justified')
 
 
 class EmsStudentWalkout(models.Model):
@@ -43,40 +35,44 @@ class EmsStudentWalkout(models.Model):
     company_id = fields.Many2one(string="Company", comodel_name='res.company', required=True, readonly=True,
                                  default=lambda self: self.env.company)
     walkout_date = fields.Date(string="Walkout day", required=True, readonly=True)
-    review_until = fields.Date(string="To be accepted by", compute='_compute_calendar')
-    vote_until = fields.Date(string="Group vote until", compute='_compute_calendar')
-    join_until = fields.Date(string="Joining until", compute='_compute_calendar')
+    # The calendar, in school hours (ems.datetime_utils.ems_add_school_hours): each phase starts when
+    # its email reaches the students (their next class, _ems_send_moment) and lasts phase_hours; the
+    # Head of Studies gets the minute at least notice_hours before walkout_start. Both kept from the
+    # settings the call was opened with.
+    walkout_start = fields.Datetime(string="Walkout starts", compute='_compute_walkout_start')
+    phase_hours = fields.Integer(string="Phase (school hours)", readonly=True)
+    notice_hours = fields.Integer(string="Notice (school hours)", readonly=True)
+    vote_start = fields.Datetime(string="Group vote from", readonly=True, copy=False)
+    vote_until = fields.Datetime(string="Group vote until", readonly=True, copy=False)
+    join_start = fields.Datetime(string="Joining from", readonly=True, copy=False)
+    join_until = fields.Datetime(string="Joining until", readonly=True, copy=False)
     notes = fields.Text(string="Notes", readonly=True)
     attachment_ids = fields.Many2many(string="Union's call", comodel_name='ir.attachment',
                                       relation='ems_student_walkout_attachment_rel', column1='walkout_id',
                                       column2='attachment_id', readonly=True)
     state = fields.Selection(string="State", selection=[
-        ('pending', "Pending review"),
         ('voting', "Voting"),
         ('joining', "Joining"),
         ('closed', "Closed"),
         ('justified', "Justified"),
         ('rejected', "Rejected"),
-        ('expired', "Expired"),
         ('cancelled', "Cancelled"),
-    ], required=True, default='pending', readonly=True)
-    # The Head of Studies accepts the call before the group hears of it, or rejects it with a reason.
-    decided_by_id = fields.Many2one(string="Decided by", comodel_name='res.users', readonly=True, copy=False)
-    decision_datetime = fields.Datetime(string="Decided on", readonly=True, copy=False)
+    ], required=True, default='voting', readonly=True)
+    # The Head of Studies may reject the call at any moment, with a reason.
+    rejected_by_id = fields.Many2one(string="Rejected by", comodel_name='res.users', readonly=True, copy=False)
+    rejected_datetime = fields.Datetime(string="Rejected on", readonly=True, copy=False)
     rejection_reason_id = fields.Many2one(string="Rejection reason", comodel_name='ems.student_walkout.rejection_reason',
                                           readonly=True, copy=False, ondelete='restrict')
     rejection_details = fields.Text(string="Rejection details", readonly=True, copy=False)
-    # The state it was rejected from: a call rejected before the group heard of it stays the
-    # delegate's alone; one rejected later is told to the group (and the families, once closed).
+    # The state it was rejected from: once closed, the families that were told their child joins
+    # are told too.
     rejected_from_state = fields.Selection(string="Rejected while", selection=[
-        ('pending', "Pending review"),
         ('voting', "Voting"),
         ('joining', "Joining"),
         ('closed', "Closed"),
         ('justified', "Justified"),
     ], readonly=True, copy=False)
-    can_decide = fields.Boolean(compute='_compute_can_decide')
-    can_reject = fields.Boolean(compute='_compute_can_decide')
+    can_reject = fields.Boolean(compute='_compute_can_reject')
     # The group vote, anonymous: only the counts, never who voted what (_ems_portal_vote).
     group_yes_count = fields.Integer(string="Group supports it", readonly=True, copy=False)
     group_no_count = fields.Integer(string="Group does not support it", readonly=True, copy=False)
@@ -106,12 +102,9 @@ class EmsStudentWalkout(models.Model):
                 f"{walkout.group_id.name} - {format_date(self.env, walkout.walkout_date)}"
 
     @api.depends('walkout_date')
-    def _compute_calendar(self):
+    def _compute_walkout_start(self):
         for walkout in self:
-            day = walkout.walkout_date
-            walkout.review_until = day and day - timedelta(days=REVIEW_DAYS_BEFORE)
-            walkout.vote_until = day and day - timedelta(days=VOTE_DAYS_BEFORE)
-            walkout.join_until = day and day - timedelta(days=JOIN_DAYS_BEFORE)
+            walkout.walkout_start = walkout._ems_day_start(walkout.walkout_date)
 
     @api.depends('group_yes_count', 'group_no_count')
     def _compute_group_supports(self):
@@ -130,11 +123,9 @@ class EmsStudentWalkout(models.Model):
 
     @api.depends('state')
     @api.depends_context('uid')
-    def _compute_can_decide(self):
+    def _compute_can_reject(self):
         for walkout in self:
-            may_decide = walkout._ems_user_may_decide()
-            walkout.can_decide = walkout.state == 'pending' and may_decide
-            walkout.can_reject = walkout.state in REJECTABLE_STATES and may_decide
+            walkout.can_reject = walkout.state in REJECTABLE_STATES and walkout._ems_user_may_reject()
 
     @api.depends('state', 'line_ids.joins', 'group_yes_count', 'group_no_count')
     @api.depends_context('uid')
@@ -147,20 +138,20 @@ class EmsStudentWalkout(models.Model):
 
     @api.model
     def _ems_portal_open(self, partner, values, files):
-        """Requests a walkout for `partner`'s group: `values` has walkout_date and notes, `files` the
-        union's call as (name, content) pairs. It goes to the Head of Studies first."""
+        """Opens a walkout call for `partner`'s group: `values` has walkout_date and notes, `files` the
+        union's call as (name, content) pairs. The group votes at once, with no review first."""
         partner = partner.sudo()
         group = partner._ems_walkout_opener_group()
         if not group:
             raise UserError(_("Only the delegate or the sub-delegate of a group that may call a student walkout "
                               "can open one."))
+        groups = partner._ems_walkout_opener_groups()
         walkout_date = fields.Date.to_date(values.get('walkout_date'))
-        self._ems_check_request_date(walkout_date)
+        calendar = self._ems_projected_calendar(groups)
+        self._ems_check_request_date(walkout_date, calendar)
         files = [(name, content) for name, content in files or [] if name and content]
         if not files:
             raise UserError(_("Attach the call of the students' union."))
-        groups = group | group.joinable_group_ids.filtered(
-            lambda half: partner in (half.delegate_id | half.subdelegate_id))
         if self.search_count([('group_ids', 'in', groups.ids), ('walkout_date', '=', walkout_date),
                               ('state', '!=', 'cancelled')]):
             raise UserError(_("Your group already has a student walkout call for %(date)s.",
@@ -175,6 +166,10 @@ class EmsStudentWalkout(models.Model):
             'opener_id': partner.id,
             'course_id': self.env.company.current_course_id.id,
             'walkout_date': walkout_date,
+            'phase_hours': calendar['phase_hours'],
+            'notice_hours': calendar['notice_hours'],
+            'vote_start': calendar['vote_start'],
+            'vote_until': calendar['vote_until'],
             'notes': (values.get('notes') or '').strip()[:2000] or False,
             'line_ids': [(0, 0, {'student_id': student.id, 'has_portal': student.id in with_portal})
                          for student in students],
@@ -183,7 +178,7 @@ class EmsStudentWalkout(models.Model):
             'name': name, 'raw': content, 'res_model': self._name, 'res_id': walkout.id,
         } for name, content in files])
         walkout._message_log(body=_("Opened by %(name)s from the portal.", name=partner.name))
-        walkout._ems_request_review()
+        walkout._ems_start_voting()
         return walkout
 
     def _ems_portal_line(self, partner):
@@ -194,7 +189,7 @@ class EmsStudentWalkout(models.Model):
 
     def _ems_portal_vote(self, partner, group_vote):
         """`partner` votes whether the group supports the walkout: once, never linked to them. The
-        vote ends as soon as everybody with portal access has voted."""
+        vote ends as soon as its result is decided (_ems_vote_decided)."""
         self.ensure_one()
         line = self._ems_portal_line(partner)
         if not self._ems_phase_open('voting'):
@@ -208,7 +203,7 @@ class EmsStudentWalkout(models.Model):
         counter = f'group_{group_vote}_count'
         self.write({counter: self[counter] + 1})
         line.write({'voted': True, 'vote_date': fields.Datetime.now()})
-        if self.voted_count == self.voter_count:
+        if self._ems_vote_decided():
             self._ems_end_group_vote()
 
     def _ems_portal_join(self, partner, joins):
@@ -221,10 +216,9 @@ class EmsStudentWalkout(models.Model):
 
     def _ems_portal_cancel(self, partner):
         self._ems_check_delegate(partner)
-        if self.state not in ('pending', 'voting', 'joining'):
-            raise UserError(_("Only a request still being reviewed, voted or joined can be cancelled."))
+        if self.state not in ('voting', 'joining'):
+            raise UserError(_("Only a call still being voted or joined can be cancelled."))
         self.state = 'cancelled'
-        self._ems_sync_user_tasks(self.env.ref(REVIEW_TASK), self.env['res.users'], self.review_until)
         self._message_log(body=_("Cancelled by %(name)s from the portal.", name=partner.name))
 
     def _ems_check_delegate(self, partner):
@@ -233,48 +227,136 @@ class EmsStudentWalkout(models.Model):
         if partner != self.opener_id and partner not in (self.group_ids.delegate_id | self.group_ids.subdelegate_id):
             raise UserError(_("Only the delegate or the sub-delegate of the group can manage this call."))
 
+    # The calendar
+
+    def _ems_day_start(self, day):
+        """00:00 of `day` in the centre, naive UTC: the walkout starts then."""
+        return day and self.datetime_to_odoo(self.time_float_to_utc_datetime(day, 0.0))
+
     @api.model
-    def _ems_check_request_date(self, walkout_date):
-        """At least 72 h before the walkout: the request by the 4th day before it, so that the Head of
-        Studies, the group vote and the joining get a day each."""
+    def _ems_send_moment(self, groups, moment):
+        """When an email sent at `moment` reaches the students of `groups`: then during their
+        classes, otherwise at the next ones (the latest group's)."""
+        return max(group._ems_school_send_time(moment) or moment for group in groups)
+
+    @api.model
+    def _ems_phase(self, groups, moment, hours):
+        """A phase whose email is sent at `moment`: from when it reaches the students, `hours` school
+        hours long."""
+        start = self._ems_send_moment(groups, moment)
+        return start, self.ems_add_school_hours(start, hours)
+
+    @api.model
+    def _ems_projected_calendar(self, groups, now=None):
+        """The calendar of a call opened `now` for `groups`, the group vote taking its whole phase:
+        the latest the minute can reach the Head of Studies (join_until)."""
+        company = self.env.company
+        phase, notice = company.walkout_phase_hours, company.walkout_notice_hours
+        vote_start, vote_until = self._ems_phase(groups, now or fields.Datetime.now(), phase)
+        join_start, join_until = self._ems_phase(groups, vote_until, phase)
+        return {
+            'phase_hours': phase, 'notice_hours': notice,
+            'vote_start': vote_start, 'vote_until': vote_until,
+            'join_start': join_start, 'join_until': join_until,
+        }
+
+    @api.model
+    def _ems_notice_kept(self, calendar, day):
+        """Whether a walkout on `day` keeps the notice: the minute at least notice_hours school hours
+        before its 00:00."""
+        return self.ems_school_hours_between(calendar['join_until'], self._ems_day_start(day)) >= \
+            calendar['notice_hours']
+
+    @api.model
+    def _ems_first_walkout_day(self, calendar):
+        """The first school day a call with this calendar can be for."""
+        first = self.utc_to_local_date(calendar['join_until'])
+        school_days = sorted(self._ems_school_days(first, fields.Date.add(first, days=366)))
+        return next((day for day in school_days if self._ems_notice_kept(calendar, day)), False)
+
+    @api.model
+    def _ems_check_request_date(self, walkout_date, calendar):
+        """The group vote and the joining take a phase each and the minute must reach the Head of
+        Studies the notice before the walkout, all in school hours."""
         if not walkout_date:
             raise UserError(_("Give the walkout day."))
-        latest = walkout_date - timedelta(days=REQUEST_DAYS_BEFORE)
-        if self.get_local_today() > latest:
-            raise UserError(_("A student walkout must be requested at least 72 hours before it: for %(day)s, by "
-                              "%(latest)s at the latest.", day=format_date(self.env, walkout_date),
-                              latest=format_date(self.env, latest)))
+        if not self._ems_school_days(walkout_date, walkout_date):
+            raise UserError(_("A student walkout can only be called for a school day."))
+        if not self._ems_notice_kept(calendar, walkout_date):
+            raise UserError(_(
+                "It is too late to call a student walkout for %(day)s: the group vote and the joining take "
+                "%(phase)s school hours each and the Head of Studies must get the minute %(notice)s school hours "
+                "before the walkout (weekends, public holidays and school breaks do not count). A call opened "
+                "now can be for %(first)s at the earliest.", day=format_date(self.env, walkout_date),
+                phase=calendar['phase_hours'], notice=calendar['notice_hours'],
+                first=format_date(self.env, self._ems_first_walkout_day(calendar))))
 
     def _ems_phase_open(self, state):
-        """Whether the phase `state` (voting, joining) is open: the call is in it and its last day
-        has not ended."""
+        """Whether the phase `state` (voting, joining) is open: the call is in it and its end has not
+        come. Students may answer before its start too (e.g. on the weekend before)."""
         self.ensure_one()
         until = self.vote_until if state == 'voting' else self.join_until
-        return self.state == state and self.get_local_today() <= until
+        return self.state == state and bool(until) and fields.Datetime.now() < until
 
-    # The phases' ends
+    def _ems_vote_decided(self):
+        """Whether the group vote's result is known: everybody voted, or the votes still to come
+        cannot change it (support needs more yes than no)."""
+        self.ensure_one()
+        to_come = self.voter_count - self.voted_count
+        yes, no = self.group_yes_count, self.group_no_count
+        return to_come <= 0 or yes > no + to_come or yes + to_come <= no
+
+    def _ems_latest_minute(self):
+        """When the minute reaches the Head of Studies at the latest: the group vote taking its whole
+        phase and the joining another."""
+        self.ensure_one()
+        if self.join_until:
+            return self.join_until
+        return self._ems_phase(self.group_ids, self.vote_until, self.phase_hours)[1]
+
+    def _ems_wake_cron_at(self, moment):
+        """Runs the deadlines cron exactly when a phase ends (the hourly run is only the safety net)."""
+        cron = self.env.ref('ems.ir_cron_student_walkout_deadlines', raise_if_not_found=False)
+        if cron and moment:
+            cron.sudo()._trigger(at=moment)
+
+    # The phases
+
+    def _ems_start_voting(self):
+        """The group votes at once: each student with portal access gets the email, and the Head of
+        Studies a notice in their daily summary (no action asked: they may still reject it)."""
+        self.ensure_one()
+        self._ems_mail_students('ems.email_template_student_walkout_call')
+        self._ems_wake_cron_at(self.vote_until)
+        body = Markup("<p>{}</p>")
+        for user in self._ems_head_users():
+            env = self.with_context(lang=user.lang or self.env.lang).env
+            text = body.format(env._(
+                "Student walkout: %(opener)s has called a vote in %(group)s for a walkout on %(day)s. You will get "
+                "the minute when it closes, by %(until)s at the latest. You can reject it from Student's "
+                "Attendances > Student walkouts.", opener=self.opener_id.name, group=self.group_id.name,
+                day=format_date(env, self.walkout_date),
+                until=self.format_local_datetime(self._ems_latest_minute())))
+            self.env['ems.info_notice']._ems_queue(user, self, lambda _user, text=text: text)
 
     @api.model
     def _cron_ems_walkout_deadlines(self):
-        """Hourly, at each fixed deadline: a request nobody accepted expires (only its delegate sees
-        it, on the portal); the group vote ends; the joining ends and the call closes."""
-        today = self.get_local_today()
-        for walkout in self.search([('state', '=', 'pending'),
-                                    ('walkout_date', '<', today + timedelta(days=REVIEW_DAYS_BEFORE))]):
-            walkout.state = 'expired'
-            walkout._ems_sync_user_tasks(self.env.ref(REVIEW_TASK), self.env['res.users'], walkout.review_until)
-            walkout._message_log(body=_("Expired: the Head of Studies did not accept it in time."))
-        self.search([('state', '=', 'voting'),
-                     ('walkout_date', '<', today + timedelta(days=VOTE_DAYS_BEFORE))])._ems_end_group_vote()
-        self.search([('state', '=', 'joining'),
-                     ('walkout_date', '<', today + timedelta(days=JOIN_DAYS_BEFORE))])._ems_close()
+        """At each phase's end (woken up then, hourly as a safety net): the group vote ends; the
+        joining ends and the call closes."""
+        now = fields.Datetime.now()
+        self.search([('state', '=', 'voting'), ('vote_until', '<=', now)])._ems_end_group_vote()
+        self.search([('state', '=', 'joining'), ('join_until', '<=', now)])._ems_close()
 
     def _ems_end_group_vote(self):
         """The group vote ends: if the group supports the walkout, each student is told the result and
-        can say whether they join; otherwise the call closes (nobody is justified)."""
+        has a phase to say whether they join (from when the email reaches them); otherwise the call
+        closes (nobody is justified)."""
         for walkout in self.filtered(lambda walkout: walkout.state == 'voting'):
             if walkout.group_supports:
-                walkout.state = 'joining'
+                join_start, join_until = walkout._ems_phase(walkout.group_ids, fields.Datetime.now(),
+                                                            walkout.phase_hours)
+                walkout.write({'state': 'joining', 'join_start': join_start, 'join_until': join_until})
+                walkout._ems_wake_cron_at(walkout.join_until)
                 walkout._ems_mail_students('ems.email_template_student_walkout_join')
             else:
                 walkout._ems_close()
@@ -348,48 +430,25 @@ class EmsStudentWalkout(models.Model):
         if email_to:
             self.env.ref(template_xmlid).sudo().send_mail(self.id, email_values={'email_to': email_to, **email_values})
 
-    # Reviewing
+    # Rejecting
 
-    def _ems_request_review(self):
-        """A new request goes to the Head of Studies first, with a task due its last day to be accepted:
-        the group hears of it only once accepted."""
-        self.ensure_one()
-        users = self._ems_head_users()
-        self._ems_mail_staff('ems.email_template_student_walkout_review', users)
-        self.sudo()._ems_sync_user_tasks(self.env.ref(REVIEW_TASK), users, self.review_until)
-
-    def _ems_user_may_decide(self):
+    def _ems_user_may_reject(self):
         """A Head of Studies, Deputy Head of Studies or Director above the group's tutor (tutor scope),
         or an administrator."""
         self.ensure_one()
         return self.get_user_is_admin() or (self.env.user.has_group('ems.group_head_of_studies')
                                             and self.user_acts_as_tutor(self.group_id.tutor_id))
 
-    def _ems_check_decide(self, states=('pending',)):
+    def _ems_check_reject(self):
         self.ensure_one()
-        if self.state not in states:
-            raise UserError(_("This student walkout call has already been decided."))
-        if not self._ems_user_may_decide():
+        if self.state not in REJECTABLE_STATES:
+            raise UserError(_("This student walkout call can no longer be rejected."))
+        if not self._ems_user_may_reject():
             raise UserError(_("Only the Head of Studies, the Deputy Head of Studies or the Director of this group, or "
-                              "an administrator, can accept or reject a student walkout call."))
-
-    def _ems_decided(self, vals):
-        walkout = self.sudo()
-        walkout.write({'decided_by_id': self.env.uid, 'decision_datetime': fields.Datetime.now(), **vals})
-        walkout._ems_sync_user_tasks(self.env.ref(REVIEW_TASK), self.env['res.users'], self.review_until, done=True)
-        return walkout
-
-    def action_accept(self):
-        """The group votes at once: each student with portal access gets the vote email."""
-        self._ems_check_decide()
-        if self.get_local_today() > self.review_until:
-            raise UserError(_("It is too late to accept this request: the group would have no day to vote."))
-        walkout = self._ems_decided({'state': 'voting'})
-        walkout._ems_mail_students('ems.email_template_student_walkout_call')
-        walkout._message_log(body=_("Accepted by %(name)s.", name=self.env.user.name))
+                              "an administrator, can reject a student walkout call."))
 
     def action_open_reject_wizard(self):
-        self._ems_check_decide(REJECTABLE_STATES)
+        self._ems_check_reject()
         return {
             'type': 'ir.actions.act_window',
             'name': _("Reject the student walkout call"),
@@ -400,24 +459,22 @@ class EmsStudentWalkout(models.Model):
         }
 
     def _ems_reject(self, reason, details):
-        """Rejected with a reason, at any moment. Before the group heard of it, only the delegate who
-        opened it is told; later, the whole group too, and once closed the families that were told
-        their child joins. A justification already generated is removed (its absences are no longer
-        justified), as the user rejecting it."""
-        self._ems_check_decide(REJECTABLE_STATES)
+        """Rejected with a reason, at any moment: the group is told, and once closed the families that
+        were told their child joins. A justification already generated is removed (its absences are no
+        longer justified), as the user rejecting it."""
+        self._ems_check_reject()
         details = (details or '').strip()
         if reason.requires_details and not details:
             raise UserError(_("Explain the reason in the details: %(reason)s", reason=reason.name))
         previous = self.state
         if self.justification_id:
             self.justification_id.unlink()
-        walkout = self._ems_decided({'state': 'rejected', 'rejection_reason_id': reason.id,
-                                     'rejection_details': details or False, 'rejected_from_state': previous})
+        walkout = self.sudo()
+        walkout.write({'state': 'rejected', 'rejected_by_id': self.env.uid, 'rejected_datetime': fields.Datetime.now(),
+                       'rejection_reason_id': reason.id, 'rejection_details': details or False,
+                       'rejected_from_state': previous})
         walkout._ems_sync_user_tasks(self.env.ref(JUSTIFY_TASK), self.env['res.users'], walkout.walkout_date)
-        lines = walkout.line_ids.filtered(lambda line: line.student_id == walkout.opener_id)
-        if previous != 'pending':
-            lines |= walkout.line_ids.filtered('has_portal')
-        walkout._ems_mail_students('ems.email_template_student_walkout_rejected', lines)
+        walkout._ems_mail_students('ems.email_template_student_walkout_rejected')
         if previous in ('closed', 'justified'):
             walkout._ems_mail_families('ems.email_template_student_walkout_family_rejected')
         walkout._message_log(body=_("Rejected by %(name)s: %(reason)s", name=self.env.user.name, reason=reason.name))
@@ -522,7 +579,6 @@ class EmsStudentWalkoutRejectWizard(models.TransientModel):
                                  default=lambda self: self.env.context.get('active_id'), ondelete='cascade')
     reason_id = fields.Many2one(string="Reason", comodel_name='ems.student_walkout.rejection_reason', required=True)
     requires_details = fields.Boolean(related='reason_id.requires_details')
-    walkout_state = fields.Selection(related='walkout_id.state')
     details = fields.Text(string="Details")
 
     def action_reject(self):

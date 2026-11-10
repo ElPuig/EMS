@@ -9,9 +9,7 @@
             <field name="model">ems.student_walkout.reject.wizard</field>
             <field name="arch" type="xml">
                 <form string="Reject the student walkout call">
-                    <field name="walkout_state" invisible="1"/>
-                    <p class="text-muted" invisible="walkout_state != 'pending'">Only the delegate who opened it is told, with the reason. Nobody else in the group hears of it.</p>
-                    <p class="text-muted" invisible="walkout_state == 'pending'">The delegate and the students of the group are told, with the reason; once the vote is closed, the families that were told their child joins too. A justification already generated is removed.</p>
+                    <p class="text-muted">The students of the group are told, with the reason; once the vote is closed, the families that were told their child joins too. A justification already generated is removed.</p>
                     <group>
                         <field name="walkout_id" readonly="1"/>
                         <field name="reason_id" options="{'no_create': True, 'no_open': True}"/>

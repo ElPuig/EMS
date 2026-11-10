@@ -888,10 +888,7 @@ class EmsErasmusCall(models.Model):
     @api.model
     def _ems_local_format(self, value):
         """A stored (UTC) datetime as the centre reads it, for the emails."""
-        if not value:
-            return ''
-        return self.env['ems.datetime_utils'].utc_datetime_to_local(value.replace(tzinfo=UTC)).strftime(
-            '%d/%m/%Y %H:%M')
+        return self.env['ems.datetime_utils'].format_local_datetime(value)
 
     def _ems_staff_can_apply(self, employee):
         """Art. 6 of the staff call: the teachers of a group of its levels and the Direction that

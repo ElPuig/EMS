@@ -24,4 +24,3 @@ ems.mail_activity_quality_agreement,Carry out the agreement,default,ems.quality.
 ems.mail_activity_minute_approval,Approve the minute,default,ems.minute,fa-check-square-o,False
 ems.mail_activity_erasmus_transfer,Pay Erasmus+ pocket money,default,ems.erasmus.payment,fa-eur,False
 ems.mail_activity_student_walkout_justify,Justify the student walkout,default,ems.student_walkout,fa-hand-paper-o,False
-ems.mail_activity_student_walkout_review,Review the student walkout call,default,ems.student_walkout,fa-gavel,False

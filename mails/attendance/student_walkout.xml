@@ -4,8 +4,8 @@
         <!-- Issue #800: student walkout calls (ems.student_walkout). The recipient is passed in
              email_to by the code (one email per student or family), never read from a template. -->
 
-        <!-- To every student of the group with portal access, once the Head of Studies accepts the call
-             (sent during the group's school hours). -->
+        <!-- To every student of the group with portal access, when the delegate calls the vote (sent
+             during the group's school hours: the phase starts then). -->
         <record id="email_template_student_walkout_call" model="mail.template">
             <field name="name">EMS: student walkout, vote</field>
             <field name="model_id" ref="ems.model_ems_student_walkout_line"/>
@@ -18,16 +18,16 @@
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Hello <t t-out="object.student_id.name"/>,</p>
                         <p>
-                            <t t-out="object.walkout_id.opener_id.name"/>, the delegate of your group, has requested a
-                            student walkout for <strong t-out="format_date(object.walkout_id.walkout_date)"/>,
-                            and the Head of Studies has accepted it.
+                            <t t-out="object.walkout_id.opener_id.name"/>, the delegate of your group, has called a
+                            vote on a student walkout for <strong t-out="format_date(object.walkout_id.walkout_date)"/>.
                         </p>
                         <p>
                             On the school portal (<a t-attf-href="{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}">student walkouts</a>)
                             you will find the call of the students' union and you can vote whether the group supports
                             the walkout (an anonymous vote), until
-                            <strong t-out="format_date(object.walkout_id.vote_until)"/> included. If the group supports it,
-                            you will then be asked whether you join it.
+                            <strong t-out="object.walkout_id.format_local_datetime(object.walkout_id.vote_until)"/>.
+                            The vote ends earlier if the votes still to come can no longer change the result. If the
+                            group supports it, you will then be asked whether you join it.
                         </p>
                         <p>
                             Kind regards,<br/>
@@ -91,7 +91,7 @@
                         <p>
                             Now each student says whether they join it, on the school portal
                             (<a t-attf-href="{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}">student walkouts</a>),
-                            until <strong t-out="format_date(object.walkout_id.join_until)"/> included. Only the students who
+                            until <strong t-out="object.walkout_id.format_local_datetime(object.walkout_id.join_until)"/>. Only the students who
                             join have their absence justified that day, and their names appear in the minute.
                         </p>
                         <p>
@@ -171,40 +171,8 @@
             </field>
         </record>
 
-        <!-- To the Head of Studies / Deputy Head of Studies, at once, when a delegate opens a call: it
-             waits for them before the group hears of it. -->
-        <record id="email_template_student_walkout_review" model="mail.template">
-            <field name="name">EMS: student walkout, to review</field>
-            <field name="model_id" ref="ems.model_ems_student_walkout"/>
-            <field name="subject">Student walkout call to review: {{ object.group_id.name }}, {{ format_date(object.walkout_date) }}</field>
-            <field name="email_from">{{ object.company_id.name }} &lt;{{ object.company_id.email }}&gt;</field>
-            <field name="lang">{{ object.company_id.ems_lang }}</field>
-            <field name="auto_delete" eval="True"/>
-            <field name="body_html">
-                <![CDATA[
-                    <div style="font-family: Arial, sans-serif; font-size: 14px;">
-                        <p>Hello,</p>
-                        <p>
-                            <t t-out="object.opener_id.name"/>, the delegate of <strong t-out="object.group_id.name"/>,
-                            has requested a student walkout for <strong t-out="format_date(object.walkout_date)"/>.
-                            The group will not hear of it until you accept it.
-                        </p>
-                        <p>
-                            Check the union's call attached to it and, from the call in EMS
-                            (<a t-attf-href="{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}">open it</a>),
-                            <em>Actions &gt; Accept</em> or <em>Actions &gt; Reject</em> giving a reason. If nobody accepts it by
-                            <strong t-out="format_date(object.review_until)"/> included, it expires. Once accepted, the group
-                            votes until <strong t-out="format_date(object.vote_until)"/> and, if it supports it, each student
-                            says whether they join until <strong t-out="format_date(object.join_until)"/>: you will get the
-                            minute then.
-                        </p>
-                    </div>
-                ]]>
-            </field>
-        </record>
-
-        <!-- When the Head of Studies rejects the call (during the group's school hours): to the delegate
-             who opened it and, if the group already knew of it, to every student with portal access. -->
+        <!-- When the Head of Studies rejects the call (during the group's school hours): to every
+             student of the group with portal access. -->
         <record id="email_template_student_walkout_rejected" model="mail.template">
             <field name="name">EMS: student walkout, rejected</field>
             <field name="model_id" ref="ems.model_ems_student_walkout_line"/>
@@ -228,8 +196,7 @@
                             Absences that day will not be justified.
                         </p>
                         <p t-if="object.walkout_id.rejection_details" t-out="object.walkout_id.rejection_details"/>
-                        <p t-if="object.walkout_id.rejected_from_state == 'pending'">Your group has not been told. If you have any question, talk to the Head of Studies.</p>
-                        <p t-else="">If you have any question, talk to the Head of Studies.</p>
+                        <p>If you have any question, talk to the Head of Studies.</p>
                         <p>
                             Kind regards,<br/>
                             <t t-out="object.walkout_id.company_id.name"/>

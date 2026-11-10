@@ -5,41 +5,21 @@ import { clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 const ROW = ".o_list_view .o_data_row:contains('WLT')";
 
-// Issue #800: the Head of Studies accepts a student walkout call, rejects another one with a
-// reason, and justifies a closed vote (test_student_walkout_tour.py): three calls of the same
-// group, on different walkout days.
+// Issue #800: the Head of Studies rejects a student walkout call being voted with a reason, and
+// justifies a closed vote (test_student_walkout_tour.py): two calls of the same group, on different
+// walkout days.
 registry.category("web_tour.tours").add("ems_student_walkout", {
     test: true,
     url: "/odoo/action-ems.action_student_walkout",
     steps: () => [
         {
-            trigger: ".o_list_view .o_data_row:first-child .o_field_badge:contains('Pending review')",
-            content: "Open a call waiting for review",
+            trigger: `${ROW} .o_field_badge:contains('Voting')`,
+            content: "Open the call being voted",
             run: "click",
         },
         {
-            trigger: ".o_form_view .alert-info:contains('the group hears of it only once accepted')",
-            content: "The form says the group does not know yet",
-        },
-        ...clickAction("action_accept", "Accept it"),
-        {
-            trigger: ".modal .modal-footer .btn-primary",
-            content: "Confirm",
-            run: "click",
-        },
-        {
-            trigger: ".o_form_view .o_statusbar_status button.o_arrow_button_current:contains('Voting')",
-            content: "The group votes now",
-        },
-        {
-            trigger: ".o_breadcrumb .breadcrumb-item:first-child a",
-            content: "Back to the list",
-            run: "click",
-        },
-        {
-            trigger: `${ROW} .o_field_badge:contains('Pending review')`,
-            content: "Open the other call waiting for review",
-            run: "click",
+            trigger: ".o_form_view .alert-info:contains('no review first')",
+            content: "The form says the group is already voting",
         },
         ...clickAction("action_open_reject_wizard", "Reject it"),
         {
@@ -77,7 +57,7 @@ registry.category("web_tour.tours").add("ems_student_walkout", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='group_yes_count']:contains('3')",
+            trigger: ".o_form_view .o_field_widget[name='group_yes_count']:contains('2')",
             content: "The form shows the anonymous group vote",
         },
         {

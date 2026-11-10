@@ -9,8 +9,7 @@
             <field name="model">ems.student_walkout</field>
             <field name="arch" type="xml">
                 <list string="Student walkouts" create="0" edit="0" delete="0"
-                      decoration-muted="state in ('cancelled', 'rejected', 'expired')" decoration-info="state == 'voting'"
-                      decoration-warning="state == 'pending'">
+                      decoration-muted="state in ('cancelled', 'rejected')" decoration-info="state in ('voting', 'joining')">
                     <field name="walkout_date"/>
                     <field name="group_id"/>
                     <field name="opener_id"/>
@@ -18,7 +17,7 @@
                     <field name="group_supports" widget="boolean" optional="show"/>
                     <field name="joining_count" optional="show"/>
                     <field name="state" widget="badge"
-                           decoration-info="state == 'voting'" decoration-warning="state in ('pending', 'closed')"
+                           decoration-info="state in ('voting', 'joining')" decoration-warning="state == 'closed'"
                            decoration-success="state == 'justified'" decoration-danger="state == 'rejected'"/>
                 </list>
             </field>
@@ -31,9 +30,6 @@
                 <form string="Student walkout" create="0" edit="0" delete="0">
                     <header>
                         <div name="ems_actions" string="Actions">
-                            <button name="action_accept" type="object" string="Accept" icon="fa-check"
-                                    invisible="not can_decide"
-                                    confirm="The group will receive an email to vote. Accept this student walkout call?"/>
                             <button name="action_open_reject_wizard" type="object" string="Reject" icon="fa-times"
                                     invisible="not can_reject"/>
                             <button name="action_generate_justification" type="object" string="Generate the justification"
@@ -41,18 +37,17 @@
                             <button name="action_open_justification" type="object" string="Open the justification"
                                     icon="fa-external-link" invisible="not justification_id"/>
                         </div>
-                        <field name="state" widget="statusbar" statusbar_visible="pending,voting,joining,closed,justified"/>
+                        <field name="state" widget="statusbar" statusbar_visible="voting,joining,closed,justified"/>
                         <field name="can_generate_justification" invisible="1"/>
-                        <field name="can_decide" invisible="1"/>
                         <field name="can_reject" invisible="1"/>
                     </header>
                     <sheet>
                         <div class="oe_title">
                             <h1><field name="name"/></h1>
                         </div>
-                        <div class="alert alert-info" role="alert" invisible="state != 'pending'">
-                            Check the union's call before accepting it: the group hears of it only once accepted, and
-                            votes as soon as you accept it. If nobody accepts it by its last day, it expires.
+                        <div class="alert alert-info" role="alert" invisible="state not in ('voting', 'joining')">
+                            The group is voting with no review first. Check the union's call: if it is not valid, reject
+                            the call giving a reason and the group is told.
                         </div>
                         <group invisible="state != 'rejected'">
                             <field name="rejection_reason_id"/>
@@ -64,9 +59,11 @@
                                 <field name="group_ids" widget="many2many_tags"/>
                                 <field name="opener_id"/>
                                 <field name="walkout_date"/>
-                                <field name="review_until"/>
+                                <field name="walkout_start"/>
+                                <field name="vote_start"/>
                                 <field name="vote_until"/>
-                                <field name="join_until"/>
+                                <field name="join_start" invisible="not join_start"/>
+                                <field name="join_until" invisible="not join_until"/>
                                 <field name="attachment_ids" widget="many2many_binary"/>
                             </group>
                             <group>
@@ -78,8 +75,8 @@
                                 <field name="joining_count"/>
                                 <field name="pdf_attachment_id" invisible="not pdf_attachment_id"/>
                                 <field name="head_of_studies_id" invisible="not head_of_studies_id"/>
-                                <field name="decided_by_id" invisible="not decided_by_id"/>
-                                <field name="decision_datetime" invisible="not decision_datetime"/>
+                                <field name="rejected_by_id" invisible="not rejected_by_id"/>
+                                <field name="rejected_datetime" invisible="not rejected_datetime"/>
                                 <field name="justification_id" invisible="not justification_id"/>
                             </group>
                         </group>
@@ -112,9 +109,8 @@
                 <search>
                     <field name="group_id"/>
                     <field name="opener_id"/>
-                    <filter name="to_review" string="To review" domain="[('state', '=', 'pending')]"/>
                     <filter name="to_justify" string="To justify" domain="[('state', '=', 'closed'), ('justification_id', '=', False)]"/>
-                    <filter name="voting" string="Voting" domain="[('state', '=', 'voting')]"/>
+                    <filter name="voting" string="Voting or joining" domain="[('state', 'in', ('voting', 'joining'))]"/>
                     <separator/>
                     <filter name="not_cancelled" string="Not cancelled" domain="[('state', '!=', 'cancelled')]"/>
                     <group>

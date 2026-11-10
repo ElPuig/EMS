@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from datetime import timedelta
-
 from odoo import fields, http
 from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.exceptions import UserError
 from odoo.http import request
-
-from ..models.attendance.student_walkout import REQUEST_DAYS_BEFORE
 
 WALKOUTS = '/my/vagues'
 
@@ -63,10 +59,13 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
         if not group:
             return request.redirect(WALKOUTS)
         Walkout = request.env['ems.student_walkout'].sudo()
-        first_day = Walkout.get_local_today() + timedelta(days=REQUEST_DAYS_BEFORE)
+        # The calendar of a call opened now does not depend on its day: shown before sending it.
+        calendar = Walkout._ems_projected_calendar(partner._ems_walkout_opener_groups())
         return self._ems_render('ems.portal_student_walkout_new', {
             'group': group,
-            'first_day': fields.Date.to_string(first_day),
+            'calendar': {key: Walkout.format_local_datetime(value) if key.endswith(('_start', '_until')) else value
+                         for key, value in calendar.items()},
+            'first_day': fields.Date.to_string(Walkout._ems_first_walkout_day(calendar)),
         }, **kwargs)
 
     @http.route(f'{WALKOUTS}/nova', type='http', auth='user', methods=['POST'], website=True)
@@ -96,7 +95,7 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
             'line': line,
             'can_vote': bool(line.has_portal) and walkout._ems_phase_open('voting'),
             'can_join': bool(line.has_portal) and walkout._ems_phase_open('joining'),
-            'can_manage': walkout.state in ('pending', 'voting', 'joining') and (
+            'can_manage': walkout.state in ('voting', 'joining') and (
                 partner == walkout.opener_id or partner in (walkout.group_ids.delegate_id
                                                             | walkout.group_ids.subdelegate_id)),
             'state_labels': dict(walkout._fields['state']._description_selection(request.env)),
@@ -107,7 +106,7 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
     @http.route(f'{WALKOUTS}/<int:walkout_id>/<string:step>', type='http', auth='user', methods=['POST'],
                 website=True)
     def portal_walkout_step(self, walkout_id, step, **post):
-        """Vote, say whether one joins, or cancel the request."""
+        """Vote, say whether one joins, or cancel the call."""
         walkout = self._ems_walkout(walkout_id)
         if not walkout:
             return request.redirect(WALKOUTS)

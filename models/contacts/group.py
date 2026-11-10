@@ -2,6 +2,8 @@
 
 from datetime import timedelta
 
+from pytz import UTC
+
 from odoo import models, fields, api, _
 from odoo.exceptions import RedirectWarning, UserError, ValidationError
 
@@ -220,12 +222,13 @@ class EmsGroup(models.Model):
 		for group in self:
 			group.managing_department_ids = (group.study_id | group.parent_group_ids.study_id).managing_department_id
 
-	def _ems_school_send_time(self):
-		"""Issue #800: when an email to this group's students may go. False to send it now: during its
-		classes on a school day, or when the group has no schedule. Otherwise the start of its next
-		classes (naive UTC), skipping weekends, public holidays and school breaks. The group's day is
-		from its first class to its last one, from its schedule (not each student's: cheaper, and
-		close enough to tell school hours from the night or a weekend)."""
+	def _ems_school_send_time(self, moment=None):
+		"""Issue #800: when an email to this group's students may go, from `moment` (naive UTC, now
+		by default). False to send it then: during its classes on a school day, or when the group has
+		no schedule. Otherwise the start of its next classes (naive UTC), skipping weekends, public
+		holidays and school breaks. The group's day is from its first class to its last one, from its
+		schedule (not each student's: cheaper, and close enough to tell school hours from the night or
+		a weekend)."""
 		self.ensure_one()
 		windows = {}
 		for slot in self.env['resource.calendar.attendance'].sudo().search_read(
@@ -237,7 +240,7 @@ class EmsGroup(models.Model):
 		if not windows:
 			return False
 		utils = self.env['ems.datetime_utils']
-		now = utils.get_local_datetime()
+		now = utils.utc_datetime_to_local(UTC.localize(moment)) if moment else utils.get_local_datetime()
 		today, hour = now.date(), now.hour + now.minute / 60
 		closed = self.env['resource.calendar.leaves']._ems_holiday_dates(today, today + timedelta(days=SCHOOL_SEND_HORIZON))
 		for offset in range(SCHOOL_SEND_HORIZON + 1):

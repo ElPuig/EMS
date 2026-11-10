@@ -179,6 +179,13 @@
 
                          <!-- Issue #800: student walkouts called from the portal by a group's delegate. -->
                          <block title="Student Walkout Settings" name="ems_walkout_settings">
+                            <setting string="Calendar" help="In school hours (weekends, public holidays and school breaks do not count). The group votes for one phase and, if it supports the walkout, each student says whether they join for another; the Head of Studies gets the minute at least the notice before the walkout." id="walkout_calendar">
+                                <div class="content-group mt8">
+                                    <div><span class="o_form_label me-2">Each phase</span><field name="walkout_phase_hours" class="text-center" style="width: 6ch;"/><span class="ms-2">hours</span></div>
+                                    <div><span class="o_form_label me-2">Notice</span><field name="walkout_notice_hours" class="text-center" style="width: 6ch;"/><span class="ms-2">hours</span></div>
+                                    <div class="text-muted">A call is opened at least <field name="walkout_lead_hours" class="d-inline"/> school hours before the walkout.</div>
+                                </div>
+                            </setting>
                             <setting string="Levels and courses" help="The groups whose delegate or sub-delegate may call a student walkout. By law, from the 3rd year of ESO." id="walkout_levels">
                                 <div class="content-group mt8">
                                     <span><field name="walkout_level_count" class="d-inline"/> levels allowed</span>

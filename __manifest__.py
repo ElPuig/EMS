@@ -531,7 +531,7 @@
         'data/cat/ems.content.csv',
         'data/cat/ems.outcome.csv',    
         'data/cat/ems.role.csv',
-        'data/cat/ems.workgroup.csv',
+        'data/main/ems.workgroup.xml',
         'data/main/sync_quality_committee.xml',
         'data/cat/hr.job.csv',
         'data/cat/hr.leave.type.csv',

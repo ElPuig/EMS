@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- noupdate: the centre names the committee from the app, and an upgrade must never put the
+         original name back (issue #804). The code finds it by its xmlid (ems.quality), so it
+         stays an ems record rather than __import__ data. -->
+    <data noupdate="1">
+        <record id="quality" model="ems.workgroup">
+            <field name="name">Comissió de Qualitat</field>
+        </record>
+    </data>
+</odoo>

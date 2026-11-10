@@ -441,8 +441,9 @@ only edits the ones they created (`security/rules/communications.xml`). Only qua
 and loads its links.
 
 A committee member is given the group either by hand (the *Quality* selector of the user form) or by
-being a member of the committee workgroup, the catalogue's `ems.quality` ("Quality Comission",
-`data/cat/ems.workgroup.csv`; no flag on the workgroup model). `ems.workgroup._ems_sync_quality_committee()`
+being a member of the committee workgroup, `ems.quality` ("Comissió de Qualitat",
+`data/main/ems.workgroup.xml`; no flag on the workgroup model). Its data file is `noupdate`, so the
+centre can rename it from the app and no upgrade puts the original name back. `ems.workgroup._ems_sync_quality_committee()`
 adds the group to whoever joins it and takes it from whoever leaves it, on every change of its
 `employee_ids` and on its unlink, following the role sync's rule (`hr.employee._sync_security_groups`):
 someone given the group by hand without being a member is never touched, and quality coordination keeps

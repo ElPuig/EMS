@@ -30,15 +30,20 @@
                 <form string="Student walkout" create="0" edit="0" delete="0">
                     <header>
                         <div name="ems_actions" string="Actions">
-                            <button name="action_open_reject_wizard" type="object" string="Reject" icon="fa-times"
-                                    invisible="not can_reject"/>
-                            <button name="action_generate_justification" type="object" string="Generate the justification"
+                            <button name="action_open_reject_wizard" type="object" string="Abort the call" icon="fa-ban"
+                                    invisible="not can_abort"/>
+                            <button name="action_generate_justification" type="object" string="Validate and justify"
                                     icon="fa-check" invisible="not can_generate_justification"/>
+                            <button name="action_open_reject_wizard" type="object" string="Do not validate" icon="fa-times"
+                                    invisible="not can_reject or state != 'closed'"/>
+                            <button name="action_open_reject_wizard" type="object" string="Undo the validation" icon="fa-undo"
+                                    invisible="not can_reject or state != 'justified'"/>
                             <button name="action_open_justification" type="object" string="Open the justification"
                                     icon="fa-external-link" invisible="not justification_id"/>
                         </div>
                         <field name="state" widget="statusbar" statusbar_visible="voting,joining,closed,justified"/>
                         <field name="can_generate_justification" invisible="1"/>
+                        <field name="can_abort" invisible="1"/>
                         <field name="can_reject" invisible="1"/>
                     </header>
                     <sheet>
@@ -46,8 +51,8 @@
                             <h1><field name="name"/></h1>
                         </div>
                         <div class="alert alert-info" role="alert" invisible="state not in ('voting', 'joining')">
-                            The group is voting with no review first. Check the union's call: if it is not valid, reject
-                            the call giving a reason and the group is told.
+                            The group's tutor watches over the call: check the union's call and, only if it has a formal
+                            defect, abort it giving a reason. Once closed, the Head of Studies validates it or not.
                         </div>
                         <group invisible="state != 'rejected'">
                             <field name="rejection_reason_id"/>

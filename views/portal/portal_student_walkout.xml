@@ -34,7 +34,9 @@
                         <span t-elif="walkout._ems_phase_open('joining') and line.has_portal and not line.join_answered" class="badge text-bg-warning">Say whether you join</span>
                         <span t-elif="walkout.state == 'voting'" class="badge text-bg-info">Voting</span>
                         <span t-elif="walkout.state == 'joining'" class="badge text-bg-info">Joining</span>
-                        <span t-elif="walkout.state == 'rejected'" class="badge text-bg-danger">Rejected</span>
+                        <span t-elif="walkout.state == 'rejected' and walkout.rejected_from_state in ('voting', 'joining')" class="badge text-bg-danger">Aborted</span>
+                        <span t-elif="walkout.state == 'rejected'" class="badge text-bg-danger">Not validated</span>
+                        <span t-elif="walkout.state == 'justified'" class="badge text-bg-success">Validated</span>
                         <span t-elif="walkout.state == 'cancelled'" class="badge text-bg-light">Cancelled</span>
                         <span t-else="" class="badge text-bg-secondary">Closed</span>
                     </a>
@@ -92,7 +94,11 @@
                     <i class="fa fa-check-circle me-1"/> The vote has been called: your group receives an email to vote.
                 </div>
                 <div t-if="walkout.state == 'rejected'" class="alert alert-danger mb-3 o_ems_walkout_rejected">
-                    <p class="mb-1"><i class="fa fa-times-circle me-1"/> The Head of Studies has rejected this call: <strong t-esc="walkout.rejection_reason_id.name"/></p>
+                    <p class="mb-1"><i class="fa fa-times-circle me-1"/>
+                        <t t-if="walkout.rejected_from_state in ('voting', 'joining')">This call has been aborted:</t>
+                        <t t-elif="walkout.rejected_from_state == 'justified'">The Head of Studies has withdrawn the validation of this walkout:</t>
+                        <t t-else="">The Head of Studies has not validated this walkout:</t>
+                        <strong t-esc="walkout.rejection_reason_id.name"/></p>
                     <p t-if="walkout.rejection_details" class="mb-0" t-esc="walkout.rejection_details"/>
                 </div>
                 <div t-if="saved" class="alert alert-success mb-3 o_ems_walkout_saved">
@@ -181,7 +187,8 @@
                             <strong t-else="">The group does not support the walkout: nobody's absence is justified.</strong>
                         </p>
                         <p class="mb-1" t-if="walkout.group_supports and line">
-                            <t t-if="line.joins">You join it: the Head of Studies has the minute to justify your absence that day.</t>
+                            <t t-if="line.joins and walkout.state == 'justified'">You join it: the Head of Studies has validated the walkout and your absence that day is justified.</t>
+                            <t t-elif="line.joins">You join it: the Head of Studies has the minute and decides whether to validate the walkout and justify your absence that day.</t>
                             <t t-else="">You do not join it.</t>
                         </p>
                         <p class="mb-0" t-if="walkout.pdf_attachment_id">

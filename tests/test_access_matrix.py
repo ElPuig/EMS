@@ -56,6 +56,9 @@ ACCESS_MATRIX = {
         'teacher': 'r', 'tutor': 'r', 'secretary': '', 'head_of_studies': 'r', 'academic_admin': 'rwcu',
         'settings_admin': 'rwcu'},
     'ems.student_walkout.line': {'teacher': 'r', 'head_of_studies': 'r', 'secretary': '', 'academic_admin': 'rwcu'},
+    # The tutor aborts a call, the Head of Studies does not validate it: who may is checked in
+    # ems.student_walkout._ems_check_reject.
+    'ems.student_walkout.reject.wizard': {'teacher': 'rwcu', 'secretary': '', 'head_of_studies': 'rwcu', 'academic_admin': 'rwcu'},
     'ems.student_walkout.rejection_reason': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
     'ems.info_notice': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'settings_admin': 'r'},
     'ems.criteria': {'teacher': 'r', 'secretary': 'r'},

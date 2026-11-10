@@ -64,5 +64,14 @@ oca_sync_addons_path() {
     done
     [ -z "$missing" ] && return 0
     echo "# odoo.conf: adding${missing#,} to addons_path"
-    _oca_run_writable "$conf" sed -i "0,/^\s*addons_path\s*=.*/s##&${missing}#" "$conf"
+    # Not `sed -i`: it writes a temporary file next to the conf, and /etc/odoo is root's even when
+    # odoo.conf is odoo's (the v18.0.0.46.0 deploy stopped there, issue #766). The new content is
+    # built under /tmp and written over the existing file, which only needs permission on the file
+    # and keeps its owner and mode.
+    local tmp status=0
+    tmp=$(mktemp) || return 1
+    sed "0,/^\s*addons_path\s*=.*/s##&${missing}#" "$conf" > "$tmp" \
+        && _oca_run_writable "$conf" tee "$conf" < "$tmp" > /dev/null || status=$?
+    rm -f "$tmp"
+    return $status
 }

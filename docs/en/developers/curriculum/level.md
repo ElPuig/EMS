@@ -19,7 +19,7 @@
 | `study_ids` | `One2many → ems.study` | No | No | Studies at this level (inverse of `study.level_id`) |
 | `allows_convalidation` | `Boolean` | No | Yes | Students of this level's studies can request subject convalidations. Not part of the catalog, so upgrades keep the centre's choice: a new installation seeds `CFGM`/`CFGS` (`_ems_seed_convalidation_levels()`, `post_init_hook`), then it is edited in Settings > Convalidations (`res.config.settings.convalidation_level_ids`), not on the level's form |
 | `education_stage` | `Selection` | No | Yes | `compulsory` / `post_compulsory`, set by the regulation: in `data/cat/ems.level.csv` (re-applied on every upgrade) and read-only on the form |
-| `declaration_code` | `Selection` | No | Yes | Row of the [official schedule declaration](../employees/working_schedule.md#official-schedule-declaration-emsreport_schedule_declaration-issue-723)'s summary table this level's teaching hours go to (empty: Altres). Seeded once by `_ems_seed_declaration_codes()`, then configured by the centre |
+| `declaration_code` | `Selection` | No | Yes | Row of the [official schedule declaration](../employees/working_schedule.md#official-schedule-declaration-emsreport_schedule_declaration-issue-723)'s summary table this level's teaching hours go to (empty: Altres). Set by the Departament: in `data/cat/ems.level.csv` (re-applied on every upgrade) and read-only on the form, like `education_stage`; a level created by the centre has none |
 | `notes` | `Text` | No | Yes | Free-form administrative notes |
 | `display_name` | `Char` (computed) | — | No | Format: `ACRONYM: Name` |
 

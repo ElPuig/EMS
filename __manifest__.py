@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.46.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.47.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -80,6 +80,7 @@
         'views/menu.xml',
         'views/quality/menu.xml',
         'reports/shared/report_validation_stamp.xml',
+        'reports/shared/report_layout_footer_note.xml',
         'reports/minute_report.xml',
         'views/minutes_agreements/minute/call_email.xml',
         'views/minutes_agreements/minute/draft_email.xml',
@@ -284,7 +285,9 @@
 
             'views/attendance/attendance_schedule/form.xml',
 
-            'views/attendance/attendance_justification/wizard.xml',
+            'views/attendance/attendance_justification_reason/list.xml',
+            'views/attendance/attendance_justification_reason/form.xml',
+            'views/attendance/attendance_justification_reason/menu.xml',
             'views/attendance/attendance_justification/menu.xml',
             'views/attendance/attendance_justification/list.xml',
             'views/attendance/attendance_justification/form.xml',
@@ -435,6 +438,7 @@
 
         'views/shared/attachment/form.xml',
         'views/shared/mail_activity/list.xml',  
+        'views/shared/mail_layout/card.xml',
 
 
         ### Mailing templates ###
@@ -494,6 +498,7 @@
         'data/main/ems.strike.reason.csv',
         'data/main/ems.convalidation.info_reason.csv',
         'data/main/ems.convalidation.rejection_reason.csv',
+        'data/main/ems.attendance_justification_reason.xml',
         'data/main/ems.attendance_status.csv',
         'data/main/ems.non_teaching_type.csv',
         'data/main/ems.teaching_reduction_type.csv',

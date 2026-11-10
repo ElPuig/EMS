@@ -6,7 +6,6 @@ from collections import defaultdict
 from odoo import models, fields, api, _
 from ..shared import base
 from .attendance_schedule import EmsAttendanceSchedule
-from .attendance_justification import EmsAttendanceJustification
 from datetime import datetime, timedelta
 from odoo.exceptions import ValidationError, UserError, AccessError
 from psycopg2 import IntegrityError
@@ -395,7 +394,8 @@ class EmsAttendanceSessionHeader(models.Model):
             ("id", "!=", self.id),
         ], order="end_time DESC", limit=1)
 
-        previssions = EmsAttendanceJustification.get_current_justifications(self, self.start_date, self.end_date)
+        # The justification expecting each student's absence, if any (issue #795: one can cover many).
+        previsions = self.env['ems.attendance_justification'].get_current_justification_by_student(self.start_date, self.end_date)
 
         # NOTE: 'schedule.student_ids' (moved here from the template 2026-08-11 - see
         # plans/calendar_driven_attendance_templates.md, point 1), not 'template.student_ids'
@@ -414,11 +414,10 @@ class EmsAttendanceSessionHeader(models.Model):
             carried_lines = previous.with_context(active_test=False).attendance_session_line_ids.filtered(
                 lambda prev: prev.student_id in roster)
             for prev in carried_lines:
-                line = None
-                for p in previssions:
-                    if p.student_id == prev.student_id:
-                        line = p.perform_justification(self._setup_new_line_data(prev.student_id), True)
-                if line is None:
+                prevision = previsions.get(prev.student_id.id)
+                if prevision:
+                    line = prevision.perform_justification(self._setup_new_line_data(prev.student_id), True)
+                else:
                     line = self._setup_next_session_line_data(prev)
                 # A removal by hand carries over; one the system made for a reason only while
                 # the reason still applies (not_expected below decides).
@@ -427,11 +426,10 @@ class EmsAttendanceSessionHeader(models.Model):
                 lines.append(line)
             roster -= carried_lines.student_id
         for student in roster:
-            line = None
-            for p in previssions:
-                if p.student_id == student:
-                    line = p.perform_justification(self._setup_new_line_data(student), True)
-            if line is None:
+            prevision = previsions.get(student.id)
+            if prevision:
+                line = prevision.perform_justification(self._setup_new_line_data(student), True)
+            else:
                 line = self._setup_new_line_data(student)
             line.update(not_expected.get(student.id, {}))
             lines.append(line)
@@ -815,10 +813,11 @@ class EmsAttendanceSessionLine(models.Model):
             if not line.is_auto_generated:
                 data = line.attendance_session_id._setup_new_line_data(line.student_id)
                 data["is_auto_generated"] = False
-                previssions = EmsAttendanceJustification.get_current_justifications(self, line.attendance_session_id.start_date, line.attendance_session_id.end_date)
-                for p in previssions:
-                    if p.student_id == line.student_id:
-                        data = p.perform_justification(line._justification_vals(), True)
+                session = line.attendance_session_id
+                prevision = self.env['ems.attendance_justification'].get_current_justification_by_student(
+                    session.start_date, session.end_date).get(line.student_id.id)
+                if prevision:
+                    data = prevision.perform_justification(line._justification_vals(), True)
                 line.write(data)
 
     def _update_notification(self):

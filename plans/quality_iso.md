@@ -894,10 +894,9 @@ excluded locally (`.git/info/exclude`); never commit it again.
 4. **Simultaneous editing** (two people writing one minute): Odoo 18's collaborative HTML
    (`options="{'collaborative': true}"`) only covers plain HTML fields of the record; the minute's texts live
    in line records under a custom widget. Left as a future study; today the last save wins on the same item.
-5. **Integration with meeting attendance** (`plans/meeting_presence_minute_integration.md`): steps 1-4 done
-   (one root menu, `presence_id`, attendee lists derived from the session, one convened rule). Left: step 5,
-   quality coordination (`group_quality_admin`) as a session manager with the read ACLs it needs on courses,
-   rooms, departments and workgroups. Delete that plan when it lands.
+5. **Integration with meeting attendance**: done (one root menu, `presence_id`, attendee lists derived from
+   the session, one convened rule; issue #562, closed). Quality coordination as a session manager was left
+   out: in practice quality members are also teachers, who already reach the sessions.
 6. Three shared translations to review (*Closed* = *Tancada*, *Attendees* = *Assistents*, *Room* = *Sala*),
    and a LanguageTool pass over this branch's Catalan/Spanish texts in the release close review (no key on
    this box).

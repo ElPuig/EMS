@@ -25,7 +25,7 @@ class TestDocsScreenshotsScheduleDeclaration(HttpCase, DocsScreenshotMixin):
                                           name='Administració', email='admin@example.com')
 
         cls.level, study, cls.group_a = create_level_study_group(cls, 'DOCSD', level={
-            'name': 'Secundària (exemple)', 'declaration_code': 'eso',
+            'name': 'Secundària (exemple)', 'declaration_code': 'eso', 'education_stage': 'compulsory',
         }, study={'code': 'DOCSD01', 'acronym': 'ESX', 'name': 'Secundària obligatòria (exemple)'},
             group={'acronym': 'A', 'course': 1})
         cls.group_b = cls.env['ems.group'].create({
@@ -129,6 +129,6 @@ class TestDocsScreenshotsScheduleDeclaration(HttpCase, DocsScreenshotMixin):
             wait_for=".o_field_widget[name='declaration_code']",
         )
         self._capture(
-            '/odoo/action-ems.level_action/%d' % self.level.id, '.o_form_sheet .o_group', 'admin-declaracio-horaria-nivell.png',
+            '/odoo/action-ems.level_action/%d' % self.level.id, '.o_form_sheet', 'admin-declaracio-horaria-nivell.png',
             login='doc_shot_sd_admin', wait_for=".o_field_widget[name='declaration_code']",
         )

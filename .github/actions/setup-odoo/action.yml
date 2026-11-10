@@ -37,8 +37,9 @@ runs:
           # doesn't produce the PDF and the screen flow differs from production's (issue #565).
           PACKAGES="$PACKAGES google-chrome-stable wkhtmltopdf"
         fi
-        sudo apt-get update -qq
-        sudo apt-get install -y $PACKAGES
+        # Switches to another Ubuntu mirror when the runner's is too slow, instead of hanging
+        # the job for 20 minutes (issue #765).
+        sudo scripts/testing/apt_install_with_mirror_fallback.sh $PACKAGES
         if [ "$NEEDS_CHROME" = "true" ]; then
           sudo pip install --break-system-packages websocket-client
         fi

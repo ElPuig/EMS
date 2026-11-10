@@ -119,6 +119,17 @@ class EmsMinute(models.Model):
         column2="employee_id",
     )
     absence_notes = fields.Char(string="About the absences", help="For example, which of them were justified.")
+    # Who EMS itself moved to the absentees for having an absence during the meeting (attendance
+    # written by hand): the only ones it brings back if that absence goes away, and never moved
+    # again once the writer puts them back among the attendees.
+    on_leave_ids = fields.Many2many(
+        string="On leave",
+        comodel_name="hr.employee.public",
+        relation="ems_minute_on_leave_rel",
+        column1="minute_id",
+        column2="employee_id",
+        copy=False,
+    )
     # People from outside EMS (a student's family, a teacher from another school): no tag and no
     # employee record, so they are written down by hand whatever the attendance mode.
     guest_ids = fields.One2many(string="People from outside", comodel_name="ems.minute.guest", inverse_name="minute_id")
@@ -424,6 +435,7 @@ class EmsMinute(models.Model):
                 minute._ems_build_sections()
             if not minute.attendee_ids:
                 minute._ems_preload_attendees()
+            minute._ems_sync_leaves()
             if not minute.previous_minute_id:
                 minute._ems_preload_previous()
             if not minute.code:
@@ -436,6 +448,9 @@ class EmsMinute(models.Model):
             derived = self._ems_vals_from_start(vals['start_datetime'])
             vals = {**derived, **vals, 'date': derived['date'], 'time': derived['time']}
         result = super().write(vals)
+        if {'attendance_mode', 'start_datetime', 'duration', 'attendee_ids', 'state'} & set(vals) \
+                and not self.env.context.get('ems_leave_sync'):
+            self._ems_sync_leaves()
         if {'attendance_mode', 'start_datetime', 'duration', 'space_id'} & set(vals):
             self._ems_sync_presence()
         if {'state', 'approver_employee_id', 'approver_role_id'} & set(vals):
@@ -580,7 +595,42 @@ class EmsMinute(models.Model):
         employees = self.env['ems.meeting.presence']._ems_convened_employees(
             self._ems_presence_scope(), self.env.company, self.department_id, self.workgroup_id, self.group_id)
         if employees:
-            self.attendee_ids = [(6, 0, employees.ids)]
+            # A new list: whoever EMS had moved for an absence is looked at again afterwards (by
+            # create(), or on saving the form). update() assigns field by field, hence the order
+            # (nobody on both lists at any point) and the context (no look at the absences halfway).
+            self.with_context(ems_leave_sync=True).update({
+                'absentee_ids': [(6, 0, (self.absentee_ids - employees).ids)],
+                'attendee_ids': [(6, 0, employees.ids)],
+                'on_leave_ids': [(5, 0, 0)],
+            })
+
+    def _ems_sync_leaves(self):
+        """Attendance written by hand: move to the absentees whoever has an absence during the
+        meeting, noting it without saying why, as the NFC attendance does
+        (ems.meeting.presence._ems_sync_leaves). Run when the minute is created, when its time or
+        its attendees change and when it moves to the meeting, so an absence filed in between still
+        counts. Somebody EMS moved goes back to the attendees once their absence is gone, unless the
+        writer already decided otherwise; somebody the writer put back among the attendees stays."""
+        note = self.env['ems.meeting.presence']._ems_leave_note()
+        for minute in self.filtered(lambda item: item.attendance_mode == 'manual' and item.type_kind != 'record'
+                                    and item.state in ('draft', 'meeting') and item.start_datetime):
+            end = minute.start_datetime + timedelta(hours=max(minute.duration, 0.0))
+            on_leave = self.env['ems.meeting.presence']._ems_on_leave(
+                minute.attendee_ids | minute.on_leave_ids, minute.start_datetime, end)
+            moved = minute.attendee_ids.filtered(lambda employee: employee.id in on_leave) - minute.on_leave_ids
+            released = minute.on_leave_ids.filtered(lambda employee: employee.id not in on_leave)
+            back = released & minute.absentee_ids
+            if not (moved or released):
+                continue
+            stale = {f"{employee.name}: {note}" for employee in released}
+            notes = [part for part in (minute.absence_notes or '').split("; ") if part and part not in stale]
+            notes += [part for part in (f"{employee.name}: {note}" for employee in moved) if part not in notes]
+            minute.with_context(ems_leave_sync=True).write({
+                'attendee_ids': [(3, employee.id) for employee in moved] + [(4, employee.id) for employee in back],
+                'absentee_ids': [(4, employee.id) for employee in moved] + [(3, employee.id) for employee in back],
+                'on_leave_ids': [(4, employee.id) for employee in moved] + [(3, employee.id) for employee in released],
+                'absence_notes': "; ".join(notes) or False,
+            })
 
     def _ems_preload_previous(self):
         """Point at the previous minute of the same type and scope, and pull its still-open
@@ -915,7 +965,9 @@ class EmsMinute(models.Model):
                     'workgroup_id': minute.workgroup_id.id,
                     'group_id': minute.group_id.id,
                     'convener_id': minute.redactor_employee_id.id,
-                    'line_ids': [(0, 0, {'employee_id': employee.id}) for employee in minute.attendee_ids],
+                    # Together with whoever the list written by hand had moved away for an absence:
+                    # the session justifies them again by itself (_ems_sync_leaves).
+                    'line_ids': [(0, 0, {'employee_id': employee.id}) for employee in minute.attendee_ids | minute.on_leave_ids],
                 })
             elif presence.state == 'draft':
                 presence.write(minute._ems_presence_vals())

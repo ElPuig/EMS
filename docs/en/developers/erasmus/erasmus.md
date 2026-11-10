@@ -329,8 +329,9 @@ not matched and keeps what was written, with Odoo's usual fallback. A copy keeps
 (Odoo's `copy_translations`). Calls created before keep their texts: the upgrade only turns the
 columns into translatable ones, with the old value as the source. The trade-off: changing a
 default text later in one language leaves the others as they were (the form's language button edits
-them). A staff call's modalities are *FP staff* and *Higher education staff* (the project has its
-own column), its first step has the students' name (*Preparation sessions*), and *Share it at a
+them). The staff call's modalities keep their names: staff never see them (one call, one ranking;
+the team assigns each selected person's project), and #772 replaces them with places per project.
+A staff call's first step has the students' name (*Preparation sessions*), and *Share it at a
 department or cycles meeting* is `requirement='optional'` (art. 15): an optional step
 (`TASK_REQUIREMENTS`) is listed (on the portal with "(optional)") but never counts towards
 `preparation_complete`/`return_complete` (`is_required` False).

@@ -70,7 +70,7 @@ Registra cada mérito con su justificación, a partir de lo que la persona ha es
 
 ## 5. Plazas, clasificación y resoluciones
 
-Una convocatoria del personal nueva tiene dos **modalidades**, una por proyecto: *Personal de FP* (KA121-VET) y *Personal de educación superior* (KA131-HED), con el proyecto en una columna aparte y sin periodo (cada persona propone sus fechas). Antes de preparar la resolución provisional, rellena las plazas que tengas finalmente en cada una. El profesorado no las ve.
+Una convocatoria del personal nueva tiene dos **modalidades**, una por proyecto: *Personal de FP (KA121-VET)* y *Personal de educación superior (KA131-HED)*, sin periodo (cada persona propone sus fechas). Antes de preparar la resolución provisional, rellena las plazas que tengas finalmente en cada una. El profesorado no las ve.
 
 El personal se clasifica **en una sola lista** para toda la convocatoria (botón **Clasificación** de la convocatoria). Los empates se deshacen por la puntuación del plan de movilidad, después por quien lleva más tiempo en el centro (el mes y el año de incorporación declarados en el formulario, no los puntos del criterio 5: quien se incorporó en 2000 va antes que quien se incorporó hace seis años, aunque ambos tengan 2 puntos) y, por último, por el sorteo que hace la coordinación Erasmus desde la convocatoria (**Sortear los empates**).
 

@@ -11,6 +11,8 @@ JUSTIFY_TASK = 'ems.mail_activity_student_walkout_justify'
 REVIEW_TASK = 'ems.mail_activity_student_walkout_review'
 # What the group sees: a call the Head of Studies has not accepted is only its delegate's.
 VISIBLE_STATES = ('voting', 'closed', 'justified')
+# The Head of Studies may reject a call at any moment, even justified (the justification goes).
+REJECTABLE_STATES = ('pending', 'voting', 'closed', 'justified')
 
 
 class EmsStudentWalkout(models.Model):
@@ -56,7 +58,16 @@ class EmsStudentWalkout(models.Model):
     rejection_reason_id = fields.Many2one(string="Rejection reason", comodel_name='ems.student_walkout.rejection_reason',
                                           readonly=True, copy=False, ondelete='restrict')
     rejection_details = fields.Text(string="Rejection details", readonly=True, copy=False)
+    # The state it was rejected from: a call rejected before the group heard of it stays the
+    # delegate's alone; one rejected later is told to the group (and the families, once closed).
+    rejected_from_state = fields.Selection(string="Rejected while", selection=[
+        ('pending', "Pending review"),
+        ('voting', "Voting"),
+        ('closed', "Closed"),
+        ('justified', "Justified"),
+    ], readonly=True, copy=False)
     can_decide = fields.Boolean(compute='_compute_can_decide')
+    can_reject = fields.Boolean(compute='_compute_can_decide')
     # The group vote, anonymous: only the counts, never who voted what (_ems_portal_vote).
     group_yes_count = fields.Integer(string="Group supports it", readonly=True, copy=False)
     group_no_count = fields.Integer(string="Group does not support it", readonly=True, copy=False)
@@ -107,7 +118,9 @@ class EmsStudentWalkout(models.Model):
     @api.depends_context('uid')
     def _compute_can_decide(self):
         for walkout in self:
-            walkout.can_decide = walkout.state == 'pending' and walkout._ems_user_may_decide()
+            may_decide = walkout._ems_user_may_decide()
+            walkout.can_decide = walkout.state == 'pending' and may_decide
+            walkout.can_reject = walkout.state in REJECTABLE_STATES and may_decide
 
     @api.depends('state', 'line_ids.joins', 'group_yes_count', 'group_no_count')
     @api.depends_context('uid')
@@ -259,14 +272,18 @@ class EmsStudentWalkout(models.Model):
         if self._ems_has_something_to_justify():
             self.sudo()._ems_sync_user_tasks(self.env.ref(JUSTIFY_TASK), users, self.walkout_date)
         self._ems_mail_students('ems.email_template_student_walkout_result')
-        family_template = self.env.ref('ems.email_template_student_walkout_family').sudo()
+        self._ems_mail_families('ems.email_template_student_walkout_family')
+
+    def _ems_mail_families(self, template_xmlid):
+        """The family of each student who joins and is a minor (or an adult sharing with it), at once."""
+        template = self.env.ref(template_xmlid).sudo()
         for line in self.line_ids.filtered('joins'):
             student = line.student_id
             if student.is_adult and not student.auth_share:
                 continue
             emails = student._ems_family_contacts().filtered('email').mapped('email')
             if emails:
-                family_template.send_mail(line.id, email_values={'email_to': ','.join(emails)})
+                template.send_mail(line.id, email_values={'email_to': ','.join(emails)})
 
     def _ems_mail_students(self, template_xmlid, lines=None):
         """Each student's email (`lines`, by default those with portal access), sent during their
@@ -315,9 +332,9 @@ class EmsStudentWalkout(models.Model):
         return self.get_user_is_admin() or (self.env.user.has_group('ems.group_head_of_studies')
                                             and self.user_acts_as_tutor(self.group_id.tutor_id))
 
-    def _ems_check_decide(self):
+    def _ems_check_decide(self, states=('pending',)):
         self.ensure_one()
-        if self.state != 'pending':
+        if self.state not in states:
             raise UserError(_("This student walkout call has already been decided."))
         if not self._ems_user_may_decide():
             raise UserError(_("Only the Head of Studies, the Deputy Head of Studies or the Director of this group, or "
@@ -337,7 +354,7 @@ class EmsStudentWalkout(models.Model):
         walkout._message_log(body=_("Accepted by %(name)s.", name=self.env.user.name))
 
     def action_open_reject_wizard(self):
-        self._ems_check_decide()
+        self._ems_check_decide(REJECTABLE_STATES)
         return {
             'type': 'ir.actions.act_window',
             'name': _("Reject the student walkout call"),
@@ -348,15 +365,26 @@ class EmsStudentWalkout(models.Model):
         }
 
     def _ems_reject(self, reason, details):
-        """Rejected with a reason: only the delegate who opened it is told; nobody else hears of it."""
-        self._ems_check_decide()
+        """Rejected with a reason, at any moment. Before the group heard of it, only the delegate who
+        opened it is told; later, the whole group too, and once closed the families that were told
+        their child joins. A justification already generated is removed (its absences are no longer
+        justified), as the user rejecting it."""
+        self._ems_check_decide(REJECTABLE_STATES)
         details = (details or '').strip()
         if reason.requires_details and not details:
             raise UserError(_("Explain the reason in the details: %(reason)s", reason=reason.name))
+        previous = self.state
+        if self.justification_id:
+            self.justification_id.unlink()
         walkout = self._ems_decided({'state': 'rejected', 'rejection_reason_id': reason.id,
-                                     'rejection_details': details or False})
-        walkout._ems_mail_students('ems.email_template_student_walkout_rejected',
-                                   walkout.line_ids.filtered(lambda line: line.student_id == walkout.opener_id))
+                                     'rejection_details': details or False, 'rejected_from_state': previous})
+        walkout._ems_sync_user_tasks(self.env.ref(JUSTIFY_TASK), self.env['res.users'], walkout.walkout_date)
+        lines = walkout.line_ids.filtered(lambda line: line.student_id == walkout.opener_id)
+        if previous != 'pending':
+            lines |= walkout.line_ids.filtered('has_portal')
+        walkout._ems_mail_students('ems.email_template_student_walkout_rejected', lines)
+        if previous in ('closed', 'justified'):
+            walkout._ems_mail_families('ems.email_template_student_walkout_family_rejected')
         walkout._message_log(body=_("Rejected by %(name)s: %(reason)s", name=self.env.user.name, reason=reason.name))
 
     # Justifying
@@ -457,6 +485,7 @@ class EmsStudentWalkoutRejectWizard(models.TransientModel):
                                  default=lambda self: self.env.context.get('active_id'), ondelete='cascade')
     reason_id = fields.Many2one(string="Reason", comodel_name='ems.student_walkout.rejection_reason', required=True)
     requires_details = fields.Boolean(related='reason_id.requires_details')
+    walkout_state = fields.Selection(related='walkout_id.state')
     details = fields.Text(string="Details")
 
     def action_reject(self):

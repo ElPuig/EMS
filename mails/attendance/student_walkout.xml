@@ -173,8 +173,8 @@
             </field>
         </record>
 
-        <!-- To the delegate who opened the call, when the Head of Studies rejects it (during the
-             group's school hours). Nobody else is told. -->
+        <!-- When the Head of Studies rejects the call (during the group's school hours): to the delegate
+             who opened it and, if the group already knew of it, to every student with portal access. -->
         <record id="email_template_student_walkout_rejected" model="mail.template">
             <field name="name">EMS: student walkout, rejected</field>
             <field name="model_id" ref="ems.model_ems_student_walkout_line"/>
@@ -186,13 +186,51 @@
                 <![CDATA[
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Hello <t t-out="object.student_id.name"/>,</p>
-                        <p>
+                        <p t-if="object.student_id == object.walkout_id.opener_id">
                             The Head of Studies has rejected the student walkout call you opened for
                             <strong t-out="format_date(object.walkout_id.walkout_date)"/>:
                             <strong t-out="object.walkout_id.rejection_reason_id.name"/>.
                         </p>
+                        <p t-else="">
+                            The Head of Studies has rejected the student walkout call of your group for
+                            <strong t-out="format_date(object.walkout_id.walkout_date)"/>:
+                            <strong t-out="object.walkout_id.rejection_reason_id.name"/>.
+                            Absences that day will not be justified.
+                        </p>
                         <p t-if="object.walkout_id.rejection_details" t-out="object.walkout_id.rejection_details"/>
-                        <p>Your group has not been told. If you have any question, talk to the Head of Studies.</p>
+                        <p t-if="object.walkout_id.rejected_from_state == 'pending'">Your group has not been told. If you have any question, talk to the Head of Studies.</p>
+                        <p t-else="">If you have any question, talk to the Head of Studies.</p>
+                        <p>
+                            Kind regards,<br/>
+                            <t t-out="object.walkout_id.company_id.name"/>
+                        </p>
+                    </div>
+                ]]>
+            </field>
+        </record>
+
+        <!-- To the family told that their child joins a walkout, when the Head of Studies rejects the
+             call after the vote closed. -->
+        <record id="email_template_student_walkout_family_rejected" model="mail.template">
+            <field name="name">EMS: student walkout, rejected, family</field>
+            <field name="model_id" ref="ems.model_ems_student_walkout_line"/>
+            <field name="subject">Student walkout on {{ format_date(object.walkout_id.walkout_date) }}: rejected</field>
+            <field name="email_from">{{ object.walkout_id.company_id.name }} &lt;{{ object.walkout_id.company_id.email }}&gt;</field>
+            <field name="lang">{{ object.student_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html">
+                <![CDATA[
+                    <div style="font-family: Arial, sans-serif; font-size: 14px;">
+                        <p>Dear family,</p>
+                        <p>
+                            The Head of Studies has rejected the student walkout call of
+                            <t t-out="object.walkout_id.group_id.name"/> for
+                            <strong t-out="format_date(object.walkout_id.walkout_date)"/>, which
+                            <strong t-out="object.student_id.name"/> had said they joined:
+                            <strong t-out="object.walkout_id.rejection_reason_id.name"/>.
+                            Their absence that day will not be justified.
+                        </p>
+                        <p>If you have any question, talk to the group's tutor.</p>
                         <p>
                             Kind regards,<br/>
                             <t t-out="object.walkout_id.company_id.name"/>

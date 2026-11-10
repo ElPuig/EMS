@@ -7813,6 +7813,7 @@ msgstr "Canvis pendents: les notes calculades es recalcularan en aplicar."
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__todo_state__to_review
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__pending
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__rejected_from_state__pending
 msgid "Pending review"
 msgstr "Pendent de revisió"
 
@@ -9238,6 +9239,7 @@ msgstr "Iniciant procés en segon pla; rebràs una notificació en finalitzar (p
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_search
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__state
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_search
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__walkout_state
 msgid "State"
 msgstr "Estat"
 
@@ -19957,6 +19959,7 @@ msgstr "Tanca l'assistència"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__state__done
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__closed
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__rejected_from_state__closed
 msgid "Closed"
 msgstr "Tancada"
 
@@ -19985,6 +19988,7 @@ msgstr "Com"
 #: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__justified
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__justified
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__rejected_from_state__justified
 msgid "Justified"
 msgstr "Justificat"
 
@@ -49733,6 +49737,7 @@ msgstr "Han votat"
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__voting
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__rejected_from_state__voting
 msgid "Voting"
 msgstr "En votació"
 
@@ -49912,43 +49917,6 @@ msgstr ""
 "                            a la vaga (un vot anònim) i si t'hi sumes. La votació és oberta fins al\n"
 "                            <strong t-out=\"format_date(object.walkout_id.last_vote_date)\"/> inclòs.\n"
 "                        </p>\n"
-"                        <p>\n"
-"                            Salutacions cordials,<br/>\n"
-"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-
-#. module: ems
-#: model:mail.template,body_html:ems.email_template_student_walkout_rejected
-msgid ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hello <t t-out=\"object.student_id.name\"/>,</p>\n"
-"                        <p>\n"
-"                            The Head of Studies has rejected the student walkout call you opened for\n"
-"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>:\n"
-"                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
-"                        </p>\n"
-"                        <p t-if=\"object.walkout_id.rejection_details\" t-out=\"object.walkout_id.rejection_details\"/>\n"
-"                        <p>Your group has not been told. If you have any question, talk to the Head of Studies.</p>\n"
-"                        <p>\n"
-"                            Kind regards,<br/>\n"
-"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-msgstr ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hola, <t t-out=\"object.student_id.name\"/>:</p>\n"
-"                        <p>\n"
-"                            El cap d'estudis ha rebutjat la convocatòria de vaga que vas obrir per al\n"
-"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>:\n"
-"                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
-"                        </p>\n"
-"                        <p t-if=\"object.walkout_id.rejection_details\" t-out=\"object.walkout_id.rejection_details\"/>\n"
-"                        <p>No s'ha avisat el teu grup. Si tens qualsevol dubte, parla amb el cap d'estudis.</p>\n"
 "                        <p>\n"
 "                            Salutacions cordials,<br/>\n"
 "                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
@@ -50177,6 +50145,7 @@ msgstr ""
 
 #. module: ems
 #: model:mail.template,subject:ems.email_template_student_walkout_rejected
+#: model:mail.template,subject:ems.email_template_student_walkout_family_rejected
 msgid ""
 "Student walkout on {{ format_date(object.walkout_id.walkout_date) }}: "
 "rejected"
@@ -50232,3 +50201,121 @@ msgid ""
 "Whoever rejects the call must explain it in the details (e.g. 'Other')."
 msgstr ""
 "Qui rebutja la convocatòria ho ha d'explicar als detalls (p. ex. «Altres»)."
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_student_walkout_family_rejected
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Dear family,</p>\n"
+"                        <p>\n"
+"                            The Head of Studies has rejected the student walkout call of\n"
+"                            <t t-out=\"object.walkout_id.group_id.name\"/> for\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, which\n"
+"                            <strong t-out=\"object.student_id.name\"/> had said they joined:\n"
+"                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
+"                            Their absence that day will not be justified.\n"
+"                        </p>\n"
+"                        <p>If you have any question, talk to the group's tutor.</p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Benvolguda família,</p>\n"
+"                        <p>\n"
+"                            El cap d'estudis ha rebutjat la convocatòria de vaga de\n"
+"                            <t t-out=\"object.walkout_id.group_id.name\"/> per al\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, a la qual\n"
+"                            <strong t-out=\"object.student_id.name\"/> havia dit que se sumava:\n"
+"                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
+"                            La falta d'aquell dia no es justificarà.\n"
+"                        </p>\n"
+"                        <p>Si teniu qualsevol dubte, parleu amb el tutor del grup.</p>\n"
+"                        <p>\n"
+"                            Salutacions cordials,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_student_walkout_rejected
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello <t t-out=\"object.student_id.name\"/>,</p>\n"
+"                        <p t-if=\"object.student_id == object.walkout_id.opener_id\">\n"
+"                            The Head of Studies has rejected the student walkout call you opened for\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>:\n"
+"                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
+"                        </p>\n"
+"                        <p t-else=\"\">\n"
+"                            The Head of Studies has rejected the student walkout call of your group for\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>:\n"
+"                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
+"                            Absences that day will not be justified.\n"
+"                        </p>\n"
+"                        <p t-if=\"object.walkout_id.rejection_details\" t-out=\"object.walkout_id.rejection_details\"/>\n"
+"                        <p t-if=\"object.walkout_id.rejected_from_state == 'pending'\">Your group has not been told. If you have any question, talk to the Head of Studies.</p>\n"
+"                        <p t-else=\"\">If you have any question, talk to the Head of Studies.</p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola, <t t-out=\"object.student_id.name\"/>:</p>\n"
+"                        <p t-if=\"object.student_id == object.walkout_id.opener_id\">\n"
+"                            El cap d'estudis ha rebutjat la convocatòria de vaga que vas obrir per al\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>:\n"
+"                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
+"                        </p>\n"
+"                        <p t-else=\"\">\n"
+"                            El cap d'estudis ha rebutjat la convocatòria de vaga del teu grup per al\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>:\n"
+"                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
+"                            Les faltes d'aquell dia no es justificaran.\n"
+"                        </p>\n"
+"                        <p t-if=\"object.walkout_id.rejection_details\" t-out=\"object.walkout_id.rejection_details\"/>\n"
+"                        <p t-if=\"object.walkout_id.rejected_from_state == 'pending'\">No s'ha avisat el teu grup. Si tens qualsevol dubte, parla amb el cap d'estudis.</p>\n"
+"                        <p t-else=\"\">Si tens qualsevol dubte, parla amb el cap d'estudis.</p>\n"
+"                        <p>\n"
+"                            Salutacions cordials,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__can_reject
+msgid "Can Reject"
+msgstr "Pot rebutjar"
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_student_walkout_family_rejected
+msgid "EMS: student walkout, rejected, family"
+msgstr "EMS: vaga d'estudiants, rebutjada, família"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__rejected_from_state
+msgid "Rejected while"
+msgstr "Rebutjada en l'estat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
+msgid ""
+"The delegate and the students of the group are told, with the reason; once "
+"the vote is closed, the families that were told their child joins too. A "
+"justification already generated is removed."
+msgstr ""
+"S'avisa el delegat i els alumnes del grup, amb el motiu; si la votació ja "
+"s'ha tancat, també les famílies a les quals es va dir que el seu fill s'hi "
+"sumava. Si ja s'havia generat el justificant, s'esborra."

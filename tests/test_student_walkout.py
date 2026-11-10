@@ -138,6 +138,45 @@ class TestStudentWalkout(TransactionCase):
         self.assertFalse(self.classmate.sudo()._ems_walkout_portal_visible())
         self.assertTrue(self.delegate.sudo()._ems_walkout_portal_visible(), "The delegate sees why.")
 
+    def test_rejected_while_voting_tells_the_group(self):
+        walkout = open_walkout(self)
+        self._vote(walkout, self.classmate, 'yes', True)
+        before = self._mails(walkout.line_ids)
+        reject_walkout(walkout, self.head_of_studies, 'ems.student_walkout_rejection_region')
+        self.assertEqual(walkout.state, 'rejected')
+        recipients = ' '.join((self._mails(walkout.line_ids) - before).mapped('email_to'))
+        for student in (self.delegate, self.subdelegate, self.classmate):
+            self.assertIn(student.student_email, recipients, "The whole group knew of it: all of them are told.")
+        self.assertNotIn(self.family.email, recipients, "The families had not been told anything yet.")
+        self.assertTrue(self.classmate.sudo()._ems_walkout_portal_visible(), "The group sees why on the portal.")
+        with self.assertRaises(UserError):
+            self._vote(walkout, self.subdelegate)
+
+    def test_rejected_after_justifying_undoes_the_justification(self):
+        walkout = open_walkout(self)
+        self._vote(walkout, self.delegate, 'yes', True)
+        self._vote(walkout, self.subdelegate, 'yes', True)
+        walkout.action_close()
+        walkout.with_user(self.head_of_studies).action_generate_justification()
+        justification = walkout.justification_id
+        before = self._mails(walkout.line_ids)
+        reject_walkout(walkout, self.head_of_studies, 'ems.student_walkout_rejection_no_call')
+        self.assertEqual(walkout.state, 'rejected')
+        self.assertFalse(justification.exists(), "The walkout day is no longer justified.")
+        self.assertFalse(walkout.justification_id)
+        self.assertIn(self.family.email, ' '.join((self._mails(walkout.line_ids) - before).mapped('email_to')),
+                      "The family told that their child joined is told it was rejected.")
+
+    def test_rejected_after_closing_removes_the_task(self):
+        walkout = open_walkout(self)
+        self._vote(walkout, self.delegate, 'yes', True)
+        walkout.action_close()
+        self.assertTrue(walkout.activity_ids)
+        reject_walkout(walkout, self.head_of_studies, 'ems.student_walkout_rejection_level')
+        self.assertFalse(walkout.activity_ids)
+        with self.assertRaises(UserError):
+            reject_walkout(walkout, self.head_of_studies, 'ems.student_walkout_rejection_level')
+
     def test_a_call_nobody_decided_expires(self):
         walkout = open_walkout(self, accept=False)
         with self.assertRaises(UserError):

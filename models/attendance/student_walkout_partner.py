@@ -28,10 +28,13 @@ class ResPartner(models.Model):
     def _ems_walkout_calls(self):
         """The calls this student sees, newest first."""
         self.ensure_one()
-        # The group sees a call once the Head of Studies accepts it; its delegate, from the start.
+        # The group sees a call once the Head of Studies accepts it (and why, if rejected after
+        # that); its delegate, from the start.
         return self.env['ems.student_walkout'].sudo().search([
             '|', ('opener_id', '=', self.id),
-            '&', ('line_ids.student_id', '=', self.id), ('state', 'in', VISIBLE_STATES)])
+            '&', ('line_ids.student_id', '=', self.id),
+            '|', ('state', 'in', VISIBLE_STATES),
+            '&', ('state', '=', 'rejected'), ('rejected_from_state', '!=', 'pending')])
 
     def _ems_walkout_portal_visible(self):
         """The portal's Student walkouts card and menu entry: a student with portal access who may

@@ -5,7 +5,8 @@
 A **student walkout** is a strike called by a students' union ("convocatòria de vaga"). The group's
 delegate or sub-delegate opens a walkout call from the portal, attaching the union's call. The
 group's Head of Studies / Deputy Head of Studies reviews it first: they reject it with a reason
-(only the delegate is told, so a misuse of the tool reaches nobody else) or accept it. Once
+(only the delegate is told, so a misuse of the tool reaches nobody else) or accept it. They can
+still reject it later, at any moment, even once justified. Once
 accepted, every student of the group with portal access votes, logged in, on two questions:
 
 1. whether the group supports the walkout (anonymous: only the count is kept);
@@ -54,6 +55,7 @@ erDiagram
 | `state` | `Selection` | `pending` → `voting` → `closed` → `justified`; or `rejected`, `expired` (nobody decided by the last day to vote), `cancelled` (by the delegate) |
 | `head_of_studies_id` | `Many2one → hr.employee` | Who reviews it and gets the minute |
 | `decided_by_id` / `decision_datetime` | `Many2one → res.users` / `Datetime` | Who accepted or rejected it, and when |
+| `rejected_from_state` | `Selection` | The state it was rejected from: decides who is told and whether the group still sees it on the portal |
 | `rejection_reason_id` / `rejection_details` | `Many2one → ems.student_walkout.rejection_reason` / `Text` | Why it was rejected; details are required for a reason with `requires_details` ("Other reasons") |
 | `group_yes_count` / `group_no_count` / `group_abstain_count` | `Integer` | The anonymous group vote: only these counters, never who voted what |
 | `group_supports` | `Boolean` (computed) | More yes than no among the votes cast (a tie does not support) |
@@ -144,9 +146,15 @@ flowchart TD
   Nobody in the group sees it yet, except its delegate (`res.partner._ems_walkout_calls`).
 - **Accept** (`action_accept()`, Actions dropdown) / **Reject** (`action_open_reject_wizard()` →
   `_ems_reject(reason, details)`): Head of Studies / Deputy / Director in the tutor scope of the
-  group's tutor, or an administrator (`_ems_user_may_decide`). Accepting sends the vote email
-  (`ems.email_template_student_walkout_call`) to each student with portal access; rejecting tells only
-  the opener (`ems.email_template_student_walkout_rejected`). Either way the review task is done.
+  group's tutor, or an administrator (`_ems_user_may_decide`). Accepting (only while `pending`) sends
+  the vote email (`ems.email_template_student_walkout_call`) to each student with portal access.
+  Rejecting is possible at any moment (`REJECTABLE_STATES`: pending, voting, closed, justified):
+  while `pending` it tells only the opener (`ems.email_template_student_walkout_rejected`) and the
+  group never sees it; later, every student with portal access is told too and still sees the call
+  and the reason on the portal; once closed, the families that were told their child joins get
+  `ems.email_template_student_walkout_family_rejected`. A justification already generated is
+  deleted (as the user rejecting it: its absences go back to unjustified), and the review and
+  justify tasks are removed.
 - **Expire** (the hourly cron): a call still `pending` on its close date becomes `expired`, its task
   removed; only the delegate sees it, on the portal.
 - **Student emails during school hours.** Every email to students (vote, result, rejection) goes

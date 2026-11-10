@@ -222,6 +222,29 @@ registry.category("web_tour.tours").add("ems_attendance_justification_create", {
             content: "The group's students are listed, with their group",
         },
         {
+            trigger: ".o_field_widget[name='add_group_ids'] .o_tag:contains('TJT1A') .o_delete",
+            content: "Issue #808: taking the group out of the picker",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='student_ids']:not(:has(.o_data_row))",
+            content: "Its students leave the list",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='add_group_ids'] input",
+            content: "Pick the group again",
+            run: "edit TJT1A",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('TJT1A')",
+            content: "Pick the group",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='student_ids'] .o_data_row:contains('Attendance Justification Tutor Tour Student')",
+            content: "Its students are listed again",
+        },
+        {
             trigger: ".o_field_widget[name='student_ids'] .o_data_row:contains('Tour Excluded Student') .o_list_record_remove",
             content: "Take out the groupmate who must not be justified",
             run: "click",

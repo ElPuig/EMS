@@ -198,11 +198,11 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
 
         pau = cls.students[1]
         cls.justification = cls.env['ems.attendance_justification'].create({
-            'teacher_id': cls.group.tutor_id.id, 'student_id': pau.id,
+            'teacher_id': cls.group.tutor_id.id, 'student_ids': [(6, 0, pau.ids)],
             'start_date': datetime(2026, 3, 2, 7, 0), 'end_date': datetime(2026, 3, 2, 13, 0),
             'attendance_session_line_ids': [(6, 0, cls.env['ems.attendance_session_line'].search([
                 ('student_id', '=', pau.id), ('date', '=', cls.JUSTIFIED_DAY)]).ids)],
-            'notes': 'Visita mèdica',
+            'reason_id': cls.env.ref('ems.attendance_justification_reason_health').id,
         })
         cls.justification.attachment_ids = cls.env['ir.attachment'].create({
             'name': 'Justificant_metge.pdf', 'datas': base64.b64encode(b'%PDF-1.4 x'),
@@ -210,10 +210,8 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
         })
         cls.justification_action = cls.env['ir.actions.act_window'].create({
             'name': 'Justificants', 'res_model': 'ems.attendance_justification',
-            'view_mode': 'list,form', 'domain': [('student_id', 'in', cls.students.ids)],
+            'view_mode': 'list,form', 'domain': [('student_ids', 'in', cls.students.ids)],
         })
-        # The list's "New" opens this assistant (issue #656); shot on its own action, as a dialog.
-        cls.justification_wizard_action = cls.env.ref('ems.action_attendance_justification_wizard')
 
     @classmethod
     def _setup_google_credentials(cls):
@@ -293,18 +291,18 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             wait_for='.o_list_renderer .o_data_row',
         )
         self._capture(
-            '/odoo/action-%d' % self.justification_wizard_action.id,
-            '.modal-content', 'justificants-02-nou.png',
+            '/odoo/action-%d/new' % self.justification_action.id,
+            '.o_form_sheet', 'justificants-02-nou.png',
             login='doc_shot_tutor',
             tour='ems_doc_shot_tutor_justification',
         )
-        # Third tab of the notebook: Affected sessions, Affected teachers, Attached files, Notes.
+        # Fourth tab of the notebook: Students, Affected sessions, Affected teachers, Attached files, Notes.
         self._capture(
             '/odoo/action-%d/%d' % (self.justification_action.id, self.justification.id),
             '.o_form_sheet', 'justificants-03-adjunts.png',
             login='doc_shot_tutor',
             wait_for='.o_form_sheet .o_notebook',
-            click='.o_notebook .nav-item:nth-child(3) .nav-link',
+            click='.o_notebook .nav-item:nth-child(4) .nav-link',
             wait_after=".o_field_widget[name='attachment_ids'] .o_ems_attachment",
         )
 
@@ -529,6 +527,11 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             'message': "Adjunta el certificat de notes del CFGM, segellat pel centre on el vas cursar.",
         }).action_send()
         # Issue #644: one module marked, not attended until the resolution; the attendance notice below.
+        # The form only lists what the student hasn't asked for yet (issue #719): one more module.
+        self.env['ems.subject'].create({
+            'code': 'DOCSUB5', 'acronym': 'DEI', 'name': 'Empresa i iniciativa emprenedora',
+            'study_ids': [(6, 0, self.study.ids)],
+        })
         self._capture(
             '/my/convalidaciones?new=1', '.o_ems_convalidation_new',
             'convalidations-portal-new.png',

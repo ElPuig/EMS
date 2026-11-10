@@ -230,9 +230,17 @@ class EmsMeetingPresence(models.Model):
     def create(self, vals_list):
         presences = super().create(vals_list)
         # Whoever creates a meeting expects to see the convened people right away.
-        for presence in presences.filtered(lambda item: item.scope != 'manual' and not item.line_ids):
-            presence.action_load_convened()
+        to_load = presences.filtered(lambda item: item.scope != 'manual' and not item.line_ids)
+        to_load.action_load_convened()
+        (presences - to_load)._ems_sync_leaves()
         return presences
+
+    def write(self, vals):
+        result = super().write(vals)
+        if {'date', 'duration', 'date_end'} & set(vals):
+            # Another day or another time: other absences may overlap it.
+            self._ems_sync_leaves()
+        return result
 
     @api.ondelete(at_uninstall=False)
     def _unlink_only_draft(self):
@@ -278,7 +286,45 @@ class EmsMeetingPresence(models.Model):
             missing = presence._ems_scope_employees() - presence.line_ids.employee_id
             if missing:
                 presence.line_ids = [(0, 0, {'employee_id': employee.id}) for employee in missing]
+        self._ems_sync_leaves()
         return True
+
+    @api.model
+    def _ems_on_leave(self, employees, start, end):
+        """The ids of `employees` (hr.employee.public) with an absence overlapping the meeting from
+        `start` to `end` (naive UTC, as the ORM stores them): the same absences the guard duty board
+        shows, approved or still requested (ems.course._get_guard_duty_absence_intervals). The
+        meeting is read on the day it starts, in the company's time. Shared with the minutes
+        written by hand (ems.minute._ems_sync_leaves)."""
+        if not employees or not start or not end:
+            return set()
+        utils = self.env['ems.datetime_utils']
+        local_start, local_end = (self._ems_local(moment) for moment in (start, end))
+        day = local_start.date()
+        hour_to = utils.time_to_float(local_end) if local_end.date() == day else 24.0
+        board = self.env['ems.course']
+        intervals = board._get_guard_duty_absence_intervals(day, employees)
+        return set(board._guard_duty_absence_state(intervals, employees, utils.time_to_float(local_start), hour_to))
+
+    @api.model
+    def _ems_leave_note(self):
+        """The note for somebody on leave, in the centre's language: it ends up in the minute."""
+        return self.env['res.company']._ems_centre_env()._("Has an absence")
+
+    def _ems_sync_leaves(self):
+        """Justify the pending people who have an absence during the meeting, with a note that says
+        so and never why (the guard duty board shows no more than that either). Run whenever the
+        list or the meeting's time changes, and again when the attendance opens and closes, so an
+        absence filed in between still counts: a line EMS justified goes back to pending once its
+        absence is no longer there (cancelled, refused, moved). A line somebody else decided (a
+        scan, a manager) is never touched."""
+        for presence in self.filtered(lambda item: item.state != 'closed'):
+            lines = presence.line_ids.filtered(lambda line: line.state == 'pending' or line.on_leave)
+            on_leave = self._ems_on_leave(lines.employee_id, presence.date, presence.date_end)
+            to_justify = lines.filtered(lambda line: not line.on_leave and line.employee_id.id in on_leave)
+            to_release = lines.filtered(lambda line: line.on_leave and line.employee_id.id not in on_leave)
+            to_justify.with_context(ems_leave_sync=True).write({'state': 'justified', 'notes': self._ems_leave_note(), 'on_leave': True})
+            to_release.with_context(ems_leave_sync=True).write({'state': 'pending', 'notes': False, 'on_leave': False})
 
     def action_open(self):
         for presence in self:
@@ -286,7 +332,8 @@ class EmsMeetingPresence(models.Model):
                 raise UserError(_("Only a draft meeting attendance can be opened."))
             if presence.waits_for_meeting:
                 raise UserError(_("This attendance belongs to a minute: it opens when its meeting starts."))
-            presence.state = 'open'
+        self._ems_sync_leaves()
+        self.state = 'open'
         return True
 
     def action_close(self):
@@ -295,6 +342,7 @@ class EmsMeetingPresence(models.Model):
         for presence in self:
             if presence.state != 'open':
                 raise UserError(_("Only an open meeting attendance can be closed."))
+            presence._ems_sync_leaves()
             presence.line_ids.filtered(lambda line: line.state == 'pending').write({'state': 'absent'})
             presence.state = 'closed'
         # A session taken for a minute hands its result over to it.

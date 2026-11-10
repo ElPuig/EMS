@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+from unittest.mock import MagicMock, patch
+
+from googleapiclient.errors import HttpError
 
 from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import Form, TransactionCase
 
-from .common import create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email
+from .common import course_monday, create_absence, create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email
 
 
 class TestQualityMinute(TransactionCase):
@@ -170,7 +173,7 @@ class TestQualityMinute(TransactionCase):
     def test_approval_renders_the_pdf(self):
         minute = self._minute()
         self.assertEqual(minute.template_document_id, self.type.template_document_id,
-                         "the minute takes its controlled template from the type, for the PDF footer")
+                         "the minute takes its controlled template from the type")
         minute.section_value_ids.filtered(lambda value: value.required).content = "<p>Discussed.</p>"
         minute.action_submit()
         minute.action_approve()
@@ -355,6 +358,59 @@ class TestQualityMinute(TransactionCase):
         presence.line_ids.filtered(lambda line: line.employee_id.id == self.employee.id).state = 'present'
         presence.action_close()
         self.assertEqual(minute.attendee_ids.ids, [self.employee.id])
+
+    # -- absences (issue #776) ------------------------------------------------------------
+
+    def _on_leave_colleague(self, day, **absence):
+        user = create_role_user(self, 'teacher', 'minute.on.leave@example.com', name='Minute On Leave')
+        colleague = create_role_employee(self, user, department_id=self.department.id)
+        return colleague, create_absence(self.env, colleague, day, **absence)
+
+    def _start_on(self, day, hour=10.0):
+        return self.env['ems.datetime_utils'].time_float_to_utc_datetime(day, hour).replace(tzinfo=None)
+
+    def test_someone_on_leave_is_written_down_as_absent(self):
+        """Attendance written by hand: EMS moves them to the absentees itself, saying only that
+        they have an absence, and the writer's own notes are kept."""
+        day = course_monday(self.env)
+        colleague, _leave = self._on_leave_colleague(day, approve=False)
+        minute = self._minute(date=False, start_datetime=self._start_on(day), absence_notes='Somebody: late')
+        self.assertNotIn(colleague.id, minute.attendee_ids.ids)
+        self.assertIn(colleague.id, minute.absentee_ids.ids)
+        self.assertIn(self.employee.id, minute.attendee_ids.ids)
+        self.assertEqual(minute.absence_notes, f'Somebody: late; {colleague.name}: Has an absence')
+
+    def test_the_writer_puts_back_whoever_came_and_ems_leaves_them(self):
+        day = course_monday(self.env)
+        colleague, _leave = self._on_leave_colleague(day)
+        minute = self._minute(date=False, start_datetime=self._start_on(day))
+        minute.write({'attendee_ids': [(4, colleague.id)], 'absentee_ids': [(3, colleague.id)]})
+        minute.action_start_meeting()
+        self.assertIn(colleague.id, minute.attendee_ids.ids)
+
+    def test_an_absence_filed_later_counts_and_a_refused_one_is_undone(self):
+        day = course_monday(self.env)
+        minute = self._minute(date=False, start_datetime=self._start_on(day))
+        colleague, leave = self._on_leave_colleague(day, approve=False)
+        minute.attendee_ids |= self.env['hr.employee.public'].browse(colleague.id)
+        self.assertIn(colleague.id, minute.absentee_ids.ids)
+        leave.action_refuse()
+        minute.action_start_meeting()
+        self.assertIn(colleague.id, minute.attendee_ids.ids)
+        self.assertNotIn(colleague.id, minute.absentee_ids.ids)
+        self.assertFalse(minute.absence_notes)
+
+    def test_with_the_tag_the_absence_reaches_the_minute(self):
+        day = course_monday(self.env)
+        colleague, _leave = self._on_leave_colleague(day)
+        minute = self._nfc_minute(start_datetime=self._start_on(day))
+        line = minute.presence_id.sudo().line_ids.filtered(lambda item: item.employee_id.id == colleague.id)
+        self.assertEqual(line.state, 'justified')
+        minute.action_start_meeting()
+        minute.action_open_attendance_kiosk()
+        minute.action_close_attendance()
+        self.assertIn(colleague.id, minute.absentee_ids.ids)
+        self.assertIn(f'{colleague.name}: Has an absence', minute.absence_notes)
 
     def test_the_agenda_is_put_together_from_the_minute(self):
         """Only the items to discuss are typed in; the rest of the agenda follows from the minute."""
@@ -664,6 +720,12 @@ class TestQualityMinute(TransactionCase):
         self.assertIn('Said about it.', html, "what was written on each item is printed, without waiting for the approval to put it together")
         self.assertEqual(self.env['ems.minute']._ems_people_label(self.env['hr.employee.public'].browse(self.employee.id)), self.employee.name)
 
+    def test_every_page_names_the_iso_document_the_minute_is_printed_on(self):
+        html = self.env['ir.actions.report']._render_qweb_html('ems.action_report_minute', self._minute().ids)[0].decode()
+        footer = html[html.index('o_ems_footer_note'):]
+        self.assertIn('PE3.01.22', footer[:300], "the note goes in the layout's footer, repeated on each page")
+        self.assertIn('Revisió: 02/11/2026', footer[:300])
+
     def test_the_pdf_is_printed_in_the_centre_language_whoever_prints_it(self):
         # The class sets the centre language to the source one (en_US): a user working in Spanish
         # still gets the minute in it.
@@ -716,3 +778,106 @@ class TestQualityMinute(TransactionCase):
         self.assertFalse(third.agreement_review_ids, "a closed agreement is not brought to the next meeting")
         review.write({'note': False, 'is_closed': False})
         self.assertFalse(agreement.followup_ids, "taking back what was written takes the entry back too")
+
+    # --- Filing in Drive (issue #769) ------------------------------------------------------------
+
+    def _drive_jobs(self, key_start):
+        return self.env['queue.job'].search([('identity_key', '=like', f'{key_start}%')])
+
+    def _enable_drive(self, dry_run=False):
+        self.env.company.write({
+            'google_ws_enabled': True,
+            'google_ws_dry_run': dry_run,
+            'minute_drive_folder_url': 'https://drive.google.com/drive/folders/18CzLabbkkD6vkAOkhDAuu1jZiFCNC-0z?usp=drive_link',
+        })
+
+    def _drive_service(self):
+        service = MagicMock()
+        service.files.return_value.create.return_value.execute.return_value = {'id': 'FILE1', 'webViewLink': 'https://drive.google.com/file/d/FILE1/view'}
+        service.files.return_value.update.return_value.execute.return_value = {'id': 'FILE1', 'webViewLink': 'https://drive.google.com/file/d/FILE1/view'}
+        patcher = patch.object(type(self.env['google.workspace.mixin']), '_gw_get_drive_service', return_value=service)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        return service.files.return_value
+
+    def test_nothing_goes_to_drive_without_a_folder(self):
+        self.env.company.minute_drive_folder_url = False
+        minute = self._minute()
+        minute.action_start_meeting()
+        self.assertFalse(self._drive_jobs(f'ems_drive_upload_ems.minute_{minute.id}'))
+
+    def test_the_folder_is_read_from_its_link_or_its_id(self):
+        self._enable_drive()
+        self.assertEqual(self.env['ems.minute']._ems_drive_folder_id(), '18CzLabbkkD6vkAOkhDAuu1jZiFCNC-0z')
+        self.env.company.minute_drive_folder_url = '18CzLabbkkD6vkAOkhDAuu1jZiFCNC-0z'
+        self.assertEqual(self.env['ems.minute']._ems_drive_folder_id(), '18CzLabbkkD6vkAOkhDAuu1jZiFCNC-0z')
+        self.env.company.google_ws_enabled = False
+        self.assertFalse(self.env['ems.minute']._ems_drive_folder_id(), "Google Workspace switched off files nothing")
+
+    def test_creating_and_each_change_of_state_file_the_minute_once(self):
+        self._enable_drive()
+        minute = self._minute()
+        key = f'ems_drive_upload_ems.minute_{minute.id}'
+        self.assertEqual(len(self._drive_jobs(key)), 1, "queued when it is created")
+        minute.with_user(self.user).action_start_meeting()
+        self.assertEqual(len(self._drive_jobs(key)), 1, "a change of state while one is waiting files it once")
+        self._drive_jobs(key).unlink()
+        minute.agenda_html = '<p>Edited</p>'
+        self.assertFalse(self._drive_jobs(key), "an edit waits for the next change of state")
+        minute.with_user(self.user).action_back_to_draft()
+        self.assertEqual(len(self._drive_jobs(key)), 1, "whoever writes the minute queues it, without rights on the job queue")
+        files = self._drive_service()
+        minute.with_user(self.user)._ems_upload_to_drive()
+        self.assertEqual(files.create.call_count, 1, "and the job, run as them, files it")
+
+    def test_the_file_is_created_once_and_then_replaced(self):
+        self._enable_drive()
+        files = self._drive_service()
+        minute = self._minute()
+        minute._ems_upload_to_drive()
+        body = files.create.call_args.kwargs['body']
+        self.assertEqual(body, {'name': f'{minute.code}.pdf', 'parents': ['18CzLabbkkD6vkAOkhDAuu1jZiFCNC-0z']})
+        self.assertTrue(files.create.call_args.kwargs['supportsAllDrives'], "the folder is in a shared drive")
+        self.assertEqual(minute.drive_file_id, 'FILE1')
+        self.assertEqual(minute.drive_url, 'https://drive.google.com/file/d/FILE1/view')
+        minute.action_start_meeting()
+        minute._ems_upload_to_drive()
+        self.assertEqual(files.create.call_count, 1, "only one version is kept: the same file")
+        self.assertEqual(files.update.call_args.kwargs['fileId'], 'FILE1')
+
+    def test_a_file_deleted_in_drive_is_filed_again(self):
+        self._enable_drive()
+        files = self._drive_service()
+        minute = self._minute()
+        minute.drive_file_id = 'GONE'
+        files.update.return_value.execute.side_effect = HttpError(MagicMock(status=404), b'not found')
+        minute._ems_upload_to_drive()
+        self.assertEqual(files.create.call_count, 1)
+        self.assertEqual(minute.drive_file_id, 'FILE1')
+
+    def test_an_approved_minute_files_the_pdf_of_its_approval(self):
+        self._enable_drive()
+        minute = self._minute()
+        minute.section_value_ids.filtered(lambda value: value.required).content = "<p>Discussed.</p>"
+        minute.action_submit()
+        minute.action_approve()
+        self.assertEqual(minute._ems_drive_pdf(), minute.pdf_attachment_id.raw)
+
+    def test_deleting_the_minute_sends_its_file_to_the_bin(self):
+        self._enable_drive()
+        files = self._drive_service()
+        minute = self._minute()
+        minute.drive_file_id = 'FILE1'
+        minute.unlink()
+        self.assertEqual(len(self._drive_jobs('ems_drive_trash_FILE1')), 1)
+        self.env['ems.minute']._ems_drive_trash('FILE1')
+        files.update.assert_called_once_with(fileId='FILE1', body={'trashed': True}, supportsAllDrives=True)
+
+    def test_dry_run_never_calls_google(self):
+        self._enable_drive(dry_run=True)
+        files = self._drive_service()
+        minute = self._minute()
+        minute._ems_upload_to_drive()
+        self.env['ems.minute']._ems_drive_trash('FILE1')
+        self.assertFalse(files.create.called or files.update.called)
+        self.assertFalse(minute.drive_file_id)

@@ -317,7 +317,7 @@ class ResPartnerGoogleWorkspace(models.Model):
             partner.sudo().google_ws_deactivation_date = due
             self._gw()._gw_send_lifecycle_warning(
                 partner, 'ems.mail_template_google_deactivation_student',
-                [partner.email, partner.student_email],
+                partner._gw_lifecycle_recipients(),
                 extra_context={'gw_deletion_date': self._gw()._gw_schedule_date(
                     GW_DEACTIVATION_DELAY_DAYS + GW_DELETION_DELAY_DAYS)})
             partner.message_post(body=_(
@@ -327,9 +327,21 @@ class ResPartnerGoogleWorkspace(models.Model):
                     'email': partner.student_email, 'date': due,
                     'days': GW_DELETION_DELAY_DAYS})
 
+    def _gw_lifecycle_recipients(self):
+        """Addresses every account lifecycle email goes to: the personal one and the corporate
+        one, which still works during the grace period and is the one read day to day."""
+        self.ensure_one()
+        return [self.email, self.student_email]
+
     def _gw_cancel_scheduled_deactivation(self):
-        """Call off a pending deactivation (the student is back before the deadline)."""
+        """Call off a pending deactivation (the student is back before the deadline) and tell
+        the student, who was warned when it was scheduled (issue #728). The email goes out
+        before the date is cleared, since it shows the date that no longer applies."""
         for partner in self.filtered('google_ws_deactivation_date'):
+            if self.env.company.google_ws_enabled:
+                self._gw()._gw_send_lifecycle_warning(
+                    partner, 'ems.mail_template_google_deactivation_cancelled_student',
+                    partner._gw_lifecycle_recipients())
             partner.sudo().google_ws_deactivation_date = False
             partner.message_post(body=_(
                 "Google Workspace: the scheduled suspension of %s has been cancelled.")
@@ -496,7 +508,7 @@ class ResPartnerGoogleWorkspace(models.Model):
                     email = cand
                     break
                 except HttpError as e:
-                    status = getattr(getattr(e, 'resp', None), 'status', None)
+                    status = self._gw()._gw_http_status(e)
                     if status == 409:
                         # Email already taken in Google: try the next candidate.
                         continue
@@ -557,7 +569,7 @@ class ResPartnerGoogleWorkspace(models.Model):
             ('doc_type', '=', 'google_credentials'),
             ('status', '!=', 'cancelled'),
         ]).write({'status': 'cancelled'})
-        pdf_saved, emailed = self._gw_deliver_credentials(email, password)
+        pdf_saved, emailed = self._gw_deliver_credentials(email, password, reset=True)
         self.sudo().message_post(body=_(
             "Google Workspace password reset: %(email)s%(dry)s. %(pdf)s%(mail)s.") % {
                 'email': email,
@@ -565,10 +577,11 @@ class ResPartnerGoogleWorkspace(models.Model):
                 **self._gw_delivery_note(pdf_saved, emailed),
         })
 
-    def _gw_deliver_credentials(self, email, password):
-        """Generate the credentials PDF (always) and send the welcome email (if any).
+    def _gw_deliver_credentials(self, email, password, reset=False):
+        """Generate the credentials PDF (always) and email the credentials (if any address).
 
-        Returns (pdf_saved, emailed).
+        The email is the welcome one for a new account, or the password reset one when
+        `reset` is set (issue #728). Returns (pdf_saved, emailed).
         """
         self.ensure_one()
         pdf_saved = False
@@ -589,10 +602,12 @@ class ResPartnerGoogleWorkspace(models.Model):
         except Exception:
             _logger.exception("Could not generate Google credentials PDF for %s", self.name)
 
-        # 2) Welcome email to the personal address (if any)
+        # 2) Credentials email to the personal address (if any)
         emailed = False
         if self.email:
-            template = self.env.ref('ems.mail_template_google_welcome', raise_if_not_found=False)
+            template = self.env.ref(
+                'ems.mail_template_google_password_reset_student' if reset
+                else 'ems.mail_template_google_welcome', raise_if_not_found=False)
             if template:
                 template.sudo().with_context(
                     gw_email=email, gw_password=password,
@@ -661,7 +676,7 @@ class ResPartnerGoogleWorkspace(models.Model):
                     body={'suspended': True, 'orgUnitPath': ou},
                 ).execute()
             except HttpError as e:
-                status = getattr(getattr(e, 'resp', None), 'status', None)
+                status = self._gw()._gw_http_status(e)
                 if status in (404, 403):
                     # Account no longer exists in Google: nothing to suspend, and nothing
                     # left to delete either - no deletion date is scheduled.
@@ -719,7 +734,7 @@ class ResPartnerGoogleWorkspace(models.Model):
             try:
                 service.users().delete(userKey=self.student_email).execute()
             except HttpError as e:
-                status = getattr(getattr(e, 'resp', None), 'status', None)
+                status = self._gw()._gw_http_status(e)
                 if status not in (404, 403):
                     _logger.exception("Could not delete Google account for %s", self.name)
                     self.message_post(body=_(
@@ -805,7 +820,9 @@ class ResPartnerGoogleWorkspace(models.Model):
     def action_reactivate_google_account(self):
         """Reactivate a suspended account; if it was deleted in Admin, recreate it.
 
-        Triggered when a former student is unarchived. Idempotent.
+        Triggered when a former student is unarchived. Idempotent. Only an account that was
+        really suspended gets the reactivation email: one still in its grace period was never
+        touched, and its student already got the cancellation email.
         """
         self.ensure_one()
         company = self.env.company
@@ -829,10 +846,12 @@ class ResPartnerGoogleWorkspace(models.Model):
         ou = company.google_ws_ou_adult if self.is_adult else company.google_ws_ou_minor
         if company.google_ws_dry_run:
             _logger.info("[GW dry-run] reactivate %s -> suspended=False, OU=%s", self.student_email, ou)
+            was_suspended = self.google_ws_suspended
             self.sudo().write({
                 'google_ws_suspended': False, 'google_ws_deletion_date': False})
             self.message_post(body=_(
                 "Google Workspace account reactivated: %s [dry-run].") % self.student_email)
+            self._gw_notify_reactivated(was_suspended)
             return
 
         service = self._gw()._gw_get_service()
@@ -842,7 +861,7 @@ class ResPartnerGoogleWorkspace(models.Model):
                 body={'suspended': False, 'orgUnitPath': ou},
             ).execute()
         except HttpError as e:
-            status = getattr(getattr(e, 'resp', None), 'status', None)
+            status = self._gw()._gw_http_status(e)
             if status in (404, 403):
                 # The account was deleted in Admin: recreate it from scratch.
                 self.message_post(body=_(
@@ -857,10 +876,18 @@ class ResPartnerGoogleWorkspace(models.Model):
             _logger.exception("Could not reactivate Google account for %s", self.name)
             raise
 
+        was_suspended = self.google_ws_suspended
         self.sudo().write({'google_ws_suspended': False, 'google_ws_deletion_date': False})
         self.message_post(body=_(
             "Google Workspace account reactivated: %(email)s (moved to OU %(ou)s).") % {
                 'email': self.student_email, 'ou': ou})
+        self._gw_notify_reactivated(was_suspended)
+
+    def _gw_notify_reactivated(self, was_suspended):
+        """Tell the student their suspended account works again (issue #728)."""
+        if was_suspended:
+            self._gw()._gw_send_lifecycle_warning(
+                self, 'ems.mail_template_google_reactivated_student', self._gw_lifecycle_recipients())
 
     # ------------------------------------------------------------------
     # CRUD override (trigger)

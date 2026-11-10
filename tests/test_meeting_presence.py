@@ -14,7 +14,7 @@ from odoo.tests.common import HttpCase, TransactionCase
 
 from odoo.addons.ems.models.meetings.presence import kiosk_short_name
 
-from .common import create_head_of_studies_branch, create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email
+from .common import course_monday, create_absence, create_head_of_studies_branch, create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email
 
 
 class MeetingPresenceFixtures:
@@ -88,7 +88,11 @@ class TestMeetingPresence(MeetingPresenceFixtures, TransactionCase):
         self.assertIn(self._public(self.child_teacher), convened)
         self.assertNotIn(self._public(self.asp), convened)
         self.assertNotIn(self._public(self.archived_teacher), convened)
-        self.assertTrue(all(line.state == 'pending' and line.is_convened for line in session.line_ids))
+        self.assertTrue(all(line.is_convened for line in session.line_ids))
+        # Every real teacher of the database is convened: whoever has an absence right now is
+        # justified by EMS (issue #776), everybody else starts pending.
+        self.assertTrue(all(line.state == ('justified' if line.on_leave else 'pending') for line in session.line_ids))
+        self.assertEqual(self._line(session, self._public(self.teacher)).state, 'pending')
 
     def test_all_staff_scope_includes_asp(self):
         convened = self._session(scope='all_staff').line_ids.employee_id
@@ -563,6 +567,73 @@ class TestMeetingPresence(MeetingPresenceFixtures, TransactionCase):
         })
         self.assertEqual(session.line_ids.employee_id,
                          self._public(self.teacher) | self._public(self.child_teacher))
+
+
+    # -- absences (issue #776) ------------------------------------------------------------
+
+    def _on_leave_session(self, hour=10.0, duration=2.0):
+        """A department session on a working Monday of the course, `hour` local time."""
+        day = course_monday(self.env)
+        start = self.env['ems.datetime_utils'].time_float_to_utc_datetime(day, hour).replace(tzinfo=None)
+        return day, self._session(scope='department', department_id=self.department.id, date=start, duration=duration)
+
+    def test_someone_on_leave_is_justified_without_saying_why(self):
+        """An approved absence and one still requested count alike, as on the guard duty board;
+        the note says there is an absence, never its type."""
+        day = course_monday(self.env)
+        create_absence(self.env, self.teacher, day)
+        create_absence(self.env, self.child_teacher, day, approve=False)
+        _day, session = self._on_leave_session()
+        for employee in (self.teacher, self.child_teacher):
+            line = self._line(session, employee)
+            self.assertEqual((line.state, line.notes, line.on_leave), ('justified', session._ems_leave_note(), True))
+        self.assertNotIn('Presence Teacher', [item['name'] for item in session._ems_kiosk_progress()['convened']])
+
+    def test_an_absence_that_does_not_overlap_the_meeting_does_not_count(self):
+        day = course_monday(self.env)
+        create_absence(self.env, self.teacher, day, hour_from=8.0, hour_to=9.0)
+        _day, session = self._on_leave_session(hour=10.0)
+        self.assertEqual(self._line(session, self.teacher).state, 'pending')
+
+    def test_absences_are_looked_at_again_when_opening_and_closing(self):
+        """Filed after the session was prepared, it counts when the attendance opens; refused
+        before it closes, the person is back to pending and closing makes them absent."""
+        day, session = self._on_leave_session()
+        self.assertEqual(self._line(session, self.teacher).state, 'pending')
+        leave = create_absence(self.env, self.teacher, day, approve=False)
+        session.action_open()
+        self.assertEqual(self._line(session, self.teacher).state, 'justified')
+        leave.action_refuse()
+        session.action_close()
+        line = self._line(session, self.teacher)
+        self.assertEqual((line.state, line.notes, line.on_leave), ('absent', False, False))
+
+    def test_moving_the_meeting_looks_at_that_day_s_absences(self):
+        day, session = self._on_leave_session()
+        create_absence(self.env, self.teacher, day, hour_from=15.0, hour_to=17.0)
+        session.date = self.env['ems.datetime_utils'].time_float_to_utc_datetime(day, 15.0).replace(tzinfo=None)
+        self.assertEqual(self._line(session, self.teacher).state, 'justified')
+
+    def test_whoever_comes_anyway_is_present_and_stays_so(self):
+        day = course_monday(self.env)
+        leave = create_absence(self.env, self.teacher, day, approve=False)
+        _day, session = self._on_leave_session()
+        session.action_open()
+        with self._at(session.date):
+            session._ems_register_scan('TESTPRES001')
+        leave.action_refuse()
+        session.action_close()
+        line = self._line(session, self.teacher)
+        self.assertEqual((line.state, line.method, line.on_leave), ('present', 'nfc', False))
+
+    def test_a_manager_s_decision_is_never_undone(self):
+        day = course_monday(self.env)
+        create_absence(self.env, self.teacher, day)
+        _day, session = self._on_leave_session()
+        self._line(session, self.teacher).state = 'absent'
+        session.action_open()
+        session.action_close()
+        self.assertEqual(self._line(session, self.teacher).state, 'absent')
 
 
 class TestMeetingPresenceHub(MeetingPresenceFixtures, TransactionCase):

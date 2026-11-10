@@ -90,6 +90,12 @@ class EmsBase(models.AbstractModel):
     def view_read_only_for_non_enrollment_editors(self, result, view_xmlids, operations=('create',)):
         if EmsBase.get_user_can_edit_enrollments(self):
             return result
+        return EmsBase.view_without_operations(self, result, view_xmlids, operations)
+
+    # The get_view() result for one of `view_xmlids` without `operations` (create, edit, delete):
+    # for a user whose ACL allows them but whom record-level checks would refuse anyway. Called
+    # unbound by the wrappers above and by models that don't inherit ems.base.
+    def view_without_operations(self, result, view_xmlids, operations):
         view_ids = {self.env['ir.model.data']._xmlid_to_res_id(xmlid, raise_if_not_found=False)
                     for xmlid in view_xmlids}
         if result['id'] not in view_ids:

@@ -170,7 +170,7 @@ class TestAttendanceNotExpected(TransactionCase):
     def test_revert_keeps_a_justified_session_justified(self):
         self._mark()
         self.env['ems.attendance_justification'].with_user(self.tutor_user).create({
-            'student_id': self.student.id, 'teacher_id': self.tutor.id,
+            'student_ids': [(6, 0, self.student.ids)], 'teacher_id': self.tutor.id,
             'start_date': self.env['ems.datetime_utils'].datetime_to_odoo(
                 self.env['ems.datetime_utils'].time_float_to_utc_datetime(self.today, 10.5)),
             'end_date': self.env['ems.datetime_utils'].datetime_to_odoo(

@@ -20,7 +20,7 @@
                                  levels allow convalidations is set in Settings > Convalidations. -->
                             <group>
                                 <field name="education_stage" readonly="1"/>
-                                <field name="declaration_code"/>
+                                <field name="declaration_code" readonly="1"/>
                             </group>
                             <group>
                                 <field name="card_color"/>

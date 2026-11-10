@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- A line of a report's own under the company footer, on every page: a report sets
+         `ems_footer_note` before calling web.external_layout (e.g. the quality document a minute
+         is printed on, which ISO 9001 wants on each page). One inherit per Odoo layout, since the
+         company can pick any of them; each one shows the company footer the same way. -->
+    <template id="external_layout_footer_note" name="EMS: footer note">
+        <div t-if="ems_footer_note" class="o_ems_footer_note text-muted" style="font-size: 8pt;" t-out="ems_footer_note"/>
+    </template>
+    <template id="external_layout_striped_footer_note" inherit_id="web.external_layout_striped">
+        <xpath expr="//*[@t-field='company.report_footer']" position="after">
+            <t t-call="ems.external_layout_footer_note"/>
+        </xpath>
+    </template>
+    <template id="external_layout_boxed_footer_note" inherit_id="web.external_layout_boxed">
+        <xpath expr="//*[@t-field='company.report_footer']" position="after">
+            <t t-call="ems.external_layout_footer_note"/>
+        </xpath>
+    </template>
+    <template id="external_layout_bold_footer_note" inherit_id="web.external_layout_bold">
+        <xpath expr="//*[@t-field='company.report_footer']" position="after">
+            <t t-call="ems.external_layout_footer_note"/>
+        </xpath>
+    </template>
+    <template id="external_layout_standard_footer_note" inherit_id="web.external_layout_standard">
+        <xpath expr="//*[@t-field='company.report_footer']" position="after">
+            <t t-call="ems.external_layout_footer_note"/>
+        </xpath>
+    </template>
+    <template id="external_layout_folder_footer_note" inherit_id="web.external_layout_folder">
+        <xpath expr="//*[@t-field='company.report_footer']" position="after">
+            <t t-call="ems.external_layout_footer_note"/>
+        </xpath>
+    </template>
+    <template id="external_layout_wave_footer_note" inherit_id="web.external_layout_wave">
+        <xpath expr="//*[@t-field='company.report_footer']" position="after">
+            <t t-call="ems.external_layout_footer_note"/>
+        </xpath>
+    </template>
+    <template id="external_layout_bubble_footer_note" inherit_id="web.external_layout_bubble">
+        <xpath expr="//*[@t-field='company.report_footer']" position="after">
+            <t t-call="ems.external_layout_footer_note"/>
+        </xpath>
+    </template>
+</odoo>

@@ -1234,6 +1234,10 @@ class EmsErasmusApplicationDocument(models.Model):
         ('complete', "Complete"), ('optional', "Optional"), ('not_applicable', "Not applicable")],
         help="Complete: valid after the team's review (a signed document is only complete once checked, not when "
              "uploaded); one the team provides, once it is uploaded.")
+    can_mark_needs_change = fields.Boolean(compute='_compute_review_actions',
+                                           help="The team can send the file back to be corrected.")
+    can_reopen = fields.Boolean(compute='_compute_review_actions',
+                                help="A complete document the team can put back to review (the same action).")
     # The issue-#682 review: what the record shows, so that only what the participant has to do now
     # is red. A missing document the Erasmus team uploads, or one that is not due yet (the destination
     # not set, it opens later, a return document before the end of the stay), is not.
@@ -1288,6 +1292,17 @@ class EmsErasmusApplicationDocument(models.Model):
                 line.file_state = 'missing'
             else:
                 line.file_state = 'optional' if line.call_document_id.requirement == 'optional' else 'not_applicable'
+
+    @api.depends('file_state', 'review_state', 'handled_by', 'signers')
+    def _compute_review_actions(self):
+        """One place for what the buttons of every list and form offer: a document the team has
+        already sent back, or one it provides that nobody signs (nothing to check), offers neither.
+        A complete one says Reopen; the rest, Needs changes."""
+        for line in self:
+            checked = line.handled_by != 'team' or bool(line.signers)
+            offered = checked and line.review_state != 'needs_change'
+            line.can_reopen = offered and line.file_state == 'complete'
+            line.can_mark_needs_change = offered and line.file_state != 'complete'
 
     @api.depends('file_state', 'handled_by', 'prepared_attachment_ids', 'stage', 'open_date', 'mobility_id.state',
                  'mobility_id.date_end')

@@ -222,6 +222,8 @@
                                         <field name="name"/>
                                         <field name="stage" optional="hide"/>
                                         <field name="signers" optional="hide"/>
+                                        <field name="can_mark_needs_change" column_invisible="1"/>
+                                        <field name="can_reopen" column_invisible="1"/>
                                         <field name="signatures_missing" optional="hide"/>
                                         <field name="signature_progress" string="Signatures" optional="show"/>
                                         <field name="open_date" optional="hide"/>
@@ -244,10 +246,10 @@
                                                 invisible="file_state != 'to_review'" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                         <!-- Only on a file to correct: nothing to correct in a missing or not applicable document. -->
                                         <button name="action_mark_needs_change" type="object" string="Needs changes"
-                                                icon="fa-pencil" invisible="review_state == 'needs_change' or not attachment_ids or (handled_by == 'team' and not signers) or file_state == 'complete'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                                icon="fa-pencil" invisible="not can_mark_needs_change or not attachment_ids" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                         <!-- A complete document: the same button, under the name of what it does. -->
                                         <button name="action_mark_needs_change" type="object" string="Reopen"
-                                                icon="fa-undo" invisible="file_state != 'complete' or review_state == 'needs_change' or not attachment_ids or (handled_by == 'team' and not signers)" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                                icon="fa-undo" invisible="not can_reopen or not attachment_ids" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                         <button name="action_open_signatures" type="object" string="Signatures" icon="fa-check-square-o"
                                                 invisible="not signers" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                         <field name="can_send_to_sign" column_invisible="1"/>

@@ -310,6 +310,7 @@ from . import test_erasmus_group_mobility
 from . import test_erasmus_group_ranking_score
 from . import test_erasmus_group_ranking_score_tour
 from . import test_erasmus_staff_places_tour
+from . import test_erasmus_staff_places_migration
 from . import test_erasmus_group_mobility_tour
 from . import test_erasmus_group_mobility_e2e
 from . import test_erasmus_integration

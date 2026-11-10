@@ -31,6 +31,13 @@ class TestErasmusOtherListsTour(HttpCase, ErasmusMobilityCase):
         for line in (team_line, participant_line):
             line.sudo().prepared_attachment_ids = self.env['ir.attachment'].create({
                 'name': 'team-file.pdf', 'raw': b'%PDF-1.4 tour', 'res_model': line._name, 'res_id': line.id})
+        # The team's buttons: a file waiting for review offers Needs changes, a checked one Reopen.
+        to_review, checked = first.document_ids.filtered(
+            lambda line: line.handled_by == 'participant' and line != participant_line)[:2]
+        for line in (to_review, checked):
+            line.sudo().attachment_ids = self.env['ir.attachment'].create({
+                'name': 'participant-file.pdf', 'raw': b'%PDF-1.4 tour', 'res_model': line._name, 'res_id': line.id})
+        checked.sudo().review_state = 'valid'
         project = self.env['ems.erasmus.project'].create({'name': 'TOUR-OTHER-LISTS', 'kind': 'ka121_vet'})
         first.project_id = project
         self.env['ems.erasmus.export'].sudo().create({'scope': 'record', 'mobility_id': first.id,

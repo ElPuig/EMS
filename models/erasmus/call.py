@@ -301,10 +301,11 @@ class EmsErasmusCall(models.Model):
             return dict.fromkeys(DEADLINE_DAYS, False)
         utils = self.env['ems.datetime_utils']
         close_day = self._ems_local_date(fields.Datetime.to_datetime(date_close))
-        Leave = self.env['resource.calendar.leaves']
-        return {name: utils.datetime_to_odoo(utils.time_float_to_utc_datetime(
-                    Leave._ems_nth_school_day(close_day + timedelta(days=days), 1, include_start=True), DEADLINE_HOUR))
-                for name, days in DEADLINE_DAYS.items()}
+        # The holidays are read once for the four deadlines, not once for each.
+        school_days = self.env['resource.calendar.leaves']._ems_nth_school_days(
+            [close_day + timedelta(days=days) for days in DEADLINE_DAYS.values()], 1, include_start=True)
+        return {name: utils.datetime_to_odoo(utils.time_float_to_utc_datetime(day, DEADLINE_HOUR))
+                for name, day in zip(DEADLINE_DAYS, school_days)}
 
     def _ems_following_deadlines(self, old_close, new_close):
         """The deadlines of this call that follow its closing date moving from `old_close` to

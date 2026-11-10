@@ -524,6 +524,23 @@ class TestErasmusMobility(ErasmusMobilityCase):
         self.assertFalse(self.student.active)
         self.assertFalse(self.student._has_active_portal_user())
 
+    def test_a_document_offers_needs_changes_or_reopen(self):
+        """What the team's buttons offer on a document (every list and form reads these two): a
+        complete one says Reopen, one to review says Needs changes, and a document already sent
+        back, or one the team provides that nobody signs (nothing to check), offers neither."""
+        first, _second = self._accepted()
+        line = first.document_ids.filtered(lambda document: document.handled_by == 'participant')[:1]
+        line.sudo().attachment_ids = self.env['ir.attachment'].create({'name': 'doc.pdf', 'raw': PDF})
+        self.assertEqual((line.file_state, line.can_mark_needs_change, line.can_reopen), ('to_review', True, False))
+        line.sudo().review_state = 'valid'
+        self.assertEqual((line.file_state, line.can_mark_needs_change, line.can_reopen), ('complete', False, True))
+        line.sudo().review_state = 'needs_change'
+        self.assertEqual((line.file_state, line.can_mark_needs_change, line.can_reopen), ('needs_change', False, False))
+        unsigned = first.document_ids.filtered(lambda document: document.handled_by == 'team' and not document.signers)[:1]
+        unsigned.sudo().prepared_attachment_ids = self.env['ir.attachment'].create({'name': 'policy.pdf', 'raw': PDF})
+        self.assertEqual((unsigned.file_state, unsigned.can_mark_needs_change, unsigned.can_reopen),
+                         ('complete', False, False))
+
 
 class ErasmusStaffMobilityCase(ErasmusStaffCase):
     """Two staff selected after the definitive resolution; the first one, who proposed a job

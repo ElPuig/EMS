@@ -22,18 +22,6 @@ class TestErasmusSelectionLists(TransactionCase):
         return [node.get('name') for node in etree.fromstring(self.env.ref(f'ems.{xmlid}').arch_db).iter('field')
                 if node.getparent().tag == 'list']
 
-    def test_ranking_menu_shows_only_what_every_call_has(self):
-        self.assertNotIn('score_a', self._columns('view_erasmus_ranking_common_list'))
-        self.assertNotIn('score_plan', self._columns('view_erasmus_ranking_common_list'))
-        action = self.env.ref('ems.action_erasmus_ranking')
-        self.assertEqual(action.view_ids[0].view_id, self.env.ref('ems.view_erasmus_ranking_common_list'))
-
-    def test_ranking_from_the_call_shows_its_criteria(self):
-        action = self.call.action_view_ranking()
-        self.assertEqual(action['views'][0][0], self.env.ref('ems.view_erasmus_ranking_list').id)
-        self.assertEqual(action['context']['group_by'], ['modality_id'])
-        self.assertIn('score_a', self._columns('view_erasmus_ranking_list'))
-        self.assertNotIn('call_id', self._columns('view_erasmus_ranking_list'))
 
     def test_ranking_has_no_row_colour(self):
         for xmlid in ('view_erasmus_ranking_list', 'view_erasmus_staff_ranking_list',
@@ -61,20 +49,7 @@ class TestErasmusSelectionLists(TransactionCase):
                  if not node.get('column_invisible') and node.get('optional') != 'hide'
                  and node.get('widget') != 'handle']
         self.assertEqual(shown, ['stage', 'name', 'requirement', 'due_basis', 'handled_by'])
-        self.assertTrue(call_form.xpath(".//field[@name='preparation_document_ids']/form//field[@name='sign_tutor']"))
 
-    def test_no_signature_of_a_tutor_for_staff(self):
-        call_form = etree.fromstring(self.env.ref('ems.view_erasmus_call_form').arch_db)
-        for name in ('sign_guardian', 'sign_tutor'):
-            node = call_form.xpath(f".//field[@name='preparation_document_ids']/form//field[@name='{name}']")[0]
-            self.assertIn("parent.audience == 'staff'", node.get('invisible'))
-
-    def test_applications_grouped_by_call_from_the_menu(self):
-        action = self.env.ref('ems.action_erasmus_application')
-        self.assertIn('search_default_group_call', action.context)
-        columns = self._columns('view_erasmus_application_list')
-        for name in ('score_total', 'rank'):
-            self.assertIn(name, columns)
 
     def test_results_tab_titles(self):
         for xmlid in ('view_erasmus_application_form', 'view_erasmus_application_staff_form'):

@@ -151,7 +151,7 @@ registry.category("web_tour.tours").add("ems_erasmus_list_ranking_call", {
             content: "With its criteria",
         },
         {
-            trigger: ".o_list_view:not(:has(th[data-name='is_eligible'])):not(:has(th[data-name='score_complete']))",
+            trigger: ".o_list_view:not(:has(th[data-name='is_eligible'])):not(:has(th[data-name='score_complete'])):not(:has(th[data-name='call_id']))",
             content: "The ticks are hidden",
         },
         {

@@ -72,8 +72,8 @@ The four deadlines after closing are filled in by EMS from `date_close` (`_ems_d
 same for students' and staff calls): that many days after the closing day (`DEADLINE_DAYS`:
 corrections 7, score correction 14, claims 19, acceptance 25), at 14:00 in the centre
 (`DEADLINE_HOUR`), moved to the next school day when that day is a weekend, a public holiday or a
-school break (`resource.calendar.leaves._ems_nth_school_day()`, shared with the ex officio
-withdrawal circuit). `create()` fills the ones not given; `write()` and the onchange of
+school break (`resource.calendar.leaves._ems_nth_school_days()`, shared with the ex officio
+withdrawal circuit, which reads the holidays once for the four deadlines). `create()` fills the ones not given; `write()` and the onchange of
 `date_close` move the ones still empty or equal to what the old closing date gave
 (`_ems_following_deadlines()`), so a deadline changed by hand stays. A new, unsaved call has no
 earlier closing date to compare with: in the form, all four follow every closing date set.
@@ -83,7 +83,7 @@ open, close, then the four deadlines), each against the first earlier step that 
 The form shows it as a warning above the settings; saving is not refused, since a deadline is
 sometimes moved on purpose (e.g. the claims one brought forward once every claim is answered).
 
-`reminder_days` stays 3 and is no longer in the form (the notice wizard still shows it).
+`reminder_days` is 3 by default; it is not in the call's form, only in the notice wizard.
 
 ### Notice of the open call and reminder before closing
 
@@ -387,8 +387,8 @@ participation* (`views/erasmus/staff/views.xml`, `models/erasmus/staff_backend.p
   drive the `invisible=` of each action; `staff_next_step`/`staff_next_deadline` show the portal's
   "what to do now" (`_ems_portal_progress()`), which for an application still in draft that can be
   changed says where to write: *Actions > Fill in the form*.
-- **Somewhere to write (issue #802).** A new application shows only its answers, read only, so an
-  empty one used to be a page of grey labels with nowhere to type. Now `staff_answered` (any of
+- **Somewhere to write (issue #802).** A new application shows only its answers, read only: an
+  empty one would be a page of grey labels with nowhere to type, so `staff_answered` (any of
   `ANSWER_FIELDS['staff']` filled in) hides the *Form* tab until something is answered, and
   `action_staff_apply()` (the call's *Apply* / *Open my application*) opens the form's dialog
   straight away while the application can be changed and nothing is answered yet. That dialog
@@ -1443,7 +1443,9 @@ flowchart LR
   `options="{'max': 40}"`, printing "36 / 40". The maximums are the call rules' and
   `TestErasmusLabels` checks them against the code's scales (they add up to 100 and 10).
 - **A complete document** offers `action_mark_needs_change` as **Reopen**: the same button twice in
-  the view, each `invisible` on the other's condition.
+  the view. `can_mark_needs_change` and `can_reopen` (computed on the document line) say which one
+  shows, so the lists and forms that carry it share one rule: neither is offered once the file
+  is sent back, or for a document the team provides that nobody signs.
 
 ### Selection lists (issue #781)
 

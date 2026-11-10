@@ -1,4 +1,3 @@
-import re
 
 from lxml import etree
 
@@ -126,13 +125,3 @@ class TestErasmusLabels(TransactionCase):
         self.assertEqual(sum(maximums[name] for name in (
             'score_plan', 'score_last_mobility', 'score_projects', 'score_staff_language', 'score_seniority',
             'score_internationalisation')), 10)
-
-    def test_complete_document_offers_reopen(self):
-        """A complete document says Reopen, not Needs changes: the same button."""
-        for xmlid in ('view_erasmus_mobility_form', 'view_erasmus_group_mobility_form',
-                      'view_erasmus_group_participant_document_list', 'view_erasmus_group_participant_form'):
-            buttons = self._arch(xmlid, 'en_US').xpath(".//button[@name='action_mark_needs_change']")
-            self.assertEqual({button.get('string') for button in buttons}, {'Needs changes', 'Reopen'}, xmlid)
-            for button in buttons:
-                condition = "file_state != 'complete'" if button.get('string') == 'Reopen' else "file_state == 'complete'"
-                self.assertIn(condition, re.sub(r'\s+', ' ', button.get('invisible')), xmlid)

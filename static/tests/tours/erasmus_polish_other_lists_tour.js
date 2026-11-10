@@ -78,6 +78,22 @@ registry.category("web_tour.tours").add("ems_erasmus_other_lists_mobilities", {
                 }
             },
         },
+        {
+            // One document waits for review (Needs changes) and one is checked (Reopen): the same
+            // button under the name of what it does, one each, none on the documents without a file.
+            trigger: ".o_field_widget[name='document_ids'] td button[name='action_mark_needs_change']",
+            content: "The team can send a file back, or reopen a checked one",
+            run() {
+                const buttons = [...document.querySelectorAll(
+                    ".o_field_widget[name='document_ids'] td button[name='action_mark_needs_change']"
+                )];
+                const needsChanges = buttons.filter((button) => button.querySelector(".fa-pencil")).length;
+                const reopen = buttons.filter((button) => button.querySelector(".fa-undo")).length;
+                if (needsChanges !== 1 || reopen !== 1) {
+                    throw new Error(`Expected one Needs changes and one Reopen, got ${needsChanges} and ${reopen}`);
+                }
+            },
+        },
     ],
 });
 

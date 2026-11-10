@@ -148,8 +148,14 @@ registry.category("web_tour.tours").add("ems_guard_board_unchecked_guard", {
             run: "click",
         },
         {
-            trigger: `${currentLesson}.o_guard_board_guard_cell .o_guard_board_guard_badge:contains('Tour Unchecked Late Guard'):not(:has(.fa-clock-o))`,
-            content: "Checked in: no clock any more",
+            trigger: `${currentLesson}.o_guard_board_guard_cell .o_guard_board_guard_badge.o_guard_board_guard_idle:contains('Tour Unchecked Late Guard'):not(:has(.fa-clock-o))`,
+            // Issue #770: free now, but a plain teacher cannot assign them, so greyed out (not
+            // struck out like a guard who cannot cover); only the user's own badge is available.
+            content: "Checked in: no clock any more, greyed out for a teacher who assigns nobody",
+        },
+        {
+            trigger: `${currentLesson}.o_guard_board_guard_cell .o_guard_board_guard_badge:contains('Tour Unchecked Guard'):not(.o_guard_board_guard_idle):not(.o_guard_board_guard_disabled)`,
+            content: "The user's own badge stays available",
         },
     ],
 });

@@ -149,7 +149,7 @@ that user, since the fix there is to clear the stale record first.
 
 **Reset Google password** in the Actions dropdown gives the corporate account a new random
 password and delivers it exactly like a new account's: `changePasswordAtNextLogin`, the
-credentials PDF (below) and the welcome email to `private_email`, plus a chatter note. It is
+credentials PDF (below) and the password reset email to `private_email`, plus a chatter note. It is
 offered while the account exists in Google (`google_ws_state` `active` or `pending_user`) to the
 same groups as every other Google entry on the form (`ems.group_academic_admin`,
 `hr.group_hr_user`), and the method re-checks them, since the button's `groups` only hides it.
@@ -198,8 +198,8 @@ flowchart LR
 | Created / completed (ready) | created (queued) | created + OAuth pre-linked |
 | Archived (`active = False`) | **nothing yet**: `google_ws_deactivation_date` set to today + `GW_DEACTIVATION_DELAY_DAYS`, warning email sent, chatter note posted | archived immediately (`_ems_sync_user_active`) |
 | Deactivation date reached (daily cron) | suspended, moved to suspended OU (queued) | unchanged (already archived) |
-| Unarchived before the deactivation date | schedule cancelled; the account was never touched | unarchived |
-| Unarchived while suspended | reactivated (queued) | unarchived |
+| Unarchived before the deactivation date | schedule cancelled, cancellation email; the account was never touched | unarchived |
+| Unarchived while suspended | reactivated (queued), reactivation email | unarchived |
 | Deleted (`unlink`) | suspended synchronously | archived |
 | Renamed (`name` written) | name patched to `_gw_split_name()` (queued), suspended accounts included | renamed (`_sync_user_name`, synchronous) |
 
@@ -248,7 +248,19 @@ A hard delete leaves no record to hold `google_ws_deactivation_date`, so there w
 nothing for the cron to find later — and it is not the archive path the grace period is
 about. It therefore keeps suspending immediately, exactly as before.
 
-### The warning email
+### The emails
+
+Same mechanism and layout as the students' (see [the student side](../contacts/google_workspace_student.md#the-emails),
+issue #728): `mail_template_google_welcome_employee` on creation and
+`mail_template_google_password_reset_employee` on a reset (both to `private_email` only), and,
+to `private_email` and `work_email` (`_gw_lifecycle_recipients()`),
+`mail_template_google_deactivation_employee` when the deactivation is scheduled,
+`mail_template_google_deactivation_cancelled_employee` when it is called off (unarchiving or
+**Cancel scheduled deactivation**) and `mail_template_google_reactivated_employee` when a
+**suspended** account is reactivated. The staff welcome and reset emails also explain how to
+sign in to EMS with Google.
+
+#### The warning
 
 `ems.mail_template_google_deactivation_employee`
 (`data/main/mail.template-google_lifecycle.csv`) is sent once, when the schedule is

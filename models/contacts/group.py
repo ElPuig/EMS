@@ -216,6 +216,12 @@ class EmsGroup(models.Model):
 		for group in self:
 			group.managing_department_ids = (group.study_id | group.parent_group_ids.study_id).managing_department_id
 
+	def _ems_walkout_allowed(self):
+		"""Issue #800: whether this group may call a student walkout, by its level and course
+		(Settings > Student Walkout Settings)."""
+		self.ensure_one()
+		return self.group_type == "main" and bool(self.level_id) and self.level_id._ems_allows_walkout(self.course)
+
 	@api.model
 	def _ems_my_ids(self):
 		"""The groups the user tutors or teaches."""

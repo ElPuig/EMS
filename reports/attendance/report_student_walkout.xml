@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #800: the minute of a student walkout vote, rendered when the vote closes
+             (ems.student_walkout._ems_render_minute) and always in the centre language
+             (models/shared/ir_actions_report.py). The group vote shows only its counts. -->
+        <record id="action_report_student_walkout" model="ir.actions.report">
+            <field name="name">Student walkout minute</field>
+            <field name="model">ems.student_walkout</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_student_walkout</field>
+            <field name="report_file">ems.report_student_walkout</field>
+            <field name="print_report_name">'%s' % object.name</field>
+        </record>
+
+        <template id="report_student_walkout">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="ems.report_student_walkout_document"/>
+                </t>
+            </t>
+        </template>
+
+        <template id="report_student_walkout_document">
+            <t t-call="web.external_layout">
+                <div class="page o_ems_student_walkout_report">
+                    <style>
+                        .o_ems_student_walkout_report { font-size: 12px; }
+                        .o_ems_student_walkout_report h2 { font-size: 18px; margin-bottom: 12px; }
+                        .o_ems_student_walkout_report h3 { font-size: 13px; margin-top: 16px; margin-bottom: 4px; }
+                        .o_ems_student_walkout_report table td, .o_ems_student_walkout_report table th { padding: 3px 6px !important; vertical-align: top; }
+                    </style>
+
+                    <h2>Minute of a student walkout vote</h2>
+
+                    <table class="table table-sm table-borderless">
+                        <tbody>
+                            <tr><th class="w-25">Group</th><td t-out="', '.join(doc.group_ids.mapped('name'))"/></tr>
+                            <tr><th>Walkout day</th><td><span t-field="doc.walkout_date"/></td></tr>
+                            <tr><th>Opened by</th><td t-out="doc.opener_id.name"/></tr>
+                            <tr><th>Opened on</th><td><span t-field="doc.create_date" t-options="{'widget': 'date'}"/></td></tr>
+                            <tr><th>Last day to vote</th><td><span t-field="doc.last_vote_date"/></td></tr>
+                            <tr><th>Closed on</th><td><span t-field="doc.closed_datetime"/></td></tr>
+                            <tr><th>Union's call</th><td t-out="', '.join(doc.attachment_ids.mapped('name'))"/></tr>
+                            <tr t-if="doc.notes"><th>Notes</th><td t-out="doc.notes"/></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Does the group support the walkout? (anonymous vote)</h3>
+                    <table class="table table-sm table-bordered w-50">
+                        <tbody>
+                            <tr><th>Yes</th><td t-out="doc.group_yes_count"/></tr>
+                            <tr><th>No</th><td t-out="doc.group_no_count"/></tr>
+                            <tr><th>Abstentions</th><td t-out="doc.group_abstain_count"/></tr>
+                            <tr><th>Students who did not vote</th><td t-out="doc.voter_count - doc.voted_count"/></tr>
+                            <tr><th>Students without access to the portal</th><td t-out="len(doc.line_ids) - doc.voter_count"/></tr>
+                        </tbody>
+                    </table>
+                    <p>
+                        <strong t-if="doc.group_supports">Result: the group supports the walkout.</strong>
+                        <strong t-else="">Result: the group does not support the walkout, so no absence is justified.</strong>
+                    </p>
+
+                    <h3>Students</h3>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr><th>Student</th><th>Joins the walkout</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="doc.line_ids.sorted(lambda line: line.student_id.name or '')" t-as="line">
+                                <td t-out="line.student_id.name"/>
+                                <td>
+                                    <t t-if="not line.has_portal">No access to the portal</t>
+                                    <t t-elif="line.joins">Yes</t>
+                                    <t t-elif="line.voted">No</t>
+                                    <t t-else="">Did not answer</t>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

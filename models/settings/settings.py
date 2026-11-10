@@ -27,6 +27,8 @@ class ems_settings(models.TransientModel):
    attendance_issue_tutor_default = fields.Float(related="company_id.attendance_issue_tutor_default", readonly=False)
    attendance_manual_justified = fields.Boolean(related="company_id.attendance_manual_justified", readonly=False)
    strike_escalation_threshold = fields.Integer(related="company_id.strike_escalation_threshold", readonly=False)
+   walkout_notice_days = fields.Integer(related="company_id.walkout_notice_days", readonly=False)
+   walkout_level_count = fields.Integer(compute="_compute_walkout_level_count")
    strike_duplicate_window = fields.Integer(related="company_id.strike_duplicate_window", readonly=False)
    strike_family_notification_mode = fields.Selection(related="company_id.strike_family_notification_mode", readonly=False)
    auto_checkin_mode = fields.Selection(related="company_id.auto_checkin_mode", readonly=False)
@@ -120,6 +122,11 @@ class ems_settings(models.TransientModel):
    # Built here from escaped text and fixed markup only, so it needs no sanitizing (which would
    # also wrap it in a <p> and push it out of line).
    ems_version_message = fields.Html(string="Version check", compute="_compute_ems_version_status", sanitize=False)
+
+   def _compute_walkout_level_count(self):
+      count = self.env['ems.level'].search_count([('walkout_allowed', '=', True)])
+      for settings in self:
+         settings.walkout_level_count = count
 
    @api.depends('ems_version', 'ems_latest_version', 'ems_latest_version_url')
    def _compute_ems_version_status(self):

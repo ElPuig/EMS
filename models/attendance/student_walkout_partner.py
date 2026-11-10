@@ -1,0 +1,48 @@
+# -*- coding: utf-8 -*-
+
+from odoo import models
+
+
+class ResPartner(models.Model):
+    _inherit = 'res.partner'
+
+    def _ems_walkout_portal_student(self):
+        """This partner when it is a student with portal access: only they open and vote student
+        walkout calls, never a family acting for its child."""
+        self.ensure_one()
+        partner = self.sudo()
+        return partner.contact_type == 'student' and bool(partner.user_ids.filtered('share'))
+
+    def _ems_walkout_opener_group(self):
+        """The main group this student may open a student walkout call for: their own, when they
+        are its delegate or sub-delegate and it may call one."""
+        self.ensure_one()
+        group = self.sudo().main_group_id
+        if not (self._ems_walkout_portal_student() and group and self in (group.delegate_id | group.subdelegate_id)
+                and group._ems_walkout_allowed()):
+            return self.env['ems.group']
+        return group
+
+    def _ems_walkout_calls(self):
+        """The calls this student is in, newest first."""
+        self.ensure_one()
+        return self.env['ems.student_walkout'].sudo().search([('line_ids.student_id', '=', self.id),
+                                                              ('state', '!=', 'cancelled')])
+
+    def _ems_walkout_portal_visible(self):
+        """The portal's Student walkouts card and menu entry: a student with portal access who may
+        open a call or is in one."""
+        self.ensure_one()
+        return self._ems_walkout_portal_student() and bool(self._ems_walkout_opener_group()
+                                                           or self._ems_walkout_calls())
+
+    def _ems_walkout_pending_votes(self):
+        """The calls still waiting for this student's group vote, for the portal home's banner."""
+        self.ensure_one()
+        if not self._ems_walkout_portal_student():
+            return self.env['ems.student_walkout']
+        Walkout = self.env['ems.student_walkout'].sudo()
+        return Walkout.search([
+            ('state', '=', 'voting'), ('close_date', '>', Walkout.get_local_today()),
+            ('line_ids', 'any', [('student_id', '=', self.id), ('has_portal', '=', True), ('voted', '=', False)]),
+        ])

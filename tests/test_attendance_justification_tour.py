@@ -121,7 +121,7 @@ class TestAttendanceJustificationTour(HttpCase):
         self.start_tour("/odoo", "ems_attendance_justification_strike", login=self.tutor_user.login)
 
         justification = self.env['ems.attendance_justification'].search([
-            ('reason_id', '=', self.env.ref('ems.attendance_justification_reason_strike').id),
+            ('reason_id', '=', self.env.ref('ems.attendance_justification_reason_walkout').id),
             ('student_ids', 'in', self.excluded_student.ids),
         ])
         self.assertEqual(len(justification), 1)

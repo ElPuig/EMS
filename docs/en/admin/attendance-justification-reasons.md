@@ -13,10 +13,10 @@ Navigate to: **Student's Attendances → Configuration → Justifications → Re
 - **Name:** the text tutors pick and the justifications list shows. Write it in each language with the language button next to the field.
 - **Order:** drag the rows to sort them. The first one comes selected in a new justification, so put the most usual reason first (by default, **Health reasons**).
 - **Requires details:** the tutor must describe the reason in a **Details** field, which only appears for these reasons (by default, **Other reasons**).
-- **Full day:** the tutor picks a single day instead of a period, and the justification covers the student's whole day (by default, **Labour strike**).
+- **Full day:** the tutor picks a single day instead of a period, and the justification covers the student's whole day (by default, **Student walkout**).
 - To stop offering a reason without losing the justifications that used it, archive it.
 
-The centre starts with: Health reasons, Labour strike, Expulsion from the centre, Attendance at an authorised activity outside the centre, Family reasons (death or serious illness of a relative), Unavoidable duty (court summons, official procedures), Official exam (driving licence, languages, university entrance) and Other reasons.
+The centre starts with: Health reasons, Student walkout, Expulsion from the centre, Attendance at an authorised activity outside the centre, Family reasons (death or serious illness of a relative), Unavoidable duty (court summons, official procedures), Official exam (driving licence, languages, university entrance) and Other reasons.
 
 ---
 

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #800: which groups may call a student walkout, by level and course, edited as one
+             list from Settings > Student Walkout Settings (no menu of its own). -->
+        <record id="view_level_walkout_list" model="ir.ui.view">
+            <field name="name">ems.level.walkout.list</field>
+            <field name="model">ems.level</field>
+            <field name="priority">90</field>
+            <field name="arch" type="xml">
+                <list string="Levels and courses that may call a student walkout" editable="bottom" create="0" delete="0">
+                    <field name="acronym" readonly="1"/>
+                    <field name="name" readonly="1"/>
+                    <field name="walkout_allowed" widget="boolean_toggle"/>
+                    <field name="walkout_course_from" invisible="not walkout_allowed" options="{'format': false}"/>
+                    <field name="walkout_course_to" invisible="not walkout_allowed" options="{'format': false}"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_level_walkout_settings" model="ir.actions.act_window">
+            <field name="name">Levels and courses that may call a student walkout</field>
+            <field name="res_model">ems.level</field>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="view_level_walkout_list"/>
+            <field name="help" type="html">
+                <p>Tick the levels whose groups may call a student walkout. Leave the courses empty for every course of the level.</p>
+            </field>
+        </record>
+    </data>
+</odoo>

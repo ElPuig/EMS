@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Issue #800: student walkout calls on the portal (controllers/portal_student_walkout.py). -->
+
+    <template id="portal_student_walkout_error" name="Student walkout error">
+        <div t-if="error_message" class="alert alert-danger mb-3 o_ems_walkout_error">
+            <i class="fa fa-exclamation-triangle me-1"/> <t t-esc="error_message"/>
+        </div>
+    </template>
+
+    <template id="portal_student_walkouts" name="Student walkouts">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-4 o_ems_portal_walkouts">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="mb-0">Student walkouts</h3>
+                    <a t-if="can_open" href="/my/vagues/nova" class="btn btn-primary o_ems_walkout_new">
+                        <i class="fa fa-plus me-1"/> Call a student walkout
+                    </a>
+                </div>
+                <t t-call="ems.portal_student_walkout_error"/>
+                <p t-if="can_open" class="text-muted small">
+                    As the delegate or sub-delegate of your group, you can call a student walkout of a students'
+                    union: your group votes whether it supports it, and the Head of Studies gets the minute.
+                </p>
+                <p t-if="not walkouts" class="text-muted">There are no student walkout calls in your group.</p>
+                <div t-if="walkouts" class="list-group o_ems_walkout_list">
+                    <a t-foreach="walkouts" t-as="walkout" t-attf-href="/my/vagues/#{walkout.id}"
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <span>
+                            <strong t-field="walkout.walkout_date"/> - <t t-esc="walkout.group_id.name"/>
+                        </span>
+                        <t t-set="line" t-value="walkout.line_ids.filtered(lambda line: line.student_id == partner)"/>
+                        <span t-if="walkout._ems_voting_open() and line.has_portal and not line.voted" class="badge text-bg-warning">Vote pending</span>
+                        <span t-elif="walkout.state == 'voting'" class="badge text-bg-info">Voting</span>
+                        <span t-else="" class="badge text-bg-secondary">Closed</span>
+                    </a>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_student_walkout_new" name="Call a student walkout">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-4 o_ems_portal_walkout_new">
+                <h3 class="mb-3">Call a student walkout - <t t-esc="group.name"/></h3>
+                <t t-call="ems.portal_student_walkout_error"/>
+                <form action="/my/vagues/nova" method="post" enctype="multipart/form-data" class="ems-loading-form">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <div class="mb-3">
+                        <label class="form-label" for="walkout_date">Walkout day</label>
+                        <input type="date" class="form-control w-auto" id="walkout_date" name="walkout_date"
+                               t-att-min="first_day" required="required"/>
+                        <div class="form-text">It has to be called at least <t t-esc="notice_days"/> days in advance.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="close_date">The vote closes on</label>
+                        <input type="date" class="form-control w-auto" id="close_date" name="close_date" t-att-min="tomorrow"/>
+                        <div class="form-text">
+                            Your group can vote until the day before. Leave it empty to give them as long as possible:
+                            <t t-esc="notice_days"/> days before the walkout, so that the Head of Studies gets the minute in time.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="union_call">Call of the students' union</label>
+                        <input type="file" class="form-control" id="union_call" name="union_call" multiple="multiple" required="required"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="notes">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" maxlength="2000"
+                                  placeholder="Which union calls it and why"/>
+                    </div>
+                    <button type="submit" class="btn btn-primary o_ems_walkout_open">Open the vote</button>
+                    <a href="/my/vagues" class="btn btn-secondary ms-2">Cancel</a>
+                </form>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_student_walkout" name="Student walkout">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-4 o_ems_portal_walkout">
+                <h3 class="mb-3">Student walkout - <span t-field="walkout.walkout_date"/></h3>
+                <t t-call="ems.portal_student_walkout_error"/>
+                <div t-if="opened" class="alert alert-success mb-3 o_ems_walkout_opened">
+                    <i class="fa fa-check-circle me-1"/> The vote is open: your group has received an email to vote.
+                </div>
+                <div t-if="saved" class="alert alert-success mb-3 o_ems_walkout_saved">
+                    <i class="fa fa-check-circle me-1"/> Saved.
+                </div>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <p class="mb-1"><strong>Group:</strong> <t t-esc="', '.join(walkout.group_ids.mapped('name'))"/></p>
+                        <p class="mb-1"><strong>Called by:</strong> <t t-esc="walkout.opener_id.name"/></p>
+                        <p class="mb-1"><strong>Last day to vote:</strong> <span t-field="walkout.last_vote_date"/></p>
+                        <p class="mb-1"><strong>State:</strong> <t t-esc="state_labels.get(walkout.state)"/></p>
+                        <p t-if="walkout.notes" class="mb-1"><strong>Notes:</strong> <t t-esc="walkout.notes"/></p>
+                        <p class="mb-0"><strong>Union's call:</strong>
+                            <t t-foreach="walkout.attachment_ids" t-as="attachment">
+                                <a t-attf-href="/my/vagues/#{walkout.id}/fitxer/#{attachment.id}" class="me-2">
+                                    <i class="fa fa-file-o me-1"/><t t-esc="attachment.name"/>
+                                </a>
+                            </t>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- The vote: the group vote once and anonymous; "I join" can be changed until it closes. -->
+                <div t-if="can_vote" class="card shadow-sm mb-4 o_ems_walkout_vote">
+                    <div class="card-header bg-ems-primary text-white"><strong>Your vote</strong></div>
+                    <form t-attf-action="/my/vagues/#{walkout.id}/vota" method="post" class="card-body">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <fieldset class="mb-3">
+                            <legend class="fs-6 fw-bold">1. Does the group support the walkout?</legend>
+                            <t t-if="line.voted">
+                                <p class="text-muted small mb-0 o_ems_walkout_group_voted">You have already voted. The vote is anonymous: nobody can see what you answered, and it cannot be changed.</p>
+                            </t>
+                            <t t-else="">
+                                <p class="text-muted small">Anonymous: only the count is kept. Once sent it cannot be changed.</p>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="group_vote" id="group_vote_yes" value="yes" required="required"/>
+                                    <label class="form-check-label" for="group_vote_yes">Yes</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="group_vote" id="group_vote_no" value="no"/>
+                                    <label class="form-check-label" for="group_vote_no">No</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="group_vote" id="group_vote_abstain" value="abstain"/>
+                                    <label class="form-check-label" for="group_vote_abstain">Abstain</label>
+                                </div>
+                            </t>
+                        </fieldset>
+                        <fieldset class="mb-3">
+                            <legend class="fs-6 fw-bold">2. Do you join the walkout?</legend>
+                            <p class="text-muted small">Your name appears in the minute. You can change it until the vote closes. If the group does not support the walkout, nobody's absence is justified.</p>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="joins" id="joins_yes" value="yes" required="required" t-att-checked="line.voted and line.joins"/>
+                                <label class="form-check-label" for="joins_yes">Yes, I join it</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="joins" id="joins_no" value="no" t-att-checked="line.voted and not line.joins"/>
+                                <label class="form-check-label" for="joins_no">No</label>
+                            </div>
+                        </fieldset>
+                        <!-- Confirm texts as hidden text nodes, so that they are translated. -->
+                        <span id="ems_walkout_confirm_vote" class="d-none">Your vote on whether the group supports the walkout cannot be changed afterwards. Send it?</span>
+                        <button type="submit" class="btn btn-primary o_ems_walkout_send"
+                                t-att-onclick="None if line.voted else &quot;return confirm(document.getElementById('ems_walkout_confirm_vote').textContent)&quot;">Send</button>
+                    </form>
+                </div>
+                <div t-elif="line and not line.has_portal" class="alert alert-info">You had no access to the portal when the call was opened, so you cannot vote.</div>
+
+                <!-- The result, once closed. -->
+                <div t-if="walkout.state in ('closed', 'justified')" class="card shadow-sm mb-4 o_ems_walkout_result">
+                    <div class="card-header"><strong>Result</strong></div>
+                    <div class="card-body">
+                        <p class="mb-1">
+                            Group vote: <t t-esc="walkout.group_yes_count"/> yes, <t t-esc="walkout.group_no_count"/> no,
+                            <t t-esc="walkout.group_abstain_count"/> abstentions.
+                        </p>
+                        <p class="mb-1">
+                            <strong t-if="walkout.group_supports">The group supports the walkout.</strong>
+                            <strong t-else="">The group does not support the walkout: nobody's absence is justified.</strong>
+                        </p>
+                        <p class="mb-0" t-if="walkout.pdf_attachment_id">
+                            <a t-attf-href="/my/vagues/#{walkout.id}/fitxer/#{walkout.pdf_attachment_id.id}">
+                                <i class="fa fa-file-pdf-o me-1"/>Minute
+                            </a>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- The delegate: follow the vote, close it now or cancel the call. -->
+                <div t-if="can_manage" class="card shadow-sm mb-4 o_ems_walkout_manage">
+                    <div class="card-header"><strong>Manage the call</strong></div>
+                    <div class="card-body">
+                        <p>
+                            <t t-esc="walkout.voted_count"/> of <t t-esc="walkout.voter_count"/> students have voted.
+                            The vote closes on its own on <span t-field="walkout.close_date"/>.
+                        </p>
+                        <span id="ems_walkout_confirm_close" class="d-none">Close the vote now and send the minute to the Head of Studies?</span>
+                        <span id="ems_walkout_confirm_cancel" class="d-none">Cancel this student walkout call?</span>
+                        <form t-attf-action="/my/vagues/#{walkout.id}/tanca" method="post" class="d-inline">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <button type="submit" class="btn btn-primary o_ems_walkout_close"
+                                    onclick="return confirm(document.getElementById('ems_walkout_confirm_close').textContent)">Close the vote now</button>
+                        </form>
+                        <form t-attf-action="/my/vagues/#{walkout.id}/anulla" method="post" class="d-inline ms-2">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <button type="submit" class="btn btn-outline-danger o_ems_walkout_cancel"
+                                    onclick="return confirm(document.getElementById('ems_walkout_confirm_cancel').textContent)">Cancel the call</button>
+                        </form>
+                    </div>
+                </div>
+                <a href="/my/vagues" class="btn btn-secondary">Back</a>
+            </div>
+        </t>
+    </template>
+</odoo>

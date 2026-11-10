@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.47.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.48.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -116,6 +116,7 @@
         'views/settings/course.xml',
         'views/settings/course_transition_wizard.xml',
         'views/settings/menu.xml',
+        'views/settings/walkout_levels.xml',
         'views/settings/form.xml',
         'views/settings/hr_attendance_form.xml',
         'views/settings/hr_employees_form.xml',
@@ -292,6 +293,7 @@
             'views/attendance/attendance_justification/list.xml',
             'views/attendance/attendance_justification/form.xml',
             'views/attendance/attendance_justification/search.xml',
+            'views/attendance/student_walkout/views.xml',
 
             'views/attendance/attendance_correction/menu.xml',
             'views/attendance/attendance_correction/list.xml',
@@ -357,6 +359,7 @@
             'reports/authorizations/report_authorization_certificate.xml',
             'reports/contacts/report_google_credentials.xml',
             'reports/contacts/report_ex_officio_withdrawal.xml',
+            'reports/attendance/report_student_walkout.xml',
             'reports/employees/report_google_credentials_employee.xml',
             'reports/employees/report_working_schedule.xml',
             'reports/employees/report_schedule_declaration.xml',
@@ -433,6 +436,7 @@
             'views/portal/portal_convalidations.xml',
             'views/portal/portal_erasmus.xml',
             'views/portal/portal_erasmus_group.xml',
+            'views/portal/portal_student_walkout.xml',
             'views/portal/portal_under_construction.xml',
 
 
@@ -459,6 +463,7 @@
         'mails/erasmus/group_mobility.xml',
         'mails/erasmus/satisfaction.xml',
         'mails/contacts/ex_officio_withdrawal.xml',
+        'mails/attendance/student_walkout.xml',
         'mails/shared/daily_summary.xml',
         'mails/quality/agreement_notice.xml',
         'mails/contacts/contact_data_request.xml',
@@ -494,6 +499,7 @@
         'data/main/ir.cron-daily_summary.csv',
         'data/main/ir.cron-preenrollment_period.csv',
         'data/main/ir.cron-ex_officio_withdrawal.csv',
+        'data/main/ir.cron-student_walkout.csv',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
         'data/main/ems.convalidation.info_reason.csv',

@@ -50,6 +50,12 @@ ACCESS_MATRIX = {
         'settings_admin': 'rwcu'},
     # Issue #644: only the daily summary reads and writes informative notices (sudo); the
     # administrator may look at them (base.group_system, via settings_admin).
+    # Issue #800: student walkout calls come from the portal (sudo); staff only read them, within
+    # the tutor scope (record rules, test_student_walkout.py).
+    'ems.student_walkout': {
+        'teacher': 'r', 'tutor': 'r', 'secretary': '', 'head_of_studies': 'r', 'academic_admin': 'rwcu',
+        'settings_admin': 'rwcu'},
+    'ems.student_walkout.line': {'teacher': 'r', 'head_of_studies': 'r', 'secretary': '', 'academic_admin': 'rwcu'},
     'ems.info_notice': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'settings_admin': 'r'},
     'ems.criteria': {'teacher': 'r', 'secretary': 'r'},
     # Issue #683: the applications have record rules and a write() guard, tested in test_erasmus.py.

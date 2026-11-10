@@ -325,3 +325,6 @@ from . import test_ex_officio_withdrawal
 from . import test_ex_officio_withdrawal_tour
 from . import test_erasmus_economy
 from . import test_erasmus_pocket_money
+from . import test_student_walkout
+from . import test_portal_student_walkout
+from . import test_student_walkout_tour

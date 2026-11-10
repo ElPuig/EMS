@@ -30,14 +30,15 @@ the behaviour never depends on a reason's name or xmlid:
 | Flag | Effect on the justification |
 |------|-----------------------------|
 | `requires_details` | The `details` field is shown and required (`_check_details`); picking another reason clears it. Seeded on "Other reasons". |
-| `full_day` | The form shows a single `day` instead of the period. `day` is a non-stored compute (the local date of `start_date`) whose inverse, and `_onchange_day()`, set the period to that whole local day (`_day_period()`: 00:00 to 23:59:59 in the company's timezone, stored as naive UTC). Both only act for a full-day reason, since the client sends `day` back on every save. `_check_full_day` refuses any other period; `create()` also accepts `day` alone (the NOT NULL dates can't wait for the inverse). Seeded on "Labour strike". |
+| `full_day` | The form shows a single `day` instead of the period. `day` is a non-stored compute (the local date of `start_date`) whose inverse, and `_onchange_day()`, set the period to that whole local day (`_day_period()`: 00:00 to 23:59:59 in the company's timezone, stored as naive UTC). Both only act for a full-day reason, since the client sends `day` back on every save. `_check_full_day` refuses any other period; `create()` also accepts `day` alone (the NOT NULL dates can't wait for the inverse). Seeded on "Student walkout" (`ems.attendance_justification_reason_walkout`). |
 
 The seed (`data/main/ems.attendance_justification_reason.xml`) is `noupdate="1"`: the centre
 reorders, renames and adds reasons from the app, and an upgrade must not undo it. It holds: Health
-reasons (default), Labour strike, Expulsion from the centre, Attendance at an authorised activity
+reasons (default), Student walkout, Expulsion from the centre, Attendance at an authorised activity
 outside the centre, Family reasons, Unavoidable duty, Official exam, Other reasons. The English
-names "Labour strike" and "Other reasons" avoid the existing translations of "Strike" (a
-coexistence strike) and "Other".
+names "Student walkout" and "Other reasons" avoid the existing translations of "Strike" (a
+coexistence strike, `ems.strike`) and "Other". The walkout calls justify with this reason
+(`student_walkout.md`).
 
 The free `notes` (their own tab, as before) stay apart from the details. The list shows
 `reason_id` and `details`; the search view filters and groups by reason.

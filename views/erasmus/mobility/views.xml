@@ -125,6 +125,11 @@
                         <field name="state" widget="statusbar" statusbar_visible="choosing,preparing,done"/>
                     </header>
                     <sheet>
+                        <div class="alert alert-warning" role="alert" invisible="not project_places_over"
+                             groups="ems.group_erasmus,ems.group_academic_admin">
+                            The project has more mobilities assigned than places in the call: add a place to it
+                            (Places per project) or choose another project.
+                        </div>
                         <div class="oe_title">
                             <h1><field name="partner_id" readonly="1"/></h1>
                         </div>
@@ -133,7 +138,7 @@
                                 <field name="application_id"/>
                                 <field name="call_id"/>
                                 <field name="audience" invisible="1"/>
-                                <field name="modality_id"/>
+                                <field name="modality_id" invisible="audience == 'staff'"/>
                                 <field name="rank"/>
                                 <field name="level_id" invisible="audience != 'student'"/>
                             </group>
@@ -152,7 +157,13 @@
                                 <field name="date_start"/>
                                 <field name="date_end"/>
                                 <field name="project_kind" invisible="1"/>
+                                <field name="allowed_project_ids" invisible="1"/>
                                 <field name="project_id" options="{'no_create': True}"/>
+                                <!-- Issue #772: how many places of the project are left in the staff call. -->
+                                <field name="project_places_over" invisible="1"/>
+                                <field name="project_places" invisible="not project_places"
+                                       decoration-danger="project_places_over"
+                                       groups="ems.group_erasmus,ems.group_academic_admin"/>
                                 <field name="placement_type" invisible="audience != 'student'" required="audience == 'student'"/>
                                 <field name="is_short_blended" invisible="project_kind != 'ka131_hed'"/>
                                 <field name="destination_date" invisible="not destination_date"/>

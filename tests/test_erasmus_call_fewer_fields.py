@@ -112,12 +112,6 @@ class TestErasmusCallFewerFields(TransactionCase):
         call.modality_ids[1].level_ids = self.env.ref('ems.level_cfgb')
         self.assertEqual(call.modality_ids[1].project, 'ka121_vet', "It follows a change of levels.")
 
-    def test_a_staff_modality_keeps_the_project_set(self):
-        call = self._call(self._utc(datetime(2026, 11, 20).date(), 23.0), audience='staff')
-        self.assertEqual(call.modality_ids.mapped('project'), ['ka121_vet', 'ka131_hed'])
-        call.modality_ids[0].project = 'ka131_hed'
-        self.assertEqual(call.modality_ids[0].project, 'ka131_hed')
-
     def test_the_ex_officio_circuit_still_counts_school_days(self):
         """The school-day count moved to resource.calendar.leaves (shared with the deadlines)."""
         Leave = self.env['resource.calendar.leaves']

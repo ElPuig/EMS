@@ -12,7 +12,9 @@
                     <!-- Opened from a call, the call column repeats itself (the issue-#682 review). -->
                     <field name="call_id" optional="hide" column_invisible="context.get('default_call_id')"/>
                     <field name="audience" optional="hide"/>
-                    <field name="modality_id"/>
+                    <!-- Issue #772 (note 7.1): staff have no modality; the project of their mobility instead. -->
+                    <field name="modality_id" column_invisible="context.get('ems_staff_call')"/>
+                    <field name="project_id" optional="show" column_invisible="not context.get('ems_staff_call')"/>
                     <field name="submit_date" options="{'show_time': False}"/>
                     <field name="requirements_check" optional="show"/>
                     <field name="documents_to_review" string="To review" optional="show" invisible="not documents_to_review"/>
@@ -92,7 +94,10 @@
                                 <field name="call_id" readonly="1"/>
                                 <field name="can_manage" invisible="1"/>
                                 <field name="audience" invisible="1"/>
-                                <field name="modality_id" options="{'no_create': True}" readonly="not can_manage"/>
+                                <field name="modality_id" options="{'no_create': True}" readonly="not can_manage"
+                                       invisible="audience == 'staff'"/>
+                                <field name="project_id" invisible="audience != 'staff' or not project_id"
+                                       groups="ems.group_erasmus,ems.group_academic_admin"/>
                                 <field name="employee_id" invisible="audience != 'staff'"/>
                                 <field name="is_minor" invisible="audience != 'student'"/>
                             </group>

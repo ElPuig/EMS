@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from odoo import fields
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase, tagged
 
 from .common import create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email
@@ -31,7 +31,7 @@ PLAN = {'proposal_a': 'E2E proposal A: job shadowing at a VET school in Porto, i
 
 @tagged('post_install', '-at_install')
 class TestErasmusStaffCallEndToEnd(TransactionCase):
-    """A staff call with a VET (2 places) and a HED (1 place) modality, run from publishing to the
+    """A staff call with 2 places on a VET project and 1 on a HED one, run from publishing to the
     definitive list, the place offers and a rectification, with the roles of the real process: the
     mobility technician runs it, the panel (Director, Head of Studies of FP, two department chiefs,
     one of them a candidate) rates the mobility plans, the coordinator draws the ties and publishes.
@@ -152,11 +152,11 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
 
     def test_staff_call_from_applying_to_selected_and_reserves(self):
         call = self.call
-        # 1. The new call: art. 8's documents, two modalities (VET, HED) without places, no minimum
+        # 1. The new call: art. 8's documents, no modalities nor places yet (issue #772), no minimum
         # score, the panel's two weeks. The team adds the panel and publishes.
         self.assertEqual(call.min_score, 0.0)
         self.assertEqual(call.interview_deadline, call._ems_deadlines(call.date_close)['interview_deadline'])
-        self.assertEqual(call.modality_ids.mapped('project'), ['ka121_vet', 'ka131_hed'])
+        self.assertFalse(call.modality_ids)
         # The 2026-11-03 review: only the language certificates; no CV, and the identity document
         # only of whoever goes (a mobility document).
         self.certificate = call.document_ids
@@ -263,11 +263,19 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         self.assertEqual(sorted(draws.mapped('rank')), [8, 9])
         self.assertEqual(apps['fix'].rank, 10)
 
-        # 8. The places, one pool: 2 VET + 1 HED. The provisional list needs them.
+        # 8. The places, one pool: 2 on the VET project + 1 on the HED one. The provisional list needs them.
         with self.assertRaises(UserError, msg="No places, no provisional resolution."):
             self._resolution('provisional')
-        vet, hed = call.modality_ids.sorted('sequence')
-        call.with_user(self.technician).write({'modality_ids': [(1, vet.id, {'places': 2}), (1, hed.id, {'places': 1})]})
+        vet, hed = self.env['ems.erasmus.project'].create([
+            {'name': '2097-1-ES01-KA121-VET-000000772', 'kind': 'ka121_vet'},
+            {'name': '2097-1-ES01-KA131-HED-000000772', 'kind': 'ka131_hed'}])
+        self.assertEqual((vet.display_name, hed.display_name), ('2097-VET', '2097-HED'))
+        call.with_user(self.technician).write({'project_place_ids': [(0, 0, {'project_id': vet.id, 'places': 2}),
+                                                                     (0, 0, {'project_id': hed.id, 'places': 1})]})
+        self.assertEqual(call.places_total, 3)
+        with self.assertRaises(AccessError, msg="Only the Erasmus team sees the places per project."):
+            call.with_user(self.hos).project_place_ids.mapped('places')
+        self.assertEqual(call.with_user(self.hos).places_total, 3, "Everyone else sees the total.")
         provisional = self._publish('provisional')
         results = self._results(provisional)
         self.assertEqual({name: result for name, (result, _rank) in results.items() if result == 'selected'},
@@ -326,11 +334,24 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         apps['senior_new'].offer_ids.action_accept()
         self.assertEqual(call.free_places, 0)
         self.assertFalse(call.activity_ids.filtered(lambda activity: activity.user_id == self.technician))
-        # The team assigns each accepted person their project.
-        self._team(apps['best']).modality_id = vet
-        self._team(apps['claim']).modality_id = hed
-        self.assertTrue(apps['claim'].mobility_ids.document_ids.filtered(
-            lambda line: line.call_document_id.project == 'ka131_hed'), "The HED documents arrive with the project.")
+        # The team assigns each accepted person their project (note 7.1: warned until it does).
+        self.assertEqual(call.places_without_project, 3)
+        best, claimed, senior = (apps[name].mobility_ids.with_user(self.technician)
+                                 for name in ('best', 'claim', 'senior_new'))
+        best.project_id = vet
+        self.assertEqual(best.project_places, '2097-VET: 1 of 2 places left')
+        claimed.project_id = hed
+        self.assertTrue(claimed.document_ids.filtered(lambda line: line.call_document_id.project == 'ka131_hed'),
+                        "The HED documents arrive with the project.")
+        self.assertEqual(apps['claim'].project_id, hed)
+        senior.project_id = hed
+        self.assertTrue(senior.project_places_over, "More mobilities on HED than its place: warned, not refused.")
+        senior.project_id = vet
+        self.assertFalse(senior.project_places_over)
+        self.assertEqual(call.places_without_project, 0)
+        other = self.env['ems.erasmus.project'].create({'name': '2098-1-ES01-KA121-VET-000000772', 'kind': 'ka121_vet'})
+        with self.assertRaises(ValidationError, msg="Only a project of the call's places."):
+            best.project_id = other
 
         # 12. Rectification: plan_hi's project coordination had been missed (+1: 4.5, ahead of claim
         # by the plan). Three people already accepted: selecting plan_hi too would leave four people
@@ -342,7 +363,8 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         self.assertTrue(rectification.places_warning)
         with self.assertRaises(UserError):
             rectification.with_user(self.coordinator).action_publish()
-        call.with_user(self.technician).write({'modality_ids': [(1, vet.id, {'places': 3})]})
+        vet_places = call.sudo().project_place_ids.filtered(lambda line: line.project_id == vet)
+        call.with_user(self.technician).write({'project_place_ids': [(1, vet_places.id, {'places': 3})]})
         rectification.action_prepare()
         self.assertFalse(rectification.places_warning)
         rectification.with_user(self.coordinator).action_publish()

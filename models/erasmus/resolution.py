@@ -153,7 +153,7 @@ class EmsErasmusResolution(models.Model):
         if self.places_warning:
             raise UserError(_("This rectification would leave more people with a place than places, because a place "
                               "already accepted is never withdrawn:\n%s\nDecide with the Erasmus team what to do "
-                              "(e.g. add a place to the modality) before publishing it.", self.places_warning))
+                              "(e.g. add a place) before publishing it.", self.places_warning))
 
     def _ems_places_overflow(self):
         """A draft rectification never withdraws a place already accepted: [(name, holding, places)]
@@ -175,7 +175,7 @@ class EmsErasmusResolution(models.Model):
 
         holding = call.application_ids.filtered(holds)
         if call.audience == 'staff':
-            groups = [(call.name, holding, sum(call.modality_ids.mapped('places')))]
+            groups = [(call.name, holding, call._ems_places())]
         else:
             groups = [(modality.name, holding.filtered(lambda application: application.modality_id == modality),
                        modality.places) for modality in call.modality_ids]
@@ -227,8 +227,8 @@ class EmsErasmusResolution(models.Model):
         previous = PREVIOUS_KIND.get(self.kind)
         if previous and previous not in published.mapped('kind'):
             raise UserError(_("Publish the %s first.", self._ems_kind_labels()[previous].lower()))
-        if call.audience == 'staff' and self.kind != 'admission' and not sum(call.modality_ids.mapped('places')):
-            raise UserError(_("Add the modalities of the call, with their places, before preparing the resolution."))
+        if call.audience == 'staff' and self.kind != 'admission' and not call._ems_places():
+            raise UserError(_("Add the call's places per project before preparing the resolution."))
         applications = call.application_ids
         undecided = applications.filtered(lambda application: application.state in ('submitted', 'subsanation'))
         if undecided:

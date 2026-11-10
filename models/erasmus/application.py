@@ -104,6 +104,9 @@ class EmsErasmusApplication(models.Model):
                                   help="Staff call: the applicant's employee file.")
     modality_id = fields.Many2one(string="Modality", comodel_name='ems.erasmus.call.modality', ondelete='restrict',
                                   domain="[('call_id', '=', call_id)]", tracking=True)
+    # Issue #772 (note 7.1): a staff member's project, the one the team assigns to their mobility.
+    project_id = fields.Many2one(string="Project", comodel_name='ems.erasmus.project', compute='_compute_project_id',
+                                 groups='ems.group_erasmus,ems.group_academic_admin')
     state = fields.Selection(string="State", required=True, default='draft', tracking=True, copy=False, index=True,
                              selection=[
                                  ('draft', "Draft"), ('submitted', "Submitted"), ('subsanation', "Corrections requested"),
@@ -514,7 +517,7 @@ class EmsErasmusApplication(models.Model):
                 vals.update({f'{name}_user_id': self.env.uid, f'{name}_date': now})
         result = super().write(vals)
         if 'modality_id' in vals:
-            # Issue #687: a staff member's modality, assigned after selection, brings its documents.
+            # Issue #687: a corrected modality brings its documents.
             self.mobility_ids.filtered(lambda mobility: mobility.state in ('choosing', 'preparing'))._ems_sync_requirements()
         return result
 
@@ -634,7 +637,13 @@ class EmsErasmusApplication(models.Model):
         self._ems_send('ems.email_template_erasmus_interview_call')
         self.sudo().write({'interview_call_date': fields.Datetime.now()})
 
-    @api.depends('rank', 'is_eligible', 'score_complete', 'modality_id.places')
+    @api.depends('mobility_ids.project_id', 'mobility_ids.state')
+    def _compute_project_id(self):
+        for application in self:
+            application.project_id = application.mobility_ids.filtered(
+                lambda mobility: mobility.state != 'cancelled')[:1].project_id
+
+    @api.depends('rank', 'is_eligible', 'score_complete', 'modality_id.places', 'call_id.project_place_ids.places')
     def _compute_ranking_result(self):
         for application in self:
             application.ranking_result = application.score_complete and application.rank and \
@@ -649,12 +658,11 @@ class EmsErasmusApplication(models.Model):
 
     def _ems_ranking_result(self):
         """Issue #685: selected within the modality's places, reserve after them, not selected
-        below the minimum score. A staff call, within the places of all its modalities."""
+        below the minimum score. A staff call, within the places of all its projects (issue #772)."""
         self.ensure_one()
         if not self.is_eligible:
             return 'not_selected'
-        places = sum(self.call_id.modality_ids.mapped('places')) if self.audience == 'staff' \
-            else self.modality_id.places
+        places = self.call_id._ems_places(self.modality_id)
         return 'selected' if self.rank <= places else 'reserve'
 
     def action_export_participants(self):

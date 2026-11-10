@@ -66,8 +66,7 @@ class TestErasmusDefaultData(TransactionCase):
 
     def test_a_staff_call_starts_translated_and_sharing_is_optional(self):
         call = self._new_call('staff')
-        self.assertEqual(self._in(call.modality_ids, 'ca_ES'), ["Personal d'FP (KA121-VET)", "Personal d'educació superior (KA131-HED)"])
-        self.assertEqual(call.modality_ids.mapped('project'), ['ka121_vet', 'ka131_hed'])
+        self.assertFalse(call.modality_ids, "Issue #772: places per project instead of modalities.")
         tasks = call.task_ids.with_context(lang='en_US')
         self.assertEqual(tasks[:1].name, "Preparation sessions")
         share = tasks.filtered(lambda task: task.name.startswith("Share it"))

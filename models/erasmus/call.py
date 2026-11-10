@@ -27,7 +27,7 @@ DEADLINE_HOUR = 14.0
 # The dates of a call, in the order of its process (issue #767, note 2.4 of the 46.0 review).
 PROCESS_DATES = ['date_open', 'date_close', *DEADLINE_DAYS]
 # Issue #780: the lists a new call starts with, stored in every installed language.
-DEFAULT_LINE_FIELDS = ['modality_ids', 'document_ids', 'preparation_document_ids', 'task_ids',
+DEFAULT_LINE_FIELDS = ['document_ids', 'preparation_document_ids', 'task_ids',
                        'self_assessment_question_ids']
 # The levels whose students go on KA131-HED (higher education); any other level, on KA121-VET.
 HED_LEVELS = ['ems.level_cfgs', 'ems.level_efps']
@@ -54,7 +54,7 @@ class EmsErasmusCall(models.Model):
                                 selection=[('student', "Students"), ('staff', "Staff")],
                                 help="Students apply in the modality of their level. Staff apply once, are "
                                      "ranked in one list, and the Erasmus team assigns each selected person a "
-                                     "modality (project and period) afterwards.")
+                                     "project afterwards.")
     state = fields.Selection(string="State", required=True, default='draft', tracking=True, copy=False,
                              selection=[('draft', "Draft"), ('published', "Published"), ('closed', "Closed")])
     date_open = fields.Datetime(string="Applications open", required=True, tracking=True)
@@ -91,6 +91,13 @@ class EmsErasmusCall(models.Model):
     rules_filename = fields.Char(string="Call rules file name", copy=False)
     modality_ids = fields.One2many(string="Modalities", comodel_name='ems.erasmus.call.modality',
                                    inverse_name='call_id', copy=True)
+    # Issue #772: a staff call has no modalities: one list, and its places split among the projects
+    # that pay them, which only the Erasmus team sees (staff see the total).
+    project_place_ids = fields.One2many(string="Places per project", comodel_name='ems.erasmus.call.project',
+                                        inverse_name='call_id',
+                                        groups='ems.group_erasmus,ems.group_academic_admin',
+                                        help="Staff call: how many places each active project pays. The call's "
+                                             "places are their sum.")
     document_ids = fields.One2many(string="Documents", comodel_name='ems.erasmus.call.document',
                                    inverse_name='call_id', copy=True, domain=[('stage', '=', 'application')])
     # Issue #687: mobility preparation.
@@ -133,6 +140,9 @@ class EmsErasmusCall(models.Model):
     places_accepted = fields.Integer(string="Places accepted", compute='_compute_offers',
                                      help="Selected applicants who have accepted their place.")
     offers_pending = fields.Integer(string="Offers waiting for an answer", compute='_compute_offers')
+    places_without_project = fields.Integer(
+        string="Places accepted without a project", compute='_compute_places_without_project',
+        help="Staff call: accepted places whose mobility has no project assigned yet.")
     # Audit D-13: the ties left in the ranking after every tie-break, drawn by EMS (as a group mobility's).
     needs_draw = fields.Boolean(string="Tie to resolve", compute='_compute_needs_draw')
     draw_ids = fields.One2many(string="Draws", comodel_name='ems.erasmus.group.draw', inverse_name='call_id',
@@ -179,18 +189,27 @@ class EmsErasmusCall(models.Model):
             call.has_final_resolution = 'definitive' in kinds
             call.has_provisional_resolution = 'provisional' in kinds
 
-    @api.depends('audience', 'modality_ids.places', 'offer_ids.state', 'application_ids.state', 'application_ids.rank')
+    @api.depends('audience', 'modality_ids.places', 'project_place_ids.places', 'offer_ids.state',
+                 'application_ids.state', 'application_ids.rank')
     def _compute_offers(self):
-        """Issue #686: a staff call offers its places as one pool, whatever the modality. And how
+        """Issue #686: a staff call offers its places as one pool, whatever the project. And how
         many places are accepted and how many offers wait for an answer, to know when the destination
         choice can open (the 2026-11-03 review)."""
         for call in self:
             is_staff = call.audience == 'staff'
             call.free_places = is_staff and call._ems_free_places()
             call.next_reserve_id = is_staff and call._ems_next_reserve()
-            call.places_total = sum(call.modality_ids.mapped('places'))
+            call.places_total = call._ems_places()
             call.places_accepted = len(call.application_ids.filtered(lambda application: application.state == 'accepted'))
             call.offers_pending = len(call.offer_ids.filtered(lambda offer: offer.state == 'pending'))
+
+    @api.depends('audience', 'mobility_ids.state', 'mobility_ids.project_id')
+    def _compute_places_without_project(self):
+        """Note 7.1 of the 46.0 review: an accepted staff place (its mobility) still without the
+        project that pays it."""
+        for call in self:
+            call.places_without_project = call.audience == 'staff' and len(call.mobility_ids.filtered(
+                lambda mobility: mobility.state != 'cancelled' and not mobility.project_id))
 
     @api.depends(*PROCESS_DATES)
     def _compute_date_order_warning(self):
@@ -242,8 +261,6 @@ class EmsErasmusCall(models.Model):
                 self[name] = value
         if staff and not self.document_ids:
             self.document_ids = self._ems_staff_documents()
-        if staff and not self.modality_ids:
-            self.modality_ids = self._ems_staff_modalities()
         if self.audience == 'staff' and not self.staff_level_ids:
             self.staff_level_ids = self._ems_staff_levels()
         if self.audience == 'staff' and not self.validator_ids:
@@ -343,26 +360,18 @@ class EmsErasmusCall(models.Model):
 
     @api.model
     def _ems_audience_defaults(self, audience):
-        """What a new call of `audience` starts with: the documents of art. 8, the staff call's
-        modalities, and (issue #687) the documents and checklist of art. 17 (students) and art. 15
-        (staff), the self-assessment questions and the commitment letter, all editable."""
+        """What a new call of `audience` starts with: the documents of art. 8 and (issue #687) the
+        documents and checklist of art. 17 (students) and art. 15 (staff), the self-assessment
+        questions and the commitment letter, all editable. A staff call has no modalities (issue
+        #772): its places are given per project."""
         staff = audience == 'staff'
         return {
-            'modality_ids': self._ems_staff_modalities() if staff else [],
             'preparation_document_ids': self._ems_preparation_documents(audience),
             'task_ids': self._ems_preparation_tasks(audience),
             'self_assessment_question_ids': [] if staff else self._ems_self_assessment_questions(),
             'commitment_text': False if staff else self._ems_commitment_text(),
             'document_ids': self._ems_staff_documents() if staff else self._ems_student_documents(),
         }
-
-    @api.model
-    def _ems_staff_modalities(self):
-        """A staff call's places, by project (issue #697): each selected person goes on an FP
-        (KA121-VET) or a higher education (KA131-HED) staff mobility, with no period: they propose
-        their own dates."""
-        return [(0, 0, {'sequence': 1, 'name': _("FP staff (KA121-VET)"), 'project': 'ka121_vet'}),
-                (0, 0, {'sequence': 2, 'name': _("Higher education staff (KA131-HED)"), 'project': 'ka131_hed'})]
 
     @api.model
     def _ems_student_documents(self):
@@ -625,14 +634,13 @@ class EmsErasmusCall(models.Model):
         self._ems_set_state('draft', 'published')
         # The 2026-11-04 usage test: a staff call opens without its places (they are added later,
         # with the projects), but it was only noticed when preparing the resolution: warned now.
-        without_places = self.filtered(lambda call: call.audience == 'staff'
-                                       and not sum(call.modality_ids.mapped('places')))
+        without_places = self.filtered(lambda call: call.audience == 'staff' and not call._ems_places())
         if not without_places:
             return None
         return {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {
             'type': 'warning', 'sticky': True,
-            'message': _("Published without places: add them to the modalities before preparing the resolution "
-                         "lists (%s).", ", ".join(without_places.mapped('name'))),
+            'message': _("Published without places: add them to the places per project before preparing the "
+                         "resolution lists (%s).", ", ".join(without_places.mapped('name'))),
             'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'}}}
 
     def action_back_to_draft(self):
@@ -834,10 +842,17 @@ class EmsErasmusCall(models.Model):
             self.audience == 'staff' or offer.modality_id == modality))
         return offers.application_id
 
+    def _ems_places(self, modality=None):
+        """Issue #772: a staff call's places, those of its projects (one pool, read as superuser: only
+        the Erasmus team sees the table); a students' call's, those of `modality`, or of all of them."""
+        self.ensure_one()
+        if self.audience == 'staff':
+            return sum(self.sudo().project_place_ids.mapped('places'))
+        return modality.places if modality else sum(self.modality_ids.mapped('places'))
+
     def _ems_free_places(self, modality=None):
         self.ensure_one()
-        places = sum(self.modality_ids.mapped('places')) if self.audience == 'staff' else modality.places
-        return places - len(self._ems_holding_applications(modality))
+        return self._ems_places(modality) - len(self._ems_holding_applications(modality))
 
     def _ems_free_place_names(self):
         """Where a free place can be offered to a reserve: the modalities of a students' call, the
@@ -895,7 +910,7 @@ class EmsErasmusCall(models.Model):
 
     def action_view_applications(self):
         action = self._ems_call_action('ems.action_erasmus_application')
-        action['context'] = {'default_call_id': self.id,
+        action['context'] = {'default_call_id': self.id, 'ems_staff_call': self.audience == 'staff',
                              'group_by': ['modality_id'] if self.audience == 'student' else []}
         return action
 
@@ -1035,11 +1050,10 @@ class EmsErasmusCallModality(models.Model):
     level_ids = fields.Many2many(string="Levels", comodel_name='ems.level',
                                  help="Students' call: students whose main group is of one of these levels apply in "
                                       "this modality.")
-    # Issue #767: a students' modality takes its project from its levels (CFGM on KA121-VET, CFGS on
-    # KA131-HED); a staff one is set (the defaults, one per project). Only the kind: the actual
-    # project (the year's) is chosen on each mobility.
+    # Issue #767: a modality takes its project from its levels (CFGM on KA121-VET, CFGS on
+    # KA131-HED). Only the kind: the actual project (the year's) is chosen on each mobility.
     project = fields.Selection(string="Project", selection=PROJECTS, compute='_compute_project', store=True,
-                               readonly=False, precompute=True)
+                               precompute=True)
     places = fields.Integer(string="Places")
     free_places = fields.Integer(string="Free places", compute='_compute_offers',
                                  help="Places not accepted nor offered to someone still to answer.")
@@ -1053,10 +1067,8 @@ class EmsErasmusCallModality(models.Model):
         for xmlid in HED_LEVELS:
             hed |= self.env.ref(xmlid, raise_if_not_found=False) or hed
         for modality in self:
-            # Without levels (a staff modality), the project set by hand stays.
             # _origin: the levels of a modality being created or edited in a form are new records.
-            modality.project = ('ka131_hed' if modality.level_ids._origin & hed else 'ka121_vet') if modality.level_ids \
-                else modality.project
+            modality.project = modality.level_ids and ('ka131_hed' if modality.level_ids._origin & hed else 'ka121_vet')
 
     @api.depends('places', 'call_id.audience', 'call_id.offer_ids.state', 'call_id.application_ids.state',
                  'call_id.application_ids.rank')
@@ -1082,6 +1094,36 @@ class EmsErasmusCallModality(models.Model):
         the offer is rendered for the student or by the queue."""
         self.ensure_one()
         return self.sudo().call_id.destination_ids.filtered(lambda destination: destination.modality_id == self)
+
+
+class EmsErasmusCallProject(models.Model):
+    """Issue #772 - the places of a staff call that an Erasmus+ project pays. Staff compete in one
+    list for the call's total; the Erasmus team then assigns each selected person's mobility to one
+    of these projects."""
+    _name = 'ems.erasmus.call.project'
+    _description = 'Erasmus+ staff call places per project'
+    _order = 'call_id, project_id'
+    _sql_constraints = [
+        ('call_project_unique', 'unique(call_id, project_id)', "A project is only once in the places of a call."),
+        ('places_positive', 'CHECK(places >= 0)', "The places cannot be negative."),
+    ]
+
+    call_id = fields.Many2one(string="Call", comodel_name='ems.erasmus.call', required=True, ondelete='cascade',
+                              index=True)
+    project_id = fields.Many2one(string="Project", comodel_name='ems.erasmus.project', required=True,
+                                 ondelete='restrict')
+    places = fields.Integer(string="Places")
+    assigned_count = fields.Integer(string="Assigned", compute='_compute_assigned_count',
+                                    help="Mobilities of the call already assigned to this project (not cancelled).")
+
+    @api.depends('call_id.mobility_ids.project_id', 'call_id.mobility_ids.state')
+    def _compute_assigned_count(self):
+        groups = self.env['ems.erasmus.mobility'].sudo()._read_group(
+            [('call_id', 'in', self.call_id._origin.ids), ('project_id', 'in', self.project_id._origin.ids),
+             ('state', '!=', 'cancelled')], ['call_id', 'project_id'], ['__count'])
+        counts = {(call.id, project.id): count for call, project, count in groups}
+        for line in self:
+            line.assigned_count = counts.get((line.call_id._origin.id, line.project_id._origin.id), 0)
 
 
 class EmsErasmusCallDocument(models.Model):

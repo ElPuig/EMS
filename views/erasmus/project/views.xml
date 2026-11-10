@@ -11,6 +11,8 @@
                 <!-- Issue #782 (10.9): no switch that archives a project with one click: it is archived
                      from Actions, as everywhere in Odoo. -->
                 <list string="Projects" decoration-muted="not active">
+                    <!-- Issue #772: the short name first, the agreement number next to it. -->
+                    <field name="code"/>
                     <field name="name"/>
                     <field name="kind"/>
                     <field name="date_start"/>
@@ -26,7 +28,7 @@
             <field name="model">ems.erasmus.project</field>
             <field name="arch" type="xml">
                 <search string="Projects">
-                    <field name="name"/>
+                    <field name="name" filter_domain="['|', ('code', 'ilike', self), ('name', 'ilike', self)]"/>
                     <filter name="inactive" string="Archived" domain="[('active', '=', False)]"/>
                     <group expand="0" string="Group By">
                         <filter name="group_kind" string="Kind" context="{'group_by': 'kind'}"/>
@@ -56,6 +58,7 @@
                         </div>
                         <group>
                             <group>
+                                <field name="code" placeholder="e.g. 2026-VET"/>
                                 <field name="kind"/>
                                 <field name="date_start"/>
                                 <field name="date_end"/>

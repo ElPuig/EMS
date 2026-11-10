@@ -27,9 +27,13 @@
                                 <field name="details" invisible="not requires_details" required="requires_details"/>
                             </group>
                             <group colspan="2">
+                                <!-- Issue #808: one student (the default) or a group. -->
+                                <field name="mode" widget="radio" options="{'horizontal': true}"/>
+                                <field name="student_id" domain="student_domain" options="{'no_create': True, 'no_open': True}"
+                                       invisible="mode != 'student'" required="mode == 'student'"/>
                                 <!-- Issue #795: adds every student of the groups picked, then clears itself. -->
                                 <field name="add_group_ids" widget="many2many_tags" domain="group_domain"
-                                       options="{'no_create': True}" invisible="not user_is_admin and not user_is_tutor"/>
+                                       options="{'no_create': True}" invisible="mode != 'group'"/>
                             </group>
                             <group colspan="2">
                                 <field name="teacher_id" string="Teacher" widget="many2one_avatar_employee" readonly="id or not user_is_admin"/>

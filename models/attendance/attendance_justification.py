@@ -48,6 +48,15 @@ class EmsAttendanceJustification(models.Model):
     day = fields.Date(string="Day", compute='_compute_day', inverse='_inverse_day')
 
     # Form helpers, never stored.
+    # Issue #808: justify one student (the default, picked directly) or a whole group (its students
+    # fill the list, then the unwanted ones are taken out). A justification already covering
+    # several students opens as "Group".
+    mode = fields.Selection(
+        [('student', "Student"), ('group', "Group")], string="Justify", compute='_compute_mode',
+        store=False, readonly=False)
+    student_id = fields.Many2one(
+        string="Student", comodel_name="res.partner", compute='_compute_student_id',
+        store=False, readonly=False)
     # Picking groups adds their students to the list, then clears itself (_onchange_add_group_ids).
     add_group_ids = fields.Many2many(
         string="Add groups", comodel_name="ems.group", store=False,
@@ -84,6 +93,16 @@ class EmsAttendanceJustification(models.Model):
                 group_domain.append(('tutor_id.tutor_scope_user_ids', '=', user_id))
             justification.student_domain = str(student_domain)
             justification.group_domain = str(group_domain)
+
+    @api.depends()
+    def _compute_mode(self):
+        for justification in self:
+            justification.mode = 'group' if len(justification.student_ids) > 1 else 'student'
+
+    @api.depends('student_ids')
+    def _compute_student_id(self):
+        for justification in self:
+            justification.student_id = justification.student_ids[:1]
 
     @api.depends('student_ids', 'start_date', 'end_date')
     def _compute_overlap_student_ids(self):
@@ -177,11 +196,24 @@ class EmsAttendanceJustification(models.Model):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
+        if 'mode' in fields_list:
+            res['mode'] = 'student'
         if "user_is_admin" in fields_list and  "user_is_tutor" in fields_list:
             # This happens when opening the form, when storing fires again but field per field
             if not (res["user_is_admin"] or res["user_is_tutor"]):
                 raise UserError(_("Only tutors can justify student's attendances."))
         return res
+
+    @api.onchange('mode')
+    def _onchange_mode(self):
+        for justification in self.filtered(lambda justification: justification.mode == 'student'):
+            justification.student_ids = justification.student_ids[:1]
+
+    @api.onchange('student_id')
+    def _onchange_student_id(self):
+        # In group mode student_id only mirrors the first student: it must not shrink the list.
+        for justification in self.filtered(lambda justification: justification.mode == 'student'):
+            justification.student_ids = justification.student_id
 
     @api.onchange('add_group_ids')
     def _onchange_add_group_ids(self):

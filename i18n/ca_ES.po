@@ -5009,6 +5009,7 @@ msgstr "Atorgar accés"
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
 #: code:addons/ems/models/erasmus/economy.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_justification__mode__group
 msgid "Group"
 msgstr "Grup"
 
@@ -9250,6 +9251,8 @@ msgstr "Carrer 2"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_history__role__student
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__student_id
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__student_id
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_justification__mode__student
 msgid "Student"
 msgstr "Estudiant"
 
@@ -48799,3 +48802,8 @@ msgstr "Vaga"
 #: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_other
 msgid "Other reasons"
 msgstr "Altres"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__mode
+msgid "Justify"
+msgstr "Justificar"

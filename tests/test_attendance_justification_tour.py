@@ -116,6 +116,18 @@ class TestAttendanceJustificationTour(HttpCase):
         self.assertEqual(justification.start_date, utils.datetime_to_odoo(utils.time_float_to_utc_datetime(typed_day, 9.0)))
         self.assertEqual(justification.end_date, utils.datetime_to_odoo(utils.time_float_to_utc_datetime(typed_day, 11.0)))
 
+    def test_attendance_justification_single_student_tour(self):
+        # Issue #808: one single student, added with "Add a line", without picking a group.
+        self.start_tour("/odoo", "ems_attendance_justification_single_student", login=self.tutor_user.login)
+
+        justification = self.env['ems.attendance_justification'].search([
+            ('student_ids', 'in', self.excluded_student.ids),
+            ('reason_id', '!=', self.env.ref('ems.attendance_justification_reason_strike').id),
+        ])
+        self.assertEqual(len(justification), 1)
+        self.assertEqual(justification.student_ids, self.excluded_student)
+        self.assertEqual(justification.teacher_id.user_id, self.tutor_user)
+
     def test_attendance_justification_strike_tour(self):
         # Issue #795: the reason "Strike" picks a day, which covers the student's whole day.
         self.start_tour("/odoo", "ems_attendance_justification_strike", login=self.tutor_user.login)

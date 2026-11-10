@@ -83,6 +83,8 @@ together with its line model.
 | Field | Notes |
 |-------|-------|
 | `student_ids` | `Many2many` (`ems_attendance_justification_student_rel`), required. Listed with each student's main group; "Add a line" opens the multi-select picker, the cross (×) removes one. |
+| `mode` | Non-stored helper (`student` by default, `group` when the record already covers several students). `_onchange_mode()` keeps only the first student when switching to `student`. Issue #808. |
+| `student_id` | Non-stored helper mirroring the first student. In `student` mode `_onchange_student_id()` makes it the only student; in `group` mode it is ignored, so it never shrinks the list the groups filled. |
 | `add_group_ids` | Non-stored helper. `_onchange_add_group_ids()` adds every student of the groups picked (`main_group_id`), except those already holding an overlapping justification, which it names in an onchange warning, then clears itself. |
 | `student_domain` / `group_domain` | `Char` computes, the pickers' domains: an administrator, every student (and main group); anyone else, those of the groups they act as tutor of. Text, because for an administrator the ids would be the whole centre. |
 | `overlap_student_ids` | Non-stored compute: the listed students who already hold an overlapping justification, shown as a yellow notice (saving would fail on `_check_time_overlap`). |

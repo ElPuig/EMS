@@ -19,11 +19,11 @@ Llevat que el centre ho permeti a la seva configuració, una justificació és l
     - Per a la majoria de motius, indica la data i l'hora d'inici i de fi a **Període**.
     - Per a una **Vaga**, tria el **Dia**: el justificant cobreix tota la jornada de l'alumne.
     - Per a **Altres**, descriu-lo a **Detalls**, que només apareix per a aquest motiu.
-3. Afegeix-hi els alumnes, a la pestanya **Estudiants**:
-    - **Un grup sencer:** tria'l a **Afegeix grups**. S'afegeixen a la llista tots els seus alumnes, amb el nom i el grup principal de cadascun. Pots afegir diversos grups, un rere l'altre.
-    - **Un o més alumnes:** clica **Afegir una línia** i tria'ls (en pots marcar diversos alhora).
+3. A **Justificar**, tria per a qui és el justificant:
+    - **Estudiant** (per defecte): tria l'alumne a **Estudiant**. Només es justifica aquest alumne.
+    - **Grup:** tria el grup a **Afegeix grups**. S'afegeixen a la pestanya **Estudiants** tots els seus alumnes, amb el nom i el grup principal de cadascun. Pots afegir diversos grups, un rere l'altre, o clicar **Afegir una línia** per afegir-hi un alumne més.
 
-    Només hi surten els teus grups i els seus alumnes.
+    Només se t'ofereixen els teus grups i els seus alumnes.
 4. Treu de la llista, amb la creu (×), qui no s'hagi de justificar (per exemple, en una vaga, els alumnes que no han signat el document).
 5. Si vols, adjunta el document a la pestanya **Fitxers adjunts** i afegeix un comentari a **Notes**.
 6. Desa. Les faltes del període de tots els alumnes de la llista passen a **Falta justificada**, sigui quin sigui el docent que les va posar, i els seus retards greus a **Retard lleu**.

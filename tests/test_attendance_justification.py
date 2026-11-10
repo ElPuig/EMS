@@ -523,9 +523,28 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
         self._shared_justification(self.student)
         with Form(self.env['ems.attendance_justification'].with_user(self.tutor_user)) as form:
             form.start_date, form.end_date = self._today_range().values()
+            form.mode = 'group'
             form.add_group_ids.add(self.group)
             self.assertFalse(form.add_group_ids)
         self.assertEqual(form.record.student_ids, mate)
+
+    def test_student_mode_justifies_the_one_student_picked(self):
+        # Issue #808: the default mode picks a single student directly.
+        mate, __ = self._group_mate_with_miss()
+        with Form(self.env['ems.attendance_justification'].with_user(self.tutor_user)) as form:
+            self.assertEqual(form.mode, 'student')
+            form.start_date, form.end_date = self._today_range().values()
+            form.student_id = self.student
+        self.assertEqual(form.record.student_ids, self.student)
+        self.assertNotIn(mate, form.record.student_ids)
+
+    def test_switching_to_student_mode_keeps_one_student(self):
+        mate, __ = self._group_mate_with_miss()
+        justification = self._shared_justification(self.student | mate, self.tutor_user)
+        with Form(justification.with_user(self.tutor_user)) as form:
+            self.assertEqual(form.mode, 'group')
+            form.mode = 'student'
+        self.assertEqual(len(justification.student_ids), 1)
 
     def test_overlap_warning_lists_students_already_justified(self):
         mate, __ = self._group_mate_with_miss()
@@ -631,7 +650,7 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
     def test_other_reason_in_the_form_keeps_details_only_for_it(self):
         with Form(self.env['ems.attendance_justification'].with_user(self.tutor_user)) as form:
             form.start_date, form.end_date = self._today_range().values()
-            form.student_ids.add(self.student)
+            form.student_id = self.student
             form.reason_id = self._reason('other')
             form.details = 'Visita a la família'
             form.reason_id = self._reason('health')
@@ -652,7 +671,7 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
 
     def test_strike_in_the_form_picks_a_day(self):
         with Form(self.env['ems.attendance_justification'].with_user(self.tutor_user)) as form:
-            form.student_ids.add(self.student)
+            form.student_id = self.student
             form.reason_id = self._reason('strike')
             form.day = self.today
         justification = form.record
@@ -664,14 +683,14 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
         # The day follows the period's start: it must only set a whole day for a full-day reason.
         start = datetime.combine(self.today, datetime.min.time()) + timedelta(hours=8)
         with Form(self.env['ems.attendance_justification'].with_user(self.tutor_user)) as form:
-            form.student_ids.add(self.student)
+            form.student_id = self.student
             form.start_date, form.end_date = start, start + timedelta(hours=2)
         self.assertEqual((form.record.start_date, form.record.end_date), (start, start + timedelta(hours=2)))
 
     def test_switching_to_strike_turns_the_period_into_its_whole_day(self):
         start = datetime.combine(self.today, datetime.min.time()) + timedelta(hours=8)
         with Form(self.env['ems.attendance_justification'].with_user(self.tutor_user)) as form:
-            form.student_ids.add(self.student)
+            form.student_id = self.student
             form.start_date, form.end_date = start, start + timedelta(hours=2)
             form.reason_id = self._reason('strike')
         justification = form.record

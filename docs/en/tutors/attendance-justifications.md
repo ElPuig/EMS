@@ -19,9 +19,9 @@ Unless the centre allows it in its settings, a justification is the only way to 
     - For most reasons, set the start and end date and time in **Period**.
     - For a **Labour strike**, pick the **Day** instead: the justification covers the student's whole day.
     - For **Other reasons**, describe it in **Details**, which only appears for that reason.
-3. Add the students, in the **Students** tab:
-    - **A whole group:** pick it in **Add groups**. All its students are added to the list, which shows each student's name and main group. You can add several groups, one after another.
-    - **One or more students:** click **Add a line** and pick them (you can tick several at once).
+3. In **Justify**, choose who the justification is for:
+    - **Student** (the default): pick the student in **Student**. Only that student is justified.
+    - **Group:** pick the group in **Add groups**. All its students are added to the **Students** tab, which shows each student's name and main group. You can add several groups, one after another, or click **Add a line** to add one more student.
 
     Only your groups and their students are offered.
 4. Remove from the list, with the cross (×), anyone who must not be justified (for example, during a strike, the students who didn't sign the document).

@@ -15,20 +15,14 @@
                             <field name="overlap_student_ids" widget="many2many_tags" readonly="1"/>
                          </div>
                          <group string="Main data" col="4">
-                            <group colspan="4">
-                                <field name="reason_id" options="{'no_create': True, 'no_open': True}"/>
-                                <field name="full_day" invisible="1"/>
-                                <field name="requires_details" invisible="1"/>
-                                <!-- A full-day reason (a strike) picks one day: it covers the student's whole day. -->
-                                <field name="day" invisible="not full_day" required="full_day"/>
-                                <field string="Period" name="start_date" widget="daterange" options='{"end_date_field": "end_date"}' invisible="full_day"/>
-                                <!-- Needed in order to fire 'onchange' for the 'end_date' field -->
-                                <field name="end_date" invisible="True"/>
-                                <field name="details" invisible="not requires_details" required="requires_details"/>
-                            </group>
                             <group colspan="2">
                                 <!-- Issue #808: one student (the default) or a group. -->
                                 <field name="mode" widget="radio" options="{'horizontal': true}"/>
+                            </group>
+                            <group colspan="2">
+                                <field name="reason_id" options="{'no_create': True, 'no_open': True}"/>
+                            </group>
+                            <group colspan="2">
                                 <field name="student_id" domain="student_domain" options="{'no_create': True, 'no_open': True}"
                                        invisible="mode != 'student'" required="mode == 'student'"/>
                                 <!-- Issue #795: adds every student of the groups picked, then clears itself. -->
@@ -37,6 +31,16 @@
                             </group>
                             <group colspan="2">
                                 <field name="teacher_id" string="Teacher" widget="many2one_avatar_employee" readonly="id or not user_is_admin"/>
+                            </group>
+                            <group colspan="4">
+                                <field name="full_day" invisible="1"/>
+                                <field name="requires_details" invisible="1"/>
+                                <!-- A full-day reason (a strike) picks one day: it covers the student's whole day. -->
+                                <field name="day" invisible="not full_day" required="full_day"/>
+                                <field string="Period" name="start_date" widget="daterange" options='{"end_date_field": "end_date"}' invisible="full_day"/>
+                                <!-- Needed in order to fire 'onchange' for the 'end_date' field -->
+                                <field name="end_date" invisible="True"/>
+                                <field name="details" invisible="not requires_details" required="requires_details"/>
                             </group>
                         </group>
 

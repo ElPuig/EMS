@@ -8,6 +8,7 @@ from pytz import UTC
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.tools.safe_eval import safe_eval
 from odoo.tools.sql import column_exists
 
 from .application import RANKED_STATES, SUBMITTED_STATES
@@ -906,7 +907,10 @@ class EmsErasmusCall(models.Model):
         return action
 
     def action_view_mobilities(self):
-        return self._ems_call_action('ems.action_erasmus_mobility')
+        action = self._ems_call_action('ems.action_erasmus_mobility')
+        # Issue #772: a staff call's mobilities have no modality (the column would stay empty).
+        action['context'] = {**safe_eval(action.get('context') or '{}'), 'ems_staff_call': self.audience == 'staff'}
+        return action
 
     def action_view_applications(self):
         action = self._ems_call_action('ems.action_erasmus_application')

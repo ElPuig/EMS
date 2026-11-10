@@ -65,7 +65,7 @@ registry.category("web_tour.tours").add("ems_erasmus_economy_tour", {
             run: "edit KA131-HED-000000762",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item:contains('KA131-HED-000000762')",
+            trigger: ".o-autocomplete--dropdown-item:contains('2019-HED')",
             content: "Pick the project",
             run: "click",
         },

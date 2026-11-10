@@ -11,7 +11,7 @@
                      proposal and the destination only say something in some mobilities. -->
                 <list string="Mobilities" create="false" decoration-muted="state in ('done', 'cancelled')">
                     <field name="call_id" optional="hide"/>
-                    <field name="modality_id"/>
+                    <field name="modality_id" column_invisible="context.get('ems_staff_call')"/>
                     <field name="rank" optional="hide"/>
                     <field name="partner_id"/>
                     <field name="destination_id" optional="show"/>

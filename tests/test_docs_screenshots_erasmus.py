@@ -138,6 +138,21 @@ class TestDocsScreenshotsErasmusStaff(DocsScreenshotMixin, HttpCase):
                       'valoracions-per-sollicitant.png', login=TestDocsScreenshotsErasmus.TECHNICIAN,
                       wait_for='.o_list_renderer .o_group_header', max_height=180)
 
+    def test_capture_places_per_project(self):
+        """Issue #772: the staff call's places, split among the projects that pay them."""
+        self.staff_vet_project.code, self.staff_hed_project.code = '2026-VET', '2026-HED'
+        self.staff_call.project_place_ids.filtered(lambda line: line.project_id == self.staff_vet_project).places = 2
+        application = self.env['ems.erasmus.application']._ems_portal_get_or_create(
+            self.staff_call, self.staff_users[0].partner_id)
+        application.write({'state': 'accepted'})
+        self.env['ems.erasmus.mobility'].create({'application_id': application.id,
+                                                 'project_id': self.staff_vet_project.id})
+        field = '.o_field_widget[name=project_place_ids]'
+        self._capture(f'/odoo/action-ems.action_erasmus_call/{self.staff_call.id}', field,
+                      'convocatoria-personal-places-projecte.png', login=TestDocsScreenshotsErasmus.TECHNICIAN,
+                      wait_for='.o_notebook a.nav-link[name=project_places]',
+                      click=['.o_notebook a.nav-link[name=project_places]'], wait_after=[f'{field} .o_data_row'])
+
 
 
 @tagged('-standard', 'ems_screenshots', 'post_install', '-at_install')

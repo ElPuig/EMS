@@ -77,11 +77,11 @@ registry.category("web_tour.tours").add("ems_erasmus_rate_blank_zero", {
     url: "/odoo/action-ems.action_erasmus_support_rate",
     steps: () => [
         {
-            trigger: ".o_list_view .o_data_row:contains('2098') td[name='band_to']:empty",
+            trigger: ".o_list_view .o_group_header:contains('2098') + .o_data_row td[name='band_to']:empty",
             content: "No limit: the cell is empty",
         },
         {
-            trigger: ".o_list_view .o_data_row:contains('2098') td[name='min_days']",
+            trigger: ".o_list_view .o_group_header:contains('2098') + .o_data_row td[name='min_days']",
             content: "Edit the row",
             run: "click",
         },
@@ -101,7 +101,7 @@ registry.category("web_tour.tours").add("ems_erasmus_rate_blank_zero", {
             run: "click",
         },
         {
-            trigger: ".o_list_view .o_data_row:contains('2098') td[name='min_days']:contains('5')",
+            trigger: ".o_list_view .o_group_header:contains('2098') + .o_data_row td[name='min_days']:contains('5')",
             content: "The value stays",
         },
     ],

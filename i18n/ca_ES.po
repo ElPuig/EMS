@@ -5077,7 +5077,8 @@ msgstr "Grup:"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__group_ids
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_justification_wizard__mode__groups
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_list
-
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_justification__mode__group
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__applied_group_ids
 msgid "Groups"
 msgstr "Grups"
 
@@ -9280,6 +9281,8 @@ msgstr "Carrer 2"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_history__role__student
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__student_id
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__student_id
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_justification__mode__student
 msgid "Student"
 msgstr "Estudiant"
 
@@ -49432,3 +49435,7 @@ msgstr ""
 "                    </div>\n"
 "                \n"
 "            "
+
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__mode
+msgid "Justify"
+msgstr "Justificar"

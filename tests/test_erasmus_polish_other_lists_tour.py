@@ -23,6 +23,14 @@ class TestErasmusOtherListsTour(HttpCase, ErasmusMobilityCase):
                                                'is_erasmus_host': True, 'city': 'Tour City',
                                                'country_id': self.env.ref('base.de').id, 'erasmus_oid': 'E10TOUR1'})
         first.write({'host_partner_id': host.id, 'proposal_state': 'pending', 'proposal_host': 'Tour Proposed Host'})
+        # The team's files column is only for a document the team hands over. The list only draws a
+        # cell when there is a file to show, so each kind of document holds one: a participant's
+        # document must still show nothing there.
+        team_line, participant_line = first.document_ids[:2]
+        team_line.call_document_id.sudo().handled_by = 'team'
+        for line in (team_line, participant_line):
+            line.sudo().prepared_attachment_ids = self.env['ir.attachment'].create({
+                'name': 'team-file.pdf', 'raw': b'%PDF-1.4 tour', 'res_model': line._name, 'res_id': line.id})
         project = self.env['ems.erasmus.project'].create({'name': 'TOUR-OTHER-LISTS', 'kind': 'ka121_vet'})
         first.project_id = project
         self.env['ems.erasmus.export'].sudo().create({'scope': 'record', 'mobility_id': first.id,

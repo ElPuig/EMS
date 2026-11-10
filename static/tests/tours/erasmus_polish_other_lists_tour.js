@@ -63,6 +63,21 @@ registry.category("web_tour.tours").add("ems_erasmus_other_lists_mobilities", {
             trigger: ".o_field_widget[name='document_ids'] table:not(:has(th[data-name='attachment_ids']))",
             content: "Every version only when asked for",
         },
+        {
+            // The fixture attaches a file to a document the team hands over and to one the
+            // participant provides: only the first may show it.
+            trigger: ".o_field_widget[name='document_ids'] td[name='prepared_attachment_ids']:contains('team-file.pdf')",
+            content: "The team's files only on a document the team hands over",
+            run() {
+                const shown = document.querySelectorAll(
+                    ".o_field_widget[name='document_ids'] td[name='prepared_attachment_ids']"
+                );
+                const withFile = [...shown].filter((cell) => cell.textContent.includes("team-file.pdf"));
+                if (withFile.length !== 1) {
+                    throw new Error(`The team's file shows on ${withFile.length} documents, expected 1`);
+                }
+            },
+        },
     ],
 });
 

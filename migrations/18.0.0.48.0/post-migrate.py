@@ -67,7 +67,16 @@ def _keep_group_rankings_by_average(cr):
     _logger.info("Issue #773: %s group mobilities keep their ranking by the average.", cr.rowcount)
 
 
+def _drop_minute_annex_links(cr):
+    """Issue #803: a minute's annexes are uploaded files now, so the field that linked controlled
+    documents (annex_document_ids) is gone. Odoo leaves the relation table of a removed field
+    behind: drop it (empty in production when checked, 2026-11-10; a new installation never
+    creates it)."""
+    cr.execute("DROP TABLE IF EXISTS ems_minute_annex_rel")
+
+
 def migrate(cr, version):
     env = api.Environment(cr, SUPERUSER_ID, {})
     _staff_places_per_project(env)
     _keep_group_rankings_by_average(cr)
+    _drop_minute_annex_links(cr)

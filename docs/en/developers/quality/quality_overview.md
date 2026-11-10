@@ -208,10 +208,50 @@ approver; until then the same room is left blank. The stamp is the shared QWeb t
 convalidation resolution prints; like there, it is EMS's record of who did it, not a qualified electronic
 signature (issue #530).
 
+Every page of the minute's PDF names, under the company footer, the ISO 9001 controlled document it is
+printed on ("PE3.01.22 Model d'acta i de registre d'evidències (EMS) – Revisió: 02/11/2026"). The text is
+fixed in `reports/minute_report.xml` (`ems_footer_note`), verbatim and not translatable, so a new revision
+of that model means editing it there. Any report can do the same: `ems_footer_note`, set before calling
+`web.external_layout`, is printed by `ems.external_layout_footer_note`
+(`reports/shared/report_layout_footer_note.xml`), hooked under `company.report_footer` in each of Odoo's
+seven layouts, since the company can pick any of them (issue #769).
+
+**Filing in Drive (issue #769).** `ems.signed.record` keeps one copy of each record's PDF in the shared drive
+folder of the setting `res.company.minute_drive_folder_url` (a folder link or its bare id, read by
+`_ems_drive_folder_id()`; nothing is filed while it is empty or `google_ws_enabled` is off). Its `create()`, and
+its `write()` whenever `state` is written, queue `_ems_upload_to_drive` (queue_job, `identity_key`
+`ems_drive_upload_<model>_<id>`, so several changes in a row file it once); the job renders the record as it stands,
+or takes the approval's `pdf_attachment_id` once approved, and creates `<code>.pdf` in the folder or replaces the
+content of the file it already has (`drive_file_id`, `drive_url`, shown on the minute's form), filing it again if
+that file was deleted in Drive (404). It locks the record's row first (`_gw_lock_for_creation`), so two jobs of
+the same record never both create a file. `unlink()` queues `_ems_drive_trash` for the deleted records' files
+(sent to the shared drive's bin). Edits between two changes of state reach Drive at the next one, deliberately:
+the minute saves itself while being written, and an upload per autosave would be one render and one Drive call
+every few seconds. The client is `google.workspace.mixin._gw_get_drive_service()`, the same service account as the
+Directory integration with the `drive` scope; it acts as itself (no domain-wide delegation), so it only needs to
+be a member (Content manager) of the shared drive, and a service account has no storage of its own, which is why
+the folder must be in a shared drive (`supportsAllDrives`). `google_ws_dry_run` only logs. Built on Drive's own API
+rather than a module: Odoo 18's `cloud_storage_google` stores chatter attachments in a Google Cloud Storage
+bucket, not in Drive, and storage backends move every attachment, while this is one named file per record in a
+folder people browse.
+
 **Attendees and absentees** (`attendee_ids`, `absentee_ids`) exclude each other: `_check_attendee_not_absent`
 refuses anybody in both, and the form shows both with `ems_exclusive_tags`
 (`static/src/js/backend/exclusive_tags_field.js`, option `exclusive_with` naming the sibling field), a
 `many2many_tags` that takes whoever is added to one off the other and lets a tag be dragged between them.
+
+**People on leave** (issue #776). With attendance written by hand, `_ems_sync_leaves()` moves to
+`absentee_ids` every attendee with an absence overlapping the meeting (`start_datetime` + `duration`), using
+the attendance session's `ems.meeting.presence._ems_on_leave()` (the guard duty board's absences, approved
+or requested), and appends "<name>: Has an absence" to `absence_notes` (`_ems_leave_note()`, centre
+language), keeping whatever the writer typed. `on_leave_ids` records whom EMS moved: somebody the writer
+puts back among the attendees is not moved again, and somebody whose absence is gone goes back to the
+attendees (if still among the absentees) and loses the note. It runs in `create()` and on `write()` of
+`attendance_mode`, `start_datetime`, `duration`, `attendee_ids` or `state` (so moving to the meeting looks
+again), only for `draft`/`meeting` minutes of kind `meeting`, guarded by the `ems_leave_sync` context.
+`_ems_preload_attendees()` clears `on_leave_ids` and takes the new attendees off the absentees, so a new scope
+is looked at from scratch. With the NFC tag, the session does it (see `meeting_presence.md`); its lines are
+created from the attendees plus `on_leave_ids`, so switching from by hand to the tag loses nobody.
 
 **People from outside EMS** (`ems.minute.guest`, the minute's `guest_ids`): a student's family, a teacher
 from another school, a speaker. No employee record and no account: first name, surname, an optional email

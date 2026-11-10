@@ -185,7 +185,7 @@
                                             <list editable="bottom">
                                                 <field name="project_id" options="{'no_create': True}"/>
                                                 <field name="places" sum="Places"/>
-                                                <field name="assigned_count" sum="Assigned"/>
+                                                <field name="assigned_count" sum="Assigned" width="110px"/>
                                             </list>
                                         </field>
                                     </page>

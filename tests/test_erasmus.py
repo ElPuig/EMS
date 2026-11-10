@@ -75,7 +75,7 @@ class TestErasmusCall(TransactionCase):
         self.assertTrue(form.task_ids)
         form.audience = 'staff'
         self.assertEqual(len(form.document_ids), 1, "The staff call's own documents")
-        self.assertEqual(len(form.modality_ids), 2)
+        self.assertFalse(form.modality_ids, "Issue #772: places per project instead.")
         self.assertFalse(form.document_ids._records[0]['single_file'], "A certificate per language")
         # Issue #767: a staff call hides its Documents tab.
         self.assertTrue(form._get_modifier('document_ids', 'invisible'))

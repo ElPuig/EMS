@@ -70,13 +70,15 @@ Record each merit with its justification, from what the applicant wrote in centr
 
 ## 5. Places, ranking and resolutions
 
-A new staff call has two **modalities**, one per project: *FP staff (KA121-VET)* and *Higher education staff (KA131-HED)*, with no period (each person proposes their own dates). Before preparing the provisional resolution, fill in the places you finally have in each one. The staff never see them.
+A staff call has no modalities: the staff compete in a single list and only ever see the call's total places. In the **Selection** tab, **Places per project** is your own planning: one line per active project that pays places, with its places (for example 6 on *2025-VET*, 2 on *2026-VET* and 2 on *2026-HED*). The call's places are their sum; the **Assigned** column counts the mobilities already put on each project. Fill it in before preparing the provisional resolution. Only the Erasmus team sees this table.
+
+![The places per project of a staff call, with the mobilities assigned to each one](../../assets/erasmus/convocatoria-personal-places-projecte.png)
 
 The staff are ranked **in one list** for the whole call (**Ranking** button of the call). Ties are broken by the mobility plan score, then by who has been at the centre longer (the month and year of joining declared in the form, not the points of criterion 5: someone who joined in 2000 goes before someone who joined six years ago, although both get 2 points) and, last, by the draw the Erasmus coordinator runs from the call (**Draw the ties**).
 
 The resolutions are published as in the students' call: the lists show only four digits of the identity document, never names. For the staff it is taken from their **employee file** (DNI or NIE, otherwise the passport); if someone has none, ask the Secretariat to add it. EMS warns you already when you admit their application, and the lists cannot be prepared until it is there. If the score of someone is not complete when you prepare a resolution, EMS says what is missing for each person (for example *Merits reviewed* or *Seniority*).
 
-The selected are those within the call's places (the sum of every modality); each person gets one place at most. Then assign each one their project (VET or HED) in the application's **Modality** field; their mobility goes on that project of the year.
+The selected are those within the call's places (the sum of the places per project); each person gets one place at most. Once a person accepts, choose their **Project** in their mobility: EMS only offers the projects of the call's table, and next to it shows how many places of that project are left (for example *2026-VET: 1 of 2 places left*). Choosing a project with no place left is allowed, but the mobility shows a warning until you add a place to that project or choose another one. The project brings the documents of its kind (KA121-VET or KA131-HED). The staff never see which project pays their mobility. While an accepted place has no project, the call warns you (*N places accepted without a project*), and the call's **Applications** show each person's **Project**.
 
 ## 6. Offers and spreadsheet
 

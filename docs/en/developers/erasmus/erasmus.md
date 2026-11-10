@@ -22,6 +22,8 @@ host entity, documents and checklist (see "Mobility preparation" at the end).
 ```mermaid
 erDiagram
     ems_erasmus_call ||--o{ ems_erasmus_call_modality : "modality_ids"
+    ems_erasmus_call ||--o{ ems_erasmus_call_project : "project_place_ids (staff)"
+    ems_erasmus_call_project }o--|| ems_erasmus_project : "project_id"
     ems_erasmus_call ||--o{ ems_erasmus_call_document : "document_ids"
     ems_erasmus_call ||--o{ ems_erasmus_application : "application_ids"
     ems_erasmus_call_modality }o--o{ ems_level : "level_ids"
@@ -35,7 +37,8 @@ erDiagram
 | Model | Purpose |
 |---|---|
 | `ems.erasmus.call` | One call: who applies (`audience`: students or staff), course, dates (`date_open`, `date_close`, optional `subsanation_deadline`), the published call PDF, the text shown on the portal, state. |
-| `ems.erasmus.call.modality` | A selection list with its own places (GM, GS): places, the **levels** whose students compete in it, and the project kind (KA121-VET / KA131-HED), computed from the levels on a students' call (issue #767: CFGS and EFPS on KA131-HED, any other level on KA121-VET; stored, editable, so a staff modality keeps the one set). The real destinations are `ems.erasmus.destination` lines. |
+| `ems.erasmus.call.modality` | A selection list with its own places (GM, GS): places, the **levels** whose students compete in it, and the project kind (KA121-VET / KA131-HED), computed from the levels (issue #767: CFGS and EFPS on KA131-HED, any other level on KA121-VET; stored). Students' calls only (issue #772). The real destinations are `ems.erasmus.destination` lines. |
+| `ems.erasmus.call.project` | Issue #772: a staff call's places paid by one project (`project_id`, `places`, unique per call; `assigned_count`: the call's non-cancelled mobilities on it, one `_read_group`). Field `project_place_ids` of the call, `groups` Erasmus team and admin, ACL for those two only: the rest read the total through `_ems_places()` (sudo). Not copied with the call (each year has its projects). |
 | `ems.erasmus.call.document` | A document the call asks for: required, optional or required for minors; confidential (only the Erasmus team sees it). |
 | `ems.erasmus.application` | One student's application to one call (unique per call and student). |
 | `ems.erasmus.application.document` | The files uploaded for one document of the call, with the team's review. |
@@ -329,8 +332,7 @@ not matched and keeps what was written, with Odoo's usual fallback. A copy keeps
 (Odoo's `copy_translations`). Calls created before keep their texts: the upgrade only turns the
 columns into translatable ones, with the old value as the source. The trade-off: changing a
 default text later in one language leaves the others as they were (the form's language button edits
-them). The staff call's modalities keep their names: staff never see them (one call, one ranking;
-the team assigns each selected person's project), and #772 replaces them with places per project.
+them). A staff call has no modalities (issue #772).
 A staff call's first step has the students' name (*Preparation sessions*), and *Share it at a
 department or cycles meeting* is `requirement='optional'` (art. 15): an optional step
 (`TASK_REQUIREMENTS`) is listed (on the portal with "(optional)") but never counts towards
@@ -795,8 +797,8 @@ what differs:
 | Admission checks | Requirements; a serious conduct record this course is pointed out, the team may exclude | Requirements only |
 | Scoring | Art. 12 (A-F), A and F frozen at closing | Art. 11 of the staff call (1-6): the panel, what the applicant declares (last mobility, seniority, language) and the merits the team records |
 | Ranking | Per modality | One list for the whole call |
-| Places | Per modality | The sum of every modality, offered as one pool |
-| Modalities | Levels and places; the project from the levels | One per project, added on their own (`_ems_staff_modalities`: FP KA121-VET and higher education KA131-HED), places only, no period; never shown to staff. The team assigns each selected person one, so their mobility goes on that project of the year |
+| Places | Per modality | Issue #772: `project_place_ids` (places per project, the team's planning), offered as one pool (`_ems_places()`, the sum); staff only see the total |
+| Modalities | Levels and places; the project from the levels | None. The team sets the mobility's `project_id` (domain `allowed_project_ids`: the projects of the call's table; `_check_project` refuses another), which brings the documents of its kind (`project_kind` = the project's kind; `write` re-syncs the requirements). `project_places` ("2026-VET: 1 of 2 places left") and `project_places_over` (a warning, not a block) on the mobility; `places_without_project` warns on the call (note 7.1) and the application list shows `project_id` from a staff call's button (`ems_staff_call` context) |
 | Dissemination | - | Not part of the plan nor of the rubric (criterion 2 rates the application to the job only): the same obligation for everyone, a news item on the website and sharing it at a meeting if needed (two return steps of the checklist) |
 | Identity document of the lists | `res.partner.document_id` / `passport_id` | `hr.employee.identification_id` / `passport_id` (`_ems_identity_document`) |
 | Minimum score | 50 | 0 (set by `create()` and the onchange of `audience`; hidden in the form) |
@@ -851,8 +853,16 @@ call's `staff_level_ids` (*Teachers of*; a new staff call gets every FP level of
 `_ems_staff_validators()`: the Director (`res.company.director_id`) and the Head of Studies that
 `find_head_of_studies()` returns for most of the teachers of those levels (decided with the
 coordinator 2026-10-23: FP's validates every applicant, also the language teachers who hang below
-ESO/BTX's in the chart). The staff screens never show the modality (places and periods are the
-team's planning): not in the application header, the offer nor the offer email.
+ESO/BTX's in the chart). The staff screens never show the project nor its places (the team's
+planning): not in the application header, the offer nor the offer email.
+
+**Projects' short name (issue #772).** `ems.erasmus.project.code` (*Short name*, e.g. `2026-VET`) is a
+stored compute from the agreement number (`AGREEMENT_NUMBER`: its year and VET/HED), editable; it is
+the `display_name` (the agreement number with its kind when there is none) and `_rec_names_search`
+covers both. The upgrade (`migrations/18.0.0.48.0/post-migrate.py`, to fold into the release
+version) turns each staff modality's places into a line of the project its mobilities already use, or
+the only active project of its kind, fills that project on its mobilities without one, posts a note on
+the call when it can't resolve it, and deletes the staff modalities (references nulled first).
 
 ### Panel and plan ratings
 

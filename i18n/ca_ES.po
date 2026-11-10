@@ -3262,6 +3262,7 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -3413,6 +3414,7 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3878,6 +3880,7 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -5447,6 +5450,7 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__id
 msgid "ID"
 msgstr "ID"
 
@@ -6180,6 +6184,7 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -6331,6 +6336,7 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -16026,6 +16032,7 @@ msgstr "Tipus d'absència"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_leave_type__ems_short_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__code
 msgid "Short name"
 msgstr "Nom curt"
 
@@ -31048,6 +31055,7 @@ msgstr "Torna a revisió"
 #: code:addons/ems/models/erasmus/quality.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_diffusion__call_id
 #: code:addons/ems/models/erasmus/economy.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__call_id
 msgid "Call"
 msgstr "Convocatòria"
 
@@ -31292,6 +31300,7 @@ msgstr "Instruccions"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_history__project__ka121_vet
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_support_rate__kind__ka121_vet
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_economy_panel_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__project_kind__ka121_vet
 msgid "KA121-VET"
 msgstr "KA121-VET"
 
@@ -31303,6 +31312,7 @@ msgstr "KA121-VET"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_history__project__ka131_hed
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_support_rate__kind__ka131_hed
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_economy_panel_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__project_kind__ka131_hed
 msgid "KA131-HED"
 msgstr "KA131-HED"
 
@@ -31421,6 +31431,7 @@ msgstr "Opcional"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__places
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__places_total
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__places
 msgid "Places"
 msgstr "Places"
 
@@ -31447,6 +31458,8 @@ msgstr "Places"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__project_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_line__project_id
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_search
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__project_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__project_id
 msgid "Project"
 msgstr "Projecte"
 
@@ -48884,3 +48897,186 @@ msgstr "Pendent de l'equip"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 msgid "Who"
 msgstr "Qui"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "%(project)s: %(left)s of %(places)s places left"
+msgstr "%(project)s: queden %(left)s de %(places)s places"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_form
+msgid ""
+"<strong>More people would have a place than places.</strong>\n"
+"                                A place already accepted is never withdrawn, so this rectification cannot be published\n"
+"                                as it is. Decide with the Erasmus team what to do (e.g. add a place)."
+msgstr ""
+"<strong>Hi hauria més persones amb plaça que places.</strong>\n"
+"                                Una plaça ja acceptada no es retira mai, així que aquesta rectificació no es pot publicar\n"
+"                                tal com està. Decideix amb l'equip Erasmus què cal fer (p. ex. afegir una plaça)."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_erasmus_call_project_call_project_unique
+msgid "A project is only once in the places of a call."
+msgstr ""
+"Un projecte només pot sortir una vegada a les places d'una convocatòria."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid "Add the call's places per project before preparing the resolution."
+msgstr ""
+"Afegeix les places per projecte de la convocatòria abans de preparar la "
+"resolució."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_call_project
+msgid "Erasmus+ staff call places per project"
+msgstr "Places per projecte de la convocatòria Erasmus+ del personal"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__project_kind
+msgid "Kind of project"
+msgstr "Tipus de projecte"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_project__assigned_count
+msgid ""
+"Mobilities of the call already assigned to this project (not cancelled)."
+msgstr ""
+"Mobilitats de la convocatòria ja assignades a aquest projecte (no "
+"cancel·lades)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__project_places_over
+msgid "More mobilities than places"
+msgstr "Més mobilitats que places"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__places_without_project
+msgid "Places accepted without a project"
+msgstr "Places acceptades sense projecte"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__project_places
+msgid "Places of the project"
+msgstr "Places del projecte"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__project_place_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "Places per project"
+msgstr "Places per projecte"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__allowed_project_ids
+msgid "Possible projects"
+msgstr "Projectes possibles"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid ""
+"Published without places: add them to the places per project before "
+"preparing the resolution lists (%s)."
+msgstr ""
+"Publicada sense places: afegeix-les a les places per projecte abans de "
+"preparar les llistes de la resolució (%s)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__places_without_project
+msgid ""
+"Staff call: accepted places whose mobility has no project assigned yet."
+msgstr ""
+"Convocatòria del personal: places acceptades amb la mobilitat encara sense "
+"projecte assignat."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__project_place_ids
+msgid ""
+"Staff call: how many places each active project pays. The call's places are "
+"their sum."
+msgstr ""
+"Convocatòria del personal: quantes places paga cada projecte actiu. Les "
+"places de la convocatòria en són la suma."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__project_places
+msgid "Staff: the places of the assigned project still free in the call."
+msgstr ""
+"Personal: les places del projecte assignat que encara queden lliures a la "
+"convocatòria."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__project_id
+msgid ""
+"The Erasmus+ project the mobility is charged to: CFGM on a KA121-VET "
+"project, CFGS on a KA131-HED one; staff, on one of the projects of the "
+"call's places."
+msgstr ""
+"El projecte Erasmus+ al qual s'imputa la mobilitat: CFGM a un projecte "
+"KA121-VET, CFGS a un KA131-HED; el personal, a un dels projectes de les "
+"places de la convocatòria."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "The mobility of %s goes on one of the projects of the call's places."
+msgstr ""
+"La mobilitat de %s ha d'anar a un dels projectes de les places de la "
+"convocatòria."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_erasmus_call_project_places_positive
+msgid "The places cannot be negative."
+msgstr "Les places no poden ser negatives."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid ""
+"The project has more mobilities assigned than places in the call: add a place to it\n"
+"                            (Places per project) or choose another project."
+msgstr ""
+"El projecte té més mobilitats assignades que places a la convocatòria: afegeix-hi una plaça\n"
+"                            (Places per projecte) o tria un altre projecte."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid ""
+"This rectification would leave more people with a place than places, because a place already accepted is never withdrawn:\n"
+"%s\n"
+"Decide with the Erasmus team what to do (e.g. add a place) before publishing it."
+msgstr ""
+"Aquesta rectificació deixaria més persones amb plaça que places, perquè una plaça ja acceptada no es retira mai:\n"
+"%s\n"
+"Decideix amb l'equip Erasmus què cal fer (p. ex. afegir una plaça) abans de publicar-la."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_project__code
+msgid ""
+"What lists and dropdowns show, e.g. 2026-VET. Taken from the agreement "
+"number, editable."
+msgstr ""
+"El que mostren les llistes i els desplegables, p. ex. 2026-VET. Surt del "
+"número de conveni i es pot canviar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
+msgid "e.g. 2026-VET"
+msgstr "p. ex. 2026-VET"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid ""
+"places accepted without a project:\n"
+"                            assign each one its project in the mobility."
+msgstr ""
+"places acceptades sense projecte:\n"
+"                            assigna el projecte de cadascuna a la seva mobilitat."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__assigned_count
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "Assigned"
+msgstr "Assignades"

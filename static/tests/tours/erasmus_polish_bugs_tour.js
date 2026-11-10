@@ -100,8 +100,8 @@ registry.category("web_tour.tours").add("ems_erasmus_support_rate_year", {
     url: "/odoo/action-ems.action_erasmus_support_rate",
     steps: () => [
         {
-            trigger: ".o_list_view .o_data_row td[name='call_year']:contains('2099')",
-            content: "The rates show the year as is",
+            trigger: ".o_list_view .o_group_header:contains('2099'):not(:contains('2.099'))",
+            content: "The rates show the year as is (issue #782: grouped by year)",
         },
     ],
 });

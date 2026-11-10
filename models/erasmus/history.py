@@ -43,7 +43,7 @@ class EmsErasmusHistory(models.Model):
                        'individual' AS kind,
                        mobility.audience AS role,
                        call.name,
-                       COALESCE(modality.project, mobility_project.kind),
+                       COALESCE(modality.project, mobility_project.kind) AS project,
                        mobility.country_id,
                        mobility.city,
                        mobility.date_start,

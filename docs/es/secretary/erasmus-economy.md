@@ -37,7 +37,7 @@ Cada pago muestra el **IBAN** y el **titular** que ha indicado el participante (
 
 ## Consultar el presupuesto de un proyecto
 
-**Erasmus+ > Gestión económica > Panel económico** muestra la subvención de cada proyecto, lo comprometido, lo pagado y lo disponible. Abre un proyecto para ver su pestaña **Economía**, y usa **Acciones > Exportar a Excel** para descargar su informe económico (resumen, becas y pagos, gastos, apoyo organizativo y transferencias del SEPIE). Los avisos y el Excel muestran el nombre y la beca de cada participante, porque los pagas, pero no abres las movilidades en sí.
+**Erasmus+ > Gestión económica > Panel económico** muestra la subvención de cada proyecto, lo comprometido, lo pagado y lo disponible. Abre un proyecto para ver su pestaña **Economía**, y usa **Acciones > Descargar la economía (Excel)** para descargar su informe económico (resumen, becas y pagos, gastos, apoyo organizativo y transferencias del SEPIE). Los avisos y el Excel muestran el nombre y la beca de cada participante, porque los pagas, pero no abres las movilidades en sí.
 
 ---
 

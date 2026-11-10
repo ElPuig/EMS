@@ -40,7 +40,7 @@
                 <form string="Project">
                     <header>
                         <div name="ems_actions" string="Actions">
-                            <button name="action_export" type="object" string="Export the project"
+                            <button name="action_export" type="object" string="Download the project archive (ZIP)"
                                     class="btn-primary" invisible="not id"
                                     groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin"
                                     help="Every document of the project as a ZIP in its five categories, with every participant's record, an index of what is missing and the files' hashes."/>
@@ -155,7 +155,7 @@
                             <page string="Exports" name="exports" groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin">
                                 <field name="export_ids" readonly="1">
                                     <list>
-                                        <field name="date"/>
+                                        <field name="date" options="{'show_time': False}"/>
                                         <field name="requester_id"/>
                                         <field name="scope"/>
                                         <field name="mobility_id" optional="show"/>

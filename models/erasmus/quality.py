@@ -34,8 +34,8 @@ class EmsErasmusQualityHistory(models.Model):
     course_name = fields.Char(string="Course", required=True, help="As EMS names the courses, e.g. 2022-2023.")
     student_applicants = fields.Integer(string="Student applicants")
     student_target = fields.Integer(string="Target students", help="Every student who could apply that course.")
-    staff_applicants = fields.Integer(string="Staff applicants")
-    staff_target = fields.Integer(string="Target staff")
+    staff_applicants = fields.Integer(string="Staff applicants", help="Empty or 0: no data.")
+    staff_target = fields.Integer(string="Target staff", help="Empty or 0: no data.")
     satisfaction = fields.Float(string="Satisfaction (average)", digits=(4, 2),
                                 help="On a scale from 0 or 1 to 10; convert other scales first (e.g. 0-4 x 2.5).")
     satisfaction_count = fields.Integer(string="Answers (n)")

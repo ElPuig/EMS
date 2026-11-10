@@ -60,6 +60,8 @@ El apoyo organizativo es dinero para gestionar las movilidades, separado de las 
 
 **Vacío significa sin límite:** un *Hasta el participante* vacío es una franja sin final, y unos *Días mínimos* vacíos se aplican a cualquier duración de la estancia. Si dos franjas se solapan, EMS te dice con qué otra tarifa y franja chocan. En el Excel, la *Posición* es la que ha contado la tarifa: entre la misma clase de actividad o, en KA131-HED, entre todo el proyecto.
 
+![Las tarifas de un año: las celdas vacías significan sin límite y cualquier duración](../../assets/erasmus/tarifes-suport-organitzatiu.png)
+
 **Qué tarifa tiene cada movilidad:** EMS lo deduce. Una estancia de alumnado de 90 días o más es de larga duración (ErasmusPro), y más corta, de corta duración; un curso estructurado del personal es *cursos y formación*, y el job shadowing o la docencia, la otra; cada alumno de una movilidad de grupo, 100 €. Si una movilidad es en un país tercero no asociado al programa, o es un concurso de competencias, un experto invitado o un docente acogido, elígelo a mano en **Apoyo organizativo como**, en la pestaña **Beca**.
 
 En la pestaña Economía ves:
@@ -76,7 +78,7 @@ Arriba de la pestaña Economía, EMS avisa de lo que puede ser un error, sin blo
 
 ## Excel
 
-**Acciones > Exportar a Excel** descarga la economía del proyecto: un resumen con las mismas cifras que el panel, la beca de cada movilidad (previsto, comprometido y pagado por separado), los pagos y las facturas con sus justificantes, los gastos, el apoyo organizativo participante por participante, y las modificaciones de la subvención y las transferencias del SEPIE.
+**Acciones > Descargar la economía (Excel)** descarga la economía del proyecto: un resumen con las mismas cifras que el panel, la beca de cada movilidad (previsto, comprometido y pagado por separado), los pagos y las facturas con sus justificantes, los gastos, el apoyo organizativo participante por participante, y las modificaciones de la subvención y las transferencias del SEPIE.
 
 ---
 

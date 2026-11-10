@@ -15,7 +15,7 @@ Las movilidades de grupo (KA121-VET) son estancias de un grupo de alumnos de uno
 1. Ve a **Erasmus+ > Movilidades > Movilidades de grupo** y haz clic en **Nuevo**.
 2. Rellena el nombre (p. ej. *SMX2 mañana*), el **proyecto** KA121-VET, el **turno** (solo sirve para encontrar los grupos) y los **grupos que pueden inscribirse** (los grupos reales del centro, p. ej. SMX2A y SMX2B).
 3. Indica las plazas de alumnado (8 por defecto), los docentes acompañantes (2), el **docente responsable** y el otro docente acompañante.
-4. En la pestaña **Inscripción**, pon el periodo de inscripción, revisa los **criterios de selección** (se publican en el portal) y, si hace falta, la información para el alumnado.
+4. En la pestaña **Inscripción**, pon el periodo de inscripción, revisa los **criterios de selección** (se publican en el portal) y, si hace falta, la información para el alumnado (para pegar una ficha preparada en otro sitio, usa el botón **`</>`**, como en la información para los solicitantes de la convocatoria).
 5. El destino, la entidad de acogida y las fechas pueden quedar pendientes hasta que estén confirmados.
 6. En **Acciones**, haz clic en **Abrir la inscripción**.
 
@@ -35,11 +35,13 @@ Los docentes no pasan por ninguna convocatoria de personal: al guardarlos, ya ve
 
 ## Renuncias y sustituciones
 
-Si un alumno seleccionado renuncia (desde el portal, o diciéndoselo al docente responsable o a ti, que lo registráis con el botón **Renunciar** de su inscripción en la pestaña **Selección**, con el motivo), la plaza queda libre y la movilidad muestra la siguiente reserva. El docente responsable la propone y tú la apruebas o la rechazas en la pestaña **Selección**; si la rechazas, el docente responsable recibe una tarea para volver a proponer un sustituto. Si esa reserva no quiere la plaza, regístralo de la misma manera, con **Renunciar** en su inscripción: sale de la lista de reserva y la movilidad muestra la siguiente. La clasificación congelada no cambia y los documentos ya entregados se conservan.
+Si un alumno seleccionado renuncia (desde el portal, o diciéndoselo al docente responsable o a ti, que lo registráis con el botón **Renunciar** de su inscripción en la pestaña **Selección**, con el motivo), la plaza queda libre y la movilidad muestra la siguiente reserva. El docente responsable la propone y tú la apruebas o la rechazas en la pestaña **Selección**; si la rechazas, el docente responsable recibe una tarea para volver a proponer un sustituto. Si esa reserva no quiere la plaza, regístralo de la misma manera, con **Renunciar** en su inscripción: sale de la lista de reserva y la movilidad muestra la siguiente. La clasificación fijada no cambia y los documentos ya entregados se conservan.
 
 ## Expedientes y documentos
 
 Al aprobar la selección se abre el expediente de cada alumno seleccionado y de los dos docentes. En la pestaña **Documentos** están los **documentos compartidos** del grupo (el acuerdo de aprendizaje del grupo, previsto y ejecutado; acuerdos, viaje, la póliza de seguro colectiva, inclusión —confidencial—, Green Travel y evidencias) y la lista de **documentos pedidos**, que puedes adaptar a cada movilidad: para quién es cada documento (el grupo, cada alumno, cada docente o todos), si es obligatorio o solo para menores, quién lo firma y el plazo. Si cambias la lista, haz clic en **Actualizar los documentos**.
+
+Un documento completo ofrece **Reabrir** en lugar de **Hay que corregir**: hace lo mismo, lo devuelve para que se corrija.
 
 Cada documento tiene una **categoría del expediente** (01 Datos y autorizaciones, 02 Antes de la movilidad, 03 Durante la movilidad, 04 Después de la movilidad), igual que en las movilidades individuales, y un **estado**: falta, pendiente de revisión, hay que corregir, completo, opcional o no aplicable. Un documento que alguien tiene que firmar (por ejemplo el acuerdo de aprendizaje del grupo, que firman la coordinación y la entidad de acogida) **no queda completo solo por haberlo subido**, aunque lo suba el equipo: hay que revisar sus firmas y marcarlo como **Válido**. Los documentos que proporciona el equipo y que no firma nadie (por ejemplo la póliza de seguro) quedan completos al subirlos.
 
@@ -47,7 +49,7 @@ Todos los documentos Erasmus+ se preparan fuera de EMS: EMS guarda sus ficheros,
 
 - **Acuerdo de aprendizaje del grupo**, en dos versiones firmadas por los dos centros (la coordinación y la entidad de acogida). La **prevista**, antes de salir: objetivos, resultados de aprendizaje, calendario, actividades y participantes. La **ejecutada**, después de la estancia: las fechas reales, las actividades realizadas, las metodologías y la lista definitiva de participantes (alumnos y docentes acompañantes de todos los centros). Si no ha cambiado nada, ratifica la prevista con las fechas y los participantes reales. No hay acuerdo de aprendizaje individual ni una lista de participantes aparte.
 - **Póliza de seguro** de cada alumno y de cada docente acompañante. Si una **póliza colectiva** cubre a todos los participantes o a una parte, súbela a la *Póliza de seguro colectiva* del grupo y marca *Cubierto por la póliza colectiva* en cada participante que cubra (ficha del participante): ya no se le pide la suya.
-- **Convenio de subvención** de cada participante: el equipo lo prepara fuera de EMS (con los servicios que paga el centro, si los hay) y lo sube para que lo firmen. Para subirlos todos desde una sola pantalla, usa el botón **Documentos de los participantes** de la movilidad: los documentos de todos los participantes en una lista, agrupados por documento.
+- **Convenio de subvención** de cada participante: el equipo lo prepara fuera de EMS (con los servicios que paga el centro, si los hay) y lo sube para que lo firmen. Para subirlos todos desde una sola pantalla, usa el botón **Documentos pendientes** de la movilidad: los documentos de todos los participantes en una lista, agrupados por documento.
 - **Green Travel: declaración jurada y evidencias**, opcional: solo cuando se declara Green Travel.
 - **Documentación de inclusión del grupo**, opcional y confidencial: la acreditación de las menos oportunidades y, cuando hay costes reales de inclusión, por qué hacía falta la ayuda. Sus facturas van en la pestaña **Gastos colectivos**.
 - **Documento de movilidad Europass** (alumnos) y **Certificado de estancia** (docentes): opcionales, nunca impiden cerrar la movilidad.
@@ -73,7 +75,7 @@ Antes de marchar, la movilidad muestra quién todavía no está listo (falta un 
 
 ## Becas y dinero de bolsillo
 
-En la pestaña **Gastos colectivos** introduces la **beca** de cada participante (alumnos y docentes acompañantes), tal como la calcula el Beneficiary Module. El centro suele pagar los vuelos y el alojamiento de todo el grupo: regístralos como **facturas colectivas**. EMS reparte cada factura colectiva **a partes iguales entre los participantes que van** y muestra, para cada uno, su parte y su **dinero de bolsillo**: su beca menos su parte. Es lo que la Secretaría les transfiere.
+En la pestaña **Gastos colectivos** introduces la **beca** de cada participante (alumnos y docentes acompañantes), tal como la calcula el Beneficiary Module. El centro suele pagar los vuelos y el alojamiento de todo el grupo: regístralos como **facturas colectivas**. EMS reparte cada factura colectiva **a partes iguales entre los participantes que van** y muestra, para cada uno, su parte y su **dinero de bolsillo**: su beca menos su parte. Es lo que la Secretaría les transfiere. Una factura es o bien del grupo o bien de unos participantes concretos, nunca de ambos, porque contaría dos veces: EMS no te deja guardarla si rellenas las dos cosas.
 
 *Ejemplo:* 8 alumnos con una beca de 1.200 € y 2 docentes con 1.500 €. Los vuelos cuestan 2.000 € y el hotel 5.000 €: 700 € por persona. Cada alumno recibe 500 € y cada docente 800 €.
 

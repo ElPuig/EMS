@@ -15,7 +15,7 @@ Les mobilitats de grup (KA121-VET) són estades d'un grup d'alumnes d'un o més 
 1. Ves a **Erasmus+ > Mobilitats > Mobilitats de grup** i fes clic a **Nou**.
 2. Omple el nom (p. ex. *SMX2 matí*), el **projecte** KA121-VET, el **torn** (només serveix per trobar els grups) i els **grups que s'hi poden inscriure** (els grups reals del centre, p. ex. SMX2A i SMX2B).
 3. Indica les places d'alumnat (8 per defecte), els docents acompanyants (2), el **docent responsable** i l'altre docent acompanyant.
-4. A la pestanya **Inscripció**, posa el període d'inscripció, revisa els **criteris de selecció** (es publiquen al portal) i, si cal, la informació per a l'alumnat.
+4. A la pestanya **Inscripció**, posa el període d'inscripció, revisa els **criteris de selecció** (es publiquen al portal) i, si cal, la informació per a l'alumnat (per enganxar-hi una fitxa preparada en un altre lloc, fes servir el botó **`</>`**, com a la informació per als sol·licitants de la convocatòria).
 5. La destinació, l'entitat d'acollida i les dates poden quedar pendents fins que estiguin confirmades.
 6. A **Accions**, fes clic a **Obre la inscripció**.
 
@@ -35,11 +35,13 @@ Els docents no passen per cap convocatòria de personal: en desar-los, ja veuen 
 
 ## Renúncies i substitucions
 
-Si un alumne seleccionat renuncia (des del portal, o dient-ho al docent responsable o a tu, que ho registreu amb el botó **Renuncia** de la seva inscripció a la pestanya **Selecció**, amb el motiu), la plaça queda lliure i la mobilitat mostra la reserva següent. El docent responsable la proposa i tu l'aproves o la rebutges a la pestanya **Selecció**; si la rebutges, el docent responsable rep una tasca per tornar a proposar un substitut. Si aquesta reserva no vol la plaça, registra-ho de la mateixa manera, amb **Renuncia** a la seva inscripció: surt de la llista de reserva i la mobilitat mostra la següent. La classificació congelada no canvia i els documents ja lliurats es conserven.
+Si un alumne seleccionat renuncia (des del portal, o dient-ho al docent responsable o a tu, que ho registreu amb el botó **Renuncia** de la seva inscripció a la pestanya **Selecció**, amb el motiu), la plaça queda lliure i la mobilitat mostra la reserva següent. El docent responsable la proposa i tu l'aproves o la rebutges a la pestanya **Selecció**; si la rebutges, el docent responsable rep una tasca per tornar a proposar un substitut. Si aquesta reserva no vol la plaça, registra-ho de la mateixa manera, amb **Renuncia** a la seva inscripció: surt de la llista de reserva i la mobilitat mostra la següent. La classificació fixada no canvia i els documents ja lliurats es conserven.
 
 ## Expedients i documents
 
 En aprovar la selecció s'obre l'expedient de cada alumne seleccionat i dels dos docents. A la pestanya **Documents** hi ha els **documents compartits** del grup (l'acord d'aprenentatge del grup, previst i executat; acords, viatge, la pòlissa d'assegurança col·lectiva, inclusió —confidencial—, Green Travel i evidències) i la llista dels **documents demanats**, que pots adaptar a cada mobilitat: per a qui és cada document (el grup, cada alumne, cada docent o tothom), si és obligatori o només per a menors, qui el signa i el termini. Si canvies la llista, fes clic a **Actualitza els documents**.
+
+Un document complet ofereix **Reobrir** en lloc de **Cal corregir**: fa el mateix, el torna perquè es corregeixi.
 
 Cada document té una **categoria de l'expedient** (01 Dades i autoritzacions, 02 Abans de la mobilitat, 03 Durant la mobilitat, 04 Després de la mobilitat), igual que a les mobilitats individuals, i un **estat**: falta, pendent de revisió, cal corregir, complet, opcional o no aplicable. Un document que algú ha de signar (per exemple l'acord d'aprenentatge del grup, que signen la coordinació i l'entitat d'acollida) **no queda complet només per haver-lo pujat**, encara que el pugi l'equip: cal revisar-ne les signatures i marcar-lo com a **Vàlid**. Els documents que l'equip proporciona i que no signa ningú (per exemple la pòlissa d'assegurança) queden complets en pujar-los.
 
@@ -47,7 +49,7 @@ Tots els documents Erasmus+ es preparen fora de l'EMS: l'EMS en guarda els fitxe
 
 - **Acord d'aprenentatge del grup**, en dues versions signades pels dos centres (la coordinació i l'entitat d'acollida). La **prevista**, abans de marxar: objectius, resultats d'aprenentatge, calendari, activitats i participants. L'**executada**, després de l'estada: les dates reals, les activitats fetes, les metodologies i la llista definitiva de participants (alumnes i docents acompanyants de tots els centres). Si no ha canviat res, ratifica la prevista amb les dates i els participants reals. No hi ha acord d'aprenentatge individual ni una llista de participants a part.
 - **Pòlissa d'assegurança** de cada alumne i de cada docent acompanyant. Si una **pòlissa col·lectiva** cobreix tots els participants o una part, puja-la a la *Pòlissa d'assegurança col·lectiva* del grup i marca *Cobert per la pòlissa col·lectiva* a cada participant que cobreixi (fitxa del participant): ja no se li demana la seva.
-- **Conveni de subvenció** de cada participant: l'equip el prepara fora de l'EMS (amb els serveis que paga el centre, si n'hi ha) i el puja perquè el signin. Per pujar-los tots des d'una sola pantalla, fes servir el botó **Documents dels participants** de la mobilitat: els documents de tots els participants en una llista, agrupats per document.
+- **Conveni de subvenció** de cada participant: l'equip el prepara fora de l'EMS (amb els serveis que paga el centre, si n'hi ha) i el puja perquè el signin. Per pujar-los tots des d'una sola pantalla, fes servir el botó **Documents pendents** de la mobilitat: els documents de tots els participants en una llista, agrupats per document.
 - **Green Travel: declaració jurada i evidències**, opcional: només quan es declara Green Travel.
 - **Documentació d'inclusió del grup**, opcional i confidencial: l'acreditació de les menys oportunitats i, quan hi ha costos reals d'inclusió, per què calia l'ajuda. Les seves factures van a la pestanya **Despeses col·lectives**.
 - **Document de mobilitat Europass** (alumnes) i **Certificat d'estada** (docents): opcionals, mai no impedeixen tancar la mobilitat.
@@ -74,7 +76,7 @@ Abans de marxar, la mobilitat mostra qui encara no està a punt (falta un docume
 
 ## Beques i diners de butxaca
 
-A la pestanya **Despeses col·lectives** introduïu la **beca** de cada participant (alumnes i docents acompanyants), tal com la calcula el Beneficiary Module. El centre acostuma a pagar els vols i l'allotjament de tot el grup: registreu-los com a **factures col·lectives**. L'EMS reparteix cada factura col·lectiva **a parts iguals entre els participants que hi van** i mostra, per a cadascun, la seva part i els seus **diners de butxaca**: la seva beca menys la seva part. És el que la Secretaria els transfereix.
+A la pestanya **Despeses col·lectives** introduïu la **beca** de cada participant (alumnes i docents acompanyants), tal com la calcula el Beneficiary Module. El centre acostuma a pagar els vols i l'allotjament de tot el grup: registreu-los com a **factures col·lectives**. L'EMS reparteix cada factura col·lectiva **a parts iguals entre els participants que hi van** i mostra, per a cadascun, la seva part i els seus **diners de butxaca**: la seva beca menys la seva part. És el que la Secretaria els transfereix. Una factura és o bé del grup o bé d'uns participants concrets, mai de totes dues coses, perquè comptaria dues vegades: l'EMS no us deixa desar-la si ompliu totes dues.
 
 *Exemple:* 8 alumnes amb una beca de 1.200 € i 2 docents amb 1.500 €. Els vols costen 2.000 € i l'hotel 5.000 €: 700 € per persona. Cada alumne rep 500 € i cada docent 800 €.
 

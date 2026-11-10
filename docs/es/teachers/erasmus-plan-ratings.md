@@ -4,15 +4,15 @@
 
 # Valorar planes de movilidad Erasmus+
 
-Como miembro del tribunal de la convocatoria Erasmus+ del personal, valoras en EMS el plan de movilidad de cada persona candidata con la rúbrica de la convocatoria.
+Como miembro de la comisión de la convocatoria Erasmus+ del personal, valoras en EMS el plan de movilidad de cada persona candidata con la rúbrica de la convocatoria.
 
-**Quién:** los miembros del tribunal que el equipo Erasmus añade a la convocatoria (la dirección y las jefaturas de departamento y de seminario).
+**Quién:** los miembros de la comisión que el equipo Erasmus añade a la convocatoria (la dirección y las jefaturas de departamento y de seminario).
 
 ---
 
 ## 1. Encontrar los planes
 
-Cuando el equipo Erasmus envía los planes al tribunal, recibes una tarea en EMS para cada uno, que vence el plazo para corregir puntuaciones de la convocatoria (dos semanas después del cierre). Sale en el resumen diario de tareas pendientes hasta que la hagas. En el menú **Erasmus+** tienes **Mi participación > Mis valoraciones de planes**: los planes que tienes asignados.
+Cuando el equipo Erasmus envía los planes a la comisión, recibes una tarea en EMS para cada uno, que vence el plazo para corregir puntuaciones de la convocatoria (dos semanas después del cierre). Sale en el resumen diario de tareas pendientes hasta que la hagas. En el menú **Erasmus+** tienes **Mi participación > Mis valoraciones de planes**: los planes que tienes asignados.
 
 Cada valoración muestra en pantalla el **plan de movilidad y transferencia** de la persona candidata, tal como lo escribió en el formulario de solicitud: la propuesta A (la principal) y la propuesta B (la de reserva), con sus palabras, y qué quiere aprender y cómo lo aplicará al trabajo. Valora las dos propuestas juntas, con una sola puntuación. No ves nada más de la solicitud. La difusión no se valora: es la misma obligación para todo el mundo.
 

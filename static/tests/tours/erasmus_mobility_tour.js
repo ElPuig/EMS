@@ -29,8 +29,8 @@ registry.category("web_tour.tours").add("ems_erasmus_open_choice", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='preparation_document_ids'] .o_data_row td[name='sign_host']",
-            content: "The documents say who signs them",
+            trigger: ".o_form_view .o_field_widget[name='preparation_document_ids'] .o_data_row td[name='handled_by']",
+            content: "The documents say who handles them",
         },
         {
             trigger: ".o_form_view .o_notebook a[name='checklist']",

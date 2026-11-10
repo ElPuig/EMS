@@ -56,7 +56,9 @@ States of the mobility: `draft` → `enrolment` → `selection` → `validation`
 ## Enrolment (issue #701)
 
 - The coordinator creates the mobility (*Erasmus+ > Mobilities > Group mobilities*), fills in the groups, the
-  enrolment period and the selection criteria (a default text with the agreed rule), and opens the
+  enrolment period and the selection criteria (a default text with the agreed rule), the
+  information for students (`description`, with the code view of `ems_html_codeview`, see
+  erasmus.md's Portal section), and opens the
   enrolment (`action_open_enrolment`, which refuses without groups, period or criteria). Dates
   and destination may stay empty until they are confirmed.
 - `/my/erasmus` shows a card per group mobility the student can see
@@ -306,7 +308,7 @@ state and the late tasks (Odoo activities). Each card opens the mobility's panel
 
 ### Screens added in the 2026-11-05 usage test
 
-- **Participants' documents** (stat button, team and leader, `action_view_participant_documents`):
+- **Pending documents** (stat button, team and leader, `action_view_participant_documents`):
   every active participant's lines on one editable list grouped by document
   (`view_erasmus_group_participant_document_list`), to upload each grant agreement or review without
   opening each file. The record rules decide what each one sees (the leader, no confidential line).

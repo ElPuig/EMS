@@ -1808,6 +1808,23 @@ class EmsErasmusInvoice(models.Model):
                                         ondelete='set null', index=True,
                                         domain="[('project_id', '=', project_id)]")
 
+    @api.depends('group_mobility_id')
+    def _compute_unassigned_amount(self):
+        """A group's invoice is split among the group's participants by the pocket money, never into
+        shares: nothing of it is left to assign (issue #777)."""
+        super()._compute_unassigned_amount()
+        for invoice in self.filtered('group_mobility_id'):
+            invoice.unassigned_amount = 0
+
+    @api.constrains('group_mobility_id', 'mobility_ids')
+    def _check_group_or_participants(self):
+        """Issue #777: a group's invoice counts in the group's grants, a participants' invoice in
+        their own ones; both at once would count it twice."""
+        for invoice in self:
+            if invoice.group_mobility_id and invoice.mobility_ids:
+                raise ValidationError(_("The invoice %s is either for a group mobility or for some participants, "
+                                        "not both: it would be counted twice.", invoice.name))
+
 
 class EmsErasmusProject(models.Model):
     """A project's group mobilities and their participants' records, counted with the individual

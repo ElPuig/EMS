@@ -155,7 +155,7 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         # 1. The new call: art. 8's documents, two modalities (VET, HED) without places, no minimum
         # score, the panel's two weeks. The team adds the panel and publishes.
         self.assertEqual(call.min_score, 0.0)
-        self.assertEqual(call.interview_deadline, call.date_close + timedelta(days=14))
+        self.assertEqual(call.interview_deadline, call._ems_deadlines(call.date_close)['interview_deadline'])
         self.assertEqual(call.modality_ids.mapped('project'), ['ka121_vet', 'ka131_hed'])
         # The 2026-11-03 review: only the language certificates; no CV, and the identity document
         # only of whoever goes (a mobility document).

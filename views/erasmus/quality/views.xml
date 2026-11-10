@@ -62,7 +62,7 @@
                                 <field name="country_id"/>
                                 <field name="open_date"/>
                                 <field name="reminder_count"/>
-                                <field name="answer_date" invisible="state != 'answered'"/>
+                                <field name="answer_date" options="{'show_time': False}" invisible="state != 'answered'"/>
                             </group>
                         </group>
                         <group string="Answer" invisible="state != 'answered'">
@@ -251,23 +251,51 @@
             <field name="name">ems.erasmus.quality.history.list</field>
             <field name="model">ems.erasmus.quality.history</field>
             <field name="arch" type="xml">
-                <list editable="bottom">
-                    <field name="course_name" placeholder="2022-2023"/>
-                    <field name="student_applicants"/>
-                    <field name="student_target"/>
-                    <field name="staff_applicants" optional="show"/>
-                    <field name="staff_target" optional="show"/>
-                    <field name="satisfaction"/>
-                    <field name="satisfaction_count"/>
-                    <field name="source"/>
+                <list>
+                    <field name="course_name"/>
+                    <field name="student_applicants" string="Applicants"/>
+                    <field name="student_target" string="Eligible"/>
+                    <field name="staff_applicants" string="Staff applicants" widget="ems_blank_zero" optional="show"/>
+                    <field name="staff_target" string="Staff eligible" widget="ems_blank_zero" optional="show"/>
+                    <field name="satisfaction" string="Satisfaction"/>
+                    <field name="satisfaction_count" string="Answers"/>
+                    <field name="source" optional="hide"/>
                 </list>
+            </field>
+        </record>
+
+        <!-- The source is long, and only reads in full here. -->
+        <record id="view_erasmus_quality_history_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.quality.history.form</field>
+            <field name="model">ems.erasmus.quality.history</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="course_name" placeholder="2022-2023"/>
+                                <field name="satisfaction"/>
+                                <field name="satisfaction_count"/>
+                            </group>
+                            <group>
+                                <field name="student_applicants"/>
+                                <field name="student_target"/>
+                                <field name="staff_applicants" widget="ems_blank_zero" placeholder="No data"/>
+                                <field name="staff_target" widget="ems_blank_zero" placeholder="No data"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="source"/>
+                        </group>
+                    </sheet>
+                </form>
             </field>
         </record>
 
         <record id="action_erasmus_quality_history" model="ir.actions.act_window">
             <field name="name">Earlier courses (manual load)</field>
             <field name="res_model">ems.erasmus.quality.history</field>
-            <field name="view_mode">list</field>
+            <field name="view_mode">list,form</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">No earlier course yet</p>
                 <p>Type in the indicators of the courses before EMS kept them, with their source: the evolution by course starts from them.</p>
@@ -284,10 +312,10 @@
                     <field name="name"/>
                     <field name="channel"/>
                     <field name="audience"/>
-                    <field name="recipient_count" optional="show"/>
+                    <field name="recipient_count" string="Reach" widget="ems_blank_zero" optional="show"/>
                     <field name="course_id" optional="show"/>
                     <field name="call_id" optional="hide"/>
-                    <field name="is_automatic" optional="show"/>
+                    <field name="is_automatic" string="Automatic" optional="show"/>
                 </list>
             </field>
         </record>
@@ -306,7 +334,7 @@
                                 <field name="audience" placeholder="E.g. students of CFGS (never names)"/>
                             </group>
                             <group>
-                                <field name="recipient_count"/>
+                                <field name="recipient_count" widget="ems_blank_zero" placeholder="Not known"/>
                                 <field name="course_id" options="{'no_create': True}"/>
                                 <field name="call_id" options="{'no_create': True}"/>
                                 <field name="is_automatic" invisible="not is_automatic"/>

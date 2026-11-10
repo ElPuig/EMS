@@ -14,19 +14,33 @@ Crea i publica una convocatòria Erasmus+, revisa les sol·licituds que l'alumna
 
 Ves a **Erasmus+ > Convocatòries > Convocatòries** i fes clic a **Nou**:
 
+> **Dates i hores:** les llistes i les dates que no es poden editar mostren només el dia. Un termini que pots editar conserva l'hora, perquè és l'hora el que decideix quan s'acaba: *20/11/2026 23:59* tanca al final d'aquell dia. També la conserven la data d'una entrevista, el torn per escollir destinació i el termini per respondre una oferta.
+
 | Camp | Què cal posar-hi |
 |---|---|
 | Nom | Per exemple, *Pràctiques Erasmus+ 2026-27* |
 | Curs | El curs escolar de la convocatòria |
 | Convocatòria publicada | El PDF de la convocatòria, que l'alumnat pot descarregar des del portal |
 | Obertura / Tancament de sol·licituds | Quan pot sol·licitar l'alumnat. Després de la data de tancament ningú no pot modificar la seva sol·licitud |
-| Termini d'esmena | Fins quan els sol·licitants poden pujar les esmenes que demanis. Es pot omplir més endavant |
+
+La part de dalt de la convocatòria té dos blocs: **Ajustos** (per a qui és, el curs, la puntuació mínima i el PDF de la convocatòria) i **Calendari** (les dates, en l'ordre del procés). L'EMS omple els quatre terminis posteriors al tancament a partir de la data de tancament, a les 14:00, i els mostra plegats a **Terminis després del tancament**: fes-hi clic per veure'ls o canviar-los.
+
+| Termini | Quan el posa l'EMS | Convocatòria 2026-27 (tanca el divendres 20/11) |
+|---|---|---|
+| Termini d'esmena | 7 dies després del tancament | Divendres 27/11, 14:00 |
+| Termini per corregir puntuacions | 14 dies després del tancament | Divendres 04/12, 14:00 |
+| Termini de reclamacions | 19 dies després del tancament | Dimecres 09/12, 14:00 |
+| Termini d'acceptació | 25 dies després del tancament | Dimarts 15/12, 14:00 |
+
+Un termini que cau en cap de setmana, festiu o vacances escolars passa al següent dia lectiu. Si canvies la data de tancament, els terminis la segueixen, tret dels que hagis canviat a mà. Si les dates no segueixen l'ordre del procés (per exemple, un termini de reclamacions anterior al tancament de sol·licituds), la convocatòria t'avisa a dalt; et deixa desar-la igualment.
+
+![Els blocs Ajustos i Calendari de la convocatòria, amb els terminis desplegats](../../assets/erasmus/convocatoria-calendari.png)
 
 > Les respostes als correus que l'EMS envia sense que ningú de l'equip els enviï (acusaments de recepció i recordatoris) arriben a la bústia d'Erasmus+ que hi ha a **Configuració > Gestió de l'EMS > Dades del centre > Erasmus+** (erasmus@elpuig.xeill.net), la mateixa per a totes les convocatòries.
 
-Les pestanyes de la convocatòria estan en dos blocs: **Selecció** (modalitats, documents, informació per a les persones sol·licitants, tribunal i resolucions) i **Mobilitat** (destinacions, documents de la mobilitat, carta de compromís, llista de passos i autoavaluació setmanal). Els botons de dalt segueixen la fase de la convocatòria, la més recent primer: abans de la resolució definitiva, la classificació i les entrevistes (o les valoracions dels plans); després, les mobilitats i les ofertes de plaça; les reclamacions, a partir de la resolució provisional. Un empat per sortejar s'avisa a dalt de tot de la convocatòria.
+Les pestanyes de la convocatòria estan en dos blocs: **Selecció** (modalitats, documents, informació per a les persones sol·licitants, comissió i resolucions) i **Mobilitat** (destinacions, documents de la mobilitat, carta de compromís, llista de passos i autoavaluació setmanal). El bloc **Mobilitat** només apareix un cop publicada la resolució definitiva: és per a les persones seleccionades, i una convocatòria nova ja porta el que cal, de manera que per obrir una convocatòria només veus **Selecció**. Els botons de dalt segueixen la fase de la convocatòria, la més recent primer: abans de la resolució definitiva, la classificació i les entrevistes (o les valoracions dels plans); després, les mobilitats i les ofertes de plaça; les reclamacions, a partir de la resolució provisional. Un empat per sortejar s'avisa a dalt de tot de la convocatòria.
 
-Pestanya **Modalitats**: una línia per a cada llista de selecció amb places pròpies, per exemple *GM* i *GS*. A **Nivells** tria els nivells de l'alumnat que sol·licita en aquesta modalitat (per exemple *CFGM* per a GM, i *CFGS* i els cursos d'especialització per a GS, perquè aquest alumnat va al projecte d'educació superior). Qualsevol alumne el grup principal del qual sigui d'un d'aquests nivells pot sol·licitar, sigui del curs que sigui. Omple també el projecte, les places, el període i les destinacions.
+Pestanya **Modalitats**: una línia per a cada llista de selecció amb places pròpies, per exemple *GM* i *GS*. A **Nivells** tria els nivells de l'alumnat que sol·licita en aquesta modalitat (per exemple *CFGM* per a GM, i *CFGS* i els cursos d'especialització per a GS, perquè aquest alumnat va al projecte d'educació superior). Qualsevol alumne el grup principal del qual sigui d'un d'aquests nivells pot sol·licitar, sigui del curs que sigui. Omple també les places. L'EMS posa el projecte a partir dels nivells (CFGM al KA121-VET; CFGS i els cursos d'especialització al KA131-HED); el projecte concret de cada persona es tria a la seva mobilitat. Les destinacions reals, amb les dates i les places, van a la pestanya **Destinacions** del bloc **Mobilitat**, abans d'obrir l'elecció de destinació.
 
 Pestanya **Documents**: una línia per a cada document que demana la convocatòria, amb el seu **Caràcter**:
 
@@ -43,7 +57,10 @@ Marca **Confidencial** per als documents que només pot veure l'equip Erasmus, c
 
 Els documents per defecte, la llista de comprovació i les preguntes ja surten en una convocatòria nova abans de desar-la; si canvies **Sol·licitants**, canvien pels de la convocatòria de personal (o d'alumnat).
 
-Pestanya **Informació per als sol·licitants**: el text que es mostra al portal a sobre del formulari.
+Pestanya **Informació per als sol·licitants**: el text que es mostra al portal a sobre del formulari. Fes clic dins del text i apareix la barra de l'editor. Per enganxar-hi una fitxa informativa preparada en un altre lloc (per exemple, amb els colors i els requadres del portal), fes servir el botó **`</>`** (vista de codi) del final de la barra (1), enganxa-hi el codi HTML i torna a prémer el botó per tornar a l'editor: la fitxa conserva el disseny. Si l'enganxes directament a l'editor, el perd.
+
+![El botó de vista de codi a l'editor](../../assets/erasmus/convocatoria-informacio-codi.png)
+
 
 > **Consell:** l'any vinent, obre aquesta convocatòria i fes servir **Duplica**: es copien les modalitats i els documents.
 
@@ -55,11 +72,11 @@ A **Accions**, fes clic a **Publica**. La convocatòria apareix al portal de tot
 
 Publicar no envia cap correu. Per avisar tothom qui s'hi pot presentar, fes clic a **Accions > Avisa qui s'hi pot presentar**: l'EMS et mostra quantes persones el rebran (i quantes no tenen adreça de correu i no el rebran) i l'envia quan fas clic a **Envia l'avís**. És la mateixa regla que el portal: en una convocatòria d'alumnat, l'alumnat dels nivells de les seves modalitats, excepte qui té massa amonestacions; en una de personal, el professorat dels seus nivells i la direcció que valida les activitats. Cada persona rep el seu propi correu, amb les dates de la convocatòria i l'enllaç per sol·licitar-la. La família no el rep. El pots enviar abans que s'obri la convocatòria; si el tornes a enviar (per exemple després d'afegir un nivell), tothom el torna a rebre: l'assistent t'ho avisa.
 
-**Recordatori abans del tancament:** a **Recordatori (dies abans del tancament)** (3 per defecte), l'EMS envia un correu, tants dies abans del tancament i a partir de les 9:00, a qui es pot presentar i encara no ha enviat la sol·licitud (un esborrany no compta). S'envia una sola vegada, i només si l'avís s'ha enviat des de l'EMS. Posa-hi 0 perquè no n'hi hagi. La convocatòria mostra quan s'ha enviat cada correu i a quantes persones.
+**Recordatori abans del tancament:** 3 dies abans de la data de tancament, a partir de les 9:00, l'EMS envia un correu a qui es pot presentar i encara no ha enviat la sol·licitud (un esborrany no compta). S'envia una sola vegada, i només si l'avís s'ha enviat des de l'EMS. La convocatòria mostra quan s'ha enviat cada correu i a quantes persones.
 
 ## 3. Revisar les sol·licituds
 
-Ves a **Erasmus+ > Convocatòries > Sol·licituds** (o al botó **Sol·licituds** de la convocatòria, que les agrupa per modalitat). Filtres: *Per revisar*, *Esmena requerida*, *Admesa*, *Exclosa*. **Documents per revisar** compta els fitxers que esperen la vostra comprovació (un esborrany encara no enviat no compta).
+Ves a **Erasmus+ > Convocatòries > Sol·licituds**, agrupades per convocatòria, amb la puntuació i la posició de cada sol·licitud quan ja n'hi ha (o al botó **Sol·licituds** de la convocatòria, que les agrupa per modalitat). Filtres: *Per revisar*, *Esmena requerida*, *Admesa*, *Exclosa*. **Documents per revisar** compta els fitxers que esperen la vostra comprovació (un esborrany encara no enviat no compta).
 
 Obre una sol·licitud:
 
@@ -73,7 +90,7 @@ Obre una sol·licitud:
 
 ## 4. Demanar esmenes
 
-Quan un document s'ha de corregir o en falta un d'obligatori, marca'l i fes clic a **Accions > Demana l'esmena**. La convocatòria ha de tenir un **Termini d'esmena** encara per arribar: sense aquest termini, EMS no et deixa demanar-la. L'alumne rep un correu amb la llista i aquest termini, i només pot pujar aquests documents. Quan torna a enviar la sol·licitud, aquesta torna a *Enviat*, els fitxers nous queden pendents de revisió i cada membre de l'equip Erasmus rep una tasca per revisar-la (també al seu resum diari de tasques pendents). La tasca es tanca sola en admetre-la, excloure-la o demanar una altra esmena.
+Quan un document s'ha de corregir o en falta un d'obligatori, marca'l i fes clic a **Accions > Demana l'esmena**. La convocatòria ha de tenir un **Termini d'esmena** encara per arribar: sense aquest termini, EMS no et deixa demanar-la. L'alumne rep un correu amb la llista i aquest termini, i només pot pujar aquests documents. Quan torna a enviar la sol·licitud, aquesta torna a *Enviada*, els fitxers nous queden pendents de revisió i cada membre de l'equip Erasmus rep una tasca per revisar-la (també al seu resum diari de tasques pendents). La tasca es tanca sola en admetre-la, excloure-la o demanar una altra esmena.
 
 ## 5. Admetre o excloure
 

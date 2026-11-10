@@ -10,14 +10,14 @@
             <field name="arch" type="xml">
                 <list string="Group mobilities" decoration-muted="state in ('done', 'cancelled')">
                     <field name="name"/>
-                    <field name="group_ids" widget="many2many_tags" optional="show"/>
+                    <field name="group_ids" string="Groups" widget="many2many_tags" optional="show"/>
                     <field name="leader_id"/>
                     <field name="country_id" optional="show"/>
                     <field name="date_start_planned" optional="show"/>
                     <field name="registration_count" optional="show"/>
-                    <field name="selected_count"/>
-                    <field name="documents_missing" optional="show" decoration-danger="documents_missing > 0"/>
-                    <field name="documents_to_review" optional="show" decoration-warning="documents_to_review > 0"/>
+                    <field name="selected_count" string="Selected"/>
+                    <field name="documents_missing" string="Docs. pending" optional="show" decoration-danger="documents_missing > 0"/>
+                    <field name="documents_to_review" string="To review" optional="show" decoration-warning="documents_to_review > 0"/>
                     <field name="eu_survey_state" optional="hide"/>
                     <field name="activity_ids" widget="list_activity" optional="show"/>
                     <field name="project_id" optional="hide"/>
@@ -180,7 +180,7 @@
                                  upload the filled grant agreements without opening each file. -->
                             <button name="action_view_participant_documents" type="object" class="oe_stat_button"
                                     icon="fa-files-o" invisible="state not in ('preparation', 'stay', 'return', 'done') or user_role not in ('team', 'leader')">
-                                <field name="documents_missing" widget="statinfo" string="Participants' documents"/>
+                                <field name="documents_missing" widget="statinfo" string="Pending documents"/>
                             </button>
                         </div>
                         <div class="oe_title">
@@ -252,8 +252,8 @@
                             <page string="Enrolment" name="enrolment" invisible="user_role == 'companion'">
                                 <group>
                                     <group>
-                                        <field name="enrolment_open" readonly="user_role != 'team' or state not in ('draft', 'enrolment')"/>
-                                        <field name="enrolment_close" readonly="user_role != 'team' or state not in ('draft', 'enrolment')"/>
+                                        <field name="enrolment_open" options="{'show_time': False, 'show_seconds': False}" readonly="user_role != 'team' or state not in ('draft', 'enrolment')"/>
+                                        <field name="enrolment_close" options="{'show_time': False, 'show_seconds': False}" readonly="user_role != 'team' or state not in ('draft', 'enrolment')"/>
                                         <field name="is_enrolling"/>
                                     </group>
                                     <group>
@@ -263,16 +263,16 @@
                                 <label for="tie_break"/>
                                 <field name="tie_break" readonly="user_role != 'team' or state != 'draft'"/>
                                 <label for="description"/>
-                                <field name="description" readonly="user_role != 'team'"/>
+                                <field name="description" widget="ems_html_codeview" readonly="user_role != 'team'"/>
                             </page>
                             <page string="Selection" name="selection"
                                   invisible="state == 'draft' or (state == 'enrolment' and user_role != 'team') or user_role == 'companion'">
                                 <group>
                                     <group>
-                                        <field name="ranking_date"/>
-                                        <field name="proposal_date"/>
+                                        <field name="ranking_date" options="{'show_time': False}"/>
+                                        <field name="proposal_date" options="{'show_time': False}"/>
                                         <field name="proposal_user_id"/>
-                                        <field name="approval_date"/>
+                                        <field name="approval_date" options="{'show_time': False}"/>
                                         <field name="approval_user_id"/>
                                     </group>
                                     <group>
@@ -281,7 +281,7 @@
                                         <field name="proposal_note" readonly="state != 'selection'"/>
                                         <field name="return_note" readonly="state != 'validation' or user_role != 'team'"
                                                invisible="state not in ('selection', 'validation') or (not return_note and state == 'selection')"/>
-                                        <field name="claims_deadline" readonly="state != 'validation' or provisional_published or user_role != 'team'"
+                                        <field name="claims_deadline" options="{'show_time': False, 'show_seconds': False}" readonly="state != 'validation' or provisional_published or user_role != 'team'"
                                                invisible="state in ('draft', 'enrolment', 'selection') and not claims_deadline"/>
                                     </group>
                                 </group>
@@ -290,7 +290,7 @@
                                     <field name="resolution_ids" nolabel="1" colspan="2">
                                         <list>
                                             <field name="name"/>
-                                            <field name="publish_date"/>
+                                            <field name="publish_date" options="{'show_time': False}"/>
                                             <field name="published_by_id"/>
                                         </list>
                                     </field>
@@ -307,7 +307,7 @@
                                         <field name="partner_id"/>
                                         <field name="group_id" optional="show"/>
                                         <field name="state" optional="show"/>
-                                        <field name="enrol_date" optional="hide"/>
+                                        <field name="enrol_date" options="{'show_time': False}" optional="hide"/>
                                         <field name="grade_average" invisible="not grade_found" optional="show"/>
                                         <field name="ranking_average" invisible="not has_average"/>
                                         <field name="has_average" column_invisible="1"/>
@@ -359,7 +359,7 @@
                                 <group string="Draws" invisible="not draw_ids">
                                     <field name="draw_ids" nolabel="1" colspan="2">
                                         <list>
-                                            <field name="date"/>
+                                            <field name="date" options="{'show_time': False}"/>
                                             <field name="user_id"/>
                                             <field name="grade_average"/>
                                             <field name="fewer_opportunities" groups="ems.group_erasmus,ems.group_academic_admin"/>
@@ -419,7 +419,9 @@
                                         <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
                                                 invisible="file_state != 'to_review' or parent.user_role not in ('team', 'leader')"/>
                                         <button name="action_mark_needs_change" type="object" string="Needs changes" icon="fa-pencil"
-                                                invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers) or parent.user_role not in ('team', 'leader')"/>
+                                                invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers) or parent.user_role not in ('team', 'leader') or file_state == 'complete'"/>
+                                        <button name="action_mark_needs_change" type="object" string="Reopen" icon="fa-undo"
+                                                invisible="file_state != 'complete' or review_state == 'needs_change' or (handled_by == 'team' and not signers) or parent.user_role not in ('team', 'leader')"/>
                                         <field name="signatures_missing" optional="show"/>
                                         <button name="action_open_signatures" type="object" string="Signatures" icon="fa-check-square-o"
                                                 invisible="not signers or parent.user_role not in ('team', 'leader')"/>
@@ -507,7 +509,7 @@
                                                placeholder="What changed: dates, activities, participants..."/>
                                     </group>
                                     <group string="Closure">
-                                        <field name="closure_proposed_date"/>
+                                        <field name="closure_proposed_date" options="{'show_time': False}"/>
                                         <field name="closure_note" readonly="user_role not in ('team', 'leader')"/>
                                         <field name="cancel_reason" readonly="user_role != 'team' or state in ('done', 'cancelled')"/>
                                     </group>
@@ -567,7 +569,9 @@
                     <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
                             invisible="file_state != 'to_review'"/>
                     <button name="action_mark_needs_change" type="object" string="Needs changes" icon="fa-pencil"
-                            invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers)"/>
+                            invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers) or file_state == 'complete'"/>
+                    <button name="action_mark_needs_change" type="object" string="Reopen" icon="fa-undo"
+                            invisible="file_state != 'complete' or review_state == 'needs_change' or (handled_by == 'team' and not signers)"/>
                     <button name="action_open_signatures" type="object" string="Signatures" icon="fa-check-square-o"
                             invisible="not signers"/>
                 </list>
@@ -663,7 +667,9 @@
                                 <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
                                         invisible="file_state != 'to_review'"/>
                                 <button name="action_mark_needs_change" type="object" string="Needs changes"
-                                        icon="fa-pencil" invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers)"/>
+                                        icon="fa-pencil" invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers) or file_state == 'complete'"/>
+                                <button name="action_mark_needs_change" type="object" string="Reopen"
+                                        icon="fa-undo" invisible="file_state != 'complete' or review_state == 'needs_change' or (handled_by == 'team' and not signers)"/>
                                 <field name="signatures_missing" optional="show"/>
                                 <button name="action_open_signatures" type="object" string="Signatures" icon="fa-check-square-o"
                                         invisible="not signers"/>
@@ -681,12 +687,12 @@
                             <field name="commitment_guardian_pending" invisible="1"/>
                             <group>
                                 <group string="Student">
-                                    <field name="commitment_signed_date"/>
+                                    <field name="commitment_signed_date" options="{'show_time': False}"/>
                                     <field name="commitment_signed_by_id"/>
                                     <field name="commitment_signed_ip"/>
                                 </group>
                                 <group string="Family" invisible="not is_minor">
-                                    <field name="commitment_guardian_signed_date"/>
+                                    <field name="commitment_guardian_signed_date" options="{'show_time': False}"/>
                                     <field name="commitment_guardian_signed_by_id"/>
                                     <field name="commitment_guardian_signed_ip"/>
                                 </group>
@@ -701,28 +707,28 @@
                                    groups="ems.group_erasmus,ems.group_academic_admin">
                                 <list>
                                     <field name="number"/>
-                                    <field name="signed_date"/>
+                                    <field name="signed_date" options="{'show_time': False}"/>
                                     <field name="signed_by_id"/>
-                                    <field name="guardian_signed_date"/>
+                                    <field name="guardian_signed_date" options="{'show_time': False}"/>
                                     <field name="guardian_signed_by_id"/>
                                     <field name="provisional"/>
-                                    <field name="superseded_date"/>
+                                    <field name="superseded_date" options="{'show_time': False}"/>
                                     <field name="reason"/>
                                 </list>
                                 <form string="Earlier version">
                                     <group>
                                         <group>
                                             <field name="number"/>
-                                            <field name="signed_date"/>
+                                            <field name="signed_date" options="{'show_time': False}"/>
                                             <field name="signed_by_id"/>
                                             <field name="signed_ip"/>
                                             <field name="provisional"/>
                                         </group>
                                         <group>
-                                            <field name="guardian_signed_date"/>
+                                            <field name="guardian_signed_date" options="{'show_time': False}"/>
                                             <field name="guardian_signed_by_id"/>
                                             <field name="guardian_signed_ip"/>
-                                            <field name="superseded_date"/>
+                                            <field name="superseded_date" options="{'show_time': False}"/>
                                             <field name="reason"/>
                                         </group>
                                     </group>

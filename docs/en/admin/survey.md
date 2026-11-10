@@ -21,7 +21,7 @@ is hidden in this installation.
 
 A survey moves through a fixed sequence of states as you work through it:
 
-1. **Draft** — define the survey's **Title**, **Description**, **Target** (Students / Teachers
+1. **Draft** — define the survey's **Title**, **Description**, **Audience** (Students / Teachers
    / ASP) and its content **Blocks** (the questions/sections, as tab-separated templates).
 2. **Compute recipients** — EMS works out who should receive the survey (filtered by Level/
    Study/Group, or by special per-subject/per-internship rules on individual blocks) and builds

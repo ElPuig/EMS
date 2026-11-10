@@ -9,10 +9,10 @@
                 <list string="Calls" decoration-muted="state == 'closed'">
                     <field name="name"/>
                     <field name="audience"/>
-                    <field name="course_id" optional="show"/>
-                    <field name="date_open"/>
-                    <field name="date_close"/>
-                    <field name="application_count"/>
+                    <field name="course_id" string="Course of the call" optional="show"/>
+                    <field name="date_open" string="Opens" options="{'show_time': False, 'show_seconds': False}"/>
+                    <field name="date_close" string="Closes" options="{'show_time': False, 'show_seconds': False}"/>
+                    <field name="application_count" string="Applications"/>
                     <field name="state" widget="badge" decoration-info="state == 'draft'"
                            decoration-success="state == 'published'"/>
                 </list>
@@ -111,35 +111,48 @@
                         <div class="oe_title">
                             <h1><field name="name" placeholder="e.g. Erasmus+ internships 2026-27"/></h1>
                         </div>
+                        <!-- Note 2.4 of the 46.0 review: dates out of the process order, warned (not refused). -->
+                        <div class="alert alert-warning" role="alert" invisible="not date_order_warning">
+                            The dates do not follow the order of the process: <field name="date_order_warning" class="fw-bold"/>.
+                        </div>
+                        <!-- Note 2.3 of the 46.0 review: two blocks, the settings and the calendar in the
+                             order of the process. Issue #767: the deadlines after closing are filled in from
+                             the closing date, folded; the reminder is always 3 days before closing. -->
                         <group>
-                            <group>
+                            <group string="Settings" name="settings">
                                 <field name="audience" readonly="application_count"/>
                                 <field name="staff_level_ids" widget="many2many_tags" invisible="audience != 'staff'"
                                        required="audience == 'staff' and state != 'draft'"/>
                                 <field name="validator_ids" widget="many2many_tags" invisible="audience != 'staff'"
                                        required="audience == 'staff' and state != 'draft'"/>
-                                <field name="course_id"/>
+                                <field name="course_id" string="Course of the call"/>
+                                <field name="min_score" invisible="audience == 'staff'"/>
                                 <field name="rules_document" filename="rules_filename"/>
                                 <field name="rules_filename" invisible="1"/>
                             </group>
-                            <group>
-                                <field name="date_open" options="{'show_seconds': False}"/>
-                                <field name="date_close" options="{'show_seconds': False}"/>
-                                <field name="subsanation_deadline" options="{'show_seconds': False}"/>
-                                <field name="interview_deadline" options="{'show_seconds': False}"/>
-                                <field name="claims_deadline" options="{'show_seconds': False}"/>
-                                <field name="acceptance_deadline" options="{'show_seconds': False}"/>
-                                <field name="min_score" invisible="audience == 'staff'"/>
-                                <field name="is_accepting"/>
-                                <field name="reminder_days"/>
+                            <group string="Calendar" name="calendar">
+                                <field name="date_open" options="{'show_time': False, 'show_seconds': False}"/>
+                                <field name="date_close" options="{'show_time': False, 'show_seconds': False}"/>
+                                <details class="o_ems_erasmus_call_deadlines" colspan="2">
+                                    <summary class="text-primary">Deadlines after closing (filled in from the closing date)</summary>
+                                    <group>
+                                        <field name="subsanation_deadline" options="{'show_time': False, 'show_seconds': False}"/>
+                                        <!-- In a staff call this is the commission's time to rate the plans. -->
+                                        <label for="interview_deadline" invisible="audience == 'staff'"/>
+                                        <label for="interview_deadline" string="Commission's rating deadline" invisible="audience != 'staff'"/>
+                                        <field name="interview_deadline" nolabel="1" options="{'show_time': False, 'show_seconds': False}"/>
+                                        <field name="claims_deadline" options="{'show_time': False, 'show_seconds': False}"/>
+                                        <field name="acceptance_deadline" options="{'show_time': False, 'show_seconds': False}"/>
+                                    </group>
+                                </details>
                                 <label for="announce_date" invisible="not announce_date"/>
                                 <div class="o_row" invisible="not announce_date">
-                                    <field name="announce_date" options="{'show_seconds': False}"/>
+                                    <field name="announce_date" options="{'show_time': False}"/>
                                     <span>(<field name="announce_count" class="oe_inline"/> people)</span>
                                 </div>
                                 <label for="reminder_date" invisible="not reminder_date"/>
                                 <div class="o_row" invisible="not reminder_date">
-                                    <field name="reminder_date" options="{'show_seconds': False}"/>
+                                    <field name="reminder_date" options="{'show_time': False}"/>
                                     <span>(<field name="reminder_count" class="oe_inline"/> people)</span>
                                 </div>
                             </group>
@@ -155,14 +168,14 @@
                                                 <field name="name"/>
                                                 <field name="level_ids" widget="many2many_tags"
                                                        column_invisible="parent.audience == 'staff'"/>
-                                                <field name="project"/>
+                                                <!-- Issue #767: a students' modality takes it from its levels. -->
+                                                <field name="project" column_invisible="parent.audience != 'staff'"/>
                                                 <field name="places"/>
-                                                <field name="period" column_invisible="parent.audience == 'staff'"/>
-                                                <field name="destinations" column_invisible="parent.audience == 'staff'"/>
                                             </list>
                                         </field>
                                     </page>
-                                    <page string="Documents" name="documents">
+                                    <!-- Issue #767: a staff call asks for the form only (and language certificates, already there). -->
+                                    <page string="Documents" name="documents" invisible="audience == 'staff'">
                                         <field name="document_ids">
                                             <list editable="bottom">
                                                 <field name="sequence" widget="handle"/>
@@ -181,10 +194,12 @@
                                         </field>
                                     </page>
                                     <page string="Information for applicants" name="description">
-                                        <field name="description"/>
+                                        <!-- Issue #774: the code view, to paste a prepared card's HTML. -->
+                                        <field name="description" widget="ems_html_codeview"/>
                                     </page>
                                     <!-- Issue #686: who rates the staff's mobility plans. -->
-                                    <page string="Panel" name="panel" invisible="audience != 'staff'">
+                                    <!-- Issue #767: only used once closed ("Send plans to the panel"). -->
+                                    <page string="Panel" name="panel" invisible="audience != 'staff' or state != 'closed'">
                                         <field name="panel_ids">
                                             <list editable="bottom">
                                                 <field name="sequence" widget="handle"/>
@@ -196,9 +211,9 @@
                                     <page string="Resolutions" name="resolutions" invisible="state != 'closed'">
                                         <field name="resolution_ids" context="{'default_call_id': id}">
                                             <!-- A published resolution is never deleted: no bin here (a draft one, from its own form). -->
-                                            <list delete="false">
+                                            <list delete="false" default_order="publish_date, id">
                                                 <field name="kind"/>
-                                                <field name="publish_date"/>
+                                                <field name="publish_date" options="{'show_time': False}"/>
                                                 <field name="state" widget="badge" decoration-info="state == 'draft'"
                                                        decoration-success="state == 'published'"/>
                                             </list>
@@ -206,9 +221,9 @@
                                         <group string="Draws" invisible="not draw_ids">
                                             <field name="draw_ids" nolabel="1" colspan="2">
                                                 <list>
-                                                    <field name="date"/>
+                                                    <field name="date" options="{'show_time': False}"/>
                                                     <field name="user_id"/>
-                                                    <field name="score_total"/>
+                                                    <field name="score_total" string="Total"/>
                                                     <field name="tied_count"/>
                                                     <field name="line_ids" widget="many2many_tags" string="Order drawn"/>
                                                 </list>
@@ -231,7 +246,9 @@
                                     </page>
                                 </notebook>
                             </page>
-                            <page string="Mobility" name="mobility_block">
+                            <!-- Issue #767: only for the selected participants: hidden until the definitive
+                                 resolution, a new call already starts with its defaults. -->
+                            <page string="Mobility" name="mobility_block" invisible="not has_final_resolution">
                                 <notebook>
                                     <!-- Issue #687: mobility preparation. -->
                                     <page string="Destinations" name="destinations" invisible="audience != 'student'">
@@ -248,7 +265,7 @@
                                                 <field name="country_id"/>
                                                 <field name="city"/>
                                                 <field name="places"/>
-                                                <field name="free_places"/>
+                                                <field name="free_places" string="Free"/>
                                                 <field name="level_ids" widget="many2many_tags"/>
                                                 <field name="date_start"/>
                                                 <field name="date_end"/>
@@ -260,29 +277,51 @@
                                     <page string="Mobility documents" name="preparation_documents">
                                         <field name="preparation_document_ids"
                                                context="{'default_stage': 'preparation', 'default_due_basis': 'destination', 'default_due_days': 30}">
-                                            <list editable="bottom">
+                                            <!-- The note of the review of 46.0: the five columns that tell the documents apart; the rest when opening the line. -->
+                                            <list>
                                                 <field name="call_id" column_invisible="1"/>
                                                 <field name="sequence" widget="handle"/>
                                                 <field name="stage"/>
                                                 <field name="name"/>
                                                 <field name="requirement"/>
-                                                <field name="modality_ids" widget="many2many_tags" options="{'no_create': True}"/>
-                                                <field name="project"/>
-                                                <field name="sign_participant" string="Participant"/>
-                                                <field name="sign_guardian" string="Legal guardian"/>
-                                                <field name="sign_director" string="Director"/>
-                                                <field name="sign_coordinator" string="Erasmus coordinator"/>
-                                                <field name="sign_tutor" string="Centre's tutor"/>
-                                                <field name="sign_host" string="Host entity"/>
-                                                <field name="sign_template_id" optional="show"
-                                                       invisible="not (sign_participant or sign_guardian or sign_director or sign_coordinator or sign_tutor or sign_host)"/>
-                                                <field name="open_days" optional="show"/>
+                                                <field name="modality_ids" widget="many2many_tags" optional="hide"/>
+                                                <field name="project" optional="hide"/>
                                                 <field name="due_basis"/>
-                                                <field name="due_days"/>
+                                                <field name="due_days" optional="hide"/>
                                                 <field name="handled_by"/>
-                                                <field name="description"/>
-                                                <field name="file_category" optional="show"/>
                                             </list>
+                                            <form>
+                                                <sheet>
+                                                    <group>
+                                                        <group>
+                                                            <field name="stage"/>
+                                                            <field name="name"/>
+                                                            <field name="requirement"/>
+                                                            <field name="modality_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                                                            <field name="project"/>
+                                                            <field name="handled_by"/>
+                                                            <field name="due_basis"/>
+                                                            <field name="due_days"/>
+                                                            <field name="open_days"/>
+                                                            <field name="file_category"/>
+                                                        </group>
+                                                        <group string="Signatures">
+                                                            <field name="sign_participant" string="Participant"/>
+                                                            <!-- A teacher has neither a legal guardian nor a centre's tutor. -->
+                                                            <field name="sign_guardian" string="Legal guardian" invisible="parent.audience == 'staff'"/>
+                                                            <field name="sign_director" string="Director"/>
+                                                            <field name="sign_coordinator" string="Erasmus coordinator"/>
+                                                            <field name="sign_tutor" string="Centre's tutor" invisible="parent.audience == 'staff'"/>
+                                                            <field name="sign_host" string="Host entity"/>
+                                                            <field name="sign_template_id"
+                                                                   invisible="not (sign_participant or sign_guardian or sign_director or sign_coordinator or sign_tutor or sign_host)"/>
+                                                        </group>
+                                                    </group>
+                                                    <group>
+                                                        <field name="description"/>
+                                                    </group>
+                                                </sheet>
+                                            </form>
                                         </field>
                                     </page>
                                     <page string="Commitment letter" name="commitment_letter" invisible="audience != 'student'">
@@ -338,7 +377,7 @@
                         EMS emails the call, with the link to apply on the portal, to each person who can apply to it, at their own address.
                     </p>
                     <div class="alert alert-warning" role="alert" invisible="not announce_date">
-                        The notice was already sent on <field name="announce_date" readonly="1" class="oe_inline"/>
+                        The notice was already sent on <field name="announce_date" options="{'show_time': False}" readonly="1" class="oe_inline"/>
                         to <field name="announce_count" class="oe_inline"/> people. Sending it again emails all of them again.
                     </div>
                     <group>

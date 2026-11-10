@@ -17,8 +17,16 @@ from .workflow import check_workflow_create, check_workflow_write
 
 # The centre's two Erasmus+ projects: CFGM goes on KA121-VET, CFGS on KA131-HED.
 PROJECTS = [('ka121_vet', "KA121-VET"), ('ka131_hed', "KA131-HED")]
-# A staff call's panel rates the mobility plans in the two weeks after it closes.
-STAFF_RATING_DAYS = 14
+# Issue #767: the deadlines after a call closes, filled in from its closing date: that many days
+# after the closing day, at DEADLINE_HOUR in the centre, on the next school day if it is not one. A
+# staff call's panel rates the plans until the score correction deadline.
+DEADLINE_DAYS = {'subsanation_deadline': 7, 'interview_deadline': 14, 'claims_deadline': 19,
+                 'acceptance_deadline': 25}
+DEADLINE_HOUR = 14.0
+# The dates of a call, in the order of its process (issue #767, note 2.4 of the 46.0 review).
+PROCESS_DATES = ['date_open', 'date_close', *DEADLINE_DAYS]
+# The levels whose students go on KA131-HED (higher education); any other level, on KA121-VET.
+HED_LEVELS = ['ems.level_cfgs', 'ems.level_efps']
 # Who a new staff call is for (art. 6 of the staff call): the teachers of every FP level.
 STAFF_LEVELS = ['ems.level_cfgb', 'ems.level_cfgm', 'ems.level_cfgs', 'ems.level_efps', 'ems.level_pfi']
 # The reminder before a call closes is emailed from this hour on, in the centre's time.
@@ -51,8 +59,7 @@ class EmsErasmusCall(models.Model):
                                            help="Until when applicants can upload the corrections asked for.")
     interview_deadline = fields.Datetime(string="Score correction deadline", tracking=True, copy=False,
                                          help="Until when evaluators can reopen and change their interviews or "
-                                              "mobility plan ratings, and the due date of the panel's tasks. A "
-                                              "staff call sets it two weeks after closing.")
+                                              "mobility plan ratings, and the due date of the panel's tasks.")
     claims_deadline = fields.Datetime(string="Claims deadline", tracking=True, copy=False,
                                       help="Until when applicants can claim against the provisional resolution "
                                            "(shown to them on the portal).")
@@ -145,6 +152,7 @@ class EmsErasmusCall(models.Model):
     reminder_date = fields.Datetime(string="Reminder sent on", readonly=True, copy=False)
     reminder_count = fields.Integer(string="Reminder sent to", readonly=True, copy=False,
                                     help="How many people the reminder before the closing date was emailed to.")
+    date_order_warning = fields.Char(string="Dates out of order", compute='_compute_date_order_warning')
 
     @api.depends('application_ids')
     def _compute_application_count(self):
@@ -179,6 +187,22 @@ class EmsErasmusCall(models.Model):
             call.places_total = sum(call.modality_ids.mapped('places'))
             call.places_accepted = len(call.application_ids.filtered(lambda application: application.state == 'accepted'))
             call.offers_pending = len(call.offer_ids.filtered(lambda offer: offer.state == 'pending'))
+
+    @api.depends(*PROCESS_DATES)
+    def _compute_date_order_warning(self):
+        """Note 2.4 of the 46.0 review: the dates set, in the order of the process (e.g. the claims
+        deadline after the corrections one). A warning, not an error: a deadline is sometimes moved
+        on purpose, e.g. brought forward once every claim is answered."""
+        for call in self:
+            dates = [(name, call[name]) for name in PROCESS_DATES if call[name]]
+            # Each date against the first one of an earlier step that comes after it.
+            wrong = [(next(earlier for earlier, before in dates[:index] if before > after), later)
+                     for index, (later, after) in enumerate(dates)
+                     if any(before > after for _name, before in dates[:index])]
+            call.date_order_warning = "; ".join(
+                _("%(later)s is before %(earlier)s", later=self._fields[later]._description_string(self.env),
+                  earlier=self._fields[earlier]._description_string(self.env).lower())
+                for earlier, later in wrong)
 
     @api.depends('state', 'date_open', 'date_close')
     def _compute_is_accepting(self):
@@ -220,15 +244,13 @@ class EmsErasmusCall(models.Model):
             self.staff_level_ids = self._ems_staff_levels()
         if self.audience == 'staff' and not self.validator_ids:
             self.validator_ids = self._ems_staff_validators(self.staff_level_ids)
-        if self.audience == 'staff' and not self.interview_deadline:
-            self.interview_deadline = self._ems_rating_deadline(self.date_close)
 
     @api.onchange('date_close')
     def _onchange_date_close(self):
-        """The panel's deadline follows the closing date, unless it was changed by hand."""
-        if self.audience == 'staff' and self.interview_deadline in (
-                False, self._ems_rating_deadline(self._origin.date_close)):
-            self.interview_deadline = self._ems_rating_deadline(self.date_close)
+        """Issue #767: the deadlines follow the closing date, unless one was changed by hand. A new
+        call has no earlier closing date to compare with: all of them follow it."""
+        self.update(self._ems_following_deadlines(self._origin.date_close if self._origin.id else None,
+                                                  self.date_close))
 
     @api.model
     def _ems_staff_levels(self):
@@ -249,8 +271,27 @@ class EmsErasmusCall(models.Model):
         return (self.env.company.sudo().director_id | head).user_id
 
     @api.model
-    def _ems_rating_deadline(self, date_close):
-        return date_close and fields.Datetime.to_datetime(date_close) + timedelta(days=STAFF_RATING_DAYS)
+    def _ems_deadlines(self, date_close):
+        """Issue #767: the deadlines of a call closing at `date_close` (stored UTC), as Odoo stores
+        them: each DEADLINE_DAYS after the closing day, at DEADLINE_HOUR in the centre, moved to the
+        next school day when it falls on a weekend, a holiday or a break."""
+        if not date_close:
+            return dict.fromkeys(DEADLINE_DAYS, False)
+        utils = self.env['ems.datetime_utils']
+        close_day = self._ems_local_date(fields.Datetime.to_datetime(date_close))
+        Leave = self.env['resource.calendar.leaves']
+        return {name: utils.datetime_to_odoo(utils.time_float_to_utc_datetime(
+                    Leave._ems_nth_school_day(close_day + timedelta(days=days), 1, include_start=True), DEADLINE_HOUR))
+                for name, days in DEADLINE_DAYS.items()}
+
+    def _ems_following_deadlines(self, old_close, new_close):
+        """The deadlines of this call that follow its closing date moving from `old_close` to
+        `new_close`: those still empty or as EMS filled them in from `old_close` (None: every one).
+        A deadline changed by hand stays."""
+        self.ensure_one()
+        before = self._ems_deadlines(old_close) if old_close is not None else None
+        return {name: value for name, value in self._ems_deadlines(new_close).items()
+                if before is None or self[name] in (False, before[name])}
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -263,8 +304,9 @@ class EmsErasmusCall(models.Model):
                 levels = self._ems_staff_levels()
                 vals.setdefault('staff_level_ids', [(6, 0, levels.ids)])
                 vals.setdefault('validator_ids', [(6, 0, self._ems_staff_validators(levels).ids)])
-                if not vals.get('interview_deadline'):
-                    vals['interview_deadline'] = self._ems_rating_deadline(vals.get('date_close'))
+            for name, value in self._ems_deadlines(vals.get('date_close')).items():
+                if not vals.get(name):
+                    vals[name] = value
             # Checked by value, not by key: the form always sends these fields, empty on a new call.
             for name, value in self._ems_audience_defaults(audience).items():
                 if not vals.get(name):
@@ -512,14 +554,18 @@ class EmsErasmusCall(models.Model):
         if 'audience' in vals and self.filtered(
                 lambda call: call.audience != vals['audience'] and call.application_ids):
             raise UserError(_("A call with applications cannot change who it is for."))
-        # A staff call's panel deadline follows its closing date, unless it was changed by hand.
-        following = self.filtered(lambda call: call.audience == 'staff' and call.interview_deadline in (
-            False, self._ems_rating_deadline(call.date_close))) if 'date_close' in vals and \
-            'interview_deadline' not in vals else self.browse()
+        # Issue #767: the deadlines not written follow the closing date, unless changed by hand.
+        following = {}
+        if 'date_close' in vals:
+            for call in self:
+                deadlines = {name: value for name, value in call._ems_following_deadlines(
+                    call.date_close, vals['date_close']).items() if name not in vals}
+                if deadlines:
+                    following[call] = deadlines
         result = super().write(vals)
-        if following:
-            following.write({'interview_deadline': self._ems_rating_deadline(vals['date_close'])})
-        if 'interview_deadline' in vals:
+        for call, deadlines in following.items():
+            call.write(deadlines)
+        if 'interview_deadline' in vals or any('interview_deadline' in deadlines for deadlines in following.values()):
             self._ems_move_evaluation_activities()
         return result
 
@@ -611,9 +657,11 @@ class EmsErasmusCall(models.Model):
         self.ensure_one()
         action = self.env['ir.actions.act_window']._for_xml_id('ems.action_erasmus_ranking')
         action['domain'] = [('call_id', '=', self.id), ('state', 'in', RANKED_STATES)]
-        action['context'] = {'default_call_id': self.id}
-        if self.audience == 'staff':
-            action['views'] = [(self.env.ref('ems.view_erasmus_staff_ranking_list').id, 'list'), (False, 'form')]
+        # The menu's list only has what every call has: from here, each kind of call its own criteria.
+        staff = self.audience == 'staff'
+        action['context'] = {'default_call_id': self.id, 'group_by': [] if staff else ['modality_id']}
+        list_view = 'ems.view_erasmus_staff_ranking_list' if staff else 'ems.view_erasmus_ranking_list'
+        action['views'] = [(self.env.ref(list_view).id, 'list'), (False, 'form')]
         return action
 
     def action_announce(self):
@@ -963,15 +1011,28 @@ class EmsErasmusCallModality(models.Model):
     level_ids = fields.Many2many(string="Levels", comodel_name='ems.level',
                                  help="Students' call: students whose main group is of one of these levels apply in "
                                       "this modality.")
-    project = fields.Selection(string="Project", selection=PROJECTS)
+    # Issue #767: a students' modality takes its project from its levels (CFGM on KA121-VET, CFGS on
+    # KA131-HED); a staff one is set (the defaults, one per project). Only the kind: the actual
+    # project (the year's) is chosen on each mobility.
+    project = fields.Selection(string="Project", selection=PROJECTS, compute='_compute_project', store=True,
+                               readonly=False, precompute=True)
     places = fields.Integer(string="Places")
-    period = fields.Char(string="Period")
-    destinations = fields.Char(string="Destinations")
     free_places = fields.Integer(string="Free places", compute='_compute_offers',
                                  help="Places not accepted nor offered to someone still to answer.")
     next_reserve_id = fields.Many2one(string="Next reserve", comodel_name='ems.erasmus.application',
                                       compute='_compute_offers',
                                       help="The best-ranked reserve without an offer waiting or accepted.")
+
+    @api.depends('level_ids')
+    def _compute_project(self):
+        hed = self.env['ems.level']
+        for xmlid in HED_LEVELS:
+            hed |= self.env.ref(xmlid, raise_if_not_found=False) or hed
+        for modality in self:
+            # Without levels (a staff modality), the project set by hand stays.
+            # _origin: the levels of a modality being created or edited in a form are new records.
+            modality.project = ('ka131_hed' if modality.level_ids._origin & hed else 'ka121_vet') if modality.level_ids \
+                else modality.project
 
     @api.depends('places', 'call_id.audience', 'call_id.offer_ids.state', 'call_id.application_ids.state',
                  'call_id.application_ids.rank')

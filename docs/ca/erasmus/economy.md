@@ -60,6 +60,8 @@ El suport organitzatiu són diners per gestionar les mobilitats, separats de les
 
 **Buit vol dir sense límit:** un *Fins al participant* buit és una franja sense final, i uns *Dies mínims* buits s'apliquen a qualsevol durada de l'estada. Si dues franges es superposen, l'EMS us diu amb quina altra tarifa i franja xoquen. A l'Excel, la *Posició* és la que ha comptat la tarifa: entre la mateixa mena d'activitat o, a KA131-HED, entre tot el projecte.
 
+![Les tarifes d'un any: les cel·les buides volen dir sense límit i qualsevol durada](../../assets/erasmus/tarifes-suport-organitzatiu.png)
+
 **Quina tarifa té cada mobilitat:** l'EMS ho dedueix. Una estada d'alumnat de 90 dies o més és de llarga durada (ErasmusPro), i més curta, de curta durada; un curs estructurat del personal és *cursos i formació*, i el job shadowing o la docència, l'altra; cada alumne d'una mobilitat de grup, 100 €. Si una mobilitat és en un país tercer no associat al programa, o és un concurs de competències, un expert convidat o un docent acollit, trieu-ho a mà a **Suport organitzatiu com a**, a la pestanya **Beca**.
 
 A la pestanya Economia veieu:
@@ -76,7 +78,7 @@ A dalt de la pestanya Economia, l'EMS avisa del que pot ser un error, sense bloq
 
 ## Excel
 
-**Accions > Exporta a Excel** descarrega l'economia del projecte: un resum amb les mateixes xifres que el panell, la beca de cada mobilitat (previst, compromès i pagat per separat), els pagaments i les factures amb els justificants, les despeses, el suport organitzatiu participant per participant, i les modificacions de la subvenció i les transferències del SEPIE.
+**Accions > Descarrega l'economia (Excel)** descarrega l'economia del projecte: un resum amb les mateixes xifres que el panell, la beca de cada mobilitat (previst, compromès i pagat per separat), els pagaments i les factures amb els justificants, les despeses, el suport organitzatiu participant per participant, i les modificacions de la subvenció i les transferències del SEPIE.
 
 ---
 

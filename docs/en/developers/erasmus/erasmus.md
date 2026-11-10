@@ -35,7 +35,7 @@ erDiagram
 | Model | Purpose |
 |---|---|
 | `ems.erasmus.call` | One call: who applies (`audience`: students or staff), course, dates (`date_open`, `date_close`, optional `subsanation_deadline`), the published call PDF, the text shown on the portal, state. |
-| `ems.erasmus.call.modality` | A selection list with its own places (GM, GS): project (KA121-VET / KA131-HED), places, period, destinations, and the **levels** whose students compete in it. |
+| `ems.erasmus.call.modality` | A selection list with its own places (GM, GS): places, the **levels** whose students compete in it, and the project kind (KA121-VET / KA131-HED), computed from the levels on a students' call (issue #767: CFGS and EFPS on KA131-HED, any other level on KA121-VET; stored, editable, so a staff modality keeps the one set). The real destinations are `ems.erasmus.destination` lines. |
 | `ems.erasmus.call.document` | A document the call asks for: required, optional or required for minors; confidential (only the Erasmus team sees it). |
 | `ems.erasmus.application` | One student's application to one call (unique per call and student). |
 | `ems.erasmus.application.document` | The files uploaded for one document of the call, with the team's review. |
@@ -62,6 +62,25 @@ A published call is shown on the portal to every student who can apply to it. Ap
 accepted only while it is published **and** the company's local time is between `date_open` and
 `date_close` (`is_accepting`, computed with `ems.datetime_utils`, never the browser's clock).
 Closing turns every application still in draft into *Not submitted*.
+
+### Deadlines from the closing date (issue #767)
+
+The four deadlines after closing are filled in by EMS from `date_close` (`_ems_deadlines()`, the
+same for students' and staff calls): that many days after the closing day (`DEADLINE_DAYS`:
+corrections 7, score correction 14, claims 19, acceptance 25), at 14:00 in the centre
+(`DEADLINE_HOUR`), moved to the next school day when that day is a weekend, a public holiday or a
+school break (`resource.calendar.leaves._ems_nth_school_day()`, shared with the ex officio
+withdrawal circuit). `create()` fills the ones not given; `write()` and the onchange of
+`date_close` move the ones still empty or equal to what the old closing date gave
+(`_ems_following_deadlines()`), so a deadline changed by hand stays. A new, unsaved call has no
+earlier closing date to compare with: in the form, all four follow every closing date set.
+
+`date_order_warning` (non-stored) lists the dates out of the process order (`PROCESS_DATES`:
+open, close, then the four deadlines), each against the first earlier step that comes after it.
+The form shows it as a warning above the settings; saving is not refused, since a deadline is
+sometimes moved on purpose (e.g. the claims one brought forward once every claim is answered).
+
+`reminder_days` stays 3 and is no longer in the form (the notice wizard still shows it).
 
 ### Notice of the open call and reminder before closing
 
@@ -193,6 +212,15 @@ evaluators' list of interviews) is an `ems.info_notice` for that same summary (s
 [`daily_summary.md`](../shared/daily_summary.md)). Students and families keep their emails.
 
 ## Portal (`controllers/portal_erasmus.py`)
+
+The call's *Information for applicants* (`description`, shown above the form) and the group
+mobility's *Information for students* use the `ems_html_codeview` widget
+(`static/src/js/backend/html_codeview_field.js`, issue #774): Odoo's own html field with its code
+view (`</>`) in a fixed toolbar, so the Erasmus team can paste a card prepared elsewhere with the
+Bootstrap classes the portal already ships. Pasting rendered HTML into the editor drops the
+classes; the code view keeps them, and the field's default sanitizing keeps `class` (not
+`style`). Odoo's own `codeview` option only shows the button in developer mode, which is why
+the widget turns it on itself; the fixed toolbar is `EmsHtmlBlockField`'s, the minutes' one.
 
 | Route | What |
 |---|---|
@@ -747,11 +775,11 @@ what differs:
 | Scoring | Art. 12 (A-F), A and F frozen at closing | Art. 11 of the staff call (1-6): the panel, what the applicant declares (last mobility, seniority, language) and the merits the team records |
 | Ranking | Per modality | One list for the whole call |
 | Places | Per modality | The sum of every modality, offered as one pool |
-| Modalities | Levels, places, period, destinations | One per project, added on their own (`_ems_staff_modalities`: FP KA121-VET and higher education KA131-HED), places only, no period; never shown to staff. The team assigns each selected person one, so their mobility goes on that project of the year |
+| Modalities | Levels and places; the project from the levels | One per project, added on their own (`_ems_staff_modalities`: FP KA121-VET and higher education KA131-HED), places only, no period; never shown to staff. The team assigns each selected person one, so their mobility goes on that project of the year |
 | Dissemination | - | Not part of the plan nor of the rubric (criterion 2 rates the application to the job only): the same obligation for everyone, a news item on the website and sharing it at a meeting if needed (two return steps of the checklist) |
 | Identity document of the lists | `res.partner.document_id` / `passport_id` | `hr.employee.identification_id` / `passport_id` (`_ems_identity_document`) |
 | Minimum score | 50 | 0 (set by `create()` and the onchange of `audience`; hidden in the form) |
-| Score correction deadline (`interview_deadline`) | Set by hand | `date_close` + 14 days (`STAFF_RATING_DAYS`), set by `create()`/onchange and moved with `date_close` while it still holds that default |
+| Score correction deadline (`interview_deadline`) | From `date_close` (`_ems_deadlines()`), like every deadline | The same rule: it is the panel's deadline |
 
 ```mermaid
 erDiagram
@@ -1213,6 +1241,21 @@ four, and the ZIP exports (a record or a whole project, with index, manifest and
 logged) are described in [records.md](records.md). The host entity also has its Erasmus+
 `erasmus_oid`.
 
+**The host entity's form** is the general contact form (`base.view_partner_form` plus EMS's
+views), whose details block (address, country, website, email, phone, OID) is hidden by
+`read_only_user`, meant for the students' data. `res.partner.can_edit_erasmus_host` (non-stored:
+`ems.group_erasmus` and the contact is a host entity or a host entity's tutor, issue #777) shows it
+to the Erasmus team there and nowhere else. **Known limit, decided with the coordinator
+(2026-11-09):** that form also reads student data (`ems.enrollment`, `ems.enrollment.slot`,
+`ems.authorization`, `ems.student.benefit`, `ems.student.document`, `ems.study`), which
+`ems.group_erasmus` alone cannot, so a team member must also be a teacher (both are today), or the form
+ends in an access error. A form of its own for host entities would lift this limit.
+
+**An invoice is either a group's or some participants'** (`_check_group_or_participants`, issue
+#777): `mobility_ids` makes shares of the participants' grants and `group_mobility_id` counts in the
+group's figures and pocket money, so both at once would count it twice. A group's invoice has no
+shares, so its `unassigned_amount` is 0. The constraint only checks what is written from now on.
+
 ### Access (phase 6)
 
 | Model | Erasmus team | Secretary | Head of Studies / Director |
@@ -1276,7 +1319,12 @@ flowchart LR
   signature columns in the record's list.
 - **Call form**: the stat buttons follow the phase (`has_provisional_resolution`,
   `has_final_resolution`), the latest first; the tabs are two nested notebooks (`selection_block`,
-  `mobility_block`); the tie warning is above the title.
+  `mobility_block`); the tie warning is above the title. Issue #767: the top has two blocks,
+  *Settings* and *Calendar* (notes 2.3 and 2.6 of the 46.0 review: no `is_accepting` nor
+  `reminder_days`), with the four deadlines folded in a `<details>` element (an Odoo 18 form has no foldable group of its own; the form compiler keeps plain HTML elements); `mobility_block` only
+  shows with `has_final_resolution` (lines added later still reach every mobility through
+  `_ems_sync_requirements`); on a staff call, *Documents* is hidden and *Panel* only shows once
+  closed. The modalities list shows the project only on a staff call.
 - **Ranking**: `ranking_result` (non-stored) gives the cut of the places; the menu's ranking is
   ordered by call, with its column. The application list counts `documents_to_review` (never on a
   draft). The application's Documents tab shows each line's `file_state` as a badge (greyed out when
@@ -1289,8 +1337,7 @@ flowchart LR
   call (`_ems_notify_evaluators`), in their next daily summary, not one email per interview. The interview
   form writes annex 4's descriptors under each criterion; interviews and plan ratings have
   **Submit and next** (`action_submit_next`).
-- **Plan ratings**: `rating_status` (stored) shows an abstention as such; a pivot view
-  (applicants x status) in the team's action.
+- **Plan ratings**: `rating_status` (stored) shows an abstention as such.
 - **Direction**: `scores_hidden` (non-stored, `depends_context('uid')`) replaces the zeros of a staff
   application with an explanation while the panel rates (`_ems_panel_pending`, shared with
   `_read_format`); **Mobilities > Pending validation** (`action_erasmus_mobility_to_validate`); the
@@ -1304,3 +1351,56 @@ flowchart LR
   headed "Erasmus+" instead of "Your <model>" ("El vostre Sol·licitud Erasmus+").
 - **Team**: the administrator is not in `group_erasmus`/`group_erasmus_coordinator` (they got every
   team to-do); they keep every right through `group_academic_admin`.
+
+### Dates and numbers in the screens (issue #778)
+
+- **Dates:** every datetime in an Erasmus+ view has Odoo's `show_time: False`, so it reads as a day
+  in lists and read-only fields. Odoo's own datetime input ignores that option while editing, which
+  is what we want: an editable deadline keeps its hour (`show_seconds: False` removes the seconds),
+  because a typed date with no time would close it at 00:00, a day early. Hours are kept on purpose
+  on `application/interview.interview_date`, `interview.schedule.date_start` (appointments),
+  `mobility.turn_deadline` (counted in hours) and the `deadline` of `offer` and `offer.wizard` (any
+  time of the day). The portal still shows hours. `TestErasmusDatesNumbers` walks every view and
+  fails on a new datetime that doesn't follow this.
+- **A 0 that means nothing:** `ems_blank_zero` (`static/src/js/backend/blank_zero_field.js`) is
+  Odoo's integer widget printing nothing for 0, with the view's placeholder while editing: no limit
+  and any length (`support.rate.band_to`, `min_days`), no data (`quality.history.staff_*`), not
+  known (`diffusion.recipient_count`). Odoo has no option for this and `invisible` would hide the
+  input of an editable list's row. Only the display changes: the column still holds 0.
+
+### Texts of the screens (issue #779)
+
+- **Commission:** the call's rules (art. 10) say *Comissió*, so every Catalan and Spanish text of an
+  Erasmus+ record says so too, never *Tribunal*. The English source and the code keep "panel".
+- **One English word, two translations:** a label that needs another translation only in Erasmus+
+  (e.g. "Submitted" feminine, "Students" as *Alumnat*) has its own block in the `.po`, with the same
+  msgid and only the Erasmus+ references. Odoo binds a block to its references, so it works; never
+  merge those blocks.
+- **Short list headers** are `string=` on the list's field, so a form keeps its full label. The
+  earlier courses' list hides the source, which reads in full in its own form.
+- **`ems_score_out_of`** (`static/src/js/backend/score_out_of_field.js`): Odoo's float widget with
+  `options="{'max': 40}"`, printing "36 / 40". The maximums are the call rules' and
+  `TestErasmusLabels` checks them against the code's scales (they add up to 100 and 10).
+- **A complete document** offers `action_mark_needs_change` as **Reopen**: the same button twice in
+  the view, each `invisible` on the other's condition.
+
+### Selection lists (issue #781)
+
+- **Ranking:** `action_erasmus_ranking` opens `view_erasmus_ranking_common_list` from the menu
+  (what every call has, grouped by call); `action_view_ranking` opens a call's own list, with the
+  student criteria grouped by modality or the staff criteria in one list. The menu doesn't group by
+  modality because a staff call ranks everyone together, and a modality would split it. No list
+  colours its rows (the resolution does, with its legend); the state badge has the colour.
+- **`aggregator=None` on ranks and scores:** Odoo sums an integer or a float in a group's row, which
+  means nothing for a position or a score. It must be `None`: `fields_get()` then leaves the key out,
+  and the client leaves the field out of the group's order. `False` reaches the server, which fails
+  with "Aggregate method is mandatory" when a `default_order` or a click on the column orders by it.
+- **Plan ratings** open grouped by applicant (`search_default_group_applicant`), with two stored
+  fields for the group's row: `rated_count` (1 for a submitted rating, summed) and `plan_mean`
+  (related to the application's `plan_score`, `max`). An average of `score` would be wrong: an
+  abstention and a rating still to come are stored as 0, and Odoo's float column has no NULL. Both
+  are computed on upgrade; the row's own cell is `invisible`.
+- **Mobility documents of a call:** the list has five columns and a line opens a dialog with the rest;
+  `parent.audience` hides the legal guardian's and the centre's tutor's signature on a staff call.
+- **Documents of an application:** `review_comment` only shows where it says something, and the
+  results tab says the resolution's kind, with no zeros on an admission list.

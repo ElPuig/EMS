@@ -15,7 +15,7 @@ Group mobilities (KA121-VET) are stays of a group of students of one or more of 
 1. Go to **Erasmus+ > Mobilities > Group mobilities** and click **New**.
 2. Fill in the name (e.g. *SMX2 morning*), the KA121-VET **project**, the **shift** (it only helps to find the groups) and the **eligible groups** (the centre's real groups, e.g. SMX2A and SMX2B).
 3. Set the student places (8 by default), the accompanying teachers (2), the **leader teacher** and the other accompanying teacher.
-4. In the **Enrolment** tab, set the enrolment period, check the **selection criteria** (published on the portal) and, if needed, the information for students.
+4. In the **Enrolment** tab, set the enrolment period, check the **selection criteria** (published on the portal) and, if needed, the information for students (to paste a card prepared elsewhere, use the **`</>`** button, as in the call's information for applicants).
 5. The destination, host entity and dates can stay pending until they are confirmed.
 6. In **Actions**, click **Open the enrolment**.
 
@@ -41,13 +41,15 @@ If a selected student renounces (from the portal, or telling the leader teacher 
 
 Approving the selection opens the file of each selected student and of both teachers. The **Documents** tab has the group's **shared documents** (the group learning agreement, planned and executed; agreements, travel, the collective insurance policy, inclusion —confidential—, Green Travel and evidence) and the list of **documents asked for**, which you can adapt to each mobility: who each document is for (the group, each student, each teacher or everybody), whether it is required or only for minors, who signs it and its deadline. After changing the list, click **Update documents**.
 
+A complete document offers **Reopen** instead of **Needs changes**: it does the same, sending it back to be corrected.
+
 Each document has a **record category** (01 Data and authorisations, 02 Before the mobility, 03 During the mobility, 04 After the mobility), as in the individual mobilities, and a **status**: missing, pending review, needs changes, complete, optional or not applicable. A document someone has to sign (for example the group learning agreement, signed by the coordination and the host entity) **is not complete just because it was uploaded**, even by the team: check its signatures and mark it **Valid**. The documents the team provides that nobody signs (for example the insurance policy) are complete once uploaded.
 
 Every Erasmus+ document is prepared outside EMS: EMS keeps the files, the signatures, the review and the record. A document with a **Signature template** can be sent to sign electronically from EMS, as in the individual mobilities (see [Preparing the mobilities](mobility-preparation.md)). By default a group mobility asks for:
 
 - **Group learning agreement**, in two versions signed by both centres (the coordination and the host entity). The **planned** one, before leaving: objectives, learning outcomes, calendar, activities and participants. The **executed** one, after the stay: the real dates, the activities carried out, the methodologies and the final list of participants (students and accompanying teachers of every centre). If nothing changed, it ratifies the planned one with the real dates and participants. There is no individual learning agreement nor a separate list of participants.
 - **Insurance policy** of each student and each accompanying teacher. If one **collective policy** covers all or part of the participants, upload it to the group's *Collective insurance policy* and tick *Covered by the collective policy* on each participant it covers (participant's form): their own policy is then no longer asked for.
-- **Grant agreement** of each participant: the team prepares it outside EMS (with the services the centre pays, if any) and uploads it to be signed. To upload them all on one screen, use the **Participants' documents** button of the mobility: every participant's documents on one list, grouped by document.
+- **Grant agreement** of each participant: the team prepares it outside EMS (with the services the centre pays, if any) and uploads it to be signed. To upload them all on one screen, use the **Pending documents** button of the mobility: every participant's documents on one list, grouped by document.
 - **Green Travel: sworn statement and evidence**, optional: only when Green Travel is declared.
 - **Group inclusion documentation**, optional and confidential: evidence of the fewer opportunities and, when there are real inclusion costs, why the support was needed. Their invoices go in the **Collective expenses** tab.
 - **Europass mobility document** (students) and **Certificate of stay** (teachers): optional, they never stop the mobility from closing.
@@ -73,7 +75,7 @@ Before leaving, the mobility lists who is not ready yet (a required document or 
 
 ## Grants and pocket money
 
-In the **Collective expenses** tab you enter each participant's **grant** (students and accompanying teachers), as calculated in the Beneficiary Module. The centre usually pays the flights and the accommodation of the whole group: record them as **collective invoices**. EMS splits every collective invoice **equally among the participants taking part** and shows, for each one, their share and their **pocket money**: their grant minus their share. That is what the Secretary transfers to them.
+In the **Collective expenses** tab you enter each participant's **grant** (students and accompanying teachers), as calculated in the Beneficiary Module. The centre usually pays the flights and the accommodation of the whole group: record them as **collective invoices**. EMS splits every collective invoice **equally among the participants taking part** and shows, for each one, their share and their **pocket money**: their grant minus their share. That is what the Secretary transfers to them. An invoice is either the group's or for some individual participants, never both, because it would count twice: EMS stops you if you fill in both.
 
 *Example:* 8 students with a 1,200 € grant and 2 teachers with 1,500 €. The flights cost 2,000 € and the hotel 5,000 €: 700 € per person. Each student receives 500 € and each teacher 800 €.
 

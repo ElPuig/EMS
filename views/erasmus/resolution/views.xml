@@ -8,9 +8,9 @@
             <field name="arch" type="xml">
                 <list string="Resolutions">
                     <field name="call_id"/>
-                    <field name="group_mobility_id" optional="show"/>
+                    <field name="group_mobility_id" optional="hide"/>
                     <field name="kind"/>
-                    <field name="publish_date"/>
+                    <field name="publish_date" options="{'show_time': False}"/>
                     <field name="state" widget="badge" decoration-info="state == 'draft'"
                            decoration-success="state == 'published'"/>
                 </list>
@@ -66,10 +66,10 @@
                                        options="{'no_create': True}"/>
                                 <field name="group_mobility_id" readonly="1" invisible="not group_mobility_id"/>
                                 <field name="kind" readonly="state != 'draft' or line_ids"/>
-                                <field name="prepare_date"/>
+                                <field name="prepare_date" options="{'show_time': False}"/>
                             </group>
                             <group>
-                                <field name="publish_date" invisible="state != 'published'"/>
+                                <field name="publish_date" options="{'show_time': False}" invisible="state != 'published'"/>
                                 <field name="published_by_id" invisible="state != 'published'"/>
                             </group>
                         </group>

@@ -14,19 +14,33 @@ Crea y publica una convocatoria Erasmus+, revisa las solicitudes que el alumnado
 
 Ve a **Erasmus+ > Convocatorias > Convocatorias** y haz clic en **Nuevo**:
 
+> **Fechas y horas:** las listas y las fechas que no se pueden editar muestran solo el día. Un plazo que puedes editar conserva la hora, porque es la hora lo que decide cuándo acaba: *20/11/2026 23:59* cierra al final de ese día. También la conservan la fecha de una entrevista, el turno para elegir destino y el plazo para responder una oferta.
+
 | Campo | Qué hay que poner |
 |---|---|
 | Nombre | Por ejemplo, *Prácticas Erasmus+ 2026-27* |
 | Curso | El curso escolar de la convocatoria |
 | Convocatoria publicada | El PDF de la convocatoria, que el alumnado puede descargar desde el portal |
 | Apertura / Cierre de solicitudes | Cuándo puede solicitar el alumnado. Después de la fecha de cierre nadie puede modificar su solicitud |
-| Plazo de subsanación | Hasta cuándo los solicitantes pueden subir las subsanaciones que pidas. Se puede rellenar más adelante |
+
+La parte de arriba de la convocatoria tiene dos bloques: **Ajustes** (para quién es, el curso, la puntuación mínima y el PDF de la convocatoria) y **Calendario** (las fechas, en el orden del proceso). EMS rellena los cuatro plazos posteriores al cierre a partir de la fecha de cierre, a las 14:00, y los muestra plegados en **Plazos después del cierre**: haz clic para verlos o cambiarlos.
+
+| Plazo | Cuándo lo pone EMS | Convocatoria 2026-27 (cierra el viernes 20/11) |
+|---|---|---|
+| Plazo de subsanación | 7 días después del cierre | Viernes 27/11, 14:00 |
+| Plazo para corregir puntuaciones | 14 días después del cierre | Viernes 04/12, 14:00 |
+| Plazo de reclamaciones | 19 días después del cierre | Miércoles 09/12, 14:00 |
+| Plazo de aceptación | 25 días después del cierre | Martes 15/12, 14:00 |
+
+Un plazo que cae en fin de semana, festivo o vacaciones escolares pasa al siguiente día lectivo. Si cambias la fecha de cierre, los plazos la siguen, salvo los que hayas cambiado a mano. Si las fechas no siguen el orden del proceso (por ejemplo, un plazo de reclamaciones anterior al cierre de solicitudes), la convocatoria te avisa arriba; te deja guardarla igualmente.
+
+![Los bloques Ajustes y Calendario de la convocatoria, con los plazos desplegados](../../assets/erasmus/convocatoria-calendari.png)
 
 > Las respuestas a los correos que EMS envía sin que nadie del equipo los mande (acuses de recibo y recordatorios) llegan al buzón de Erasmus+ que está en **Ajustes > Gestión del EMS > Datos del centro > Erasmus+** (erasmus@elpuig.xeill.net), el mismo para todas las convocatorias.
 
-Las pestañas de la convocatoria están en dos bloques: **Selección** (modalidades, documentos, información para las personas solicitantes, tribunal y resoluciones) y **Movilidad** (destinos, documentos de la movilidad, carta de compromiso, lista de pasos y autoevaluación semanal). Los botones de arriba siguen la fase de la convocatoria, la más reciente primero: antes de la resolución definitiva, la clasificación y las entrevistas (o las valoraciones de los planes); después, las movilidades y las ofertas de plaza; las reclamaciones, a partir de la resolución provisional. Un empate por sortear se avisa arriba del todo de la convocatoria.
+Las pestañas de la convocatoria están en dos bloques: **Selección** (modalidades, documentos, información para las personas solicitantes, comisión y resoluciones) y **Movilidad** (destinos, documentos de la movilidad, carta de compromiso, lista de pasos y autoevaluación semanal). El bloque **Movilidad** solo aparece una vez publicada la resolución definitiva: es para las personas seleccionadas, y una convocatoria nueva ya trae lo necesario, así que para abrir una convocatoria solo ves **Selección**. Los botones de arriba siguen la fase de la convocatoria, la más reciente primero: antes de la resolución definitiva, la clasificación y las entrevistas (o las valoraciones de los planes); después, las movilidades y las ofertas de plaza; las reclamaciones, a partir de la resolución provisional. Un empate por sortear se avisa arriba del todo de la convocatoria.
 
-Pestaña **Modalidades**: una línea por cada lista de selección con plazas propias, por ejemplo *GM* y *GS*. En **Niveles** elige los niveles del alumnado que solicita en esa modalidad (por ejemplo *CFGM* para GM, y *CFGS* y los cursos de especialización para GS, porque ese alumnado va al proyecto de educación superior). Cualquier alumno cuyo grupo principal sea de uno de esos niveles puede solicitar, sea del curso que sea. Rellena también el proyecto, las plazas, el periodo y los destinos.
+Pestaña **Modalidades**: una línea por cada lista de selección con plazas propias, por ejemplo *GM* y *GS*. En **Niveles** elige los niveles del alumnado que solicita en esa modalidad (por ejemplo *CFGM* para GM, y *CFGS* y los cursos de especialización para GS, porque ese alumnado va al proyecto de educación superior). Cualquier alumno cuyo grupo principal sea de uno de esos niveles puede solicitar, sea del curso que sea. Rellena también las plazas. EMS pone el proyecto a partir de los niveles (CFGM en el KA121-VET; CFGS y los cursos de especialización en el KA131-HED); el proyecto concreto de cada persona se elige en su movilidad. Los destinos reales, con sus fechas y plazas, van en la pestaña **Destinos** del bloque **Movilidad**, antes de abrir la elección de destino.
 
 Pestaña **Documentos**: una línea por cada documento que pide la convocatoria, con su **Carácter**:
 
@@ -43,7 +57,10 @@ Marca **Confidencial** en los documentos que solo puede ver el equipo Erasmus, c
 
 Los documentos por defecto, la lista de comprobación y las preguntas ya aparecen en una convocatoria nueva antes de guardarla; si cambias **Solicitantes**, cambian por los de la convocatoria de personal (o de alumnado).
 
-Pestaña **Información para los solicitantes**: el texto que se muestra en el portal encima del formulario.
+Pestaña **Información para los solicitantes**: el texto que se muestra en el portal encima del formulario. Haz clic dentro del texto y aparece la barra del editor. Para pegar una ficha informativa preparada en otro sitio (por ejemplo, con los colores y los recuadros del portal), usa el botón **`</>`** (vista de código) del final de la barra (1), pega ahí el código HTML y vuelve a pulsar el botón para volver al editor: la ficha conserva el diseño. Si la pegas directamente en el editor, lo pierde.
+
+![El botón de vista de código en el editor](../../assets/erasmus/convocatoria-informacio-codi.png)
+
 
 > **Consejo:** el año que viene, abre esta convocatoria y usa **Duplicar**: se copian las modalidades y los documentos.
 
@@ -55,11 +72,11 @@ En **Acciones**, haz clic en **Publicar**. La convocatoria aparece en el portal 
 
 Publicar no envía ningún correo. Para avisar a todas las personas que pueden presentarse, haz clic en **Acciones > Avisar a quien puede presentarse**: EMS te muestra cuántas personas lo recibirán (y cuántas no tienen dirección de correo y no lo recibirán) y lo envía cuando haces clic en **Enviar el aviso**. Es la misma regla que el portal: en una convocatoria de alumnado, el alumnado de los niveles de sus modalidades, excepto quien tiene demasiadas amonestaciones; en una de personal, el profesorado de sus niveles y la dirección que valida las actividades. Cada persona recibe su propio correo, con las fechas de la convocatoria y el enlace para solicitarla. La familia no lo recibe. Puedes enviarlo antes de que se abra la convocatoria; si lo vuelves a enviar (por ejemplo después de añadir un nivel), todo el mundo lo vuelve a recibir: el asistente te avisa.
 
-**Recordatorio antes del cierre:** en **Recordatorio (días antes del cierre)** (3 por defecto), EMS envía un correo, tantos días antes del cierre y a partir de las 9:00, a quien puede presentarse y aún no ha enviado la solicitud (un borrador no cuenta). Se envía una sola vez, y solo si el aviso se ha enviado desde EMS. Pon 0 para que no haya. La convocatoria muestra cuándo se ha enviado cada correo y a cuántas personas.
+**Recordatorio antes del cierre:** 3 días antes de la fecha de cierre, a partir de las 9:00, EMS envía un correo a quien puede presentarse y aún no ha enviado la solicitud (un borrador no cuenta). Se envía una sola vez, y solo si el aviso se ha enviado desde EMS. La convocatoria muestra cuándo se ha enviado cada correo y a cuántas personas.
 
 ## 3. Revisar las solicitudes
 
-Ve a **Erasmus+ > Convocatorias > Solicitudes** (o al botón **Solicitudes** de la convocatoria, que las agrupa por modalidad). Filtros: *Por revisar*, *Subsanación requerida*, *Admitida*, *Excluida*. **Documentos por revisar** cuenta los archivos que esperan vuestra comprobación (un borrador aún no enviado no cuenta).
+Ve a **Erasmus+ > Convocatorias > Solicitudes**, agrupadas por convocatoria, con la puntuación y la posición de cada solicitud cuando ya las hay (o al botón **Solicitudes** de la convocatoria, que las agrupa por modalidad). Filtros: *Por revisar*, *Subsanación requerida*, *Admitida*, *Excluida*. **Documentos por revisar** cuenta los archivos que esperan vuestra comprobación (un borrador aún no enviado no cuenta).
 
 Abre una solicitud:
 
@@ -73,7 +90,7 @@ Abre una solicitud:
 
 ## 4. Pedir subsanaciones
 
-Cuando hay que corregir un documento o falta uno obligatorio, márcalo y haz clic en **Acciones > Pedir la subsanación**. La convocatoria debe tener un **Plazo de subsanación** aún por llegar: sin él, EMS no te deja pedirla. El alumno recibe un correo con la lista y ese plazo, y solo puede subir esos documentos. Cuando vuelve a enviar la solicitud, esta vuelve a *Enviado*, los archivos nuevos quedan pendientes de revisión y cada miembro del equipo Erasmus recibe una tarea para revisarla (también en su resumen diario de tareas pendientes). La tarea se cierra sola al admitirla, excluirla o pedir otra subsanación.
+Cuando hay que corregir un documento o falta uno obligatorio, márcalo y haz clic en **Acciones > Pedir la subsanación**. La convocatoria debe tener un **Plazo de subsanación** aún por llegar: sin él, EMS no te deja pedirla. El alumno recibe un correo con la lista y ese plazo, y solo puede subir esos documentos. Cuando vuelve a enviar la solicitud, esta vuelve a *Enviada*, los archivos nuevos quedan pendientes de revisión y cada miembro del equipo Erasmus recibe una tarea para revisarla (también en su resumen diario de tareas pendientes). La tarea se cierra sola al admitirla, excluirla o pedir otra subsanación.
 
 ## 5. Admitir o excluir
 

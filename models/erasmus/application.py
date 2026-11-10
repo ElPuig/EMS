@@ -227,20 +227,20 @@ class EmsErasmusApplication(models.Model):
 
     # Audit D-14: the Head of Studies sees the total and the rank only, so criterion D (fewer opportunities)
     # cannot be worked out from the others.
-    score_a = fields.Float(string="A. Record", digits=(5, 2), compute='_compute_scores', store=True,
+    score_a = fields.Float(string="A. Record", digits=(5, 2), aggregator=None, compute='_compute_scores', store=True,
                            groups=TEAM)
     score_a_pending = fields.Boolean(string="Record average pending", compute='_compute_scores', store=True)
-    score_b = fields.Float(string="B. Interview", digits=(5, 2), compute='_compute_scores', store=True,
+    score_b = fields.Float(string="B. Interview", digits=(5, 2), aggregator=None, compute='_compute_scores', store=True,
                            groups=TEAM)
-    score_c = fields.Float(string="C. Languages", digits=(5, 2), compute='_compute_scores', store=True,
+    score_c = fields.Float(string="C. Languages", digits=(5, 2), aggregator=None, compute='_compute_scores', store=True,
                            groups=TEAM)
-    score_d = fields.Float(string="D. Fewer opportunities", digits=(5, 2), compute='_compute_scores', store=True,
+    score_d = fields.Float(string="D. Fewer opportunities", digits=(5, 2), aggregator=None, compute='_compute_scores', store=True,
                            groups=TEAM)
-    score_e = fields.Float(string="E. First mobility", digits=(5, 2), compute='_compute_scores', store=True,
+    score_e = fields.Float(string="E. First mobility", digits=(5, 2), aggregator=None, compute='_compute_scores', store=True,
                            groups=TEAM)
-    score_f = fields.Float(string="F. Conduct warnings", digits=(5, 2), compute='_compute_scores', store=True,
+    score_f = fields.Float(string="F. Conduct warnings", digits=(5, 2), aggregator=None, compute='_compute_scores', store=True,
                            groups=TEAM)
-    score_total = fields.Float(string="Total score", digits=(5, 2), compute='_compute_scores', store=True)
+    score_total = fields.Float(string="Total score", digits=(5, 2), aggregator=None, compute='_compute_scores', store=True)
     score_complete = fields.Boolean(string="Score complete", compute='_compute_scores', store=True,
                                     help="Every criterion is in: a pending one never counts as zero.")
     is_eligible = fields.Boolean(string="Eligible", compute='_compute_scores', store=True,
@@ -248,7 +248,7 @@ class EmsErasmusApplication(models.Model):
     draw_order = fields.Integer(string="Draw", tracking=True, copy=False, readonly=True,
                                 help="Result of the draw between applications tied after every tie-break "
                                      "(lower goes first), run by the Erasmus coordinator from the call (audit D-13).")
-    rank = fields.Integer(string="Rank", compute='_compute_rank', store=True,
+    rank = fields.Integer(string="Rank", aggregator=None, compute='_compute_rank', store=True,
                           help="Position in the modality among the admitted applications. 0 until every one "
                                "of them has a complete score.")
     needs_draw = fields.Boolean(string="Needs a draw", compute='_compute_rank', store=True)
@@ -295,13 +295,13 @@ class EmsErasmusApplication(models.Model):
     merits_checked_user_id = fields.Many2one(string="Merits reviewed by", comodel_name='res.users', readonly=True,
                                              copy=False)
     merits_checked_date = fields.Datetime(string="Merits reviewed on", readonly=True, copy=False)
-    score_plan = fields.Float(string="1. Mobility plan", digits=(4, 2), compute='_compute_scores', store=True)
-    score_last_mobility = fields.Float(string="2. Last mobility", digits=(4, 2), compute='_compute_scores',
+    score_plan = fields.Float(string="1. Mobility plan", digits=(4, 2), aggregator=None, compute='_compute_scores', store=True)
+    score_last_mobility = fields.Float(string="2. Last mobility", digits=(4, 2), aggregator=None, compute='_compute_scores',
                                        store=True)
-    score_projects = fields.Float(string="3. Centre projects", digits=(4, 2), compute='_compute_scores', store=True)
-    score_staff_language = fields.Float(string="4. Languages", digits=(4, 2), compute='_compute_scores', store=True)
-    score_seniority = fields.Float(string="5. Seniority", digits=(4, 2), compute='_compute_scores', store=True)
-    score_internationalisation = fields.Float(string="6. Internationalisation", digits=(4, 2),
+    score_projects = fields.Float(string="3. Centre projects", digits=(4, 2), aggregator=None, compute='_compute_scores', store=True)
+    score_staff_language = fields.Float(string="4. Languages", digits=(4, 2), aggregator=None, compute='_compute_scores', store=True)
+    score_seniority = fields.Float(string="5. Seniority", digits=(4, 2), aggregator=None, compute='_compute_scores', store=True)
+    score_internationalisation = fields.Float(string="6. Internationalisation", digits=(4, 2), aggregator=None,
                                               compute='_compute_scores', store=True)
 
     @api.depends('partner_id.birth_date', 'audience')

@@ -37,7 +37,7 @@ Each payment shows the **IBAN** and the **holder** the participant gave (a stude
 
 ## Checking a project's budget
 
-**Erasmus+ > Financial management > Economic panel** shows each project's grant, what is committed, what has been paid and what is available. Open a project to see its **Economy** tab, and use **Actions > Export Excel** to download its economic report (summary, grants and payments, expenses, organisational support and SEPIE's transfers). The warnings and the Excel show each participant's name and grant, because you pay them, but you do not open the mobilities themselves.
+**Erasmus+ > Financial management > Economic panel** shows each project's grant, what is committed, what has been paid and what is available. Open a project to see its **Economy** tab, and use **Actions > Download the economy (Excel)** to download its economic report (summary, grants and payments, expenses, organisational support and SEPIE's transfers). The warnings and the Excel show each participant's name and grant, because you pay them, but you do not open the mobilities themselves.
 
 ---
 

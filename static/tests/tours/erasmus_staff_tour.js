@@ -304,6 +304,11 @@ registry.category("web_tour.tours").add("ems_erasmus_plan_ratings", {
     url: "/odoo/action-ems.action_erasmus_plan_rating",
     steps: () => [
         {
+            trigger: ".o_list_view .o_group_header:contains('Erasmus Staff 1')",
+            content: "One row per applicant",
+            run: "click",
+        },
+        {
             trigger: ".o_list_view .o_data_row td[name='partner_id']:contains('Erasmus Staff 1')",
             content: "The ratings are listed",
             run: "click",

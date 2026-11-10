@@ -226,6 +226,11 @@ jobs:
       - name: Set up Odoo and install EMS
         uses: ./.github/actions/setup-odoo
 
+      # As production runs it: the 'odoo' user editing its odoo.conf inside a root-owned folder
+      # (issue #766, where `sed -i` stopped the v18.0.0.46.0 deploy).
+      - name: Check the OCA addons_path helper
+        run: sudo /opt/modules/ems/scripts/testing/test_oca_repos.sh
+
       - name: Update external dependencies
         run: sudo /opt/modules/ems/update.sh
 

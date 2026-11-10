@@ -177,8 +177,8 @@ flowchart LR
 | Archived / withdrawal / graduation conversion | **nothing yet**: `google_ws_deactivation_date` set to today + `GW_DEACTIVATION_DELAY_DAYS`, warning email sent, chatter note posted |
 | Deactivation date reached (daily cron) | suspended, moved to the suspended OU (queued); `google_ws_deletion_date` set to today + `GW_DELETION_DELAY_DAYS` |
 | Deletion date reached (daily cron) | **deleted** in Google (queued); `google_ws_deleted = True`, `student_email` kept for traceability |
-| Unarchived before the deactivation date | schedule cancelled, chatter note; the account was never touched |
-| Unarchived while suspended | reactivated (queued), deletion schedule cancelled |
+| Unarchived before the deactivation date | schedule cancelled, cancellation email, chatter note; the account was never touched |
+| Unarchived while suspended | reactivated (queued), deletion schedule cancelled, reactivation email |
 | Unarchived after deletion | recreated from scratch (new credentials; the same address again if it is still free, the next candidate if Google still holds it) |
 | Deleted (`unlink`) | suspended **synchronously**, before the record disappears |
 
@@ -232,7 +232,30 @@ grace period is about — it is an administrative removal of the record itself. 
 `student_email` — will not exist once `unlink()` returns; a failure is logged, not raised,
 so it never blocks the actual deletion.
 
-### The warning email
+### The emails
+
+Every Google account email (welcome, password reset, deactivation warning, deactivation
+cancelled, reactivated) is a `mail.template` with `email_layout_xmlid =
+ems.mail_layout_google` (`views/shared/mail_layout/card.xml`, issue #728): Odoo renders the
+template's own body and wraps it in the shared card layout, which takes the area label, the
+"Open my email" button and the footer, and reads its colours from the company's email colours
+(`email_primary_color`, `email_secondary_color`; Settings > General > Emails). Each template's
+body only holds its badge, title, greeting and the card with the account's data. The
+lifecycle ones go through `_gw_send_lifecycle_warning()` to the addresses
+`_gw_lifecycle_recipients()` returns (personal and corporate):
+
+| Template | Sent when |
+|---|---|
+| `mail_template_google_welcome` | the account is created (`_gw_deliver_credentials()`, personal address only) |
+| `mail_template_google_password_reset_student` | the password is reset (`_gw_deliver_credentials(reset=True)`, personal address only) |
+| `mail_template_google_deactivation_student` | the deactivation is scheduled (below) |
+| `mail_template_google_deactivation_cancelled_student` | a pending deactivation is called off, by unarchiving or by **Cancel scheduled deactivation** (`_gw_cancel_scheduled_deactivation()`); sent before the date is cleared, since it shows it struck through |
+| `mail_template_google_reactivated_student` | a **suspended** account is reactivated (`_gw_notify_reactivated()`); an unarchive within the grace period also runs the reactivation, but the account was never touched and already got the cancellation, so nothing is sent |
+
+Suspension and deletion send nothing: the warning already gave both dates, and once
+suspended the corporate mailbox can't be read.
+
+#### The warning
 
 `ems.mail_template_google_deactivation_student`
 (`data/main/mail.template-google_lifecycle.csv`) is sent once, when the schedule is
@@ -283,7 +306,7 @@ sequenceDiagram
     P->>G: users().patch(password, changePasswordAtNextLogin=True)
     Note over P,G: skipped in dry-run; an HttpError becomes a UserError<br/>naming the "Reset password" admin-role privilege
     P->>P: sudo: previous google_credentials documents -> cancelled
-    P->>P: _gw_deliver_credentials() (new PDF + welcome email)
+    P->>P: _gw_deliver_credentials(reset=True) (new PDF + password reset email)
     P->>P: sudo: chatter note, authored by the user
 ```
 

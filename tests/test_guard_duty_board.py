@@ -4,7 +4,7 @@ from datetime import date, timedelta
 from odoo.tests.common import TransactionCase
 
 from .common import (
-    ROLE_GROUP_XMLIDS, create_level_study, create_level_study_group, create_role_user,
+    ROLE_GROUP_XMLIDS, course_monday, create_absence, create_level_study, create_level_study_group, create_role_user,
     mock_outgoing_email,
 )
 
@@ -121,38 +121,10 @@ class GuardDutyBoardCase(TransactionCase):
         self.study2.managing_department_id = self.area2
 
     def _monday(self):
-        """A Monday inside the current course's window, matching the '0' weekday these fixtures
-        use. Inside the window because the absence form's own health-allowance computation
-        filters on it (see hr.leave._compute_ems_health_allowance)."""
-        window = self.env.company.current_course_id.date_range()
-        day = window[0] + timedelta(days=30)
-        while day.weekday() != 0:
-            day += timedelta(days=1)
-        return day
+        return course_monday(self.env)
 
     def _absence(self, employee, day, hour_from=None, hour_to=None, approve=True):
-        vals = {
-            'employee_id': employee.id,
-            'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
-            'request_date_from': day,
-            'request_date_to': day,
-            # What the "Send request" button does - a request that was never sent cannot be
-            # saved at all (see hr.leave._check_ems_submitted).
-            'ems_submitted': True,
-            'ems_responsible_declaration': True,
-        }
-        if hour_from is None:
-            # 'leave_type_justified' does not seed 'Whole day?' on its own (its
-            # ems_full_day_default is False), and a request that is neither a whole day nor a
-            # span of hours is worth zero - which hr_holidays itself refuses to approve.
-            vals['ems_full_day'] = True
-        else:
-            vals.update({'ems_full_day': False,
-                         'request_hour_from': hour_from, 'request_hour_to': hour_to})
-        leave = self.env['hr.leave'].create(vals)
-        if approve:
-            leave.action_approve()
-        return leave
+        return create_absence(self.env, employee, day, hour_from, hour_to, approve)
 
     def _teaching_line(self, day, hour_from=9, hour_to=10):
         """The board row for one period of `day`'s weekday, morning shift."""

@@ -25,7 +25,8 @@
                             <group colspan="2">
                                 <field name="student_id" domain="student_domain" options="{'no_create': True, 'no_open': True}"
                                        invisible="mode != 'student'" required="mode == 'student'"/>
-                                <!-- Issue #795: adds every student of the groups picked, then clears itself. -->
+                                <!-- Issue #795: the groups picked stay in the picker and fill the list; taking one out removes its students. -->
+                                <field name="applied_group_ids" invisible="1"/>
                                 <field name="add_group_ids" widget="many2many_tags" domain="group_domain"
                                        options="{'no_create': True}" invisible="mode != 'group'"/>
                             </group>

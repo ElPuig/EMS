@@ -5009,7 +5009,6 @@ msgstr "Atorgar accés"
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
 #: code:addons/ems/models/erasmus/economy.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
-#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_justification__mode__group
 msgid "Group"
 msgstr "Grup"
 
@@ -5067,6 +5066,8 @@ msgstr "Grup:"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_template__group_ids model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__group_ids model:ir.model.fields,field_description:ems.field_ems_notice__group_ids model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__group_ids model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__group_ids model:ir.ui.menu,name:ems.menu_groups
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__group_ids
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_justification__mode__group
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__applied_group_ids
 msgid "Groups"
 msgstr "Grups"
 

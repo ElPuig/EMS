@@ -21,7 +21,7 @@ Salvo que el centro lo permita en su configuración, una justificación es la ú
     - Para **Otros**, descríbelo en **Detalles**, que solo aparece para ese motivo.
 3. En **Justificar**, elige para quién es el justificante:
     - **Estudiante** (por defecto): elige al alumno en **Estudiante**. Solo se justifica a ese alumno.
-    - **Grupo:** elige el grupo en **Añadir grupos**. Se añaden a la pestaña **Estudiantes** todos sus alumnos, con el nombre y el grupo principal de cada uno. Puedes añadir varios grupos, uno tras otro, o pulsar **Añadir una línea** para añadir un alumno más.
+    - **Grupos:** elige los grupos en **Añadir grupos**. Se añaden a la pestaña **Estudiantes** todos sus alumnos, con el nombre y el grupo principal de cada uno. Los grupos se quedan en el selector: si quitas uno, sus alumnos salen de la lista. También puedes pulsar **Añadir una línea** para añadir un alumno más.
 
     Solo se te ofrecen tus grupos y sus alumnos.
 4. Quita de la lista, con la cruz (×), a quien no deba justificarse (por ejemplo, en una huelga, los alumnos que no han firmado el documento).

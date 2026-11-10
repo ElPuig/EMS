@@ -21,7 +21,7 @@ Llevat que el centre ho permeti a la seva configuració, una justificació és l
     - Per a **Altres**, descriu-lo a **Detalls**, que només apareix per a aquest motiu.
 3. A **Justificar**, tria per a qui és el justificant:
     - **Estudiant** (per defecte): tria l'alumne a **Estudiant**. Només es justifica aquest alumne.
-    - **Grup:** tria el grup a **Afegeix grups**. S'afegeixen a la pestanya **Estudiants** tots els seus alumnes, amb el nom i el grup principal de cadascun. Pots afegir diversos grups, un rere l'altre, o clicar **Afegir una línia** per afegir-hi un alumne més.
+    - **Grups:** tria els grups a **Afegeix grups**. S'afegeixen a la pestanya **Estudiants** tots els seus alumnes, amb el nom i el grup principal de cadascun. Els grups es queden al selector: si en treus un, els seus alumnes surten de la llista. També pots clicar **Afegir una línia** per afegir-hi un alumne més.
 
     Només se t'ofereixen els teus grups i els seus alumnes.
 4. Treu de la llista, amb la creu (×), qui no s'hagi de justificar (per exemple, en una vaga, els alumnes que no han signat el document).

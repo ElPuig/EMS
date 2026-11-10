@@ -525,8 +525,28 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
             form.start_date, form.end_date = self._today_range().values()
             form.mode = 'group'
             form.add_group_ids.add(self.group)
-            self.assertFalse(form.add_group_ids)
+            self.assertEqual(set(form.add_group_ids[:]), set(self.group))
         self.assertEqual(form.record.student_ids, mate)
+
+    def test_taking_a_group_out_removes_its_students_from_the_list(self):
+        # Issue #808: the groups stay in the picker; taking one out takes its students out.
+        mate, __ = self._group_mate_with_miss()
+        other_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TAJ3', 'level_id': self.level.id, 'study_id': self.study.id,
+            'tutor_id': self.tutor_employee.id,
+        })
+        stranger = self.env['res.partner'].create({
+            'name': 'Justification 808 other group', 'contact_type': 'student',
+            'student_id': next_student_id(), 'main_group_id': other_group.id,
+        })
+        with Form(self.env['ems.attendance_justification'].with_user(self.tutor_user)) as form:
+            form.start_date, form.end_date = self._today_range().values()
+            form.mode = 'group'
+            form.add_group_ids.add(self.group)
+            form.add_group_ids.add(other_group)
+            self.assertEqual(set(form.student_ids[:]), set(self.student | mate | stranger))
+            form.add_group_ids.remove(id=self.group.id)
+            self.assertEqual(set(form.student_ids[:]), set(stranger))
 
     def test_student_mode_justifies_the_one_student_picked(self):
         # Issue #808: the default mode picks a single student directly.

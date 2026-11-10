@@ -49469,3 +49469,23 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__mode
 msgid "Justify"
 msgstr "Justificar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__can_mark_needs_change
+msgid "Can send it back to correct"
+msgstr "Se puede enviar a corregir"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application_document__can_mark_needs_change
+msgid "The team can send the file back to be corrected."
+msgstr "El equipo puede devolver el archivo para que se corrija."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__can_reopen
+msgid "Can reopen the document"
+msgstr "Se puede reabrir el documento"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application_document__can_reopen
+msgid "A complete document the team can put back to review (the same action)."
+msgstr "Un documento completo que el equipo puede volver a poner en revisión (es la misma acción)."

@@ -1234,9 +1234,9 @@ class EmsErasmusApplicationDocument(models.Model):
         ('complete', "Complete"), ('optional', "Optional"), ('not_applicable', "Not applicable")],
         help="Complete: valid after the team's review (a signed document is only complete once checked, not when "
              "uploaded); one the team provides, once it is uploaded.")
-    can_mark_needs_change = fields.Boolean(compute='_compute_review_actions',
+    can_mark_needs_change = fields.Boolean(string="Can send it back to correct", compute='_compute_review_actions',
                                            help="The team can send the file back to be corrected.")
-    can_reopen = fields.Boolean(compute='_compute_review_actions',
+    can_reopen = fields.Boolean(string="Can reopen the document", compute='_compute_review_actions',
                                 help="A complete document the team can put back to review (the same action).")
     # The issue-#682 review: what the record shows, so that only what the participant has to do now
     # is red. A missing document the Erasmus team uploads, or one that is not due yet (the destination

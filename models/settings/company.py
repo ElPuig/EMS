@@ -200,6 +200,9 @@ class ems_company(models.Model):
         string="Google Workspace dry-run", default=True,
         help="If enabled, the account creation is logged without calling the real Google API.")
     # Service Account JSON, stored encrypted (same Fernet pattern as limesurvey_pwd)
+    minute_drive_folder_url = fields.Char(
+        string="Minutes folder in Drive",
+        help="Shared drive folder where every minute's PDF is kept up to date, one file per minute named after its code.")
     google_ws_sa_json           = fields.Text(compute='_compute_google_ws_sa_json',
                                               inverse='_inverse_google_ws_sa_json', store=False)
     google_ws_sa_json_encrypted = fields.Char(copy=False)

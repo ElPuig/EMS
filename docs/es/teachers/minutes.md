@@ -52,11 +52,14 @@ veáis (la de una reunión a la que asististeis, la de vuestro departamento) se 
 5. Elegid cómo se recoge la **asistencia**:
    - **Anotada a mano:** en la pestaña **Asistencia** ya encontraréis la lista **rellenada**, sacada del
      ámbito (los miembros del departamento, los del equipo de trabajo o el profesorado que da clase al
-     grupo y su tutor). Solo hay que mover a **Personas que faltan** a quien no haya venido.
+     grupo y su tutor). Solo hay que mover a **Personas que faltan** a quien no haya venido. Quien tiene una
+     ausencia o una solicitud de ausencia a la hora de la reunión ya está ahí, con la nota «Tiene una
+     ausencia» en **Sobre las ausencias** (nunca el motivo); si viene igualmente, volvedlo a mover a
+     **Asistentes**.
    - **Con el tag NFC:** indicad la **duración** y guardad el acta. El quiosco se ofrece una vez ha empezado
      la reunión (véase «Hacer la reunión y redactar el acta», más abajo): entonces, en el bloque **Asistencia**, **Abrir el quiosco**
      abre la pantalla donde cada persona pasa su tag; **Cerrar la asistencia** termina la
-     recogida y rellena las dos listas: quien ha pasado el tag ha asistido, el resto consta como ausente.
+     recogida y rellena las dos listas: quien ha pasado el tag ha asistido, el resto consta como ausente (quien tiene una ausencia, como justificado con la nota «Tiene una ausencia»).
      Si alguien se ha dejado el tag o no le ha funcionado, **Acciones → Corregir la asistencia** abre la
      sesión: si ya está cerrada, **Reabrir**, marcadlo a mano (presente, o justificado con la nota) y
      volved a cerrarla. Las listas del acta se actualizan solas. Se puede hacer hasta que el acta esté aprobada.
@@ -184,6 +187,15 @@ adjunto al acta). Los acuerdos siguen lo que dice ahora el acta, y a sus respons
 lo que ha cambiado.
 
 ![Acta aprobada con el botón Deshacer la aprobación](../../assets/teachers/actes-10-desfer-aprovacio.png)
+
+### La copia en Drive
+
+Cuando el centro lo tiene configurado, EMS guarda una copia del PDF de cada acta en una carpeta del Drive del
+centro, con el código del acta como nombre. La copia se sustituye cada vez que el acta cambia de estado (cuando se
+crea, cuando empieza la reunión, cuando se envía a aprobar, se aprueba o se deshace la aprobación), de modo que en
+la carpeta siempre hay un solo archivo por acta, tal como estaba en el último cambio de estado: lo que escribáis
+entre medias llega a Drive en el siguiente. Una vez guardada, **En Drive → Abrir en Drive**, en **Firmas**, la abre.
+Si se borra un acta, su copia va a la papelera de Drive.
 
 ## Mis acuerdos
 

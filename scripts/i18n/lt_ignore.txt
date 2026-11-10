@@ -21,3 +21,8 @@ T-FP
 PFI
 NOFC
 eNotum
+CFGM
+CFGS
+EFPS
+Altres
+Departament

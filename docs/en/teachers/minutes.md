@@ -53,11 +53,14 @@ a meeting you attended, one of your department) opens **read-only**, with no act
 5. Choose how **attendance** is taken:
    - **Written by hand:** the **Attendance** tab already holds the list **filled in**, taken from the
      scope (the department's members, the workgroup's, or the group's teachers and its tutor). Just move whoever
-     did not come to **Absentees**.
+     did not come to **Absentees**. Whoever has an absence or a leave request at the time of the meeting is
+     already there, with the note "Has an absence" in **About the absences** (never the reason); if they
+     come anyway, move them back to **Attendees**.
    - **With the NFC tag:** set the **duration** and save the minute. The kiosk is offered once the meeting
      has started (see "Holding the meeting and writing the minute" below): then, in the **Attendance** block, **Open the kiosk** opens the
      screen where each person passes their tag; **Close attendance** ends it and
-     fills both lists: whoever passed the tag attended, everybody else is recorded as absent. If someone
+     fills both lists: whoever passed the tag attended, everybody else is recorded as absent (whoever has an absence, as justified with the note "Has an
+     absence"). If someone
      left their tag at home or it failed, **Actions → Correct the attendance** opens the session: if it
      is already closed, **Reopen** it, mark them by hand (present, or justified with a note) and close it
      again. The minute's lists update by themselves. It can be done until the minute is approved.
@@ -181,6 +184,15 @@ approved, and a new PDF is generated (the previous one stays attached to the min
 minute now says, and their responsible people are only told again about what changed.
 
 ![An approved minute with the Undo the approval button](../../assets/teachers/actes-10-desfer-aprovacio.png)
+
+### The copy in Drive
+
+When the centre has set it up, EMS keeps a copy of every minute's PDF in a folder of the centre's Drive, named
+after the minute's code. The copy is replaced each time the minute changes state (when it is created, when the
+meeting starts, when it is sent for approval, approved or reopened), so the folder always holds a single file per
+minute, as the minute stood at its last change of state: what you write in between reaches Drive at the next one.
+Once filed, **In Drive → Open in Drive**, under **Signatures**, opens it. Deleting a minute sends its copy to the
+Drive bin.
 
 ## My agreements
 

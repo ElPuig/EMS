@@ -2,9 +2,10 @@
 <odoo>
     <data noupdate="0">
 
-        <!-- The issue-#682 review: the notice of the open call, sent by the Erasmus team (Actions >
-             Notify who can apply) to each person who can apply, at their own address and in their
-             language (ems.erasmus.call._ems_announce). Rendered on the call. -->
+        <!-- The issue-#682 review: the notice of the open call of a students' call, sent by the
+             Erasmus team (Actions > Notify who can apply) to each student who can apply, at their
+             school address and in their language (ems.erasmus.call._ems_announce; a staff call's
+             goes in the daily summary instead, issue #802). Rendered on the call. -->
         <record id="email_template_erasmus_call_open" model="mail.template">
             <field name="name">EMS: Erasmus+, call open</field>
             <field name="model_id" ref="ems.model_ems_erasmus_call"/>
@@ -17,11 +18,7 @@
                 <![CDATA[
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Hello,</p>
-                        <p t-if="object.audience == 'staff'">
-                            The call <strong t-out="object.name"/> for the vocational training staff is open:
-                            job shadowing, structured courses and teaching assignments abroad.
-                        </p>
-                        <p t-else="">
+                        <p>
                             The call <strong t-out="object.name"/> is open: Erasmus+ internships abroad for the
                             students of your studies.
                         </p>
@@ -41,8 +38,9 @@
             </field>
         </record>
 
-        <!-- The issue-#682 review: the reminder before the closing date, to whoever can apply and has
-             not submitted (ems.erasmus.call._cron_remind_closing). -->
+        <!-- The issue-#682 review: the reminder before the closing date of a students' call, to each
+             student who can apply and has not submitted, at their school address
+             (ems.erasmus.call._cron_remind_closing; a staff call's goes in the daily summary). -->
         <record id="email_template_erasmus_call_reminder" model="mail.template">
             <field name="name">EMS: Erasmus+, call about to close</field>
             <field name="model_id" ref="ems.model_ems_erasmus_call"/>

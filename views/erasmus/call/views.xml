@@ -388,12 +388,16 @@
             <field name="model">ems.erasmus.call.announce</field>
             <field name="arch" type="xml">
                 <form string="Notify who can apply">
-                    <p class="text-muted">
-                        EMS emails the call, with the link to apply on the portal, to each person who can apply to it, at their own address.
+                    <field name="audience" invisible="1"/>
+                    <p class="text-muted" invisible="audience == 'staff'">
+                        EMS emails the call, with the link to apply on the portal, to each student who can apply to it, at their school address.
+                    </p>
+                    <p class="text-muted" invisible="audience != 'staff'">
+                        EMS adds the call, with the link to apply in EMS, to the next daily summary of each person who can apply to it.
                     </p>
                     <div class="alert alert-warning" role="alert" invisible="not announce_date">
                         The notice was already sent on <field name="announce_date" options="{'show_time': False}" readonly="1" class="oe_inline"/>
-                        to <field name="announce_count" class="oe_inline"/> people. Sending it again emails all of them again.
+                        to <field name="announce_count" class="oe_inline"/> people. Sending it again tells all of them again.
                     </div>
                     <group>
                         <field name="call_id" readonly="1" options="{'no_open': True}"/>

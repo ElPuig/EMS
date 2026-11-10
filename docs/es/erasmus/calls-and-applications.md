@@ -36,7 +36,7 @@ Un plazo que cae en fin de semana, festivo o vacaciones escolares pasa al siguie
 
 ![Los bloques Ajustes y Calendario de la convocatoria, con los plazos desplegados](../../assets/erasmus/convocatoria-calendari.png)
 
-> Las respuestas a los correos que EMS envía sin que nadie del equipo los mande (acuses de recibo y recordatorios) llegan al buzón de Erasmus+ que está en **Ajustes > Gestión del EMS > Datos del centro > Erasmus+** (erasmus@elpuig.xeill.net), el mismo para todas las convocatorias.
+> Las respuestas a los correos que EMS envía sin que nadie del equipo los mande (acuses de recibo y recordatorios) llegan al buzón de Erasmus+ que está en **Ajustes > Gestión del EMS > Datos del centro > Erasmus+** (erasmus@elpuig.xeill.net), el mismo para todas las convocatorias. EMS escribe al alumnado a su dirección del centro (la del Puig), no a la personal (solo va allí la petición de firma electrónica, ver [Preparar las movilidades](mobility-preparation.md)): quien no la tiene no recibe ningún correo de Erasmus+, y la solicitud lo indica en su historial. La familia recibe sus copias en su dirección.
 
 Las pestañas de la convocatoria están en dos bloques: **Selección** (modalidades, documentos, información para las personas solicitantes, comisión y resoluciones) y **Movilidad** (destinos, documentos de la movilidad, carta de compromiso, lista de pasos y autoevaluación semanal). El bloque **Movilidad** solo aparece una vez publicada la resolución definitiva: es para las personas seleccionadas, y una convocatoria nueva ya trae lo necesario, así que para abrir una convocatoria solo ves **Selección**. Los botones de arriba siguen la fase de la convocatoria, la más reciente primero: antes de la resolución definitiva, la clasificación y las entrevistas (o las valoraciones de los planes); después, las movilidades y las ofertas de plaza; las reclamaciones, a partir de la resolución provisional. Un empate por sortear se avisa arriba del todo de la convocatoria.
 
@@ -72,9 +72,14 @@ En **Acciones**, haz clic en **Publicar**. La convocatoria aparece en el portal 
 
 ## Avisar a quien puede presentarse
 
-Publicar no envía ningún correo. Para avisar a todas las personas que pueden presentarse, haz clic en **Acciones > Avisar a quien puede presentarse**: EMS te muestra cuántas personas lo recibirán (y cuántas no tienen dirección de correo y no lo recibirán) y lo envía cuando haces clic en **Enviar el aviso**. Es la misma regla que el portal: en una convocatoria de alumnado, el alumnado de los niveles de sus modalidades, excepto quien tiene demasiadas amonestaciones; en una de personal, el profesorado de sus niveles y la dirección que valida las actividades. Cada persona recibe su propio correo, con las fechas de la convocatoria y el enlace para solicitarla. La familia no lo recibe. Puedes enviarlo antes de que se abra la convocatoria; si lo vuelves a enviar (por ejemplo después de añadir un nivel), todo el mundo lo vuelve a recibir: el asistente te avisa.
+Publicar no avisa a nadie. Para avisar a todas las personas que pueden presentarse, haz clic en **Acciones > Avisar a quien puede presentarse**: EMS te muestra cuántas personas lo recibirán y lo envía cuando haces clic en **Enviar el aviso**. Es la misma regla que el portal: en una convocatoria de alumnado, el alumnado de los niveles de sus modalidades; en una de personal, el profesorado de sus niveles y la dirección que valida las actividades.
 
-**Recordatorio antes del cierre:** 3 días antes de la fecha de cierre, a partir de las 9:00, EMS envía un correo a quien puede presentarse y aún no ha enviado la solicitud (un borrador no cuenta). Se envía una sola vez, y solo si el aviso se ha enviado desde EMS. La convocatoria muestra cuándo se ha enviado cada correo y a cuántas personas.
+- **Convocatoria de alumnado:** cada alumno recibe su propio correo, con las fechas de la convocatoria y el enlace para solicitarla, en su dirección del centro (la del Puig), nunca en la personal. Quien no tiene dirección del centro no lo recibe: el asistente te dice cuántos hay. La familia no lo recibe.
+- **Convocatoria de personal:** no se envía ningún correo aparte. El aviso va en el próximo [resumen diario](../teachers/daily-summary.md) de cada persona, a la hora que ha elegido en su perfil (por defecto, al inicio de su jornada), con la fecha de cierre y dónde presentar la solicitud.
+
+Puedes enviarlo antes de que se abra la convocatoria; si lo vuelves a enviar (por ejemplo después de añadir un nivel), todo el mundo lo vuelve a recibir: el asistente te avisa.
+
+**Recordatorio antes del cierre:** en **Recordatorio (días antes del cierre)** (3 por defecto), EMS se lo recuerda a quien puede presentarse y aún no ha enviado la solicitud (un borrador no cuenta), tantos días antes del cierre y a partir de las 9:00, igual que el aviso. Se envía una sola vez, y solo si el aviso se ha enviado desde EMS. Pon 0 para que no haya. La convocatoria muestra cuándo se ha enviado cada uno y a cuántas personas.
 
 ## 3. Revisar las solicitudes
 

@@ -44,6 +44,14 @@ class ResPartner(models.Model):
         for partner in self:
             partner.erasmus_mobility_count = counts.get(partner.id, 0)
 
+    def _ems_erasmus_email(self):
+        """The address every Erasmus+ email to this person goes to: a student's school address
+        (student_email, the one they read every day and sign in to the portal with; never the
+        personal one, adriamt 2026-11-09, issue #802), anybody else's own email (staff, families,
+        host contacts). Empty: they get no email."""
+        self.ensure_one()
+        return self.student_email if self.contact_type == 'student' else self.email
+
     def _ems_erasmus_calls(self):
         """Published calls this person can apply to, open or not yet: the students' calls with a
         modality for their level, or the staff calls of an internal user whose employee file

@@ -8,6 +8,8 @@ Sol·licita unes pràctiques Erasmus+ a l'estranger i segueix la teva sol·licit
 
 **Qui:** alumnat d'un cicle formatiu (CFGM o CFGS), de qualsevol curs, mentre hi hagi una convocatòria oberta.
 
+**Els teus correus:** els correus d'Erasmus+ t'arriben a la teva adreça del centre (la del Puig), no a la personal. L'única excepció és el correu per signar un document electrònicament, que també pots signar des del portal. Quan la teva família en rep una còpia, la rep a la seva adreça.
+
 ---
 
 ## 1. Obrir la pàgina Erasmus+

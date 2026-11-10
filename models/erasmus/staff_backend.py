@@ -10,6 +10,7 @@ user's own. See docs/en/developers/erasmus/erasmus.md, "Staff in the backend".""
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
+from .application import ANSWER_FIELDS
 from .mobility import OPEN_STATES
 
 
@@ -95,13 +96,27 @@ class EmsErasmusCall(models.Model):
 
     def action_staff_apply(self):
         """The staff member opens their application to this call, created as a draft the first
-        time (same rules as ever: published, accepting applications, and they may apply to it)."""
+        time (same rules as ever: published, accepting applications, and they may apply to it).
+        While nothing is filled in and it can still be changed, its form's dialog opens straight
+        away, so they know where to write (issue #802)."""
         self.ensure_one()
         if self.env.user.share or self.audience != 'staff':
             raise UserError(_("You cannot apply to this call."))
         application = self.env['ems.erasmus.application'].sudo()._ems_portal_get_or_create(
-            self.sudo(), self.env.user.partner_id)
-        return staff_action(self.env, 'ems.action_erasmus_my_applications', application)
+            self.sudo(), self.env.user.partner_id).with_env(self.env)
+        if application.staff_editable and not application.staff_answered:
+            return application.action_staff_edit(open_application=True)
+        return application._ems_staff_form()
+
+    def get_formview_id(self, access_uid=None):
+        """A staff call opens in the staff's form for whoever can apply to it and doesn't manage the
+        calls (from the notice in their daily summary, a link)."""
+        user = self.env['res.users'].browse(access_uid) if access_uid else self.env.user
+        if len(self) == 1 and self.sudo().audience == 'staff' and \
+                not self.env['ems.erasmus.application'].with_user(user)._ems_can_manage() and \
+                self.with_user(user).staff_mine:
+            return self.env.ref('ems.view_erasmus_call_staff_form').id
+        return super().get_formview_id(access_uid=access_uid)
 
 
 class EmsErasmusApplication(models.Model):
@@ -110,6 +125,8 @@ class EmsErasmusApplication(models.Model):
 
     staff_own = fields.Boolean(string="Mine", compute='_compute_staff')
     staff_editable = fields.Boolean(string="Can be changed", compute='_compute_staff')
+    staff_answered = fields.Boolean(string="Filled in", compute='_compute_staff',
+                                    help="Some answer of the form is filled in.")
     staff_can_submit = fields.Boolean(string="Can be submitted", compute='_compute_staff')
     staff_claimable = fields.Boolean(string="Can claim", compute='_compute_staff')
     staff_offer_id = fields.Many2one(string="Place offered", comodel_name='ems.erasmus.offer', compute='_compute_staff')
@@ -123,12 +140,12 @@ class EmsErasmusApplication(models.Model):
     rules_document = fields.Binary(string="Call rules (PDF)", related='call_id.rules_document')
     rules_filename = fields.Char(string="Call rules file name", related='call_id.rules_filename')
 
-    @api.depends('state', 'support_needs', 'offer_ids.state', 'mobility_ids', 'resolution_line_ids')
+    @api.depends('state', 'offer_ids.state', 'mobility_ids', 'resolution_line_ids', *ANSWER_FIELDS['staff'])
     @api.depends_context('uid')
     def _compute_staff(self):
         partner = self.env.user.partner_id
-        empty = {'staff_own': False, 'staff_editable': False, 'staff_can_submit': False, 'staff_claimable': False,
-                 'staff_offer_id': False, 'staff_mobility_id': False, 'staff_next_step': False,
+        empty = {'staff_own': False, 'staff_editable': False, 'staff_answered': False, 'staff_can_submit': False,
+                 'staff_claimable': False, 'staff_offer_id': False, 'staff_mobility_id': False, 'staff_next_step': False,
                  'staff_next_level': False, 'staff_next_deadline': False, 'staff_support_needs': False}
         for application in self:
             own = application.sudo()
@@ -137,11 +154,15 @@ class EmsErasmusApplication(models.Model):
                 continue
             editable = own._ems_portal_editable()
             nxt = own._ems_portal_progress()['next']
+            if own.state == 'draft' and editable:
+                # The portal's "Complete your application", with where to do it in the backend.
+                nxt = {**nxt, 'text': _("Fill in your application from Actions > Fill in the form, and submit it.")}
             deadline = nxt['deadline']
             deadline = deadline.strftime('%d/%m/%Y') if nxt['is_date'] else own.call_id._ems_local_format(deadline)
             application.update({
                 'staff_own': True,
                 'staff_editable': editable,
+                'staff_answered': any(own[name] for name in ANSWER_FIELDS['staff']),
                 'staff_can_submit': editable or own._ems_subsanation_open(),
                 'staff_claimable': bool(own._ems_portal_claimable()),
                 'staff_offer_id': own.offer_ids.filtered(lambda offer: offer.state == 'pending')[:1].id,
@@ -168,17 +189,25 @@ class EmsErasmusApplication(models.Model):
             raise AccessError(_("This is not your application."))
         return own
 
-    def _ems_staff_reload(self, message):
-        """Back to the application's form, refreshed, with `message` as a notification."""
-        return {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {
-            'message': message, 'type': 'success', 'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'}}}
+    def _ems_staff_form(self):
+        """The application opened in its form (after a dialog launched from the call)."""
+        return staff_action(self.env, 'ems.action_erasmus_my_applications', self)
 
-    def action_staff_edit(self):
+    def _ems_staff_reload(self, message, next_action=None):
+        """Back to the application's form, refreshed (or on to `next_action`), with `message` as a
+        notification."""
+        return {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {
+            'message': message, 'type': 'success',
+            'next': next_action or {'type': 'ir.actions.client', 'tag': 'soft_reload'}}}
+
+    def action_staff_edit(self, open_application=False):
+        """The form's dialog. `open_application`: launched from the call, so saving opens the
+        application instead of refreshing the screen behind the dialog."""
         own = self._ems_staff_check()
         if not own._ems_portal_editable():
             raise UserError(_("The application can no longer be changed."))
         return staff_wizard(self.env, 'ems.erasmus.staff.application.wizard', _("My application"),
-                            application_id=self.id)
+                            application_id=self.id, open_application=open_application)
 
     def action_staff_submit(self):
         self._ems_staff_check().action_submit()

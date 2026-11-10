@@ -78,7 +78,8 @@ class TestErasmusGroupMobilityEndToEnd(TransactionCase):
             partner = cls.env['res.partner'].create({
                 'name': f'E2E {name}', 'contact_type': 'student', 'student_id': next_student_id(),
                 'main_group_id': (cls.group_pm if name == 'leo' else cls.group_a if index % 2 else cls.group_b).id,
-                'birth_date': birth, 'email': f'{name}@example.com', 'lang': 'en_US',
+                'birth_date': birth, 'email': f'{name}@example.com', 'student_email': f'{name}@example.com',
+                'lang': 'en_US',
                 # Every masked DNI differs: 71050505Z -> ***5050**.
                 'document_id': f'71{index:02d}{index:02d}{index:02d}Z'})
             cls.students[name] = partner
@@ -311,7 +312,8 @@ class TestErasmusGroupMobilityEndToEnd(TransactionCase):
         mail = self._mails_to('hugo@example.com').filtered(lambda mail: provisional.name in (mail.subject or ''))
         self.assertTrue(mail, "Each student gets their provisional result.")
         self.assertIn('claim from the Erasmus+ page of the EMS portal', mail.body_html)
-        self.assertIn('Reason:', self._mails_to('jan@example.com').body_html, "The excluded learn why.")
+        excluded = self._mails_to('jan@example.com').filtered(lambda mail: provisional.name in (mail.subject or ''))
+        self.assertIn('Reason:', excluded.body_html, "The excluded learn why.")
         self.assertEqual(self.env['ems.erasmus.resolution.line'].with_user(self.hos).search_count(
             [('resolution_id', '=', provisional.id)]), 10, "The Head of Studies reads the lists.")
         # The leader is a teacher: since the 2026-11-04 review teachers read the lists they are on

@@ -49465,6 +49465,7 @@ msgstr ""
 "                \n"
 "            "
 
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__mode
 msgid "Justify"
 msgstr "Justificar"

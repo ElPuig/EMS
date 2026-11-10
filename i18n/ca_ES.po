@@ -8639,6 +8639,8 @@ msgstr "Àmbit d'aplicació"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_list
+#: code:addons/ems/models/erasmus/export.py
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__score
 msgid "Score"
 msgstr "Puntuació"
 
@@ -41217,59 +41219,6 @@ msgid "free place"
 msgstr "plaça lliure"
 
 #. module: ems
-#: model:mail.template,body_html:ems.email_template_erasmus_call_open
-msgid ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hello,</p>\n"
-"                        <p t-if=\"object.audience == 'staff'\">\n"
-"                            The call <strong t-out=\"object.name\"/> for the vocational training staff is open:\n"
-"                            job shadowing, structured courses and teaching assignments abroad.\n"
-"                        </p>\n"
-"                        <p t-else=\"\">\n"
-"                            The call <strong t-out=\"object.name\"/> is open: Erasmus+ internships abroad for the\n"
-"                            students of your studies.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            You can apply <t t-out=\"object._ems_mail_place()\"/> from <strong t-out=\"object._ems_local_format(object.date_open)\"/>\n"
-"                            until <strong t-out=\"object._ems_local_format(object.date_close)\"/>:\n"
-"                            <a t-attf-href=\"{{ object._ems_mail_url() }}\">Erasmus+</a>.\n"
-"                            You will also find the rules of the call there.\n"
-"                        </p>\n"
-"                        <p>If you have any question, reply to this email.</p>\n"
-"                        <p>\n"
-"                            Kind regards,<br/>\n"
-"                            <t t-out=\"user.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-msgstr ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hola,</p>\n"
-"                        <p t-if=\"object.audience == 'staff'\">\n"
-"                            S'ha obert la convocatòria <strong t-out=\"object.name\"/> per al personal de formació professional:\n"
-"                            observació (job shadowing), cursos estructurats i estades de docència a l'estranger.\n"
-"                        </p>\n"
-"                        <p t-else=\"\">\n"
-"                            S'ha obert la convocatòria <strong t-out=\"object.name\"/>: pràctiques Erasmus+ a l'estranger per a\n"
-"                            l'alumnat dels teus estudis.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Pots presentar la sol·licitud <t t-out=\"object._ems_mail_place()\"/> des del <strong t-out=\"object._ems_local_format(object.date_open)\"/>\n"
-"                            fins al <strong t-out=\"object._ems_local_format(object.date_close)\"/>:\n"
-"                            <a t-attf-href=\"{{ object._ems_mail_url() }}\">Erasmus+</a>.\n"
-"                            Hi trobaràs també les bases de la convocatòria.\n"
-"                        </p>\n"
-"                        <p>Si tens qualsevol dubte, respon aquest correu.</p>\n"
-"                        <p>\n"
-"                            Salutacions,<br/>\n"
-"                            <t t-out=\"user.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-
-#. module: ems
 #: model:mail.template,body_html:ems.email_template_erasmus_call_reminder
 msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
@@ -41311,11 +41260,6 @@ msgstr ""
 "            "
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_announce_form
-msgid "EMS emails the call, with the link to apply on the portal, to each person who can apply to it, at their own address."
-msgstr "L'EMS envia per correu la convocatòria, amb l'enllaç per sol·licitar-la al portal, a cada persona que s'hi pot presentar, a la seva adreça."
-
-#. module: ems
 #: model:mail.template,name:ems.email_template_erasmus_call_reminder
 msgid "EMS: Erasmus+, call about to close"
 msgstr "EMS: Erasmus+, convocatòria a punt de tancar"
@@ -41344,22 +41288,6 @@ msgstr "Erasmus+: la convocatòria {{ object.name }} tanca aviat"
 #: model:mail.template,subject:ems.email_template_erasmus_call_open
 msgid "Erasmus+: the call {{ object.name }} is open"
 msgstr "Erasmus+: s'ha obert la convocatòria {{ object.name }}"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_call__announce_count model:ir.model.fields,help:ems.field_ems_erasmus_call_announce__announce_count
-msgid "How many people the notice of the open call was emailed to."
-msgstr "A quantes persones es va enviar l'avís de convocatòria oberta."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_call__reminder_count
-msgid "How many people the reminder before the closing date was emailed to."
-msgstr "A quantes persones es va enviar el recordatori abans del tancament."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/call.py:0
-msgid "Notice of the open call emailed to %(count)s people."
-msgstr "Avís de convocatòria oberta enviat per correu a %(count)s persones."
 
 #. module: ems
 #. odoo-python
@@ -41395,12 +41323,6 @@ msgid "Reminder (days before closing)"
 msgstr "Recordatori (dies abans del tancament)"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/call.py:0
-msgid "Reminder before the closing date emailed to %(count)s people."
-msgstr "Recordatori abans del tancament enviat per correu a %(count)s persones."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__reminder_date
 msgid "Reminder sent on"
 msgstr "Recordatori enviat el"
@@ -41415,11 +41337,6 @@ msgstr "Recordatori enviat a"
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_contact_wizard_form
 msgid "Send the notice"
 msgstr "Envia l'avís"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_call__reminder_days model:ir.model.fields,help:ems.field_ems_erasmus_call_announce__reminder_days
-msgid "That many days before the closing date, EMS emails whoever can apply and has not submitted an application yet. Only once, and only after the notice of the open call. 0: no reminder."
-msgstr "Tants dies abans del tancament, l'EMS envia un correu a qui es pot presentar i encara no ha enviat la sol·licitud. Només una vegada, i només si abans s'ha enviat l'avís de convocatòria oberta. 0: cap recordatori."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_announce_form
@@ -41442,11 +41359,6 @@ msgstr "Sense adreça de correu"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 msgid "people)"
 msgstr "persones)"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_announce_form
-msgid "people. Sending it again emails all of them again."
-msgstr "persones. Si el tornes a enviar, tothom el tornarà a rebre."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
@@ -48826,6 +48738,50 @@ msgid "Assigned"
 msgstr "Assignades"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid ""
+"Enrolled within the period and in the eligible group. Ordered by the score, "
+"from highest to lowest: the record average (0 to 10), plus 1 point for fewer"
+" opportunities accredited by the Erasmus team, minus 0.5 points per conduct "
+"warning this course (at most 1.5). Tie-break: the fewer opportunities "
+"accredited. If the tie persists, it is resolved by a draw."
+msgstr ""
+"Inscrit dins del termini i del grup que s'hi pot inscriure. Ordenat per la "
+"puntuació, de més alta a més baixa: la mitjana de l'expedient (de 0 a 10), "
+"més 1 punt per menys oportunitats acreditades per l'equip Erasmus, menys 0,5"
+" punts per cada amonestació d'aquest curs (com a màxim 1,5). Desempat: les "
+"menys oportunitats acreditades. Si l'empat continua, es resol per sorteig."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__rank_by_score
+msgid "Ranked by the score"
+msgstr "Classificada per puntuació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
+msgid ""
+"Students with the same score are ordered by the fewer opportunities "
+"accredited and, if still tied, by a draw."
+msgstr ""
+"Els alumnes amb la mateixa puntuació s'ordenen per les menys oportunitats "
+"acreditades i, si continuen empatats, per sorteig."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_registration__score
+msgid ""
+"The record average, +1 for fewer opportunities accredited by the Erasmus "
+"team, -0.5 per conduct warning this course (at most -1.5)."
+msgstr ""
+"La mitjana de l'expedient, +1 per menys oportunitats acreditades per l'equip"
+" Erasmus, -0,5 per cada amonestació d'aquest curs (com a màxim -1,5)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "Tied on the score"
+msgstr "Empatats amb la puntuació"
+
+#. module: ems
 #: model:mail.template,body_html:ems.mail_template_google_reactivated_student
 msgid ""
 "\n"
@@ -49310,3 +49266,170 @@ msgstr "Vaga"
 #: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_other
 msgid "Other reasons"
 msgstr "Altres"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_announce_form
+msgid ""
+"EMS adds the call, with the link to apply in EMS, to the next daily summary "
+"of each person who can apply to it."
+msgstr ""
+"L'EMS afegeix la convocatòria, amb l'enllaç per sol·licitar-la a l'EMS, al "
+"proper resum diari de cada persona que s'hi pot presentar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_announce_form
+msgid ""
+"EMS emails the call, with the link to apply on the portal, to each student "
+"who can apply to it, at their school address."
+msgstr ""
+"L'EMS envia per correu la convocatòria, amb l'enllaç per sol·licitar-la al "
+"portal, a cada alumne que s'hi pot presentar, a la seva adreça del centre."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid ""
+"Erasmus+: the call %(call)s closes on %(close)s and you have not submitted "
+"an application. If you started one, remember to submit it: a draft does not "
+"count."
+msgstr ""
+"Erasmus+: la convocatòria %(call)s tanca el %(close)s i encara no has enviat"
+" cap sol·licitud. Si n'havies començat una, recorda enviar-la: un esborrany "
+"no compta."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid ""
+"Erasmus+: the call %(call)s for the vocational training staff is open: job "
+"shadowing, structured courses and teaching assignments abroad. You can apply"
+" until %(close)s in Erasmus+ > My participation > Staff calls."
+msgstr ""
+"Erasmus+: s'ha obert la convocatòria %(call)s per al personal de formació "
+"professional: observació (job shadowing), cursos estructurats i estades de "
+"docència a l'estranger. Pots presentar la sol·licitud fins al %(close)s a "
+"Erasmus+ > La meva participació > Convocatòries de personal."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/staff_backend.py:0
+msgid ""
+"Fill in your application from Actions > Fill in the form, and submit it."
+msgstr "Omple la sol·licitud des d'Accions > Omple el formulari, i envia-la."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__staff_answered
+msgid "Filled in"
+msgstr "Omplerta"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__staff_answered
+msgid "Some answer of the form is filled in."
+msgstr "Alguna resposta del formulari està omplerta."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__announce_count
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_announce__announce_count
+msgid "How many people the notice of the open call was sent to."
+msgstr "A quantes persones es va enviar l'avís de convocatòria oberta."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__reminder_count
+msgid "How many people the reminder before the closing date was sent to."
+msgstr "A quantes persones es va enviar el recordatori abans del tancament."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Notice of the open call sent to %(count)s people."
+msgstr "Avís de convocatòria oberta enviat a %(count)s persones."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Reminder before the closing date sent to %(count)s people."
+msgstr "Recordatori abans del tancament enviat a %(count)s persones."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_staff_application_wizard__open_application
+msgid "Open the application after saving"
+msgstr "Obre la sol·licitud en desar"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_staff_application_wizard__open_application
+msgid "Opened from the call: saving opens the application."
+msgstr "Obert des de la convocatòria: en desar, s'obre la sol·licitud."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_announce__without_email_count
+msgid ""
+"Students who will not get the notice: it goes to the school address only."
+msgstr "Alumnes que no rebran l'avís: només s'envia a l'adreça del centre."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_announce__without_email_count
+msgid "Without a school email address"
+msgstr "Sense adreça de correu del centre"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__reminder_days
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_announce__reminder_days
+msgid ""
+"That many days before the closing date, EMS reminds whoever can apply and "
+"has not submitted an application yet, the same way as the notice of the open"
+" call. Only once, and only after that notice. 0: no reminder."
+msgstr ""
+"Tants dies abans del tancament, l'EMS ho recorda a qui es pot presentar i "
+"encara no ha enviat la sol·licitud, de la mateixa manera que l'avís de "
+"convocatòria oberta. Només una vegada, i només després d'aquest avís. 0: cap"
+" recordatori."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_announce_form
+msgid "people. Sending it again tells all of them again."
+msgstr "persones. Si el tornes a enviar, tothom el tornarà a rebre."
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_erasmus_call_open
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello,</p>\n"
+"                        <p>\n"
+"                            The call <strong t-out=\"object.name\"/> is open: Erasmus+ internships abroad for the\n"
+"                            students of your studies.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            You can apply <t t-out=\"object._ems_mail_place()\"/> from <strong t-out=\"object._ems_local_format(object.date_open)\"/>\n"
+"                            until <strong t-out=\"object._ems_local_format(object.date_close)\"/>:\n"
+"                            <a t-attf-href=\"{{ object._ems_mail_url() }}\">Erasmus+</a>.\n"
+"                            You will also find the rules of the call there.\n"
+"                        </p>\n"
+"                        <p>If you have any question, reply to this email.</p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola,</p>\n"
+"                        <p>\n"
+"                            S'ha obert la convocatòria <strong t-out=\"object.name\"/>: pràctiques Erasmus+ a l'estranger per a\n"
+"                            l'alumnat dels teus estudis.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Pots presentar la sol·licitud <t t-out=\"object._ems_mail_place()\"/> des del <strong t-out=\"object._ems_local_format(object.date_open)\"/>\n"
+"                            fins al <strong t-out=\"object._ems_local_format(object.date_close)\"/>:\n"
+"                            <a t-attf-href=\"{{ object._ems_mail_url() }}\">Erasmus+</a>.\n"
+"                            Hi trobaràs també les bases de la convocatòria.\n"
+"                        </p>\n"
+"                        <p>Si tens qualsevol dubte, respon aquest correu.</p>\n"
+"                        <p>\n"
+"                            Salutacions,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "

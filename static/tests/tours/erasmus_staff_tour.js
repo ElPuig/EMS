@@ -9,7 +9,8 @@ import { clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 // classes), so the logged-in user's language does not matter.
 
 // The 2026-11-04 review: a teacher applies to the staff call in the backend (never the portal):
-// Staff calls, Apply, the form in its dialog, the identity document, Submit, and My applications.
+// Staff calls, Apply (the form's dialog opens straight away, issue #802), the identity document,
+// Submit, and My applications.
 // The tour's user writes in English (tests/test_erasmus_staff_tour.py), for the date fields.
 const STAFF_CALL = "Test Erasmus Staff Call";
 
@@ -23,11 +24,7 @@ registry.category("web_tour.tours").add("ems_erasmus_staff_backend_apply", {
             run: "click",
         },
         ...clickAction("action_staff_apply", "Apply"),
-        {
-            trigger: ".o_form_view .o_ems_erasmus_staff_next",
-            content: "The application says what to do now",
-        },
-        ...clickAction("action_staff_edit", "Fill in the form"),
+        // Issue #802: nothing filled in yet, so the form's dialog opens straight away.
         {
             trigger: ".modal .o_field_widget[name='proposal_a'] textarea",
             content: "Proposal A, in your own words",

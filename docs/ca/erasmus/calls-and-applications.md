@@ -36,7 +36,7 @@ Un termini que cau en cap de setmana, festiu o vacances escolars passa al següe
 
 ![Els blocs Ajustos i Calendari de la convocatòria, amb els terminis desplegats](../../assets/erasmus/convocatoria-calendari.png)
 
-> Les respostes als correus que l'EMS envia sense que ningú de l'equip els enviï (acusaments de recepció i recordatoris) arriben a la bústia d'Erasmus+ que hi ha a **Configuració > Gestió de l'EMS > Dades del centre > Erasmus+** (erasmus@elpuig.xeill.net), la mateixa per a totes les convocatòries.
+> Les respostes als correus que l'EMS envia sense que ningú de l'equip els enviï (acusaments de recepció i recordatoris) arriben a la bústia d'Erasmus+ que hi ha a **Configuració > Gestió de l'EMS > Dades del centre > Erasmus+** (erasmus@elpuig.xeill.net), la mateixa per a totes les convocatòries. L'EMS escriu a l'alumnat a la seva adreça del centre (la del Puig), no a la personal (només hi va la petició de signatura electrònica, vegeu [Preparar les mobilitats](mobility-preparation.md)): qui no en té no rep cap correu d'Erasmus+, i la sol·licitud ho indica al seu historial. La família rep les seves còpies a la seva adreça.
 
 Les pestanyes de la convocatòria estan en dos blocs: **Selecció** (modalitats, documents, informació per a les persones sol·licitants, comissió i resolucions) i **Mobilitat** (destinacions, documents de la mobilitat, carta de compromís, llista de passos i autoavaluació setmanal). El bloc **Mobilitat** només apareix un cop publicada la resolució definitiva: és per a les persones seleccionades, i una convocatòria nova ja porta el que cal, de manera que per obrir una convocatòria només veus **Selecció**. Els botons de dalt segueixen la fase de la convocatòria, la més recent primer: abans de la resolució definitiva, la classificació i les entrevistes (o les valoracions dels plans); després, les mobilitats i les ofertes de plaça; les reclamacions, a partir de la resolució provisional. Un empat per sortejar s'avisa a dalt de tot de la convocatòria.
 
@@ -72,9 +72,14 @@ A **Accions**, fes clic a **Publica**. La convocatòria apareix al portal de tot
 
 ## Avisar qui s'hi pot presentar
 
-Publicar no envia cap correu. Per avisar tothom qui s'hi pot presentar, fes clic a **Accions > Avisa qui s'hi pot presentar**: l'EMS et mostra quantes persones el rebran (i quantes no tenen adreça de correu i no el rebran) i l'envia quan fas clic a **Envia l'avís**. És la mateixa regla que el portal: en una convocatòria d'alumnat, l'alumnat dels nivells de les seves modalitats, excepte qui té massa amonestacions; en una de personal, el professorat dels seus nivells i la direcció que valida les activitats. Cada persona rep el seu propi correu, amb les dates de la convocatòria i l'enllaç per sol·licitar-la. La família no el rep. El pots enviar abans que s'obri la convocatòria; si el tornes a enviar (per exemple després d'afegir un nivell), tothom el torna a rebre: l'assistent t'ho avisa.
+Publicar no avisa ningú. Per avisar tothom qui s'hi pot presentar, fes clic a **Accions > Avisa qui s'hi pot presentar**: l'EMS et mostra quantes persones el rebran i l'envia quan fas clic a **Envia l'avís**. És la mateixa regla que el portal: en una convocatòria d'alumnat, l'alumnat dels nivells de les seves modalitats; en una de personal, el professorat dels seus nivells i la direcció que valida les activitats.
 
-**Recordatori abans del tancament:** 3 dies abans de la data de tancament, a partir de les 9:00, l'EMS envia un correu a qui es pot presentar i encara no ha enviat la sol·licitud (un esborrany no compta). S'envia una sola vegada, i només si l'avís s'ha enviat des de l'EMS. La convocatòria mostra quan s'ha enviat cada correu i a quantes persones.
+- **Convocatòria d'alumnat:** cada alumne rep el seu propi correu, amb les dates de la convocatòria i l'enllaç per sol·licitar-la, a la seva adreça del centre (la del Puig), mai a la personal. Qui no té adreça del centre no el rep: l'assistent et diu quants n'hi ha. La família no el rep.
+- **Convocatòria de personal:** no s'envia cap correu a part. L'avís va al proper [resum diari](../teachers/daily-summary.md) de cada persona, a l'hora que ha triat al seu perfil (per defecte, a l'inici de la seva jornada), amb la data de tancament i on presentar la sol·licitud.
+
+El pots enviar abans que s'obri la convocatòria; si el tornes a enviar (per exemple després d'afegir un nivell), tothom el torna a rebre: l'assistent t'ho avisa.
+
+**Recordatori abans del tancament:** a **Recordatori (dies abans del tancament)** (3 per defecte), l'EMS ho recorda a qui es pot presentar i encara no ha enviat la sol·licitud (un esborrany no compta), tants dies abans del tancament i a partir de les 9:00, de la mateixa manera que l'avís. S'envia una sola vegada, i només si l'avís s'ha enviat des de l'EMS. Posa-hi 0 perquè no n'hi hagi. La convocatòria mostra quan s'ha enviat cadascun i a quantes persones.
 
 ## 3. Revisar les sol·licituds
 

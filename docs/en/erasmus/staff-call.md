@@ -24,7 +24,7 @@ In **Erasmus+ > Calls > Calls**, create the call, set **Applicants** to *Staff*,
 - **Validates the activities:** the Direction that validates each selected person's activity and its later changes. It comes filled in with the Director and the Head of Studies of FP (the one above most of the FP teachers), and only they get the to-do, even for a teacher who hangs below another Head of Studies in the organisation chart.
 - The **places** are not needed to open it: the published call gives the indicative ones, and they may change with the projects. You add them later (step 5); when you publish without them, EMS warns you, so that they are not forgotten.
 
-Once published, every member of the staff with an employee file sees the call in EMS, under **Erasmus+ > My participation > Staff calls**. To email it to all of them, use **Actions > Notify who can apply** (see [Calls and applications](calls-and-applications.md)).
+Once published, every member of the staff with an employee file sees the call in EMS, under **Erasmus+ > My participation > Staff calls**. To tell all of them, use **Actions > Notify who can apply**: they get it in their daily summary, not as a separate email (see [Calls and applications](calls-and-applications.md)).
 
 ## 2. What the staff fill in
 

@@ -174,9 +174,11 @@ class EmsErasmusSatisfaction(models.Model):
 
     def _ems_send_mail(self):
         template = self.env.ref('ems.email_template_erasmus_satisfaction').sudo()
-        for survey in self.sudo().filtered('partner_id.email'):
-            template.with_context(lang=survey.partner_id.lang).send_mail(
-                survey.id, force_send=False, email_values={'email_to': survey.partner_id.email})
+        for survey in self.sudo():
+            address = survey.partner_id._ems_erasmus_email()
+            if address:
+                template.with_context(lang=survey.partner_id.lang).send_mail(
+                    survey.id, force_send=False, email_values={'email_to': address})
 
     def _ems_schedule_todo(self):
         """Staff (as with their mobility documents): a to-do on their own contact, since staff

@@ -48,6 +48,8 @@ class EmsErasmusStaffApplicationWizard(models.TransientModel):
     support_needs = fields.Text(string="Support needs")
     image_consent = fields.Boolean(string="Image consent")
     applicant_notes = fields.Text(string="Notes")
+    open_application = fields.Boolean(string="Open the application after saving",
+                                      help="Opened from the call: saving opens the application.")
 
     @api.model
     def default_get(self, fields_list):
@@ -70,11 +72,13 @@ class EmsErasmusStaffApplicationWizard(models.TransientModel):
 
     def action_save(self):
         self._ems_save()
-        return REOPEN
+        return self.application_id._ems_staff_form() if self.open_application else REOPEN
 
     def action_save_submit(self):
         self._ems_save().action_submit()
-        return self.application_id._ems_staff_reload(_("Application submitted. You will receive a receipt by email."))
+        return self.application_id._ems_staff_reload(
+            _("Application submitted. You will receive a receipt by email."),
+            self.application_id._ems_staff_form() if self.open_application else None)
 
 
 class EmsErasmusStaffDocumentWizard(models.TransientModel):

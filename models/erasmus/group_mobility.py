@@ -25,6 +25,12 @@ RESULTS = [('selected', "Selected"), ('reserve', "Reserve"), ('excluded', "Exclu
 EXCLUSIONS = [('group', "Not in the eligible group")]
 # What the Erasmus team enters for a student with no grades in EMS (issue #702).
 GRADE_FIELDS = ('grade_manual', 'grade_average_manual', 'grade_manual_reason')
+# Issue #773 (art. 16 of the students' rules): the score a group mobility ranks by, the record average
+# plus a point for fewer opportunities accredited, minus half a point per conduct warning this
+# course, at most one and a half.
+FEWER_OPPORTUNITIES_POINTS = 1.0
+STRIKE_POINTS = 0.5
+STRIKE_POINTS_MAX = 1.5
 ROLES = [('student', "Student"), ('leader', "Leader teacher"), ('companion', "Accompanying teacher")]
 # Who a group mobility's document is for.
 GROUP_AUDIENCES = [('collective', "The group (shared)"), ('student', "Each student"),
@@ -88,8 +94,9 @@ class EmsErasmusGroupMobility(models.Model):
     tie_break = fields.Text(
         string="Selection criteria", tracking=True, translate=True,
         default=lambda self: self._ems_default_tie_break(),
-        help="Published on the portal before the enrolment opens. EMS ranks by the record average, then the fewer "
-             "opportunities accredited, then the draw the Erasmus coordinator runs in EMS for a remaining tie.")
+        help="Published on the portal before the enrolment opens. EMS ranks by the score (the record average, +1 "
+             "for fewer opportunities accredited, -0.5 per conduct warning this course, at most -1.5), then the "
+             "fewer opportunities accredited, then the draw the Erasmus coordinator runs in EMS for a remaining tie.")
     # Destination, host entity and dates: may be pending during the enrolment.
     country_id = fields.Many2one(string="Country", comodel_name='res.country', tracking=True)
     city = fields.Char(string="City", tracking=True)
@@ -132,6 +139,8 @@ class EmsErasmusGroupMobility(models.Model):
     # The selection, kept as evidence (issue #702).
     ranking_date = fields.Datetime(string="Ranked on", readonly=True, copy=False,
                                    help="When the enrolment closed and EMS froze the data of the ranking.")
+    # Issue #773: the mobilities ranked before by the record average alone keep that ranking.
+    rank_by_score = fields.Boolean(string="Ranked by the score", default=True, readonly=True, copy=False)
     proposal_date = fields.Datetime(string="Proposal sent on", readonly=True, copy=False)
     proposal_user_id = fields.Many2one(string="Proposal sent by", comodel_name='res.users', readonly=True, copy=False)
     proposal_note = fields.Text(string="Leader's comment on the proposal", copy=False)
@@ -490,7 +499,8 @@ class EmsErasmusGroupMobility(models.Model):
     # --- ranking and selection (issue #702) ------------------------------------------------------
 
     def _ems_rank(self):
-        """The rank of the eligible enrolments: record average descending, then the fewer
+        """The rank of the eligible enrolments: score descending (issue #773; the record average
+        in a mobility ranked before it), then the fewer
         opportunities accredited, then the draw order the coordination sets for a tie it resolves.
         The first ones, as many as places, are proposed as selected; the rest, as reserves in that
         order. Not eligible, or excluded by the coordinator's exception: excluded, not ranked. An eligible student with no average (no evaluated module and
@@ -566,6 +576,7 @@ class EmsErasmusGroupMobility(models.Model):
                 raise UserError(_("There is no tie to draw in %s.", mobility.name))
             mobility.env['ems.erasmus.group.draw']._ems_run(mobility, [
                 (registrations, {'grade_average': registrations[0]._ems_average(),
+                                 'score_total': mobility.rank_by_score and registrations[0].score,
                                  'fewer_opportunities': registrations[0].fewer_opportunities_check == 'yes'})
                 for registrations in tied.grouped(lambda registration: registration._ems_tie_key()).values()])
             mobility._ems_rank()
@@ -685,9 +696,10 @@ class EmsErasmusGroupMobility(models.Model):
 
     @api.model
     def _ems_default_tie_break(self):
-        return _("Enrolled within the period and in the eligible group. Ordered by the record average, from highest "
-                 "to lowest. Tie-break: the fewer opportunities accredited by the Erasmus team. If the tie persists, "
-                 "it is resolved by a draw.")
+        return _("Enrolled within the period and in the eligible group. Ordered by the score, from highest to "
+                 "lowest: the record average (0 to 10), plus 1 point for fewer opportunities accredited by the "
+                 "Erasmus team, minus 0.5 points per conduct warning this course (at most 1.5). Tie-break: the fewer "
+                 "opportunities accredited. If the tie persists, it is resolved by a draw.")
 
     @api.model
     def _ems_default_requirements(self):
@@ -989,6 +1001,10 @@ class EmsErasmusGroupRegistration(models.Model):
     ranking_average = fields.Float(string="Average used", digits=(4, 2), compute='_compute_ranking_average',
                                    help="The average the ranking uses: EMS's, or the one the Erasmus team entered by "
                                         "hand.")
+    # Issue #773: what the ranking orders by. The leader sees it, never its breakdown (audit D-14).
+    score = fields.Float(string="Score", digits=(4, 2), compute='_compute_score', store=True,
+                         help="The record average, +1 for fewer opportunities accredited by the Erasmus team, -0.5 "
+                              "per conduct warning this course (at most -1.5).")
     conduct_review = fields.Boolean(string="Conduct to review", compute='_compute_conduct_review',
                                     groups='ems.group_erasmus,ems.group_academic_admin',
                                     help="As many conduct warnings this course as the number that sends the case to "
@@ -1024,6 +1040,15 @@ class EmsErasmusGroupRegistration(models.Model):
     def _compute_ranking_average(self):
         for registration in self:
             registration.ranking_average = registration._ems_average()
+
+    @api.depends('grade_average', 'grade_manual', 'grade_average_manual', 'fewer_opportunities_check', 'strike_count')
+    def _compute_score(self):
+        """Issue #773. Its data are frozen when the enrolment closes, except the team's checks after
+        it (the fewer opportunities accredited, an average entered by hand)."""
+        for registration in self.sudo():
+            bonus = FEWER_OPPORTUNITIES_POINTS if registration.fewer_opportunities_check == 'yes' else 0.0
+            penalty = min(STRIKE_POINTS * registration.strike_count, STRIKE_POINTS_MAX)
+            registration.score = round(registration._ems_average() + bonus - penalty, 2)
 
     @api.depends('strike_count')
     def _compute_conduct_review(self):
@@ -1164,10 +1189,16 @@ class EmsErasmusGroupRegistration(models.Model):
         partner = self.sudo().partner_id
         return partner.document_id or partner.passport_id or ''
 
-    def _ems_tie_key(self):
-        """What a tie is: the same average and the same accreditation of fewer opportunities."""
+    def _ems_ranking_score(self):
+        """Issue #773: what the ranking and its lists use, the score (the record average in a
+        mobility ranked before it)."""
         self.ensure_one()
-        return -self._ems_average(), self.sudo().fewer_opportunities_check != 'yes'
+        return self.score if self.group_mobility_id.rank_by_score else self._ems_average()
+
+    def _ems_tie_key(self):
+        """What a tie is: the same score and the same accreditation of fewer opportunities."""
+        self.ensure_one()
+        return -self._ems_ranking_score(), self.sudo().fewer_opportunities_check != 'yes'
 
     def _ems_rank_key(self):
         self.ensure_one()
@@ -1952,7 +1983,7 @@ class EmsErasmusResolution(models.Model):
         return [('', self.line_ids)] if self.group_mobility_id else super()._ems_list_groups()
 
     def _ems_line_values(self):
-        """Every enrolment still standing: rank and record average for the admitted (selected or
+        """Every enrolment still standing: rank and score (issue #773) for the admitted (selected or
         reserve), the reason only for the student when excluded."""
         if not self.group_mobility_id:
             return super()._ems_line_values()
@@ -1966,7 +1997,7 @@ class EmsErasmusResolution(models.Model):
             if result == 'excluded':
                 vals['exclusion_reason'] = registration._ems_exclusion_reason()
             else:
-                vals.update(rank=registration.rank, score_total=registration._ems_average())
+                vals.update(rank=registration.rank, score_total=registration._ems_ranking_score())
             values.append(vals)
         return values
 

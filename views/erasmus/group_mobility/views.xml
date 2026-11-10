@@ -280,6 +280,9 @@
                                         <field name="enrol_date" options="{'show_time': False}" optional="hide"/>
                                         <field name="grade_average" invisible="not grade_found" optional="hide"/>
                                         <field name="ranking_average" string="Average" invisible="not has_average"/>
+                                        <!-- Issue #773: what the ranking orders by, next to the average. -->
+                                        <field name="score" invisible="not has_average"
+                                               column_invisible="not parent.rank_by_score"/>
                                         <field name="has_average" column_invisible="1"/>
                                         <field name="grade_found" optional="hide"/>
                                         <field name="grade_incident" widget="boolean_toggle" readonly="1" optional="hide"
@@ -331,7 +334,9 @@
                                         <list>
                                             <field name="date" options="{'show_time': False}"/>
                                             <field name="user_id"/>
-                                            <field name="grade_average"/>
+                                            <field name="grade_average" column_invisible="parent.rank_by_score"/>
+                                            <field name="score_total" string="Tied on the score"
+                                                   column_invisible="not parent.rank_by_score"/>
                                             <field name="fewer_opportunities" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                             <field name="tied_count"/>
                                             <field name="line_ids" widget="many2many_tags" string="Order drawn"/>
@@ -342,6 +347,7 @@
                                 <group name="selection_history">
                                     <group>
                                         <field name="ranking_date" options="{'show_time': False}"/>
+                                        <field name="rank_by_score" invisible="1"/>
                                         <field name="proposal_date" options="{'show_time': False}"/>
                                         <field name="proposal_user_id"/>
                                         <field name="approval_date" options="{'show_time': False}"/>

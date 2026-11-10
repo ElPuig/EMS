@@ -36,7 +36,7 @@ A deadline that falls on a weekend, a holiday or a school break moves to the nex
 
 ![The call's Settings and Calendar blocks, with the deadlines unfolded](../../assets/erasmus/convocatoria-calendari.png)
 
-> Replies to the emails EMS sends without anyone of the team sending them (receipts and reminders) go to the Erasmus+ mailbox in **Settings > EMS Management > Center Data > Erasmus+** (erasmus@elpuig.xeill.net), the same for every call.
+> Replies to the emails EMS sends without anyone of the team sending them (receipts and reminders) go to the Erasmus+ mailbox in **Settings > EMS Management > Center Data > Erasmus+** (erasmus@elpuig.xeill.net), the same for every call. EMS emails students at their school address (the Puig one), not the personal one (only the electronic signature request goes there, see [Preparing the mobilities](mobility-preparation.md)): a student without it gets no Erasmus+ email, and the application says so in its history. The family gets its copies at its own address.
 
 The call's tabs are in two blocks: **Selection** (modalities, documents, information for applicants, panel and resolutions) and **Mobility** (destinations, mobility documents, commitment letter, checklist and weekly self-assessment). The **Mobility** block only appears once the definitive resolution is published: it is for the selected, and a new call already brings what it needs, so to open a call you only see **Selection**. The buttons at the top follow the call's phase, the latest first: before the definitive resolution, the ranking and the interviews (or plan ratings); then the mobilities and place offers; the claims, from the provisional resolution. A tie to draw is warned at the top of the call.
 
@@ -72,9 +72,14 @@ In **Actions**, click **Publish**. The call appears on the portal of every stude
 
 ## Notify who can apply
 
-Publishing sends no email. To tell everyone who can apply, click **Actions > Notify who can apply**: EMS shows how many people will get it (and how many have no email address, who will not) and sends it when you click **Send the notice**. It is the same rule as the portal: in a students' call, the students of the levels of its modalities, except those with too many conduct warnings; in a staff call, the teachers of its levels and the Direction that validates the activities. Each person receives their own email, with the call's dates and the link to apply. The family does not receive it. You can send it before the call opens; if you send it again (for example after adding a level), everybody receives it again: the assistant warns you.
+Publishing tells nobody. To tell everyone who can apply, click **Actions > Notify who can apply**: EMS shows how many people will get it and sends it when you click **Send the notice**. It is the same rule as the portal: in a students' call, the students of the levels of its modalities; in a staff call, the teachers of its levels and the Direction that validates the activities.
 
-**Reminder before closing:** 3 days before the closing date, from 9:00, EMS emails whoever can apply and has not submitted an application yet (a draft does not count). It is sent once, and only if the notice was sent from EMS. The call shows when each email was sent and to how many people.
+- **Students' call:** each student receives their own email, with the call's dates and the link to apply, at their school address (the Puig one), never the personal one. Students without a school address don't receive it: the assistant tells you how many. The family does not receive it.
+- **Staff call:** no separate email. The notice goes in each person's next [daily summary](../teachers/daily-summary.md), at the moment they chose in their profile (by default, the start of their working day), with the closing date and where to apply.
+
+You can send it before the call opens; if you send it again (for example after adding a level), everybody receives it again: the assistant warns you.
+
+**Reminder before closing:** in **Reminder (days before closing)** (3 by default), EMS reminds whoever can apply and has not submitted an application yet (a draft does not count), that many days before the closing date and from 9:00, the same way as the notice. It is sent once, and only if the notice was sent from EMS. Set it to 0 for no reminder. The call shows when each one was sent and to how many people.
 
 ## 3. Review the applications
 

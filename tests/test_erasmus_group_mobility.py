@@ -31,11 +31,12 @@ def create_group_mobility_fixtures(cls):
     cls.students = cls.env['res.partner'].create([{
         'name': f'Group Test Student {index:02d}', 'contact_type': 'student', 'student_id': next_student_id(),
         'main_group_id': (cls.group_a if index % 2 else cls.group_b).id, 'birth_date': '2005-01-01',
-        'email': f'group.student{index}@example.com', 'document_id': f'9100000{index}T'} for index in range(10)])
+        'email': f'group.student{index}@example.com', 'student_email': f'group.student{index}@example.com',
+        'document_id': f'9100000{index}T'} for index in range(10)])
     cls.minor, cls.afternoon_student = cls.env['res.partner'].create([
         {'name': 'Group Test Minor', 'contact_type': 'student', 'student_id': next_student_id(),
          'main_group_id': cls.group_a.id, 'birth_date': fields.Date.today() - timedelta(days=16 * 365),
-         'email': 'group.minor@example.com', 'document_id': '91000099T'},
+         'email': 'group.minor@example.com', 'student_email': 'group.minor@example.com', 'document_id': '91000099T'},
         {'name': 'Group Test Afternoon', 'contact_type': 'student', 'student_id': next_student_id(),
          'main_group_id': cls.group_c.id, 'birth_date': '2005-01-01'},
     ])

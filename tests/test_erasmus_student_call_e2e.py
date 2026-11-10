@@ -80,6 +80,7 @@ class TestErasmusStudentCallEndToEnd(TransactionCase):
             cls.students[name] = cls.env['res.partner'].create({
                 'name': f'E2E {name}', 'contact_type': 'student', 'student_id': next_student_id(),
                 'main_group_id': group.id, 'birth_date': '2004-01-01', 'email': f'{name}@example.com',
+                'student_email': f'{name}@example.com',
                 'document_id': f'{10000000 + index}T'})
         for name, values in {**GM, **GS}.items():
             cls._grade(cls.students[name], values[0])

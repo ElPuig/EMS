@@ -452,7 +452,8 @@ class EmsErasmusExport(models.Model):
                                'fewer_opportunities_check')}
         audit = self.include_confidential
         header = [_("Rank"), _("Student"), _("Group at closing"), _("Enrolment"), _("Record average"),
-                  _("Average entered by hand"), _("Where the average comes from"), _("Meets the requirements"),
+                  _("Average entered by hand"), _("Where the average comes from"), _("Score"),
+                  _("Meets the requirements"),
                   _("Draw"), _("Proposed"), _("Exception"), _("Reason for the exception"), _("Result"),
                   _("Renounced on"), _("Replaces")]
         if audit:
@@ -462,6 +463,9 @@ class EmsErasmusExport(models.Model):
             row = [registration.rank or '', registration.partner_id.name, registration.frozen_group_id.display_name or '',
                    labels['state'].get(registration.state, ''), registration._ems_average() if registration.has_average
                    else '', _("Yes") if registration.grade_manual else '', registration.grade_manual_reason or '',
+                   # Issue #773: the score, in a mobility ranked by it.
+                   registration.score if registration.has_average and registration.group_mobility_id.rank_by_score
+                   else '',
                    _("Yes") if registration.eligible else _("No"), registration.draw_order or '',
                    labels['proposed_result'].get(registration.proposed_result, ''),
                    labels['result_override'].get(registration.result_override, ''), registration.override_reason or '',

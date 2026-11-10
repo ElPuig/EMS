@@ -39,10 +39,10 @@ def create_erasmus_fixtures(cls):
     cls.student, cls.minor, cls.outsider = cls.env['res.partner'].create([
         {'name': 'Erasmus Test Student', 'contact_type': 'student', 'student_id': next_student_id(),
          'main_group_id': cls.group.id, 'birth_date': '2000-01-01',
-         'email': 'erasmus.student@example.com'},
+         'email': 'erasmus.student@example.com', 'student_email': 'erasmus.student@example.com'},
         {'name': 'Erasmus Test Minor', 'contact_type': 'student', 'student_id': next_student_id(),
          'main_group_id': cls.group.id, 'birth_date': '2015-01-01',
-         'email': 'erasmus.minor@example.com'},
+         'email': 'erasmus.minor@example.com', 'student_email': 'erasmus.minor@example.com'},
         {'name': 'Erasmus Test Outsider', 'contact_type': 'student', 'student_id': next_student_id(),
          'main_group_id': cls.other_group.id, 'birth_date': '2000-01-01'},
     ])
@@ -286,6 +286,19 @@ class TestErasmusApplication(TransactionCase):
         self.assertIn('my_cv.pdf', mails.body_html)
         application.action_submit()
         self.assertEqual(len(self._mails(application)), 2, "Every submission sends a new receipt")
+
+    def test_every_erasmus_email_goes_to_the_school_address(self):
+        """Issue #802: a student is emailed at their school address, never the personal one; without
+        it, nothing is sent and the team reads why on the application."""
+        self.student.write({'email': 'erasmus.personal@example.com', 'student_email': 'erasmus.school@example.com'})
+        application = self._apply()
+        upload(application, self.cv)
+        application.action_submit()
+        self.assertEqual(self._mails(application).email_to, 'erasmus.school@example.com')
+        self.student.student_email = False
+        application.action_submit()
+        self.assertEqual(len(self._mails(application)), 1, "No school address: no email, not even to the personal one.")
+        self.assertIn('no email address', application.message_ids[:1].body)
 
     def test_answers_editable_until_the_closing_date(self):
         application = self._apply()

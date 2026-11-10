@@ -12,14 +12,18 @@ from .test_erasmus import create_erasmus_fixtures, upload
 @tagged('post_install', '-at_install')
 class TestErasmusCallAnnounce(TransactionCase):
     """The notice of an open call to whoever can apply, and the reminder before it closes, for the
-    students' call (the levels of its modalities; conduct warnings rule nobody out, see test_erasmus.py) and
-    the staff call (the teachers of its levels and the Direction)."""
+    students' call (the levels of its modalities; conduct warnings rule nobody out, see test_erasmus.py),
+    emailed to each student's school address, and the staff call (the teachers of its levels and the
+    Direction), in their daily summary (issue #802)."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         mock_outgoing_email(cls)
         create_erasmus_fixtures(cls)
+        # The school address is the one the notice goes to; the personal one is never used.
+        cls.student.student_email = 'erasmus.student@school.example.com'
+        cls.minor.student_email = 'erasmus.minor@school.example.com'
         # The staff call: an FP teacher can apply, an ESO teacher and the administration staff
         # cannot; the Direction that validates the activities can.
         cls.eso_level, eso_study, cls.eso_group = create_level_study_group(cls, 'TERC')
@@ -45,6 +49,9 @@ class TestErasmusCallAnnounce(TransactionCase):
     def _mails(self, call):
         return self.env['mail.mail'].search([('model', '=', 'ems.erasmus.call'), ('res_id', '=', call.id)])
 
+    def _notices(self, call):
+        return self.env['ems.info_notice'].search([('res_model', '=', 'ems.erasmus.call'), ('res_id', '=', call.id)])
+
     def test_who_can_apply_to_a_students_call(self):
         partners = self.call._ems_eligible_partners()
         self.assertIn(self.student, partners)
@@ -66,25 +73,53 @@ class TestErasmusCallAnnounce(TransactionCase):
         self.assertEqual((wizard.recipient_count, wizard.without_email_count), (2, 0))
         wizard.action_send()
         mails = self._mails(self.call)
-        self.assertEqual(sorted(mails.mapped('email_to')), ['erasmus.minor@example.com', 'erasmus.student@example.com'])
+        self.assertEqual(sorted(mails.mapped('email_to')),
+                         ['erasmus.minor@school.example.com', 'erasmus.student@school.example.com'])
         self.assertTrue(all(self.call.name in mail.subject for mail in mails))
         self.assertTrue(all(f'/my/erasmus/call/{self.call.id}' in mail.body_html for mail in mails))
         self.assertEqual(self.call.announce_count, 2)
         self.assertTrue(self.call.announce_date)
         self.assertIn('2', self.call.message_ids[:1].body)
 
-    def test_the_notice_skips_who_has_no_address(self):
-        self.minor.email = False
+    def test_the_notice_skips_who_has_no_school_address(self):
+        self.minor.student_email = False
         wizard = self.env['ems.erasmus.call.announce'].with_user(self.erasmus_user).create({'call_id': self.call.id})
         self.assertEqual((wizard.recipient_count, wizard.without_email_count), (2, 1))
         wizard.action_send()
-        self.assertEqual(self._mails(self.call).mapped('email_to'), ['erasmus.student@example.com'])
+        self.assertEqual(self._mails(self.call).mapped('email_to'), ['erasmus.student@school.example.com'],
+                         "Never the personal address, even when it is the only one.")
         self.assertEqual(self.call.announce_count, 1)
 
-    def test_staff_call_notice(self):
+    def test_staff_call_notice_goes_in_the_daily_summary(self):
+        wizard = self.env['ems.erasmus.call.announce'].with_user(self.erasmus_user).create(
+            {'call_id': self.staff_call.id})
+        self.assertEqual((wizard.recipient_count, wizard.without_email_count), (2, 0))
+        wizard.action_send()
+        self.assertFalse(self._mails(self.staff_call), "Not urgent and asks for nothing: no email on the spot.")
+        notices = self._notices(self.staff_call)
+        self.assertEqual(notices.user_id, self.director | self.staff['fp'])
+        self.assertTrue(all(self.staff_call.name in notice.body and 'Staff calls' in notice.body for notice in notices))
+        self.assertEqual(self.staff_call.announce_count, 2)
+        content = self.staff['fp']._ems_daily_summary_content()
+        self.assertIn(self.staff_call.name, str(content['body']))
+        self.assertEqual(content['notices'], notices.filtered(lambda notice: notice.user_id == self.staff['fp']))
+        # The summary's link opens the call in the staff's own form, the team's form for the team.
+        staff_form = self.env.ref('ems.view_erasmus_call_staff_form').id
+        self.assertEqual(self.staff_call.with_user(self.staff['fp']).get_formview_id(), staff_form)
+        self.assertNotEqual(self.staff_call.with_user(self.erasmus_user).get_formview_id(), staff_form)
+
+    def test_staff_call_reminder_goes_in_the_daily_summary(self):
+        Application = self.env['ems.erasmus.application']
+        Application._ems_portal_get_or_create(self.staff_call, self.staff['fp'].partner_id)  # a draft does not count
         self.staff_call.with_user(self.erasmus_user)._ems_send_announce()
-        self.assertEqual(sorted(self._mails(self.staff_call).mapped('email_to')),
-                         ['announce.director@example.com', 'announce.fp@example.com'])
+        notices = self._notices(self.staff_call)
+        noon = datetime.combine(self.staff_call._ems_local_date(self.staff_call.date_close), datetime.min.time())
+        self._remind_at(noon - timedelta(days=1) + timedelta(hours=12))
+        reminders = self._notices(self.staff_call) - notices
+        self.assertEqual(reminders.user_id, self.director | self.staff['fp'])
+        self.assertTrue(all('a draft does not count' in reminder.body for reminder in reminders))
+        self.assertFalse(self._mails(self.staff_call))
+        self.assertEqual(self.staff_call.reminder_count, 2)
 
     def test_only_the_team_and_only_an_open_published_call(self):
         with self.assertRaises(AccessError):
@@ -125,7 +160,7 @@ class TestErasmusCallAnnounce(TransactionCase):
         self.assertFalse(self.call.reminder_date, "Not before 9:00.")
         self._remind_at(morning + timedelta(hours=10))
         reminder = self._mails(self.call) - notice
-        self.assertEqual(reminder.mapped('email_to'), ['erasmus.minor@example.com'])
+        self.assertEqual(reminder.mapped('email_to'), ['erasmus.minor@school.example.com'])
         self.assertEqual(self.call.reminder_count, 1)
         self._remind_at(morning + timedelta(hours=12))
         self.assertEqual(self._mails(self.call) - notice, reminder, "Only once.")

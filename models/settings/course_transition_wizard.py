@@ -913,7 +913,7 @@ Called from `_apply_cleanup()` **last**, after `students._ems_clear_operational_
         authoritative link is `ems.attendance_session_line.attendance_justification_id`/
         `attendance_prevision_id` (a Many2one FROM the line TO the justification) - set
         automatically by `_auto_populate_lines()` whenever a session gets created for a date a
-        justification already covers (`EmsAttendanceJustification.get_current_justifications()`),
+        justification already covers (`get_current_justification_by_student()`),
         *without* ever syncing that back onto the justification's own M2M. So a real, dated-in-
         the-past justification can legitimately show zero entries on `attendance_session_line_ids`
         while still being linked from the line side, or - the actual case found - never having any

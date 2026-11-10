@@ -90,6 +90,16 @@ Each person sees the meetings:
 
 ---
 
+## People with an absence
+
+Whoever has an absence or a leave request (approved or still awaiting approval) on the day and at the time of the meeting appears as **Justified**, with the note "Has an absence". The reason is never shown. EMS checks it when the people are loaded, when the meeting's date or time changes, and again when attendance is opened and closed:
+
+- If the absence is cancelled or refused before closing, the person goes back to **Pending**.
+- If they come anyway and pass their tag, they are marked **Present**.
+- A state you change by hand stays as you left it.
+
+---
+
 ## Marking a person by hand
 
 In the **People** tab, change the row's **State** column:

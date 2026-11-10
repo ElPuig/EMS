@@ -17,6 +17,7 @@ This section contains the manuals for **administrators**.
 - [Installed EMS version](ems-version.md) — Which EMS version is running on this installation, and whether a newer one exists.
 - [Convalidations settings](convalidation-settings.md) — The yearly period to request convalidations from the portal and the texts of the official resolution.
 - [Centre Language](centre-language.md) — The language EMS writes in by itself and that new users get.
+- [Minutes folder in Drive](minutes-drive.md) — Keeping a copy of every minute's PDF in a shared drive folder.
 - [Workgroups](workgroups.md) — Free-form employee groupings (project teams, committees).
 - [Spaces and Space Types](facilities.md) — Physical rooms and their types, used across sessions/groups/minutes/schedules.
 - [Teacher Roles and Permission Levels](teacher-roles.md) — How to assign roles (Tutor, Department Chief, Head of Studies, Director...) to grant permission levels.
@@ -25,6 +26,7 @@ This section contains the manuals for **administrators**.
 - [Setting up the student card](student-card-settings.md) — Upload the centre's stamp and change each level's colour on the card.
 - [Strikes: Managing Reasons and Escalation Threshold](strike.md) — Configuring the strike reasons list and the coexistence escalation threshold.
 - [Attendance Statuses: Managing the Passlist Options](attendance-status.md) — Adding, reordering or retiring the statuses teachers can pick from in the roll-call view.
+- [Justification Reasons](attendance-justification-reasons.md) — The reasons tutors pick when justifying absences: order, default, details and full-day reasons.
 - [Teacher Working Schedules & Schedule Frameworks](working-schedules.md) — Setting up bell-schedule templates, the default framework, and editing/importing a teacher's weekly schedule.
 - [Task Assignment: Who Handles the Tasks EMS Creates](task-assignment.md) — Choosing who reviews the documents students upload and the comments families write, independently of roles and permissions.
 - [Groups](groups.md) — Creating and managing Main/Reinforcement groups, tutors, delegates and switching group type.

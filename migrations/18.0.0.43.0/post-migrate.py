@@ -11,8 +11,9 @@ def migrate(cr, version):
 
 
 # _seed_declaration_codes: issue #723, the official schedule declaration's codes of the existing
-# levels and non-teaching types (post_init_hook does it on a clean install). post-migrate: the
-# columns are new in this version and it goes through the ORM.
+# non-teaching types (post_init_hook does it on a clean install; the levels' codes are catalog data
+# since issue #751, loaded from data/cat/ems.level.csv before this runs). post-migrate: the columns
+# are new in this version and it goes through the ORM.
 
 
 def _unify_class_block_names(env):

@@ -26,10 +26,8 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
         partner = self._ems_partner()
         if not partner:
             return None
-        walkout = request.env['ems.student_walkout'].sudo().browse(walkout_id).exists()
-        if walkout and (partner in walkout.line_ids.student_id or partner == walkout.opener_id):
-            return walkout
-        return None
+        walkout = partner._ems_walkout_calls().filtered(lambda walkout: walkout.id == walkout_id)
+        return walkout or None
 
     @staticmethod
     def _ems_error_redirect(page, error):
@@ -102,7 +100,7 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
             'walkout': walkout,
             'line': line,
             'can_vote': bool(line.has_portal) and walkout._ems_voting_open(),
-            'can_manage': walkout.state == 'voting' and (
+            'can_manage': walkout.state in ('pending', 'voting') and (
                 partner == walkout.opener_id or partner in (walkout.group_ids.delegate_id
                                                             | walkout.group_ids.subdelegate_id)),
             'state_labels': dict(walkout._fields['state']._description_selection(request.env)),

@@ -53,16 +53,27 @@ def create_walkout_fixtures(cls, prefix):
         })
 
 
-def open_walkout(cls, partner=None, days=3, close_days=None, files=None, **values):
+def open_walkout(cls, partner=None, days=3, close_days=None, files=None, accept=True, **values):
     """Opens a call as `partner` (the delegate by default) for `days` from today, closing as late as
-    the notice period allows unless `close_days` says otherwise."""
+    the notice period allows unless `close_days` says otherwise, and has the Head of Studies accept
+    it unless `accept` is False."""
     notice = cls.env.company.walkout_notice_days
     walkout_date = cls.today + timedelta(days=days)
     close_date = cls.today + timedelta(days=close_days) if close_days is not None \
         else walkout_date - timedelta(days=notice)
-    return cls.env['ems.student_walkout'].sudo()._ems_portal_open(partner or cls.delegate, {
+    walkout = cls.env['ems.student_walkout'].sudo()._ems_portal_open(partner or cls.delegate, {
         'walkout_date': walkout_date, 'close_date': close_date, 'notes': 'Union call', **values,
     }, files if files is not None else [('union_call.pdf', PDF)])
+    if accept:
+        walkout.with_user(cls.head_of_studies).action_accept()
+    return walkout
+
+
+def reject_walkout(walkout, user, reason_xmlid='ems.student_walkout_rejection_no_call', details=False):
+    """The Head of Studies rejects `walkout` from its wizard."""
+    wizard = walkout.env['ems.student_walkout.reject.wizard'].with_user(user).with_context(
+        active_id=walkout.id).create({'reason_id': walkout.env.ref(reason_xmlid).id, 'details': details})
+    return wizard.action_reject()
 
 
 @tagged('post_install', '-at_install')
@@ -86,18 +97,76 @@ class TestStudentWalkout(TransactionCase):
     # Opening
 
     def test_delegate_opens_a_call_for_the_whole_group(self):
-        walkout = open_walkout(self)
-        self.assertEqual(walkout.state, 'voting')
+        walkout = open_walkout(self, accept=False)
+        self.assertEqual(walkout.state, 'pending')
         self.assertEqual(walkout.opener_id, self.delegate)
         self.assertEqual(walkout.line_ids.student_id,
                          self.delegate | self.subdelegate | self.classmate | self.offline)
         self.assertEqual(walkout.line_ids.filtered('has_portal').student_id,
                          self.delegate | self.subdelegate | self.classmate)
         self.assertEqual(walkout.attachment_ids.mapped('name'), ['union_call.pdf'])
-        # One call email per student with portal access, none for the one without it.
+        # Nobody in the group hears of it until the Head of Studies accepts it: only they are told.
+        self.assertFalse(self._mails(walkout.line_ids))
+        self.assertIn(self.head_of_studies.email, self._mails(walkout).email_to)
+        self.assertEqual(walkout.activity_ids.user_id, self.head_of_studies)
+        self.assertFalse(self.classmate.sudo()._ems_walkout_portal_visible())
+        walkout.with_user(self.head_of_studies).action_accept()
+        self.assertEqual(walkout.state, 'voting')
+        self.assertFalse(walkout.activity_ids, "The review task is done.")
+        # Then one call email per student with portal access, none for the one without it.
         mails = self._mails(walkout.line_ids)
         self.assertEqual(len(mails), 3)
         self.assertNotIn(self.offline.student_email, ' '.join(mails.mapped('email_to')))
+        self.assertTrue(self.classmate.sudo()._ems_walkout_portal_visible())
+
+    def test_rejected_with_a_reason_and_nobody_else_told(self):
+        walkout = open_walkout(self, accept=False)
+        with self.assertRaises(UserError):
+            reject_walkout(walkout, self.tutor)  # not the Head of Studies
+        with self.assertRaises(UserError):
+            reject_walkout(walkout, self.head_of_studies, 'ems.student_walkout_rejection_other')  # no details
+        reject_walkout(walkout, self.head_of_studies, 'ems.student_walkout_rejection_other', "A dockers' strike")
+        self.assertEqual(walkout.state, 'rejected')
+        self.assertEqual(walkout.rejection_reason_id, self.env.ref('ems.student_walkout_rejection_other'))
+        self.assertFalse(walkout.activity_ids)
+        line_mails = self._mails(walkout.line_ids)
+        self.assertEqual(len(line_mails), 1, "Only the delegate who opened it is told, with the reason.")
+        self.assertIn(self.delegate.student_email, line_mails.email_to)
+        self.assertIn("dockers", line_mails.body_html)
+        with self.assertRaises(UserError):
+            walkout.with_user(self.head_of_studies).action_accept()
+        self.assertFalse(self.classmate.sudo()._ems_walkout_portal_visible())
+        self.assertTrue(self.delegate.sudo()._ems_walkout_portal_visible(), "The delegate sees why.")
+
+    def test_a_call_nobody_decided_expires(self):
+        walkout = open_walkout(self, accept=False)
+        with self.assertRaises(UserError):
+            self._vote(walkout, self.classmate)
+        walkout.close_date = self.today
+        self.env['ems.student_walkout']._cron_ems_close_due()
+        self.assertEqual(walkout.state, 'expired')
+        self.assertFalse(walkout.activity_ids)
+        self.assertFalse(self._mails(walkout.line_ids))
+
+    def test_student_emails_wait_for_the_group_school_hours(self):
+        now = shift_ems_clock(self, hour=10.0, weekdays=range(5))
+        if now.date() in self.env['resource.calendar.leaves']._ems_holiday_dates(now.date(), now.date()):
+            self.skipTest("Today is a holiday in this database.")
+        calendar = self.env['resource.calendar'].create({'name': 'WLK schedule', 'attendance_ids': [(5, 0, 0)]})
+        slot = self.env['resource.calendar.attendance'].create([{
+            'name': f'WLK {day}', 'calendar_id': calendar.id, 'dayofweek': str(day), 'hour_from': 15.0,
+            'hour_to': 16.0, 'group_ids': [(6, 0, self.group.ids)],
+        } for day in range(5)])
+        walkout = open_walkout(self)
+        utils = self.env['ems.datetime_utils']
+        for mail in self._mails(walkout.line_ids):
+            self.assertTrue(mail.scheduled_date, "Not sent at 10:00: the group has class from 15:00.")
+            local = utils.utc_datetime_to_local(mail.scheduled_date)
+            self.assertEqual((local.date(), local.hour), (now.date(), 15))
+        # During the group's classes it goes at once.
+        slot.write({'hour_from': 8.0, 'hour_to': 14.0})
+        walkout2 = open_walkout(self, self.subdelegate, days=4)
+        self.assertFalse(any(self._mails(walkout2.line_ids).mapped('scheduled_date')))
 
     def test_sub_delegate_may_open_but_not_a_classmate_or_a_family(self):
         self.assertTrue(open_walkout(self, self.subdelegate))
@@ -205,7 +274,7 @@ class TestStudentWalkout(TransactionCase):
         self.assertEqual(walkout.state, 'closed')
         self.assertTrue(walkout.pdf_attachment_id)
         self.assertEqual(walkout.joining_student_ids, self.delegate | self.subdelegate)
-        head_mail = self._mails(walkout)
+        head_mail = self._mails(walkout).filtered('attachment_ids')
         self.assertEqual(len(head_mail), 1)
         self.assertIn(self.head_of_studies.email, head_mail.email_to)
         self.assertEqual(head_mail.attachment_ids.mimetype, 'application/pdf')
@@ -258,6 +327,13 @@ class TestStudentWalkout(TransactionCase):
             walkout.with_user(self.other_head_of_studies).check_access('read')
         with self.assertRaises(AccessError):
             walkout.line_ids.with_user(self.tutor).write({'joins': False})
+
+    def test_only_the_heads_of_studies_above_the_group_decide(self):
+        walkout = open_walkout(self, accept=False)
+        for user in (self.tutor, self.other_head_of_studies):
+            with self.assertRaises(UserError):  # AccessError is a UserError
+                walkout.with_user(user).action_accept()
+        self.assertEqual(walkout.state, 'pending')
 
     def test_seed_follows_the_law(self):
         Level = self.env['ems.level']

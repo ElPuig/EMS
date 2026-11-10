@@ -1319,6 +1319,7 @@ msgstr "Acció Necessària"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__active
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__active
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__active
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__active
 msgid "Active"
 msgstr "Actiu"
 
@@ -1866,6 +1867,28 @@ msgstr "Aprovat"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_search
 #: code:addons/ems/models/erasmus/export.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_reason_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_status_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
+#: model_terms:ir.ui.view,arch_db:ems.view_department_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_kanban
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_form
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_session_form
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
+#: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
+#: model_terms:ir.ui.view,arch_db:ems.view_non_teaching_type_form
+#: model_terms:ir.ui.view,arch_db:ems.view_notice_form
+#: model_terms:ir.ui.view,arch_db:ems.view_strike_form
+#: model_terms:ir.ui.view,arch_db:ems.view_strike_reason_form
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_rejection_reason_form
+#: model_terms:ir.ui.view,arch_db:ems.view_teaching_form
+#: model_terms:ir.ui.view,arch_db:ems.view_teaching_reduction_type_form
 msgid "Archived"
 msgstr "Arxivat"
 
@@ -2520,6 +2543,7 @@ msgstr "Pot editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_correct_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_bank_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -3220,6 +3244,8 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -3373,6 +3399,8 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3657,6 +3685,8 @@ msgstr "Descripció i notes"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_log__description
 #: code:addons/ems/models/erasmus/export.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__details
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__details
+#: model_terms:ir.ui.view,arch_db:ems.view_strike_form
 msgid "Details"
 msgstr "Detalls"
 
@@ -3840,6 +3870,8 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -5194,6 +5226,7 @@ msgstr "Cap d'estudis"
 
 #. module: ems
 #: model:res.groups,name:ems.group_head_of_studies model_terms:ir.ui.view,arch_db:ems.view_department_form
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__head_of_studies_id
 msgid "Head of Studies"
 msgstr "Cap d'estudis"
 
@@ -5417,6 +5450,8 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__id
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__id
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__id
 msgid "ID"
 msgstr "ID"
 
@@ -6160,6 +6195,8 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -6313,6 +6350,8 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -6899,6 +6938,7 @@ msgstr "NUSS"
 #: model:ir.model.fields,field_description:ems.field_sign_oca_role__name
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__name
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__name
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__name
 msgid "Name"
 msgstr "Nom"
 
@@ -7771,6 +7811,8 @@ msgstr "Canvis pendents: les notes calculades es recalcularan en aplicar."
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__review_state__pending
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__file_state__to_review
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__todo_state__to_review
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__pending
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
 msgid "Pending review"
 msgstr "Pendent de revisió"
 
@@ -8217,6 +8259,9 @@ msgstr "Rectificat per"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_reject_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
 msgid "Reject"
 msgstr "Rebutjar"
 
@@ -8226,11 +8271,15 @@ msgstr "Rebutjar"
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__rejected
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__rejected
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
 msgid "Rejected"
 msgstr "Rebutjat"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__rejection_reason
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__rejection_reason_id
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_rejection_reason_form
 msgid "Rejection reason"
 msgstr "Motiu de rebuig"
 
@@ -8913,6 +8962,7 @@ msgstr "Enviat el"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__sequence
 msgid "Sequence"
 msgstr "Seqüència"
 
@@ -11588,6 +11638,7 @@ msgstr "%(employee)s (%(date)s)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
 msgid "Accept"
 msgstr "Acceptar"
 
@@ -11691,6 +11742,7 @@ msgstr "Sortida original"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense_correct_wizard__reason
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__reason_id
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__reason_id
 msgid "Reason"
 msgstr "Motiu"
 
@@ -19544,6 +19596,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__pending
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_search
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_search
 msgid "To review"
 msgstr "Per revisar"
 
@@ -33807,11 +33860,13 @@ msgstr "Persona de contacte a l'entitat d'acollida (nom i correu)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__decided_by_id
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__decided_by_id
 msgid "Decided by"
 msgstr "Decidit per"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__decision_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__decision_datetime
 msgid "Decided on"
 msgstr "Decidit el"
 
@@ -48810,6 +48865,8 @@ msgstr "Ja tenen un justificant que se superposa amb aquest període: %(students
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__requires_details
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__requires_details
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__requires_details
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__requires_details
 msgid "Requires details"
 msgstr "Demana detalls"
 
@@ -48896,6 +48953,7 @@ msgstr "Vaga"
 
 #. module: ems
 #: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_other
+#: model:ems.student_walkout.rejection_reason,name:ems.student_walkout_rejection_other
 msgid "Other reasons"
 msgstr "Altres"
 
@@ -48950,49 +49008,6 @@ msgstr ""
 "                            la falta d'aquell dia no es justificarà.\n"
 "                        </p>\n"
 "                        <p>Si teniu qualsevol dubte, parleu amb el tutor del grup.</p>\n"
-"                        <p>\n"
-"                            Salutacions cordials,<br/>\n"
-"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-
-#. module: ems
-#: model:mail.template,body_html:ems.email_template_student_walkout_call
-msgid ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hello <t t-out=\"object.student_id.name\"/>,</p>\n"
-"                        <p>\n"
-"                            <t t-out=\"object.walkout_id.opener_id.name\"/>, the delegate of your group, has opened a\n"
-"                            student walkout call for <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            On the school portal (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">student walkouts</a>)\n"
-"                            you will find the call of the students' union and you can say whether the group supports\n"
-"                            the walkout (an anonymous vote) and whether you join it. The vote is open until\n"
-"                            <strong t-out=\"format_date(object.walkout_id.last_vote_date)\"/> included.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Kind regards,<br/>\n"
-"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-msgstr ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hola, <t t-out=\"object.student_id.name\"/>:</p>\n"
-"                        <p>\n"
-"                            <t t-out=\"object.walkout_id.opener_id.name\"/>, el delegat del teu grup, ha obert una\n"
-"                            convocatòria de vaga per al <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Al portal del centre (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">convocatòries de vaga</a>)\n"
-"                            trobaràs la convocatòria del sindicat d'estudiants i podràs dir si el grup dona suport\n"
-"                            a la vaga (un vot anònim) i si t'hi sumes. La votació és oberta fins al\n"
-"                            <strong t-out=\"format_date(object.walkout_id.last_vote_date)\"/> inclòs.\n"
-"                        </p>\n"
 "                        <p>\n"
 "                            Salutacions cordials,<br/>\n"
 "                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
@@ -49107,15 +49122,6 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid ""
-"<i class=\"fa fa-check-circle me-1\"/> The vote is open: your group has "
-"received an email to vote."
-msgstr ""
-"<i class=\"fa fa-check-circle me-1\"/> La votació és oberta: el teu grup ha "
-"rebut un correu per votar."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
 msgid "<i class=\"fa fa-file-pdf-o me-1\"/>Minute"
 msgstr "<i class=\"fa fa-file-pdf-o me-1\"/>Acta"
 
@@ -49227,15 +49233,6 @@ msgstr "M'abstinc"
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
 msgid "Anonymous: only the count is kept. Once sent it cannot be changed."
 msgstr "Anònim: només es guarda el recompte. Un cop enviat no es pot canviar."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
-msgid ""
-"As the delegate or sub-delegate of your group, you can call a student walkout of a students'\n"
-"                    union: your group votes whether it supports it, and the Head of Studies gets the minute."
-msgstr ""
-"Com a delegat o sotsdelegat del teu grup, pots convocar una vaga d'un sindicat d'estudiants:\n"
-"                    el teu grup vota si hi dona suport, i el cap d'estudis en rep l'acta."
 
 #. module: ems
 #. odoo-python
@@ -49445,12 +49442,6 @@ msgstr "Preavís"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid "Only a call still being voted can be cancelled."
-msgstr "Només es pot anul·lar una convocatòria que encara s'està votant."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/student_walkout.py:0
 msgid ""
 "Only the Head of Studies, the Deputy Head of Studies or the Director of "
 "these students, or an administrator, can justify a student walkout."
@@ -49585,6 +49576,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_list
+#: model:ir.ui.menu,name:ems.menu_attendance_config_walkouts
 msgid "Student walkouts"
 msgstr "Convocatòries de vaga"
 
@@ -49757,6 +49749,7 @@ msgstr "Dies de preavís de vaga"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__walkout_id
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__walkout_id
 msgid "Walkout call"
 msgstr "Convocatòria de vaga"
 
@@ -49881,3 +49874,361 @@ msgid ""
 "%(level)s: the first course that may call a student walkout cannot be after "
 "the last one."
 msgstr "%(level)s: el primer curs que pot convocar una vaga no pot ser posterior a l'últim."
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_student_walkout_call
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello <t t-out=\"object.student_id.name\"/>,</p>\n"
+"                        <p>\n"
+"                            <t t-out=\"object.walkout_id.opener_id.name\"/>, the delegate of your group, has opened a\n"
+"                            student walkout call for <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>,\n"
+"                            and the Head of Studies has accepted it.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            On the school portal (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">student walkouts</a>)\n"
+"                            you will find the call of the students' union and you can say whether the group supports\n"
+"                            the walkout (an anonymous vote) and whether you join it. The vote is open until\n"
+"                            <strong t-out=\"format_date(object.walkout_id.last_vote_date)\"/> included.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola, <t t-out=\"object.student_id.name\"/>:</p>\n"
+"                        <p>\n"
+"                            <t t-out=\"object.walkout_id.opener_id.name\"/>, el delegat del teu grup, ha obert una\n"
+"                            convocatòria de vaga per al <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>,\n"
+"                            i el cap d'estudis l'ha acceptada.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Al portal del centre (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">convocatòries de vaga</a>)\n"
+"                            trobaràs la convocatòria del sindicat d'estudiants i podràs dir si el grup dona suport\n"
+"                            a la vaga (un vot anònim) i si t'hi sumes. La votació és oberta fins al\n"
+"                            <strong t-out=\"format_date(object.walkout_id.last_vote_date)\"/> inclòs.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Salutacions cordials,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_student_walkout_rejected
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello <t t-out=\"object.student_id.name\"/>,</p>\n"
+"                        <p>\n"
+"                            The Head of Studies has rejected the student walkout call you opened for\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>:\n"
+"                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
+"                        </p>\n"
+"                        <p t-if=\"object.walkout_id.rejection_details\" t-out=\"object.walkout_id.rejection_details\"/>\n"
+"                        <p>Your group has not been told. If you have any question, talk to the Head of Studies.</p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola, <t t-out=\"object.student_id.name\"/>:</p>\n"
+"                        <p>\n"
+"                            El cap d'estudis ha rebutjat la convocatòria de vaga que vas obrir per al\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>:\n"
+"                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
+"                        </p>\n"
+"                        <p t-if=\"object.walkout_id.rejection_details\" t-out=\"object.walkout_id.rejection_details\"/>\n"
+"                        <p>No s'ha avisat el teu grup. Si tens qualsevol dubte, parla amb el cap d'estudis.</p>\n"
+"                        <p>\n"
+"                            Salutacions cordials,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_student_walkout_review
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello,</p>\n"
+"                        <p>\n"
+"                            <t t-out=\"object.opener_id.name\"/>, the delegate of <strong t-out=\"object.group_id.name\"/>,\n"
+"                            has opened a student walkout call for <strong t-out=\"format_date(object.walkout_date)\"/>.\n"
+"                            The group will not hear of it until you accept it.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Check the union's call attached to it and, from the call in EMS\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">open it</a>),\n"
+"                            <em>Actions &gt; Accept</em> or <em>Actions &gt; Reject</em> giving a reason. If nobody decides by\n"
+"                            <strong t-out=\"format_date(object.last_vote_date)\"/>, it expires.\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola,</p>\n"
+"                        <p>\n"
+"                            <t t-out=\"object.opener_id.name\"/>, delegat de <strong t-out=\"object.group_id.name\"/>,\n"
+"                            ha obert una convocatòria de vaga per al <strong t-out=\"format_date(object.walkout_date)\"/>.\n"
+"                            El grup no en sabrà res fins que l'acceptis.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Revisa la convocatòria del sindicat que hi ha adjunta i, des de la convocatòria a EMS\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">obre-la</a>),\n"
+"                            <em>Accions &gt; Acceptar</em> o <em>Accions &gt; Rebutjar</em> indicant-ne el motiu. Si ningú no decideix abans del\n"
+"                            <strong t-out=\"format_date(object.last_vote_date)\"/>, caduca.\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid ""
+"<i class=\"fa fa-check-circle me-1\"/> The call has been sent to the Head of"
+" Studies. Once accepted, your group will receive an email to vote."
+msgstr ""
+"<i class=\"fa fa-check-circle me-1\"/> La convocatòria s'ha enviat al cap "
+"d'estudis. Quan l'accepti, el teu grup rebrà un correu per votar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid ""
+"<i class=\"fa fa-clock-o me-1\"/> The Head of Studies did not accept it in "
+"time, so it was never voted."
+msgstr ""
+"<i class=\"fa fa-clock-o me-1\"/> El cap d'estudis no la va acceptar a "
+"temps, així que no s'ha votat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid ""
+"<i class=\"fa fa-hourglass-half me-1\"/> Waiting for the Head of Studies to "
+"accept it. Your group will not hear of it until then."
+msgstr ""
+"<i class=\"fa fa-hourglass-half me-1\"/> Pendent que el cap d'estudis "
+"l'accepti. Fins aleshores, el teu grup no en sabrà res."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid ""
+"<i class=\"fa fa-times-circle me-1\"/> The Head of Studies has rejected this"
+" call:"
+msgstr ""
+"<i class=\"fa fa-times-circle me-1\"/> El cap d'estudis ha rebutjat aquesta "
+"convocatòria:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "Accepted by %(name)s."
+msgstr "Acceptada per %(name)s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
+msgid ""
+"As the delegate or sub-delegate of your group, you can call a student walkout of a students'\n"
+"                    union. Once the Head of Studies accepts it, your group votes whether it supports it."
+msgstr ""
+"Com a delegat o sotsdelegat del teu grup, pots convocar una vaga d'un sindicat d'estudiants.\n"
+"                    Quan el cap d'estudis l'accepti, el teu grup votarà si hi dona suport."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__can_decide
+msgid "Can Decide"
+msgstr "Pot decidir"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
+msgid ""
+"Check the union's call before accepting it: the group hears of it only once accepted.\n"
+"                            If nobody decides by the last day to vote, it expires."
+msgstr ""
+"Revisa la convocatòria del sindicat abans d'acceptar-la: el grup no en sap res fins que s'accepta.\n"
+"                            Si ningú no decideix abans de l'últim dia per votar, caduca."
+
+#. module: ems
+#: model:ems.student_walkout.rejection_reason,name:ems.student_walkout_rejection_duplicate
+msgid "Duplicate call"
+msgstr "Convocatòria duplicada"
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_student_walkout_rejected
+msgid "EMS: student walkout, rejected"
+msgstr "EMS: vaga d'estudiants, rebutjada"
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_student_walkout_review
+msgid "EMS: student walkout, to review"
+msgstr "EMS: vaga d'estudiants, per revisar"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__expired
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
+msgid "Expired"
+msgstr "Caducada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid ""
+"Expired: the Head of Studies did not accept it before the vote had to close."
+msgstr ""
+"Caducada: el cap d'estudis no la va acceptar abans que s'hagués de tancar la"
+" votació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "Explain the reason in the details: %(reason)s"
+msgstr "Explica el motiu als detalls: %(reason)s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
+msgid "Explain why"
+msgstr "Explica per què"
+
+#. module: ems
+#: model:ems.student_walkout.rejection_reason,name:ems.student_walkout_rejection_no_call
+msgid "No official call of a students' union for that day"
+msgstr ""
+"No hi ha cap convocatòria oficial d'un sindicat d'estudiants per a aquell "
+"dia"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "Only a call still being reviewed or voted can be cancelled."
+msgstr ""
+"Només es pot anul·lar una convocatòria que encara s'està revisant o votant."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid ""
+"Only the Head of Studies, the Deputy Head of Studies or the Director of this"
+" group, or an administrator, can accept or reject a student walkout call."
+msgstr ""
+"Només el cap d'estudis, el cap d'estudis adjunt o el director d'aquest grup,"
+" o un administrador, poden acceptar o rebutjar una convocatòria de vaga."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
+msgid ""
+"Only the delegate who opened it is told, with the reason. Nobody else in the"
+" group hears of it."
+msgstr ""
+"Només s'avisa el delegat que l'ha oberta, amb el motiu. Ningú més del grup "
+"no en sap res."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_student_walkout_reject_wizard
+msgid "Reject a student walkout call"
+msgstr "Rebutjar una convocatòria de vaga"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
+msgid "Reject the student walkout call"
+msgstr "Rebutja la convocatòria de vaga"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "Rejected by %(name)s: %(reason)s"
+msgstr "Rebutjada per %(name)s: %(reason)s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__rejection_details
+msgid "Rejection details"
+msgstr "Detalls del rebuig"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_student_walkout_rejection_reasons
+msgid "Rejection reasons"
+msgstr "Motius de rebuig"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_student_walkout_review
+msgid "Review the student walkout call"
+msgstr "Revisar la convocatòria de vaga"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_student_walkout_review
+msgid ""
+"Student walkout call to review: {{ object.group_id.name }}, {{ "
+"format_date(object.walkout_date) }}"
+msgstr ""
+"Convocatòria de vaga per revisar: {{ object.group_id.name }}, {{ "
+"format_date(object.walkout_date) }}"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_student_walkout_rejected
+msgid ""
+"Student walkout on {{ format_date(object.walkout_id.walkout_date) }}: "
+"rejected"
+msgstr "Vaga del {{ format_date(object.walkout_id.walkout_date) }}: rebutjada"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_student_walkout_rejection_reason
+msgid "Student walkout rejection reason"
+msgstr "Motiu de rebuig d'una convocatòria de vaga"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_student_walkout_rejection_reason
+msgid "Student walkout rejection reasons"
+msgstr "Motius de rebuig de les convocatòries de vaga"
+
+#. module: ems
+#: model:ems.student_walkout.rejection_reason,name:ems.student_walkout_rejection_document
+msgid "The attached document is not a valid call"
+msgstr "El document adjunt no és una convocatòria vàlida"
+
+#. module: ems
+#: model:ems.student_walkout.rejection_reason,name:ems.student_walkout_rejection_level
+msgid "The call does not include the group's level or studies"
+msgstr "La convocatòria no inclou el nivell o els estudis del grup"
+
+#. module: ems
+#: model:ems.student_walkout.rejection_reason,name:ems.student_walkout_rejection_region
+msgid "The call is for another autonomous community"
+msgstr "La convocatòria és d'una altra comunitat autònoma"
+
+#. module: ems
+#: model:ems.student_walkout.rejection_reason,name:ems.student_walkout_rejection_sector
+msgid "The call is for another sector, not for students"
+msgstr "La convocatòria és d'un altre sector, no dels estudiants"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
+msgid ""
+"The group will receive an email to vote. Accept this student walkout call?"
+msgstr ""
+"El grup rebrà un correu per votar. Acceptes aquesta convocatòria de vaga?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "This student walkout call has already been decided."
+msgstr "Ja s'ha decidit sobre aquesta convocatòria de vaga."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_walkout_reject_wizard__requires_details
+#: model:ir.model.fields,help:ems.field_ems_student_walkout_rejection_reason__requires_details
+msgid ""
+"Whoever rejects the call must explain it in the details (e.g. 'Other')."
+msgstr ""
+"Qui rebutja la convocatòria ho ha d'explicar als detalls (p. ex. «Altres»)."

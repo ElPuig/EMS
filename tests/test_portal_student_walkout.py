@@ -5,7 +5,7 @@ from odoo.http import Request
 from odoo.tests.common import HttpCase, tagged
 
 from .common import mock_outgoing_email
-from .test_student_walkout import PDF, create_walkout_fixtures, open_walkout
+from .test_student_walkout import PDF, create_walkout_fixtures, open_walkout, reject_walkout
 
 
 @tagged('post_install', '-at_install')
@@ -71,6 +71,17 @@ class TestPortalStudentWalkout(HttpCase):
         self.assertEqual(walkout.state, 'closed')
         page = self.url_open(f'/my/vagues/{walkout.id}').text
         self.assertIn(f'/fitxer/{walkout.pdf_attachment_id.id}', page)
+
+    def test_a_call_waiting_for_the_head_of_studies_is_only_for_its_delegate(self):
+        walkout = open_walkout(self, accept=False)
+        self._login(self.classmate)
+        self.assertTrue(self.url_open(f'/my/vagues/{walkout.id}').url.endswith('/my/home'))
+        self._login(self.delegate)
+        self.assertIn('o_ems_walkout_pending', self.url_open(f'/my/vagues/{walkout.id}').text)
+        reject_walkout(walkout, self.head_of_studies, 'ems.student_walkout_rejection_region')
+        page = self.url_open(f'/my/vagues/{walkout.id}').text
+        self.assertIn('o_ems_walkout_rejected', page)
+        self.assertIn(walkout.rejection_reason_id.name, page)
 
     def test_family_and_outsiders_are_sent_away(self):
         walkout = open_walkout(self)

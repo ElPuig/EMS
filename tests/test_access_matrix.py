@@ -56,6 +56,7 @@ ACCESS_MATRIX = {
         'teacher': 'r', 'tutor': 'r', 'secretary': '', 'head_of_studies': 'r', 'academic_admin': 'rwcu',
         'settings_admin': 'rwcu'},
     'ems.student_walkout.line': {'teacher': 'r', 'head_of_studies': 'r', 'secretary': '', 'academic_admin': 'rwcu'},
+    'ems.student_walkout.rejection_reason': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
     'ems.info_notice': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'settings_admin': 'r'},
     'ems.criteria': {'teacher': 'r', 'secretary': 'r'},
     # Issue #683: the applications have record rules and a write() guard, tested in test_erasmus.py.

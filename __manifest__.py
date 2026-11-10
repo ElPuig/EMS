@@ -294,6 +294,7 @@
             'views/attendance/attendance_justification/form.xml',
             'views/attendance/attendance_justification/search.xml',
             'views/attendance/student_walkout/views.xml',
+            'views/attendance/student_walkout/rejection.xml',
 
             'views/attendance/attendance_correction/menu.xml',
             'views/attendance/attendance_correction/list.xml',
@@ -505,6 +506,7 @@
         'data/main/ems.convalidation.info_reason.csv',
         'data/main/ems.convalidation.rejection_reason.csv',
         'data/main/ems.attendance_justification_reason.xml',
+        'data/main/ems.student_walkout.rejection_reason.xml',
         'data/main/ems.attendance_status.csv',
         'data/main/ems.non_teaching_type.csv',
         'data/main/ems.teaching_reduction_type.csv',

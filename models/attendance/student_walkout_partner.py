@@ -2,6 +2,8 @@
 
 from odoo import models
 
+from .student_walkout import VISIBLE_STATES
+
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
@@ -24,10 +26,12 @@ class ResPartner(models.Model):
         return group
 
     def _ems_walkout_calls(self):
-        """The calls this student is in, newest first."""
+        """The calls this student sees, newest first."""
         self.ensure_one()
-        return self.env['ems.student_walkout'].sudo().search([('line_ids.student_id', '=', self.id),
-                                                              ('state', '!=', 'cancelled')])
+        # The group sees a call once the Head of Studies accepts it; its delegate, from the start.
+        return self.env['ems.student_walkout'].sudo().search([
+            '|', ('opener_id', '=', self.id),
+            '&', ('line_ids.student_id', '=', self.id), ('state', 'in', VISIBLE_STATES)])
 
     def _ems_walkout_portal_visible(self):
         """The portal's Student walkouts card and menu entry: a student with portal access who may

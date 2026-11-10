@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import timedelta
+
 from odoo import models, fields, api, _
 from odoo.exceptions import RedirectWarning, UserError, ValidationError
 
@@ -7,6 +9,8 @@ from ..shared.attendance_mixin import EMS_SKIP_GROUP_CLASSROOM_CASCADE
 
 # Issue #676: what the halves of a split group share. Changing one on a half changes it on the others.
 JOINABLE_SHARED_FIELDS = ("tutor_id", "delegate_id", "subdelegate_id")
+# Issue #800: how many days ahead an email to a group's students looks for its next classes.
+SCHOOL_SEND_HORIZON = 21
 
 
 class EmsGroup(models.Model):
@@ -215,6 +219,38 @@ class EmsGroup(models.Model):
 	def _compute_managing_department_ids(self):
 		for group in self:
 			group.managing_department_ids = (group.study_id | group.parent_group_ids.study_id).managing_department_id
+
+	def _ems_school_send_time(self):
+		"""Issue #800: when an email to this group's students may go. False to send it now: during its
+		classes on a school day, or when the group has no schedule. Otherwise the start of its next
+		classes (naive UTC), skipping weekends, public holidays and school breaks. The group's day is
+		from its first class to its last one, from its schedule (not each student's: cheaper, and
+		close enough to tell school hours from the night or a weekend)."""
+		self.ensure_one()
+		windows = {}
+		for slot in self.env['resource.calendar.attendance'].sudo().search_read(
+				[('group_ids', 'in', self.ids), ('display_type', '=', False), ('calendar_id.active', '=', True)],
+				['dayofweek', 'hour_from', 'hour_to']):
+			day = int(slot['dayofweek'])
+			start, end = windows.get(day, (24.0, 0.0))
+			windows[day] = (min(start, slot['hour_from']), max(end, slot['hour_to']))
+		if not windows:
+			return False
+		utils = self.env['ems.datetime_utils']
+		now = utils.get_local_datetime()
+		today, hour = now.date(), now.hour + now.minute / 60
+		closed = self.env['resource.calendar.leaves']._ems_holiday_dates(today, today + timedelta(days=SCHOOL_SEND_HORIZON))
+		for offset in range(SCHOOL_SEND_HORIZON + 1):
+			day = today + timedelta(days=offset)
+			if day.weekday() not in windows or day in closed:
+				continue
+			start, end = windows[day.weekday()]
+			if offset == 0 and hour >= end:
+				continue
+			if offset == 0 and hour >= start:
+				return False
+			return utils.datetime_to_odoo(utils.time_float_to_utc_datetime(day, start))
+		return False
 
 	def _ems_walkout_allowed(self):
 		"""Issue #800: whether this group may call a student walkout, by its level and course

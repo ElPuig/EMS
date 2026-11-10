@@ -20,7 +20,7 @@
                 <t t-call="ems.portal_student_walkout_error"/>
                 <p t-if="can_open" class="text-muted small">
                     As the delegate or sub-delegate of your group, you can call a student walkout of a students'
-                    union: your group votes whether it supports it, and the Head of Studies gets the minute.
+                    union. Once the Head of Studies accepts it, your group votes whether it supports it.
                 </p>
                 <p t-if="not walkouts" class="text-muted">There are no student walkout calls in your group.</p>
                 <div t-if="walkouts" class="list-group o_ems_walkout_list">
@@ -32,6 +32,9 @@
                         <t t-set="line" t-value="walkout.line_ids.filtered(lambda line: line.student_id == partner)"/>
                         <span t-if="walkout._ems_voting_open() and line.has_portal and not line.voted" class="badge text-bg-warning">Vote pending</span>
                         <span t-elif="walkout.state == 'voting'" class="badge text-bg-info">Voting</span>
+                        <span t-elif="walkout.state == 'pending'" class="badge text-bg-light">Pending review</span>
+                        <span t-elif="walkout.state == 'rejected'" class="badge text-bg-danger">Rejected</span>
+                        <span t-elif="walkout.state == 'expired'" class="badge text-bg-warning">Expired</span>
                         <span t-else="" class="badge text-bg-secondary">Closed</span>
                     </a>
                 </div>
@@ -82,7 +85,18 @@
                 <h3 class="mb-3">Student walkout - <span t-field="walkout.walkout_date"/></h3>
                 <t t-call="ems.portal_student_walkout_error"/>
                 <div t-if="opened" class="alert alert-success mb-3 o_ems_walkout_opened">
-                    <i class="fa fa-check-circle me-1"/> The vote is open: your group has received an email to vote.
+                    <i class="fa fa-check-circle me-1"/> The call has been sent to the Head of Studies. Once accepted, your group will receive an email to vote.
+                </div>
+                <!-- Issue #800: only the delegate sees a call the Head of Studies has not accepted. -->
+                <div t-if="walkout.state == 'pending'" class="alert alert-info mb-3 o_ems_walkout_pending">
+                    <i class="fa fa-hourglass-half me-1"/> Waiting for the Head of Studies to accept it. Your group will not hear of it until then.
+                </div>
+                <div t-if="walkout.state == 'rejected'" class="alert alert-danger mb-3 o_ems_walkout_rejected">
+                    <p class="mb-1"><i class="fa fa-times-circle me-1"/> The Head of Studies has rejected this call: <strong t-esc="walkout.rejection_reason_id.name"/></p>
+                    <p t-if="walkout.rejection_details" class="mb-0" t-esc="walkout.rejection_details"/>
+                </div>
+                <div t-if="walkout.state == 'expired'" class="alert alert-warning mb-3 o_ems_walkout_expired">
+                    <i class="fa fa-clock-o me-1"/> The Head of Studies did not accept it in time, so it was never voted.
                 </div>
                 <div t-if="saved" class="alert alert-success mb-3 o_ems_walkout_saved">
                     <i class="fa fa-check-circle me-1"/> Saved.
@@ -175,13 +189,13 @@
                 <div t-if="can_manage" class="card shadow-sm mb-4 o_ems_walkout_manage">
                     <div class="card-header"><strong>Manage the call</strong></div>
                     <div class="card-body">
-                        <p>
+                        <p t-if="walkout.state == 'voting'">
                             <t t-esc="walkout.voted_count"/> of <t t-esc="walkout.voter_count"/> students have voted.
                             The vote closes on its own on <span t-field="walkout.close_date"/>.
                         </p>
                         <span id="ems_walkout_confirm_close" class="d-none">Close the vote now and send the minute to the Head of Studies?</span>
                         <span id="ems_walkout_confirm_cancel" class="d-none">Cancel this student walkout call?</span>
-                        <form t-attf-action="/my/vagues/#{walkout.id}/tanca" method="post" class="d-inline">
+                        <form t-if="walkout.state == 'voting'" t-attf-action="/my/vagues/#{walkout.id}/tanca" method="post" class="d-inline">
                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                             <button type="submit" class="btn btn-primary o_ems_walkout_close"
                                     onclick="return confirm(document.getElementById('ems_walkout_confirm_close').textContent)">Close the vote now</button>

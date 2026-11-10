@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #800: rejecting a student walkout call with a reason, and the catalog of reasons
+             (Student's Attendances > Configuration > Student walkouts > Rejection reasons, kept by the
+             EMS administrator and the Heads of Studies, like the justification reasons). -->
+        <record id="view_student_walkout_reject_wizard_form" model="ir.ui.view">
+            <field name="name">ems.student_walkout.reject.wizard.form</field>
+            <field name="model">ems.student_walkout.reject.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Reject the student walkout call">
+                    <p class="text-muted">Only the delegate who opened it is told, with the reason. Nobody else in the group hears of it.</p>
+                    <group>
+                        <field name="walkout_id" readonly="1"/>
+                        <field name="reason_id" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="requires_details" invisible="1"/>
+                        <field name="details" required="requires_details" placeholder="Explain why"/>
+                    </group>
+                    <footer>
+                        <button name="action_reject" type="object" string="Reject" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_student_walkout_rejection_reason_list" model="ir.ui.view">
+            <field name="name">ems.student_walkout.rejection_reason.list</field>
+            <field name="model">ems.student_walkout.rejection_reason</field>
+            <field name="arch" type="xml">
+                <list default_order="sequence, name">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="requires_details"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_student_walkout_rejection_reason_form" model="ir.ui.view">
+            <field name="name">ems.student_walkout.rejection_reason.form</field>
+            <field name="model">ems.student_walkout.rejection_reason</field>
+            <field name="arch" type="xml">
+                <form string="Rejection reason">
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <field name="active" invisible="1"/>
+                        <group>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                            <field name="requires_details"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_student_walkout_rejection_reason" model="ir.actions.act_window">
+            <field name="name">Student walkout rejection reasons</field>
+            <field name="res_model">ems.student_walkout.rejection_reason</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <menuitem name="Student walkouts" sequence="3" id="menu_attendance_config_walkouts"
+                  parent="menu_attendance_config" groups="ems.group_academic_admin,ems.group_head_of_studies"/>
+        <menuitem name="Rejection reasons" sequence="1" id="menu_student_walkout_rejection_reasons"
+                  parent="menu_attendance_config_walkouts" action="action_student_walkout_rejection_reason"
+                  groups="ems.group_academic_admin,ems.group_head_of_studies"/>
+    </data>
+</odoo>

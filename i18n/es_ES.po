@@ -36767,8 +36767,8 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
-msgid "FP staff"
-msgstr "Personal de FP"
+msgid "FP staff (KA121-VET)"
+msgstr "Personal de FP (KA121-VET)"
 
 #. module: ems
 #. odoo-python
@@ -36785,8 +36785,8 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
-msgid "Higher education staff"
-msgstr "Personal de educación superior"
+msgid "Higher education staff (KA131-HED)"
+msgstr "Personal de educación superior (KA131-HED)"
 
 #. module: ems
 #. odoo-python

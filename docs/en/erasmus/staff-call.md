@@ -70,7 +70,7 @@ Record each merit with its justification, from what the applicant wrote in centr
 
 ## 5. Places, ranking and resolutions
 
-A new staff call has two **modalities**, one per project: *FP staff* (KA121-VET) and *Higher education staff* (KA131-HED), with the project in its own column and no period (each person proposes their own dates). Before preparing the provisional resolution, fill in the places you finally have in each one. The staff never see them.
+A new staff call has two **modalities**, one per project: *FP staff (KA121-VET)* and *Higher education staff (KA131-HED)*, with no period (each person proposes their own dates). Before preparing the provisional resolution, fill in the places you finally have in each one. The staff never see them.
 
 The staff are ranked **in one list** for the whole call (**Ranking** button of the call). Ties are broken by the mobility plan score, then by who has been at the centre longer (the month and year of joining declared in the form, not the points of criterion 5: someone who joined in 2000 goes before someone who joined six years ago, although both get 2 points) and, last, by the draw the Erasmus coordinator runs from the call (**Draw the ties**).
 

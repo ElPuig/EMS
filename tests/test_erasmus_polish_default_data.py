@@ -64,9 +64,9 @@ class TestErasmusDefaultData(TransactionCase):
             expected = [vals['name'] for _c, _i, vals in call.with_context(lang=lang)._ems_student_documents()]
             self.assertEqual(self._in(documents[1:], lang), expected[1:])
 
-    def test_a_staff_call_names_its_places_without_the_project_and_sharing_is_optional(self):
+    def test_a_staff_call_starts_translated_and_sharing_is_optional(self):
         call = self._new_call('staff')
-        self.assertEqual(self._in(call.modality_ids, 'ca_ES'), ["Personal d'FP", "Personal d'educació superior"])
+        self.assertEqual(self._in(call.modality_ids, 'ca_ES'), ["Personal d'FP (KA121-VET)", "Personal d'educació superior (KA131-HED)"])
         self.assertEqual(call.modality_ids.mapped('project'), ['ka121_vet', 'ka131_hed'])
         tasks = call.task_ids.with_context(lang='en_US')
         self.assertEqual(tasks[:1].name, "Preparation sessions")

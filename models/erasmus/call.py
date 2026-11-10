@@ -361,8 +361,8 @@ class EmsErasmusCall(models.Model):
         """A staff call's places, by project (issue #697): each selected person goes on an FP
         (KA121-VET) or a higher education (KA131-HED) staff mobility, with no period: they propose
         their own dates."""
-        return [(0, 0, {'sequence': 1, 'name': _("FP staff"), 'project': 'ka121_vet'}),
-                (0, 0, {'sequence': 2, 'name': _("Higher education staff"), 'project': 'ka131_hed'})]
+        return [(0, 0, {'sequence': 1, 'name': _("FP staff (KA121-VET)"), 'project': 'ka121_vet'}),
+                (0, 0, {'sequence': 2, 'name': _("Higher education staff (KA131-HED)"), 'project': 'ka131_hed'})]
 
     @api.model
     def _ems_student_documents(self):

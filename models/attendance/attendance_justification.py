@@ -48,10 +48,24 @@ class EmsAttendanceJustification(models.Model):
     day = fields.Date(string="Day", compute='_compute_day', inverse='_inverse_day')
 
     # Form helpers, never stored.
-    # Picking groups adds their students to the list, then clears itself (_onchange_add_group_ids).
+    # Issue #808: justify one student (the default, picked directly) or a whole group (its students
+    # fill the list, then the unwanted ones are taken out). A justification already covering
+    # several students opens as "Groups".
+    mode = fields.Selection(
+        [('student', "Student"), ('group', "Groups")], string="Justify", compute='_compute_mode',
+        store=False, readonly=False)
+    student_id = fields.Many2one(
+        string="Student", comodel_name="res.partner", compute='_compute_student_id',
+        store=False, readonly=False)
+    # The groups picked fill the list with their students; taking a group out of the picker takes
+    # its students out of the list (_onchange_add_group_ids). applied_group_ids remembers which
+    # groups the list already holds, since an onchange only sees the new value.
     add_group_ids = fields.Many2many(
-        string="Add groups", comodel_name="ems.group", store=False,
-        help="Adds every student of these groups to the list. Remove afterwards the ones who must not be justified.")
+        string="Add groups", comodel_name="ems.group",
+        store=False,
+        help="Adds every student of these groups to the list. Taking a group out removes its students. Remove afterwards the ones who must not be justified.")
+    applied_group_ids = fields.Many2many(
+        string="Groups", comodel_name="ems.group", store=False)
     # The pickers' domains, as text: for an administrator the allowed students are the whole
     # centre, too many ids to send to the browser.
     student_domain = fields.Char(compute='_compute_domains')
@@ -84,6 +98,16 @@ class EmsAttendanceJustification(models.Model):
                 group_domain.append(('tutor_id.tutor_scope_user_ids', '=', user_id))
             justification.student_domain = str(student_domain)
             justification.group_domain = str(group_domain)
+
+    @api.depends()
+    def _compute_mode(self):
+        for justification in self:
+            justification.mode = 'group' if len(justification.student_ids) > 1 else 'student'
+
+    @api.depends('student_ids')
+    def _compute_student_id(self):
+        for justification in self:
+            justification.student_id = justification.student_ids[:1]
 
     @api.depends('student_ids', 'start_date', 'end_date')
     def _compute_overlap_student_ids(self):
@@ -177,25 +201,45 @@ class EmsAttendanceJustification(models.Model):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
+        if 'mode' in fields_list:
+            res['mode'] = 'student'
         if "user_is_admin" in fields_list and  "user_is_tutor" in fields_list:
             # This happens when opening the form, when storing fires again but field per field
             if not (res["user_is_admin"] or res["user_is_tutor"]):
                 raise UserError(_("Only tutors can justify student's attendances."))
         return res
 
+    @api.onchange('mode')
+    def _onchange_mode(self):
+        for justification in self.filtered(lambda justification: justification.mode == 'student'):
+            justification.student_ids = justification.student_ids[:1]
+            justification.add_group_ids = justification.applied_group_ids = False
+
+    @api.onchange('student_id')
+    def _onchange_student_id(self):
+        # In group mode student_id only mirrors the first student: it must not shrink the list.
+        for justification in self.filtered(lambda justification: justification.mode == 'student'):
+            justification.student_ids = justification.student_id
+
     @api.onchange('add_group_ids')
     def _onchange_add_group_ids(self):
         for justification in self:
-            if not justification.add_group_ids:
+            groups = justification.add_group_ids._origin
+            applied = justification.applied_group_ids._origin
+            justification.applied_group_ids = groups
+            removed, added = applied - groups, groups - applied
+            if removed:
+                justification.student_ids -= justification.student_ids.filtered(
+                    lambda student: student.main_group_id in removed)
+            if not added:
                 continue
             students = self.env['res.partner'].search([
                 ('contact_type', '=', 'student'),
-                ('main_group_id', 'in', justification.add_group_ids._origin.ids),
+                ('main_group_id', 'in', added.ids),
             ]) - justification.student_ids._origin
             # A student already justified over this period would block saving: not added, and told.
             skipped = justification._overlapping_students(students)
             justification.student_ids |= students - skipped
-            justification.add_group_ids = False
             if skipped:
                 return {'warning': {
                     'title': _("Students not added"),

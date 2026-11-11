@@ -177,11 +177,6 @@ STEP_TASK = 'ems.mail_activity_ex_officio_withdrawal_step'
 REVIEW_TASKS = {'attendance': 'ems.mail_activity_ex_officio_withdrawal_attendance',
                 'justification': 'ems.mail_activity_ex_officio_withdrawal_justification'}
 
-# A school-day deadline never reaches further than this many calendar days per school day
-# (weekends plus the longest break), the window the holidays are read for in one search.
-SCHOOL_DAY_WINDOW_FACTOR = 2
-SCHOOL_DAY_WINDOW_MARGIN = 120
-
 # Detection (hourly job): this many school days in a row without attending, counted on the
 # roll-calls of the last DETECTION_WINDOW_DAYS (longer than the compulsory circuit's two months).
 DETECTION_DAYS = 5
@@ -1089,19 +1084,7 @@ class EmsExOfficioWithdrawal(models.Model):
         return self._ems_nth_school_day(start, deadline['school_days'], include_start=True)
 
     def _ems_nth_school_day(self, start, count, include_start=False):
-        """The `count`-th school day from `start` (`start` itself counted when `include_start`);
-        `start` when `count` is 0."""
-        if not count:
-            return start
-        window_end = start + timedelta(days=count * SCHOOL_DAY_WINDOW_FACTOR + SCHOOL_DAY_WINDOW_MARGIN)
-        closed = self.env['resource.calendar.leaves']._ems_holiday_dates(start, window_end)
-        day, seen = (start, 0) if include_start else (start + timedelta(days=1), 0)
-        while True:
-            if day.weekday() < 5 and day not in closed:
-                seen += 1
-                if seen == count:
-                    return day
-            day += timedelta(days=1)
+        return self.env['resource.calendar.leaves']._ems_nth_school_day(start, count, include_start)
 
     def _ems_after_wait(self, previous, step, done_day):
         """The earliest day `step` may be done when the step before it, `previous`, was done on

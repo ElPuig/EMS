@@ -22,8 +22,11 @@ class TestErasmusStaffBackend(ErasmusStaffMobilityCase):
             values or {})
 
     def _apply_in_backend(self, index=0):
+        """The application opened from the call: its form's dialog while nothing is filled in."""
         env = self._as(index)
         action = env['ems.erasmus.call'].browse(self.staff_call.id).action_staff_apply()
+        if action['res_model'] == 'ems.erasmus.staff.application.wizard':
+            return env['ems.erasmus.application'].browse(action['context']['default_application_id'])
         return env['ems.erasmus.application'].browse(action['res_id'])
 
     def test_a_teacher_sees_the_published_staff_calls_open_to_them(self):
@@ -40,16 +43,27 @@ class TestErasmusStaffBackend(ErasmusStaffMobilityCase):
             self.assertIn(self.call, self.env(user=user)['ems.erasmus.call'].search([]))
 
     def test_apply_fill_in_and_submit_from_the_backend(self):
-        application = self._apply_in_backend()
+        env = self._as()
+        apply = env['ems.erasmus.call'].browse(self.staff_call.id).action_staff_apply()
+        self.assertEqual((apply['res_model'], apply['target'], apply['context']['default_open_application']),
+                         ('ems.erasmus.staff.application.wizard', 'new', True),
+                         "Nothing filled in yet: the form's dialog opens straight away (issue #802).")
+        application = env['ems.erasmus.application'].browse(apply['context']['default_application_id'])
         self.assertEqual((application.state, application.partner_id), ('draft', self.staff_users[0].partner_id))
         self.assertEqual(self._apply_in_backend(), application, "The same application, opened again.")
         self.assertTrue(application.staff_editable)
+        self.assertFalse(application.staff_answered, "No empty answers shown on the application.")
         self.assertEqual(application.staff_next_level, 'warning')
-        env = self._as()
-        wizard = self._wizard(env, 'ems.erasmus.staff.application.wizard', application_id=application.id)
+        self.assertIn('Fill in the form', application.with_context(lang='en_US').staff_next_step)
+        wizard = env['ems.erasmus.staff.application.wizard'].with_context(apply['context']).create({})
         wizard.write({**STAFF_PLAN, 'declared_centre_start_date': date(2015, 9, 17), 'support_needs': 'Test need',
                       'declared_language_level': 'c1'})
-        wizard.action_save()
+        opened = wizard.action_save()
+        self.assertEqual((opened['res_model'], opened['res_id']), ('ems.erasmus.application', application.id),
+                         "Saved from the call: the application opens.")
+        self.assertTrue(application.staff_answered)
+        self.assertEqual(env['ems.erasmus.call'].browse(self.staff_call.id).action_staff_apply()['res_id'],
+                         application.id, "Filled in: the application itself opens.")
         self.assertEqual(application.sudo().support_needs, 'Test need')
         self.assertEqual(application.staff_support_needs, 'Test need', "The applicant reads their own answer.")
         self.assertEqual(application.declared_centre_start_date, date(2015, 9, 1), "The month counts.")

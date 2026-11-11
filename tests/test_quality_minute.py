@@ -881,3 +881,33 @@ class TestQualityMinute(TransactionCase):
         self.env['ems.minute']._ems_drive_trash('FILE1')
         self.assertFalse(files.create.called or files.update.called)
         self.assertFalse(minute.drive_file_id)
+
+    # --- Files attached as annexes (issue #803) ---------------------------------------------------
+
+    def _upload(self, name, user=None):
+        """A file as the form's upload button leaves it: on the minute's model, with no record yet
+        when the minute is still unsaved."""
+        return self.env['ir.attachment'].with_user(user or self.user).create({
+            'name': name, 'raw': b'%PDF-1.4', 'mimetype': 'application/pdf', 'res_model': 'ems.minute', 'res_id': 0})
+
+    def test_a_file_uploaded_before_saving_belongs_to_the_minute(self):
+        """Uploaded before the minute is saved, the file is still everybody's who reads the minute,
+        not only the writer's who uploaded it."""
+        reader = create_role_user(self, 'teacher', 'minute.annex.reader@example.com', name='Minute Annex Reader')
+        create_role_employee(self, reader, department_id=self.department.id)
+        annex = self._upload('Budget.pdf')
+        minute = self._minute(annex_attachment_ids=[(6, 0, annex.ids)])
+        self.assertEqual((annex.res_model, annex.res_id), ('ems.minute', minute.id))
+        self.assertEqual(annex.with_user(reader).raw, b'%PDF-1.4', "an attendee can open it")
+
+    def test_a_file_uploaded_by_someone_else_is_not_taken_over(self):
+        other = create_role_user(self, 'teacher', 'minute.annex.other@example.com', name='Minute Annex Other')
+        annex = self._upload('Not mine.pdf', user=other)
+        minute = self._minute()
+        minute.with_user(self.user).write({'annex_attachment_ids': [(4, annex.id)]})
+        self.assertFalse(annex.res_id, "only the files the person saving has uploaded are linked")
+
+    def test_the_pdf_lists_the_files_attached(self):
+        minute = self._minute(annex_attachment_ids=[(6, 0, self._upload('Budget 2026.pdf').ids)])
+        html = self.env['ir.actions.report']._render_qweb_html('ems.action_report_minute', minute.ids)[0].decode()
+        self.assertIn('Budget 2026.pdf', html)

@@ -202,7 +202,6 @@
                         <h5 class="card-title"><i class="fa fa-plane me-1"/>A place is offered to you</h5>
                         <t t-if="offer.modality_id and call.audience == 'student'">
                             <p class="mb-1">Modality: <strong t-esc="offer.modality_id.name"/></p>
-                            <p t-if="offer.modality_id.period" class="mb-1">Period: <t t-esc="offer.modality_id.period"/></p>
                             <t t-set="offer_destinations" t-value="offer.modality_id._ems_offer_destinations()"/>
                             <div t-if="offer_destinations" class="mb-2 o_ems_erasmus_offer_destinations">
                                 Destinations and places of the modality (you will choose one by turns, by your position):
@@ -211,7 +210,6 @@
                                 </ul>
                                 <span t-if="offer.application_id.rank" class="small">Your position in the modality: <strong t-esc="offer.application_id.rank"/></span>
                             </div>
-                            <p t-elif="offer.modality_id.destinations" class="mb-1">Destinations: <t t-esc="offer.modality_id.destinations"/></p>
                         </t>
                         <p class="mb-1">Answer before: <strong t-out="offer.deadline" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/></p>
                         <p class="mb-2">Without an answer by then, the place is considered renounced.</p>
@@ -646,7 +644,8 @@
                          participant has to do now counts as missing (todo_state). -->
                     <t t-set="mobility_documents" t-value="mobility.document_ids.filtered(lambda line: line.file_state != 'not_applicable' and (line.is_required or line.call_document_id.requirement != 'short_blended'))"/>
                     <t t-set="record_missing" t-value="len(mobility_documents.filtered(lambda line: line.todo_state in ('missing', 'needs_change')))"/>
-                    <t t-set="steps" t-value="mobility.task_ids.filtered('is_required')"/>
+                    <t t-set="steps" t-value="mobility.task_ids.filtered(lambda task: task.is_required or task.call_task_id.requirement == 'optional')"/>
+                    <t t-set="required_steps" t-value="steps.filtered('is_required')"/>
                     <t t-set="open_weeks" t-value="mobility._ems_self_assessments_open()"/>
                     <t t-set="stay_shown" t-value="open_weeks or mobility.self_assessment_ids"/>
                     <t t-set="return_shown" t-value="mobility._ems_eu_survey_open() or mobility.eu_survey_state != 'pending'"/>
@@ -663,7 +662,7 @@
                         </li>
                         <li class="nav-item" t-if="steps" role="presentation">
                             <button type="button" t-attf-class="nav-link #{'active' if active_tab == 'steps' else ''} o_ems_erasmus_tab_button_steps"
-                                    data-bs-toggle="tab" data-bs-target="#ems_erasmus_tab_steps" role="tab">Steps <span class="badge rounded-pill text-bg-light ms-1"><t t-esc="len(steps.filtered('done'))"/>/<t t-esc="len(steps)"/></span></button>
+                                    data-bs-toggle="tab" data-bs-target="#ems_erasmus_tab_steps" role="tab">Steps <span class="badge rounded-pill text-bg-light ms-1"><t t-esc="len(required_steps.filtered('done'))"/>/<t t-esc="len(required_steps)"/></span></button>
                         </li>
                         <li class="nav-item" t-if="stay_shown" role="presentation">
                             <button type="button" t-attf-class="nav-link #{'active' if active_tab == 'stay' else ''} o_ems_erasmus_tab_button_stay"
@@ -822,7 +821,7 @@
                                 <ul class="list-unstyled small o_ems_erasmus_mobility_tasks">
                                     <li t-foreach="steps" t-as="task">
                                         <i t-attf-class="fa #{'fa-check-square-o text-success' if task.done else 'fa-square-o'} me-1"/>
-                                        <t t-esc="task.name"/><span class="text-muted"> - <t t-if="task.stage == 'return'">On return</t><t t-else="">Before leaving</t></span>
+                                        <t t-esc="task.name"/><span class="text-muted"> - <t t-if="task.stage == 'return'">On return</t><t t-else="">Before leaving</t><t t-if="not task.is_required"> (optional)</t></span>
                                         <span t-if="task.description" class="d-block text-muted ms-3" t-esc="task.description"/>
                                     </li>
                                 </ul>

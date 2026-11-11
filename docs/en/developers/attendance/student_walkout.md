@@ -158,7 +158,7 @@ An allowlist on `ems.level` (empty = nobody), edited in Settings → *Student Wa
 `ems.group._ems_walkout_allowed()` applies them. Seeded once, by level acronym, from the law
 (LODE art. 8: the collective decision not to attend is recognised from the 3rd year of ESO): ESO
 from the 3rd year, and BTX, CFGB, CFGM, CFGS and EFPS in full (`ems.level._ems_seed_walkout_levels()`,
-from `post_init_hook` and `migrations/18.0.0.48.0/post-migrate.py`). It is not catalog data
+from `post_init_hook` and `migrations/18.0.0.49.0/post-migrate.py`). It is not catalog data
 (`data/cat/`), so an upgrade never undoes the centre's choice.
 
 ---

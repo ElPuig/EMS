@@ -203,6 +203,11 @@ registry.category("web_tour.tours").add("ems_attendance_justification_create", {
             run: "edit 02/05/2026 11:00:00",
         },
         {
+            trigger: ".o_form_view .o_field_widget[name='mode'] input[data-value='group']",
+            content: "Justify a group",
+            run: "click",
+        },
+        {
             trigger: ".o_form_view .o_field_widget[name='add_group_ids'] input",
             content: "Search for the tutor's group",
             run: "edit TJT1A",
@@ -217,6 +222,29 @@ registry.category("web_tour.tours").add("ems_attendance_justification_create", {
             content: "The group's students are listed, with their group",
         },
         {
+            trigger: ".o_field_widget[name='add_group_ids'] .o_tag:contains('TJT1A') .o_delete",
+            content: "Issue #808: taking the group out of the picker",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='student_ids']:not(:has(.o_data_row))",
+            content: "Its students leave the list",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='add_group_ids'] input",
+            content: "Pick the group again",
+            run: "edit TJT1A",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('TJT1A')",
+            content: "Pick the group",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='student_ids'] .o_data_row:contains('Attendance Justification Tutor Tour Student')",
+            content: "Its students are listed again",
+        },
+        {
             trigger: ".o_field_widget[name='student_ids'] .o_data_row:contains('Tour Excluded Student') .o_list_record_remove",
             content: "Take out the groupmate who must not be justified",
             run: "click",
@@ -224,6 +252,43 @@ registry.category("web_tour.tours").add("ems_attendance_justification_create", {
         {
             trigger: ".o_field_widget[name='student_ids']:not(:has(.o_data_row:contains('Tour Excluded Student')))",
             content: "The groupmate is no longer listed",
+        },
+        { trigger: ".o_form_button_save", content: "Save", run: "click" },
+        { trigger: ".o_form_view .o_form_saved", content: "Saved" },
+    ],
+});
+
+// Issue #808: a tutor justifies one single student, picking them directly (the default mode,
+// no group at all).
+registry.category("web_tour.tours").add("ems_attendance_justification_single_student", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_justification_tree",
+    steps: () => [
+        { trigger: ".o_list_view", content: "Justifications list loaded" },
+        { trigger: ".o_list_button_add", content: "New justification", run: "click" },
+        {
+            trigger: ".o_form_view .o_field_widget[name='start_date'] input[data-field='start_date']",
+            content: "Fill in the start date",
+            run: "edit 02/09/2026 09:00:00",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='start_date'] input[data-field='end_date']",
+            content: "Fill in the end date",
+            run: "edit 02/09/2026 11:00:00",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='student_id'] input",
+            content: "Search for the student (the default mode)",
+            run: "edit Tour Excluded Student",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Tour Excluded Student')",
+            content: "Pick the student",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view:not(:has(.o_field_widget[name='add_group_ids']))",
+            content: "No group picker in student mode",
         },
         { trigger: ".o_form_button_save", content: "Save", run: "click" },
         { trigger: ".o_form_view .o_form_saved", content: "Saved" },
@@ -252,6 +317,11 @@ registry.category("web_tour.tours").add("ems_attendance_justification_strike", {
             trigger: ".o_form_view:not(:has(.o_field_widget[name='start_date'] input[data-field='start_date'])) .o_field_widget[name='day'] input",
             content: "The period gives way to a single day",
             run: "edit 02/06/2026",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='mode'] input[data-value='group']",
+            content: "Justify a group",
+            run: "click",
         },
         {
             trigger: ".o_form_view .o_field_widget[name='add_group_ids'] input",

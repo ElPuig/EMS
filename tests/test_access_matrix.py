@@ -71,6 +71,8 @@ ACCESS_MATRIX = {
     # Issue #684: the modules frozen for the record average, written only by the call's closing.
     'ems.erasmus.application.grade': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'r'},
     'ems.erasmus.call.modality': {'teacher': 'r', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    # Issue #772: the places per project of a staff call, only the Erasmus team's.
+    'ems.erasmus.call.project': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'erasmus': 'rwcu'},
     # Issue #685: frozen lines and offers are written only by the resolutions' and offers' actions.
     'ems.erasmus.resolution': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.resolution.line': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'r'},

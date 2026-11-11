@@ -43,7 +43,7 @@ class EmsErasmusHistory(models.Model):
                        'individual' AS kind,
                        mobility.audience AS role,
                        call.name,
-                       modality.project,
+                       COALESCE(modality.project, mobility_project.kind) AS project,
                        mobility.country_id,
                        mobility.city,
                        mobility.date_start,
@@ -52,6 +52,7 @@ class EmsErasmusHistory(models.Model):
                   FROM ems_erasmus_mobility mobility
                   JOIN ems_erasmus_call call ON call.id = mobility.call_id
                   LEFT JOIN ems_erasmus_call_modality modality ON modality.id = mobility.modality_id
+                  LEFT JOIN ems_erasmus_project mobility_project ON mobility_project.id = mobility.project_id
                  WHERE mobility.state != 'cancelled'
                 UNION ALL
                 SELECT participant.id * 2 + 1,

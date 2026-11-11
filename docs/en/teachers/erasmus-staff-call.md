@@ -14,11 +14,11 @@ Everything is in the **Erasmus+** app (below **Meetings**), under **My participa
 
 ## 1. Open the call
 
-When the Erasmus team publishes a staff call you can apply to, you receive an email and it shows under **Staff calls**, with its dates. Open it: you can download the published call, and **Actions > Apply to the call** opens your application.
+When the Erasmus team publishes a staff call you can apply to, it shows under **Staff calls**, with its dates, and you are told in your [daily summary](daily-summary.md). Open it: you can download the published call, and **Actions > Apply to the call** opens the form straight away.
 
 ## 2. Fill in the form
 
-In your application, **Actions > Fill in the form** opens the form. It has four short blocks:
+The form opens when you apply. To change it later, in your application, **Actions > Fill in the form** opens it again; until you have filled something in, the application only shows a box telling you so. It has four short blocks:
 
 1. **Mobility plan**, with your two proposals, both required, in a sentence or two each: the activity (job shadowing, a course or teaching), the host entity or course, where and when. **Proposal A** is the main one, for instance "Job shadowing at a German VET school, the Berufskolleg X in Cologne, in April"; **proposal B** is the backup if A falls through, for instance "An English course at an academy in Malta, in July". Preferably in the non-teaching period (June, July); at another time, such as April, only a week that does not affect the assessments, and with the Direction's validation. You will find options on the [centre's Erasmus+ website](https://elpuig.xeill.net/el-centre/erasmus/recursos-i-formacio).
 2. **What you want to learn and how you will apply it** (annex 1): briefly, the competences you want to observe or learn and how you will apply them to your classes, your department or the centre, 1,500 characters at most. The panel only reads this and your two proposals.

@@ -31,15 +31,18 @@ def create_erasmus_fixtures(cls):
                     'confidential': True, 'sequence': 4}),
         ],
     })
+    # Issue #767 fills the deadlines in from the closing date: the tests set the ones they need.
+    cls.call.write({'subsanation_deadline': False, 'interview_deadline': False, 'claims_deadline': False,
+                    'acceptance_deadline': False})
     cls.call.action_publish()
     cls.cv, cls.certificate, cls.authorization, cls.evidence = cls.call.document_ids.sorted('sequence')
     cls.student, cls.minor, cls.outsider = cls.env['res.partner'].create([
         {'name': 'Erasmus Test Student', 'contact_type': 'student', 'student_id': next_student_id(),
          'main_group_id': cls.group.id, 'birth_date': '2000-01-01',
-         'email': 'erasmus.student@example.com'},
+         'email': 'erasmus.student@example.com', 'student_email': 'erasmus.student@example.com'},
         {'name': 'Erasmus Test Minor', 'contact_type': 'student', 'student_id': next_student_id(),
          'main_group_id': cls.group.id, 'birth_date': '2015-01-01',
-         'email': 'erasmus.minor@example.com'},
+         'email': 'erasmus.minor@example.com', 'student_email': 'erasmus.minor@example.com'},
         {'name': 'Erasmus Test Outsider', 'contact_type': 'student', 'student_id': next_student_id(),
          'main_group_id': cls.other_group.id, 'birth_date': '2000-01-01'},
     ])
@@ -72,9 +75,10 @@ class TestErasmusCall(TransactionCase):
         self.assertTrue(form.task_ids)
         form.audience = 'staff'
         self.assertEqual(len(form.document_ids), 1, "The staff call's own documents")
-        self.assertEqual(len(form.modality_ids), 2)
-        with form.document_ids.edit(0) as certificates:
-            self.assertFalse(certificates.single_file, "A certificate per language")
+        self.assertFalse(form.modality_ids, "Issue #772: places per project instead.")
+        self.assertFalse(form.document_ids._records[0]['single_file'], "A certificate per language")
+        # Issue #767: a staff call hides its Documents tab.
+        self.assertTrue(form._get_modifier('document_ids', 'invisible'))
 
     def test_publish_needs_a_modality_and_a_required_document(self):
         draft = self.env['ems.erasmus.call'].create({
@@ -282,6 +286,19 @@ class TestErasmusApplication(TransactionCase):
         self.assertIn('my_cv.pdf', mails.body_html)
         application.action_submit()
         self.assertEqual(len(self._mails(application)), 2, "Every submission sends a new receipt")
+
+    def test_every_erasmus_email_goes_to_the_school_address(self):
+        """Issue #802: a student is emailed at their school address, never the personal one; without
+        it, nothing is sent and the team reads why on the application."""
+        self.student.write({'email': 'erasmus.personal@example.com', 'student_email': 'erasmus.school@example.com'})
+        application = self._apply()
+        upload(application, self.cv)
+        application.action_submit()
+        self.assertEqual(self._mails(application).email_to, 'erasmus.school@example.com')
+        self.student.student_email = False
+        application.action_submit()
+        self.assertEqual(len(self._mails(application)), 1, "No school address: no email, not even to the personal one.")
+        self.assertIn('no email address', application.message_ids[:1].body)
 
     def test_answers_editable_until_the_closing_date(self):
         application = self._apply()

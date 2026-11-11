@@ -38,6 +38,10 @@ def create_staff_call_fixtures(cls):
         'code': 'TERA001', 'acronym': 'TERA', 'name': 'Test Erasmus Subject', 'study_ids': [(6, 0, cls.study.ids)]})
     cls.env['ems.teaching'].create([{'teacher_id': employee.id, 'group_id': cls.group.id, 'subject_id': cls.subject.id}
                                     for employee in cls.staff_employees])
+    # Issue #772: the places of a staff call are given per project.
+    cls.staff_vet_project, cls.staff_hed_project = cls.env['ems.erasmus.project'].create([
+        {'name': '2096-1-ES01-KA121-VET-000000772', 'kind': 'ka121_vet'},
+        {'name': '2096-1-ES01-KA131-HED-000000772', 'kind': 'ka131_hed'}])
     cls.staff_call = cls.env['ems.erasmus.call'].create({
         'name': 'Test Erasmus Staff Call',
         'audience': 'staff',
@@ -47,8 +51,8 @@ def create_staff_call_fixtures(cls):
         'date_open': now - timedelta(days=1),
         'date_close': now + timedelta(days=10),
         'acceptance_deadline': now + timedelta(days=20),
-        'modality_ids': [(0, 0, {'name': 'Test VET staff', 'project': 'ka121_vet', 'places': 1, 'sequence': 1}),
-                         (0, 0, {'name': 'Test HED staff', 'project': 'ka131_hed', 'places': 1, 'sequence': 2})],
+        'project_place_ids': [(0, 0, {'project_id': cls.staff_vet_project.id, 'places': 1}),
+                              (0, 0, {'project_id': cls.staff_hed_project.id, 'places': 1})],
         'document_ids': [
             (0, 0, {'name': 'Identity document', 'requirement': 'required', 'sequence': 1}),
             (0, 0, {'name': 'Staff language certificate', 'requirement': 'optional', 'sequence': 3}),
@@ -57,6 +61,8 @@ def create_staff_call_fixtures(cls):
             (cls.hos_user, 'Head of Studies'), (cls.panel_teacher, 'Head of department'),
             (cls.staff_users[2], 'Seminar chief'))],
     })
+    # Issue #767 fills the deadlines in from the closing date: the tests set the ones they need.
+    cls.staff_call.write({'subsanation_deadline': False, 'claims_deadline': False})
     cls.staff_call.action_publish()
     cls.id_document, cls.staff_certificate = cls.staff_call.document_ids.sorted('sequence')
 
@@ -139,13 +145,16 @@ class TestErasmusStaffCall(ErasmusStaffCase):
             'date_close': self.staff_call.date_close})
         self.assertEqual(call.document_ids.mapped('requirement'), ['optional'],
                          "Only the language certificates: no CV, and the identity document only of whoever goes.")
-        self.assertEqual(call.modality_ids.mapped('project'), ['ka121_vet', 'ka131_hed'],
-                         "One modality per project, without a period.")
+        self.assertFalse(call.modality_ids, "Staff compete in one list: places per project instead (issue #772).")
         self.assertFalse(call.document_ids.filtered('panel_visible'), "The mobility plan is written in the form.")
         result = call.action_publish()
         self.assertEqual(call.state, 'published')
         self.assertEqual(result['params']['type'], 'warning', "Published, but warned that it has no places yet.")
-        self.assertIsNone(self.staff_call.copy().action_publish(), "With places, no warning.")
+        # Issue #772: a copy starts without places (each year has its own projects).
+        copy = self.staff_call.copy()
+        self.assertFalse(copy.project_place_ids)
+        copy.project_place_ids = [(0, 0, {'project_id': self.staff_vet_project.id, 'places': 2})]
+        self.assertIsNone(copy.action_publish(), "With places, no warning.")
 
     def test_a_staff_call_is_only_for_fp_teachers_and_their_direction(self):
         """Art. 6: the teachers of its levels and the Direction that validates; not the
@@ -193,13 +202,8 @@ class TestErasmusStaffCall(ErasmusStaffCase):
             'name': 'Staff call defaults', 'audience': 'staff', 'date_open': self.staff_call.date_open,
             'date_close': self.staff_call.date_close})
         self.assertEqual(call.min_score, 0.0, "Its criteria add up to 10: a minimum would leave everyone out.")
-        self.assertEqual(call.interview_deadline, call.date_close + timedelta(days=14))
-        call.date_close += timedelta(days=3)
-        self.assertEqual(call.interview_deadline, call.date_close + timedelta(days=14), "It follows the closing date.")
-        changed = call.date_close + timedelta(days=20)
-        call.interview_deadline = changed
-        call.date_close += timedelta(days=1)
-        self.assertEqual(call.interview_deadline, changed, "Unless it was changed by hand.")
+        # Issue #767: the panel's deadline follows the same rule as a students' call's score correction.
+        self.assertEqual(call.interview_deadline, call._ems_deadlines(call.date_close)['interview_deadline'])
 
     def test_staff_declare_their_last_mobility_and_seniority(self):
         """The 2026-11-03 review: the applicant only ticks that they never had one at the Puig; the
@@ -521,7 +525,7 @@ class TestErasmusStaffResolution(ErasmusStaffCase):
     def test_export_staff_from_their_employee_file(self):
         (first, _second, _third), _resolution = self._definitive()
         first.offer_ids.action_accept()
-        first.modality_id = self.staff_call.modality_ids[0]  # the team assigns the project and period
+        first.mobility_ids.project_id = self.staff_vet_project  # the team assigns the project
         self.staff_employees[0].write({'private_email': 'staff.private@example.com', 'birthday': '1980-05-04',
                                        'private_city': 'Test City'})
         sheet = openpyxl.load_workbook(io.BytesIO(

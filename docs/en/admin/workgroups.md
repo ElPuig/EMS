@@ -4,7 +4,7 @@
 
 # Workgroups
 
-Workgroups are free-form employee groupings — a project team, a cross-department committee, or any group of teachers, providers or ASP staff you need to track together. One of them, **Quality Comission**, is the quality committee: its members see the **Quality** menu, and stop seeing it when they leave the workgroup.
+Workgroups are free-form employee groupings — a project team, a cross-department committee, or any group of teachers, providers or ASP staff you need to track together. One of them, **Comissió de Qualitat**, is the quality committee: its members see the **Quality** menu, and stop seeing it when they leave the workgroup. You can rename it: it is still the quality committee, and EMS updates keep the new name.
 
 **Required role:** Administrator
 

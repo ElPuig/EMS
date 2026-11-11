@@ -660,7 +660,7 @@ class EmsLimesurveyHeader(models.Model):
     name = fields.Char(string="Name", required=True)
     title = fields.Char(string="Title", required=True)
     description = fields.Char(string="Description", required=True)
-    target = fields.Selection(string="Target", selection=survey_target_selection, required=True)
+    target = fields.Selection(string="Audience", selection=survey_target_selection, required=True)
     level_ids = fields.Many2many(string="Level", comodel_name="ems.level")
     study_ids = fields.Many2many(string="Studies", comodel_name="ems.study")
     group_ids = fields.Many2many(string="Groups", comodel_name="ems.group")

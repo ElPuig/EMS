@@ -12,7 +12,7 @@ Para cada proyecto Erasmus+, EMS muestra qué subvención tiene, cuánto se ha r
 
 ## El panel económico
 
-**Erasmus+ > Gestión económica > Panel económico** muestra una fila por proyecto: *Concedido*, *Comprometido*, *Pagado*, *Disponible*, *Apoyo generado* y cuántos avisos tiene. Puedes filtrar por acción (KA121-VET, KA131-HED), según si se ha recibido el pago final, o los proyectos *Por encima de la subvención*, y agruparlos por año de convocatoria. La vista **tabla dinámica** compara convocatorias y acciones. Para ver proyectos antiguos archivados, usa el filtro **También los archivados**.
+**Erasmus+ > Gestión económica > Panel económico** muestra una fila por proyecto: *Concedido*, *Comprometido*, *Pagado*, *Disponible*, *Apoyo generado* y cuántos avisos tiene. Puedes filtrar por tipo (KA121-VET, KA131-HED), según si se ha recibido el pago final, o los proyectos *Por encima de la subvención*, y agruparlos por año de convocatoria. La vista **tabla dinámica** compara convocatorias y tipos de proyecto: se abre con la subvención, lo comprometido y lo disponible (las demás cifras, en **Medidas**). Para ver proyectos antiguos archivados, usa el filtro **También los archivados**.
 
 Haz clic en un proyecto para abrir su pestaña **Economía**.
 
@@ -49,16 +49,18 @@ En la pestaña **Beca** de una movilidad ves su *estado económico* (previsto, c
 3. Mientras no está pagado, puedes cambiarlo. Una vez pagado, sus cifras solo cambian con **Acciones > Corregir**: escribe las cifras nuevas y el motivo. El motivo queda en su historial y el proyecto avisa de que se cambió después del pago.
    - **Si el importe nuevo es superior al que se transfirió**, el gasto conserva el importe ya pagado y EMS crea un gasto nuevo por la diferencia, *por pagar*, con una tarea para la Secretaría. Ejemplo: se pagó una comida de trabajo de 75 €, pero el ticket real era de 80 €. La corriges a 80 €: el original queda en 75 € (pagado) y hay un gasto nuevo de 5 € por pagar. El historial del original lo dice.
    - **Si el importe nuevo es inferior al que se transfirió**, el gasto pasa al importe nuevo, pero el proyecto sigue contando lo que se transfirió de verdad y avisa: «<referencia> se pagó X por encima de su importe corregido: pide que se devuelva y, después, deshaz la transferencia y registra la correcta.»
-   En las listas de gastos, el total está en la columna **Contabilizado** (un gasto anulado cuenta 0), no en *Importe*.
+   Las listas de gastos muestran un solo importe por fila, **Importe**: el que cuenta (un gasto anulado cuenta 0; uno corregido, lo que se transfirió de verdad). El importe introducido está en el gasto, o en la columna *Importe introducido* del selector de columnas.
 4. Un gasto que no se pagará: **Acciones > Anular el gasto** (deja de contar). **Restaurar** lo vuelve a activar.
 
 ## Apoyo organizativo
 
-El apoyo organizativo es dinero para gestionar las movilidades, separado de las becas de los participantes. EMS lo calcula por participante con las **tarifas del año de la convocatoria del proyecto**, no las del año actual. Las tarifas de KA121-VET 2025 y 2026 y de KA131-HED 2026 ya están en **Erasmus+ > Configuración > Tarifas de apoyo organizativo**; cuando llegue una convocatoria nueva, añade allí las de su año.
+El apoyo organizativo es dinero para gestionar las movilidades, separado de las becas de los participantes. EMS lo calcula por participante con las **tarifas del año de la convocatoria del proyecto**, no las del año actual. Las tarifas de KA121-VET 2025 y 2026 y de KA131-HED 2026 ya están en **Erasmus+ > Configuración > Tarifas de apoyo organizativo**, agrupadas por año, empezando por el año más reciente; cuando llegue una convocatoria nueva, añade allí las de su año.
 
 **La regla de los 100 participantes (las columnas «Desde el participante / Hasta el participante»):** algunas tarifas bajan a partir del participante 100. En KA121-VET se cuentan los participantes del mismo tipo de actividad: unas prácticas cortas de alumnado o un job shadowing son 350 € hasta el participante 100 y 200 € a partir del 101. En KA131-HED se cuenta a todo el proyecto, alumnado y personal juntos: 400 € para los 100 primeros y 230 € a partir del 101. EMS los cuenta por fecha de inicio; no tienes que hacer nada.
 
 **Vacío significa sin límite:** un *Hasta el participante* vacío es una franja sin final, y unos *Días mínimos* vacíos se aplican a cualquier duración de la estancia. Si dos franjas se solapan, EMS te dice con qué otra tarifa y franja chocan. En el Excel, la *Posición* es la que ha contado la tarifa: entre la misma clase de actividad o, en KA131-HED, entre todo el proyecto.
+
+![Las tarifas de un año: las celdas vacías significan sin límite y cualquier duración](../../assets/erasmus/tarifes-suport-organitzatiu.png)
 
 **Qué tarifa tiene cada movilidad:** EMS lo deduce. Una estancia de alumnado de 90 días o más es de larga duración (ErasmusPro), y más corta, de corta duración; un curso estructurado del personal es *cursos y formación*, y el job shadowing o la docencia, la otra; cada alumno de una movilidad de grupo, 100 €. Si una movilidad es en un país tercero no asociado al programa, o es un concurso de competencias, un experto invitado o un docente acogido, elígelo a mano en **Apoyo organizativo como**, en la pestaña **Beca**.
 
@@ -76,7 +78,7 @@ Arriba de la pestaña Economía, EMS avisa de lo que puede ser un error, sin blo
 
 ## Excel
 
-**Acciones > Exportar a Excel** descarga la economía del proyecto: un resumen con las mismas cifras que el panel, la beca de cada movilidad (previsto, comprometido y pagado por separado), los pagos y las facturas con sus justificantes, los gastos, el apoyo organizativo participante por participante, y las modificaciones de la subvención y las transferencias del SEPIE.
+**Acciones > Descargar la economía (Excel)** descarga la economía del proyecto: un resumen con las mismas cifras que el panel, la beca de cada movilidad (previsto, comprometido y pagado por separado), los pagos y las facturas con sus justificantes, los gastos, el apoyo organizativo participante por participante, y las modificaciones de la subvención y las transferencias del SEPIE.
 
 ---
 

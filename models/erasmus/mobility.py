@@ -28,7 +28,8 @@ EU_SURVEY_DAYS = 30
 # A student's stay: curricular work placement (sBID, with academic recognition), or not.
 PLACEMENT_TYPES = [('curricular', "Curricular work placement (sBID)"), ('extracurricular', "Extracurricular"),
                    ('graduate', "Recent graduate")]
-TASK_REQUIREMENTS = [('required', "Required"), ('short_blended', "Short blended mobilities only")]
+TASK_REQUIREMENTS = [('required', "Required"), ('optional', "Optional"),
+                     ('short_blended', "Short blended mobilities only")]
 
 
 class EmsErasmusDestination(models.Model):
@@ -100,7 +101,7 @@ class EmsErasmusCallTask(models.Model):
     call_id = fields.Many2one(string="Call", comodel_name='ems.erasmus.call', required=True, ondelete='cascade',
                               index=True)
     sequence = fields.Integer(string="Sequence", default=10)
-    name = fields.Char(string="Name", required=True)
+    name = fields.Char(string="Name", required=True, translate=True)
     stage = fields.Selection(string="When", selection=STAGES, required=True, default='preparation')
     requirement = fields.Selection(string="Requirement", selection=TASK_REQUIREMENTS, required=True, default='required',
                                    help="Short blended mobilities only: KA131-HED stays of 30 days or fewer (e.g. "
@@ -109,7 +110,7 @@ class EmsErasmusCallTask(models.Model):
                                     domain="[('call_id', '=', call_id)]", help="Empty: every modality.")
     project = fields.Selection(string="Only for project", selection=PROJECTS,
                                help="Only for the modalities of this project. Empty: both projects.")
-    description = fields.Text(string="Instructions", help="Shown to the participant on the portal.")
+    description = fields.Text(string="Instructions", translate=True, help="Shown to the participant on the portal.")
 
 
 class EmsErasmusMobility(models.Model):
@@ -182,7 +183,8 @@ class EmsErasmusMobility(models.Model):
                                       domain="[('parent_id', '=', host_partner_id)]")
     date_start = fields.Date(string="Start", tracking=True)
     date_end = fields.Date(string="End", tracking=True)
-    project_kind = fields.Selection(string="Project of the modality", related='modality_id.project')
+    # Issue #772: a student's comes from their modality; a staff member's, from the project assigned.
+    project_kind = fields.Selection(string="Kind of project", selection=PROJECTS, compute='_compute_project_kind')
     placement_type = fields.Selection(
         string="Placement type", selection=PLACEMENT_TYPES, compute='_compute_placement_type', store=True,
         readonly=False, tracking=True,
@@ -192,9 +194,14 @@ class EmsErasmusMobility(models.Model):
         string="Short blended mobility", compute='_compute_is_short_blended',
         help="KA131-HED stay of 30 days or fewer: it has a virtual component.")
     project_id = fields.Many2one(string="Project", comodel_name='ems.erasmus.project', tracking=True,
-                                 domain="[('kind', '=', project_kind)]",
+                                 domain="[('id', 'in', allowed_project_ids)]",
                                  help="The Erasmus+ project the mobility is charged to: CFGM on a KA121-VET project, "
-                                      "CFGS on a KA131-HED one.")
+                                      "CFGS on a KA131-HED one; staff, on one of the projects of the call's places.")
+    allowed_project_ids = fields.Many2many(string="Possible projects", comodel_name='ems.erasmus.project',
+                                           compute='_compute_allowed_project_ids')
+    project_places = fields.Char(string="Places of the project", compute='_compute_project_places',
+                                 help="Staff: the places of the assigned project still free in the call.")
+    project_places_over = fields.Boolean(string="More mobilities than places", compute='_compute_project_places')
     destination_date = fields.Date(string="Destination set on", readonly=True,
                                    help="When the destination was chosen, agreed or validated: the documents before "
                                         "leaving are due counting from it.")
@@ -283,6 +290,37 @@ class EmsErasmusMobility(models.Model):
         for mobility in self:
             mobility.placement_type = mobility.placement_type or (mobility.audience == 'student' and 'curricular')
 
+    @api.depends('modality_id.project', 'project_id.kind')
+    def _compute_project_kind(self):
+        for mobility in self:
+            mobility.project_kind = mobility.modality_id.project or mobility.project_id.kind
+
+    @api.depends('audience', 'modality_id.project', 'call_id.project_place_ids.project_id')
+    def _compute_allowed_project_ids(self):
+        """Issue #772: a student's mobility, the active projects of its modality's kind; a staff
+        member's, the projects of the call's places (read as superuser, the table is the team's)."""
+        Project = self.env['ems.erasmus.project']
+        by_kind = {kind: Project.search([('kind', '=', kind)]) for kind in set(self.modality_id.mapped('project'))}
+        for mobility in self:
+            mobility.allowed_project_ids = mobility.call_id.sudo().project_place_ids.project_id \
+                if mobility.audience == 'staff' else by_kind.get(mobility.modality_id.project, Project)
+
+    @api.depends('audience', 'project_id', 'call_id.project_place_ids.places', 'call_id.mobility_ids.project_id',
+                 'call_id.mobility_ids.state')
+    def _compute_project_places(self):
+        """Issue #772: e.g. "2026-VET: 1 place left of 2", and whether the project has more
+        mobilities assigned than places."""
+        for mobility in self:
+            line = mobility.audience == 'staff' and mobility.call_id.sudo().project_place_ids.filtered(
+                lambda line: line.project_id == mobility.project_id)[:1]
+            if not line:
+                mobility.update({'project_places': False, 'project_places_over': False})
+                continue
+            left = line.places - line.assigned_count
+            mobility.project_places = _("%(project)s: %(left)s of %(places)s places left", project=line.project_id.display_name,
+                                        left=max(left, 0), places=line.places)
+            mobility.project_places_over = left < 0
+
     @api.depends('project_kind', 'date_start', 'date_end')
     def _compute_is_short_blended(self):
         for mobility in self:
@@ -332,6 +370,11 @@ class EmsErasmusMobility(models.Model):
     @api.constrains('project_id', 'modality_id')
     def _check_project(self):
         for mobility in self:
+            # Issue #772: a staff member goes on one of the projects of the call's places.
+            if mobility.audience == 'staff' and mobility.project_id and \
+                    mobility.project_id not in mobility.call_id.sudo().project_place_ids.project_id:
+                raise ValidationError(_("The mobility of %s goes on one of the projects of the call's places.",
+                                        mobility.partner_id.name))
             kind = mobility.modality_id.project
             if mobility.project_id and kind and mobility.project_id.kind != kind:
                 raise ValidationError(_("The mobility of %(name)s goes on a %(kind)s project.", name=mobility.partner_id.name,
@@ -388,6 +431,10 @@ class EmsErasmusMobility(models.Model):
         result = super().write(vals)
         if {'date_start', 'date_end', 'state'} & set(vals):
             self._ems_sync_training_leave()
+        if 'project_id' in vals:
+            # Issue #772: a staff member's project, assigned after selection, brings its documents.
+            self.filtered(lambda mobility: mobility.audience == 'staff' and mobility.state in OPEN_STATES
+                          )._ems_sync_requirements()
         return result
 
     def unlink(self):
@@ -446,11 +493,11 @@ class EmsErasmusMobility(models.Model):
         Line = self.env['ems.erasmus.application.document'].sudo()
         Task = self.env['ems.erasmus.mobility.task'].sudo()
         for mobility in self.sudo():
-            call, modality = mobility.call_id, mobility.modality_id
+            call, modality, kind = mobility.call_id, mobility.modality_id, mobility.project_kind
 
             def applies(record):
                 return (not record.modality_ids or modality in record.modality_ids) and \
-                    (not record.project or record.project == modality.project)
+                    (not record.project or record.project == kind)
 
             documents = call.preparation_document_ids.filtered(applies) - mobility.document_ids.call_document_id
             Line.create([{'application_id': mobility.application_id.id, 'mobility_id': mobility.id,
@@ -459,7 +506,7 @@ class EmsErasmusMobility(models.Model):
             Task.create([{'mobility_id': mobility.id, 'call_task_id': task.id} for task in tasks])
 
     def action_sync_requirements(self):
-        """After changing the call's documents or checklist, or a staff member's modality."""
+        """After changing the call's documents or checklist."""
         self._ems_check_manager()
         self.filtered(lambda mobility: mobility.state in OPEN_STATES)._ems_sync_requirements()
 
@@ -1039,10 +1086,12 @@ class EmsErasmusMobilityTask(models.Model):
 
     @api.depends('call_task_id.requirement', 'mobility_id.is_short_blended')
     def _compute_is_required(self):
-        """A short blended step (the virtual component) only counts in a short KA131-HED stay."""
+        """A short blended step (the virtual component) only counts in a short KA131-HED stay; an
+        optional one (e.g. sharing the stay at a department meeting, issue #780) never does."""
         for task in self:
             requirement = task.call_task_id.requirement
-            task.is_required = requirement != 'short_blended' or task.mobility_id.is_short_blended
+            task.is_required = requirement == 'required' or (
+                requirement == 'short_blended' and task.mobility_id.is_short_blended)
 
     def write(self, vals):
         if 'done' in vals:

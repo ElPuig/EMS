@@ -56,7 +56,9 @@ States of the mobility: `draft` → `enrolment` → `selection` → `validation`
 ## Enrolment (issue #701)
 
 - The coordinator creates the mobility (*Erasmus+ > Mobilities > Group mobilities*), fills in the groups, the
-  enrolment period and the selection criteria (a default text with the agreed rule), and opens the
+  enrolment period and the selection criteria (a default text with the agreed rule), the
+  information for students (`description`, with the code view of `ems_html_codeview`, see
+  erasmus.md's Portal section), and opens the
   enrolment (`action_open_enrolment`, which refuses without groups, period or criteria). Dates
   and destination may stay empty until they are confirmed.
 - `/my/erasmus` shows a card per group mobility the student can see
@@ -89,15 +91,23 @@ States of the mobility: `draft` → `enrolment` → `selection` → `validation`
   `grade_average_manual` 0-10, `grade_manual_reason` required, all tracked; the ranking then uses
   it through `_ems_average`) or by the coordinator excluding the student (`result_override` =
   excluded, with its reason).
-- `_ems_rank` orders the eligible enrolments by average (descending), then the fewer
-  opportunities accredited by the team, then a **draw** (decided by the coordinator, 2026-10-24).
+- `_ems_rank` orders the eligible enrolments by **score** (descending, issue #773, art. 16 of the
+  students' rules), then the fewer opportunities accredited by the team, then a **draw** (decided by
+  the coordinator, 2026-10-24). `score` (stored) = `_ems_average()` + 1 if
+  `fewer_opportunities_check == 'yes'` - 0.5 per frozen conduct warning, at most 1.5
+  (`FEWER_OPPORTUNITIES_POINTS`, `STRIKE_POINTS`, `STRIKE_POINTS_MAX`); it follows the team's later
+  checks (an accreditation, an average entered by hand). The leader reads `score`, never
+  `strike_count` nor `fewer_opportunities_check` (field groups, audit D-14). A mobility ranked before
+  #773 has `rank_by_score` False (set by the upgrade where `ranking_date` was set) and keeps ranking
+  by the average: `_ems_ranking_score()` is what the ranking, the draw (`score_total`) and the
+  published lines (`score_total`, the PDF's header *Score*/*Average*) use.
   A remaining tie is flagged (`needs_draw`) and **blocks the proposal** until the Erasmus
   coordinator runs the draw (`action_draw_ties`): EMS orders each tied set at random with a
   cryptographically secure generator (`secrets.SystemRandom`), stores the position in
   `draw_order` (read-only) and keeps an `ems.erasmus.group.draw` per tied set (who, when, the
   values tied on, the exact students and the order drawn; the mobility's Selection tab lists them),
   also summed up in the chatter. It only touches tied enrolments. A tie is the same
-  `_ems_tie_key` (average, accreditation); it counts as resolved while everyone in it has a
+  `_ems_tie_key` (score, accreditation); it counts as resolved while everyone in it has a
   different `draw_order`, so a student who joins an already drawn tie later (an average entered
   by hand, an accreditation) reopens it for a new draw, which is recorded as another draw. A declared situation of fewer
   opportunities still pending verification blocks the proposal too. The first ones, as many as
@@ -306,7 +316,7 @@ state and the late tasks (Odoo activities). Each card opens the mobility's panel
 
 ### Screens added in the 2026-11-05 usage test
 
-- **Participants' documents** (stat button, team and leader, `action_view_participant_documents`):
+- **Pending documents** (stat button, team and leader, `action_view_participant_documents`):
   every active participant's lines on one editable list grouped by document
   (`view_erasmus_group_participant_document_list`), to upload each grant agreement or review without
   opening each file. The record rules decide what each one sees (the leader, no confidential line).

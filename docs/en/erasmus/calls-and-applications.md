@@ -14,19 +14,33 @@ Create and publish an Erasmus+ call, review the applications students send from 
 
 Go to **Erasmus+ > Calls > Calls** and click **New**:
 
+> **Dates and hours:** lists and read-only dates show the day alone. A deadline you can edit keeps its hour, because that hour decides when it ends: *20/11/2026 23:59* closes at the end of that day. So do an interview's date, the turn to choose a destination and the deadline to answer an offer.
+
 | Field | What to enter |
 |---|---|
 | Name | For example, *Erasmus+ internships 2026-27* |
 | Course | The school year of the call |
 | Published call | The PDF of the call, which students can download from the portal |
 | Applications open / close | When students can apply. After the closing date nobody can change their application |
-| Corrections deadline | Until when applicants can upload the corrections you ask for. You can fill it in later |
 
-> Replies to the emails EMS sends without anyone of the team sending them (receipts and reminders) go to the Erasmus+ mailbox in **Settings > EMS Management > Center Data > Erasmus+** (erasmus@elpuig.xeill.net), the same for every call.
+The top of the call has two blocks: **Settings** (who it is for, the course, the minimum score and the call's PDF) and **Calendar** (the dates, in the order of the process). EMS fills in the four deadlines after closing from the closing date, at 14:00, and shows them folded under **Deadlines after closing**: click it to see or change them.
 
-The call's tabs are in two blocks: **Selection** (modalities, documents, information for applicants, panel and resolutions) and **Mobility** (destinations, mobility documents, commitment letter, checklist and weekly self-assessment). The buttons at the top follow the call's phase, the latest first: before the definitive resolution, the ranking and the interviews (or plan ratings); then the mobilities and place offers; the claims, from the provisional resolution. A tie to draw is warned at the top of the call.
+| Deadline | When EMS sets it | 2026-27 call (closes on Friday 20/11) |
+|---|---|---|
+| Corrections deadline | 7 days after closing | Friday 27/11, 14:00 |
+| Score correction deadline | 14 days after closing | Friday 04/12, 14:00 |
+| Claims deadline | 19 days after closing | Wednesday 09/12, 14:00 |
+| Acceptance deadline | 25 days after closing | Tuesday 15/12, 14:00 |
 
-**Modalities** tab: one line per selection list with its own places, for example *GM* and *GS*. In **Levels** choose the levels whose students apply in that modality (for example *CFGM* for GM, and *CFGS* and the specialisation courses for GS, whose students go on the higher education project). Any student whose main group is of one of those levels can apply, whatever their year. Also fill in the project, places, period and destinations.
+A deadline that falls on a weekend, a holiday or a school break moves to the next school day. If you change the closing date, the deadlines follow it, except the ones you changed by hand. If the dates do not follow the order of the process (for example a claims deadline before the applications close), the call warns you at the top; it lets you save it anyway.
+
+![The call's Settings and Calendar blocks, with the deadlines unfolded](../../assets/erasmus/convocatoria-calendari.png)
+
+> Replies to the emails EMS sends without anyone of the team sending them (receipts and reminders) go to the Erasmus+ mailbox in **Settings > EMS Management > Center Data > Erasmus+** (erasmus@elpuig.xeill.net), the same for every call. EMS emails students at their school address (the Puig one), not the personal one (only the electronic signature request goes there, see [Preparing the mobilities](mobility-preparation.md)): a student without it gets no Erasmus+ email, and the application says so in its history. The family gets its copies at its own address.
+
+The call's tabs are in two blocks: **Selection** (modalities, documents, information for applicants, panel and resolutions) and **Mobility** (destinations, mobility documents, commitment letter, checklist and weekly self-assessment). The **Mobility** block only appears once the definitive resolution is published: it is for the selected, and a new call already brings what it needs, so to open a call you only see **Selection**. The buttons at the top follow the call's phase, the latest first: before the definitive resolution, the ranking and the interviews (or plan ratings); then the mobilities and place offers; the claims, from the provisional resolution. A tie to draw is warned at the top of the call.
+
+**Modalities** tab: one line per selection list with its own places, for example *GM* and *GS*. In **Levels** choose the levels whose students apply in that modality (for example *CFGM* for GM, and *CFGS* and the specialisation courses for GS, whose students go on the higher education project). Any student whose main group is of one of those levels can apply, whatever their year. Also fill in the places. EMS sets the project from the levels (CFGM on KA121-VET; CFGS and the specialisation courses on KA131-HED); the actual project of each person is chosen on their mobility. The real destinations, with their dates and places, go in the **Destinations** tab of the **Mobility** block, before opening the destination choice.
 
 **Documents** tab: one line per document the call asks for, with its **Requirement**:
 
@@ -41,9 +55,14 @@ Tick **Confidential** for documents only the Erasmus team may see, such as the e
 
 **One file** (ticked by default): only the newest file the student uploads counts; the earlier ones are kept and shown as *Earlier version*, and the receipt lists only the newest. Untick it for a document with several files, such as the language certificates (one per language). **Model to download**: a file the student (and the family of a minor) downloads from the portal, fills in and hands in, for example the family authorisation.
 
-The default documents, the checklist and the questions are already on a new call before you save it; if you change **Applicants**, they change to those of the staff call (or the students' call).
+The default documents, the checklist and the questions are already on a new call before you save it; if you change **Applicants**, they change to those of the staff call (or the students' call). These default texts (documents, steps, questions, commitment letter) are saved in Catalan, Spanish and English, whoever creates the call: each student, family or teacher reads them in their own language. Calls created before keep their texts as they were.
 
-**Information for applicants** tab: the text shown on the portal above the form.
+> **Watch out:** when you edit one of these texts, check the other languages too with the field's language button (e.g. **CA**). Otherwise whoever reads in another language keeps seeing the old text.
+
+**Information for applicants** tab: the text shown on the portal above the form. Click in the text and the editor's toolbar appears. To paste an information card prepared elsewhere (for example with the portal's colours and boxes), use the **`</>`** button (code view) at the end of the toolbar (1), paste its HTML code there and press the button again to go back to the editor: the card keeps its design. Pasting the card directly into the editor loses it.
+
+![The code view button in the editor](../../assets/erasmus/convocatoria-informacio-codi.png)
+
 
 > **Tip:** next year, open this call and use **Duplicate**: the modalities and documents are copied.
 
@@ -53,13 +72,18 @@ In **Actions**, click **Publish**. The call appears on the portal of every stude
 
 ## Notify who can apply
 
-Publishing sends no email. To tell everyone who can apply, click **Actions > Notify who can apply**: EMS shows how many people will get it (and how many have no email address, who will not) and sends it when you click **Send the notice**. It is the same rule as the portal: in a students' call, the students of the levels of its modalities, except those with too many conduct warnings; in a staff call, the teachers of its levels and the Direction that validates the activities. Each person receives their own email, with the call's dates and the link to apply. The family does not receive it. You can send it before the call opens; if you send it again (for example after adding a level), everybody receives it again: the assistant warns you.
+Publishing tells nobody. To tell everyone who can apply, click **Actions > Notify who can apply**: EMS shows how many people will get it and sends it when you click **Send the notice**. It is the same rule as the portal: in a students' call, the students of the levels of its modalities; in a staff call, the teachers of its levels and the Direction that validates the activities.
 
-**Reminder before closing:** in **Reminder (days before closing)** (3 by default), EMS emails, that many days before the closing date and from 9:00, whoever can apply and has not submitted an application yet (a draft does not count). It is sent once, and only if the notice was sent from EMS. Set it to 0 for no reminder. The call shows when each email was sent and to how many people.
+- **Students' call:** each student receives their own email, with the call's dates and the link to apply, at their school address (the Puig one), never the personal one. Students without a school address don't receive it: the assistant tells you how many. The family does not receive it.
+- **Staff call:** no separate email. The notice goes in each person's next [daily summary](../teachers/daily-summary.md), at the moment they chose in their profile (by default, the start of their working day), with the closing date and where to apply.
+
+You can send it before the call opens; if you send it again (for example after adding a level), everybody receives it again: the assistant warns you.
+
+**Reminder before closing:** in **Reminder (days before closing)** (3 by default), EMS reminds whoever can apply and has not submitted an application yet (a draft does not count), that many days before the closing date and from 9:00, the same way as the notice. It is sent once, and only if the notice was sent from EMS. Set it to 0 for no reminder. The call shows when each one was sent and to how many people.
 
 ## 3. Review the applications
 
-Go to **Erasmus+ > Calls > Applications** (or the **Applications** button on the call, which groups them by modality). Filters: *To review*, *Corrections requested*, *Admitted*, *Excluded*. **Documents to review** counts the files waiting for your check (a draft not submitted yet does not count).
+Go to **Erasmus+ > Calls > Applications**, grouped by call, with each application's score and position once they exist (or the **Applications** button on the call, which groups them by modality). Filters: *To review*, *Corrections requested*, *Admitted*, *Excluded*. **Documents to review** counts the files waiting for your check (a draft not submitted yet does not count).
 
 Open an application:
 

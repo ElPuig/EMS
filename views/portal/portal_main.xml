@@ -31,7 +31,7 @@
                      class="alert alert-warning d-flex justify-content-between align-items-center mt-3 o_ems_walkout_banner">
                     <span t-if="_walkout.state == 'voting'">Your group votes on a student walkout on <strong t-field="_walkout.walkout_date"/>.</span>
                     <span t-else="">Your group supports the student walkout on <strong t-field="_walkout.walkout_date"/>: say whether you join it.</span>
-                    <a t-attf-href="/my/vagues/#{_walkout.id}" class="btn btn-primary btn-sm ms-3">Answer</a>
+                    <a t-attf-href="/my/vagues/#{_walkout.id}" class="btn btn-primary btn-sm ms-3">Answer it</a>
                 </div>
 
                 <!-- Issue #800: a family asked to ratify that its minor child joins a walkout. -->
@@ -39,7 +39,7 @@
                 <div t-foreach="_ems_walkout_ratify or []" t-as="_line"
                      class="alert alert-warning d-flex justify-content-between align-items-center mt-3 o_ems_walkout_ratify_banner">
                     <span><strong t-esc="_line.student_id.name"/> joins the student walkout on <strong t-field="_line.walkout_id.walkout_date"/>: do you ratify it?</span>
-                    <a href="/my/vagues" class="btn btn-primary btn-sm ms-3">Answer</a>
+                    <a href="/my/vagues" class="btn btn-primary btn-sm ms-3">Answer it</a>
                 </div>
 
                 <div t-if="request.env.user.share" class="mt-3">

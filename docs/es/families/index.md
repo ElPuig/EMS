@@ -21,6 +21,7 @@ Esta sección contiene los manuales para **familias y alumnos**.
 | [Solicitar unas prácticas Erasmus+](manual-erasmus.md) | Cómo solicitar unas prácticas Erasmus+ en el extranjero, seguir la solicitud, ver los resultados y aceptar la plaza |
 | [Inscribirse en una movilidad de grupo Erasmus+](manual-erasmus-grup.md) | Cómo inscribirse desde el portal con un clic, ver el resultado y, si te seleccionan, entregar los documentos |
 | [Revisar los datos de contacto](manual-dades-contacte.md) | Cómo revisar y completar los datos de contacto del alumno y de la familia en el portal |
+| [Huelgas de estudiantes](manual-vagues.md) | Cómo un grupo convoca y vota una huelga, cómo cada alumno se suma y cómo la familia de un alumno menor lo ratifica |
 
 ---
 

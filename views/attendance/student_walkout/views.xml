@@ -13,7 +13,7 @@
                     <field name="walkout_date"/>
                     <field name="group_id"/>
                     <field name="opener_id"/>
-                    <field name="join_until"/>
+                    <field name="join_until" options="{'show_seconds': False}"/>
                     <field name="group_supports" widget="boolean" optional="show"/>
                     <field name="joining_count" optional="show"/>
                     <field name="state" widget="badge"
@@ -64,11 +64,11 @@
                                 <field name="group_ids" widget="many2many_tags"/>
                                 <field name="opener_id"/>
                                 <field name="walkout_date"/>
-                                <field name="walkout_start"/>
-                                <field name="vote_start"/>
-                                <field name="vote_until"/>
-                                <field name="join_start" invisible="not join_start"/>
-                                <field name="join_until" invisible="not join_until"/>
+                                <field name="walkout_start" options="{'show_seconds': False}"/>
+                                <field name="vote_start" options="{'show_seconds': False}"/>
+                                <field name="vote_until" options="{'show_seconds': False}"/>
+                                <field name="join_start" invisible="not join_start" options="{'show_seconds': False}"/>
+                                <field name="join_until" invisible="not join_until" options="{'show_seconds': False}"/>
                                 <field name="attachment_ids" widget="many2many_binary"/>
                             </group>
                             <group>
@@ -81,7 +81,7 @@
                                 <field name="pdf_attachment_id" invisible="not pdf_attachment_id"/>
                                 <field name="head_of_studies_id" invisible="not head_of_studies_id"/>
                                 <field name="rejected_by_id" invisible="not rejected_by_id"/>
-                                <field name="rejected_datetime" invisible="not rejected_datetime"/>
+                                <field name="rejected_datetime" invisible="not rejected_datetime" options="{'show_seconds': False}"/>
                                 <field name="justification_id" invisible="not justification_id"/>
                             </group>
                         </group>

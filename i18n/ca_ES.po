@@ -1799,7 +1799,6 @@ msgstr "Marc d'origen"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment_answer__text
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_staff_self_assessment_wizard_line__text
-#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "Answer"
 msgstr "Resposta"
 
@@ -2566,8 +2565,6 @@ msgstr "Cancel·la"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__econ_state__cancelled
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__econ_state__cancelled
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
-#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__cancelled
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
 msgid "Cancelled"
 msgstr "Cancel·lat"
 
@@ -8310,7 +8307,6 @@ msgstr "Rebutjar"
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__rejected
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
-#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__rejected
 msgid "Rejected"
 msgstr "Rebutjat"
 
@@ -20041,8 +20037,6 @@ msgstr "Com"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__justified_count model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence_line__state__justified
 #: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__justified
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
-#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__justified
-#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__rejected_from_state__justified
 msgid "Justified"
 msgstr "Justificat"
 
@@ -21270,7 +21264,6 @@ msgstr "Validar el justificant de l'absència"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__eu_survey_state__validated
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_eu_survey__eu_survey_state__validated
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__eu_survey_state__validated
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
 msgid "Validated"
 msgstr "Validat"
 
@@ -50848,8 +50841,8 @@ msgstr "Si hi dona suport, cada alumne diu si s'hi suma,"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
-msgid "If you call it now, the walkout can be on"
-msgstr "Si la convoques ara, la vaga pot ser com a molt aviat el"
+msgid "If you call it now, the earliest day the walkout can be on is"
+msgstr "Si la convoques ara, el primer dia possible de la vaga és el"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -50934,11 +50927,6 @@ msgstr "No tenies accés al portal quan es va convocar la votació, així que no
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
 msgid "Your group votes whether it supports the walkout from"
 msgstr "El teu grup vota si dona suport a la vaga des del"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
-msgid "at the earliest."
-msgstr "."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
@@ -51775,3 +51763,30 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "joins the student walkout on"
 msgstr "se suma a la vaga del"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+msgid "Answer it"
+msgstr "Respon"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__cancelled
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
+msgid "Cancelled"
+msgstr "Anul·lada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__rejected
+msgid "Rejected"
+msgstr "Rebutjada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__justified
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__rejected_from_state__justified
+msgid "Justified"
+msgstr "Justificada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
+msgid "Validated"
+msgstr "Validada"

@@ -35,6 +35,7 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 - [Organising Absences](../department_chiefs/absences.md) — Sending guards, rearranging the lessons and telling the families about a timetable change when a teacher is away.
 - [A Student's Public and Private Notes](../teachers/student-notes.md) — Where every teacher reads a student's public notes, and who can read and write the private tutoring ones.
 - [Erasmus+: checking the projects' economy](erasmus-economy.md) — The Director reads every Erasmus+ project's grant, commitments, payments, expenses and organisational support, and exports it to Excel.
+- [Student walkouts: validating them](student-walkout.md) — The minute when a call closes, and validating it (justifying the absences of those who join it) or not.
 
 ---
 

@@ -3,7 +3,7 @@
 from dateutil.relativedelta import relativedelta
 from markupsafe import Markup
 
-from odoo import _, api, fields, models
+from odoo import SUPERUSER_ID, _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import format_date
 
@@ -105,9 +105,11 @@ class EmsStudentWalkout(models.Model):
 
     @api.depends('group_id.name', 'walkout_date')
     def _compute_name(self):
+        # In the centre's language, whoever opens it: the name is stored and names the minute.
+        centre = self.env['res.company']._ems_centre_env()
         for walkout in self:
             walkout.name = walkout.group_id.name and walkout.walkout_date and \
-                f"{walkout.group_id.name} - {format_date(self.env, walkout.walkout_date)}"
+                f"{walkout.group_id.name} - {format_date(centre, walkout.walkout_date)}"
 
     @api.depends('walkout_date')
     def _compute_walkout_start(self):
@@ -356,14 +358,6 @@ class EmsStudentWalkout(models.Model):
         yes, no = self.group_yes_count, self.group_no_count
         return to_come <= 0 or yes > no + to_come or yes + to_come <= no
 
-    def _ems_latest_minute(self):
-        """When the minute reaches the Head of Studies at the latest: the group vote taking its whole
-        phase and the joining another."""
-        self.ensure_one()
-        if self.join_until:
-            return self.join_until
-        return self._ems_phase(self.group_ids, self.vote_until, self.phase_hours)[1]
-
     def _ems_wake_cron_at(self, moment):
         """Runs the deadlines cron exactly when a phase ends (the hourly run is only the safety net)."""
         cron = self.env.ref('ems.ir_cron_student_walkout_deadlines', raise_if_not_found=False)
@@ -502,7 +496,7 @@ class EmsStudentWalkout(models.Model):
         or Deputy Head of Studies, Director), any Head of Studies when the group has no tutor, or an
         administrator."""
         self.ensure_one()
-        if self.get_user_is_admin():
+        if self.get_user_is_top_admin():
             return True
         tutors = self.group_ids.tutor_id
         if not tutors:
@@ -551,7 +545,7 @@ class EmsStudentWalkout(models.Model):
             raise UserError(_("Explain the reason in the details: %(reason)s", reason=reason.name))
         previous = self.state
         if self.justification_id:
-            self.justification_id.unlink()
+            self._ems_justifications('unlink').browse(self.justification_id.id).unlink()
         walkout = self.sudo()
         walkout.write({'state': 'rejected', 'rejected_by_id': self.env.uid, 'rejected_datetime': fields.Datetime.now(),
                        'rejection_reason_id': reason.id, 'rejection_details': details or False,
@@ -582,6 +576,14 @@ class EmsStudentWalkout(models.Model):
 
     # Justifying
 
+    def _ems_justifications(self, operation):
+        """The justifications to create or remove the walkout's one with, as the user deciding (whom
+        _ems_check_reject / _ems_user_may_justify already allowed). The system administrator, above
+        Direction, has no justification rights of their own: for them, as the superuser."""
+        justifications = self.env['ems.attendance_justification']
+        # with_user, not sudo: the justification's own checks read env.user (get_user_is_admin).
+        return justifications if justifications.has_access(operation) else justifications.with_user(SUPERUSER_ID)
+
     def _ems_has_something_to_justify(self):
         self.ensure_one()
         return self.state == 'closed' and self.group_supports and bool(self.justifiable_student_ids)
@@ -590,7 +592,7 @@ class EmsStudentWalkout(models.Model):
         """A Head of Studies, Deputy Head of Studies or Director above every student who joins
         (tutor scope), or an administrator."""
         self.ensure_one()
-        if self.get_user_is_admin():
+        if self.get_user_is_top_admin():
             return True
         return self.env.user.has_group('ems.group_head_of_studies') and \
             self.env['ems.attendance_justification']._user_may_justify(self.justifiable_student_ids)
@@ -605,7 +607,7 @@ class EmsStudentWalkout(models.Model):
         if not self._ems_user_may_justify():
             raise UserError(_("Only the Head of Studies, the Deputy Head of Studies or the Director of these "
                               "students, or an administrator, can justify a student walkout."))
-        Justification = self.env['ems.attendance_justification']
+        Justification = self._ems_justifications('create')
         period = Justification._whole_day_vals(self.walkout_date)
         # Adults, and minors whose family ratified it (Decret 102/2010, art. 24.2).
         joining = self.justifiable_student_ids
@@ -633,7 +635,9 @@ class EmsStudentWalkout(models.Model):
         if skipped:
             walkout._message_log(body=_("Not justified again, they already had a justification that day: %(names)s",
                                         names=", ".join(skipped.mapped('name'))))
-        return justification and justification.get_formview_action()
+        if justification and self.env['ems.attendance_justification'].has_access('read'):
+            return justification.get_formview_action()
+        return False
 
     def action_open_justification(self):
         self.ensure_one()

@@ -35,6 +35,7 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 - [Organizar las ausencias](../department_chiefs/absences.md) — Enviar guardias, reorganizar las clases y avisar a las familias de un cambio de horario cuando falta un docente.
 - [Notas públicas y notas privadas del alumno](../teachers/student-notes.md) — Dónde todo el profesorado lee las notas públicas de un alumno, y quién puede leer y escribir las privadas de tutoría.
 - [Erasmus+: consultar la economía de los proyectos](erasmus-economy.md) — La dirección consulta la subvención, los compromisos, los pagos, los gastos y el apoyo organizativo de cada proyecto Erasmus+, y los exporta a Excel.
+- [Huelgas de estudiantes: validarlas](student-walkout.md) — El acta cuando se cierra una convocatoria, y validarla (justificar la falta de quienes se suman) o no.
 
 ---
 

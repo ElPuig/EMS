@@ -197,6 +197,7 @@ On a strike day, the figures for the Departament's form you fill in about every 
 2. Each row is a time slot of the day that has already started. For each staff type and contract type there are two figures:
    - **On strike**: whoever has not checked in at all that day, counted from the first slot of their own schedule that has started. They keep counting in the following slots: each figure adds up the earlier ones.
    - **Expected to work**: whoever had a slot of their schedule started by then.
+   The **Total** row adds up every slot, and since each slot already includes the earlier ones, it means nothing: ignore it. The figure to report is the last slot's.
 3. Click a figure to see the names behind it, or switch to the list. The download button exports the table to a spreadsheet.
 
 Not counted as on strike:

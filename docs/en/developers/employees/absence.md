@@ -1256,6 +1256,9 @@ list) and the xlsx download the Director relies on. `ems.staff_strike_report` (t
 Lines are built in one batch: about 1,500 lines for a day of this dev database, 0.33 s cold.
 The lines are computed once, on **Show**, so reloading the pivot shows them again: today's title
 carries the time they were read at (`_get_title`), which is what tells the Director they are stale.
+The pivot's **Total** row sums cumulative rows and is meaningless; the developer chose to keep the
+cumulative rows and document that the row is to be ignored (2026-11-11) rather than per-employee
+lines (whose total would be meaningful) or a custom pivot hiding it.
 
 **Reuse:** the absence intervals come from `ems.course._get_guard_duty_leave_intervals`, extracted
 from the guard duty board's `_get_guard_duty_absence_intervals` (which adds the detected absences

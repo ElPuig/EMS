@@ -195,6 +195,7 @@ Un dia de vaga, les xifres del formulari del Departament que cal emplenar aproxi
 2. Cada fila és una franja del dia que ja ha començat. Per a cada col·lectiu i tipus de contracte hi ha dues xifres:
    - **En vaga**: qui no ha fitxat en tot el dia, comptat des de la primera franja del seu horari que ha començat. Continua comptant en les franges següents: cada xifra acumula les anteriors.
    - **Havien de treballar**: qui tenia una franja del seu horari ja començada en aquell moment.
+   La fila **Total** suma totes les franges i, com que cada franja ja inclou les anteriors, no té sentit: no en facis cas. La xifra que cal informar és la de l'última franja.
 3. Fes clic a una xifra per veure els noms, o canvia a la vista de llista. El botó de baixada exporta la taula a un full de càlcul.
 
 No compten com a vaga:

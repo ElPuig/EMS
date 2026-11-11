@@ -310,6 +310,7 @@
             'views/attendance/absence/public_holiday.xml',
             'views/attendance/absence/menu.xml',
             'views/attendance/absence/monthly_report.xml',
+            'views/attendance/absence/staff_walkout_report.xml',
             'views/attendance/absence/absence_pending.xml',
             'reports/attendance/report_guard_duty_board.xml',
 

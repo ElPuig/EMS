@@ -128,6 +128,8 @@ overlapping ones.
 
 ## `create()` / `write()` / `unlink()`: syncing with session lines
 
+A line whose student came despite the justification (`came_despite_justification`, issue #811, see `attendance_session.md`) keeps its attendance status when the justification is removed: `remove_justification()` only clears the link, the notes and the flag. `perform_justification()` always clears the flag.
+
 ```mermaid
 flowchart TD
     A["create()"] --> B["_check_permissions() or raise"]

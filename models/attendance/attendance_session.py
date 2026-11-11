@@ -3,6 +3,8 @@
 import logging
 from collections import defaultdict
 
+from markupsafe import Markup
+
 from odoo import models, fields, api, _
 from ..shared import base
 from .attendance_schedule import EmsAttendanceSchedule
@@ -11,6 +13,9 @@ from odoo.exceptions import ValidationError, UserError, AccessError
 from psycopg2 import IntegrityError
 
 _logger = logging.getLogger(__name__)
+
+# What a justified line can be switched to, besides justified itself (issue #811): only the ordinary absence stays locked.
+JUSTIFIED_OVERRIDE_TARGETS = ('attended', 'delayed', 'delayed_severe')
 
 class EmsAttendanceSessionHeader(models.Model):
     _name = "ems.attendance_session_header"
@@ -697,6 +702,9 @@ class EmsAttendanceSessionLine(models.Model):
     attendance_session_id = fields.Many2one(string="Session", comodel_name="ems.attendance_session_header", ondelete="cascade")
     attendance_justification_id = fields.Many2one(string="Justification", comodel_name="ems.attendance_justification")
     attendance_prevision_id = fields.Many2one(string="Prevision", comodel_name="ems.attendance_justification")
+    # Issue #811: a justified absence the student ended up attending anyway. The line keeps its
+    # justification (and its notes), so undoing it is just putting the justified status back.
+    came_despite_justification = fields.Boolean(string="Came despite the justification", copy=False)
 
     # This field is used to filter the availabe students within the view (avoiding the selection of repeated students on attendance session form).
     inuse_student_ids = fields.Many2many('res.partner', compute='_compute_inuse_student_ids', store=False)
@@ -767,6 +775,76 @@ class EmsAttendanceSessionLine(models.Model):
             if (not line.status_id.roll_call_selectable
                     and not (line.attendance_justification_id or line.attendance_prevision_id)):
                 raise ValidationError(_("Only the student's tutor can justify an absence, by registering a justification."))
+
+    # --- a justified student comes to class after all (issue #811) --------------------------------
+    # Not a mail.thread on the line nor a new status: the line has no chatter, and a status of its
+    # own would lose the original one (and its category/notifiable flags) that going back must restore.
+
+    @api.model
+    def get_justified_override_statuses(self):
+        """What the roll-call offers on a justified line (issue #811): the ids of the justified
+        status and of every status it can be switched to. The ordinary absence stays locked."""
+        statuses = {xmlid: self.env.ref(f'ems.attendance_status_{xmlid}').id
+                    for xmlid in ('justified', *JUSTIFIED_OVERRIDE_TARGETS)}
+        return {'justified': statuses['justified'], 'allowed': list(statuses.values())}
+
+    @api.model
+    def change_justified_status(self, line_id, status_id, guard=False):
+        """The student of a justified line came to class (or not after all): switches the line
+        between justified, attended, minor delay and severe delay, keeping its justification
+        and notes, and tells the student's tutor in their daily summary. Going back to
+        justified is the undo."""
+        line = self._line_to_override_justification(line_id, guard)
+        justified = self.env.ref('ems.attendance_status_justified')
+        status = self.env['ems.attendance_status'].browse(status_id)
+        if not (line.attendance_justification_id or line.attendance_prevision_id) \
+                or not (line.came_despite_justification or line.status_id == justified):
+            raise UserError(_("Only a justified absence can be changed to attendance."))
+        if status.id not in self.get_justified_override_statuses()['allowed']:
+            raise UserError(_("A justified absence can only be changed to an attendance, a delay or a severe delay."))
+        if status == line.status_id:
+            return True
+        line.write({'status_id': status.id, 'came_despite_justification': status != justified})
+        if status == justified:
+            line._queue_tutor_notice(lambda tutor_line: tutor_line.env._(
+                "The attendance of %(student)s on %(date)s (%(session)s) has been undone: the absence is justified again.",
+                student=tutor_line.student_id.name, date=tutor_line.attendance_session_id.date,
+                session=tutor_line.attendance_session_id.display_name))
+        else:
+            line._queue_tutor_notice(lambda tutor_line: tutor_line.env._(
+                "%(student)s, whose absence was justified, came to class (%(status)s) on %(date)s (%(session)s).",
+                student=tutor_line.student_id.name, status=status.with_context(lang=tutor_line.env.lang).name,
+                date=tutor_line.attendance_session_id.date, session=tutor_line.attendance_session_id.display_name))
+        return True
+
+    @api.model
+    def _line_to_override_justification(self, line_id, guard):
+        """The line (sudo when the user may act on it without owning its session), if they may:
+        an administrator, a guard teacher in guard mode, or whoever the line's own record rules let
+        write it (the session's teacher, the student's tutor and the chiefs above them, issue #483)."""
+        line = self.browse(line_id).exists()
+        user = self.env.user
+        if not line:
+            raise UserError(_("The line does not exist any more."))
+        if user.has_group('ems.group_academic_admin') or user.has_group('base.group_system'):
+            return line.sudo()
+        if guard:
+            if not user.has_group('ems.group_teacher'):
+                raise AccessError(_("Guard mode requires teacher access."))
+            return line.sudo()
+        line.check_access('write')
+        return line
+
+    def _queue_tutor_notice(self, compose):
+        """Tells the student's tutor, in their next daily summary (never an email on the spot).
+        `compose(line)` writes the sentence in the tutor's language (the line comes with their lang)."""
+        self.ensure_one()
+        student = self.sudo().student_id
+        tutor_user = (student.tutor_id or student.main_group_id.tutor_id).user_id
+        if tutor_user:
+            self.env['ems.info_notice']._ems_queue(
+                tutor_user, student, lambda user: Markup("<p>{}</p>").format(
+                    compose(self.sudo().with_context(lang=user.lang or self.env.lang))))
 
     def _justification_vals(self):
         """This line's own vals, shaped for ems.attendance_justification.perform_justification() -
@@ -850,10 +928,13 @@ class EmsAttendanceSessionLine(models.Model):
             else:
                 if not self.status_is_notificable():
                     # 1.1. If not notified yet, just remove.
-                    # NOTE: also removes the notification.
-                    issue_tutor = previous_issue_status.attendance_issue_student_id.attendance_issue_tutor_id
-                    previous_issue_status.unlink()
-                    issue_tutor.remove_if_empty()
+                    # NOTE: also removes the notification. Except a rectification still pending
+                    # (issue #811): the family was told about the absence, so the correction must
+                    # still reach them, whatever the line moved to afterwards (justified, then attended).
+                    if not previous_issue_status.rectification:
+                        issue_tutor = previous_issue_status.attendance_issue_student_id.attendance_issue_tutor_id
+                        previous_issue_status.unlink()
+                        issue_tutor.remove_if_empty()
                 else:
                     # 2.1. If not notified yet, update the notification data.
                     previous_issue_status.write({

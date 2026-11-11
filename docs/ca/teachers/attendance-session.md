@@ -76,7 +76,7 @@ Desar.
 
 - Una icona d'escut al costat del nom de l'alumne indica que la seva absència ja està
   **justificada** (una justificació aprovada o una previsió cobreix aquesta sessió) — el seu estat
-  i les notes queden bloquejats, ja que és la justificació la que ho decideix.
+  i les notes queden bloquejats, ja que és la justificació la que ho decideix. L'única excepció: si l'alumne ha vingut a classe, pots canviar la línia entre **Assistència**, **Retard lleu**, **Retard greu** i **Falta justificada**; només la **Falta** normal continua bloquejada. En deixar la falta justificada, un avís et demana confirmar-ho, el tutor de l'alumne ho veu al seu resum diari i la línia mostra una marca de verificació. Per tornar enrere, clica de nou **Falta justificada**: la justificació i les seves notes no s'havien perdut.
 - El botó **Falta justificada** no es pot clicar si el centre no ho permet: només el tutor de
   l'alumne justifica una falta, registrant-ne una justificació. Passa-hi el ratolí per sobre per
   veure'n el motiu. Marca l'alumne com a **Falta** i la justificació del tutor la convertirà en
@@ -87,7 +87,7 @@ Desar.
   tanca quan apartes el ratolí. En una tauleta o pantalla tàctil, toca la foto per ampliar-la i
   torna-la a tocar per tancar-la.
 
-![Sessió actual amb els botons d'estat, una nota i un alumne amb absència justificada (escut) i un de tret de la llista (última fila)](../../assets/teachers/passlist-01-assistencia-actual.png)
+![Sessió actual amb els botons d'estat, una nota i un alumne amb absència justificada (escut), un de justificat que ha vingut a classe (marca de verificació) i un de tret de la llista (última fila)](../../assets/teachers/passlist-01-assistencia-actual.png)
 
 ---
 

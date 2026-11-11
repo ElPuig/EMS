@@ -32,7 +32,7 @@ Salvo que el centro lo permita en su configuración, una justificación es la ú
 
 La pestaña **Sesiones afectadas** muestra, para cada alumno, las sesiones del período en las que tenía una falta o un retraso grave.
 
-En el pase de lista, las líneas justificadas muestran un escudo y el docente ya no puede cambiarlas. Su nota indica quién las ha justificado ("Falta justificada por: ..." o "Retraso grave justificado por: ...").
+En el pase de lista, las líneas justificadas muestran un escudo y el docente ya no puede cambiarlas, salvo que el alumno haya venido a clase después de todo (Asistencia, Retraso leve o Retraso grave). Entonces lo ves en tu resumen diario, y el docente puede volver a Falta justificada en cualquier momento. Su nota indica quién las ha justificado ("Falta justificada por: ..." o "Retraso grave justificado por: ...").
 
 Un alumno no puede tener dos justificantes con períodos que se solapen. Al añadir un grupo, los alumnos que ya tienen uno no se añaden, y un mensaje te indica cuáles son. Si añades uno a mano, un aviso amarillo lo indica: quítalo de la lista para poder guardar.
 

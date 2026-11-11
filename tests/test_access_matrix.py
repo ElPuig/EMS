@@ -19,6 +19,12 @@ ACCESS_MATRIX = {
     # administrators delete one; everybody else discards it (Discard, for its reviewers).
     'ems.absence_pending': {
         'teacher': 'r', 'department_chief': 'rwc', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
+    # Issue #813: the walkout report is the Director's (and the administrator's, above them), who
+    # reports the figures to the Departament; nobody else sees who is on walkout.
+    'ems.staff_walkout_report': {
+        'teacher': '', 'head_of_studies': '', 'secretary': '', 'director': 'rwc', 'academic_admin': 'rwc'},
+    'ems.staff_walkout_report.line': {
+        'teacher': '', 'head_of_studies': '', 'secretary': '', 'director': 'rc', 'academic_admin': 'rc'},
     # Issue #707: "Prepare justification" from the list, for whoever reviews detected absences; who
     # may review each entry is checked when it runs (ems.absence_pending._ems_review).
     'ems.absence_pending.leave_wizard': {

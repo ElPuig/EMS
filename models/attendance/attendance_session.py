@@ -800,8 +800,7 @@ class EmsAttendanceSessionLine(models.Model):
         if not (line.attendance_justification_id or line.attendance_prevision_id) \
                 or not (line.came_despite_justification or line.status_id == justified):
             raise UserError(_("Only a justified absence can be changed to attendance."))
-        if status != justified and status not in self.env['ems.attendance_status'].browse(
-                self.get_justified_override_statuses()['allowed']):
+        if status.id not in self.get_justified_override_statuses()['allowed']:
             raise UserError(_("A justified absence can only be changed to an attendance, a delay or a severe delay."))
         if status == line.status_id:
             return True

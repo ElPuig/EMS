@@ -87,7 +87,7 @@ Desar.
   tanca quan apartes el ratolí. En una tauleta o pantalla tàctil, toca la foto per ampliar-la i
   torna-la a tocar per tancar-la.
 
-![Sessió actual amb els botons d'estat, una nota i un alumne amb absència justificada (escut) i un de tret de la llista (última fila)](../../assets/teachers/passlist-01-assistencia-actual.png)
+![Sessió actual amb els botons d'estat, una nota i un alumne amb absència justificada (escut), un de justificat que ha vingut a classe (marca de verificació) i un de tret de la llista (última fila)](../../assets/teachers/passlist-01-assistencia-actual.png)
 
 ---
 

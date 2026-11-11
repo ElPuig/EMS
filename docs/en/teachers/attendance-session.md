@@ -88,7 +88,7 @@ status for that session — it's saved immediately, no need to click a separate 
   move the mouse away. On a tablet or touch screen, tap the photo to enlarge it and tap it again to
   close it.
 
-![Current session with the status buttons, a note, and a student with a justified absence (shield) and one removed from the roll-call (last row)](../../assets/teachers/passlist-01-assistencia-actual.png)
+![Current session with the status buttons, a note, and a student with a justified absence (shield), one who is justified but came to class (check mark) and one removed from the roll-call (last row)](../../assets/teachers/passlist-01-assistencia-actual.png)
 
 ---
 

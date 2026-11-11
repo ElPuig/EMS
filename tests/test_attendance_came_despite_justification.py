@@ -9,7 +9,7 @@ from .common import create_head_of_studies_branch, create_level_study, create_ro
 
 class TestAttendedDespiteJustification(TransactionCase):
     """Issue #811: a justified student comes to class after all (ems.attendance_session_line
-    attend_despite_justification / undo_attend_despite_justification)."""
+    change_justified_status)."""
 
     @classmethod
     def setUpClass(cls):
@@ -75,10 +75,6 @@ class TestAttendedDespiteJustification(TransactionCase):
         return self.env['ems.info_notice'].sudo().search([
             ('user_id', '=', self.tutor_user.id), ('res_model', '=', 'res.partner'), ('res_id', '=', self.student.id)])
 
-    def test_justified_line_is_justified(self):
-        self.assertEqual(self.line.status_id, self.justified)
-        self.assertEqual(self.line.attendance_justification_id, self.justification)
-
     def test_attending_keeps_the_justification_and_tells_the_tutor(self):
         self._attend()
         self.assertEqual(self.line.status_id, self.attended)
@@ -88,31 +84,17 @@ class TestAttendedDespiteJustification(TransactionCase):
         self.assertEqual(len(notices), 1)
         self.assertIn('Came Despite Student', notices.body)
 
-    def test_a_delay_is_allowed(self):
-        self._attend(status=self.env.ref('ems.attendance_status_delayed'))
-        self.assertEqual(self.line.status_id, self.env.ref('ems.attendance_status_delayed'))
-
     def test_only_the_ordinary_absence_stays_locked(self):
         with self.assertRaises(UserError):
             self._attend(status=self.env.ref('ems.attendance_status_miss'))
         self.assertEqual(self.line.status_id, self.justified)
         self.assertFalse(self.line.came_despite_justification)
 
-    def test_a_severe_delay_is_allowed(self):
-        severe = self.env.ref('ems.attendance_status_delayed_severe')
-        self._attend(status=severe)
-        self.assertEqual(self.line.status_id, severe)
-        self.assertTrue(self.line.came_despite_justification)
-
     def test_switching_between_options_needs_no_undo(self):
         for xmlid in ('attended', 'delayed_severe', 'delayed', 'attended'):
             self._attend(status=self.env.ref(f'ems.attendance_status_{xmlid}'))
             self.assertEqual(self.line.status_id, self.env.ref(f'ems.attendance_status_{xmlid}'))
             self.assertTrue(self.line.came_despite_justification)
-        # ... and back to the justified absence, with its justification and notes.
-        self._attend(status=self.justified)
-        self.assertFalse(self.line.came_despite_justification)
-        self.assertEqual(self.line.attendance_justification_id, self.justification)
 
     def test_a_justified_severe_delay_stays_locked(self):
         # Justifying a severe delay leaves a minor delay that is itself the justified state.
@@ -125,7 +107,7 @@ class TestAttendedDespiteJustification(TransactionCase):
         with self.assertRaises(UserError):
             self._attend()
 
-    def test_undo_puts_the_justified_absence_back(self):
+    def test_going_back_to_justified_is_the_undo(self):
         self._attend()
         self._attend(status=self.justified)
         self.assertEqual(self.line.status_id, self.justified)

@@ -87,7 +87,7 @@ Guardar.
   cierra al apartar el ratón. En una tableta o pantalla táctil, toca la foto para ampliarla y vuelve
   a tocarla para cerrarla.
 
-![Sesión actual con los botones de estado, una nota y un alumno con ausencia justificada (escudo) y uno quitado de la lista (última fila)](../../assets/teachers/passlist-01-assistencia-actual.png)
+![Sesión actual con los botones de estado, una nota y un alumno con ausencia justificada (escudo), uno justificado que ha venido a clase (marca de verificación) y uno quitado de la lista (última fila)](../../assets/teachers/passlist-01-assistencia-actual.png)
 
 ---
 

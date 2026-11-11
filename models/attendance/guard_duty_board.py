@@ -420,7 +420,7 @@ class EmsCourseGuardDutyBoard(models.Model):
     def _get_guard_duty_leave_intervals(self, day, employees):
         """`{employee.id: [(hour_from, hour_to, state)]}` - the absence requests of `employees`
         covering `day` that are approved or waiting for approval (ABSENCE_STATES), in the company's
-        hours. Also what the staff strike report takes as justified (issue #813). sudo: see
+        hours. Also what the staff walkout report takes as justified (issue #813). sudo: see
         _get_guard_duty_absence_intervals."""
         leaves = self.env['hr.leave'].sudo().search([
             ('employee_id', 'in', employees.ids),

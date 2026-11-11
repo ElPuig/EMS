@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Regenerates the screenshot of the staff strike report in the Director's absences manual (issue
+"""Regenerates the screenshot of the staff walkout report in the Director's absences manual (issue
 #813). Tagged '-standard' on purpose - see the NOTE in test_docs_screenshots.py. Run it by hand:
 
-    sudo -u odoo bash -c "odoo -d ems -u ems --test-enable --test-tags='*/ems:TestDocsScreenshotsStaffStrike' --stop-after-init -c /etc/odoo/odoo.conf"
+    sudo -u odoo bash -c "odoo -d ems -u ems --test-enable --test-tags='*/ems:TestDocsScreenshotsStaffWalkout' --stop-after-init -c /etc/odoo/odoo.conf"
 
 Writes the PNG to /tmp/ems_doc_screenshots (override with EMS_SCREENSHOT_DIR); copy it into
 docs/assets/head_of_studies/ by hand afterwards.
@@ -16,7 +16,7 @@ from .common import (
 
 
 @tagged('-standard', 'ems_screenshots', 'post_install', '-at_install')
-class TestDocsScreenshotsStaffStrike(HttpCase, DocsScreenshotMixin):
+class TestDocsScreenshotsStaffWalkout(HttpCase, DocsScreenshotMixin):
 
     @classmethod
     def setUpClass(cls):
@@ -60,14 +60,14 @@ class TestDocsScreenshotsStaffStrike(HttpCase, DocsScreenshotMixin):
             'request_date_from': day, 'request_date_to': day, 'ems_full_day': True,
             'ems_submitted': True, 'ems_responsible_declaration': True})
         leave.sudo().state = 'validate'
-        report = cls.env['ems.staff_strike_report'].with_user(cls.director).create({'date': day})
+        report = cls.env['ems.staff_walkout_report'].with_user(cls.director).create({'date': day})
         opened = report.action_open_report()
         cls.action = cls.env['ir.actions.act_window'].create({
             'name': opened['name'], 'res_model': opened['res_model'], 'view_mode': 'pivot,list',
             'domain': opened['domain'],
         })
 
-    def test_capture_staff_strike_report(self):
+    def test_capture_staff_walkout_report(self):
         self._capture(
-            '/odoo/action-%d' % self.action.id, '.o_pivot table', 'hos-staff-strike-report.png',
+            '/odoo/action-%d' % self.action.id, '.o_pivot table', 'hos-staff-walkout-report.png',
             login='doc_shot_director', wait_for='.o_pivot td.o_pivot_cell_value', viewport_width=1700)

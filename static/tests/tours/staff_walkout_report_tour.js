@@ -4,9 +4,9 @@ import { registry } from "@web/core/registry";
 
 // Issue #813: the Director chooses a day in the dialog and the figures open as a pivot (one row
 // per period, one column per staff type and contract type), whose figures open the names.
-registry.category("web_tour.tours").add("ems_staff_strike_report", {
+registry.category("web_tour.tours").add("ems_staff_walkout_report", {
     test: true,
-    url: "/odoo/action-ems.action_staff_strike_report",
+    url: "/odoo/action-ems.action_staff_walkout_report",
     steps: () => [
         {
             trigger: ".modal .o_field_widget[name='date'] input",
@@ -31,7 +31,7 @@ registry.category("web_tour.tours").add("ems_staff_strike_report", {
             run: "click",
         },
         {
-            trigger: ".o_list_view .o_data_row:contains('0000 TSSR Tour Striker')",
+            trigger: ".o_list_view .o_data_row:contains('0000 TSSR Tour Walker')",
             content: "The teacher who never checked in is on the list",
         },
     ],

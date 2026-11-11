@@ -3,17 +3,17 @@
     <data>
 
         <!-- Issue #813: the day is chosen in a dialog, the figures open as a pivot of the lines
-             computed for it (see models/employees/strike_report.py). -->
-        <record id="view_staff_strike_report_form" model="ir.ui.view">
-            <field name="name">ems.staff_strike_report.form</field>
-            <field name="model">ems.staff_strike_report</field>
+             computed for it (see models/employees/staff_walkout_report.py). -->
+        <record id="view_staff_walkout_report_form" model="ir.ui.view">
+            <field name="name">ems.staff_walkout_report.form</field>
+            <field name="model">ems.staff_walkout_report</field>
             <field name="arch" type="xml">
-                <form string="Staff strikes">
+                <form string="Staff walkouts">
                     <group>
                         <field name="date"/>
                     </group>
                     <p class="text-muted">
-                        Staff on strike so far that day: whoever has not checked in at all, counted
+                        Staff on walkout so far that day: whoever has not checked in at all, counted
                         from the first period of their schedule that has started. Those with an
                         absence request covering it (approved or waiting for approval) are not
                         counted, and every figure adds up the earlier ones.
@@ -26,44 +26,44 @@
             </field>
         </record>
 
-        <record id="view_staff_strike_report_line_pivot" model="ir.ui.view">
-            <field name="name">ems.staff_strike_report.line.pivot</field>
-            <field name="model">ems.staff_strike_report.line</field>
+        <record id="view_staff_walkout_report_line_pivot" model="ir.ui.view">
+            <field name="name">ems.staff_walkout_report.line.pivot</field>
+            <field name="model">ems.staff_walkout_report.line</field>
             <field name="arch" type="xml">
-                <pivot string="Staff strikes">
+                <pivot string="Staff walkouts">
                     <field name="period" type="row"/>
                     <field name="employee_type" type="col"/>
                     <field name="contract_type_id" type="col"/>
-                    <field name="on_strike" type="measure"/>
-                    <field name="not_on_strike" type="measure"/>
+                    <field name="on_walkout" type="measure"/>
+                    <field name="not_on_walkout" type="measure"/>
                     <field name="expected" type="measure"/>
-                    <field name="strike_percentage" type="measure"/>
+                    <field name="walkout_percentage" type="measure"/>
                 </pivot>
             </field>
         </record>
 
-        <record id="view_staff_strike_report_line_list" model="ir.ui.view">
-            <field name="name">ems.staff_strike_report.line.list</field>
-            <field name="model">ems.staff_strike_report.line</field>
+        <record id="view_staff_walkout_report_line_list" model="ir.ui.view">
+            <field name="name">ems.staff_walkout_report.line.list</field>
+            <field name="model">ems.staff_walkout_report.line</field>
             <field name="arch" type="xml">
-                <list string="Staff strikes" create="0" edit="0" delete="0">
+                <list string="Staff walkouts" create="0" edit="0" delete="0">
                     <field name="period"/>
                     <field name="employee_id" widget="many2one_avatar_employee"/>
                     <field name="employee_type"/>
                     <field name="contract_type_id"/>
-                    <field name="on_strike" sum="On strike"/>
+                    <field name="on_walkout" sum="On walkout"/>
                 </list>
             </field>
         </record>
 
-        <record id="view_staff_strike_report_line_search" model="ir.ui.view">
-            <field name="name">ems.staff_strike_report.line.search</field>
-            <field name="model">ems.staff_strike_report.line</field>
+        <record id="view_staff_walkout_report_line_search" model="ir.ui.view">
+            <field name="name">ems.staff_walkout_report.line.search</field>
+            <field name="model">ems.staff_walkout_report.line</field>
             <field name="arch" type="xml">
                 <search>
                     <field name="employee_id"/>
                     <field name="period"/>
-                    <filter name="on_strike" string="On strike" domain="[('on_strike', '=', 1)]"/>
+                    <filter name="on_walkout" string="On walkout" domain="[('on_walkout', '=', 1)]"/>
                     <group>
                         <filter name="group_period" string="Period" context="{'group_by': 'period'}"/>
                         <filter name="group_employee_type" string="Staff" context="{'group_by': 'employee_type'}"/>
@@ -73,16 +73,16 @@
             </field>
         </record>
 
-        <record id="action_staff_strike_report" model="ir.actions.act_window">
-            <field name="name">Staff strikes</field>
-            <field name="res_model">ems.staff_strike_report</field>
+        <record id="action_staff_walkout_report" model="ir.actions.act_window">
+            <field name="name">Staff walkouts</field>
+            <field name="res_model">ems.staff_walkout_report</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>
         </record>
 
-        <menuitem id="menu_staff_strike_report" name="Staff strikes" sequence="2"
+        <menuitem id="menu_staff_walkout_report" name="Staff walkouts" sequence="2"
                   parent="hr_holidays.menu_hr_holidays_report"
-                  action="action_staff_strike_report" groups="ems.group_director"/>
+                  action="action_staff_walkout_report" groups="ems.group_director"/>
 
     </data>
 </odoo>

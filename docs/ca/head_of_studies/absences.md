@@ -201,7 +201,7 @@ Un dia de vaga, les xifres del formulari del Departament que cal emplenar aproxi
    La fila **Total** suma totes les franges i, com que cada franja ja inclou les anteriors, no té sentit: no en facis cas. La xifra que cal informar és la de l'última franja.
 3. Fes clic a una xifra per veure els noms, o canvia a la vista de llista. El botó de baixada exporta la taula a un full de càlcul.
 
-![Informe de vagues: una fila per franja i, per a cada col·lectiu i tipus de contracte, En vaga, No vaga, Havien de treballar i % vaga](../../assets/head_of_studies/hos-staff-strike-report.png)
+![Informe de vagues: una fila per franja i, per a cada col·lectiu i tipus de contracte, En vaga, No vaga, Havien de treballar i % vaga](../../assets/head_of_studies/hos-staff-walkout-report.png)
 
 No compten com a vaga:
 

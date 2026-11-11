@@ -17,7 +17,7 @@
 5. [Undoing a decision](#undoing-a-decision)
 6. [Per-employee report](#per-employee-report)
 7. [Monthly report](#monthly-report)
-8. [Staff strikes](#staff-strikes)
+8. [Staff walkouts](#staff-walkouts)
 9. [Detected absences](#detected-absences)
 
 ---
@@ -187,27 +187,27 @@ To change the period, remove the **Current Course** filter and pick the one you 
 
 ---
 
-## Staff strikes
+## Staff walkouts
 
-**Absences > Reporting > Staff strikes**, only for the Director.
+**Absences > Reporting > Staff walkouts**, only for the Director.
 
-On a strike day, the figures for the Departament's form you fill in about every hour: how many members of staff (teachers and administrative and services staff) are on strike so far, separately for each contract type.
+On a walkout day, the figures for the Departament's form you fill in about every hour: how many members of staff (teachers and administrative and services staff) are on walkout so far, separately for each contract type.
 
 1. Choose the day (today by default, or a day already over) and click **Show**.
 2. Each row is a time slot of the day that has already started. For each staff type and contract type there are four figures:
-   - **On strike**: whoever has not checked in at all that day, counted from the first slot of their own schedule that has started. They keep counting in the following slots: each figure adds up the earlier ones.
-   - **Not on strike**: whoever was expected to work and has checked in or is on a justified absence.
+   - **On walkout**: whoever has not checked in at all that day, counted from the first slot of their own schedule that has started. They keep counting in the following slots: each figure adds up the earlier ones.
+   - **Not on walkout**: whoever was expected to work and has checked in or is on a justified absence.
    - **Expected to work**: whoever had a slot of their schedule started by then.
-   - **% on strike**: the share of those expected to work who are on strike.
+   - **% on walkout**: the share of those expected to work who are on walkout.
 
    The **Total** row adds up every slot, and since each slot already includes the earlier ones, it means nothing: ignore it. The figure to report is the last slot's.
 3. Click a figure to see the names behind it, or switch to the list. The download button exports the table to a spreadsheet.
 
-![Staff strike report: one row per time slot and, for each staff type and contract type, On strike, Not on strike, Expected to work and % on strike](../../assets/head_of_studies/hos-staff-strike-report.png)
+![Staff walkout report: one row per time slot and, for each staff type and contract type, On walkout, Not on walkout, Expected to work and % on walkout](../../assets/head_of_studies/hos-staff-walkout-report.png)
 
-Not counted as on strike:
+Not counted as on walkout:
 
-- Whoever has an absence request covering that slot, approved or waiting for approval (sick leave, permissions, training...): they count as not on strike.
+- Whoever has an absence request covering that slot, approved or waiting for approval (sick leave, permissions, training...): they count as not on walkout.
 - Whoever has checked in at any time of the day, even late.
 
 Today's figures are those at the moment you click **Show**, and the title says that time. Reloading the page shows the same figures again: to update them, open the report again from the menu.

@@ -10,8 +10,8 @@ from .common import create_role_user, make_working_day, mock_outgoing_email, shi
 PERIODS = ((8.0, 9.0), (9.0, 10.0), (10.0, 11.0), (12.0, 13.0))
 
 
-class TestStaffStrikeReport(TransactionCase):
-    """Issue #813: the staff on strike so far on a day, per staff type and contract type, as
+class TestStaffWalkoutReport(TransactionCase):
+    """Issue #813: the staff on walkout so far on a day, per staff type and contract type, as
     pivot lines: one per period already started and per member of staff expected to work by then."""
 
     @classmethod
@@ -57,53 +57,53 @@ class TestStaffStrikeReport(TransactionCase):
         return leave
 
     def _lines(self, day=None):
-        """`{employee: {start: on_strike}}` of the report for `day`, opened as the Director, each line
+        """`{employee: {start: on_walkout}}` of the report for `day`, opened as the Director, each line
         keyed by the start of its period (the periods of this database's own staff split them too)."""
-        report = self.env['ems.staff_strike_report'].with_user(self.director).create({'date': day or self.yesterday})
+        report = self.env['ems.staff_walkout_report'].with_user(self.director).create({'date': day or self.yesterday})
         action = report.action_open_report()
         lines = self.env[action['res_model']].with_user(self.director).search(action['domain'])
         result = {}
         for line in lines:
-            result.setdefault(line.employee_id, {})[line.period[:5]] = line.on_strike
+            result.setdefault(line.employee_id, {})[line.period[:5]] = line.on_walkout
         return result
 
     def test_who_never_checks_in_counts_from_their_first_period_on(self):
-        striker = self._employee('TSSR Striker', contract_type_id=self.civil_servant.id)
+        walker = self._employee('TSSR Walker', contract_type_id=self.civil_servant.id)
         afternoon = self._employee('TSSR Afternoon', periods=((12.0, 13.0),), contract_type_id=self.interim.id)
 
         lines = self._lines()
 
-        self.assertEqual(min(lines[striker]), '08:00')
-        self.assertEqual(set(lines[striker].values()), {1})
+        self.assertEqual(min(lines[walker]), '08:00')
+        self.assertEqual(set(lines[walker].values()), {1})
         # Still counted in a gap of their schedule and after it: the figure is cumulative.
-        self.assertEqual(lines[striker]['11:00'], 1)
+        self.assertEqual(lines[walker]['11:00'], 1)
         # Not expected before their first period: no line until then.
         self.assertEqual(min(lines[afternoon]), '12:00')
 
-    def test_checking_in_at_any_time_is_no_strike(self):
-        """Arriving late may be because of the strike, which is no strike: they are expected but
+    def test_checking_in_at_any_time_is_no_walkout(self):
+        """Arriving late may be because of the walkout, which is no walkout: they are expected but
         never counted, not even in the periods before their arrival."""
         late = self._employee('TSSR Late')
         self._check_in(late, 10.5)
 
         self.assertEqual(set(self._lines()[late].values()), {0})
 
-    def test_each_cell_has_the_strikers_the_others_and_the_percentage(self):
-        striker = self._employee('TSSR Percentage Striker')
+    def test_each_cell_has_the_walkers_the_others_and_the_percentage(self):
+        walker = self._employee('TSSR Percentage Walker')
         present = self._employee('TSSR Percentage Present')
         self._check_in(present, 8.0)
 
-        report = self.env['ems.staff_strike_report'].with_user(self.director).create({'date': self.yesterday})
+        report = self.env['ems.staff_walkout_report'].with_user(self.director).create({'date': self.yesterday})
         report.action_open_report()
-        groups = self.env['ems.staff_strike_report.line']._read_group(
-            [('id', 'in', report.line_ids.ids), ('employee_id', 'in', (striker | present).ids),
+        groups = self.env['ems.staff_walkout_report.line']._read_group(
+            [('id', 'in', report.line_ids.ids), ('employee_id', 'in', (walker | present).ids),
              ('period', '=like', '08:00%')],
-            [], ['on_strike:sum', 'not_on_strike:sum', 'expected:sum', 'strike_percentage:avg'])
+            [], ['on_walkout:sum', 'not_on_walkout:sum', 'expected:sum', 'walkout_percentage:avg'])
 
         self.assertEqual(groups, [(1, 1, 2, 50.0)])
 
-    def test_an_absence_request_is_no_strike_in_its_periods(self):
-        """Whoever is on a justified absence is expected to work and counts as not on strike."""
+    def test_an_absence_request_is_no_walkout_in_its_periods(self):
+        """Whoever is on a justified absence is expected to work and counts as not on walkout."""
         whole_day = self._employee('TSSR Sick Leave')
         self._leave(whole_day, state='validate')
         first_period = self._employee('TSSR Doctor')
@@ -115,12 +115,12 @@ class TestStaffStrikeReport(TransactionCase):
 
         self.assertEqual(min(lines[whole_day]), '08:00')
         self.assertEqual(set(lines[whole_day].values()), {0})
-        # Waiting for approval counts as much as approved: on strike only from 9:00.
+        # Waiting for approval counts as much as approved: on walkout only from 9:00.
         self.assertEqual((lines[first_period]['08:00'], lines[first_period]['09:00']), (0, 1))
         self.assertEqual(lines[refused]['08:00'], 1)
 
     def test_a_detected_absence_does_not_take_its_periods_out(self):
-        """The day of a strike, the absence detected for a missing check-in is the strike itself."""
+        """The day of a walkout, the absence detected for a missing check-in is the walkout itself."""
         detected = self._employee('TSSR Detected')
         self.Pending.create({
             'employee_id': detected.id, 'origin': 'check_in',
@@ -133,27 +133,27 @@ class TestStaffStrikeReport(TransactionCase):
         staff = self._employee('TSSR Concierge', employee_type='asp', contract_type_id=self.interim.id)
         vacancy = self._employee('TSSR Vacancy', schedule_import_code='TSSR1')
 
-        report = self.env['ems.staff_strike_report'].with_user(self.director).create({'date': self.yesterday})
+        report = self.env['ems.staff_walkout_report'].with_user(self.director).create({'date': self.yesterday})
         report.action_open_report()
 
         line = report.line_ids.filtered(lambda line: line.employee_id == staff)[:1]
         self.assertEqual((line.employee_type, line.contract_type_id), ('asp', self.interim))
-        # A vacancy has a schedule but nobody to strike.
+        # A vacancy has a schedule but nobody to walk out.
         self.assertNotIn(vacancy, report.line_ids.employee_id)
 
     def test_today_only_counts_the_periods_already_started(self):
-        striker = self._employee('TSSR Striker Today')
+        walker = self._employee('TSSR Walker Today')
 
         lines = self._lines(self.today)
         # Reloading the page shows the same lines again: the title says when they were read.
-        report = self.env['ems.staff_strike_report'].with_user(self.director).create({'date': self.today})
+        report = self.env['ems.staff_walkout_report'].with_user(self.director).create({'date': self.today})
         self.assertRegex(report.action_open_report()['name'], r' 10:\d\d$')
 
         # 10:00 on the shifted clock: the 10:00 period has just started, the 12:00 one has not.
-        self.assertEqual((min(lines[striker]), max(lines[striker])), ('08:00', '10:00'))
+        self.assertEqual((min(lines[walker]), max(lines[walker])), ('08:00', '10:00'))
 
     def test_no_report_for_a_day_to_come_or_without_anyone_expected(self):
-        report = self.env['ems.staff_strike_report'].with_user(self.director)
+        report = self.env['ems.staff_walkout_report'].with_user(self.director)
         with self.assertRaises(UserError):
             report.create({'date': self.today + timedelta(days=1)}).action_open_report()
         # A Sunday: nobody has a period.

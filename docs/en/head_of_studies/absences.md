@@ -199,8 +199,11 @@ On a strike day, the figures for the Departament's form you fill in about every 
    - **Not on strike**: whoever was expected to work and has checked in or is on a justified absence.
    - **Expected to work**: whoever had a slot of their schedule started by then.
    - **% on strike**: the share of those expected to work who are on strike.
+
    The **Total** row adds up every slot, and since each slot already includes the earlier ones, it means nothing: ignore it. The figure to report is the last slot's.
 3. Click a figure to see the names behind it, or switch to the list. The download button exports the table to a spreadsheet.
+
+![Staff strike report: one row per time slot and, for each staff type and contract type, On strike, Not on strike, Expected to work and % on strike](../../assets/head_of_studies/hos-staff-strike-report.png)
 
 Not counted as on strike:
 

@@ -3,13 +3,9 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
+from ..attendance.absence_coverage import overlaps
 from ..shared.schedule_report_mixin import HOUR_EPSILON
 from .employee import employee_types
-
-
-def _overlaps(start, stop, intervals):
-    """Whether (start, stop) shares any time with one of `intervals` ((start, stop, ...) tuples)."""
-    return any(other[0] < stop and other[1] > start for other in intervals)
 
 
 class EmsStaffStrikeReport(models.TransientModel):
@@ -97,7 +93,8 @@ class EmsStaffStrikeReport(models.TransientModel):
             if not started:
                 continue
             expected[employee.id] = min(start for start, _stop in started)
-            missed = [start for start, stop in started if not _overlaps(start, stop, leaves.get(employee.id, ()))]
+            missed = [start for start, stop in started
+                      if not any(overlaps(start, stop, *leave[:2]) for leave in leaves.get(employee.id, ()))]
             if missed and employee.id not in arrivals:
                 on_strike[employee.id] = min(missed)
         return expected, on_strike

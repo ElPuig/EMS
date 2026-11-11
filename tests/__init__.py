@@ -346,3 +346,4 @@ from . import test_erasmus_polish_default_data
 from . import test_erasmus_polish_default_data_tour
 from . import test_staff_strike_report
 from . import test_staff_strike_report_tour
+from . import test_docs_screenshots_staff_strike

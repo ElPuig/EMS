@@ -1269,7 +1269,7 @@ on top). Not to be confused with `ems.strike` (Coexistence: the students' strike
 
 | Role | `ems.staff_strike_report` | `ems.staff_strike_report.line` | Menu |
 |---|---|---|---|
-| Director (and `academic_admin`, which implies it) | rwc | rwcu | yes |
+| Director (and `academic_admin`, which implies it) | rwc | rc (the lines are never edited) | yes |
 | Anyone else | - | - | no |
 
 The data is read with `sudo()` inside the helpers; only names, staff type, contract type and the

@@ -197,8 +197,11 @@ Un día de huelga, las cifras del formulario del Departament que hay que rellena
    - **No huelga**: quien debía trabajar y ha fichado o tiene una ausencia justificada.
    - **Debían trabajar**: quien tenía una franja de su horario ya empezada en ese momento.
    - **% huelga**: el porcentaje de quien debía trabajar que está en huelga.
+
    La fila **Total** suma todas las franjas y, como cada franja ya incluye las anteriores, no tiene sentido: no le hagas caso. La cifra que hay que informar es la de la última franja.
 3. Haz clic en una cifra para ver los nombres, o cambia a la vista de lista. El botón de descarga exporta la tabla a una hoja de cálculo.
+
+![Informe de huelgas: una fila por franja y, para cada colectivo y tipo de contrato, En huelga, No huelga, Debían trabajar y % huelga](../../assets/head_of_studies/hos-staff-strike-report.png)
 
 No cuentan como huelga:
 

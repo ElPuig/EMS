@@ -24,7 +24,7 @@ ACCESS_MATRIX = {
     'ems.staff_strike_report': {
         'teacher': '', 'head_of_studies': '', 'secretary': '', 'director': 'rwc', 'academic_admin': 'rwc'},
     'ems.staff_strike_report.line': {
-        'teacher': '', 'head_of_studies': '', 'secretary': '', 'director': 'rwcu', 'academic_admin': 'rwcu'},
+        'teacher': '', 'head_of_studies': '', 'secretary': '', 'director': 'rc', 'academic_admin': 'rc'},
     # Issue #707: "Prepare justification" from the list, for whoever reviews detected absences; who
     # may review each entry is checked when it runs (ems.absence_pending._ems_review).
     'ems.absence_pending.leave_wizard': {

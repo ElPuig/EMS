@@ -1570,6 +1570,7 @@ msgstr "Personal de Sdministración y Servicios"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_role__employee_type__asp model:ir.model.fields.selection,name:ems.selection__hr_employee__employee_type__asp model:ir.model.fields.selection,name:ems.selection__hr_job__employee_type__asp
+#: model:ir.model.fields.selection,name:ems.selection__ems_staff_strike_report_line__employee_type__asp
 msgid "Administrative and Services Personnel"
 msgstr "Personal Administrativo y de Servicios"
 
@@ -2513,6 +2514,7 @@ msgstr "Puede editar"
 #: code:addons/ems/static/src/xml/backend/guard_duty_board.xml:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_correct_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_bank_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_strike_report_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -2908,6 +2910,8 @@ msgstr "Contenido: aquello en lo que el estudiante debe trabajar."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_employee__contract_type_id model:ir.model.fields,field_description:ems.field_hr_employee_base__contract_type_id model:ir.model.fields,field_description:ems.field_hr_employee_public__contract_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report_line__contract_type_id
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_strike_report_line_search
 msgid "Contract Type"
 msgstr "Tipo de contrato"
 
@@ -3210,6 +3214,8 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report_line__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -3361,6 +3367,8 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report_line__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3491,6 +3499,7 @@ msgstr "Datos descargados"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_line__date
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report__date
 msgid "Date"
 msgstr "Fecha"
 
@@ -3827,6 +3836,8 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report_line__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -4156,6 +4167,7 @@ msgstr "Emergencia"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__employee_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__employee_id
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report_line__employee_id
 msgid "Employee"
 msgstr "Empleado"
 
@@ -5401,6 +5413,8 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__id
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report__id
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report_line__id
 msgid "ID"
 msgstr "ID"
 
@@ -6135,6 +6149,8 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report_line__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -6286,6 +6302,8 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report_line__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -7739,6 +7757,8 @@ msgstr "Pendiente de revisión"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_modality__period
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report_line__period
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_strike_report_line_search
 msgid "Period"
 msgstr "Período"
 
@@ -9686,6 +9706,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__employee_id
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
+#: model:ir.model.fields.selection,name:ems.selection__ems_staff_strike_report_line__employee_type__teacher
 msgid "Teacher"
 msgstr "Profesor"
 
@@ -32427,6 +32448,7 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__line_ids
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report__line_ids
 msgid "Lines"
 msgstr "Líneas"
 
@@ -33260,6 +33282,8 @@ msgstr "La ve la comisión"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_quality_panel__participant_type__staff
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_satisfaction__participant_type__staff
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_search
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report_line__employee_type
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_strike_report_line_search
 msgid "Staff"
 msgstr "Personal"
 
@@ -49489,3 +49513,81 @@ msgstr "Se puede reabrir el documento"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application_document__can_reopen
 msgid "A complete document the team can put back to review (the same action)."
 msgstr "Un documento completo que el equipo puede volver a poner en revisión (es la misma acción)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_strike_report.py:0
+msgid "%s is a public holiday."
+msgstr "%s es un día festivo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_strike_report.py:0
+msgid "Choose today or a day already over."
+msgstr "Elige hoy o un día que ya haya pasado."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report_line__expected
+msgid "Expected to work"
+msgstr "Debían trabajar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_strike_report.py:0
+msgid "Nobody was expected to work on this day yet."
+msgstr "Todavía no había nadie que tuviera que trabajar este día."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report_line__on_strike
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_strike_report_line_list
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_strike_report_line_search
+msgid "On strike"
+msgstr "En huelga"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report_line__report_id
+msgid "Report"
+msgstr "Informe"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_strike_report_form
+msgid "Show"
+msgstr "Mostrar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_strike_report_form
+msgid ""
+"Staff on strike so far that day: whoever has not checked in at all, counted\n"
+"                        from the first period of their schedule that has started. Those with an\n"
+"                        absence request covering it (approved or waiting for approval) are not\n"
+"                        counted, and every figure adds up the earlier ones."
+msgstr ""
+"Personal en huelga hasta ahora ese día: quien no ha fichado en todo el día, "
+"contado desde la primera franja de su horario que ha empezado. No cuenta "
+"quien tiene una solicitud de ausencia que la cubre (aprobada o pendiente de "
+"aprobar), y cada cifra acumula las anteriores."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_staff_strike_report
+msgid "Staff strike report"
+msgstr "Informe de huelgas del personal"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_staff_strike_report_line
+msgid "Staff strike report line"
+msgstr "Línea del informe de huelgas del personal"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_staff_strike_report
+#: model:ir.ui.menu,name:ems.menu_staff_strike_report
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_strike_report_form
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_strike_report_line_list
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_strike_report_line_pivot
+msgid "Staff strikes"
+msgstr "Huelgas"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_strike_report.py:0
+msgid "Staff strikes on %s"
+msgstr "Huelga del %s"

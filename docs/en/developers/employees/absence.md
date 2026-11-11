@@ -492,6 +492,7 @@ reminder they receive (no menu entry), so their "Absences" stays a single click.
 | Reporting, Configuration | native groups | Unchanged |
 | Management > Requested absences | `group_hr_holidays_responsible` | EMS entry on Odoo's own `hr_leave_action_action_approve_department`, replacing `hr_holidays.menu_open_department_leave_approve` ("Time Off"), which is archived: next to the detected absences, the name has to say which of the two kinds it lists. Its group is stated explicitly, since Management itself is now wider |
 | Management > Detected absences | `ems.group_department_chief`, `ems.group_academic_admin`, `base.group_system` | Added by EMS, see *Detected absences* |
+| Reporting > Staff strikes | `ems.group_director` | Added by EMS, see *The staff strike report* |
 
 The action behind My Time Off also drops Odoo's default `search_default_group_date_from`: the
 centre's own list is short and already sorted by date, so grouping it by month only buries a
@@ -1222,6 +1223,49 @@ for a record whose `create()` values mention any one of the fields it assigns.**
 request with `ems_full_day` set - an import, an API client, the guard-duty automation to come -
 therefore left `ems_counts_hours` false and quietly dropped that absence out of the monthly
 report. Nothing fails; the number is just wrong.
+
+## The staff strike report
+
+`Absences > Reporting > Staff strikes` (`ems.action_staff_strike_report`, issue #813), Director
+only: the figures the Director reports to the Departament about every hour of a strike day, per
+staff type and contract type. Nobody declares the strike in EMS; it is inferred.
+
+```mermaid
+flowchart LR
+    D[Dialog: date] -->|Show| G[_get_line_values]
+    G --> P[_ems_scheduled_periods<br/>own schedule, right week]
+    G --> A[_ems_first_check_in_hours<br/>no technical attendances]
+    G --> L[_get_guard_duty_leave_intervals<br/>requests confirm/validate1/validate]
+    G --> X[ems.staff_strike_report.line<br/>one per started period x expected employee]
+    X --> V[pivot: period x staff type x contract type<br/>On strike / Expected to work]
+```
+
+| Rule | Why |
+|---|---|
+| Staff: `employee_type` teacher or asp with their own schedule (`resource.calendar.employee_id`); vacancies (`schedule_import_code`) left out | Without a schedule nothing says when they were expected; a vacancy has a schedule but nobody to strike |
+| Expected from the start of their first period already started that no absence request covers | Someone on sick leave or a permission is not expected, so not part of either figure |
+| On strike: expected and **no check-in at all that day** (technical attendances aside), from that same hour | A late arrival may be caused by the strike itself, which is no strike (developer, 2026-11-11); the delay is justified separately |
+| Absence requests approved or waiting for approval exclude; refused/cancelled don't; detected absences (`ems.absence_pending`) don't | The day of a strike, a detected absence for a missing check-in is the strike |
+| Cumulative: a line per period already started (`hour_from <= now`) for everyone expected by then | The Departament's form asks for the strikers so far; today's future periods have no line |
+| Rows: every bound of every scheduled period that day, as the guard duty board does | ESO/BTX and vocational periods start at different times |
+
+**Why a pivot of transient lines and not a custom table:** the columns (one per contract type)
+depend on the data, and the pivot already gives the names behind each figure (drill-down to the
+list) and the xlsx download the Director relies on. `ems.staff_strike_report` (the date) owns its
+`ems.staff_strike_report.line`s through `report_id`; both are `TransientModel`s, vacuumed by Odoo.
+Lines are built in one batch: about 1,500 lines for a day of this dev database, 0.33 s cold.
+
+**Reuse:** the absence intervals come from `ems.course._get_guard_duty_leave_intervals`, extracted
+from the guard duty board's `_get_guard_duty_absence_intervals` (which adds the detected absences
+on top). Not to be confused with `ems.strike` (Coexistence: the students' strikes, i.e. warnings).
+
+| Role | `ems.staff_strike_report` | `ems.staff_strike_report.line` | Menu |
+|---|---|---|---|
+| Director (and `academic_admin`, which implies it) | rwc | rwcu | yes |
+| Anyone else | - | - | no |
+
+The data is read with `sudo()` inside the helpers; only names, staff type, contract type and the
+two figures leave them.
 
 ## Who gets told
 

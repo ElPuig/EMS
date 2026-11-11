@@ -398,21 +398,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         """
         if not day or not employees:
             return {}
-        leaves = self.env['hr.leave'].sudo().search([
-            ('employee_id', 'in', employees.ids),
-            ('state', 'in', list(ABSENCE_STATES)),
-            ('request_date_from', '<=', day),
-            ('request_date_to', '>=', day),
-        ])
-        intervals = defaultdict(list)
-        for leave in leaves:
-            # 'request_unit_hours' rather than 'ems_full_day': it is the field that actually
-            # decides whether request_hour_from/to carry anything (see hr.leave's own
-            # _compute_request_unit_hours and EMS's override of it), and a multi-day request is
-            # a whole day on each of its days regardless of how it was filled in.
-            partial = leave.request_unit_hours and leave.request_date_from == leave.request_date_to
-            hours = (leave.request_hour_from, leave.request_hour_to) if partial else WHOLE_DAY
-            intervals[leave.employee_id.id].append((*hours, ABSENCE_STATES[leave.state]))
+        intervals = self._get_guard_duty_leave_intervals(day, employees)
         # An absence the Head of Studies already knows about but the teacher has not filed yet
         # (issue #509) reads as a pending one, under review or waiting for the teacher's
         # justification (issue #707). Once resolved, it is left out: a filed request above is all
@@ -428,6 +414,29 @@ class EmsCourseGuardDutyBoard(models.Model):
         if unchecked:
             for employee_id, interval in self._get_unchecked_intervals(day, employees).items():
                 intervals[employee_id].append(interval)
+        return intervals
+
+    @api.model
+    def _get_guard_duty_leave_intervals(self, day, employees):
+        """`{employee.id: [(hour_from, hour_to, state)]}` - the absence requests of `employees`
+        covering `day` that are approved or waiting for approval (ABSENCE_STATES), in the company's
+        hours. Also what the strike report leaves out (issue #813). sudo: see
+        _get_guard_duty_absence_intervals."""
+        leaves = self.env['hr.leave'].sudo().search([
+            ('employee_id', 'in', employees.ids),
+            ('state', 'in', list(ABSENCE_STATES)),
+            ('request_date_from', '<=', day),
+            ('request_date_to', '>=', day),
+        ])
+        intervals = defaultdict(list)
+        for leave in leaves:
+            # 'request_unit_hours' rather than 'ems_full_day': it is the field that actually
+            # decides whether request_hour_from/to carry anything (see hr.leave's own
+            # _compute_request_unit_hours and EMS's override of it), and a multi-day request is
+            # a whole day on each of its days regardless of how it was filled in.
+            partial = leave.request_unit_hours and leave.request_date_from == leave.request_date_to
+            hours = (leave.request_hour_from, leave.request_hour_to) if partial else WHOLE_DAY
+            intervals[leave.employee_id.id].append((*hours, ABSENCE_STATES[leave.state]))
         return intervals
 
     def _get_unchecked_intervals(self, day, employees):

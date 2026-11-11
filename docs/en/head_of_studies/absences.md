@@ -17,7 +17,8 @@
 5. [Undoing a decision](#undoing-a-decision)
 6. [Per-employee report](#per-employee-report)
 7. [Monthly report](#monthly-report)
-8. [Detected absences](#detected-absences)
+8. [Staff strikes](#staff-strikes)
+9. [Detected absences](#detected-absences)
 
 ---
 
@@ -183,6 +184,29 @@ The **Health hours** column totals each person's `Health` hours. The limit is **
 Grouped by month, with the summed hours and the number of absences behind each. Only absences with **Adds the hours to the monthly report** ticked are included; refused and cancelled ones are left out.
 
 To change the period, remove the **Current Course** filter and pick the one you need.
+
+---
+
+## Staff strikes
+
+**Absences > Reporting > Staff strikes**, only for the Director.
+
+On a strike day, the figures for the Departament's form you fill in about every hour: how many members of staff (teachers and administrative and services staff) are on strike so far, separately for each contract type.
+
+1. Choose the day (today by default, or a day already over) and click **Show**.
+2. Each row is a time slot of the day that has already started. For each staff type and contract type there are two figures:
+   - **On strike**: whoever has not checked in at all that day, counted from the first slot of their own schedule that has started. They keep counting in the following slots: each figure adds up the earlier ones.
+   - **Expected to work**: whoever had a slot of their schedule started by then.
+3. Click a figure to see the names behind it, or switch to the list. The download button exports the table to a spreadsheet.
+
+Not counted as on strike:
+
+- Whoever has an absence request covering that slot, approved or waiting for approval (sick leave, permissions, training...). They are not counted as expected to work either.
+- Whoever has checked in at any time of the day, even late.
+
+Today's figures are those at the moment you open the report: open it again to update them.
+
+Only staff with their own schedule in EMS appear. The contract type is the **Contract Type** field of the employee's form, next to the employee type; whoever does not have one appears under **None**.
 
 ---
 

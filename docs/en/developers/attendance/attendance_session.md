@@ -337,7 +337,7 @@ flowchart LR
 |-----|---------|
 | Session's teacher | Yes, through their own record rules (`check_access('write')`) |
 | Guard teacher (`guard=True`) | Yes, any teacher, the same rule as `write_guard_session_line` |
-| Student's tutor and the chiefs above them (`tutor_scope_user_ids`) | Yes, whoever owns the session |
+| Student's tutor and the chiefs above them | Yes, whoever owns the session: the line's own record rules (`tutor_scope_user_ids`, issue #483) let them write it |
 | Administrator | Yes |
 | Anyone else | `AccessError` |
 

@@ -139,12 +139,36 @@ class TestAttendedDespiteJustification(TransactionCase):
         self._attend()
         self.assertFalse(self._notices())
 
-    def test_no_new_family_notification(self):
+    def _issue_statuses(self):
+        return self.env['ems.attendance_issue_status'].search([('attendance_session_line_id', '=', self.line.id)])
+
+    def _justify_again_after_a_notified_miss(self):
+        """The family was already told about the miss, then the tutor justified it (which sent the
+        family a rectification): the starting point of the case where #811 could notify twice."""
         self.student.student_email = 'came.despite@example.com'
-        before = self.env['ems.attendance_issue_status'].search_count([('attendance_session_line_id', '=', self.line.id)])
+        self.justification.unlink()
+        self.assertEqual(self.line.status_id, self.env.ref('ems.attendance_status_miss'))
+        self._issue_statuses().notification_id.sudo().state = 'done'
+        self.env['ems.attendance_justification'].create({
+            'teacher_id': self.tutor.id, 'student_ids': [(6, 0, self.student.ids)],
+            'start_date': datetime(2026, 1, 5, 9, 0), 'end_date': datetime(2026, 1, 5, 11, 0),
+            'attendance_session_line_ids': [(6, 0, self.line.ids)],
+        })
+        self.assertEqual(self.line.status_id, self.justified)
+
+    def test_attending_after_a_notified_miss_adds_no_second_rectification(self):
+        self._justify_again_after_a_notified_miss()
+        before = self._issue_statuses()
+        self.assertTrue(before.filtered('rectification'))
         self._attend()
-        self.assertEqual(
-            self.env['ems.attendance_issue_status'].search_count([('attendance_session_line_id', '=', self.line.id)]), before)
+        self.assertEqual(self._issue_statuses(), before)
+
+    def test_a_severe_delay_notifies_the_family_like_anywhere_else(self):
+        self.student.student_email = 'came.despite@example.com'
+        self.assertFalse(self._issue_statuses())
+        # By the tutor, who does not own the session: the notification pipeline works for them too.
+        self._attend(user=self.tutor_user, status=self.env.ref('ems.attendance_status_delayed_severe'))
+        self.assertTrue(self._issue_statuses())
 
     def test_removing_the_justification_keeps_the_attendance(self):
         self._attend()

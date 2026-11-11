@@ -820,15 +820,13 @@ class EmsAttendanceSessionLine(models.Model):
     @api.model
     def _line_to_override_justification(self, line_id, guard):
         """The line (sudo when the user may act on it without owning its session), if they may:
-        the session's teacher (their own record rules), a guard teacher in guard mode, the
-        student's tutor or the chiefs above them, or an administrator."""
+        an administrator, a guard teacher in guard mode, or whoever the line's own record rules let
+        write it (the session's teacher, the student's tutor and the chiefs above them, issue #483)."""
         line = self.browse(line_id).exists()
         user = self.env.user
         if not line:
             raise UserError(_("The line does not exist any more."))
         if user.has_group('ems.group_academic_admin') or user.has_group('base.group_system'):
-            return line.sudo()
-        if base.EmsBase.user_acts_as_tutor(line, line.sudo().student_id.tutor_id):
             return line.sudo()
         if guard:
             if not user.has_group('ems.group_teacher'):
@@ -930,10 +928,13 @@ class EmsAttendanceSessionLine(models.Model):
             else:
                 if not self.status_is_notificable():
                     # 1.1. If not notified yet, just remove.
-                    # NOTE: also removes the notification.
-                    issue_tutor = previous_issue_status.attendance_issue_student_id.attendance_issue_tutor_id
-                    previous_issue_status.unlink()
-                    issue_tutor.remove_if_empty()
+                    # NOTE: also removes the notification. Except a rectification still pending
+                    # (issue #811): the family was told about the absence, so the correction must
+                    # still reach them, whatever the line moved to afterwards (justified, then attended).
+                    if not previous_issue_status.rectification:
+                        issue_tutor = previous_issue_status.attendance_issue_student_id.attendance_issue_tutor_id
+                        previous_issue_status.unlink()
+                        issue_tutor.remove_if_empty()
                 else:
                     # 2.1. If not notified yet, update the notification data.
                     previous_issue_status.write({

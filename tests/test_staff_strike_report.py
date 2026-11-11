@@ -88,7 +88,22 @@ class TestStaffStrikeReport(TransactionCase):
 
         self.assertEqual(set(self._lines()[late].values()), {0})
 
-    def test_an_absence_request_takes_its_periods_out(self):
+    def test_each_cell_has_the_strikers_the_others_and_the_percentage(self):
+        striker = self._employee('TSSR Percentage Striker')
+        present = self._employee('TSSR Percentage Present')
+        self._check_in(present, 8.0)
+
+        report = self.env['ems.staff_strike_report'].with_user(self.director).create({'date': self.yesterday})
+        report.action_open_report()
+        groups = self.env['ems.staff_strike_report.line']._read_group(
+            [('id', 'in', report.line_ids.ids), ('employee_id', 'in', (striker | present).ids),
+             ('period', '=like', '08:00%')],
+            [], ['on_strike:sum', 'not_on_strike:sum', 'expected:sum', 'strike_percentage:avg'])
+
+        self.assertEqual(groups, [(1, 1, 2, 50.0)])
+
+    def test_an_absence_request_is_no_strike_in_its_periods(self):
+        """Whoever is on a justified absence is expected to work and counts as not on strike."""
         whole_day = self._employee('TSSR Sick Leave')
         self._leave(whole_day, state='validate')
         first_period = self._employee('TSSR Doctor')
@@ -98,10 +113,10 @@ class TestStaffStrikeReport(TransactionCase):
 
         lines = self._lines()
 
-        self.assertNotIn(whole_day, lines)
-        # Waiting for approval counts as much as approved; expected and counted from 9:00.
-        self.assertEqual(min(lines[first_period]), '09:00')
-        self.assertEqual(lines[first_period]['09:00'], 1)
+        self.assertEqual(min(lines[whole_day]), '08:00')
+        self.assertEqual(set(lines[whole_day].values()), {0})
+        # Waiting for approval counts as much as approved: on strike only from 9:00.
+        self.assertEqual((lines[first_period]['08:00'], lines[first_period]['09:00']), (0, 1))
         self.assertEqual(lines[refused]['08:00'], 1)
 
     def test_a_detected_absence_does_not_take_its_periods_out(self):

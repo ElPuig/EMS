@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import _, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 from ..shared.schedule_report_mixin import HOUR_EPSILON
@@ -17,7 +17,8 @@ class EmsStaffStrikeReport(models.TransientModel):
     the Director reports to the Departament about every hour. Nobody declares the strike in EMS:
     whoever has not checked in at all that day counts from the first period of their own schedule
     that has started and that no absence request covers (sick leave, a permission, training...),
-    and keeps counting for the rest of the day, so each figure is cumulative. Checking in at any
+    and keeps counting for the rest of the day, so each figure is cumulative. Whoever checked in or
+    is on a justified absence is expected to work but not on strike. Checking in at any
     time takes them out: they may have arrived late because of the strike, which is no strike.
 
     Shown as a pivot of transient lines (ems.staff_strike_report.line) rather than a custom table: its
@@ -55,8 +56,8 @@ class EmsStaffStrikeReport(models.TransientModel):
 
     def _get_line_values(self):
         """One line per period of the day already started and per member of staff expected to
-        work by then (a period of theirs had started and no absence request covered it), telling
-        whether they were on strike at that point."""
+        work by then (a period of their schedule had started), telling whether they were on strike
+        at that point."""
         utils = self.env['ems.datetime_utils']
         local_now = utils.get_local_datetime()
         if self.date > local_now.date():
@@ -85,17 +86,20 @@ class EmsStaffStrikeReport(models.TransientModel):
 
     def _get_start_hours(self, staff, periods, now):
         """Two `{employee.id: hour}`: from when each of `staff` was expected to work (the start of
-        their first period already started at `now` that no absence request covers) and, for those
-        who have not checked in at all, from when they count as on strike (the same hour)."""
+        their first period already started at `now`) and, for those who have not checked in at all,
+        from when they count as on strike (the start of their first such period that no absence
+        request covers). Whoever is on a justified absence is expected but not on strike."""
         arrivals = self.env['hr.attendance']._ems_first_check_in_hours(self.date, staff)
         leaves = self.env['ems.course']._get_guard_duty_leave_intervals(self.date, staff)
-        expected = {}
+        expected, on_strike = {}, {}
         for employee in staff:
-            starts = [start for start, stop in periods[employee.id]
-                      if start <= now + HOUR_EPSILON and not _overlaps(start, stop, leaves.get(employee.id, ()))]
-            if starts:
-                expected[employee.id] = min(starts)
-        on_strike = {employee_id: hour for employee_id, hour in expected.items() if employee_id not in arrivals}
+            started = [(start, stop) for start, stop in periods[employee.id] if start <= now + HOUR_EPSILON]
+            if not started:
+                continue
+            expected[employee.id] = min(start for start, _stop in started)
+            missed = [start for start, stop in started if not _overlaps(start, stop, leaves.get(employee.id, ()))]
+            if missed and employee.id not in arrivals:
+                on_strike[employee.id] = min(missed)
         return expected, on_strike
 
 
@@ -112,4 +116,14 @@ class EmsStaffStrikeReportLine(models.TransientModel):
     employee_type = fields.Selection(string="Staff", selection=employee_types)
     contract_type_id = fields.Many2one(string="Contract Type", comodel_name='hr.contract.type')
     on_strike = fields.Integer(string="On strike", aggregator='sum')
+    not_on_strike = fields.Integer(string="Not on strike", compute='_compute_strike_figures', store=True, aggregator='sum')
     expected = fields.Integer(string="Expected to work", default=1, aggregator='sum')
+    # 100 or 0 per line, averaged: in each cell, the share of those expected to work who are on strike.
+    strike_percentage = fields.Float(string="% on strike", compute='_compute_strike_figures', store=True,
+                                     aggregator='avg', digits=(16, 1))
+
+    @api.depends('on_strike')
+    def _compute_strike_figures(self):
+        for line in self:
+            line.not_on_strike = 1 - line.on_strike
+            line.strike_percentage = 100.0 * line.on_strike

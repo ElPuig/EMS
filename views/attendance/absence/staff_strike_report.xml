@@ -35,7 +35,9 @@
                     <field name="employee_type" type="col"/>
                     <field name="contract_type_id" type="col"/>
                     <field name="on_strike" type="measure"/>
+                    <field name="not_on_strike" type="measure"/>
                     <field name="expected" type="measure"/>
+                    <field name="strike_percentage" type="measure"/>
                 </pivot>
             </field>
         </record>

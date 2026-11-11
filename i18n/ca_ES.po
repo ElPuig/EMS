@@ -49568,3 +49568,13 @@ msgstr "Vaga del %s"
 #: code:addons/ems/models/employees/staff_strike_report.py:0
 msgid "Staff strikes on %(day)s at %(time)s"
 msgstr "Vaga del %(day)s a les %(time)s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report_line__not_on_strike
+msgid "Not on strike"
+msgstr "No vaga"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_staff_strike_report_line__strike_percentage
+msgid "% on strike"
+msgstr "% vaga"

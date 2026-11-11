@@ -1237,15 +1237,15 @@ flowchart LR
     G --> A[_ems_first_check_in_hours<br/>no technical attendances]
     G --> L[_get_guard_duty_leave_intervals<br/>requests confirm/validate1/validate]
     G --> X[ems.staff_strike_report.line<br/>one per started period x expected employee]
-    X --> V[pivot: period x staff type x contract type<br/>On strike / Expected to work]
+    X --> V[pivot: period x staff type x contract type<br/>On strike / Not on strike / Expected to work / % on strike]
 ```
 
 | Rule | Why |
 |---|---|
 | Staff: `employee_type` teacher or asp with their own schedule (`resource.calendar.employee_id`); vacancies (`schedule_import_code`) left out | Without a schedule nothing says when they were expected; a vacancy has a schedule but nobody to strike |
-| Expected from the start of their first period already started that no absence request covers | Someone on sick leave or a permission is not expected, so not part of either figure |
-| On strike: expected and **no check-in at all that day** (technical attendances aside), from that same hour | A late arrival may be caused by the strike itself, which is no strike (developer, 2026-11-11); the delay is justified separately |
-| Absence requests approved or waiting for approval exclude; refused/cancelled don't; detected absences (`ems.absence_pending`) don't | The day of a strike, a detected absence for a missing check-in is the strike |
+| Expected from the start of their first period already started; on a justified absence = expected, not on strike | The Director reports "no vaga" as those who came plus those justified (developer, 2026-11-11), so Expected = On strike + Not on strike |
+| On strike: **no check-in at all that day** (technical attendances aside), from their first started period no absence request covers | A late arrival may be caused by the strike itself, which is no strike (developer, 2026-11-11); the delay is justified separately |
+| Absence requests approved or waiting for approval make their periods no strike; refused/cancelled don't; detected absences (`ems.absence_pending`) don't | The day of a strike, a detected absence for a missing check-in is the strike |
 | Cumulative: a line per period already started (`hour_from <= now`) for everyone expected by then | The Departament's form asks for the strikers so far; today's future periods have no line |
 | Rows: every bound of every scheduled period that day, as the guard duty board does | ESO/BTX and vocational periods start at different times |
 
@@ -1254,6 +1254,9 @@ depend on the data, and the pivot already gives the names behind each figure (dr
 list) and the xlsx download the Director relies on. `ems.staff_strike_report` (the date) owns its
 `ems.staff_strike_report.line`s through `report_id`; both are `TransientModel`s, vacuumed by Odoo.
 Lines are built in one batch: about 1,500 lines for a day of this dev database, 0.33 s cold.
+`not_on_strike` and `strike_percentage` are stored computes of `on_strike`: the percentage is 100 or 0
+per line with `aggregator='avg'`, so each pivot cell averages to the share of those expected who
+are on strike, with no custom pivot code.
 The lines are computed once, on **Show**, so reloading the pivot shows them again: today's title
 carries the time they were read at (`_get_title`), which is what tells the Director they are stale.
 The pivot's **Total** row sums cumulative rows and is meaningless; the developer chose to keep the

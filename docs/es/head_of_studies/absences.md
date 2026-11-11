@@ -192,15 +192,17 @@ Para cambiar el periodo, quita el filtro **Curso actual** y elige el que necesit
 Un día de huelga, las cifras del formulario del Departament que hay que rellenar aproximadamente cada hora: cuántas personas del personal (docentes y personal de administración y servicios) están en huelga hasta el momento, separadas por tipo de contrato.
 
 1. Elige el día (por defecto hoy, o un día que ya haya pasado) y haz clic en **Mostrar**.
-2. Cada fila es una franja del día que ya ha empezado. Para cada colectivo y tipo de contrato hay dos cifras:
+2. Cada fila es una franja del día que ya ha empezado. Para cada colectivo y tipo de contrato hay cuatro cifras:
    - **En huelga**: quien no ha fichado en todo el día, contado desde la primera franja de su horario que ha empezado. Sigue contando en las franjas siguientes: cada cifra acumula las anteriores.
+   - **No huelga**: quien debía trabajar y ha fichado o tiene una ausencia justificada.
    - **Debían trabajar**: quien tenía una franja de su horario ya empezada en ese momento.
+   - **% huelga**: el porcentaje de quien debía trabajar que está en huelga.
    La fila **Total** suma todas las franjas y, como cada franja ya incluye las anteriores, no tiene sentido: no le hagas caso. La cifra que hay que informar es la de la última franja.
 3. Haz clic en una cifra para ver los nombres, o cambia a la vista de lista. El botón de descarga exporta la tabla a una hoja de cálculo.
 
 No cuentan como huelga:
 
-- Quien tiene una solicitud de ausencia que cubre esa franja, aprobada o pendiente de aprobar (bajas, permisos, formación...). Tampoco cuenta entre quien debía trabajar.
+- Quien tiene una solicitud de ausencia que cubre esa franja, aprobada o pendiente de aprobar (bajas, permisos, formación...): cuenta como no huelga.
 - Quien ha fichado en algún momento del día, aunque sea tarde.
 
 Las cifras de hoy son las del momento en que haces clic en **Mostrar**, y el título indica esa hora. Si recargas la página, vuelves a ver las mismas cifras: para actualizarlas, vuelve a abrir el informe desde el menú.

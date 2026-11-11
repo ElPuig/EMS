@@ -95,6 +95,8 @@
                                         <field name="voted"/>
                                         <field name="join_answered"/>
                                         <field name="joins"/>
+                                        <field name="ratification" optional="show"/>
+                                        <field name="justifiable" optional="show"/>
                                         <field name="vote_date" optional="hide"/>
                                         <field name="join_date" optional="hide"/>
                                     </list>

@@ -10,7 +10,8 @@ WALKOUTS = '/my/vagues'
 
 class EmsPortalStudentWalkoutController(CustomerPortal):
     """Issue #800: student walkout calls on the portal. The student is always the logged-in user's
-    own partner (never a family acting for its child), and no partner id travels in a form. sudo
+    own partner (never a family acting for its child), and no partner id travels in a form; a family
+    only ratifies, for the children it was asked about. sudo
     because portal users have no ACL on these models; every check is in ems.student_walkout's
     _ems_portal_* methods. See docs/en/developers/attendance/student_walkout.md."""
 
@@ -43,6 +44,17 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
 
     @http.route(WALKOUTS, type='http', auth='user', website=True)
     def portal_walkouts(self, **kwargs):
+        family = request.env.user.partner_id
+        if family._ems_walkout_portal_family():
+            # A family ratifies, or refuses, that its minor children join a walkout.
+            lines = family._ems_walkout_family_lines()
+            if not lines:
+                return request.redirect('/my/home')
+            return self._ems_render('ems.portal_student_walkout_family', {
+                'lines': lines,
+                'ratification_labels': dict(lines._fields['ratification']._description_selection(request.env)),
+                'saved': kwargs.get('saved'),
+            }, **kwargs)
         partner = self._ems_partner()
         if not partner or not partner._ems_walkout_portal_visible():
             return request.redirect('/my/home')
@@ -51,6 +63,21 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
             'walkouts': partner._ems_walkout_calls(),
             'can_open': bool(partner._ems_walkout_opener_group()),
         }, **kwargs)
+
+    @http.route(f'{WALKOUTS}/ratifica/<int:line_id>', type='http', auth='user', methods=['POST'], website=True)
+    def portal_walkout_ratify(self, line_id, decision=None, **post):
+        """The logged-in family ratifies (or refuses) that one of its children joins: only a line it
+        was asked about (res.partner._ems_walkout_family_lines)."""
+        family = request.env.user.partner_id
+        line = family._ems_walkout_portal_family() and family._ems_walkout_family_lines().filtered(
+            lambda line: line.id == line_id)
+        if not line:
+            return request.redirect('/my/home')
+        try:
+            line.walkout_id._ems_portal_ratify(family, line, decision == 'yes')
+        except UserError as error:
+            return self._ems_error_redirect(WALKOUTS, error)
+        return request.redirect(f'{WALKOUTS}?saved=1')
 
     @http.route(f'{WALKOUTS}/nova', type='http', auth='user', methods=['GET'], website=True)
     def portal_walkout_new(self, **kwargs):

@@ -7811,6 +7811,7 @@ msgstr "Plan de pago"
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_review__state__pending
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout_line__ratification__pending
 msgid "Pending"
 msgstr "Pendiente"
 
@@ -18143,6 +18144,7 @@ msgstr "Validar"
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__refused
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_head_state__refused
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__refused
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout_line__ratification__refused
 msgid "Refused"
 msgstr "Rechazado"
 
@@ -19094,6 +19096,7 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__submitted_uid
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__ratified_by_id
 msgid "Answered by"
 msgstr "Respondido por"
 
@@ -37889,6 +37892,7 @@ msgstr "<i class=\"fa fa-check me-1\"/>Inscribirme"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
 msgid "<i class=\"fa fa-check-circle me-1\"/> Saved."
 msgstr "<i class=\"fa fa-check-circle me-1\"/> Guardado."
 
@@ -50003,6 +50007,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_list
 #: model:ir.ui.menu,name:ems.menu_attendance_config_walkouts
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
 msgid "Student walkouts"
 msgstr "Convocatorias de huelga"
 
@@ -51024,57 +51029,6 @@ msgstr ""
 "            "
 
 #. module: ems
-#: model:mail.template,body_html:ems.email_template_student_walkout_head
-msgid ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hello,</p>\n"
-"                        <p>\n"
-"                            The vote of the student walkout of <strong t-out=\"format_date(object.walkout_date)\"/> in\n"
-"                            <strong t-out=\"object.group_id.name\"/> has closed. The minute is attached.\n"
-"                        </p>\n"
-"                        <ul>\n"
-"                            <li>Group vote: <t t-out=\"object.group_yes_count\"/> yes, <t t-out=\"object.group_no_count\"/> no,\n"
-"                                <t t-out=\"object.group_abstain_count\"/> abstentions.\n"
-"                                <strong t-if=\"object.group_supports\">The group supports it.</strong>\n"
-"                                <strong t-else=\"\">The group does not support it.</strong></li>\n"
-"                            <li>Students who join: <t t-out=\"object.joining_count\"/> of <t t-out=\"len(object.line_ids)\"/>.</li>\n"
-"                        </ul>\n"
-"                        <p t-if=\"object.group_supports and object.joining_count\">\n"
-"                            From the call in EMS (<a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">open it</a>),\n"
-"                            <em>Actions &gt; Validate and justify</em> validates the call and justifies that day for the\n"
-"                            students who join (their families are told then), and <em>Do not validate</em> leaves it\n"
-"                            unjustified, giving a reason.\n"
-"                        </p>\n"
-"                        <p t-else=\"\">Nobody's absence is to be justified.</p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-msgstr ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hola:</p>\n"
-"                        <p>\n"
-"                            La votación de la huelga del <strong t-out=\"format_date(object.walkout_date)\"/> en\n"
-"                            <strong t-out=\"object.group_id.name\"/> se ha cerrado. Adjuntamos el acta.\n"
-"                        </p>\n"
-"                        <ul>\n"
-"                            <li>Voto del grupo: <t t-out=\"object.group_yes_count\"/> sí, <t t-out=\"object.group_no_count\"/> no,\n"
-"                                <t t-out=\"object.group_abstain_count\"/> abstenciones.\n"
-"                                <strong t-if=\"object.group_supports\">El grupo la apoya.</strong>\n"
-"                                <strong t-else=\"\">El grupo no la apoya.</strong></li>\n"
-"                            <li>Alumnos que se suman: <t t-out=\"object.joining_count\"/> de <t t-out=\"len(object.line_ids)\"/>.</li>\n"
-"                        </ul>\n"
-"                        <p t-if=\"object.group_supports and object.joining_count\">\n"
-"                            Desde la convocatoria en EMS (<a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">ábrela</a>),\n"
-"                            <em>Acciones &gt; Validar y justificar</em> valida la convocatoria y justifica ese día a los\n"
-"                            alumnos que se suman (entonces se avisa a las familias), y <em>No validar</em> la deja\n"
-"                            sin justificar, indicando el motivo.\n"
-"                        </p>\n"
-"                        <p t-else=\"\">No hay que justificar la falta de nadie.</p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-
-#. module: ems
 #: model:mail.template,body_html:ems.email_template_student_walkout_tutor
 msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
@@ -51231,17 +51185,6 @@ msgid "Can Abort"
 msgstr "Puede abortar"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
-msgid ""
-"Deciding collectively not to attend class is a right of students from 3rd of ESO onwards, when it is\n"
-"                            communicated to the school's management beforehand (LODE, article 8). It is not sanctioned and the school\n"
-"                            cannot stop it because of its cause."
-msgstr ""
-"Decidir colectivamente no asistir a clase es un derecho del alumnado a partir de 3.º de ESO, cuando se comunica\n"
-"                            previamente a la dirección del centro (LODE, artículo 8). No se sanciona y el centro no puede impedirla\n"
-"                            por su causa."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
 msgid "Do not validate"
@@ -51356,3 +51299,342 @@ msgstr "la convocatoria no incluye el nivel o los estudios del grupo, o es para 
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
 msgid "there is no official call of a students' union for that day, or the attached document is not one;"
 msgstr "no hay ninguna convocatoria oficial de un sindicato de estudiantes para ese día, o el documento adjunto no lo es;"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
+msgid "(not ratified: not justified)"
+msgstr "(no ratificado: no se justifica)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+msgid ": do you ratify it?"
+msgstr ": ¿lo ratificáis?"
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_student_walkout_ratify
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Dear family,</p>\n"
+"                        <p>\n"
+"                            <strong t-out=\"object.student_id.name\"/> has said that they join the student walkout\n"
+"                            called by a students' union for <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>,\n"
+"                            which their group, <t t-out=\"object.walkout_id.group_id.name\"/>, has voted to support.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            As they are a minor, their absence that day is only justified if you ratify their decision.\n"
+"                            You can ratify it or refuse it on the school portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues\">student walkouts</a>) until\n"
+"                            <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/>.\n"
+"                            Without your answer by then, it is not justified.\n"
+"                        </p>\n"
+"                        <p>If you have any question, talk to the group's tutor.</p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Estimada familia:</p>\n"
+"                        <p>\n"
+"                            <strong t-out=\"object.student_id.name\"/> ha dicho que se suma a la huelga\n"
+"                            convocada por un sindicato de estudiantes para el <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>,\n"
+"                            que su grupo, <t t-out=\"object.walkout_id.group_id.name\"/>, ha votado apoyar.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Como es menor de edad, su falta de ese día solo se justifica si ratificáis su decisión.\n"
+"                            Podéis ratificarla o no en el portal del centro\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues\">convocatorias de huelga</a>) hasta el\n"
+"                            <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/>.\n"
+"                            Si no hay respuesta antes, no se justifica.\n"
+"                        </p>\n"
+"                        <p>Si tenéis cualquier duda, hablad con el tutor del grupo.</p>\n"
+"                        <p>\n"
+"                            Un cordial saludo,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_student_walkout_ratification_refused
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello <t t-out=\"object.student_id.name\"/>,</p>\n"
+"                        <p>\n"
+"                            Your family has not ratified that you join the student walkout of\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, so your absence that day\n"
+"                            will not be justified.\n"
+"                        </p>\n"
+"                        <p>If you have any question, talk to your tutor.</p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola, <t t-out=\"object.student_id.name\"/>:</p>\n"
+"                        <p>\n"
+"                            Tu familia no ha ratificado que te sumes a la huelga del\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, así que tu falta de ese día\n"
+"                            no se justificará.\n"
+"                        </p>\n"
+"                        <p>Si tienes cualquier duda, habla con tu tutor.</p>\n"
+"                        <p>\n"
+"                            Un cordial saludo,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_student_walkout_head
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello,</p>\n"
+"                        <p>\n"
+"                            The vote of the student walkout of <strong t-out=\"format_date(object.walkout_date)\"/> in\n"
+"                            <strong t-out=\"object.group_id.name\"/> has closed. The minute is attached.\n"
+"                        </p>\n"
+"                        <ul>\n"
+"                            <li>Group vote: <t t-out=\"object.group_yes_count\"/> yes, <t t-out=\"object.group_no_count\"/> no,\n"
+"                                <t t-out=\"object.group_abstain_count\"/> abstentions.\n"
+"                                <strong t-if=\"object.group_supports\">The group supports it.</strong>\n"
+"                                <strong t-else=\"\">The group does not support it.</strong></li>\n"
+"                            <li>Students who join: <t t-out=\"object.joining_count\"/> of <t t-out=\"len(object.line_ids)\"/>;\n"
+"                                can be justified: <t t-out=\"len(object.justifiable_student_ids)\"/> (minors need their\n"
+"                                family's ratification).</li>\n"
+"                        </ul>\n"
+"                        <p t-if=\"object.group_supports and object.joining_count\">\n"
+"                            From the call in EMS (<a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">open it</a>),\n"
+"                            <em>Actions &gt; Validate and justify</em> validates the call and justifies that day for the\n"
+"                            students who join (their families are told then), and <em>Do not validate</em> leaves it\n"
+"                            unjustified, giving a reason.\n"
+"                        </p>\n"
+"                        <p t-else=\"\">Nobody's absence is to be justified.</p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola:</p>\n"
+"                        <p>\n"
+"                            La votación de la huelga del <strong t-out=\"format_date(object.walkout_date)\"/> en\n"
+"                            <strong t-out=\"object.group_id.name\"/> se ha cerrado. Adjuntamos el acta.\n"
+"                        </p>\n"
+"                        <ul>\n"
+"                            <li>Voto del grupo: <t t-out=\"object.group_yes_count\"/> sí, <t t-out=\"object.group_no_count\"/> no,\n"
+"                                <t t-out=\"object.group_abstain_count\"/> abstenciones.\n"
+"                                <strong t-if=\"object.group_supports\">El grupo la apoya.</strong>\n"
+"                                <strong t-else=\"\">El grupo no la apoya.</strong></li>\n"
+"                            <li>Alumnos que se suman: <t t-out=\"object.joining_count\"/> de <t t-out=\"len(object.line_ids)\"/>;\n"
+"                                se pueden justificar: <t t-out=\"len(object.justifiable_student_ids)\"/> (los menores necesitan\n"
+"                                la ratificación de la familia).</li>\n"
+"                        </ul>\n"
+"                        <p t-if=\"object.group_supports and object.joining_count\">\n"
+"                            Desde la convocatoria en EMS (<a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">ábrela</a>),\n"
+"                            <em>Acciones &gt; Validar y justificar</em> valida la convocatoria y justifica ese día a los\n"
+"                            alumnos que se suman (entonces se avisa a las familias), y <em>No validar</em> la deja\n"
+"                            sin justificar, indicando el motivo.\n"
+"                        </p>\n"
+"                        <p t-else=\"\">No hay que justificar la falta de nadie.</p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
+msgid ""
+"A minor's absence on the day of a student walkout is only justified if the family ratifies that\n"
+"                    they join it. You can change your answer until joining ends."
+msgstr ""
+"La falta de un menor el día de una huelga de estudiantes solo se justifica si la familia ratifica que\n"
+"                    se suma. Podéis cambiar la respuesta hasta que acaben las adhesiones."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid ""
+"As you are a minor, your family has to ratify on the portal that you join "
+"the walkout, while joining lasts. Without it, your absence that day is not "
+"justified."
+msgstr ""
+"Como eres menor de edad, tu familia tiene que ratificar en el portal que te "
+"sumas a la huelga, mientras duren las adhesiones. Sin la ratificación, tu "
+"falta de ese día no se justifica."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__justifiable
+msgid "Can be justified"
+msgstr "Se puede justificar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
+msgid ""
+"Deciding collectively not to attend class is a right of students from 3rd of ESO onwards, when it is\n"
+"                            communicated to the school's management beforehand (LODE, article 8). It is not sanctioned and the school\n"
+"                            cannot stop it because of its cause. In Catalonia, a minor's absence also needs their family's\n"
+"                            authorization (Decret 102/2010, article 24.2): their family ratifies it on the portal while joining lasts."
+msgstr ""
+"Decidir colectivamente no asistir a clase es un derecho del alumnado a partir de 3.º de ESO, cuando se comunica\n"
+"                            previamente a la dirección del centro (LODE, artículo 8). No se sanciona y el centro no puede impedirla\n"
+"                            por su causa.\n"
+"                            En Cataluña, la falta de un menor también necesita la autorización de su familia (Decret 102/2010, artículo 24.2):\n"
+"                            su familia la ratifica en el portal mientras duran las adhesiones."
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_student_walkout_ratification_refused
+msgid "EMS: student walkout, family refused"
+msgstr "EMS: huelga de estudiantes, la familia no lo ratifica"
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_student_walkout_ratify
+msgid "EMS: student walkout, family to ratify"
+msgstr "EMS: huelga de estudiantes, ratificación de la familia"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__ratification_date
+msgid "Family answered on"
+msgstr "Respuesta de la familia el"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__ratification
+msgid "Family ratification"
+msgstr "Ratificación de la familia"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
+msgid "Family ratification (minors)"
+msgstr "Ratificación de la familia (menores)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
+msgid "I do not ratify it"
+msgstr "No lo ratifico"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
+msgid "I ratify it"
+msgstr "Lo ratifico"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_walkout_line__justifiable
+msgid "Joins the walkout and, if a minor, their family ratified it."
+msgstr "Se suma a la huelga y, si es menor, su familia lo ha ratificado."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__needs_ratification
+msgid "Needs the family's ratification"
+msgstr "Necesita la ratificación de la familia"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid ""
+"Only the family of the student, with access to the portal, can ratify it."
+msgstr "Solo lo puede ratificar la familia del alumno, con acceso al portal."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout_line__ratification__ratified
+msgid "Ratified"
+msgstr "Ratificado"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_student_walkout_ratification_refused
+msgid ""
+"Student walkout on {{ format_date(object.walkout_id.walkout_date) }}: your "
+"family has not ratified it"
+msgstr ""
+"Huelga del {{ format_date(object.walkout_id.walkout_date) }}: tu familia no "
+"lo ha ratificado"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_student_walkout_ratify
+msgid ""
+"Student walkout on {{ format_date(object.walkout_id.walkout_date) }}: {{ "
+"object.student_id.name }} joins it, do you ratify it?"
+msgstr ""
+"Huelga del {{ format_date(object.walkout_id.walkout_date) }}: {{ "
+"object.student_id.name }} se suma, ¿lo ratificáis?"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__justifiable_student_ids
+msgid "Students who can be justified"
+msgstr "Alumnos que se pueden justificar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
+msgid "The absence that day is not justified."
+msgstr "La falta de ese día no se justifica."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
+msgid "The time to answer is over."
+msgstr "El plazo para responder ha terminado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "The time to ratify it is over: joining this student walkout is closed."
+msgstr ""
+"El plazo para ratificarlo ha terminado: las adhesiones a esta huelga están "
+"cerradas."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "There is nothing to ratify for this student."
+msgstr "No hay nada que ratificar para este alumno."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
+msgid "You can answer until"
+msgstr "Podéis responder hasta el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid ""
+"You join it, but your family has not ratified it: your absence that day is "
+"not justified."
+msgstr ""
+"Te sumas, pero tu familia no lo ha ratificado: tu falta de ese día no se "
+"justifica."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
+msgid "Your answer:"
+msgstr "Vuestra respuesta:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid ""
+"Your family has not ratified that you join the walkout: your absence that "
+"day will not be justified."
+msgstr ""
+"Tu familia no ha ratificado que te sumes a la huelga: tu falta de ese día no"
+" se justificará."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "Your family has ratified that you join the walkout."
+msgstr "Tu familia ha ratificado que te sumas a la huelga."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
+msgid ""
+"has said that they join the student walkout, which their\n"
+"                            group has voted to support."
+msgstr ""
+"ha dicho que se suma a la huelga, que su\n"
+"                            grupo ha votado apoyar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+msgid "joins the student walkout on"
+msgstr "se suma a la huelga del"

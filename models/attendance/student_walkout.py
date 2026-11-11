@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from dateutil.relativedelta import relativedelta
 from markupsafe import Markup
 
 from odoo import _, api, fields, models
@@ -86,6 +87,9 @@ class EmsStudentWalkout(models.Model):
                                readonly=True)
     joining_student_ids = fields.Many2many(string="Students who join", comodel_name='res.partner',
                                            compute='_compute_line_counts')
+    # Those who join and can be justified: adults, and minors whose family ratified it.
+    justifiable_student_ids = fields.Many2many(string="Students who can be justified", comodel_name='res.partner',
+                                               compute='_compute_line_counts')
     joining_count = fields.Integer(string="Join", compute='_compute_line_counts')
     voter_count = fields.Integer(string="May vote", compute='_compute_line_counts')
     voted_count = fields.Integer(string="Voted", compute='_compute_line_counts')
@@ -115,11 +119,13 @@ class EmsStudentWalkout(models.Model):
         for walkout in self:
             walkout.group_supports = walkout.group_yes_count > walkout.group_no_count
 
-    @api.depends('line_ids.joins', 'line_ids.voted', 'line_ids.has_portal', 'line_ids.join_answered')
+    @api.depends('line_ids.joins', 'line_ids.voted', 'line_ids.has_portal', 'line_ids.join_answered',
+                 'line_ids.justifiable')
     def _compute_line_counts(self):
         for walkout in self:
             joining = walkout.line_ids.filtered('joins')
             walkout.joining_student_ids = joining.student_id
+            walkout.justifiable_student_ids = joining.filtered('justifiable').student_id
             walkout.joining_count = len(joining)
             walkout.voter_count = len(walkout.line_ids.filtered('has_portal'))
             walkout.voted_count = len(walkout.line_ids.filtered('voted'))
@@ -132,7 +138,7 @@ class EmsStudentWalkout(models.Model):
             walkout.can_abort = walkout.state in ABORTABLE_STATES and walkout._ems_user_may_abort()
             walkout.can_reject = walkout.state in VALIDATION_STATES and walkout._ems_user_may_reject()
 
-    @api.depends('state', 'line_ids.joins', 'group_yes_count', 'group_no_count')
+    @api.depends('state', 'line_ids.justifiable', 'group_yes_count', 'group_no_count')
     @api.depends_context('uid')
     def _compute_can_generate_justification(self):
         for walkout in self:
@@ -212,12 +218,51 @@ class EmsStudentWalkout(models.Model):
             self._ems_end_group_vote()
 
     def _ems_portal_join(self, partner, joins):
-        """`partner` says whether they join the walkout, by name; changeable until joining ends."""
+        """`partner` says whether they join the walkout, by name; changeable until joining ends. A
+        minor joining needs their family to ratify it (Decret 102/2010, art. 24.2): the family is
+        asked at once; withdrawing clears it, joining again asks again."""
         self.ensure_one()
         line = self._ems_portal_line(partner)
         if not self._ems_phase_open('joining'):
             raise UserError(_("Joining this student walkout is closed."))
-        line.write({'joins': bool(joins), 'join_answered': True, 'join_date': fields.Datetime.now()})
+        vals = {'joins': bool(joins), 'join_answered': True, 'join_date': fields.Datetime.now()}
+        asks = bool(joins) and not line.joins and self._ems_is_minor(line.student_id)
+        if not joins:
+            vals.update({'needs_ratification': False, 'ratification': False, 'ratified_by_id': False,
+                         'ratification_date': False})
+        elif asks:
+            vals.update({'needs_ratification': True, 'ratification': 'pending', 'ratified_by_id': False,
+                         'ratification_date': False})
+        line.write(vals)
+        if asks:
+            self._ems_mail_families('ems.email_template_student_walkout_ratify', line)
+
+    def _ems_is_minor(self, student):
+        """Under 18 on the walkout day; a student with no birth date counts as a minor."""
+        # Imported here: importing contacts/ at load time would register its res.partner
+        # extensions before contacts' own, changing their order.
+        from ..contacts.coming_of_age import ADULT_AGE
+        self.ensure_one()
+        birth_date = student.sudo().birth_date
+        return not birth_date or relativedelta(self.walkout_date, birth_date).years < ADULT_AGE
+
+    def _ems_portal_ratify(self, family, line, ratifies):
+        """`family` ratifies (or refuses) that its child joins, on the portal, while joining lasts; it
+        can change its answer meanwhile. Only a family contact of the student with portal access. A
+        refusal is told to the student: their absence will not be justified."""
+        self.ensure_one()
+        family = family.sudo()
+        if line.walkout_id != self or not (line.joins and line.needs_ratification):
+            raise UserError(_("There is nothing to ratify for this student."))
+        if not family.user_ids.filtered('share') or family not in line.student_id._ems_family_contacts():
+            raise UserError(_("Only the family of the student, with access to the portal, can ratify it."))
+        if not self._ems_phase_open('joining'):
+            raise UserError(_("The time to ratify it is over: joining this student walkout is closed."))
+        refused_now = not ratifies and line.ratification != 'refused'
+        line.write({'ratification': 'ratified' if ratifies else 'refused', 'ratified_by_id': family.id,
+                    'ratification_date': fields.Datetime.now()})
+        if refused_now:
+            self._ems_mail_students('ems.email_template_student_walkout_ratification_refused', line)
 
     def _ems_portal_cancel(self, partner):
         self._ems_check_delegate(partner)
@@ -386,14 +431,18 @@ class EmsStudentWalkout(models.Model):
             self.sudo()._ems_sync_user_tasks(self.env.ref(JUSTIFY_TASK), users, self.walkout_date)
         self._ems_mail_tutors('closed')
 
-    def _ems_mail_families(self, template_xmlid):
-        """The family of each student who joins and is a minor (or an adult sharing with it), at once."""
+    def _ems_family_lines(self, validated):
+        """The students whose family hears of the call: the minors it was asked to ratify for and,
+        once `validated`, the adults who join and share with their family."""
+        self.ensure_one()
+        return self.line_ids.filtered(lambda line: line.needs_ratification or (
+            validated and line.joins and not self._ems_is_minor(line.student_id) and line.student_id.sudo().auth_share))
+
+    def _ems_mail_families(self, template_xmlid, lines):
+        """The family of each student of `lines`, at once (families are not tied to school hours)."""
         template = self.env.ref(template_xmlid).sudo()
-        for line in self.line_ids.filtered('joins'):
-            student = line.student_id
-            if student.is_adult and not student.auth_share:
-                continue
-            emails = student._ems_family_contacts().filtered('email').mapped('email')
+        for line in lines:
+            emails = line.student_id._ems_family_contacts().filtered('email').mapped('email')
             if emails:
                 template.send_mail(line.id, email_values={'email_to': ','.join(emails)})
 
@@ -510,8 +559,9 @@ class EmsStudentWalkout(models.Model):
         walkout._ems_sync_user_tasks(self.env.ref(JUSTIFY_TASK), self.env['res.users'], walkout.walkout_date)
         walkout._ems_mail_students('ems.email_template_student_walkout_rejected')
         walkout._ems_mail_tutors('rejected')
-        if previous == 'justified':
-            walkout._ems_mail_families('ems.email_template_student_walkout_family_rejected')
+        # The families that heard of it (asked to ratify, or told of the validation) are told too.
+        walkout._ems_mail_families('ems.email_template_student_walkout_family_rejected',
+                                   walkout._ems_family_lines(previous == 'justified'))
         if previous in ABORTABLE_STATES:
             walkout._ems_notify_aborted()
         walkout._message_log(body=_("Rejected by %(name)s: %(reason)s", name=self.env.user.name, reason=reason.name))
@@ -534,7 +584,7 @@ class EmsStudentWalkout(models.Model):
 
     def _ems_has_something_to_justify(self):
         self.ensure_one()
-        return self.state == 'closed' and self.group_supports and bool(self.line_ids.filtered('joins'))
+        return self.state == 'closed' and self.group_supports and bool(self.justifiable_student_ids)
 
     def _ems_user_may_justify(self):
         """A Head of Studies, Deputy Head of Studies or Director above every student who joins
@@ -543,7 +593,7 @@ class EmsStudentWalkout(models.Model):
         if self.get_user_is_admin():
             return True
         return self.env.user.has_group('ems.group_head_of_studies') and \
-            self.env['ems.attendance_justification']._user_may_justify(self.joining_student_ids)
+            self.env['ems.attendance_justification']._user_may_justify(self.justifiable_student_ids)
 
     def action_generate_justification(self):
         """One full-day justification of the walkout day for the students who join, except the ones
@@ -557,7 +607,8 @@ class EmsStudentWalkout(models.Model):
                               "students, or an administrator, can justify a student walkout."))
         Justification = self.env['ems.attendance_justification']
         period = Justification._whole_day_vals(self.walkout_date)
-        joining = self.joining_student_ids
+        # Adults, and minors whose family ratified it (Decret 102/2010, art. 24.2).
+        joining = self.justifiable_student_ids
         skipped = Justification.new({'student_ids': [(6, 0, joining.ids)], **period})._overlapping_students(joining)
         students = joining - skipped
         justification = Justification
@@ -576,7 +627,8 @@ class EmsStudentWalkout(models.Model):
         walkout._ems_sync_user_tasks(self.env.ref(JUSTIFY_TASK), self.env['res.users'], self.walkout_date, done=True)
         # Validated: every student is told, the family of each one who joins and the tutor too.
         walkout._ems_mail_students('ems.email_template_student_walkout_validated')
-        walkout._ems_mail_families('ems.email_template_student_walkout_family')
+        walkout._ems_mail_families('ems.email_template_student_walkout_family',
+                                   walkout._ems_family_lines(True).filtered('justifiable'))
         walkout._ems_mail_tutors('validated')
         if skipped:
             walkout._message_log(body=_("Not justified again, they already had a justification that day: %(names)s",
@@ -609,6 +661,24 @@ class EmsStudentWalkoutLine(models.Model):
     joins = fields.Boolean(string="Joins", readonly=True)
     join_answered = fields.Boolean(string="Answered whether they join", readonly=True)
     join_date = fields.Datetime(string="Answered on", readonly=True)
+    # A minor joining needs their family to ratify it (Decret 102/2010, art. 24.2), on the portal
+    # while joining lasts; without it, the student is not justified.
+    needs_ratification = fields.Boolean(string="Needs the family's ratification", readonly=True)
+    ratification = fields.Selection(string="Family ratification", selection=[
+        ('pending', "Pending"),
+        ('ratified', "Ratified"),
+        ('refused', "Refused"),
+    ], readonly=True)
+    ratified_by_id = fields.Many2one(string="Answered by", comodel_name='res.partner', readonly=True,
+                                     ondelete='set null')
+    ratification_date = fields.Datetime(string="Family answered on", readonly=True)
+    justifiable = fields.Boolean(string="Can be justified", compute='_compute_justifiable',
+                                 help="Joins the walkout and, if a minor, their family ratified it.")
+
+    @api.depends('joins', 'needs_ratification', 'ratification')
+    def _compute_justifiable(self):
+        for line in self:
+            line.justifiable = line.joins and (not line.needs_ratification or line.ratification == 'ratified')
 
 
 class EmsStudentWalkoutRejectionReason(models.Model):

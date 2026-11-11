@@ -66,7 +66,7 @@
                     <h3 t-if="doc.group_supports">Who joins the walkout</h3>
                     <table t-if="doc.group_supports" class="table table-sm table-bordered">
                         <thead>
-                            <tr><th>Student</th><th>Joins the walkout</th></tr>
+                            <tr><th>Student</th><th>Joins the walkout</th><th>Family ratification (minors)</th></tr>
                         </thead>
                         <tbody>
                             <tr t-foreach="doc.line_ids.sorted(lambda line: line.student_id.name or '')" t-as="line">
@@ -76,6 +76,12 @@
                                     <t t-elif="line.joins">Yes</t>
                                     <t t-elif="line.join_answered">No</t>
                                     <t t-else="">Did not answer</t>
+                                </td>
+                                <td>
+                                    <t t-if="line.joins and line.needs_ratification">
+                                        <span t-field="line.ratification"/>
+                                        <t t-if="line.ratification == 'pending'">(not ratified: not justified)</t>
+                                    </t>
                                 </td>
                             </tr>
                         </tbody>

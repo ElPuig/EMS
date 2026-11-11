@@ -90,12 +90,30 @@ class TestPortalStudentWalkout(HttpCase):
 
     def test_family_and_outsiders_are_sent_away(self):
         walkout = open_walkout(self)
-        family_user = self.env['res.users'].with_context(no_reset_password=True).create({
-            'name': self.family.name, 'login': 'test_walkout_family_wlp', 'password': 'test_walkout_family_wlp',
-            'partner_id': self.family.id, 'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
-        })
-        self.authenticate(family_user.login, family_user.login)
+        self.authenticate(self.family_user.login, self.family_user.login)
         self.assertNotIn('/my/vagues"', self.url_open('/my/home').text)
         self.assertTrue(self.url_open(f'/my/vagues/{walkout.id}').url.endswith('/my/home'))
         self._post(f'/my/vagues/{walkout.id}/vota', group_vote='yes')
         self.assertEqual(walkout.group_yes_count, 0)
+
+    def test_the_family_ratifies_that_a_minor_joins(self):
+        walkout = open_walkout(self)
+        walkout._ems_portal_vote(self.delegate, 'yes')
+        walkout._ems_portal_vote(self.subdelegate, 'yes')
+        walkout._ems_portal_join(self.classmate, True)
+        line = walkout.line_ids.filtered(lambda line: line.student_id == self.classmate)
+        self.authenticate(self.family_user.login, self.family_user.login)
+        home = self.url_open('/my/home').text
+        self.assertIn('o_ems_walkout_ratify_banner', home)
+        self.assertIn('href="/my/vagues" class="nav-link"', home)
+        page = self.url_open('/my/vagues').text
+        self.assertIn('o_ems_walkout_ratify', page)
+        self.assertIn(f'<strong>{self.classmate.name}</strong>', page)
+        self.assertNotIn(f'<strong>{self.subdelegate.name}</strong>', page, "Only the children who join.")
+        # A family can only answer for its own children: another call's line is refused.
+        self._post(f'/my/vagues/ratifica/{line.id}', decision='yes')
+        self.assertEqual(line.ratification, 'ratified')
+        self.assertNotIn('o_ems_walkout_ratify_banner', self.url_open('/my/home').text)
+        self._post(f'/my/vagues/ratifica/{line.id}', decision='no')
+        self.assertEqual(line.ratification, 'refused')
+

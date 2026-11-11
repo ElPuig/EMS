@@ -42,10 +42,31 @@ class ResPartner(models.Model):
 
     def _ems_walkout_portal_visible(self):
         """The portal's Student walkouts card and menu entry: a student with portal access who may
-        open a call or is in one."""
+        open a call or is in one, or a family asked to ratify that its child joins one."""
         self.ensure_one()
+        if self._ems_walkout_portal_family():
+            return bool(self._ems_walkout_family_lines())
         return self._ems_walkout_portal_student() and bool(self._ems_walkout_opener_group()
                                                            or self._ems_walkout_calls())
+
+    def _ems_walkout_portal_family(self):
+        """This partner when it is a family with portal access: it ratifies that its minor children
+        join a walkout (Decret 102/2010, art. 24.2)."""
+        self.ensure_one()
+        partner = self.sudo()
+        return partner.contact_type == 'family' and bool(partner.user_ids.filtered('share'))
+
+    def _ems_walkout_family_lines(self, pending=False):
+        """The lines of this family's children it was asked to ratify, newest first; `pending`, only
+        the ones still waiting for its answer while joining lasts."""
+        self.ensure_one()
+        children = self.sudo().get_portal_students().filtered(lambda child: self in child._ems_family_contacts())
+        domain = [('student_id', 'in', children.ids), ('needs_ratification', '=', True), ('joins', '=', True),
+                  ('walkout_id.state', '!=', 'cancelled')]
+        if pending:
+            domain += [('ratification', '=', 'pending'), ('walkout_id.state', '=', 'joining'),
+                       ('walkout_id.join_until', '>', fields.Datetime.now())]
+        return self.env['ems.student_walkout.line'].sudo().search(domain, order='id desc')
 
     def _ems_walkout_pending_votes(self):
         """The calls waiting for this student: the group vote not cast, or whether they join not said

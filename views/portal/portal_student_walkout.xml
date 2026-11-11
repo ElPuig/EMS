@@ -172,6 +172,13 @@
                         <button type="submit" class="btn btn-primary o_ems_walkout_join_send">Send</button>
                     </form>
                 </div>
+                <!-- A minor who joins: their family ratifies it (Decret 102/2010, art. 24.2). -->
+                <div t-if="line and line.joins and line.needs_ratification" class="alert mb-4 o_ems_walkout_ratification"
+                     t-attf-class="alert-#{'success' if line.ratification == 'ratified' else 'danger' if line.ratification == 'refused' else 'warning'}">
+                    <t t-if="line.ratification == 'ratified'">Your family has ratified that you join the walkout.</t>
+                    <t t-elif="line.ratification == 'refused'">Your family has not ratified that you join the walkout: your absence that day will not be justified.</t>
+                    <t t-else="">As you are a minor, your family has to ratify on the portal that you join the walkout, while joining lasts. Without it, your absence that day is not justified.</t>
+                </div>
                 <div t-if="line and not line.has_portal" class="alert alert-info">You had no access to the portal when the vote was called, so you cannot answer.</div>
 
                 <!-- The result, once closed. -->
@@ -187,7 +194,8 @@
                             <strong t-else="">The group does not support the walkout: nobody's absence is justified.</strong>
                         </p>
                         <p class="mb-1" t-if="walkout.group_supports and line">
-                            <t t-if="line.joins and walkout.state == 'justified'">You join it: the Head of Studies has validated the walkout and your absence that day is justified.</t>
+                            <t t-if="line.joins and not line.justifiable">You join it, but your family has not ratified it: your absence that day is not justified.</t>
+                            <t t-elif="line.joins and walkout.state == 'justified'">You join it: the Head of Studies has validated the walkout and your absence that day is justified.</t>
                             <t t-elif="line.joins">You join it: the Head of Studies has the minute and decides whether to validate the walkout and justify your absence that day.</t>
                             <t t-else="">You do not join it.</t>
                         </p>
@@ -221,6 +229,55 @@
                     </div>
                 </div>
                 <a href="/my/vagues" class="btn btn-secondary">Back</a>
+            </div>
+        </t>
+    </template>
+
+    <!-- Issue #800: a family ratifies, or refuses, that its minor children join a walkout, while
+         joining lasts (controllers/portal_student_walkout.py, Decret 102/2010, art. 24.2). -->
+    <template id="portal_student_walkout_family" name="Student walkouts: family">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-4 o_ems_portal_walkout_family">
+                <h3 class="mb-3">Student walkouts</h3>
+                <t t-call="ems.portal_student_walkout_error"/>
+                <div t-if="saved" class="alert alert-success mb-3 o_ems_walkout_saved">
+                    <i class="fa fa-check-circle me-1"/> Saved.
+                </div>
+                <p class="text-muted small">
+                    A minor's absence on the day of a student walkout is only justified if the family ratifies that
+                    they join it. You can change your answer until joining ends.
+                </p>
+                <div t-foreach="lines" t-as="line" class="card shadow-sm mb-3 o_ems_walkout_ratify">
+                    <t t-set="walkout" t-value="line.walkout_id"/>
+                    <div class="card-header">
+                        <strong t-esc="line.student_id.name"/> - <span t-field="walkout.walkout_date"/>
+                        (<t t-esc="walkout.group_id.name"/>)
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2">
+                            <t t-esc="line.student_id.name"/> has said that they join the student walkout, which their
+                            group has voted to support.
+                            <t t-if="line.ratification">Your answer: <strong t-esc="ratification_labels.get(line.ratification)"/>.</t>
+                        </p>
+                        <t t-if="walkout._ems_phase_open('joining')">
+                            <p class="small text-muted mb-2">You can answer until <t t-esc="walkout.format_local_datetime(walkout.join_until)"/>.</p>
+                            <form t-attf-action="/my/vagues/ratifica/#{line.id}" method="post" class="d-inline">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="decision" value="yes"/>
+                                <button type="submit" class="btn btn-primary btn-sm o_ems_walkout_ratify_yes">I ratify it</button>
+                            </form>
+                            <form t-attf-action="/my/vagues/ratifica/#{line.id}" method="post" class="d-inline ms-2">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="decision" value="no"/>
+                                <button type="submit" class="btn btn-outline-danger btn-sm o_ems_walkout_ratify_no">I do not ratify it</button>
+                            </form>
+                        </t>
+                        <p t-else="" class="small text-muted mb-0">
+                            The time to answer is over.
+                            <t t-if="not line.justifiable">The absence that day is not justified.</t>
+                        </p>
+                    </div>
+                </div>
             </div>
         </t>
     </template>

@@ -77,6 +77,33 @@ registry.category("web_tour.tours").add("ems_attendance_session_continuation", {
             content: "Justified can't be picked by hand: only the tutor justifies (issue #587)",
         },
         {
+            trigger: ".ems-av-line:has(.ems-av-name:contains('Ana Bosch')) .ems-av-justified-icon",
+            content: "Ana Bosch's absence is justified (issue #811)",
+        },
+        {
+            trigger: ".ems-av-line:has(.ems-av-name:contains('Ana Bosch')) .ems-av-td-status:nth-child(2) .ems-av-status-btn:not(:disabled)",
+            content: "A justified student can still be marked as attending: the Attended button is enabled",
+            run: "click",
+        },
+        {
+            trigger: ".modal-footer .btn-primary",
+            content: "The warning asks for confirmation (the tutor will be told)",
+            run: "click",
+        },
+        {
+            trigger: ".ems-av-line:has(.ems-av-name:contains('Ana Bosch')) .ems-av-td-status:nth-child(2) .ems-av-status-btn--active",
+            content: "Ana Bosch now attends",
+        },
+        {
+            trigger: ".ems-av-line:has(.ems-av-name:contains('Ana Bosch')) .ems-av-came-btn",
+            content: "Undo: the justified absence comes back as if nothing had happened",
+            run: "click",
+        },
+        {
+            trigger: ".ems-av-line:has(.ems-av-name:contains('Ana Bosch')) .ems-av-justified-icon",
+            content: "Ana Bosch's absence is justified again",
+        },
+        {
             trigger: ".ems-av-sort-wrap select",
             content: "Sort by first name ascending",
             run: "select name:asc",

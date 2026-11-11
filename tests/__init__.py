@@ -219,6 +219,7 @@ from . import test_portal_view_only_tour
 from . import test_enrollment_product_extension
 from . import test_enrollment_mail_activity
 from . import test_attendance_session
+from . import test_attendance_came_despite_justification
 from . import test_attendance_session_tour
 from . import test_attendance_passlist_tour
 from . import test_attendance_template_tour

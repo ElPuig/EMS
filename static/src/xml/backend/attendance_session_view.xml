@@ -173,9 +173,19 @@
                                             <span class="ems-av-name"
                                                   t-att-title="line.student_id ? line.student_id[1] : ''"
                                                   t-esc="line.student_id ? line.student_id[1] : '—'"/>
-                                            <i t-if="isJustified"
+                                            <i t-if="isJustified and !line.came_despite_justification"
                                                class="fa fa-shield ems-av-justified-icon"
                                                t-att-title="strings.justifiedTitle"/>
+                                            <!-- Issue #811: justified, but they came; undoing puts the justified absence back. -->
+                                            <button t-if="line.came_despite_justification"
+                                                    class="btn btn-link p-0 ms-1 ems-av-came-btn"
+                                                    t-att-title="strings.undoCame"
+                                                    t-att-disabled="state.saving[line.id]"
+                                                    t-on-click="() => this.onUndoCameClick(line.id)">
+                                                <i class="fa fa-check-circle ems-av-justified-icon"
+                                                   t-att-title="strings.cameTitle"/>
+                                                <i class="fa fa-undo"/>
+                                            </button>
                                             <!-- Issue #644: why the system took them off (an expected withdrawal...). -->
                                             <small t-if="isRemoved and line.not_expected_reason"
                                                    class="ems-av-removed-reason d-block text-muted"
@@ -190,7 +200,8 @@
                                                             'ems-av-status-btn--locked': !s.selectable,
                                                         }"
                                                         t-att-title="s.selectable ? s.title : s.lockedTitle"
-                                                        t-att-disabled="state.saving[line.id] || isJustified || isRemoved || !s.selectable"
+                                                        t-att-disabled="state.saving[line.id] || isRemoved || !s.selectable
+                                                            || (isJustified and (line.came_despite_justification or s.category !== 'assistance'))"
                                                         t-on-click="() => this.onStatusClick(line.id, s.key)">
                                                     <t t-esc="s.label"/>
                                                 </button>

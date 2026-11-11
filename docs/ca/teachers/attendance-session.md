@@ -76,7 +76,7 @@ Desar.
 
 - Una icona d'escut al costat del nom de l'alumne indica que la seva absència ja està
   **justificada** (una justificació aprovada o una previsió cobreix aquesta sessió) — el seu estat
-  i les notes queden bloquejats, ja que és la justificació la que ho decideix.
+  i les notes queden bloquejats, ja que és la justificació la que ho decideix. L'única excepció són **Assistència** i **Retard lleu**: si l'alumne ha vingut a classe, clica un d'aquests dos botons. Un avís et demana confirmar-ho, el tutor de l'alumne ho veu al seu resum diari i la línia mostra una marca de verificació. El botó de **desfer** que hi ha al costat del nom torna a deixar la falta justificada, com si no hagués passat res.
 - El botó **Falta justificada** no es pot clicar si el centre no ho permet: només el tutor de
   l'alumne justifica una falta, registrant-ne una justificació. Passa-hi el ratolí per sobre per
   veure'n el motiu. Marca l'alumne com a **Falta** i la justificació del tutor la convertirà en

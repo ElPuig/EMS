@@ -125,10 +125,11 @@ class AttendanceSessionView extends Component {
 
     async _loadStatuses() {
         const records = await this.orm.searchRead(
-            "ems.attendance_status", [], ["id", "name", "roll_call_selectable"], { order: "sequence" }
+            "ems.attendance_status", [], ["id", "name", "roll_call_selectable", "category"], { order: "sequence" }
         );
-        this.statuses = records.map(({ id, name, roll_call_selectable }) => ({
+        this.statuses = records.map(({ id, name, roll_call_selectable, category }) => ({
             key: id,
+            category,
             title: name,
             // Not selectable: still shown (and highlighted when a line has it), never clickable.
             selectable: roll_call_selectable,
@@ -213,7 +214,7 @@ class AttendanceSessionView extends Component {
         const lines = await this.orm.searchRead(
             "ems.attendance_session_line",
             [["attendance_session_id", "=", sessionId]],
-            ["id", "student_id", "status_id", "notes", "attendance_justification_id", "attendance_prevision_id", "strike_ids", "active", "not_expected_reason", "roll_call_label"],
+            ["id", "student_id", "status_id", "notes", "attendance_justification_id", "attendance_prevision_id", "strike_ids", "active", "not_expected_reason", "roll_call_label", "came_despite_justification"],
             // Removed (archived) lines are still listed, greyed out, so they can be restored.
             { context: { active_test: false } },
         );
@@ -360,6 +361,9 @@ class AttendanceSessionView extends Component {
             continuationBanner:     _t("A previous session for the same subject has been detected for today, so assistance data has been copied from the previous one. You can modify any of those as you please."),
             multipleSessionsWarning: _t("More than one session is scheduled for the current time slot. Please select one manually or switch to 'Manual' mode."),
             justifiedTitle:          _t("Justified: status and notes are locked."),
+            cameTitle:               _t("Justified absence, but the student came to class"),
+            undoCame:                _t("Undo: the absence is justified again"),
+            cameConfirm:             (name) => sprintf(_t("%s has a justified absence. Mark them as present anyway? Their tutor will be notified, and you can undo it."), name),
             deleteSession:          _t("Delete session"),
             deleteSessionConfirm:   _t("Delete this session? This action cannot be undone."),
             removeLine:             _t("Remove from the roll-call (not required to attend)"),
@@ -458,11 +462,37 @@ class AttendanceSessionView extends Component {
 
     async onStatusClick(lineId, statusId) {
         if (this.state.saving[lineId]) return;
+        const current = this.state.lines.find(l => l.id === lineId);
+        if (current && (current.attendance_justification_id || current.attendance_prevision_id)) {
+            // A justified student who comes to class (issue #811): asks first, the tutor is told.
+            this.dialog.add(ConfirmationDialog, {
+                body: this.strings.cameConfirm(current.student_id ? current.student_id[1] : ""),
+                confirm: () => this._callCameDespiteJustification("attend_despite_justification", lineId, [statusId]),
+            });
+            return;
+        }
         this.state.saving[lineId] = true;
         try {
             await this._writeSessionLine(lineId, { status_id: statusId });
             const line = this.state.lines.find(l => l.id === lineId);
             if (line) line.status_id = statusId;
+        } finally {
+            this.state.saving[lineId] = false;
+        }
+    }
+
+    onUndoCameClick(lineId) {
+        return this._callCameDespiteJustification("undo_attend_despite_justification", lineId, []);
+    }
+
+    async _callCameDespiteJustification(method, lineId, args) {
+        if (this.state.saving[lineId]) return;
+        this.state.saving[lineId] = true;
+        try {
+            await this.orm.call("ems.attendance_session_line", method,
+                [lineId, ...args, this.state.viewMode === 'guard']);
+            // The server decides the final status: reload the session's lines.
+            await this._loadLines(this._parseSelectedId());
         } finally {
             this.state.saving[lineId] = false;
         }

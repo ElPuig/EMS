@@ -315,3 +315,39 @@ has to be declared explicitly — confirmed empirically, see the sibling note in
 `attendance_template.md`). Also added a plain `<field name="session_teacher_id" string="Teacher">`
 so free-text search can find a session by teacher name at all, not just via the (already
 existing) "Show only mine" filter.
+
+## A justified student comes to class (issue #811)
+
+A line with a justification (or prevision) is locked in the roll-call, but the student may come to
+class anyway. `ems.attendance_session_line.came_despite_justification` marks that case: the line
+moves to an assistance status (attended or minor delay) and **keeps** its justification link and
+notes, so undoing it only puts the `justified` status back and clears the flag.
+
+```mermaid
+flowchart LR
+    J["justified<br/>(justification linked)"] -->|"attend_despite_justification(status)"| A["attended / delayed<br/>came_despite_justification = True"]
+    A -->|"undo_attend_despite_justification()"| J
+    A -->|"remove_justification()"| K["same status, link and flag cleared"]
+    A -. "tutor notice (ems.info_notice)" .-> T["tutor's daily summary"]
+    J -. "undo notice" .-> T
+```
+
+| Who | Allowed |
+|-----|---------|
+| Session's teacher | Yes, through their own record rules (`check_access('write')`) |
+| Guard teacher (`guard=True`) | Yes, any teacher, the same rule as `write_guard_session_line` |
+| Student's tutor and the chiefs above them (`tutor_scope_user_ids`) | Yes, whoever owns the session |
+| Administrator | Yes |
+| Anyone else | `AccessError` |
+
+- Only `justified` lines can be changed, and only to a roll-call selectable status of category
+  `assistance`; anything else raises `UserError`.
+- Family notifications are untouched: justified and assistance statuses are both non-notifiable.
+- The tutor notice goes through `ems.info_notice._ems_queue` (daily summary, never an email on
+  the spot), written in the tutor's language; no tutor, no notice.
+- `ems.attendance_justification.remove_justification()` / `unlink()` clear the flag and keep the
+  attendance status instead of turning the line back into a miss.
+- The web client asks for confirmation (`ConfirmationDialog`) before calling the RPC and reloads
+  the session's lines afterwards.
+- Why not a new status or `mail.thread` on the line: a status of its own would lose the original
+  one, and the line has no chatter; the daily summary already is the non-urgent staff channel.

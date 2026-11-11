@@ -49489,3 +49489,62 @@ msgstr "Se puede reabrir el documento"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application_document__can_reopen
 msgid "A complete document the team can put back to review (the same action)."
 msgstr "Un documento completo que el equipo puede volver a poner en revisión (es la misma acción)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+msgid "Only a justified absence can be changed to attendance."
+msgstr "Solo una falta justificada se puede cambiar a asistencia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+msgid "A justified absence can only be changed to an attendance or a delay."
+msgstr "Una falta justificada solo se puede cambiar a asistencia o a retraso."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+msgid "This student has not been marked as attending despite a justification."
+msgstr "Este alumno no se ha marcado como asistente a pesar de la justificación."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+msgid "The line does not exist any more."
+msgstr "La línea ya no existe."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+msgid "%(student)s, whose absence was justified, came to class (%(status)s) on %(date)s (%(session)s)."
+msgstr "%(student)s, que tenía la falta justificada, ha venido a clase (%(status)s) el %(date)s (%(session)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+msgid "The attendance of %(student)s on %(date)s (%(session)s) has been undone: the absence is justified again."
+msgstr "Se ha deshecho la asistencia de %(student)s el %(date)s (%(session)s): la falta vuelve a estar justificada."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Justified absence, but the student came to class"
+msgstr "Falta justificada, pero el alumno ha venido a clase"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Undo: the absence is justified again"
+msgstr "Deshacer: la falta vuelve a estar justificada"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "%s has a justified absence. Mark them as present anyway? Their tutor will be notified, and you can undo it."
+msgstr "%s tiene la falta justificada. ¿Quieres marcarlo como presente igualmente? Se avisará al tutor y podrás deshacerlo."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__came_despite_justification
+msgid "Came despite the justification"
+msgstr "Ha venido a pesar de la justificación"

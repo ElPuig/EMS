@@ -74,7 +74,10 @@ status for that session — it's saved immediately, no need to click a separate 
 
 - A shield icon next to a student's name means their absence is **already justified** (an approved
   justification or a prevision covers this session) — their status and notes are locked, since the
-  justification is what decides it.
+  justification is what decides it. The only exception is **Attended** and **Minor Delay**: if
+  the student came to class after all, click one of them. A warning asks you to confirm, the
+  student's tutor is told in their daily summary, and the line shows a check mark. The **undo**
+  button next to the name puts the justified absence back as if nothing had happened.
 - The **Justified Miss** button can't be clicked unless the centre allows it: only the student's
   tutor justifies an absence, by registering a justification. Hover over it to see why. Mark the
   student as **Miss** and the tutor's justification will turn it into a Justified Miss.

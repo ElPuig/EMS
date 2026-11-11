@@ -124,6 +124,8 @@ class AttendanceSessionView extends Component {
     // ── Data loading ──────────────────────────────────────────────────────────
 
     async _loadStatuses() {
+        // Issue #811: a justified line can be switched between these; the ordinary absence stays locked.
+        this.justifiedOverride = await this.orm.call("ems.attendance_session_line", "get_justified_override_statuses", []);
         const records = await this.orm.searchRead(
             "ems.attendance_status", [], ["id", "name", "roll_call_selectable", "category"], { order: "sequence" }
         );
@@ -362,8 +364,7 @@ class AttendanceSessionView extends Component {
             multipleSessionsWarning: _t("More than one session is scheduled for the current time slot. Please select one manually or switch to 'Manual' mode."),
             justifiedTitle:          _t("Justified: status and notes are locked."),
             cameTitle:               _t("Justified absence, but the student came to class"),
-            undoCame:                _t("Undo: the absence is justified again"),
-            cameConfirm:             (name) => sprintf(_t("%s has a justified absence. Mark them as present anyway? Their tutor will be notified, and you can undo it."), name),
+            cameConfirm:             (name) => sprintf(_t("%s has a justified absence. Change it anyway? Their tutor will be notified, and you can go back by marking the absence as justified again."), name),
             deleteSession:          _t("Delete session"),
             deleteSessionConfirm:   _t("Delete this session? This action cannot be undone."),
             removeLine:             _t("Remove from the roll-call (not required to attend)"),
@@ -463,11 +464,15 @@ class AttendanceSessionView extends Component {
     async onStatusClick(lineId, statusId) {
         if (this.state.saving[lineId]) return;
         const current = this.state.lines.find(l => l.id === lineId);
-        if (current && (current.attendance_justification_id || current.attendance_prevision_id)) {
-            // A justified student who comes to class (issue #811): asks first, the tutor is told.
+        if (current && this.isOverridable(current)) {
+            if (statusId === current.status_id) return;
+            // Switching away from justified asks first (issue #811); going back to it is the undo.
+            if (statusId === this.justifiedOverride.justified) {
+                return this._callChangeJustifiedStatus(lineId, statusId);
+            }
             this.dialog.add(ConfirmationDialog, {
                 body: this.strings.cameConfirm(current.student_id ? current.student_id[1] : ""),
-                confirm: () => this._callCameDespiteJustification("attend_despite_justification", lineId, [statusId]),
+                confirm: () => this._callChangeJustifiedStatus(lineId, statusId),
             });
             return;
         }
@@ -481,17 +486,23 @@ class AttendanceSessionView extends Component {
         }
     }
 
-    onUndoCameClick(lineId) {
-        return this._callCameDespiteJustification("undo_attend_despite_justification", lineId, []);
+    // A justified line whose status can still be switched (issue #811), as opposed to a locked one.
+    isOverridable(line) {
+        return !!(line.attendance_justification_id || line.attendance_prevision_id)
+            && (line.came_despite_justification || line.status_id === this.justifiedOverride.justified);
     }
 
-    async _callCameDespiteJustification(method, lineId, args) {
+    isOverridableStatus(statusId) {
+        return this.justifiedOverride.allowed.includes(statusId);
+    }
+
+    async _callChangeJustifiedStatus(lineId, statusId) {
         if (this.state.saving[lineId]) return;
         this.state.saving[lineId] = true;
         try {
-            await this.orm.call("ems.attendance_session_line", method,
-                [lineId, ...args, this.state.viewMode === 'guard']);
-            // The server decides the final status: reload the session's lines.
+            await this.orm.call("ems.attendance_session_line", "change_justified_status",
+                [lineId, statusId, this.state.viewMode === 'guard']);
+            // The server decides the final state: reload the session's lines.
             await this._loadLines(this._parseSelectedId());
         } finally {
             this.state.saving[lineId] = false;

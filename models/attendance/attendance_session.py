@@ -14,6 +14,9 @@ from psycopg2 import IntegrityError
 
 _logger = logging.getLogger(__name__)
 
+# What a justified line can be switched to, besides justified itself (issue #811): only the ordinary absence stays locked.
+JUSTIFIED_OVERRIDE_TARGETS = ('attended', 'delayed', 'delayed_severe')
+
 class EmsAttendanceSessionHeader(models.Model):
     _name = "ems.attendance_session_header"
     _description = "Attendance session header: contains the main data about an attendance session."
@@ -775,37 +778,44 @@ class EmsAttendanceSessionLine(models.Model):
 
     # --- a justified student comes to class after all (issue #811) --------------------------------
     # Not a mail.thread on the line nor a new status: the line has no chatter, and a status of its
-    # own would lose the original one (and its category/notifiable flags) that undoing must restore.
+    # own would lose the original one (and its category/notifiable flags) that going back must restore.
 
     @api.model
-    def attend_despite_justification(self, line_id, status_id, guard=False):
-        """The justified student came to class: moves the line to an assistance status
-        (attended or delayed) keeping its justification, and tells the student's tutor in their
-        daily summary. Undone by undo_attend_despite_justification()."""
+    def get_justified_override_statuses(self):
+        """What the roll-call offers on a justified line (issue #811): the ids of the justified
+        status and of every status it can be switched to. The ordinary absence stays locked."""
+        statuses = {xmlid: self.env.ref(f'ems.attendance_status_{xmlid}').id
+                    for xmlid in ('justified', *JUSTIFIED_OVERRIDE_TARGETS)}
+        return {'justified': statuses['justified'], 'allowed': list(statuses.values())}
+
+    @api.model
+    def change_justified_status(self, line_id, status_id, guard=False):
+        """The student of a justified line came to class (or not after all): switches the line
+        between justified, attended, minor delay and severe delay, keeping its justification
+        and notes, and tells the student's tutor in their daily summary. Going back to
+        justified is the undo."""
         line = self._line_to_override_justification(line_id, guard)
+        justified = self.env.ref('ems.attendance_status_justified')
         status = self.env['ems.attendance_status'].browse(status_id)
-        if line.came_despite_justification or line.status_id != self.env.ref('ems.attendance_status_justified'):
+        if not (line.attendance_justification_id or line.attendance_prevision_id) \
+                or not (line.came_despite_justification or line.status_id == justified):
             raise UserError(_("Only a justified absence can be changed to attendance."))
-        if status.category != 'assistance' or not status.roll_call_selectable:
-            raise UserError(_("A justified absence can only be changed to an attendance or a delay."))
-        line.write({'status_id': status.id, 'came_despite_justification': True})
-        line._queue_tutor_notice(lambda tutor_line: tutor_line.env._(
-            "%(student)s, whose absence was justified, came to class (%(status)s) on %(date)s (%(session)s).",
-            student=tutor_line.student_id.name, status=status.with_context(lang=tutor_line.env.lang).name,
-            date=tutor_line.attendance_session_id.date, session=tutor_line.attendance_session_id.display_name))
-        return True
-
-    @api.model
-    def undo_attend_despite_justification(self, line_id, guard=False):
-        """Back to the justified absence, as if the student had never come. The tutor is told."""
-        line = self._line_to_override_justification(line_id, guard)
-        if not line.came_despite_justification:
-            raise UserError(_("This student has not been marked as attending despite a justification."))
-        line.write({'status_id': self.env.ref('ems.attendance_status_justified').id, 'came_despite_justification': False})
-        line._queue_tutor_notice(lambda tutor_line: tutor_line.env._(
-            "The attendance of %(student)s on %(date)s (%(session)s) has been undone: the absence is justified again.",
-            student=tutor_line.student_id.name, date=tutor_line.attendance_session_id.date,
-            session=tutor_line.attendance_session_id.display_name))
+        if status != justified and status not in self.env['ems.attendance_status'].browse(
+                self.get_justified_override_statuses()['allowed']):
+            raise UserError(_("A justified absence can only be changed to an attendance, a delay or a severe delay."))
+        if status == line.status_id:
+            return True
+        line.write({'status_id': status.id, 'came_despite_justification': status != justified})
+        if status == justified:
+            line._queue_tutor_notice(lambda tutor_line: tutor_line.env._(
+                "The attendance of %(student)s on %(date)s (%(session)s) has been undone: the absence is justified again.",
+                student=tutor_line.student_id.name, date=tutor_line.attendance_session_id.date,
+                session=tutor_line.attendance_session_id.display_name))
+        else:
+            line._queue_tutor_notice(lambda tutor_line: tutor_line.env._(
+                "%(student)s, whose absence was justified, came to class (%(status)s) on %(date)s (%(session)s).",
+                student=tutor_line.student_id.name, status=status.with_context(lang=tutor_line.env.lang).name,
+                date=tutor_line.attendance_session_id.date, session=tutor_line.attendance_session_id.display_name))
         return True
 
     @api.model

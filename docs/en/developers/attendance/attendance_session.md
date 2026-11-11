@@ -319,17 +319,18 @@ existing) "Show only mine" filter.
 ## A justified student comes to class (issue #811)
 
 A line with a justification (or prevision) is locked in the roll-call, but the student may come to
-class anyway. `ems.attendance_session_line.came_despite_justification` marks that case: the line
-moves to an assistance status (attended or minor delay) and **keeps** its justification link and
-notes, so undoing it only puts the `justified` status back and clears the flag.
+class anyway. `ems.attendance_session_line.change_justified_status(line_id, status_id, guard)`
+switches such a line between `justified`, `attended`, `delayed` and `delayed_severe`; only the
+ordinary `miss` stays locked. The line **keeps** its justification link and notes, so going back
+to `justified` is the undo (there is no separate undo method), and
+`came_despite_justification` is simply "the status is not `justified`".
 
 ```mermaid
 flowchart LR
-    J["justified<br/>(justification linked)"] -->|"attend_despite_justification(status)"| A["attended / delayed<br/>came_despite_justification = True"]
-    A -->|"undo_attend_despite_justification()"| J
+    J["justified<br/>(justification linked)"] <-->|"change_justified_status(status)"| A["attended / delayed / delayed_severe<br/>came_despite_justification = True"]
+    A <-->|"any of them, no undo needed"| A
     A -->|"remove_justification()"| K["same status, link and flag cleared"]
     A -. "tutor notice (ems.info_notice)" .-> T["tutor's daily summary"]
-    J -. "undo notice" .-> T
 ```
 
 | Who | Allowed |
@@ -340,14 +341,18 @@ flowchart LR
 | Administrator | Yes |
 | Anyone else | `AccessError` |
 
-- Only `justified` lines can be changed, and only to a roll-call selectable status of category
-  `assistance`; anything else raises `UserError`.
-- Family notifications are untouched: justified and assistance statuses are both non-notifiable.
+- The line needs a justification or prevision link, and must be `justified` or already marked
+  `came_despite_justification`; a justified severe delay (stored as a minor delay with no flag)
+  stays locked, since that status is itself the justified state. Any other target raises `UserError`.
+- `get_justified_override_statuses()` tells the web client which statuses it may offer (the
+  constant `JUSTIFIED_OVERRIDE_TARGETS`).
+- Severe delay is notifiable: the usual `_update_notification` pipeline applies, exactly as if a
+  teacher had picked it on any line. Attended and minor delay are not notifiable.
 - The tutor notice goes through `ems.info_notice._ems_queue` (daily summary, never an email on
-  the spot), written in the tutor's language; no tutor, no notice.
+  the spot), written in the tutor's language, on every change; no tutor, no notice.
 - `ems.attendance_justification.remove_justification()` / `unlink()` clear the flag and keep the
   attendance status instead of turning the line back into a miss.
-- The web client asks for confirmation (`ConfirmationDialog`) before calling the RPC and reloads
-  the session's lines afterwards.
+- The web client asks for confirmation (`ConfirmationDialog`) when leaving `justified`, not when
+  going back to it, and reloads the session's lines afterwards.
 - Why not a new status or `mail.thread` on the line: a status of its own would lose the original
   one, and the line has no chatter; the daily summary already is the non-urgent staff channel.

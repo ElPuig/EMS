@@ -95,12 +95,30 @@ registry.category("web_tour.tours").add("ems_attendance_session_continuation", {
             content: "Ana Bosch now attends",
         },
         {
-            trigger: ".ems-av-line:has(.ems-av-name:contains('Ana Bosch')) .ems-av-came-btn",
-            content: "Undo: the justified absence comes back as if nothing had happened",
+            trigger: ".ems-av-line:has(.ems-av-name:contains('Ana Bosch')) .ems-av-td-status:nth-child(4) .ems-av-status-btn:not(:disabled)",
+            content: "Switching needs no undo: Severe Delay can be picked directly",
             run: "click",
         },
         {
-            trigger: ".ems-av-line:has(.ems-av-name:contains('Ana Bosch')) .ems-av-justified-icon",
+            trigger: ".modal-footer .btn-primary",
+            content: "Confirm the second change",
+            run: "click",
+        },
+        {
+            trigger: ".ems-av-line:has(.ems-av-name:contains('Ana Bosch')) .ems-av-td-status:nth-child(4) .ems-av-status-btn--active",
+            content: "Ana Bosch is now marked with a severe delay",
+        },
+        {
+            trigger: ".ems-av-line:has(.ems-av-name:contains('Ana Bosch')) .ems-av-td-status:nth-child(5) .ems-av-status-btn:disabled",
+            content: "The ordinary absence stays locked",
+        },
+        {
+            trigger: ".ems-av-line:has(.ems-av-name:contains('Ana Bosch')) .ems-av-td-status:nth-child(6) .ems-av-status-btn:not(:disabled)",
+            content: "Justified is offered again: picking it goes back, with no confirmation",
+            run: "click",
+        },
+        {
+            trigger: ".ems-av-line:has(.ems-av-name:contains('Ana Bosch')) .ems-av-justified-icon.fa-shield",
             content: "Ana Bosch's absence is justified again",
         },
         {

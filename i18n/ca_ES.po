@@ -49470,8 +49470,8 @@ msgstr "Només una falta justificada es pot canviar a assistència."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_session.py:0
-msgid "A justified absence can only be changed to an attendance or a delay."
-msgstr "Una falta justificada només es pot canviar a assistència o a retard."
+msgid "A justified absence can only be changed to an attendance, a delay or a severe delay."
+msgstr "Una falta justificada només es pot canviar a assistència, retard o retard greu."
 
 #. module: ems
 #. odoo-python
@@ -49506,14 +49506,8 @@ msgstr "Falta justificada, però l'alumne ha vingut a classe"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
-msgid "Undo: the absence is justified again"
-msgstr "Desfés: la falta torna a estar justificada"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
-msgid "%s has a justified absence. Mark them as present anyway? Their tutor will be notified, and you can undo it."
-msgstr "%s té la falta justificada. El vols marcar com a present igualment? Se n'avisarà el tutor i ho podràs desfer."
+msgid "%s has a justified absence. Change it anyway? Their tutor will be notified, and you can go back by marking the absence as justified again."
+msgstr "%s té la falta justificada. El vols canviar igualment? Se n'avisarà el tutor i podràs tornar enrere marcant la falta com a justificada de nou."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__came_despite_justification

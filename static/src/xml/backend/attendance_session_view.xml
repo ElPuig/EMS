@@ -159,6 +159,7 @@
                             <tbody>
                                 <t t-foreach="state.lines" t-as="line" t-key="line.id">
                                     <t t-set="isJustified" t-value="!!(line.attendance_justification_id || line.attendance_prevision_id)"/>
+                                    <t t-set="canSwitch" t-value="isOverridable(line)"/>
                                     <t t-set="isRemoved" t-value="!line.active"/>
                                     <tr t-att-class="{
                                             'ems-av-line': true,
@@ -176,16 +177,10 @@
                                             <i t-if="isJustified and !line.came_despite_justification"
                                                class="fa fa-shield ems-av-justified-icon"
                                                t-att-title="strings.justifiedTitle"/>
-                                            <!-- Issue #811: justified, but they came; undoing puts the justified absence back. -->
-                                            <button t-if="line.came_despite_justification"
-                                                    class="btn btn-link p-0 ms-1 ems-av-came-btn"
-                                                    t-att-title="strings.undoCame"
-                                                    t-att-disabled="state.saving[line.id]"
-                                                    t-on-click="() => this.onUndoCameClick(line.id)">
-                                                <i class="fa fa-check-circle ems-av-justified-icon"
-                                                   t-att-title="strings.cameTitle"/>
-                                                <i class="fa fa-undo"/>
-                                            </button>
+                                            <!-- Issue #811: justified, but they came; marking Justified again goes back. -->
+                                            <i t-if="line.came_despite_justification"
+                                               class="fa fa-check-circle ems-av-justified-icon"
+                                               t-att-title="strings.cameTitle"/>
                                             <!-- Issue #644: why the system took them off (an expected withdrawal...). -->
                                             <small t-if="isRemoved and line.not_expected_reason"
                                                    class="ems-av-removed-reason d-block text-muted"
@@ -193,15 +188,15 @@
                                         </td>
                                         <t t-foreach="statuses" t-as="s" t-key="s.key">
                                             <!-- The title also goes on the cell: some browsers don't show a disabled button's own. -->
-                                            <td class="ems-av-td-status" t-att-title="s.selectable ? false : s.lockedTitle">
+                                            <td class="ems-av-td-status" t-att-title="s.selectable or canSwitch ? false : s.lockedTitle">
                                                 <button class="ems-av-status-btn"
                                                         t-att-class="{
                                                             'ems-av-status-btn--active': line.status_id === s.key,
-                                                            'ems-av-status-btn--locked': !s.selectable,
+                                                            'ems-av-status-btn--locked': !s.selectable and !canSwitch,
                                                         }"
-                                                        t-att-title="s.selectable ? s.title : s.lockedTitle"
-                                                        t-att-disabled="state.saving[line.id] || isRemoved || !s.selectable
-                                                            || (isJustified and (line.came_despite_justification or s.category !== 'assistance'))"
+                                                        t-att-title="s.selectable or canSwitch ? s.title : s.lockedTitle"
+                                                        t-att-disabled="state.saving[line.id] || isRemoved
+                                                            || (canSwitch ? !isOverridableStatus(s.key) : (isJustified || !s.selectable))"
                                                         t-on-click="() => this.onStatusClick(line.id, s.key)">
                                                     <t t-esc="s.label"/>
                                                 </button>

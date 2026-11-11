@@ -17,7 +17,8 @@
 5. [Desfer una decisió](#desfer-una-decisió)
 6. [Informe per empleat](#informe-per-empleat)
 7. [Informe mensual](#informe-mensual)
-8. [Absències detectades](#absències-detectades)
+8. [Vagues del personal](#vagues-del-personal)
+9. [Absències detectades](#absències-detectades)
 
 ---
 
@@ -181,6 +182,35 @@ La columna **Hores per salut** suma les hores del tipus `Salut` de cada persona.
 Agrupat per mes, amb la suma d'hores i el nombre d'absències de cada mes. Hi entren només les absències amb **Suma les hores a l'informe mensual** marcat, i queden fora les rebutjades i les cancel·lades.
 
 Per canviar el període, treu el filtre **Curs actual** i tria el que necessitis.
+
+---
+
+## Vagues del personal
+
+**Absències > Informes > Vagues**, només per a la directora o el director.
+
+Un dia de vaga, les xifres del formulari del Departament que cal emplenar aproximadament cada hora: quantes persones del personal (docents i personal d'administració i serveis) estan en vaga fins al moment, separades per tipus de contracte.
+
+1. Tria el dia (per defecte avui, o un dia que ja hagi passat) i fes clic a **Mostra**.
+2. Cada fila és una franja del dia que ja ha començat. Per a cada col·lectiu i tipus de contracte hi ha quatre xifres:
+   - **En vaga**: qui no ha fitxat en tot el dia, comptat des de la primera franja del seu horari que ha començat. Continua comptant en les franges següents: cada xifra acumula les anteriors.
+   - **No vaga**: qui havia de treballar i ha fitxat o té una absència justificada.
+   - **Havien de treballar**: qui tenia una franja del seu horari ja començada en aquell moment.
+   - **% vaga**: el percentatge de qui havia de treballar que està en vaga.
+
+   La fila **Total** suma totes les franges i, com que cada franja ja inclou les anteriors, no té sentit: no en facis cas. La xifra que cal informar és la de l'última franja.
+3. Fes clic a una xifra per veure els noms, o canvia a la vista de llista. El botó de baixada exporta la taula a un full de càlcul.
+
+![Informe de vagues: una fila per franja i, per a cada col·lectiu i tipus de contracte, En vaga, No vaga, Havien de treballar i % vaga](../../assets/head_of_studies/hos-staff-walkout-report.png)
+
+No compten com a vaga:
+
+- Qui té una sol·licitud d'absència que cobreix aquella franja, aprovada o pendent d'aprovar (baixes, permisos, formació...): compta com a no vaga.
+- Qui ha fitxat en algun moment del dia, encara que sigui tard.
+
+Les xifres d'avui són les del moment en què fas clic a **Mostra**, i el títol indica aquella hora. Si recarregues la pàgina, tornes a veure les mateixes xifres: per actualitzar-les, torna a obrir l'informe des del menú.
+
+Només hi apareix el personal que té el seu horari a EMS. El tipus de contracte és el camp **Tipus de contracte** de la fitxa de l'empleat, al costat del tipus d'empleat; qui no en té apareix a **Cap**.
 
 ---
 

@@ -124,11 +124,14 @@ class AttendanceSessionView extends Component {
     // ── Data loading ──────────────────────────────────────────────────────────
 
     async _loadStatuses() {
+        // Issue #811: a justified line can be switched between these; the ordinary absence stays locked.
+        this.justifiedOverride = await this.orm.call("ems.attendance_session_line", "get_justified_override_statuses", []);
         const records = await this.orm.searchRead(
-            "ems.attendance_status", [], ["id", "name", "roll_call_selectable"], { order: "sequence" }
+            "ems.attendance_status", [], ["id", "name", "roll_call_selectable", "category"], { order: "sequence" }
         );
-        this.statuses = records.map(({ id, name, roll_call_selectable }) => ({
+        this.statuses = records.map(({ id, name, roll_call_selectable, category }) => ({
             key: id,
+            category,
             title: name,
             // Not selectable: still shown (and highlighted when a line has it), never clickable.
             selectable: roll_call_selectable,
@@ -213,7 +216,7 @@ class AttendanceSessionView extends Component {
         const lines = await this.orm.searchRead(
             "ems.attendance_session_line",
             [["attendance_session_id", "=", sessionId]],
-            ["id", "student_id", "status_id", "notes", "attendance_justification_id", "attendance_prevision_id", "strike_ids", "active", "not_expected_reason", "roll_call_label"],
+            ["id", "student_id", "status_id", "notes", "attendance_justification_id", "attendance_prevision_id", "strike_ids", "active", "not_expected_reason", "roll_call_label", "came_despite_justification"],
             // Removed (archived) lines are still listed, greyed out, so they can be restored.
             { context: { active_test: false } },
         );
@@ -360,6 +363,8 @@ class AttendanceSessionView extends Component {
             continuationBanner:     _t("A previous session for the same subject has been detected for today, so assistance data has been copied from the previous one. You can modify any of those as you please."),
             multipleSessionsWarning: _t("More than one session is scheduled for the current time slot. Please select one manually or switch to 'Manual' mode."),
             justifiedTitle:          _t("Justified: status and notes are locked."),
+            cameTitle:               _t("Justified absence, but the student came to class"),
+            cameConfirm:             (name) => sprintf(_t("%s has a justified absence. Change it anyway? Their tutor will be notified, and you can go back by marking the absence as justified again."), name),
             deleteSession:          _t("Delete session"),
             deleteSessionConfirm:   _t("Delete this session? This action cannot be undone."),
             removeLine:             _t("Remove from the roll-call (not required to attend)"),
@@ -458,11 +463,47 @@ class AttendanceSessionView extends Component {
 
     async onStatusClick(lineId, statusId) {
         if (this.state.saving[lineId]) return;
+        const current = this.state.lines.find(l => l.id === lineId);
+        if (current && this.isOverridable(current)) {
+            if (statusId === current.status_id) return;
+            // Switching away from justified asks first (issue #811); going back to it is the undo.
+            if (statusId === this.justifiedOverride.justified) {
+                return this._callChangeJustifiedStatus(lineId, statusId);
+            }
+            this.dialog.add(ConfirmationDialog, {
+                body: this.strings.cameConfirm(current.student_id ? current.student_id[1] : ""),
+                confirm: () => this._callChangeJustifiedStatus(lineId, statusId),
+            });
+            return;
+        }
         this.state.saving[lineId] = true;
         try {
             await this._writeSessionLine(lineId, { status_id: statusId });
             const line = this.state.lines.find(l => l.id === lineId);
             if (line) line.status_id = statusId;
+        } finally {
+            this.state.saving[lineId] = false;
+        }
+    }
+
+    // A justified line whose status can still be switched (issue #811), as opposed to a locked one.
+    isOverridable(line) {
+        return !!(line.attendance_justification_id || line.attendance_prevision_id)
+            && (line.came_despite_justification || line.status_id === this.justifiedOverride.justified);
+    }
+
+    isOverridableStatus(statusId) {
+        return this.justifiedOverride.allowed.includes(statusId);
+    }
+
+    async _callChangeJustifiedStatus(lineId, statusId) {
+        if (this.state.saving[lineId]) return;
+        this.state.saving[lineId] = true;
+        try {
+            await this.orm.call("ems.attendance_session_line", "change_justified_status",
+                [lineId, statusId, this.state.viewMode === 'guard']);
+            // The server decides the final state: reload the session's lines.
+            await this._loadLines(this._parseSelectedId());
         } finally {
             this.state.saving[lineId] = false;
         }

@@ -64,6 +64,11 @@ class TestAttendanceSessionTour(HttpCase):
             'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': cls.group.id,
         })
 
+        # Ana Bosch is justified for the whole day: the tour marks her as attending and undoes it (issue #811).
+        cls.env['ems.attendance_justification'].create({
+            'teacher_id': cls.teacher_employee.id, 'student_ids': [(6, 0, cls.student2.ids)], 'day': cls.today,
+        })
+
         cls.template = cls.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, [cls.teacher_employee.id])],
             'study_ids': [(6, 0, [cls.study.id])], 'subject_id': cls.subject.id,

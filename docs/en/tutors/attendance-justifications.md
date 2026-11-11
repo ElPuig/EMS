@@ -32,7 +32,7 @@ Unless the centre allows it in its settings, a justification is the only way to 
 
 The **Affected sessions** tab lists, for every student, the sessions within the period where they had an absence or a severe delay.
 
-In the roll-call, the justified lines show a shield and can no longer be changed by the teacher. Their note says who justified them ("Absence justified by: ..." or "Severe delay justified by: ...").
+In the roll-call, the justified lines show a shield and the teacher can no longer change them, except to say that the student came to class after all (Attended, Minor Delay or Severe Delay). You are then told in your daily summary, and the teacher can go back to Justified Miss at any time. Their note says who justified them ("Absence justified by: ..." or "Severe delay justified by: ...").
 
 A student cannot have two justifications with overlapping periods. When you add a group, the students who already have one are not added, and a message names them. If you add one by hand, a yellow notice names them: remove them from the list to save.
 

@@ -315,3 +315,44 @@ has to be declared explicitly — confirmed empirically, see the sibling note in
 `attendance_template.md`). Also added a plain `<field name="session_teacher_id" string="Teacher">`
 so free-text search can find a session by teacher name at all, not just via the (already
 existing) "Show only mine" filter.
+
+## A justified student comes to class (issue #811)
+
+A line with a justification (or prevision) is locked in the roll-call, but the student may come to
+class anyway. `ems.attendance_session_line.change_justified_status(line_id, status_id, guard)`
+switches such a line between `justified`, `attended`, `delayed` and `delayed_severe`; only the
+ordinary `miss` stays locked. The line **keeps** its justification link and notes, so going back
+to `justified` is the undo (there is no separate undo method), and
+`came_despite_justification` is simply "the status is not `justified`".
+
+```mermaid
+flowchart LR
+    J["justified<br/>(justification linked)"] <-->|"change_justified_status(status)"| A["attended / delayed / delayed_severe<br/>came_despite_justification = True"]
+    A <-->|"any of them, no undo needed"| A
+    A -->|"remove_justification()"| K["same status, link and flag cleared"]
+    A -. "tutor notice (ems.info_notice)" .-> T["tutor's daily summary"]
+```
+
+| Who | Allowed |
+|-----|---------|
+| Session's teacher | Yes, through their own record rules (`check_access('write')`) |
+| Guard teacher (`guard=True`) | Yes, any teacher, the same rule as `write_guard_session_line` |
+| Student's tutor and the chiefs above them | Yes, whoever owns the session: the line's own record rules (`tutor_scope_user_ids`, issue #483) let them write it |
+| Administrator | Yes |
+| Anyone else | `AccessError` |
+
+- The line needs a justification or prevision link, and must be `justified` or already marked
+  `came_despite_justification`; a justified severe delay (stored as a minor delay with no flag)
+  stays locked, since that status is itself the justified state. Any other target raises `UserError`.
+- `get_justified_override_statuses()` tells the web client which statuses it may offer (the
+  constant `JUSTIFIED_OVERRIDE_TARGETS`).
+- Severe delay is notifiable: the usual `_update_notification` pipeline applies, exactly as if a
+  teacher had picked it on any line. Attended and minor delay are not notifiable.
+- The tutor notice goes through `ems.info_notice._ems_queue` (daily summary, never an email on
+  the spot), written in the tutor's language, on every change; no tutor, no notice.
+- `ems.attendance_justification.remove_justification()` / `unlink()` clear the flag and keep the
+  attendance status instead of turning the line back into a miss.
+- The web client asks for confirmation (`ConfirmationDialog`) when leaving `justified`, not when
+  going back to it, and reloads the session's lines afterwards.
+- Why not a new status or `mail.thread` on the line: a status of its own would lose the original
+  one, and the line has no chatter; the daily summary already is the non-urgent staff channel.

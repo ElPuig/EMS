@@ -273,6 +273,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         student_c = self._student(group, 'Nerea Prova')
         student_d = self._student(group, 'Iker Model')
         student_e = self._student(group, 'Laia Exemple')
+        student_f = self._student(group, 'Jana Prova')
 
         # The clock is set to 10:00 (shift_ems_clock), inside this whole-day slot: the schedule
         # is the current one whatever time this capture actually runs at.
@@ -285,7 +286,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         schedule = self.env['ems.attendance_schedule'].create({
             'attendance_template_id': template.id, 'weekday': weekday,
             'start_time': 0.0, 'end_time': 23.0, 'space_id': space.id,
-            'student_ids': [(6, 0, (student_a + student_b + student_c + student_d + student_e).ids)],
+            'student_ids': [(6, 0, (student_a + student_b + student_c + student_d + student_e + student_f).ids)],
         })
         session = self.env['ems.attendance_session_header'].create({
             'attendance_schedule_id': schedule.id, 'date': today,
@@ -309,7 +310,18 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             'end_date': datetime.combine(today, datetime.max.time()),
             'notes': 'Visita mèdica',
         })
-        line_c.write({'status_id': status_miss.id, 'attendance_justification_id': justification.id})
+        line_c.write({'status_id': self.env.ref('ems.attendance_status_justified').id,
+                      'attendance_justification_id': justification.id})
+        # Issue #811: justified, but she came to class after all (check mark, status buttons open).
+        justification_f = self.env['ems.attendance_justification'].create({
+            'teacher_id': self.teacher_employee.id, 'student_ids': [(6, 0, student_f.ids)],
+            'start_date': datetime.combine(today, datetime.min.time()),
+            'end_date': datetime.combine(today, datetime.max.time()),
+            'notes': 'Cita mèdica',
+        })
+        lines.filtered(lambda line: line.student_id == student_f).write({
+            'status_id': status_attended.id, 'attendance_justification_id': justification_f.id,
+            'came_despite_justification': True})
         # Removed from the roll-call (issue #537): greyed out, last in the list, restore button.
         lines.filtered(lambda line: line.student_id == student_d).active = False
         # Issue #644: taken off by EMS itself, with the reason under the name (a module she won't

@@ -32,7 +32,7 @@ Llevat que el centre ho permeti a la seva configuració, una justificació és l
 
 La pestanya **Sessions afectades** mostra, per a cada alumne, les sessions del període en què tenia una falta o un retard greu.
 
-Al passi de llista, les línies justificades mostren un escut i el docent ja no les pot canviar. La seva nota indica qui les ha justificat ("Falta justificada per: ..." o "Retard greu justificat per: ...").
+Al passi de llista, les línies justificades mostren un escut i el docent ja no les pot canviar, tret que l'alumne hagi vingut a classe després de tot (Assistència, Retard lleu o Retard greu). Llavors ho veus al teu resum diari, i el docent pot tornar a Falta justificada en qualsevol moment. La seva nota indica qui les ha justificat ("Falta justificada per: ..." o "Retard greu justificat per: ...").
 
 Un alumne no pot tenir dos justificants amb períodes que se superposin. Quan afegeixes un grup, els alumnes que ja en tenen un no s'afegeixen, i un missatge t'indica quins són. Si n'afegeixes algun manualment, un avís groc l'indica: treu-lo de la llista per poder desar.
 

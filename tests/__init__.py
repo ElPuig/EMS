@@ -345,3 +345,6 @@ from . import test_erasmus_call_fewer_fields
 from . import test_erasmus_call_fewer_fields_tour
 from . import test_erasmus_polish_default_data
 from . import test_erasmus_polish_default_data_tour
+from . import test_staff_walkout_report
+from . import test_staff_walkout_report_tour
+from . import test_docs_screenshots_staff_walkout

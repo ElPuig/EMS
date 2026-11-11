@@ -160,3 +160,15 @@ class TestStaffWalkoutReport(TransactionCase):
         sunday = self.yesterday - timedelta(days=self.yesterday.weekday() + 1)
         with self.assertRaises(UserError):
             report.create({'date': sunday}).action_open_report()
+
+    def test_no_report_on_a_public_holiday(self):
+        self._employee('TSSR Holiday Teacher')
+        utils = self.env['ems.datetime_utils']
+        self.env['resource.calendar.leaves'].create({
+            'name': 'TSSR Holiday',
+            'date_from': utils.datetime_to_odoo(utils.time_float_to_utc_datetime(self.yesterday, 0.0)),
+            'date_to': utils.datetime_to_odoo(utils.time_float_to_utc_datetime(self.yesterday, 23.9)),
+        })
+        report = self.env['ems.staff_walkout_report'].with_user(self.director).create({'date': self.yesterday})
+        with self.assertRaisesRegex(UserError, 'TSSR Holiday'):
+            report.action_open_report()

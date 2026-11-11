@@ -49562,3 +49562,9 @@ msgstr "Vagues"
 #: code:addons/ems/models/employees/staff_strike_report.py:0
 msgid "Staff strikes on %s"
 msgstr "Vaga del %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_strike_report.py:0
+msgid "Staff strikes on %(day)s at %(time)s"
+msgstr "Vaga del %(day)s a les %(time)s"

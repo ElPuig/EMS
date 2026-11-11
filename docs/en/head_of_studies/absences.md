@@ -204,7 +204,7 @@ Not counted as on strike:
 - Whoever has an absence request covering that slot, approved or waiting for approval (sick leave, permissions, training...). They are not counted as expected to work either.
 - Whoever has checked in at any time of the day, even late.
 
-Today's figures are those at the moment you open the report: open it again to update them.
+Today's figures are those at the moment you click **Show**, and the title says that time. Reloading the page shows the same figures again: to update them, open the report again from the menu.
 
 Only staff with their own schedule in EMS appear. The contract type is the **Contract Type** field of the employee's form, next to the employee type; whoever does not have one appears under **None**.
 

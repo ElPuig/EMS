@@ -130,6 +130,9 @@ class TestStaffStrikeReport(TransactionCase):
         striker = self._employee('TSSR Striker Today')
 
         lines = self._lines(self.today)
+        # Reloading the page shows the same lines again: the title says when they were read.
+        report = self.env['ems.staff_strike_report'].with_user(self.director).create({'date': self.today})
+        self.assertRegex(report.action_open_report()['name'], r' 10:\d\d$')
 
         # 10:00 on the shifted clock: the 10:00 period has just started, the 12:00 one has not.
         self.assertEqual((min(lines[striker]), max(lines[striker])), ('08:00', '10:00'))

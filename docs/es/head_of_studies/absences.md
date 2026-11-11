@@ -202,7 +202,7 @@ No cuentan como huelga:
 - Quien tiene una solicitud de ausencia que cubre esa franja, aprobada o pendiente de aprobar (bajas, permisos, formación...). Tampoco cuenta entre quien debía trabajar.
 - Quien ha fichado en algún momento del día, aunque sea tarde.
 
-Las cifras de hoy son las del momento en que abres el informe: vuelve a abrirlo para actualizarlas.
+Las cifras de hoy son las del momento en que haces clic en **Mostrar**, y el título indica esa hora. Si recargas la página, vuelves a ver las mismas cifras: para actualizarlas, vuelve a abrir el informe desde el menú.
 
 Solo aparece el personal que tiene su horario en EMS. El tipo de contrato es el campo **Tipo de contrato** de la ficha del empleado, junto al tipo de empleado; quien no tiene ninguno aparece en **Ninguno**.
 

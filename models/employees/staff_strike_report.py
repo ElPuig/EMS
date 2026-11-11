@@ -35,13 +35,23 @@ class EmsStaffStrikeReport(models.TransientModel):
         self.line_ids = [fields.Command.create(values) for values in self._get_line_values()]
         return {
             'type': 'ir.actions.act_window',
-            'name': _("Staff strikes on %s", self.date.strftime('%d/%m/%Y')),
+            'name': self._get_title(),
             'res_model': 'ems.staff_strike_report.line',
             'view_mode': 'pivot,list',
             'views': [(False, 'pivot'), (False, 'list')],
             'domain': [('report_id', '=', self.id)],
             'target': 'current',
         }
+
+    def _get_title(self):
+        """The pivot's title. Today's carries the time the figures were read at: the lines are
+        computed once, on Show, so reloading the page shows them again, and the time is what tells
+        the Director they are no longer current."""
+        local_now = self.env['ems.datetime_utils'].get_local_datetime()
+        day = self.date.strftime('%d/%m/%Y')
+        if self.date == local_now.date():
+            return _("Staff strikes on %(day)s at %(time)s", day=day, time=local_now.strftime('%H:%M'))
+        return _("Staff strikes on %s", day)
 
     def _get_line_values(self):
         """One line per period of the day already started and per member of staff expected to

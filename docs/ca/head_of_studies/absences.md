@@ -202,7 +202,7 @@ No compten com a vaga:
 - Qui té una sol·licitud d'absència que cobreix aquella franja, aprovada o pendent d'aprovar (baixes, permisos, formació...). Tampoc no compta entre qui havia de treballar.
 - Qui ha fitxat en algun moment del dia, encara que sigui tard.
 
-Les xifres d'avui són les del moment en què obres l'informe: torna'l a obrir per actualitzar-les.
+Les xifres d'avui són les del moment en què fas clic a **Mostra**, i el títol indica aquella hora. Si recarregues la pàgina, tornes a veure les mateixes xifres: per actualitzar-les, torna a obrir l'informe des del menú.
 
 Només hi apareix el personal que té el seu horari a EMS. El tipus de contracte és el camp **Tipus de contracte** de la fitxa de l'empleat, al costat del tipus d'empleat; qui no en té apareix a **Cap**.
 

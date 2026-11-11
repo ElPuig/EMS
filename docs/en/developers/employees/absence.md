@@ -1254,6 +1254,8 @@ depend on the data, and the pivot already gives the names behind each figure (dr
 list) and the xlsx download the Director relies on. `ems.staff_strike_report` (the date) owns its
 `ems.staff_strike_report.line`s through `report_id`; both are `TransientModel`s, vacuumed by Odoo.
 Lines are built in one batch: about 1,500 lines for a day of this dev database, 0.33 s cold.
+The lines are computed once, on **Show**, so reloading the pivot shows them again: today's title
+carries the time they were read at (`_get_title`), which is what tells the Director they are stale.
 
 **Reuse:** the absence intervals come from `ems.course._get_guard_duty_leave_intervals`, extracted
 from the guard duty board's `_get_guard_duty_absence_intervals` (which adds the detected absences

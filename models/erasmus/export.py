@@ -70,17 +70,29 @@ class EmsErasmusExport(models.Model):
     zip_sha256 = fields.Char(string="SHA-256 of the ZIP", readonly=True,
                              help="To check that a copy archived elsewhere is the one downloaded.")
     can_audit = fields.Boolean(string="Can export for an audit", compute='_compute_can_audit')
+    # Issue #782 (10.12): the log line says what was exported, with the participant's or the group's name.
+    subject = fields.Char(string="Exported", compute='_compute_subject')
 
     @api.depends_context('uid')
     def _compute_can_audit(self):
         self.can_audit = self._ems_is_auditor()
 
+    def _ems_target_name(self):
+        self.ensure_one()
+        return {'record': self.mobility_id.display_name, 'group': self.group_mobility_id.display_name,
+                'participants': (self.call_id or self.group_mobility_id).display_name,
+                }.get(self.scope) or self.project_id.name
+
+    @api.depends('scope', 'project_id', 'mobility_id', 'group_mobility_id', 'call_id')
+    def _compute_subject(self):
+        scopes = dict(self._fields['scope']._description_selection(self.env))
+        for export in self:
+            target = export.scope != 'project' and export._ems_target_name()
+            export.subject = f"{scopes.get(export.scope)} - {target}" if target else scopes.get(export.scope)
+
     def _compute_display_name(self):
         for export in self:
-            target = {'record': export.mobility_id.display_name, 'group': export.group_mobility_id.display_name,
-                      'participants': (export.call_id or export.group_mobility_id).display_name,
-                      }.get(export.scope) or export.project_id.name
-            export.display_name = f"{target} - {export.date and export._ems_local(export.date)}"
+            export.display_name = f"{export._ems_target_name()} - {export.date and export._ems_local(export.date)}"
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -440,7 +452,8 @@ class EmsErasmusExport(models.Model):
                                'fewer_opportunities_check')}
         audit = self.include_confidential
         header = [_("Rank"), _("Student"), _("Group at closing"), _("Enrolment"), _("Record average"),
-                  _("Average entered by hand"), _("Where the average comes from"), _("Meets the requirements"),
+                  _("Average entered by hand"), _("Where the average comes from"), _("Score"),
+                  _("Meets the requirements"),
                   _("Draw"), _("Proposed"), _("Exception"), _("Reason for the exception"), _("Result"),
                   _("Renounced on"), _("Replaces")]
         if audit:
@@ -450,6 +463,9 @@ class EmsErasmusExport(models.Model):
             row = [registration.rank or '', registration.partner_id.name, registration.frozen_group_id.display_name or '',
                    labels['state'].get(registration.state, ''), registration._ems_average() if registration.has_average
                    else '', _("Yes") if registration.grade_manual else '', registration.grade_manual_reason or '',
+                   # Issue #773: the score, in a mobility ranked by it.
+                   registration.score if registration.has_average and registration.group_mobility_id.rank_by_score
+                   else '',
                    _("Yes") if registration.eligible else _("No"), registration.draw_order or '',
                    labels['proposed_result'].get(registration.proposed_result, ''),
                    labels['result_override'].get(registration.result_override, ''), registration.override_reason or '',

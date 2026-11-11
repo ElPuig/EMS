@@ -120,7 +120,7 @@ sequenceDiagram
     participant F as Project or mobility form
     participant X as ems.erasmus.export
     participant C as /ems/erasmus/export/<id>
-    U->>F: Export the project / Export the record
+    U->>F: Download the project archive (ZIP) / Export the record
     F->>X: dialog (_ems_open_wizard)
     U->>X: Download the ZIP (create, action_generate)
     X->>C: act_url

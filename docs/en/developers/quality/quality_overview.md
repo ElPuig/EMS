@@ -265,6 +265,14 @@ the call* (`send_call`, which needs an email) is ticked, and then in a message o
 in `call_recipient_count`. Access is the same as the minute's other line models (ACL, no rule of their own). The form keeps the table hidden behind a switch (`show_guests`, non-stored, computed from
 `guest_ids` and editable) until somebody is added, so the attendance block stays short.
 
+**Annexes** (issue #803): `annex_attachment_ids`, files uploaded from the writer's computer
+(`ir.attachment`, `many2many_binary` widget, the native upload), in the form's *Annexes* block and listed
+in the PDF. A file uploaded while the minute is still unsaved has no `res_id`, so
+`ir.attachment` only lets its uploader read it; `_ems_link_annex_files()` (from `create()` and from
+`write()` of `annex_attachment_ids`) gives it the minute's `res_model`/`res_id`, so it follows the minute's
+own access (whoever reads the minute downloads it, whoever writes it removes it). It only takes over files
+the person saving uploaded (or any, under superuser). The list is read-only once approved.
+
 ### Who can start each kind of minute
 
 `ems.minute.type` declares it with two fields, set per type in **Meetings → Configuration → Minute
@@ -433,8 +441,9 @@ only edits the ones they created (`security/rules/communications.xml`). Only qua
 and loads its links.
 
 A committee member is given the group either by hand (the *Quality* selector of the user form) or by
-being a member of the committee workgroup, the catalogue's `ems.quality` ("Quality Comission",
-`data/cat/ems.workgroup.csv`; no flag on the workgroup model). `ems.workgroup._ems_sync_quality_committee()`
+being a member of the committee workgroup, `ems.quality` ("Comissió de Qualitat",
+`data/main/ems.workgroup.xml`; no flag on the workgroup model). Its data file is `noupdate`, so the
+centre can rename it from the app and no upgrade puts the original name back. `ems.workgroup._ems_sync_quality_committee()`
 adds the group to whoever joins it and takes it from whoever leaves it, on every change of its
 `employee_ids` and on its unlink, following the role sync's rule (`hr.employee._sync_security_groups`):
 someone given the group by hand without being a member is never touched, and quality coordination keeps

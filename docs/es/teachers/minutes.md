@@ -144,6 +144,9 @@ rellenándolos a medida que avanza la reunión.
 
   ![Bloque Acuerdos durante la reunión: ficha de un acuerdo con fecha límite, personas responsables, personas implicadas, contenido y descripción](../../assets/teachers/actes-08-acords.png)
 - **Temas pendientes:** al final, como lista.
+- **Documentos anexos:** los documentos que acompañan el acta. El botón **Archivos adjuntos** adjunta archivos
+  de vuestro ordenador (un PDF, una hoja de cálculo...). Quien puede leer el acta los puede descargar, y el PDF
+  los lista.
 
 El acta se guarda sola mientras escribís, en las pausas, sin mover el cursor de donde escribís. **Abrir el borrador del acta**, arriba y abajo de
 la pantalla, muestra el PDF tal como quedaría, marcado como borrador, mientras el acta está en reunión o

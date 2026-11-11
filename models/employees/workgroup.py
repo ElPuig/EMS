@@ -37,7 +37,7 @@ class EmsWorkgroup(models.Model):
 
 	@api.model
 	def _ems_quality_committee(self):
-		"""The quality committee: the catalogue's own 'Quality Comission' (ems.quality), the one
+		"""The quality committee: the 'Comissió de Qualitat' workgroup (ems.quality), the one
 		workgroup whose members get the committee's access."""
 		return self.env.ref('ems.quality', raise_if_not_found=False) or self.browse()
 

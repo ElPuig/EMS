@@ -30,7 +30,7 @@
                                 <field name="is_required" column_invisible="1"/>
                                 <field name="signed" widget="boolean_toggle" readonly="sign_signer_id"/>
                                 <field name="signed_user_id"/>
-                                <field name="signed_date"/>
+                                <field name="signed_date" options="{'show_time': False}"/>
                                 <field name="sign_signer_id" optional="show"/>
                             </list>
                         </field>

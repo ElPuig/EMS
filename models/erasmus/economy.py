@@ -240,7 +240,7 @@ class EmsErasmusProject(models.Model):
     _inherit = 'ems.erasmus.project'
 
     call_year = fields.Integer(string="Call year", compute='_compute_call_year', store=True, readonly=False,
-                               aggregator=False,
+                               aggregator=None,
                                help="The call the project belongs to, from its agreement number: its "
                                     "organisational support rates are that year's, whatever year it is now.")
     amendment_ids = fields.One2many(string="Grant amendments", comodel_name='ems.erasmus.project.amendment',
@@ -592,7 +592,7 @@ class EmsErasmusSupportRate(models.Model):
     _description = 'Erasmus+ organisational support rate'
     _order = 'call_year desc, kind, mobility_type, band_from'
 
-    call_year = fields.Integer(string="Call year", required=True, aggregator=False)
+    call_year = fields.Integer(string="Call year", required=True, aggregator=None)
     kind = fields.Selection(string="Action", selection=PROJECTS, required=True)
     mobility_type = fields.Selection(string="Mobility", selection=SUPPORT_TYPES, required=True,
                                      default='student_short')
@@ -601,14 +601,15 @@ class EmsErasmusSupportRate(models.Model):
                                   help="For the band: the participant's position among those of the same kind of "
                                        "mobility (KA121-VET), or among every participant of the project, students "
                                        "and staff together (KA131-HED).")
-    band_from = fields.Integer(string="From participant", required=True, default=1,
+    band_from = fields.Integer(string="From participant", required=True, default=1, aggregator=None,
                                help="Position of the participant, in order of start date: e.g. 101 for a lower "
                                     "amount from the 101st participant on.")
-    band_to = fields.Integer(string="Up to participant", help="Empty or 0: no limit.")
-    min_days = fields.Integer(string="Minimum days", help="Shorter stays generate no organisational support.")
+    band_to = fields.Integer(string="Up to participant", aggregator=None, help="Empty or 0: no limit.")
+    min_days = fields.Integer(string="Minimum days", aggregator=None, help="Shorter stays generate no organisational support.")
     currency_id = fields.Many2one(string="Currency", comodel_name='res.currency',
                                   default=lambda self: self.env.company.currency_id)
-    amount = fields.Monetary(string="Amount per participant", required=True)
+    # Issue #782 (13.8): the list is grouped by year, and a sum of rates or positions means nothing.
+    amount = fields.Monetary(string="Amount per participant", required=True, aggregator=None)
     note = fields.Char(string="Conditions", help="Other eligibility conditions of the funding rules, as a reminder.")
 
     @api.constrains('call_year', 'kind', 'mobility_type', 'band_from', 'band_to')

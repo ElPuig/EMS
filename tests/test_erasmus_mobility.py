@@ -524,6 +524,23 @@ class TestErasmusMobility(ErasmusMobilityCase):
         self.assertFalse(self.student.active)
         self.assertFalse(self.student._has_active_portal_user())
 
+    def test_a_document_offers_needs_changes_or_reopen(self):
+        """What the team's buttons offer on a document (every list and form reads these two): a
+        complete one says Reopen, one to review says Needs changes, and a document already sent
+        back, or one the team provides that nobody signs (nothing to check), offers neither."""
+        first, _second = self._accepted()
+        line = first.document_ids.filtered(lambda document: document.handled_by == 'participant')[:1]
+        line.sudo().attachment_ids = self.env['ir.attachment'].create({'name': 'doc.pdf', 'raw': PDF})
+        self.assertEqual((line.file_state, line.can_mark_needs_change, line.can_reopen), ('to_review', True, False))
+        line.sudo().review_state = 'valid'
+        self.assertEqual((line.file_state, line.can_mark_needs_change, line.can_reopen), ('complete', False, True))
+        line.sudo().review_state = 'needs_change'
+        self.assertEqual((line.file_state, line.can_mark_needs_change, line.can_reopen), ('needs_change', False, False))
+        unsigned = first.document_ids.filtered(lambda document: document.handled_by == 'team' and not document.signers)[:1]
+        unsigned.sudo().prepared_attachment_ids = self.env['ir.attachment'].create({'name': 'policy.pdf', 'raw': PDF})
+        self.assertEqual((unsigned.file_state, unsigned.can_mark_needs_change, unsigned.can_reopen),
+                         ('complete', False, False))
+
 
 class ErasmusStaffMobilityCase(ErasmusStaffCase):
     """Two staff selected after the definitive resolution; the first one, who proposed a job
@@ -723,28 +740,27 @@ class TestErasmusStaffMobility(ErasmusStaffMobilityCase):
         self._rate(application, '1', '1')
         self.assertFalse(application.with_user(self.hos_user).scores_hidden)
 
-    def test_the_modality_assigned_later_brings_its_documents(self):
-        only_june = self.env['ems.erasmus.call.document'].create({
-            'call_id': self.staff_call.id, 'stage': 'preparation', 'name': 'June only document',
-            'modality_ids': [(6, 0, self.staff_call.modality_ids[1].ids)]})
+    def test_the_project_assigned_later_brings_its_documents(self):
+        """Issue #772: a staff member's documents of a kind of project arrive with the project."""
+        hed_only = self.env['ems.erasmus.call.document'].create({
+            'call_id': self.staff_call.id, 'stage': 'preparation', 'name': 'HED only document', 'project': 'ka131_hed'})
         mobility = self._accepted_staff()
-        self.assertNotIn(only_june, mobility.document_ids.call_document_id)
-        mobility.application_id.modality_id = self.staff_call.modality_ids[1]
-        self.assertIn(only_june, mobility.document_ids.call_document_id)
+        self.assertNotIn(hed_only, mobility.document_ids.call_document_id)
+        mobility.project_id = self.staff_hed_project
+        self.assertIn(hed_only, mobility.document_ids.call_document_id)
 
-    def test_staff_documents_follow_the_project_of_the_modality(self):
+    def test_staff_documents_follow_the_project(self):
         """KA121-VET: learning agreement, Europass document, the certificate only if needed.
         KA131-HED: mobility agreement and the certificate, no Europass document."""
-        vet, hed = self.staff_call.modality_ids
         mobility = self._accepted_staff()
-        mobility.application_id.modality_id = vet
+        mobility.project_id = self.staff_vet_project
         names = {line.name: line.is_required for line in mobility.document_ids}
         self.assertTrue(names["Learning agreement"])
         self.assertTrue(names["Europass mobility document"])
         self.assertFalse(names["Certificate of stay or attendance"], "Optional: the Europass document certifies it.")
         self.assertNotIn("Mobility agreement", names)
         mobility.document_ids.unlink()  # sync only adds lines: start again as if HED from the start
-        mobility.application_id.modality_id = hed
+        mobility.project_id = self.staff_hed_project
         names = {line.name: line.is_required for line in mobility.document_ids}
         self.assertTrue(names["Mobility agreement"])
         self.assertTrue(names["Certificate of stay or attendance"])

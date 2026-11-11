@@ -47,6 +47,11 @@ registry.category("web_tour.tours").add("ems_doc_shot_tutor_justification", {
             run: "edit 02/03/2026 14:00:00",
         },
         {
+            trigger: ".o_form_view div[name='mode'] input[data-value='group']",
+            content: "Justify a group",
+            run: "click",
+        },
+        {
             trigger: ".o_form_view div[name='add_group_ids'] input",
             content: "Type the tutor's group",
             run: "edit DAM1A",

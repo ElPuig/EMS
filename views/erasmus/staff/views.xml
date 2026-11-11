@@ -14,8 +14,8 @@
             <field name="arch" type="xml">
                 <list string="Staff calls" create="false" delete="false">
                     <field name="name"/>
-                    <field name="date_open"/>
-                    <field name="date_close"/>
+                    <field name="date_open" string="Opens" options="{'show_time': False, 'show_seconds': False}"/>
+                    <field name="date_close" string="Closes" options="{'show_time': False, 'show_seconds': False}"/>
                     <field name="is_accepting" widget="boolean"/>
                     <field name="staff_application_id" string="My application"/>
                 </list>
@@ -42,8 +42,8 @@
                         </div>
                         <group>
                             <group>
-                                <field name="date_open"/>
-                                <field name="date_close"/>
+                                <field name="date_open" options="{'show_time': False, 'show_seconds': False}"/>
+                                <field name="date_close" options="{'show_time': False, 'show_seconds': False}"/>
                                 <field name="is_accepting"/>
                             </group>
                             <group>
@@ -80,7 +80,7 @@
             <field name="arch" type="xml">
                 <list string="My applications" create="false" delete="false">
                     <field name="call_id"/>
-                    <field name="submit_date"/>
+                    <field name="submit_date" options="{'show_time': False}"/>
                     <field name="state" widget="badge" decoration-success="state in ('selected', 'accepted')"
                            decoration-info="state in ('submitted', 'admitted')" decoration-warning="state in ('subsanation', 'reserve')"
                            decoration-danger="state in ('excluded', 'not_submitted')"/>
@@ -113,6 +113,7 @@
                     </header>
                     <sheet>
                         <field name="staff_editable" invisible="1"/>
+                        <field name="staff_answered" invisible="1"/>
                         <field name="staff_can_submit" invisible="1"/>
                         <field name="staff_claimable" invisible="1"/>
                         <field name="staff_offer_id" invisible="1"/>
@@ -144,7 +145,7 @@
                         </div>
                         <group>
                             <group>
-                                <field name="submit_date" invisible="not submit_date"/>
+                                <field name="submit_date" options="{'show_time': False}" invisible="not submit_date"/>
                             </group>
                             <group>
                                 <field name="rules_document" filename="rules_filename" invisible="not rules_document"/>
@@ -152,7 +153,8 @@
                             </group>
                         </group>
                         <notebook>
-                            <page string="Form" name="answers">
+                            <!-- Nothing filled in yet: no grey empty labels; the box above says where to write. -->
+                            <page string="Form" name="answers" invisible="not staff_answered">
                                 <group>
                                     <field name="proposal_a"/>
                                     <field name="proposal_b"/>
@@ -184,21 +186,23 @@
                             <page string="Results" name="results" invisible="not resolution_line_ids and not offer_ids and not claim_ids">
                                 <field name="resolution_line_ids">
                                     <list>
-                                        <field name="resolution_id"/>
-                                        <field name="rank"/>
-                                        <field name="score_total"/>
+                                        <field name="kind"/>
+                                        <field name="rank" invisible="kind == 'admission' or not rank"/>
+                                        <field name="score_total" invisible="kind == 'admission'"/>
                                         <field name="result" widget="badge"/>
                                         <button name="action_staff_download" type="object" string="PDF" icon="fa-download"/>
                                     </list>
                                 </field>
+                                <separator string="Place offers" invisible="not offer_ids"/>
                                 <field name="offer_ids" invisible="not offer_ids">
                                     <list>
-                                        <field name="offer_date"/>
-                                        <field name="deadline"/>
-                                        <field name="answer_date"/>
+                                        <field name="offer_date" options="{'show_time': False}"/>
+                                        <field name="deadline" options="{'show_seconds': False}"/>
+                                        <field name="answer_date" options="{'show_time': False}"/>
                                         <field name="state" widget="badge"/>
                                     </list>
                                 </field>
+                                <separator string="Claims" invisible="not claim_ids"/>
                                 <field name="claim_ids" invisible="not claim_ids">
                                     <list>
                                         <field name="received_date"/>
@@ -291,8 +295,8 @@
                             <group string="Validation by the Direction">
                                 <field name="proposal_state" widget="badge" decoration-success="proposal_state == 'validated'"
                                        decoration-warning="proposal_state == 'pending'" decoration-danger="proposal_state == 'rejected'"/>
-                                <field name="proposal_date"/>
-                                <field name="decision_date" invisible="not decision_date"/>
+                                <field name="proposal_date" options="{'show_time': False}"/>
+                                <field name="decision_date" options="{'show_time': False}" invisible="not decision_date"/>
                                 <field name="decision_note" invisible="not decision_note"/>
                                 <field name="leave_declaration"/>
                             </group>
@@ -333,7 +337,7 @@
                             </page>
                             <page string="Commitment letter" name="commitment" invisible="not commitment_signed_date">
                                 <group>
-                                    <field name="commitment_signed_date"/>
+                                    <field name="commitment_signed_date" options="{'show_time': False}"/>
                                 </group>
                                 <field name="commitment_signed_text"/>
                             </page>

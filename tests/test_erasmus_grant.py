@@ -206,6 +206,38 @@ class TestErasmusGrant(ErasmusGrantCase):
             self.assertEqual(form.host_contact_id, tutor, "The host entity's only contact is the tutor.")
         self.assertEqual(first.host_contact_email, 'tutor@example.com')
 
+    def test_the_team_sees_a_host_entitys_details_but_never_a_students(self):
+        """Issue #777 (13.3): the contact form's details block (address, country, website, OID) is
+        hidden from whoever is not admin, Secretary, Head of Studies or tutor; the Erasmus team
+        sees it on host entities and their tutors only."""
+        Partner = self.env['res.partner'].with_user(self.erasmus_user)
+        host = Partner.create({'name': 'Test Host Details', 'is_company': True, 'is_erasmus_host': True})
+        tutor = Partner.create({'name': 'Test Details Tutor', 'parent_id': host.id})
+        self.assertTrue(host.can_edit_erasmus_host)
+        self.assertTrue(tutor.can_edit_erasmus_host, "The host entity's tutors too.")
+        self.assertFalse(self.student.with_user(self.erasmus_user).can_edit_erasmus_host)
+        self.assertFalse(host.with_user(self.teacher_user).can_edit_erasmus_host, "Only the Erasmus team.")
+        host.write({'street': 'Hauptstrasse 1', 'erasmus_oid': 'E10150031'})
+        self.assertEqual(host.erasmus_oid, 'E10150031')
+
+    def test_an_invoice_is_for_a_group_mobility_or_for_participants_never_both(self):
+        """Issue #777 (11.2): a group's invoice is split among the group's participants, a
+        participants' invoice into shares of their grants: both at once would count it twice. A
+        group's invoice has nothing left to assign."""
+        first, _second = self._preparing()
+        group = self.env['ems.erasmus.group.mobility'].create({
+            'name': 'Test invoice group', 'project_id': self.env['ems.erasmus.project'].create(
+                {'name': 'TEST-INVOICE-GROUP', 'kind': 'ka121_vet'}).id})
+        invoice = self.env['ems.erasmus.invoice'].create({
+            'name': 'F-TEST-GROUP', 'amount': 900, 'concept': 'travel', 'group_mobility_id': group.id})
+        self.assertEqual(invoice.unassigned_amount, 0, "A group's invoice is never shown as not assigned.")
+        with self.assertRaises(ValidationError):
+            invoice.mobility_ids = first
+        participants = self._invoice(first, 300)
+        self.assertEqual(participants.unassigned_amount, 0)
+        with self.assertRaises(ValidationError):
+            participants.group_mobility_id = group
+
 
 @tagged('post_install', '-at_install')
 class TestPortalErasmusGrant(HttpCase, ErasmusGrantCase):

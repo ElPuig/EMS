@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import fields, models
+from odoo import api, fields, models
 
 from .mobility import OPEN_STATES
 
@@ -17,6 +17,40 @@ class ResPartner(models.Model):
     erasmus_oid = fields.Char(string="OID", help="The Erasmus+ organisation ID of the host entity (e.g. E10150031).")
     erasmus_history_ids = fields.One2many(string="Erasmus+ participations", comodel_name='ems.erasmus.history',
                                           inverse_name='partner_id', readonly=True)
+    # Issue #777 (13.3): the contact form hides its details block (address, website, OID...) from
+    # whoever is not admin, Secretary, Head of Studies or the contact's tutor (read_only_user),
+    # meant for the students' data; the Erasmus team needs it on host entities and their tutors.
+    can_edit_erasmus_host = fields.Boolean(string="Can edit the host entity",
+                                           compute='_compute_can_edit_erasmus_host')
+    # Issue #782 (13.4): how much a host entity has been used, on its list.
+    erasmus_mobility_count = fields.Integer(string="Mobilities", compute='_compute_erasmus_mobility_count',
+                                            help="Individual and group mobilities hosted, cancelled ones aside.")
+
+    @api.depends('is_erasmus_host', 'parent_id.is_erasmus_host')
+    @api.depends_context('uid')
+    def _compute_can_edit_erasmus_host(self):
+        is_team = self.env.user.has_group('ems.group_erasmus')
+        for partner in self:
+            partner.can_edit_erasmus_host = is_team and (partner.is_erasmus_host or partner.parent_id.is_erasmus_host)
+
+    def _compute_erasmus_mobility_count(self):
+        """One grouped count per model for the whole list, never a search per row."""
+        counts = dict.fromkeys(self.ids, 0)
+        for model in ('ems.erasmus.mobility', 'ems.erasmus.group.mobility'):
+            for host, count in self.env[model].sudo()._read_group(
+                    [('host_partner_id', 'in', self.ids), ('state', '!=', 'cancelled')], ['host_partner_id'],
+                    ['__count']):
+                counts[host.id] += count
+        for partner in self:
+            partner.erasmus_mobility_count = counts.get(partner.id, 0)
+
+    def _ems_erasmus_email(self):
+        """The address every Erasmus+ email to this person goes to: a student's school address
+        (student_email, the one they read every day and sign in to the portal with; never the
+        personal one, adriamt 2026-11-09, issue #802), anybody else's own email (staff, families,
+        host contacts). Empty: they get no email."""
+        self.ensure_one()
+        return self.student_email if self.contact_type == 'student' else self.email
 
     def _ems_erasmus_calls(self):
         """Published calls this person can apply to, open or not yet: the students' calls with a

@@ -104,6 +104,9 @@ class EmsErasmusApplication(models.Model):
                                   help="Staff call: the applicant's employee file.")
     modality_id = fields.Many2one(string="Modality", comodel_name='ems.erasmus.call.modality', ondelete='restrict',
                                   domain="[('call_id', '=', call_id)]", tracking=True)
+    # Issue #772 (note 7.1): a staff member's project, the one the team assigns to their mobility.
+    project_id = fields.Many2one(string="Project", comodel_name='ems.erasmus.project', compute='_compute_project_id',
+                                 groups='ems.group_erasmus,ems.group_academic_admin')
     state = fields.Selection(string="State", required=True, default='draft', tracking=True, copy=False, index=True,
                              selection=[
                                  ('draft', "Draft"), ('submitted', "Submitted"), ('subsanation', "Corrections requested"),
@@ -227,20 +230,20 @@ class EmsErasmusApplication(models.Model):
 
     # Audit D-14: the Head of Studies sees the total and the rank only, so criterion D (fewer opportunities)
     # cannot be worked out from the others.
-    score_a = fields.Float(string="A. Record", digits=(5, 2), compute='_compute_scores', store=True,
+    score_a = fields.Float(string="A. Record", digits=(5, 2), aggregator=None, compute='_compute_scores', store=True,
                            groups=TEAM)
     score_a_pending = fields.Boolean(string="Record average pending", compute='_compute_scores', store=True)
-    score_b = fields.Float(string="B. Interview", digits=(5, 2), compute='_compute_scores', store=True,
+    score_b = fields.Float(string="B. Interview", digits=(5, 2), aggregator=None, compute='_compute_scores', store=True,
                            groups=TEAM)
-    score_c = fields.Float(string="C. Languages", digits=(5, 2), compute='_compute_scores', store=True,
+    score_c = fields.Float(string="C. Languages", digits=(5, 2), aggregator=None, compute='_compute_scores', store=True,
                            groups=TEAM)
-    score_d = fields.Float(string="D. Fewer opportunities", digits=(5, 2), compute='_compute_scores', store=True,
+    score_d = fields.Float(string="D. Fewer opportunities", digits=(5, 2), aggregator=None, compute='_compute_scores', store=True,
                            groups=TEAM)
-    score_e = fields.Float(string="E. First mobility", digits=(5, 2), compute='_compute_scores', store=True,
+    score_e = fields.Float(string="E. First mobility", digits=(5, 2), aggregator=None, compute='_compute_scores', store=True,
                            groups=TEAM)
-    score_f = fields.Float(string="F. Conduct warnings", digits=(5, 2), compute='_compute_scores', store=True,
+    score_f = fields.Float(string="F. Conduct warnings", digits=(5, 2), aggregator=None, compute='_compute_scores', store=True,
                            groups=TEAM)
-    score_total = fields.Float(string="Total score", digits=(5, 2), compute='_compute_scores', store=True)
+    score_total = fields.Float(string="Total score", digits=(5, 2), aggregator=None, compute='_compute_scores', store=True)
     score_complete = fields.Boolean(string="Score complete", compute='_compute_scores', store=True,
                                     help="Every criterion is in: a pending one never counts as zero.")
     is_eligible = fields.Boolean(string="Eligible", compute='_compute_scores', store=True,
@@ -248,7 +251,7 @@ class EmsErasmusApplication(models.Model):
     draw_order = fields.Integer(string="Draw", tracking=True, copy=False, readonly=True,
                                 help="Result of the draw between applications tied after every tie-break "
                                      "(lower goes first), run by the Erasmus coordinator from the call (audit D-13).")
-    rank = fields.Integer(string="Rank", compute='_compute_rank', store=True,
+    rank = fields.Integer(string="Rank", aggregator=None, compute='_compute_rank', store=True,
                           help="Position in the modality among the admitted applications. 0 until every one "
                                "of them has a complete score.")
     needs_draw = fields.Boolean(string="Needs a draw", compute='_compute_rank', store=True)
@@ -295,13 +298,13 @@ class EmsErasmusApplication(models.Model):
     merits_checked_user_id = fields.Many2one(string="Merits reviewed by", comodel_name='res.users', readonly=True,
                                              copy=False)
     merits_checked_date = fields.Datetime(string="Merits reviewed on", readonly=True, copy=False)
-    score_plan = fields.Float(string="1. Mobility plan", digits=(4, 2), compute='_compute_scores', store=True)
-    score_last_mobility = fields.Float(string="2. Last mobility", digits=(4, 2), compute='_compute_scores',
+    score_plan = fields.Float(string="1. Mobility plan", digits=(4, 2), aggregator=None, compute='_compute_scores', store=True)
+    score_last_mobility = fields.Float(string="2. Last mobility", digits=(4, 2), aggregator=None, compute='_compute_scores',
                                        store=True)
-    score_projects = fields.Float(string="3. Centre projects", digits=(4, 2), compute='_compute_scores', store=True)
-    score_staff_language = fields.Float(string="4. Languages", digits=(4, 2), compute='_compute_scores', store=True)
-    score_seniority = fields.Float(string="5. Seniority", digits=(4, 2), compute='_compute_scores', store=True)
-    score_internationalisation = fields.Float(string="6. Internationalisation", digits=(4, 2),
+    score_projects = fields.Float(string="3. Centre projects", digits=(4, 2), aggregator=None, compute='_compute_scores', store=True)
+    score_staff_language = fields.Float(string="4. Languages", digits=(4, 2), aggregator=None, compute='_compute_scores', store=True)
+    score_seniority = fields.Float(string="5. Seniority", digits=(4, 2), aggregator=None, compute='_compute_scores', store=True)
+    score_internationalisation = fields.Float(string="6. Internationalisation", digits=(4, 2), aggregator=None,
                                               compute='_compute_scores', store=True)
 
     @api.depends('partner_id.birth_date', 'audience')
@@ -514,7 +517,7 @@ class EmsErasmusApplication(models.Model):
                 vals.update({f'{name}_user_id': self.env.uid, f'{name}_date': now})
         result = super().write(vals)
         if 'modality_id' in vals:
-            # Issue #687: a staff member's modality, assigned after selection, brings its documents.
+            # Issue #687: a corrected modality brings its documents.
             self.mobility_ids.filtered(lambda mobility: mobility.state in ('choosing', 'preparing'))._ems_sync_requirements()
         return result
 
@@ -634,7 +637,13 @@ class EmsErasmusApplication(models.Model):
         self._ems_send('ems.email_template_erasmus_interview_call')
         self.sudo().write({'interview_call_date': fields.Datetime.now()})
 
-    @api.depends('rank', 'is_eligible', 'score_complete', 'modality_id.places')
+    @api.depends('mobility_ids.project_id', 'mobility_ids.state')
+    def _compute_project_id(self):
+        for application in self:
+            application.project_id = application.mobility_ids.filtered(
+                lambda mobility: mobility.state != 'cancelled')[:1].project_id
+
+    @api.depends('rank', 'is_eligible', 'score_complete', 'modality_id.places', 'call_id.project_place_ids.places')
     def _compute_ranking_result(self):
         for application in self:
             application.ranking_result = application.score_complete and application.rank and \
@@ -649,12 +658,11 @@ class EmsErasmusApplication(models.Model):
 
     def _ems_ranking_result(self):
         """Issue #685: selected within the modality's places, reserve after them, not selected
-        below the minimum score. A staff call, within the places of all its modalities."""
+        below the minimum score. A staff call, within the places of all its projects (issue #772)."""
         self.ensure_one()
         if not self.is_eligible:
             return 'not_selected'
-        places = sum(self.call_id.modality_ids.mapped('places')) if self.audience == 'staff' \
-            else self.modality_id.places
+        places = self.call_id._ems_places(self.modality_id)
         return 'selected' if self.rank <= places else 'reserve'
 
     def action_export_participants(self):
@@ -1121,8 +1129,8 @@ class EmsErasmusApplication(models.Model):
     @api.model
     def _ems_mail(self, records, xmlid, family_copy=False):
         """Email `xmlid` (a template of `records`' model: applications, resolution lines, offers,
-        claims) to each applicant's own address; note it in the application's chatter when there is
-        none. `family_copy`: the family gets a copy (the application's receipt, the result, the place
+        claims) to each applicant's Erasmus+ address (res.partner._ems_erasmus_email: a student's
+        school address); note it in the application's chatter when there is none. `family_copy`: the family gets a copy (the application's receipt, the result, the place
         offered and the answer to it) whenever EMS keeps it informed about the student: a minor, or an adult who authorized
         sharing with it (res.partner._ems_informed_recipients)."""
         template = self.env.ref(xmlid, raise_if_not_found=False)
@@ -1130,8 +1138,9 @@ class EmsErasmusApplication(models.Model):
             return
         for record in records:
             partner = record.partner_id
-            if partner.email:
-                email_values = {'email_to': partner.email}
+            address = partner._ems_erasmus_email() if partner else False
+            if address:
+                email_values = {'email_to': address}
                 family = family_copy and (partner._ems_informed_recipients() - partner).filtered('email')
                 if family:
                     email_values['email_cc'] = ",".join(family.mapped('email'))
@@ -1187,6 +1196,9 @@ class EmsErasmusApplicationDocument(models.Model):
     stage = fields.Selection(string="When", related='call_document_id.stage', store=True)
     signers = fields.Char(string="Signed by", related='call_document_id.signers')
     handled_by = fields.Selection(string="Handled by", related='call_document_id.handled_by')
+    # Issue #782 (8.7): who handles the document, in a word, apart from what it is at now (todo_state).
+    responsible = fields.Selection(string="Who", compute='_compute_responsible', selection=[
+        ('participant', "Participant"), ('team_to_sign', "Team and participant"), ('team', "Erasmus team")])
     prepared_attachment_ids = fields.Many2many(
         string="Files from the team", comodel_name='ir.attachment',
         relation='ems_erasmus_application_document_prepared_rel',
@@ -1222,13 +1234,22 @@ class EmsErasmusApplicationDocument(models.Model):
         ('complete', "Complete"), ('optional', "Optional"), ('not_applicable', "Not applicable")],
         help="Complete: valid after the team's review (a signed document is only complete once checked, not when "
              "uploaded); one the team provides, once it is uploaded.")
+    can_mark_needs_change = fields.Boolean(string="Can send it back to correct", compute='_compute_review_actions',
+                                           help="The team can send the file back to be corrected.")
+    can_reopen = fields.Boolean(string="Can reopen the document", compute='_compute_review_actions',
+                                help="A complete document the team can put back to review (the same action).")
     # The issue-#682 review: what the record shows, so that only what the participant has to do now
     # is red. A missing document the Erasmus team uploads, or one that is not due yet (the destination
     # not set, it opens later, a return document before the end of the stay), is not.
     todo_state = fields.Selection(string="To do", compute='_compute_todo_state', selection=[
-        ('missing', "Missing"), ('waiting_team', "The Erasmus team uploads it"), ('not_yet', "Not yet"),
+        ('missing', "Missing"), ('waiting_team', "Waiting for the team"), ('not_yet', "Not yet"),
         ('to_review', "Pending review"), ('needs_change', "Needs changes"), ('complete', "Complete"),
         ('optional', "Optional"), ('not_applicable', "Not applicable")])
+
+    @api.depends('handled_by')
+    def _compute_responsible(self):
+        for line in self:
+            line.responsible = line.handled_by
 
     @api.depends('attachment_ids', 'call_document_id.single_file')
     def _compute_current_attachment_ids(self):
@@ -1271,6 +1292,17 @@ class EmsErasmusApplicationDocument(models.Model):
                 line.file_state = 'missing'
             else:
                 line.file_state = 'optional' if line.call_document_id.requirement == 'optional' else 'not_applicable'
+
+    @api.depends('file_state', 'review_state', 'handled_by', 'signers')
+    def _compute_review_actions(self):
+        """One place for what the buttons of every list and form offer: a document the team has
+        already sent back, or one it provides that nobody signs (nothing to check), offers neither.
+        A complete one says Reopen; the rest, Needs changes."""
+        for line in self:
+            checked = line.handled_by != 'team' or bool(line.signers)
+            offered = checked and line.review_state != 'needs_change'
+            line.can_reopen = offered and line.file_state == 'complete'
+            line.can_mark_needs_change = offered and line.file_state != 'complete'
 
     @api.depends('file_state', 'handled_by', 'prepared_attachment_ids', 'stage', 'open_date', 'mobility_id.state',
                  'mobility_id.date_end')

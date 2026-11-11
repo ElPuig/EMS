@@ -250,6 +250,7 @@
                 <field name="type" position="before">
                     <field name="contact_type" invisible="True" />
                     <field name="read_only_user" invisible="True" />
+                    <field name="can_edit_erasmus_host" invisible="True" />
                     <field name="is_tutor_readonly" invisible="True" />
                 </field>
 
@@ -290,9 +291,10 @@
                 </xpath>
 
                 <!-- Only admins and tutors are allowed to see personal data. A student gets its own
-                     header below instead (student_header), with the same contact fields. -->
+                     header below instead (student_header), with the same contact fields. The
+                     Erasmus team sees it on host entities and their tutors (issue #777). -->
                 <xpath expr="//form/sheet/group" position="attributes">
-                    <attribute name="invisible">read_only_user or contact_type == 'student'</attribute>
+                    <attribute name="invisible">(read_only_user and not can_edit_erasmus_host) or contact_type == 'student'</attribute>
                 </xpath>
 
                 <xpath expr="//page[@name='contact_addresses']" position="inside">

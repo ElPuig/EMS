@@ -22,6 +22,8 @@ host entity, documents and checklist (see "Mobility preparation" at the end).
 ```mermaid
 erDiagram
     ems_erasmus_call ||--o{ ems_erasmus_call_modality : "modality_ids"
+    ems_erasmus_call ||--o{ ems_erasmus_call_project : "project_place_ids (staff)"
+    ems_erasmus_call_project }o--|| ems_erasmus_project : "project_id"
     ems_erasmus_call ||--o{ ems_erasmus_call_document : "document_ids"
     ems_erasmus_call ||--o{ ems_erasmus_application : "application_ids"
     ems_erasmus_call_modality }o--o{ ems_level : "level_ids"
@@ -35,7 +37,8 @@ erDiagram
 | Model | Purpose |
 |---|---|
 | `ems.erasmus.call` | One call: who applies (`audience`: students or staff), course, dates (`date_open`, `date_close`, optional `subsanation_deadline`), the published call PDF, the text shown on the portal, state. |
-| `ems.erasmus.call.modality` | A selection list with its own places (GM, GS): project (KA121-VET / KA131-HED), places, period, destinations, and the **levels** whose students compete in it. |
+| `ems.erasmus.call.modality` | A selection list with its own places (GM, GS): places, the **levels** whose students compete in it, and the project kind (KA121-VET / KA131-HED), computed from the levels (issue #767: CFGS and EFPS on KA131-HED, any other level on KA121-VET; stored). Students' calls only (issue #772). The real destinations are `ems.erasmus.destination` lines. |
+| `ems.erasmus.call.project` | Issue #772: a staff call's places paid by one project (`project_id`, `places`, unique per call; `assigned_count`: the call's non-cancelled mobilities on it, one `_read_group`). Field `project_place_ids` of the call, `groups` Erasmus team and admin, ACL for those two only: the rest read the total through `_ems_places()` (sudo). Not copied with the call (each year has its projects). |
 | `ems.erasmus.call.document` | A document the call asks for: required, optional or required for minors; confidential (only the Erasmus team sees it). |
 | `ems.erasmus.application` | One student's application to one call (unique per call and student). |
 | `ems.erasmus.application.document` | The files uploaded for one document of the call, with the team's review. |
@@ -63,27 +66,62 @@ accepted only while it is published **and** the company's local time is between 
 `date_close` (`is_accepting`, computed with `ems.datetime_utils`, never the browser's clock).
 Closing turns every application still in draft into *Not submitted*.
 
+### Deadlines from the closing date (issue #767)
+
+The four deadlines after closing are filled in by EMS from `date_close` (`_ems_deadlines()`, the
+same for students' and staff calls): that many days after the closing day (`DEADLINE_DAYS`:
+corrections 7, score correction 14, claims 19, acceptance 25), at 14:00 in the centre
+(`DEADLINE_HOUR`), moved to the next school day when that day is a weekend, a public holiday or a
+school break (`resource.calendar.leaves._ems_nth_school_days()`, shared with the ex officio
+withdrawal circuit, which reads the holidays once for the four deadlines). `create()` fills the ones not given; `write()` and the onchange of
+`date_close` move the ones still empty or equal to what the old closing date gave
+(`_ems_following_deadlines()`), so a deadline changed by hand stays. A new, unsaved call has no
+earlier closing date to compare with: in the form, all four follow every closing date set.
+
+`date_order_warning` (non-stored) lists the dates out of the process order (`PROCESS_DATES`:
+open, close, then the four deadlines), each against the first earlier step that comes after it.
+The form shows it as a warning above the settings; saving is not refused, since a deadline is
+sometimes moved on purpose (e.g. the claims one brought forward once every claim is answered).
+
+`reminder_days` is 3 by default; it is not in the call's form, only in the notice wizard.
+
 ### Notice of the open call and reminder before closing
 
-Publishing emails nobody. `action_announce` opens the `ems.erasmus.call.announce` wizard (Erasmus
+Publishing tells nobody. `action_announce` opens the `ems.erasmus.call.announce` wizard (Erasmus
 team only), which counts the recipients and calls `_ems_send_announce()`; the hourly cron
-`ir_cron_erasmus_remind_closing` (`_cron_remind_closing()`) sends the reminder.
+`ir_cron_erasmus_remind_closing` (`_cron_remind_closing()`) sends the reminder. Both go through
+`_ems_announce()`, which tells each recipient the way their audience is reached (issue #802):
 
-| | Notice (`email_template_erasmus_call_open`) | Reminder (`email_template_erasmus_call_reminder`) |
+| | Notice | Reminder |
 |---|---|---|
 | Triggered by | the Erasmus team, from the call (any number of times) | the cron, once per call (`reminder_date`) |
 | When | while published and not closed (before `date_open` too) | from `reminder_days` days before the closing day (local), from 9:00 (`REMINDER_HOUR`), while `is_accepting`, and only if `announce_date` is set |
 | To | `_ems_eligible_partners()` | the same, minus the partners with an application not in draft |
+| Students' call | `email_template_erasmus_call_open`, to the school address | `email_template_erasmus_call_reminder`, to the school address |
+| Staff call | an `ems.info_notice` on the call, for the daily summary | the same |
 | Recorded in | `announce_date`, `announce_count`, chatter | `reminder_date`, `reminder_count`, chatter |
 
 `_ems_eligible_partners()` mirrors the portal's rule (`res.partner._ems_erasmus_calls()`) in the
 other direction, for the whole centre in a few queries: students whose main group is of a modality's
-level, minus `_ems_conduct_blocked_partners()` (one `_read_group` over `ems.strike` from
-`_ems_course_start()`); staff, the internal users of the teachers of `staff_level_ids` plus
-`validator_ids`. `_ems_announce()` renders the template once per language (`send_mail` for the
-first recipient) and creates one `mail.mail` per recipient with the same values, so nobody sees
-another address. Partners without an email are skipped and counted in the wizard. Families never
-receive these emails.
+level (conduct warnings rule nobody out); staff, the internal users of the teachers of
+`staff_level_ids` plus `validator_ids`.
+
+- **Students' call:** the email goes to the student's school address (`res.partner._ems_erasmus_email()`),
+  the one they read every day and sign in to the portal with.
+  `_ems_announce()` renders the template once per language (`send_mail` for the first recipient)
+  and creates one `mail.mail` per recipient with the same values, so nobody sees another address.
+  Students without a school address get nothing and are counted in the wizard ("Without a school
+  email address"). Families never receive these emails.
+- **Staff call:** never an email on the spot. The notice asks for no action and isn't urgent, so,
+  following the daily summary rule (see [Daily summary](../shared/daily_summary.md)),
+  `_ems_announce_to_staff()` queues an `ems.info_notice` on the call for each recipient's next
+  daily summary, written in their language with the closing date and where to apply (Erasmus+ >
+  My participation > Staff calls). The summary links the call; `get_formview_id()`
+  (`staff_backend.py`) opens it in the staff's own form for whoever can apply and doesn't manage
+  the calls.
+
+Every notice and reminder sent is also recorded as a diffusion action (`quality.py`, channel
+"Email from EMS", which covers the daily summary too).
 
 ## Application states
 
@@ -134,7 +172,12 @@ stateDiagram-v2
   the admission list is published (e.g. not attending the interview), emails the reason
   (`email_template_erasmus_application_excluded`) instead of leaving it for the next list; the
   portal's "what to do now" box shows the reason too.
-- Emails go to the applicant's own address (the family gets a copy only of the place offered and of
+- Emails go to the applicant's Erasmus+ address, `res.partner._ems_erasmus_email()`: a student's
+  school address (`student_email`, never the personal one, adriamt 2026-11-09, issue #802), anybody
+  else's `email`. Every Erasmus+ email to a student goes through it (`_ems_mail()`, the call's
+  notice and reminder, the satisfaction survey), except the electronic signature request, which
+  `sign_oca` sends with `message_notify` to the signer's main `email` (the participant can also sign
+  from the portal). The family gets its copies at its own address (a copy only of the place offered and of
   the answer to it, see *Place offers*, whenever EMS keeps it informed about the student: a minor, or
   an adult who authorized sharing with the family, `res.partner._ems_informed_recipients()`, the same
   rule as convalidations); a recipient without one is noted in the chatter.
@@ -193,6 +236,15 @@ evaluators' list of interviews) is an `ems.info_notice` for that same summary (s
 [`daily_summary.md`](../shared/daily_summary.md)). Students and families keep their emails.
 
 ## Portal (`controllers/portal_erasmus.py`)
+
+The call's *Information for applicants* (`description`, shown above the form) and the group
+mobility's *Information for students* use the `ems_html_codeview` widget
+(`static/src/js/backend/html_codeview_field.js`, issue #774): Odoo's own html field with its code
+view (`</>`) in a fixed toolbar, so the Erasmus team can paste a card prepared elsewhere with the
+Bootstrap classes the portal already ships. Pasting rendered HTML into the editor drops the
+classes; the code view keeps them, and the field's default sanitizing keeps `class` (not
+`style`). Odoo's own `codeview` option only shows the button in developer mode, which is why
+the widget turns it on itself; the fixed toolbar is `EmsHtmlBlockField`'s, the minutes' one.
 
 | Route | What |
 |---|---|
@@ -287,7 +339,27 @@ A new call shows its defaults before it is saved: `default_get()` and the `audie
 unsaved call) fill them from `_ems_audience_defaults()`, the same dict `create()` uses for whatever
 is still empty. The onchange assigns each list as new records, not as commands: `document_ids` and
 `preparation_document_ids` are lines of the same model, and replacing one with commands brought back
-lines of the other. Subjects of the to-dos built with a name go through
+lines of the other.
+
+**Default texts in every language (issue #780).** The texts a new call starts with are translatable
+fields (`translate=True`): the modality's `name`, the call document's and checklist step's `name` and
+`description`, the self-assessment question's `name` and the call's `commitment_text`; a group
+mobility's `tie_break` and its documents (`requirement_ids`) too. Odoo stores a new text only in the
+creator's language, so after `create()` (and after a `write()` that adds lines from the form, e.g.
+on changing `audience`) `models/erasmus/default_data.py` rebuilds the defaults once per installed
+language and gives every line still holding a default (matched by name, then instructions) that
+default's translations (`update_field_translations`). A line renamed in the form before saving is
+not matched and keeps what was written, with Odoo's usual fallback. A copy keeps the translations
+(Odoo's `copy_translations`). Calls created before keep their texts: the upgrade only turns the
+columns into translatable ones, with the old value as the source. The trade-off: changing a
+default text later in one language leaves the others as they were (the form's language button edits
+them). A staff call has no modalities (issue #772).
+A staff call's first step has the students' name (*Preparation sessions*), and *Share it at a
+department or cycles meeting* is `requirement='optional'` (art. 15): an optional step
+(`TASK_REQUIREMENTS`) is listed (on the portal with "(optional)") but never counts towards
+`preparation_complete`/`return_complete` (`is_required` False).
+
+Subjects of the to-dos built with a name go through
 `ems.base.ems_elide()`, which elides "de" in Catalan ("d'Anna").
 ### Staff in the backend
 
@@ -313,9 +385,18 @@ participation* (`views/erasmus/staff/views.xml`, `models/erasmus/staff_backend.p
 - **Computed flags** (`staff_own`, `staff_editable`, `staff_can_submit`, `staff_claimable`,
   `staff_can_propose`, `staff_self_assessment_open`, ...; non-stored, `@api.depends_context('uid')`)
   drive the `invisible=` of each action; `staff_next_step`/`staff_next_deadline` show the portal's
-  "what to do now" (`_ems_portal_progress()`).
+  "what to do now" (`_ems_portal_progress()`), which for an application still in draft that can be
+  changed says where to write: *Actions > Fill in the form*.
+- **Somewhere to write (issue #802).** A new application shows only its answers, read only: an
+  empty one would be a page of grey labels with nowhere to type, so `staff_answered` (any of
+  `ANSWER_FIELDS['staff']` filled in) hides the *Form* tab until something is answered, and
+  `action_staff_apply()` (the call's *Apply* / *Open my application*) opens the form's dialog
+  straight away while the application can be changed and nothing is answered yet. That dialog
+  carries `open_application`, so saving it opens the application instead of refreshing the call
+  behind it. The entry stays in the *Actions* dropdown, as every form action does.
 - **Forms by owner.** `get_formview_id()` opens the staff form for the user's own application or
-  mobility (a task, a link, a mention), and the team's management form for everyone else.
+  mobility (a task, a link, a mention), and for a staff call the user can apply to (the notice in
+  their daily summary); the team's management form for everyone else.
 - **Portal redirect.** `/my/erasmus` and `/my/erasmus/call/<id>` redirect an internal user to *Staff
   calls* (`controllers/portal_erasmus.py`, `_staff_redirect`); the user menu's *Erasmus+* entry
   (`static/src/js/backend/user_menu_erasmus.js`) opens the same action, shown when `session_info`'s
@@ -746,12 +827,12 @@ what differs:
 | Admission checks | Requirements; a serious conduct record this course is pointed out, the team may exclude | Requirements only |
 | Scoring | Art. 12 (A-F), A and F frozen at closing | Art. 11 of the staff call (1-6): the panel, what the applicant declares (last mobility, seniority, language) and the merits the team records |
 | Ranking | Per modality | One list for the whole call |
-| Places | Per modality | The sum of every modality, offered as one pool |
-| Modalities | Levels, places, period, destinations | One per project, added on their own (`_ems_staff_modalities`: FP KA121-VET and higher education KA131-HED), places only, no period; never shown to staff. The team assigns each selected person one, so their mobility goes on that project of the year |
+| Places | Per modality | Issue #772: `project_place_ids` (places per project, the team's planning), offered as one pool (`_ems_places()`, the sum); staff only see the total |
+| Modalities | Levels and places; the project from the levels | None. The team sets the mobility's `project_id` (domain `allowed_project_ids`: the projects of the call's table; `_check_project` refuses another), which brings the documents of its kind (`project_kind` = the project's kind; `write` re-syncs the requirements). `project_places` ("2026-VET: 1 of 2 places left") and `project_places_over` (a warning, not a block) on the mobility; `places_without_project` warns on the call (note 7.1) and the application list shows `project_id` from a staff call's button (`ems_staff_call` context) |
 | Dissemination | - | Not part of the plan nor of the rubric (criterion 2 rates the application to the job only): the same obligation for everyone, a news item on the website and sharing it at a meeting if needed (two return steps of the checklist) |
 | Identity document of the lists | `res.partner.document_id` / `passport_id` | `hr.employee.identification_id` / `passport_id` (`_ems_identity_document`) |
 | Minimum score | 50 | 0 (set by `create()` and the onchange of `audience`; hidden in the form) |
-| Score correction deadline (`interview_deadline`) | Set by hand | `date_close` + 14 days (`STAFF_RATING_DAYS`), set by `create()`/onchange and moved with `date_close` while it still holds that default |
+| Score correction deadline (`interview_deadline`) | From `date_close` (`_ems_deadlines()`), like every deadline | The same rule: it is the panel's deadline |
 
 ```mermaid
 erDiagram
@@ -802,8 +883,16 @@ call's `staff_level_ids` (*Teachers of*; a new staff call gets every FP level of
 `_ems_staff_validators()`: the Director (`res.company.director_id`) and the Head of Studies that
 `find_head_of_studies()` returns for most of the teachers of those levels (decided with the
 coordinator 2026-10-23: FP's validates every applicant, also the language teachers who hang below
-ESO/BTX's in the chart). The staff screens never show the modality (places and periods are the
-team's planning): not in the application header, the offer nor the offer email.
+ESO/BTX's in the chart). The staff screens never show the project nor its places (the team's
+planning): not in the application header, the offer nor the offer email.
+
+**Projects' short name (issue #772).** `ems.erasmus.project.code` (*Short name*, e.g. `2026-VET`) is a
+stored compute from the agreement number (`AGREEMENT_NUMBER`: its year and VET/HED), editable; it is
+the `display_name` (the agreement number with its kind when there is none) and `_rec_names_search`
+covers both. The upgrade (`migrations/18.0.0.48.0/post-migrate.py`, to fold into the release
+version) turns each staff modality's places into a line of the project its mobilities already use, or
+the only active project of its kind, fills that project on its mobilities without one, posts a note on
+the call when it can't resolve it, and deletes the staff modalities (references nulled first).
 
 ### Panel and plan ratings
 
@@ -1191,7 +1280,7 @@ with its state. The call's page also links the published call.
 
 **Host entities:** `res.partner.is_erasmus_host` marks a company, school or course provider that
 hosts participants; its contacts are the tutors at destination, with their email. Menu *Erasmus+ >
-Configuration > Host entities* (`action_erasmus_host_entity`, the native contact views). The mobility's and the
+Configuration > Host entities* (`action_erasmus_host_entity`: its own list and search view, the native kanban and form). The mobility's and the
 destination's host fields only offer host entities, the mobility shows the tutor's email
 (`host_contact_email`) and picks the tutor automatically when the entity has only one contact. The
 Learning Agreement already says it is signed by the host entity (`sign_host`); sending it to the
@@ -1212,6 +1301,21 @@ export are described in [economy.md](economy.md) (issue #762).
 four, and the ZIP exports (a record or a whole project, with index, manifest and SHA-256 hashes,
 logged) are described in [records.md](records.md). The host entity also has its Erasmus+
 `erasmus_oid`.
+
+**The host entity's form** is the general contact form (`base.view_partner_form` plus EMS's
+views), whose details block (address, country, website, email, phone, OID) is hidden by
+`read_only_user`, meant for the students' data. `res.partner.can_edit_erasmus_host` (non-stored:
+`ems.group_erasmus` and the contact is a host entity or a host entity's tutor, issue #777) shows it
+to the Erasmus team there and nowhere else. **Known limit, decided with the coordinator
+(2026-11-09):** that form also reads student data (`ems.enrollment`, `ems.enrollment.slot`,
+`ems.authorization`, `ems.student.benefit`, `ems.student.document`, `ems.study`), which
+`ems.group_erasmus` alone cannot, so a team member must also be a teacher (both are today), or the form
+ends in an access error. A form of its own for host entities would lift this limit.
+
+**An invoice is either a group's or some participants'** (`_check_group_or_participants`, issue
+#777): `mobility_ids` makes shares of the participants' grants and `group_mobility_id` counts in the
+group's figures and pocket money, so both at once would count it twice. A group's invoice has no
+shares, so its `unassigned_amount` is 0. The constraint only checks what is written from now on.
 
 ### Access (phase 6)
 
@@ -1276,7 +1380,12 @@ flowchart LR
   signature columns in the record's list.
 - **Call form**: the stat buttons follow the phase (`has_provisional_resolution`,
   `has_final_resolution`), the latest first; the tabs are two nested notebooks (`selection_block`,
-  `mobility_block`); the tie warning is above the title.
+  `mobility_block`); the tie warning is above the title. Issue #767: the top has two blocks,
+  *Settings* and *Calendar* (notes 2.3 and 2.6 of the 46.0 review: no `is_accepting` nor
+  `reminder_days`), with the four deadlines folded in a `<details>` element (an Odoo 18 form has no foldable group of its own; the form compiler keeps plain HTML elements); `mobility_block` only
+  shows with `has_final_resolution` (lines added later still reach every mobility through
+  `_ems_sync_requirements`); on a staff call, *Documents* is hidden and *Panel* only shows once
+  closed. The modalities list shows the project only on a staff call.
 - **Ranking**: `ranking_result` (non-stored) gives the cut of the places; the menu's ranking is
   ordered by call, with its column. The application list counts `documents_to_review` (never on a
   draft). The application's Documents tab shows each line's `file_state` as a badge (greyed out when
@@ -1289,8 +1398,7 @@ flowchart LR
   call (`_ems_notify_evaluators`), in their next daily summary, not one email per interview. The interview
   form writes annex 4's descriptors under each criterion; interviews and plan ratings have
   **Submit and next** (`action_submit_next`).
-- **Plan ratings**: `rating_status` (stored) shows an abstention as such; a pivot view
-  (applicants x status) in the team's action.
+- **Plan ratings**: `rating_status` (stored) shows an abstention as such.
 - **Direction**: `scores_hidden` (non-stored, `depends_context('uid')`) replaces the zeros of a staff
   application with an explanation while the panel rates (`_ems_panel_pending`, shared with
   `_read_format`); **Mobilities > Pending validation** (`action_erasmus_mobility_to_validate`); the
@@ -1304,3 +1412,91 @@ flowchart LR
   headed "Erasmus+" instead of "Your <model>" ("El vostre Sol·licitud Erasmus+").
 - **Team**: the administrator is not in `group_erasmus`/`group_erasmus_coordinator` (they got every
   team to-do); they keep every right through `group_academic_admin`.
+
+### Dates and numbers in the screens (issue #778)
+
+- **Dates:** every datetime in an Erasmus+ view has Odoo's `show_time: False`, so it reads as a day
+  in lists and read-only fields. Odoo's own datetime input ignores that option while editing, which
+  is what we want: an editable deadline keeps its hour (`show_seconds: False` removes the seconds),
+  because a typed date with no time would close it at 00:00, a day early. Hours are kept on purpose
+  on `application/interview.interview_date`, `interview.schedule.date_start` (appointments),
+  `mobility.turn_deadline` (counted in hours) and the `deadline` of `offer` and `offer.wizard` (any
+  time of the day). The portal still shows hours. `TestErasmusDatesNumbers` walks every view and
+  fails on a new datetime that doesn't follow this.
+- **A 0 that means nothing:** `ems_blank_zero` (`static/src/js/backend/blank_zero_field.js`) is
+  Odoo's integer widget printing nothing for 0, with the view's placeholder while editing: no limit
+  and any length (`support.rate.band_to`, `min_days`), no data (`quality.history.staff_*`), not
+  known (`diffusion.recipient_count`). Odoo has no option for this and `invisible` would hide the
+  input of an editable list's row. Only the display changes: the column still holds 0.
+
+### Texts of the screens (issue #779)
+
+- **Commission:** the call's rules (art. 10) say *Comissió*, so every Catalan and Spanish text of an
+  Erasmus+ record says so too, never *Tribunal*. The English source and the code keep "panel".
+- **One English word, two translations:** a label that needs another translation only in Erasmus+
+  (e.g. "Submitted" feminine, "Students" as *Alumnat*) has its own block in the `.po`, with the same
+  msgid and only the Erasmus+ references. Odoo binds a block to its references, so it works; never
+  merge those blocks.
+- **Short list headers** are `string=` on the list's field, so a form keeps its full label. The
+  earlier courses' list hides the source, which reads in full in its own form.
+- **`ems_score_out_of`** (`static/src/js/backend/score_out_of_field.js`): Odoo's float widget with
+  `options="{'max': 40}"`, printing "36 / 40". The maximums are the call rules' and
+  `TestErasmusLabels` checks them against the code's scales (they add up to 100 and 10).
+- **A complete document** offers `action_mark_needs_change` as **Reopen**: the same button twice in
+  the view. `can_mark_needs_change` and `can_reopen` (computed on the document line) say which one
+  shows, so the lists and forms that carry it share one rule: neither is offered once the file
+  is sent back, or for a document the team provides that nobody signs.
+
+### Selection lists (issue #781)
+
+- **Ranking:** `action_erasmus_ranking` opens `view_erasmus_ranking_common_list` from the menu
+  (what every call has, grouped by call); `action_view_ranking` opens a call's own list, with the
+  student criteria grouped by modality or the staff criteria in one list. The menu doesn't group by
+  modality because a staff call ranks everyone together, and a modality would split it. No list
+  colours its rows (the resolution does, with its legend); the state badge has the colour.
+- **`aggregator=None` on ranks and scores:** Odoo sums an integer or a float in a group's row, which
+  means nothing for a position or a score. It must be `None`: `fields_get()` then leaves the key out,
+  and the client leaves the field out of the group's order. `False` reaches the server, which fails
+  with "Aggregate method is mandatory" when a `default_order` or a click on the column orders by it.
+- **Plan ratings** open grouped by applicant (`search_default_group_applicant`), with two stored
+  fields for the group's row: `rated_count` (1 for a submitted rating, summed) and `plan_mean`
+  (related to the application's `plan_score`, `max`). An average of `score` would be wrong: an
+  abstention and a rating still to come are stored as 0, and Odoo's float column has no NULL. Both
+  are computed on upgrade; the row's own cell is `invisible`.
+- **Mobility documents of a call:** the list has five columns and a line opens a dialog with the rest;
+  `parent.audience` hides the legal guardian's and the centre's tutor's signature on a staff call.
+- **Documents of an application:** `review_comment` only shows where it says something, and the
+  results tab says the resolution's kind, with no zeros on an admission list.
+
+### Mobility, group, project, economy and configuration lists (issue #782)
+
+- **Mobilities:** the list shows `record_progress` (non-stored, computed for the page only) and
+  short headers (`Ready`, `Back`); the proposal's state and the rank are optional. The search view
+  has *Students* / *Staff* filters on the stored `audience`. `view_erasmus_mobility_kanban` groups
+  the cards by `state` (no drag and drop: a phase changes through the form's actions).
+  *Pending validation* (`action_erasmus_mobility_to_validate`) has its own list,
+  `view_erasmus_mobility_to_validate_list`: what was proposed (`proposal_*`), the same for the
+  Direction and the Erasmus team.
+- **A mobility's record table:** who handles each line is `responsible` (non-stored, the call
+  document's `handled_by` with one-word labels), apart from `todo_state`, whose `waiting_team` reads
+  *Waiting for the team* (also on the portal). The table shows `current_attachment_ids`;
+  `prepared_attachment_ids` (the team's upload) only on lines the team hands over, `attachment_ids`
+  (every version, editable) optional.
+- **Group mobility:** the Selection tab starts with `registration_ids` (the columns of the ranking:
+  rank, name, group, `ranking_average`, proposed and final result); the history of the selection
+  (`selection_history`: dates, notes, published lists, claims) closes the tab. The Participants tab
+  shows seven columns and never colours a withdrawal's missing documents.
+- **Projects:** the list has no `active` toggle (archived from Actions); both mobility tables have
+  a separator and hide when empty. The exports log reads `ems.erasmus.export.subject` (non-stored:
+  the scope plus the participant's or the group's name, from `_ems_target_name()`, shared with the
+  display name) and leaves the counts blank on a participants' spreadsheet (`ems_blank_zero`).
+- **Economy:** the comparison pivot opens with three measures (grant, committed, available); the
+  expense lists show one amount, `counted_amount`, titled *Amount* (`amount` is optional, *Amount
+  entered*). The economic panel and the project list both call `kind` *Kind*.
+- **Quality:** `ems.erasmus.satisfaction` has no pivot view: the quality panel's satisfaction
+  breakdown gives the same means.
+- **Configuration:** *Host entities* has its own list and search view (no student-group search
+  panel): name, country, city, OID and `res.partner.erasmus_mobility_count` (non-stored, one
+  `_read_group` per mobility model for the whole page, cancelled ones aside). The organisational
+  support rates open grouped by year, newest first; `call_year` has `aggregator=None` on rates and
+  projects so that a group's row never sums years.

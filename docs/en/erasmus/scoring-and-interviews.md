@@ -19,6 +19,10 @@ When the application period is over, click **Actions > Close applications** on t
 
 Later changes in grades or warnings do not change these values. You see them on the **Scoring** tab of each application, with the list of modules used.
 
+Each criterion shows its points over its maximum (*36 / 40*), and the date is under **Scoring data frozen on**.
+
+![A criterion's points over their maximum](../../assets/erasmus/puntuacio-sobre-maxim.png)
+
 > **Tip:** close the call right after the closing date, so the data is the one EMS had on that date.
 
 A student who joined the centre this year only has this year's modules: their average is the provisional grade of the learning outcomes already graded. If a student has no learning outcome graded at all, the average stays *pending* and the application has no complete score.
@@ -55,7 +59,11 @@ If a student does not attend the interview, write the reason and click **Actions
 
 ## 4. The ranking
 
-Click **Ranking** on the call (or **Erasmus+ > Calls > Ranking**, ordered by call and modality, with the call in its own column): the admitted applications of each modality in order, with the score of each criterion. **Within the places** shows the cut: in green the applications within the places of the modality (*Selected*), then the *Reserve* ones.
+Click **Ranking** on the call: the admitted applications, grouped by modality and in order, with the score of each criterion. **Erasmus+ > Calls > Ranking** shows every call grouped, with only what they all have: position, applicant, total, result and current status.
+
+![The ranking of a call, grouped by modality](../../assets/erasmus/classificacio-convocatoria.png)
+
+ **Within the places** shows the cut: in green the applications within the places of the modality (*Selected*), then the *Reserve* ones.
 
 - A modality is only ranked when **every** admitted application in it has a complete score. Until then the rank is 0.
 - Ties are broken, in this order, by fewer opportunities, first mobility, the English part of the interview and the record average.

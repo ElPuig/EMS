@@ -7,20 +7,20 @@
             <field name="name">ems.erasmus.offer.list</field>
             <field name="model">ems.erasmus.offer</field>
             <field name="arch" type="xml">
-                <list string="Place offers" create="false" decoration-muted="state in ('cancelled', 'expired')"
-                      decoration-success="state == 'accepted'" decoration-danger="state == 'renounced'">
+                <list string="Place offers" create="false">
                     <field name="call_id" optional="hide"/>
                     <field name="modality_id"/>
                     <field name="rank"/>
                     <field name="partner_id"/>
-                    <field name="offer_date"/>
-                    <field name="deadline"/>
-                    <field name="from_reserve" optional="show"/>
-                    <field name="answer_date" optional="show"/>
-                    <field name="state" widget="badge" decoration-info="state == 'pending'"/>
-                    <button name="action_cancel" type="object" string="Withdraw offer" icon="fa-ban"
+                    <field name="offer_date" options="{'show_time': False}"/>
+                    <field name="deadline" options="{'show_seconds': False}"/>
+                    <field name="from_reserve" string="From reserve" optional="show"/>
+                    <field name="answer_date" options="{'show_time': False}" optional="hide"/>
+                    <button name="action_cancel" type="object" string="Withdraw" icon="fa-ban"
                             invisible="state != 'pending'" groups="ems.group_erasmus,ems.group_academic_admin"
                             confirm="Withdraw this offer?"/>
+                    <field name="state" widget="badge" decoration-info="state == 'pending'"
+                           decoration-success="state == 'accepted'" decoration-danger="state == 'renounced'"/>
                 </list>
             </field>
         </record>
@@ -47,9 +47,9 @@
                                 <field name="from_reserve"/>
                             </group>
                             <group>
-                                <field name="offer_date"/>
-                                <field name="deadline"/>
-                                <field name="answer_date"/>
+                                <field name="offer_date" options="{'show_time': False}"/>
+                                <field name="deadline" options="{'show_seconds': False}"/>
+                                <field name="answer_date" options="{'show_time': False}"/>
                                 <field name="renounce_reason" invisible="not renounce_reason"/>
                             </group>
                         </group>
@@ -96,7 +96,7 @@
                         <field name="free_places"/>
                         <field name="application_id"/>
                         <field name="rank" invisible="not application_id"/>
-                        <field name="deadline"/>
+                        <field name="deadline" options="{'show_seconds': False}"/>
                     </group>
                     <footer>
                         <button name="action_confirm" type="object" string="Offer the place" class="btn-primary"

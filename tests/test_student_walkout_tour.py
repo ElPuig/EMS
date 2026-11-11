@@ -2,7 +2,7 @@
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import mock_outgoing_email
+from .common import create_role_user, mock_outgoing_email
 from .test_student_walkout import create_walkout_fixtures, end_phase, open_walkout
 
 
@@ -35,3 +35,9 @@ class TestStudentWalkoutTour(HttpCase):
         self.start_tour("/odoo", "ems_student_walkout_validate", login=self.head_of_studies.login)
         self.assertEqual(self.walkout.state, 'justified')
         self.assertEqual(self.walkout.justification_id.student_ids, self.delegate)
+
+    def test_settings_admin_sets_the_levels(self):
+        settings_admin = create_role_user(self, 'settings_admin', 'test_walkout_tour_settings_admin')
+        self.start_tour("/odoo", "ems_student_walkout_levels", login=settings_admin.login)
+        self.assertEqual(self.level.walkout_course_from, 2)
+

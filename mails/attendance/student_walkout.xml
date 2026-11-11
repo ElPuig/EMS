@@ -103,8 +103,8 @@
             </field>
         </record>
 
-        <!-- To the family of a student who joins the walkout and is a minor (or shares with it), once
-             the Head of Studies validates the call (never before: a call not validated is not told). -->
+        <!-- To the family of each justified student (a minor whose family ratified it, or an adult who
+             shares with it), once the Head of Studies validates the call. -->
         <record id="email_template_student_walkout_family" model="mail.template">
             <field name="name">EMS: student walkout, family</field>
             <field name="model_id" ref="ems.model_ems_student_walkout_line"/>
@@ -227,7 +227,7 @@
                         <p t-if="object.group_supports and object.joining_count">
                             From the call in EMS (<a t-attf-href="{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}">open it</a>),
                             <em>Actions &gt; Validate and justify</em> validates the call and justifies that day for the
-                            students who join (their families are told then), and <em>Do not validate</em> leaves it
+                            students who can be justified (adults, and minors whose family ratified it), and <em>Do not validate</em> leaves it
                             unjustified, giving a reason.
                         </p>
                         <p t-else="">Nobody's absence is to be justified.</p>
@@ -278,8 +278,9 @@
             </field>
         </record>
 
-        <!-- To the family told that their child's absence was justified, when the Head of Studies
-             withdraws the validation. -->
+        <!-- To the families that heard of the call (asked to ratify that a minor joins, or told of its
+             validation) when it ends without a justification: aborted by the tutor, not validated by the
+             Head of Studies, or its validation withdrawn. -->
         <record id="email_template_student_walkout_family_rejected" model="mail.template">
             <field name="name">EMS: student walkout, rejected, family</field>
             <field name="model_id" ref="ems.model_ems_student_walkout_line"/>
@@ -291,13 +292,29 @@
                 <![CDATA[
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Dear family,</p>
-                        <p>
+                        <p t-if="object.walkout_id.rejected_from_state == 'justified'">
                             The Head of Studies has withdrawn the validation of the student walkout of
                             <t t-out="object.walkout_id.group_id.name"/> on
                             <strong t-out="format_date(object.walkout_id.walkout_date)"/>, which
                             <strong t-out="object.student_id.name"/> had said they joined:
                             <strong t-out="object.walkout_id.rejection_reason_id.name"/>.
                             Their absence that day is no longer justified.
+                        </p>
+                        <p t-elif="object.walkout_id.rejected_from_state == 'closed'">
+                            The Head of Studies has not validated the student walkout of
+                            <t t-out="object.walkout_id.group_id.name"/> on
+                            <strong t-out="format_date(object.walkout_id.walkout_date)"/>, which
+                            <strong t-out="object.student_id.name"/> had said they joined:
+                            <strong t-out="object.walkout_id.rejection_reason_id.name"/>.
+                            Their absence that day will not be justified.
+                        </p>
+                        <p t-else="">
+                            The school has aborted the student walkout call of
+                            <t t-out="object.walkout_id.group_id.name"/> for
+                            <strong t-out="format_date(object.walkout_id.walkout_date)"/>, which
+                            <strong t-out="object.student_id.name"/> had said they joined:
+                            <strong t-out="object.walkout_id.rejection_reason_id.name"/>.
+                            There is nothing left to ratify, and their absence that day will not be justified.
                         </p>
                         <p>If you have any question, talk to the group's tutor.</p>
                         <p>

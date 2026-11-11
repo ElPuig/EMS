@@ -242,10 +242,10 @@ class EmsGroup(models.Model):
 		utils = self.env['ems.datetime_utils']
 		now = utils.utc_datetime_to_local(UTC.localize(moment)) if moment else utils.get_local_datetime()
 		today, hour = now.date(), now.hour + now.minute / 60
-		closed = self.env['resource.calendar.leaves']._ems_holiday_dates(today, today + timedelta(days=SCHOOL_SEND_HORIZON))
+		school = self.env['resource.calendar.leaves']._ems_school_days(today, today + timedelta(days=SCHOOL_SEND_HORIZON))
 		for offset in range(SCHOOL_SEND_HORIZON + 1):
 			day = today + timedelta(days=offset)
-			if day.weekday() not in windows or day in closed:
+			if day.weekday() not in windows or day not in school:
 				continue
 			start, end = windows[day.weekday()]
 			if offset == 0 and hour >= end:

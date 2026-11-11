@@ -96,3 +96,31 @@ registry.category("web_tour.tours").add("ems_student_walkout_validate", {
         },
     ],
 });
+
+// Settings > Student Walkout Settings > Levels and courses, as a settings administrator who is not
+// an academic administrator (test_student_walkout_tour.py): the list is editable and saves.
+registry.category("web_tour.tours").add("ems_student_walkout_levels", {
+    test: true,
+    url: "/odoo/action-ems.action_level_walkout_settings",
+    steps: () => [
+        {
+            trigger: ".modal .o_data_row:contains('WLT') td[name='walkout_course_from']",
+            content: "The tour's level, with its first course",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_data_row:contains('WLT') .o_field_widget[name='walkout_course_from'] input",
+            content: "From the 2nd course",
+            run: "edit 2",
+        },
+        {
+            trigger: ".modal button[name='action_save']",
+            content: "Save",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal))",
+            content: "The dialog closes",
+        },
+    ],
+});

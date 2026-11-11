@@ -69,7 +69,7 @@ class EmsStudentWalkout(models.Model):
                                           readonly=True, copy=False, ondelete='restrict')
     rejection_details = fields.Text(string="Rejection details", readonly=True, copy=False)
     # The state it was rejected from: aborted (voting, joining), not validated (closed) or validation
-    # undone (justified, the only case the families had been told).
+    # undone (justified). It decides what the group and the families are told.
     rejected_from_state = fields.Selection(string="Rejected while", selection=[
         ('voting', "Voting"),
         ('joining', "Joining"),
@@ -265,16 +265,19 @@ class EmsStudentWalkout(models.Model):
             self._ems_mail_students('ems.email_template_student_walkout_ratification_refused', line)
 
     def _ems_portal_cancel(self, partner):
-        self._ems_check_delegate(partner)
+        self._ems_check_manager(partner)
         if self.state not in ('voting', 'joining'):
             raise UserError(_("Only a call still being voted or joined can be cancelled."))
         self.state = 'cancelled'
         self._message_log(body=_("Cancelled by %(name)s from the portal.", name=partner.name))
 
-    def _ems_check_delegate(self, partner):
+    def _ems_is_manager(self, partner):
         """The opener, or the group's current delegate or sub-delegate, manage the call."""
         self.ensure_one()
-        if partner != self.opener_id and partner not in (self.group_ids.delegate_id | self.group_ids.subdelegate_id):
+        return partner == self.opener_id or partner in (self.group_ids.delegate_id | self.group_ids.subdelegate_id)
+
+    def _ems_check_manager(self, partner):
+        if not self._ems_is_manager(partner):
             raise UserError(_("Only the delegate or the sub-delegate of the group can manage this call."))
 
     # The calendar
@@ -356,14 +359,6 @@ class EmsStudentWalkout(models.Model):
         yes, no = self.group_yes_count, self.group_no_count
         return to_come <= 0 or yes > no + to_come or yes + to_come <= no
 
-    def _ems_latest_minute(self):
-        """When the minute reaches the Head of Studies at the latest: the group vote taking its whole
-        phase and the joining another."""
-        self.ensure_one()
-        if self.join_until:
-            return self.join_until
-        return self._ems_phase(self.group_ids, self.vote_until, self.phase_hours)[1]
-
     def _ems_wake_cron_at(self, moment):
         """Runs the deadlines cron exactly when a phase ends (the hourly run is only the safety net)."""
         cron = self.env.ref('ems.ir_cron_student_walkout_deadlines', raise_if_not_found=False)
@@ -422,7 +417,8 @@ class EmsStudentWalkout(models.Model):
     def _ems_notify_closed(self):
         """The minute to the Head of Studies right away (the walkout is a day off: not a notice for
         the daily summary), with a task when there is somebody to justify; the tutor is told. The
-        families only once the Head of Studies validates it (action_generate_justification)."""
+        families hear of the result when the Head of Studies decides (action_generate_justification,
+        _ems_reject)."""
         self.ensure_one()
         users = self._ems_head_users()
         self._ems_mail_staff('ems.email_template_student_walkout_head', users,
@@ -542,9 +538,9 @@ class EmsStudentWalkout(models.Model):
 
     def _ems_reject(self, reason, details):
         """Aborted (voting, joining) or not validated (closed, justified), always with a reason. The
-        students and the tutor are always told; the families only when the validation is undone
-        (they were told when it was validated), and the Head of Studies of an aborted call in their
-        daily summary. A justification already generated is removed, as the user rejecting it."""
+        students and the tutor are always told, the families that heard of it too (_ems_family_lines),
+        and the Head of Studies of an aborted call in their daily summary. A justification already
+        generated is removed, as the user rejecting it."""
         self._ems_check_reject()
         details = (details or '').strip()
         if reason.requires_details and not details:
@@ -587,8 +583,8 @@ class EmsStudentWalkout(models.Model):
         return self.state == 'closed' and self.group_supports and bool(self.justifiable_student_ids)
 
     def _ems_user_may_justify(self):
-        """A Head of Studies, Deputy Head of Studies or Director above every student who joins
-        (tutor scope), or an administrator."""
+        """A Head of Studies, Deputy Head of Studies or Director above every student who can be
+        justified (tutor scope), or an administrator."""
         self.ensure_one()
         if self.get_user_is_admin():
             return True
@@ -596,8 +592,9 @@ class EmsStudentWalkout(models.Model):
             self.env['ems.attendance_justification']._user_may_justify(self.justifiable_student_ids)
 
     def action_generate_justification(self):
-        """One full-day justification of the walkout day for the students who join, except the ones
-        already justified that day (noted in the chatter)."""
+        """One full-day justification of the walkout day for the students who can be justified
+        (adults, and minors whose family ratified it), except the ones already justified that day
+        (noted in the chatter)."""
         self.ensure_one()
         if not self._ems_has_something_to_justify():
             raise UserError(_("There is nobody to justify: the vote is not closed, the group did not support the "
@@ -607,7 +604,6 @@ class EmsStudentWalkout(models.Model):
                               "students, or an administrator, can justify a student walkout."))
         Justification = self.env['ems.attendance_justification']
         period = Justification._whole_day_vals(self.walkout_date)
-        # Adults, and minors whose family ratified it (Decret 102/2010, art. 24.2).
         joining = self.justifiable_student_ids
         skipped = Justification.new({'student_ids': [(6, 0, joining.ids)], **period})._overlapping_students(joining)
         students = joining - skipped
@@ -625,7 +621,7 @@ class EmsStudentWalkout(models.Model):
         walkout = self.sudo()
         walkout.write({'state': 'justified', 'justification_id': justification.id})
         walkout._ems_sync_user_tasks(self.env.ref(JUSTIFY_TASK), self.env['res.users'], self.walkout_date, done=True)
-        # Validated: every student is told, the family of each one who joins and the tutor too.
+        # Validated: every student is told, the family of each one justified and the tutor too.
         walkout._ems_mail_students('ems.email_template_student_walkout_validated')
         walkout._ems_mail_families('ems.email_template_student_walkout_family',
                                    walkout._ems_family_lines(True).filtered('justifiable'))

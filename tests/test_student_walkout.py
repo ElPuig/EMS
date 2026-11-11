@@ -514,6 +514,30 @@ class TestStudentWalkout(TransactionCase):
         with self.assertRaises(UserError):
             ratify(walkout, self.family, self.classmate)
 
+    def test_the_age_counts_on_the_walkout_day(self):
+        walkout = open_walkout(self)
+        self._supported(walkout)
+        # 18 before the walkout day: an adult then, nothing to ratify; no birth date: a minor.
+        self.classmate.birth_date = walkout.walkout_date - relativedelta(years=18)
+        self.subdelegate.birth_date = False
+        self._join(walkout, self.classmate)
+        self._join(walkout, self.subdelegate)
+        lines = {line.student_id: line for line in walkout.line_ids}
+        self.assertFalse(lines[self.classmate].needs_ratification)
+        self.assertTrue(lines[self.subdelegate].needs_ratification)
+
+    def test_the_family_asked_to_ratify_is_told_why_it_ended(self):
+        """Its email says what happened: aborted while joining, not validated once closed."""
+        walkout = open_walkout(self)
+        self._supported(walkout)
+        self._join(walkout, self.classmate)
+        before = self._family_mails(walkout)
+        reject_walkout(walkout, self.tutor, 'ems.student_walkout_rejection_region')
+        mail = self._family_mails(walkout) - before
+        self.assertEqual(len(mail), 1)
+        self.assertIn('aborted', mail.body_html)
+        self.assertNotIn('withdrawn the validation', mail.body_html)
+
     def test_only_adults_and_ratified_minors_are_justified(self):
         walkout = open_walkout(self)
         self._supported(walkout)
@@ -621,6 +645,20 @@ class TestStudentWalkout(TransactionCase):
             walkout.with_user(self.other_head_of_studies).check_access('read')
         with self.assertRaises(AccessError):
             walkout.line_ids.with_user(self.tutor).write({'joins': False})
+
+    def test_settings_edit_the_levels_and_courses(self):
+        """Settings > Levels and courses: whoever enters Settings (a settings administrator, who is
+        not an academic administrator) sets the three walkout fields, and nothing else of the level."""
+        settings_admin = create_role_user(self, 'settings_admin', 'test_walkout_settings_admin')
+        Wizard = self.env['ems.walkout.levels.wizard'].with_user(settings_admin)
+        wizard = Wizard.create({})
+        line = wizard.line_ids.filtered(lambda line: line.level_id == self.level)
+        self.assertTrue(line.walkout_allowed)
+        line.write({'walkout_course_from': 2, 'walkout_course_to': 4})
+        wizard.action_save()
+        self.assertEqual((self.level.walkout_course_from, self.level.walkout_course_to), (2, 4))
+        with self.assertRaises(AccessError):
+            self.env['ems.walkout.levels.wizard'].with_user(self.tutor).create({})
 
     def test_seed_follows_the_law(self):
         Level = self.env['ems.level']

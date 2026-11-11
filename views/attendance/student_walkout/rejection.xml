@@ -28,9 +28,9 @@
                             on the group. The Head of Studies is told of every aborted call and its reason.
                         </p>
                     </div>
-                    <p class="text-muted" invisible="walkout_state not in ('voting', 'joining')">The students of the group and its tutor are told, with the reason.</p>
-                    <p class="text-muted" invisible="walkout_state != 'closed'">Absences will not be justified. The students of the group and its tutor are told, with the reason.</p>
-                    <p class="text-muted" invisible="walkout_state != 'justified'">The justification is removed. The students of the group, the families of those who join and the tutor are told, with the reason.</p>
+                    <p class="text-muted" invisible="walkout_state not in ('voting', 'joining')">The students of the group, its tutor and the families asked to ratify that a minor joins are told, with the reason.</p>
+                    <p class="text-muted" invisible="walkout_state != 'closed'">Absences will not be justified. The students of the group, its tutor and the families asked to ratify that a minor joins are told, with the reason.</p>
+                    <p class="text-muted" invisible="walkout_state != 'justified'">The justification is removed. The students of the group, the families of those justified and the tutor are told, with the reason.</p>
                     <group>
                         <field name="walkout_id" readonly="1"/>
                         <field name="reason_id" options="{'no_create': True, 'no_open': True}"/>

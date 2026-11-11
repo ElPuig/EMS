@@ -60,8 +60,9 @@ class ResPartner(models.Model):
         """The lines of this family's children it was asked to ratify, newest first; `pending`, only
         the ones still waiting for its answer while joining lasts."""
         self.ensure_one()
-        children = self.sudo().get_portal_students().filtered(lambda child: self in child._ems_family_contacts())
-        domain = [('student_id', 'in', children.ids), ('needs_ratification', '=', True), ('joins', '=', True),
+        # get_portal_students: the children this family acts for (its own family relations). The
+        # stricter check, a family contact of the student, is _ems_portal_ratify's.
+        domain = [('student_id', 'in', self.sudo().get_portal_students().ids), ('needs_ratification', '=', True), ('joins', '=', True),
                   ('walkout_id.state', '!=', 'cancelled')]
         if pending:
             domain += [('ratification', '=', 'pending'), ('walkout_id.state', '=', 'joining'),

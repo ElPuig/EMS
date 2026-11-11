@@ -79,15 +79,8 @@ class EmsDatetimeUtils(models.AbstractModel):
     # 13:00 end on the Monday at 13:00. Counted on the company's wall clock, naive UTC in and out.
 
     def _ems_school_days(self, date_from, date_to):
-        """The school days between both dates (included): weekdays that are no public holiday nor
-        school break, in one search."""
-        closed = self.env['resource.calendar.leaves']._ems_holiday_dates(date_from, date_to)
-        days, day = set(), date_from
-        while day <= date_to:
-            if day.weekday() < 5 and day not in closed:
-                days.add(day)
-            day += timedelta(days=1)
-        return days
+        """The school days between both dates (included), in one search."""
+        return self.env['resource.calendar.leaves']._ems_school_days(date_from, date_to)
 
     def _ems_local_wall(self, utc_naive):
         return self.utc_datetime_to_local(UTC.localize(utc_naive)).replace(tzinfo=None)

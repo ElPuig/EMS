@@ -1235,6 +1235,7 @@ msgstr "Nombre del titular de la cuenta"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_content__acronym model:ir.model.fields,field_description:ems.field_ems_criteria__acronym model:ir.model.fields,field_description:ems.field_ems_group__acronym model:ir.model.fields,field_description:ems.field_ems_level__acronym model:ir.model.fields,field_description:ems.field_ems_outcome__acronym model:ir.model.fields,field_description:ems.field_ems_study__acronym model:ir.model.fields,field_description:ems.field_ems_subject__acronym
+#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__level_acronym
 msgid "Acronym"
 msgstr "Acrónimo"
 
@@ -2546,6 +2547,7 @@ msgstr "Puede editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_bank_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_walkout_levels_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -3252,6 +3254,8 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -3408,6 +3412,8 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3881,6 +3887,8 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -5468,6 +5476,8 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__id
+#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__id
 msgid "ID"
 msgstr "ID"
 
@@ -6214,6 +6224,8 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -6370,6 +6382,8 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -6421,6 +6435,7 @@ msgstr "Texto legal (renderizado)"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_satisfaction__level_id
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__level_id
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
+#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__level_id
 msgid "Level"
 msgstr "Nivel"
 
@@ -6429,6 +6444,7 @@ msgstr "Nivel"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__ems_level_ids model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__ems_level_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_modality__level_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__level_ids
+#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__line_ids
 msgid "Levels"
 msgstr "Niveles"
 
@@ -8689,6 +8705,7 @@ msgstr "Sábado"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_document_signatures_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_bank_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_walkout_levels_wizard_form
 msgid "Save"
 msgstr "Guardar"
 
@@ -10848,6 +10865,7 @@ msgstr "Indica si hay nota final (la nota calculada está disponible)."
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__wizard_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_close_wizard_line__wizard_id
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__wizard_id
+#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__wizard_id
 msgid "Wizard"
 msgstr "Asistente"
 
@@ -49783,6 +49801,7 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_level__walkout_course_from
+#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__walkout_course_from
 msgid "From course"
 msgstr "Desde el curso"
 
@@ -49835,11 +49854,14 @@ msgstr "Niveles y cursos"
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_level_walkout_settings
 #: model_terms:ir.ui.view,arch_db:ems.view_level_walkout_list
+#: model:ir.model,name:ems.model_ems_walkout_levels_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_walkout_levels_wizard_form
 msgid "Levels and courses that may call a student walkout"
 msgstr "Niveles y cursos que pueden convocar una huelga"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_level__walkout_allowed
+#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__walkout_allowed
 msgid "May call a student walkout"
 msgstr "Puede convocar una huelga"
 
@@ -50085,6 +50107,7 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_level__walkout_course_to
+#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__walkout_course_to
 msgid "To course"
 msgstr "Hasta el curso"
 
@@ -50890,47 +50913,6 @@ msgstr ""
 "            "
 
 #. module: ems
-#: model:mail.template,body_html:ems.email_template_student_walkout_family_rejected
-msgid ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Dear family,</p>\n"
-"                        <p>\n"
-"                            The Head of Studies has withdrawn the validation of the student walkout of\n"
-"                            <t t-out=\"object.walkout_id.group_id.name\"/> on\n"
-"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, which\n"
-"                            <strong t-out=\"object.student_id.name\"/> had said they joined:\n"
-"                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
-"                            Their absence that day is no longer justified.\n"
-"                        </p>\n"
-"                        <p>If you have any question, talk to the group's tutor.</p>\n"
-"                        <p>\n"
-"                            Kind regards,<br/>\n"
-"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-msgstr ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Estimada familia:</p>\n"
-"                        <p>\n"
-"                            Jefatura de estudios ha retirado la validación de la huelga de\n"
-"                            <t t-out=\"object.walkout_id.group_id.name\"/> del\n"
-"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, a la que\n"
-"                            <strong t-out=\"object.student_id.name\"/> había dicho que se sumaba:\n"
-"                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
-"                            La falta de ese día ya no está justificada.\n"
-"                        </p>\n"
-"                        <p>Si tienen cualquier duda, hablen con el tutor del grupo.</p>\n"
-"                        <p>\n"
-"                            Un cordial saludo,<br/>\n"
-"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-
-#. module: ems
 #: model:mail.template,body_html:ems.email_template_student_walkout_rejected
 msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
@@ -51175,11 +51157,6 @@ msgid "Aborted"
 msgstr "Abortada"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
-msgid "Absences will not be justified. The students of the group and its tutor are told, with the reason."
-msgstr "Las faltas no se justificarán. Se avisa al alumnado del grupo y a su tutor, con el motivo."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__can_abort
 msgid "Can Abort"
 msgstr "Puede abortar"
@@ -51247,16 +51224,6 @@ msgid ""
 msgstr ""
 "El tutor del grupo vela por la convocatoria: revisa la convocatoria del sindicato y, solo si tiene un defecto\n"
 "                            de forma, abórtala indicando el motivo. Una vez cerrada, jefatura de estudios la valida o no."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
-msgid "The justification is removed. The students of the group, the families of those who join and the tutor are told, with the reason."
-msgstr "Se borra el justificante. Se avisa al alumnado del grupo, a las familias de quienes se suman y al tutor, con el motivo."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
-msgid "The students of the group and its tutor are told, with the reason."
-msgstr "Se avisa al alumnado del grupo y a su tutor, con el motivo."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -51390,61 +51357,6 @@ msgstr ""
 "                            Un cordial saludo,<br/>\n"
 "                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
 "                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-
-#. module: ems
-#: model:mail.template,body_html:ems.email_template_student_walkout_head
-msgid ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hello,</p>\n"
-"                        <p>\n"
-"                            The vote of the student walkout of <strong t-out=\"format_date(object.walkout_date)\"/> in\n"
-"                            <strong t-out=\"object.group_id.name\"/> has closed. The minute is attached.\n"
-"                        </p>\n"
-"                        <ul>\n"
-"                            <li>Group vote: <t t-out=\"object.group_yes_count\"/> yes, <t t-out=\"object.group_no_count\"/> no,\n"
-"                                <t t-out=\"object.group_abstain_count\"/> abstentions.\n"
-"                                <strong t-if=\"object.group_supports\">The group supports it.</strong>\n"
-"                                <strong t-else=\"\">The group does not support it.</strong></li>\n"
-"                            <li>Students who join: <t t-out=\"object.joining_count\"/> of <t t-out=\"len(object.line_ids)\"/>;\n"
-"                                can be justified: <t t-out=\"len(object.justifiable_student_ids)\"/> (minors need their\n"
-"                                family's ratification).</li>\n"
-"                        </ul>\n"
-"                        <p t-if=\"object.group_supports and object.joining_count\">\n"
-"                            From the call in EMS (<a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">open it</a>),\n"
-"                            <em>Actions &gt; Validate and justify</em> validates the call and justifies that day for the\n"
-"                            students who join (their families are told then), and <em>Do not validate</em> leaves it\n"
-"                            unjustified, giving a reason.\n"
-"                        </p>\n"
-"                        <p t-else=\"\">Nobody's absence is to be justified.</p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-msgstr ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hola:</p>\n"
-"                        <p>\n"
-"                            La votación de la huelga del <strong t-out=\"format_date(object.walkout_date)\"/> en\n"
-"                            <strong t-out=\"object.group_id.name\"/> se ha cerrado. Adjuntamos el acta.\n"
-"                        </p>\n"
-"                        <ul>\n"
-"                            <li>Voto del grupo: <t t-out=\"object.group_yes_count\"/> sí, <t t-out=\"object.group_no_count\"/> no,\n"
-"                                <t t-out=\"object.group_abstain_count\"/> abstenciones.\n"
-"                                <strong t-if=\"object.group_supports\">El grupo la apoya.</strong>\n"
-"                                <strong t-else=\"\">El grupo no la apoya.</strong></li>\n"
-"                            <li>Alumnos que se suman: <t t-out=\"object.joining_count\"/> de <t t-out=\"len(object.line_ids)\"/>;\n"
-"                                se pueden justificar: <t t-out=\"len(object.justifiable_student_ids)\"/> (los menores necesitan\n"
-"                                la ratificación de la familia).</li>\n"
-"                        </ul>\n"
-"                        <p t-if=\"object.group_supports and object.joining_count\">\n"
-"                            Desde la convocatoria en EMS (<a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">ábrela</a>),\n"
-"                            <em>Acciones &gt; Validar y justificar</em> valida la convocatoria y justifica ese día a los\n"
-"                            alumnos que se suman (entonces se avisa a las familias), y <em>No validar</em> la deja\n"
-"                            sin justificar, indicando el motivo.\n"
-"                        </p>\n"
-"                        <p t-else=\"\">No hay que justificar la falta de nadie.</p>\n"
 "                    </div>\n"
 "                \n"
 "            "
@@ -51638,3 +51550,181 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "joins the student walkout on"
 msgstr "se suma a la huelga del"
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_student_walkout_family_rejected
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Dear family,</p>\n"
+"                        <p t-if=\"object.walkout_id.rejected_from_state == 'justified'\">\n"
+"                            The Head of Studies has withdrawn the validation of the student walkout of\n"
+"                            <t t-out=\"object.walkout_id.group_id.name\"/> on\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, which\n"
+"                            <strong t-out=\"object.student_id.name\"/> had said they joined:\n"
+"                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
+"                            Their absence that day is no longer justified.\n"
+"                        </p>\n"
+"                        <p t-elif=\"object.walkout_id.rejected_from_state == 'closed'\">\n"
+"                            The Head of Studies has not validated the student walkout of\n"
+"                            <t t-out=\"object.walkout_id.group_id.name\"/> on\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, which\n"
+"                            <strong t-out=\"object.student_id.name\"/> had said they joined:\n"
+"                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
+"                            Their absence that day will not be justified.\n"
+"                        </p>\n"
+"                        <p t-else=\"\">\n"
+"                            The school has aborted the student walkout call of\n"
+"                            <t t-out=\"object.walkout_id.group_id.name\"/> for\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, which\n"
+"                            <strong t-out=\"object.student_id.name\"/> had said they joined:\n"
+"                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
+"                            There is nothing left to ratify, and their absence that day will not be justified.\n"
+"                        </p>\n"
+"                        <p>If you have any question, talk to the group's tutor.</p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Estimada familia:</p>\n"
+"                        <p t-if=\"object.walkout_id.rejected_from_state == 'justified'\">\n"
+"                            Jefatura de estudios ha retirado la validación de la huelga de\n"
+"                            <t t-out=\"object.walkout_id.group_id.name\"/> del\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, a la que\n"
+"                            <strong t-out=\"object.student_id.name\"/> había dicho que se sumaba:\n"
+"                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
+"                            La falta de ese día ya no está justificada.\n"
+"                        </p>\n"
+"                        <p t-elif=\"object.walkout_id.rejected_from_state == 'closed'\">\n"
+"                            Jefatura de estudios no ha validado la huelga de\n"
+"                            <t t-out=\"object.walkout_id.group_id.name\"/> del\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, a la que\n"
+"                            <strong t-out=\"object.student_id.name\"/> había dicho que se sumaba:\n"
+"                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
+"                            La falta de ese día no se justificará.\n"
+"                        </p>\n"
+"                        <p t-else=\"\">\n"
+"                            El centro ha anulado la convocatoria de huelga de\n"
+"                            <t t-out=\"object.walkout_id.group_id.name\"/> para el\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, a la que\n"
+"                            <strong t-out=\"object.student_id.name\"/> había dicho que se sumaba:\n"
+"                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
+"                            Ya no hay nada que ratificar, y la falta de ese día no se justificará.\n"
+"                        </p>\n"
+"                        <p>Si tienen cualquier duda, hablen con el tutor del grupo.</p>\n"
+"                        <p>\n"
+"                            Un cordial saludo,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_student_walkout_head
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello,</p>\n"
+"                        <p>\n"
+"                            The vote of the student walkout of <strong t-out=\"format_date(object.walkout_date)\"/> in\n"
+"                            <strong t-out=\"object.group_id.name\"/> has closed. The minute is attached.\n"
+"                        </p>\n"
+"                        <ul>\n"
+"                            <li>Group vote: <t t-out=\"object.group_yes_count\"/> yes, <t t-out=\"object.group_no_count\"/> no,\n"
+"                                <t t-out=\"object.group_abstain_count\"/> abstentions.\n"
+"                                <strong t-if=\"object.group_supports\">The group supports it.</strong>\n"
+"                                <strong t-else=\"\">The group does not support it.</strong></li>\n"
+"                            <li>Students who join: <t t-out=\"object.joining_count\"/> of <t t-out=\"len(object.line_ids)\"/>;\n"
+"                                can be justified: <t t-out=\"len(object.justifiable_student_ids)\"/> (minors need their\n"
+"                                family's ratification).</li>\n"
+"                        </ul>\n"
+"                        <p t-if=\"object.group_supports and object.joining_count\">\n"
+"                            From the call in EMS (<a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">open it</a>),\n"
+"                            <em>Actions &gt; Validate and justify</em> validates the call and justifies that day for the\n"
+"                            students who can be justified (adults, and minors whose family ratified it), and <em>Do not validate</em> leaves it\n"
+"                            unjustified, giving a reason.\n"
+"                        </p>\n"
+"                        <p t-else=\"\">Nobody's absence is to be justified.</p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola:</p>\n"
+"                        <p>\n"
+"                            La votación de la huelga del <strong t-out=\"format_date(object.walkout_date)\"/> en\n"
+"                            <strong t-out=\"object.group_id.name\"/> se ha cerrado. Adjuntamos el acta.\n"
+"                        </p>\n"
+"                        <ul>\n"
+"                            <li>Voto del grupo: <t t-out=\"object.group_yes_count\"/> sí, <t t-out=\"object.group_no_count\"/> no,\n"
+"                                <t t-out=\"object.group_abstain_count\"/> abstenciones.\n"
+"                                <strong t-if=\"object.group_supports\">El grupo la apoya.</strong>\n"
+"                                <strong t-else=\"\">El grupo no la apoya.</strong></li>\n"
+"                            <li>Alumnos que se suman: <t t-out=\"object.joining_count\"/> de <t t-out=\"len(object.line_ids)\"/>;\n"
+"                                se pueden justificar: <t t-out=\"len(object.justifiable_student_ids)\"/> (los menores necesitan\n"
+"                                la ratificación de la familia).</li>\n"
+"                        </ul>\n"
+"                        <p t-if=\"object.group_supports and object.joining_count\">\n"
+"                            Desde la convocatoria en EMS (<a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">ábrela</a>),\n"
+"                            <em>Acciones &gt; Validar y justificar</em> valida la convocatoria y justifica ese día a los\n"
+"                            alumnos que se pueden justificar (los mayores de edad y los menores con la ratificación de la familia), y <em>No validar</em> la deja\n"
+"                            sin justificar, indicando el motivo.\n"
+"                        </p>\n"
+"                        <p t-else=\"\">No hay que justificar la falta de nadie.</p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
+msgid ""
+"Absences will not be justified. The students of the group, its tutor and the"
+" families asked to ratify that a minor joins are told, with the reason."
+msgstr ""
+"Las faltas no se justificarán. Se avisa a los alumnos del grupo, a su tutor "
+"y a las familias a las que se pidió que ratificaran que un menor se suma, "
+"con el motivo."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_walkout_levels_wizard_line
+msgid "Level that may call a student walkout"
+msgstr "Nivel que puede convocar una huelga"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/walkout_levels_wizard.py:0
+msgid ""
+"Only an administrator can change which levels may call a student walkout."
+msgstr ""
+"Solo un administrador puede cambiar qué niveles pueden convocar una huelga."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
+msgid ""
+"The justification is removed. The students of the group, the families of "
+"those justified and the tutor are told, with the reason."
+msgstr ""
+"Se borra el justificante. Se avisa a los alumnos del grupo, a las familias "
+"de los justificados y al tutor, con el motivo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
+msgid ""
+"The students of the group, its tutor and the families asked to ratify that a"
+" minor joins are told, with the reason."
+msgstr ""
+"Se avisa a los alumnos del grupo, a su tutor y a las familias a las que se "
+"pidió que ratificaran que un menor se suma, con el motivo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_walkout_levels_wizard_form
+msgid ""
+"Tick the levels whose groups may call a student walkout. Leave the courses empty for every\n"
+"                        course of the level. By law, from the 3rd year of ESO."
+msgstr ""
+"Marca los niveles cuyos grupos pueden convocar una huelga. Deja los cursos en blanco para todos los\n"
+"                        cursos del nivel. Por ley, a partir de 3.º de ESO."

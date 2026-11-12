@@ -1540,8 +1540,27 @@ markup instead of rebuilding it from this description.
   video (2-4 minutes) per self-contained block.
 - MP4, 1920x1080, H.264 video with **MP3 audio** (the developer's VSCode player plays no sound
   with AAC or Opus and rejects WebM).
-- Elements build in progressively, with a thin orange progress bar along the bottom edge for the
-  whole video.
+- Elements build in progressively. No whole-video progress bar (the player already has one; developer,
+  2026-11-12): a thin orange bar fills over each slide's own time (bottom edge) and, in a live demo,
+  over each step's caption (in the side panel, under the text), resetting at every change, so the
+  viewer knows whether to pause to finish reading.
+- Music: when the chosen track is shorter than the video, chain a second, similar one (a different
+  artist, or a new track by the same artist) so the music reaches the end; credit every track on the
+  final slide. The tracks share the video in equal parts and are mixed (the first fades out while the
+  next fades in, 8 s, equal-power curve), never cut with a silence. Bring every track to the same
+  loudness first (-16 LUFS, a static gain per track measured with `ebur128`): two tracks of the same
+  album differed by 12.8 dB and the second one came in far louder than the first one went out
+  (developer, 2026-11-12). If a track is too short for an equal part, say so and offer a longer one
+  instead of leaving a silence. Choose human artists the developer hasn't heard in an earlier video,
+  with CC BY 4.0 or CC0 checked on each track's own page and no AI flag; one track per artist unless
+  repeating means a new track.
+- Live-demo panel (side, 480 px): who acts now (card with icon and role, white with an orange left
+  border), the circuit's steps with the current one highlighted, the caption, the centre's logo in a
+  card of the same style as the "who" card, and the per-step progress bar as a 12 px orange stripe flush
+  with the bottom edge (the mirror of the panel's top stripe). Tooling: `/root/ems-slides-video/live/`
+  (`compose_steps.py`, `make_live.py`, `gen_bo_slides.py`, `record_bo_test.py`); never launch two
+  `make_live.py` runs on the same output (killing a chain's parent shell leaves its child writing, and
+  the file comes out corrupt: check `ffmpeg -v error -i video -f null -` reports nothing).
 - When one deck yields several videos, each starts the same way (cover, the index of all blocks,
   the same index with this video's block highlighted in burgundy) and goes straight into the
   content, skipping the block's own title slide. The deck keeps its title slides for live

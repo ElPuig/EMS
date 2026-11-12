@@ -89,7 +89,8 @@
                         <!-- Issue #784 (7.8): the teacher's staff record as a button, not their name again. -->
                         <div class="oe_button_box" name="button_box">
                             <button name="action_open_employee" type="object" class="oe_stat_button" icon="fa-id-card-o"
-                                    string="Staff record" invisible="not employee_id"/>
+                                    string="Staff record" invisible="not employee_id"
+                                    groups="ems.group_teacher,ems.group_head_of_studies,ems.group_academic_admin"/>
                         </div>
                         <div class="oe_title">
                             <h1><field name="partner_id" readonly="1"/></h1>

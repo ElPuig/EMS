@@ -87,6 +87,8 @@ Ves a **Erasmus+ > Convocatòries > Sol·licituds**, agrupades per convocatòria
 
 Obre una sol·licitud. A dalt hi ha el que la decideix: els **Requisits**, la **Puntuació total** i la **Posició** (quan ja n'hi ha); el botó **Fitxa de personal** obre la fitxa del docent en una sol·licitud de personal.
 
+![Una sol·licitud: requisits i puntuació a dalt, i la pestanya Sol·licitud](../../assets/erasmus/sollicitud-capcalera.png)
+
 - Pestanya **Sol·licitud**: el que ha enviat l'alumne, primer les respostes del formulari i a sota els documents, cada document amb el seu **Estat** (*Per lliurar*, *Pendent de revisió*, *Cal corregir*, *Completa*; en gris, els opcionals i els que no s'apliquen, com l'autorització familiar d'un adult), els seus **Fitxers** (els que compten) i, si és un enllaç, l'**Enllaç** mateix. Es conserven tots els fitxers que ha pujat l'alumne: la columna opcional **Totes les versions** mostra també els anteriors. Marca'ls com a **Vàlid** (✓) o **Cal corregir** (✗), i escriu un **Comentari per al sol·licitant** quan calgui corregir-lo. Un document sense cap fitxer no es pot marcar com a vàlid.
 - Mentre la sol·licitud és un esborrany, l'alumne pot treure des del portal un fitxer pujat per error. Un cop enviada, només el treus tu, amb **Treure un fitxer** i el motiu.
 - Pestanya **Admissió**:

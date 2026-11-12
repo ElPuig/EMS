@@ -87,6 +87,8 @@ Go to **Erasmus+ > Calls > Applications**, grouped by call, with each applicatio
 
 Open an application. On top is what decides it: the **Requirements**, the **Total score** and the **Rank** (once there is one); on a staff application, the **Staff record** button opens the teacher's file.
 
+![An application: requirements and score on top, and the Application tab](../../assets/erasmus/sollicitud-capcalera.png)
+
 - **Application** tab: what the student sent, the form's answers first and the documents below, each document with its **Status** (*To hand in*, *Pending review*, *Needs changes*, *Complete*; in grey, the optional ones and those that do not apply, such as the family authorisation of an adult), its **Files** (the ones that count) and, for a link, the **Link** itself. Every file the student uploaded is kept: the optional column **Every version** shows the earlier ones too. Mark each one as **Valid** (✓) or **Needs changes** (✗), and write a **Comment for the applicant** when it needs changes. A document without any file cannot be marked valid.
 - While the application is a draft, the student can remove from the portal a file uploaded by mistake. Once submitted, only you remove it, with **Remove a file** and the reason.
 - **Admission** tab:

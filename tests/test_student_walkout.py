@@ -189,6 +189,13 @@ class TestStudentWalkout(TransactionCase):
         self.assertTrue(self.env['ir.cron.trigger'].sudo().search([('cron_id', '=', cron.id),
                                                                    ('call_at', '=', walkout.vote_until)]))
 
+    def test_name_in_the_centre_language(self):
+        """The name is stored and names the minute: in the centre's date format, whoever opens it."""
+        self.env.company.ems_lang = 'ca_ES'
+        self.env = self.env(context=dict(self.env.context, lang='en_US'))  # e.g. an English portal user
+        walkout = open_walkout(self)
+        self.assertEqual(walkout.name, f"{self.group.name} - {walkout.walkout_date.strftime('%d/%m/%Y')}")
+
     def test_sub_delegate_may_call_but_not_a_classmate_or_a_family(self):
         self.assertTrue(open_walkout(self, self.subdelegate))
         for partner in (self.classmate, self.family):
@@ -305,6 +312,24 @@ class TestStudentWalkout(TransactionCase):
         notice = self._notices(walkout)
         self.assertEqual(notice.user_id, self.head_of_studies)
         self.assertIn("A dockers", str(notice.body))
+
+    def test_the_system_administrator_is_at_the_top(self):
+        """Above Direction, outside the hierarchy: may abort a call and validate another."""
+        admin = create_role_user(self, 'settings_admin', 'test_walkout_sysadmin_wlk', name='WLK System Administrator')
+        walkout = open_walkout(self)
+        self.assertTrue(walkout.with_user(admin).can_abort)
+        reject_walkout(walkout, admin, 'ems.student_walkout_rejection_region')
+        self.assertEqual((walkout.state, walkout.rejected_by_id), ('rejected', admin))
+        closed = open_walkout(self, days=8)
+        self._supported(closed)
+        self._join(closed, self.delegate)
+        end_phase(closed)
+        closed.with_user(admin).action_generate_justification()
+        self.assertEqual(closed.state, 'justified')
+        justification = closed.justification_id
+        reject_walkout(closed, admin, 'ems.student_walkout_rejection_no_call')  # undoes the validation
+        self.assertEqual(closed.state, 'rejected')
+        self.assertFalse(justification.exists())
 
     def test_co_tutors_of_a_split_group(self):
         half = self.group.copy({'acronym': 'B'})

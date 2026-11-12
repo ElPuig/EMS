@@ -76,7 +76,7 @@ Guardar.
 
 - Un icono de escudo junto al nombre del alumno indica que su ausencia ya está **justificada** (una
   justificación aprobada o una previsión cubre esta sesión) — su estado y notas quedan bloqueados,
-  ya que es la justificación la que lo decide.
+  ya que es la justificación la que lo decide. La única excepción: si el alumno ha venido a clase, puedes cambiar la línea entre **Asistencia**, **Retraso leve**, **Retraso grave** y **Falta justificada**; solo la **Falta** normal sigue bloqueada. Al dejar la falta justificada, un aviso te pide confirmarlo, el tutor del alumno lo ve en su resumen diario y la línea muestra una marca de verificación. Para volver atrás, pulsa de nuevo **Falta justificada**: la justificación y sus notas no se habían perdido.
 - El botón **Falta justificada** no se puede pulsar si el centro no lo permite: solo el tutor del
   alumno justifica una falta, registrando una justificación. Pasa el ratón por encima para ver el
   motivo. Marca al alumno como **Falta** y la justificación del tutor la convertirá en Falta
@@ -87,7 +87,7 @@ Guardar.
   cierra al apartar el ratón. En una tableta o pantalla táctil, toca la foto para ampliarla y vuelve
   a tocarla para cerrarla.
 
-![Sesión actual con los botones de estado, una nota y un alumno con ausencia justificada (escudo) y uno quitado de la lista (última fila)](../../assets/teachers/passlist-01-assistencia-actual.png)
+![Sesión actual con los botones de estado, una nota y un alumno con ausencia justificada (escudo), uno justificado que ha venido a clase (marca de verificación) y uno quitado de la lista (última fila)](../../assets/teachers/passlist-01-assistencia-actual.png)
 
 ---
 

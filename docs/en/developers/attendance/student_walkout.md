@@ -38,10 +38,13 @@ rejection reasons and the reject wizard), `models/attendance/student_walkout_par
 ## The calendar
 
 Counted in **school hours**: every hour of a school day (a weekday that is no public holiday nor
-school break, `resource.calendar.leaves._ems_holiday_dates`), the night included, and no hour of a
+school break, `resource.calendar.leaves._ems_school_days`, the same set the ex officio
+withdrawal and the Erasmus+ deadlines count with), the night included, and no hour of a
 weekend, holiday or break. 24 school hours from a Friday at 13:00 end on the Monday at 13:00
 (`ems.datetime_utils.ems_add_school_hours()` / `ems_school_hours_between()`, on the centre's wall
-clock). Two settings (Settings → *Student Walkout Settings* → *Calendar*, `res.company`) set it,
+clock). Not Odoo's `resource.calendar.plan_hours()`: it counts the working hours of a schedule (a
+teacher's classes, say), while a school hour here is any hour of a school day, the night included,
+and only public holidays and school breaks are taken out. Two settings (Settings → *Student Walkout Settings* → *Calendar*, `res.company`) set it,
 and each call keeps the values it was opened with (`phase_hours`, `notice_hours`):
 
 | Setting | Default | Meaning |
@@ -96,7 +99,7 @@ erDiagram
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `name` | `Char` (computed, stored) | "Group - date" |
+| `name` | `Char` (computed, stored) | "Group - date", the date in the centre's language (`res.company._ems_centre_env()`) whoever opens it: it also names the minute |
 | `group_id` / `group_ids` | `Many2one` / `Many2many → ems.group` | The opener's main group, and every half of a split group sharing that delegate or sub-delegate |
 | `opener_id` | `Many2one → res.partner` | The delegate or sub-delegate who called it |
 | `course_id` | `Many2one → ems.course` | The current course when called |
@@ -155,7 +158,10 @@ group).
 ## Who may call one: levels and courses
 
 An allowlist on `ems.level` (empty = nobody), edited in Settings → *Student Walkout Settings* →
-*Levels and courses* (an editable list of the levels):
+*Levels and courses*: a dialog (`ems.walkout.levels.wizard`, `models/settings/walkout_levels_wizard.py`)
+listing every level, which writes only these three fields, with sudo, so that whoever enters
+Settings can save it without being given write access to the levels (like the convalidation
+levels):
 
 | Field | Meaning |
 |-------|---------|
@@ -232,7 +238,8 @@ flowchart TD
   (`VALIDATION_STATES`): `_ems_user_may_reject`, whoever may validate it. The students and the tutor
   are told, and so are the families that heard of it (`_ems_family_lines`: the ones asked to
   ratify and, when undoing a validation, the adults' families told of it), with
-  `email_template_student_walkout_family_rejected`. The same goes for an abort. A
+  `email_template_student_walkout_family_rejected`, whose text depends on `rejected_from_state`
+  (aborted, not validated, validation withdrawn). The same goes for an abort. A
   justification already generated is deleted (as the user rejecting it: its absences go back to
   unjustified), and the justify task is removed.
 - **Cancel** (`_ems_portal_cancel(partner)`): the opener or the group's delegates, while voting or
@@ -272,6 +279,13 @@ family only ratifies, for the lines of its own children it was asked about.
 Reading comes from the record rules `rule_student_walkout_tutor_scope` and, for a group with no
 tutor, `rule_student_walkout_no_tutor` (Heads of Studies). The wizard is open to every teacher; who
 may act is checked in `_ems_check_reject`, and the call is written with `sudo()` afterwards.
+
+**The administrator is at the top** (`ems.base.get_user_is_top_admin()`: `base.group_system` or
+`ems.group_academic_admin`): both abort, validate and undo, outside the hierarchy. The system
+administrator has no rights on `ems.attendance_justification` of their own, so for them the walkout
+creates and removes its justification as the superuser (`_ems_justifications()`, `with_user`, since
+the justification's own checks read `env.user`), and the form stays on the call instead of opening
+the justification.
 
 Nobody edits a call or its lines by hand in the backend: they come from the portal and the
 call's own methods.

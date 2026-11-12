@@ -57,7 +57,7 @@
                         <input type="date" class="form-control w-auto" id="walkout_date" name="walkout_date"
                                t-att-min="first_day" required="required"/>
                         <div class="form-text">
-                            If you call it now, the walkout can be on <span t-esc="first_day" t-options="{'widget': 'date'}"/> at the earliest.
+                            If you call it now, the earliest day the walkout can be on is <span t-esc="first_day" t-options="{'widget': 'date'}"/>
                         </div>
                     </div>
                     <div class="alert alert-info o_ems_walkout_calendar">
@@ -109,8 +109,8 @@
                     <div class="card-body">
                         <p class="mb-1"><strong>Group:</strong> <t t-esc="', '.join(walkout.group_ids.mapped('name'))"/></p>
                         <p class="mb-1"><strong>Called by:</strong> <t t-esc="walkout.opener_id.name"/></p>
-                        <p class="mb-1"><strong>Group vote:</strong> <span t-field="walkout.vote_start"/> - <span t-field="walkout.vote_until"/></p>
-                        <p t-if="walkout.join_until" class="mb-1"><strong>Joining:</strong> <span t-field="walkout.join_start"/> - <span t-field="walkout.join_until"/></p>
+                        <p class="mb-1"><strong>Group vote:</strong> <t t-esc="walkout.format_local_datetime(walkout.vote_start)"/> - <t t-esc="walkout.format_local_datetime(walkout.vote_until)"/></p>
+                        <p t-if="walkout.join_until" class="mb-1"><strong>Joining:</strong> <t t-esc="walkout.format_local_datetime(walkout.join_start)"/> - <t t-esc="walkout.format_local_datetime(walkout.join_until)"/></p>
                         <p class="mb-1"><strong>State:</strong> <t t-esc="state_labels.get(walkout.state)"/></p>
                         <p t-if="walkout.notes" class="mb-1"><strong>Notes:</strong> <t t-esc="walkout.notes"/></p>
                         <p class="mb-0"><strong>Union's call:</strong>
@@ -130,7 +130,7 @@
                         <p t-if="line.voted" class="text-muted mb-0 o_ems_walkout_group_voted">You have already voted. The vote is anonymous: nobody can see what you answered, and it cannot be changed.</p>
                         <form t-else="" t-attf-action="/my/vagues/#{walkout.id}/vota" method="post">
                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                            <p class="text-muted small">Anonymous: only the count is kept. Once sent it cannot be changed. You can vote until <span t-field="walkout.vote_until"/>; if the group supports it, each student will then say whether they join.</p>
+                            <p class="text-muted small">Anonymous: only the count is kept. Once sent it cannot be changed. You can vote until <t t-esc="walkout.format_local_datetime(walkout.vote_until)"/>; if the group supports it, each student will then say whether they join.</p>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="group_vote" id="group_vote_yes" value="yes" required="required"/>
                                 <label class="form-check-label" for="group_vote_yes">Yes</label>
@@ -160,7 +160,7 @@
                             The group supports the walkout (<t t-esc="walkout.group_yes_count"/> yes,
                             <t t-esc="walkout.group_no_count"/> no, <t t-esc="walkout.group_abstain_count"/> abstentions).
                         </p>
-                        <p class="text-muted small">Your name appears in the minute, and only the students who join have their absence justified that day. You can change your answer until <span t-field="walkout.join_until"/>.</p>
+                        <p class="text-muted small">Your name appears in the minute, and only the students who join have their absence justified that day. You can change your answer until <t t-esc="walkout.format_local_datetime(walkout.join_until)"/>.</p>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="joins" id="joins_yes" value="yes" required="required" t-att-checked="line.join_answered and line.joins"/>
                             <label class="form-check-label" for="joins_yes">Yes, I join it</label>
@@ -173,8 +173,8 @@
                     </form>
                 </div>
                 <!-- A minor who joins: their family ratifies it (Decret 102/2010, art. 24.2). -->
-                <div t-if="line and line.joins and line.needs_ratification" class="alert mb-4 o_ems_walkout_ratification"
-                     t-attf-class="alert-#{'success' if line.ratification == 'ratified' else 'danger' if line.ratification == 'refused' else 'warning'}">
+                <div t-if="line and line.joins and line.needs_ratification"
+                     t-attf-class="alert mb-4 o_ems_walkout_ratification alert-#{'success' if line.ratification == 'ratified' else 'danger' if line.ratification == 'refused' else 'warning'}">
                     <t t-if="line.ratification == 'ratified'">Your family has ratified that you join the walkout.</t>
                     <t t-elif="line.ratification == 'refused'">Your family has not ratified that you join the walkout: your absence that day will not be justified.</t>
                     <t t-else="">As you are a minor, your family has to ratify on the portal that you join the walkout, while joining lasts. Without it, your absence that day is not justified.</t>
@@ -213,12 +213,12 @@
                     <div class="card-body">
                         <p t-if="walkout.state == 'voting'">
                             <t t-esc="walkout.voted_count"/> of <t t-esc="walkout.voter_count"/> students have voted.
-                            The vote ends at <span t-field="walkout.vote_until"/>, or earlier if the votes still to come can no longer change the result.
+                            The vote ends at <t t-esc="walkout.format_local_datetime(walkout.vote_until)"/>, or earlier if the votes still to come can no longer change the result.
                         </p>
                         <p t-if="walkout.state == 'joining'">
                             <t t-esc="walkout.joining_count"/> students join it for now
                             (<t t-esc="walkout.join_answered_count"/> of <t t-esc="walkout.voter_count"/> have answered).
-                            Joining ends at <span t-field="walkout.join_until"/>.
+                            Joining ends at <t t-esc="walkout.format_local_datetime(walkout.join_until)"/>.
                         </p>
                         <span id="ems_walkout_confirm_cancel" class="d-none">Cancel this student walkout call?</span>
                         <form t-attf-action="/my/vagues/#{walkout.id}/anulla" method="post" class="d-inline">

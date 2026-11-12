@@ -71,6 +71,13 @@ class EmsBase(models.AbstractModel):
     def get_user_is_admin(self):
         return self.env.user.has_group('ems.group_academic_admin')
 
+    def get_user_is_top_admin(self):
+        """The administrator at the top of the permission pyramid, above Direction: the system's
+        (base.group_system) or the academic one. Whatever a permission check resolves from the
+        hierarchy, they can do it too (CLAUDE.md, "The administrator is always at the top")."""
+        user = self.env.user
+        return self.env.su or user.has_group('base.group_system') or user.has_group('ems.group_academic_admin')
+
     # The current user is secretary.
     def get_user_is_secretary(self):
         return self.env.user.has_group('ems.group_secretary')

@@ -1578,6 +1578,7 @@ msgstr "Personal d'Administració i Serveis"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_role__employee_type__asp model:ir.model.fields.selection,name:ems.selection__hr_employee__employee_type__asp model:ir.model.fields.selection,name:ems.selection__hr_job__employee_type__asp
+#: model:ir.model.fields.selection,name:ems.selection__ems_staff_walkout_report_line__employee_type__asp
 msgid "Administrative and Services Personnel"
 msgstr "Personal Administratiu i de Serveis"
 
@@ -1799,7 +1800,6 @@ msgstr "Marc d'origen"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment_answer__text
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_staff_self_assessment_wizard_line__text
-#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "Answer"
 msgstr "Resposta"
 
@@ -2545,6 +2545,7 @@ msgstr "Pot editar"
 #: code:addons/ems/static/src/xml/backend/guard_duty_board.xml:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_correct_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_bank_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_walkout_report_form
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_walkout_levels_wizard_form
@@ -2566,8 +2567,6 @@ msgstr "Cancel·la"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__econ_state__cancelled
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__econ_state__cancelled
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
-#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__cancelled
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
 msgid "Cancelled"
 msgstr "Cancel·lat"
 
@@ -2946,6 +2945,8 @@ msgstr "Contingut: allò en què ha de treballar l'alumne."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_employee__contract_type_id model:ir.model.fields,field_description:ems.field_hr_employee_base__contract_type_id model:ir.model.fields,field_description:ems.field_hr_employee_public__contract_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__contract_type_id
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_walkout_report_line_search
 msgid "Contract Type"
 msgstr "Tipus de contracte"
 
@@ -3249,6 +3250,8 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__create_uid
@@ -3407,6 +3410,8 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__create_date
@@ -3544,6 +3549,7 @@ msgstr "Dades descarregades"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_line__date
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report__date
 msgid "Date"
 msgstr "Data"
 
@@ -3882,6 +3888,8 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__display_name
@@ -4218,6 +4226,7 @@ msgstr "Emergència"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__employee_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__employee_id
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__employee_id
 msgid "Employee"
 msgstr "Empleat"
 
@@ -5471,6 +5480,8 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__id
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report__id
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__id
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__id
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__id
@@ -6219,6 +6230,8 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__write_uid
@@ -6377,6 +6390,8 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_bank_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__write_date
@@ -7856,6 +7871,8 @@ msgstr "Pendent de revisió"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_modality__period
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__period
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_walkout_report_line_search
 msgid "Period"
 msgstr "Període"
 
@@ -8306,7 +8323,6 @@ msgstr "Rebutjar"
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__rejected
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
-#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__rejected
 msgid "Rejected"
 msgstr "Rebutjat"
 
@@ -9821,6 +9837,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__employee_id
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
+#: model:ir.model.fields.selection,name:ems.selection__ems_staff_walkout_report_line__employee_type__teacher
 msgid "Teacher"
 msgstr "Professor/a"
 
@@ -20038,8 +20055,6 @@ msgstr "Com"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__justified_count model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence_line__state__justified
 #: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__justified
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
-#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__justified
-#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__rejected_from_state__justified
 msgid "Justified"
 msgstr "Justificat"
 
@@ -21267,7 +21282,6 @@ msgstr "Validar el justificant de l'absència"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__eu_survey_state__validated
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_eu_survey__eu_survey_state__validated
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__eu_survey_state__validated
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
 msgid "Validated"
 msgstr "Validat"
 
@@ -32575,6 +32589,7 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__line_ids
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report__line_ids
 msgid "Lines"
 msgstr "Línies"
 
@@ -33405,6 +33420,8 @@ msgstr "La veu la comissió"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_quality_panel__participant_type__staff
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_satisfaction__participant_type__staff
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_search
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__employee_type
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_walkout_report_line_search
 msgid "Staff"
 msgstr "Personal"
 
@@ -49634,6 +49651,153 @@ msgid "A complete document the team can put back to review (the same action)."
 msgstr "Un document complet que l'equip pot tornar a posar en revisió (és la mateixa acció)."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+msgid "Only a justified absence can be changed to attendance."
+msgstr "Només una falta justificada es pot canviar a assistència."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+msgid "A justified absence can only be changed to an attendance, a delay or a severe delay."
+msgstr "Una falta justificada només es pot canviar a assistència, retard o retard greu."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+msgid "This student has not been marked as attending despite a justification."
+msgstr "Aquest alumne no s'ha marcat com a assistent malgrat la justificació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+msgid "The line does not exist any more."
+msgstr "La línia ja no existeix."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+msgid "%(student)s, whose absence was justified, came to class (%(status)s) on %(date)s (%(session)s)."
+msgstr "%(student)s, que tenia la falta justificada, ha vingut a classe (%(status)s) el %(date)s (%(session)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+msgid "The attendance of %(student)s on %(date)s (%(session)s) has been undone: the absence is justified again."
+msgstr "S'ha desfet l'assistència de %(student)s el %(date)s (%(session)s): la falta torna a estar justificada."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Justified absence, but the student came to class"
+msgstr "Falta justificada, però l'alumne ha vingut a classe"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "%s has a justified absence. Change it anyway? Their tutor will be notified, and you can go back by marking the absence as justified again."
+msgstr "%s té la falta justificada. El vols canviar igualment? Se n'avisarà el tutor i podràs tornar enrere marcant la falta com a justificada de nou."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__came_despite_justification
+msgid "Came despite the justification"
+msgstr "Ha vingut malgrat la justificació"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_report.py:0
+msgid "%s is a public holiday."
+msgstr "%s és un dia festiu."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_report.py:0
+msgid "Choose today or a day already over."
+msgstr "Tria avui o un dia que ja hagi passat."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__expected
+msgid "Expected to work"
+msgstr "Havien de treballar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_report.py:0
+msgid "Nobody was expected to work on this day yet."
+msgstr "Encara no hi havia ningú que hagués de treballar aquest dia."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__on_walkout
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_walkout_report_line_list
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_walkout_report_line_search
+msgid "On walkout"
+msgstr "En vaga"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__report_id
+msgid "Report"
+msgstr "Informe"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_walkout_report_form
+msgid "Show"
+msgstr "Mostra"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_walkout_report_form
+msgid ""
+"Staff on walkout so far that day: whoever has not checked in at all, counted\n"
+"                        from the first period of their schedule that has started. Those with an\n"
+"                        absence request covering it (approved or waiting for approval) are not\n"
+"                        counted, and every figure adds up the earlier ones."
+msgstr ""
+"Personal en vaga fins ara aquell dia: qui no ha fitxat en tot el dia, "
+"comptat des de la primera franja del seu horari que ha començat. No hi "
+"compta qui té una sol·licitud d'absència que la cobreix (aprovada o pendent "
+"d'aprovar), i cada xifra acumula les anteriors."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_staff_walkout_report
+msgid "Staff walkout report"
+msgstr "Informe de vagues del personal"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_staff_walkout_report_line
+msgid "Staff walkout report line"
+msgstr "Línia de l'informe de vagues del personal"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_staff_walkout_report
+#: model:ir.ui.menu,name:ems.menu_staff_walkout_report
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_walkout_report_form
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_walkout_report_line_list
+#: model_terms:ir.ui.view,arch_db:ems.view_staff_walkout_report_line_pivot
+msgid "Staff walkouts"
+msgstr "Vagues"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_report.py:0
+msgid "Staff walkouts on %s"
+msgstr "Vaga del %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/staff_walkout_report.py:0
+msgid "Staff walkouts on %(day)s at %(time)s"
+msgstr "Vaga del %(day)s a les %(time)s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__not_on_walkout
+msgid "Not on walkout"
+msgstr "No vaga"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__walkout_percentage
+msgid "% on walkout"
+msgstr "% vaga"
+
+#. module: ems
 #: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_walkout
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
 msgid "Student walkout"
@@ -50700,8 +50864,8 @@ msgstr "Si hi dona suport, cada alumne diu si s'hi suma,"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
-msgid "If you call it now, the walkout can be on"
-msgstr "Si la convoques ara, la vaga pot ser com a molt aviat el"
+msgid "If you call it now, the earliest day the walkout can be on is"
+msgstr "Si la convoques ara, el primer dia possible de la vaga és el"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -50786,11 +50950,6 @@ msgstr "No tenies accés al portal quan es va convocar la votació, així que no
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
 msgid "Your group votes whether it supports the walkout from"
 msgstr "El teu grup vota si dona suport a la vaga des del"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
-msgid "at the earliest."
-msgstr "."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
@@ -51516,6 +51675,33 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "joins the student walkout on"
 msgstr "se suma a la vaga del"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+msgid "Answer it"
+msgstr "Respon"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__cancelled
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
+msgid "Cancelled"
+msgstr "Anul·lada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__rejected
+msgid "Rejected"
+msgstr "Rebutjada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__justified
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__rejected_from_state__justified
+msgid "Justified"
+msgstr "Justificada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
+msgid "Validated"
+msgstr "Validada"
 
 #. module: ems
 #: model:mail.template,body_html:ems.email_template_student_walkout_family_rejected

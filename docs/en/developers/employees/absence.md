@@ -492,6 +492,7 @@ reminder they receive (no menu entry), so their "Absences" stays a single click.
 | Reporting, Configuration | native groups | Unchanged |
 | Management > Requested absences | `group_hr_holidays_responsible` | EMS entry on Odoo's own `hr_leave_action_action_approve_department`, replacing `hr_holidays.menu_open_department_leave_approve` ("Time Off"), which is archived: next to the detected absences, the name has to say which of the two kinds it lists. Its group is stated explicitly, since Management itself is now wider |
 | Management > Detected absences | `ems.group_department_chief`, `ems.group_academic_admin`, `base.group_system` | Added by EMS, see *Detected absences* |
+| Reporting > Staff walkouts | `ems.group_director` | Added by EMS, see *The staff walkout report* |
 
 The action behind My Time Off also drops Odoo's default `search_default_group_date_from`: the
 centre's own list is short and already sorted by date, so grouping it by month only buries a
@@ -1222,6 +1223,57 @@ for a record whose `create()` values mention any one of the fields it assigns.**
 request with `ems_full_day` set - an import, an API client, the guard-duty automation to come -
 therefore left `ems_counts_hours` false and quietly dropped that absence out of the monthly
 report. Nothing fails; the number is just wrong.
+
+## The staff walkout report
+
+`Absences > Reporting > Staff walkouts` (`ems.action_staff_walkout_report`, issue #813), Director
+only: the figures the Director reports to the Departament about every hour of a walkout day, per
+staff type and contract type. Nobody declares the walkout in EMS; it is inferred.
+
+```mermaid
+flowchart LR
+    D[Dialog: date] -->|Show| G[_get_line_values]
+    G --> P[_ems_scheduled_periods<br/>own schedule, right week]
+    G --> A[_ems_first_check_in_hours<br/>no technical attendances]
+    G --> L[_get_guard_duty_leave_intervals<br/>requests confirm/validate1/validate]
+    G --> X[ems.staff_walkout_report.line<br/>one per started period x expected employee]
+    X --> V[pivot: period x staff type x contract type<br/>On walkout / Not on walkout / Expected to work / % on walkout]
+```
+
+| Rule | Why |
+|---|---|
+| Staff: `employee_type` teacher or asp with their own schedule (`resource.calendar.employee_id`); vacancies (`schedule_import_code`) left out | Without a schedule nothing says when they were expected; a vacancy has a schedule but nobody to walk out |
+| Expected from the start of their first period already started; on a justified absence = expected, not on walkout | The Director reports "no vaga" as those who came plus those justified (developer, 2026-11-11), so Expected = On walkout + Not on walkout |
+| On walkout: **no check-in at all that day** (technical attendances aside), from their first started period no absence request covers | A late arrival may be caused by the walkout itself, which is no walkout (developer, 2026-11-11); the delay is justified separately |
+| Absence requests approved or waiting for approval make their periods no walkout; refused/cancelled don't; detected absences (`ems.absence_pending`) don't | The day of a walkout, a detected absence for a missing check-in is the walkout |
+| Cumulative: a line per period already started (`hour_from <= now`) for everyone expected by then | The Departament's form asks for the walkers so far; today's future periods have no line |
+| Rows: every bound of every scheduled period that day, as the guard duty board does | ESO/BTX and vocational periods start at different times |
+
+**Why a pivot of transient lines and not a custom table:** the columns (one per contract type)
+depend on the data, and the pivot already gives the names behind each figure (drill-down to the
+list) and the xlsx download the Director relies on. `ems.staff_walkout_report` (the date) owns its
+`ems.staff_walkout_report.line`s through `report_id`; both are `TransientModel`s, vacuumed by Odoo.
+Lines are built in one batch: about 1,500 lines for a day of this dev database, 0.33 s cold.
+`not_on_walkout` and `walkout_percentage` are stored computes of `on_walkout`: the percentage is 100 or 0
+per line with `aggregator='avg'`, so each pivot cell averages to the share of those expected who
+are on walkout, with no custom pivot code.
+The lines are computed once, on **Show**, so reloading the pivot shows them again: today's title
+carries the time they were read at (`_get_title`), which is what tells the Director they are stale.
+The pivot's **Total** row sums cumulative rows and is meaningless; the developer chose to keep the
+cumulative rows and document that the row is to be ignored (2026-11-11) rather than per-employee
+lines (whose total would be meaningful) or a custom pivot hiding it.
+
+**Reuse:** the absence intervals come from `ems.course._get_guard_duty_leave_intervals`, extracted
+from the guard duty board's `_get_guard_duty_absence_intervals` (which adds the detected absences
+on top). Named "walkout", never "strike", so it is not confused with `ems.strike` (Coexistence: conduct warnings).
+
+| Role | `ems.staff_walkout_report` | `ems.staff_walkout_report.line` | Menu |
+|---|---|---|---|
+| Director (and `academic_admin`, which implies it) | rwc | rc (the lines are never edited) | yes |
+| Anyone else | - | - | no |
+
+The data is read with `sudo()` inside the helpers; only names, staff type, contract type and the
+two figures leave them.
 
 ## Who gets told
 

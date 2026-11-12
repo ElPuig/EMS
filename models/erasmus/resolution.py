@@ -48,6 +48,7 @@ class EmsErasmusResolution(models.Model):
 
     call_id = fields.Many2one(string="Call", comodel_name='ems.erasmus.call', required=True, ondelete='restrict',
                               index=True)
+    call_audience = fields.Selection(string="Applicants", related='call_id.audience')
     kind = fields.Selection(string="Kind", selection=KINDS, required=True, tracking=True)
     name = fields.Char(string="Name", compute='_compute_name')
     state = fields.Selection(string="State", required=True, default='draft', tracking=True, copy=False,

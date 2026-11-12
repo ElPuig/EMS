@@ -8642,6 +8642,7 @@ msgstr "Àmbit d'aplicació"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_list
 #: code:addons/ems/models/erasmus/export.py
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__score
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_form
 msgid "Score"
 msgstr "Puntuació"
 
@@ -19133,7 +19134,6 @@ msgstr "Últim recordatori"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__missing_fields
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__missing
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__file_state__missing
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__todo_state__missing
 #: code:addons/ems/models/erasmus/quality.py:0
 msgid "Missing"
 msgstr "Falta"
@@ -32819,6 +32819,7 @@ msgstr "D'1 a menys de 2 anys"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_plan
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
 msgid "1. Mobility plan"
 msgstr "1. Pla de mobilitat"
 
@@ -32831,6 +32832,7 @@ msgstr "De 2 a menys de 5 anys"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_last_mobility
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_last_mobility
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
 msgid "2. Last mobility"
 msgstr "2. Última mobilitat"
 
@@ -32843,6 +32845,7 @@ msgstr "2. Última mobilitat de personal"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_projects
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_projects
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
 msgid "3. Centre projects"
 msgstr "3. Projectes del centre"
 
@@ -32850,6 +32853,7 @@ msgstr "3. Projectes del centre"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_staff_language
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_staff_language
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
 msgid "4. Languages"
 msgstr "4. Llengües"
 
@@ -32862,6 +32866,7 @@ msgstr "5 anys o més"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_seniority
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_seniority
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
 msgid "5. Seniority"
 msgstr "5. Antiguitat"
 
@@ -32874,6 +32879,7 @@ msgstr "5. Antiguitat al centre"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_internationalisation
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_internationalisation
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
 msgid "6. Internationalisation"
 msgstr "6. Internacionalització"
 
@@ -32916,6 +32922,7 @@ msgstr "Una persona avaluadora només puntua la rúbrica de les seves avaluacion
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview_schedule__application_ids
 #: code:addons/ems/models/erasmus/quality.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_quality_history_list
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__call_audience
 msgid "Applicants"
 msgstr "Sol·licitants"
 
@@ -44057,6 +44064,7 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_staff_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_staff_form
 msgid "Handed in"
 msgstr "Lliurat"
 
@@ -49460,3 +49468,78 @@ msgstr "Es pot reobrir el document"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application_document__can_reopen
 msgid "A complete document the team can put back to review (the same action)."
 msgstr "Un document complet que l'equip pot tornar a posar en revisió (és la mateixa acció)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
+msgid "E.g. job shadowing at a VET school in Porto (Portugal), in June: how they organise dual training."
+msgstr "P. ex.: job shadowing en un centre d'FP de Porto (Portugal), al juny: com organitzen la formació dual."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
+msgid "E.g. an English course for teachers in Malta, in July."
+msgstr "P. ex.: un curs d'anglès per a docents a Malta, al juliol."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
+msgid "What you want to observe or learn, and how you will apply it in your classes and department."
+msgstr "Què vols observar o aprendre i com ho aplicaràs a les teves classes i al departament."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
+msgid "The centre projects you take part in, one per line."
+msgstr "Els projectes del centre en què participes, un per línia."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
+msgid "Only if you need some support to travel (optional)."
+msgstr "Només si necessites algun suport per viatjar (opcional)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
+msgid "Anything else the Erasmus team should know (optional)."
+msgstr "Qualsevol altra cosa que l'equip Erasmus+ hagi de saber (opcional)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_proposal_wizard_form
+msgid "The school, company or course provider"
+msgstr "El centre, l'empresa o l'organitzador del curs"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_proposal_wizard_form
+msgid "Name and email of your contact there"
+msgstr "Nom i correu de la teva persona de contacte"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_proposal_wizard_form
+msgid "Anything the Direction should know about the activity."
+msgstr "Qualsevol cosa que la Direcció hagi de saber de l'activitat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_document_wizard_form
+msgid "A PDF or a photo of the document. You can add several files."
+msgstr "Un PDF o una foto del document. Pots afegir-hi diversos fitxers."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
+msgid "1. Plan"
+msgstr "1. Pla"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
+msgid "2. Last mob."
+msgstr "2. Última mob."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
+msgid "3. Projects"
+msgstr "3. Projectes"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
+msgid "6. Internat."
+msgstr "6. Internac."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__todo_state__missing
+msgid "To hand in"
+msgstr "Per lliurar"

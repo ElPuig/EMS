@@ -1242,7 +1242,7 @@ class EmsErasmusApplicationDocument(models.Model):
     # is red. A missing document the Erasmus team uploads, or one that is not due yet (the destination
     # not set, it opens later, a return document before the end of the stay), is not.
     todo_state = fields.Selection(string="To do", compute='_compute_todo_state', selection=[
-        ('missing', "Missing"), ('waiting_team', "Waiting for the team"), ('not_yet', "Not yet"),
+        ('missing', "To hand in"), ('waiting_team', "Waiting for the team"), ('not_yet', "Not yet"),
         ('to_review', "Pending review"), ('needs_change', "Needs changes"), ('complete', "Complete"),
         ('optional', "Optional"), ('not_applicable', "Not applicable")])
 

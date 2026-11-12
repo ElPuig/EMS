@@ -18,7 +18,7 @@ Cuando el equipo Erasmus publica una convocatoria del personal a la que te puede
 
 ## 2. Rellena el formulario
 
-El formulario se abre cuando presentas la solicitud. Para cambiarlo más adelante, en tu solicitud, **Acciones > Rellena el formulario** lo vuelve a abrir; mientras no hayas rellenado nada, la solicitud solo muestra un recuadro que te lo dice. Tiene cuatro bloques cortos:
+El formulario se abre cuando presentas la solicitud. Para cambiarlo más adelante, en tu solicitud, **Acciones > Rellena el formulario** lo vuelve a abrir; mientras no hayas rellenado nada, la solicitud solo muestra un recuadro que te lo dice. Cada campo vacío muestra un ejemplo de lo que puedes escribir. Tiene cuatro bloques cortos:
 
 1. **Plan de movilidad**, con tus dos propuestas, ambas obligatorias, en una o dos frases cada una: la actividad (job shadowing, un curso o docencia), la entidad de acogida o el curso, dónde y cuándo. La **propuesta A** es la principal, por ejemplo "Job shadowing en un centro de FP alemán, el Berufskolleg X de Colonia, en abril"; la **propuesta B** es la de reserva si la A no sale, por ejemplo "Un curso de inglés en una academia de Malta, en julio". Preferiblemente en el periodo no lectivo (junio, julio); en otro momento, como abril, solo una semana que no afecte a las evaluaciones, y con la validación de la dirección. Encontrarás opciones en la [web Erasmus+ del centro](https://elpuig.xeill.net/el-centre/erasmus/recursos-i-formacio).
 2. **Qué quieres aprender y cómo lo aplicarás** (anexo 1): brevemente, las competencias que quieres observar o aprender y cómo las aplicarás en tus clases, tu departamento o el centro, 1.500 caracteres como máximo. La comisión solo lee esto y tus dos propuestas.
@@ -29,7 +29,7 @@ La **difusión** no forma parte del plan: es la misma para todos. Cuando vuelvas
 
 Haz clic en **Guardar** para seguir más adelante, o en **Guarda y envía** cuando lo tengas todo listo. También puedes enviarla desde la solicitud con **Acciones > Enviar**. Recibirás un justificante por correo electrónico. Hasta la fecha de cierre todavía puedes modificarla.
 
-Los documentos que pide la convocatoria están en la pestaña **Documentos** de tu solicitud: haz clic en **Entrega** en cada uno y adjunta el archivo. Si el equipo Erasmus te pide subsanaciones, entrega allí lo que te pide y vuelve a enviar la solicitud.
+Los documentos que pide la convocatoria están en la pestaña **Documentos** de tu solicitud: haz clic en **Entrega** en cada uno y adjunta el archivo (un PDF o una foto; puedes adjuntar varios). La columna **Entregado** muestra lo que has entregado y **Por hacer**, lo que todavía falta (*Por entregar* mientras no hayas adjuntado nada). Si el equipo Erasmus te pide subsanaciones, entrega allí lo que te pide y vuelve a enviar la solicitud.
 
 ## 3. Síguela
 

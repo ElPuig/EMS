@@ -18,7 +18,7 @@ When the Erasmus team publishes a staff call you can apply to, it shows under **
 
 ## 2. Fill in the form
 
-The form opens when you apply. To change it later, in your application, **Actions > Fill in the form** opens it again; until you have filled something in, the application only shows a box telling you so. It has four short blocks:
+The form opens when you apply. To change it later, in your application, **Actions > Fill in the form** opens it again; until you have filled something in, the application only shows a box telling you so. Each empty field shows an example of what to write. It has four short blocks:
 
 1. **Mobility plan**, with your two proposals, both required, in a sentence or two each: the activity (job shadowing, a course or teaching), the host entity or course, where and when. **Proposal A** is the main one, for instance "Job shadowing at a German VET school, the Berufskolleg X in Cologne, in April"; **proposal B** is the backup if A falls through, for instance "An English course at an academy in Malta, in July". Preferably in the non-teaching period (June, July); at another time, such as April, only a week that does not affect the assessments, and with the Direction's validation. You will find options on the [centre's Erasmus+ website](https://elpuig.xeill.net/el-centre/erasmus/recursos-i-formacio).
 2. **What you want to learn and how you will apply it** (annex 1): briefly, the competences you want to observe or learn and how you will apply them to your classes, your department or the centre, 1,500 characters at most. The panel only reads this and your two proposals.
@@ -29,7 +29,7 @@ The form opens when you apply. To change it later, in your application, **Action
 
 Click **Save** to keep working on it later, or **Save and submit** when everything is ready. You can also submit it from the application with **Actions > Submit**. You receive a receipt by email. Until the closing date you can still change it.
 
-The documents the call asks for are in the **Documents** tab of your application: click **Hand in** on each one and attach the file. If the Erasmus team asks for corrections, hand in what it asks for there and submit the application again.
+The documents the call asks for are in the **Documents** tab of your application: click **Hand in** on each one and attach the file (a PDF or a photo; you can attach several). The **Handed in** column shows what you handed in and **To do** what is still missing (*To hand in* until you attach something). If the Erasmus team asks for corrections, hand in what it asks for there and submit the application again.
 
 ## 3. Follow it
 

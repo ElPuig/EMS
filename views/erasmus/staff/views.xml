@@ -161,22 +161,26 @@
                                     <field name="plan_text"/>
                                     <field name="declared_never_staff_mobility"/>
                                     <field name="declared_centre_start_date"/>
-                                    <field name="centre_projects"/>
-                                    <field name="declared_language_level"/>
-                                    <field name="staff_support_needs"/>
+                                    <field name="centre_projects" invisible="not centre_projects"/>
+                                    <field name="declared_language_level" invisible="not declared_language_level"/>
+                                    <field name="staff_support_needs" invisible="not staff_support_needs"/>
                                     <field name="image_consent"/>
-                                    <field name="applicant_notes"/>
+                                    <field name="applicant_notes" invisible="not applicant_notes"/>
                                 </group>
                             </page>
                             <page string="Documents" name="documents" invisible="not document_ids">
                                 <field name="document_ids">
-                                    <list create="false" delete="false">
+                                    <!-- Issue #810 (note 8.7 of #782, as in My mobility): what the applicant handed in and
+                                         what is left to do; the team's own review columns stay in its form. Nobody
+                                         reviews a draft, so no comment column before submitting. -->
+                                    <list class="o_ems_list_text_buttons" create="false" delete="false">
                                         <field name="name"/>
                                         <field name="is_required"/>
-                                        <field name="attachment_ids" widget="many2many_binary" readonly="1"/>
-                                        <field name="review_state" widget="badge" decoration-success="review_state == 'valid'"
-                                               decoration-danger="review_state == 'needs_change'"/>
-                                        <field name="review_comment"/>
+                                        <field name="current_attachment_ids" widget="many2many_binary" readonly="1" string="Handed in"/>
+                                        <field name="todo_state" widget="badge" decoration-success="todo_state == 'complete'"
+                                               decoration-danger="todo_state in ('missing', 'needs_change')"
+                                               decoration-warning="todo_state == 'to_review'"/>
+                                        <field name="review_comment" column_invisible="parent.state == 'draft'"/>
                                         <field name="staff_can_upload" column_invisible="1"/>
                                         <button name="action_staff_upload" type="object" string="Hand in" icon="fa-upload"
                                                 invisible="not staff_can_upload"/>
@@ -185,7 +189,7 @@
                             </page>
                             <page string="Results" name="results" invisible="not resolution_line_ids and not offer_ids and not claim_ids">
                                 <field name="resolution_line_ids">
-                                    <list>
+                                    <list class="o_ems_list_text_buttons">
                                         <field name="kind"/>
                                         <field name="rank" invisible="kind == 'admission' or not rank"/>
                                         <field name="score_total" invisible="kind == 'admission'"/>
@@ -315,7 +319,7 @@
                                     </group>
                                 </group>
                                 <field name="document_ids">
-                                    <list create="false" delete="false" decoration-muted="file_state == 'not_applicable'">
+                                    <list class="o_ems_list_text_buttons" create="false" delete="false" decoration-muted="file_state == 'not_applicable'">
                                         <field name="name"/>
                                         <field name="description" optional="hide"/>
                                         <field name="deadline"/>
@@ -376,21 +380,26 @@
             <field name="name">ems.erasmus.staff.application.wizard.form</field>
             <field name="model">ems.erasmus.staff.application.wizard</field>
             <field name="arch" type="xml">
-                <form string="My application">
+                <!-- o_field_highlight (Odoo's own class) keeps every field's line visible before it is
+                     clicked: the dialog is mostly empty text fields, and without it nothing showed where
+                     to write (issue #810). -->
+                <form string="My application" class="o_field_highlight">
                     <field name="application_id" invisible="1"/>
                     <group string="Mobility plan">
-                        <field name="proposal_a"/>
-                        <field name="proposal_b"/>
-                        <field name="plan_text"/>
+                        <field name="proposal_a"
+                               placeholder="E.g. job shadowing at a VET school in Porto (Portugal), in June: how they organise dual training."/>
+                        <field name="proposal_b" placeholder="E.g. an English course for teachers in Malta, in July."/>
+                        <field name="plan_text"
+                               placeholder="What you want to observe or learn, and how you will apply it in your classes and department."/>
                     </group>
                     <group string="About you">
                         <field name="declared_never_staff_mobility"/>
                         <field name="declared_centre_start_date"/>
-                        <field name="centre_projects"/>
+                        <field name="centre_projects" placeholder="The centre projects you take part in, one per line."/>
                         <field name="declared_language_level"/>
-                        <field name="support_needs"/>
+                        <field name="support_needs" placeholder="Only if you need some support to travel (optional)."/>
                         <field name="image_consent"/>
-                        <field name="applicant_notes"/>
+                        <field name="applicant_notes" placeholder="Anything else the Erasmus team should know (optional)."/>
                     </group>
                     <footer>
                         <button name="action_save" type="object" string="Save" class="btn-primary"/>
@@ -414,6 +423,7 @@
                         <field name="attachment_ids" widget="many2many_binary" invisible="upload_kind == 'link'"/>
                         <field name="link" widget="url" invisible="upload_kind != 'link'" required="upload_kind == 'link'"/>
                     </group>
+                    <p class="text-muted" invisible="upload_kind == 'link'">A PDF or a photo of the document. You can add several files.</p>
                     <footer>
                         <button name="action_confirm" type="object" string="Hand in" class="btn-primary"/>
                         <button string="Cancel" special="cancel" class="btn-secondary"/>
@@ -463,13 +473,14 @@
             <field name="name">ems.erasmus.staff.proposal.wizard.form</field>
             <field name="model">ems.erasmus.staff.proposal.wizard</field>
             <field name="arch" type="xml">
-                <form string="Activity proposal">
+                <!-- o_field_highlight: see the application dialog above (issue #810). -->
+                <form string="Activity proposal" class="o_field_highlight">
                     <field name="mobility_id" invisible="1"/>
                     <group>
                         <group>
                             <field name="proposal_activity"/>
-                            <field name="proposal_host"/>
-                            <field name="proposal_contact"/>
+                            <field name="proposal_host" placeholder="The school, company or course provider"/>
+                            <field name="proposal_contact" placeholder="Name and email of your contact there"/>
                             <field name="proposal_country_id" options="{'no_create': True, 'no_open': True}"/>
                             <field name="proposal_city"/>
                         </group>
@@ -480,7 +491,7 @@
                         </group>
                     </group>
                     <group>
-                        <field name="proposal_notes"/>
+                        <field name="proposal_notes" placeholder="Anything the Direction should know about the activity."/>
                         <field name="leave_declaration"/>
                     </group>
                     <footer>

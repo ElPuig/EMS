@@ -14,7 +14,7 @@ As a member of the panel of the Erasmus+ staff call, you rate in EMS the mobilit
 
 When the Erasmus team sends the plans to the panel you receive a task in EMS for each one, due on the call's score correction deadline (two weeks after it closes). It appears in your daily summary of pending tasks until you do it. In the **Erasmus+** menu you have **My participation > My plan ratings**: the plans assigned to you.
 
-Each rating shows the candidate's **mobility and transfer plan** on screen, as they wrote it in the application form: proposal A (the main one) and proposal B (the backup), in their own words, and what they want to learn and how they will apply it to their job. Rate both proposals together, with one score. You see nothing else of the application. The dissemination is not rated: it is the same obligation for everyone.
+Each rating shows the candidate's **mobility and transfer plan** on screen, as they wrote it in the application form: proposal A (the main one) and proposal B (the backup), in their own words, and what they want to learn and how they will apply it to their job, each text under its title and at full width. Rate both proposals together, with one score. You see nothing else of the application. The dissemination is not rated: it is the same obligation for everyone.
 
 ## 2. Rate the rubric
 

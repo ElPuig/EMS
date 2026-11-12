@@ -58,6 +58,12 @@ class EmsErasmusCall(models.Model):
                                      "project afterwards.")
     state = fields.Selection(string="State", required=True, default='draft', tracking=True, copy=False,
                              selection=[('draft', "Draft"), ('published', "Published"), ('closed', "Closed")])
+    # Issue #785 (2.8): "Closed" only meant the applications; the status bar shows the real phases of a
+    # closed call from its published resolutions and its offers waiting for an answer.
+    phase = fields.Selection(string="Phase", compute='_compute_phase', store=True,
+                             selection=[('draft', "Draft"), ('published', "Published"), ('scoring', "Scoring"),
+                                        ('resolution', "Resolution"), ('offers', "Offers"),
+                                        ('finished', "Finished")])
     date_open = fields.Datetime(string="Applications open", required=True, tracking=True)
     date_close = fields.Datetime(string="Applications close", required=True, tracking=True)
     subsanation_deadline = fields.Datetime(string="Corrections deadline", tracking=True, copy=False,
@@ -208,6 +214,19 @@ class EmsErasmusCall(models.Model):
             [('call_id', 'in', self.ids), ('needs_draw', '=', True)], ['call_id'])}
         for call in self:
             call.needs_draw = call in tied
+
+    @api.depends('state', 'resolution_ids.state', 'resolution_ids.kind', 'offer_ids.state')
+    def _compute_phase(self):
+        for call in self:
+            if call.state != 'closed':
+                call.phase = call.state
+                continue
+            kinds = call._ems_published_resolutions().mapped('kind')
+            if 'definitive' in kinds:
+                pending = call.offer_ids.filtered(lambda offer: offer.state == 'pending')
+                call.phase = 'offers' if pending else 'finished'
+            else:
+                call.phase = 'resolution' if 'provisional' in kinds else 'scoring'
 
     @api.depends('resolution_ids.state', 'resolution_ids.kind')
     def _compute_has_final_resolution(self):

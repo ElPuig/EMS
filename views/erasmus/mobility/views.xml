@@ -21,15 +21,15 @@
                     <field name="record_progress"/>
                     <field name="proposal_state" optional="hide" widget="badge" decoration-warning="proposal_state == 'pending'"
                            decoration-success="proposal_state == 'validated'" decoration-danger="proposal_state == 'rejected'"/>
-                    <field name="preparation_complete" string="Ready" optional="show"/>
-                    <field name="return_complete" string="Back" optional="show"/>
                     <field name="eu_survey_state" optional="hide"/>
                     <field name="project_id" optional="show"/>
                     <field name="currency_id" column_invisible="1" groups="ems.group_erasmus,ems.group_academic_admin"/>
                     <field name="grant_amount" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
                     <field name="grant_net" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
-                    <field name="state" widget="badge" decoration-info="state == 'choosing'"
-                           decoration-warning="state == 'preparing'" decoration-success="state == 'done'"/>
+                    <field name="state" column_invisible="1"/>
+                    <field name="phase" widget="badge" decoration-info="phase == 'choosing'"
+                           decoration-warning="phase in ('preparing', 'stay', 'return')"
+                           decoration-success="phase == 'done'"/>
                 </list>
             </field>
         </record>
@@ -53,7 +53,7 @@
                     <group expand="0" string="Group By">
                         <filter name="group_call" string="Call" context="{'group_by': 'call_id'}"/>
                         <filter name="group_modality" string="Modality" context="{'group_by': 'modality_id'}"/>
-                        <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                        <filter name="group_phase" string="Phase" context="{'group_by': 'phase'}"/>
                     </group>
                 </search>
             </field>
@@ -122,7 +122,8 @@
                         </div>
                         <field name="can_request_prefinancing" invisible="1" groups="ems.group_erasmus,ems.group_academic_admin"/>
                         <field name="can_request_final" invisible="1" groups="ems.group_erasmus,ems.group_academic_admin"/>
-                        <field name="state" widget="statusbar" statusbar_visible="choosing,preparing,done"/>
+                        <field name="state" invisible="1"/>
+                        <field name="phase" widget="statusbar" statusbar_visible="choosing,preparing,stay,return,done"/>
                     </header>
                     <sheet>
                         <div class="alert alert-warning" role="alert" invisible="not project_places_over"
@@ -214,8 +215,6 @@
                                         <field name="record_overdue" decoration-danger="record_overdue" invisible="not record_overdue"/>
                                     </group>
                                     <group>
-                                        <field name="preparation_complete"/>
-                                        <field name="return_complete"/>
                                         <field name="stay_over" invisible="1"/>
                                         <field name="eu_survey_state" widget="badge" decoration-success="eu_survey_state == 'validated'"
                                                decoration-info="eu_survey_state == 'done'" invisible="not stay_over"/>
@@ -413,7 +412,7 @@
             <field name="name">ems.erasmus.mobility.kanban</field>
             <field name="model">ems.erasmus.mobility</field>
             <field name="arch" type="xml">
-                <kanban default_group_by="state" create="false" group_create="false" group_delete="false"
+                <kanban default_group_by="phase" create="false" group_create="false" group_delete="false"
                         group_edit="false" records_draggable="false" sample="1">
                     <field name="record_missing"/>
                     <templates>

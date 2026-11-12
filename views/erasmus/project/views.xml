@@ -133,7 +133,8 @@
                                         <field name="record_progress"/>
                                         <field name="record_missing" string="Pending" decoration-danger="record_missing"
                                                decoration-success="not record_missing"/>
-                                        <field name="state" widget="badge"/>
+                                        <field name="state" column_invisible="1"/>
+                                        <field name="phase" widget="badge"/>
                                         <button name="action_open" type="object" string="Open the record" icon="fa-folder-open-o"/>
                                     </list>
                                 </field>

@@ -2532,6 +2532,7 @@ msgstr "Cancel·la"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__econ_state__cancelled
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__econ_state__cancelled
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__phase__cancelled
 msgid "Cancelled"
 msgstr "Cancel·lat"
 
@@ -3997,6 +3998,7 @@ msgstr "Descarregant enquestes"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_resolution__state__draft
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_search
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__state__draft
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__phase__draft
 msgid "Draft"
 msgstr "Esborrany"
 
@@ -10977,6 +10979,7 @@ msgstr "Dreta"
 #: code:addons/ems/models/erasmus/application.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__resolution_id
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__phase__resolution
 msgid "Resolution"
 msgstr "Resolució"
 
@@ -19860,6 +19863,7 @@ msgstr "Tanca l'assistència"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__state__closed
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__state__done
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__state__done
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__phase__done
 msgid "Closed"
 msgstr "Tancada"
 
@@ -31229,6 +31233,7 @@ msgstr "Publica"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__state__published
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_resolution__state__published
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__phase__published
 msgid "Published"
 msgstr "Publicada"
 
@@ -32044,6 +32049,7 @@ msgstr "Puntuar l'entrevista Erasmus+ de %s"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__phase__scoring
 msgid "Scoring"
 msgstr "Baremació"
 
@@ -38554,6 +38560,7 @@ msgstr "Inici previst"
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__state__preparation
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__phase__preparing
 msgid "Preparation"
 msgstr "Preparació"
 
@@ -41012,6 +41019,7 @@ msgstr "Plaça"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__phase__stay
 msgid "Mobility stay"
 msgstr "Estada"
 
@@ -49937,3 +49945,35 @@ msgstr "Dates de l'estada"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_list
 msgid "Time left"
 msgstr "Temps restant"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__phase
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__phase
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_search
+msgid "Phase"
+msgstr "Fase"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__phase__choosing
+msgid "Defining"
+msgstr "Definint"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__phase__offers
+msgid "Offers"
+msgstr "Ofertes"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__phase__finished
+msgid "Finished"
+msgstr "Finalitzada"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_erasmus_mobility_phase_ir_actions_server
+msgid "EMS: Erasmus+, mobility phases from the dates"
+msgstr "EMS: Erasmus+, fases de les mobilitats segons les dates"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__phase__return
+msgid "Return home"
+msgstr "Tornada"

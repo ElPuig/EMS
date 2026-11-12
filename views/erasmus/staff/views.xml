@@ -249,7 +249,8 @@
                     <field name="proposal_host"/>
                     <field name="date_start"/>
                     <field name="date_end"/>
-                    <field name="state" widget="badge" decoration-success="state == 'done'" decoration-info="state == 'preparing'"/>
+                    <field name="phase" widget="badge" decoration-success="phase == 'done'"
+                           decoration-info="phase in ('preparing', 'stay', 'return')"/>
                 </list>
             </field>
         </record>
@@ -273,7 +274,8 @@
                             <button name="action_staff_renounce" type="object" string="Renounce the place"
                                     invisible="not staff_can_renounce"/>
                         </div>
-                        <field name="state" widget="statusbar" statusbar_visible="choosing,preparing,done"/>
+                        <field name="state" invisible="1"/>
+                        <field name="phase" widget="statusbar" statusbar_visible="choosing,preparing,stay,return,done"/>
                     </header>
                     <sheet>
                         <field name="staff_can_propose" invisible="1"/>

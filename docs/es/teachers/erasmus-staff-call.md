@@ -14,7 +14,7 @@ Lo tienes todo en la aplicación **Erasmus+** (debajo de **Reuniones**), en **Mi
 
 ## 1. Abre la convocatoria
 
-Cuando el equipo Erasmus publica una convocatoria del personal a la que te puedes presentar, aparece en **Convocatorias de personal**, con sus fechas, y te enteras en tu [resumen diario](daily-summary.md). Ábrela: puedes descargar la convocatoria publicada, y **Acciones > Presenta la solicitud** abre directamente el formulario.
+Cuando el equipo Erasmus publica una convocatoria del personal a la que te puedes presentar, aparece en **Convocatorias de personal**, con sus fechas, y te enteras en tu [resumen diario](daily-summary.md). Ábrela: lees la **Información para los solicitantes**, puedes descargar la convocatoria publicada, y **Acciones > Presenta la solicitud** abre directamente el formulario.
 
 ## 2. Rellena el formulario
 

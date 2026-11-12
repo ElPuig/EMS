@@ -447,8 +447,14 @@ class EmsErasmusQualityPanel(models.TransientModel):
         headers = self._ems_headers()
         for panel in self:
             data = panel._ems_data()
-            panel.indicators_html = panel._ems_table(
-                headers['indicators'], [panel._ems_indicator_row(row) for row in data['indicators']])
+            # Issue #783 (12.4): how each indicator is calculated, on hover; the PDF prints it in full.
+            rows = []
+            for indicator in data['indicators']:
+                row = panel._ems_indicator_row(indicator)
+                row[0] = Markup('<span title="{}">{} <i class="fa fa-info-circle text-muted"/></span>').format(
+                    indicator['help'], row[0])
+                rows.append(row)
+            panel.indicators_html = panel._ems_table(headers['indicators'], rows)
             panel.breakdown_html = Markup('').join([
                 Markup("<h5>{}</h5>").format(_("By participant type")),
                 panel._ems_table(headers['by_type'], data['by_type']),
@@ -535,13 +541,19 @@ class EmsErasmusQualityPanel(models.TransientModel):
         average, median, count = self._ems_stats(answered.mapped('score'))
         indicators = [
             {'name': _("Student interest"), 'value': student_rate, 'unit': '%', 'target': STUDENT_INTEREST_TARGET,
-             'n': f"{student_applicants} / {student_target}"},
+             'n': f"{student_applicants} / {student_target}",
+             'help': _("Students who applied out of every student of the call's levels, frozen when the definitive "
+                       "resolution is published. Filtered by project: the calls of its mobilities.")},
             {'name': _("Staff interest"), 'value': staff_rate, 'unit': '%', 'target': None,
-             'n': f"{staff_applicants} / {staff_target}"},
+             'n': f"{staff_applicants} / {staff_target}",
+             'help': _("Teachers who applied out of the FP teachers and the Direction that validates, frozen when the "
+                       "definitive resolution is published. Filtered by project: the calls of its mobilities.")},
             {'name': _("Satisfaction (1-10)"), 'value': average, 'unit': '', 'target': SATISFACTION_TARGET,
-             'n': count, 'median': median},
+             'n': count, 'median': median,
+             'help': _("Average of the participants' scores, from 1 to 10.")},
             {'name': _("Survey response rate"), 'value': 100.0 * len(answered) / len(surveys) if surveys else None,
-             'unit': '%', 'target': None, 'n': f"{len(answered)} / {len(surveys)}"},
+             'unit': '%', 'target': None, 'n': f"{len(answered)} / {len(surveys)}",
+             'help': _("Surveys answered out of the stays over.")},
         ]
         labels = dict(Survey._fields['participant_type']._description_selection(self.env))
         by_type = [self._ems_stats_row(labels[key], answered.filtered(lambda survey: survey.participant_type == key))

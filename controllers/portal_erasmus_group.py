@@ -121,6 +121,7 @@ class EmsPortalErasmusGroupController(EmsPortalErasmusController):
         values = self._prepare_portal_layout_values()
         values.update({
             'page_name': 'erasmus',
+            'erasmus_breadcrumb': mobility,
             'mobility': mobility,
             'participant': participant,
             'registration': mobility.registration_ids.filtered(lambda registration: registration.participant_id ==

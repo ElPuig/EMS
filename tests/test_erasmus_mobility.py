@@ -841,6 +841,20 @@ class TestPortalErasmusMobility(HttpCase, ErasmusMobilityCase):
         return self.url_open(f'/my/erasmus/call/{self.call.id}/mobility/{step}',
                              data={'csrf_token': Request.csrf_token(self), **data}, files=files)
 
+    def test_breadcrumbs_and_folded_letter(self):
+        """Issue #783 (A02-A08, A07) - the portal says where you are, and the letter is folded."""
+        self._accepted()
+        self._destinations(2)
+        self.call.action_open_destination_choice()
+        self.authenticate(self.student_user.login, self.student_user.login)
+        home = self.url_open('/my/erasmus').text
+        self.assertIn('<li class="breadcrumb-item active">Erasmus+</li>', home)
+        page = self.url_open(f'/my/erasmus/call/{self.call.id}').text
+        self.assertIn('<a href="/my/erasmus">Erasmus+</a>', page)
+        self.assertIn(f'<li class="breadcrumb-item active">{self.call.display_name}</li>', page)
+        self.assertIn('o_ems_erasmus_commitment_letter', page, "The letter is folded on the form.")
+        self.assertIn('o_ems_erasmus_commitment_sign', page)
+
     def test_choose_in_the_turn_and_upload_the_documents(self):
         first, second = self._accepted()
         cyprus, _germany = self._destinations(1, 1)

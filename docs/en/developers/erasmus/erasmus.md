@@ -354,8 +354,9 @@ not matched and keeps what was written, with Odoo's usual fallback. A copy keeps
 columns into translatable ones, with the old value as the source. The trade-off: changing a
 default text later in one language leaves the others as they were (the form's language button edits
 them). A staff call has no modalities (issue #772).
-A staff call's first step has the students' name (*Preparation sessions*), and *Share it at a
-department or cycles meeting* is `requirement='optional'` (art. 15): an optional step
+A staff call has no preparation step (teachers have no preparation sessions, and the activities
+left for their groups go on Moodle, outside EMS), and *Share it at a department or cycles meeting*
+is `requirement='optional'` (art. 15): an optional step
 (`TASK_REQUIREMENTS`) is listed (on the portal with "(optional)") but never counts towards
 `preparation_complete`/`return_complete` (`is_required` False).
 

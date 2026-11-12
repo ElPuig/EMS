@@ -40,10 +40,10 @@
                         </p>
                         <!-- The 2026-11-04 usage test: the family's own sentence, not the student's first person. -->
                         <p class="small mb-1 o_ems_erasmus_guardian_statement">As the family, we know the commitments that <t t-esc="guardian_participant.partner_id.name"/> takes on in this stay and we accept them:</p>
-                        <div class="border rounded p-3 mb-2 small">
-                            <p class="text-muted mb-1">Commitments of the student:</p>
-                            <t t-out="guardian_participant._ems_commitment_text()"/>
-                        </div>
+                        <t t-call="ems.portal_erasmus_commitment_letter">
+                            <t t-set="letter_record" t-value="guardian_participant"/>
+                            <t t-set="letter_intro">Commitments of the student:</t>
+                        </t>
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" name="accepted" t-attf-id="group_guardian_accepted_#{guardian_participant.id}" required="required"/>
                             <label class="form-check-label" t-attf-for="group_guardian_accepted_#{guardian_participant.id}">As the family, we have read these commitments and we accept them.</label>
@@ -281,7 +281,9 @@
                     </div>
                     <form t-if="participant.commitment_pending and participant._ems_commitment_open()" t-att-action="action + 'commitment'" method="post" class="mb-3 o_ems_erasmus_commitment">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                        <div class="border rounded p-3 mb-2 small" t-out="participant._ems_commitment_text()"/>
+                        <t t-call="ems.portal_erasmus_commitment_letter">
+                            <t t-set="letter_record" t-value="participant"/>
+                        </t>
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" name="accepted" id="commitment_accepted" required="required"/>
                             <label class="form-check-label" for="commitment_accepted">I have read these commitments and I accept them.</label>

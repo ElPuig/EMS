@@ -14,7 +14,7 @@ Ho tens tot a l'aplicació **Erasmus+** (a sota de **Reunions**), a **La meva pa
 
 ## 1. Obre la convocatòria
 
-Quan l'equip Erasmus publica una convocatòria del personal a la qual et pots presentar, apareix a **Convocatòries de personal**, amb les dates, i te n'assabentes al teu [resum diari](daily-summary.md). Obre-la: hi pots descarregar la convocatòria publicada, i **Accions > Presenta la sol·licitud** obre directament el formulari.
+Quan l'equip Erasmus publica una convocatòria del personal a la qual et pots presentar, apareix a **Convocatòries de personal**, amb les dates, i te n'assabentes al teu [resum diari](daily-summary.md). Obre-la: hi llegeixes la **Informació per als sol·licitants**, hi pots descarregar la convocatòria publicada, i **Accions > Presenta la sol·licitud** obre directament el formulari.
 
 ## 2. Omple el formulari
 

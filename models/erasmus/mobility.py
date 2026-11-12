@@ -631,6 +631,10 @@ class EmsErasmusMobility(models.Model):
         host entity and dates written on the mobility."""
         self._ems_check_manager()
         for mobility in self:
+            # Issue #786 (8.2): staff propose their activity and the Direction validates it; setting it
+            # here would skip that validation.
+            if mobility.audience == 'staff':
+                raise UserError(_("A staff member proposes their activity and the Direction validates it."))
             if mobility.state != 'choosing':
                 raise UserError(_("The destination of %s is already set.", mobility.partner_id.name))
             if not mobility.country_id:

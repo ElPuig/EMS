@@ -24,7 +24,7 @@ def staff_action(env, xmlid, record=None):
 
 
 def staff_wizard(env, model, name, **defaults):
-    """A staff wizard (`model`) in a dialog, with its defaults."""
+    """A wizard (`model`) in a dialog, with its defaults (staff screens and the team's mobility dialogs)."""
     return {'type': 'ir.actions.act_window', 'res_model': model, 'name': name, 'view_mode': 'form',
             'target': 'new', 'context': {f'default_{key}': value for key, value in defaults.items()}}
 

@@ -46,6 +46,10 @@
                             <button name="action_publish" type="object" string="Publish" class="btn-primary"
                                     invisible="state != 'draft' or not line_ids" groups="ems.group_erasmus_coordinator,ems.group_academic_admin"
                                     confirm="The list will be published on the portal and every applicant will receive their result by email. A published resolution cannot be changed. Continue?"/>
+                            <!-- Issue #786 (4.5): the list as published (the same PDF the applicants download). -->
+                            <button name="action_print" type="object" string="Print the published list"
+                                    invisible="not line_ids"
+                                    help="The PDF of the list, as the applicants see it on the portal: identified by four digits of their identity document."/>
                         </div>
                         <field name="state" widget="statusbar"/>
                     </header>

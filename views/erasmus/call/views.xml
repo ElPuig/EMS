@@ -41,7 +41,7 @@
                             <button name="action_back_to_draft" type="object" string="Back to draft"
                                     invisible="state != 'published'"/>
                             <button name="action_send_to_panel" type="object" string="Send plans to the panel"
-                                    invisible="audience != 'staff' or state != 'closed'"
+                                    invisible="audience != 'staff' or phase != 'scoring'"
                                     help="Asks every panel member to rate the mobility plan of every admitted application."/>
                             <!-- Audit D-13: the ties left after every tie-break, drawn by EMS and kept. -->
                             <button name="action_draw_ties" type="object" string="Draw the ties"

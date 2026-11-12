@@ -691,7 +691,9 @@ Then:
   modality).
 
 **Published lists never show names.** The portal list (`/my/erasmus/call/<id>/resolution/<id>`)
-and the PDF for the centre's website (`ems.action_report_erasmus_resolution`, same template
+and the PDF for the centre's website (`ems.action_report_erasmus_resolution`, printed from the
+resolution form's *Actions > Print the published list* (`action_print`, this record only) and from
+the list's Print menu (bound to the list only, issue #786), same template
 `ems.erasmus_resolution_list`) show, per modality, the rank, the masked identity document
 (`public_id`), the total and the result. `mask_document_id()` follows the Spanish data protection
 agency's guidance for additional provision 7 of Organic Law 3/2018: DNI `***4567**`, NIE
@@ -909,7 +911,8 @@ the call when it can't resolve it, and deletes the staff modalities (references 
 
 ### Panel and plan ratings
 
-**Actions > Send plans to the panel** (`action_send_to_panel`, closed staff call only) creates one
+**Actions > Send plans to the panel** (`action_send_to_panel`, staff call in its *Scoring* phase:
+closed and before the provisional resolution, which freezes the scores; issue #786) creates one
 rating per admitted application and panel member still without one, so it can be repeated after
 admitting more. It needs the call's `interview_deadline`: each evaluator's to-do is due that day
 in the company's timezone (`_ems_activity_date`), and changing the deadline moves the open to-dos
@@ -1148,8 +1151,11 @@ rejection and cancellation. Per modality:
 - On the portal they choose among `_ems_choices()` (free and suitable for their `level_id`, the
   level when the place was accepted). If none suits them, they talk to the Erasmus team (art. 15),
   which agrees an alternative (their own find, or a destination through an intermediary
-  organisation), writes it on the mobility and clicks *Set the agreed destination*
-  (`action_agree_destination`, needs the country).
+  organisation) and sets it with *Set the agreed destination*: a dialog
+  (`ems.erasmus.mobility.destination.wizard`, issue #786) asks for the country (required), city, host
+  entity and dates, writes them on the mobility and runs `action_agree_destination`. Students only:
+  staff propose their activity and the Direction validates it, so the button is hidden for staff and
+  the method refuses them.
 - No answer: the hourly cron `ems.ir_cron_erasmus_expire_turns` (`_cron_expire_turns`) clears the
   turn and sets `turn_missed`; the place is kept and the next one gets the turn. Once nobody in the
   modality is left to choose in order, every mobility that missed its turn gets `free_choice` (and
@@ -1214,7 +1220,10 @@ keeps the validated activity and the email says so.
   answered*). Answering posts in the chatter and gives the Erasmus team a to-do to validate it
   (*Validate the EU Survey*). It replaced the checklist step "Final report (EU Survey)", no longer in
   a new call's default steps; a call that already has the step keeps it until the team removes it.
-- **Cancel** (team) needs `cancel_reason`; the participant can renounce from the portal.
+- **Cancel** (team): *Cancel the mobility* opens a dialog (`ems.erasmus.mobility.cancel.wizard`,
+  issue #786) that asks for the reason, writes `cancel_reason` and runs `action_cancel` (which still
+  refuses an empty reason). The reason shows at the top of the form only once cancelled (no
+  Cancellation tab). The participant can renounce from the portal.
 - **Staff absence for training** (`_ems_sync_training_leave`, run when the dates or the state
   change): once the Direction has validated the proposal, dates included, EMS files an `hr.leave` of
   `ems.leave_type_training` for those whole days (`leave_id`), submitted with the declaration the

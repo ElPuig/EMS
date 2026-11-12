@@ -111,6 +111,12 @@ class EmsErasmusResolution(models.Model):
             ('Content-Disposition', content_disposition(f'{self.name}.pdf')),
         ])
 
+    def action_print(self):
+        """Issue #786 (4.5): from the form's Actions, this resolution only (a form's report binding
+        would print every record of its pager)."""
+        self.ensure_one()
+        return self.env.ref('ems.action_report_erasmus_resolution').report_action(self)
+
     def action_prepare(self):
         """Freeze the lines as the applications are now. Can be repeated while it is a draft."""
         Line = self.env['ems.erasmus.resolution.line'].sudo()  # the lines are never edited by hand

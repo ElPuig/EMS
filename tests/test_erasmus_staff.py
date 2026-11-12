@@ -103,6 +103,13 @@ class ErasmusStaffCase(TransactionCase):
                            'merit_ids': [(0, 0, {'kind': kind, 'description': 'Test merit'}) for kind in merits],
                            'merits_checked': True})
 
+    def _publish(self, kind):
+        resolution = self.env['ems.erasmus.resolution'].with_user(self.erasmus_user).create({
+            'call_id': self.staff_call.id, 'kind': kind})
+        resolution.action_prepare()
+        resolution.action_publish()
+        return resolution
+
 
 @tagged('post_install', '-at_install')
 class TestErasmusStaffCall(ErasmusStaffCase):
@@ -438,13 +445,6 @@ class TestErasmusPlanRating(ErasmusStaffCase):
 
 @tagged('post_install', '-at_install')
 class TestErasmusStaffResolution(ErasmusStaffCase):
-
-    def _publish(self, kind):
-        resolution = self.env['ems.erasmus.resolution'].with_user(self.erasmus_user).create({
-            'call_id': self.staff_call.id, 'kind': kind})
-        resolution.action_prepare()
-        resolution.action_publish()
-        return resolution
 
     def _definitive(self):
         applications = self._admitted(0), self._admitted(1), self._admitted(2)

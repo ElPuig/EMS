@@ -115,6 +115,11 @@ ACCESS_MATRIX = {
                                  'erasmus': 'rwcu', 'academic_admin': 'rwcu'},
     'ems.erasmus.expense.correct.wizard': {'teacher': '', 'secretary': '', 'erasmus': 'rwcu',
                                            'academic_admin': 'rwcu'},
+    # Issue #786: the team's dialogs to cancel a mobility and to set its agreed destination.
+    'ems.erasmus.mobility.cancel.wizard': {'teacher': '', 'secretary': '', 'erasmus': 'rwcu',
+                                           'academic_admin': 'rwcu'},
+    'ems.erasmus.mobility.destination.wizard': {'teacher': '', 'secretary': '', 'erasmus': 'rwcu',
+                                                'academic_admin': 'rwcu'},
     # Audit D-1: signatures are created by EMS and only ticked (write() guard, test_erasmus_decisions.py).
     'ems.erasmus.document.signature': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'erasmus': 'rw'},
     'ems.erasmus.undo.transfer.wizard': {'teacher': '', 'erasmus': '', 'secretary': 'rwcu', 'academic_admin': 'rwcu'},

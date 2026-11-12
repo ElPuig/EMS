@@ -1,3 +1,4 @@
+import base64
 from datetime import date, timedelta
 
 from odoo import fields
@@ -582,6 +583,14 @@ class ErasmusStaffMobilityCase(ErasmusStaffCase):
                                       'proposal_date_start': '2027-06-14', 'proposal_date_end': '2027-06-18', **values},
                                      declaration=declaration)
 
+    def _validated_staff(self):
+        """The first one's activity validated by the Director, on the VET project."""
+        mobility = self._accepted_staff()
+        self._send_proposal(mobility)
+        mobility.with_user(self.director_user).action_validate_proposal()
+        mobility.project_id = self.staff_vet_project
+        return mobility
+
 
 @tagged('post_install', '-at_install')
 class TestErasmusStaffMobility(ErasmusStaffMobilityCase):
@@ -767,6 +776,46 @@ class TestErasmusStaffMobility(ErasmusStaffMobilityCase):
         self.assertNotIn("Europass mobility document", names)
         self.assertNotIn("Learning agreement", names)
         self.assertFalse(mobility.placement_type, "Staff have no placement type.")
+
+    def test_staff_record_counts_only_what_the_teacher_hands_in(self):
+        """Issue #810: "You have handed in 0 of 4": the teacher's own required documents of the
+        mobility; neither the team's ones (the insurance policy, the grant agreement it prepares to
+        sign) nor the identity document already handed in with the application (the old "1 / 6")."""
+        mobility = self._validated_staff()
+        own = mobility.document_ids.filtered(lambda line: line.is_required and line.handled_by == 'participant')
+        self.assertEqual(sorted(own.mapped('name')), sorted(["Identity document", "European Health Insurance Card",
+                                                             "Learning agreement", "Report with evidence"]))
+        self.assertEqual(mobility.staff_record_summary, "You have handed in 0 of 4")
+        self.assertFalse(mobility.record_has_team_files)
+        self.assertFalse(mobility.record_has_comments)
+        policy = mobility.document_ids.filtered(lambda line: line.handled_by == 'team')[:1]
+        policy.prepared_attachment_ids = self.env['ir.attachment'].create({'name': 'policy.pdf', 'raw': PDF})
+        self.assertEqual(mobility.staff_record_summary, "You have handed in 0 of 4", "The team's upload never counts.")
+        self.assertTrue(mobility.record_has_team_files)
+        own[:1].attachment_ids = self.env['ir.attachment'].create({'name': 'id.pdf', 'raw': PDF})
+        self.assertEqual(mobility.staff_record_summary, "You have handed in 1 of 4", "Handed in, before the review.")
+        own[:1].review_comment = 'Upload both sides'
+        self.assertTrue(mobility.record_has_comments)
+
+    def test_staff_see_their_grant_but_not_the_payments(self):
+        """Issue #810: the teacher reads what they are due, what has been paid and what is left,
+        without access to the payments, invoices or provisions themselves."""
+        secretary = create_role_user(self, 'secretary', 'test_erasmus_staff_grant_secretary')
+        mobility = self._validated_staff()
+        mobility.write({'grant_amount': 1000, 'prefinancing_percent': 80})
+        self.env['ems.erasmus.provision'].create({'mobility_id': mobility.id, 'concept': 'travel', 'amount': 200})
+        mobility.with_user(self.erasmus_user).action_request_prefinancing()
+        action = mobility.payment_ids.with_user(secretary).action_register_transfer()
+        self.env['ems.erasmus.transfer.wizard'].with_user(secretary).with_context(action['context']).create({
+            'receipt': base64.b64encode(PDF), 'receipt_filename': 'receipt.pdf'}).action_confirm()
+        teacher = mobility.partner_id.user_ids[:1]
+        own = mobility.with_user(teacher)
+        own.invalidate_recordset()
+        self.assertEqual((own.grant_net, own.grant_paid, own.grant_to_receive), (800, 640, 160))
+        with self.assertRaises(AccessError):
+            own.payment_ids.read(['amount'])
+        with self.assertRaises(AccessError):
+            own.provision_ids.read(['amount'])
 
     def test_staff_calls_get_the_staff_mobility_documents(self):
         documents = self.staff_call.preparation_document_ids

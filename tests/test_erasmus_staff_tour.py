@@ -86,6 +86,14 @@ class TestErasmusStaffMobilityTour(HttpCase, ErasmusStaffMobilityCase):
                          ('pending', 'course', 'Tour Course Provider'))
         self.assertEqual(str(mobility.proposal_date_start), '2027-07-05')
 
+    def test_staff_grant_tour(self):
+        """Issue #810: the teacher reads their grant in their mobility, without changing it."""
+        mobility = self._validated_staff()
+        mobility.grant_amount = 1000
+        mobility.partner_id.user_ids.lang = 'en_US'  # the amounts are read in English format
+        self.start_tour(f'/odoo/action-ems.action_erasmus_my_mobilities/{mobility.id}', 'ems_erasmus_staff_grant',
+                        login='test_erasmus_staff_1')
+
     def test_staff_resolution_tour(self):
         """Issue #810: the staff resolution shows no modality column."""
         mobility = self._accepted_staff()

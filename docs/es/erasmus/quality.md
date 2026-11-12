@@ -43,7 +43,7 @@ evolución curso a curso. No muestra nunca el nombre de nadie. Las cifras se red
 
 ## Respuestas y acciones de mejora
 
-**Erasmus+ › Calidad › Encuestas de satisfacción** lista las respuestas. Todo el equipo Erasmus+ (la coordinación y el técnico de movilidad) ve la puntuación, los comentarios y quién ha respondido, con su movilidad; nadie más.
+**Erasmus+ › Calidad › Encuestas de satisfacción** lista las respuestas. Todo el equipo Erasmus+ (la coordinación y el técnico de movilidad) ve la puntuación, los comentarios y quién ha respondido, con su movilidad; nadie más. Las dos listas usan cabeceras cortas (*Tipo*, *Acogida*, *Acción*, *Seguimiento*); el nombre entero aparece al pasar el ratón.
 
 **Puntuaciones bajas** lista todas las respuestas de 6 o menos con lo que no ha funcionado. Abre una
 y elige **Acciones › Crear una acción de mejora**: EMS la crea en la aplicación **Calidad**, sin el
@@ -82,6 +82,6 @@ una captura o el cartel si lo tienes. Si no sabes a cuántas personas ha llegado
 los guardara, introducidos por la coordinación con su fuente. Salen en la evolución por curso
 marcados como *carga manual*. Los cursos 2022-2023 a 2025-2026 ya están.
 
-Las columnas de profesorado quedan vacías cuando no hay dato: una celda vacía y un 0 significan lo mismo, y el panel deja esos cursos en blanco.
+Las cabeceras son cortas (*Solic.*, *Dest.*); el nombre entero aparece al pasar el ratón. Las columnas de profesorado (*Prof. solic.*, *Prof. dest.*) están ocultas de entrada: muéstralas desde el menú de columnas, a la derecha de las cabeceras. Quedan vacías cuando no hay dato: una celda vacía y un 0 significan lo mismo, y el panel deja esos cursos en blanco.
 
 Haz clic en una línea para verla entera, con la fuente: la lista oculta la fuente para que se lea bien.

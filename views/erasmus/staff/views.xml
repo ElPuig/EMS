@@ -276,6 +276,8 @@
                     </header>
                     <sheet>
                         <field name="staff_can_propose" invisible="1"/>
+                        <field name="record_has_team_files" invisible="1"/>
+                        <field name="record_has_comments" invisible="1"/>
                         <field name="commitment_pending" invisible="1"/>
                         <field name="staff_self_assessment_open" invisible="1"/>
                         <field name="staff_eu_survey_open" invisible="1"/>
@@ -309,8 +311,8 @@
                             <page string="Record" name="documents">
                                 <group>
                                     <group>
-                                        <field name="record_progress"/>
-                                        <field name="record_missing" decoration-danger="record_missing"/>
+                                        <!-- Issue #810: only what the teacher hands in, in words. -->
+                                        <field name="staff_record_summary" class="fw-bold"/>
                                     </group>
                                     <group>
                                         <field name="eu_survey_state" widget="badge" decoration-success="eu_survey_state == 'validated'"
@@ -323,13 +325,15 @@
                                         <field name="name"/>
                                         <field name="description" optional="hide"/>
                                         <field name="deadline"/>
-                                        <field name="prepared_attachment_ids" widget="many2many_binary" readonly="1" string="From the Erasmus team"/>
+                                        <!-- Issue #810: the team's columns only once there is something in them. -->
+                                        <field name="prepared_attachment_ids" widget="many2many_binary" readonly="1" string="From the Erasmus team"
+                                               column_invisible="not parent.record_has_team_files"/>
                                         <field name="attachment_ids" widget="many2many_binary" readonly="1" string="Handed in"/>
                                         <field name="file_state" column_invisible="1"/>
                                         <field name="todo_state" widget="badge" decoration-success="todo_state == 'complete'"
                                                decoration-danger="todo_state in ('missing', 'needs_change')"
                                                decoration-warning="todo_state == 'to_review'"/>
-                                        <field name="review_comment" optional="show"/>
+                                        <field name="review_comment" column_invisible="not parent.record_has_comments"/>
                                         <field name="staff_can_upload" column_invisible="1"/>
                                         <field name="staff_sign_url" column_invisible="1"/>
                                         <button name="action_staff_upload" type="object" string="Hand in" icon="fa-upload"
@@ -338,6 +342,19 @@
                                                 invisible="not staff_sign_url"/>
                                     </list>
                                 </field>
+                            </page>
+                            <!-- Issue #810: the teacher's grant, read only; the invoices and the centre's own
+                                 figures stay with the Erasmus team and the Secretary. -->
+                            <page string="Grant" name="grant" invisible="not grant_amount">
+                                <group>
+                                    <group>
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="grant_net" string="Your grant"
+                                               help="The grant minus what the centre pays directly for you (travel, accommodation, course fees...)."/>
+                                        <field name="grant_paid"/>
+                                        <field name="grant_to_receive" class="fw-bold"/>
+                                    </group>
+                                </group>
                             </page>
                             <page string="Commitment letter" name="commitment" invisible="not commitment_signed_date">
                                 <group>
@@ -478,7 +495,7 @@
                     <field name="mobility_id" invisible="1"/>
                     <group>
                         <group>
-                            <field name="proposal_activity"/>
+                            <field name="proposal_activity" placeholder="E.g. job shadowing in the electricity dept."/>
                             <field name="proposal_host" placeholder="The school, company or course provider"/>
                             <field name="proposal_contact" placeholder="Name and email of your contact there"/>
                             <field name="proposal_country_id" options="{'no_create': True, 'no_open': True}"/>

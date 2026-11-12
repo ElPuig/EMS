@@ -640,6 +640,7 @@
         'web.assets_backend': [
             'ems/static/src/xml/backend/**/*',
             'ems/static/src/css/backend/**/*',
+            'ems/static/src/scss/backend/**/*',
             'ems/static/src/js/shared/**/*',
             'ems/static/src/js/backend/**/*',
         ],

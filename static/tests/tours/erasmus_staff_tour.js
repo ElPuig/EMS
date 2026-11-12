@@ -154,7 +154,29 @@ registry.category("web_tour.tours").add("ems_erasmus_staff_backend_mobility", {
             content: "The mobility is listed",
             run: "click",
         },
+        {
+            // Issue #810: only what the teacher hands in, in words; no empty columns of the team.
+            trigger: ".o_form_view .o_field_widget[name='staff_record_summary']:contains('You have handed in 0 of')",
+            content: "The record says what the teacher has handed in",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='document_ids'] table:has(td[name='todo_state']):not(:has(th[data-name='review_comment'])):not(:has(th[data-name='prepared_attachment_ids']))",
+            content: "No empty team columns",
+        },
         ...clickAction("action_staff_propose", "Send the activity proposal"),
+        {
+            trigger: ".modal .o_field_widget[name='proposal_activity'] select:has(option:checked:contains('E.g.'))",
+            content: "The activity has an example too (issue #810), greyed like the others",
+            run() {
+                const select = document.querySelector(".modal .o_field_widget[name='proposal_activity'] select");
+                const input = document.querySelector(".modal .o_field_widget[name='proposal_host'] input");
+                const example = getComputedStyle(select).color;
+                const placeholder = getComputedStyle(input, "::placeholder").color;
+                if (example !== placeholder) {
+                    throw new Error(`The activity's example is ${example}, not the examples' ${placeholder}`);
+                }
+            },
+        },
         {
             trigger: ".modal .o_field_highlight .o_field_widget[name='proposal_host'] input[placeholder]",
             content: "The empty proposal shows where and what to write (issue #810)",
@@ -212,6 +234,30 @@ registry.category("web_tour.tours").add("ems_erasmus_staff_backend_mobility", {
             content: "Each list can be downloaded",
         },
         listFits("resolution_line_ids"),
+    ],
+});
+
+// Issue #810: the teacher reads their grant in their mobility: due, paid and still to receive.
+registry.category("web_tour.tours").add("ems_erasmus_staff_grant", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_notebook a[name='grant']",
+            content: "The grant tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='grant_net']:contains('1,000.00')",
+            content: "What the teacher is due",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='grant_to_receive']:contains('1,000.00')",
+            content: "Nothing paid yet: all of it still to receive",
+        },
+        {
+            trigger: ".o_form_view:not(:has(.o_field_widget[name='payment_ids'])):not(:has(.o_field_widget[name='provision_ids']))",
+            content: "Neither the payments nor the invoices' shares",
+        },
     ],
 });
 

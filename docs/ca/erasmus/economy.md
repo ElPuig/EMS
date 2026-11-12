@@ -28,6 +28,7 @@ Feu clic en un projecte per obrir-ne la pestanya **Economia**.
 - **Previst:** les beques de les mobilitats que encara defineixen la destinació, i de les mobilitats de grup abans d'aprovar la selecció. Encara no consumeixen pressupost.
 - **Compromès:** les beques de les mobilitats confirmades (*En preparació* o *Tancada*) més les altres despeses del projecte.
 - **Pagat:** el que s'ha transferit als participants, més les factures i les despeses pagades.
+- **Compromès pendent de pagar:** tot el que està compromès i encara no s'ha pagat, se n'hagi sol·licitat el pagament o no.
 - **Disponible:** subvenció vigent menys compromès. **No** són els diners del banc: un projecte pot tenir subvenció concedida que el SEPIE encara no ha transferit.
 
 **Pagar no compta dues vegades.** Una beca de 1.500 € compta com a 1.500 € compromesos des que es confirma la mobilitat. Quan la Secretaria paga la bestreta i després la resta, els 1.500 € només passen de *pendent* a *pagat*. Passa el mateix amb una factura pagada a càrrec de la beca d'un participant (vols, allotjament): forma part de la seva beca, no és una despesa més.
@@ -72,9 +73,11 @@ A la pestanya Economia veieu:
 
 La diferència és un indicador intern, no una certificació del SEPIE. El suport forma part de la subvenció concedida: no s'hi suma mai. Per a una particularitat del conveni, introduïu una **Correcció** amb el motiu. Per a un projecte gestionat abans de l'EMS, podeu omplir les **Xifres d'abans de l'EMS** agregades.
 
+A la llista **Gestió econòmica > Factures**, la columna **Projecte** mostra el projecte de la factura o, si és dels participants, el de les seves mobilitats; si són de projectes diferents, diu *Diversos*.
+
 ## Avisos
 
-A dalt de la pestanya Economia, l'EMS avisa del que pot ser un error, sense bloquejar res: compromisos per sobre de la subvenció, despeses sense factura ni justificant, pagaments pendents, despeses canviades després del pagament, despeses pagades per sobre del seu import corregit, una mobilitat pagada per sobre de la seva beca, una mobilitat cancel·lada amb diners pagats, i participants sense prou informació per calcular el suport organitzatiu (per exemple, sense tarifa per al seu any de convocatòria, o sense dates).
+A dalt de la pestanya Economia, l'EMS avisa del que pot ser un error, sense bloquejar res: compromisos per sobre de la subvenció, despeses sense factura ni justificant, pagaments sol·licitats per fer (només els que ja s'han demanat a la Secretaria i encara no s'han transferit; per això la xifra pot ser més petita que *Compromès pendent de pagar*), despeses canviades després del pagament, despeses pagades per sobre del seu import corregit, una mobilitat pagada per sobre de la seva beca, una mobilitat cancel·lada amb diners pagats, i participants sense prou informació per calcular el suport organitzatiu (per exemple, sense tarifa per al seu any de convocatòria, o sense dates).
 
 ## Excel
 

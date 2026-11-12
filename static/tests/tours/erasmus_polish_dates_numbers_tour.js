@@ -153,6 +153,22 @@ registry.category("web_tour.tours").add("ems_erasmus_history_blank_zero", {
             content: "A real figure shows",
         },
         {
+            // Issue #810: the staff columns are hidden at first, shown from the columns menu.
+            trigger: ".o_list_view:not(:has(th[data-name='staff_target'])) .o_optional_columns_dropdown_toggle",
+            content: "Open the optional columns",
+            run: "click",
+        },
+        {
+            trigger: ".o-dropdown--menu input[name='staff_applicants']",
+            content: "Show the staff applicants",
+            run: "click",
+        },
+        {
+            trigger: ".o-dropdown--menu input[name='staff_target']",
+            content: "Show the eligible staff",
+            run: "click",
+        },
+        {
             trigger: ".o_list_view .o_data_row:contains('2001-2002') td[name='staff_target']:empty",
             content: "No staff data: the cell is empty",
         },

@@ -270,8 +270,11 @@ class EmsErasmusProject(models.Model):
                                        groups=ECONOMY_READERS,
                                        help="The confirmed mobilities' grants plus the project's other expenses.")
     paid_amount = fields.Monetary(string="Paid", compute='_compute_economy', store=True, groups=ECONOMY_READERS)
-    pending_amount = fields.Monetary(string="Pending payment", compute='_compute_economy', store=True,
-                                     groups=ECONOMY_READERS, help="Committed and not paid yet.")
+    pending_amount = fields.Monetary(
+        string="Committed, not paid yet", compute='_compute_economy', store=True, groups=ECONOMY_READERS,
+        help="Everything committed and not paid yet, whether or not its payment has been requested: the grants "
+             "of the confirmed mobilities and the other expenses. The warning about payments to make counts only "
+             "the payments already requested.")
     available_amount = fields.Monetary(string="Available", compute='_compute_economy', store=True,
                                        groups=ECONOMY_READERS,
                                        help="The current grant minus what is committed. It is not the money received: "
@@ -453,8 +456,8 @@ class EmsErasmusProject(models.Model):
         if count := len(pending_payments) + len(pending_invoices) + len(pending_expenses):
             amount = sum(pending_payments.mapped('amount')) + sum(pending_invoices.mapped('amount')) \
                 + sum(pending_expenses.mapped('amount'))
-            warnings.append(_("%(count)s payments to make (%(amount)s): grant payments, invoices and expenses still "
-                              "to transfer.", count=count, amount=money(amount)))
+            warnings.append(_("%(count)s requested payments still to make (%(amount)s): grant payments, invoices "
+                              "and expenses still to transfer.", count=count, amount=money(amount)))
         if corrected := project.expense_ids.filtered('corrected'):
             warnings.append(_("Expenses changed after being paid (see their history): %s.",
                               ", ".join(corrected.mapped('name'))))

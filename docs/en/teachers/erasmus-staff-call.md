@@ -18,7 +18,7 @@ When the Erasmus team publishes a staff call you can apply to, it shows under **
 
 ## 2. Fill in the form
 
-The form opens when you apply. To change it later, in your application, **Actions > Fill in the form** opens it again; until you have filled something in, the application only shows a box telling you so. Each empty field shows an example of what to write. It has four short blocks:
+The form opens when you apply. To change it later, in your application, **Fill in the form** opens it again (it is the button in view until you have filled something in; then, in **Actions**); until you have filled something in, the application only shows a box telling you so. Each empty field shows an example of what to write. It has four short blocks:
 
 1. **Mobility plan**, with your two proposals, both required, in a sentence or two each: the activity (job shadowing, a course or teaching), the host entity or course, where and when. **Proposal A** is the main one, for instance "Job shadowing at a German VET school, the Berufskolleg X in Cologne, in April"; **proposal B** is the backup if A falls through, for instance "An English course at an academy in Malta, in July". Preferably in the non-teaching period (June, July); at another time, such as April, only a week that does not affect the assessments, and with the Direction's validation. You will find options on the [centre's Erasmus+ website](https://elpuig.xeill.net/el-centre/erasmus/recursos-i-formacio).
 2. **What you want to learn and how you will apply it** (annex 1): briefly, the competences you want to observe or learn and how you will apply them to your classes, your department or the centre, 1,500 characters at most. The panel only reads this and your two proposals.
@@ -27,7 +27,7 @@ The form opens when you apply. To change it later, in your application, **Action
 
 **Dissemination** is not part of the plan: it is the same for everyone. When you come back, you publish a news item on the centre's website about your experience, following the Erasmus+ visual identity and dissemination policy, and, if it is considered necessary, you share it with your colleagues at a department or cycles meeting.
 
-Click **Save** to keep working on it later, or **Save and submit** when everything is ready. You can also submit it from the application with **Actions > Submit**. You receive a receipt by email. Until the closing date you can still change it.
+Click **Save** to keep working on it later, or **Save and submit** when everything is ready. You can also submit it from the application with the **Submit** button, in view once you have filled something in. You receive a receipt by email. Until the closing date you can still change it.
 
 The documents the call asks for are in the **Documents** tab of your application: click **Hand in** on each one and attach the file (a PDF or a photo; you can attach several). The **Handed in** column shows what you handed in and **To do** what is still missing (*To hand in* until you attach something). If the Erasmus team asks for corrections, hand in what it asks for there and submit the application again.
 
@@ -37,11 +37,11 @@ The documents the call asks for are in the **Documents** tab of your application
 
 If you disagree with the provisional resolution, use **Actions > Claim** before the claims deadline: write what you claim and attach any supporting files. You receive a receipt by email, and the Erasmus team answers it.
 
-If you are selected, use **Actions > Accept the place** or **Renounce the place** before the deadline: without an answer, the place is considered renounced.
+If you are selected, use the **Accept the place** button, in view, or **Actions > Renounce the place** before the deadline: without an answer, the place is considered renounced.
 
 ## 4. Prepare your mobility
 
-When you accept the place, your mobility shows under **My mobilities** (and in your application, under **My mobility**). Until you send it, the mobility does not show the activity's empty fields. Use **Actions > Send the activity proposal**: it starts with your proposals from the application. Choose the **activity** (job shadowing, course or teaching) and complete it with the **exact start and end dates**, accept the responsible declaration for your absence for training and send it: the Direction (the Director or the Head of Studies of FP) validates the activity, the host entity or course, the destination and the dates. When it does, EMS requests your absence for training for those days on its own, and whoever approves your absences approves it as usual. If it is not validated, you will receive the reason by email: change what is needed and send it again.
+When you accept the place, your mobility shows under **My mobilities** (and in your application, under **My mobility**). Until you send it, the mobility does not show the activity's empty fields. Use the **Send the activity proposal** button, in view: it starts with your proposals from the application. Choose the **activity** (job shadowing, course or teaching) and complete it with the **exact start and end dates**, accept the responsible declaration for your absence for training and send it: the Direction (the Director or the Head of Studies of FP) validates the activity, the host entity or course, the destination and the dates. When it does, EMS requests your absence for training for those days on its own, and whoever approves your absences approves it as usual. If it is not validated, you will receive the reason by email: change what is needed and send it again.
 
 **If it changes later:** once validated, if the course, the host entity or the dates change (for example, the course is not offered that month), send a new proposal from the same action before the mobility starts. The Direction validates it again, and until then your mobility stays as it was validated. If the Direction leaves a comment, you see it in the email and in **Validation by the Direction**.
 

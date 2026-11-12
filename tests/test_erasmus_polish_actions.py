@@ -107,5 +107,7 @@ class TestErasmusStaffCallActions(ErasmusStaffCase):
         action = resolution.with_user(self.erasmus_user).action_print()
         self.assertEqual(action['report_name'], 'ems.report_erasmus_resolution')
         self.assertEqual(action['context']['active_ids'], resolution.ids)
+        with self.assertRaises(AccessError):
+            resolution.with_user(self.panel_teacher).action_print()
         report = self.env.ref('ems.action_report_erasmus_resolution')
         self.assertEqual(report.binding_view_types, 'list', "The form has it in Actions: not twice.")

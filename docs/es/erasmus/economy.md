@@ -26,7 +26,7 @@ Haz clic en un proyecto para abrir su pestaña **Economía**.
 **Qué significa cada cifra:**
 
 - **Previsto:** las becas de las movilidades que aún definen su destino, y de las movilidades de grupo antes de aprobar la selección. Aún no consumen presupuesto.
-- **Comprometido:** las becas de las movilidades confirmadas (*En preparación* o *Cerrada*) más los otros gastos del proyecto.
+- **Comprometido:** las becas de las movilidades confirmadas (de *Preparación* a *Cerrada*) más los otros gastos del proyecto.
 - **Pagado:** lo transferido a los participantes, más las facturas y los gastos pagados.
 - **Comprometido pendiente de pagar:** todo lo comprometido que todavía no se ha pagado, se haya solicitado su pago o no.
 - **Disponible:** subvención vigente menos comprometido. **No** es el dinero del banco: un proyecto puede tener subvención concedida que el SEPIE aún no ha transferido.

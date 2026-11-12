@@ -41,7 +41,7 @@ No pot enviar la sol·licitud sense la data d'incorporació al centre, les dues 
 
 Revisa els documents i admet o exclou com a la convocatòria de l'alumnat (les amonestacions no hi compten).
 
-Després de **Tanca les sol·licituds**, omple la pestanya **Comissió** de la convocatòria: les persones que valoren els plans de mobilitat (la direcció i els caps de departament i de seminari). Després fes clic a **Accions > Envia els plans a la comissió**. Cada membre rep una tasca per valorar tots els plans des d'**Erasmus+ > La meva participació > Les meves valoracions de plans**, que venç el **Termini de valoració de la comissió** (el botó te'l demana si és buit; si el canvies després, les tasques obertes el segueixen). Hi pots tornar a fer clic després d'admetre més sol·licituds: només crea les valoracions que falten.
+Després de **Tanca les sol·licituds**, omple la pestanya **Comissió** de la convocatòria: les persones que valoren els plans de mobilitat (la direcció i els caps de departament i de seminari). Després fes clic a **Accions > Envia els plans a la comissió**. Cada membre rep una tasca per valorar tots els plans des d'**Erasmus+ > La meva participació > Les meves valoracions de plans**, que venç el **Termini de valoració de la comissió** (el botó te'l demana si és buit; si el canvies després, les tasques obertes el segueixen). Hi pots tornar a fer clic després d'admetre més sol·licituds: només crea les valoracions que falten. El botó només surt fins que es publica la resolució provisional, que fixa les puntuacions.
 
 **Erasmus+ > Convocatòries > Valoracions del pla de mobilitat** s'obre amb una fila per sol·licitant: quants han valorat i la mitjana del pla. Fes clic en una fila per veure la valoració de cada membre.
 

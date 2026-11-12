@@ -115,6 +115,8 @@ class EmsErasmusResolution(models.Model):
         """Issue #786 (4.5): from the form's Actions, this resolution only (a form's report binding
         would print every record of its pager)."""
         self.ensure_one()
+        if not self.env['ems.erasmus.application']._ems_can_manage():
+            raise AccessError(_("Only the Erasmus team prints the published lists."))
         return self.env.ref('ems.action_report_erasmus_resolution').report_action(self)
 
     def action_prepare(self):

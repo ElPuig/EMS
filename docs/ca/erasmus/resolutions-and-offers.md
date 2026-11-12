@@ -40,7 +40,7 @@ Cadascuna necessita l'anterior publicada. Una resolució publicada no es pot mod
 Quan es publica:
 
 - Cada sol·licitant que hi surt rep el resultat per correu i el veu al portal, amb el detall de la puntuació.
-- La llista es publica al portal sense noms. Per penjar-la al web del centre, fes clic a **Imprimeix > Llista publicada** per obtenir-ne el PDF.
+- La llista es publica al portal sense noms. Per penjar-la al web del centre, fes clic a **Accions > Imprimeix la llista publicada** a la resolució per obtenir-ne el PDF (des de la llista de resolucions, **Imprimeix > Llista publicada**).
 - Amb la resolució **provisional**, es bloquegen totes les entrevistes de la convocatòria: només l'equip Erasmus en pot reobrir una, amb una nota de rectificació.
 - Amb la resolució **definitiva** (o una rectificació), cada sol·licitud rep el resultat. L'alumnat seleccionat rep una oferta de plaça amb el termini d'acceptació: el correu del resultat ja li demana que l'accepti al portal, i la família d'un menor en rep una còpia. El correu i el portal també diuen que contra la llista es pot presentar recurs d'alçada davant el cap d'estudis en el termini d'un mes. El correu d'una persona en reserva li diu el seu número a la llista de reserva de la seva modalitat. A la convocatòria, el botó **Places acceptades** mostra quantes places s'han acceptat del total, i un avís diu quantes ofertes esperen resposta: quan no en queda cap, pots obrir l'elecció de destinació.
 

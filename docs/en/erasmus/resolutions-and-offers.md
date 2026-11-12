@@ -40,7 +40,7 @@ Each one needs the previous one published. A published resolution can never be c
 When it is published:
 
 - Every applicant on it receives their result by email and sees it on the portal, with the detail of their score.
-- The list is published on the portal without names. To post it on the centre's website, click **Print > Published list** to get the PDF.
+- The list is published on the portal without names. To post it on the centre's website, click **Actions > Print the published list** on the resolution to get the PDF (from the list of resolutions, **Print > Published list**).
 - With the **provisional** resolution, every interview of the call is locked: only the Erasmus team can reopen one, with a rectification note.
 - With the **definitive** resolution (or a rectification), each application gets its result. The selected get a place offer with the acceptance deadline: the result email already asks them to accept it on the portal, and the family of a minor gets a copy. The email and the portal also say that the list can be appealed before the Head of Studies within a month. A reserve's email gives their number on the reserve list of their modality. On the call, the **Places accepted** button shows how many places are accepted out of the total, and a notice says how many offers are still waiting for an answer: when none is left, you can open the destination choice.
 

@@ -98,9 +98,9 @@ Si te titulas este curso y haces la movilidad en verano, mantienes el acceso al 
 
 ## 9. Seguir la solicitud
 
-Arriba de la solicitud, una barra con los pasos de la convocatoria muestra dónde está: solicitud, revisión, entrevista, resolución, plaza, preparación, estancia y regreso. Los pasos hechos salen marcados, el actual, destacado y, si la solicitud terminó en un paso (por ejemplo, si quedó excluida), ese paso sale con una cruz. Debajo, un recuadro dice **qué tienes que hacer ahora** y hasta cuándo (en amarillo), o qué estás esperando. Cuando la solicitud ya no se puede cambiar, el texto de la convocatoria y la solicitud tal como la enviaste quedan plegados en **La convocatoria y mi solicitud**, al final.
+Arriba de la solicitud, una barra con los pasos de la convocatoria muestra dónde está: solicitud, revisión, entrevista, resolución, plaza, preparación, estancia y regreso. Los pasos hechos salen marcados, el actual, destacado y, si la solicitud terminó en un paso (por ejemplo, si quedó excluida), ese paso sale con una cruz. En el móvil, en lugar de la barra solo sale el paso en el que estás (por ejemplo, «Paso 3 de 8: Entrevista»). Debajo, un recuadro dice **qué tienes que hacer ahora** y hasta cuándo (en amarillo), o qué estás esperando. Cuando la solicitud ya no se puede cambiar, el texto de la convocatoria y la solicitud tal como la enviaste quedan plegados en **La convocatoria y mi solicitud**, al final.
 
-La página Erasmus+ muestra el estado de tu solicitud, en color: *Borrador*, *Enviado*, *Subsanación requerida*, *Admitida*, *Excluida*, *Seleccionada*, *Reserva*, *No seleccionada*, *Plaza aceptada* o *Renuncia*, y el estado de la movilidad: *Definiendo la movilidad*, *En preparación*, *Cerrada* o *Cancelada*.
+La página Erasmus+ muestra el estado de tu solicitud, en color: *Borrador*, *Enviado*, *Subsanación requerida*, *Admitida*, *Excluida*, *Seleccionada*, *Reserva*, *No seleccionada*, *Plaza aceptada* o *Renuncia*, y la fase de la movilidad: *Definiendo*, *Preparación*, *Estancia*, *Regreso*, *Cerrada* o *Cancelado*.
 
 Para cualquier duda, escribe a la coordinación Erasmus: **erasmus@elpuig.xeill.net**.
 

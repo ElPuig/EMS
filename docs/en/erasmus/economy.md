@@ -26,7 +26,7 @@ Click a project to open its **Economy** tab.
 **What each figure means:**
 
 - **Forecast:** the grants of the mobilities whose destination is still being defined, and of the group mobilities before the selection is approved. They don't use any budget yet.
-- **Committed:** the grants of the confirmed mobilities (*Preparing* or *Closed*) plus the project's other expenses.
+- **Committed:** the grants of the confirmed mobilities (from *Preparation* to *Closed*) plus the project's other expenses.
 - **Paid:** what has been transferred to the participants, plus the paid invoices and expenses.
 - **Committed, not paid yet:** everything committed that has not been paid yet, whether or not its payment has been requested.
 - **Available:** current grant minus committed. It is **not** the money in the bank: a project can have an awarded grant still to be transferred by SEPIE.

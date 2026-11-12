@@ -10,3 +10,9 @@
 ## The next step stays in view (issue #786, pending the agreed exception to "every action in Actions"):
 - On the teacher's application ("Fill in the form" while nothing is answered, then "Submit", "Accept the place") and mobility ("Send the activity proposal"), and on a proposal waiting for validation ("Validate the proposal"), the next step is a highlighted button next to the Actions dropdown; everything else, renouncing included, stays in Actions. The notice no longer sends the teacher to "Actions > Fill in the form".
 - The Actions dropdown supports it for any form through an opt-in class on the button; forms without it are unchanged.
+
+# Internal changes
+
+## Erasmus+ tanda 6 close (issues #785, #786):
+- User manuals (team, families, Head of Studies) describe the phases, the dialogs and the print entry in Catalan, Spanish and English, with a new screenshot of the mobility's phase bar.
+- Permission audit of the touched buttons: printing the published list and sending the plans to the panel are now restricted to the Erasmus team and the administrators in the view too (the server already refused anyone else); 0 mismatches.

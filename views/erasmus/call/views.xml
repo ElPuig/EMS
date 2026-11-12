@@ -42,6 +42,7 @@
                                     invisible="state != 'published'"/>
                             <button name="action_send_to_panel" type="object" string="Send plans to the panel"
                                     invisible="audience != 'staff' or phase != 'scoring'"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"
                                     help="Asks every panel member to rate the mobility plan of every admitted application."/>
                             <!-- Audit D-13: the ties left after every tie-break, drawn by EMS and kept. -->
                             <button name="action_draw_ties" type="object" string="Draw the ties"

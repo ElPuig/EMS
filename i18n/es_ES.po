@@ -50112,3 +50112,9 @@ msgstr "Por qué se cancela la movilidad (por ejemplo, no se entregaron a tiempo
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_cancel_wizard_form
 msgid "e.g. travel documents not handed in on time"
 msgstr "p. ej. no se entregaron a tiempo los documentos del viaje"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid "Only the Erasmus team prints the published lists."
+msgstr "Solo el equipo Erasmus imprime las listas publicadas."

@@ -10,6 +10,10 @@ Un cop acceptada una plaça, la mobilitat es prepara a l'EMS: la destinació, l'
 
 **Rol necessari:** *Coordinador/a Erasmus* o *Tècnic/a de mobilitat Erasmus* (Erasmus+ > Gestor/a). El cap d'estudis i la directora o el director poden consultar les mobilitats; la direcció (la directora o el director, o el cap d'estudis d'FP, indicats a la convocatòria) valida les activitats del personal (vegeu [Validar les activitats del personal Erasmus+](../head_of_studies/erasmus-staff-validation.md)).
 
+> **Les fases de la mobilitat** surten a la barra de dalt de la fitxa i a la llista: *Definint* (encara sense destinació), *Preparació*, *Estada* (des del dia d'inici), *Tornada* (des de l'endemà del dia final) i *Tancada*. L'estada i la tornada canvien soles segons les dates. La vista de targetes de **Mobilitats** té una columna per fase.
+
+![La barra de fases d'una mobilitat durant l'estada](../../assets/erasmus/mobilitat-fases.png)
+
 ---
 
 ## 1. Abans de començar: els projectes i la convocatòria
@@ -33,7 +37,7 @@ Quan s'ha publicat la resolució definitiva i les destinacions estan a punt, feu
 - Una modalitat amb **una sola destinació**: s'hi assigna directament tot l'alumnat que ha acceptat la plaça.
 - Una modalitat amb **diverses destinacions**: l'alumnat tria al portal **per torns, per ordre de puntuació**. Quan li arriba el torn rep un correu i té les **Hores per torn d'elecció** (72 per defecte) per triar entre les destinacions amb places lliures adequades al seu nivell. Quan tria, el torn passa a la persona següent.
 - Qui no respon dins del seu torn **perd el torn, no la plaça**: el torn passa a la persona següent, i tria entre les destinacions que queden quan totes les altres han triat (llavors rep un altre correu).
-- Qui veu que cap destinació no li va bé, o que no està disponible per a les seves dates, ho ha de parlar amb l'equip Erasmus per buscar una alternativa: una destinació que trobi pel seu compte, o una a través d'una entitat intermediària amb què treballa el centre. Quan s'hagi acordat, escriviu el país (i la ciutat, l'entitat d'acollida i les dates que tingueu) a la seva mobilitat i feu clic a **Accions > Fixa la destinació acordada**.
+- Qui veu que cap destinació no li va bé, o que no està disponible per a les seves dates, ho ha de parlar amb l'equip Erasmus per buscar una alternativa: una destinació que trobi pel seu compte, o una a través d'una entitat intermediària amb què treballa el centre. Quan s'hagi acordat, feu clic a **Accions > Fixa la destinació acordada** a la seva mobilitat: una finestra us demana el país (obligatori), la ciutat, l'entitat d'acollida i les dates que tingueu, i en confirmar l'alumne rep un correu. Només per a l'alumnat: el personal proposa la seva activitat i la direcció la valida.
 
 Un alumne que accepta una plaça més tard entra a la cua segons la seva posició.
 
@@ -88,9 +92,9 @@ Des del primer dia de l'estada, cada setmana el participant respon al portal les
 
 Quan s'acaba l'estada, el participant veu al portal que ha de respondre l'**EU Survey** (per defecte en 30 dies, **Termini de l'EU Survey**) i fa clic a **Ja l'he resposta**. Rebeu una tasca: comproveu-ho i feu clic a **Accions > Valida l'EU Survey** (si el participant us ho diu d'una altra manera, **Accions > EU Survey resposta**).
 
-Feu clic a **Accions > Tanca la mobilitat** quan tot estigui fet: tots els documents i passos d'abans de marxar i de tornada (**A punt per marxar** i **Tornada completa**), la mobilitat al seu **Projecte**, l'EU Survey validada i res per pagar: tots els pagaments sol·licitats i transferits, també el final, i totes les factures del participant pagades. Tancar també treu l'accés al portal a un graduat, per això cal esperar l'últim pagament.
+Feu clic a **Accions > Tanca la mobilitat** quan tot estigui fet: tots els documents i passos obligatoris d'abans de marxar i de tornada, la mobilitat al seu **Projecte**, l'EU Survey validada i res per pagar: tots els pagaments sol·licitats i transferits, també el final, i totes les factures del participant pagades. Tancar també treu l'accés al portal a un graduat, per això cal esperar l'últim pagament.
 
-Per cancel·lar una mobilitat (per exemple, no s'han lliurat a temps els documents de viatge), escriviu el **Motiu de la cancel·lació** a la pestanya **Cancel·lació** i feu clic a **Accions > Cancel·la la mobilitat**. La sol·licitud queda com a renúncia i la plaça queda lliure. El participant també pot renunciar des del portal.
+Per cancel·lar una mobilitat (per exemple, no s'han lliurat a temps els documents de viatge), feu clic a **Accions > Cancel·la la mobilitat**: una finestra us demana el motiu. Un cop cancel·lada, el motiu surt a dalt de la fitxa. La sol·licitud queda com a renúncia i la plaça queda lliure. El participant també pot renunciar des del portal.
 
 > **Persones titulades:** un alumne que es titula i fa la mobilitat a l'estiu manté l'accés al portal després del canvi de curs, fins que la mobilitat es tanca o es cancel·la. Llavors l'EMS li treu l'accés, tal com hauria fet el canvi de curs.
 

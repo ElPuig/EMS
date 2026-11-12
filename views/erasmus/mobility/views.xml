@@ -131,7 +131,7 @@
                     <sheet>
                         <!-- Issue #786 (5.15, 8.11): the reason only once cancelled, instead of a tab always there. -->
                         <div class="alert alert-secondary" role="alert" invisible="state != 'cancelled' or not cancel_reason">
-                            <strong>Reason for cancelling:</strong> <field name="cancel_reason" class="d-inline"/>
+                            <strong>Reason for cancelling:</strong> <field name="cancel_reason" class="d-inline" readonly="1"/>
                         </div>
                         <div class="alert alert-warning" role="alert" invisible="not project_places_over"
                              groups="ems.group_erasmus,ems.group_academic_admin">

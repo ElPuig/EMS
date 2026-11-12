@@ -5,8 +5,9 @@
 // open menu is rendered in the overlay container, outside .o_form_view - so a plain
 // `.o_form_view button[name=...]` trigger never finds them, and a
 // `:not(:has(button[name=...]))` check on the form passes whether the entry is offered or not.
-// When only one entry applies it is a plain header button instead, with no dropdown: clickAction
-// and checkActions handle both cases, so a tour doesn't depend on how many entries are offered.
+// When only one entry applies it is a plain header button instead, with no dropdown, and the next
+// step of a process (o_ems_action_main) is a plain header button next to it: clickAction and
+// checkActions handle every case, so a tour doesn't depend on how many entries are offered.
 
 export const ACTIONS_TOGGLE = ".o_form_view .o_form_statusbar .o_ems_actions_toggle";
 const ACTIONS_MENU = ".o-dropdown--menu.o_ems_actions_menu";
@@ -28,15 +29,17 @@ export function closeActions() {
     };
 }
 
-/** Open the dropdown, unless `name` is the lone action shown as a plain header button. */
+/**
+ * Open the dropdown when there is one, so every entry can be found: `name` may also be the lone
+ * action, or the next step kept in view next to the dropdown (o_ems_action_main, issue #786), both
+ * plain header buttons.
+ */
 function openActionsFor(name) {
     return {
-        trigger: `${STATUSBAR} :is(.o_ems_actions_toggle:not(.show), button[name='${name}'])`,
-        content: "Open the form's Actions dropdown (a lone action is a plain header button)",
+        trigger: `${STATUSBAR} :is(.o_ems_actions_toggle, button[name='${name}'])`,
+        content: "Open the form's Actions dropdown (a lone or main action is a plain header button)",
         run() {
-            if (this.anchor.matches(".o_ems_actions_toggle")) {
-                this.anchor.click();
-            }
+            this.anchor.closest(STATUSBAR).querySelector(".o_ems_actions_toggle:not(.show)")?.click();
         },
     };
 }
@@ -133,4 +136,12 @@ export function clickListHeaderAction(name, content) {
         },
         { trigger: `:is(${ACTIONS_MENU}, ${selection}) button[name='${name}']`, content, run: "click" },
     ];
+}
+
+/** Issue #786: `name` is the next step, a plain header button kept in view next to the dropdown. */
+export function mainAction(name, content) {
+    return {
+        trigger: `${STATUSBAR} .o_statusbar_buttons > button.o_ems_action_main[name='${name}']`,
+        content,
+    };
 }

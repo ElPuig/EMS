@@ -156,7 +156,7 @@ class EmsErasmusApplication(models.Model):
             nxt = own._ems_portal_progress()['next']
             if own.state == 'draft' and editable:
                 # The portal's "Complete your application", with where to do it in the backend.
-                nxt = {**nxt, 'text': _("Fill in your application from Actions > Fill in the form, and submit it.")}
+                nxt = {**nxt, 'text': _("Fill in your application with the Fill in the form button, and submit it.")}
             deadline = nxt['deadline']
             deadline = deadline.strftime('%d/%m/%Y') if nxt['is_date'] else own.call_id._ems_local_format(deadline)
             application.update({

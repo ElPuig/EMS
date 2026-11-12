@@ -67,8 +67,9 @@
                     <header>
                         <field name="can_validate" invisible="1"/>
                         <div name="ems_actions" string="Actions">
+                            <!-- Issue #786: the decision waiting stays in view; the rest in Actions. -->
                             <button name="action_validate_proposal" type="object" string="Validate the proposal"
-                                    class="btn-primary"
+                                    class="btn-primary o_ems_action_main"
                                     invisible="not can_validate or state not in ('choosing', 'preparing') or proposal_state != 'pending'"
                                     help="You can write a comment on the decision first: the participant reads it."/>
                             <button name="action_reject_proposal" type="object" string="Reject the proposal"

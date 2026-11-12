@@ -4,22 +4,29 @@
     <t t-name="ems.ActionsDropdown">
         <!-- A lone action is shown as the plain header button it is: a dropdown hiding a single
              entry only makes it harder to find. -->
-        <t t-if="visibleSlotNames.length === 1">
+        <t t-if="visibleSlotNames.length === 1 and !mainSlotNames.length">
             <t t-slot="{{ visibleSlotNames[0] }}"/>
         </t>
-        <Dropdown t-elif="visibleSlotNames.length" menuClass="'o_ems_actions_menu'">
-            <button class="btn btn-secondary o_ems_actions_toggle">
-                <t t-esc="props.string"/>
-                <i class="fa fa-caret-down ms-1"/>
-            </button>
-            <t t-set-slot="content">
-                <t t-foreach="visibleSlotNames" t-as="slot" t-key="slot">
-                    <DropdownItem class="'o-dropdown-item-unstyled-button o_ems_actions_item'">
-                        <t t-slot="{{ slot }}"/>
-                    </DropdownItem>
-                </t>
+        <t t-else="">
+            <!-- Issue #786: the next step of a process (o_ems_action_main) stays in view, and the
+                 dropdown holds every other entry, even a single one. -->
+            <t t-foreach="mainSlotNames" t-as="slot" t-key="slot">
+                <t t-slot="{{ slot }}"/>
             </t>
-        </Dropdown>
+            <Dropdown t-if="menuSlotNames.length" menuClass="'o_ems_actions_menu'">
+                <button class="btn btn-secondary o_ems_actions_toggle">
+                    <t t-esc="props.string"/>
+                    <i class="fa fa-caret-down ms-1"/>
+                </button>
+                <t t-set-slot="content">
+                    <t t-foreach="menuSlotNames" t-as="slot" t-key="slot">
+                        <DropdownItem class="'o-dropdown-item-unstyled-button o_ems_actions_item'">
+                            <t t-slot="{{ slot }}"/>
+                        </DropdownItem>
+                    </t>
+                </t>
+            </Dropdown>
+        </t>
     </t>
 
 </templates>

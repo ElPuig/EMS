@@ -225,6 +225,8 @@ class EmsErasmusMobility(models.Model):
     # Audit D-8: once the stay is over the participant answers the EU Survey (by default within 30 days)
     # and says so on the portal; the team validates it before closing the mobility.
     eu_survey_deadline = fields.Date(compute='_compute_eu_survey_deadline', store=True, readonly=False)
+    # Issue #784 (5.7): the EU Survey only means something once the stay is over.
+    stay_over = fields.Boolean(string="Stay over", compute='_compute_stay_over')
     preparation_complete = fields.Boolean(string="Ready to leave", compute='_compute_complete')
     return_complete = fields.Boolean(string="Return complete", compute='_compute_complete')
     # The participant's record: every document of the call that applies, by category, and the
@@ -239,6 +241,12 @@ class EmsErasmusMobility(models.Model):
                                          "changes.")
     record_progress = fields.Char(string="Record", compute='_compute_record',
                                   help="Required documents complete out of those required.")
+    # Issue #784 (5.6, 8.6): one count, as a bar, red only when a document is past its deadline.
+    record_done = fields.Integer(string="Complete documents", compute='_compute_record',
+                                 help="Required documents complete out of those required.")
+    record_total = fields.Integer(string="Required documents", compute='_compute_record')
+    record_overdue = fields.Integer(string="Overdue", compute='_compute_record',
+                                    help="Required documents not complete whose deadline has passed.")
     project_document_ids = fields.Many2many(string="Other documents", comodel_name='ems.erasmus.project.document',
                                             relation='ems_erasmus_project_document_mobility_rel',
                                             column1='ems_erasmus_mobility_id',
@@ -361,14 +369,25 @@ class EmsErasmusMobility(models.Model):
                     and not (stage == 'preparation'
                              and (mobility.commitment_pending or mobility.commitment_guardian_pending)))
 
+    @api.depends('date_end', 'state')
+    def _compute_stay_over(self):
+        today = self.env['ems.datetime_utils'].get_local_today()
+        for mobility in self:
+            mobility.stay_over = mobility.state == 'done' or bool(mobility.date_end and mobility.date_end < today)
+
     @api.depends('application_id.document_ids.file_state', 'document_ids.file_state')
     def _compute_record(self):
+        today = self.env['ems.datetime_utils'].get_local_today()
         for mobility in self:
             lines = mobility._ems_record_lines()
             required = lines.filtered('is_required')
+            pending = required.filtered(lambda line: line.file_state != 'complete')
             mobility.application_document_ids = lines - mobility.document_ids
-            mobility.record_missing = len(required.filtered(lambda line: line.file_state != 'complete'))
-            mobility.record_progress = f"{len(required) - mobility.record_missing} / {len(required)}"
+            mobility.record_missing = len(pending)
+            mobility.record_total = len(required)
+            mobility.record_done = len(required) - len(pending)
+            mobility.record_progress = f"{mobility.record_done} / {len(required)}"
+            mobility.record_overdue = len(pending.filtered(lambda line: line.deadline and line.deadline < today))
 
     def _ems_record_lines(self):
         """The documents of the participant's record for this mobility: those of the application and
@@ -439,9 +458,14 @@ class EmsErasmusMobility(models.Model):
         for mobility in self:
             mobility.can_validate = mobility._ems_can_validate()
 
+    @api.depends_context('ems_mobility_short_name')
     def _compute_display_name(self):
+        # Issue #784 (5.4): the team's screens name a mobility by its participant only; the call is
+        # on the form already (and in the breadcrumb, through the call's button).
+        short = self.env.context.get('ems_mobility_short_name')
         for mobility in self:
-            mobility.display_name = f"{mobility.partner_id.name} - {mobility.call_id.name}"
+            mobility.display_name = (mobility.partner_id.name if short else
+                                     f"{mobility.partner_id.name} - {mobility.call_id.name}")
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -535,6 +559,12 @@ class EmsErasmusMobility(models.Model):
                           'call_document_id': document.id} for document in documents])
             tasks = call.task_ids.filtered(applies) - mobility.task_ids.call_task_id
             Task.create([{'mobility_id': mobility.id, 'call_task_id': task.id} for task in tasks])
+
+    def action_open_application(self):
+        """Issue #784 (5.4): the application, from the mobility's button."""
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'res_model': 'ems.erasmus.application',
+                'res_id': self.application_id.id, 'views': [(False, 'form')]}
 
     def action_sync_requirements(self):
         """After changing the call's documents or checklist."""

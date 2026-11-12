@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from pytz import UTC
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
@@ -44,6 +46,8 @@ class EmsErasmusCommitment(models.AbstractModel):
     commitment_guardian_pending = fields.Boolean(
         string="Family signature pending", compute='_compute_commitment_pending',
         help="A minor student's commitment letter is signed by their family too, on its own portal.")
+    commitment_status = fields.Char(string="Participant's signature", compute='_compute_commitment_status')
+    commitment_guardian_status = fields.Char(string="Family's signature", compute='_compute_commitment_status')
     commitment_provisional = fields.Boolean(
         string="Accepted provisionally", compute='_compute_commitment_provisional',
         help="Accepted while the destination or the dates were still to be confirmed: once they are, the new letter "
@@ -59,6 +63,25 @@ class EmsErasmusCommitment(models.AbstractModel):
             record.commitment_pending = letter and not record.commitment_signed_date
             record.commitment_guardian_pending = (letter and record._ems_commitment_is_minor()
                                                   and not record.commitment_guardian_signed_date)
+
+    @api.depends(lambda self: self._ems_commitment_depends())
+    def _compute_commitment_status(self):
+        """Issue #784 (5.9): whether it is signed, in one line."""
+        utils = self.env['ems.datetime_utils']
+
+        def signed(date, user):
+            day = utils.utc_datetime_to_local(date.replace(tzinfo=UTC)).strftime('%d/%m/%Y')
+            return _("Signed on %(date)s by %(name)s", date=day, name=user.name)
+
+        for record in self:
+            record.commitment_status = (
+                signed(record.commitment_signed_date, record.commitment_signed_by_id)
+                if record.commitment_signed_date else _("To sign on the portal") if record.commitment_pending
+                else False)
+            record.commitment_guardian_status = (
+                signed(record.commitment_guardian_signed_date, record.commitment_guardian_signed_by_id)
+                if record.commitment_guardian_signed_date
+                else _("To sign on the family's portal") if record.commitment_guardian_pending else False)
 
     @api.depends(lambda self: self._ems_commitment_depends())
     def _compute_commitment_provisional(self):

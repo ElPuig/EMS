@@ -113,8 +113,10 @@ class TestErasmusEconomy(ErasmusEconomyMixin, ErasmusGrantCase):
         document = self.env['ems.erasmus.project.document'].with_context(default_category='03_Economia').create({
             'project_id': self.project.id, 'name': 'Grant agreement',
             'attachment_ids': [(0, 0, {'name': 'agreement.pdf', 'raw': PDF})]})
-        self.assertEqual(self.project.economy_document_ids, document)
-        self.assertEqual(self.project.with_user(self.director_user).economy_document_ids.attachment_ids.raw, PDF)
+        economic = self.project.with_user(self.director_user).document_ids.filtered(
+            lambda line: line.category == '03_Economia')
+        self.assertEqual(economic, document, "Issue #784: in the Documentation tab, not repeated in Economy.")
+        self.assertEqual(economic.attachment_ids.raw, PDF)
 
     def test_a_mobility_is_a_forecast_until_confirmed_and_then_committed(self):
         first, _second = self._accepted()

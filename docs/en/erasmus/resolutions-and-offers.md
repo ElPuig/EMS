@@ -63,7 +63,7 @@ If a claim is upheld, correct the application's data (for example the language c
 
 ## 5. Place offers
 
-**Erasmus+ > Calls > Place offers** lists every offer and its answer: *Waiting for an answer*, *Place accepted*, *Renounced*, *No answer* or *Withdrawn*.
+**Erasmus+ > Calls > Place offers** lists every offer and its answer: *Waiting for an answer*, *Place accepted*, *Renounced*, *No answer* or *Withdrawn*. On the pending ones, **Time left** says how many days are left to answer.
 
 - Students accept or renounce on the portal before the deadline, and receive an email confirming their answer (with a copy to the family of a minor). Without an answer by then, EMS marks the place as renounced and tells the student by email that the deadline passed; the portal says they did not answer in time, not that they renounced.
 - When a student accepts, their group tutor gets a notice (not a task) saying they will go on an Erasmus+ stay.

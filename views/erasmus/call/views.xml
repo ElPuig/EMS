@@ -72,7 +72,9 @@
                                 <field name="application_count" widget="statinfo" string="Applications"/>
                             </button>
                             <button name="action_view_mobilities" type="object" class="oe_stat_button" icon="fa-plane"
-                                    string="Mobilities" invisible="not has_final_resolution"/>
+                                    invisible="not has_final_resolution">
+                                <field name="mobility_count" widget="statinfo" string="Mobilities"/>
+                            </button>
                             <button name="action_view_offers" type="object" class="oe_stat_button" icon="fa-envelope-open-o"
                                     invisible="not has_final_resolution"
                                     groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
@@ -82,19 +84,30 @@
                                 </div>
                             </button>
                             <button name="action_view_claims" type="object" class="oe_stat_button" icon="fa-exclamation-circle"
-                                    string="Claims" invisible="not has_provisional_resolution"
-                                    groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+                                    invisible="not has_provisional_resolution"
+                                    groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
+                                <field name="claim_count" widget="statinfo" string="Claims"/>
+                            </button>
                             <button name="action_view_resolutions" type="object" class="oe_stat_button" icon="fa-gavel"
-                                    string="Resolutions" invisible="state != 'closed'"
-                                    groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+                                    invisible="state != 'closed'"
+                                    groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
+                                <field name="resolution_count" widget="statinfo" string="Resolutions"/>
+                            </button>
+                            <!-- Issue #784 (2.7): the ranking stays on hand after the definitive resolution too. -->
                             <button name="action_view_ranking" type="object" class="oe_stat_button" icon="fa-trophy"
-                                    string="Ranking" invisible="state != 'closed' or has_final_resolution"/>
+                                    invisible="state != 'closed'">
+                                <field name="ranked_count" widget="statinfo" string="Ranking"/>
+                            </button>
                             <button name="action_view_interviews" type="object" class="oe_stat_button" icon="fa-comments"
-                                    string="Interviews" invisible="audience != 'student' or state != 'closed' or has_final_resolution"
-                                    groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    invisible="audience != 'student' or state != 'closed' or has_final_resolution"
+                                    groups="ems.group_erasmus,ems.group_academic_admin">
+                                <field name="interview_count" widget="statinfo" string="Interviews"/>
+                            </button>
                             <button name="action_view_plan_ratings" type="object" class="oe_stat_button" icon="fa-star-half-o"
-                                    string="Plan ratings" invisible="audience != 'staff' or state != 'closed' or has_final_resolution"
-                                    groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    invisible="audience != 'staff' or state != 'closed' or has_final_resolution"
+                                    groups="ems.group_erasmus,ems.group_academic_admin">
+                                <field name="plan_rating_count" widget="statinfo" string="Plan ratings"/>
+                            </button>
                         </div>
                         <field name="has_final_resolution" invisible="1"/>
                         <field name="has_provisional_resolution" invisible="1"/>

@@ -20,7 +20,7 @@ Haz clic en un proyecto para abrir su pestaña **Economía**.
 
 1. **Subvención concedida** es el importe del convenio. Añade cada **modificación de la subvención** (fecha, descripción, importe; negativo si la reduce): la *subvención vigente* es la inicial más las modificaciones.
 2. Añade cada **transferencia del SEPIE** (fecha, tipo, importe). Te dicen qué se ha *recibido* y qué queda *por recibir*. La transferencia de *Saldo* también rellena *Pago final recibido el*, que marca cuánto tiempo se conservan los documentos.
-3. Adjunta el **convenio de subvención y sus anexos** en *Convenio, anexos y documentos económicos*. Forman parte de los documentos del proyecto (categoría 03 Economía) y van en la exportación del proyecto.
+3. Adjunta el **convenio de subvención y sus anexos** en la pestaña **Documentación** del proyecto, con la categoría *03 Economía*. Forman parte de los documentos del proyecto y van en la exportación del proyecto.
 4. El **año de la convocatoria** sale del número de convenio (p. ej. 2025-1-ES01-...). Corrígelo si hace falta: decide qué tarifas de apoyo organizativo se aplican.
 
 **Qué significa cada cifra:**
@@ -71,7 +71,7 @@ En la pestaña Economía ves:
 - **Apoyo organizativo generado:** para las movilidades realizadas, con los participantes reales. Los docentes acompañantes nunca cuentan.
 - **Gastos de apoyo organizativo:** los gastos de esa categoría, y la diferencia entre lo generado y lo gastado.
 
-La diferencia es un indicador interno, no una certificación del SEPIE. El apoyo forma parte de la subvención concedida: nunca se le suma. Para una particularidad del convenio, introduce una **Corrección** con su motivo. Para un proyecto gestionado antes de EMS, puedes rellenar las **Cifras anteriores a EMS** agregadas.
+La diferencia es un indicador interno, no una certificación del SEPIE. El apoyo forma parte de la subvención concedida: nunca se le suma. Para una particularidad del convenio, introduce una **Corrección** con su motivo. Para un proyecto gestionado antes de EMS, puedes rellenar las **Cifras anteriores a EMS** agregadas (solo aparecen en los proyectos de convocatorias anteriores a 2026 o si ya tienen alguna cifra).
 
 En la lista **Gestión económica > Facturas**, la columna **Proyecto** muestra el proyecto de la factura o, si es de los participantes, el de sus movilidades; si son de proyectos distintos, dice *Varios*.
 

@@ -20,7 +20,7 @@ erDiagram
     ems_erasmus_project ||--o{ ems_erasmus_mobility : "mobility_ids (econ_* figures)"
     ems_erasmus_project ||--o{ ems_erasmus_group_mobility : "group_mobility_ids (grant_amount, econ_*)"
     ems_erasmus_project ||--o{ ems_erasmus_invoice : "invoice_ids"
-    ems_erasmus_project ||--o{ ems_erasmus_project_document : "economy_document_ids (category 03)"
+    ems_erasmus_project ||--o{ ems_erasmus_project_document : "document_ids (category 03)"
     ems_erasmus_expense }o--o| ems_erasmus_mobility : "mobility_id (optional)"
     ems_erasmus_support_rate }o..o{ ems_erasmus_project : "call_year + kind"
 ```
@@ -30,7 +30,7 @@ erDiagram
 | Model | Purpose |
 |---|---|
 | `ems.erasmus.economy` (abstract) | The economic figures of a mobility, shared by the individual (`ems.erasmus.mobility`) and the group ones (`ems.erasmus.group.mobility`): `econ_state`, `econ_forecast`, `econ_committed`, `econ_paid`, `econ_pending` (stored computes) and `recovered_amount` (what the participant gave back). Each model gives its inputs in `_ems_economic_inputs()`; the arithmetic is the module function `economic_figures()`. |
-| `ems.erasmus.project` (extended) | `call_year` (from the agreement number, `2026-1-ES01-...`, editable), `final_grant`, the stored totals below, `support_adjustment` + reason, the aggregated figures from before EMS (`legacy_*`), `economy_warnings`, and `economy_document_ids` (its documents of category *03 Finances*: the grant agreement and annexes, in the same records and ZIP as every other document). |
+| `ems.erasmus.project` (extended) | `call_year` (from the agreement number, `2026-1-ES01-...`, editable), `final_grant`, the stored totals below, `support_adjustment` + reason, the aggregated figures from before EMS (`legacy_*`), `economy_warnings`, and its documents of category *03 Finances* (the grant agreement and annexes, kept in the Documentation tab like every other document). |
 | `ems.erasmus.project.amendment` | An amendment of the grant: date, amount (negative for a reduction), description, files. |
 | `ems.erasmus.project.income` | A transfer SEPIE made: date, kind (prefinancing, further prefinancing, balance, other), amount (> 0), files. A *balance* sets the project's `final_payment_date` if empty (the documents' keeping period counts from it). |
 | `ems.erasmus.expense` | An expense of the project outside the participants' grants (working meals, merchandising, dissemination, language preparation...): reference `DESP-<year>-<id>`, project, concept, category (*Organisational support* or *Other project expenses*), date, amount (> 0), supplier, optional mobility (of the same project, linked by the Erasmus team only), invoice or receipt files, notes; `state` to pay / paid / cancelled. Also `transferred_amount` (what was transferred, set when paid), `counted_amount` (stored: what it consumes of the budget, `_ems_value()`) and `corrected_from_id` (see *Expenses*). |
@@ -227,7 +227,7 @@ percentage, when a payment may be requested and how a payment points at it (`mob
 | Model | Field | Meaning |
 |---|---|---|
 | `ems.erasmus.group.mobility` | `prefinancing_percent` | Part of the pocket money paid before leaving (default **100**: one single payment); the rest on return. |
-| | `no_direct_costs` | *The centre pays nothing directly*: no collective invoice can be added (blocked, with a warning on the form), each participant's pocket money is their whole grant. Cannot be set while the group has invoices. |
+| | `no_direct_costs` | Edited through `travel_paid_by` (*Who pays the travel and accommodation*: the centre / each participant, non-stored with an inverse, issue #784), the same choice asked in positive. Each participant: no collective invoice can be added (blocked, with a warning on the form), each participant's pocket money is their whole grant. Cannot be set while the group has invoices. |
 | `ems.erasmus.group.participant` | `invoice_share` | Their equal share of the group's collective invoices: each invoice's amount divided among the **active** participants, the cents left over on the first one (same rule as an individual invoice's shares). Computed, never typed. |
 | | `pocket_amount` | `grant_amount - invoice_share` (below zero: a warning). |
 | | `pocket_requested` / `pocket_paid` / `pocket_state` | What has been requested and paid, and *not requested*, *to pay*, *paid*. Read with sudo, so the leader sees them without reading the payments. |

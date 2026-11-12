@@ -122,6 +122,21 @@ class EmsErasmusGroupMobility(models.Model):
     no_direct_costs = fields.Boolean(string="The centre pays nothing directly", tracking=True,
                                      help="No collective invoice: each participant receives their whole grant as "
                                           "pocket money.")
+    # Issue #784 (9.15): the same choice asked in positive, as the team reads it on the form.
+    travel_paid_by = fields.Selection(
+        string="Who pays the travel and accommodation", compute='_compute_travel_paid_by',
+        inverse='_inverse_travel_paid_by',
+        selection=[('centre', "The centre"), ('participant', "Each participant")],
+        help="Each participant: no collective invoice, everyone receives their whole grant as pocket money.")
+
+    @api.depends('no_direct_costs')
+    def _compute_travel_paid_by(self):
+        for mobility in self:
+            mobility.travel_paid_by = 'participant' if mobility.no_direct_costs else 'centre'
+
+    def _inverse_travel_paid_by(self):
+        for mobility in self:
+            mobility.no_direct_costs = mobility.travel_paid_by == 'participant'
 
     @api.constrains('prefinancing_percent')
     def _check_prefinancing_percent(self):
@@ -132,11 +147,12 @@ class EmsErasmusGroupMobility(models.Model):
         for mobility in self:
             if mobility.no_direct_costs and mobility.sudo().invoice_ids:
                 raise ValidationError(_("The centre pays nothing directly in %s: it cannot have collective invoices. "
-                                        "Remove them, or uncheck the option.", mobility.name))
+                                        "Remove them, or choose that the centre pays the travel and "
+                                        "accommodation.", mobility.name))
 
-    @api.onchange('no_direct_costs')
+    @api.onchange('no_direct_costs', 'travel_paid_by')
     def _onchange_no_direct_costs(self):
-        if self.no_direct_costs and self.invoice_ids:
+        if self.travel_paid_by == 'participant' and self.invoice_ids:
             return {'warning': {'title': _("Collective invoices"), 'message': _(
                 "This group mobility has collective invoices: remove them first, the centre pays nothing directly.")}}
 

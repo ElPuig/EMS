@@ -63,7 +63,7 @@ Si s'estima una reclamació, corregeix les dades de la sol·licitud (per exemple
 
 ## 5. Ofertes de plaça
 
-**Erasmus+ > Convocatòries > Ofertes de plaça** mostra totes les ofertes i la resposta: *Pendent de resposta*, *Plaça acceptada*, *Renúncia*, *Sense resposta* o *Retirada*.
+**Erasmus+ > Convocatòries > Ofertes de plaça** mostra totes les ofertes i la resposta: *Pendent de resposta*, *Plaça acceptada*, *Renúncia*, *Sense resposta* o *Retirada*. A les pendents, **Temps restant** diu quants dies queden per respondre.
 
 - L'alumnat accepta o renuncia al portal abans del termini i rep un correu que confirma la resposta (amb còpia a la família d'un menor). Si no respon a temps, EMS hi marca la renúncia i li comunica per correu que el termini s'ha acabat; el portal diu que no va respondre a temps, no que hi va renunciar.
 - Quan un alumne accepta, el tutor del seu grup rep un avís (no una tasca) que farà una estada Erasmus+.

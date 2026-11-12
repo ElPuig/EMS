@@ -85,15 +85,14 @@ El pots enviar abans que s'obri la convocatòria; si el tornes a enviar (per exe
 
 Ves a **Erasmus+ > Convocatòries > Sol·licituds**, agrupades per convocatòria, amb la puntuació i la posició de cada sol·licitud quan ja n'hi ha (o al botó **Sol·licituds** de la convocatòria, que les agrupa per modalitat). Filtres: *Per revisar*, *Esmena requerida*, *Admesa*, *Exclosa*. **Documents per revisar** compta els fitxers que esperen la vostra comprovació (un esborrany encara no enviat no compta).
 
-Obre una sol·licitud:
+Obre una sol·licitud. A dalt hi ha el que la decideix: els **Requisits**, la **Puntuació total** i la **Posició** (quan ja n'hi ha); el botó **Fitxa de personal** obre la fitxa del docent en una sol·licitud de personal.
 
-- Pestanya **Documents**: cada document amb el seu **Estat** (*Per lliurar*, *Pendent de revisió*, *Cal corregir*, *Completa*; en gris, els opcionals i els que no s'apliquen, com l'autorització familiar d'un adult), els seus **Fitxers** (els que compten) i, si és un enllaç, l'**Enllaç** mateix. Es conserven tots els fitxers que ha pujat l'alumne: la columna opcional **Totes les versions** mostra també els anteriors. Marca'ls com a **Vàlid** (✓) o **Cal corregir** (✗), i escriu un **Comentari per al sol·licitant** quan calgui corregir-lo. Un document sense cap fitxer no es pot marcar com a vàlid.
+- Pestanya **Sol·licitud**: el que ha enviat l'alumne, primer les respostes del formulari i a sota els documents, cada document amb el seu **Estat** (*Per lliurar*, *Pendent de revisió*, *Cal corregir*, *Completa*; en gris, els opcionals i els que no s'apliquen, com l'autorització familiar d'un adult), els seus **Fitxers** (els que compten) i, si és un enllaç, l'**Enllaç** mateix. Es conserven tots els fitxers que ha pujat l'alumne: la columna opcional **Totes les versions** mostra també els anteriors. Marca'ls com a **Vàlid** (✓) o **Cal corregir** (✗), i escriu un **Comentari per al sol·licitant** quan calgui corregir-lo. Un document sense cap fitxer no es pot marcar com a vàlid.
 - Mentre la sol·licitud és un esborrany, l'alumne pot treure des del portal un fitxer pujat per error. Un cop enviada, només el treus tu, amb **Treure un fitxer** i el motiu.
 - Pestanya **Admissió**:
     - **Requisits**: matriculat en un nivell de la convocatòria i cap pràctica Erasmus+ anterior en aquest cicle (per sol·licitar, un menor no necessita autorització familiar). EMS registra qui ho ha comprovat i quan.
     - **Conducta aquest curs**: les **amonestacions** que l'alumne té a l'EMS durant el curs de la convocatòria. Si en té tantes com les que fan saltar l'avís a convivència (3, l'ajust de l'EMS) o més, es marca **Conducta per revisar** i la fitxa ho avisa a dalt. No l'exclou: escoltats l'equip docent i l'equip de convivència, pots **excloure** la sol·licitud indicant-ne el motiu (article 6 de la convocatòria). Si continua, cada amonestació resta punts (criteri F).
     - **Motiu d'exclusió**, si la sol·licitud queda exclosa.
-- Pestanya **Respostes**: el que l'alumne ha respost al formulari.
 
 ## 4. Demanar esmenes
 

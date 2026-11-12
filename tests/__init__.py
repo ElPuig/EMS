@@ -345,3 +345,4 @@ from . import test_erasmus_call_fewer_fields_tour
 from . import test_erasmus_polish_default_data
 from . import test_erasmus_polish_default_data_tour
 from . import test_erasmus_polish_empty_lists_help
+from . import test_erasmus_polish_form_headers

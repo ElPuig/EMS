@@ -63,7 +63,9 @@ checklist of their own:
 A participant's record for a mobility (`_ems_record_lines()`) is the application's own documents
 (stage *application*) plus the mobility's: never another mobility's, even of the same person.
 `record_missing` counts the required lines not complete, `record_progress` shows "complete /
-required"; the project sums them (`record_count`, `record_complete_count`, `record_missing_count`).
+required" (as `record_done` / `record_total`, the progress bar of the form and the portal, issue #784),
+and `record_overdue` the required lines not complete past their `deadline` (the only case shown in
+red); the project sums them (`record_count`, `record_complete_count`, `record_missing_count`).
 
 **Project documents** (`ems.erasmus.project.document`) hold what no call document does: the grant
 agreement with SEPIE, budget follow-up, dissemination, the final report... in a project `category`.

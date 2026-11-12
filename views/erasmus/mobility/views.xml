@@ -105,7 +105,7 @@
                                     help="The participant's documents of this mobility as a ZIP, in the four categories, with an index of what is missing and the files' hashes."/>
                             <!-- Audit D-8: the EU Survey, answered from the portal, validated by the team. -->
                             <button name="action_eu_survey_done" type="object" string="EU Survey answered"
-                                    invisible="state != 'preparing' or eu_survey_state != 'pending'"
+                                    invisible="state != 'preparing' or eu_survey_state != 'pending' or not stay_over"
                                     groups="ems.group_erasmus,ems.group_academic_admin"
                                     help="The participant usually says so from the portal once the stay is over."/>
                             <button name="action_eu_survey_validate" type="object" string="Validate the EU Survey"
@@ -130,16 +130,21 @@
                             The project has more mobilities assigned than places in the call: add a place to it
                             (Places per project) or choose another project.
                         </div>
+                        <!-- Issue #784 (5.4): the application as a button; (8.5) its position stays there. -->
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_open_application" type="object" class="oe_stat_button" icon="fa-file-text-o"
+                                    string="Application" invisible="not application_id"
+                                    groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+                        </div>
                         <div class="oe_title">
                             <h1><field name="partner_id" readonly="1"/></h1>
                         </div>
                         <group>
                             <group>
-                                <field name="application_id"/>
+                                <field name="application_id" invisible="1"/>
                                 <field name="call_id"/>
                                 <field name="audience" invisible="1"/>
                                 <field name="modality_id" invisible="audience == 'staff'"/>
-                                <field name="rank"/>
                                 <field name="level_id" invisible="audience != 'student'"/>
                             </group>
                             <group>
@@ -147,15 +152,17 @@
                                 <field name="turn_deadline" options="{'show_seconds': False}" invisible="not turn_deadline"/>
                                 <field name="turn_missed" invisible="not turn_missed"/>
                                 <field name="free_choice" invisible="not free_choice"/>
-                                <field name="country_id"/>
-                                <field name="city"/>
-                                <field name="host_partner_id"
+                                <field name="country_id" invisible="state == 'choosing' and not country_id"/>
+                                <field name="city" invisible="state == 'choosing' and not city"/>
+                                <!-- Issue #784 (D02, C09): while the destination or the activity is being
+                                     defined, its empty fields stay out of the way (the proposal is in its tab). -->
+                                <field name="host_partner_id" invisible="state == 'choosing' and not host_partner_id"
                                        context="{'default_is_company': True, 'default_is_erasmus_host': True, 'default_contact_type': 'provider'}"/>
                                 <field name="host_contact_id" context="{'default_parent_id': host_partner_id}"
                                        invisible="not host_partner_id"/>
                                 <field name="host_contact_email" widget="email" invisible="not host_contact_id"/>
-                                <field name="date_start"/>
-                                <field name="date_end"/>
+                                <field name="date_start" invisible="state == 'choosing' and not date_start"/>
+                                <field name="date_end" invisible="state == 'choosing' and not date_end"/>
                                 <field name="project_kind" invisible="1"/>
                                 <field name="allowed_project_ids" invisible="1"/>
                                 <field name="project_id" options="{'no_create': True}"/>
@@ -197,17 +204,22 @@
                             <!-- The participant's record: the call's documents that apply, in the four
                                  categories, and the project's documents about them. -->
                             <page string="Record" name="documents">
+                                <!-- Issue #784 (5.6, 8.6): one count, as a bar; red only when something is overdue.
+                                     (5.7) The EU Survey once the stay is over. -->
                                 <group>
                                     <group>
-                                        <field name="record_progress"/>
-                                        <field name="record_missing" decoration-danger="record_missing"/>
+                                        <field name="record_total" invisible="1"/>
+                                        <field name="record_done" widget="progressbar" options="{'max_value': 'record_total'}"
+                                               invisible="not record_total"/>
+                                        <field name="record_overdue" decoration-danger="record_overdue" invisible="not record_overdue"/>
                                     </group>
                                     <group>
                                         <field name="preparation_complete"/>
                                         <field name="return_complete"/>
+                                        <field name="stay_over" invisible="1"/>
                                         <field name="eu_survey_state" widget="badge" decoration-success="eu_survey_state == 'validated'"
-                                               decoration-info="eu_survey_state == 'done'"/>
-                                        <field name="eu_survey_deadline"/>
+                                               decoration-info="eu_survey_state == 'done'" invisible="not stay_over"/>
+                                        <field name="eu_survey_deadline" invisible="not stay_over"/>
                                     </group>
                                 </group>
                                 <field name="document_ids">
@@ -287,19 +299,29 @@
                             <page string="Commitment letter" name="commitment" invisible="not commitment_signed_date and not commitment_pending">
                                 <field name="commitment_pending" invisible="1"/>
                                 <field name="commitment_guardian_pending" invisible="1"/>
+                                <!-- Issue #784 (5.9): whether it is signed, in one line; the signature's details below. -->
                                 <group>
-                                    <group string="Participant">
-                                        <field name="commitment_signed_date" options="{'show_time': False}"/>
-                                        <field name="commitment_signed_by_id"/>
+                                    <field name="commitment_status" class="fw-bold"
+                                           decoration-success="commitment_signed_date" decoration-warning="not commitment_signed_date"/>
+                                    <field name="commitment_guardian_status" class="fw-bold"
+                                           invisible="not commitment_guardian_status"
+                                           decoration-success="commitment_guardian_signed_date"
+                                           decoration-warning="not commitment_guardian_signed_date"/>
+                                </group>
+                                <separator string="Text signed" invisible="not commitment_signed_date"/>
+                                <field name="commitment_signed_text" nolabel="1" invisible="not commitment_signed_date"/>
+                                <group string="Signature details" invisible="not commitment_signed_date"
+                                       class="text-muted small">
+                                    <group>
+                                        <field name="commitment_signed_date" string="Participant, on" options="{'show_time': False}"/>
                                         <field name="commitment_signed_ip"/>
                                     </group>
-                                    <group string="Family" invisible="not commitment_guardian_pending and not commitment_guardian_signed_date">
-                                        <field name="commitment_guardian_signed_date" options="{'show_time': False}"/>
+                                    <group invisible="not commitment_guardian_signed_date">
+                                        <field name="commitment_guardian_signed_date" string="Family, on" options="{'show_time': False}"/>
                                         <field name="commitment_guardian_signed_by_id"/>
                                         <field name="commitment_guardian_signed_ip"/>
                                     </group>
                                 </group>
-                                <field name="commitment_signed_text" invisible="not commitment_signed_date"/>
                             </page>
                             <page string="Checklist" name="checklist">
                                 <field name="task_ids">
@@ -315,7 +337,7 @@
                                 </field>
                             </page>
                             <!-- Issue #697: what the participant answers every week of the stay, on the portal. -->
-                            <page string="Self-assessment" name="self_assessment" invisible="not self_assessment_progress">
+                            <page string="Self-assessment" name="self_assessment" invisible="audience == 'staff' or not self_assessment_progress">
                                 <group>
                                     <field name="self_assessment_progress"/>
                                 </group>
@@ -442,7 +464,7 @@
             <field name="name">Mobilities</field>
             <field name="res_model">ems.erasmus.mobility</field>
             <field name="view_mode">list,kanban,form</field>
-            <field name="context">{'search_default_open': 1}</field>
+            <field name="context">{'search_default_open': 1, 'ems_mobility_short_name': True}</field>
         </record>
 
         <!-- The issue-#682 review: the Direction finds the staff activities waiting for its validation
@@ -454,7 +476,7 @@
             <field name="view_ids" eval="[(5, 0, 0),
                 (0, 0, {'view_mode': 'list', 'view_id': ref('view_erasmus_mobility_to_validate_list')}),
                 (0, 0, {'view_mode': 'form', 'view_id': ref('view_erasmus_mobility_form')})]"/>
-            <field name="context">{'search_default_proposal_pending': 1}</field>
+            <field name="context">{'search_default_proposal_pending': 1, 'ems_mobility_short_name': True}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">No proposal to validate</p>
                 <p>When an activity is proposed for a mobility, it shows here until you validate it.</p>

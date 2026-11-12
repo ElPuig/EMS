@@ -86,6 +86,11 @@
                         <div class="alert alert-warning" role="alert" invisible="not conduct_review or state not in ('submitted', 'subsanation')">
                             Serious conduct record this course (<field name="course_strike_count" class="oe_inline"/> conduct warnings): the Erasmus team may exclude the application (art. 6 of the call), after hearing the teaching team or the coexistence team. If it goes on, every warning takes points off (criterion F).
                         </div>
+                        <!-- Issue #784 (7.8): the teacher's staff record as a button, not their name again. -->
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_open_employee" type="object" class="oe_stat_button" icon="fa-id-card-o"
+                                    string="Staff record" invisible="not employee_id"/>
+                        </div>
                         <div class="oe_title">
                             <h1><field name="partner_id" readonly="1"/></h1>
                         </div>
@@ -94,19 +99,42 @@
                                 <field name="call_id" readonly="1"/>
                                 <field name="can_manage" invisible="1"/>
                                 <field name="audience" invisible="1"/>
+                                <field name="employee_id" invisible="1"/>
                                 <field name="modality_id" options="{'no_create': True}" readonly="not can_manage"
                                        invisible="audience == 'staff'"/>
                                 <field name="project_id" invisible="audience != 'staff' or not project_id"
                                        groups="ems.group_erasmus,ems.group_academic_admin"/>
-                                <field name="employee_id" invisible="audience != 'staff'"/>
                                 <field name="is_minor" invisible="audience != 'student'"/>
-                            </group>
-                            <group>
                                 <field name="submit_date" options="{'show_time': False}"/>
+                            </group>
+                            <!-- Issue #784 (3.4): what decides the application, on top instead of in the tabs. -->
+                            <group>
+                                <field name="requirements_check" readonly="1"/>
+                                <field name="scoring_frozen_date" invisible="1" options="{'show_time': False}"/>
+                                <field name="scores_hidden" invisible="1"/>
+                                <field name="score_total" widget="ems_score_out_of" options="{'max': 100}"
+                                       invisible="audience != 'student' or not scoring_frozen_date"/>
+                                <field name="score_total" widget="ems_score_out_of" options="{'max': 10}"
+                                       invisible="audience != 'staff' or scores_hidden or state in ('draft', 'submitted', 'subsanation', 'not_submitted', 'excluded')"/>
+                                <field name="rank" invisible="not rank"/>
                             </group>
                         </group>
                         <notebook>
-                            <page string="Documents" name="documents">
+                            <!-- Issue #784 (3.11): what the applicant sent, answers and documents together. -->
+                            <page string="Application" name="documents">
+                                <group name="answers">
+                                    <field name="proposal_a" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="proposal_b" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="plan_text" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="declared_never_staff_mobility" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="declared_centre_start_date" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="centre_projects" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="support_needs" readonly="not can_manage" invisible="audience != 'staff'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    <field name="fewer_opportunities" readonly="not can_manage" invisible="audience != 'student'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    <field name="image_consent" readonly="not can_manage"/>
+                                    <field name="applicant_notes" readonly="not can_manage"/>
+                                </group>
+                                <separator string="Documents"/>
                                 <field name="document_ids" readonly="not can_manage">
                                     <!-- The 2026-11-04 usage test: what each document is at now (missing, to review,
                                          complete, not applicable...), the not applicable ones greyed out. -->
@@ -319,20 +347,6 @@
                                         <field name="state" widget="badge"/>
                                     </list>
                                 </field>
-                            </page>
-                            <page string="Answers" name="answers">
-                                <group>
-                                    <field name="proposal_a" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="proposal_b" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="plan_text" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="declared_never_staff_mobility" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="declared_centre_start_date" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="centre_projects" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="support_needs" readonly="not can_manage" invisible="audience != 'staff'" groups="ems.group_erasmus,ems.group_academic_admin"/>
-                                    <field name="fewer_opportunities" readonly="not can_manage" invisible="audience != 'student'" groups="ems.group_erasmus,ems.group_academic_admin"/>
-                                    <field name="image_consent" readonly="not can_manage"/>
-                                    <field name="applicant_notes" readonly="not can_manage"/>
-                                </group>
                             </page>
                         </notebook>
                     </sheet>

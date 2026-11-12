@@ -20,7 +20,7 @@ Click a project to open its **Economy** tab.
 
 1. **Grant awarded** is the amount of the agreement. Add each **grant amendment** (date, description, amount; negative if it reduces the grant): the *current grant* is the initial grant plus the amendments.
 2. Add each **SEPIE transfer** (date, kind, amount). They tell you what has been *received* and what is still *to receive*. The *Balance* transfer also fills in *Final payment received on*, which sets how long the documents are kept.
-3. Attach the **grant agreement and its annexes** in *Grant agreement, annexes and economic documents*. They are part of the project's documents (category 03 Finances) and go into the project's export.
+3. Attach the **grant agreement and its annexes** in the project's **Documentation** tab, with the category *03 Finances*. They are part of the project's documents and go into the project's export.
 4. **Call year** is taken from the agreement number (e.g. 2025-1-ES01-...). Correct it if needed: it decides which organisational support rates apply.
 
 **What each figure means:**
@@ -71,7 +71,7 @@ On the Economy tab you see:
 - **Organisational support generated:** for the completed mobilities, with the real participants. Accompanying teachers never count.
 - **Organisational support expenses:** the expenses of that category, and the difference between generated and spent.
 
-The difference is an internal indicator, not a certification of SEPIE. The support is part of the grant awarded: it is never added to it. For a particularity of the agreement, enter a **Correction** with its reason. For a project managed before EMS, you can fill in the aggregated **Figures from before EMS**.
+The difference is an internal indicator, not a certification of SEPIE. The support is part of the grant awarded: it is never added to it. For a particularity of the agreement, enter a **Correction** with its reason. For a project managed before EMS, you can fill in the aggregated **Figures from before EMS** (only shown on projects of calls before 2026, or once they have a figure).
 
 In the **Economic management > Invoices** list, the **Project** column shows the invoice's project or, for a participants' invoice, their mobilities' one; when they are of different projects it says *Various*.
 

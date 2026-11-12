@@ -375,6 +375,26 @@
                     <field name="erasmus_oid" invisible="not is_erasmus_host"
                            groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin"/>
                 </field>
+                <!-- Issue #784 (13.5): what a host entity has hosted, instead of a student's buttons
+                     (meetings, family relations) that say nothing about it. -->
+                <div name="button_box" position="inside">
+                    <button name="action_view_erasmus_mobilities" type="object" class="oe_stat_button" icon="fa-plane"
+                            invisible="not erasmus_individual_count"
+                            groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin">
+                        <field name="erasmus_individual_count" widget="statinfo" string="Mobilities"/>
+                    </button>
+                    <button name="action_view_erasmus_group_mobilities" type="object" class="oe_stat_button" icon="fa-users"
+                            invisible="not erasmus_group_count"
+                            groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin">
+                        <field name="erasmus_group_count" widget="statinfo" string="Group mobilities"/>
+                    </button>
+                </div>
+                <button name="schedule_meeting" position="attributes">
+                    <attribute name="invisible">is_erasmus_host</attribute>
+                </button>
+                <button name="action_view_relations" position="attributes">
+                    <attribute name="invisible">is_erasmus_host</attribute>
+                </button>
                 <!-- Issue #783 (13.7): every teacher reads every contact, a host entity included,
                      so its notes say who reads them, as a student's do. -->
                 <xpath expr="//page[@name='internal_notes']/field[@name='comment']" position="before">

@@ -73,14 +73,14 @@
                             <button name="action_exclude" type="object" string="Exclude"
                                     invisible="state not in ('submitted', 'subsanation', 'admitted')" groups="ems.group_erasmus,ems.group_academic_admin"/>
                             <button name="action_send_interview_call" type="object" string="Send interview call"
-                                    invisible="state != 'admitted' or not interview_date" groups="ems.group_erasmus,ems.group_academic_admin"
+                                    invisible="state != 'admitted' or not interview_date or audience != 'student'" groups="ems.group_erasmus,ems.group_academic_admin"
                                     help="Emails the applicant the interview's date and place. At least 24 hours ahead."/>
                             <button name="action_export_participants" type="object" string="Export to spreadsheet"
                                     invisible="state != 'accepted'" groups="ems.group_erasmus,ems.group_academic_admin"/>
                             <button name="action_back_to_review" type="object" string="Back to review"
                                     invisible="state not in ('admitted', 'excluded')" groups="ems.group_erasmus,ems.group_academic_admin"/>
                         </div>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,submitted,admitted,selected,accepted"/>
+                        <field name="state" widget="ems_statusbar_path" options="{'path_field': 'status_path'}"/>
                     </header>
                     <sheet>
                         <div class="alert alert-warning" role="alert" invisible="not conduct_review or state not in ('submitted', 'subsanation')">

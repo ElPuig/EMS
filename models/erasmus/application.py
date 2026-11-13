@@ -29,6 +29,22 @@ STAMPED_FIELDS = ('requirements_check', 'language_level', 'fewer_opportunities_c
 SUBMITTED_STATES = ('submitted', 'subsanation', 'admitted', 'excluded')
 # Application states that compete in the ranking (issue #685): admitted, and the results after it.
 RANKED_STATES = ('admitted', 'selected', 'reserve', 'not_selected', 'accepted', 'renounced')
+# The steps the status bar shows for each state (ems_statusbar_path widget, as on a detected absence):
+# the way an application of that state really went, and the ones still ahead. A fixed list showed
+# "Selected" and "Place accepted" ahead of an excluded or a not-selected application.
+STATUS_PATHS = {
+    'draft': 'draft,submitted,admitted,selected,accepted',
+    'submitted': 'draft,submitted,admitted,selected,accepted',
+    'subsanation': 'draft,submitted,subsanation,admitted,selected,accepted',
+    'admitted': 'draft,submitted,admitted,selected,accepted',
+    'excluded': 'draft,submitted,excluded',
+    'not_submitted': 'draft,not_submitted',
+    'selected': 'draft,submitted,admitted,selected,accepted',
+    'reserve': 'draft,submitted,admitted,reserve,accepted',
+    'not_selected': 'draft,submitted,admitted,not_selected',
+    'accepted': 'draft,submitted,admitted,selected,accepted',
+    'renounced': 'draft,submitted,admitted,selected,renounced',
+}
 # The colour of each state's badge on the portal (the issue-#682 review).
 PORTAL_STATE_BADGES = {
     'draft': 'secondary', 'submitted': 'info', 'subsanation': 'warning', 'admitted': 'info', 'excluded': 'danger',
@@ -116,6 +132,7 @@ class EmsErasmusApplication(models.Model):
                              ])
     submit_date = fields.Datetime(string="Submitted on", readonly=True, copy=False)
     is_minor = fields.Boolean(string="Minor", compute='_compute_is_minor')
+    status_path = fields.Char(string="Status steps", compute='_compute_status_path')
 
     # Audit D-4: what the applicant declares is the team's, as the accredited check (the Head of Studies reads
     # the conduct warnings and the exclusion reason, not this).
@@ -311,6 +328,11 @@ class EmsErasmusApplication(models.Model):
     def _compute_is_minor(self):
         for application in self:
             application.is_minor = application.audience == 'student' and not application.partner_id.is_adult
+
+    @api.depends('state')
+    def _compute_status_path(self):
+        for application in self:
+            application.status_path = STATUS_PATHS.get(application.state, '')
 
     @api.depends_context('uid')
     def _compute_permissions(self):

@@ -34,6 +34,8 @@
                             <button name="action_staff_apply" type="object" string="Open my application"
                                     invisible="not staff_application_id"/>
                         </div>
+                        <!-- Issue #786: where the call is, as on the team's form (a teacher never sees a draft). -->
+                        <field name="phase" widget="statusbar" statusbar_visible="published,scoring,resolution,offers,finished"/>
                     </header>
                     <sheet>
                         <div class="oe_title">
@@ -100,8 +102,11 @@
                         <div name="ems_actions" string="Actions">
                             <button name="action_staff_edit" type="object" string="Fill in the form" class="btn-primary"
                                     invisible="not staff_editable"/>
+                            <!-- Issue #786: while the form can be changed, its dialog already has "Save and
+                                 submit", so filling it in is the one action (shown as a plain button);
+                                 Submit on its own only sends the corrections asked for. -->
                             <button name="action_staff_submit" type="object" string="Submit"
-                                    invisible="not staff_can_submit"
+                                    invisible="not staff_can_submit or staff_editable"
                                     confirm="Submit the application? You can still change it until the call closes."/>
                             <button name="action_staff_accept_offer" type="object" string="Accept the place" class="btn-primary"
                                     invisible="not staff_offer_id" confirm="Accept the place offered?"/>
@@ -110,7 +115,7 @@
                             <button name="action_staff_claim" type="object" string="Claim"
                                     invisible="not staff_claimable"/>
                         </div>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,submitted,admitted,selected,accepted"/>
+                        <field name="state" widget="ems_statusbar_path" options="{'path_field': 'status_path'}"/>
                     </header>
                     <sheet>
                         <field name="staff_editable" invisible="1"/>

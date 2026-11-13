@@ -92,9 +92,9 @@ From the first day of the stay, every week the participant answers the call's qu
 
 When the stay is over, the participant sees on the portal that they have to answer the **EU Survey** (by default within 30 days, **EU Survey deadline**) and clicks **I have answered it**. You get a task: check it and click **Actions > Validate the EU Survey** (if the participant tells you another way, **Actions > EU Survey answered**).
 
-Click **Actions > Close the mobility** when everything is done: every required document and step before leaving and on return, the mobility on its **Project**, the EU Survey validated and nothing left to pay: every payment requested and transferred, the final one included, and every invoice for the participant paid. Closing also removes a graduate's access to the portal, so wait for the last payment.
+Once the stay is over (the *Return home* phase), click **Actions > Close the mobility** when everything is done: every required document and step before leaving and on return, the mobility on its **Project**, the EU Survey validated and nothing left to pay: every payment requested and transferred, the final one included, and every invoice for the participant paid. Closing also removes a graduate's access to the portal, so wait for the last payment.
 
-To cancel a mobility (for example, the travel documents were not handed in on time), click **Actions > Cancel the mobility**: a dialog asks for the reason. Once cancelled, the reason shows at the top of the form. The application is marked as renounced and the place becomes free. The participant can also renounce on the portal.
+To cancel a mobility (for example, the travel documents were not handed in on time), click **Actions > Cancel the mobility**: a dialog asks for the reason. Once cancelled, the reason shows at the top of the form. The application is marked as renounced and the place becomes free. It can be cancelled until the stay ends. The participant can also renounce on the portal, but only until the stay starts.
 
 > **Graduates:** a student who graduates and does the mobility in the summer keeps access to the portal after the course transition, until the mobility is closed or cancelled. Then EMS removes the access, as the course transition would have done.
 

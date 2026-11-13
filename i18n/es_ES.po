@@ -29542,6 +29542,7 @@ msgstr "Has solicitado la corrección del fichaje. Tu jefe de estudios tiene que
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__status_path
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__status_path
 msgid "Status steps"
 msgstr "Pasos del estado"
 
@@ -49369,10 +49370,8 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/staff_backend.py:0
-msgid ""
-"Fill in your application from Actions > Fill in the form, and submit it."
-msgstr ""
-"Rellena la solicitud desde Acciones > Rellena el formulario, y envíala."
+msgid "Fill in your application with the Fill in the form button, and submit it."
+msgstr "Rellena la solicitud con el botón Rellena el formulario, y envíala."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__staff_answered
@@ -50120,3 +50119,12 @@ msgstr "p. ej. no se entregaron a tiempo los documentos del viaje"
 #: code:addons/ems/models/erasmus/resolution.py:0
 msgid "Only the Erasmus team prints the published lists."
 msgstr "Solo el equipo Erasmus imprime las listas publicadas."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+#: code:addons/ems/models/erasmus/staff_backend.py:0
+msgid ""
+"The place of %s can no longer be renounced (the stay has begun): talk to the "
+"Erasmus team."
+msgstr "Ya no se puede renunciar a la plaza de %s (la estancia ha empezado): habla con el equipo Erasmus+."

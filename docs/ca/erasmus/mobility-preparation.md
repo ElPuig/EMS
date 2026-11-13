@@ -92,9 +92,9 @@ Des del primer dia de l'estada, cada setmana el participant respon al portal les
 
 Quan s'acaba l'estada, el participant veu al portal que ha de respondre l'**EU Survey** (per defecte en 30 dies, **Termini de l'EU Survey**) i fa clic a **Ja l'he resposta**. Rebeu una tasca: comproveu-ho i feu clic a **Accions > Valida l'EU Survey** (si el participant us ho diu d'una altra manera, **Accions > EU Survey resposta**).
 
-Feu clic a **Accions > Tanca la mobilitat** quan tot estigui fet: tots els documents i passos obligatoris d'abans de marxar i de tornada, la mobilitat al seu **Projecte**, l'EU Survey validada i res per pagar: tots els pagaments sol·licitats i transferits, també el final, i totes les factures del participant pagades. Tancar també treu l'accés al portal a un graduat, per això cal esperar l'últim pagament.
+Un cop acabada l'estada (fase *Tornada*), feu clic a **Accions > Tanca la mobilitat** quan tot estigui fet: tots els documents i passos obligatoris d'abans de marxar i de tornada, la mobilitat al seu **Projecte**, l'EU Survey validada i res per pagar: tots els pagaments sol·licitats i transferits, també el final, i totes les factures del participant pagades. Tancar també treu l'accés al portal a un graduat, per això cal esperar l'últim pagament.
 
-Per cancel·lar una mobilitat (per exemple, no s'han lliurat a temps els documents de viatge), feu clic a **Accions > Cancel·la la mobilitat**: una finestra us demana el motiu. Un cop cancel·lada, el motiu surt a dalt de la fitxa. La sol·licitud queda com a renúncia i la plaça queda lliure. El participant també pot renunciar des del portal.
+Per cancel·lar una mobilitat (per exemple, no s'han lliurat a temps els documents de viatge), feu clic a **Accions > Cancel·la la mobilitat**: una finestra us demana el motiu. Un cop cancel·lada, el motiu surt a dalt de la fitxa. La sol·licitud queda com a renúncia i la plaça queda lliure. Es pot cancel·lar fins que s'acaba l'estada. El participant també pot renunciar des del portal, però només fins que comença l'estada.
 
 > **Persones titulades:** un alumne que es titula i fa la mobilitat a l'estiu manté l'accés al portal després del canvi de curs, fins que la mobilitat es tanca o es cancel·la. Llavors l'EMS li treu l'accés, tal com hauria fet el canvi de curs.
 

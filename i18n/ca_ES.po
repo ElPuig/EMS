@@ -29540,6 +29540,7 @@ msgstr "Has sol·licitat la correcció del fitxatge. El teu cap d'estudis l'ha d
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__status_path
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__status_path
 msgid "Status steps"
 msgstr "Passos de l'estat"
 
@@ -49341,9 +49342,8 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/staff_backend.py:0
-msgid ""
-"Fill in your application from Actions > Fill in the form, and submit it."
-msgstr "Omple la sol·licitud des d'Accions > Omple el formulari, i envia-la."
+msgid "Fill in your application with the Fill in the form button, and submit it."
+msgstr "Omple la sol·licitud amb el botó Omple el formulari, i envia-la."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__staff_answered
@@ -50092,3 +50092,12 @@ msgstr "p. ex. no s'han lliurat a temps els documents del viatge"
 #: code:addons/ems/models/erasmus/resolution.py:0
 msgid "Only the Erasmus team prints the published lists."
 msgstr "Només l'equip Erasmus imprimeix les llistes publicades."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+#: code:addons/ems/models/erasmus/staff_backend.py:0
+msgid ""
+"The place of %s can no longer be renounced (the stay has begun): talk to the "
+"Erasmus team."
+msgstr "Ja no es pot renunciar a la plaça de %s (l'estada ha començat): parla amb l'equip Erasmus+."

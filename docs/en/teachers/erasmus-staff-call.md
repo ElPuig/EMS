@@ -8,7 +8,7 @@ Apply for a job shadowing, a structured course or a teaching assignment abroad, 
 
 **Who:** vocational training teachers (basic, intermediate and higher training cycles, specialisation courses and PFI), the Director and the Head of Studies of vocational training. Only they see the staff call.
 
-Everything is in the **Erasmus+** app (below **Meetings**), under **My participation**: **Staff calls**, **My applications** and **My mobilities**. You can also click your name at the top right and **Erasmus+**. The links in the Erasmus+ emails take you straight there. On every screen, what you can do is in the **Actions** menu.
+Everything is in the **Erasmus+** app (below **Meetings**), under **My participation**: **Staff calls**, **My applications** and **My mobilities**. You can also click your name at the top right and **Erasmus+**. The links in the Erasmus+ emails take you straight there. Each screen only shows what you can do at that moment: when it is one thing, it is a button at the top; when there are more, they are in the **Actions** menu.
 
 ---
 
@@ -18,7 +18,7 @@ When the Erasmus team publishes a staff call you can apply to, it shows under **
 
 ## 2. Fill in the form
 
-The form opens when you apply. To change it later, in your application, **Actions > Fill in the form** opens it again; until you have filled something in, the application only shows a box telling you so. Each empty field shows an example of what to write. It has four short blocks:
+The form opens when you apply. To change it later, in your application, the **Fill in the form** button opens it again; until you have filled something in, the application only shows a box telling you so. Each empty field shows an example of what to write. It has four short blocks:
 
 1. **Mobility plan**, with your two proposals, both required, in a sentence or two each: the activity (job shadowing, a course or teaching), the host entity or course, where and when. **Proposal A** is the main one, for instance "Job shadowing at a German VET school, the Berufskolleg X in Cologne, in April"; **proposal B** is the backup if A falls through, for instance "An English course at an academy in Malta, in July". Preferably in the non-teaching period (June, July); at another time, such as April, only a week that does not affect the assessments, and with the Direction's validation. You will find options on the [centre's Erasmus+ website](https://elpuig.xeill.net/el-centre/erasmus/recursos-i-formacio).
 2. **What you want to learn and how you will apply it** (annex 1): briefly, the competences you want to observe or learn and how you will apply them to your classes, your department or the centre, 1,500 characters at most. The panel only reads this and your two proposals.
@@ -27,9 +27,9 @@ The form opens when you apply. To change it later, in your application, **Action
 
 **Dissemination** is not part of the plan: it is the same for everyone. When you come back, you publish a news item on the centre's website about your experience, following the Erasmus+ visual identity and dissemination policy, and, if it is considered necessary, you share it with your colleagues at a department or cycles meeting.
 
-Click **Save** to keep working on it later, or **Save and submit** when everything is ready. You can also submit it from the application with **Actions > Submit**. You receive a receipt by email. Until the closing date you can still change it.
+Click **Save** to keep working on it later, or **Save and submit** when everything is ready. You receive a receipt by email. Until the closing date you can still change it.
 
-The documents the call asks for are in the **Documents** tab of your application: click **Hand in** on each one and attach the file (a PDF or a photo; you can attach several). The **Handed in** column shows what you handed in and **To do** what is still missing (*To hand in* until you attach something). If the Erasmus team asks for corrections, hand in what it asks for there and submit the application again.
+The documents the call asks for are in the **Documents** tab of your application: click **Hand in** on each one and attach the file (a PDF or a photo; you can attach several). The **Handed in** column shows what you handed in and **To do** what is still missing (*To hand in* until you attach something). If the Erasmus team asks for corrections, hand in what it asks for there and submit the application again with **Submit**.
 
 ## 3. Follow it
 
@@ -53,7 +53,7 @@ Once the Erasmus team has worked out your grant, the **Grant** tab shows what yo
 
 The rest is also in **Actions**: **Sign the commitment letter**, the **Weekly self-assessment** during the stay and, on return, **I have answered the EU Survey** once you have answered the final report. While something is missing, you have an EMS task, **Erasmus+: hand in what is missing**, with the list; it is updated every week and disappears on its own once you have handed everything in.
 
-If you cannot go in the end, use **Actions > Renounce the place** and write the reason.
+If you cannot go in the end, use **Renounce the place** and write the reason. You can do it until the stay starts; after that, talk to the Erasmus team.
 
 ---
 

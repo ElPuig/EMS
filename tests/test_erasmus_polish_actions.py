@@ -48,6 +48,30 @@ class TestErasmusMobilityActions(ErasmusMobilityCase):
         with self.assertRaises(AccessError):
             first.with_user(self.teacher_user).action_open_cancel_wizard()
 
+    def test_no_renouncing_once_the_stay_has_begun(self):
+        """Issue #786: the participant renounces until the stay starts; from then on it is the team's."""
+        first, _second = self._accepted()
+        today = self.env['ems.datetime_utils'].get_local_today()
+        first.sudo().write({'state': 'preparing', 'date_start': today + timedelta(days=10),
+                            'date_end': today + timedelta(days=20)})
+        self.assertEqual(first.phase, 'preparing')
+        self.assertTrue(first._ems_can_renounce())
+        first.sudo().write({'date_start': today, 'date_end': today + timedelta(days=10)})
+        self.assertEqual(first.phase, 'stay')
+        self.assertFalse(first._ems_can_renounce())
+        with self.assertRaises(UserError):
+            first.action_renounce()
+        self.assertEqual(first.state, 'preparing')
+
+    def test_status_bar_follows_the_application(self):
+        """Issue #786: the bar shows the way the application really went, not a fixed list."""
+        application = self._accepted()[0].application_id
+        self.assertEqual(application.status_path, 'draft,submitted,admitted,selected,accepted')
+        application.sudo().state = 'excluded'
+        self.assertEqual(application.status_path, 'draft,submitted,excluded')
+        application.sudo().state = 'reserve'
+        self.assertEqual(application.status_path, 'draft,submitted,admitted,reserve,accepted')
+
     def test_setting_the_agreed_destination_asks_for_it(self):
         """5.16: the country, city, host entity and dates in the dialog."""
         first, _second = self._accepted()

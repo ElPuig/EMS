@@ -156,7 +156,7 @@ class EmsErasmusApplication(models.Model):
             nxt = own._ems_portal_progress()['next']
             if own.state == 'draft' and editable:
                 # The portal's "Complete your application", with where to do it in the backend.
-                nxt = {**nxt, 'text': _("Fill in your application from Actions > Fill in the form, and submit it.")}
+                nxt = {**nxt, 'text': _("Fill in your application with the Fill in the form button, and submit it.")}
             deadline = nxt['deadline']
             deadline = deadline.strftime('%d/%m/%Y') if nxt['is_date'] else own.call_id._ems_local_format(deadline)
             application.update({
@@ -285,7 +285,7 @@ class EmsErasmusMobility(models.Model):
                     own.state == 'choosing' and own.proposal_state != 'pending')),
                 'staff_self_assessment_open': mine and bool(own._ems_self_assessments_open()),
                 'staff_eu_survey_open': mine and own._ems_eu_survey_open() and own.eu_survey_state == 'pending',
-                'staff_can_renounce': mine and own.state in OPEN_STATES,
+                'staff_can_renounce': mine and own._ems_can_renounce(),
             })
 
     def get_formview_id(self, access_uid=None):
@@ -330,8 +330,10 @@ class EmsErasmusMobility(models.Model):
         return self.env['ems.erasmus.application']._ems_staff_reload(_("Thank you: the Erasmus team will check it."))
 
     def action_staff_renounce(self):
-        if self._ems_staff_check().state not in OPEN_STATES:
-            raise UserError(_("The mobility of %s is no longer open.", self.sudo().partner_id.name))
+        if not self._ems_staff_check()._ems_can_renounce():
+            raise UserError(_("The place of %s can no longer be renounced (the stay has begun): talk to the Erasmus "
+                              "team.",
+                              self.sudo().partner_id.name))
         return staff_wizard(self.env, 'ems.erasmus.staff.renounce.wizard', _("Renounce the place"),
                             mobility_id=self.id)
 

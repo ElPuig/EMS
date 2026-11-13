@@ -8,7 +8,7 @@ Sol·licita un job shadowing, un curs estructurat o una estada de docència a l'
 
 **Qui:** el professorat de formació professional (cicles de grau bàsic, mitjà i superior, cursos d'especialització i PFI), la directora o el director i el cap d'estudis de formació professional. Només ells veuen la convocatòria del personal.
 
-Ho tens tot a l'aplicació **Erasmus+** (a sota de **Reunions**), a **La meva participació**: **Convocatòries de personal**, **Les meves sol·licituds** i **Les meves mobilitats**. També pots fer clic al teu nom, a dalt a la dreta, i a **Erasmus+**. Els enllaços dels correus d'Erasmus+ et porten directament allà. A cada pantalla, el que pots fer és al menú **Accions**.
+Ho tens tot a l'aplicació **Erasmus+** (a sota de **Reunions**), a **La meva participació**: **Convocatòries de personal**, **Les meves sol·licituds** i **Les meves mobilitats**. També pots fer clic al teu nom, a dalt a la dreta, i a **Erasmus+**. Els enllaços dels correus d'Erasmus+ et porten directament allà. A cada pantalla només surt el que pots fer en aquell moment: si és una sola cosa, és un botó a dalt; si n'és més d'una, és al menú **Accions**.
 
 ---
 
@@ -18,7 +18,7 @@ Quan l'equip Erasmus publica una convocatòria del personal a la qual et pots pr
 
 ## 2. Omple el formulari
 
-El formulari s'obre quan presentes la sol·licitud. Per canviar-lo més endavant, a la teva sol·licitud, **Accions > Omple el formulari** el torna a obrir; mentre no hi hagis omplert res, la sol·licitud només mostra un requadre que t'ho diu. Cada camp buit mostra un exemple del que hi pots escriure. Té quatre blocs curts:
+El formulari s'obre quan presentes la sol·licitud. Per canviar-lo més endavant, a la teva sol·licitud, el botó **Omple el formulari** el torna a obrir; mentre no hi hagis omplert res, la sol·licitud només mostra un requadre que t'ho diu. Cada camp buit mostra un exemple del que hi pots escriure. Té quatre blocs curts:
 
 1. **Pla de mobilitat**, amb les teves dues propostes, totes dues obligatòries, en una o dues frases cadascuna: l'activitat (job shadowing, un curs o docència), l'entitat d'acollida o el curs, on i quan. La **proposta A** és la principal, per exemple "Job shadowing en un centre d'FP alemany, el Berufskolleg X de Colònia, a l'abril"; la **proposta B** és la de reserva si la A no surt, per exemple "Un curs d'anglès en una acadèmia de Malta, al juliol". Preferiblement en el període no lectiu (juny, juliol); en un altre moment, com l'abril, només una setmana que no afecti les avaluacions, i amb la validació de la direcció. En trobaràs opcions al [web Erasmus+ del centre](https://elpuig.xeill.net/el-centre/erasmus/recursos-i-formacio).
 2. **Què vols aprendre i com ho aplicaràs** (annex 1): breument, les competències que vols observar o aprendre i com les aplicaràs a les teves classes, al teu departament o al centre, 1.500 caràcters com a màxim. La comissió només llegeix això i les teves dues propostes.
@@ -27,9 +27,9 @@ El formulari s'obre quan presentes la sol·licitud. Per canviar-lo més endavant
 
 La **difusió** no forma part del pla: és la mateixa per a tothom. Quan tornis, publicaràs una notícia al web del centre sobre la teva experiència, seguint la identitat visual i la política de difusió d'Erasmus+, i, si es considera necessari, la compartiràs amb els companys en una reunió de departament o de cicles.
 
-Fes clic a **Desa** per continuar-hi més endavant, o a **Desa i envia** quan ho tinguis tot a punt. També la pots enviar des de la sol·licitud amb **Accions > Enviar**. Rebràs un justificant per correu electrònic. Fins a la data de tancament encara la pots modificar.
+Fes clic a **Desa** per continuar-hi més endavant, o a **Desa i envia** quan ho tinguis tot a punt. Rebràs un justificant per correu electrònic. Fins a la data de tancament encara la pots modificar.
 
-Els documents que demana la convocatòria són a la pestanya **Documents** de la teva sol·licitud: fes clic a **Lliura** a cadascun i adjunta-hi el fitxer (un PDF o una foto; en pots adjuntar diversos). La columna **Lliurat** mostra el que has lliurat i **Per fer**, el que encara falta (*Per lliurar* mentre no hi has adjuntat res). Si l'equip Erasmus et demana esmenes, lliura-hi el que et demana i torna a enviar la sol·licitud.
+Els documents que demana la convocatòria són a la pestanya **Documents** de la teva sol·licitud: fes clic a **Lliura** a cadascun i adjunta-hi el fitxer (un PDF o una foto; en pots adjuntar diversos). La columna **Lliurat** mostra el que has lliurat i **Per fer**, el que encara falta (*Per lliurar* mentre no hi has adjuntat res). Si l'equip Erasmus et demana esmenes, lliura-hi el que et demana i torna a enviar la sol·licitud amb **Enviar**.
 
 ## 3. Segueix-la
 
@@ -53,7 +53,7 @@ Quan l'equip Erasmus ha calculat la teva beca, la pestanya **Beca** mostra el qu
 
 La resta també és a **Accions**: **Signa la carta de compromís**, l'**Autoavaluació setmanal** durant l'estada i, en tornar, **He respost l'EU Survey** quan hagis respost l'informe final. Mentre falti alguna cosa, tens una tasca a l'EMS, **Erasmus+: lliura el que falta**, amb la llista; s'actualitza cada setmana i desapareix tota sola quan ho has lliurat tot.
 
-Si finalment no hi pots anar, fes servir **Accions > Renuncia a la plaça** i escriu-ne el motiu.
+Si finalment no hi pots anar, fes servir **Renuncia a la plaça** i escriu-ne el motiu. Ho pots fer fins que comença l'estada; després, parla amb l'equip Erasmus.
 
 ---
 

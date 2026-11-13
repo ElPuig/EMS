@@ -655,11 +655,6 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
     def _reason(self, key):
         return self.env.ref(f'ems.attendance_justification_reason_{key}')
 
-    def test_default_reason_is_the_first_one(self):
-        justification = self._shared_justification(self.student)
-        self.assertEqual(justification.reason_id, self.env['ems.attendance_justification_reason'].search([], limit=1))
-        self.assertEqual(justification.reason_id, self._reason('health'))
-
     def test_other_requires_details(self):
         with self.assertRaises(ValidationError):
             self.env['ems.attendance_justification'].create({

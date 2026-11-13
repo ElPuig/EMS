@@ -14,6 +14,16 @@ REASON_CATALOGS = (
 )
 
 
+# Where a reason is preselected: (model, field, its catalog).
+PRESELECTING_FIELDS = (
+    ('ems.strike', 'reason_id', 'ems.strike.reason'),
+    ('ems.attendance_justification', 'reason_id', 'ems.attendance_justification_reason'),
+    ('ems.convalidation.reject_wizard', 'reason_id', 'ems.convalidation.rejection_reason'),
+    ('ems.convalidation.info_wizard', 'reason_id', 'ems.convalidation.info_reason'),
+    ('ems.absence_pending.discard_wizard', 'reason_id', 'ems.absence_pending.discard_reason'),
+)
+
+
 @tagged('post_install', '-at_install')
 class TestReasonCatalog(TransactionCase):
     """The reason catalogs share one shape (name, sequence, active, ordered by sequence) and the
@@ -41,3 +51,11 @@ class TestReasonCatalog(TransactionCase):
                 first.active = False
                 self.assertEqual(model.default_reason(), late)
                 self.assertNotEqual(model.default_reason(), archived)
+
+    def test_every_dialog_preselects_the_first_reason_of_its_own_catalog(self):
+        """The one check of the wiring that replaces a per-model "default reason" test."""
+        for model, field, catalog in PRESELECTING_FIELDS:
+            with self.subTest(model=model):
+                first = self.env[catalog].create({'name': 'Zz first', 'sequence': -5})
+                self.assertEqual(self.env[model].default_get([field]).get(field), first.id)
+                self.assertEqual(self.env[catalog].default_reason(), first)

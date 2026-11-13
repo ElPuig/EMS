@@ -61,7 +61,7 @@ If you are on the **reserve list**, your result says which reserve number you ar
 
 While the provisional resolution is out, the badge at the top of your application shows your provisional result (for example *Reserve (provisional)*).
 
-**Claims.** If you disagree with the provisional result, open **I want to claim** under it, write what you claim and why, attach any files that support it and click **Send the claim**, before the claims deadline. EMS records when it arrived. You receive an email confirming that it arrived, and another one with the Erasmus team's response, which also appears under **My claims**.
+**Claims.** If you disagree with the provisional result, open **I want to claim** under it, write what you claim and why, attach any files that support it and click **Send the claim**, before the claims deadline. EMS records when it arrived. You receive an email confirming that it arrived, and another one with the Erasmus team's answer, which also appears under **My claims**: the **Result** (*Upheld*, *Partially upheld* or *Dismissed*) and the explanation.
 
 **Appeal.** Against the definitive resolution you can lodge an appeal (*recurs d'alçada*) before the Head of Studies within one month from the day after its publication: write to the Erasmus team, who records it. The Head of Studies answers it, and you receive the answer by email.
 

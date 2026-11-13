@@ -46,18 +46,18 @@ When it is published:
 
 > **Who is selected:** the eligible applications (at least the minimum score) within the places of their modality. The rest of the eligible ones are on the reserve list, in order. Below the minimum score: not selected.
 
-In the resolution, the lines are coloured: green, admitted or selected; orange, reserve; red, excluded; black, not selected. An excluded line has no rank nor score. Applicants see their own row highlighted in the published list on the portal (never in the PDF).
+In the resolution, the lines are coloured: green, admitted or selected; orange, reserve; red, excluded; black, not selected. An excluded line has no rank nor score, and the **Exclusion reason** column shows why (only to the Erasmus team: the published list and its PDF never show it; each applicant reads their own reason in the result email and on the portal). Applicants see their own row highlighted in the published list on the portal (never in the PDF).
 
 ## 4. Claims and appeals
 
 Applicants claim from the portal, under their provisional result, until the claims deadline: EMS records the claim with its files and the moment it arrived, and everyone in the Erasmus team gets a task to answer it, marked done when it is resolved. A claim that arrives by email is recorded by hand in **Erasmus+ > Calls > Claims** (or on the **Results** tab of the application):
 
 1. **Application**, **Against** (the resolution), **Kind** (claim or appeal before the Head of Studies), **Received on**, **What is claimed** and the files.
-2. Write the **Response** and click **Actions > Resolve**.
+2. Choose the **Result** (*Upheld*, *Partially upheld* or *Dismissed*), write the **Response** and click **Actions > Resolve**. It cannot be resolved without both.
 
-The applicant receives an email when the claim is recorded (their proof that it arrived in time) and another one with the response, which they also see on the portal, under **My claims**.
+The applicant receives an email when the claim is recorded (their proof that it arrived in time) and another one with the result and the response, which they also see on the portal, under **My claims**.
 
-**Appeals against the definitive resolution** (within a month of its publication) are answered by the applicant's own Head of Studies, not by the Erasmus team: the Head or Deputy Head of Studies above the student's group tutor (above the teacher themself in a staff call; the Director if the applicant is that Head of Studies). Record the appeal as above with **Kind** *Appeal before the Head of Studies*: EMS gives them a task, and they write the **Response** and resolve it. The Erasmus team sees the appeal but cannot answer it.
+**Appeals against the definitive resolution** (within a month of its publication) are answered by the applicant's own Head of Studies, not by the Erasmus team: the Head or Deputy Head of Studies above the student's group tutor (above the teacher themself in a staff call; the Director if the applicant is that Head of Studies). Record the appeal as above with **Kind** *Appeal before the Head of Studies*: EMS gives them a task, and they choose the **Result**, write the **Response** and resolve it. The Erasmus team sees the appeal but cannot answer it.
 
 If a claim is upheld, correct the application's data (for example the language certificate) before preparing the definitive resolution. EMS does not let you prepare the definitive resolution before the **Claims deadline** or while a claim is still open. After the definitive one, publish a rectification.
 

@@ -196,6 +196,7 @@
                         <p>Hello <t t-out="object.partner_id.name"/>,</p>
                         <p t-if="object.kind == 'appeal'">Your appeal has been answered:</p>
                         <p t-else="">Your claim has been answered:</p>
+                        <p t-if="object.outcome"><strong t-out="object._ems_outcome_label()"/></p>
                         <p style="white-space: pre-line; border-left: 3px solid #dadce0; padding-left: 8px;" t-out="object.response"/>
                         <p>
                             You can also see it <t t-out="object._ems_mail_place()"/>:

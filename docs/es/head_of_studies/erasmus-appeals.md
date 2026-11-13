@@ -12,9 +12,9 @@ Las bases de las convocatorias Erasmus+ dicen que contra la resolución definiti
 
 1. La persona envía el recurso al equipo Erasmus, que lo registra en EMS. Recibes una tarea: *Erasmus+: responde el recurso de alzada de ...*. La persona recibe un correo que confirma que ha llegado y cuándo.
 2. Abre la tarea. El recurso muestra la solicitud, la resolución contra la que se recurre, qué se recurre y los archivos. Puedes consultar la solicitud y las listas publicadas, con la puntuación total de cada persona.
-3. Escribe tu decisión en **Respuesta** y haz clic en **Acciones > Resolver**. La persona recibe la respuesta por correo y también la ve en el portal. La tarea queda hecha.
+3. Elige el **Resultado** (*Estimada*, *Estimada en parte* o *Desestimada*), explícalo en **Respuesta** y haz clic en **Acciones > Resolver**. La persona recibe las dos cosas por correo y también la ve en el portal. La tarea queda hecha.
 
-Si se estima el recurso, díselo al equipo Erasmus: corregirá la solicitud y publicará una rectificación de la lista. Tú solo escribes la respuesta: el resto del recurso es cosa del equipo Erasmus.
+Si se estima el recurso, díselo al equipo Erasmus: corregirá la solicitud y publicará una rectificación de la lista. Tú solo eliges el resultado y escribes la respuesta: el resto del recurso es cosa del equipo Erasmus.
 
 ---
 

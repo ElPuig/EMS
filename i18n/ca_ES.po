@@ -14567,6 +14567,7 @@ msgstr "Previsualitzar"
 #: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__result
 #: code:addons/ems/models/erasmus/export.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__outcome
 msgid "Result"
 msgstr "Resultat"
 
@@ -41975,6 +41976,7 @@ msgid ""
 "                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
 "                        <p t-if=\"object.kind == 'appeal'\">Your appeal has been answered:</p>\n"
 "                        <p t-else=\"\">Your claim has been answered:</p>\n"
+"                        <p t-if=\"object.outcome\"><strong t-out=\"object._ems_outcome_label()\"/></p>\n"
 "                        <p style=\"white-space: pre-line; border-left: 3px solid #dadce0; padding-left: 8px;\" t-out=\"object.response\"/>\n"
 "                        <p>\n"
 "                            You can also see it <t t-out=\"object._ems_mail_place()\"/>:\n"
@@ -41992,6 +41994,7 @@ msgstr ""
 "                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
 "                        <p t-if=\"object.kind == 'appeal'\">S'ha resolt el teu recurs d'alçada:</p>\n"
 "                        <p t-else=\"\">S'ha resolt la teva reclamació:</p>\n"
+"                        <p t-if=\"object.outcome\"><strong t-out=\"object._ems_outcome_label()\"/></p>\n"
 "                        <p style=\"white-space: pre-line; border-left: 3px solid #dadce0; padding-left: 8px;\" t-out=\"object.response\"/>\n"
 "                        <p>\n"
 "                            També ho pots consultar <t t-out=\"object._ems_mail_place()\"/>:\n"
@@ -53031,3 +53034,35 @@ msgstr "Per a qui és"
 #: code:addons/ems/models/erasmus/call.py:0
 msgid "These documents can't be removed because someone already handed them in, and what is handed in is always kept: %(documents)s. If one is no longer needed, make it Optional instead."
 msgstr "Aquests documents no es poden treure perquè algú ja els ha lliurat, i el que s'ha lliurat es conserva sempre: %(documents)s. Si un ja no cal, poseu-lo com a Opcional."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
+msgid "<strong>Result:</strong>"
+msgstr "<strong>Resultat:</strong>"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/claim.py:0
+msgid "Choose the result first: upheld, partially upheld or dismissed."
+msgstr "Tria primer el resultat: estimada, estimada en part o desestimada."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_claim__outcome
+msgid "Chosen when answering: the claim is resolved with it, and the applicant reads it with the response."
+msgstr "Es tria en respondre: la reclamació es resol amb aquest resultat, i la persona el llegeix amb la resposta."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_claim__outcome__upheld
+msgid "Upheld"
+msgstr "Estimada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_claim__outcome__partially_upheld
+msgid "Partially upheld"
+msgstr "Estimada en part"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_claim__outcome__dismissed
+msgid "Dismissed"
+msgstr "Desestimada"

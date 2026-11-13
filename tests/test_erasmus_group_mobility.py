@@ -1104,10 +1104,11 @@ class TestPortalErasmusGroup(HttpCase, ErasmusGroupMobilityCase):
         claim = self.mobility.claim_ids
         self.assertEqual((claim.partner_id, claim.description, claim.attachment_ids.name),
                          (self.students[0], 'My average is wrong', 'record.pdf'))
-        claim.sudo().write({'response': 'Checked: it is right.'})
+        claim.sudo().write({'response': 'Checked: it is right.', 'outcome': 'dismissed'})
         claim.sudo().action_resolve()
         page = self.url_open('/my/erasmus').text
         self.assertIn('Checked: it is right.', page)
+        self.assertIn('o_ems_erasmus_claim_outcome', page, "4.13: the student reads the result too.")
         self.authenticate(self.afternoon_user.login, self.afternoon_user.login)
         self._post(f'/my/erasmus/group/{self.mobility.id}/claim', description='Not mine')
         self.assertEqual(len(self.mobility.claim_ids), 1, "Only a student enrolled claims.")

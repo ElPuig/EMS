@@ -151,6 +151,9 @@
                             <span t-attf-class="badge #{'text-bg-success' if claim.state == 'resolved' else 'text-bg-info'}"
                                   t-esc="dict(claim._fields['state']._description_selection(request.env)).get(claim.state)"/>
                             <span class="d-block" style="white-space: pre-line;" t-esc="claim.description"/>
+                            <span t-if="claim.state == 'resolved' and claim.outcome" class="d-block o_ems_erasmus_claim_outcome">
+                                <strong>Result:</strong> <t t-esc="claim._ems_outcome_label()"/>
+                            </span>
                             <span t-if="claim.state == 'resolved' and claim.response" class="d-block" style="white-space: pre-line;">
                                 <strong>Response:</strong> <t t-esc="claim.response"/>
                             </span>

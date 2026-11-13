@@ -61,7 +61,7 @@ Si quedas en **reserva**, el resultado te indica qué número de reserva eres en
 
 Mientras la resolución provisional está vigente, la etiqueta de arriba de la solicitud muestra tu resultado provisional (por ejemplo, *Reserva (provisional)*).
 
-**Reclamaciones.** Si no estás de acuerdo con el resultado provisional, abre **Quiero reclamar** debajo, escribe qué reclamas y por qué, adjunta los archivos que lo justifiquen y haz clic en **Enviar la reclamación**, antes del plazo de reclamaciones. EMS deja constancia con la fecha y la hora. Recibirás un correo que confirma que ha llegado, y otro con la respuesta del equipo Erasmus, que también aparece en **Mis reclamaciones**.
+**Reclamaciones.** Si no estás de acuerdo con el resultado provisional, abre **Quiero reclamar** debajo, escribe qué reclamas y por qué, adjunta los archivos que lo justifiquen y haz clic en **Enviar la reclamación**, antes del plazo de reclamaciones. EMS deja constancia con la fecha y la hora. Recibirás un correo que confirma que ha llegado, y otro con la respuesta del equipo Erasmus, que también aparece en **Mis reclamaciones**: el **Resultado** (*Estimada*, *Estimada en parte* o *Desestimada*) y la explicación.
 
 **Recurso de alzada.** Contra la resolución definitiva puedes presentar recurso de alzada ante el jefe de estudios en el plazo de un mes a contar desde el día siguiente al de su publicación: escribe al equipo Erasmus, que lo registrará. Lo responderá el jefe de estudios, y recibirás la respuesta por correo.
 

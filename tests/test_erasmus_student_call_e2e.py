@@ -270,7 +270,7 @@ class TestErasmusStudentCallEndToEnd(TransactionCase):
             'application_id': self.apps['gs_claim'].id, 'resolution_id': provisional.id,
             'description': 'My B2 certificate was not counted'})
         self.apps['gs_claim'].with_user(self.technician).language_level = 'b2'
-        claim.response = 'Accepted: B2 certificate counted (criterion C)'
+        claim.write({'response': 'Accepted: B2 certificate counted (criterion C)', 'outcome': 'upheld'})
         claim.action_resolve()
         self.assertEqual(self.apps['gs_claim'].rank, 1)
 

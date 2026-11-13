@@ -46,18 +46,18 @@ Cuando se publica:
 
 > **Quién queda seleccionado:** las solicitudes elegibles (como mínimo la puntuación mínima) dentro de las plazas de su modalidad. El resto de las elegibles quedan en reserva, por orden. Por debajo de la puntuación mínima: no seleccionadas.
 
-En la resolución, las líneas aparecen de colores: verde, admitida o seleccionada; naranja, reserva; rojo, excluida; negro, no seleccionada. Una línea excluida no tiene posición ni puntuación. En el portal, cada persona ve su fila destacada en la lista publicada (nunca en el PDF).
+En la resolución, las líneas aparecen de colores: verde, admitida o seleccionada; naranja, reserva; rojo, excluida; negro, no seleccionada. Una línea excluida no tiene posición ni puntuación, y la columna **Motivo de exclusión** dice por qué (solo para el equipo Erasmus: la lista publicada y el PDF nunca lo muestran; cada persona lee su motivo en el correo del resultado y en el portal). En el portal, cada persona ve su fila destacada en la lista publicada (nunca en el PDF).
 
 ## 4. Reclamaciones y recursos
 
 Las personas candidatas reclaman desde el portal, debajo de su resultado provisional, hasta el plazo de reclamaciones: EMS registra la reclamación con los archivos y el momento en que llegó, y todo el equipo Erasmus recibe una tarea para responderla, que queda hecha cuando se resuelve. Una reclamación que llega por correo se registra a mano en **Erasmus+ > Convocatorias > Reclamaciones** (o en la pestaña **Resultados** de la solicitud):
 
 1. **Solicitud**, **Contra** (la resolución), **Tipo** (reclamación o recurso de alzada ante el jefe de estudios), **Recibida el**, **Qué se reclama** y los archivos.
-2. Escribe la **Respuesta** y haz clic en **Acciones > Resolver**.
+2. Elige el **Resultado** (*Estimada*, *Estimada en parte* o *Desestimada*), escribe la **Respuesta** y haz clic en **Acciones > Resolver**. No se puede resolver sin las dos cosas.
 
-La persona recibe un correo cuando se registra la reclamación (el justificante de que llegó dentro del plazo) y otro con la respuesta, que también ve en el portal, en **Mis reclamaciones**.
+La persona recibe un correo cuando se registra la reclamación (el justificante de que llegó dentro del plazo) y otro con el resultado y la respuesta, que también ve en el portal, en **Mis reclamaciones**.
 
-**Los recursos de alzada contra la resolución definitiva** (en el plazo de un mes desde su publicación) los responde el jefe de estudios de la persona, no el equipo Erasmus: el jefe de estudios o jefe de estudios adjunto que está por encima del tutor del grupo del alumno (por encima del propio docente en una convocatoria de profesorado; la directora si quien recurre es ese jefe de estudios). Registra el recurso como se ha explicado, con **Tipo** *Recurso de alzada ante el jefe de estudios*: EMS le crea una tarea, y él escribe la **Respuesta** y lo resuelve. El equipo Erasmus ve el recurso, pero no puede responderlo.
+**Los recursos de alzada contra la resolución definitiva** (en el plazo de un mes desde su publicación) los responde el jefe de estudios de la persona, no el equipo Erasmus: el jefe de estudios o jefe de estudios adjunto que está por encima del tutor del grupo del alumno (por encima del propio docente en una convocatoria de profesorado; la directora si quien recurre es ese jefe de estudios). Registra el recurso como se ha explicado, con **Tipo** *Recurso de alzada ante el jefe de estudios*: EMS le crea una tarea, y él elige el **Resultado**, escribe la **Respuesta** y lo resuelve. El equipo Erasmus ve el recurso, pero no puede responderlo.
 
 Si se estima una reclamación, corrige los datos de la solicitud (por ejemplo, el certificado de idiomas) antes de preparar la resolución definitiva. EMS no deja preparar la resolución definitiva antes del **Plazo de reclamaciones** ni mientras quede alguna reclamación abierta. Después de la definitiva, publica una rectificación.
 

@@ -108,6 +108,11 @@ registry.category("web_tour.tours").add("ems_erasmus_claims", {
             content: "Write the response",
             run: "edit The score stands.",
         },
+        {
+            trigger: ".o_form_view .o_field_widget[name='outcome'] input[data-value='dismissed']",
+            content: "Choose the result (issue #792)",
+            run: "click",
+        },
         ...clickAction("action_resolve", "Resolve the claim"),
         {
             trigger: ".o_form_view .o_statusbar_status button[data-value='resolved'].o_arrow_button_current",
@@ -129,6 +134,11 @@ registry.category("web_tour.tours").add("ems_erasmus_appeal_answer", {
             trigger: ".o_form_view .o_field_widget[name='response'] textarea",
             content: "Write the response",
             run: "edit The appeal is dismissed.",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='outcome'] input[data-value='dismissed']",
+            content: "Choose the result (issue #792)",
+            run: "click",
         },
         ...clickAction("action_resolve", "Resolve the appeal"),
         {

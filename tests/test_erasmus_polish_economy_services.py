@@ -38,6 +38,14 @@ class TestErasmusEconomyServices(ErasmusPocketMoneyCase):
         self.mobility.invalidate_recordset()
         self.assertEqual(self.mobility.expense_amount, 1000)
 
+    def test_the_secretary_has_no_menu_to_browse_mobilities(self):
+        """Reading every mobility is only to pick whom a service is for: no menu leads to them."""
+        Menu = self.env['ir.ui.menu'].with_user(self.secretary_user)
+        visible = Menu.browse(Menu._visible_menu_ids())
+        models = {menu.action.res_model for menu in visible.sudo() if menu.action and menu.action._name == 'ir.actions.act_window'}
+        self.assertFalse({'ems.erasmus.mobility', 'ems.erasmus.group.mobility'} & models)
+        self.assertIn('ems.erasmus.invoice', models)
+
     def test_names_warning_history_and_tabs(self):
         """11.1, 11.7: named by what they do, a warning when nobody is covered, the history shown and the
         project's expenses next to its services."""

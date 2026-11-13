@@ -631,6 +631,10 @@ class EmsErasmusMobility(models.Model):
         host entity and dates written on the mobility."""
         self._ems_check_manager()
         for mobility in self:
+            # Issue #786 (8.2): staff propose their activity and the Direction validates it; setting it
+            # here would skip that validation.
+            if mobility.audience == 'staff':
+                raise UserError(_("A staff member proposes their activity and the Direction validates it."))
             if mobility.state != 'choosing':
                 raise UserError(_("The destination of %s is already set.", mobility.partner_id.name))
             if not mobility.country_id:
@@ -672,6 +676,12 @@ class EmsErasmusMobility(models.Model):
         self.ensure_one()
         return self.audience == 'staff' and self.state == 'preparing' and self.proposal_state != 'pending' and (
             not self.date_start or self.date_start > self.env['ems.datetime_utils'].get_local_today())
+
+    def _ems_can_renounce(self):
+        """The participant can renounce the place until the stay starts (issue #786): once it has
+        begun, ending it early is the Erasmus team's decision, with them."""
+        self.ensure_one()
+        return self.state in OPEN_STATES and self.phase in ('choosing', 'preparing')
 
     def _ems_portal_propose(self, values, files=(), declaration=False):
         """The participant sends a proposal: a student, their own destination with the host's
@@ -1103,6 +1113,11 @@ class EmsErasmusMobility(models.Model):
         """The participant renounces the place (art. 18 of the call): from the portal, or staff from
         the backend."""
         check_applicant_action(self)
+        for mobility in self:
+            if not mobility._ems_can_renounce():
+                raise UserError(_("The place of %s can no longer be renounced (the stay has begun): talk to the Erasmus "
+                                  "team.",
+                                  mobility.partner_id.name))
         self._ems_cancel(reason or _("Renounced by the participant."))
 
     def _ems_cancel(self, reason):

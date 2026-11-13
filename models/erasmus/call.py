@@ -711,6 +711,9 @@ class EmsErasmusCall(models.Model):
         for call in self:
             if call.audience != 'staff' or call.state != 'closed':
                 raise UserError(_("Only a closed staff call sends the mobility plans to the panel."))
+            # Issue #786 (6.8): the scores are frozen in the provisional resolution, so only before it.
+            if call.has_provisional_resolution:
+                raise UserError(_("The mobility plans go to the panel before the provisional resolution."))
             if not call.panel_ids:
                 raise UserError(_("Add the panel members first."))
             if not call.interview_deadline:

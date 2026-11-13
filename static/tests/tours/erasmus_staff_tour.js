@@ -120,9 +120,20 @@ registry.category("web_tour.tours").add("ems_erasmus_staff_backend_apply", {
             trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='document_ids'] .o_data_row:contains('Identity document') .o_attachment",
             content: "The document has its file",
         },
-        ...clickAction("action_staff_submit", "Submit the application"),
+        // Issue #786: while the application can be changed, filling in the form is the one action
+        // (a plain button), and its dialog submits it.
         {
-            trigger: ".modal-footer .btn-primary",
+            trigger: ".o_form_view .o_form_statusbar:not(:has(.o_ems_actions_toggle)) button[name='action_staff_edit']",
+            content: "Fill in the form is the one action, in view",
+            run: "click",
+        },
+        {
+            trigger: ".modal-footer button[name='action_save_submit']",
+            content: "Save and submit the application",
+            run: "click",
+        },
+        {
+            trigger: ".modal:has(.modal-body:contains('Submit the application?')) .modal-footer .btn-primary",
             content: "Confirm",
             run: "click",
         },

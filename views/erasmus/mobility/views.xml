@@ -76,17 +76,21 @@
                                     help="Write the comment on the decision first: the participant reads it."/>
                             <!-- Issue #697: after changing a validated staff activity in the Proposal tab. -->
                             <button name="action_request_revalidation" type="object" string="Ask the Direction to validate it again"
-                                    invisible="audience != 'staff' or state != 'preparing' or proposal_state == 'pending'"
+                                    invisible="audience != 'staff' or phase != 'preparing' or proposal_state == 'pending'"
                                     groups="ems.group_erasmus,ems.group_academic_admin"
                                     help="Change the proposal in the Proposal tab first: the Direction validates the new activity or dates, and until then the mobility stays as it was validated."/>
-                            <button name="action_agree_destination" type="object" string="Set the agreed destination"
-                                    invisible="state != 'choosing'" groups="ems.group_erasmus,ems.group_academic_admin"
-                                    help="Write the country (and the city, host entity and dates you have) first: e.g. a destination through an intermediary organisation."/>
+                            <!-- Issue #786 (5.16, 8.2): asks for the destination in a dialog; students only (staff
+                                 propose their activity and the Direction validates it). -->
+                            <button name="action_open_destination_wizard" type="object" string="Set the agreed destination"
+                                    invisible="state != 'choosing' or audience == 'staff'"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="A destination agreed with the student outside the choice, e.g. through an intermediary organisation."/>
+                            <!-- Issue #786: each action only in the phases where it does something. -->
                             <button name="action_notify_documents" type="object" string="Notify pending documents"
-                                    invisible="state != 'preparing'" groups="ems.group_erasmus,ems.group_academic_admin"
+                                    invisible="phase not in ('preparing', 'return')" groups="ems.group_erasmus,ems.group_academic_admin"
                                     help="Emails the participant the documents missing or needing changes."/>
                             <button name="action_sync_requirements" type="object" string="Update documents and checklist"
-                                    invisible="state not in ('choosing', 'preparing')"
+                                    invisible="phase not in ('choosing', 'preparing')"
                                     groups="ems.group_erasmus,ems.group_academic_admin"
                                     help="Adds the documents and steps of the call that this mobility does not have yet."/>
                             <!-- Issue #697: the grant payments the Secretary transfers. -->
@@ -96,11 +100,12 @@
                                     confirm="The Secretary will see this payment to transfer it. Continue?"
                                     help="The prefinancing percentage of what the participant receives, or everything at 100 %."/>
                             <button name="action_request_final_payment" type="object" string="Request the final payment"
-                                    invisible="not can_request_final or state not in ('preparing', 'done')"
+                                    invisible="not can_request_final or phase not in ('return', 'done')"
                                     groups="ems.group_erasmus,ems.group_academic_admin"
                                     confirm="The Secretary will see this payment to transfer it. Continue?"
                                     help="What is left to transfer to the participant, on return."/>
                             <button name="action_export_record" type="object" string="Export the record"
+                                    invisible="phase == 'choosing'"
                                     groups="ems.group_erasmus,ems.group_academic_admin"
                                     help="The participant's documents of this mobility as a ZIP, in the four categories, with an index of what is missing and the files' hashes."/>
                             <!-- Audit D-8: the EU Survey, answered from the portal, validated by the team. -->
@@ -112,13 +117,13 @@
                                     invisible="state != 'preparing' or eu_survey_state != 'done'"
                                     groups="ems.group_erasmus,ems.group_academic_admin"/>
                             <button name="action_close" type="object" string="Close the mobility"
-                                    invisible="state != 'preparing'" groups="ems.group_erasmus,ems.group_academic_admin"
+                                    invisible="phase != 'return'" groups="ems.group_erasmus,ems.group_academic_admin"
                                     help="Needs the record complete, the project, the EU Survey validated and nothing left to pay."/>
-                            <button name="action_cancel" type="object" string="Cancel the mobility"
-                                    invisible="state not in ('choosing', 'preparing')"
+                            <!-- Issue #786 (5.15, 8.11): the reason is asked for in a dialog. -->
+                            <button name="action_open_cancel_wizard" type="object" string="Cancel the mobility"
+                                    invisible="phase not in ('choosing', 'preparing', 'stay')"
                                     groups="ems.group_erasmus,ems.group_academic_admin"
-                                    confirm="The place becomes free and the application is marked as renounced. Continue?"
-                                    help="Write the reason for cancelling first."/>
+                                    help="Asks for the reason. The place becomes free and the application is marked as renounced."/>
                         </div>
                         <field name="can_request_prefinancing" invisible="1" groups="ems.group_erasmus,ems.group_academic_admin"/>
                         <field name="can_request_final" invisible="1" groups="ems.group_erasmus,ems.group_academic_admin"/>
@@ -126,6 +131,10 @@
                         <field name="phase" widget="statusbar" statusbar_visible="choosing,preparing,stay,return,done"/>
                     </header>
                     <sheet>
+                        <!-- Issue #786 (5.15, 8.11): the reason only once cancelled, instead of a tab always there. -->
+                        <div class="alert alert-secondary" role="alert" invisible="state != 'cancelled' or not cancel_reason">
+                            <strong>Reason for cancelling:</strong> <field name="cancel_reason" class="d-inline" readonly="1"/>
+                        </div>
                         <div class="alert alert-warning" role="alert" invisible="not project_places_over"
                              groups="ems.group_erasmus,ems.group_academic_admin">
                             The project has more mobilities assigned than places in the call: add a place to it
@@ -395,11 +404,6 @@
                                     </list>
                                 </field>
                             </page>
-                            <page string="Cancellation" name="cancellation">
-                                <group>
-                                    <field name="cancel_reason" readonly="state not in ('choosing', 'preparing')"/>
-                                </group>
-                            </page>
                         </notebook>
                     </sheet>
                     <chatter/>
@@ -408,6 +412,53 @@
         </record>
 
         <!-- Issue #782 (5.2): who is at each phase, at a glance. -->
+        <!-- Issue #786: the team's dialogs, to cancel a mobility and to set its agreed destination. -->
+        <record id="view_erasmus_mobility_cancel_wizard_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.mobility.cancel.wizard.form</field>
+            <field name="model">ems.erasmus.mobility.cancel.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Cancel the mobility">
+                    <field name="mobility_id" invisible="1"/>
+                    <p>The place becomes free and the application is marked as renounced. This cannot be undone.</p>
+                    <group>
+                        <field name="partner_id" readonly="1"/>
+                        <field name="reason" placeholder="e.g. travel documents not handed in on time"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Cancel the mobility" class="btn-danger"/>
+                        <button string="Discard" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_erasmus_mobility_destination_wizard_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.mobility.destination.wizard.form</field>
+            <field name="model">ems.erasmus.mobility.destination.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Set the agreed destination">
+                    <field name="mobility_id" invisible="1"/>
+                    <p>A destination agreed with the student outside the choice, e.g. through an intermediary organisation. The student is told by email.</p>
+                    <group>
+                        <group>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="country_id" options="{'no_create': True}"/>
+                            <field name="city"/>
+                            <field name="host_partner_id" options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Set the destination" class="btn-primary"/>
+                        <button string="Discard" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
         <record id="view_erasmus_mobility_kanban" model="ir.ui.view">
             <field name="name">ems.erasmus.mobility.kanban</field>
             <field name="model">ems.erasmus.mobility</field>

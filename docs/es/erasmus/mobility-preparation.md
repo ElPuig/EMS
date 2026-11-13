@@ -10,6 +10,10 @@ Una vez aceptada una plaza, la movilidad se prepara en EMS: el destino, la entid
 
 **Rol necesario:** *Coordinador/a Erasmus* o *Técnico/a de movilidad Erasmus* (Erasmus+ > Gestor/a). El jefe de estudios y la directora o el director pueden consultar las movilidades; la dirección (la directora o el director, o el jefe de estudios de FP, indicados en la convocatoria) valida las actividades del personal (véase [Validar las actividades del personal Erasmus+](../head_of_studies/erasmus-staff-validation.md)).
 
+> **Las fases de la movilidad** aparecen en la barra de arriba de la ficha y en la lista: *Definiendo* (todavía sin destino), *Preparación*, *Estancia* (desde el día de inicio), *Regreso* (desde el día siguiente al día final) y *Cerrada*. La estancia y el regreso cambian solos según las fechas. La vista de tarjetas de **Movilidades** tiene una columna por fase.
+
+![La barra de fases de una movilidad durante la estancia](../../assets/erasmus/mobilitat-fases.png)
+
 ---
 
 ## 1. Antes de empezar: los proyectos y la convocatoria
@@ -33,7 +37,7 @@ Cuando se ha publicado la resolución definitiva y los destinos están listos, h
 - Una modalidad con **un solo destino**: se asigna directamente a todo el alumnado que ha aceptado la plaza.
 - Una modalidad con **varios destinos**: el alumnado elige en el portal **por turnos, por orden de puntuación**. Cuando le llega el turno recibe un correo y tiene las **Horas por turno de elección** (72 por defecto) para elegir entre los destinos con plazas libres adecuados a su nivel. Cuando elige, el turno pasa a la persona siguiente.
 - Quien no responde dentro de su turno **pierde el turno, no la plaza**: el turno pasa a la persona siguiente, y elige entre los destinos que quedan cuando todas las demás han elegido (entonces recibe otro correo).
-- Quien ve que ningún destino le va bien, o que no está disponible para sus fechas, tiene que hablarlo con el equipo Erasmus para buscar una alternativa: un destino que encuentre por su cuenta, o uno a través de una entidad intermediaria con la que trabaja el centro. Cuando se haya acordado, escribid el país (y la ciudad, la entidad de acogida y las fechas que tengáis) en su movilidad y haced clic en **Acciones > Fijar el destino acordado**.
+- Quien ve que ningún destino le va bien, o que no está disponible para sus fechas, tiene que hablarlo con el equipo Erasmus para buscar una alternativa: un destino que encuentre por su cuenta, o uno a través de una entidad intermediaria con la que trabaja el centro. Cuando se haya acordado, haced clic en **Acciones > Fijar el destino acordado** en su movilidad: una ventana os pide el país (obligatorio), la ciudad, la entidad de acogida y las fechas que tengáis, y al confirmar el alumno recibe un correo. Solo para el alumnado: el personal propone su actividad y la dirección la valida.
 
 Un alumno que acepta una plaza más tarde entra en la cola según su posición.
 
@@ -88,9 +92,9 @@ Desde el primer día de la estancia, cada semana el participante responde en el 
 
 Cuando termina la estancia, el participante ve en el portal que tiene que responder la **EU Survey** (por defecto en 30 días, **Plazo de la EU Survey**) y hace clic en **Ya la he respondido**. Recibís una tarea: comprobadlo y haced clic en **Acciones > Validar la EU Survey** (si el participante os lo dice de otra forma, **Acciones > EU Survey respondida**).
 
-Haced clic en **Acciones > Cerrar la movilidad** cuando todo esté hecho: todos los documentos y pasos de antes de salir y de vuelta (**Lista para salir** y **Vuelta completa**), la movilidad en su **Proyecto**, la EU Survey validada y nada por pagar: todos los pagos solicitados y transferidos, también el final, y todas las facturas del participante pagadas. Cerrar también quita el acceso al portal a un graduado, por eso hay que esperar al último pago.
+Una vez acabada la estancia (fase *Regreso*), haced clic en **Acciones > Cerrar la movilidad** cuando todo esté hecho: todos los documentos y pasos obligatorios de antes de salir y de vuelta, la movilidad en su **Proyecto**, la EU Survey validada y nada por pagar: todos los pagos solicitados y transferidos, también el final, y todas las facturas del participante pagadas. Cerrar también quita el acceso al portal a un graduado, por eso hay que esperar al último pago.
 
-Para cancelar una movilidad (por ejemplo, no se han entregado a tiempo los documentos de viaje), escribid el **Motivo de la cancelación** en la pestaña **Cancelación** y haced clic en **Acciones > Cancelar la movilidad**. La solicitud queda como renuncia y la plaza queda libre. El participante también puede renunciar desde el portal.
+Para cancelar una movilidad (por ejemplo, no se han entregado a tiempo los documentos de viaje), haced clic en **Acciones > Cancelar la movilidad**: una ventana os pide el motivo. Una vez cancelada, el motivo aparece arriba de la ficha. La solicitud queda como renuncia y la plaza queda libre. Se puede cancelar hasta que acaba la estancia. El participante también puede renunciar desde el portal, pero solo hasta que empieza la estancia.
 
 > **Personas tituladas:** un alumno que se titula y hace la movilidad en verano mantiene el acceso al portal después del cambio de curso, hasta que la movilidad se cierra o se cancela. Entonces EMS le quita el acceso, tal como habría hecho el cambio de curso.
 

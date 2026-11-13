@@ -98,9 +98,9 @@ Si et titules aquest curs i fas la mobilitat a l'estiu, mantens l'accés al port
 
 ## 9. Seguir la sol·licitud
 
-A dalt de la sol·licitud, una barra amb els passos de la convocatòria mostra on és: sol·licitud, revisió, entrevista, resolució, plaça, preparació, estada i retorn. Els passos fets surten marcats, l'actual, destacat i, si la sol·licitud s'ha acabat en un pas (per exemple, si ha quedat exclosa), aquest pas surt amb una creu. A sota, un quadre diu **què has de fer ara** i fins quan (en groc), o què estàs esperant. Quan la sol·licitud ja no es pot canviar, el text de la convocatòria i la sol·licitud tal com la vas enviar queden plegats a **La convocatòria i la meva sol·licitud**, al final.
+A dalt de la sol·licitud, una barra amb els passos de la convocatòria mostra on és: sol·licitud, revisió, entrevista, resolució, plaça, preparació, estada i retorn. Els passos fets surten marcats, l'actual, destacat i, si la sol·licitud s'ha acabat en un pas (per exemple, si ha quedat exclosa), aquest pas surt amb una creu. Al mòbil, en lloc de la barra només surt el pas on ets (per exemple, «Pas 3 de 8: Entrevista»). A sota, un quadre diu **què has de fer ara** i fins quan (en groc), o què estàs esperant. Quan la sol·licitud ja no es pot canviar, el text de la convocatòria i la sol·licitud tal com la vas enviar queden plegats a **La convocatòria i la meva sol·licitud**, al final.
 
-La pàgina Erasmus+ mostra l'estat de la teva sol·licitud, en color: *Esborrany*, *Enviat*, *Esmena requerida*, *Admesa*, *Exclosa*, *Seleccionada*, *Reserva*, *No seleccionada*, *Plaça acceptada* o *Renúncia*, i l'estat de la mobilitat: *Definint la mobilitat*, *En preparació*, *Tancada* o *Cancel·lada*.
+La pàgina Erasmus+ mostra l'estat de la teva sol·licitud, en color: *Esborrany*, *Enviat*, *Esmena requerida*, *Admesa*, *Exclosa*, *Seleccionada*, *Reserva*, *No seleccionada*, *Plaça acceptada* o *Renúncia*, i la fase de la mobilitat: *Definint*, *Preparació*, *Estada*, *Tornada*, *Tancada* o *Cancel·lat*.
 
 Per a qualsevol dubte, escriu a la coordinació Erasmus: **erasmus@elpuig.xeill.net**.
 

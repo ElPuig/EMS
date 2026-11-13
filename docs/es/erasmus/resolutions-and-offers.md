@@ -40,7 +40,7 @@ Cada una necesita la anterior publicada. Una resolución publicada no se puede m
 Cuando se publica:
 
 - Cada solicitante que aparece recibe su resultado por correo y lo ve en el portal, con el detalle de su puntuación.
-- La lista se publica en el portal sin nombres. Para colgarla en la web del centro, haz clic en **Imprimir > Lista publicada** para obtener el PDF.
+- La lista se publica en el portal sin nombres. Para colgarla en la web del centro, haz clic en **Acciones > Imprimir la lista publicada** en la resolución para obtener el PDF (desde la lista de resoluciones, **Imprimir > Lista publicada**).
 - Con la resolución **provisional**, se bloquean todas las entrevistas de la convocatoria: solo el equipo Erasmus puede reabrir una, con una nota de rectificación.
 - Con la resolución **definitiva** (o una rectificación), cada solicitud recibe su resultado. El alumnado seleccionado recibe una oferta de plaza con el plazo de aceptación: el correo del resultado ya le pide que la acepte en el portal, y la familia de un menor recibe una copia. El correo y el portal también dicen que contra la lista se puede presentar recurso de alzada ante el jefe de estudios en el plazo de un mes. El correo de una persona en reserva le dice su número en la lista de reserva de su modalidad. En la convocatoria, el botón **Plazas aceptadas** muestra cuántas plazas se han aceptado del total, y un aviso dice cuántas ofertas esperan respuesta: cuando no queda ninguna, puedes abrir la elección de destino.
 

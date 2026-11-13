@@ -10,6 +10,10 @@ Once a place is accepted, prepare the mobility in EMS: the destination, the host
 
 **Required role:** *Erasmus coordinator* or *Erasmus mobility technician* (Erasmus+ > Manager). The Head of Studies and the Director can read the mobilities; the Direction (the Director or the Head of Studies of FP, set in the call) validates the staff's activities (see [Validating Erasmus+ staff activities](../head_of_studies/erasmus-staff-validation.md)).
 
+> **The mobility's phases** show on the bar at the top of the form and in the list: *Defining* (no destination yet), *Preparation*, *Mobility stay* (from the start day), *Return home* (from the day after the end day) and *Closed*. The stay and the return change by themselves with the dates. The kanban view of **Mobilities** has one column per phase.
+
+![The phase bar of a mobility during the stay](../../assets/erasmus/mobilitat-fases.png)
+
 ---
 
 ## 1. Before you start: the projects and the call
@@ -33,7 +37,7 @@ When the definitive resolution is published and the destinations are ready, clic
 - A modality with **one destination**: every student who accepted a place is assigned to it directly.
 - A modality with **several destinations**: the students choose on the portal **by turns, in rank order**. When their turn comes they receive an email and have the **Hours per choice turn** (72 by default) to choose among the destinations with free places that suit their level. When they choose, the next one gets the turn.
 - Whoever does not answer in their turn **loses the turn, not the place**: the next one gets the turn, and they choose among the destinations left once everyone else has chosen (they receive another email then).
-- Whoever finds that no destination suits them, or is not available for their dates, must talk to the Erasmus team to find an alternative: a destination they find themselves, or one through an intermediary organisation the centre works with. When it is agreed, write the country (and the city, host entity and dates you have) on their mobility and click **Actions > Set the agreed destination**.
+- Whoever finds that no destination suits them, or is not available for their dates, must talk to the Erasmus team to find an alternative: a destination they find themselves, or one through an intermediary organisation the centre works with. When it is agreed, click **Actions > Set the agreed destination** on their mobility: a dialog asks for the country (required), the city, the host entity and the dates you have, and the student receives an email once you confirm. Students only: staff propose their activity and the Direction validates it.
 
 A student who accepts a place later joins the queue in their rank order.
 
@@ -88,9 +92,9 @@ From the first day of the stay, every week the participant answers the call's qu
 
 When the stay is over, the participant sees on the portal that they have to answer the **EU Survey** (by default within 30 days, **EU Survey deadline**) and clicks **I have answered it**. You get a task: check it and click **Actions > Validate the EU Survey** (if the participant tells you another way, **Actions > EU Survey answered**).
 
-Click **Actions > Close the mobility** when everything is done: every document and step before leaving and on return (**Ready to leave** and **Return complete**), the mobility on its **Project**, the EU Survey validated and nothing left to pay: every payment requested and transferred, the final one included, and every invoice for the participant paid. Closing also removes a graduate's access to the portal, so wait for the last payment.
+Once the stay is over (the *Return home* phase), click **Actions > Close the mobility** when everything is done: every required document and step before leaving and on return, the mobility on its **Project**, the EU Survey validated and nothing left to pay: every payment requested and transferred, the final one included, and every invoice for the participant paid. Closing also removes a graduate's access to the portal, so wait for the last payment.
 
-To cancel a mobility (for example, the travel documents were not handed in on time), write the **Reason for cancelling** on the **Cancellation** tab and click **Actions > Cancel the mobility**. The application is marked as renounced and the place becomes free. The participant can also renounce on the portal.
+To cancel a mobility (for example, the travel documents were not handed in on time), click **Actions > Cancel the mobility**: a dialog asks for the reason. Once cancelled, the reason shows at the top of the form. The application is marked as renounced and the place becomes free. It can be cancelled until the stay ends. The participant can also renounce on the portal, but only until the stay starts.
 
 > **Graduates:** a student who graduates and does the mobility in the summer keeps access to the portal after the course transition, until the mobility is closed or cancelled. Then EMS removes the access, as the course transition would have done.
 

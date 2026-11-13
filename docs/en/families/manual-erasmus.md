@@ -98,9 +98,9 @@ If you graduate this course and do the mobility in the summer, you keep access t
 
 ## 9. Follow your application
 
-At the top of your application, a bar with the steps of the call shows where it is: application, document check, interview, resolution, place, preparation, stay and return. The steps done are ticked, the current one is highlighted and, if the application ended in a step (for example, excluded), that step shows a cross. Below it, a box says **what to do now** and by when (in yellow), or what you are waiting for. Once your application can no longer change, the call's text and the application as you sent it are folded under **The call and my application**, at the end.
+At the top of your application, a bar with the steps of the call shows where it is: application, document check, interview, resolution, place, preparation, stay and return. The steps done are ticked, the current one is highlighted and, if the application ended in a step (for example, excluded), that step shows a cross. On a phone, instead of the bar, only the step you are on shows (for example, "Step 3 of 8: Interview"). Below it, a box says **what to do now** and by when (in yellow), or what you are waiting for. Once your application can no longer change, the call's text and the application as you sent it are folded under **The call and my application**, at the end.
 
-The Erasmus+ page shows the state of your application, in colour: *Draft*, *Submitted*, *Corrections requested*, *Admitted*, *Excluded*, *Selected*, *Reserve*, *Not selected*, *Place accepted* or *Renounced*, and the state of your mobility: *Defining the mobility*, *Preparing*, *Closed* or *Cancelled*.
+The Erasmus+ page shows the state of your application, in colour: *Draft*, *Submitted*, *Corrections requested*, *Admitted*, *Excluded*, *Selected*, *Reserve*, *Not selected*, *Place accepted* or *Renounced*, and the phase of your mobility: *Defining*, *Preparation*, *Mobility stay*, *Return home*, *Closed* or *Cancelled*.
 
 For any question, write to the Erasmus coordination: **erasmus@elpuig.xeill.net**.
 

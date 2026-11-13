@@ -110,6 +110,8 @@ When a document needs changes or a required one is missing, mark it and click **
 
 When the application period is over, click **Actions > Close applications**. Applications that were never submitted are marked as *Not submitted*, and EMS saves the record average and the conduct warnings of the others for the scoring: see [Scoring and interviews](scoring-and-interviews.md).
 
+From then on, the bar at the top of the call and the list of calls show its phase: *Scoring* (until the provisional resolution is published; the admission list is part of it), *Resolution* (until the definitive one), *Offers* (while a place offer waits for an answer) and *Finished*. If you later offer a place to someone on the reserve list, it goes back to *Offers*.
+
 ---
 
 [← Back to Erasmus+ manuals](index.md)

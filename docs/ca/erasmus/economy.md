@@ -26,7 +26,7 @@ Feu clic en un projecte per obrir-ne la pestanya **Economia**.
 **Què vol dir cada xifra:**
 
 - **Previst:** les beques de les mobilitats que encara defineixen la destinació, i de les mobilitats de grup abans d'aprovar la selecció. Encara no consumeixen pressupost.
-- **Compromès:** les beques de les mobilitats confirmades (*En preparació* o *Tancada*) més les altres despeses del projecte.
+- **Compromès:** les beques de les mobilitats confirmades (de *Preparació* a *Tancada*) més les altres despeses del projecte.
 - **Pagat:** el que s'ha transferit als participants, més les factures i les despeses pagades.
 - **Compromès pendent de pagar:** tot el que està compromès i encara no s'ha pagat, se n'hagi sol·licitat el pagament o no.
 - **Disponible:** subvenció vigent menys compromès. **No** són els diners del banc: un projecte pot tenir subvenció concedida que el SEPIE encara no ha transferit.

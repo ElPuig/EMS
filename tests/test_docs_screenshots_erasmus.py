@@ -106,6 +106,21 @@ class TestDocsScreenshotsErasmus(DocsScreenshotMixin, HttpCase):
                       'sollicitud-capcalera.png', login=self.TECHNICIAN,
                       wait_for='.o_field_widget[name=requirements_check]', max_height=420)
 
+    def test_capture_mobility_phases(self):
+        """Issue #785 (5.5): the mobility's real phases, here during the stay."""
+        today = self.env['ems.datetime_utils'].get_local_today()
+        application = self.env['ems.erasmus.application'].create({
+            'call_id': self.call.id, 'partner_id': self.student.id, 'modality_id': self.call.modality_ids.id,
+            'state': 'accepted'})
+        mobility = self.env['ems.erasmus.mobility'].create({
+            'application_id': application.id, 'state': 'preparing', 'country_id': self.env.ref('base.de').id,
+            'city': 'Reutlingen', 'host_partner_id': self.host.id, 'date_start': today - timedelta(days=10),
+            'date_end': today + timedelta(days=20)})
+        self.assertEqual(mobility.phase, 'stay')
+        self._capture(f'/odoo/action-ems.action_erasmus_mobility/{mobility.id}', '.o_form_view .o_form_renderer',
+                      'mobilitat-fases.png', login=self.TECHNICIAN,
+                      wait_for=".o_statusbar_status button[data-value=stay].o_arrow_button_current", max_height=330)
+
     def test_capture_ranking_of_a_call(self):
         """Issue #781: a call's ranking, grouped by modality, the row with no colour."""
         self.call.state = 'closed'

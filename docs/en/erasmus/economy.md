@@ -10,13 +10,15 @@ For each Erasmus+ project EMS shows how much grant it has, how much has been rec
 
 ---
 
-## The economic panel
+## The projects
 
-**Erasmus+ > Financial management > Economic panel** shows one row per project: *Awarded*, *Committed*, *Paid*, *Available*, *Support generated* and how many warnings it has. You can filter by kind (KA121-VET, KA131-HED), by whether the final payment has been received, or the projects *Above the grant*, and group them by call year. The **pivot** view compares calls and kinds of project side by side: it opens with the grant, what is committed and what is available (the other figures, under **Measures**). To see older, archived projects, use the **Archived too** filter.
+**Erasmus+ > Projects**, its own entry in the bar between Mobilities and Financial management, shows one row per project: *Awarded*, *Committed*, *Paid*, *Available*, *Support generated* and how many warnings it has. You can filter by kind (KA121-VET, KA131-HED), by whether the final payment has been received, or the projects *Above the grant*, and group them by call year. The **pivot** view compares calls and kinds of project side by side: it opens with the grant, what is committed and what is available (the other figures, under **Measures**). To see older, archived projects, use the **Archived too** filter.
 
 Click a project to open its **Economy** tab.
 
 ## The Economy tab of a project
+
+The tab reads from top to bottom in the order the money flows. The **Subsidy** block has the centre's subsidy (not a participant's grant): awarded, current, received and to receive, and the final grant and the date of the final payment once that payment arrives. The **Budget** block has the forecast, what is committed with the project's other expenses right below it, what has been paid, what is committed and not paid yet and, last and in bold, what is available.
 
 1. **Grant awarded** is the amount of the agreement. Add each **grant amendment** (date, description, amount; negative if it reduces the grant): the *current grant* is the initial grant plus the amendments.
 2. Add each **SEPIE transfer** (date, kind, amount). They tell you what has been *received* and what is still *to receive*. The *Balance* transfer also fills in *Final payment received on*, which sets how long the documents are kept.
@@ -35,15 +37,25 @@ Click a project to open its **Economy** tab.
 
 ## Each mobility
 
-On the **Grant** tab of a mobility you see its *economic state* (forecast, committed, partially paid, paid, cancelled), what it commits, what has been paid and what is pending. If you change the grant, the commitment changes by the difference. If you move the mobility to another project, its figures move with it.
+On the **Grant** tab of a mobility, the *economic state* (forecast, committed, partially paid, paid, cancelled) shows as a tag on top, and two blocks read from left to right with the same names as the participant's portal: **Grant** (the grant, what is **Paid directly by the centre** such as the flights or the accommodation, and what is left **To transfer**) and **Payments to the person** (what has been **Transferred**, what is **Pending transfer** and the percentage paid **Before leaving**). Below, the services the centre paid for them and the payments. What the mobility commits of the budget is counted on the project. *Organisational support as* (money for the centre, not for the person) is folded away at the bottom: open it only to correct the kind of mobility by hand. If you change the grant, the commitment changes by the difference. If you move the mobility to another project, its figures move with it.
 
 **A cancelled mobility** only keeps committed what has already been paid. If the participant gives money back, write it in **Given back by the participant**. Until then, the project shows a warning.
 
-**Group mobilities:** each participant, student or accompanying teacher, has their own grant, as calculated in the Beneficiary Module. Enter them on the **Collective expenses** tab, in *Participants' grants* (once the selection is approved). The group's figures add them up, each one once: the group's grant above the list is the total (a withdrawn participant never counts). What has been spent of them is the group's collective invoices plus each participant's pocket money (their grant minus their equal share of the invoices), requested from the group and paid by the Secretary: nothing is counted twice. See *Grants and pocket money* in [Group mobilities](group-mobilities.md).
+**Group mobilities:** each participant, student or accompanying teacher, has their own grant, as calculated in the Beneficiary Module. Enter them on the **Grant and expenses** tab, in *Participants' grants* (once the selection is approved). The group's figures add them up, each one once: the group's grant above the list is the total (a withdrawn participant never counts). What has been spent of them is the group's collective invoices plus each participant's pocket money (their grant minus their equal share of the invoices), requested from the group and paid by the Secretary: nothing is counted twice. See *Grants and pocket money* in [Group mobilities](group-mobilities.md).
 
-## Expenses
+## Services paid by the centre
 
-**Financial management > Expenses** (or the *Expenses of the project* list on the Economy tab) holds the project's expenses that are not part of a participant's grant: working meals, merchandising, dissemination services, language preparation...
+**Financial management > Services paid by the centre** holds the invoices the centre pays for someone: flights, accommodation, course fees... They are deducted from the grant of whoever they are for, so they are not project expenses (an expense that is nobody's goes in *Project expenses*). The Erasmus team and the Secretary both enter them, whoever receives the invoice.
+
+1. Click **New** and fill in the invoice number, the supplier, the concept, the amount and the project.
+2. Answer **Who it is for**: *Participants* (choose them: the amount is split equally among them and shows in their *Paid directly by the centre*) or *A group mobility* (choose it: the amount is split among its participants through their pocket money). Only the field of the answer shows. While nobody is chosen, a warning suggests registering it as a project expense instead.
+3. The Secretary pays it like a grant payment. Its history, at the bottom of the form, keeps every change, for example a transfer undone with its reason; the grant payments show theirs too.
+
+In the list, the **Project** column shows the invoice's project or, for a participants' invoice, their mobilities' one; when they are of different projects it says *Various*.
+
+## Project expenses
+
+**Financial management > Project expenses** (or the project's **Project expenses** tab, next to *Services paid by the centre*) holds the project's expenses that are not part of a participant's grant: working meals, merchandising, dissemination services, language preparation...
 
 1. Click **New** and fill in the project, the concept, the category (*Organisational support* or *Other project expenses*), the date and the amount. Optionally, the supplier, the mobility it is about (only the Erasmus team can choose it) and the invoice or receipt.
 2. The expense counts as committed as soon as it is saved, and the Secretary gets a task to pay it. Paying it doesn't take it off the budget again.
@@ -73,7 +85,6 @@ On the Economy tab you see:
 
 The difference is an internal indicator, not a certification of SEPIE. The support is part of the grant awarded: it is never added to it. For a particularity of the agreement, enter a **Correction** with its reason. For a project managed before EMS, you can fill in the aggregated **Figures from before EMS** (only shown on projects of calls before 2026, or once they have a figure).
 
-In the **Economic management > Invoices** list, the **Project** column shows the invoice's project or, for a participants' invoice, their mobilities' one; when they are of different projects it says *Various*.
 
 ## Warnings
 
@@ -81,7 +92,7 @@ At the top of the Economy tab, EMS warns about anything that may be a mistake, w
 
 ## Excel
 
-**Actions > Download the economy (Excel)** downloads the project's economy: a summary with the same figures as the panel, each mobility's grant (forecast, committed and paid separately), the payments and invoices with their receipts, the expenses, the organisational support participant by participant, and the grant amendments and SEPIE transfers.
+**Actions > Download the economy (Excel)** downloads the project's economy: a summary with the same figures as the projects list, each mobility's grant (forecast, committed and paid separately), the payments and invoices with their receipts, the expenses, the organisational support participant by participant, and the grant amendments and SEPIE transfers.
 
 ---
 

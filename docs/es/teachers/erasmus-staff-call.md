@@ -49,7 +49,7 @@ La pestaña **Expediente** tiene los documentos que tienes que entregar antes de
 
 Arriba, **Tus documentos** dice cuántos has entregado de los que te toca entregar a ti, por ejemplo *Has entregado 1 de 4*: no cuentan los que sube el equipo Erasmus ni los de la solicitud. Las columnas **Del equipo Erasmus** y **Comentario para el solicitante** solo aparecen cuando el equipo ha puesto algo en ellas.
 
-Cuando el equipo Erasmus ha calculado tu beca, la pestaña **Beca** muestra lo que te corresponde (**Tu beca**: la beca menos lo que el centro paga directamente por ti, como el viaje o el alojamiento), lo que ya te han transferido (**Ya cobrado**) y lo que todavía tienes que cobrar (**Pendiente de cobrar**). Es solo de consulta: si ves algo extraño, díselo al equipo Erasmus.
+Cuando el equipo Erasmus ha calculado tu beca, la pestaña **Beca** la muestra en dos bloques, con los mismos nombres que la ficha del equipo Erasmus: **Beca** (la beca, lo **Pagado directamente por el centro** por ti, como el viaje o el alojamiento, y lo que **Recibes**) y **Pagos a ti** (lo ya **Transferido** y lo **Pendiente de transferir**). Es solo de consulta: si ves algo extraño, díselo al equipo Erasmus.
 
 El resto también está en **Acciones**: **Firma la carta de compromiso**, la **Autoevaluación semanal** durante la estancia y, al volver, **He respondido la EU Survey** cuando hayas respondido el informe final. Mientras falte algo, tienes una tarea en EMS, **Erasmus+: entrega lo que falta**, con la lista; se actualiza cada semana y desaparece sola cuando lo has entregado todo.
 

@@ -31,7 +31,7 @@ This section contains the manuals for **secretariat staff**.
 - [Importing students from Esfera (SAGA)](student-import-esfera.md) — Bulk-refreshing already-enrolled students' data (not to be confused with the GEDAC preinscription import), what gets matched/created, and known dedup limitations.
 - [Updating student data from a CSV file](student-update-csv.md) — A generic, any-format CSV bulk-update for existing students (never creates one), with mappable columns and an optional bank account update.
 - [Approving absences for administrative and services staff](absences.md) — Who approves ASP absences and how it differs from the Head of Studies.
-- [Erasmus+: project expenses and the economic panel](erasmus-economy.md) — Registering and paying the Erasmus+ projects' other expenses, and checking each project's budget.
+- [Erasmus+: services paid by the centre, project expenses and projects](erasmus-economy.md) — Registering the invoices the centre pays for participants, registering and paying the Erasmus+ projects' other expenses, and checking each project's budget.
 
 ## Planned Topics
 

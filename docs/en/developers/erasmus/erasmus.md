@@ -318,11 +318,13 @@ Menu *Erasmus+*, in sections like the rest of EMS, each shown only to whoever se
 
 | Section | Entries |
 |---|---|
-| *Calls* | Calls, Applications, Ranking, Claims, Resolutions, Place offers |
-| *Mobilities* | Individual mobilities, Group mobilities |
-| *Financial management* | Projects, Invoices, Grant payments |
-| *My participation* | My evaluations, My plan ratings, My group mobilities, My application |
-| *Configuration* | Host entities |
+| *Calls* | Calls, Applications, Ranking, Resolutions, Claims, Place offers (the order of the process, issue #789) |
+| *Mobilities* | Pending validation, Individual mobilities, Group mobilities |
+| *Projects* | An entry of its own, no submenu (`action_erasmus_project`: the economic list, its pivot and the form; issue #789) |
+| *Financial management* | Grant payments, Services paid by the centre, Project expenses |
+| *Quality* | Indicators, Satisfaction surveys, Low scores, Diffusion actions |
+| *My participation* | Interviews to score, Plans to rate, My group mobilities, Staff calls, My applications, My mobilities |
+| *Configuration* | Host entities, Organisational support rates, Earlier course indicators |
 
 Every teacher has the app (right below *Meetings*), at least for *My participation > My
 application*, which opens their portal page `/my/erasmus` (an `ir.actions.act_url`): that is where
@@ -579,8 +581,8 @@ stateDiagram-v2
 
 - **Evaluators see only their own interviews** (record rule `evaluator_id = user`), never the
   other evaluator's, nor anything else of the application. Being assigned adds them to
-  `ems.group_erasmus_evaluator` (*Erasmus+ > My participation > My evaluations*); losing every interview removes it.
-  The panel's plan ratings use `ems.group_erasmus_panel` the same way (*My plan ratings*).
+  `ems.group_erasmus_evaluator` (*Erasmus+ > My participation > Interviews to score*); losing every interview removes it.
+  The panel's plan ratings use `ems.group_erasmus_panel` the same way (*Plans to rate*).
 - After the call's `interview_deadline` (label *Score correction deadline*, shared with the plan ratings) the evaluator can no longer change or reopen; the team
   can still reopen, writing a rectification note (`rectification_note`), posted in the chatter.
 - The application's interview score is the mean of the submitted interviews, complete when every
@@ -983,7 +985,7 @@ criterion-5 band too), then the draw the coordinator runs (`action_draw_ties`). 
 | `ems.erasmus.application.merit` | rwcu | r | - |
 | `ems.erasmus.application.document` | rwcu | r, not confidential | r, `panel_visible` lines of the plans they rate |
 
-The team opens the plan ratings from the call's *Plan ratings* button; the panel, from *Erasmus+ > My participation > My plan ratings*.
+The team opens the plan ratings from the call's *Plan ratings* button; the panel, from *Erasmus+ > My participation > Plans to rate*.
 
 ## Mobility preparation (phase 5, #687)
 
@@ -1123,7 +1125,7 @@ the mobility (*Self-assessment* tab, `self_assessment_progress` "answered / week
 PDF to the participant's record, category `03_Durant_la_mobilitat` (see [records.md](records.md)). Access: Erasmus team and administrator
 read/write (the team can delete a week for the participant to answer it again), Head of Studies read.
 
-**Projects** (`ems.erasmus.project`, menu *Erasmus+ > Financial management > Projects*): the centre's active projects
+**Projects** (`ems.erasmus.project`, menu *Erasmus+ > Projects*): the centre's active projects
 (agreement number, `kind` KA121-VET / KA131-HED, dates, `active`). Each mobility's `project_id` must
 be of its modality's `project` kind (`_check_project`; the field's domain offers only those).
 
@@ -1397,9 +1399,10 @@ mobility in preparation or closed.
 
 The mobility's *Grant* tab and its grant columns are only for the team (`groups=`), so the Head of
 Studies and the Director, who read mobilities, never load the grant models. Menus *Erasmus+ >
-Configuration > Host entities* (team) and *Erasmus+ > Financial management > Projects*, *Invoices*
-and *Grant payments* (team, Secretary and, read-only, the Director; the Secretary sees only that section under *Erasmus+*). The project form's tabs follow the same split (mobilities:
-team and Head of Studies; invoices and payments: team and Secretary).
+Configuration > Host entities* (team), *Erasmus+ > Projects* and *Erasmus+ > Financial management > Grant payments*,
+*Services paid by the centre* and *Project expenses* (team, Secretary and, read-only, the Director; the Secretary sees only those under *Erasmus+*). The project form's tabs follow the same split (mobilities:
+team and Head of Studies; services paid by the centre, project expenses and payments: team, Secretary and Director). The
+Secretary also enters services paid by the centre and reads the individual and group mobilities to say whom they are for (issue #791; `rule_erasmus_mobility_staff_all`, `rule_erasmus_group_mobility_head_of_studies`).
 
 ## Erasmus+ history (`ems.erasmus.history`)
 
@@ -1605,7 +1608,7 @@ flowchart LR
 
 ### Empty lists and help texts (issue #783)
 
-- The Erasmus+ list actions that open filtered (*My evaluations*, *Claims*, *Pending validation*,
+- The Erasmus+ list actions that open filtered (*Interviews to score*, *Claims*, *Pending validation*,
   *Group mobilities*) carry a `help` that says why the list is empty instead of Odoo's "Create a new
   document".
 - Help where a field was blank: placeholders on the call's `description` and the group's

@@ -41,7 +41,7 @@ They can't submit without the date at the centre, both proposals and the plan.
 
 Review the documents and admit or exclude as in the students' call (conduct warnings do not count).
 
-After **Close applications**, fill in the **Panel** tab of the call: the people who rate the mobility plans (the management and the heads and seminar chiefs of the departments). Then click **Actions > Send plans to the panel**. Every member gets a task to rate every plan from **Erasmus+ > My participation > My plan ratings**, due on the **Commission's rating deadline** (the button asks for it if it is empty; if you change it later, the open tasks follow it). You can click it again after admitting more applications: it only creates the ratings still missing. The button is only there until the provisional resolution is published, which freezes the scores.
+After **Close applications**, fill in the **Panel** tab of the call: the people who rate the mobility plans (the management and the heads and seminar chiefs of the departments). Then click **Actions > Send plans to the panel**. Every member gets a task to rate every plan from **Erasmus+ > My participation > Plans to rate**, due on the **Commission's rating deadline** (the button asks for it if it is empty; if you change it later, the open tasks follow it). You can click it again after admitting more applications: it only creates the ratings still missing. The button is only there until the provisional resolution is published, which freezes the scores.
 
 **Erasmus+ > Calls > Mobility plan ratings** opens with one row per applicant: how many have rated and the plan's mean. Click a row to see each member's rating.
 

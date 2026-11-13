@@ -2,19 +2,28 @@
 
 ---
 
-# Erasmus+: project expenses and the economic panel
+# Erasmus+: services paid by the centre, project expenses and projects
 
-Besides paying the grants and the invoices (**Erasmus+ > Financial management > Grant payments** and **Invoices**), the Secretary registers and pays the Erasmus+ projects' other expenses, and can check each project's budget.
+Besides paying the grants (**Erasmus+ > Financial management > Grant payments**), the Secretary registers the invoices the centre pays for participants (**Services paid by the centre**), registers and pays the Erasmus+ projects' other expenses (**Project expenses**), and can check each project's budget (**Erasmus+ > Projects**).
 
 **Required role:** Secretary.
 
 ---
 
-## Registering an expense
+## Registering a service paid by the centre
 
-1. Go to **Erasmus+ > Financial management > Expenses** and click **New**.
+When an invoice for someone's flight, accommodation or course reaches you, register it yourself: its amount is deducted from the grant of whoever it is for, so they are not paid twice.
+
+1. Go to **Erasmus+ > Financial management > Services paid by the centre** and click **New**.
+2. Fill in the **invoice number**, the **supplier**, the **concept**, the **amount** and the **project**, and attach the invoice.
+3. Answer **Who it is for**: *Participants* (choose them; the amount is split equally among them) or *A group mobility* (choose it; the amount is split among its participants through their pocket money). While nobody is chosen, a warning suggests registering it as a project expense instead: do so only if it is nobody's.
+4. Save, and pay it like any grant payment (see below). You cannot delete it: ask the Erasmus coordination if it was a mistake. Its history, at the bottom of the form, shows every change, such as a transfer undone with its reason.
+
+## Registering a project expense
+
+1. Go to **Erasmus+ > Financial management > Project expenses** and click **New**.
 2. Fill in the **project**, the **concept** (e.g. *Working meal with the host company*), the **category** (*Organisational support* or *Other project expenses*; ask the Erasmus coordination if you are not sure), the **date** and the **amount**.
-3. Attach the **invoice or receipt**, and the **supplier** if there is one. An expense without a receipt shows as a warning on the project. Linking the expense to a mobility is done by the Erasmus coordination: you cannot open the mobilities.
+3. Attach the **invoice or receipt**, and the **supplier** if there is one. An expense without a receipt shows as a warning on the project. Linking the expense to a mobility is done by the Erasmus coordination.
 4. Save. EMS gives it a reference (DESP-year-number) and adds a to-do for you to pay it.
 
 While it is not paid you can change it. Once paid, only the Erasmus coordination can correct it, and the reason stays in its history. If they correct it upwards, the difference appears as a new expense for you to pay.
@@ -37,7 +46,7 @@ Each payment shows the **IBAN** and the **holder** the participant gave (a stude
 
 ## Checking a project's budget
 
-**Erasmus+ > Financial management > Economic panel** shows each project's grant, what is committed, what has been paid and what is available. Open a project to see its **Economy** tab, and use **Actions > Download the economy (Excel)** to download its economic report (summary, grants and payments, expenses, organisational support and SEPIE's transfers). The warnings and the Excel show each participant's name and grant, because you pay them, but you do not open the mobilities themselves.
+**Erasmus+ > Projects** shows each project's grant, what is committed, what has been paid and what is available. Open a project to see its **Economy** tab, and use **Actions > Download the economy (Excel)** to download its economic report (summary, grants and payments, expenses, organisational support and SEPIE's transfers). The warnings and the Excel show each participant's name and grant, because you pay them.
 
 ---
 

@@ -12,7 +12,7 @@ Como miembro de la comisión de la convocatoria Erasmus+ del personal, valoras e
 
 ## 1. Encontrar los planes
 
-Cuando el equipo Erasmus envía los planes a la comisión, recibes una tarea en EMS para cada uno, que vence el plazo para corregir puntuaciones de la convocatoria (dos semanas después del cierre). Sale en el resumen diario de tareas pendientes hasta que la hagas. En el menú **Erasmus+** tienes **Mi participación > Mis valoraciones de planes**: los planes que tienes asignados.
+Cuando el equipo Erasmus envía los planes a la comisión, recibes una tarea en EMS para cada uno, que vence el plazo para corregir puntuaciones de la convocatoria (dos semanas después del cierre). Sale en el resumen diario de tareas pendientes hasta que la hagas. En el menú **Erasmus+** tienes **Mi participación > Planes por valorar**: los planes que tienes asignados.
 
 Cada valoración muestra en pantalla el **plan de movilidad y transferencia** de la persona candidata, tal como lo escribió en el formulario de solicitud: la propuesta A (la principal) y la propuesta B (la de reserva), con sus palabras, y qué quiere aprender y cómo lo aplicará al trabajo, cada texto bajo su título y a todo el ancho. Valora las dos propuestas juntas, con una sola puntuación. No ves nada más de la solicitud. La difusión no se valora: es la misma obligación para todo el mundo.
 

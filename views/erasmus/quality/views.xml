@@ -14,17 +14,19 @@
                     <field name="call_id" optional="show"/>
                     <field name="group_mobility_id" optional="hide"/>
                     <field name="partner_id" groups="ems.group_erasmus,ems.group_academic_admin"/>
-                    <field name="participant_type"/>
+                    <!-- Issue #810: short headers, so none is cut; the whole name on hover. -->
+                    <field name="participant_type" string="Type" help="Participant type"/>
                     <field name="study_id" optional="show"/>
-                    <field name="host_partner_id" optional="show"/>
+                    <field name="host_partner_id" optional="show" string="Host" help="Host entity"/>
                     <field name="state" widget="badge" decoration-success="state == 'answered'"
                            decoration-warning="state == 'pending'"/>
                     <field name="score"/>
                     <field name="is_low" column_invisible="1"/>
                     <field name="what_failed" optional="show"/>
                     <field name="comment" optional="show"/>
-                    <field name="improvement_action_id" optional="show"/>
-                    <field name="improvement_state" optional="show"/>
+                    <field name="improvement_action_id" optional="show" string="Action" help="Improvement action"/>
+                    <field name="improvement_state" optional="show" string="Progress"
+                           help="State of the improvement action"/>
                 </list>
             </field>
         </record>
@@ -144,7 +146,9 @@
             <field name="name">ems.erasmus.quality.panel.form</field>
             <field name="model">ems.erasmus.quality.panel</field>
             <field name="arch" type="xml">
-                <form string="Quality" create="0" delete="0">
+                <!-- o_field_highlight: the filters are empty fields; without it nothing showed they can be
+                     filled in (issue #810, as in the staff application dialog). -->
+                <form string="Quality" create="0" delete="0" class="o_field_highlight">
                     <header>
                         <div name="ems_actions" string="Actions">
                             <button name="action_print_report" type="object" string="Print the quality report (PDF)"/>
@@ -243,10 +247,14 @@
             <field name="arch" type="xml">
                 <list>
                     <field name="course_name"/>
-                    <field name="student_applicants" string="Applicants"/>
-                    <field name="student_target" string="Eligible"/>
-                    <field name="staff_applicants" string="Staff applicants" widget="ems_blank_zero" optional="show"/>
-                    <field name="staff_target" string="Staff eligible" widget="ems_blank_zero" optional="show"/>
+                    <!-- Issue #810: short headers, the whole name on hover; the staff columns hidden at
+                         first (no earlier course has staff figures yet), shown from the columns menu. -->
+                    <field name="student_applicants" string="Appl." help="Student applicants"/>
+                    <field name="student_target" string="Elig." help="Eligible students"/>
+                    <field name="staff_applicants" string="Staff appl." help="Applicant staff" widget="ems_blank_zero"
+                           optional="hide"/>
+                    <field name="staff_target" string="Staff elig." help="Eligible staff" widget="ems_blank_zero"
+                           optional="hide"/>
                     <field name="satisfaction" string="Satisfaction"/>
                     <field name="satisfaction_count" string="Answers"/>
                     <field name="source" optional="hide"/>

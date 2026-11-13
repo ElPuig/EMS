@@ -28,6 +28,7 @@ Haz clic en un proyecto para abrir su pestaña **Economía**.
 - **Previsto:** las becas de las movilidades que aún definen su destino, y de las movilidades de grupo antes de aprobar la selección. Aún no consumen presupuesto.
 - **Comprometido:** las becas de las movilidades confirmadas (*En preparación* o *Cerrada*) más los otros gastos del proyecto.
 - **Pagado:** lo transferido a los participantes, más las facturas y los gastos pagados.
+- **Comprometido pendiente de pagar:** todo lo comprometido que todavía no se ha pagado, se haya solicitado su pago o no.
 - **Disponible:** subvención vigente menos comprometido. **No** es el dinero del banco: un proyecto puede tener subvención concedida que el SEPIE aún no ha transferido.
 
 **Pagar no cuenta dos veces.** Una beca de 1.500 € cuenta como 1.500 € comprometidos desde que se confirma la movilidad. Cuando Secretaría paga el anticipo y luego el resto, los 1.500 € solo pasan de *pendiente* a *pagado*. Lo mismo ocurre con una factura pagada a cargo de la beca de un participante (vuelos, alojamiento): forma parte de su beca, no es un gasto más.
@@ -72,9 +73,11 @@ En la pestaña Economía ves:
 
 La diferencia es un indicador interno, no una certificación del SEPIE. El apoyo forma parte de la subvención concedida: nunca se le suma. Para una particularidad del convenio, introduce una **Corrección** con su motivo. Para un proyecto gestionado antes de EMS, puedes rellenar las **Cifras anteriores a EMS** agregadas.
 
+En la lista **Gestión económica > Facturas**, la columna **Proyecto** muestra el proyecto de la factura o, si es de los participantes, el de sus movilidades; si son de proyectos distintos, dice *Varios*.
+
 ## Avisos
 
-Arriba de la pestaña Economía, EMS avisa de lo que puede ser un error, sin bloquear nada: compromisos por encima de la subvención, gastos sin factura ni justificante, pagos pendientes, gastos cambiados después del pago, gastos pagados por encima de su importe corregido, una movilidad pagada por encima de su beca, una movilidad cancelada con dinero pagado, y participantes sin información suficiente para calcular el apoyo organizativo (por ejemplo, sin tarifa para su año de convocatoria, o sin fechas).
+Arriba de la pestaña Economía, EMS avisa de lo que puede ser un error, sin bloquear nada: compromisos por encima de la subvención, gastos sin factura ni justificante, pagos solicitados por hacer (solo los que ya se han pedido a Secretaría y aún no se han transferido; por eso la cifra puede ser menor que *Comprometido pendiente de pagar*), gastos cambiados después del pago, gastos pagados por encima de su importe corregido, una movilidad pagada por encima de su beca, una movilidad cancelada con dinero pagado, y participantes sin información suficiente para calcular el apoyo organizativo (por ejemplo, sin tarifa para su año de convocatoria, o sin fechas).
 
 ## Excel
 

@@ -378,12 +378,13 @@
                 <list string="Ranking" create="false" default_order="rank, score_total desc">
                     <field name="rank" invisible="not rank"/>
                     <field name="partner_id" width="220px"/>
-                    <field name="score_plan"/>
-                    <field name="score_last_mobility"/>
-                    <field name="score_projects"/>
-                    <field name="score_staff_language"/>
-                    <field name="score_seniority"/>
-                    <field name="score_internationalisation"/>
+                    <!-- Issue #810: short headers, so none is cut; the criterion's whole name on hover. -->
+                    <field name="score_plan" string="1. Plan" help="1. Mobility plan"/>
+                    <field name="score_last_mobility" string="2. Last mob." help="2. Last mobility"/>
+                    <field name="score_projects" string="3. Projects" help="3. Centre projects"/>
+                    <field name="score_staff_language" string="4. Languages" help="4. Languages"/>
+                    <field name="score_seniority" string="5. Seniority" help="5. Seniority"/>
+                    <field name="score_internationalisation" string="6. Internat." help="6. Internationalisation"/>
                     <field name="score_total" string="Total"/>
                     <field name="score_complete" optional="hide"/>
                     <field name="needs_draw" optional="hide"/>

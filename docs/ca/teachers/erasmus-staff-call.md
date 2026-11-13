@@ -18,7 +18,7 @@ Quan l'equip Erasmus publica una convocatòria del personal a la qual et pots pr
 
 ## 2. Omple el formulari
 
-El formulari s'obre quan presentes la sol·licitud. Per canviar-lo més endavant, a la teva sol·licitud, **Accions > Omple el formulari** el torna a obrir; mentre no hi hagis omplert res, la sol·licitud només mostra un requadre que t'ho diu. Té quatre blocs curts:
+El formulari s'obre quan presentes la sol·licitud. Per canviar-lo més endavant, a la teva sol·licitud, **Accions > Omple el formulari** el torna a obrir; mentre no hi hagis omplert res, la sol·licitud només mostra un requadre que t'ho diu. Cada camp buit mostra un exemple del que hi pots escriure. Té quatre blocs curts:
 
 1. **Pla de mobilitat**, amb les teves dues propostes, totes dues obligatòries, en una o dues frases cadascuna: l'activitat (job shadowing, un curs o docència), l'entitat d'acollida o el curs, on i quan. La **proposta A** és la principal, per exemple "Job shadowing en un centre d'FP alemany, el Berufskolleg X de Colònia, a l'abril"; la **proposta B** és la de reserva si la A no surt, per exemple "Un curs d'anglès en una acadèmia de Malta, al juliol". Preferiblement en el període no lectiu (juny, juliol); en un altre moment, com l'abril, només una setmana que no afecti les avaluacions, i amb la validació de la direcció. En trobaràs opcions al [web Erasmus+ del centre](https://elpuig.xeill.net/el-centre/erasmus/recursos-i-formacio).
 2. **Què vols aprendre i com ho aplicaràs** (annex 1): breument, les competències que vols observar o aprendre i com les aplicaràs a les teves classes, al teu departament o al centre, 1.500 caràcters com a màxim. La comissió només llegeix això i les teves dues propostes.
@@ -29,7 +29,7 @@ La **difusió** no forma part del pla: és la mateixa per a tothom. Quan tornis,
 
 Fes clic a **Desa** per continuar-hi més endavant, o a **Desa i envia** quan ho tinguis tot a punt. També la pots enviar des de la sol·licitud amb **Accions > Enviar**. Rebràs un justificant per correu electrònic. Fins a la data de tancament encara la pots modificar.
 
-Els documents que demana la convocatòria són a la pestanya **Documents** de la teva sol·licitud: fes clic a **Lliura** a cadascun i adjunta-hi el fitxer. Si l'equip Erasmus et demana esmenes, lliura-hi el que et demana i torna a enviar la sol·licitud.
+Els documents que demana la convocatòria són a la pestanya **Documents** de la teva sol·licitud: fes clic a **Lliura** a cadascun i adjunta-hi el fitxer (un PDF o una foto; en pots adjuntar diversos). La columna **Lliurat** mostra el que has lliurat i **Per fer**, el que encara falta (*Per lliurar* mentre no hi has adjuntat res). Si l'equip Erasmus et demana esmenes, lliura-hi el que et demana i torna a enviar la sol·licitud.
 
 ## 3. Segueix-la
 
@@ -41,11 +41,15 @@ Si et seleccionen, fes servir **Accions > Accepta la plaça** o **Renuncia a la 
 
 ## 4. Prepara la teva mobilitat
 
-Quan acceptes la plaça, la teva mobilitat apareix a **Les meves mobilitats** (i a la teva sol·licitud, a **La meva mobilitat**). Fes servir **Accions > Envia la proposta d'activitat**: comença amb les propostes de la sol·licitud. Completa-la amb les **dates exactes d'inici i de final**, accepta la declaració responsable per a l'absència per formació i envia-la: la direcció (la directora o el director o el cap d'estudis d'FP) valida l'activitat, l'entitat d'acollida o el curs, la destinació i les dates. Quan la valida, l'EMS demana tot sol l'absència per formació per a aquells dies, i qui t'aprova les absències l'aprova com sempre. Si no es valida, rebràs el motiu per correu electrònic: canvia el que calgui i torna-la a enviar.
+Quan acceptes la plaça, la teva mobilitat apareix a **Les meves mobilitats** (i a la teva sol·licitud, a **La meva mobilitat**). Fes servir **Accions > Envia la proposta d'activitat**: comença amb les propostes de la sol·licitud. Tria l'**activitat** (job shadowing, curs o docència) i completa-la amb les **dates exactes d'inici i de final**, accepta la declaració responsable per a l'absència per formació i envia-la: la direcció (la directora o el director o el cap d'estudis d'FP) valida l'activitat, l'entitat d'acollida o el curs, la destinació i les dates. Quan la valida, l'EMS demana tot sol l'absència per formació per a aquells dies, i qui t'aprova les absències l'aprova com sempre. Si no es valida, rebràs el motiu per correu electrònic: canvia el que calgui i torna-la a enviar.
 
 **Si canvia més endavant:** un cop validada, si canvien el curs, l'entitat d'acollida o les dates (per exemple, perquè aquell mes no s'ofereix el curs), envia una nova proposta des de la mateixa acció abans que comenci la mobilitat. La direcció la torna a validar i, mentrestant, la teva mobilitat es manté tal com es va validar. Si la direcció hi deixa un comentari, el veuràs al correu i a **Validació per part de la Direcció**.
 
 La pestanya **Expedient** té els documents que has de lliurar abans de marxar i en tornar (targeta sanitària europea, conveni de subvenció, acord d'aprenentatge (personal d'FP, KA121-VET) o acord de mobilitat (educació superior, KA131-HED) signat per tu, la coordinació Erasmus i l'entitat d'acollida, en tornar el document de mobilitat Europass (personal d'FP, l'emet l'equip Erasmus; el certificat d'estada o d'assistència només si cal per acreditar les dates o l'activitat) o el certificat d'estada o d'assistència (educació superior), una memòria breu amb evidències en el mes següent al retorn...), qui signa cadascun i el termini. El que l'equip Erasmus puja primer (el conveni de subvenció emplenat, la teva pòlissa d'assegurança) és a **De l'equip Erasmus**: descarrega-ho, signa-ho si cal i fes clic a **Lliura** per adjuntar-ho. Un document que pots signar a l'EMS té **Signa-ho aquí**. Els altres, signa'ls fora de l'EMS i lliura'ls.
+
+A dalt, **Els teus documents** diu quants n'has lliurat dels que et toca lliurar a tu, per exemple *Has lliurat 1 de 4*: no hi compten els que puja l'equip Erasmus ni els de la sol·licitud. Les columnes **De l'equip Erasmus** i **Comentari per al sol·licitant** només surten quan l'equip hi ha posat alguna cosa.
+
+Quan l'equip Erasmus ha calculat la teva beca, la pestanya **Beca** mostra el que et correspon (**La teva beca**: la beca menys el que el centre paga directament per tu, com el viatge o l'allotjament), el que ja t'han transferit (**Ja cobrat**) i el que encara has de cobrar (**Pendent de cobrar**). És només de consulta: si hi veus alguna cosa estranya, digues-ho a l'equip Erasmus.
 
 La resta també és a **Accions**: **Signa la carta de compromís**, l'**Autoavaluació setmanal** durant l'estada i, en tornar, **He respost l'EU Survey** quan hagis respost l'informe final. Mentre falti alguna cosa, tens una tasca a l'EMS, **Erasmus+: lliura el que falta**, amb la llista; s'actualitza cada setmana i desapareix tota sola quan ho has lliurat tot.
 

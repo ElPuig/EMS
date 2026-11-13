@@ -258,11 +258,23 @@ class EmsErasmusMobility(models.Model):
                                     inverse_name='mobility_id',
                                     help="What the centre pays directly out of the grant: flights, accommodation, "
                                          "course fees...")
-    provision_amount = fields.Monetary(string="Paid by the centre", compute='_compute_grant_net')
+    # compute_sudo: a teacher reads their own grant (issue #810) without access to the centre's
+    # invoices, provisions or payments.
+    provision_amount = fields.Monetary(string="Paid by the centre", compute='_compute_grant_net', compute_sudo=True)
     grant_net = fields.Monetary(string="To transfer to the participant", compute='_compute_grant_net',
+                                compute_sudo=True,
                                 help="The grant minus the services the centre pays directly. Below zero, the "
                                      "centre paid more than the grant: the project warns about it.")
     payment_ids = fields.One2many(string="Payments", comodel_name='ems.erasmus.payment', inverse_name='mobility_id')
+    grant_paid = fields.Monetary(string="Paid to you", compute='_compute_grant_paid', compute_sudo=True,
+                                 help="What the Secretary has already transferred to your account.")
+    grant_to_receive = fields.Monetary(string="Still to receive", compute='_compute_grant_paid', compute_sudo=True,
+                                       help="What you are due minus what has already been transferred to you.")
+    # Issue #810: the teacher's own record, in words. Only what they hand in themselves counts:
+    # neither what the Erasmus team uploads (or prepares for them to sign) nor the application's.
+    staff_record_summary = fields.Char(string="Your documents", compute='_compute_staff_record')
+    record_has_team_files = fields.Boolean(string="Has files from the team", compute='_compute_staff_record')
+    record_has_comments = fields.Boolean(string="Has comments from the team", compute='_compute_staff_record')
     host_contact_email = fields.Char(string="Contact person's email", related='host_contact_id.email')
 
     def _ems_commitment_depends(self):
@@ -388,6 +400,25 @@ class EmsErasmusMobility(models.Model):
         for mobility in self:
             mobility.provision_amount = sum(mobility.provision_ids.mapped('amount'))
             mobility.grant_net = mobility.grant_amount - mobility.provision_amount
+
+    @api.depends('grant_net', 'payment_ids.amount', 'payment_ids.state')
+    def _compute_grant_paid(self):
+        for mobility in self:
+            mobility.grant_paid = sum(mobility.payment_ids.filtered(lambda payment: payment.state == 'paid')
+                                      .mapped('amount'))
+            mobility.grant_to_receive = max(mobility.grant_net - mobility.grant_paid, 0.0)
+
+    @api.depends('document_ids.is_required', 'document_ids.handled_by', 'document_ids.file_state',
+                 'document_ids.prepared_attachment_ids', 'document_ids.review_comment')
+    def _compute_staff_record(self):
+        for mobility in self:
+            lines = mobility.document_ids
+            own = lines.filtered(lambda line: line.is_required and line.handled_by == 'participant')
+            handed_in = own.filtered(lambda line: line.file_state in ('to_review', 'complete'))
+            mobility.staff_record_summary = _("You have handed in %(done)s of %(total)s",
+                                              done=len(handed_in), total=len(own)) if own else _("Nothing to hand in")
+            mobility.record_has_team_files = bool(lines.prepared_attachment_ids)
+            mobility.record_has_comments = any(lines.mapped('review_comment'))
 
     def _ems_payee_depends(self):
         return super()._ems_payee_depends() + ['payment_ids.kind', 'grant_amount']

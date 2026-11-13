@@ -1500,3 +1500,45 @@ flowchart LR
   `_read_group` per mobility model for the whole page, cancelled ones aside). The organisational
   support rates open grouped by year, newest first; `call_year` has `aggregator=None` on rates and
   projects so that a group's row never sums years.
+
+### Staff screens in use during the 2026-27 calls (issue #810)
+
+- **Dialogs with text fields:** the staff application and activity-proposal wizards carry Odoo's own
+  `o_field_highlight` form class (every field's line visible before it is clicked) and native
+  `placeholder`s with an example of what to write. The document upload dialog says which files it
+  expects.
+- **Lists with text buttons:** `ems.css` narrows `th.o_list_button` to 64px for icon-only buttons
+  inside `attachment_ids`; a list whose buttons carry their text (*Hand in*, *Sign it here*, *PDF*)
+  opts out with the class `o_ems_list_text_buttons` on its `<list>`.
+- **The staff application's Documents tab** shows what the applicant needs (as *My mobility*):
+  `current_attachment_ids` (*Handed in*) and `todo_state`, whose `missing` value reads *To hand in*
+  everywhere (portal included); `review_comment` only once submitted. The review columns stay in
+  the team's form.
+- **Staff ranking:** short criterion headers (`string`), the full name in `help`.
+- **Staff resolution:** `ems.erasmus.resolution.call_audience` (related) hides the `modality_id`
+  column for a staff call; `score_total` reads *Score*.
+- **Plan rating:** each plan text under its own label at full width (a `div`, not a `group`, whose
+  label column squeezed the long texts).
+- **`file_state`'s `missing`** also reads *To hand in*, as `todo_state`: the family's portal and the
+  coordinator's *From the application* block use it.
+- **The teacher's *My mobility*:** `staff_record_summary` (*You have handed in 1 of 4*) counts the
+  mobility's required lines with `handled_by == 'participant'` handed in (`file_state` to review or
+  complete): neither what the team uploads or prepares to sign nor the application's lines (the old
+  `record_progress` "1 / 6" counted the identity document handed in with the application, which the
+  teacher's list never shows). *From the Erasmus team* and *Comment for the applicant* are
+  `column_invisible` until `record_has_team_files`/`record_has_comments`. A read-only *Grant* tab
+  shows `grant_net` (*Your grant*), `grant_paid` (paid payments) and `grant_to_receive`
+  (`grant_net - grant_paid`, never below 0); these and `provision_amount`/`grant_net` are
+  `compute_sudo`, since a teacher has no access to payments, provisions or invoices.
+- **Proposal dialog:** the activity selection has a `placeholder` example too (Odoo's
+  `SelectionField` shows it as the empty option), greyed by `static/src/scss/backend/selection_placeholder.scss`
+  with Odoo's `$input-placeholder-color` (SCSS: Odoo has no CSS variable for it).
+- **Project economy:** the payments warning counts only requested payments (*N requested payments
+  still to make*); `pending_amount` reads *Committed, not paid yet*, its help explaining the
+  difference.
+- **Invoices list:** `project_label` (non-stored) shows the invoice's project, or its participants'
+  (`mobility_ids.project_id`); *Various* when there are several. `project_id` itself is unchanged
+  (it is the project of an invoice of no mobility, see *Economy*).
+- **Quality:** the panel's filters carry `o_field_highlight`; the satisfaction lists and *Earlier
+  courses* use short headers with the full name in `help`; the latter's staff columns are
+  `optional="hide"`.

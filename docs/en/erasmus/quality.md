@@ -44,7 +44,7 @@ mobilities done, and the evolution course by course. It never shows anybody's na
 
 **Erasmus+ › Quality › Satisfaction surveys** lists the answers. The whole Erasmus+ team (the coordinator
 and the mobility technician) sees the score, the comments and who answered, with their mobility;
-nobody else does.
+nobody else does. Both lists use short headers (*Type*, *Host*, *Action*, *Progress*); the whole name shows on hover.
 
 **Low scores** lists every answer of 6 or lower with what did not work. Open one and choose
 **Actions › Create an improvement action**: EMS creates it in the **Quality** app, without the
@@ -82,6 +82,6 @@ one. If you don't know how many people it reached, leave that figure empty.
 typed in by the coordination with their source. They appear in the evolution by course marked
 *manual load*. The courses 2022-2023 to 2025-2026 are already there.
 
-The staff columns are empty when there is no data: an empty cell and a 0 mean the same, and the panel leaves those courses blank.
+The headers are short (*Appl.*, *Elig.*); the whole name shows on hover. The staff columns (*Staff appl.*, *Staff elig.*) are hidden at first: show them from the columns menu, right of the headers. They are empty when there is no data: an empty cell and a 0 mean the same, and the panel leaves those courses blank.
 
 Click a line to see it whole, the source included: the list hides the source so that it reads well.

@@ -28,6 +28,7 @@ Click a project to open its **Economy** tab.
 - **Forecast:** the grants of the mobilities whose destination is still being defined, and of the group mobilities before the selection is approved. They don't use any budget yet.
 - **Committed:** the grants of the confirmed mobilities (*Preparing* or *Closed*) plus the project's other expenses.
 - **Paid:** what has been transferred to the participants, plus the paid invoices and expenses.
+- **Committed, not paid yet:** everything committed that has not been paid yet, whether or not its payment has been requested.
 - **Available:** current grant minus committed. It is **not** the money in the bank: a project can have an awarded grant still to be transferred by SEPIE.
 
 **Paying doesn't count twice.** A grant of 1,500 € counts as 1,500 € committed as soon as the mobility is confirmed. When the Secretary pays the advance and then the rest, the 1,500 € only move from *pending* to *paid*. The same goes for an invoice paid out of a participant's grant (flights, accommodation): it is part of their grant, not an extra expense.
@@ -72,9 +73,11 @@ On the Economy tab you see:
 
 The difference is an internal indicator, not a certification of SEPIE. The support is part of the grant awarded: it is never added to it. For a particularity of the agreement, enter a **Correction** with its reason. For a project managed before EMS, you can fill in the aggregated **Figures from before EMS**.
 
+In the **Economic management > Invoices** list, the **Project** column shows the invoice's project or, for a participants' invoice, their mobilities' one; when they are of different projects it says *Various*.
+
 ## Warnings
 
-At the top of the Economy tab, EMS warns about anything that may be a mistake, without blocking anything: commitments above the grant, expenses without an invoice or receipt, payments still to make, expenses changed after payment, expenses paid above their corrected amount, a mobility paid above its grant, a cancelled mobility with money paid, and participants without enough information to calculate the organisational support (for example, no rate for their call year, or no dates).
+At the top of the Economy tab, EMS warns about anything that may be a mistake, without blocking anything: commitments above the grant, expenses without an invoice or receipt, requested payments still to make (only those already asked of the Secretary and not transferred yet, so the figure can be lower than *Committed, not paid yet*), expenses changed after payment, expenses paid above their corrected amount, a mobility paid above its grant, a cancelled mobility with money paid, and participants without enough information to calculate the organisational support (for example, no rate for their call year, or no dates).
 
 ## Excel
 

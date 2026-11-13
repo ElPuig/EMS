@@ -1,0 +1,10 @@
+// Issue #810: a selection's example (its empty first option, Odoo's `placeholder`) reads as an
+// example, greyed exactly like a text field's (Odoo's own $input-placeholder-color, so dark mode
+// follows), and not as a value already chosen. SCSS because Odoo has no CSS variable for it.
+.o_field_highlight select.o_input:has(> option:first-child:checked) {
+    color: $input-placeholder-color;
+
+    option {
+        color: $body-color;
+    }
+}

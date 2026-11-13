@@ -87,7 +87,7 @@ Ve a **Erasmus+ > Convocatorias > Solicitudes**, agrupadas por convocatoria, con
 
 Abre una solicitud:
 
-- Pestaña **Documentos**: cada documento con su **Estado** (*Falta*, *Pendiente de revisión*, *Hay que corregir*; en gris, los opcionales y los que no se aplican, como la autorización familiar de un adulto), sus **Archivos** (los que cuentan) y, si es un enlace, el **Enlace** mismo. Se conservan todos los archivos que ha subido el alumno: la columna opcional **Todas las versiones** muestra también los anteriores. Márcalos como **Válido** (✓) o **Hay que corregir** (✗), y escribe un **Comentario para el solicitante** cuando haya que corregirlo. Un documento sin ningún archivo no se puede marcar como válido.
+- Pestaña **Documentos**: cada documento con su **Estado** (*Por entregar*, *Pendiente de revisión*, *Hay que corregir*; en gris, los opcionales y los que no se aplican, como la autorización familiar de un adulto), sus **Archivos** (los que cuentan) y, si es un enlace, el **Enlace** mismo. Se conservan todos los archivos que ha subido el alumno: la columna opcional **Todas las versiones** muestra también los anteriores. Márcalos como **Válido** (✓) o **Hay que corregir** (✗), y escribe un **Comentario para el solicitante** cuando haya que corregirlo. Un documento sin ningún archivo no se puede marcar como válido.
 - Mientras la solicitud es un borrador, el alumno puede quitar desde el portal un archivo subido por error. Una vez enviada, solo lo quitas tú, con **Quitar un archivo** y el motivo.
 - Pestaña **Admisión**:
     - **Requisitos**: matriculado en un nivel de la convocatoria y ninguna práctica Erasmus+ anterior en este ciclo (para solicitar, un menor no necesita autorización familiar). EMS registra quién lo ha comprobado y cuándo.

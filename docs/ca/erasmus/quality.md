@@ -43,7 +43,7 @@ curs a curs. No mostra mai el nom de ningú. Les xifres s'arrodoneixen cap amunt
 
 ## Respostes i accions de millora
 
-**Erasmus+ › Qualitat › Enquestes de satisfacció** llista les respostes. Tot l'equip Erasmus+ (la coordinació i el tècnic de mobilitat) veu la puntuació, els comentaris i qui ha respost, amb la seva mobilitat; ningú més.
+**Erasmus+ › Qualitat › Enquestes de satisfacció** llista les respostes. Tot l'equip Erasmus+ (la coordinació i el tècnic de mobilitat) veu la puntuació, els comentaris i qui ha respost, amb la seva mobilitat; ningú més. Les dues llistes fan servir capçaleres curtes (*Tipus*, *Acollida*, *Acció*, *Seguiment*); el nom sencer surt en passar-hi el ratolí.
 
 **Puntuacions baixes** llista totes les respostes de 6 o menys amb el que no ha funcionat. Obre'n una
 i tria **Accions › Crear una acció de millora**: EMS la crea a l'aplicació **Qualitat**, sense el nom
@@ -82,6 +82,6 @@ captura o el cartell si en tens. Si no saps a quantes persones ha arribat, deixa
 guardés, introduïts per la coordinació amb la seva font. Surten a l'evolució per curs marcats com a
 *càrrega manual*. Els cursos 2022-2023 a 2025-2026 ja hi són.
 
-Les columnes de professorat queden buides quan no hi ha dada: una cel·la buida i un 0 volen dir el mateix, i el panell deixa aquests cursos en blanc.
+Les capçaleres són curtes (*Sol·l.*, *Dest.*); el nom sencer surt en passar-hi el ratolí. Les columnes de professorat (*Prof. sol·l.*, *Prof. dest.*) estan amagades d'entrada: mostra-les des del menú de columnes, a la dreta de les capçaleres. Queden buides quan no hi ha dada: una cel·la buida i un 0 volen dir el mateix, i el panell deixa aquests cursos en blanc.
 
 Fes clic en una línia per veure-la sencera, amb la font: la llista amaga la font perquè es llegeixi bé.

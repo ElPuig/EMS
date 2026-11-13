@@ -1252,6 +1252,7 @@ msgstr "Acrónimo"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_support_rate__kind
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_economy_panel_search
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_support_rate_search
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_list
 msgid "Action"
 msgstr "Acción"
 
@@ -8784,6 +8785,7 @@ msgstr "Ámbito de aplicación"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_list
 #: code:addons/ems/models/erasmus/export.py
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__score
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_form
 msgid "Score"
 msgstr "Puntuación"
 
@@ -10410,6 +10412,7 @@ msgstr "Tutorías"
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__kind
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__kind
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_list
 msgid "Type"
 msgstr "Tipo"
 
@@ -19299,8 +19302,6 @@ msgstr "Último recordatorio"
 #. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__missing_fields
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__missing
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__file_state__missing
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__todo_state__missing
 #: code:addons/ems/models/erasmus/quality.py:0
 msgid "Missing"
 msgstr "Falta"
@@ -22302,6 +22303,7 @@ msgstr "Acción inmediata"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__type__improvement
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_satisfaction__improvement_action_id
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_list
 msgid "Improvement action"
 msgstr "Acción de mejora"
 
@@ -31390,6 +31392,7 @@ msgstr "Plazas"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_search
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__project_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_project__project_id
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_list
 msgid "Project"
 msgstr "Proyecto"
 
@@ -33007,6 +33010,7 @@ msgstr "De 1 a menos de 2 años"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_plan
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
 msgid "1. Mobility plan"
 msgstr "1. Plan de movilidad"
 
@@ -33019,6 +33023,7 @@ msgstr "De 2 a menos de 5 años"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_last_mobility
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_last_mobility
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
 msgid "2. Last mobility"
 msgstr "2. Última movilidad"
 
@@ -33031,6 +33036,7 @@ msgstr "2. Última movilidad de personal"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_projects
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_projects
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
 msgid "3. Centre projects"
 msgstr "3. Proyectos del centro"
 
@@ -33038,6 +33044,7 @@ msgstr "3. Proyectos del centro"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_staff_language
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_staff_language
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
 msgid "4. Languages"
 msgstr "4. Idiomas"
 
@@ -33050,6 +33057,7 @@ msgstr "5 años o más"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_seniority
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_seniority
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
 msgid "5. Seniority"
 msgstr "5. Antigüedad"
 
@@ -33062,6 +33070,7 @@ msgstr "5. Antigüedad en el centro"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_internationalisation
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_internationalisation
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
 msgid "6. Internationalisation"
 msgstr "6. Internacionalización"
 
@@ -33104,6 +33113,7 @@ msgstr "Una persona evaluadora solo puntúa la rúbrica de sus evaluaciones."
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview_schedule__application_ids
 #: code:addons/ems/models/erasmus/quality.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_quality_history_list
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__call_audience
 msgid "Applicants"
 msgstr "Solicitantes"
 
@@ -34115,6 +34125,7 @@ msgstr "Entidades de acogida"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_quality_panel__host_partner_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_satisfaction__host_partner_id
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_search
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_list
 msgid "Host entity"
 msgstr "Entidad de acogida"
 
@@ -35720,6 +35731,7 @@ msgstr "Pago final"
 #: code:addons/ems/models/erasmus/economy.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form_economy
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__grant_amount
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_staff_form
 msgid "Grant"
 msgstr "Beca"
 
@@ -36076,6 +36088,7 @@ msgstr "Recibes"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_grant_table
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_staff_form
 msgid "Your grant"
 msgstr "Tu beca"
 
@@ -39280,6 +39293,7 @@ msgstr "No puedes inscribirte en esta movilidad."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__staff_record_summary
 msgid "Your documents"
 msgstr "Tus documentos"
 
@@ -43443,6 +43457,7 @@ msgstr "Abierta el"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_satisfaction__participant_type
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_search
 #: code:addons/ems/models/erasmus/quality.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_list
 msgid "Participant type"
 msgstr "Tipo de participante"
 
@@ -43983,6 +43998,7 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_quality_history__student_applicants
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_quality_history_list
 msgid "Student applicants"
 msgstr "Alumnado solicitante"
 
@@ -44266,6 +44282,7 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_staff_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_staff_form
 msgid "Handed in"
 msgstr "Entregado"
 
@@ -46880,11 +46897,11 @@ msgstr "En el caso de menores de edad, el padre, la madre o la persona tutora ta
 #. odoo-python
 #: code:addons/ems/models/erasmus/economy.py:0
 msgid ""
-"%(count)s payments to make (%(amount)s): grant payments, invoices and "
-"expenses still to transfer."
+"%(count)s requested payments still to make (%(amount)s): grant payments, "
+"invoices and expenses still to transfer."
 msgstr ""
-"%(count)s pagos por hacer (%(amount)s): pagos de becas, facturas y gastos "
-"pendientes de transferir."
+"%(count)s pagos solicitados por hacer (%(amount)s): pagos de becas, "
+"facturas y gastos pendientes de transferir."
 
 #. module: ems
 #. odoo-python
@@ -47069,11 +47086,6 @@ msgstr "Cambiado después del pago"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__econ_state__committed
 msgid "Committed"
 msgstr "Comprometido"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_project__pending_amount
-msgid "Committed and not paid yet."
-msgstr "Comprometido y aún no pagado."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__legacy_committed
@@ -47567,7 +47579,6 @@ msgstr "Parcialmente pagado"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_economy__econ_pending
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__econ_pending
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__econ_pending
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__pending_amount
 msgid "Pending payment"
 msgstr "Pendiente de pago"
 
@@ -51914,3 +51925,221 @@ msgid ""
 msgstr ""
 "Marca los niveles cuyos grupos pueden convocar una huelga. Deja los cursos en blanco para todos los\n"
 "                        cursos del nivel. Por ley, a partir de 3.º de ESO."
+
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
+msgid "E.g. job shadowing at a VET school in Porto (Portugal), in June: how they organise dual training."
+msgstr "P. ej.: job shadowing en un centro de FP de Oporto (Portugal), en junio: cómo organizan la formación dual."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
+msgid "E.g. an English course for teachers in Malta, in July."
+msgstr "P. ej.: un curso de inglés para docentes en Malta, en julio."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
+msgid "What you want to observe or learn, and how you will apply it in your classes and department."
+msgstr "Qué quieres observar o aprender y cómo lo aplicarás en tus clases y en el departamento."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
+msgid "The centre projects you take part in, one per line."
+msgstr "Los proyectos del centro en los que participas, uno por línea."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
+msgid "Only if you need some support to travel (optional)."
+msgstr "Solo si necesitas algún apoyo para viajar (opcional)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
+msgid "Anything else the Erasmus team should know (optional)."
+msgstr "Cualquier otra cosa que el equipo Erasmus+ deba saber (opcional)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_proposal_wizard_form
+msgid "The school, company or course provider"
+msgstr "El centro, la empresa o el organizador del curso"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_proposal_wizard_form
+msgid "Name and email of your contact there"
+msgstr "Nombre y correo de tu persona de contacto"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_proposal_wizard_form
+msgid "Anything the Direction should know about the activity."
+msgstr "Cualquier cosa que la Dirección deba saber de la actividad."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_document_wizard_form
+msgid "A PDF or a photo of the document. You can add several files."
+msgstr "Un PDF o una foto del documento. Puedes añadir varios archivos."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
+msgid "1. Plan"
+msgstr "1. Plan"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
+msgid "2. Last mob."
+msgstr "2. Última mov."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
+msgid "3. Projects"
+msgstr "3. Proyectos"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
+msgid "6. Internat."
+msgstr "6. Internac."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__todo_state__missing
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__file_state__missing
+msgid "To hand in"
+msgstr "Por entregar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_quality_history_list
+msgid "Appl."
+msgstr "Solic."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_quality_history_list
+msgid "Elig."
+msgstr "Dest."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_quality_history_list
+msgid "Staff appl."
+msgstr "Prof. solic."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_quality_history_list
+msgid "Staff elig."
+msgstr "Prof. dest."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_quality_history_list
+msgid "Eligible students"
+msgstr "Alumnado destinatario"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_quality_history_list
+msgid "Eligible staff"
+msgstr "Profesorado destinatario"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_quality_history_list
+msgid "Applicant staff"
+msgstr "Profesorado solicitante"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_list
+msgid "Host"
+msgstr "Acogida"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_list
+msgid "Progress"
+msgstr "Seguimiento"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_list
+msgid "State of the improvement action"
+msgstr "Estado de la acción de mejora"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__pending_amount
+msgid "Committed, not paid yet"
+msgstr "Comprometido pendiente de pagar"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_project__pending_amount
+msgid ""
+"Everything committed and not paid yet, whether or not its payment has been "
+"requested: the grants of the confirmed mobilities and the other expenses. "
+"The warning about payments to make counts only the payments already "
+"requested."
+msgstr ""
+"Todo lo comprometido que todavía no se ha pagado, se haya solicitado su "
+"pago o no: las becas de las movilidades confirmadas y los demás gastos. El "
+"aviso de pagos por hacer solo cuenta los pagos ya solicitados."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_proposal_wizard_form
+msgid "E.g. job shadowing in the electricity dept."
+msgstr "P. ej.: job shadowing en el dpto. de electricidad"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__record_has_comments
+msgid "Has comments from the team"
+msgstr "Tiene comentarios del equipo"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__record_has_team_files
+msgid "Has files from the team"
+msgstr "Tiene archivos del equipo"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Nothing to hand in"
+msgstr "No tienes que entregar nada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__grant_paid
+msgid "Paid to you"
+msgstr "Ya cobrado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__grant_to_receive
+msgid "Still to receive"
+msgstr "Pendiente de cobrar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__project_label
+msgid "Project shown"
+msgstr "Proyecto que se muestra"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_staff_form
+msgid ""
+"The grant minus what the centre pays directly for you (travel, "
+"accommodation, course fees...)."
+msgstr ""
+"La beca menos lo que el centro paga directamente por ti (viaje, "
+"alojamiento, matrícula del curso...)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_invoice__project_label
+msgid ""
+"The invoice's project, or its participants' one; Various when they are of "
+"different projects."
+msgstr ""
+"El proyecto de la factura, o el de sus participantes; Varios cuando son de "
+"proyectos distintos."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/grant.py:0
+msgid "Various"
+msgstr "Varios"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__grant_paid
+msgid "What the Secretary has already transferred to your account."
+msgstr "Lo que Secretaría ya te ha transferido a la cuenta."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__grant_to_receive
+msgid "What you are due minus what has already been transferred to you."
+msgstr "Lo que te corresponde menos lo que ya te han transferido."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "You have handed in %(done)s of %(total)s"
+msgstr "Has entregado %(done)s de %(total)s"

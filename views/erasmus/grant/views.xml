@@ -13,7 +13,7 @@
                     <field name="supplier_id"/>
                     <field name="concept"/>
                     <field name="description" optional="hide"/>
-                    <field name="project_id" optional="show"/>
+                    <field name="project_label" string="Project" optional="show"/>
                     <field name="currency_id" column_invisible="1"/>
                     <field name="amount" sum="Total"/>
                     <field name="unassigned_amount" optional="show" decoration-danger="unassigned_amount != 0"/>

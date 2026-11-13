@@ -14,6 +14,20 @@ import { clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 // The tour's user writes in English (tests/test_erasmus_staff_tour.py), for the date fields.
 const STAFF_CALL = "Test Erasmus Staff Call";
 
+// Issue #810: a list whose last column (the "Hand in"/"PDF" buttons) spilled over its right edge.
+function listFits(field) {
+    return {
+        trigger: `.o_form_view .o_field_widget[name='${field}'] .o_list_renderer`,
+        content: "The whole list fits, its buttons included",
+        run() {
+            const renderer = document.querySelector(`.o_form_view .o_field_widget[name='${field}'] .o_list_renderer`);
+            if (renderer.scrollWidth > renderer.clientWidth + 1) {
+                throw new Error(`The ${field} list is wider than the form: ${renderer.scrollWidth} > ${renderer.clientWidth}`);
+            }
+        },
+    };
+}
+
 registry.category("web_tour.tours").add("ems_erasmus_staff_backend_apply", {
     test: true,
     url: "/odoo/action-ems.action_erasmus_staff_calls",
@@ -25,6 +39,11 @@ registry.category("web_tour.tours").add("ems_erasmus_staff_backend_apply", {
         },
         ...clickAction("action_staff_apply", "Apply"),
         // Issue #802: nothing filled in yet, so the form's dialog opens straight away.
+        {
+            // Issue #810: every field shows its line and an example of what to write.
+            trigger: ".modal .o_field_highlight .o_field_widget[name='proposal_a'] textarea[placeholder]",
+            content: "The empty form shows where and what to write",
+        },
         {
             trigger: ".modal .o_field_widget[name='proposal_a'] textarea",
             content: "Proposal A, in your own words",
@@ -65,9 +84,20 @@ registry.category("web_tour.tours").add("ems_erasmus_staff_backend_apply", {
             run: "click",
         },
         {
+            // Issue #810: only what the applicant handed in and what is left to do, nothing of the
+            // team's review before submitting.
+            trigger: ".o_form_view .o_field_widget[name='document_ids'] table:has(th[data-name='current_attachment_ids']):has(td[name='todo_state']):not(:has(th[data-name='attachment_ids'])):not(:has(th[data-name='review_state'])):not(:has(th[data-name='review_comment']))",
+            content: "The applicant's columns only",
+        },
+        listFits("document_ids"),
+        {
             trigger: ".o_form_view .o_field_widget[name='document_ids'] .o_data_row:contains('Identity document') button[name='action_staff_upload']",
             content: "Hand in the identity document",
             run: "click",
+        },
+        {
+            trigger: ".modal .o_form_view p.text-muted",
+            content: "The dialog says which files it expects",
         },
         {
             trigger: ".modal .o_field_widget[name='attachment_ids']",
@@ -124,7 +154,33 @@ registry.category("web_tour.tours").add("ems_erasmus_staff_backend_mobility", {
             content: "The mobility is listed",
             run: "click",
         },
+        {
+            // Issue #810: only what the teacher hands in, in words; no empty columns of the team.
+            trigger: ".o_form_view .o_field_widget[name='staff_record_summary']:contains('You have handed in 0 of')",
+            content: "The record says what the teacher has handed in",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='document_ids'] table:has(td[name='todo_state']):not(:has(th[data-name='review_comment'])):not(:has(th[data-name='prepared_attachment_ids']))",
+            content: "No empty team columns",
+        },
         ...clickAction("action_staff_propose", "Send the activity proposal"),
+        {
+            trigger: ".modal .o_field_widget[name='proposal_activity'] select:has(option:checked:contains('E.g.'))",
+            content: "The activity has an example too (issue #810), greyed like the others",
+            run() {
+                const select = document.querySelector(".modal .o_field_widget[name='proposal_activity'] select");
+                const input = document.querySelector(".modal .o_field_widget[name='proposal_host'] input");
+                const example = getComputedStyle(select).color;
+                const placeholder = getComputedStyle(input, "::placeholder").color;
+                if (example !== placeholder) {
+                    throw new Error(`The activity's example is ${example}, not the examples' ${placeholder}`);
+                }
+            },
+        },
+        {
+            trigger: ".modal .o_field_highlight .o_field_widget[name='proposal_host'] input[placeholder]",
+            content: "The empty proposal shows where and what to write (issue #810)",
+        },
         {
             // Selection values are JSON-encoded in the <select>, hence the quotes.
             trigger: ".modal .o_field_widget[name='proposal_activity'] select",
@@ -159,7 +215,62 @@ registry.category("web_tour.tours").add("ems_erasmus_staff_backend_mobility", {
         {
             trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='proposal_host']:contains('Tour Course Provider')",
             content: "The proposal waits for the Direction",
+            run() {
+                window.location.href = "/odoo/action-ems.action_erasmus_my_applications";
+            },
         },
+        {
+            trigger: `.o_list_view .o_data_row td[name='call_id']:contains('${STAFF_CALL}')`,
+            content: "Open the application",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_notebook a[name='results']",
+            content: "Its results",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='resolution_line_ids'] .o_data_row button[name='action_staff_download']",
+            content: "Each list can be downloaded",
+        },
+        listFits("resolution_line_ids"),
+    ],
+});
+
+// Issue #810: the teacher reads their grant in their mobility: due, paid and still to receive.
+registry.category("web_tour.tours").add("ems_erasmus_staff_grant", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_notebook a[name='grant']",
+            content: "The grant tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='grant_net']:contains('1,000.00')",
+            content: "What the teacher is due",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='grant_to_receive']:contains('1,000.00')",
+            content: "Nothing paid yet: all of it still to receive",
+        },
+        {
+            trigger: ".o_form_view:not(:has(.o_field_widget[name='payment_ids'])):not(:has(.o_field_widget[name='provision_ids']))",
+            content: "Neither the payments nor the invoices' shares",
+        },
+    ],
+});
+
+// Issue #810: a staff call's resolution, as the Erasmus team prepares it: no modality column (the
+// staff have none since #772), and the score header is not cut.
+registry.category("web_tour.tours").add("ems_erasmus_staff_resolution", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_field_widget[name='line_ids'] table:has(th[data-name='score_total']):not(:has(th[data-name='modality_id'])) .o_data_row",
+            content: "The staff resolution lists ranks, people and scores, without modalities",
+        },
+        listFits("line_ids"),
     ],
 });
 
@@ -174,7 +285,8 @@ registry.category("web_tour.tours").add("ems_erasmus_my_plan_rating", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='plan_text']:contains('Test plan')",
+            // Issue #810: each text at full width under its title, not squeezed into a label column.
+            trigger: ".o_form_view div[name='plan']:not(.o_inner_group) .o_field_widget[name='plan_text']:contains('Test plan')",
             content: "The mobility plan is on screen",
         },
         {

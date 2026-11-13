@@ -121,6 +121,16 @@ class EmsErasmusInvoice(models.Model):
                                    help="Added by the Secretary when registering the transfer.")
     unassigned_amount = fields.Monetary(string="Not assigned", compute='_compute_unassigned_amount',
                                         help="The invoice's amount minus its shares: zero once fully assigned.")
+    project_label = fields.Char(string="Project shown", compute='_compute_project_label',
+                                help="The invoice's project, or its participants' one; Various when they are of "
+                                     "different projects.")
+
+    @api.depends('project_id', 'mobility_ids.project_id')
+    def _compute_project_label(self):
+        """Issue #810: a participants' invoice usually has no project of its own; the list shows theirs."""
+        for invoice in self:
+            projects = invoice.project_id | invoice.mobility_ids.project_id
+            invoice.project_label = _("Various") if len(projects) > 1 else projects.display_name
 
     @api.depends('amount', 'provision_ids.amount')
     def _compute_unassigned_amount(self):

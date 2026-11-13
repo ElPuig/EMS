@@ -41,6 +41,21 @@ class ErasmusGrantCase(ErasmusMobilityCase):
 class TestErasmusGrant(ErasmusGrantCase):
     """Issue #697 - grants, provision of services, invoices and payments."""
 
+    def test_invoice_list_shows_its_participants_project_or_various(self):
+        """Issue #810: a participants' invoice shows their project; Various when they are of several."""
+        first, second = self._preparing()
+        vet, other = self.env['ems.erasmus.project'].create([
+            {'name': '2095-1-ES01-KA121-VET-000000810', 'kind': 'ka121_vet'},
+            {'name': '2095-1-ES01-KA121-VET-000000811', 'kind': 'ka121_vet'}])
+        invoice = self._invoice(first | second, 100)
+        self.assertFalse(invoice.project_label)
+        (first | second).project_id = vet
+        invoice.invalidate_recordset(['project_label'])
+        self.assertEqual(invoice.project_label, '2095-VET')
+        second.project_id = other
+        invoice.invalidate_recordset(['project_label'])
+        self.assertEqual(invoice.project_label, 'Various')
+
     def test_invoice_is_split_equally_with_the_cents_left_on_the_first_share(self):
         first, second = self._preparing()
         third = self.env['ems.erasmus.mobility']

@@ -18,7 +18,7 @@ When the Erasmus team publishes a staff call you can apply to, it shows under **
 
 ## 2. Fill in the form
 
-The form opens when you apply. To change it later, in your application, **Actions > Fill in the form** opens it again; until you have filled something in, the application only shows a box telling you so. It has four short blocks:
+The form opens when you apply. To change it later, in your application, **Actions > Fill in the form** opens it again; until you have filled something in, the application only shows a box telling you so. Each empty field shows an example of what to write. It has four short blocks:
 
 1. **Mobility plan**, with your two proposals, both required, in a sentence or two each: the activity (job shadowing, a course or teaching), the host entity or course, where and when. **Proposal A** is the main one, for instance "Job shadowing at a German VET school, the Berufskolleg X in Cologne, in April"; **proposal B** is the backup if A falls through, for instance "An English course at an academy in Malta, in July". Preferably in the non-teaching period (June, July); at another time, such as April, only a week that does not affect the assessments, and with the Direction's validation. You will find options on the [centre's Erasmus+ website](https://elpuig.xeill.net/el-centre/erasmus/recursos-i-formacio).
 2. **What you want to learn and how you will apply it** (annex 1): briefly, the competences you want to observe or learn and how you will apply them to your classes, your department or the centre, 1,500 characters at most. The panel only reads this and your two proposals.
@@ -29,7 +29,7 @@ The form opens when you apply. To change it later, in your application, **Action
 
 Click **Save** to keep working on it later, or **Save and submit** when everything is ready. You can also submit it from the application with **Actions > Submit**. You receive a receipt by email. Until the closing date you can still change it.
 
-The documents the call asks for are in the **Documents** tab of your application: click **Hand in** on each one and attach the file. If the Erasmus team asks for corrections, hand in what it asks for there and submit the application again.
+The documents the call asks for are in the **Documents** tab of your application: click **Hand in** on each one and attach the file (a PDF or a photo; you can attach several). The **Handed in** column shows what you handed in and **To do** what is still missing (*To hand in* until you attach something). If the Erasmus team asks for corrections, hand in what it asks for there and submit the application again.
 
 ## 3. Follow it
 
@@ -41,11 +41,15 @@ If you are selected, use **Actions > Accept the place** or **Renounce the place*
 
 ## 4. Prepare your mobility
 
-When you accept the place, your mobility shows under **My mobilities** (and in your application, under **My mobility**). Use **Actions > Send the activity proposal**: it starts with your proposals from the application. Complete it with the **exact start and end dates**, accept the responsible declaration for your absence for training and send it: the Direction (the Director or the Head of Studies of FP) validates the activity, the host entity or course, the destination and the dates. When it does, EMS requests your absence for training for those days on its own, and whoever approves your absences approves it as usual. If it is not validated, you will receive the reason by email: change what is needed and send it again.
+When you accept the place, your mobility shows under **My mobilities** (and in your application, under **My mobility**). Use **Actions > Send the activity proposal**: it starts with your proposals from the application. Choose the **activity** (job shadowing, course or teaching) and complete it with the **exact start and end dates**, accept the responsible declaration for your absence for training and send it: the Direction (the Director or the Head of Studies of FP) validates the activity, the host entity or course, the destination and the dates. When it does, EMS requests your absence for training for those days on its own, and whoever approves your absences approves it as usual. If it is not validated, you will receive the reason by email: change what is needed and send it again.
 
 **If it changes later:** once validated, if the course, the host entity or the dates change (for example, the course is not offered that month), send a new proposal from the same action before the mobility starts. The Direction validates it again, and until then your mobility stays as it was validated. If the Direction leaves a comment, you see it in the email and in **Validation by the Direction**.
 
 The **Record** tab has the documents to hand in before leaving and on return (European Health Insurance Card, grant agreement, learning agreement (FP staff, KA121-VET) or mobility agreement (higher education, KA131-HED) signed by you, the Erasmus coordinator and the host entity, on return the Europass mobility document (FP staff, issued by the Erasmus team; the certificate of stay or attendance only if needed to prove the dates or the activity) or the certificate of stay or attendance (higher education), a short report with evidence within a month of your return...), who signs each one and its deadline. What the Erasmus team uploads first (the grant agreement filled in, your insurance policy) is under **From the Erasmus team**: download it, sign it if needed and click **Hand in** to attach it. A document you can sign in EMS has **Sign it here**. Sign the others outside EMS and hand them in.
+
+At the top, **Your documents** says how many you have handed in of those you hand in yourself, e.g. *You have handed in 1 of 4*: neither those the Erasmus team uploads nor the application's count. The **From the Erasmus team** and **Comment for the applicant** columns only show once the team has put something in them.
+
+Once the Erasmus team has worked out your grant, the **Grant** tab shows what you are due (**Your grant**: the grant minus what the centre pays directly for you, such as the travel or the accommodation), what has already been transferred to you (**Paid to you**) and what you still have to receive (**Still to receive**). It is read only: if something looks wrong, tell the Erasmus team.
 
 The rest is also in **Actions**: **Sign the commitment letter**, the **Weekly self-assessment** during the stay and, on return, **I have answered the EU Survey** once you have answered the final report. While something is missing, you have an EMS task, **Erasmus+: hand in what is missing**, with the list; it is updated every week and disappears on its own once you have handed everything in.
 

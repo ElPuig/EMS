@@ -185,7 +185,7 @@ class TestErasmusEconomy(ErasmusEconomyMixin, ErasmusGrantCase):
         expense = self._expense(self.project, 40)
         warnings = self.project.economy_warnings
         self.assertIn(f'{expense.name}', warnings, "An expense without an invoice or receipt.")
-        self.assertIn('payments to make', warnings, "The prefinancing and the expense still to transfer.")
+        self.assertIn('requested payments still to make', warnings, "The prefinancing and the expense still to transfer.")
         self.assertIn(second.partner_id.name, warnings, "Paid above their grant.")
         self.assertIn('organisational support', warnings, "No rate for the call year.")
         self._pay(first.payment_ids, self.secretary_user)

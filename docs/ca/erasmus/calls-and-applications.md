@@ -87,7 +87,7 @@ Ves a **Erasmus+ > Convocatòries > Sol·licituds**, agrupades per convocatòria
 
 Obre una sol·licitud:
 
-- Pestanya **Documents**: cada document amb el seu **Estat** (*Falta*, *Pendent de revisió*, *Cal corregir*, *Completa*; en gris, els opcionals i els que no s'apliquen, com l'autorització familiar d'un adult), els seus **Fitxers** (els que compten) i, si és un enllaç, l'**Enllaç** mateix. Es conserven tots els fitxers que ha pujat l'alumne: la columna opcional **Totes les versions** mostra també els anteriors. Marca'ls com a **Vàlid** (✓) o **Cal corregir** (✗), i escriu un **Comentari per al sol·licitant** quan calgui corregir-lo. Un document sense cap fitxer no es pot marcar com a vàlid.
+- Pestanya **Documents**: cada document amb el seu **Estat** (*Per lliurar*, *Pendent de revisió*, *Cal corregir*, *Completa*; en gris, els opcionals i els que no s'apliquen, com l'autorització familiar d'un adult), els seus **Fitxers** (els que compten) i, si és un enllaç, l'**Enllaç** mateix. Es conserven tots els fitxers que ha pujat l'alumne: la columna opcional **Totes les versions** mostra també els anteriors. Marca'ls com a **Vàlid** (✓) o **Cal corregir** (✗), i escriu un **Comentari per al sol·licitant** quan calgui corregir-lo. Un document sense cap fitxer no es pot marcar com a vàlid.
 - Mentre la sol·licitud és un esborrany, l'alumne pot treure des del portal un fitxer pujat per error. Un cop enviada, només el treus tu, amb **Treure un fitxer** i el motiu.
 - Pestanya **Admissió**:
     - **Requisits**: matriculat en un nivell de la convocatòria i cap pràctica Erasmus+ anterior en aquest cicle (per sol·licitar, un menor no necessita autorització familiar). EMS registra qui ho ha comprovat i quan.

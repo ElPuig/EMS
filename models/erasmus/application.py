@@ -1229,8 +1229,9 @@ class EmsErasmusApplicationDocument(models.Model):
     file_category = fields.Selection(string="Category", selection=PARTICIPANT_CATEGORIES,
                                      compute='_compute_file_category', store=True,
                                      help="Where it goes in the participant's record.")
+    # Issue #810: "To hand in", as todo_state says it, wherever the participant or the family read it.
     file_state = fields.Selection(string="Status", compute='_compute_file_state', selection=[
-        ('missing', "Missing"), ('to_review', "Pending review"), ('needs_change', "Needs changes"),
+        ('missing', "To hand in"), ('to_review', "Pending review"), ('needs_change', "Needs changes"),
         ('complete', "Complete"), ('optional', "Optional"), ('not_applicable', "Not applicable")],
         help="Complete: valid after the team's review (a signed document is only complete once checked, not when "
              "uploaded); one the team provides, once it is uploaded.")
@@ -1242,7 +1243,7 @@ class EmsErasmusApplicationDocument(models.Model):
     # is red. A missing document the Erasmus team uploads, or one that is not due yet (the destination
     # not set, it opens later, a return document before the end of the stay), is not.
     todo_state = fields.Selection(string="To do", compute='_compute_todo_state', selection=[
-        ('missing', "Missing"), ('waiting_team', "Waiting for the team"), ('not_yet', "Not yet"),
+        ('missing', "To hand in"), ('waiting_team', "Waiting for the team"), ('not_yet', "Not yet"),
         ('to_review', "Pending review"), ('needs_change', "Needs changes"), ('complete', "Complete"),
         ('optional', "Optional"), ('not_applicable', "Not applicable")])
 

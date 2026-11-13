@@ -12888,6 +12888,7 @@ msgstr "El archivo csv está vacío."
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_registration__fewer_opportunities_check__yes
 #: code:addons/ems/models/erasmus/satisfaction.py:0
 #: code:addons/ems/models/erasmus/economy.py:0
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__ems_ampa_member__yes
 msgid "Yes"
 msgstr "Sí"
 
@@ -25511,6 +25512,7 @@ msgstr "Incidencias"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_registration__fewer_opportunities_check__no
 #: code:addons/ems/models/erasmus/export.py:0
 #: code:addons/ems/models/erasmus/satisfaction.py:0
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__ems_ampa_member__no
 msgid "No"
 msgstr "No"
 
@@ -49660,3 +49662,63 @@ msgstr "No huelga"
 #: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__walkout_percentage
 msgid "% on walkout"
 msgstr "% huelga"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__ems_ampa_member
+#: model:ir.model.fields,field_description:ems.field_res_users__ems_ampa_member
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "AMPA"
+msgstr "AMPA"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_sale_order__ems_ampa_paid
+msgid "AMPA fee paid"
+msgstr "Cuota AMPA pagada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "AMPA member"
+msgstr "Socio del AMPA"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Not an AMPA member"
+msgstr "No socio del AMPA"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__ems_ampa_member
+#: model:ir.model.fields,help:ems.field_res_users__ems_ampa_member
+msgid ""
+"AMPA member: the confirmed enrollment of the running course, the student's "
+"own or a sibling's, carries the AMPA fee and its first installment has been "
+"collected. Shown to the student's tutor and the chiefs above them, the "
+"secretary's office and the administration."
+msgstr ""
+"Socio del AMPA: la matrícula confirmada del curso vigente, la del alumno o "
+"la de un hermano, incluye la cuota del AMPA y se ha cobrado su primer plazo."
+" Lo ven el tutor del alumno y los cargos que tiene por encima, la secretaría"
+" y la administración."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_sale_order__ems_ampa_paid
+msgid ""
+"The confirmed enrollment carries the AMPA fee and the first installment of "
+"its invoice, the one the fee is billed in, has been collected."
+msgstr ""
+"La matrícula confirmada incluye la cuota del AMPA y se ha cobrado el primer "
+"plazo de la factura, que es donde se factura la cuota."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"<span class=\"badge text-bg-success o_ems_ampa\" invisible=\"ems_ampa_member != 'yes'\">Yes</span>\n"
+"                                <span class=\"badge text-bg-secondary o_ems_ampa\" invisible=\"ems_ampa_member != 'no'\">No</span>"
+msgstr ""
+"<span class=\"badge text-bg-success o_ems_ampa\" invisible=\"ems_ampa_member != 'yes'\">Sí</span>\n"
+"                                <span class=\"badge text-bg-secondary o_ems_ampa\" invisible=\"ems_ampa_member != 'no'\">No</span>"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/ampa.py:0
+msgid "Unsupported search on the AMPA membership"
+msgstr "Búsqueda no admitida sobre la condición de socio del AMPA"

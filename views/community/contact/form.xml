@@ -397,6 +397,16 @@
                                 <span class="badge text-bg-info" invisible="benefit_status != 'bonification'">Bonification</span>
                                 <span class="badge text-bg-secondary" invisible="benefit_status != 'none'">None</span>
                             </div>
+                            <!-- AMPA membership (#820): only for the student's tutor scope, the secretary's
+                                 office and the administration; empty, and hidden, for anybody else. -->
+                            <span class="o_form_label" groups="ems.group_tutor,ems.group_secretary"
+                                  invisible="not ems_ampa_member">AMPA</span>
+                            <div class="o_row" groups="ems.group_tutor,ems.group_secretary"
+                                 invisible="not ems_ampa_member">
+                                <field name="ems_ampa_member" invisible="1"/>
+                                <span class="badge text-bg-success o_ems_ampa" invisible="ems_ampa_member != 'yes'">Yes</span>
+                                <span class="badge text-bg-secondary o_ems_ampa" invisible="ems_ampa_member != 'no'">No</span>
+                            </div>
                             <!-- Special educational needs (NEE): benefits-like display.
                                  Editable dropdown for tutor/secretary/admin (of this
                                  student) and guidance (any student, issue #465); read-only badge

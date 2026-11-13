@@ -12888,6 +12888,7 @@ msgstr "El fitxer csv és buit."
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_registration__fewer_opportunities_check__yes
 #: code:addons/ems/models/erasmus/satisfaction.py:0
 #: code:addons/ems/models/erasmus/economy.py:0
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__ems_ampa_member__yes
 msgid "Yes"
 msgstr "Sí"
 
@@ -25506,6 +25507,7 @@ msgstr "Incidències"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_registration__fewer_opportunities_check__no
 #: code:addons/ems/models/erasmus/export.py:0
 #: code:addons/ems/models/erasmus/satisfaction.py:0
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__ems_ampa_member__no
 msgid "No"
 msgstr "No"
 
@@ -49631,3 +49633,63 @@ msgstr "No vaga"
 #: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__walkout_percentage
 msgid "% on walkout"
 msgstr "% vaga"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__ems_ampa_member
+#: model:ir.model.fields,field_description:ems.field_res_users__ems_ampa_member
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "AMPA"
+msgstr "AMPA"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_sale_order__ems_ampa_paid
+msgid "AMPA fee paid"
+msgstr "Quota AMPA pagada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "AMPA member"
+msgstr "Associat AMPA"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Not an AMPA member"
+msgstr "No associat AMPA"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__ems_ampa_member
+#: model:ir.model.fields,help:ems.field_res_users__ems_ampa_member
+msgid ""
+"AMPA member: the confirmed enrollment of the running course, the student's "
+"own or a sibling's, carries the AMPA fee and its first installment has been "
+"collected. Shown to the student's tutor and the chiefs above them, the "
+"secretary's office and the administration."
+msgstr ""
+"Associat a l'AMPA: la matrícula confirmada del curs en vigor, la de l'alumne"
+" o la d'un germà, inclou la quota de l'AMPA i se n'ha cobrat el primer "
+"termini. Ho veuen el tutor de l'alumne i els caps que té per sobre, la "
+"secretaria i l'administració."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_sale_order__ems_ampa_paid
+msgid ""
+"The confirmed enrollment carries the AMPA fee and the first installment of "
+"its invoice, the one the fee is billed in, has been collected."
+msgstr ""
+"La matrícula confirmada inclou la quota de l'AMPA i s'ha cobrat el primer "
+"termini de la factura, que és on es factura la quota."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"<span class=\"badge text-bg-success o_ems_ampa\" invisible=\"ems_ampa_member != 'yes'\">Yes</span>\n"
+"                                <span class=\"badge text-bg-secondary o_ems_ampa\" invisible=\"ems_ampa_member != 'no'\">No</span>"
+msgstr ""
+"<span class=\"badge text-bg-success o_ems_ampa\" invisible=\"ems_ampa_member != 'yes'\">Sí</span>\n"
+"                                <span class=\"badge text-bg-secondary o_ems_ampa\" invisible=\"ems_ampa_member != 'no'\">No</span>"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/ampa.py:0
+msgid "Unsupported search on the AMPA membership"
+msgstr "Cerca no admesa sobre l'associació a l'AMPA"

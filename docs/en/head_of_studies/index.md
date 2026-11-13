@@ -20,6 +20,7 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 - [Registering a withdrawal or an expulsion](../secretary/graduation-withdrawal.md) — you can register a student's withdrawal or expulsion, same steps as the secretariat (shared manual).
 - [Ex officio withdrawal: Direction, Head of Studies and Coexistence](ex-officio-withdrawal.md) — Direction's green light, what the Head of Studies can do and the Coexistence steps of the compulsory circuit.
 - [Students' Google credentials](../tutors/google-credentials.md) — viewing them, creating the account and resetting the password, same steps as tutors, for the students of the tutors in your area.
+- [AMPA members](../tutors/ampa.md) — see which students of the tutors in your area are AMPA members, with the same steps as the tutors (shared manual).
 - [Consulting student documents](student-documents.md) — Every document submitted by the students of the tutors in your area, read only.
 - [Enrolling the preinscription students](../secretary/manual-matriculacio-preinscripcio.md) — you can consult every screen of **Academic management > Enrollment** (enrollments, preinscription, students without destination) and its configuration (enrollment items, templates, task assignment), for the whole centre, read only: the steps in this manual are the secretariat's (shared manual).
 - [Deciding on Attendance Correction Requests](attendance-corrections.md)

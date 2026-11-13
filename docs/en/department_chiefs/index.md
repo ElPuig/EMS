@@ -14,6 +14,7 @@ This section contains the manuals for **Department Chiefs** and **Seminar Chiefs
 |--------|-------------|
 | [Organising Absences](absences.md) | When a teacher of your department is away: sending guards, rearranging the lessons, telling the families about a timetable change, and entering a detected absence |
 | [Notices: Writing to Your Department's Groups](notice.md) | Send notices to the students and families of the groups your department teaches |
+| [AMPA members](../tutors/ampa.md) | See which students of your department's tutors are AMPA members, with the same steps as the tutors (shared manual) |
 
 ## In the Teachers' Manuals
 

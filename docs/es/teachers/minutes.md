@@ -41,7 +41,9 @@ veáis (la de una reunión a la que asististeis, la de vuestro departamento) se 
 
    Lo configura quien administra el sistema de calidad, en **Reuniones → Configuración → Tipos de acta**.
 3. A continuación el formulario os pide **de quién es la reunión**, según el tipo: el departamento, el
-   equipo de trabajo o el grupo. Un acta de claustro no pide nada; un acta genérica os deja elegir el ámbito.
+   equipo de trabajo o el grupo. Un acta de claustro no pide nada. En un acta genérica tenéis que elegir el
+   **ámbito de la reunión** (aparece vacío): un departamento, un grupo de trabajo, el equipo docente de un
+   grupo, todo el centro o *Sin ámbito concreto*, en el que los participantes los añadís vosotros.
 4. Comprobad la **fecha y hora** (viene propuesta la próxima hora en punto), el carácter y la modalidad, e
    indicad la **sala**. Si la reunión no es presencial, escribid dónde se hace en el campo **Lugar** (una
    videollamada, una lista de correo...).

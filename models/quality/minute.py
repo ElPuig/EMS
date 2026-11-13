@@ -80,6 +80,7 @@ class EmsMinute(models.Model):
     start_group_ids = fields.Many2many(string="Groups it can be started for", comodel_name="ems.group", compute="_compute_start_scope")
     start_workgroup_ids = fields.Many2many(string="Workgroups it can be started for", comodel_name="ems.workgroup", compute="_compute_start_scope")
     # Only for a type whose scope is 'generic': which of the scopes above this particular minute has.
+    # No default: whoever writes the minute chooses the one that fits the meeting (issue #821).
     scope_choice = fields.Selection(
         string="Scope of the meeting",
         selection=[
@@ -89,7 +90,6 @@ class EmsMinute(models.Model):
             ('group', "A group's teaching team"),
             ('centre', "The whole centre"),
         ],
-        default='none',
     )
     code_preview = fields.Char(
         string="Code of the minute",
@@ -346,6 +346,20 @@ class EmsMinute(models.Model):
                                             type=minute.type_id.name, scope=scope_record.display_name))
                 raise ValidationError(_("You cannot start a minute of type \"%s\".", minute.type_id.name))
 
+    @api.constrains('type_id', 'scope_choice', 'department_id', 'workgroup_id', 'group_id')
+    def _check_scope_is_set(self):
+        """The form asks for the scope; this keeps a minute created by code from going without it."""
+        messages = {
+            'scope_choice': _("Choose the scope of the meeting."),
+            'department_id': _("Choose the department the meeting belongs to."),
+            'workgroup_id': _("Choose the workgroup the meeting belongs to."),
+            'group_id': _("Choose the group whose teaching team meets."),
+        }
+        for minute in self:
+            missing = minute._ems_missing_scope_field()
+            if missing:
+                raise ValidationError(messages[missing])
+
     @api.constrains('attendee_ids', 'absentee_ids')
     def _check_attendee_not_absent(self):
         for minute in self:
@@ -363,7 +377,7 @@ class EmsMinute(models.Model):
         scope_kind = self.type_id.scope_kind
         # A scope left over from the type chosen before would number the minute under it.
         if scope_kind != 'generic':
-            self.scope_choice = 'none'
+            self.scope_choice = False
             if scope_kind != 'department':
                 self.department_id = False
             if scope_kind != 'workgroup':
@@ -539,15 +553,23 @@ class EmsMinute(models.Model):
         # that keeps a staff meeting from sharing a counter with the management review.
         return (self.type_id.code or "CEN").upper()
 
+    def _ems_missing_scope_field(self):
+        """The field still to fill in for the minute to have the scope its type asks for, or None:
+        a generic minute first needs its scope chosen, then the record that scope names."""
+        self.ensure_one()
+        scope_kind = self.type_id.scope_kind
+        if scope_kind == 'generic':
+            if not self.scope_choice:
+                return 'scope_choice'
+            scope_kind = {'group': 'teaching_team'}.get(self.scope_choice, self.scope_choice)
+        field_name = SCOPE_FIELDS.get(scope_kind)
+        return field_name if field_name and not self[field_name] else None
+
     def _ems_scope_is_set(self):
         """Whether the minute already has the scope its type asks for, which is what its code is
         numbered under."""
         self.ensure_one()
-        scope_kind = self.type_id.scope_kind
-        if scope_kind == 'generic':
-            scope_kind = {'group': 'teaching_team', 'none': 'centre'}.get(self.scope_choice, self.scope_choice)
-        field_name = {'department': 'department_id', 'workgroup': 'workgroup_id', 'teaching_team': 'group_id'}.get(scope_kind)
-        return bool(self.type_id) and (not field_name or bool(self[field_name]))
+        return bool(self.type_id) and not self._ems_missing_scope_field()
 
     def _ems_course_short_code(self):
         self.ensure_one()

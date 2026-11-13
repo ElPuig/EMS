@@ -77,7 +77,7 @@ En la lista **Gestión económica > Facturas**, la columna **Proyecto** muestra 
 
 ## Avisos
 
-Arriba de la pestaña Economía, EMS avisa de lo que puede ser un error, sin bloquear nada: compromisos por encima de la subvención, gastos sin factura ni justificante, pagos solicitados por hacer (solo los que ya se han pedido a Secretaría y aún no se han transferido; por eso la cifra puede ser menor que *Comprometido pendiente de pagar*), gastos cambiados después del pago, gastos pagados por encima de su importe corregido, una movilidad pagada por encima de su beca, una movilidad cancelada con dinero pagado, y participantes sin información suficiente para calcular el apoyo organizativo (por ejemplo, sin tarifa para su año de convocatoria, o sin fechas).
+Arriba de la pestaña Economía, EMS avisa de lo que puede ser un error, sin bloquear nada: compromisos por encima de la subvención, gastos sin factura ni justificante, pagos solicitados por hacer (solo los que ya se han pedido a Secretaría y aún no se han transferido; por eso la cifra puede ser menor que *Comprometido pendiente de pagar*), gastos cambiados después del pago, gastos pagados por encima de su importe corregido, una movilidad pagada por encima de su beca, una movilidad cancelada con dinero pagado, y participantes sin información suficiente para calcular el apoyo organizativo (por ejemplo, sin tarifa para su año de convocatoria, o sin fechas). Si el proyecto todavía no tiene el importe de la subvención, el aviso dice solo que falta (*Subvención concedida*), en lugar de una cifra por encima de cero; y si faltan las tarifas de apoyo organizativo de su año, una sola línea dice dónde añadirlas (**Configuración > Tarifas de apoyo organizativo**).
 
 ## Excel
 

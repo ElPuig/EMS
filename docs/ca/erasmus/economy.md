@@ -77,7 +77,7 @@ A la llista **Gestió econòmica > Factures**, la columna **Projecte** mostra el
 
 ## Avisos
 
-A dalt de la pestanya Economia, l'EMS avisa del que pot ser un error, sense bloquejar res: compromisos per sobre de la subvenció, despeses sense factura ni justificant, pagaments sol·licitats per fer (només els que ja s'han demanat a la Secretaria i encara no s'han transferit; per això la xifra pot ser més petita que *Compromès pendent de pagar*), despeses canviades després del pagament, despeses pagades per sobre del seu import corregit, una mobilitat pagada per sobre de la seva beca, una mobilitat cancel·lada amb diners pagats, i participants sense prou informació per calcular el suport organitzatiu (per exemple, sense tarifa per al seu any de convocatòria, o sense dates).
+A dalt de la pestanya Economia, l'EMS avisa del que pot ser un error, sense bloquejar res: compromisos per sobre de la subvenció, despeses sense factura ni justificant, pagaments sol·licitats per fer (només els que ja s'han demanat a la Secretaria i encara no s'han transferit; per això la xifra pot ser més petita que *Compromès pendent de pagar*), despeses canviades després del pagament, despeses pagades per sobre del seu import corregit, una mobilitat pagada per sobre de la seva beca, una mobilitat cancel·lada amb diners pagats, i participants sense prou informació per calcular el suport organitzatiu (per exemple, sense tarifa per al seu any de convocatòria, o sense dates). Si el projecte encara no té l'import de la subvenció, l'avís diu només que falta (*Subvenció concedida*), en lloc d'una xifra per sobre de zero; i si falten les tarifes de suport organitzatiu del seu any, una sola línia diu on afegir-les (**Configuració > Tarifes de suport organitzatiu**).
 
 ## Excel
 

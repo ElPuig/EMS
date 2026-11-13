@@ -131,7 +131,7 @@ ACCESS_MATRIX = {
     # Earlier commitment letters: created by EMS only, never changed (test_erasmus_integration.py).
     'ems.erasmus.commitment.version': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'erasmus': 'r'},
     'ems.erasmus.export': {'teacher': '', 'secretary': 'rc', 'head_of_studies': '', 'erasmus': 'rc'},
-    'ems.erasmus.mobility.task': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    'ems.erasmus.mobility.task': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.self_assessment': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.self_assessment.answer': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.group': {'teacher': 'r', 'secretary': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu'},

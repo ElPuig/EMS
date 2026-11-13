@@ -94,7 +94,7 @@ Obre una sol·licitud. A dalt hi ha el que la decideix: els **Requisits**, la **
 - Pestanya **Admissió**:
     - **Requisits**: matriculat en un nivell de la convocatòria i cap pràctica Erasmus+ anterior en aquest cicle (per sol·licitar, un menor no necessita autorització familiar). EMS registra qui ho ha comprovat i quan.
     - **Conducta aquest curs**: les **amonestacions** que l'alumne té a l'EMS durant el curs de la convocatòria. Si en té tantes com les que fan saltar l'avís a convivència (3, l'ajust de l'EMS) o més, es marca **Conducta per revisar** i la fitxa ho avisa a dalt. No l'exclou: escoltats l'equip docent i l'equip de convivència, pots **excloure** la sol·licitud indicant-ne el motiu (article 6 de la convocatòria). Si continua, cada amonestació resta punts (criteri F).
-    - **Motiu d'exclusió**, si la sol·licitud queda exclosa.
+    - **Motiu d'exclusió**, si la sol·licitud queda exclosa. També surt a dalt de la fitxa (*Exclosa: …*) i en una columna de la llista de sol·licituds.
 
 ## 4. Demanar esmenes
 

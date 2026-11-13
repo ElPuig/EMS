@@ -191,6 +191,8 @@ class EmsErasmusGroupMobility(models.Model):
         groups='ems.group_erasmus,ems.group_academic_admin',
         help="Enrolled students not excluded with as many conduct warnings this course as the number that sends the "
              "case to the coexistence team, or more.")
+    # Issue #787 (9.5): a warning, never a block (a real stay can start before the dates say).
+    start_warning = fields.Char(string="Before the stay starts", compute='_compute_start_warning')
     not_ready = fields.Char(string="Not ready to leave", compute='_compute_not_ready',
                             help="Participants with a required document or the commitment letter still pending.")
     next_reserve = fields.Char(string="Next reserve", compute='_compute_counts',
@@ -244,6 +246,17 @@ class EmsErasmusGroupMobility(models.Model):
             participants = mobility.sudo().participant_ids.filtered(
                 lambda participant: participant.state == 'active' and not participant.preparation_complete)
             mobility.not_ready = ", ".join(participants.partner_id.mapped('name'))
+
+    @api.depends('state', 'host_partner_id', 'date_start')
+    def _compute_start_warning(self):
+        today = self.env['ems.datetime_utils'].get_local_today()
+        for mobility in self:
+            parts = []
+            if mobility.state == 'preparation' and not mobility.host_partner_id:
+                parts.append(_("there is no host entity yet"))
+            if mobility.state == 'preparation' and mobility.date_start and mobility.date_start > today:
+                parts.append(_("the stay is planned to start on %s", mobility.date_start.strftime('%d/%m/%Y')))
+            mobility.start_warning = ", ".join(parts)
 
     @api.depends('resolution_ids.kind', 'resolution_ids.state')
     def _compute_provisional_published(self):

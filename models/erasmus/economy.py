@@ -437,7 +437,10 @@ class EmsErasmusProject(models.Model):
         project = self.sudo()
         warnings = []
         money = lambda amount: formatLang(self.env, amount, currency_obj=project.currency_id)
-        if project.committed_amount > project.grant_current:
+        # Issue #787 (10.6): with no grant entered, say what is missing instead of an alarming figure.
+        if not project.grant_current:
+            warnings.append(_("The grant awarded is missing: enter it on the project (Grant awarded)."))
+        elif project.committed_amount > project.grant_current:
             warnings.append(_("What is committed (%(committed)s) is above the current grant (%(grant)s) by %(over)s.",
                               committed=money(project.committed_amount), grant=money(project.grant_current),
                               over=money(project.committed_amount - project.grant_current)))
@@ -473,7 +476,14 @@ class EmsErasmusProject(models.Model):
         for group in project.group_mobility_ids.filtered(lambda group: group.state == 'cancelled' and group.econ_paid):
             warnings.append(_("The group mobility %(name)s is cancelled with %(paid)s paid.", name=group.name,
                               paid=money(group.econ_paid)))
-        missing = [line for line in project._ems_support_lines() if line.get('missing')]
+        lines = project._ems_support_lines()
+        # Issue #787 (10.6): no rate at all for the year is one line saying where to add them, not one per person.
+        if lines and project.call_year and not self.env['ems.erasmus.support.rate'].sudo().search_count(
+                [('call_year', '=', project.call_year), ('kind', '=', project.kind)], limit=1):
+            warnings.append(_("The organisational support rates of %s are missing (Configuration > Organisational "
+                              "support rates).", project.call_year))
+            lines = []
+        missing = [line for line in lines if line.get('missing')]
         if missing:
             warnings.append(_("Not enough information to compute the organisational support of %(count)s "
                               "participants (e.g. %(name)s: %(reason)s).", count=len(missing),

@@ -3948,6 +3948,7 @@ msgstr "Documents"
 
 #. module: ems
 #. odoo-python
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_staff_form
 #: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard__state__done
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__done
 #: model:ir.model.fields.selection,name:ems.selection__ems_contact_data_request__state__done model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
@@ -24717,6 +24718,7 @@ msgid "The last decision on this absence request is taken back and the request r
 msgstr "Es desfà l'última decisió sobre aquesta sol·licitud d'absència i la sol·licitud torna al seu estat anterior. S'avisa el treballador. La vols desfer?"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_staff_form
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
 msgid "Undo"
 msgstr "Desfés"
@@ -34335,6 +34337,7 @@ msgid "Step"
 msgstr "Pas"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_staff_form
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__step_ids
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
@@ -43964,6 +43967,8 @@ msgid "Application submitted. You will receive a receipt by email."
 msgstr "Sol·licitud enviada. Rebràs un justificant per correu electrònic."
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__staff_next_deadline
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_staff_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__staff_next_deadline
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_staff_form
 msgid "Before"
@@ -44154,6 +44159,7 @@ msgid "My support needs"
 msgstr "Les meves necessitats de suport"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__staff_next_level
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__staff_next_level
 msgid "Next step colour"
 msgstr "Color del pas següent"
@@ -44376,6 +44382,7 @@ msgid "Validation by the Direction"
 msgstr "Validació per part de la Direcció"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__staff_next_step
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__staff_next_step
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_staff_list
 msgid "What to do now"
@@ -44529,6 +44536,7 @@ msgid "Creates the circuit's steps, each with its deadline."
 msgstr "Crea els passos del circuit, cadascun amb el seu termini."
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__step_note
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__current_step_id
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__is_current
 msgid "Current step"
@@ -50101,3 +50109,239 @@ msgid ""
 "The place of %s can no longer be renounced (the stay has begun): talk to the "
 "Erasmus team."
 msgstr "Ja no es pot renunciar a la plaça de %s (l'estada ha començat): parla amb l'equip Erasmus+."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "%s documents for the Erasmus team to upload"
+msgstr "%s documents per pujar per l'equip Erasmus"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "%s documents missing from the participant"
+msgstr "falten %s documents del participant"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "%s documents to review"
+msgstr "%s documents per revisar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+msgid "<strong>Excluded:</strong>"
+msgstr "<strong>Exclosa:</strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid ""
+"Are all the group's invoices (travel and accommodation) already entered? "
+"Each participant's pocket money is their grant minus their share of them. "
+"Continue?"
+msgstr ""
+"Ja hi ha totes les factures del grup (viatge i allotjament)? Els diners de "
+"butxaca de cada participant són la seva beca menys la seva part d'aquestes "
+"factures. Voleu continuar?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Back home: check that nothing is left to pay and close the mobility."
+msgstr ""
+"De tornada: comproveu que no queda res per pagar i tanqueu la mobilitat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "Before \"The stay starts\":"
+msgstr "Abans de «Comença l'estada»:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__start_warning
+msgid "Before the stay starts"
+msgstr "Abans que comenci l'estada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__staff_can_tick
+msgid "Can tick"
+msgstr "Pot marcar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__staff_can_untick
+msgid "Can untick"
+msgstr "Pot desmarcar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Choosing among the destinations left, with no deadline."
+msgstr "Tria entre les destinacions que queden, sense termini."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__grant_missing
+msgid "Grant amount missing"
+msgstr "Falta l'import de la beca"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid ""
+"Missed their turn: chooses among the destinations left once the others have "
+"chosen."
+msgstr ""
+"Ha perdut el torn: triarà entre les destinacions que quedin quan els altres "
+"hagin triat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/staff_backend.py:0
+msgid "Only the Erasmus team can untick this step."
+msgstr "Només l'equip Erasmus pot desmarcar aquest pas."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Own proposal waiting for the Erasmus team to validate it."
+msgstr "Proposta pròpia pendent de validar per l'equip Erasmus."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__pocket_negative
+msgid "Participants with negative pocket money"
+msgstr "Participants amb diners de butxaca negatius"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__grant_missing
+msgid "Participants without a grant"
+msgstr "Participants sense beca"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid ""
+"Participants without the grant amount (copy it from the Beneficiary Module):"
+msgstr ""
+"Participants sense l'import de la beca (copieu-lo del Beneficiary Module):"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Pending: %s."
+msgstr "Pendent: %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Ready to leave."
+msgstr "A punt per marxar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Stay in progress."
+msgstr "Estada en curs."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid ""
+"The grant amount is missing: copy it from the Beneficiary Module (Grant "
+"tab)."
+msgstr ""
+"Falta l'import de la beca: copieu-lo del Beneficiary Module (pestanya Beca)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/economy.py:0
+msgid "The grant awarded is missing: enter it on the project (Grant awarded)."
+msgstr ""
+"Falta l'import de la subvenció concedida: escriviu-lo al projecte (Subvenció"
+" concedida)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/economy.py:0
+msgid ""
+"The organisational support rates of %s are missing (Configuration > "
+"Organisational support rates)."
+msgstr ""
+"Falten les tarifes de suport organitzatiu de %s (Configuració > Tarifes de "
+"suport organitzatiu)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid ""
+"Their share of the collective invoices is larger than their grant, so their "
+"pocket money is negative:"
+msgstr ""
+"La seva part de les factures col·lectives supera la seva beca, i els diners "
+"de butxaca surten negatius:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Their turn to choose the destination, until %s."
+msgstr "Torn d'escollir la destinació fins al %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Waiting for the Direction to validate the proposed activity."
+msgstr "Pendent de validar per la direcció l'activitat proposada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Waiting for the destination choice to open."
+msgstr "Esperant que s'obri l'elecció de destinació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Waiting for the participant to propose the activity."
+msgstr "Esperant que la persona proposi l'activitat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Waiting for the participant to send a new activity proposal."
+msgstr "Esperant que la persona enviï una nova proposta d'activitat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Waiting for their turn to choose the destination."
+msgstr "Esperant el seu torn per escollir la destinació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/staff_backend.py:0
+msgid "You cannot tick this step."
+msgstr "No pots marcar aquest pas."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "the EU Survey to validate"
+msgstr "l'EU Survey per validar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "the participant has to answer the EU Survey"
+msgstr "el participant ha de respondre l'EU Survey"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "the participant has to sign the commitment letter"
+msgstr "el participant ha de signar la carta de compromís"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "the stay is planned to start on %s"
+msgstr "l'estada està prevista per al %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "there is no host entity yet"
+msgstr "encara no hi ha entitat d'acollida"

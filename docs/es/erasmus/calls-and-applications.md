@@ -94,7 +94,7 @@ Abre una solicitud. Arriba está lo que la decide: los **Requisitos**, la **Punt
 - Pestaña **Admisión**:
     - **Requisitos**: matriculado en un nivel de la convocatoria y ninguna práctica Erasmus+ anterior en este ciclo (para solicitar, un menor no necesita autorización familiar). EMS registra quién lo ha comprobado y cuándo.
     - **Conducta este curso**: las **amonestaciones** que el alumno tiene en EMS durante el curso de la convocatoria. Si tiene tantas como las que hacen saltar el aviso a convivencia (3, el ajuste de EMS) o más, se marca **Conducta por revisar** y la ficha lo avisa arriba. No lo excluye: oídos el equipo docente y el equipo de convivencia, puedes **excluir** la solicitud indicando el motivo (artículo 6 de la convocatoria). Si sigue adelante, cada amonestación resta puntos (criterio F).
-    - **Motivo de exclusión**, si la solicitud queda excluida.
+    - **Motivo de exclusión**, si la solicitud queda excluida. También aparece arriba de la ficha (*Excluida: …*) y en una columna de la lista de solicitudes.
 
 ## 4. Pedir subsanaciones
 

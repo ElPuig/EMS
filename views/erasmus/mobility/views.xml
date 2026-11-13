@@ -128,9 +128,19 @@
                         <field name="can_request_prefinancing" invisible="1" groups="ems.group_erasmus,ems.group_academic_admin"/>
                         <field name="can_request_final" invisible="1" groups="ems.group_erasmus,ems.group_academic_admin"/>
                         <field name="state" invisible="1"/>
+                        <field name="grant_missing" invisible="1"/>
                         <field name="phase" widget="statusbar" statusbar_visible="choosing,preparing,stay,return,done"/>
                     </header>
                     <sheet>
+                        <!-- Issue #787 (5.3, 8.1): the step in progress and who has it. -->
+                        <div class="alert alert-info" role="status" invisible="not step_note">
+                            <field name="step_note" class="d-inline" readonly="1"/>
+                        </div>
+                        <!-- Issue #787 (5.12): nothing calculates the grant, so its absence is said. -->
+                        <div class="alert alert-warning" role="alert" invisible="not grant_missing"
+                             groups="ems.group_erasmus,ems.group_academic_admin">
+                            The grant amount is missing: copy it from the Beneficiary Module (Grant tab).
+                        </div>
                         <!-- Issue #786 (5.15, 8.11): the reason only once cancelled, instead of a tab always there. -->
                         <div class="alert alert-secondary" role="alert" invisible="state != 'cancelled' or not cancel_reason">
                             <strong>Reason for cancelling:</strong> <field name="cancel_reason" class="d-inline" readonly="1"/>

@@ -1138,6 +1138,15 @@ The state changes only through the actions. Cancelling frees the place (`_ems_ca
 accepted offer and the application become `renounced`; the place is then offered with the existing
 wizard, never on its own.
 
+### What each state offers and what is missing (issues #786, #787)
+
+- **Actions per state.** Every Erasmus+ form offers, in each state, only the actions that do something there, so the Actions dropdown shows a lone one as a plain button (`static/src/js/backend/actions_dropdown.js`). On the team's mobility the conditions read `phase`: closing only on `return`, cancelling until the stay ends, the record export from `preparing` on, the final payment on `return`/`done`, the pending-documents notice on `preparing`/`return`. The teacher's application offers only *Fill in the form* while `staff_editable` (its dialog has *Save and submit*, the highlighted button); *Submit* alone only sends requested corrections.
+- **Renouncing** (teacher or portal) is allowed until the stay starts: `_ems_can_renounce()` (`state` open and `phase` in `choosing`/`preparing`), checked again in `action_renounce` and `action_staff_renounce`.
+- **Application status bar.** `ems_statusbar_path` with `status_path` from `STATUS_PATHS` (`models/erasmus/application.py`): the way an application of that state went and what is still ahead, e.g. `draft,submitted,excluded`; the teacher's view of a call shows its `phase`.
+- **Current step.** `step_note` (non-stored) on the mobility, shown on top of the team's form: the destination choice (choice not open, turn and its deadline, turn missed, choosing among what is left), the proposal waiting for the Direction or the team, then what the record lacks (commitment letter, documents by who handles them, documents to review, the EU Survey). The teacher's mobility shows `staff_next_step`, the same "what to do now" box as their application (`ems.erasmus.application._ems_staff_next()`, built on `_ems_portal_progress()`).
+- **Warnings that block nothing.** `grant_missing` on a mobility with a destination and no grant; on a group mobility `grant_missing` (names), `pocket_negative` (share of the collective invoices above the grant) and `start_warning` (no host entity, start date still ahead) before *The stay starts*; *Request the pocket money* asks for confirmation that the collective invoices are in when the centre pays them. On a project, a missing grant replaces the "committed above the grant" warning, and missing support rates for the call year are one line instead of one per participant.
+- The application's `exclusion_reason` is shown on top of the form and as a list column.
+
 ### Destination choice (students, art. 15)
 
 `call.action_open_destination_choice()` (after the definitive resolution, with destinations) sets
@@ -1254,6 +1263,8 @@ mobility (`prepared_attachment_ids`).
 |---|---|---|---|---|
 | `ems.erasmus.destination`, `.call.task`, `.mobility.task` | rwcu | r | r | via controller |
 | `ems.erasmus.mobility` | rwcu | r + `decision_note` and validating staff proposals (`write()` guard) | same as Head of Studies | via controller |
+
+A teacher reads their own staff mobility and its steps (`ems.erasmus.mobility.task`: read ACL for `group_teacher` plus `rule_erasmus_mobility_task_staff_own`, with `_staff_all` so the team's and the Head of Studies' rules are not narrowed). They tick or untick a step with `action_staff_done`/`action_staff_undo` (sudo after `staff_can_tick`/`staff_can_untick`): only on an open mobility, and untick only what they ticked themselves (issue #787, 8.8).
 
 Menu *Erasmus+ > Mobilities > Individual mobilities* (team, Head of Studies, Director), with a *Proposal to validate*
 filter.

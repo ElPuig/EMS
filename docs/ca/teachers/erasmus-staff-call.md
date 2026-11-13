@@ -53,6 +53,8 @@ Quan l'equip Erasmus ha calculat la teva beca, la pestanya **Beca** mostra el qu
 
 La resta també és a **Accions**: **Signa la carta de compromís**, l'**Autoavaluació setmanal** durant l'estada i, en tornar, **He respost l'EU Survey** quan hagis respost l'informe final. Mentre falti alguna cosa, tens una tasca a l'EMS, **Erasmus+: lliura el que falta**, amb la llista; s'actualitza cada setmana i desapareix tota sola quan ho has lliurat tot.
 
+A dalt de la teva mobilitat, un requadre et diu què has de fer ara (per exemple, enviar la proposta o signar la carta) i fins quan, com a la sol·licitud. La pestanya **Passos** llista els passos de la convocatòria (per exemple, compartir l'estada en una reunió): quan n'hagis fet un, fes clic a **Fet**; si t'has equivocat, **Desfés**. Un pas que ha marcat l'equip Erasmus només el pot desmarcar l'equip.
+
 Si finalment no hi pots anar, fes servir **Renuncia a la plaça** i escriu-ne el motiu. Ho pots fer fins que comença l'estada; després, parla amb l'equip Erasmus.
 
 ---

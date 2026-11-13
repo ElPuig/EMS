@@ -94,7 +94,7 @@ Open an application. On top is what decides it: the **Requirements**, the **Tota
 - **Admission** tab:
     - **Requirements**: enrolled in a level of the call and no previous Erasmus+ internship in this cycle (a minor needs no family authorisation to apply). EMS records who checked it and when.
     - **Conduct this course**: the **conduct warnings** the student has in EMS during the call's course. With as many as the number that sends the case to the coexistence team (3, the EMS setting) or more, **Conduct to review** is ticked and the form shows a notice at the top. It does not rule the student out: having heard the teaching team and the coexistence team, you may **exclude** the application with the reason (article 6 of the call). If it goes on, every warning takes points off (criterion F).
-    - **Exclusion reason**, if the application is excluded.
+    - **Exclusion reason**, if the application is excluded. It also shows at the top of the form (*Excluded: …*) and in a column of the applications list.
 
 ## 4. Ask for corrections
 

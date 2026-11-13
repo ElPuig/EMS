@@ -80,9 +80,13 @@ In **Actions**, **Export participants (Excel)** downloads the selected students 
 
 ## Stay, EU Survey and closure
 
+While the mobility is in preparation, a warning says what to check before clicking **The stay starts**: whether there is no host entity yet, or the planned start date has not come yet. It is a warning: the stay can be started anyway.
+
 Before leaving, the mobility lists who is not ready yet (a required document or the commitment letter pending), and **The stay starts** asks for confirmation. The leader teacher says when the stay starts and when they are back. Then EMS creates the **EU Survey** task for the leader teacher (or the person set) with its deadline. When they say it is answered, you validate it. The group's expenses (flights, accommodation...) are recorded as invoices in the **Collective expenses** tab (see *Grants and pocket money* below). On return the leader teacher also gets the task of saying whether the **programme was carried out as planned** (**Return and closure** tab): yes, or no and what changed. The closure cannot be proposed nor done without that answer. When the leader teacher proposes the closure, every required document is valid (the executed group learning agreement among them) and every participant's pocket money and every collective invoice is paid, click **Close the mobility**.
 
 ## Grants and pocket money
+
+If any participant has no grant amount, a warning at the top of the form names them. When the centre pays the travel and accommodation, **Request the pocket money** first asks whether every invoice of the group is already in, because the pocket money is the grant minus each one's share of the invoices; if it comes out negative for someone (their share is larger than their grant), a red warning names them.
 
 In the **Collective expenses** tab you enter each participant's **grant** (students and accompanying teachers), as calculated in the Beneficiary Module. The centre usually pays the flights and the accommodation of the whole group: record them as **collective invoices**. EMS splits every collective invoice **equally among the participants taking part** and shows, for each one, their share and their **pocket money**: their grant minus their share. That is what the Secretary transfers to them. An invoice is either the group's or for some individual participants, never both, because it would count twice: EMS stops you if you fill in both.
 

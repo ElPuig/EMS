@@ -46,7 +46,7 @@ Si un alumne seleccionat renuncia (des del portal, o dient-ho al docent responsa
 
 ## Expedients i documents
 
-En aprovar la selecció s'obre l'expedient de cada alumne seleccionat i dels dos docents. A la pestanya **Documents** hi ha els **documents compartits** del grup (l'acord d'aprenentatge del grup, previst i executat; acords, viatge, la pòlissa d'assegurança col·lectiva, inclusió —confidencial—, Green Travel i evidències) i la llista dels **documents demanats**, que pots adaptar a cada mobilitat: per a qui és cada document (el grup, cada alumne, cada docent o tothom), si és obligatori o només per a menors, qui el signa i el termini. Quan deses un canvi a la llista, els documents afegits arriben a tots els expedients.
+En aprovar la selecció s'obre l'expedient de cada alumne seleccionat i dels dos docents. A la pestanya **Documents** hi ha els **documents compartits** del grup (l'acord d'aprenentatge del grup, previst i executat; acords, viatge, la pòlissa d'assegurança col·lectiva, inclusió —confidencial—, Green Travel i evidències) i la llista dels **documents demanats**, que pots adaptar a cada mobilitat: per a qui és cada document (el grup, cada alumne, cada docent o tothom), si és obligatori o només per a menors, qui el signa i el termini. Quan deses un canvi a la llista, els documents afegits arriben a tots els expedients, i el que treus desapareix dels expedients on ningú no l'ha lliurat; un que algú ja ha lliurat no es pot treure (posa'l com a *Opcional*).
 
 Un document complet ofereix **Reobrir** en lloc de **Cal corregir**: fa el mateix, el torna perquè es corregeixi.
 

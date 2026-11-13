@@ -1,5 +1,5 @@
+from odoo.exceptions import UserError
 from odoo.tests import Form, tagged
-from odoo.tools import mute_logger
 
 from .test_erasmus import PDF
 
@@ -55,21 +55,31 @@ class TestErasmusPolishAutomations(ErasmusMobilityCase):
             'task_ids': [(0, 0, {'name': 'Step after cancelling'})]})
         self.assertNotIn('Step after cancelling', first.task_ids.call_task_id.mapped('name'))
 
-    def test_removing_a_call_document_keeps_what_was_uploaded(self):
-        """5.17: a document a participant already handed in can't be taken off the call, so their
-        files stay."""
-        first, _second = self._accepted()
-        first.sudo().state = 'preparing'
-        self.call.with_user(self.erasmus_user).write({
-            'preparation_document_ids': [(0, 0, {'name': 'Document removed later', 'stage': 'preparation'})]})
-        line = first.document_ids.filtered(lambda line: line.name == 'Document removed later')
+    def test_removing_a_call_document(self):
+        """5.17: a document nobody handed in is taken off the call with its empty lines; one a
+        participant already handed in can't be, with a clear message, and their files stay."""
+        first, second = self._accepted()
+        (first | second).sudo().state = 'preparing'
+        call = self.call.with_user(self.erasmus_user)
+        call.write({'preparation_document_ids': [(0, 0, {'name': 'Document nobody hands in', 'stage': 'preparation'})]})
+        document = call.preparation_document_ids.filtered(lambda document: document.name == 'Document nobody hands in')
+        lines = (first | second).document_ids.filtered(lambda line: line.call_document_id == document)
+        self.assertEqual(len(lines), 2)
+        call.write({'preparation_document_ids': [(2, document.id)]})
+        self.assertFalse(document.exists())
+        self.assertFalse(lines.exists())
+
+        call.write({'preparation_document_ids': [(0, 0, {'name': 'Document handed in', 'stage': 'preparation'})]})
+        line = first.document_ids.filtered(lambda line: line.name == 'Document handed in')
         line.sudo()._ems_add_files([('handed-in.pdf', PDF)])
         files = line.attachment_ids
         self.assertTrue(files)
-        with self.assertRaises(Exception), self.cr.savepoint(), mute_logger('odoo.sql_db'):
-            self.call.with_user(self.erasmus_user).write({'preparation_document_ids': [(2, line.call_document_id.id)]})
-        self.assertTrue(line.exists())
+        with self.assertRaisesRegex(UserError, 'Document handed in'):
+            call.write({'preparation_document_ids': [(2, line.call_document_id.id)]})
+        self.assertTrue(line.call_document_id.exists())
         self.assertEqual(line.attachment_ids, files)
+        self.assertTrue(second.document_ids.filtered(lambda other: other.call_document_id == line.call_document_id),
+                        "The other participants' empty lines stay too.")
 
     def test_country_and_city_from_the_host_entity(self):
         """13.6: choosing the host entity fills the country and city still empty."""
@@ -123,10 +133,20 @@ class TestErasmusPolishAutomationsGroup(ErasmusGroupMobilityCase):
         added = participants.document_ids - lines
         self.assertTrue(added)
         self.assertEqual(set(added.mapped('name')), {'Group document added later'})
-        # Taking it off the group mobility again never removes a file already handed in.
-        line = added[:1]
+        # Taken off again before anybody hands it in: the empty lines go with it.
+        coordinator = self.mobility.with_user(self.coordinator_user)
+        coordinator.write({'requirement_ids': [(2, added.call_document_id.id)]})
+        self.assertFalse(added.exists())
+
+    def test_a_document_handed_in_stays_in_the_group_mobility(self):
+        """Taking a document off the group mobility never removes a file already handed in."""
+        self._approved()
+        coordinator = self.mobility.with_user(self.coordinator_user)
+        coordinator.write({'requirement_ids': [(0, 0, {
+            'name': 'Group document handed in', 'stage': 'preparation', 'group_audience': 'student'})]})
+        line = self.mobility.participant_ids.document_ids.filtered(lambda line: line.name == 'Group document handed in')[:1]
         line.sudo()._ems_add_files([('handed-in.pdf', PDF)])
         files = line.attachment_ids
-        with self.assertRaises(Exception), self.cr.savepoint(), mute_logger('odoo.sql_db'):
-            self.mobility.with_user(self.coordinator_user).write({'requirement_ids': [(2, line.call_document_id.id)]})
+        with self.assertRaisesRegex(UserError, 'Group document handed in'):
+            coordinator.write({'requirement_ids': [(2, line.call_document_id.id)]})
         self.assertEqual(line.exists().attachment_ids, files)

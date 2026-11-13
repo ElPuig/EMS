@@ -15,9 +15,9 @@ i de la memòria de la xarxa Mobilitat FP: l'**interès** i la **satisfacció**.
 | Interès del professorat | Professorat que ha presentat sol·licitud / tot el professorat dels cicles d'FP, més la directora i el cap d'estudis d'FP | - |
 | Satisfacció | Mitjana de les puntuacions dels participants, de l'1 al 10 | més de 8,5 |
 | Taxa de resposta | Enquestes respostes / estades acabades | - |
+| Accions de difusió | Accions de difusió del curs (només amb un curs triat) | com a mínim 10 |
 
-Les dues xifres d'interès es congelen quan es publica la resolució definitiva de la convocatòria:
-qui entra al centre o en marxa després no les canvia.
+Mentre una convocatòria és oberta, el seu interès es compta en el moment d'obrir el panell. Quan se'n publica la resolució definitiva, la xifra es congela: qui entra al centre o en marxa després no la canvia. La satisfacció i la taxa de resposta sempre es compten en el moment (una enquesta resposta ja no canvia).
 
 ## L'enquesta de satisfacció
 
@@ -35,9 +35,9 @@ manera, la **coordinació** obre l'enquesta (des de la mobilitat, *Enquesta de s
 
 ## Pantalla d'indicadors
 
-**Erasmus+ › Qualitat › Indicadors** (el panell es titula *Indicadors de qualitat*) mostra les xifres per als filtres que triïs (curs,
+**Erasmus+ › Qualitat › Indicadors** (el panell es titula *Indicadors de qualitat*) s'obre amb el curs actual; buida'l per veure tots els cursos. Mostra les xifres per als filtres que triïs (curs,
 convocatòria, projecte, tipus de participant, cicle, entitat d'acollida), en quatre pestanyes: els
-indicadors amb el seu objectiu, la satisfacció per tipus de participant i per entitat d'acollida, el
+indicadors (columnes *Indicador*, *Valor*, *Objectiu*, *Compleix* en verd o vermell, i *Respostes*: quantes persones compta la xifra), la satisfacció per tipus de participant i per entitat d'acollida, el
 recorregut de cada convocatòria des de les sol·licituds fins a les mobilitats fetes, i l'evolució
 curs a curs. No mostra mai el nom de ningú. En passar el ratolí per la icona (i) de cada indicador, una línia explica com es calcula; l'informe en PDF ho explica sencer. Les xifres s'arrodoneixen cap amunt a partir de la meitat, a un decimal (81,25 % es mostra 81,3 %). Filtrades per projecte, les xifres d'interès són les de les convocatòries de les seves mobilitats, compartides amb qualsevol altre projecte de les mateixes convocatòries.
 

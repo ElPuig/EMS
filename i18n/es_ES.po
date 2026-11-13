@@ -30726,8 +30726,10 @@ msgid "Admitted"
 msgstr "Admitida"
 
 #. module: ems
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment__answer_ids
+#: code:addons/ems/models/erasmus/satisfaction.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_quality_history_list
 msgid "Answers"
 msgstr "Respuestas"
@@ -49713,14 +49715,14 @@ msgstr "Convenios, informes y difusión del proyecto. Los documentos de cada par
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/satisfaction.py:0
-msgid "Students who applied out of every student of the call's levels, frozen when the definitive resolution is published. Filtered by project: the calls of its mobilities."
-msgstr "Alumnado que ha solicitado sobre todo el alumnado de los niveles de la convocatoria; se congela al publicar la resolución definitiva. Filtrado por proyecto: las convocatorias de sus movilidades."
+msgid "Students who applied out of every student of the call's levels: counted at the moment while the call is open, and frozen when its definitive resolution is published, so that it no longer changes. Filtered by project: the calls of its mobilities."
+msgstr "Alumnado que ha solicitado sobre todo el alumnado de los niveles de la convocatoria: se cuenta en el momento mientras la convocatoria está abierta, y se congela al publicar su resolución definitiva, de modo que ya no cambia. Filtrado por proyecto: las convocatorias de sus movilidades."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/satisfaction.py:0
-msgid "Teachers who applied out of the FP teachers and the Direction that validates, frozen when the definitive resolution is published. Filtered by project: the calls of its mobilities."
-msgstr "Docentes que han solicitado sobre el profesorado de FP y la Dirección que valida; se congela al publicar la resolución definitiva. Filtrado por proyecto: las convocatorias de sus movilidades."
+msgid "Teachers who applied out of the FP teachers and the Direction that validates: counted at the moment while the call is open, and frozen when its definitive resolution is published, so that it no longer changes. Filtered by project: the calls of its mobilities."
+msgstr "Docentes que han solicitado sobre el profesorado de FP y la Dirección que valida: se cuenta en el momento mientras la convocatoria está abierta, y se congela al publicar su resolución definitiva, de modo que ya no cambia. Filtrado por proyecto: las convocatorias de sus movilidades."
 
 #. module: ems
 #. odoo-python
@@ -50512,3 +50514,9 @@ msgstr "Estimada en parte"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_claim__outcome__dismissed
 msgid "Dismissed"
 msgstr "Desestimada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/quality.py:0
+msgid "Diffusion actions of the course (the call notices EMS sends, and those the team adds): the Mobilitat FP network asks for at least %s a year. Choose a course to see them."
+msgstr "Acciones de difusión del curso (los avisos de convocatoria que envía EMS y las que añade el equipo): la red Mobilitat FP pide como mínimo %s al año. Elija un curso para verlas."

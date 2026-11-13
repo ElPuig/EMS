@@ -15,9 +15,9 @@ and of the Mobilitat FP network's report: **interest** and **satisfaction**.
 | Staff interest | Teachers who applied / every teacher of the FP cycles, plus the Director and the Head of Studies of FP | - |
 | Satisfaction | Average of the participants' scores, from 1 to 10 | more than 8.5 |
 | Response rate | Surveys answered / stays over | - |
+| Diffusion actions | Diffusion actions of the course (only with a course chosen) | at least 10 |
 
-The two interest figures are frozen when the call's definitive resolution is published: whoever
-joins or leaves the centre afterwards does not change them.
+While a call is open, its interest is counted at the moment you open the panel. When its definitive resolution is published, the figure is frozen: whoever joins or leaves the centre afterwards does not change it. Satisfaction and the response rate are always counted at the moment (an answered survey no longer changes).
 
 ## The satisfaction survey
 
@@ -35,8 +35,8 @@ the **coordinator** opens the survey (from the mobility, *Satisfaction survey �
 
 ## Indicators screen
 
-**Erasmus+ › Quality › Indicators** (the panel is titled *Quality indicators*) shows the figures for the filters you choose (course, call,
-project, participant type, cycle, host entity), in four tabs: the indicators with their target, the
+**Erasmus+ › Quality › Indicators** (the panel is titled *Quality indicators*) opens on the current course; empty it to see every course. It shows the figures for the filters you choose (course, call,
+project, participant type, cycle, host entity), in four tabs: the indicators (columns *Indicator*, *Value*, *Target*, *Met* in green or red, and *Answers*: how many people the figure counts), the
 satisfaction by participant type and by host entity, each call's way from the applications to the
 mobilities done, and the evolution course by course. It never shows anybody's name. Hovering over the (i) icon of each indicator, one line explains how it is calculated; the PDF report explains it in full. Figures are rounded half up to one decimal (81.25 % shows 81.3 %). Filtered by project, the interest figures are those of the calls of its mobilities, shared with any other project of the same calls.
 

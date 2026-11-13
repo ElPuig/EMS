@@ -15,9 +15,9 @@ y de la memoria de la red Mobilitat FP: el **interés** y la **satisfacción**.
 | Interés del profesorado | Profesorado que ha presentado solicitud / todo el profesorado de los ciclos de FP, más la directora y el jefe de estudios de FP | - |
 | Satisfacción | Media de las puntuaciones de los participantes, del 1 al 10 | más de 8,5 |
 | Tasa de respuesta | Encuestas respondidas / estancias terminadas | - |
+| Acciones de difusión | Acciones de difusión del curso (solo con un curso elegido) | como mínimo 10 |
 
-Las dos cifras de interés se congelan cuando se publica la resolución definitiva de la convocatoria:
-quien entra en el centro o se va después no las cambia.
+Mientras una convocatoria está abierta, su interés se cuenta en el momento de abrir el panel. Cuando se publica su resolución definitiva, la cifra se congela: quien entra en el centro o se va después no la cambia. La satisfacción y la tasa de respuesta siempre se cuentan en el momento (una encuesta respondida ya no cambia).
 
 ## La encuesta de satisfacción
 
@@ -35,9 +35,9 @@ responde de ninguna manera, la **coordinación** abre la encuesta (desde la movi
 
 ## Pantalla de indicadores
 
-**Erasmus+ › Calidad › Indicadores** (el panel se titula *Indicadores de calidad*) muestra las cifras para los filtros que elijas (curso,
+**Erasmus+ › Calidad › Indicadores** (el panel se titula *Indicadores de calidad*) se abre con el curso actual; vacíalo para ver todos los cursos. Muestra las cifras para los filtros que elijas (curso,
 convocatoria, proyecto, tipo de participante, ciclo, entidad de acogida), en cuatro pestañas: los
-indicadores con su objetivo, la satisfacción por tipo de participante y por entidad de acogida, el
+indicadores (columnas *Indicador*, *Valor*, *Objetivo*, *Cumple* en verde o rojo, y *Respuestas*: cuántas personas cuenta la cifra), la satisfacción por tipo de participante y por entidad de acogida, el
 recorrido de cada convocatoria desde las solicitudes hasta las movilidades realizadas, y la
 evolución curso a curso. No muestra nunca el nombre de nadie. Al pasar el ratón por el icono (i) de cada indicador, una línea explica cómo se calcula; el informe en PDF lo explica entero. Las cifras se redondean hacia arriba a partir de la mitad, a un decimal (81,25 % se muestra 81,3 %). Filtradas por proyecto, las cifras de interés son las de las convocatorias de sus movilidades, compartidas con cualquier otro proyecto de las mismas convocatorias.
 

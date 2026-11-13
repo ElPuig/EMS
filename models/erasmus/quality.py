@@ -18,6 +18,8 @@ CHANNELS = [
 NETWORK_FOLDERS = {'management': '1-gestio', 'documentation': '2-documentacio', 'mobilities': '3-mobilitats',
                    'diffusion': '4-difusio'}
 COURSE_NAME = re.compile(r'^\d{4}-\d{4}$')
+# The Mobilitat FP network's objective 4: at least this many diffusion actions a school year.
+DIFFUSION_TARGET = 10
 
 
 class EmsErasmusQualityHistory(models.Model):
@@ -123,7 +125,9 @@ class EmsErasmusQualityPanel(models.TransientModel):
         (review 2026-11-05)."""
         self._ems_check_access()
         action = self.env['ir.actions.act_window']._for_xml_id('ems.action_erasmus_quality_panel')
-        return dict(action, res_id=self.create({}).id)
+        # Issue #793 (12.1): on the current course, what is looked at almost every time (and the
+        # Mobilitat FP evidence then visible); emptying it shows every course.
+        return dict(action, res_id=self.create({'course_id': self.env.company.current_course_id.id}).id)
 
     def action_print_report(self):
         self._ems_check_access()
@@ -159,6 +163,20 @@ class EmsErasmusQualityPanel(models.TransientModel):
                          action.deadline_date and str(action.deadline_date) or '') for action in actions],
             'date': self.env['ems.datetime_utils'].get_local_datetime().strftime('%d/%m/%Y %H:%M'),
         }
+
+    def _ems_data(self):
+        """Issue #793 (12.11): the diffusion actions of the course against the Mobilitat FP network's
+        target, one more row of the indicators. Only with a course: the target is per school year."""
+        data = super()._ems_data()
+        count = self.course_id and self.env['ems.erasmus.diffusion'].sudo().search_count(
+            [('course_id', '=', self.course_id.id)])
+        data['indicators'].append({
+            'name': _("Diffusion actions"), 'value': count if self.course_id else None, 'unit': '',
+            'target': DIFFUSION_TARGET, 'at_least': True, 'count': True, 'n': '-',
+            'help': _("Diffusion actions of the course (the call notices EMS sends, and those the team adds): the "
+                      "Mobilitat FP network asks for at least %s a year. Choose a course to see them.",
+                      DIFFUSION_TARGET)})
+        return data
 
     def _ems_calls(self, course=True):
         """A project narrows the calls to those with mobilities charged to it."""

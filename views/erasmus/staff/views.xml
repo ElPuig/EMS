@@ -429,8 +429,9 @@
                         <field name="applicant_notes" placeholder="Anything else the Erasmus team should know (optional)."/>
                     </group>
                     <footer>
-                        <button name="action_save" type="object" string="Save" class="btn-primary"/>
-                        <button name="action_save_submit" type="object" string="Save and submit"
+                        <!-- P03 (adriamt, 2026-11-13): both stay, sending is the highlighted one. -->
+                        <button name="action_save" type="object" string="Save" class="btn-secondary"/>
+                        <button name="action_save_submit" type="object" string="Save and submit" class="btn-primary"
                                 confirm="Submit the application? You can still change it until the call closes."/>
                         <button string="Cancel" special="cancel" class="btn-secondary"/>
                     </footer>

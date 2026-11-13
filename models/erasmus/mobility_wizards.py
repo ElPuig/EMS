@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from odoo import _, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
+from .mobility import host_place_vals
 from .staff_backend import staff_wizard
 
 
@@ -68,6 +69,11 @@ class EmsErasmusMobilityDestinationWizard(models.TransientModel):
                                       domain="[('is_erasmus_host', '=', True)]")
     date_start = fields.Date(string="Start")
     date_end = fields.Date(string="End")
+
+    @api.onchange('host_partner_id')
+    def _onchange_host_partner_id(self):
+        """Issue #788 (13.6): the entity's country and city, as on the mobility."""
+        self.update(host_place_vals(self, self.host_partner_id))
 
     def action_confirm(self):
         self.ensure_one()

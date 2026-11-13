@@ -1021,8 +1021,23 @@ who signs it outside EMS (`sign_participant`, `sign_guardian` for minors, `sign_
 set: same review, every version kept, a new upload goes back to review. A new call gets default
 documents and steps per audience (`_ems_preparation_documents`, `_ems_preparation_tasks`: art. 17
 of the students' call, art. 15 of the staff call), editable. `_ems_sync_requirements()` adds what
-the mobility's modality needs and is missing, never removing a line: on creation, when a staff
-member's modality is assigned (`application.write`), and from *Update documents and checklist*.
+the mobility's modality needs and is missing, never removing a line: on creation, when the
+modality is changed on the application (`application.write`), when a staff member's project is
+assigned, and when the call is saved with changes to `preparation_document_ids` or `task_ids`
+(issue #788: `_ems_sync_open_requirements()` on the call's mobilities still going on; there is no
+button to remember). A group mobility does the same when saved with changes to `requirement_ids`.
+
+**Filled in by EMS (issue #788):** the mobility's `project_id`, on creation and when the modality
+changes, when exactly one project is possible (`allowed_project_ids`: a single active project of
+the modality's kind, or a single project among a staff call's places; `_ems_fill_project()`); two
+or more are left to the team. Choosing the host entity (on the mobility and in the agreed
+destination's dialog) copies its country and city when empty (`host_place_vals()`). Validating a
+staff proposal copies country, city and dates but never looks up or creates the host entity: the
+name the teacher types (`proposal_host`) is only a guide, and the team sets the real entity when
+preparing the documents (decided by the Erasmus+ coordinator, 2026-11-13). A project's `kind`
+comes from its agreement number (`-KA121-VET-`/`-KA131-HED-`) like its `code`, and a support
+rate's `band_scope` from its action (KA131-HED: the whole project; KA121-VET: the same kind of
+mobility); both stay editable.
 
 New call fields: `choice_turn_hours` (default 72) and `choice_open`.
 

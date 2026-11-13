@@ -539,8 +539,8 @@ class EmsErasmusApplication(models.Model):
                 vals.update({f'{name}_user_id': self.env.uid, f'{name}_date': now})
         result = super().write(vals)
         if 'modality_id' in vals:
-            # Issue #687: a corrected modality brings its documents.
-            self.mobility_ids.filtered(lambda mobility: mobility.state in ('choosing', 'preparing'))._ems_sync_requirements()
+            # Issue #687: a corrected modality brings its documents; issue #788, its project if only one fits.
+            self.mobility_ids._ems_sync_open_requirements()._ems_fill_project()
         return result
 
     @api.depends_context('uid')

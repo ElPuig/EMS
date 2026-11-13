@@ -33715,11 +33715,6 @@ msgid "Add the destinations first."
 msgstr "Añade primero los destinos."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
-msgid "Adds the documents and steps of the call that this mobility does not have yet."
-msgstr "Añade los documentos y los pasos de la convocatoria que esta movilidad aún no tiene."
-
-#. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_erasmus_mobility_application_unique
 msgid "An application has only one mobility."
 msgstr "Una solicitud solo tiene una movilidad."
@@ -34430,11 +34425,6 @@ msgstr "Marcado por"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_document_signature__signed_date
 msgid "Ticked on"
 msgstr "Marcado el"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
-msgid "Update documents and checklist"
-msgstr "Actualizar documentos y pasos"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
@@ -37931,11 +37921,6 @@ msgid "Activity programme"
 msgstr "Programa de actividades"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
-msgid "Adds to every file the documents asked for that it does not have yet."
-msgstr "Añade a cada expediente los documentos pedidos que todavía no tiene."
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid "Agreements with the host entity"
@@ -39034,11 +39019,6 @@ msgstr "Total de los gastos colectivos"
 #: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid "Travel and accommodation documents"
 msgstr "Documentos de viaje y alojamiento"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
-msgid "Update documents"
-msgstr "Actualizar los documentos"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
@@ -50372,3 +50352,8 @@ msgstr "la estancia está prevista para el %s"
 #: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid "there is no host entity yet"
 msgstr "todavía no hay entidad de acogida"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_project__kind
+msgid "Taken from the agreement number (KA121-VET or KA131-HED), like the short name."
+msgstr "Se saca del número de convenio (KA121-VET o KA131-HED), como el nombre corto."

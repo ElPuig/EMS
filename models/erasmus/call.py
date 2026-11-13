@@ -646,6 +646,9 @@ class EmsErasmusCall(models.Model):
             call.write(deadlines)
         if 'interview_deadline' in vals or any('interview_deadline' in deadlines for deadlines in following.values()):
             self._ems_move_evaluation_activities()
+        if {'preparation_document_ids', 'task_ids'} & set(vals):
+            # Issue #788 (5.17): the mobilities still going on get the documents and steps added on saving.
+            self.sudo().mobility_ids._ems_sync_open_requirements()
         return result
 
     def _ems_move_evaluation_activities(self):

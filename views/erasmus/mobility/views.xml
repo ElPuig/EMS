@@ -89,10 +89,6 @@
                             <button name="action_notify_documents" type="object" string="Notify pending documents"
                                     invisible="phase not in ('preparing', 'return')" groups="ems.group_erasmus,ems.group_academic_admin"
                                     help="Emails the participant the documents missing or needing changes."/>
-                            <button name="action_sync_requirements" type="object" string="Update documents and checklist"
-                                    invisible="phase not in ('choosing', 'preparing')"
-                                    groups="ems.group_erasmus,ems.group_academic_admin"
-                                    help="Adds the documents and steps of the call that this mobility does not have yet."/>
                             <!-- Issue #697: the grant payments the Secretary transfers. -->
                             <button name="action_request_prefinancing" type="object" string="Request the first payment"
                                     invisible="not can_request_prefinancing or state not in ('preparing', 'done')"

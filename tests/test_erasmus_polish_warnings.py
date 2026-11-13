@@ -47,8 +47,7 @@ class TestErasmusStaffSteps(ErasmusStaffMobilityCase):
     def test_the_teacher_ticks_their_steps(self):
         mobility = self._accepted_staff()
         if not mobility.task_ids:
-            self.env['ems.erasmus.call.task'].create({'call_id': self.staff_call.id, 'name': 'Test step'})
-            mobility.action_sync_requirements()
+            self.staff_call.task_ids = [(0, 0, {'name': 'Test step'})]
         own = self.env(user=self.staff_users[0])['ems.erasmus.mobility'].browse(mobility.id)
         task = own.task_ids[:1]
         self.assertTrue(task.staff_can_tick)

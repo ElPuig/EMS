@@ -16,6 +16,7 @@ from .workflow import check_applicant_action, check_kept, check_workflow_create,
 
 # A mobility still going on: its place is held and a graduate keeps the portal (issue #687).
 OPEN_STATES = ('choosing', 'preparing')
+
 STAGES = [('preparation', "Before leaving"), ('return', "On return")]
 PROPOSAL_FIELDS = ('proposal_activity', 'proposal_host', 'proposal_contact', 'proposal_country_id', 'proposal_city',
                    'proposal_date_start', 'proposal_date_end', 'proposal_notes')
@@ -30,6 +31,13 @@ PLACEMENT_TYPES = [('curricular', "Curricular work placement (sBID)"), ('extracu
                    ('graduate', "Recent graduate")]
 TASK_REQUIREMENTS = [('required', "Required"), ('optional', "Optional"),
                      ('short_blended', "Short blended mobilities only")]
+
+
+def host_place_vals(record, host):
+    """Issue #788 (13.6): the host entity's country and city for a mobility (or the agreed
+    destination's dialog) that has none yet, so they are not written twice."""
+    return {**({'country_id': host.country_id} if host.country_id and not record.country_id else {}),
+            **({'city': host.city} if host.city and not record.city else {})}
 
 
 class EmsErasmusDestination(models.Model):
@@ -529,9 +537,11 @@ class EmsErasmusMobility(models.Model):
 
     @api.onchange('host_partner_id')
     def _onchange_host_partner_id(self):
-        """Issue #697: the host entity's tutor, when it has only one contact."""
+        """Issue #697: the host entity's tutor, when it has only one contact; issue #788 (13.6): its
+        country and city, when the mobility has none yet."""
         if self.host_contact_id.parent_id != self.host_partner_id:
             self.host_contact_id = self._ems_single_contact(self.host_partner_id)
+        self.update(host_place_vals(self, self.host_partner_id))
 
     @api.constrains('prefinancing_percent')
     def _check_prefinancing_percent(self):
@@ -555,7 +565,9 @@ class EmsErasmusMobility(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         check_workflow_create(self, vals_list)
-        return super().create(vals_list)
+        mobilities = super().create(vals_list)
+        mobilities._ems_fill_project()
+        return mobilities
 
     def write(self, vals):
         """The state, the destination, the decision on a proposal and the commitment letter's
@@ -573,8 +585,7 @@ class EmsErasmusMobility(models.Model):
             self._ems_sync_training_leave()
         if 'project_id' in vals:
             # Issue #772: a staff member's project, assigned after selection, brings its documents.
-            self.filtered(lambda mobility: mobility.audience == 'staff' and mobility.state in OPEN_STATES
-                          )._ems_sync_requirements()
+            self.filtered(lambda mobility: mobility.audience == 'staff')._ems_sync_open_requirements()
         return result
 
     def unlink(self):
@@ -651,10 +662,19 @@ class EmsErasmusMobility(models.Model):
         return {'type': 'ir.actions.act_window', 'res_model': 'ems.erasmus.application',
                 'res_id': self.application_id.id, 'views': [(False, 'form')]}
 
-    def action_sync_requirements(self):
-        """After changing the call's documents or checklist."""
-        self._ems_check_manager()
-        self.filtered(lambda mobility: mobility.state in OPEN_STATES)._ems_sync_requirements()
+    def _ems_sync_open_requirements(self):
+        """The documents and steps missing on the mobilities still going on, which it returns."""
+        mobilities = self.filtered(lambda mobility: mobility.state in OPEN_STATES)
+        mobilities._ems_sync_requirements()
+        return mobilities
+
+    def _ems_fill_project(self):
+        """Issue #788 (5.14, 8.4): the project, when only one is possible (a single active project of
+        the modality's kind; for staff, a single project among the call's places). With two or more
+        (e.g. the agreements of two call years), the team chooses."""
+        for mobility in self.sudo().filtered(lambda mobility: not mobility.project_id):
+            if len(mobility.allowed_project_ids) == 1:
+                mobility.project_id = mobility.allowed_project_ids
 
     # --- destination choice (students, art. 15) -----------------------------------------------
 

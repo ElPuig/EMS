@@ -46,7 +46,7 @@ Si un alumno seleccionado renuncia (desde el portal, o diciéndoselo al docente 
 
 ## Expedientes y documentos
 
-Al aprobar la selección se abre el expediente de cada alumno seleccionado y de los dos docentes. En la pestaña **Documentos** están los **documentos compartidos** del grupo (el acuerdo de aprendizaje del grupo, previsto y ejecutado; acuerdos, viaje, la póliza de seguro colectiva, inclusión —confidencial—, Green Travel y evidencias) y la lista de **documentos pedidos**, que puedes adaptar a cada movilidad: para quién es cada documento (el grupo, cada alumno, cada docente o todos), si es obligatorio o solo para menores, quién lo firma y el plazo. Si cambias la lista, haz clic en **Actualizar los documentos**.
+Al aprobar la selección se abre el expediente de cada alumno seleccionado y de los dos docentes. En la pestaña **Documentos** están los **documentos compartidos** del grupo (el acuerdo de aprendizaje del grupo, previsto y ejecutado; acuerdos, viaje, la póliza de seguro colectiva, inclusión —confidencial—, Green Travel y evidencias) y la lista de **documentos pedidos**, que puedes adaptar a cada movilidad: para quién es cada documento (el grupo, cada alumno, cada docente o todos), si es obligatorio o solo para menores, quién lo firma y el plazo. Cuando guardas un cambio en la lista, los documentos añadidos llegan a todos los expedientes.
 
 Un documento completo ofrece **Reabrir** en lugar de **Hay que corregir**: hace lo mismo, lo devuelve para que se corrija.
 

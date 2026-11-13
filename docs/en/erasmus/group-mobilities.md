@@ -46,7 +46,7 @@ If a selected student renounces (from the portal, or telling the leader teacher 
 
 ## Files and documents
 
-Approving the selection opens the file of each selected student and of both teachers. The **Documents** tab has the group's **shared documents** (the group learning agreement, planned and executed; agreements, travel, the collective insurance policy, inclusion —confidential—, Green Travel and evidence) and the list of **documents asked for**, which you can adapt to each mobility: who each document is for (the group, each student, each teacher or everybody), whether it is required or only for minors, who signs it and its deadline. After changing the list, click **Update documents**.
+Approving the selection opens the file of each selected student and of both teachers. The **Documents** tab has the group's **shared documents** (the group learning agreement, planned and executed; agreements, travel, the collective insurance policy, inclusion —confidential—, Green Travel and evidence) and the list of **documents asked for**, which you can adapt to each mobility: who each document is for (the group, each student, each teacher or everybody), whether it is required or only for minors, who signs it and its deadline. When you save a change to the list, the documents added reach every file.
 
 A complete document offers **Reopen** instead of **Needs changes**: it does the same, sending it back to be corrected.
 

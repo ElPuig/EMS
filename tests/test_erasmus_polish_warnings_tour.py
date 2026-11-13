@@ -10,8 +10,7 @@ class TestErasmusWarningsTour(HttpCase, ErasmusStaffMobilityCase):
     def _mobility_with_a_step(self):
         mobility = self._accepted_staff()
         if not mobility.task_ids:
-            self.env['ems.erasmus.call.task'].create({'call_id': self.staff_call.id, 'name': 'Test tour step'})
-            mobility.action_sync_requirements()
+            self.staff_call.task_ids = [(0, 0, {'name': 'Test tour step'})]
         return mobility
 
     def test_teacher_steps_tour(self):

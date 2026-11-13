@@ -352,6 +352,9 @@ class EmsErasmusGroupMobility(models.Model):
         result = super().write(vals)
         if {'leader_id', 'companion_ids'} & set(vals):
             self._ems_sync_teachers()
+        if 'requirement_ids' in vals:
+            # Issue #788 (5.17): the files get the documents added on saving.
+            self._ems_sync_requirements()
         if 'eu_survey_attachment_ids' in vals:
             # Uploaded from the form with no res_id: tied to the mobility so the team can read it.
             for mobility in self:
@@ -798,9 +801,8 @@ class EmsErasmusGroupMobility(models.Model):
             Line.create([{'group_mobility_id': mobility.id, 'call_document_id': document.id}
                          for document in documents - mobility.document_ids.call_document_id])
 
-    def action_sync_requirements(self):
-        """After changing the documents asked for."""
-        self._ems_check_role('team')
+    def _ems_sync_requirements(self):
+        """After changing the documents asked for. Never removes a line."""
         for mobility in self.filtered(lambda mobility: mobility.state in FILE_STATES):
             mobility._ems_sync_collective_documents()
             mobility.participant_ids.filtered(lambda participant: participant.state == 'active')._ems_sync_documents()

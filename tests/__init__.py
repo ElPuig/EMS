@@ -350,5 +350,6 @@ from . import test_erasmus_polish_form_headers_tour
 from . import test_erasmus_polish_status_bars
 from . import test_erasmus_polish_actions
 from . import test_erasmus_polish_warnings
+from . import test_erasmus_polish_automations
 from . import test_erasmus_polish_warnings_tour
 from . import test_erasmus_polish_actions_tour

@@ -188,7 +188,7 @@ class EmsPortalErasmusController(CustomerPortal):
             # Issue #687: the mobility of an accepted place.
             'mobility': application.mobility_ids[:1],
             'countries': request.env['res.country'].sudo().search([]),
-            'mobility_state_labels': dict(request.env['ems.erasmus.mobility']._fields['state']._description_selection(
+            'mobility_phase_labels': dict(request.env['ems.erasmus.mobility']._fields['phase']._description_selection(
                 request.env)),
             # The participant's record, in its four categories.
             'record_categories': request.env['ems.erasmus.application.document']._fields[

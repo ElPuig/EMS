@@ -160,7 +160,12 @@
 
     <!-- The issue-#682 review: where an application is in the call's process, and what to do now. -->
     <template id="portal_erasmus_progress" name="Erasmus+ application progress">
-        <ol class="o_ems_erasmus_steps">
+        <!-- Issue #785 (A06): eight steps don't fit a phone's width; there, only the current one. -->
+        <p class="d-sm-none small mb-2 o_ems_erasmus_steps_position">
+            <span class="text-muted">Step <t t-esc="progress['position']['number']"/> of <t t-esc="progress['position']['total']"/>:</span>
+            <strong class="ms-1" t-esc="progress['position']['label']"/>
+        </p>
+        <ol class="o_ems_erasmus_steps d-none d-sm-flex">
             <li t-foreach="progress['steps']" t-as="step" t-attf-class="o_ems_erasmus_step o_ems_erasmus_step_#{step[1]}"
                 t-att-aria-current="'step' if step[1] == 'current' else None" t-esc="step[0]"/>
         </ol>
@@ -587,7 +592,7 @@
         <div class="card border-primary shadow-sm mb-4 o_ems_erasmus_mobility">
             <div class="card-header d-flex justify-content-between flex-wrap gap-2">
                 <strong><i class="fa fa-plane me-1"/>Your mobility</strong>
-                <span t-attf-class="badge text-bg-primary o_ems_erasmus_mobility_#{mobility.state}" t-esc="mobility_state_labels.get(mobility.state)"/>
+                <span t-attf-class="badge text-bg-primary o_ems_erasmus_mobility_#{mobility.phase}" t-esc="mobility_phase_labels.get(mobility.phase)"/>
             </div>
             <div class="card-body">
                 <t t-if="mobility.state == 'choosing'">

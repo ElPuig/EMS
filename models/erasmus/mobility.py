@@ -139,6 +139,13 @@ class EmsErasmusMobility(models.Model):
     state = fields.Selection(string="State", required=True, default='choosing', tracking=True, readonly=True,
                              selection=[('choosing', "Defining the mobility"), ('preparing', "Preparing"),
                                         ('done', "Closed"), ('cancelled', "Cancelled")])
+    # Issue #785 (5.5, 5.7): what the status bar shows. "Preparing" covered everything from the
+    # destination to the closing; the stay and the return come from the dates, refreshed daily by
+    # _cron_update_phase (stored, so the lists and the kanban can group by it).
+    phase = fields.Selection(string="Phase", compute='_compute_phase', store=True, index=True,
+                             selection=[('choosing', "Defining"), ('preparing', "Preparation"),
+                                        ('stay', "Mobility stay"), ('return', "Return home"), ('done', "Closed"),
+                                        ('cancelled', "Cancelled")])
     cancel_reason = fields.Text(string="Reason for cancelling", tracking=True)
 
     # Students: destination choice by turns (art. 15).
@@ -368,6 +375,17 @@ class EmsErasmusMobility(models.Model):
                     and all(tasks.mapped('done'))
                     and not (stage == 'preparation'
                              and (mobility.commitment_pending or mobility.commitment_guardian_pending)))
+
+    @api.depends('state', 'date_start', 'date_end')
+    def _compute_phase(self):
+        today = self.env['ems.datetime_utils'].get_local_today()
+        for mobility in self:
+            phase = mobility.state
+            if phase == 'preparing' and mobility.date_end and mobility.date_end < today:
+                phase = 'return'
+            elif phase == 'preparing' and mobility.date_start and mobility.date_start <= today:
+                phase = 'stay'
+            mobility.phase = phase
 
     @api.depends('date_end', 'state')
     def _compute_stay_over(self):
@@ -623,6 +641,17 @@ class EmsErasmusMobility(models.Model):
                                     **(mobility.proposal_state == 'pending' and {'proposal_state': False} or {}))
         self._ems_send('ems.email_template_erasmus_mobility_assigned')
         self.call_id.filtered('choice_open')._ems_advance_choice()
+
+    @api.model
+    def _cron_update_phase(self):
+        """Issue #785: a mobility in preparation enters its stay on its start date and its return the day
+        after its end date. Only those whose phase the dates have overtaken are recomputed."""
+        today = self.env['ems.datetime_utils'].get_local_today()
+        mobilities = self.search([('state', '=', 'preparing'), '|',
+                                  '&', ('phase', '=', 'preparing'), ('date_start', '<=', today),
+                                  '&', ('phase', 'in', ('preparing', 'stay')), ('date_end', '<', today)])
+        self.env.add_to_compute(self._fields['phase'], mobilities)
+        mobilities.flush_recordset(['phase'])
 
     @api.model
     def _cron_expire_turns(self):

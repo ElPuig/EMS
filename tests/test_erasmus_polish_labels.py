@@ -38,8 +38,6 @@ HEADERS = [
     ('view_erasmus_call_list', 'date_close', "Tancament"),
     ('view_erasmus_call_list', 'application_count', "Sol·licituds"),
     ('view_erasmus_call_list', 'course_id', "Curs de la convocatòria"),
-    ('view_erasmus_mobility_list', 'preparation_complete', "A punt"),
-    ('view_erasmus_mobility_list', 'return_complete', "Tornada"),
     ('view_erasmus_application_list', 'documents_to_review', "Per revisar"),
     ('view_erasmus_ranking_list', 'state', "Situació actual"),
     ('view_erasmus_staff_ranking_list', 'state', "Situació actual"),

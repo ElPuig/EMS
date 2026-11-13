@@ -6,15 +6,17 @@
             <field name="name">ems.erasmus.call.list</field>
             <field name="model">ems.erasmus.call</field>
             <field name="arch" type="xml">
-                <list string="Calls" decoration-muted="state == 'closed'">
+                <list string="Calls" decoration-muted="phase == 'finished'">
                     <field name="name"/>
                     <field name="audience"/>
                     <field name="course_id" string="Course of the call" optional="show"/>
                     <field name="date_open" string="Opens" options="{'show_time': False, 'show_seconds': False}"/>
                     <field name="date_close" string="Closes" options="{'show_time': False, 'show_seconds': False}"/>
                     <field name="application_count" string="Applications"/>
-                    <field name="state" widget="badge" decoration-info="state == 'draft'"
-                           decoration-success="state == 'published'"/>
+                    <field name="state" column_invisible="1"/>
+                    <field name="phase" widget="badge" decoration-info="phase == 'draft'"
+                           decoration-success="phase == 'published'"
+                           decoration-warning="phase in ('scoring', 'resolution', 'offers')"/>
                 </list>
             </field>
         </record>
@@ -62,7 +64,8 @@
                                     groups="ems.group_erasmus,ems.group_academic_admin"
                                     help="The selected who accepted their place choose their destination on the portal, by turns in rank order."/>
                         </div>
-                        <field name="state" widget="statusbar"/>
+                        <field name="state" invisible="1"/>
+                        <field name="phase" widget="statusbar"/>
                     </header>
                     <sheet>
                         <!-- The issue-#682 review: each button only in its phase, the latest phase first, so

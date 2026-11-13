@@ -66,6 +66,13 @@ accepted only while it is published **and** the company's local time is between 
 `date_close` (`is_accepting`, computed with `ems.datetime_utils`, never the browser's clock).
 Closing turns every application still in draft into *Not submitted*.
 
+**Phase (issue #785).** `state` only says whether applications are taken; the form's status bar
+and the call list show `phase`, a stored compute on `state`, the published resolutions and the
+offers' state: *Draft* and *Published* as the state; once closed, *Scoring* until the provisional
+resolution is published (the admission list is still part of it), *Resolution* until the
+definitive, then *Offers* while an offer waits for an answer and *Finished* when none does (a place
+offered to a reserve later moves it back to *Offers*). Business rules keep reading `state`.
+
 ### Deadlines from the closing date (issue #767)
 
 The four deadlines after closing are filled in by EMS from `date_close` (`_ems_deadlines()`, the
@@ -281,6 +288,8 @@ application, on that page and on its own, shows a step bar and a "what to do now
 interview or plan rating, resolution, place, preparation, stay, return), each `done`, `current`,
 `todo` or `failed` (where an excluded, not submitted, not selected or renounced application ended),
 and the next action with its deadline and colour (`warning` when the person has something to do).
+On a phone (below Bootstrap's `sm` breakpoint) the bar is hidden and its `position` is shown
+instead, "Step N of 8" and the step's name (issue #785: eight steps broke into two lines).
 The state badge is coloured by `PORTAL_STATE_BADGES`. The corrections asked for and the interview
 are in that box (its class keeps `o_ems_erasmus_subsanation` / `o_ems_erasmus_interview`). Once the
 application can no longer change, the call's text and the form fold under *The call and my
@@ -699,6 +708,9 @@ stateDiagram-v2
     pending --> cancelled: team withdraws it
 ```
 
+The form's status bar shows *Waiting for an answer*, *Place accepted*, *Renounced* and *No answer*
+(issue #785); a withdrawn offer shows its state only when it is the current one.
+
 - The applicant answers on the portal (`POST /my/erasmus/call/<id>/offer`, `answer=accept|renounce`,
   optional `reason`), before the deadline, which `_ems_answer` checks with the centre's clock. The
   application moves to `accepted` or `renounced`.
@@ -1108,6 +1120,16 @@ stateDiagram-v2
     preparing --> done: Close (return documents and steps complete)
     preparing --> cancelled: renounced / cancelled by the team (with a reason)
 ```
+
+**Phase (issue #785).** *Preparing* covered everything from the destination to the closing, so
+the status bar, the lists, the kanban (grouped by it) and the portal show `phase` instead: the state,
+except that a `preparing` mobility is in its *Mobility stay* from `date_start` (that day included) and on
+*Return home* from the day after `date_end` (the same day `stay_over` turns true), in the company's
+timezone. It is stored so it can be grouped and filtered; the hourly cron
+`ems.ir_cron_erasmus_mobility_phase` (`_cron_update_phase`) recomputes only the mobilities whose
+dates have overtaken their phase (one indexed search, usually empty). Business rules keep reading
+`state`. `preparation_complete` and `return_complete` are no longer shown (the phase says where the
+mobility is); `action_close` still checks them.
 
 The state changes only through the actions. Cancelling frees the place (`_ems_cancel`): the
 accepted offer and the application become `renounced`; the place is then offered with the existing

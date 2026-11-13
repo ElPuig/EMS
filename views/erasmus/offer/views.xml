@@ -38,7 +38,7 @@
                                     invisible="state != 'pending'" groups="ems.group_erasmus,ems.group_academic_admin"
                                     confirm="Withdraw this offer?"/>
                         </div>
-                        <field name="state" widget="statusbar" statusbar_visible="pending,accepted,renounced"/>
+                        <field name="state" widget="statusbar" statusbar_visible="pending,accepted,renounced,expired"/>
                     </header>
                     <sheet>
                         <group>

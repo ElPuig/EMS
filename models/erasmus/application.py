@@ -927,7 +927,8 @@ class EmsErasmusApplication(models.Model):
     def _ems_portal_progress(self):
         """The issue-#682 review: where the applicant is in the call's process, for the portal's
         step bar, and what they have to do now (or what they are waiting for), with its deadline.
-        Returns {'steps': [(label, status)], 'next': {'text', 'deadline', 'is_date', 'level', 'key'}}, a
+        Returns {'steps': [(label, status)], 'position': {'number', 'total', 'label'},
+        'next': {'text', 'deadline', 'is_date', 'level', 'key'}}, a
         status being 'done', 'current', 'todo' or 'failed', the deadline a datetime, a date or False,
         and the level the colour of its box (warning: something to do)."""
         self.ensure_one()
@@ -1012,8 +1013,11 @@ class EmsErasmusApplication(models.Model):
         # The two moments with their own box before this review keep its class.
         key = 'subsanation' if state == 'subsanation' else 'interview' if current == 2 and self.interview_call_date \
             and call.audience == 'student' else ''
-        return {'steps': steps, 'next': {'text': text, 'deadline': deadline, 'level': level, 'key': key,
-                                         'is_date': bool(deadline) and not isinstance(deadline, datetime)}}
+        # Issue #785 (A06): a phone shows only the current step, "Step 6 of 8" (the last one once all are done).
+        number = min(current, len(labels) - 1)
+        return {'steps': steps, 'position': {'number': number + 1, 'total': len(labels), 'label': labels[number]},
+                'next': {'text': text, 'deadline': deadline, 'level': level, 'key': key,
+                         'is_date': bool(deadline) and not isinstance(deadline, datetime)}}
 
     def _ems_portal_choosing_next(self, mobility):
         """What the applicant does while their mobility is being defined (destination or proposal)."""

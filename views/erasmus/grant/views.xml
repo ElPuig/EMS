@@ -375,6 +375,15 @@
                     <field name="erasmus_oid" invisible="not is_erasmus_host"
                            groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin"/>
                 </field>
+                <!-- Issue #783 (13.7): every teacher reads every contact, a host entity included,
+                     so its notes say who reads them, as a student's do. -->
+                <xpath expr="//page[@name='internal_notes']/field[@name='comment']" position="before">
+                    <div class="d-flex text-muted small mb-2" invisible="not is_erasmus_host"
+                         groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin">
+                        <i class="fa fa-eye me-2 mt-1" title="Who can see these notes"/>
+                        <div>Visible to all teaching staff.</div>
+                    </div>
+                </xpath>
             </field>
         </record>
     </data>

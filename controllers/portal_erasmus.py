@@ -157,6 +157,7 @@ class EmsPortalErasmusController(CustomerPortal):
         values = self._prepare_portal_layout_values()
         values.update({
             'page_name': 'erasmus',
+            'erasmus_breadcrumb': call,
             'call': call,
             'application': application,
             'modality': application.modality_id or call._ems_modality_for(partner),
@@ -300,7 +301,7 @@ class EmsPortalErasmusController(CustomerPortal):
         """A published list's page (a call's or a group mobility's)."""
         values = self._prepare_portal_layout_values()
         # The issue-#682 review: the applicant finds their own row (only on the portal, never in the PDF).
-        values.update({'page_name': 'erasmus', 'resolution': resolution, 'back_url': back_url, 'list_url': list_url,
+        values.update({'page_name': 'erasmus', 'erasmus_breadcrumb': resolution, 'resolution': resolution, 'back_url': back_url, 'list_url': list_url,
                        'my_partner': request.env.user.partner_id})
         return request.render('ems.portal_erasmus_resolution', values)
 

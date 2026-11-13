@@ -169,15 +169,6 @@
                                 <field name="host_partner_id" options="{'no_create': True}"/>
                             </group>
                         </group>
-                        <p class="text-muted small">
-                            Student interest: applicants out of every student of the call's levels (intermediate,
-                            higher and specialisation courses). Staff interest: applicants out of the teachers of
-                            the FP levels and the Direction that validates. Both are frozen when the definitive
-                            resolution is published, and only follow the course, call and participant type
-                            filters: filtered by project, they are those of the calls of its mobilities, shared
-                            with any other project of the same calls. Satisfaction: average of the scores from 1
-                            to 10.
-                        </p>
                         <notebook>
                             <page string="Indicators" name="indicators">
                                 <field name="indicators_html" nolabel="1" readonly="1"/>

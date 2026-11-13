@@ -568,10 +568,9 @@ class EmsErasmusCall(models.Model):
     @api.model
     def _ems_preparation_tasks(self, audience):
         if audience == 'staff':
-            # Issue #780: the same name as the students' step; sharing it is up to them (art. 15).
-            names = [('preparation', _("Preparation sessions")),
-                     ('preparation', _("Activities left for your groups")),
-                     ('return', _("News item on the centre's website, following the Erasmus+ visual identity")),
+            # Issue #783: no preparation step; teachers have no preparation sessions, and the activities
+            # left for their groups go on Moodle, outside EMS. Sharing it is up to them (art. 15).
+            names = [('return', _("News item on the centre's website, following the Erasmus+ visual identity")),
                      ('return', _("Share it at a department or cycles meeting, if it is considered necessary"),
                       {'requirement': 'optional'})]
         else:

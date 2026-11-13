@@ -14,7 +14,7 @@ Everything is in the **Erasmus+** app (below **Meetings**), under **My participa
 
 ## 1. Open the call
 
-When the Erasmus team publishes a staff call you can apply to, it shows under **Staff calls**, with its dates, and you are told in your [daily summary](daily-summary.md). Open it: you can download the published call, and **Actions > Apply to the call** opens the form straight away.
+When the Erasmus team publishes a staff call you can apply to, it shows under **Staff calls**, with its dates, and you are told in your [daily summary](daily-summary.md). Open it: you read the **Information for applicants**, you can download the published call, and **Actions > Apply to the call** opens the form straight away.
 
 ## 2. Fill in the form
 

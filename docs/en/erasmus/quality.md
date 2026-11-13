@@ -38,7 +38,7 @@ the **coordinator** opens the survey (from the mobility, *Satisfaction survey �
 **Erasmus+ › Quality › Indicators** (the panel is titled *Quality indicators*) shows the figures for the filters you choose (course, call,
 project, participant type, cycle, host entity), in four tabs: the indicators with their target, the
 satisfaction by participant type and by host entity, each call's way from the applications to the
-mobilities done, and the evolution course by course. It never shows anybody's name. Figures are rounded half up to one decimal (81.25 % shows 81.3 %). Filtered by project, the interest figures are those of the calls of its mobilities, shared with any other project of the same calls.
+mobilities done, and the evolution course by course. It never shows anybody's name. Hovering over the (i) icon of each indicator, one line explains how it is calculated; the PDF report explains it in full. Figures are rounded half up to one decimal (81.25 % shows 81.3 %). Filtered by project, the interest figures are those of the calls of its mobilities, shared with any other project of the same calls.
 
 ## Answers and improvement actions
 

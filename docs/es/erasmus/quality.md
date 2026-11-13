@@ -39,7 +39,7 @@ responde de ninguna manera, la **coordinación** abre la encuesta (desde la movi
 convocatoria, proyecto, tipo de participante, ciclo, entidad de acogida), en cuatro pestañas: los
 indicadores con su objetivo, la satisfacción por tipo de participante y por entidad de acogida, el
 recorrido de cada convocatoria desde las solicitudes hasta las movilidades realizadas, y la
-evolución curso a curso. No muestra nunca el nombre de nadie. Las cifras se redondean hacia arriba a partir de la mitad, a un decimal (81,25 % se muestra 81,3 %). Filtradas por proyecto, las cifras de interés son las de las convocatorias de sus movilidades, compartidas con cualquier otro proyecto de las mismas convocatorias.
+evolución curso a curso. No muestra nunca el nombre de nadie. Al pasar el ratón por el icono (i) de cada indicador, una línea explica cómo se calcula; el informe en PDF lo explica entero. Las cifras se redondean hacia arriba a partir de la mitad, a un decimal (81,25 % se muestra 81,3 %). Filtradas por proyecto, las cifras de interés son las de las convocatorias de sus movilidades, compartidas con cualquier otro proyecto de las mismas convocatorias.
 
 ## Respuestas y acciones de mejora
 

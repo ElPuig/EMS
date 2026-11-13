@@ -210,7 +210,8 @@
                                     </page>
                                     <page string="Information for applicants" name="description">
                                         <!-- Issue #774: the code view, to paste a prepared card's HTML. -->
-                                        <field name="description" widget="ems_html_codeview"/>
+                                        <field name="description" widget="ems_html_codeview"
+                                               placeholder="Shown on the portal before applying: who can apply, destinations, dates and what to prepare..."/>
                                     </page>
                                     <!-- Issue #686: who rates the staff's mobility plans. -->
                                     <!-- Issue #767: only used once closed ("Send plans to the panel"). -->

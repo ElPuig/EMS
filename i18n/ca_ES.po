@@ -19852,6 +19852,7 @@ msgstr "Només el tutor/a de l'alumne/a, els càrrecs per sobre seu, els equips 
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_partner_form_erasmus_host
 msgid "<i class=\"fa fa-eye me-2 mt-1\" title=\"Who can see these notes\"/>"
 msgstr "<i class=\"fa fa-eye me-2 mt-1\" title=\"Qui pot veure aquestes notes\"/>"
 
@@ -31129,6 +31130,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form_erasmus_history
 #: code:addons/ems/static/src/js/backend/user_menu_erasmus.js:0
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_breadcrumbs
 msgid "Erasmus+"
 msgstr "Erasmus+"
 
@@ -31234,6 +31236,7 @@ msgstr "Consentiment d'imatge"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__description
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_staff_form
 msgid "Information for applicants"
 msgstr "Informació per als sol·licitants"
 
@@ -33863,12 +33866,6 @@ msgstr "Una breu memòria amb evidències, en el mes següent al retorn."
 #: model:ir.model.constraint,message:ems.constraint_ems_erasmus_mobility_task_mobility_task_unique
 msgid "A step appears once in a mobility."
 msgstr "Un pas només apareix una vegada en una mobilitat."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/call.py:0
-msgid "Activities left for your groups"
-msgstr "Activitats preparades per als teus grups"
 
 #. module: ems
 #. odoo-python
@@ -48130,27 +48127,6 @@ msgid "Read me"
 msgstr "Llegeix-me"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_quality_panel_form
-msgid ""
-"Student interest: applicants out of every student of the call's levels (intermediate,\n"
-"                            higher and specialisation courses). Staff interest: applicants out of the teachers of\n"
-"                            the FP levels and the Direction that validates. Both are frozen when the definitive\n"
-"                            resolution is published, and only follow the course, call and participant type\n"
-"                            filters: filtered by project, they are those of the calls of its mobilities, shared\n"
-"                            with any other project of the same calls. Satisfaction: average of the scores from 1\n"
-"                            to 10."
-msgstr ""
-"Interès de l'alumnat: sol·licitants sobre tot l'alumnat dels nivells de la "
-"convocatòria (grau mitjà, grau superior i cursos d'especialització). Interès"
-" del professorat: sol·licitants sobre el professorat dels nivells d'FP i la "
-"direcció que valida. Tots dos es congelen quan es publica la resolució "
-"definitiva, i només tenen en compte els filtres de curs, convocatòria i "
-"tipus de participant: filtrant per projecte, són els de les convocatòries de"
-" les seves mobilitats, compartides amb qualsevol altre projecte de les "
-"mateixes convocatòries. Satisfacció: mitjana de les puntuacions de l'1 al "
-"10."
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/quality.py:0
 msgid ""
@@ -52251,3 +52227,95 @@ msgstr "No hi ha dies lectius al calendari després del %s."
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "Give the reason of the walkout: why it is called."
 msgstr "Indica el motiu de la vaga: per què es convoca."
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_my_interviews
+msgid "No interview to score"
+msgstr "No tens cap entrevista per puntuar"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_my_interviews
+msgid "When the Erasmus team assigns you an interview, it shows here until you score it."
+msgstr "Quan l'equip Erasmus t'assigni una entrevista, sortirà aquí fins que la puntuïs."
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_claim
+msgid "No open claims"
+msgstr "No hi ha reclamacions obertes"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_claim
+msgid "Remove the filter to see the resolved ones."
+msgstr "Treu el filtre per veure les resoltes."
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_mobility_to_validate
+msgid "No proposal to validate"
+msgstr "No hi ha propostes per validar"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_mobility_to_validate
+msgid "When an activity is proposed for a mobility, it shows here until you validate it."
+msgstr "Quan es proposi una activitat per a una mobilitat, sortirà aquí fins que la validis."
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_group_mobility
+msgid "No open group mobilities"
+msgstr "No hi ha mobilitats de grup obertes"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_group_mobility
+msgid "Remove the filter to see the closed ones."
+msgstr "Treu el filtre per veure les tancades."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_partner_form_erasmus_host
+msgid "Visible to all teaching staff."
+msgstr "Visible per a tot el professorat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "Shown on the portal before applying: who can apply, destinations, dates and what to prepare..."
+msgstr "Es mostra al portal abans de sol·licitar: qui pot sol·licitar, destinacions, dates i què cal preparar..."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "Day by day: visits, classes, companies..."
+msgstr "Dia a dia: visites, classes, empreses..."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
+msgid "<i class=\"fa fa-info-circle me-2 mt-1\" title=\"What goes here\"/>"
+msgstr "<i class=\"fa fa-info-circle me-2 mt-1\" title=\"Què va aquí\"/>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
+msgid "The project's agreements, reports and dissemination. Each participant's documents are already in their record."
+msgstr "Convenis, informes i difusió del projecte. Els documents de cada participant ja són al seu expedient."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/satisfaction.py:0
+msgid "Students who applied out of every student of the call's levels, frozen when the definitive resolution is published. Filtered by project: the calls of its mobilities."
+msgstr "Alumnat que ha sol·licitat sobre tot l'alumnat dels nivells de la convocatòria; es congela en publicar la resolució definitiva. Filtrat per projecte: les convocatòries de les seves mobilitats."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/satisfaction.py:0
+msgid "Teachers who applied out of the FP teachers and the Direction that validates, frozen when the definitive resolution is published. Filtered by project: the calls of its mobilities."
+msgstr "Docents que han sol·licitat sobre el professorat de FP i la Direcció que valida; es congela en publicar la resolució definitiva. Filtrat per projecte: les convocatòries de les seves mobilitats."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/satisfaction.py:0
+msgid "Average of the participants' scores, from 1 to 10."
+msgstr "Mitjana de les puntuacions dels participants, de l'1 al 10."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/satisfaction.py:0
+msgid "Surveys answered out of the stays over."
+msgstr "Enquestes respostes sobre les estades acabades."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_commitment_letter
+msgid "Read the letter"
+msgstr "Llegeix la carta"

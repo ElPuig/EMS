@@ -76,15 +76,23 @@
                         </group>
                         <notebook>
                             <page string="Documentation" name="documents">
+                                <!-- Issue #783 (10.10): what goes in the table, and the participants'
+                                     records as one bar instead of three loose numbers. -->
                                 <group groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
                                     <group>
-                                        <field name="record_count"/>
-                                        <field name="record_complete_count"/>
+                                        <field name="record_count" invisible="1"/>
+                                        <field name="record_complete_count" widget="progressbar"
+                                               options="{'max_value': 'record_count'}" invisible="not record_count"/>
                                     </group>
                                     <group>
-                                        <field name="record_missing_count" decoration-danger="record_missing_count"/>
+                                        <field name="record_missing_count" decoration-danger="record_missing_count"
+                                               invisible="not record_count"/>
                                     </group>
                                 </group>
+                                <div class="d-flex text-muted small mb-2">
+                                    <i class="fa fa-info-circle me-2 mt-1" title="What goes here"/>
+                                    <div>The project's agreements, reports and dissemination. Each participant's documents are already in their record.</div>
+                                </div>
                                 <field name="document_ids" context="{'default_project_id': id}">
                                     <list editable="bottom">
                                         <field name="project_id" column_invisible="1"/>

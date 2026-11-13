@@ -39,7 +39,7 @@ manera, la **coordinació** obre l'enquesta (des de la mobilitat, *Enquesta de s
 convocatòria, projecte, tipus de participant, cicle, entitat d'acollida), en quatre pestanyes: els
 indicadors amb el seu objectiu, la satisfacció per tipus de participant i per entitat d'acollida, el
 recorregut de cada convocatòria des de les sol·licituds fins a les mobilitats fetes, i l'evolució
-curs a curs. No mostra mai el nom de ningú. Les xifres s'arrodoneixen cap amunt a partir de la meitat, a un decimal (81,25 % es mostra 81,3 %). Filtrades per projecte, les xifres d'interès són les de les convocatòries de les seves mobilitats, compartides amb qualsevol altre projecte de les mateixes convocatòries.
+curs a curs. No mostra mai el nom de ningú. En passar el ratolí per la icona (i) de cada indicador, una línia explica com es calcula; l'informe en PDF ho explica sencer. Les xifres s'arrodoneixen cap amunt a partir de la meitat, a un decimal (81,25 % es mostra 81,3 %). Filtrades per projecte, les xifres d'interès són les de les convocatòries de les seves mobilitats, compartides amb qualsevol altre projecte de les mateixes convocatòries.
 
 ## Respostes i accions de millora
 

@@ -1,6 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- Issue #683 - Erasmus+ calls and applications on the portal (controllers/portal_erasmus.py). -->
+    <!-- Issue #783 (A02-A08): the portal's breadcrumb bar (orange, portal_custom.scss) showed only
+         the home icon on every Erasmus+ page: it now says where the person is. -->
+    <template id="portal_erasmus_breadcrumbs" inherit_id="portal.portal_breadcrumbs" name="Erasmus+ breadcrumbs">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <t t-if="page_name == 'erasmus'">
+                <!-- erasmus_breadcrumb: the call, group mobility or list the page shows (controllers). -->
+                <li t-if="erasmus_breadcrumb" class="breadcrumb-item"><a href="/my/erasmus">Erasmus+</a></li>
+                <li t-else="" class="breadcrumb-item active">Erasmus+</li>
+                <li t-if="erasmus_breadcrumb" class="breadcrumb-item active" t-esc="erasmus_breadcrumb.display_name"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Issue #783 (A07): the commitment letter folded, so the accept box and button stay in sight
+         on a phone; the letter opens on demand. Shared by the student's and the family's forms. -->
+    <template id="portal_erasmus_commitment_letter" name="Erasmus+ commitment letter">
+        <details class="border rounded p-3 mb-2 small o_ems_erasmus_commitment_letter">
+            <summary class="fw-bold">Read the letter</summary>
+            <p t-if="letter_intro" class="text-muted mt-2 mb-1" t-esc="letter_intro"/>
+            <div class="mt-2" t-out="letter_record._ems_commitment_text()"/>
+        </details>
+    </template>
+
     <template id="portal_erasmus" name="Erasmus+">
         <t t-call="portal.portal_layout">
             <div id="erasmus_content" class="container mt-4 o_ems_portal_erasmus">
@@ -41,10 +64,10 @@
                             </p>
                             <!-- The 2026-11-04 usage test: the family's own sentence, not the student's first person. -->
                             <p class="small mb-1 o_ems_erasmus_guardian_statement">As the family, we know the commitments that <t t-esc="mobility.partner_id.name"/> takes on in this stay and we accept them:</p>
-                            <div class="border rounded p-3 mb-2 small">
-                                <p class="text-muted mb-1">Commitments of the student:</p>
-                                <t t-out="mobility._ems_commitment_text()"/>
-                            </div>
+                            <t t-call="ems.portal_erasmus_commitment_letter">
+                                <t t-set="letter_record" t-value="mobility"/>
+                                <t t-set="letter_intro">Commitments of the student:</t>
+                            </t>
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" name="accepted" t-attf-id="guardian_accepted_#{mobility.id}" required="required"/>
                                 <label class="form-check-label" t-attf-for="guardian_accepted_#{mobility.id}">As the family, we have read these commitments and we accept them.</label>
@@ -159,7 +182,6 @@
             <div id="erasmus_application_content" class="container mt-4 o_ems_portal_erasmus">
                 <t t-call="ems.portal_loading_overlay"/>
 
-                <p class="mb-2"><a href="/my/erasmus"><i class="fa fa-arrow-left me-1"/>Erasmus+</a></p>
                 <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-1">
                     <h3 class="mb-0" t-esc="call.name"/>
                     <!-- The issue-#682 review: while admitted, the newest provisional result is what the
@@ -729,7 +751,9 @@
                                 </div>
                                 <form t-if="mobility.state == 'preparing' and mobility.commitment_pending" t-att-action="action + 'commitment'" method="post" class="mb-3 o_ems_erasmus_commitment">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                    <div class="border rounded p-3 mb-2 small" t-out="mobility._ems_commitment_text()"/>
+                                    <t t-call="ems.portal_erasmus_commitment_letter">
+                                        <t t-set="letter_record" t-value="mobility"/>
+                                    </t>
                                     <div class="form-check mb-2">
                                         <input class="form-check-input" type="checkbox" name="accepted" id="commitment_accepted" required="required"/>
                                         <label class="form-check-label" for="commitment_accepted">I have read these commitments and I accept them.</label>

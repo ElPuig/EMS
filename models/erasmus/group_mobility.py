@@ -1399,9 +1399,13 @@ class EmsErasmusGroupParticipant(models.Model):
                 or participant.commitment_pending or participant.commitment_guardian_pending
                 or participant.commitment_provisional)
 
+    @api.depends_context('ems_participant_name_only')
     def _compute_display_name(self):
+        # Issue #783 (9.12): inside its own group mobility, the mobility's name only repeats.
+        name_only = self.env.context.get('ems_participant_name_only')
         for participant in self:
-            participant.display_name = f"{participant.partner_id.name} - {participant.group_mobility_id.name}"
+            participant.display_name = (participant.partner_id.name if name_only else
+                                        f"{participant.partner_id.name} - {participant.group_mobility_id.name}")
 
     @api.model_create_multi
     def create(self, vals_list):

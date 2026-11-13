@@ -455,6 +455,10 @@
                 (0, 0, {'view_mode': 'list', 'view_id': ref('view_erasmus_mobility_to_validate_list')}),
                 (0, 0, {'view_mode': 'form', 'view_id': ref('view_erasmus_mobility_form')})]"/>
             <field name="context">{'search_default_proposal_pending': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">No proposal to validate</p>
+                <p>When an activity is proposed for a mobility, it shows here until you validate it.</p>
+            </field>
         </record>
     </data>
 </odoo>

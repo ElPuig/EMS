@@ -16,7 +16,6 @@
                     <field name="name"/>
                     <field name="date_open" string="Opens" options="{'show_time': False, 'show_seconds': False}"/>
                     <field name="date_close" string="Closes" options="{'show_time': False, 'show_seconds': False}"/>
-                    <field name="is_accepting" widget="boolean"/>
                     <field name="staff_application_id" string="My application"/>
                 </list>
             </field>
@@ -44,7 +43,7 @@
                             <group>
                                 <field name="date_open" options="{'show_time': False, 'show_seconds': False}"/>
                                 <field name="date_close" options="{'show_time': False, 'show_seconds': False}"/>
-                                <field name="is_accepting"/>
+                                <field name="is_accepting" invisible="1"/>
                             </group>
                             <group>
                                 <field name="rules_document" filename="rules_filename" invisible="not rules_document"/>
@@ -52,7 +51,9 @@
                                 <field name="staff_application_id" string="My application" invisible="not staff_application_id"/>
                             </group>
                         </group>
-                        <field name="description" readonly="1"/>
+                        <!-- Issue #783 (P02, 2.9): what the team wrote for the applicants, with its title. -->
+                        <separator string="Information for applicants" invisible="not description"/>
+                        <field name="description" readonly="1" invisible="not description"/>
                     </sheet>
                 </form>
             </field>
@@ -436,9 +437,10 @@
                     <field name="line_id" invisible="1"/>
                     <field name="upload_kind" invisible="1"/>
                     <field name="description" readonly="1" invisible="not description"/>
-                    <group>
-                        <field name="attachment_ids" widget="many2many_binary" invisible="upload_kind == 'link'"/>
-                        <field name="link" widget="url" invisible="upload_kind != 'link'" required="upload_kind == 'link'"/>
+                    <!-- Issue #783 (P07): the upload button already says "Files"; no label repeating it. -->
+                    <field name="attachment_ids" widget="many2many_binary" invisible="upload_kind == 'link'"/>
+                    <group invisible="upload_kind != 'link'">
+                        <field name="link" widget="url" required="upload_kind == 'link'"/>
                     </group>
                     <p class="text-muted" invisible="upload_kind == 'link'">A PDF or a photo of the document. You can add several files.</p>
                     <footer>
@@ -457,7 +459,7 @@
                     <field name="application_id" invisible="1"/>
                     <group>
                         <field name="description"/>
-                        <field name="attachment_ids" widget="many2many_binary"/>
+                        <field name="attachment_ids" widget="many2many_binary" nolabel="1" colspan="2"/>
                     </group>
                     <footer>
                         <button name="action_confirm" type="object" string="Send the claim" class="btn-primary"/>
@@ -504,7 +506,7 @@
                         <group>
                             <field name="proposal_date_start"/>
                             <field name="proposal_date_end"/>
-                            <field name="attachment_ids" widget="many2many_binary"/>
+                            <field name="attachment_ids" widget="many2many_binary" nolabel="1" colspan="2"/>
                         </group>
                     </group>
                     <group>

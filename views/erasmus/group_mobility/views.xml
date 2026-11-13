@@ -474,9 +474,10 @@
                             </page>
                             <page string="Programme and stay" name="stay">
                                 <label for="programme"/>
-                                <field name="programme" readonly="user_role not in ('team', 'leader')"/>
+                                <field name="programme" readonly="user_role not in ('team', 'leader')"
+                                       placeholder="Day by day: visits, classes, companies..."/>
                                 <separator string="Follow-up"/>
-                                <field name="log_ids" context="{'default_group_mobility_id': id}">
+                                <field name="log_ids" context="{'default_group_mobility_id': id, 'ems_participant_name_only': True}">
                                     <list>
                                         <field name="date"/>
                                         <field name="kind" widget="badge" decoration-danger="kind == 'incident'"/>
@@ -598,6 +599,10 @@
             <field name="res_model">ems.erasmus.group.mobility</field>
             <field name="view_mode">kanban,list,form</field>
             <field name="context">{'search_default_open': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">No open group mobilities</p>
+                <p>Remove the filter to see the closed ones.</p>
+            </field>
         </record>
 
         <!-- The leader's and the accompanying teachers' own mobilities. -->

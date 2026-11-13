@@ -41888,6 +41888,7 @@ msgstr "no autorizado"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_progress
 msgid "of"
 msgstr "de"
 
@@ -49686,9 +49687,6 @@ msgstr "Propón apoyar una huelga o vota una de tu grupo"
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
 msgid "Call of the students' union"
 msgstr "Convocatoria del sindicato de estudiantes"
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__project_label
-msgid "Project shown"
-msgstr "Proyecto que se muestra"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__can_generate_justification
@@ -51994,6 +51992,8 @@ msgstr "No hay días lectivos en el calendario después del %s."
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "Give the reason of the walkout: why it is called."
 msgstr "Indica el motivo de la huelga: por qué se convoca."
+
+#. module: ems
 #: model_terms:ir.actions.act_window,help:ems.action_erasmus_my_interviews
 msgid "No interview to score"
 msgstr "No tienes ninguna entrevista por puntuar"
@@ -53074,11 +53074,3 @@ msgstr ""
 #: code:addons/ems/models/erasmus/application.py:0
 msgid "Write both proposals, A and B, each with what you want to learn."
 msgstr "Escribe las dos propuestas, A y B, cada una con qué quieres aprender."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_progress
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
-msgid "of"
-msgstr "de"

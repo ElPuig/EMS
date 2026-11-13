@@ -1572,7 +1572,10 @@ markup instead of rebuilding it from this description.
 - No voice-over: they must be understood on mute, so the on-screen text is complete. One short
   video (2-4 minutes) per self-contained block.
 - MP4, 1920x1080, H.264 video with **MP3 audio** (the developer's VSCode player plays no sound
-  with AAC or Opus and rejects WebM).
+  with AAC or Opus and rejects WebM). The iPhone plays no sound with MP3 inside an MP4 (developer,
+  2026-11-13): also write a `<name>-iphone.mp4` with the same video and AAC audio
+  (`ffmpeg -i in.mp4 -c:v copy -c:a aac -b:a 192k -movflags +faststart out.mp4`) and send that one when
+  the developer is on the phone. A page in the browser (Artifacts) uses the AAC copy.
 - Elements build in progressively. No whole-video progress bar (the player already has one; developer,
   2026-11-12): a thin orange bar fills over each slide's own time (bottom edge) and, in a live demo,
   over each step's caption (in the side panel, under the text), resetting at every change, so the
@@ -1618,3 +1621,21 @@ test patches on the bus (websocket allowed, bus post-commit hooks run by `TestCu
 `bus.bus._poll` from the start id); other people act through their own HTTP session
 (`self.session = None` before `authenticate()`, which otherwise logs the recording browser out). The
 demo is laid out as the app (1440 px) plus a 480 px panel with the clock and the text of each step.
+
+**Clicks and time on screen in a live demo (developer, 2026-11-13: *"No quiero tener que hacer más
+correcciones de la cuenta"*).** Both were corrected by the developer one by one in the walkout videos;
+check them yourself before handing a video over:
+- **Every click shows its orange ring.** The recorder's `_click()` draws the ring, waits 0.5 s (the capture
+  runs at ~10 fps) and only then clicks: a click that changes the page removed the ring in the same
+  instant and the video showed a cut circle. Never click in the same instant as the ring.
+- **Minimum time per caption = max(6, 2 + characters/17) seconds** (the caption's title and text, tags
+  excluded; reading speed ~17 characters/s plus 2 s to look at the screen). **Maximum 20 s** (longer feels
+  like waiting), a time-lapse at most ~8 s, the first view of a screen ~10 s, and the **last step held at
+  least 10 s** (one ended after 1 s). A step the compose step can only freeze (`_timing: {key: {hold: N}}`),
+  trim (`trim`) or speed up (`rate`).
+- **Run `/root/ems-slides-video/live/check_timing.py <recording> <captions.json> [--write]` before
+  composing**: it computes every caption's real duration from `events.json` (rate/trim/hold included),
+  lists those out of range and, with `--write`, writes the holds a too-short step needs. Deliver nothing
+  with a step flagged. Then look at a contact sheet (`sheet.py`) and at the frames around three clicks.
+- Editing a video's text or a screen: re-record and re-run these checks, never trust the previous
+  recording's numbers.

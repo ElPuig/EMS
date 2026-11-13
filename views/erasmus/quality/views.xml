@@ -172,6 +172,12 @@
                         <notebook>
                             <page string="Indicators" name="indicators">
                                 <field name="indicators_html" nolabel="1" readonly="1"/>
+                                <!-- Issue #789 (12.6): opens the low scores, those without an action first. -->
+                                <field name="low_count" invisible="1"/>
+                                <button name="action_open_low_scores" type="object" class="btn btn-link px-0"
+                                        icon="fa-exclamation-triangle" invisible="not low_count">
+                                    <field name="low_note" readonly="1"/>
+                                </button>
                             </page>
                             <page string="Satisfaction breakdown" name="breakdown">
                                 <field name="breakdown_html" nolabel="1" readonly="1"/>
@@ -282,7 +288,7 @@
         </record>
 
         <record id="action_erasmus_quality_history" model="ir.actions.act_window">
-            <field name="name">Earlier courses (manual load)</field>
+            <field name="name">Earlier course indicators</field>
             <field name="res_model">ems.erasmus.quality.history</field>
             <field name="view_mode">list,form</field>
             <field name="help" type="html">

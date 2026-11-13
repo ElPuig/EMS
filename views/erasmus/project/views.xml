@@ -232,11 +232,5 @@
                 </form>
             </field>
         </record>
-
-        <record id="action_erasmus_project" model="ir.actions.act_window">
-            <field name="name">Projects</field>
-            <field name="res_model">ems.erasmus.project</field>
-            <field name="view_mode">list,form</field>
-        </record>
     </data>
 </odoo>

@@ -46,7 +46,7 @@ class TestErasmusOtherListsTour(HttpCase, ErasmusMobilityCase):
         self.env['ems.erasmus.payment'].sudo().create({'mobility_id': first.id, 'kind': 'single', 'amount': 100})
         for action, tour in (('action_erasmus_mobility', 'mobilities'), ('action_erasmus_mobility_to_validate',
                                                                           'to_validate'),
-                             ('action_erasmus_project', 'projects'), ('action_erasmus_economy_panel', 'panel'),
+                             ('action_erasmus_project', 'projects'), ('action_erasmus_project', 'panel'),
                              ('action_erasmus_expense', 'expenses'), ('action_erasmus_payment', 'payments'),
                              ('action_erasmus_host_entity', 'config'), ('action_erasmus_support_rate', 'rates'),
                              ('action_erasmus_satisfaction', 'surveys')):

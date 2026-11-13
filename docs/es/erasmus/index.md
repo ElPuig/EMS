@@ -19,7 +19,7 @@ Esta sección contiene los manuales para el **equipo Erasmus+**: la coordinació
 | [Preparar las movilidades](mobility-preparation.md) | Los proyectos del centro, destinos elegidos por turnos, destinos propios, entidades de acogida, documentos con quién los firma y los plazos, la carta de compromiso firmada en EMS, la firma electrónica de los convenios, la lista de pasos y el cierre de cada movilidad |
 | [Movilidades de grupo](group-mobilities.md) | Crear una movilidad de grupo, la inscripción del alumnado desde el portal, la clasificación, la aprobación de la selección, las renuncias, los expedientes y el cierre |
 | [Calidad Erasmus+](quality.md) | Los indicadores de interés y de satisfacción, la encuesta de satisfacción de los participantes, las puntuaciones bajas y sus acciones de mejora |
-| [Gestión económica de los proyectos](economy.md) | El panel económico, la subvención de cada proyecto, las transferencias del SEPIE, los compromisos y los pagos, los gastos del proyecto, el apoyo organizativo y la exportación a Excel |
+| [Gestión económica de los proyectos](economy.md) | Los proyectos y sus cifras, la subvención de cada proyecto, las transferencias del SEPIE, los compromisos y los pagos, los servicios pagados por el centro, los gastos del proyecto, el apoyo organizativo y la exportación a Excel |
 
 ---
 
@@ -27,13 +27,14 @@ Esta sección contiene los manuales para el **equipo Erasmus+**: la coordinació
 
 | Menú | Encontraréis |
 |------|--------------|
-| **Convocatorias** | Convocatorias, Solicitudes, Clasificación, Reclamaciones, Resoluciones y Ofertas de plaza |
+| **Convocatorias** | Convocatorias, Solicitudes, Clasificación, Resoluciones, Reclamaciones y Ofertas de plaza |
 | **Movilidades** | Movilidades individuales y Movilidades de grupo |
-| **Gestión económica** | Proyectos, Facturas y Pagos de becas |
-| **Calidad** | Indicadores, Encuestas de satisfacción, Puntuaciones bajas, Acciones de difusión y Cursos anteriores |
-| **Configuración** | Entidades de acogida |
+| **Proyectos** | Los proyectos Erasmus+ del centro con sus cifras económicas y la comparación por convocatoria |
+| **Gestión económica** | Pagos de becas, Servicios pagados por el centro y Gastos del proyecto |
+| **Calidad** | Indicadores, Encuestas de satisfacción, Puntuaciones bajas y Acciones de difusión |
+| **Configuración** | Entidades de acogida, Tarifas de apoyo organizativo e Indicadores de cursos anteriores |
 
-Cada persona solo ve los menús que le tocan: Secretaría, por ejemplo, solo ve **Gestión económica**. Todo el profesorado tiene la aplicación **Erasmus+**, justo debajo de **Reuniones**, con la sección **Mi participación**: allí están **Convocatorias de personal**, **Mis solicitudes** y **Mis movilidades** (para presentarte a la convocatoria de personal, seguir la solicitud y preparar la movilidad, véase [Solicitar una movilidad Erasmus+ de personal](../teachers/erasmus-staff-call.md)), y las entradas personales (**Mis evaluaciones**, **Mis valoraciones de planes**, **Mis movilidades de grupo**), que solo ve quien tiene algo en ellas: quien hace entrevistas ve **Mis evaluaciones**, y quien es de la comisión, **Mis valoraciones de planes**. Así, si eres del equipo Erasmus y también te presentas a la convocatoria de personal, lo que haces como participante está en **Mi participación** y la gestión, en el resto de secciones.
+Cada persona solo ve los menús que le tocan: Secretaría, por ejemplo, solo ve **Proyectos** y **Gestión económica**. Todo el profesorado tiene la aplicación **Erasmus+**, justo debajo de **Reuniones**, con la sección **Mi participación**: allí están **Convocatorias de personal**, **Mis solicitudes** y **Mis movilidades** (para presentarte a la convocatoria de personal, seguir la solicitud y preparar la movilidad, véase [Solicitar una movilidad Erasmus+ de personal](../teachers/erasmus-staff-call.md)), y las entradas personales (**Entrevistas por puntuar**, **Planes por valorar**, **Mis movilidades de grupo**), que solo ve quien tiene algo en ellas: quien hace entrevistas ve **Entrevistas por puntuar**, y quien es de la comisión, **Planes por valorar**. Así, si eres del equipo Erasmus y también te presentas a la convocatoria de personal, lo que haces como participante está en **Mi participación** y la gestión, en el resto de secciones.
 
 **Desde la convocatoria:** el formulario de cada convocatoria tiene un botón para cada paso del proceso (**Solicitudes**, **Clasificación**, **Entrevistas** o **Valoraciones de planes**, **Resoluciones**, **Reclamaciones**, **Ofertas de plaza** y **Movilidades**), y cada uno muestra cuántos hay y solo los registros de esa convocatoria. La **Clasificación** sigue a mano después de la resolución definitiva. Las entrevistas y las valoraciones de los planes de la comisión solo se abren de esta manera.
 

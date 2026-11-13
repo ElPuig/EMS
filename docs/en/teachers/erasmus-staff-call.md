@@ -49,7 +49,7 @@ The **Record** tab has the documents to hand in before leaving and on return (Eu
 
 At the top, **Your documents** says how many you have handed in of those you hand in yourself, e.g. *You have handed in 1 of 4*: neither those the Erasmus team uploads nor the application's count. The **From the Erasmus team** and **Comment for the applicant** columns only show once the team has put something in them.
 
-Once the Erasmus team has worked out your grant, the **Grant** tab shows what you are due (**Your grant**: the grant minus what the centre pays directly for you, such as the travel or the accommodation), what has already been transferred to you (**Paid to you**) and what you still have to receive (**Still to receive**). It is read only: if something looks wrong, tell the Erasmus team.
+Once the Erasmus team has worked out your grant, the **Grant** tab shows it in two blocks, with the same names as the Erasmus team's form: **Grant** (the grant, what is **Paid directly by the centre** for you, such as the travel or the accommodation, and what **You receive**) and **Payments to you** (what has already been **Transferred** and what is **Pending transfer**). It is read only: if something looks wrong, tell the Erasmus team.
 
 The rest is also in **Actions**: **Sign the commitment letter**, the **Weekly self-assessment** during the stay and, on return, **I have answered the EU Survey** once you have answered the final report. While something is missing, you have an EMS task, **Erasmus+: hand in what is missing**, with the list; it is updated every week and disappears on its own once you have handed everything in.
 

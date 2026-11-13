@@ -46,7 +46,7 @@ mobilities done, and the evolution course by course. It never shows anybody's na
 and the mobility technician) sees the score, the comments and who answered, with their mobility;
 nobody else does. Both lists use short headers (*Type*, *Host*, *Action*, *Progress*); the whole name shows on hover.
 
-**Low scores** lists every answer of 6 or lower with what did not work. Open one and choose
+**Low scores** lists every answer of 6 or lower with what did not work. The quality panel says how many there are under its indicators (*Low scores: 2, 1 without an improvement action*): click it to open them, those without an action first. Open one and choose
 **Actions › Create an improvement action**: EMS creates it in the **Quality** app, without the
 participant's name, and you follow it there like any other action. It is the evidence the ISO audit
 asks for. A member of the team who is not a teacher cannot open Quality actions: EMS tells them it
@@ -76,9 +76,9 @@ rest with **New**: information sessions, ErasmusDays, the website, social media.
 in general terms ("students of CFGS"), never names, and attach a capture or the poster if you have
 one. If you don't know how many people it reached, leave that figure empty.
 
-## Earlier courses
+## Earlier course indicators
 
-**Erasmus+ › Quality › Earlier courses** holds the indicators of the courses before EMS kept them,
+**Erasmus+ › Configuration › Earlier course indicators** holds the indicators of the courses before EMS kept them,
 typed in by the coordination with their source. They appear in the evolution by course marked
 *manual load*. The courses 2022-2023 to 2025-2026 are already there.
 

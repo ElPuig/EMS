@@ -152,7 +152,7 @@
                                     </list>
                                 </field>
                             </page>
-                            <page string="Invoices" name="invoices" groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin">
+                            <page string="Services paid by the centre" name="invoices" groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin">
                                 <field name="invoice_ids" readonly="1">
                                     <list>
                                         <field name="date"/>

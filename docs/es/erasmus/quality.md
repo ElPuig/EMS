@@ -45,7 +45,7 @@ evolución curso a curso. No muestra nunca el nombre de nadie. Al pasar el rató
 
 **Erasmus+ › Calidad › Encuestas de satisfacción** lista las respuestas. Todo el equipo Erasmus+ (la coordinación y el técnico de movilidad) ve la puntuación, los comentarios y quién ha respondido, con su movilidad; nadie más. Las dos listas usan cabeceras cortas (*Tipo*, *Acogida*, *Acción*, *Seguimiento*); el nombre entero aparece al pasar el ratón.
 
-**Puntuaciones bajas** lista todas las respuestas de 6 o menos con lo que no ha funcionado. Abre una
+**Puntuaciones bajas** lista todas las respuestas de 6 o menos con lo que no ha funcionado. El panel de calidad dice cuántas hay debajo de los indicadores (*Puntuaciones bajas: 2, 1 sin acción de mejora*): haz clic para abrirlas, primero las que no tienen acción. Abre una
 y elige **Acciones › Crear una acción de mejora**: EMS la crea en la aplicación **Calidad**, sin el
 nombre del participante, y la sigues allí como cualquier otra acción. Es la evidencia que pide la
 auditoría ISO. Un miembro del equipo que no es docente no puede abrir las acciones de Calidad: EMS
@@ -76,9 +76,9 @@ registrado solo. Añade el resto con **Nuevo**: sesiones informativas, ErasmusDa
 sociales. Escribe los destinatarios de forma general («alumnado de CFGS»), nunca nombres, y adjunta
 una captura o el cartel si lo tienes. Si no sabes a cuántas personas ha llegado, deja esa cifra vacía.
 
-## Cursos anteriores
+## Indicadores de cursos anteriores
 
-**Erasmus+ › Calidad › Cursos anteriores** guarda los indicadores de los cursos de antes de que EMS
+**Erasmus+ › Configuración › Indicadores de cursos anteriores** guarda los indicadores de los cursos de antes de que EMS
 los guardara, introducidos por la coordinación con su fuente. Salen en la evolución por curso
 marcados como *carga manual*. Los cursos 2022-2023 a 2025-2026 ya están.
 

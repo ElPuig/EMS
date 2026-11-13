@@ -19,7 +19,7 @@ Aquesta secció conté els manuals per a l'**equip Erasmus+**: la coordinació E
 | [Preparar les mobilitats](mobility-preparation.md) | Els projectes del centre, destinacions triades per torns, destinacions pròpies, entitats d'acollida, documents amb qui els signa i els terminis, la carta de compromís signada a l'EMS, la signatura electrònica dels convenis, la llista de passos i el tancament de cada mobilitat |
 | [Mobilitats de grup](group-mobilities.md) | Crear una mobilitat de grup, la inscripció de l'alumnat des del portal, la classificació, l'aprovació de la selecció, les renúncies, els expedients i el tancament |
 | [Qualitat Erasmus+](quality.md) | Els indicadors d'interès i de satisfacció, l'enquesta de satisfacció dels participants, les puntuacions baixes i les seves accions de millora |
-| [Gestió econòmica dels projectes](economy.md) | El panell econòmic, la subvenció de cada projecte, les transferències del SEPIE, els compromisos i els pagaments, les despeses del projecte, el suport organitzatiu i l'exportació a Excel |
+| [Gestió econòmica dels projectes](economy.md) | Els projectes i les seves xifres, la subvenció de cada projecte, les transferències del SEPIE, els compromisos i els pagaments, els serveis pagats pel centre, les despeses del projecte, el suport organitzatiu i l'exportació a Excel |
 
 ---
 
@@ -27,13 +27,14 @@ Aquesta secció conté els manuals per a l'**equip Erasmus+**: la coordinació E
 
 | Menú | Hi trobareu |
 |------|-------------|
-| **Convocatòries** | Convocatòries, Sol·licituds, Classificació, Reclamacions, Resolucions i Ofertes de plaça |
+| **Convocatòries** | Convocatòries, Sol·licituds, Classificació, Resolucions, Reclamacions i Ofertes de plaça |
 | **Mobilitats** | Mobilitats individuals i Mobilitats de grup |
-| **Gestió econòmica** | Projectes, Factures i Pagaments de beques |
-| **Qualitat** | Indicadors, Enquestes de satisfacció, Puntuacions baixes, Accions de difusió i Cursos anteriors |
-| **Configuració** | Entitats d'acollida |
+| **Projectes** | Els projectes Erasmus+ del centre amb les xifres econòmiques i la comparació per convocatòria |
+| **Gestió econòmica** | Pagaments de beques, Serveis pagats pel centre i Despeses del projecte |
+| **Qualitat** | Indicadors, Enquestes de satisfacció, Puntuacions baixes i Accions de difusió |
+| **Configuració** | Entitats d'acollida, Tarifes de suport organitzatiu i Indicadors de cursos anteriors |
 
-Cada persona només veu els menús que li toquen: la Secretaria, per exemple, només veu **Gestió econòmica**. Tot el professorat té l'aplicació **Erasmus+**, just a sota de **Reunions**, amb la secció **La meva participació**: hi ha **Convocatòries de personal**, **Les meves sol·licituds** i **Les meves mobilitats** (per presentar-te a la convocatòria de personal, seguir la sol·licitud i preparar la mobilitat, vegeu [Sol·licitar una mobilitat Erasmus+ de personal](../teachers/erasmus-staff-call.md)), i les entrades personals (**Les meves avaluacions**, **Les meves valoracions de plans**, **Les meves mobilitats de grup**), que només veu qui hi té alguna cosa: qui fa entrevistes veu **Les meves avaluacions**, i qui és de la comissió, **Les meves valoracions de plans**. Així, si ets de l'equip Erasmus i també et presentes a la convocatòria de personal, el que fas com a participant és a **La meva participació** i la gestió, a la resta de seccions.
+Cada persona només veu els menús que li toquen: la Secretaria, per exemple, només veu **Projectes** i **Gestió econòmica**. Tot el professorat té l'aplicació **Erasmus+**, just a sota de **Reunions**, amb la secció **La meva participació**: hi ha **Convocatòries de personal**, **Les meves sol·licituds** i **Les meves mobilitats** (per presentar-te a la convocatòria de personal, seguir la sol·licitud i preparar la mobilitat, vegeu [Sol·licitar una mobilitat Erasmus+ de personal](../teachers/erasmus-staff-call.md)), i les entrades personals (**Entrevistes per puntuar**, **Plans per valorar**, **Les meves mobilitats de grup**), que només veu qui hi té alguna cosa: qui fa entrevistes veu **Entrevistes per puntuar**, i qui és de la comissió, **Plans per valorar**. Així, si ets de l'equip Erasmus i també et presentes a la convocatòria de personal, el que fas com a participant és a **La meva participació** i la gestió, a la resta de seccions.
 
 **Des de la convocatòria:** el formulari de cada convocatòria té un botó per a cada pas del procés (**Sol·licituds**, **Classificació**, **Entrevistes** o **Valoracions de plans**, **Resolucions**, **Reclamacions**, **Ofertes de plaça** i **Mobilitats**), i cadascun mostra quants n'hi ha i només els registres d'aquesta convocatòria. La **Classificació** continua a mà després de la resolució definitiva. Les entrevistes i les valoracions dels plans de la comissió només s'obren d'aquesta manera.
 

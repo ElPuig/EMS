@@ -85,17 +85,21 @@ on every filter change (onchange):
   in total and by cycle (the study of the applicant's group).
 - Evolution by course of the two indicators.
 
+Under the indicators, `low_note` (*Low scores: N, M without an improvement action*, from the surveys of the
+panel's selection) opens `action_erasmus_satisfaction_low` narrowed to that selection with *Without an
+improvement action* on (`action_open_low_scores`, issue #789, 12.6). Hidden when there is none (`low_count`).
+
 There is no minimum group size: every breakdown shows whatever there is (adriamt, 2026-11-04). The
 interest only follows the course, call and participant type filters (it is a per-call figure); filtered by project, it is that of the calls of the project's mobilities, shared with any other project of the same calls.
 `_ems_data()` returns every figure as plain values, shared by the panel and the PDF. Measured on this dev DB
 (3 calls, no surveys): 0.06 s cold.
 
-## Earlier courses (manual load)
+## Earlier course indicators (manual load)
 
 `ems.erasmus.quality.history`: one row per course before EMS kept the figures (`course_name` as EMS
 names courses, `2022-2023`, since those courses may not exist as `ems.course`), with applicants and
 target (students, staff), the average satisfaction (0-10, other scales converted), n and the
-`source`. The coordinator edits them (Erasmus+ › Quality › Earlier courses); the team reads them.
+`source`. The coordinator edits them (Erasmus+ › Configuration › Earlier course indicators, issue #789: loaded once, a setting rather than quality work); the team reads them.
 The evolution table (`_ems_evolution`) adds each one marked "(manual load)" unless EMS has its own
 figures for that course. The centre's four courses 2022-2023 to 2025-2026 are seeded from
 `data/custom/erasmus/ems.erasmus.quality.history.csv` (frozen once created, like every
@@ -142,7 +146,7 @@ No personal data: only totals, generic audiences and documents that are public a
 | Administrator (`group_academic_admin`) | yes | read, write | yes | yes | yes |
 | Participant | no | own pending survey, on the portal | - | - | - |
 
-Earlier courses: the team reads, the coordinator and the administrator edit. Diffusion actions: the
+Earlier course indicators: the team reads, the coordinator and the administrator edit. Diffusion actions: the
 whole team. The Mobilitat FP evidence: the Erasmus team and the administrator.
 
 The name is shown only to the Erasmus team and the administrator, with field `groups`

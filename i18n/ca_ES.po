@@ -9341,6 +9341,7 @@ msgstr "Iniciant procés en segon pla; rebràs una notificació en finalitzar (p
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__state
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_search
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__walkout_state
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form_economy
 msgid "State"
 msgstr "Estat"
 
@@ -32160,12 +32161,6 @@ msgid "Motivation"
 msgstr "Motivació"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_erasmus_my_interviews
-#: model:ir.ui.menu,name:ems.menu_erasmus_my_interviews
-msgid "My evaluations"
-msgstr "Les meves avaluacions"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__needs_draw
 msgid "Needs a draw"
 msgstr "Cal un sorteig"
@@ -33380,12 +33375,6 @@ msgstr "Puntuació del pla de mobilitat"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__last_staff_mobility__older
 msgid "More than two courses ago"
 msgstr "Fa més de dos cursos"
-
-#. module: ems
-#: model:ir.actions.act_window,name:ems.action_erasmus_my_plan_ratings
-#: model:ir.ui.menu,name:ems.menu_erasmus_my_plan_ratings
-msgid "My plan ratings"
-msgstr "Les meves valoracions de plans"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__declared_last_staff_mobility__never
@@ -35379,6 +35368,8 @@ msgstr "Projecte de la modalitat"
 #: model:ir.ui.menu,name:ems.menu_erasmus_projects
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_search
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_economy_panel_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_economy_panel_search
 msgid "Projects"
 msgstr "Projectes"
 
@@ -35759,11 +35750,6 @@ msgid "Erasmus+ host entity"
 msgstr "Entitat d'acollida Erasmus+"
 
 #. module: ems
-#: model:ir.model,name:ems.model_ems_erasmus_invoice
-msgid "Erasmus+ invoice"
-msgstr "Factura Erasmus+"
-
-#. module: ems
 #: model:ir.model,name:ems.model_ems_erasmus_provision
 msgid "Erasmus+ provision of services"
 msgstr "Provisió de serveis Erasmus+"
@@ -35838,8 +35824,6 @@ msgstr "Número de factura"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__invoice_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_transfer_wizard__invoice_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
-#: model:ir.actions.act_window,name:ems.action_erasmus_invoice
-#: model:ir.ui.menu,name:ems.menu_erasmus_invoices
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_search
 #: code:addons/ems/models/erasmus/export.py:0
@@ -35885,13 +35869,12 @@ msgstr "Sense assignar"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__econ_state__paid
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__econ_state__paid
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_search
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__pocket_paid
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_participant__pocket_state__paid
 msgid "Paid"
 msgstr "Pagat"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__provision_amount
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form_economy
 msgid "Paid by the centre"
 msgstr "Pagat pel centre"
 
@@ -35931,6 +35914,7 @@ msgstr ""
 #: code:addons/ems/models/erasmus/export.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_export__participant_count
 #: code:addons/ems/models/erasmus/quality.py:0
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_invoice__covers__participants
 msgid "Participants"
 msgstr "Participants"
 
@@ -35959,12 +35943,6 @@ msgid "Prefinancing"
 msgstr "Prefinançament"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__prefinancing_percent
-msgid "Prefinancing (%)"
-msgstr "Prefinançament (%)"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__provision_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 msgid "Provision of services"
 msgstr "Provisió de serveis"
@@ -36086,11 +36064,6 @@ msgid "To pay"
 msgstr "Per pagar"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__grant_net
-msgid "To transfer to the participant"
-msgstr "A transferir a la persona participant"
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_invoice__concept__travel
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_provision__concept__travel
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
@@ -36131,6 +36104,7 @@ msgstr "A qui cobreix la factura: l'import es reparteix a parts iguals."
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_grant_table
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_staff_form
 msgid "You receive"
 msgstr "Reps"
 
@@ -39200,11 +39174,6 @@ msgstr "Empat per resoldre"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__needs_draw
 msgid "Tied"
 msgstr "Empat"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__expense_amount
-msgid "Total of the collective expenses"
-msgstr "Total de les despeses col·lectives"
 
 #. module: ems
 #. odoo-python
@@ -43403,6 +43372,7 @@ msgstr "Tipus de mobilitat"
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_erasmus_satisfaction_low
 #: model:ir.ui.menu,name:ems.menu_erasmus_satisfaction_low
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_quality_panel__low_count
 msgid "Low scores"
 msgstr "Puntuacions baixes"
 
@@ -43786,16 +43756,6 @@ msgstr "P. ex. Sessió informativa per a l'alumnat de CFGS"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_diffusion_form
 msgid "E.g. students of CFGS (never names)"
 msgstr "P. ex. alumnat de CFGS (mai noms)"
-
-#. module: ems
-#: model:ir.ui.menu,name:ems.menu_erasmus_quality_history
-msgid "Earlier courses"
-msgstr "Cursos anteriors"
-
-#. module: ems
-#: model:ir.actions.act_window,name:ems.action_erasmus_quality_history
-msgid "Earlier courses (manual load)"
-msgstr "Cursos anteriors (càrrega manual)"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_diffusion__channel__ems_email
@@ -47176,14 +47136,6 @@ msgid "Current grant"
 msgstr "Subvenció vigent"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_erasmus_economy_panel
-#: model:ir.ui.menu,name:ems.menu_erasmus_economy_panel
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_economy_panel_list
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_economy_panel_search
-msgid "Economic panel"
-msgstr "Panell econòmic"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/economy.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_economy__econ_state
@@ -47254,11 +47206,9 @@ msgstr "Despesa"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/economy.py:0
-#: model:ir.actions.act_window,name:ems.action_erasmus_expense
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__expense_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_transfer_wizard__expense_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_undo_transfer_wizard__expense_ids
-#: model:ir.ui.menu,name:ems.menu_erasmus_expenses
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_search
 msgid "Expenses"
@@ -47383,6 +47333,7 @@ msgstr "Subvenció i ingressos"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/economy.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__grant_amount
 msgid "Grants"
 msgstr "Beques"
 
@@ -47419,7 +47370,7 @@ msgid "New expense"
 msgstr "Despesa nova"
 
 #. module: ems
-#: model_terms:ir.actions.act_window,help:ems.action_erasmus_economy_panel
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_project
 msgid "No Erasmus+ project yet"
 msgstr "Encara no hi ha cap projecte Erasmus+"
 
@@ -47472,7 +47423,7 @@ msgstr ""
 "docents acompanyants no generen mai suport organitzatiu."
 
 #. module: ems
-#: model_terms:ir.actions.act_window,help:ems.action_erasmus_economy_panel
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_project
 msgid ""
 "One row per project: its grant, what its mobilities and expenses commit, "
 "what has been paid, what is available and the organisational support "
@@ -47981,11 +47932,6 @@ msgstr ""
 " personal plegats (KA131-HED)."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__grant_amount
-msgid "Grants of the participants"
-msgstr "Beques dels participants"
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__support_type__non_associated
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_support_rate__mobility_type__non_associated
 msgid "Individual activity in a third country not associated to the programme"
@@ -48196,6 +48142,10 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__transferred_amount
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__pocket_paid_total
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__pocket_paid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__grant_paid
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form_economy
 msgid "Transferred"
 msgstr "Transferit"
 
@@ -48381,11 +48331,6 @@ msgid "Save the account"
 msgstr "Desa el compte"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__invoice_share
-msgid "Share of collective invoices"
-msgstr "Part de les factures col·lectives"
-
-#. module: ems
 #: model_terms:ir.actions.act_window,help:ems.action_erasmus_payment
 msgid "The Erasmus team requests each payment from the participant's mobility, or the pocket money from the group mobility."
 msgstr "L'equip Erasmus+ demana cada pagament des de la mobilitat del participant, o els diners de butxaca des de la mobilitat de grup."
@@ -48450,11 +48395,6 @@ msgstr "A %s no queden diners de butxaca per demanar."
 #: code:addons/ems/models/erasmus/pocket_money.py:0
 msgid "This group mobility has collective invoices: remove them first, the centre pays nothing directly."
 msgstr "Aquesta mobilitat de grup té factures col·lectives: primer elimineu-les, el centre no paga res directament."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_group_participant__pocket_amount
-msgid "What is transferred to the participant: their grant minus their share of the collective invoices."
-msgstr "El que es transfereix al participant: la beca menys la seva part de les factures col·lectives."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
@@ -49932,6 +49872,9 @@ msgstr "Proposa donar suport a una vaga o vota una del teu grup"
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
 msgid "Call of the students' union"
 msgstr "Convocatòria del sindicat d'estudiants"
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__project_label
+msgid "Project shown"
+msgstr "Projecte que es mostra"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__can_generate_justification
@@ -52888,6 +52831,200 @@ msgstr "encara no hi ha entitat d'acollida"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_project__kind
 msgid "Taken from the agreement number (KA121-VET or KA131-HED), like the short name."
 msgstr "Es treu del número de conveni (KA121-VET o KA131-HED), com el nom curt."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_invoice__covers__group
+msgid "A group mobility"
+msgstr "Una mobilitat de grup"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_invoice__covers
+msgid "A group mobility: split among its participants by their pocket money. Participants: split equally among the ones chosen."
+msgstr "Una mobilitat de grup: es reparteix entre els seus participants a través dels diners de butxaca. Participants: es reparteix a parts iguals entre els escollits."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__prefinancing_percent
+msgid "Before leaving (%)"
+msgstr "Abans de marxar (%)"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_erasmus_quality_history
+#: model:ir.ui.menu,name:ems.menu_erasmus_quality_history
+msgid "Earlier course indicators"
+msgstr "Indicadors de cursos anteriors"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_invoice
+msgid "Erasmus+ service paid by the centre"
+msgstr "Servei Erasmus+ pagat pel centre"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "Grant and expenses"
+msgstr "Beca i despeses"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_erasmus_my_interviews
+#: model:ir.ui.menu,name:ems.menu_erasmus_my_interviews
+msgid "Interviews to score"
+msgstr "Entrevistes per puntuar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_quality_panel__low_note
+msgid "Low scores note"
+msgstr "Nota de puntuacions baixes"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/satisfaction.py:0
+msgid "Low scores: %(count)s, %(open)s without an improvement action"
+msgstr "Puntuacions baixes: %(count)s, %(open)s sense acció de millora"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_form
+msgid "Not for any participant? Register it as a project expense: a service paid by the centre is deducted from someone's grant."
+msgstr "No és de cap participant? Registra-la com a despesa del projecte: un servei pagat pel centre es descompta de la beca d'algú."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form_economy
+msgid "Organisational support (for the centre)"
+msgstr "Suport organitzatiu (per al centre)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__expense_amount
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__invoice_share
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__provision_amount
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Paid directly by the centre"
+msgstr "Pagat directament pel centre"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_grant_table
+msgid "Paid directly by the centre:"
+msgstr "Pagat directament pel centre:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "Payments to the people"
+msgstr "Pagaments a les persones"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Payments to the person"
+msgstr "Pagaments a la persona"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_staff_form
+msgid "Payments to you"
+msgstr "Pagaments a tu"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__pocket_pending_total
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__grant_to_receive
+msgid "Pending transfer"
+msgstr "Pendent de transferir"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_erasmus_my_plan_ratings
+#: model:ir.ui.menu,name:ems.menu_erasmus_my_plan_ratings
+msgid "Plans to rate"
+msgstr "Plans per valorar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_form
+msgid "Project expense"
+msgstr "Despesa del projecte"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_erasmus_expense
+#: model:ir.ui.menu,name:ems.menu_erasmus_expenses
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_search
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form_economy
+msgid "Project expenses"
+msgstr "Despeses del projecte"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_form
+msgid "Service paid by the centre"
+msgstr "Servei pagat pel centre"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_erasmus_invoice
+#: model:ir.ui.menu,name:ems.menu_erasmus_invoices
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form_economy
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_search
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
+msgid "Services paid by the centre"
+msgstr "Serveis pagats pel centre"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__provision_ids
+msgid "Services paid directly by the centre"
+msgstr "Serveis pagats directament pel centre"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form_economy
+msgid "Subsidy"
+msgstr "Subvenció"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_mobility__expense_amount
+msgid "The group's collective invoices (travel, accommodation...)."
+msgstr "Les factures col·lectives del grup (viatge, allotjament...)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_participant__pocket_amount
+msgid "The pocket money (art. 16 of the call), what is transferred to the participant: their grant minus their share of the collective invoices."
+msgstr "Els diners de butxaca (art. 16 de la convocatòria), el que es transfereix al participant: la seva beca menys la seva part de les factures col·lectives."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_mobility__pocket_total
+msgid "The pocket money of the participants taking part: their grants minus what the centre pays directly."
+msgstr "Els diners de butxaca dels participants que hi prenen part: les seves beques menys el que paga directament el centre."
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_expense
+msgid "The project's expenses outside the participants' grants: working meals, merchandising, dissemination, language preparation... A service paid for a participant (travel, accommodation) goes in Services paid by the centre instead. The Secretary pays them with the same transfer as the grants."
+msgstr "Les despeses del projecte fora de les beques dels participants: dinars de treball, marxandatge, difusió, preparació lingüística... Un servei pagat per a un participant (viatge, allotjament) va a Serveis pagats pel centre. La Secretaria les paga amb la mateixa transferència que les beques."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__pocket_total
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__grant_net
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form_economy
+msgid "To transfer"
+msgstr "A transferir"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_invoice
+msgid "Travel, accommodation, course fees... Choose who it is for: its amount is deducted from what they receive (split equally among the participants). An expense that is nobody's goes in Project expenses."
+msgstr "Viatge, allotjament, matrícula de cursos... Tria per a qui és: el seu import es descompta del que reben (a parts iguals entre els participants). Una despesa que no és de ningú va a Despeses del projecte."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_staff_form
+msgid "Travel, accommodation, course fees... that the centre pays for you out of the grant."
+msgstr "Viatge, allotjament, matrícula de cursos... que el centre paga per tu de la beca."
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_invoice
+msgid "Upload an invoice the centre paid for some participants or a group mobility"
+msgstr "Puja una factura que el centre ha pagat per a alguns participants o una mobilitat de grup"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__grant_to_receive
+msgid "What is to transfer minus what has already been transferred."
+msgstr "El que cal transferir menys el que ja s'ha transferit."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__grant_paid
+msgid "What the Secretary has already transferred to the person's account."
+msgstr "El que la Secretaria ja ha transferit al compte de la persona."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__covers
+msgid "Who it is for"
+msgstr "Per a qui és"
 
 #. module: ems
 #. odoo-python

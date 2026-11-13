@@ -49,7 +49,7 @@ La pestanya **Expedient** té els documents que has de lliurar abans de marxar i
 
 A dalt, **Els teus documents** diu quants n'has lliurat dels que et toca lliurar a tu, per exemple *Has lliurat 1 de 4*: no hi compten els que puja l'equip Erasmus ni els de la sol·licitud. Les columnes **De l'equip Erasmus** i **Comentari per al sol·licitant** només surten quan l'equip hi ha posat alguna cosa.
 
-Quan l'equip Erasmus ha calculat la teva beca, la pestanya **Beca** mostra el que et correspon (**La teva beca**: la beca menys el que el centre paga directament per tu, com el viatge o l'allotjament), el que ja t'han transferit (**Ja cobrat**) i el que encara has de cobrar (**Pendent de cobrar**). És només de consulta: si hi veus alguna cosa estranya, digues-ho a l'equip Erasmus.
+Quan l'equip Erasmus ha calculat la teva beca, la pestanya **Beca** la mostra en dos blocs, amb els mateixos noms que la fitxa de l'equip Erasmus: **Beca** (la beca, el que està **Pagat directament pel centre** per tu, com el viatge o l'allotjament, i el que **Reps**) i **Pagaments a tu** (el que ja s'ha **Transferit** i el que està **Pendent de transferir**). És només de consulta: si hi veus alguna cosa estranya, digues-ho a l'equip Erasmus.
 
 La resta també és a **Accions**: **Signa la carta de compromís**, l'**Autoavaluació setmanal** durant l'estada i, en tornar, **He respost l'EU Survey** quan hagis respost l'informe final. Mentre falti alguna cosa, tens una tasca a l'EMS, **Erasmus+: lliura el que falta**, amb la llista; s'actualitza cada setmana i desapareix tota sola quan ho has lliurat tot.
 

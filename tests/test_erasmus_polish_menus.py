@@ -23,7 +23,7 @@ class TestErasmusPolishMenus(ErasmusSatisfactionCase):
         projects = self.env.ref('ems.menu_erasmus_projects')
         self.assertEqual(projects.action, self.env.ref('ems.action_erasmus_project'))
         self.assertEqual(children(self.env, 'ems.menu_erasmus_section_finances'),
-                         ['Grant payments', 'Invoices', 'Expenses'])
+                         ['Grant payments', 'Services paid by the centre', 'Project expenses'])
         self.assertFalse(self.env.ref('ems.action_erasmus_economy_panel', raise_if_not_found=False))
         self.assertEqual(children(self.env, 'ems.menu_erasmus_section_config')[-1], 'Earlier course indicators')
         self.assertNotIn('Earlier courses', children(self.env, 'ems.menu_erasmus_section_quality'))

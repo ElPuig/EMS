@@ -48,7 +48,7 @@ Every criterion starts empty. **An empty criterion is never zero:** the applicat
 **One by one**, on the **Interview** tab of each admitted application:
 
 1. Fill in the **Interview date** and **Interview place**.
-2. In the list, add the **two evaluators** (anyone of the staff). Each evaluator gets a task in EMS and sees the interview in **Erasmus+ > My participation > My evaluations**. They only see their own interview, not the other evaluator's score nor the rest of the application.
+2. In the list, add the **two evaluators** (anyone of the staff). Each evaluator gets a task in EMS and sees the interview in **Erasmus+ > My participation > Interviews to score**. They only see their own interview, not the other evaluator's score nor the rest of the application.
 3. Click **Actions > Send interview call**. The student receives an email with the date and place. It must be sent at least 24 hours before the interview.
 
 Each evaluator scores the 7 criteria of the rubric (annex 4) from 0 to 5, with the descriptors written on the form, and submits. The interview score is the average of both evaluators. If only one evaluator could score it for a justified reason, write it in **Reason for a single evaluation**.

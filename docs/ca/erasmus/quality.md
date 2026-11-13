@@ -45,7 +45,7 @@ curs a curs. No mostra mai el nom de ningú. En passar el ratolí per la icona (
 
 **Erasmus+ › Qualitat › Enquestes de satisfacció** llista les respostes. Tot l'equip Erasmus+ (la coordinació i el tècnic de mobilitat) veu la puntuació, els comentaris i qui ha respost, amb la seva mobilitat; ningú més. Les dues llistes fan servir capçaleres curtes (*Tipus*, *Acollida*, *Acció*, *Seguiment*); el nom sencer surt en passar-hi el ratolí.
 
-**Puntuacions baixes** llista totes les respostes de 6 o menys amb el que no ha funcionat. Obre'n una
+**Puntuacions baixes** llista totes les respostes de 6 o menys amb el que no ha funcionat. El panell de qualitat diu quantes n'hi ha a sota dels indicadors (*Puntuacions baixes: 2, 1 sense acció de millora*): feu-hi clic per obrir-les, primer les que no tenen acció. Obre'n una
 i tria **Accions › Crear una acció de millora**: EMS la crea a l'aplicació **Qualitat**, sense el nom
 del participant, i la segueixes allà com qualsevol altra acció. És l'evidència que demana
 l'auditoria ISO. Un membre de l'equip que no és docent no pot obrir les accions de Qualitat: l'EMS
@@ -76,9 +76,9 @@ registrat sol. Afegeix la resta amb **Nou**: sessions informatives, ErasmusDays,
 socials. Escriu els destinataris de manera general («alumnat de CFGS»), mai noms, i adjunta-hi una
 captura o el cartell si en tens. Si no saps a quantes persones ha arribat, deixa aquesta xifra buida.
 
-## Cursos anteriors
+## Indicadors de cursos anteriors
 
-**Erasmus+ › Qualitat › Cursos anteriors** guarda els indicadors dels cursos d'abans que EMS els
+**Erasmus+ › Configuració › Indicadors de cursos anteriors** guarda els indicadors dels cursos d'abans que EMS els
 guardés, introduïts per la coordinació amb la seva font. Surten a l'evolució per curs marcats com a
 *càrrega manual*. Els cursos 2022-2023 a 2025-2026 ja hi són.
 

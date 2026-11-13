@@ -1,17 +1,12 @@
 from datetime import timedelta
 
-from lxml import etree
 
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import tagged
 
+from .common import view_arch
 from .test_erasmus_mobility import ErasmusMobilityCase, ErasmusStaffMobilityCase
 from .test_erasmus_staff import ErasmusStaffCase
-
-
-def _arch(env, xmlid):
-    view = env.ref(f'ems.{xmlid}')
-    return etree.fromstring(env[view.model].get_view(view.id)['arch'])
 
 
 def _wizard(env, action, **vals):
@@ -37,7 +32,7 @@ class TestErasmusMobilityActions(ErasmusMobilityCase):
         self.assertEqual(first.state, 'cancelled')
         self.assertEqual(first.cancel_reason, 'Travel documents not handed in on time')
         self.assertEqual(first.application_id.state, 'renounced')
-        form = _arch(self.env, 'view_erasmus_mobility_form')
+        form = view_arch(self.env, 'view_erasmus_mobility_form')
         self.assertFalse(form.xpath("//page[@name='cancellation']"), "No tab with a single field any more.")
         self.assertTrue(form.xpath("//div[contains(@class, 'alert')]/field[@name='cancel_reason']"))
         self.assertTrue(form.xpath("//button[@name='action_open_cancel_wizard']"))
@@ -98,7 +93,7 @@ class TestErasmusStaffMobilityActions(ErasmusStaffMobilityCase):
         mobility = self._accepted_staff()
         with self.assertRaises(UserError):
             mobility.with_user(self.erasmus_user).action_agree_destination()
-        button = _arch(self.env, 'view_erasmus_mobility_form').xpath(
+        button = view_arch(self.env, 'view_erasmus_mobility_form').xpath(
             "//button[@name='action_open_destination_wizard']")[0]
         self.assertIn("audience == 'staff'", button.get('invisible'))
 
@@ -117,7 +112,7 @@ class TestErasmusStaffCallActions(ErasmusStaffCase):
         self._publish('provisional')
         with self.assertRaises(UserError):
             self.staff_call.action_send_to_panel()
-        button = _arch(self.env, 'view_erasmus_call_form').xpath("//button[@name='action_send_to_panel']")[0]
+        button = view_arch(self.env, 'view_erasmus_call_form').xpath("//button[@name='action_send_to_panel']")[0]
         self.assertIn("phase != 'scoring'", button.get('invisible'))
 
     def test_print_the_published_list_from_the_actions(self):

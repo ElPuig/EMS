@@ -1,9 +1,9 @@
 from datetime import timedelta
 
-from lxml import etree
 
 from odoo.tests.common import tagged
 
+from .common import view_arch
 from .test_erasmus_mobility import ErasmusMobilityCase
 
 
@@ -52,22 +52,18 @@ class TestErasmusStatusBars(ErasmusMobilityCase):
         first._ems_set_state('cancelled')
         self.assertEqual(first.phase, 'cancelled')
 
-    def _arch(self, xmlid):
-        view = self.env.ref(f'ems.{xmlid}')
-        return etree.fromstring(self.env[view.model].get_view(view.id)['arch'])
-
     def test_status_bars_show_the_phases(self):
         """2.8, 4.11, 5.5, 5.7: the bars, and the two checkboxes gone."""
         for xmlid in ('view_erasmus_call_form', 'view_erasmus_mobility_form', 'view_erasmus_mobility_staff_form'):
-            self.assertTrue(self._arch(xmlid).xpath("//header/field[@name='phase'][@widget='statusbar']"), xmlid)
-        mobility = self._arch('view_erasmus_mobility_form')
+            self.assertTrue(view_arch(self.env, xmlid).xpath("//header/field[@name='phase'][@widget='statusbar']"), xmlid)
+        mobility = view_arch(self.env, 'view_erasmus_mobility_form')
         self.assertEqual(mobility.xpath("//header/field[@name='phase']")[0].get('statusbar_visible'),
                          'choosing,preparing,stay,return,done')
         for xmlid in ('view_erasmus_mobility_form', 'view_erasmus_mobility_list'):
-            arch = self._arch(xmlid)
+            arch = view_arch(self.env, xmlid)
             self.assertFalse(arch.xpath("//field[@name='preparation_complete' or @name='return_complete']"), xmlid)
-        self.assertEqual(self._arch('view_erasmus_mobility_kanban').get('default_group_by'), 'phase')
-        offer = self._arch('view_erasmus_offer_form').xpath("//header/field[@name='state']")[0]
+        self.assertEqual(view_arch(self.env, 'view_erasmus_mobility_kanban').get('default_group_by'), 'phase')
+        offer = view_arch(self.env, 'view_erasmus_offer_form').xpath("//header/field[@name='state']")[0]
         self.assertIn('expired', offer.get('statusbar_visible').split(','))
 
     def test_portal_position_for_a_phone(self):

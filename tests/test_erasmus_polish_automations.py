@@ -1,4 +1,7 @@
 from odoo.tests import Form, tagged
+from odoo.tools import mute_logger
+
+from .test_erasmus import PDF
 
 from .test_erasmus_group_mobility import ErasmusGroupMobilityCase
 from .test_erasmus_mobility import ErasmusMobilityCase, ErasmusStaffMobilityCase
@@ -52,6 +55,22 @@ class TestErasmusPolishAutomations(ErasmusMobilityCase):
             'task_ids': [(0, 0, {'name': 'Step after cancelling'})]})
         self.assertNotIn('Step after cancelling', first.task_ids.call_task_id.mapped('name'))
 
+    def test_removing_a_call_document_keeps_what_was_uploaded(self):
+        """5.17: a document a participant already handed in can't be taken off the call, so their
+        files stay."""
+        first, _second = self._accepted()
+        first.sudo().state = 'preparing'
+        self.call.with_user(self.erasmus_user).write({
+            'preparation_document_ids': [(0, 0, {'name': 'Document removed later', 'stage': 'preparation'})]})
+        line = first.document_ids.filtered(lambda line: line.name == 'Document removed later')
+        line.sudo()._ems_add_files([('handed-in.pdf', PDF)])
+        files = line.attachment_ids
+        self.assertTrue(files)
+        with self.assertRaises(Exception), self.cr.savepoint(), mute_logger('odoo.sql_db'):
+            self.call.with_user(self.erasmus_user).write({'preparation_document_ids': [(2, line.call_document_id.id)]})
+        self.assertTrue(line.exists())
+        self.assertEqual(line.attachment_ids, files)
+
     def test_country_and_city_from_the_host_entity(self):
         """13.6: choosing the host entity fills the country and city still empty."""
         first, _second = self._accepted()
@@ -104,3 +123,10 @@ class TestErasmusPolishAutomationsGroup(ErasmusGroupMobilityCase):
         added = participants.document_ids - lines
         self.assertTrue(added)
         self.assertEqual(set(added.mapped('name')), {'Group document added later'})
+        # Taking it off the group mobility again never removes a file already handed in.
+        line = added[:1]
+        line.sudo()._ems_add_files([('handed-in.pdf', PDF)])
+        files = line.attachment_ids
+        with self.assertRaises(Exception), self.cr.savepoint(), mute_logger('odoo.sql_db'):
+            self.mobility.with_user(self.coordinator_user).write({'requirement_ids': [(2, line.call_document_id.id)]})
+        self.assertEqual(line.exists().attachment_ids, files)

@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from lxml import etree
 
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import tagged
 
 from .test_erasmus_mobility import ErasmusMobilityCase, ErasmusStaffMobilityCase
@@ -66,6 +66,21 @@ class TestErasmusStaffSteps(ErasmusStaffMobilityCase):
         # Another teacher reads nothing of it.
         other = self.env(user=self.staff_users[1])['ems.erasmus.mobility.task']
         self.assertFalse(other.search([('id', '=', task.id)]))
+        # Nor ticks it, by its id or through the mobility.
+        foreign = other.browse(task.id)
+        with self.assertRaises(AccessError):
+            foreign.read(['name', 'done'])
+        self.assertFalse(foreign.staff_can_tick)
+        with self.assertRaises(UserError):
+            foreign.action_staff_done()
+        with self.assertRaises(AccessError):
+            foreign.write({'done': True})
+        with self.assertRaises(AccessError):
+            self.env(user=self.staff_users[1])['ems.erasmus.mobility'].browse(mobility.id).write(
+                {'task_ids': [(1, task.id, {'done': True})]})
+        # The owner can't change it by writing either: only the buttons do.
+        with self.assertRaises(AccessError):
+            task.write({'done': False})
 
     def test_the_teacher_mobility_says_what_to_do(self):
         mobility = self._accepted_staff()

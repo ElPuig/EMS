@@ -290,6 +290,25 @@
                         <field name="staff_self_assessment_open" invisible="1"/>
                         <field name="staff_eu_survey_open" invisible="1"/>
                         <field name="staff_can_renounce" invisible="1"/>
+                        <field name="staff_next_level" invisible="1"/>
+                        <!-- Issue #787 (P11, P14): what to do now, as on the application. -->
+                        <div class="alert alert-warning o_ems_erasmus_staff_next" role="alert"
+                             invisible="not staff_next_step or staff_next_level != 'warning'">
+                            <field name="staff_next_step" class="fw-bold"/>
+                            <span invisible="not staff_next_deadline"> Before <field name="staff_next_deadline" class="oe_inline"/>.</span>
+                        </div>
+                        <div class="alert alert-info o_ems_erasmus_staff_next" role="status"
+                             invisible="not staff_next_step or staff_next_level != 'info'">
+                            <field name="staff_next_step"/>
+                        </div>
+                        <div class="alert alert-success o_ems_erasmus_staff_next" role="status"
+                             invisible="not staff_next_step or staff_next_level != 'success'">
+                            <field name="staff_next_step"/>
+                        </div>
+                        <div class="alert alert-secondary o_ems_erasmus_staff_next" role="status"
+                             invisible="not staff_next_step or staff_next_level not in ('secondary', 'danger')">
+                            <field name="staff_next_step"/>
+                        </div>
                         <div class="oe_title">
                             <h1><field name="call_id" readonly="1" options="{'no_open': True}"/></h1>
                         </div>
@@ -350,6 +369,24 @@
                                                 invisible="not staff_can_upload"/>
                                         <button name="action_staff_sign" type="object" string="Sign it here" icon="fa-pencil-square-o"
                                                 invisible="not staff_sign_url"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <!-- Issue #787 (8.8): the steps of the mobility, the teacher ticks theirs. -->
+                            <page string="Steps" name="steps" invisible="not task_ids">
+                                <field name="task_ids">
+                                    <list class="o_ems_list_text_buttons" create="false" delete="false">
+                                        <field name="stage"/>
+                                        <field name="name"/>
+                                        <field name="description" optional="show"/>
+                                        <field name="is_required" optional="hide"/>
+                                        <field name="done"/>
+                                        <field name="staff_can_tick" column_invisible="1"/>
+                                        <field name="staff_can_untick" column_invisible="1"/>
+                                        <button name="action_staff_done" type="object" string="Done" icon="fa-check"
+                                                invisible="not staff_can_tick"/>
+                                        <button name="action_staff_undo" type="object" string="Undo" icon="fa-undo"
+                                                invisible="not staff_can_untick"/>
                                     </list>
                                 </field>
                             </page>
@@ -429,8 +466,9 @@
                         <field name="applicant_notes" placeholder="Anything else the Erasmus team should know (optional)."/>
                     </group>
                     <footer>
-                        <button name="action_save" type="object" string="Save" class="btn-primary"/>
-                        <button name="action_save_submit" type="object" string="Save and submit"
+                        <!-- P03 (adriamt, 2026-11-13): both stay, sending is the highlighted one. -->
+                        <button name="action_save" type="object" string="Save" class="btn-secondary"/>
+                        <button name="action_save_submit" type="object" string="Save and submit" class="btn-primary"
                                 confirm="Submit the application? You can still change it until the call closes."/>
                         <button string="Cancel" special="cancel" class="btn-secondary"/>
                     </footer>

@@ -53,6 +53,8 @@ Cuando el equipo Erasmus ha calculado tu beca, la pestaña **Beca** muestra lo q
 
 El resto también está en **Acciones**: **Firma la carta de compromiso**, la **Autoevaluación semanal** durante la estancia y, al volver, **He respondido la EU Survey** cuando hayas respondido el informe final. Mientras falte algo, tienes una tarea en EMS, **Erasmus+: entrega lo que falta**, con la lista; se actualiza cada semana y desaparece sola cuando lo has entregado todo.
 
+Arriba de tu movilidad, un recuadro te dice qué tienes que hacer ahora (por ejemplo, enviar la propuesta o firmar la carta) y hasta cuándo, como en la solicitud. La pestaña **Pasos** lista los pasos de la convocatoria (por ejemplo, compartir la estancia en una reunión): cuando hayas hecho uno, haz clic en **Hecho**; si te has equivocado, **Deshacer**. Un paso que ha marcado el equipo Erasmus solo lo puede desmarcar el equipo.
+
 Si finalmente no puedes ir, usa **Renunciar a la plaza** y escribe el motivo. Puedes hacerlo hasta que empieza la estancia; después, habla con el equipo Erasmus.
 
 ---

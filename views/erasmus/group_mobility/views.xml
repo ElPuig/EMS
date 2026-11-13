@@ -141,8 +141,14 @@
                                     invisible="state not in ('preparation', 'stay', 'return') or user_role != 'team'"
                                     help="Adds to every file the documents asked for that it does not have yet."/>
                             <!-- Issue #764: the participants' pocket money. -->
+                            <!-- Issue #787 (9.16): with collective invoices, the pocket money is the grant minus each
+                                 one's share of them, so they must all be in first. -->
                             <button name="action_request_pocket_money" type="object" string="Request the pocket money"
-                                    invisible="state not in ('preparation', 'stay', 'return', 'done') or user_role != 'team'"
+                                    invisible="state not in ('preparation', 'stay', 'return', 'done') or user_role != 'team' or travel_paid_by != 'centre'"
+                                    confirm="Are all the group's invoices (travel and accommodation) already entered? Each participant's pocket money is their grant minus their share of them. Continue?"
+                                    help="One payment for each participant with pocket money to receive: the Secretary gets one task for the whole group."/>
+                            <button name="action_request_pocket_money" type="object" string="Request the pocket money"
+                                    invisible="state not in ('preparation', 'stay', 'return', 'done') or user_role != 'team' or travel_paid_by == 'centre'"
                                     help="One payment for each participant with pocket money to receive: the Secretary gets one task for the whole group."/>
                             <button name="action_request_final_pocket_money" type="object" string="Request the final pocket money"
                                     invisible="state not in ('return', 'done') or prefinancing_percent &gt;= 100 or user_role != 'team'"/>
@@ -168,6 +174,7 @@
                                     confirm="The mobility is cancelled. Continue?"
                                     help="Write the reason in the Closure tab first."/>
                         </div>
+                        <field name="travel_paid_by" invisible="1"/>
                         <field name="state" widget="statusbar"
                                statusbar_visible="draft,enrolment,selection,validation,preparation,stay,return,done"/>
                     </header>
@@ -206,6 +213,17 @@
                              groups="ems.group_erasmus,ems.group_academic_admin">
                             <div>Students with as many conduct warnings this course as the number that sends the case to the coexistence team, or more: <field name="conduct_reviews" class="fw-bold"/></div>
                             <div>They are not excluded on their own: the coordinator decides, with an exception and its reason, after hearing the teaching team and the coexistence team (column "Conduct to review").</div>
+                        </div>
+                        <div class="alert alert-warning" role="alert" invisible="not start_warning">
+                            Before "The stay starts": <field name="start_warning" class="d-inline fw-bold"/>.
+                        </div>
+                        <div class="alert alert-warning" role="alert" invisible="state not in ('preparation', 'stay', 'return') or not grant_missing"
+                             groups="ems.group_erasmus,ems.group_academic_admin">
+                            Participants without the grant amount (copy it from the Beneficiary Module): <field name="grant_missing" class="fw-bold"/>.
+                        </div>
+                        <div class="alert alert-danger" role="alert" invisible="not pocket_negative"
+                             groups="ems.group_erasmus,ems.group_academic_admin">
+                            Their share of the collective invoices is larger than their grant, so their pocket money is negative: <field name="pocket_negative" class="fw-bold"/>.
                         </div>
                         <div class="alert alert-warning" role="alert" invisible="state != 'preparation' or not not_ready">
                             Not ready to leave yet (a required document or the commitment letter pending): <field name="not_ready" class="fw-bold"/>.

@@ -77,7 +77,7 @@ In the **Economic management > Invoices** list, the **Project** column shows the
 
 ## Warnings
 
-At the top of the Economy tab, EMS warns about anything that may be a mistake, without blocking anything: commitments above the grant, expenses without an invoice or receipt, requested payments still to make (only those already asked of the Secretary and not transferred yet, so the figure can be lower than *Committed, not paid yet*), expenses changed after payment, expenses paid above their corrected amount, a mobility paid above its grant, a cancelled mobility with money paid, and participants without enough information to calculate the organisational support (for example, no rate for their call year, or no dates).
+At the top of the Economy tab, EMS warns about anything that may be a mistake, without blocking anything: commitments above the grant, expenses without an invoice or receipt, requested payments still to make (only those already asked of the Secretary and not transferred yet, so the figure can be lower than *Committed, not paid yet*), expenses changed after payment, expenses paid above their corrected amount, a mobility paid above its grant, a cancelled mobility with money paid, and participants without enough information to calculate the organisational support (for example, no rate for their call year, or no dates). If the project has no grant amount yet, the warning only says it is missing (*Grant awarded*), instead of a figure above zero; and if the organisational support rates of its year are missing, a single line says where to add them (**Configuration > Organisational support rates**).
 
 ## Excel
 

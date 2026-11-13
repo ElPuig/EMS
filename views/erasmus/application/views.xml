@@ -29,6 +29,8 @@
                            decoration-success="state in ('admitted', 'selected', 'accepted')"
                            decoration-danger="state == 'excluded'"
                            decoration-primary="state == 'reserve'"/>
+                    <!-- Issue #787 (3.3): why an application is excluded, without opening it. -->
+                    <field name="exclusion_reason" optional="show" invisible="state != 'excluded'"/>
                 </list>
             </field>
         </record>
@@ -83,6 +85,10 @@
                         <field name="state" widget="ems_statusbar_path" options="{'path_field': 'status_path'}"/>
                     </header>
                     <sheet>
+                        <!-- Issue #787 (3.3): the reason on top, not only in the Admission tab. -->
+                        <div class="alert alert-danger" role="alert" invisible="state != 'excluded' or not exclusion_reason">
+                            <strong>Excluded:</strong> <field name="exclusion_reason" class="d-inline" readonly="1"/>
+                        </div>
                         <div class="alert alert-warning" role="alert" invisible="not conduct_review or state not in ('submitted', 'subsanation')">
                             Serious conduct record this course (<field name="course_strike_count" class="oe_inline"/> conduct warnings): the Erasmus team may exclude the application (art. 6 of the call), after hearing the teaching team or the coexistence team. If it goes on, every warning takes points off (criterion F).
                         </div>

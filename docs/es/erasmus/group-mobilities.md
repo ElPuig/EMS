@@ -80,9 +80,13 @@ En **Acciones**, **Exportar los participantes (Excel)** descarga a los alumnos s
 
 ## Estancia, EU Survey y cierre
 
+Mientras la movilidad está en preparación, un aviso dice lo que conviene revisar antes de hacer clic en **Empieza la estancia**: si todavía no hay entidad de acogida o si la fecha de inicio prevista aún no ha llegado. Es un aviso: la estancia se puede empezar igualmente.
+
 Antes de marchar, la movilidad muestra quién todavía no está listo (falta un documento obligatorio o la carta de compromiso), y **Empieza la estancia** pide confirmación. El docente responsable indica cuándo empieza la estancia y cuándo vuelven. Entonces EMS crea la tarea de la **EU Survey** para el docente responsable (o la persona indicada) con el plazo. Cuando dice que está respondida, la validas. Los gastos del grupo (vuelos, alojamiento...) se registran como facturas en la pestaña **Gastos colectivos** (consulta *Becas y dinero de bolsillo* más abajo). Al volver, el docente responsable también recibe la tarea de decir si **el programa se ha realizado según lo previsto** (pestaña **Regreso y cierre**): sí, o no y qué ha cambiado. Sin esa respuesta no se puede proponer ni hacer el cierre. Cuando el docente responsable propone el cierre, todos los documentos obligatorios son válidos (entre ellos, el acuerdo de aprendizaje del grupo ejecutado) y el dinero de bolsillo de cada participante y todas las facturas colectivas están pagados, haz clic en **Cerrar la movilidad**.
 
 ## Becas y dinero de bolsillo
+
+Si a algún participante le falta el importe de la beca, un aviso arriba de la ficha dice sus nombres. Cuando el centro paga el viaje y el alojamiento, **Solicitar el dinero de bolsillo** pregunta antes si ya están todas las facturas del grupo, porque el dinero de bolsillo es la beca menos la parte de facturas de cada uno; si a alguien le sale negativo (su parte supera la beca), un aviso rojo dice su nombre.
 
 En la pestaña **Gastos colectivos** introduces la **beca** de cada participante (alumnos y docentes acompañantes), tal como la calcula el Beneficiary Module. El centro suele pagar los vuelos y el alojamiento de todo el grupo: regístralos como **facturas colectivas**. EMS reparte cada factura colectiva **a partes iguales entre los participantes que van** y muestra, para cada uno, su parte y su **dinero de bolsillo**: su beca menos su parte. Es lo que la Secretaría les transfiere. Una factura es o bien del grupo o bien de unos participantes concretos, nunca de ambos, porque contaría dos veces: EMS no te deja guardarla si rellenas las dos cosas.
 

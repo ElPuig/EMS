@@ -26,6 +26,12 @@ registry.category("web_tour.tours").add("ems_erasmus_pocket_money_team", {
         },
         ...clickAction("action_request_pocket_money", "Request the pocket money"),
         {
+            // Issue #787 (9.16): the collective invoices must all be in first.
+            trigger: ".modal-footer .btn-primary",
+            content: "Confirm that every invoice of the group is in",
+            run: "click",
+        },
+        {
             trigger: ".o_form_view .o_field_widget[name='grant_participant_ids'] .o_data_row td[name='pocket_requested']:contains('500')",
             content: "The payments are requested",
         },

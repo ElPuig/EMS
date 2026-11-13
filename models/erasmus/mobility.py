@@ -234,6 +234,10 @@ class EmsErasmusMobility(models.Model):
     eu_survey_deadline = fields.Date(compute='_compute_eu_survey_deadline', store=True, readonly=False)
     # Issue #784 (5.7): the EU Survey only means something once the stay is over.
     stay_over = fields.Boolean(string="Stay over", compute='_compute_stay_over')
+    # Issue #787 (5.3, 8.1): the step in progress and who has it, on top of the team's form.
+    step_note = fields.Char(string="Current step", compute='_compute_step_note')
+    # Issue #787 (5.12): the grant is copied by hand from the Beneficiary Module; nothing is calculated.
+    grant_missing = fields.Boolean(string="Grant amount missing", compute='_compute_grant_missing')
     preparation_complete = fields.Boolean(string="Ready to leave", compute='_compute_complete')
     return_complete = fields.Boolean(string="Return complete", compute='_compute_complete')
     # The participant's record: every document of the call that applies, by category, and the
@@ -386,6 +390,69 @@ class EmsErasmusMobility(models.Model):
             elif phase == 'preparing' and mobility.date_start and mobility.date_start <= today:
                 phase = 'stay'
             mobility.phase = phase
+
+    @api.depends('state', 'phase', 'proposal_state', 'turn_deadline', 'turn_missed', 'free_choice',
+                 'call_id.choice_open', 'commitment_pending', 'eu_survey_state', 'document_ids.todo_state')
+    def _compute_step_note(self):
+        for mobility in self:
+            mobility.step_note = mobility._ems_step_note()
+
+    def _ems_step_note(self):
+        """What the mobility is waiting for and who has it, in the team's words (issue #787)."""
+        self.ensure_one()
+        phase = self.phase
+        if phase in ('done', 'cancelled'):
+            return False
+        if phase == 'choosing':
+            if self.proposal_state == 'pending':
+                return (_("Waiting for the Direction to validate the proposed activity.") if self.audience == 'staff'
+                        else _("Own proposal waiting for the Erasmus team to validate it."))
+            if self.audience == 'staff':
+                return (_("Waiting for the participant to send a new activity proposal.")
+                        if self.proposal_state == 'rejected'
+                        else _("Waiting for the participant to propose the activity."))
+            if self.turn_deadline:
+                return _("Their turn to choose the destination, until %s.",
+                         self.call_id._ems_local_format(self.turn_deadline))
+            if self.free_choice:
+                return _("Choosing among the destinations left, with no deadline.")
+            if self.turn_missed:
+                return _("Missed their turn: chooses among the destinations left once the others have chosen.")
+            if not self.call_id.choice_open:
+                return _("Waiting for the destination choice to open.")
+            return _("Waiting for their turn to choose the destination.")
+        lines = self.document_ids
+        participant = lines.filtered(lambda line: line.todo_state in ('missing', 'needs_change')
+                                     and line.handled_by == 'participant')
+        team = lines.filtered(lambda line: line.todo_state in ('missing', 'needs_change')
+                              and line.handled_by != 'participant')
+        review = lines.filtered(lambda line: line.todo_state == 'to_review')
+        parts = []
+        if self.commitment_pending:
+            parts.append(_("the participant has to sign the commitment letter"))
+        if participant:
+            parts.append(_("%s documents missing from the participant", len(participant)))
+        if team:
+            parts.append(_("%s documents for the Erasmus team to upload", len(team)))
+        if review:
+            parts.append(_("%s documents to review", len(review)))
+        if phase == 'return' and self.eu_survey_state == 'pending':
+            parts.append(_("the participant has to answer the EU Survey"))
+        elif phase == 'return' and self.eu_survey_state == 'done':
+            parts.append(_("the EU Survey to validate"))
+        if parts:
+            return _("Pending: %s.", ", ".join(parts))
+        if phase == 'preparing':
+            return _("Ready to leave.")
+        if phase == 'stay':
+            return _("Stay in progress.")
+        return _("Back home: check that nothing is left to pay and close the mobility.")
+
+    @api.depends('state', 'country_id', 'destination_id', 'grant_amount')
+    def _compute_grant_missing(self):
+        for mobility in self:
+            mobility.grant_missing = (mobility.state in OPEN_STATES and bool(mobility.country_id or mobility.destination_id)
+                                      and not mobility.grant_amount)
 
     @api.depends('date_end', 'state')
     def _compute_stay_over(self):

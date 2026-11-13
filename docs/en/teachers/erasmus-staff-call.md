@@ -53,6 +53,8 @@ Once the Erasmus team has worked out your grant, the **Grant** tab shows what yo
 
 The rest is also in **Actions**: **Sign the commitment letter**, the **Weekly self-assessment** during the stay and, on return, **I have answered the EU Survey** once you have answered the final report. While something is missing, you have an EMS task, **Erasmus+: hand in what is missing**, with the list; it is updated every week and disappears on its own once you have handed everything in.
 
+At the top of your mobility, a box tells you what to do now (for example, send the proposal or sign the letter) and by when, as on the application. The **Steps** tab lists the call's steps (for example, sharing the stay at a meeting): once you have done one, click **Done**; if you made a mistake, **Undo**. A step the Erasmus team ticked can only be unticked by the team.
+
 If you cannot go in the end, use **Renounce the place** and write the reason. You can do it until the stay starts; after that, talk to the Erasmus team.
 
 ---

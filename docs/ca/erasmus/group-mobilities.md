@@ -81,9 +81,13 @@ A **Accions**, **Exporta els participants (Excel)** descarrega els alumnes selec
 
 ## Estada, EU Survey i tancament
 
+Mentre la mobilitat és en preparació, un avís diu el que convé revisar abans de fer clic a **Comença l'estada**: si encara no hi ha entitat d'acollida o si la data d'inici prevista encara no ha arribat. És un avís: l'estada es pot començar igualment.
+
 Abans de marxar, la mobilitat mostra qui encara no està a punt (falta un document obligatori o la carta de compromís), i **Comença l'estada** demana confirmació. El docent responsable indica quan comença l'estada i quan tornen. Aleshores l'EMS crea la tasca de l'**EU Survey** per al docent responsable (o la persona indicada) amb el termini. Quan diu que està resposta, la valides. Les despeses del grup (vols, allotjament...) es registren com a factures a la pestanya **Despeses col·lectives** (vegeu *Beques i diners de butxaca* més avall). En tornar, el docent responsable també rep la tasca de dir si **el programa s'ha fet tal com estava previst** (pestanya **Retorn i tancament**): sí, o no i què ha canviat. Sense aquesta resposta no es pot proposar ni fer el tancament. Quan el docent responsable proposa el tancament, tots els documents obligatoris són vàlids (entre ells, l'acord d'aprenentatge del grup executat) i els diners de butxaca de cada participant i totes les factures col·lectives estan pagats, fes clic a **Tanca la mobilitat**.
 
 ## Beques i diners de butxaca
+
+Si a algun participant li falta l'import de la beca, un avís a dalt de la fitxa en diu els noms. Quan el centre paga el viatge i l'allotjament, **Demana els diners de butxaca** pregunta abans si ja hi ha totes les factures del grup, perquè els diners de butxaca són la beca menys la part de factures de cadascú; si a algú li surt negatiu (la seva part supera la beca), un avís vermell en diu el nom.
 
 A la pestanya **Despeses col·lectives** introduïu la **beca** de cada participant (alumnes i docents acompanyants), tal com la calcula el Beneficiary Module. El centre acostuma a pagar els vols i l'allotjament de tot el grup: registreu-los com a **factures col·lectives**. L'EMS reparteix cada factura col·lectiva **a parts iguals entre els participants que hi van** i mostra, per a cadascun, la seva part i els seus **diners de butxaca**: la seva beca menys la seva part. És el que la Secretaria els transfereix. Una factura és o bé del grup o bé d'uns participants concrets, mai de totes dues coses, perquè comptaria dues vegades: l'EMS no us deixa desar-la si ompliu totes dues.
 

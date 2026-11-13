@@ -153,13 +153,8 @@ class EmsErasmusApplication(models.Model):
                 application.update(empty)
                 continue
             editable = own._ems_portal_editable()
-            nxt = own._ems_portal_progress()['next']
-            if own.state == 'draft' and editable:
-                # The portal's "Complete your application", with where to do it in the backend.
-                nxt = {**nxt, 'text': _("Fill in your application with the Fill in the form button, and submit it.")}
-            deadline = nxt['deadline']
-            deadline = deadline.strftime('%d/%m/%Y') if nxt['is_date'] else own.call_id._ems_local_format(deadline)
             application.update({
+                **own._ems_staff_next(),
                 'staff_own': True,
                 'staff_editable': editable,
                 'staff_answered': any(own[name] for name in ANSWER_FIELDS['staff']),
@@ -167,9 +162,6 @@ class EmsErasmusApplication(models.Model):
                 'staff_claimable': bool(own._ems_portal_claimable()),
                 'staff_offer_id': own.offer_ids.filtered(lambda offer: offer.state == 'pending')[:1].id,
                 'staff_mobility_id': own.mobility_ids[:1].id,
-                'staff_next_step': nxt['text'],
-                'staff_next_level': nxt['level'],
-                'staff_next_deadline': deadline or False,
                 'staff_support_needs': own.support_needs,
             })
 
@@ -199,6 +191,18 @@ class EmsErasmusApplication(models.Model):
         return {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {
             'message': message, 'type': 'success',
             'next': next_action or {'type': 'ir.actions.client', 'tag': 'soft_reload'}}}
+
+    def _ems_staff_next(self):
+        """The portal's "what to do now" box, for the teacher's own application and mobility forms."""
+        self.ensure_one()
+        nxt = self._ems_portal_progress()['next']
+        if self.state == 'draft' and self._ems_portal_editable():
+            # The portal's "Complete your application", with where to do it in the backend.
+            nxt = {**nxt, 'text': _("Fill in your application with the Fill in the form button, and submit it.")}
+        deadline = nxt['deadline']
+        deadline = deadline.strftime('%d/%m/%Y') if nxt['is_date'] else self.call_id._ems_local_format(deadline)
+        return {'staff_next_step': nxt['text'], 'staff_next_level': nxt['level'],
+                'staff_next_deadline': deadline or False}
 
     def action_staff_edit(self, open_application=False):
         """The form's dialog. `open_application`: launched from the call, so saving opens the
@@ -271,6 +275,10 @@ class EmsErasmusMobility(models.Model):
     staff_self_assessment_open = fields.Boolean(string="Self-assessment to answer", compute='_compute_staff')
     staff_eu_survey_open = fields.Boolean(string="EU Survey to answer", compute='_compute_staff')
     staff_can_renounce = fields.Boolean(string="Can renounce", compute='_compute_staff')
+    # Issue #787 (P11, P14): the same "what to do now" box as on the application, in every state.
+    staff_next_step = fields.Char(string="What to do now", compute='_compute_staff')
+    staff_next_level = fields.Char(string="Next step colour", compute='_compute_staff')
+    staff_next_deadline = fields.Char(string="Before", compute='_compute_staff')
 
     @api.depends('state', 'proposal_state', 'self_assessment_ids', 'eu_survey_state', 'date_start', 'date_end')
     @api.depends_context('uid')
@@ -286,6 +294,8 @@ class EmsErasmusMobility(models.Model):
                 'staff_self_assessment_open': mine and bool(own._ems_self_assessments_open()),
                 'staff_eu_survey_open': mine and own._ems_eu_survey_open() and own.eu_survey_state == 'pending',
                 'staff_can_renounce': mine and own._ems_can_renounce(),
+                **(own.application_id._ems_staff_next() if mine else
+                   {'staff_next_step': False, 'staff_next_level': False, 'staff_next_deadline': False}),
             })
 
     def get_formview_id(self, access_uid=None):
@@ -403,3 +413,36 @@ class EmsErasmusClaim(models.Model):
 
     def _ems_mail_record(self):
         return self.application_id
+
+
+class EmsErasmusMobilityTask(models.Model):
+    """Issue #787 (8.8): the teacher sees the steps of their own mobility and ticks theirs, as the
+    portal guides the students; the team still ticks any of them."""
+    _inherit = 'ems.erasmus.mobility.task'
+
+    staff_can_tick = fields.Boolean(string="Can tick", compute='_compute_staff_can_tick')
+    staff_can_untick = fields.Boolean(string="Can untick", compute='_compute_staff_can_tick')
+
+    @api.depends('done', 'done_user_id', 'mobility_id.state')
+    @api.depends_context('uid')
+    def _compute_staff_can_tick(self):
+        partner = self.env.user.partner_id
+        for task in self:
+            own = task.sudo()
+            mobility = own.mobility_id
+            open_own = (not self.env.user.share and mobility.partner_id == partner and mobility.audience == 'staff'
+                        and mobility.state in OPEN_STATES)
+            task.staff_can_tick = open_own and not own.done
+            task.staff_can_untick = open_own and own.done and own.done_user_id == self.env.user
+
+    def action_staff_done(self):
+        self.ensure_one()
+        if not self.staff_can_tick:
+            raise UserError(_("You cannot tick this step."))
+        self.sudo().done = True
+
+    def action_staff_undo(self):
+        self.ensure_one()
+        if not self.staff_can_untick:
+            raise UserError(_("Only the Erasmus team can untick this step."))
+        self.sudo().done = False

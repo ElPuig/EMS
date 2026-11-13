@@ -70,6 +70,11 @@ registry.category("web_tour.tours").add("ems_erasmus_staff_backend_apply", {
             run: "edit 09/17/2015",
         },
         {
+            // P03: both buttons, sending is the highlighted one.
+            trigger: ".modal-footer:has(button[name='action_save'].btn-secondary) button[name='action_save_submit'].btn-primary",
+            content: "Save and submit is the highlighted button",
+        },
+        {
             trigger: ".modal-footer button[name='action_save']",
             content: "Save the form",
             run: "click",

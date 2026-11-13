@@ -129,6 +129,22 @@ class EmsErasmusGroupMobility(models.Model):
         selection=[('centre', "The centre"), ('participant', "Each participant")],
         help="Each participant: no collective invoice, everyone receives their whole grant as pocket money.")
 
+    # Issue #787 (9.17, 9.16): what the team must not miss before paying, on top of the form.
+    grant_missing = fields.Char(string="Participants without a grant", compute='_compute_pocket_warnings',
+                                groups=ECONOMY_READERS)
+    pocket_negative = fields.Char(string="Participants with negative pocket money",
+                                  compute='_compute_pocket_warnings', groups=ECONOMY_READERS)
+
+    @api.depends('participant_ids.state', 'participant_ids.grant_amount', 'invoice_ids.amount')
+    def _compute_pocket_warnings(self):
+        for mobility in self:
+            active = mobility.sudo().participant_ids.filtered(lambda participant: participant.state == 'active')
+            mobility.grant_missing = ", ".join(active.filtered(
+                lambda participant: not participant.grant_amount).partner_id.mapped('name'))
+            mobility.pocket_negative = ", ".join(active.filtered(
+                lambda participant: participant.currency_id.compare_amounts(participant.pocket_amount, 0) < 0
+            ).partner_id.mapped('name'))
+
     @api.depends('no_direct_costs')
     def _compute_travel_paid_by(self):
         for mobility in self:

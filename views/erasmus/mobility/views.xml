@@ -373,20 +373,25 @@
                                     </form>
                                 </field>
                             </page>
-                            <!-- Issue #697: only the Erasmus team handles the grant. -->
+                            <!-- Issue #697: only the Erasmus team handles the grant. Issue #790 (11.9): the money
+                                 in the order it flows, with the portal's names; the project's figures stay on the
+                                 project. -->
                             <page string="Grant" name="grant" groups="ems.group_erasmus,ems.group_academic_admin">
+                                <div name="econ_state_tag" class="mb-2"/>
                                 <group>
-                                    <group>
+                                    <group string="Grant" name="grant_block">
                                         <field name="currency_id" invisible="1"/>
                                         <field name="grant_amount"/>
                                         <field name="provision_amount"/>
                                         <field name="grant_net" class="fw-bold"/>
                                     </group>
-                                    <group>
+                                    <group string="Payments to the person" name="payments_block">
+                                        <field name="grant_paid"/>
+                                        <field name="grant_to_receive"/>
                                         <field name="prefinancing_percent"/>
                                     </group>
                                 </group>
-                                <separator string="Provision of services"/>
+                                <separator string="Paid directly by the centre"/>
                                 <field name="provision_ids">
                                     <list editable="bottom">
                                         <field name="concept"/>

@@ -203,7 +203,7 @@ class EmsErasmusGroupMobility(models.Model):
     _name = 'ems.erasmus.group.mobility'
     _inherit = ['ems.erasmus.group.mobility', 'ems.erasmus.economy']
 
-    grant_amount = fields.Monetary(string="Grants of the participants", compute='_compute_grant_amount', store=True,
+    grant_amount = fields.Monetary(string="Grants", compute='_compute_grant_amount', store=True,
                                    groups=ECONOMY_READERS,
                                    help="The sum of the grants of the participants taking part, students and "
                                         "accompanying teachers.")

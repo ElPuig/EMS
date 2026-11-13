@@ -365,4 +365,5 @@ from . import test_erasmus_polish_warnings
 from . import test_erasmus_polish_automations
 from . import test_erasmus_polish_warnings_tour
 from . import test_erasmus_polish_menus
+from . import test_erasmus_polish_grant_names
 from . import test_erasmus_polish_actions_tour

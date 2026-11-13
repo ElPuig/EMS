@@ -393,13 +393,18 @@
                             <!-- Issue #810: the teacher's grant, read only; the invoices and the centre's own
                                  figures stay with the Erasmus team and the Secretary. -->
                             <page string="Grant" name="grant" invisible="not grant_amount">
+                                <!-- Issue #790 (11.9): the same blocks and names as the team's form and the portal. -->
                                 <group>
-                                    <group>
+                                    <group string="Grant">
                                         <field name="currency_id" invisible="1"/>
-                                        <field name="grant_net" string="Your grant"
-                                               help="The grant minus what the centre pays directly for you (travel, accommodation, course fees...)."/>
+                                        <field name="grant_amount"/>
+                                        <field name="provision_amount"
+                                               help="Travel, accommodation, course fees... that the centre pays for you out of the grant."/>
+                                        <field name="grant_net" string="You receive" class="fw-bold"/>
+                                    </group>
+                                    <group string="Payments to you">
                                         <field name="grant_paid"/>
-                                        <field name="grant_to_receive" class="fw-bold"/>
+                                        <field name="grant_to_receive"/>
                                     </group>
                                 </group>
                             </page>

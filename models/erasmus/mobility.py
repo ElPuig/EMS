@@ -278,25 +278,27 @@ class EmsErasmusMobility(models.Model):
     currency_id = fields.Many2one(string="Currency", comodel_name='res.currency', compute='_compute_currency_id')
     grant_amount = fields.Monetary(string="Grant", tracking=True,
                                    help="The participant's grant, as calculated in the Beneficiary Module.")
-    prefinancing_percent = fields.Float(string="Prefinancing (%)", default=80.0, tracking=True,
+    prefinancing_percent = fields.Float(string="Before leaving (%)", default=80.0, tracking=True,
                                         help="Part of the grant paid before leaving; the rest, on return. 100: a "
                                              "single payment.")
-    provision_ids = fields.One2many(string="Provision of services", comodel_name='ems.erasmus.provision',
+    provision_ids = fields.One2many(string="Services paid directly by the centre", comodel_name='ems.erasmus.provision',
                                     inverse_name='mobility_id',
                                     help="What the centre pays directly out of the grant: flights, accommodation, "
                                          "course fees...")
     # compute_sudo: a teacher reads their own grant (issue #810) without access to the centre's
     # invoices, provisions or payments.
-    provision_amount = fields.Monetary(string="Paid by the centre", compute='_compute_grant_net', compute_sudo=True)
-    grant_net = fields.Monetary(string="To transfer to the participant", compute='_compute_grant_net',
+    provision_amount = fields.Monetary(string="Paid directly by the centre", compute='_compute_grant_net',
+                                       compute_sudo=True)
+    grant_net = fields.Monetary(string="To transfer", compute='_compute_grant_net',
                                 compute_sudo=True,
                                 help="The grant minus the services the centre pays directly. Below zero, the "
                                      "centre paid more than the grant: the project warns about it.")
     payment_ids = fields.One2many(string="Payments", comodel_name='ems.erasmus.payment', inverse_name='mobility_id')
-    grant_paid = fields.Monetary(string="Paid to you", compute='_compute_grant_paid', compute_sudo=True,
-                                 help="What the Secretary has already transferred to your account.")
-    grant_to_receive = fields.Monetary(string="Still to receive", compute='_compute_grant_paid', compute_sudo=True,
-                                       help="What you are due minus what has already been transferred to you.")
+    # Issue #790 (11.9): what has reached the person's account, and what is still to transfer.
+    grant_paid = fields.Monetary(string="Transferred", compute='_compute_grant_paid', compute_sudo=True,
+                                 help="What the Secretary has already transferred to the person's account.")
+    grant_to_receive = fields.Monetary(string="Pending transfer", compute='_compute_grant_paid', compute_sudo=True,
+                                       help="What is to transfer minus what has already been transferred.")
     # Issue #810: the teacher's own record, in words. Only what they hand in themselves counts:
     # neither what the Erasmus team uploads (or prepares for them to sign) nor the application's.
     staff_record_summary = fields.Char(string="Your documents", compute='_compute_staff_record')

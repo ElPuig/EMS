@@ -200,7 +200,8 @@ class EmsErasmusGroupMobility(models.Model):
     user_role = fields.Selection(string="Your role", selection=[('team', "Erasmus team"), *ROLES[1:]],
                                  compute='_compute_user_role')
     currency_id = fields.Many2one(string="Currency", comodel_name='res.currency', compute='_compute_currency_id')
-    expense_amount = fields.Monetary(string="Total of the collective expenses", compute='_compute_expense_amount')
+    expense_amount = fields.Monetary(string="Paid directly by the centre", compute='_compute_expense_amount',
+                                     help="The group's collective invoices (travel, accommodation...).")
 
     @api.depends('registration_ids.state', 'registration_ids.result', 'registration_ids.proposed_result',
                  'registration_ids.needs_draw', 'registration_ids.grade_incident',

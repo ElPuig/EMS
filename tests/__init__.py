@@ -355,3 +355,4 @@ from . import test_docs_screenshots_student_walkout
 from . import test_ampa_membership
 from . import test_ampa_membership_tour
 from . import test_docs_screenshots_ampa
+from . import test_reason_catalog

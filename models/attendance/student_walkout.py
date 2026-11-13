@@ -693,12 +693,9 @@ class EmsStudentWalkoutRejectionReason(models.Model):
     """Why a student walkout call is aborted by the tutor or not validated by the Head of Studies: the catalog they pick from, edited in
     Student's Attendances > Configuration. "Other reasons" asks for details."""
     _name = 'ems.student_walkout.rejection_reason'
+    _inherit = 'ems.reason.catalog'
     _description = "Student walkout rejection reason"
-    _order = 'sequence, name'
 
-    name = fields.Char(string="Name", translate=True, required=True)
-    sequence = fields.Integer(string="Sequence", default=10)
-    active = fields.Boolean(string="Active", default=True)
     requires_details = fields.Boolean(string="Requires details",
                                       help="Whoever rejects the call must explain it in the details (e.g. 'Other').")
 

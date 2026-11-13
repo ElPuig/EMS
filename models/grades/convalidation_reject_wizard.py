@@ -10,14 +10,10 @@ class EmsConvalidationRejectWizard(models.TransientModel):
     line_id = fields.Many2one(string="Subject", comodel_name='ems.convalidation.line', required=True,
                               ondelete='cascade')
     reason_id = fields.Many2one(string="Reason", comodel_name='ems.convalidation.rejection_reason', required=True,
-                                default=lambda self: self._default_reason_id())
+                                default=lambda self: self.env['ems.convalidation.rejection_reason'].default_reason())
     details = fields.Text(string="Details",
                           help="Stated on the resolution after the reason.")
 
-    def _default_reason_id(self):
-        """First active reason by its own order: the most usual one, like the documentation
-        request reasons."""
-        return self.env['ems.convalidation.rejection_reason'].search([], limit=1)
 
     def action_reject(self):
         self.ensure_one()

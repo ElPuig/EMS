@@ -39,7 +39,7 @@ class EmsAttendanceJustification(models.Model):
     # is the default; "Other" asks for details, "Strike" covers the student's whole day.
     reason_id = fields.Many2one(
         string="Reason", comodel_name="ems.attendance_justification_reason", required=True,
-        ondelete='restrict', default=lambda self: self._default_reason_id())
+        ondelete='restrict', default=lambda self: self.env['ems.attendance_justification_reason'].default_reason())
     requires_details = fields.Boolean(related='reason_id.requires_details')
     full_day = fields.Boolean(related='reason_id.full_day')
     details = fields.Text(string="Details")
@@ -142,8 +142,6 @@ class EmsAttendanceJustification(models.Model):
         end = self.time_float_to_utc_datetime(day + timedelta(days=1), 0.0) - timedelta(seconds=1)
         return {'start_date': self.datetime_to_odoo(start), 'end_date': self.datetime_to_odoo(end)}
 
-    def _default_reason_id(self):
-        return self.env['ems.attendance_justification_reason'].search([], limit=1)
 
     def _default_teacher_id(self):
         return self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")]) or False

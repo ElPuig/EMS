@@ -14,13 +14,9 @@ class EmsAbsencePendingDiscardWizard(models.TransientModel):
     absence_ids = fields.Many2many(string="Detected absences", comodel_name="ems.absence_pending")
     reason_id = fields.Many2one(
         string="Reason", comodel_name="ems.absence_pending.discard_reason", required=True,
-        default=lambda self: self._default_reason_id())
+        default=lambda self: self.env['ems.absence_pending.discard_reason'].default_reason())
     details = fields.Text(string="Details")
 
-    def _default_reason_id(self):
-        """First active reason by its own order: the most usual one, like the convalidation
-        refusal reasons."""
-        return self.env['ems.absence_pending.discard_reason'].search([], limit=1)
 
     def action_confirm(self):
         """Closing the dialog reloads whatever opened it; a notice of what was skipped, if any,

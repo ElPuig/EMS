@@ -28,6 +28,21 @@ registry.category("web_tour.tours").add("ems_minute_write", {
         {
             // The type names are the centre's own data, the same in every language.
             trigger: ".o_form_view .o_field_widget[name='type_id'] input",
+            content: "Look at the generic minute first",
+            run: "edit genèrica",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-menu li:contains('genèrica')",
+            content: "Pick the generic type",
+            run: "click",
+        },
+        {
+            // Issue #821: no scope comes chosen; the field is required until someone picks one.
+            trigger: ".o_field_widget.o_required_modifier[name='scope_choice'] select:has(option[value='false']:checked)",
+            content: "A generic minute asks for its scope, empty",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='type_id'] input",
             content: "Look for the department minute",
             run: "edit departament",
         },

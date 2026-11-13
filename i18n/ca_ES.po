@@ -49631,3 +49631,27 @@ msgstr "No vaga"
 #: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__walkout_percentage
 msgid "% on walkout"
 msgstr "% vaga"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Choose the scope of the meeting."
+msgstr "Trieu l'àmbit de la reunió."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Choose the department the meeting belongs to."
+msgstr "Trieu el departament de la reunió."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Choose the workgroup the meeting belongs to."
+msgstr "Trieu el grup de treball de la reunió."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Choose the group whose teaching team meets."
+msgstr "Trieu el grup l'equip docent del qual es reuneix."

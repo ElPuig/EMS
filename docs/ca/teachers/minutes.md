@@ -41,7 +41,9 @@ veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **nom
 
    Ho configura qui administra el sistema de qualitat, a **Reunions → Configuració → Tipus d'acta**.
 3. Tot seguit el formulari us demana **de qui és la reunió**, segons el tipus: el departament, l'equip
-   de treball o el grup. Una acta de claustre no demana res; una acta genèrica us deixa triar l'àmbit.
+   de treball o el grup. Una acta de claustre no demana res. En una acta genèrica heu de triar l'**àmbit
+   de la reunió** (surt buit): un departament, un grup de treball, l'equip docent d'un grup, tot el centre
+   o *Sense àmbit concret*, en què els participants els afegiu vosaltres.
 4. Comproveu la **data i hora** (ve proposada la propera hora en punt), el caràcter i la modalitat, i
    indiqueu la **sala**. Si la reunió no és presencial, escriviu on es fa al camp **Lloc** (una
    videotrucada, una llista de correu...).

@@ -74,7 +74,7 @@
                                 <field name="start_workgroup_ids" invisible="1"/>
                                 <field name="type_kind" invisible="1"/>
                                 <field name="scope_kind" invisible="1"/>
-                                <field name="scope_choice" invisible="scope_kind != 'generic'"/>
+                                <field name="scope_choice" invisible="scope_kind != 'generic'" required="scope_kind == 'generic'"/>
                                 <field name="department_id" options="{'no_create': True}"
                                        domain="[('id', 'in', start_department_ids)] if start_scope_restricted else []"
                                        invisible="scope_kind != 'department' and (scope_kind != 'generic' or scope_choice != 'department')"

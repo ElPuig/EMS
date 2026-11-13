@@ -49660,3 +49660,27 @@ msgstr "No huelga"
 #: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report_line__walkout_percentage
 msgid "% on walkout"
 msgstr "% huelga"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Choose the scope of the meeting."
+msgstr "Elija el ámbito de la reunión."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Choose the department the meeting belongs to."
+msgstr "Elija el departamento de la reunión."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Choose the workgroup the meeting belongs to."
+msgstr "Elija el grupo de trabajo de la reunión."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Choose the group whose teaching team meets."
+msgstr "Elija el grupo cuyo equipo docente se reúne."

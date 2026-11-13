@@ -41,8 +41,9 @@ a meeting you attended, one of your department) opens **read-only**, with no act
 
    Whoever administers the quality system sets this up in **Meetings → Configuration → Minute types**.
 3. Right after, the form asks **whose meeting it is**, depending on the type: the department, the
-   workgroup or the group. A staff-meeting minute asks for nothing; a generic minute lets you choose
-   the scope.
+   workgroup or the group. A staff-meeting minute asks for nothing. A generic minute asks you to choose
+   the **scope of the meeting** (it starts empty): a department, a workgroup, a group's teaching team,
+   the whole centre, or *No particular scope*, where you add the participants yourself.
 4. Check the **date and time** (the next full hour comes proposed), the nature and the modality, and
    set the **room**. If the meeting is not in person, write where it takes place in **Place** (a video
    call, a mailing list...).

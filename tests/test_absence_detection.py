@@ -1,9 +1,12 @@
 from datetime import timedelta
 from unittest.mock import patch
 
+import psycopg2
+
 from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
+from odoo.tools import mute_logger
 
 from .common import (
     create_role_employee, create_role_user, make_working_day, mock_outgoing_email, shift_ems_clock)
@@ -23,6 +26,7 @@ class TestAbsenceDetection(TransactionCase):
         # 10:00 of a Tuesday to Friday: "yesterday" is a school day too.
         cls.today = shift_ems_clock(cls, hour=10.0, weekdays=(1, 2, 3, 4)).date()
         cls.yesterday = cls.today - timedelta(days=1)
+        cls.discard_reason = cls.env.ref('ems.absence_pending_discard_reason_error')
         for day in (cls.yesterday, cls.today):
             make_working_day(cls, day)
         cls.Pending = cls.env['ems.absence_pending']
@@ -760,7 +764,7 @@ class TestAbsenceDetection(TransactionCase):
         by_reviewer = self.Pending.create({'employee_id': self.teacher.id, 'origin': 'check_in',
                                            'date_from': self._utc(self.today - timedelta(days=2), 9.0),
                                            'date_to': self._utc(self.today - timedelta(days=2), 13.0)})
-        by_reviewer.with_user(self.head_of_studies).action_discard()
+        by_reviewer.with_user(self.head_of_studies)._ems_discard(self.discard_reason)
 
         self.Pending._ems_reopen_wrongly_discarded()
 
@@ -843,7 +847,7 @@ class TestAbsenceDetection(TransactionCase):
     def test_discard(self):
         self.Pending._ems_detect_missing_check_ins(self.yesterday)
         absence = self._detected()
-        absence.with_user(self.head_of_studies).action_discard()
+        absence.with_user(self.head_of_studies)._ems_discard(self.discard_reason)
 
         self.assertEqual(absence.state, 'discarded')
         self.assertFalse(absence.active)
@@ -856,13 +860,54 @@ class TestAbsenceDetection(TransactionCase):
         self.assertFalse(self.env['hr.attendance'].search([('employee_id', '=', self.teacher.id)]))
         self.assertFalse(absence.leave_id)
 
+    def test_discard_asks_why(self):
+        """Issue #818: Discard opens a dialog with the reason, from the form for the entry, from the
+        list for the selection; the reason and details stay on each entry, for the reviewers only."""
+        second_user = create_role_user(self, 'teacher', 'test_second_teacher_tad', name='TAD Second Teacher')
+        second = self._teacher('TAD Second Teacher', user=second_user)
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        first, other = self._detected(), self._detected(second)
+        Wizard = self.env['ems.absence_pending.discard_wizard'].with_user(self.head_of_studies)
+
+        action = first.with_user(self.head_of_studies).action_discard()
+        self.assertEqual(action['res_model'], 'ems.absence_pending.discard_wizard')
+        from_form = Wizard.with_context(action['context']).create({})
+        self.assertEqual(from_form.absence_ids, first)
+        self.assertEqual(from_form.reason_id, self.env['ems.absence_pending.discard_reason'].search([], limit=1),
+                         'the first reason by default')
+        # The list's server action runs action_discard() on the selection.
+        action = (first | other).with_user(self.head_of_studies).action_discard()
+        from_list = Wizard.with_context(action['context']).create(
+            {'reason_id': self.discard_reason.id, 'details': 'Schedule loaded twice'})
+        self.assertEqual(from_list.absence_ids, first | other)
+
+        from_list.action_confirm()
+
+        for absence in first | other:
+            self.assertEqual(absence.state, 'discarded')
+            self.assertFalse(absence.active)
+            self.assertEqual(absence.discard_reason_id, self.discard_reason)
+            self.assertEqual(absence.discard_details, 'Schedule loaded twice')
+        self.assertFalse(self._teacher_messages(first))
+        own = first.with_user(self.teacher_user)
+        self.assertNotIn('discard_reason_id', own.fields_get(), 'the teacher is not told why')
+        self.assertNotIn('discard_details', own.fields_get())
+
+    def test_a_used_discard_reason_is_archived_not_deleted(self):
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        self._detected().with_user(self.head_of_studies)._ems_discard(self.discard_reason)
+        with self.assertRaises(psycopg2.IntegrityError), mute_logger('odoo.sql_db'), self.env.cr.savepoint():
+            self.discard_reason.unlink()
+        self.discard_reason.action_archive()
+        self.assertFalse(self.discard_reason.active)
+
     def test_bulk_skips_what_is_not_waiting_or_not_theirs(self):
         second_user = create_role_user(self, 'teacher', 'test_second_teacher_tad', name='TAD Second Teacher')
         second = self._teacher('TAD Second Teacher', user=second_user)
         self.Pending._ems_detect_missing_check_ins(self.yesterday)
         waiting, already = self._detected(), self._asked(self._detected(second))
 
-        result = (waiting | already).with_user(self.head_of_studies).action_discard()
+        result = (waiting | already).with_user(self.head_of_studies)._ems_discard(self.discard_reason)
 
         self.assertEqual(waiting.state, 'discarded')
         self.assertEqual(already.state, 'justification_requested')
@@ -882,7 +927,7 @@ class TestAbsenceDetection(TransactionCase):
 
         self.assertFalse(absence.can_review)
         with self.assertRaisesRegex(UserError, 'not yours to review'):
-            absence.action_discard()
+            absence._ems_discard(self.discard_reason)
         self.assertEqual(absence.state, 'pending')
 
     def test_bulk_create_absence_prepares_each_entry(self):
@@ -901,7 +946,7 @@ class TestAbsenceDetection(TransactionCase):
 
         self.assertFalse(self.teacher._ems_is_attendance_approver(self.other_head_of_studies))
         with self.assertRaises(UserError):
-            absence.sudo().with_user(self.other_head_of_studies).action_discard()
+            absence.sudo().with_user(self.other_head_of_studies)._ems_discard(self.discard_reason)
         self.assertEqual(absence.state, 'pending')
 
     def test_the_teacher_resolves_it_at_every_stage(self):
@@ -955,7 +1000,7 @@ class TestAbsenceDetection(TransactionCase):
         self.head_of_studies.lang = 'ca_ES'
         self.Pending._ems_detect_missing_check_ins(self.yesterday)
         absence = self._detected()
-        absence.with_user(self.head_of_studies).with_context(lang='ca_ES').action_discard()
+        absence.with_user(self.head_of_studies).with_context(lang='ca_ES')._ems_discard(self.discard_reason)
 
         self.assertTrue(absence.message_ids.filtered(lambda message: 'Descartada per' in message.body))
         with self.assertRaisesRegex(UserError, 'sense revisió pendent'):
@@ -993,7 +1038,7 @@ class TestAbsenceDetection(TransactionCase):
             'employee_id': self.teacher.id, 'date_from': self._utc(self.today, 12.0),
             'date_to': self._utc(self.today, 13.0)})
         corrected.with_user(self.head_of_studies).action_correct_check_in()
-        discarded.with_user(self.head_of_studies).action_discard()
+        discarded.with_user(self.head_of_studies)._ems_discard(self.discard_reason)
 
         self.assertNotIn(self.teacher_user.partner_id, self._followers(corrected))
         self.assertNotIn(self.teacher_user.partner_id,

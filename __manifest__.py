@@ -312,6 +312,7 @@
             'views/attendance/absence/monthly_report.xml',
             'views/attendance/absence/staff_walkout_report.xml',
             'views/attendance/absence/absence_pending.xml',
+            'views/attendance/absence_discard_reason/views.xml',
             'reports/attendance/report_guard_duty_board.xml',
 
             'views/attendance/attendance_issue/menu.xml',
@@ -506,6 +507,7 @@
         'data/main/ems.strike.reason.csv',
         'data/main/ems.convalidation.info_reason.csv',
         'data/main/ems.convalidation.rejection_reason.csv',
+        'data/main/ems.absence_pending.discard_reason.csv',
         'data/main/ems.attendance_justification_reason.xml',
         'data/main/ems.student_walkout.rejection_reason.xml',
         'data/main/ems.attendance_status.csv',

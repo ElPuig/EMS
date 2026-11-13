@@ -280,8 +280,9 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
         )
 
     def test_capture_detected_absence_review(self):
-        """Issue #735: a detected absence to review, with the notice of the four decisions, and the
-        Prepare justification dialog (hours prefilled, absence type to choose)."""
+        """Issue #735: a detected absence to review, with the notice of the four decisions, the
+        Prepare justification dialog (hours prefilled, absence type to choose) and, issue #818, the
+        Discard dialog (the reason to choose)."""
         teacher = self.env['hr.employee'].create({
             'name': '0000 Marta Prova', 'employee_type': 'teacher', 'parent_id': self.hos_employee.id})
         Pending = self.env['ems.absence_pending']
@@ -303,6 +304,15 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
                    ".o_ems_actions_menu button[name='action_open_prepare_justification']"],
             wait_after=[".o_ems_actions_menu button[name='action_open_prepare_justification']",
                         ".modal .o_field_widget[name='holiday_status_id'] input"],
+        )
+        # Issue #818: Discard asks why, the first reason by default.
+        self._capture(
+            url, '.modal-content', 'hos-detected-absence-discard.png',
+            login='doc_shot_hos', wait_for=".o_form_statusbar .o_ems_actions_toggle",
+            click=[".o_form_statusbar .o_ems_actions_toggle",
+                   ".o_ems_actions_menu button[name='action_discard']"],
+            wait_after=[".o_ems_actions_menu button[name='action_discard']",
+                        ".modal .o_field_widget[name='reason_id'] input"],
         )
 
     def test_capture_staff_vacancy(self):

@@ -25,6 +25,12 @@ ACCESS_MATRIX = {
         'teacher': '', 'head_of_studies': '', 'secretary': '', 'director': 'rwc', 'academic_admin': 'rwc'},
     'ems.staff_walkout_report.line': {
         'teacher': '', 'head_of_studies': '', 'secretary': '', 'director': 'rc', 'academic_admin': 'rc'},
+    # Issue #818: Discard asks why, for whoever reviews detected absences; the Heads of Studies
+    # and the administrator maintain the reasons, which only the administrator deletes.
+    'ems.absence_pending.discard_wizard': {
+        'teacher': '', 'department_chief': '', 'head_of_studies': 'rwc', 'academic_admin': 'rwc'},
+    'ems.absence_pending.discard_reason': {
+        'teacher': '', 'department_chief': '', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
     # Issue #707: "Prepare justification" from the list, for whoever reviews detected absences; who
     # may review each entry is checked when it runs (ems.absence_pending._ems_review).
     'ems.absence_pending.leave_wizard': {

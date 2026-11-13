@@ -1322,6 +1322,8 @@ msgstr "Acció Necessària"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__active
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__active
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__active
+
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__active
 msgid "Active"
 msgstr "Actiu"
 
@@ -1893,6 +1895,8 @@ msgstr "Aprovat"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_rejection_reason_form
 #: model_terms:ir.ui.view,arch_db:ems.view_teaching_form
 #: model_terms:ir.ui.view,arch_db:ems.view_teaching_reduction_type_form
+
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_discard_reason_form
 msgid "Archived"
 msgstr "Arxivat"
 
@@ -2550,6 +2554,8 @@ msgstr "Pot editar"
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_walkout_levels_wizard_form
+
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_discard_wizard_form
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -3260,6 +3266,9 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__create_uid
+
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -3420,6 +3429,9 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__create_date
+
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3708,6 +3720,8 @@ msgstr "Descripció i notes"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__details
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__details
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form
+
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__details
 msgid "Details"
 msgstr "Detalls"
 
@@ -3898,6 +3912,9 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__display_name
+
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -5118,6 +5135,7 @@ msgstr "Grup"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 msgid "Group By"
 msgstr "Agrupar per"
 
@@ -5490,6 +5508,9 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__id
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__id
+
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__id
 msgid "ID"
 msgstr "ID"
 
@@ -6240,6 +6261,9 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__write_uid
+
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -6400,6 +6424,9 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__write_date
+
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -6989,6 +7016,8 @@ msgstr "NUSS"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__name
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__name
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__name
+
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__name
 msgid "Name"
 msgstr "Nom"
 
@@ -9027,6 +9056,8 @@ msgstr "Enviat el"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__sequence
+
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__sequence
 msgid "Sequence"
 msgstr "Seqüència"
 
@@ -11811,6 +11842,8 @@ msgstr "Sortida original"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__reason_id
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__reason_id
+
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__reason_id
 msgid "Reason"
 msgstr "Motiu"
 
@@ -13259,8 +13292,9 @@ msgstr "Enviat a"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form
+#: model:ems.absence_pending.discard_reason,name:ems.absence_pending_discard_reason_strike
 msgid "Strike"
-msgstr "Strike"
+msgstr "Vaga"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__strike_escalation_threshold model:ir.model.fields,field_description:ems.field_res_config_settings__strike_escalation_threshold
@@ -21364,6 +21398,7 @@ msgstr "Absència detectada"
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__absence_ids
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__absence_ids
 msgid "Detected absences"
 msgstr "Absències detectades"
 
@@ -27782,9 +27817,12 @@ msgid "Where I am involved"
 msgstr "Els que m'impliquen"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_followup_form
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
 #: model:ir.actions.server,name:ems.action_absence_pending_discard
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_discard_wizard_form
 msgid "Discard"
 msgstr "Descarta"
 
@@ -29332,6 +29370,7 @@ msgstr "Fila del quadre resum de la declaració horària oficial on se sumen aqu
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_non_teaching_type__declaration_code__other
+#: model:ems.absence_pending.discard_reason,name:ems.absence_pending_discard_reason_other
 msgid "Others"
 msgstr "Altres"
 
@@ -29807,8 +29846,8 @@ msgstr "<b>Corregeix el fitxatge</b>: el docent era al centre; es registra el se
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
-msgid "<b>Discard</b>: nothing to do; it is archived and nobody is told."
-msgstr "<b>Descarta</b>: no cal fer res; s'arxiva i no s'avisa ningú."
+msgid "<b>Discard</b>: nothing to do, for the reason you choose; it is archived and nobody is told."
+msgstr "<b>Descarta</b>: no cal fer res, pel motiu que triïs; s'arxiva i no s'avisa ningú."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
@@ -52110,3 +52149,53 @@ msgstr "El que et correspon menys el que ja t'han transferit."
 #: code:addons/ems/models/erasmus/mobility.py:0
 msgid "You have handed in %(done)s of %(total)s"
 msgstr "Has lliurat %(done)s de %(total)s"
+
+#: model:ir.model,name:ems.model_ems_absence_pending_discard_reason
+msgid "Detected absence discard reason"
+msgstr "Motiu de descart d'absència detectada"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_absence_pending_discard_reason
+msgid "Detected absence discard reasons"
+msgstr "Motius de descart d'absències detectades"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__discard_details
+msgid "Discard details"
+msgstr "Detalls del descart"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_absence_pending_discard_wizard
+msgid "Discard detected absences"
+msgstr "Descartar absències detectades"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__discard_reason_id
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_discard_reason_form
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+msgid "Discard reason"
+msgstr "Motiu del descart"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_absence_pending_discard_reason
+msgid "Discard reasons"
+msgstr "Motius de descart"
+
+#. module: ems
+#: model:ems.absence_pending.discard_reason,name:ems.absence_pending_discard_reason_error
+msgid "Error"
+msgstr "Error"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_discard_wizard_form
+msgid ""
+"Nothing is done about these absences: they are archived with this reason\n"
+"                        and nobody is told. The teacher does not see the reason."
+msgstr ""
+"No es fa res amb aquestes absències: s'arxiven amb aquest motiu\n"
+"                        i no s'avisa ningú. El docent no veu el motiu."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_discard_wizard_form
+msgid "Optional, for the reviewers' own reference"
+msgstr "Opcional, per a la referència de qui revisa"

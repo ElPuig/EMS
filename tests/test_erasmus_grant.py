@@ -199,12 +199,17 @@ class TestErasmusGrant(ErasmusGrantCase):
         with self.assertRaises(UserError):
             invoice.with_user(self.erasmus_user).unlink()
 
-    def test_secretary_reads_the_invoices_and_their_shares(self):
+    def test_secretary_enters_the_services_paid_by_the_centre(self):
+        """Issue #791 (11.11): the Secretary also enters them, whoever the invoice reaches first, so the
+        participants' grants are always reduced; never deletes one."""
         first, second = self._preparing()
-        invoice = self._invoice(first | second, 300).with_user(self.secretary_user)
+        invoice = self.env['ems.erasmus.invoice'].with_user(self.secretary_user).create({
+            'name': 'F-SECRETARY-1', 'amount': 300, 'mobility_ids': [(6, 0, (first | second).ids)]})
         self.assertEqual(invoice.provision_ids.partner_id, self.student | self.second)
+        invoice.amount = 400
+        self.assertEqual(sum(invoice.provision_ids.mapped('amount')), 400, "Split again.")
         with self.assertRaises(AccessError):
-            invoice.amount = 1
+            invoice.unlink()
 
     def test_team_creates_host_entities_and_their_tutors_but_no_other_contact(self):
         Partner = self.env['res.partner'].with_user(self.erasmus_user)

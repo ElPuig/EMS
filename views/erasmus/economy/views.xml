@@ -161,22 +161,6 @@
                         </group>
                         <!-- Issue #784 (10.7): the economic documents are in the Documentation tab
                              (category 03 Finances), not repeated here. -->
-                        <separator string="Expenses of the project"/>
-                        <field name="expense_ids" context="{'default_project_id': id}">
-                            <list decoration-muted="state == 'cancelled'">
-                                <field name="name"/>
-                                <field name="date"/>
-                                <field name="concept"/>
-                                <field name="category"/>
-                                <field name="supplier_id" optional="hide"/>
-                                <field name="currency_id" column_invisible="1"/>
-                                <field name="amount" string="Amount entered" optional="hide"/>
-                                <field name="counted_amount" string="Amount" sum="Total"/>
-                                <field name="attachment_ids" widget="many2many_tags" optional="show"/>
-                                <field name="state" widget="badge" decoration-warning="state == 'to_pay'"
-                                       decoration-success="state == 'paid'"/>
-                            </list>
-                        </field>
                         <separator string="Organisational support"/>
                         <p class="text-muted">
                             Computed with the rates of the project's call year (Configuration > Organisational support rates). An internal indicator: it is part of the grant awarded and is not a certification of funds recognised by SEPIE.
@@ -218,6 +202,27 @@
                 <field name="final_grant" position="after">
                     <field name="final_payment_date" position="move"/>
                 </field>
+                <!-- Issue #791 (11.1): the project's expenses, next to the services paid by the centre. -->
+                <page name="invoices" position="after">
+                    <page string="Project expenses" name="expenses"
+                          groups="ems.group_erasmus,ems.group_secretary,ems.group_director,ems.group_academic_admin">
+                        <field name="expense_ids" context="{'default_project_id': id}">
+                            <list decoration-muted="state == 'cancelled'">
+                                <field name="name"/>
+                                <field name="date"/>
+                                <field name="concept"/>
+                                <field name="category"/>
+                                <field name="supplier_id" optional="hide"/>
+                                <field name="currency_id" column_invisible="1"/>
+                                <field name="amount" string="Amount entered" optional="hide"/>
+                                <field name="counted_amount" string="Amount" sum="Total"/>
+                                <field name="attachment_ids" widget="many2many_tags" optional="show"/>
+                                <field name="state" widget="badge" decoration-warning="state == 'to_pay'"
+                                       decoration-success="state == 'paid'"/>
+                            </list>
+                        </field>
+                    </page>
+                </page>
                 <page name="invoices" position="attributes">
                     <attribute name="groups">ems.group_erasmus,ems.group_secretary,ems.group_director,ems.group_academic_admin</attribute>
                 </page>
@@ -232,7 +237,7 @@
             <field name="name">ems.erasmus.expense.list</field>
             <field name="model">ems.erasmus.expense</field>
             <field name="arch" type="xml">
-                <list string="Expenses" decoration-muted="state == 'cancelled'" duplicate="0">
+                <list string="Project expenses" decoration-muted="state == 'cancelled'" duplicate="0">
                     <header>
                         <button name="action_register_transfer" type="object" string="Register transfer"
                                 groups="ems.group_secretary,ems.group_academic_admin"/>
@@ -261,7 +266,7 @@
             <field name="name">ems.erasmus.expense.search</field>
             <field name="model">ems.erasmus.expense</field>
             <field name="arch" type="xml">
-                <search string="Expenses">
+                <search string="Project expenses">
                     <field name="name"/>
                     <field name="concept"/>
                     <field name="project_id"/>
@@ -287,7 +292,7 @@
             <field name="name">ems.erasmus.expense.form</field>
             <field name="model">ems.erasmus.expense</field>
             <field name="arch" type="xml">
-                <form string="Expense" duplicate="0">
+                <form string="Project expense" duplicate="0">
                     <header>
                         <div name="ems_actions" string="Actions">
                             <button name="action_register_transfer" type="object" string="Register transfer"
@@ -344,12 +349,12 @@
         </record>
 
         <record id="action_erasmus_expense" model="ir.actions.act_window">
-            <field name="name">Expenses</field>
+            <field name="name">Project expenses</field>
             <field name="res_model">ems.erasmus.expense</field>
             <field name="view_mode">list,form</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">Register a new expense</p>
-                <p>The project's expenses outside the participants' grants: working meals, merchandising, dissemination, language preparation... The Secretary pays them with the same transfer as the grants.</p>
+                <p>The project's expenses outside the participants' grants: working meals, merchandising, dissemination, language preparation... A service paid for a participant (travel, accommodation) goes in Services paid by the centre instead. The Secretary pays them with the same transfer as the grants.</p>
             </field>
         </record>
 
@@ -515,7 +520,7 @@
                             <field name="bank_holder" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
                         </list>
                     </field>
-                    <separator string="Collective invoices" invisible="travel_paid_by == 'participant'"/>
+                    <separator string="Services paid by the centre" invisible="travel_paid_by == 'participant'"/>
                 </field>
                 <field name="invoice_ids" position="attributes">
                     <attribute name="invisible">travel_paid_by == 'participant'</attribute>

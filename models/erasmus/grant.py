@@ -93,7 +93,7 @@ class EmsErasmusInvoice(models.Model):
     flights and accommodation). Its amount is split equally among them as provisions of services,
     each share editable afterwards."""
     _name = 'ems.erasmus.invoice'
-    _description = 'Erasmus+ invoice'
+    _description = 'Erasmus+ service paid by the centre'
     _inherit = ['ems.base']
     _order = 'date desc, id desc'
 
@@ -172,10 +172,11 @@ class EmsErasmusInvoice(models.Model):
     def _ems_split(self):
         """One equal share per participant, the cents left over on the first one: a change of
         the amount or the participants splits it again from scratch."""
-        for invoice in self:
+        # As superuser: the shares follow the invoice, whoever enters it (the Secretary too, issue #791).
+        for invoice in self.sudo():
             invoice.provision_ids.unlink()
             mobilities = invoice.mobility_ids
-            self.env['ems.erasmus.provision'].create([{
+            self.env['ems.erasmus.provision'].sudo().create([{
                 'invoice_id': invoice.id, 'mobility_id': mobility.id, 'concept': invoice.concept,
                 'description': invoice._ems_share_description(), 'amount': share,
             } for mobility, share in zip(mobilities, split_amount(invoice.amount, len(mobilities), invoice.currency_id))])

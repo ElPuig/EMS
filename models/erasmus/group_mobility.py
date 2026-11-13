@@ -1867,6 +1867,25 @@ class EmsErasmusInvoice(models.Model):
     group_mobility_id = fields.Many2one(string="Group mobility", comodel_name='ems.erasmus.group.mobility',
                                         ondelete='set null', index=True,
                                         domain="[('project_id', '=', project_id)]")
+    # Issue #791 (11.2): one question, and only the field that answers it.
+    covers = fields.Selection(string="Who it is for", selection=[('participants', "Participants"),
+                                                                ('group', "A group mobility")],
+                              compute='_compute_covers', store=True, readonly=False, precompute=True,
+                              help="A group mobility: split among its participants by their pocket money. Participants: "
+                                   "split equally among the ones chosen.")
+
+    @api.depends('group_mobility_id')
+    def _compute_covers(self):
+        for invoice in self:
+            invoice.covers = 'group' if invoice.group_mobility_id else invoice.covers or 'participants'
+
+    @api.onchange('covers')
+    def _onchange_covers(self):
+        """The other answer is emptied, so the invoice is never counted twice (issue #777)."""
+        if self.covers == 'group':
+            self.mobility_ids = False
+        else:
+            self.group_mobility_id = False
 
     @api.depends('group_mobility_id')
     def _compute_unassigned_amount(self):

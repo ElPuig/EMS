@@ -99,7 +99,7 @@
                   parent="menu_erasmus_section_config" action="action_erasmus_host_entity"
                   groups="ems.group_erasmus,ems.group_academic_admin"/>
 
-        <menuitem name="Invoices" sequence="2" id="menu_erasmus_invoices"
+        <menuitem name="Services paid by the centre" sequence="2" id="menu_erasmus_invoices"
                   parent="menu_erasmus_section_finances" action="action_erasmus_invoice"
                   groups="ems.group_erasmus,ems.group_secretary,ems.group_director,ems.group_academic_admin"/>
 
@@ -109,7 +109,7 @@
 
         <!-- Issue #762: the project's expenses and the organisational support rates. Issue #789 (11.1):
              the section keeps the day-to-day money, the grant payments first. -->
-        <menuitem name="Expenses" sequence="3" id="menu_erasmus_expenses"
+        <menuitem name="Project expenses" sequence="3" id="menu_erasmus_expenses"
                   parent="menu_erasmus_section_finances" action="action_erasmus_expense"
                   groups="ems.group_erasmus,ems.group_secretary,ems.group_director,ems.group_academic_admin"/>
         <menuitem name="Organisational support rates" sequence="5" id="menu_erasmus_support_rates"

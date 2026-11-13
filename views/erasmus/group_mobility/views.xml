@@ -827,8 +827,9 @@
             <field name="model">ems.erasmus.invoice</field>
             <field name="inherit_id" ref="ems.view_erasmus_invoice_form"/>
             <field name="arch" type="xml">
-                <field name="project_id" position="after">
-                    <field name="group_mobility_id" options="{'no_create': True}"/>
+                <field name="mobility_ids" position="after">
+                    <field name="group_mobility_id" options="{'no_create': True, 'no_open': True}"
+                           invisible="covers != 'group'" readonly="state == 'paid'"/>
                 </field>
             </field>
         </record>

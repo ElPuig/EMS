@@ -41,7 +41,7 @@ Antes de enviarla, el formulario te muestra el calendario exacto y el primer dí
 1. En el portal, abre **Huelgas de estudiantes** (tarjeta de la página de inicio, o en la barra superior) y haz clic en **Proponer apoyar una huelga**.
 2. Elige el **Día de la huelga**. Tiene que ser un día lectivo, y no antes del primer día que te indica el formulario.
 3. Adjunta la **Convocatoria del sindicato de estudiantes** (uno o más archivos).
-4. Si quieres, escribe unas **Notas** (qué sindicato la convoca y por qué).
+4. Escribe el **Motivo** (qué sindicato la convoca y por qué). Es obligatorio: sin él no puedes proponer la votación.
 5. Haz clic en **Propón la votación**.
 
 ![Formulario para proponer apoyar una huelga, con el calendario si la propones ahora](../../assets/families/walkout-portal-new.png)

@@ -7283,9 +7283,6 @@ msgstr "Nota"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_form
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__notes
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
-#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__notes
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
-#: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
 msgid "Notes"
 msgstr "Notas"
 
@@ -11834,6 +11831,9 @@ msgstr "Salida original"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__reason_id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__reason_id
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__notes
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
+#: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
 msgid "Reason"
 msgstr "Motivo"
 
@@ -49905,8 +49905,8 @@ msgstr "<strong>Grupo:</strong>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "<strong>Notes:</strong>"
-msgstr "<strong>Notas:</strong>"
+msgid "<strong>Reason:</strong>"
+msgstr "<strong>Motivo:</strong>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -52276,3 +52276,10 @@ msgstr "Elija el grupo cuyo equipo docente se reúne."
 #: code:addons/ems/models/shared/datetime_utils.py:0
 msgid "There are no school days in the calendar after %s."
 msgstr "No hay días lectivos en el calendario después del %s."
+
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "Give the reason of the walkout: which union calls it and why."
+msgstr "Indica el motivo de la huelga: qué sindicato la convoca y por qué."

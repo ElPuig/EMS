@@ -73,8 +73,8 @@
                         <input type="file" class="form-control" id="union_call" name="union_call" multiple="multiple" required="required"/>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="notes">Notes</label>
-                        <textarea class="form-control" id="notes" name="notes" rows="3" maxlength="2000"
+                        <label class="form-label" for="notes">Reason</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" maxlength="2000" required="required"
                                   placeholder="Which union calls it and why"/>
                     </div>
                     <button type="submit" class="btn btn-primary o_ems_walkout_open">Propose the vote</button>
@@ -111,7 +111,7 @@
                         <p class="mb-1"><strong>Group vote:</strong> <t t-esc="walkout.format_local_datetime(walkout.vote_start)"/> - <t t-esc="walkout.format_local_datetime(walkout.vote_until)"/></p>
                         <p t-if="walkout.join_until" class="mb-1"><strong>Joining:</strong> <t t-esc="walkout.format_local_datetime(walkout.join_start)"/> - <t t-esc="walkout.format_local_datetime(walkout.join_until)"/></p>
                         <p class="mb-1"><strong>State:</strong> <t t-esc="state_labels.get(walkout.state)"/></p>
-                        <p t-if="walkout.notes" class="mb-1"><strong>Notes:</strong> <t t-esc="walkout.notes"/></p>
+                        <p t-if="walkout.notes" class="mb-1"><strong>Reason:</strong> <t t-esc="walkout.notes"/></p>
                         <p class="mb-0"><strong>Union's call:</strong>
                             <t t-foreach="walkout.attachment_ids" t-as="attachment">
                                 <a t-attf-href="/my/vagues/#{walkout.id}/fitxer/#{attachment.id}" class="me-2">

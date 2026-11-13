@@ -289,6 +289,11 @@ class TestStudentWalkout(TransactionCase):
         with self.assertRaises(UserError):
             open_walkout(self, files=[])
 
+    def test_reason_is_required(self):
+        for empty in ('', '   ', False):
+            with self.assertRaises(UserError):
+                open_walkout(self, notes=empty)
+
     def test_one_call_per_group_and_day(self):
         walkout = open_walkout(self)
         with self.assertRaises(UserError):

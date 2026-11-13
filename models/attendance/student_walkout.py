@@ -49,7 +49,7 @@ class EmsStudentWalkout(models.Model):
     vote_until = fields.Datetime(string="Group vote until", readonly=True, copy=False)
     join_start = fields.Datetime(string="Joining from", readonly=True, copy=False)
     join_until = fields.Datetime(string="Joining until", readonly=True, copy=False)
-    notes = fields.Text(string="Notes", readonly=True)
+    notes = fields.Text(string="Reason", readonly=True)
     attachment_ids = fields.Many2many(string="Union's call", comodel_name='ir.attachment',
                                       relation='ems_student_walkout_attachment_rel', column1='walkout_id',
                                       column2='attachment_id', readonly=True)
@@ -162,6 +162,9 @@ class EmsStudentWalkout(models.Model):
         walkout_date = fields.Date.to_date(values.get('walkout_date'))
         calendar = self._ems_projected_calendar(groups)
         self._ems_check_request_date(walkout_date, calendar)
+        notes = (values.get('notes') or '').strip()
+        if not notes:
+            raise UserError(_("Give the reason of the walkout: which union calls it and why."))
         files = [(name, content) for name, content in files or [] if name and content]
         if not files:
             raise UserError(_("Attach the call of the students' union."))
@@ -183,7 +186,7 @@ class EmsStudentWalkout(models.Model):
             'notice_hours': calendar['notice_hours'],
             'vote_start': calendar['vote_start'],
             'vote_until': calendar['vote_until'],
-            'notes': (values.get('notes') or '').strip()[:2000] or False,
+            'notes': notes[:2000],
             'line_ids': [(0, 0, {'student_id': student.id, 'has_portal': student.id in with_portal})
                          for student in students],
         })

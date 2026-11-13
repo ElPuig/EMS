@@ -108,7 +108,7 @@ erDiagram
 | `walkout_date` / `walkout_start` | `Date` / `Datetime` (computed) | The walkout day (the only date the delegate gives), and its 00:00 in the centre |
 | `phase_hours` / `notice_hours` | `Integer` | The settings when it was opened |
 | `vote_start` / `vote_until` / `join_start` / `join_until` | `Datetime` | The calendar above; the joining ones once it starts |
-| `notes` | `Text` | What the delegate says about it |
+| `notes` | `Text` | The reason the delegate gives (which union calls it and why), labelled "Reason"; required to propose it |
 | `attachment_ids` | `Many2many → ir.attachment` | The union's call: at least one file |
 | `state` | `Selection` | `voting` → `joining` → `closed` → `justified`; or `rejected`, `cancelled` (by the delegate). A group vote that does not support it goes from `voting` to `closed` |
 | `head_of_studies_id` | `Many2one → hr.employee` | Who gets the minute |

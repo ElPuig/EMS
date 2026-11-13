@@ -44,7 +44,7 @@
                             <tr t-if="doc.join_start"><th>Joining</th><td><t t-esc="doc.format_local_datetime(doc.join_start)"/> - <t t-esc="doc.format_local_datetime(doc.join_until)"/></td></tr>
                             <tr><th>Closed on</th><td><t t-esc="doc.format_local_datetime(doc.closed_datetime)"/></td></tr>
                             <tr><th>Union's call</th><td t-out="', '.join(doc.attachment_ids.mapped('name'))"/></tr>
-                            <tr t-if="doc.notes"><th>Notes</th><td t-out="doc.notes"/></tr>
+                            <tr t-if="doc.notes"><th>Reason</th><td t-out="doc.notes"/></tr>
                         </tbody>
                     </table>
 

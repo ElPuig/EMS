@@ -41,7 +41,7 @@ Abans d'enviar-la, el formulari et mostra el calendari exacte i el primer dia po
 1. Al portal, obre **Vagues d'alumnes** (targeta de la pàgina d'inici, o a la barra superior) i fes clic a **Proposar donar suport a una vaga**.
 2. Tria el **Dia de la vaga**. Ha de ser un dia lectiu, i no abans del primer dia que t'indica el formulari.
 3. Adjunta la **Convocatòria del sindicat d'estudiants** (un o més fitxers).
-4. Si vols, escriu unes **Notes** (quin sindicat la convoca i per què).
+4. Escriu el **Motiu** (quin sindicat la convoca i per què). És obligatori: sense ell no pots proposar la votació.
 5. Fes clic a **Proposa la votació**.
 
 ![Formulari per proposar donar suport a una vaga, amb el calendari si la proposes ara](../../assets/families/walkout-portal-new.png)

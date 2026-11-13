@@ -41,7 +41,7 @@ The form shows you the exact calendar and the first day the walkout can be on be
 1. On the portal, open **Student walkouts** (card on the home page, or in the top bar) and click **Propose supporting a student walkout**.
 2. Choose the **Walkout day**. It must be a school day, and no earlier than the first day the form tells you.
 3. Attach the **Call of the students' union** (one or more files).
-4. If you want, write some **Notes** (which union calls it and why).
+4. Write the **Reason** (which union calls it and why). It is required: without it you cannot propose the vote.
 5. Click **Propose the vote**.
 
 ![Form to propose supporting a student walkout, with the calendar if you propose it now](../../assets/families/walkout-portal-new.png)

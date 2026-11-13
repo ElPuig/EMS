@@ -96,6 +96,16 @@ class TestDocsScreenshotsErasmus(DocsScreenshotMixin, HttpCase):
                       'puntuacio-sobre-maxim.png', login=self.TECHNICIAN, wait_for=tab, click=[tab],
                       wait_after=['.o_field_widget[name=score_total]'], max_height=320)
 
+    def test_capture_application_header(self):
+        """Issue #784 (3.4, 3.11): what decides an application, on top, and its Application tab."""
+        application = self.env['ems.erasmus.application'].create({
+            'call_id': self.call.id, 'partner_id': self.student.id, 'modality_id': self.call.modality_ids.id,
+            'fewer_opportunities_check': 'yes', 'first_mobility': 'yes', 'language_level': 'b2', 'state': 'admitted',
+            'requirements_check': 'met', 'scoring_frozen_date': fields.Datetime.now()})
+        self._capture(f'/odoo/action-ems.action_erasmus_application/{application.id}', '.o_form_sheet',
+                      'sollicitud-capcalera.png', login=self.TECHNICIAN,
+                      wait_for='.o_field_widget[name=requirements_check]', max_height=420)
+
     def test_capture_ranking_of_a_call(self):
         """Issue #781: a call's ranking, grouped by modality, the row with no colour."""
         self.call.state = 'closed'

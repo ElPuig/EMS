@@ -85,15 +85,16 @@ You can send it before the call opens; if you send it again (for example after a
 
 Go to **Erasmus+ > Calls > Applications**, grouped by call, with each application's score and position once they exist (or the **Applications** button on the call, which groups them by modality). Filters: *To review*, *Corrections requested*, *Admitted*, *Excluded*. **Documents to review** counts the files waiting for your check (a draft not submitted yet does not count).
 
-Open an application:
+Open an application. On top is what decides it: the **Requirements**, the **Total score** and the **Rank** (once there is one); on a staff application, the **Staff record** button opens the teacher's file.
 
-- **Documents** tab: each document with its **Status** (*To hand in*, *Pending review*, *Needs changes*, *Complete*; in grey, the optional ones and those that do not apply, such as the family authorisation of an adult), its **Files** (the ones that count) and, for a link, the **Link** itself. Every file the student uploaded is kept: the optional column **Every version** shows the earlier ones too. Mark each one as **Valid** (✓) or **Needs changes** (✗), and write a **Comment for the applicant** when it needs changes. A document without any file cannot be marked valid.
+![An application: requirements and score on top, and the Application tab](../../assets/erasmus/sollicitud-capcalera.png)
+
+- **Application** tab: what the student sent, the form's answers first and the documents below, each document with its **Status** (*To hand in*, *Pending review*, *Needs changes*, *Complete*; in grey, the optional ones and those that do not apply, such as the family authorisation of an adult), its **Files** (the ones that count) and, for a link, the **Link** itself. Every file the student uploaded is kept: the optional column **Every version** shows the earlier ones too. Mark each one as **Valid** (✓) or **Needs changes** (✗), and write a **Comment for the applicant** when it needs changes. A document without any file cannot be marked valid.
 - While the application is a draft, the student can remove from the portal a file uploaded by mistake. Once submitted, only you remove it, with **Remove a file** and the reason.
 - **Admission** tab:
     - **Requirements**: enrolled in a level of the call and no previous Erasmus+ internship in this cycle (a minor needs no family authorisation to apply). EMS records who checked it and when.
     - **Conduct this course**: the **conduct warnings** the student has in EMS during the call's course. With as many as the number that sends the case to the coexistence team (3, the EMS setting) or more, **Conduct to review** is ticked and the form shows a notice at the top. It does not rule the student out: having heard the teaching team and the coexistence team, you may **exclude** the application with the reason (article 6 of the call). If it goes on, every warning takes points off (criterion F).
     - **Exclusion reason**, if the application is excluded.
-- **Answers** tab: what the student answered in the form.
 
 ## 4. Ask for corrections
 

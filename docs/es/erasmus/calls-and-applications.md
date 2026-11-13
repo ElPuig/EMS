@@ -85,15 +85,16 @@ Puedes enviarlo antes de que se abra la convocatoria; si lo vuelves a enviar (po
 
 Ve a **Erasmus+ > Convocatorias > Solicitudes**, agrupadas por convocatoria, con la puntuación y la posición de cada solicitud cuando ya las hay (o al botón **Solicitudes** de la convocatoria, que las agrupa por modalidad). Filtros: *Por revisar*, *Subsanación requerida*, *Admitida*, *Excluida*. **Documentos por revisar** cuenta los archivos que esperan vuestra comprobación (un borrador aún no enviado no cuenta).
 
-Abre una solicitud:
+Abre una solicitud. Arriba está lo que la decide: los **Requisitos**, la **Puntuación total** y la **Posición** (cuando ya la hay); el botón **Ficha de personal** abre la ficha del docente en una solicitud de personal.
 
-- Pestaña **Documentos**: cada documento con su **Estado** (*Por entregar*, *Pendiente de revisión*, *Hay que corregir*; en gris, los opcionales y los que no se aplican, como la autorización familiar de un adulto), sus **Archivos** (los que cuentan) y, si es un enlace, el **Enlace** mismo. Se conservan todos los archivos que ha subido el alumno: la columna opcional **Todas las versiones** muestra también los anteriores. Márcalos como **Válido** (✓) o **Hay que corregir** (✗), y escribe un **Comentario para el solicitante** cuando haya que corregirlo. Un documento sin ningún archivo no se puede marcar como válido.
+![Una solicitud: requisitos y puntuación arriba, y la pestaña Solicitud](../../assets/erasmus/sollicitud-capcalera.png)
+
+- Pestaña **Solicitud**: lo que ha enviado el alumno, primero las respuestas del formulario y debajo los documentos, cada documento con su **Estado** (*Por entregar*, *Pendiente de revisión*, *Hay que corregir*; en gris, los opcionales y los que no se aplican, como la autorización familiar de un adulto), sus **Archivos** (los que cuentan) y, si es un enlace, el **Enlace** mismo. Se conservan todos los archivos que ha subido el alumno: la columna opcional **Todas las versiones** muestra también los anteriores. Márcalos como **Válido** (✓) o **Hay que corregir** (✗), y escribe un **Comentario para el solicitante** cuando haya que corregirlo. Un documento sin ningún archivo no se puede marcar como válido.
 - Mientras la solicitud es un borrador, el alumno puede quitar desde el portal un archivo subido por error. Una vez enviada, solo lo quitas tú, con **Quitar un archivo** y el motivo.
 - Pestaña **Admisión**:
     - **Requisitos**: matriculado en un nivel de la convocatoria y ninguna práctica Erasmus+ anterior en este ciclo (para solicitar, un menor no necesita autorización familiar). EMS registra quién lo ha comprobado y cuándo.
     - **Conducta este curso**: las **amonestaciones** que el alumno tiene en EMS durante el curso de la convocatoria. Si tiene tantas como las que hacen saltar el aviso a convivencia (3, el ajuste de EMS) o más, se marca **Conducta por revisar** y la ficha lo avisa arriba. No lo excluye: oídos el equipo docente y el equipo de convivencia, puedes **excluir** la solicitud indicando el motivo (artículo 6 de la convocatoria). Si sigue adelante, cada amonestación resta puntos (criterio F).
     - **Motivo de exclusión**, si la solicitud queda excluida.
-- Pestaña **Respuestas**: lo que el alumno ha respondido en el formulario.
 
 ## 4. Pedir subsanaciones
 

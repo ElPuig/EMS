@@ -68,10 +68,6 @@
                                 <field name="currency_id" invisible="1"/>
                                 <field name="budget"/>
                                 <field name="final_payment_date"/>
-                                <field name="keep_until"/>
-                                <field name="retention_hold"/>
-                                <field name="retention_note" invisible="not retention_hold" required="retention_hold"/>
-                                <field name="retention_notice_date" invisible="not retention_notice_date"/>
                             </group>
                         </group>
                         <notebook>
@@ -110,6 +106,18 @@
                                         <field name="notes" optional="hide"/>
                                     </list>
                                 </field>
+                                <!-- Issue #784 (10.5): keeping the papers goes with the papers, not on top of
+                                     the project from its first day. -->
+                                <group string="Retention" name="retention">
+                                    <group>
+                                        <field name="keep_until"/>
+                                        <field name="retention_notice_date" invisible="not retention_notice_date"/>
+                                    </group>
+                                    <group>
+                                        <field name="retention_hold"/>
+                                        <field name="retention_note" invisible="not retention_hold" required="retention_hold"/>
+                                    </group>
+                                </group>
                             </page>
                             <page string="Mobilities" name="mobilities" groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
                                 <!-- Issue #782 (10.11): both tables with a title, shown only when there is any. -->

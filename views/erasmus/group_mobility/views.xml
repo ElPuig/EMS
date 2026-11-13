@@ -234,16 +234,19 @@
                                        context="{'default_is_company': True, 'default_is_erasmus_host': True, 'default_contact_type': 'provider'}"/>
                                 <field name="host_contact_id" context="{'default_parent_id': host_partner_id}"
                                        invisible="not host_partner_id" readonly="user_role != 'team'"/>
-                                <label for="date_start_planned" string="Planned dates"/>
-                                <div class="o_row">
+                                <!-- Issue #784 (9.4): one line of dates. The planned ones until the final ones
+                                     are set; the travel dates only when they differ from the stay (the team
+                                     types them once the final dates are known). -->
+                                <label for="date_start_planned" string="Planned dates" invisible="date_start"/>
+                                <div class="o_row" invisible="date_start">
                                     <field name="date_start_planned" readonly="user_role != 'team'"/> - <field name="date_end_planned" readonly="user_role != 'team'"/>
                                 </div>
-                                <label for="date_start" string="Final dates"/>
-                                <div class="o_row">
+                                <label for="date_start" string="Stay dates" invisible="not date_start and user_role != 'team'"/>
+                                <div class="o_row" invisible="not date_start and user_role != 'team'">
                                     <field name="date_start" readonly="user_role != 'team'"/> - <field name="date_end" readonly="user_role != 'team'"/>
                                 </div>
-                                <label for="travel_date_out" string="Travel"/>
-                                <div class="o_row">
+                                <label for="travel_date_out" string="Travel" invisible="not date_start or (user_role != 'team' and (not travel_date_out or (travel_date_out == date_start and travel_date_back == date_end)))"/>
+                                <div class="o_row" invisible="not date_start or (user_role != 'team' and (not travel_date_out or (travel_date_out == date_start and travel_date_back == date_end)))">
                                     <field name="travel_date_out" readonly="user_role != 'team'"/> - <field name="travel_date_back" readonly="user_role != 'team'"/>
                                 </div>
                             </group>
@@ -707,23 +710,31 @@
                         <page string="Commitment letter" name="commitment" invisible="role != 'student'">
                             <field name="commitment_pending" invisible="1"/>
                             <field name="commitment_guardian_pending" invisible="1"/>
+                            <!-- Issue #784 (5.9): as on an internship mobility, the state in one line first. -->
                             <group>
-                                <group string="Student">
-                                    <field name="commitment_signed_date" options="{'show_time': False}"/>
-                                    <field name="commitment_signed_by_id"/>
-                                    <field name="commitment_signed_ip"/>
-                                </group>
-                                <group string="Family" invisible="not is_minor">
-                                    <field name="commitment_guardian_signed_date" options="{'show_time': False}"/>
-                                    <field name="commitment_guardian_signed_by_id"/>
-                                    <field name="commitment_guardian_signed_ip"/>
-                                </group>
+                                <field name="commitment_status" string="Student's signature" class="fw-bold"
+                                       decoration-success="commitment_signed_date" decoration-warning="not commitment_signed_date"/>
+                                <field name="commitment_guardian_status" class="fw-bold" invisible="not commitment_guardian_status"
+                                       decoration-success="commitment_guardian_signed_date"
+                                       decoration-warning="not commitment_guardian_signed_date"/>
                             </group>
                             <field name="commitment_provisional" invisible="1"/>
                             <div class="alert alert-warning" role="alert" invisible="not commitment_provisional">
                                 Accepted provisionally: the destination or the dates are still to be confirmed. Once they are, the student (and the family of a minor) accept the letter again.
                             </div>
-                            <field name="commitment_signed_text" invisible="not commitment_signed_date"/>
+                            <separator string="Text signed" invisible="not commitment_signed_date"/>
+                            <field name="commitment_signed_text" nolabel="1" invisible="not commitment_signed_date"/>
+                            <group string="Signature details" invisible="not commitment_signed_date" class="text-muted small">
+                                <group>
+                                    <field name="commitment_signed_date" string="Student, on" options="{'show_time': False}"/>
+                                    <field name="commitment_signed_ip"/>
+                                </group>
+                                <group invisible="not commitment_guardian_signed_date">
+                                    <field name="commitment_guardian_signed_date" string="Family, on" options="{'show_time': False}"/>
+                                    <field name="commitment_guardian_signed_by_id"/>
+                                    <field name="commitment_guardian_signed_ip"/>
+                                </group>
+                            </group>
                             <separator string="Earlier versions" invisible="not commitment_version_ids"/>
                             <field name="commitment_version_ids" invisible="not commitment_version_ids"
                                    groups="ems.group_erasmus,ems.group_academic_admin">

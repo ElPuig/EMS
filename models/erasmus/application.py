@@ -554,6 +554,12 @@ class EmsErasmusApplication(models.Model):
 
     # --- team actions ----------------------------------------------------------------------
 
+    def action_open_employee(self):
+        """Issue #784 (7.8): the teacher's staff record, from the application's button."""
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'res_model': 'hr.employee', 'res_id': self.employee_id.id,
+                'views': [(False, 'form')]}
+
     def action_request_subsanation(self):
         """Ask the applicant to correct or complete the documents marked as needing changes or
         missing, and email them the list and the deadline."""

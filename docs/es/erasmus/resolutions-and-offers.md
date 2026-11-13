@@ -63,7 +63,7 @@ Si se estima una reclamación, corrige los datos de la solicitud (por ejemplo, e
 
 ## 5. Ofertas de plaza
 
-**Erasmus+ > Convocatorias > Ofertas de plaza** muestra todas las ofertas y su respuesta: *Pendiente de respuesta*, *Plaza aceptada*, *Renuncia*, *Sin respuesta* o *Retirada*.
+**Erasmus+ > Convocatorias > Ofertas de plaza** muestra todas las ofertas y su respuesta: *Pendiente de respuesta*, *Plaza aceptada*, *Renuncia*, *Sin respuesta* o *Retirada*. En las pendientes, **Tiempo restante** dice cuántos días quedan para responder.
 
 - El alumnado acepta o renuncia en el portal antes del plazo y recibe un correo que confirma su respuesta (con copia a la familia de un menor). Si no responde a tiempo, EMS marca la renuncia y le comunica por correo que el plazo ha terminado; el portal dice que no respondió a tiempo, no que renunció.
 - Cuando un alumno acepta, el tutor de su grupo recibe un aviso (no una tarea) de que hará una estancia Erasmus+.

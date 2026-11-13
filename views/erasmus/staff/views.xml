@@ -287,19 +287,20 @@
                             <h1><field name="call_id" readonly="1" options="{'no_open': True}"/></h1>
                         </div>
                         <group>
+                            <!-- Issue #784 (P11): only what is filled in, not a page of empty fields before proposing. -->
                             <group string="The activity">
-                                <field name="proposal_activity"/>
-                                <field name="proposal_host"/>
-                                <field name="proposal_contact"/>
-                                <field name="proposal_country_id" options="{'no_open': True}"/>
-                                <field name="proposal_city"/>
-                                <field name="proposal_date_start"/>
-                                <field name="proposal_date_end"/>
-                                <field name="proposal_notes"/>
+                                <field name="proposal_activity" invisible="not proposal_activity"/>
+                                <field name="proposal_host" invisible="not proposal_host"/>
+                                <field name="proposal_contact" invisible="not proposal_contact"/>
+                                <field name="proposal_country_id" options="{'no_open': True}" invisible="not proposal_country_id"/>
+                                <field name="proposal_city" invisible="not proposal_city"/>
+                                <field name="proposal_date_start" invisible="not proposal_date_start"/>
+                                <field name="proposal_date_end" invisible="not proposal_date_end"/>
+                                <field name="proposal_notes" invisible="not proposal_notes"/>
                                 <field name="proposal_attachment_ids" widget="many2many_binary" readonly="1"
                                        invisible="not proposal_attachment_ids"/>
                             </group>
-                            <group string="Validation by the Direction">
+                            <group string="Validation by the Direction" invisible="not proposal_state">
                                 <field name="proposal_state" widget="badge" decoration-success="proposal_state == 'validated'"
                                        decoration-warning="proposal_state == 'pending'" decoration-danger="proposal_state == 'rejected'"/>
                                 <field name="proposal_date" options="{'show_time': False}"/>
@@ -316,9 +317,10 @@
                                         <field name="staff_record_summary" class="fw-bold"/>
                                     </group>
                                     <group>
+                                        <field name="stay_over" invisible="1"/>
                                         <field name="eu_survey_state" widget="badge" decoration-success="eu_survey_state == 'validated'"
-                                               decoration-info="eu_survey_state == 'done'"/>
-                                        <field name="eu_survey_deadline"/>
+                                               decoration-info="eu_survey_state == 'done'" invisible="not stay_over"/>
+                                        <field name="eu_survey_deadline" invisible="not stay_over"/>
                                     </group>
                                 </group>
                                 <field name="document_ids">

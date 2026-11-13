@@ -153,6 +153,12 @@ class EmsErasmusCall(models.Model):
     has_provisional_resolution = fields.Boolean(string="Provisional resolution published",
                                                 compute='_compute_has_final_resolution')
     application_count = fields.Integer(string="Number of applications", compute='_compute_application_count')
+    mobility_count = fields.Integer(string="Number of mobilities", compute='_compute_step_counts')
+    claim_count = fields.Integer(string="Number of claims", compute='_compute_step_counts')
+    resolution_count = fields.Integer(string="Number of resolutions", compute='_compute_step_counts')
+    ranked_count = fields.Integer(string="Number ranked", compute='_compute_step_counts')
+    interview_count = fields.Integer(string="Number of interviews", compute='_compute_step_counts')
+    plan_rating_count = fields.Integer(string="Number of plan ratings", compute='_compute_step_counts')
     is_accepting = fields.Boolean(string="Accepting applications", compute='_compute_is_accepting',
                                   help="Published, and the closing date has not passed yet.")
     # The notice of the open call to whoever can apply, sent by the Erasmus team, and the reminder
@@ -175,6 +181,26 @@ class EmsErasmusCall(models.Model):
             [('call_id', 'in', self.ids)], ['call_id'], ['__count']))
         for call in self:
             call.application_count = counts.get(call, 0)
+
+    def _compute_step_counts(self):
+        """Issue #784 (2.7): a number on every button of the call's form. Only counts, so read as
+        superuser: each button's own list still applies the reader's rights."""
+        counts = {}
+        for name, model, call_field, extra in (
+                ('mobility_count', 'ems.erasmus.mobility', 'call_id', []),
+                ('claim_count', 'ems.erasmus.claim', 'call_id', []),
+                ('resolution_count', 'ems.erasmus.resolution', 'call_id', []),
+                ('ranked_count', 'ems.erasmus.application', 'call_id', [('state', 'in', RANKED_STATES)]),
+                ('interview_count', 'ems.erasmus.interview', 'application_id.call_id', []),
+                ('plan_rating_count', 'ems.erasmus.plan_rating', 'application_id.call_id', [])):
+            by_call = Counter()
+            for record, count in self.env[model].sudo()._read_group(
+                    [(call_field, 'in', self.ids), *extra], [call_field.split('.')[0]], ['__count']):
+                by_call[record.call_id if '.' in call_field else record] += count
+            counts[name] = by_call
+        for call in self:
+            for name, by_call in counts.items():
+                call[name] = by_call.get(call._origin, 0)
 
     @api.depends('application_ids.needs_draw')
     def _compute_needs_draw(self):

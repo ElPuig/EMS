@@ -767,8 +767,18 @@
                                 <p class="small text-muted mb-2">
                                     Sign them outside EMS as indicated and upload the signed copy, better as soon as you can: you will receive a reminder every week while any is missing.
                                 </p>
+                                <!-- Issue #784 (A08, 5.6, 8.6): the same count the Erasmus team sees, as a bar,
+                                     red only when a document is past its deadline. -->
+                                <div t-if="mobility.record_total" class="d-flex align-items-center gap-2 small mb-2 o_ems_erasmus_record_bar">
+                                    <div class="progress flex-grow-1" style="height: 0.6rem;">
+                                        <div t-attf-class="progress-bar #{'bg-danger' if mobility.record_overdue else 'bg-success'}"
+                                             t-attf-style="width: #{100 * mobility.record_done // mobility.record_total}%"/>
+                                    </div>
+                                    <span class="text-nowrap"><strong t-esc="mobility.record_done"/> of <t t-esc="mobility.record_total"/> documents</span>
+                                    <span t-if="mobility.record_overdue" class="badge text-bg-danger"><t t-esc="mobility.record_overdue"/> overdue</span>
+                                </div>
                                 <div t-if="record_todo" class="alert alert-warning py-2 small o_ems_erasmus_record_missing">
-                                    <i class="fa fa-exclamation-triangle me-1"/>Still to do now in your record: <strong t-esc="record_todo"/><t t-if="mobility.commitment_pending"> (the commitment letter included)</t>
+                                    <i class="fa fa-exclamation-triangle me-1"/>You have something to do now: what is marked "To hand in" or "Needs changes" below<t t-if="mobility.commitment_pending">, and the commitment letter</t>.
                                 </div>
                                 <div t-elif="mobility_documents.filtered(lambda line: line.is_required and line.file_state != 'complete')" class="alert alert-info py-2 small o_ems_erasmus_record_waiting">
                                     <i class="fa fa-clock-o me-1"/>Nothing to do now: the rest is uploaded by the Erasmus team or comes later.

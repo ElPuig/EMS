@@ -153,19 +153,8 @@
                                 </field>
                             </group>
                         </group>
-                        <separator string="Grant agreement, annexes and economic documents"/>
-                        <field name="economy_document_ids"
-                               context="{'default_project_id': id, 'default_category': '03_Economia'}"
-                               readonly="not can_manage_economy">
-                            <list editable="bottom">
-                                <field name="project_id" column_invisible="1"/>
-                                <field name="category" column_invisible="1"/>
-                                <field name="name" placeholder="e.g. Grant agreement and annexes"/>
-                                <field name="date"/>
-                                <field name="attachment_ids" widget="many2many_binary"/>
-                                <field name="notes" optional="hide"/>
-                            </list>
-                        </field>
+                        <!-- Issue #784 (10.7): the economic documents are in the Documentation tab
+                             (category 03 Finances), not repeated here. -->
                         <separator string="Expenses of the project"/>
                         <field name="expense_ids" context="{'default_project_id': id}">
                             <list decoration-muted="state == 'cancelled'">
@@ -199,7 +188,9 @@
                                 <field name="support_balance" class="fw-bold"/>
                             </group>
                         </group>
-                        <group string="Figures from before EMS" name="legacy">
+                        <!-- Issue #784 (10.7): only for the projects EMS took over (before the 2026 call). -->
+                        <group string="Figures from before EMS" name="legacy"
+                               invisible="not legacy_committed and not legacy_paid and not legacy_support_generated and call_year &gt;= 2026">
                             <group>
                                 <field name="legacy_committed" readonly="not can_manage_economy"/>
                                 <field name="legacy_paid" readonly="not can_manage_economy"/>
@@ -452,11 +443,17 @@
                     <field name="econ_committed"/>
                     <field name="econ_paid"/>
                     <field name="econ_pending"/>
-                    <field name="no_direct_costs" readonly="user_role != 'team'"/>
-                    <field name="prefinancing_percent" readonly="user_role != 'team'"/>
+                    <!-- Issue #784 (9.15): who pays, asked in positive, and the percentage with its sign. -->
+                    <field name="no_direct_costs" invisible="1"/>
+                    <field name="travel_paid_by" widget="radio" options="{'horizontal': true}"
+                           readonly="user_role != 'team'"/>
+                    <label for="prefinancing_percent"/>
+                    <div class="o_row">
+                        <field name="prefinancing_percent" readonly="user_role != 'team'" class="oe_inline"/> %
+                    </div>
                 </field>
                 <field name="invoice_ids" position="before">
-                    <div class="alert alert-info" role="status" invisible="not no_direct_costs">
+                    <div class="alert alert-info" role="status" invisible="travel_paid_by != 'participant'">
                         The centre pays nothing directly: each participant receives their whole grant as pocket money.
                     </div>
                     <separator string="Participants' grants" invisible="not grant_participant_ids"/>
@@ -478,10 +475,10 @@
                             <field name="bank_holder" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
                         </list>
                     </field>
-                    <separator string="Collective invoices" invisible="no_direct_costs"/>
+                    <separator string="Collective invoices" invisible="travel_paid_by == 'participant'"/>
                 </field>
                 <field name="invoice_ids" position="attributes">
-                    <attribute name="invisible">no_direct_costs</attribute>
+                    <attribute name="invisible">travel_paid_by == 'participant'</attribute>
                 </field>
             </field>
         </record>

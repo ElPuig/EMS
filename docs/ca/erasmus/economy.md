@@ -20,7 +20,7 @@ Feu clic en un projecte per obrir-ne la pestanya **Economia**.
 
 1. **Subvenció concedida** és l'import del conveni. Afegiu cada **modificació de la subvenció** (data, descripció, import; negatiu si la redueix): la *subvenció vigent* és la inicial més les modificacions.
 2. Afegiu cada **transferència del SEPIE** (data, tipus, import). Us diuen què s'ha *rebut* i què queda *per rebre*. La transferència de *Saldo* també omple *Pagament final rebut el*, que marca quant de temps es conserven els documents.
-3. Adjunteu el **conveni de subvenció i els annexos** a *Conveni, annexos i documents econòmics*. Formen part dels documents del projecte (categoria 03 Economia) i van a l'exportació del projecte.
+3. Adjunteu el **conveni de subvenció i els annexos** a la pestanya **Documentació** del projecte, amb la categoria *03 Economia*. Formen part dels documents del projecte i van a l'exportació del projecte.
 4. L'**any de la convocatòria** surt del número de conveni (p. ex. 2025-1-ES01-...). Corregiu-lo si cal: decideix quines tarifes de suport organitzatiu s'apliquen.
 
 **Què vol dir cada xifra:**
@@ -71,7 +71,7 @@ A la pestanya Economia veieu:
 - **Suport organitzatiu generat:** per a les mobilitats realitzades, amb els participants reals. Els docents acompanyants no compten mai.
 - **Despeses de suport organitzatiu:** les despeses d'aquesta categoria, i la diferència entre el que s'ha generat i el que s'ha gastat.
 
-La diferència és un indicador intern, no una certificació del SEPIE. El suport forma part de la subvenció concedida: no s'hi suma mai. Per a una particularitat del conveni, introduïu una **Correcció** amb el motiu. Per a un projecte gestionat abans de l'EMS, podeu omplir les **Xifres d'abans de l'EMS** agregades.
+La diferència és un indicador intern, no una certificació del SEPIE. El suport forma part de la subvenció concedida: no s'hi suma mai. Per a una particularitat del conveni, introduïu una **Correcció** amb el motiu. Per a un projecte gestionat abans de l'EMS, podeu omplir les **Xifres d'abans de l'EMS** agregades (només surten en els projectes de convocatòries anteriors a 2026 o si ja tenen alguna xifra).
 
 A la llista **Gestió econòmica > Factures**, la columna **Projecte** mostra el projecte de la factura o, si és dels participants, el de les seves mobilitats; si són de projectes diferents, diu *Diversos*.
 

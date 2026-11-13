@@ -1063,7 +1063,8 @@ the agreed programme; a serious breach means being sent back, at the participant
 and a note that a minor's family authorises taking part by accepting it, so applying needs no family
 authorisation. The participant accepts and signs it
 on the portal (`action_sign_commitment`, portal step `commitment`): EMS keeps a copy of the text
-(`commitment_signed_text`), who (`commitment_signed_by_id`), when and the IP address.
+(`commitment_signed_text`), who (`commitment_signed_by_id`), when and the IP address; the forms
+say it in one line (`commitment_status`, `commitment_guardian_status`, issue #784).
 `commitment_pending` (text on the call, not signed yet) blocks `preparation_complete` and is part of
 the weekly reminder. A minor student's family signs it too (`commitment_guardian_*` fields,
 `action_sign_commitment(guardian=True)`), in either order and over the same text: the first signature
@@ -1498,7 +1499,8 @@ flowchart LR
   breakdown gives the same means.
 - **Configuration:** *Host entities* has its own list and search view (no student-group search
   panel): name, country, city, OID and `res.partner.erasmus_mobility_count` (non-stored, one
-  `_read_group` per mobility model for the whole page, cancelled ones aside). The organisational
+  `_read_group` per mobility model for the whole page, cancelled ones aside; split into
+  `erasmus_individual_count`/`erasmus_group_count` for the host entity's buttons, issue #784). The organisational
   support rates open grouped by year, newest first; `call_year` has `aggregator=None` on rates and
   projects so that a group's row never sums years.
 
@@ -1543,3 +1545,49 @@ flowchart LR
 - **Quality:** the panel's filters carry `o_field_highlight`; the satisfaction lists and *Earlier
   courses* use short headers with the full name in `help`; the latter's staff columns are
   `optional="hide"`.
+
+### Empty lists and help texts (issue #783)
+
+- The Erasmus+ list actions that open filtered (*My evaluations*, *Claims*, *Pending validation*,
+  *Group mobilities*) carry a `help` that says why the list is empty instead of Odoo's "Create a new
+  document".
+- Help where a field was blank: placeholders on the call's `description` and the group's
+  `programme`; a line over the project's documents, with `record_complete_count` as a native
+  `progressbar` (`max_value: record_count`); the quality panel's indicators explain themselves on
+  hover (`title` built in `_compute_panel`; the PDF keeps the full text). A group participant shows
+  only its name inside its group (`ems_participant_name_only`, a `depends_context` on the display name,
+  passed through the follow-up's `log_ids` context).
+- The portal's breadcrumb bar (`portal.portal_breadcrumbs`, inherited by `portal_erasmus_breadcrumbs`)
+  names the page from `erasmus_breadcrumb`, a value each controller sets (the call, the group mobility
+  or the published list): a `call` variable would leak from the overview's loop.
+- The commitment letter on the portal is one template, `portal_erasmus_commitment_letter`, folded in a
+  `<details>` for the student's and the family's forms alike.
+- A staff call no longer gets preparation steps (`_ems_preparation_tasks('staff')`): no preparation
+  sessions, and the activities left for the groups are on Moodle.
+
+### Form headers and smart buttons (issue #784)
+
+- **Call:** every button shows a count (`_compute_step_counts`, one `_read_group` per model for the
+  whole set, read as superuser: only numbers, each list still applies the reader's rights). *Ranking*
+  stays after the definitive resolution.
+- **Application:** requirements, total score and rank on top; the answers and the documents in one
+  *Application* tab (`name='documents'` kept for the tours); the teacher's file as a *Staff record*
+  button (`action_open_employee`).
+- **Mobility:** the team's actions pass `ems_mobility_short_name`, so the breadcrumb (a
+  `depends_context` display name) is only the participant; the application is a button
+  (`action_open_application`) and the rank stays on it. While the mobility is *choosing*, its empty
+  destination fields are hidden. The record is a `progressbar` (`record_done` / `record_total`), with
+  `record_overdue` the only red; the portal shows the same bar. The EU Survey shows once `stay_over`
+  (date_end passed, or done). The commitment letter says its state in one line
+  (`commitment_status`, `commitment_guardian_status` on the `ems.erasmus.commitment` mixin, so the
+  group participants get it too). Staff never see the self-assessment tab.
+- **Offers:** the native `remaining_days` widget on `deadline`, only while pending.
+- **Group mobility:** one line of dates (planned until the final ones exist; travel only when it
+  differs, or for the team once the final dates are set). `travel_paid_by` is the positive form of
+  `no_direct_costs` (computed with an inverse, no new column).
+- **Project:** the retention fields go to the Documentation tab; the Economy tab no longer repeats the
+  category 03 documents (`economy_document_ids` was removed) and shows the figures from before EMS
+  only when set or for calls before 2026.
+- **Host entity:** *Mobilities* and *Group mobilities* buttons (`erasmus_individual_count`,
+  `erasmus_group_count`), and the native *Meetings* (calendar) and *Relations* (partner_multi_relation)
+  buttons hidden on host entities.

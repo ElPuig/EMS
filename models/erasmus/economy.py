@@ -249,11 +249,6 @@ class EmsErasmusProject(models.Model):
                                  inverse_name='project_id', groups=ECONOMY_READERS)
     expense_ids = fields.One2many(string="Expenses", comodel_name='ems.erasmus.expense', inverse_name='project_id',
                                   groups=ECONOMY_READERS)
-    economy_document_ids = fields.One2many(
-        string="Grant agreement and economic documents", comodel_name='ems.erasmus.project.document',
-        inverse_name='project_id', domain=[('category', '=', '03_Economia')], groups=ECONOMY_READERS,
-        help="The grant agreement, its annexes and amendments, budget follow-up... They are the project's documents "
-             "of category 03 Finances, also in its export.")
     final_grant = fields.Monetary(string="Final grant", tracking=True, groups=ECONOMY_READERS,
                                   help="What SEPIE finally recognised after the final report.")
     grant_current = fields.Monetary(string="Current grant", compute='_compute_economy', store=True,

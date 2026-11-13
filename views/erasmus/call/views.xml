@@ -285,7 +285,8 @@
                                 <notebook>
                                     <!-- Issue #687: mobility preparation. -->
                                     <page string="Destinations" name="destinations" invisible="audience != 'student'">
-                                        <group>
+                                        <!-- C23: Odoo's own o_label_nowrap, or the second line of a label went under the table. -->
+                                        <group class="o_label_nowrap">
                                             <field name="choice_turn_hours"/>
                                             <field name="choice_open"/>
                                         </group>

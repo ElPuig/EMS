@@ -7,7 +7,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.http import request
 
-from .application import ANSWER_FIELDS
+from .application import ANSWER_FIELDS, CENTRE_PROJECTS_HELP, FIRST_MOBILITY_HELP
 from .mobility import PROPOSAL_FIELDS, STAFF_ACTIVITIES
 
 REOPEN = {'type': 'ir.actions.client', 'tag': 'soft_reload'}
@@ -28,20 +28,18 @@ class EmsErasmusStaffApplicationWizard(models.TransientModel):
     application_id = fields.Many2one(string="Application", comodel_name='ems.erasmus.application', required=True,
                                      ondelete='cascade')
     proposal_a = fields.Text(string="Proposal A",
-                             help="The main proposal, in your own words: the activity, the host entity or course, "
-                                  "where and when.")
-    proposal_b = fields.Text(string="Proposal B (backup)", help="The backup if proposal A falls through, in the same way.")
-    plan_text = fields.Text(string="What to learn and how to apply it",
-                            help="The competences you want to observe or learn, and how you will apply them to your "
-                                 "job.")
+                             help="The main proposal, in your own words: the activity (job shadowing, a course or "
+                                  "teaching), the host entity or course, where, when and what you want to learn. It "
+                                  "must be a specific entity or course.")
+    proposal_b = fields.Text(string="Proposal B (backup)",
+                             help="In case proposal A can't be done, in the same way: the activity, the host entity "
+                                  "or course, where, when and what you want to learn.")
     declared_never_staff_mobility = fields.Boolean(
-        string="Never had a staff mobility",
-        help="You have never done an Erasmus+ staff mobility from this centre. Otherwise the Erasmus team sets when the "
-             "last one was.")
+        string="I have not done any Erasmus+ mobility at the Institut Puig Castellar", help=FIRST_MOBILITY_HELP)
     declared_centre_start_date = fields.Date(string="At the centre since",
                                              help="Since when you work at the centre without interruption (the month "
                                                   "counts).")
-    centre_projects = fields.Text(string="Centre projects")
+    centre_projects = fields.Text(string="Centre projects", help=CENTRE_PROJECTS_HELP)
     declared_language_level = fields.Selection(string="Language certificate", selection=[
         ('none', "None"), ('b2', "B2"), ('c1', "C1"), ('c2', "C2")],
         help="Your highest official foreign-language certificate (B2 or higher).")

@@ -51,6 +51,8 @@ En la pestaña **Beca** de una movilidad, el *estado económico* (previsto, comp
 2. Responde **Para quién es**: *Participantes* (elígelos: el importe se reparte a partes iguales entre ellos y sale en su *Pagado directamente por el centro*) o *Una movilidad de grupo* (elígela: el importe se reparte entre sus participantes a través del dinero de bolsillo). Solo sale el campo de la respuesta. Mientras no hay nadie elegido, un aviso sugiere registrarla como gasto del proyecto.
 3. La Secretaría la paga como un pago de beca. Su historial, en la parte de abajo de la ficha, guarda cada cambio, por ejemplo una transferencia deshecha con el motivo; los pagos de becas también muestran el suyo.
 
+La pestaña **Servicios pagados por el centro** del proyecto lista todas las facturas que tocan el proyecto: las suyas, las de sus participantes y las de sus movilidades de grupo, las mismas que cuentan sus cifras. Una factura para participantes de dos proyectos sale en los dos, con *Varios* en la columna *Proyecto* (en el selector de columnas); deja vacío su proyecto.
+
 En la lista, la columna **Proyecto** muestra el proyecto de la factura o, si es de los participantes, el de sus movilidades; si son de proyectos distintos, dice *Varios*.
 
 ## Gastos del proyecto

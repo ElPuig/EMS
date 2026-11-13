@@ -85,24 +85,20 @@
                              rated together with one score. -->
                         <!-- Issue #810: long texts, so each one at full width under its own title (a group put
                              them in the labels' narrow column). -->
-                        <separator string="Mobility and transfer plan"/>
+                        <separator string="Mobility plan"/>
                         <div name="plan" class="mb-4">
                             <div class="mb-3">
                                 <label for="plan_proposal_a" class="d-block fw-bold"/>
                                 <field name="plan_proposal_a"/>
                             </div>
-                            <div class="mb-3">
+                            <div>
                                 <label for="plan_proposal_b" class="d-block fw-bold"/>
                                 <field name="plan_proposal_b"/>
                             </div>
-                            <div>
-                                <label for="plan_text" class="d-block fw-bold"/>
-                                <field name="plan_text"/>
-                            </div>
                         </div>
                         <group string="Annex 2">
+                            <field name="concreteness" widget="radio" readonly="state != 'draft'"/>
                             <field name="relevance" widget="radio" readonly="state != 'draft'"/>
-                            <field name="transfer" widget="radio" readonly="state != 'draft'"/>
                             <field name="score"/>
                         </group>
                         <group>

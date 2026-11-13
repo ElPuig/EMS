@@ -51,6 +51,8 @@ A la pestanya **Beca** d'una mobilitat, l'*estat econòmic* (previst, compromès
 2. Responeu **Per a qui és**: *Participants* (trieu-los: l'import es reparteix a parts iguals entre ells i surt al seu *Pagat directament pel centre*) o *Una mobilitat de grup* (trieu-la: l'import es reparteix entre els seus participants a través dels diners de butxaca). Només surt el camp de la resposta. Mentre no hi ha ningú triat, un avís suggereix registrar-la com a despesa del projecte.
 3. La Secretaria la paga com un pagament de beca. El seu historial, a la part de baix de la fitxa, guarda cada canvi, per exemple una transferència desfeta amb el motiu; els pagaments de beques també mostren el seu.
 
+La pestanya **Serveis pagats pel centre** del projecte llista totes les factures que toquen el projecte: les seves, les dels seus participants i les de les seves mobilitats de grup, les mateixes que compten les seves xifres. Una factura per a participants de dos projectes surt a tots dos, amb *Diversos* a la columna *Projecte* (al selector de columnes); deixeu-ne buit el projecte.
+
 A la llista, la columna **Projecte** mostra el projecte de la factura o, si és dels participants, el de les seves mobilitats; si són de projectes diferents, diu *Diversos*.
 
 ## Despeses del projecte

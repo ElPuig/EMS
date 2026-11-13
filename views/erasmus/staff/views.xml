@@ -101,7 +101,10 @@
                     <header>
                         <div name="ems_actions" string="Actions">
                             <button name="action_staff_edit" type="object" string="Fill in the form" class="btn-primary"
-                                    invisible="not staff_editable"/>
+                                    invisible="not staff_editable or state != 'draft'"/>
+                            <!-- P05, P08 (adriamt, 2026-11-13): the same dialog, once sent. -->
+                            <button name="action_staff_edit" type="object" string="Modify the application" class="btn-primary"
+                                    invisible="not staff_editable or state == 'draft'"/>
                             <!-- Issue #786: while the form can be changed, its dialog already has "Save and
                                  submit", so filling it in is the one action (shown as a plain button);
                                  Submit on its own only sends the corrections asked for. -->
@@ -164,7 +167,6 @@
                                 <group>
                                     <field name="proposal_a"/>
                                     <field name="proposal_b"/>
-                                    <field name="plan_text"/>
                                     <field name="declared_never_staff_mobility"/>
                                     <field name="declared_centre_start_date"/>
                                     <field name="centre_projects" invisible="not centre_projects"/>
@@ -454,17 +456,20 @@
                      to write (issue #810). -->
                 <form string="My application" class="o_field_highlight">
                     <field name="application_id" invisible="1"/>
-                    <group string="Mobility plan">
+                    <!-- Annex 1 of the staff call (adriamt, 2026-11-13): what to learn goes inside each
+                         proposal, with the rules' own examples. -->
+                    <separator string="Mobility plan"/>
+                    <p class="text-muted">The mobility plan is the training activity, the destination and the dates of your mobility. Give two proposals: B is in case A can't be done. In each one, say what you want to learn.</p>
+                    <group>
                         <field name="proposal_a"
-                               placeholder="E.g. job shadowing at a VET school in Porto (Portugal), in June: how they organise dual training."/>
-                        <field name="proposal_b" placeholder="E.g. an English course for teachers in Malta, in July."/>
-                        <field name="plan_text"
-                               placeholder="What you want to observe or learn, and how you will apply it in your classes and department."/>
+                               placeholder="E.g. An English course at an academy in Bologna (Italy), in July, to improve my language skills."/>
+                        <field name="proposal_b"
+                               placeholder="E.g. Job shadowing at a VET school in Porto (Portugal), in June, to see how they organise dual training."/>
                     </group>
                     <group string="About you">
                         <field name="declared_never_staff_mobility"/>
                         <field name="declared_centre_start_date"/>
-                        <field name="centre_projects" placeholder="The centre projects you take part in, one per line."/>
+                        <field name="centre_projects" placeholder="One per line, e.g. Improvement team (I coordinate it)."/>
                         <field name="declared_language_level"/>
                         <field name="support_needs" placeholder="Only if you need some support to travel (optional)."/>
                         <field name="image_consent"/>

@@ -43,7 +43,7 @@ curs a curs. No mostra mai el nom de ningú. En passar el ratolí per la icona (
 
 ## Respostes i accions de millora
 
-**Erasmus+ › Qualitat › Enquestes de satisfacció** llista les respostes. Tot l'equip Erasmus+ (la coordinació i el tècnic de mobilitat) veu la puntuació, els comentaris i qui ha respost, amb la seva mobilitat; ningú més. Les dues llistes fan servir capçaleres curtes (*Tipus*, *Acollida*, *Acció*, *Seguiment*); el nom sencer surt en passar-hi el ratolí.
+**Erasmus+ › Qualitat › Enquestes de satisfacció** llista les respostes. Tot l'equip Erasmus+ (la coordinació i el tècnic de mobilitat) veu la puntuació, els comentaris i qui ha respost, amb la seva mobilitat; ningú més. Les dues llistes fan servir capçaleres curtes (*Tipus*, *Acció*, *Seguiment*); el nom sencer surt en passar-hi el ratolí. El curs, l'entitat d'acollida i el comentari són al menú de columnes, a la dreta de les capçaleres, perquè hi càpiguen la convocatòria, el participant i el cicle.
 
 **Puntuacions baixes** llista totes les respostes de 6 o menys amb el que no ha funcionat. El panell de qualitat diu quantes n'hi ha a sota dels indicadors (*Puntuacions baixes: 2, 1 sense acció de millora*): feu-hi clic per obrir-les, primer les que no tenen acció. Obre'n una
 i tria **Accions › Crear una acció de millora**: EMS la crea a l'aplicació **Qualitat**, sense el nom

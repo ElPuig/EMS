@@ -56,6 +56,21 @@ class TestErasmusGrant(ErasmusGrantCase):
         invoice.invalidate_recordset(['project_label'])
         self.assertEqual(invoice.project_label, 'Various')
 
+    def test_project_tab_lists_its_participants_invoices_without_changing_figures(self):
+        """C34: a participants' invoice shows in its project's tab (the set the figures use); its own
+        project stays empty and no figure changes."""
+        first, second = self._preparing()
+        project = self.env['ems.erasmus.project'].create({'name': '2095-1-ES01-KA121-VET-000000824', 'kind': 'ka121_vet'})
+        (first | second).write({'project_id': project.id, 'grant_amount': 1000})
+        figures = ['committed_amount', 'paid_amount', 'other_expense_amount', 'available_amount']
+        before = project.read(figures)[0]
+        invoice = self._invoice(first | second, 620)
+        project.invalidate_recordset()
+        self.assertFalse(project.invoice_ids)
+        self.assertEqual(project.all_invoice_ids, invoice)
+        self.assertFalse(invoice.project_id)
+        self.assertEqual(project.read(figures)[0], before)
+
     def test_invoice_is_split_equally_with_the_cents_left_on_the_first_share(self):
         first, second = self._preparing()
         third = self.env['ems.erasmus.mobility']

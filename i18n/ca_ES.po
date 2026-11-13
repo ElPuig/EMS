@@ -32980,13 +32980,9 @@ msgstr "Candidat en aquesta convocatòria"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__centre_projects
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_staff_application_wizard__centre_projects
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "Centre projects"
 msgstr "Projectes del centre"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "Centre projects, commissions or coordinations you take part in (last course and this one)"
-msgstr "Projectes, comissions o coordinacions del centre en què participes (el curs passat i l'actual)"
 
 #. module: ems
 #. odoo-python
@@ -33226,11 +33222,6 @@ msgstr "Punts"
 #: code:addons/ems/models/erasmus/plan_rating.py:0
 msgid "Rate the Erasmus+ mobility plan of %s"
 msgstr "Valora el pla de mobilitat Erasmus+ de %s"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__relevance
-msgid "Relevance and concreteness"
-msgstr "Rellevància i concreció"
 
 #. module: ems
 #. odoo-python
@@ -33513,13 +33504,6 @@ msgid "Language certificates"
 msgstr "Certificats de llengües"
 
 #. module: ems
-#. odoo-python
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_form
-msgid "Mobility and transfer plan"
-msgstr "Pla de mobilitat i transferència"
-
-#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application__declared_centre_start_date
 msgid "Month and year since when the applicant works at the centre without interruption."
 msgstr "Mes i any des que la persona sol·licitant treballa al centre de manera continuada."
@@ -33528,12 +33512,6 @@ msgstr "Mes i any des que la persona sol·licitant treballa al centre de manera 
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "Month and year since when you work at the centre without interruption"
 msgstr "Mes i any des que treballes al centre de manera continuada"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__declared_never_staff_mobility
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_staff_application_wizard__declared_never_staff_mobility
-msgid "Never had a staff mobility"
-msgstr "Mai no ha fet cap mobilitat de personal"
 
 #. module: ems
 #. odoo-python
@@ -34320,6 +34298,7 @@ msgstr "Signat pel participant"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__step_id
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_progress
 msgid "Step"
 msgstr "Pas"
 
@@ -36371,6 +36350,7 @@ msgstr "Annex 2"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__relevance
 #: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__transfer
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__concreteness
 msgid "Annex 2 of the staff call: 1, 0.5 or 0 points."
 msgstr "Annex 2 de la convocatòria del personal: 1, 0,5 o 0 punts."
 
@@ -36504,12 +36484,6 @@ msgid "Say who validates the staff's activities before publishing the call."
 msgstr ""
 "Indica qui valida les activitats del personal abans de publicar la "
 "convocatòria."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__plan_application
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__transfer
-msgid "Application to the job"
-msgstr "Aplicació a la feina"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_attachment_ids
@@ -42723,21 +42697,6 @@ msgid "https://drive.google.com/..."
 msgstr "https://drive.google.com/..."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "1. Your proposals"
-msgstr "1. Les teves propostes"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "2. What you want to learn and how you will apply it"
-msgstr "2. Què vols aprendre i com ho aplicaràs"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "3. About you"
-msgstr "3. Sobre tu"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 msgid "<br/><strong>B (backup):</strong>"
 msgstr "<br/><strong>B (de reserva):</strong>"
@@ -42758,54 +42717,6 @@ msgstr ""
 "<strong>A:</strong>"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid ""
-"<strong>4. Optional</strong>: support you need, your image, anything else"
-msgstr ""
-"<strong>4. Opcional</strong>: suport que necessites, la teva imatge, "
-"qualsevol altra cosa"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid ""
-"Annex 1 of the call: briefly, the competences you want to observe or learn, "
-"and how you will apply them to your classes, your department or the centre. "
-"The panel reads it together with your proposals."
-msgstr ""
-"Annex 1 de la convocatòria: breument, les competències que vols observar o "
-"aprendre i com les aplicaràs a les teves classes, al departament o al "
-"centre. La comissió ho llegeix juntament amb les teves propostes."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_application__plan_text
-#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__plan_text
-msgid ""
-"Annex 1: the competences the applicant wants to observe or learn, and how "
-"they will apply them to their job."
-msgstr ""
-"Annex 1: les competències que la persona sol·licitant vol observar o "
-"aprendre, i com les aplicarà a la seva feina."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "E.g.: an English course at an academy in Malta, in July."
-msgstr "Ex.: un curs d'anglès en una acadèmia de Malta, al juliol."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid ""
-"E.g.: job shadowing at a German VET school, the Berufskolleg X in Cologne, "
-"in April."
-msgstr ""
-"Ex.: job shadowing en un institut d'FP alemany, el Berufskolleg X de "
-"Colònia, a l'abril."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "I have never had an Erasmus+ staff mobility at the Puig"
-msgstr "No he fet mai cap mobilitat Erasmus+ de personal al Puig"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__proposal_a
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_proposal_a
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
@@ -42824,19 +42735,6 @@ msgstr ""
 "Proposta B: %(b)s"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid ""
-"Say in a sentence or two what you would like to do: the activity (job "
-"shadowing, a course or teaching), the host entity or course, where and when."
-" Proposal B is the backup if A falls through. Both are required. You will "
-"find options on the centre's Erasmus+ website:"
-msgstr ""
-"Explica en una o dues frases què t'agradaria fer: l'activitat (job "
-"shadowing, un curs o docència), l'entitat d'acollida o el curs, on i quan. "
-"La proposta B és la de reserva per si la A no surt. Totes dues són "
-"obligatòries. Trobaràs opcions a la web Erasmus+ del centre:"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
 msgid "Say since when you work at the centre."
@@ -42847,54 +42745,6 @@ msgstr "Indica des de quan treballes al centre."
 msgid "Support or adaptations you need to do the mobility (confidential)"
 msgstr ""
 "Suports o adaptacions que necessites per fer la mobilitat (confidencial)"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_application__declared_never_staff_mobility
-msgid ""
-"The applicant has never done an Erasmus+ staff mobility from this centre. "
-"Otherwise the Erasmus team sets when the last one was."
-msgstr ""
-"La persona sol·licitant no ha fet mai cap mobilitat Erasmus+ de personal des"
-" d'aquest centre. Si no, l'equip Erasmus indica quan va ser l'última."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_application__proposal_b
-#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__plan_proposal_b
-#: model:ir.model.fields,help:ems.field_ems_erasmus_staff_application_wizard__proposal_b
-msgid "The backup if proposal A falls through, in the same way."
-msgstr "La de reserva per si la proposta A no surt, de la mateixa manera."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_application__proposal_a
-#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__plan_proposal_a
-msgid ""
-"The main proposal, in the applicant's words: the activity, the host entity "
-"or course, where and when."
-msgstr ""
-"La proposta principal, amb les paraules de la persona sol·licitant: "
-"l'activitat, l'entitat d'acollida o el curs, on i quan."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__plan_text
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_text
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_staff_application_wizard__plan_text
-msgid "What to learn and how to apply it"
-msgstr "Què vol aprendre i com ho aplicarà"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "What you want to learn and how you will apply it"
-msgstr "Què vols aprendre i com ho aplicaràs"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/application.py:0
-msgid ""
-"Write both proposals, A and B, and what you want to learn and how you will "
-"apply it to your job."
-msgstr ""
-"Escriu les dues propostes, A i B, i què vols aprendre i com ho aplicaràs a "
-"la teva feina."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_satisfaction
@@ -44081,6 +43931,7 @@ msgstr "He llegit els compromisos i els accepto"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_form
 msgid "Mobility plan"
 msgstr "Pla de mobilitat"
 
@@ -44254,24 +44105,6 @@ msgid "The activity"
 msgstr "L'activitat"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_staff_application_wizard__plan_text
-msgid ""
-"The competences you want to observe or learn, and how you will apply them to"
-" your job."
-msgstr ""
-"Les competències que vols observar o aprendre, i com les aplicaràs a la teva"
-" feina."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_staff_application_wizard__proposal_a
-msgid ""
-"The main proposal, in your own words: the activity, the host entity or "
-"course, where and when."
-msgstr ""
-"La proposta principal, amb les teves paraules: l'activitat, l'entitat "
-"d'acollida o el curs, on i quan."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_renounce_wizard_form
 msgid ""
 "The place goes to the next person on the reserve list. This cannot be "
@@ -44352,15 +44185,6 @@ msgstr ""
 #: code:addons/ems/models/erasmus/staff_backend.py:0
 msgid "You cannot hand in this document now."
 msgstr "Ara no pots lliurar aquest document."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_staff_application_wizard__declared_never_staff_mobility
-msgid ""
-"You have never done an Erasmus+ staff mobility from this centre. Otherwise "
-"the Erasmus team sets when the last one was."
-msgstr ""
-"No has fet mai cap mobilitat de personal Erasmus+ des d'aquest centre. Si no"
-" és així, l'equip Erasmus indica quan va ser l'última."
 
 #. module: ems
 #: model_terms:ir.actions.act_window,help:ems.action_erasmus_my_mobilities
@@ -46186,47 +46010,6 @@ msgstr "Només qui aprova aquesta acta, qui respon de l'àmbit que s'ha reunit o
 #: code:addons/ems/models/quality/minute.py:0
 msgid "Approval taken back to change the minute."
 msgstr "S'ha desfet l'aprovació per modificar l'acta."
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__relevance__0_5
-msgid ""
-"0.5 points: The relation is general, or the objectives and the activity are not very "
-"concrete."
-msgstr "0,5 punts: la relació és general o els objectius i l'activitat són poc concrets."
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__relevance__0
-msgid ""
-"0 points: The relation with the job or the training cycles is not explained, and the "
-"objectives and the activity are generic."
-msgstr ""
-"0 punts: no s'explica la relació amb la feina ni amb els cicles formatius, i els "
-"objectius i l'activitat són genèrics."
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__relevance__1
-msgid ""
-"1 point: The relation with the job, the department and the training cycles is clear, "
-"with concrete objectives and the entity or course named."
-msgstr ""
-"1 punt: la relació amb la feina, el departament i els cicles formatius és clara, amb"
-" objectius concrets i l'entitat o el curs indicats pel nom."
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__transfer__1
-msgid ""
-"1 point: A concrete application to the job and the students, with defined actions."
-msgstr "1 punt: aplicació concreta a la feina i a l'alumnat, amb accions definides."
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__transfer__0_5
-msgid "0.5 points: An application not very concrete."
-msgstr "0,5 punts: aplicació poc concreta."
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__transfer__0
-msgid "0 points: No application planned."
-msgstr "0 punts: no es preveu cap aplicació."
 
 #. module: ems
 #. odoo-python
@@ -49422,26 +49205,6 @@ msgstr "Un document complet que l'equip pot tornar a posar en revisió (és la m
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
-msgid "E.g. job shadowing at a VET school in Porto (Portugal), in June: how they organise dual training."
-msgstr "P. ex.: job shadowing en un centre d'FP de Porto (Portugal), al juny: com organitzen la formació dual."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
-msgid "E.g. an English course for teachers in Malta, in July."
-msgstr "P. ex.: un curs d'anglès per a docents a Malta, al juliol."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
-msgid "What you want to observe or learn, and how you will apply it in your classes and department."
-msgstr "Què vols observar o aprendre i com ho aplicaràs a les teves classes i al departament."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
-msgid "The centre projects you take part in, one per line."
-msgstr "Els projectes del centre en què participes, un per línia."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
 msgid "Only if you need some support to travel (optional)."
 msgstr "Només si necessites algun suport per viatjar (opcional)."
 
@@ -49906,11 +49669,6 @@ msgstr "Definint"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__phase__offers
 msgid "Offers"
 msgstr "Ofertes"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__phase__finished
-msgid "Finished"
-msgstr "Finalitzada"
 
 #. module: ems
 #: model:ir.actions.server,name:ems.ir_cron_erasmus_mobility_phase_ir_actions_server
@@ -50380,6 +50138,7 @@ msgstr "Servei pagat pel centre"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_search
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__all_invoice_ids
 msgid "Services paid by the centre"
 msgstr "Serveis pagats pel centre"
 
@@ -50493,3 +50252,217 @@ msgstr "Desestimada"
 #: code:addons/ems/models/erasmus/quality.py:0
 msgid "Diffusion actions of the course (the call notices EMS sends, and those the team adds): the Mobilitat FP network asks for at least %s a year. Choose a course to see them."
 msgstr "Accions de difusió del curs (els avisos de convocatòria que envia l'EMS i les que afegeix l'equip): la xarxa Mobilitat FP en demana com a mínim %s l'any. Tria un curs per veure-les."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__concreteness__0
+msgid "0 points: A generic activity, without entity or course or dates."
+msgstr "0 punts: activitat genèrica, sense entitat o curs ni dates."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__relevance__0
+msgid ""
+"0 points: It doesn't say what they want to learn or the relation with the "
+"job."
+msgstr "0 punts: no s'explica què es vol aprendre ni la relació amb la feina."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__concreteness__0_5
+msgid "0.5 points: The entity or course, or the dates, are missing."
+msgstr "0,5 punts: hi falta l'entitat o el curs, o les dates."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__relevance__0_5
+msgid "0.5 points: The objective is general."
+msgstr "0,5 punts: l'objectiu és general."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__relevance__1
+msgid ""
+"1 point: A clear objective, related to the job, the department or the "
+"training cycles."
+msgstr ""
+"1 punt: objectiu clar i relacionat amb la feina, el departament o els cicles"
+" formatius."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__concreteness__1
+msgid ""
+"1 point: The activity, the entity or course by name, the place and the "
+"dates."
+msgstr ""
+"1 punt: l'activitat, l'entitat o el curs pel nom, el lloc i les dates."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "2. About you"
+msgstr "2. Sobre tu"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid ""
+"<strong>3. Optional</strong>: support you need, your image, anything else"
+msgstr ""
+"<strong>3. Opcional</strong>: suport que necessites, la teva imatge, "
+"qualsevol altra cosa"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_staff_application_wizard__declared_never_staff_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid ""
+"As staff: accompanying student groups and mobilities of other programmes "
+"don't count (criterion 2)."
+msgstr ""
+"Com a personal: els acompanyaments de grups i les mobilitats d'altres "
+"programes no compten (criteri 2)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__declared_never_staff_mobility
+msgid ""
+"As staff: accompanying student groups and mobilities of other programmes "
+"don't count (criterion 2). Otherwise the Erasmus team sets when the last one"
+" was."
+msgstr ""
+"Com a personal: els acompanyaments de grups i les mobilitats d'altres "
+"programes no compten (criteri 2). Si no, l'equip Erasmus indica quan va ser "
+"l'última."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__concreteness
+msgid "Concreteness"
+msgstr "Concreció"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
+msgid ""
+"E.g. An English course at an academy in Bologna (Italy), in July, to improve"
+" my language skills."
+msgstr ""
+"P. ex.: Un curs d'anglès en una acadèmia de Bolonya (Itàlia), al juliol, per"
+" millorar la meva competència lingüística."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
+msgid ""
+"E.g. Job shadowing at a VET school in Porto (Portugal), in June, to see how "
+"they organise dual training."
+msgstr ""
+"P. ex.: Job shadowing en un institut d'FP de Porto (Portugal), al juny, per "
+"veure com organitzen la formació dual."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__declared_never_staff_mobility
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_staff_application_wizard__declared_never_staff_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "I have not done any Erasmus+ mobility at the Institut Puig Castellar"
+msgstr "No he realitzat cap mobilitat Erasmus+ a l'Institut Puig Castellar"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__centre_projects
+#: model:ir.model.fields,help:ems.field_ems_erasmus_staff_application_wizard__centre_projects
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid ""
+"If you coordinate or take part in them: the centre projects, improvement "
+"teams or commissions of this school year or the last one, one per line; say "
+"which ones you coordinate."
+msgstr ""
+"Si coordines o hi participes, els projectes del centre, equips de millora o "
+"comissions d'aquest curs o del passat, un per línia; indica els que "
+"coordines."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_staff_application_wizard__proposal_b
+msgid ""
+"In case proposal A can't be done, in the same way: the activity, the host "
+"entity or course, where, when and what you want to learn."
+msgstr ""
+"Per si la proposta A no es pot fer, de la mateixa manera: l'activitat, "
+"l'entitat d'acollida o el curs, on, quan i què vols aprendre."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_staff_form
+msgid "Modify the application"
+msgstr "Modifica la sol·licitud"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
+msgid "One per line, e.g. Improvement team (I coordinate it)."
+msgstr "Un per línia, p. ex.: Equip de millora (el coordino)."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__phase__finished
+msgid "Places assigned"
+msgstr "Places assignades"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__relevance
+msgid "Relevance to the job"
+msgstr "Rellevància per a la feina"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__proposal_b
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__plan_proposal_b
+msgid "The backup if proposal A can't be done, in the same way."
+msgstr ""
+"La de reserva, per si la proposta A no es pot fer, de la mateixa manera."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__proposal_a
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__plan_proposal_a
+msgid ""
+"The main proposal, in the applicant's words: the activity, the host entity "
+"or course, where, when and what they want to learn."
+msgstr ""
+"La proposta principal, amb les paraules de la persona sol·licitant: "
+"l'activitat, l'entitat d'acollida o el curs, on, quan i què vol aprendre."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_staff_application_wizard__proposal_a
+msgid ""
+"The main proposal, in your own words: the activity (job shadowing, a course "
+"or teaching), the host entity or course, where, when and what you want to "
+"learn. It must be a specific entity or course."
+msgstr ""
+"La proposta principal, amb les teves paraules: l'activitat (job shadowing, "
+"curs de formació o estada de docència), l'entitat d'acollida o el curs, on, "
+"quan i què vols aprendre. Ha de ser una entitat o un curs concrets."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
+msgid ""
+"The mobility plan is the training activity, the destination and the dates of"
+" your mobility. Give two proposals: B is in case A can't be done. In each "
+"one, say what you want to learn."
+msgstr ""
+"El pla de mobilitat és l'activitat formativa, el destí i les dates de la "
+"teva mobilitat. Indica'n dues propostes: la B és per si la A no es pot fer. "
+"En cadascuna, digues què vols aprendre."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid ""
+"The mobility plan is the training activity, the destination and the dates of"
+" your mobility. Give two proposals: B is in case A can't be done. In each "
+"one, say what you want to learn. Both are required. You will find options on"
+" the centre's Erasmus+ website:"
+msgstr ""
+"El pla de mobilitat és l'activitat formativa, el destí i les dates de la "
+"teva mobilitat. Indica'n dues propostes: la B és per si la A no es pot fer. "
+"En cadascuna, digues què vols aprendre. Totes dues són obligatòries. "
+"Trobaràs opcions a la web Erasmus+ del centre:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Write both proposals, A and B, each with what you want to learn."
+msgstr "Escriu les dues propostes, A i B, cadascuna amb què vols aprendre."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_progress
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "of"
+msgstr "de"

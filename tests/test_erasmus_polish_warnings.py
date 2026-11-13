@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from lxml import etree
 
+from odoo import fields
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import tagged
 
@@ -46,10 +47,11 @@ class TestErasmusStaffSteps(ErasmusStaffMobilityCase):
 
     def test_the_teacher_ticks_their_steps(self):
         mobility = self._accepted_staff()
-        if not mobility.task_ids:
+        if not mobility.task_ids.filtered(lambda step: step.stage == 'preparation'):
             self.staff_call.task_ids = [(0, 0, {'name': 'Test step'})]
+            mobility._ems_sync_requirements()
         own = self.env(user=self.staff_users[0])['ems.erasmus.mobility'].browse(mobility.id)
-        task = own.task_ids[:1]
+        task = own.task_ids.filtered(lambda step: step.stage == 'preparation')[:1]
         self.assertTrue(task.staff_can_tick)
         task.action_staff_done()
         self.assertTrue(task.done)
@@ -81,6 +83,34 @@ class TestErasmusStaffSteps(ErasmusStaffMobilityCase):
         # The owner can't change it by writing either: only the buttons do.
         with self.assertRaises(AccessError):
             task.write({'done': False})
+
+    def test_return_steps_only_from_the_stay(self):
+        """P17: a step on return is ticked by the teacher only once the stay has started (closed too);
+        the team, always."""
+        mobility = self._accepted_staff()
+        self.staff_call.task_ids = [(0, 0, {'name': 'News piece', 'stage': 'return'})]
+        mobility.sudo().write({'state': 'preparing'})
+        mobility._ems_sync_requirements()
+        own = self.env(user=self.staff_users[0])['ems.erasmus.mobility'].browse(mobility.id)
+        task = own.task_ids.filtered(lambda step: step.stage == 'return')[:1]
+        self.assertTrue(task, "The return step reaches the mobility.")
+        today = fields.Date.today()
+        mobility.sudo().write({'date_start': today + timedelta(days=10), 'date_end': today + timedelta(days=20)})
+        task.invalidate_recordset()
+        self.assertEqual(mobility.phase, 'preparing')
+        self.assertFalse(task.staff_can_tick)
+        with self.assertRaises(UserError):
+            task.action_staff_done()
+        mobility.sudo().write({'date_start': today - timedelta(days=1)})
+        task.invalidate_recordset()
+        self.assertEqual(mobility.phase, 'stay')
+        self.assertTrue(task.staff_can_tick)
+        mobility.sudo().write({'state': 'done'})
+        task.invalidate_recordset()
+        self.assertTrue(task.staff_can_tick, "A closed mobility still takes the return steps.")
+        # The team ticks it whatever the phase.
+        mobility.sudo().write({'state': 'preparing', 'date_start': today + timedelta(days=10)})
+        mobility.task_ids.filtered(lambda step: step.stage == 'return')[:1].with_user(self.erasmus_user).done = True
 
     def test_the_teacher_mobility_says_what_to_do(self):
         mobility = self._accepted_staff()

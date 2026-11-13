@@ -43,7 +43,7 @@ evolución curso a curso. No muestra nunca el nombre de nadie. Al pasar el rató
 
 ## Respuestas y acciones de mejora
 
-**Erasmus+ › Calidad › Encuestas de satisfacción** lista las respuestas. Todo el equipo Erasmus+ (la coordinación y el técnico de movilidad) ve la puntuación, los comentarios y quién ha respondido, con su movilidad; nadie más. Las dos listas usan cabeceras cortas (*Tipo*, *Acogida*, *Acción*, *Seguimiento*); el nombre entero aparece al pasar el ratón.
+**Erasmus+ › Calidad › Encuestas de satisfacción** lista las respuestas. Todo el equipo Erasmus+ (la coordinación y el técnico de movilidad) ve la puntuación, los comentarios y quién ha respondido, con su movilidad; nadie más. Las dos listas usan cabeceras cortas (*Tipo*, *Acción*, *Seguimiento*); el nombre entero aparece al pasar el ratón. El curso, la entidad de acogida y el comentario están en el menú de columnas, a la derecha de las cabeceras, para que quepan la convocatoria, el participante y el ciclo.
 
 **Puntuaciones bajas** lista todas las respuestas de 6 o menos con lo que no ha funcionado. El panel de calidad dice cuántas hay debajo de los indicadores (*Puntuaciones bajas: 2, 1 sin acción de mejora*): haz clic para abrirlas, primero las que no tienen acción. Abre una
 y elige **Acciones › Crear una acción de mejora**: EMS la crea en la aplicación **Calidad**, sin el

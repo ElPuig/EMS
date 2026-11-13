@@ -160,11 +160,48 @@ class TestDocsScreenshotsErasmusStaff(DocsScreenshotMixin, HttpCase):
         self.staff_call.action_close()
         self.staff_call.action_send_to_panel()
         rating = application.plan_rating_ids[:1]
-        rating.write({'relevance': '1', 'transfer': '1'})
+        rating.write({'concreteness': '1', 'relevance': '1'})
         rating.sudo().with_user(rating.panel_member_id).action_submit()
         self._capture('/odoo/action-ems.action_erasmus_plan_rating', '.o_list_renderer',
                       'valoracions-per-sollicitant.png', login=TestDocsScreenshotsErasmus.TECHNICIAN,
                       wait_for='.o_list_renderer .o_group_header', max_height=180)
+
+    def test_capture_staff_application_form(self):
+        """Issue #824: the staff form, the mobility plan explained and what to learn inside each proposal."""
+        teacher = self.staff_users[0]
+        teacher.write({'lang': 'ca_ES', 'tz': 'Europe/Madrid'})
+        application = self.env['ems.erasmus.application']._ems_portal_get_or_create(
+            self.staff_call, teacher.partner_id)
+        self._capture(f'/odoo/action-ems.action_erasmus_my_applications/{application.id}', '.modal-content',
+                      'sollicitud-personal-formulari.png', login=teacher.login,
+                      wait_for='.o_form_view button[name=action_staff_edit]',
+                      click=['.o_form_view button[name=action_staff_edit]'], wait_after=['.modal .o_field_widget[name=proposal_a]'])
+
+    def test_capture_plan_rubric(self):
+        """Issue #824: criterion 1's rubric in the panel member's rating, as annex 2."""
+        application = self.env['ems.erasmus.application']._ems_portal_get_or_create(
+            self.staff_call, self.staff_users[0].partner_id)
+        application._ems_portal_save(
+            {'declared_never_staff_mobility': True, 'declared_centre_start_date': '2015-09-01',
+             'proposal_a': "Un curs d'anglès en una acadèmia de Bolonya (Itàlia), al juliol, per millorar la meva "
+                           "competència lingüística.",
+             'proposal_b': "Job shadowing en un institut d'FP de Porto (Portugal), al juny, per veure com organitzen "
+                           "la formació dual."},
+            {self.id_document.id: [('id.pdf', PDF)]})
+        application.action_submit()
+        application.requirements_check = 'met'
+        application.document_ids.filtered('attachment_ids').action_mark_valid()
+        application.action_admit()
+        self.staff_call.action_close()
+        self.staff_call.action_send_to_panel()
+        rating = application.plan_rating_ids.filtered(lambda line: line.panel_member_id == self.panel_teacher)
+        self.panel_teacher.write({'lang': 'ca_ES', 'tz': 'Europe/Madrid'})
+        self.panel_teacher.partner_id.name = 'Laia Ferrer Mas'
+        self.staff_users[0].partner_id.name = 'Marta Vidal Roig'
+        self.staff_call.name = 'Mobilitats de personal 2026-27'
+        self._capture(f'/odoo/action-ems.action_erasmus_my_plan_ratings/{rating.id}', '.o_form_sheet',
+                      'valoracio-pla-rubrica.png', login=self.panel_teacher.login,
+                      wait_for='.o_field_widget[name=concreteness]')
 
     def test_capture_places_per_project(self):
         """Issue #772: the staff call's places, split among the projects that pay them."""

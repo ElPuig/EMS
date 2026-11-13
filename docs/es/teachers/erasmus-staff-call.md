@@ -18,7 +18,7 @@ Cuando el equipo Erasmus publica una convocatoria del personal a la que te puede
 
 ## 2. Rellena el formulario
 
-El formulario se abre cuando presentas la solicitud. Para cambiarlo más adelante, en tu solicitud, **Rellena el formulario** lo vuelve a abrir (es el botón a la vista mientras no hayas rellenado nada; después, en **Acciones**); mientras no hayas rellenado nada, la solicitud solo muestra un recuadro que te lo dice. Cada campo vacío muestra un ejemplo de lo que puedes escribir. Tiene cuatro bloques cortos:
+El formulario se abre cuando presentas la solicitud. Para cambiarlo más adelante, en tu solicitud, **Acciones > Rellena el formulario** lo vuelve a abrir; mientras no hayas rellenado nada, la solicitud solo muestra un recuadro que te lo dice. Cada campo vacío muestra un ejemplo de lo que puedes escribir. Tiene cuatro bloques cortos:
 
 1. **Plan de movilidad**, con tus dos propuestas, ambas obligatorias, en una o dos frases cada una: la actividad (job shadowing, un curso o docencia), la entidad de acogida o el curso, dónde y cuándo. La **propuesta A** es la principal, por ejemplo "Job shadowing en un centro de FP alemán, el Berufskolleg X de Colonia, en abril"; la **propuesta B** es la de reserva si la A no sale, por ejemplo "Un curso de inglés en una academia de Malta, en julio". Preferiblemente en el periodo no lectivo (junio, julio); en otro momento, como abril, solo una semana que no afecte a las evaluaciones, y con la validación de la dirección. Encontrarás opciones en la [web Erasmus+ del centro](https://elpuig.xeill.net/el-centre/erasmus/recursos-i-formacio).
 2. **Qué quieres aprender y cómo lo aplicarás** (anexo 1): brevemente, las competencias que quieres observar o aprender y cómo las aplicarás en tus clases, tu departamento o el centro, 1.500 caracteres como máximo. La comisión solo lee esto y tus dos propuestas.
@@ -27,7 +27,7 @@ El formulario se abre cuando presentas la solicitud. Para cambiarlo más adelant
 
 La **difusión** no forma parte del plan: es la misma para todos. Cuando vuelvas, publicarás una noticia en la web del centro sobre tu experiencia, siguiendo la identidad visual y la política de difusión de Erasmus+, y, si se considera necesario, la compartirás con los compañeros en una reunión de departamento o de ciclos.
 
-Haz clic en **Guardar** para seguir más adelante, o en **Guarda y envía** cuando lo tengas todo listo. También puedes enviarla desde la solicitud con el botón **Enviar**, a la vista cuando ya has rellenado algo. Recibirás un justificante por correo electrónico. Hasta la fecha de cierre todavía puedes modificarla.
+Haz clic en **Guardar** para seguir más adelante, o en **Guarda y envía** cuando lo tengas todo listo. También puedes enviarla desde la solicitud con **Acciones > Enviar**. Recibirás un justificante por correo electrónico. Hasta la fecha de cierre todavía puedes modificarla.
 
 Los documentos que pide la convocatoria están en la pestaña **Documentos** de tu solicitud: haz clic en **Entrega** en cada uno y adjunta el archivo (un PDF o una foto; puedes adjuntar varios). La columna **Entregado** muestra lo que has entregado y **Por hacer**, lo que todavía falta (*Por entregar* mientras no hayas adjuntado nada). Si el equipo Erasmus te pide subsanaciones, entrega allí lo que te pide y vuelve a enviar la solicitud.
 
@@ -37,11 +37,11 @@ Los documentos que pide la convocatoria están en la pestaña **Documentos** de 
 
 Si no estás de acuerdo con la resolución provisional, usa **Acciones > Reclamación** antes de que acabe el plazo de reclamaciones: escribe qué reclamas y adjunta los archivos que lo justifiquen. Recibirás un justificante por correo electrónico, y el equipo Erasmus la responderá.
 
-Si te seleccionan, usa el botón **Acepta la plaza**, a la vista, o **Acciones > Renunciar a la plaza** antes del plazo: sin respuesta, se considera que renuncias.
+Si te seleccionan, usa **Acciones > Acepta la plaza** o **Renunciar a la plaza** antes del plazo: sin respuesta, se considera que renuncias.
 
 ## 4. Prepara tu movilidad
 
-Cuando aceptas la plaza, tu movilidad aparece en **Mis movilidades** (y en tu solicitud, en **Mi movilidad**). Hasta que la envías, la movilidad no muestra los campos de la actividad vacíos. Usa el botón **Envía la propuesta de actividad**, a la vista: empieza con las propuestas de la solicitud. Elige la **actividad** (job shadowing, curso o docencia) y complétala con las **fechas exactas de inicio y de fin**, acepta la declaración responsable para la ausencia por formación y envíala: la dirección (la directora o el director o el jefe de estudios de FP) valida la actividad, la entidad de acogida o el curso, el destino y las fechas. Cuando la valida, EMS solicita por sí solo la ausencia por formación para esos días, y quien te aprueba las ausencias la aprueba como siempre. Si no se valida, recibirás el motivo por correo electrónico: cambia lo necesario y vuelve a enviarla.
+Cuando aceptas la plaza, tu movilidad aparece en **Mis movilidades** (y en tu solicitud, en **Mi movilidad**). Hasta que la envías, la movilidad no muestra los campos de la actividad vacíos. Usa **Acciones > Envía la propuesta de actividad**: empieza con las propuestas de la solicitud. Elige la **actividad** (job shadowing, curso o docencia) y complétala con las **fechas exactas de inicio y de fin**, acepta la declaración responsable para la ausencia por formación y envíala: la dirección (la directora o el director o el jefe de estudios de FP) valida la actividad, la entidad de acogida o el curso, el destino y las fechas. Cuando la valida, EMS solicita por sí solo la ausencia por formación para esos días, y quien te aprueba las ausencias la aprueba como siempre. Si no se valida, recibirás el motivo por correo electrónico: cambia lo necesario y vuelve a enviarla.
 
 **Si cambia más adelante:** una vez validada, si cambian el curso, la entidad de acogida o las fechas (por ejemplo, porque ese mes no se ofrece el curso), envía una nueva propuesta desde la misma acción antes de que empiece la movilidad. La dirección la vuelve a validar y, mientras tanto, tu movilidad se mantiene tal como se validó. Si la dirección deja un comentario, lo verás en el correo y en **Validación por parte de la Dirección**.
 

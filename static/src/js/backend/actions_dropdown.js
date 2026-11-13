@@ -17,8 +17,6 @@ import { toStringExpression } from "@web/views/utils";
  * Each entry is still a plain ViewButton, so it keeps its own `invisible=`, `groups=` and
  * `confirm=`. When only one of them is visible it is shown as a plain header button (with its own
  * `class`, e.g. `btn-primary`) instead of a dropdown, and when none is, nothing is rendered.
- * A button marked `o_ems_action_main` (the next step of a process, issue #786) stays a plain header
- * button next to the dropdown, which then holds every other visible entry, even a single one.
  * See docs/en/developers/shared/actions_dropdown.md.
  */
 export class EmsActionsDropdown extends StatusBarButtons {
@@ -28,14 +26,6 @@ export class EmsActionsDropdown extends StatusBarButtons {
         slots: { type: Object, optional: 1 },
         string: String,
     };
-
-    get mainSlotNames() {
-        return this.visibleSlotNames.filter((name) => this.props.slots[name].isMain);
-    }
-
-    get menuSlotNames() {
-        return this.visibleSlotNames.filter((name) => !this.props.slots[name].isMain);
-    }
 }
 
 Object.assign(FormRenderer.components, { EmsActionsDropdown });
@@ -47,8 +37,6 @@ function compileActionsDropdown(el, params) {
     });
     let slotId = 0;
     for (const child of el.children) {
-        // Read before compiling: compiling the button consumes its class attribute.
-        const isMain = (child.getAttribute("class") || "").split(/\s+/).includes("o_ems_action_main");
         const button = this.compileNode(child, params);
         if (!button) {
             continue;
@@ -56,7 +44,6 @@ function compileActionsDropdown(el, params) {
         const slot = createElement("t", {
             "t-set-slot": `action_${slotId++}`,
             isVisible: button.getAttribute("t-if") || true,
-            isMain,
         });
         append(slot, button);
         append(dropdown, slot);

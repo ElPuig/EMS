@@ -98,22 +98,12 @@
                 <form string="My application" create="false" edit="false" delete="false">
                     <header>
                         <div name="ems_actions" string="Actions">
-                            <!-- Issue #786: the next step stays in view (o_ems_action_main), the rest in Actions:
-                                 filling in the form while nothing is answered, then submitting it. -->
-                            <button name="action_staff_edit" type="object" string="Fill in the form"
-                                    class="btn-primary o_ems_action_main"
-                                    invisible="not staff_editable or state != 'draft' or staff_answered"/>
-                            <button name="action_staff_edit" type="object" string="Fill in the form"
-                                    invisible="not staff_editable or (state == 'draft' and not staff_answered)"/>
+                            <button name="action_staff_edit" type="object" string="Fill in the form" class="btn-primary"
+                                    invisible="not staff_editable"/>
                             <button name="action_staff_submit" type="object" string="Submit"
-                                    class="btn-primary o_ems_action_main"
-                                    invisible="not staff_can_submit or state == 'submitted' or (state == 'draft' and not staff_answered)"
+                                    invisible="not staff_can_submit"
                                     confirm="Submit the application? You can still change it until the call closes."/>
-                            <button name="action_staff_submit" type="object" string="Submit"
-                                    invisible="not staff_can_submit or state != 'submitted'"
-                                    confirm="Submit the application? You can still change it until the call closes."/>
-                            <button name="action_staff_accept_offer" type="object" string="Accept the place"
-                                    class="btn-primary o_ems_action_main"
+                            <button name="action_staff_accept_offer" type="object" string="Accept the place" class="btn-primary"
                                     invisible="not staff_offer_id" confirm="Accept the place offered?"/>
                             <button name="action_staff_renounce_offer" type="object" string="Renounce the place"
                                     invisible="not staff_offer_id"/>
@@ -273,8 +263,8 @@
                 <form string="My mobility" create="false" edit="false" delete="false">
                     <header>
                         <div name="ems_actions" string="Actions">
-                            <button name="action_staff_propose" type="object" string="Send the activity proposal"
-                                    class="btn-primary o_ems_action_main" invisible="not staff_can_propose"/>
+                            <button name="action_staff_propose" type="object" string="Send the activity proposal" class="btn-primary"
+                                    invisible="not staff_can_propose"/>
                             <button name="action_staff_commitment" type="object" string="Sign the commitment letter" class="btn-primary"
                                     invisible="not commitment_pending"/>
                             <button name="action_staff_self_assessment" type="object" string="Weekly self-assessment"

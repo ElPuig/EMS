@@ -49341,8 +49341,9 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/staff_backend.py:0
-msgid "Fill in your application with the Fill in the form button, and submit it."
-msgstr "Omple la sol·licitud amb el botó Omple el formulari, i envia-la."
+msgid ""
+"Fill in your application from Actions > Fill in the form, and submit it."
+msgstr "Omple la sol·licitud des d'Accions > Omple el formulari, i envia-la."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__staff_answered

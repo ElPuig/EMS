@@ -18,7 +18,7 @@ Quan l'equip Erasmus publica una convocatòria del personal a la qual et pots pr
 
 ## 2. Omple el formulari
 
-El formulari s'obre quan presentes la sol·licitud. Per canviar-lo més endavant, a la teva sol·licitud, **Omple el formulari** el torna a obrir (és el botó a la vista mentre no hi hagis omplert res; després, a **Accions**); mentre no hi hagis omplert res, la sol·licitud només mostra un requadre que t'ho diu. Cada camp buit mostra un exemple del que hi pots escriure. Té quatre blocs curts:
+El formulari s'obre quan presentes la sol·licitud. Per canviar-lo més endavant, a la teva sol·licitud, **Accions > Omple el formulari** el torna a obrir; mentre no hi hagis omplert res, la sol·licitud només mostra un requadre que t'ho diu. Cada camp buit mostra un exemple del que hi pots escriure. Té quatre blocs curts:
 
 1. **Pla de mobilitat**, amb les teves dues propostes, totes dues obligatòries, en una o dues frases cadascuna: l'activitat (job shadowing, un curs o docència), l'entitat d'acollida o el curs, on i quan. La **proposta A** és la principal, per exemple "Job shadowing en un centre d'FP alemany, el Berufskolleg X de Colònia, a l'abril"; la **proposta B** és la de reserva si la A no surt, per exemple "Un curs d'anglès en una acadèmia de Malta, al juliol". Preferiblement en el període no lectiu (juny, juliol); en un altre moment, com l'abril, només una setmana que no afecti les avaluacions, i amb la validació de la direcció. En trobaràs opcions al [web Erasmus+ del centre](https://elpuig.xeill.net/el-centre/erasmus/recursos-i-formacio).
 2. **Què vols aprendre i com ho aplicaràs** (annex 1): breument, les competències que vols observar o aprendre i com les aplicaràs a les teves classes, al teu departament o al centre, 1.500 caràcters com a màxim. La comissió només llegeix això i les teves dues propostes.
@@ -27,7 +27,7 @@ El formulari s'obre quan presentes la sol·licitud. Per canviar-lo més endavant
 
 La **difusió** no forma part del pla: és la mateixa per a tothom. Quan tornis, publicaràs una notícia al web del centre sobre la teva experiència, seguint la identitat visual i la política de difusió d'Erasmus+, i, si es considera necessari, la compartiràs amb els companys en una reunió de departament o de cicles.
 
-Fes clic a **Desa** per continuar-hi més endavant, o a **Desa i envia** quan ho tinguis tot a punt. També la pots enviar des de la sol·licitud amb el botó **Enviar**, a la vista quan ja hi has omplert alguna cosa. Rebràs un justificant per correu electrònic. Fins a la data de tancament encara la pots modificar.
+Fes clic a **Desa** per continuar-hi més endavant, o a **Desa i envia** quan ho tinguis tot a punt. També la pots enviar des de la sol·licitud amb **Accions > Enviar**. Rebràs un justificant per correu electrònic. Fins a la data de tancament encara la pots modificar.
 
 Els documents que demana la convocatòria són a la pestanya **Documents** de la teva sol·licitud: fes clic a **Lliura** a cadascun i adjunta-hi el fitxer (un PDF o una foto; en pots adjuntar diversos). La columna **Lliurat** mostra el que has lliurat i **Per fer**, el que encara falta (*Per lliurar* mentre no hi has adjuntat res). Si l'equip Erasmus et demana esmenes, lliura-hi el que et demana i torna a enviar la sol·licitud.
 
@@ -37,11 +37,11 @@ Els documents que demana la convocatòria són a la pestanya **Documents** de la
 
 Si no hi estàs d'acord amb la resolució provisional, fes servir **Accions > Reclamació** abans que acabi el termini de reclamacions: escriu què reclames i adjunta-hi els fitxers que ho justifiquin. Rebràs un justificant per correu electrònic, i l'equip Erasmus la respondrà.
 
-Si et seleccionen, fes servir el botó **Accepta la plaça**, a la vista, o **Accions > Renuncia a la plaça** abans del termini: sense resposta, es considera que hi renuncies.
+Si et seleccionen, fes servir **Accions > Accepta la plaça** o **Renuncia a la plaça** abans del termini: sense resposta, es considera que hi renuncies.
 
 ## 4. Prepara la teva mobilitat
 
-Quan acceptes la plaça, la teva mobilitat apareix a **Les meves mobilitats** (i a la teva sol·licitud, a **La meva mobilitat**). Fins que no l'envies, la mobilitat no mostra els camps de l'activitat buits. Fes servir el botó **Envia la proposta d'activitat**, a la vista: comença amb les propostes de la sol·licitud. Tria l'**activitat** (job shadowing, curs o docència) i completa-la amb les **dates exactes d'inici i de final**, accepta la declaració responsable per a l'absència per formació i envia-la: la direcció (la directora o el director o el cap d'estudis d'FP) valida l'activitat, l'entitat d'acollida o el curs, la destinació i les dates. Quan la valida, l'EMS demana tot sol l'absència per formació per a aquells dies, i qui t'aprova les absències l'aprova com sempre. Si no es valida, rebràs el motiu per correu electrònic: canvia el que calgui i torna-la a enviar.
+Quan acceptes la plaça, la teva mobilitat apareix a **Les meves mobilitats** (i a la teva sol·licitud, a **La meva mobilitat**). Fins que no l'envies, la mobilitat no mostra els camps de l'activitat buits. Fes servir **Accions > Envia la proposta d'activitat**: comença amb les propostes de la sol·licitud. Tria l'**activitat** (job shadowing, curs o docència) i completa-la amb les **dates exactes d'inici i de final**, accepta la declaració responsable per a l'absència per formació i envia-la: la direcció (la directora o el director o el cap d'estudis d'FP) valida l'activitat, l'entitat d'acollida o el curs, la destinació i les dates. Quan la valida, l'EMS demana tot sol l'absència per formació per a aquells dies, i qui t'aprova les absències l'aprova com sempre. Si no es valida, rebràs el motiu per correu electrònic: canvia el que calgui i torna-la a enviar.
 
 **Si canvia més endavant:** un cop validada, si canvien el curs, l'entitat d'acollida o les dates (per exemple, perquè aquell mes no s'ofereix el curs), envia una nova proposta des de la mateixa acció abans que comenci la mobilitat. La direcció la torna a validar i, mentrestant, la teva mobilitat es manté tal com es va validar. Si la direcció hi deixa un comentari, el veuràs al correu i a **Validació per part de la Direcció**.
 

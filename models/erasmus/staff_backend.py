@@ -13,8 +13,8 @@ from odoo.exceptions import AccessError, UserError
 from .application import ANSWER_FIELDS
 from .mobility import OPEN_STATES
 
-# P17 (adriamt, 2026-11-13): when a teacher may tick their steps on return.
-RETURN_TICK_PHASES = ('stay', 'return', 'done')
+# P17 (adriamt, 2026-11-13): when a teacher may tick their steps on return; a closed mobility, never.
+RETURN_TICK_PHASES = ('stay', 'return')
 
 
 def staff_action(env, xmlid, record=None):
@@ -430,7 +430,7 @@ class EmsErasmusMobilityTask(models.Model):
     @api.depends_context('uid')
     def _compute_staff_can_tick(self):
         """A step before leaving while the mobility is open; a step on return only once the stay has
-        started, closed mobility included (P17: the news piece is often written on the last day)."""
+        started and until it is closed (P17: the news piece is often written on the last day)."""
         partner = self.env.user.partner_id
         for task in self:
             own = task.sudo()

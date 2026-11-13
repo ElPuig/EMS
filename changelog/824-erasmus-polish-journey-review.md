@@ -8,7 +8,7 @@
 
 ## A teacher ticks their steps on return only once the stay has started (P17):
 
-- A step before leaving, while the mobility is open (as before); a step on return, from the phase Stay onwards (Return and Closed too), since the news item is often written on the last day. The Erasmus+ team ticks any step at any time (`RETURN_TICK_PHASES`, `_compute_staff_can_tick`).
+- A step before leaving, while the mobility is open (as before); a step on return, in the phases Stay and Return (never once the mobility is closed, as before), since the news item is often written on the last day. The Erasmus+ team ticks any step at any time (`RETURN_TICK_PHASES`, `_compute_staff_can_tick`).
 
 ## The project's "Services paid by the centre" tab lists its participants' and groups' invoices (C34):
 

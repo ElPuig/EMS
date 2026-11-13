@@ -85,8 +85,8 @@ class TestErasmusStaffSteps(ErasmusStaffMobilityCase):
             task.write({'done': False})
 
     def test_return_steps_only_from_the_stay(self):
-        """P17: a step on return is ticked by the teacher only once the stay has started (closed too);
-        the team, always."""
+        """P17: a step on return is ticked by the teacher only in the Stay and Return phases, never on a
+        closed mobility; the team, always."""
         mobility = self._accepted_staff()
         self.staff_call.task_ids = [(0, 0, {'name': 'News piece', 'stage': 'return'})]
         mobility.sudo().write({'state': 'preparing'})
@@ -105,12 +105,28 @@ class TestErasmusStaffSteps(ErasmusStaffMobilityCase):
         task.invalidate_recordset()
         self.assertEqual(mobility.phase, 'stay')
         self.assertTrue(task.staff_can_tick)
+        task.action_staff_done()
+        mobility.sudo().write({'date_end': today - timedelta(days=1)})
+        task.invalidate_recordset()
+        self.assertEqual(mobility.phase, 'return')
+        self.assertTrue(task.staff_can_untick)
+        task.action_staff_undo()
         mobility.sudo().write({'state': 'done'})
         task.invalidate_recordset()
-        self.assertTrue(task.staff_can_tick, "A closed mobility still takes the return steps.")
-        # The team ticks it whatever the phase.
-        mobility.sudo().write({'state': 'preparing', 'date_start': today + timedelta(days=10)})
-        mobility.task_ids.filtered(lambda step: step.stage == 'return')[:1].with_user(self.erasmus_user).done = True
+        self.assertEqual(mobility.phase, 'done')
+        self.assertFalse(task.staff_can_tick, "A closed mobility: the teacher ticks nothing.")
+        with self.assertRaises(UserError):
+            task.action_staff_done()
+        # The team ticks it whatever the phase, closed included.
+        team_task = mobility.task_ids.filtered(lambda step: step.stage == 'return')[:1].with_user(self.erasmus_user)
+        team_task.done = True
+        self.assertTrue(team_task.done)
+        task.invalidate_recordset()
+        self.assertFalse(task.staff_can_untick, "Nor unticks it once closed.")
+        mobility.sudo().write({'state': 'preparing', 'date_start': today + timedelta(days=10),
+                               'date_end': today + timedelta(days=20)})
+        team_task.done = False
+        team_task.done = True
 
     def test_the_teacher_mobility_says_what_to_do(self):
         mobility = self._accepted_staff()

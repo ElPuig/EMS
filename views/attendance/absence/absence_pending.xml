@@ -13,6 +13,7 @@
                     <field name="origin"/>
                     <field name="note" optional="hidden"/>
                     <field name="leave_id" optional="show"/>
+                    <field name="discard_reason_id" optional="hide"/>
                     <field name="state" widget="badge"
                            decoration-warning="state == 'pending'"
                            decoration-info="state in ('justification_requested', 'absence_prepared', 'correction_requested', 'linked')"
@@ -40,8 +41,7 @@
                             <button name="action_open_correct_check_in" type="object" string="Correct check-in"
                                     invisible="not can_correct_check_in"/>
                             <button name="action_discard" type="object" string="Discard"
-                                    invisible="not can_review"
-                                    confirm="Discard this detected absence? Nobody is told and it is archived."/>
+                                    invisible="not can_review"/>
                             <button name="action_request_absence" type="object" string="Request the absence"
                                     invisible="not can_request"/>
                             <!-- Issue #735: or the teacher was at the centre. -->
@@ -62,7 +62,7 @@
                                 <li><b>Request action</b>: the teacher has to regularize it, requesting the absence or a check-in correction.</li>
                                 <li><b>Prepare justification</b>: you prepare the absence request with its type; the teacher only checks and sends it.</li>
                                 <li><b>Correct check-in</b>: the teacher was at the centre; their attendance is recorded and nobody is told.</li>
-                                <li><b>Discard</b>: nothing to do; it is archived and nobody is told.</li>
+                                <li><b>Discard</b>: nothing to do, for the reason you choose; it is archived and nobody is told.</li>
                             </ul>
                             <p class="mb-0">The first three let you narrow the hours: the rest stays to review.</p>
                         </div>
@@ -97,6 +97,9 @@
                             <group>
                                 <field name="date_from" readonly="is_own or state not in ('pending', 'justification_requested', 'absence_prepared')"/>
                                 <field name="date_to" readonly="is_own or state not in ('pending', 'justification_requested', 'absence_prepared')"/>
+                                <!-- Issue #818: for the reviewers only (the fields' groups). -->
+                                <field name="discard_reason_id" invisible="not discard_reason_id" options="{'no_open': True}"/>
+                                <field name="discard_details" invisible="not discard_details"/>
                             </group>
                         </group>
                         <field name="note" placeholder="Why the teacher will be absent, for your own reference"/>
@@ -134,6 +137,8 @@
                     <group expand="0" string="Group By">
                         <filter name="group_employee" string="Teacher" context="{'group_by': 'employee_id'}"/>
                         <filter name="group_origin" string="Origin" context="{'group_by': 'origin'}"/>
+                        <filter name="group_discard_reason" string="Discard reason" context="{'group_by': 'discard_reason_id'}"
+                                groups="ems.group_head_of_studies,ems.group_academic_admin,base.group_system"/>
                     </group>
                 </search>
             </field>
@@ -207,6 +212,7 @@
             <field name="code">action = records.action_correct_check_in()</field>
         </record>
 
+        <!-- Issue #818: Discard asks why, from the list as from the form (action_discard). -->
         <record id="action_absence_pending_discard" model="ir.actions.server">
             <field name="name">Discard</field>
             <field name="model_id" ref="ems.model_ems_absence_pending"/>
@@ -215,6 +221,28 @@
             <field name="groups_id" eval="[(6, 0, [ref('ems.group_head_of_studies'), ref('ems.group_academic_admin'), ref('base.group_system')])]"/>
             <field name="state">code</field>
             <field name="code">action = records.action_discard()</field>
+        </record>
+
+        <record id="view_absence_pending_discard_wizard_form" model="ir.ui.view">
+            <field name="name">ems.absence_pending.discard_wizard.form</field>
+            <field name="model">ems.absence_pending.discard_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Discard">
+                    <p class="text-muted">
+                        Nothing is done about these absences: they are archived with this reason
+                        and nobody is told. The teacher does not see the reason.
+                    </p>
+                    <group>
+                        <field name="absence_ids" invisible="1"/>
+                        <field name="reason_id" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="details" placeholder="Optional, for the reviewers' own reference"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Discard" class="btn-primary"/>
+                        <button string="Cancel" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
         </record>
 
         <record id="view_absence_pending_leave_wizard_form" model="ir.ui.view">

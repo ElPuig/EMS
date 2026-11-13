@@ -755,6 +755,7 @@ erDiagram
     HR_EMPLOYEE ||--o{ EMS_ABSENCE_PENDING : "employee_id (teachers only)"
     HR_LEAVE |o--o{ EMS_ABSENCE_PENDING : "leave_id (while the absence covers it)"
     RES_COMPANY }o--o{ HR_DEPARTMENT : "ems_absence_circuit_area_ids (areas)"
+    EMS_ABSENCE_PENDING_DISCARD_REASON |o--o{ EMS_ABSENCE_PENDING : "discard_reason_id (once discarded by a reviewer)"
     EMS_ABSENCE_PENDING {
         datetime date_from
         datetime date_to
@@ -762,6 +763,8 @@ erDiagram
         selection state "pending / justification_requested / absence_prepared / correction_requested / corrected / linked / justified / discarded"
         many2one leave_type_id "absence_prepared only"
         boolean active "false once discarded by a person"
+        many2one discard_reason_id "reviewers only"
+        text discard_details "reviewers only"
         text note "chiefs only"
         date justification_date
         date reminder_date
@@ -778,6 +781,7 @@ erDiagram
 | `state` | `pending` (*To review*), `justification_requested` (*Action requested*), `absence_prepared` (*Justification prepared*), `correction_requested` (*Correction requested*: the teacher's check-in correction waits for a decision), `corrected` (*Check-in corrected*), `linked` (*Requested*: the absence request is being dealt with), `justified` (*Justified*: it was approved for good, `validate`), `discarded` (*Discarded*). Stored, not computed from `leave_id`. `pending`, `justification_requested`, `absence_prepared` and `correction_requested` mean "not resolved yet" (`UNRESOLVED_STATES`: the board plans around them); `justification_requested` and `absence_prepared` mean "the teacher has been asked to act" (`ASKED_STATES`: the reminders go on); `linked` and `justified` are `REQUESTED_STATES` |
 | `leave_type_id` | The absence type the reviewer chose with **Prepare justification**: the teacher's request opens with it |
 | `active` | Archived when a person discards the entry (it leaves the default list, still found with the *Archived* filter). A discard by the system (the check-in turned up) leaves it active; the chatter says which of the two it was. `readonly=True`, so Odoo offers no Archive/Unarchive of its own (it only does on an editable `active`): Discard is the only way |
+| `discard_reason_id`, `discard_details` | Issue #818: why a reviewer discarded the entry, from the `ems.absence_pending.discard_reason` catalog (seeded in `data/main/`: Strike, Error, Others), plus optional free text. Set only by **Discard**; empty on a discard by the system. `groups="ems.group_head_of_studies,ems.group_academic_admin,base.group_system"`: the teacher is never told why (not even through the tracking, which Odoo filters by the field's groups). `ondelete='restrict'`: a reason in use is archived, not deleted |
 | `is_own` | Non-stored, `@api.depends_context('uid')`: the teacher reading their own entry. Swaps the status bar for one without the *To review* step, which they never see |
 | `leave_id` | The teacher's own request it was linked to, or the one the reviewer created. `ondelete='set null'` |
 | `justification_date` | *Teacher notified on*: the day the reviewer asked for a justification or prepared the absence. The reminder and report delays count from it |
@@ -857,7 +861,19 @@ sums up the four decisions while the entry waits for the user's review (`can_rev
    until then. Not a draft state on `hr.leave` either: Odoo 18 has none (requests start at
    `confirm`), and every overlap check, the guard duty board, the hour reports and the linking
    treat any request not refused or cancelled as a real absence.
-4. **Discard** (`action_discard`): `discarded` and archived, with a note saying who. Nothing else.
+4. **Discard** (`action_discard`): opens `ems.absence_pending.discard_wizard` (issue #818), which
+   asks for a reason from the catalog (the first by sequence by default) and optional details,
+   then `_ems_discard()`: `discarded` and archived with that reason, with a note saying who.
+   Nothing else. The list's **Discard** server action opens the same dialog for the selection
+   (it runs `action_discard()` on the selection), as the form's button does for its entry.
+
+   The catalog, `ems.absence_pending.discard_reason` (`name` translatable, `sequence`, `active`),
+   is maintained under **Absences > Configuration > Detected absence discard reasons** by the Heads
+   of Studies (read, write, create) and the academic administrator (also delete). Absences >
+   Configuration is hr_holidays' Administrator's only, so EMS adds both groups to it; they only see
+   this entry under it, since every native one keeps its own group. Like the convalidation reasons,
+   a reusable catalog rather than a free-text field, so the reasons can be grouped and counted
+   (the list groups by *Discard reason*).
 
 **Talking with the teacher (issue #698).** The entry's followers are whoever entered it (the
 creator) and the reviewers (an activity subscribes its assignee). The teacher joins them when they
@@ -1095,8 +1111,8 @@ never offers the user themselves. The note stays out of their reach through the 
 entries of their branch, but only the teacher's attendance approvers and the administrators may
 run the four actions (see *Reviewing* above). The list's server actions and the wizard's act_window
 carry `groups_id` = Head of Studies, academic administrator, technical administrator, so a chief
-does not see them in the action menu; the wizard (`ems.absence_pending.leave_wizard`) has an ACL for
-those same three groups.
+does not see them in the action menu; the wizards (`ems.absence_pending.leave_wizard`, `ems.absence_pending.discard_wizard`) have an
+ACL for those same three groups.
 
 | Action | Department / Seminar Chief | Head of Studies / Deputy (own branch) | Director | Administrators | Teacher |
 |---|---|---|---|---|---|

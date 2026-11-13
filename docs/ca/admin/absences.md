@@ -78,6 +78,10 @@ Entra'ls **abans** que arribin. Cada nit, l'EMS registra una absència sense jus
 
 ---
 
+## Motius de descart d'absències detectades
+
+**Absències > Configuració > Motius de descart d'absències detectades**. Quan el cap d'estudis o el cap d'estudis adjunt descarta una absència detectada, tria per què d'aquesta llista (mira [Absències detectades](../head_of_studies/absences.md#revisar-una-absència-detectada)). L'EMS en porta tres: **Vaga**, **Error** i **Altres**. L'administrador i els caps d'estudis en poden afegir més, canviar-los el nom o reordenar-los arrossegant-los (el primer és el que s'ofereix per defecte). Un motiu que ja s'ha fet servir no es pot esborrar: arxiva'l, perquè deixi d'oferir-se i les absències descartades amb ell el conservin.
+
 ## Qui aprova
 
 No es configura aquí. Surt de l'organigrama: l'aprovador de cada persona és **el responsable del seu departament de nivell superior**, que es defineix al formulari del departament (camp *Responsable d'àrea*).

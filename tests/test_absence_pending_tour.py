@@ -112,3 +112,9 @@ class TestAbsencePendingTour(HttpCase):
                 'date_from': Pending._utc_bounds(day, 0.0, 9.0)[1], 'date_to': Pending._utc_bounds(day, 0.0, 11.0)[1],
             })
         self.start_tour("/odoo", "ems_absence_pending_review", login=self.head_of_studies.login)
+        # Issue #818: the two discarded from the list keep the reason chosen in the dialog.
+        discarded = Pending.with_context(active_test=False).search([
+            ('employee_id.name', 'in', ['Review Teacher B', 'Review Teacher C'])])
+        self.assertEqual(set(discarded.mapped('state')), {'discarded'})
+        self.assertEqual(discarded.discard_reason_id, self.env.ref('ems.absence_pending_discard_reason_error'))
+        self.assertEqual(set(discarded.mapped('discard_details')), {'Wrong schedule loaded'})

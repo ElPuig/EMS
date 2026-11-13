@@ -78,6 +78,10 @@ Introdúcelos **antes** de que lleguen. Cada noche, el EMS registra una ausencia
 
 ---
 
+## Motivos de descarte de ausencias detectadas
+
+**Ausencias > Configuración > Motivos de descarte de ausencias detectadas**. Cuando el jefe de estudios o el jefe de estudios adjunto descarta una ausencia detectada, elige por qué de esta lista (mira [Ausencias detectadas](../head_of_studies/absences.md#revisar-una-ausencia-detectada)). El EMS trae tres: **Huelga**, **Error** y **Otros**. El administrador y los jefes de estudios pueden añadir más, cambiarles el nombre o reordenarlos arrastrándolos (el primero es el que se ofrece por defecto). Un motivo que ya se ha usado no se puede borrar: archívalo, para que deje de ofrecerse y las ausencias descartadas con él lo conserven.
+
 ## Quién aprueba
 
 No se configura aquí. Sale del organigrama: el aprobador de cada persona es **el responsable de su departamento de nivel superior**, que se define en el formulario del departamento (campo *Responsable de área*).

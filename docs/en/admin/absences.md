@@ -78,6 +78,10 @@ Enter them **before** they come. Every night, EMS records an unjustified absence
 
 ---
 
+## Detected absence discard reasons
+
+**Absences > Configuration > Detected absence discard reasons**. When the Head of Studies or their Deputy discards a detected absence, they choose why from this list (see [Detected absences](../head_of_studies/absences.md#reviewing-a-detected-absence)). EMS comes with three: **Strike**, **Error** and **Others**. The administrator and the Heads of Studies can add more, rename them or reorder them by dragging (the first one is offered by default). A reason already used can't be deleted: archive it instead, so it is no longer offered and the absences discarded with it keep it.
+
 ## Who approves
 
 Not configured here. It comes from the org chart: everyone's approver is **the manager of their top-level department**, set on the department's own form (the *Area Manager* field).

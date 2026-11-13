@@ -50444,3 +50444,9 @@ msgstr "El que la Secretaria ja ha transferit al compte de la persona."
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__covers
 msgid "Who it is for"
 msgstr "Per a qui és"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "These documents can't be removed because someone already handed them in, and what is handed in is always kept: %(documents)s. If one is no longer needed, make it Optional instead."
+msgstr "Aquests documents no es poden treure perquè algú ja els ha lliurat, i el que s'ha lliurat es conserva sempre: %(documents)s. Si un ja no cal, poseu-lo com a Opcional."

@@ -1027,7 +1027,11 @@ the mobility's modality needs and is missing, never removing a line: on creation
 modality is changed on the application (`application.write`), when a staff member's project is
 assigned, and when the call is saved with changes to `preparation_document_ids` or `task_ids`
 (issue #788: `_ems_sync_open_requirements()` on the call's mobilities still going on; there is no
-button to remember). A group mobility does the same when saved with changes to `requirement_ids`.
+button to remember). A group mobility does the same when saved with changes to `requirement_ids`. Removing a call
+document (`ems.erasmus.call.document.unlink()`, call or group mobility alike) removes its empty
+lines everywhere; if any line is evidence (`_ems_evidence()`: a file, a team file or valid) it raises
+a translated `UserError` naming the documents instead of the database's `ondelete='restrict'` error,
+so nothing handed in is ever deleted.
 
 **Filled in by EMS (issue #788):** the mobility's `project_id`, on creation and when the modality
 changes, when exactly one project is possible (`allowed_project_ids`: a single active project of

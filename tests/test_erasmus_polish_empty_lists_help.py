@@ -48,6 +48,6 @@ class TestErasmusQualityPanelHelp(ErasmusSatisfactionCase):
 
     def test_each_indicator_has_its_help(self):
         panel = self.env['ems.erasmus.quality.panel'].with_user(self.technician_user).create({})
-        self.assertEqual(panel.indicators_html.count('fa-info-circle'), 4)
+        self.assertEqual(panel.indicators_html.count('fa-info-circle'), 5, "Issue #793: the diffusion actions too.")
         self.assertIn('title="Surveys answered out of the stays over."', panel.indicators_html)
 

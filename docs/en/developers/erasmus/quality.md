@@ -24,7 +24,9 @@ over, and a panel with the figures. Code: `models/erasmus/satisfaction.py`,
   and Head of Studies of FP).
 - Both counts are **frozen on the call** (`interest_applicant_count`, `interest_target_count`,
   `interest_date`) when its definitive resolution is published (`ems.erasmus.resolution._ems_after_publish`),
-  so later enrolments or leavers never change the history. Before that, `_ems_interest()` counts live.
+  so later enrolments or leavers never change the history. Before that, `_ems_interest()` counts live
+  (when the panel opens); the indicator's hover help says both (C43 of the journey review, issue #793).
+  Satisfaction and the response rate are always counted when the panel opens.
 - Satisfaction counts every participant: individual students and staff, and every active participant
   of a group mobility (students, leader, companions).
 - The **course** of a survey is the call's (or the group mobility's), never the year the stay ends.
@@ -75,11 +77,11 @@ the action's field is a link; otherwise its name and state show without one.
 
 ## Panel
 
-`ems.erasmus.quality.panel` is a transient model whose form is the panel, opened from the *Indicators* menu by `action_open_panel()` (a server action that creates it, so the title is "Quality indicators" and not "New"): filters (course, call,
+`ems.erasmus.quality.panel` is a transient model whose form is the panel, opened from the *Indicators* menu by `action_open_panel()` (a server action that creates it, so the title is "Quality indicators" and not "New", with the company's `current_course_id` as the course, issue #793): filters (course, call,
 project, participant type, cycle, host entity) and four non-stored computed HTML tables, recomputed
 on every filter change (onchange):
 
-- Indicators: value, target, met, n and, for satisfaction, the median; the response rate. Figures are rounded half up to one decimal (81.25 % shows 81.3 %).
+- Indicators (issue #793): *Indicator, Value, Target, Met, Answers*; *Met* is a green or red badge (`_ems_indicator_row`, shared with the PDF); the median only in the breakdown. Rows: the two interests, satisfaction, the response rate and the diffusion actions of the chosen course against `DIFFUSION_TARGET` (10, "≥", a count without decimals; `-` without a course), added by `quality.py`'s `_ems_data()`. Figures are rounded half up to one decimal (81.25 % shows 81.3 %).
 - Satisfaction by participant type and by host entity (average, median, n).
 - Each call's funnel: applications, admitted, with a place, mobilities done, renounced or cancelled,
   in total and by cycle (the study of the applicant's group).

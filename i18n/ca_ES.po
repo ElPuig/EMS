@@ -1323,6 +1323,7 @@ msgstr "Acció Necessària"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__active
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__active
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__active
+#: model:ir.model.fields,field_description:ems.field_ems_reason_catalog__active
 msgid "Active"
 msgstr "Actiu"
 
@@ -7007,6 +7008,7 @@ msgstr "NUSS"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__name
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__name
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__name
+#: model:ir.model.fields,field_description:ems.field_ems_reason_catalog__name
 msgid "Name"
 msgstr "Nom"
 
@@ -9046,6 +9048,7 @@ msgstr "Enviat el"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_reason_catalog__sequence
 msgid "Sequence"
 msgstr "Seqüència"
 
@@ -52274,3 +52277,9 @@ msgstr "Trieu el grup de treball de la reunió."
 #: code:addons/ems/models/quality/minute.py:0
 msgid "Choose the group whose teaching team meets."
 msgstr "Trieu el grup l'equip docent del qual es reuneix."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/datetime_utils.py:0
+msgid "There are no school days in the calendar after %s."
+msgstr "No hi ha dies lectius al calendari després del %s."

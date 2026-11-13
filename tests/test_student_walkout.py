@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest.mock import patch
 
 from dateutil.relativedelta import relativedelta
 
@@ -229,6 +230,22 @@ class TestStudentWalkout(TransactionCase):
         self.assertEqual(Walkout._ems_first_walkout_day(self._calendar(fields.Datetime.now())),
                          self.today + timedelta(days=7))
         self.assertTrue(open_walkout(self, days=7))
+
+    def test_school_hours_cross_a_break_longer_than_the_search_window(self):
+        """A call shown or opened in July while the summer break runs past the first window of days
+        read (hours / 24 * 3 + 60): the count goes on until the first school day instead of looping
+        for ever."""
+        Walkout = self.env['ems.student_walkout']
+        start = fields.Datetime.now()
+        break_end = fields.Date.to_date(start) + timedelta(days=120)
+
+        def holiday_dates(_leaves, date_from, date_to):
+            return {date_from + timedelta(days=n) for n in range((min(date_to, break_end) - date_from).days + 1)}
+
+        with patch.object(type(self.env['resource.calendar.leaves']), '_ems_holiday_dates', holiday_dates):
+            end = Walkout.ems_add_school_hours(start, 24)
+        self.assertGreater(Walkout._ems_local_wall(end).date(), break_end)
+        self.assertLess(Walkout._ems_local_wall(end).date(), break_end + timedelta(days=4))
 
     def test_notice_boundary_is_exact(self):
         """Opened on Monday at 00:00: the minute on Wednesday at 00:00, exactly 48 school hours before

@@ -1014,7 +1014,7 @@ Issue items:
 | 1 | Test coverage first: the missing tests for what is about to be touched, written and run on the current code before refactoring |
 | 2 | Refactoring: duplicated logic (server/client and across files), convoluted code, two paths/UIs for the same job, leftovers (methods, labels, translations, comments) |
 | 3 | "Odoo way": every new custom mechanism compared with Odoo/OCA; a built-in ruled out has its reason written in the code or the developer doc |
-| 4 | Efficiency, time: what runs often (screens, RPCs, scheduled jobs, summaries) measured on real data, cold and warm, numbers in the note; filtering in the domain, no search/filtered inside loops |
+| 4 | Efficiency, time: what runs often (screens, RPCs, scheduled jobs, summaries) measured on real data, cold and warm, numbers in the note (no data: cost of the algorithm analysed and estimated, never left unmeasured); filtering in the domain, no search/filtered inside loops |
 | 5 | Efficiency, memory: no whole tables in memory, batch reads, large exports and files streamed, no unbounded caches |
 | 6 | Redundant tests (same path, same assertion) removed or merged |
 | 7 | Permission audit of the touched area, re-run with 0 mismatches |
@@ -1039,7 +1039,7 @@ Release PR items:
 | 2 | Conflicts resolved keeping both sides (`.po` blocks checked, migrations above the last tag) |
 | 3 | Refactoring across branches: what no single branch could see (helpers or methods written twice, renamed differently, name clashes, overlapping tests) |
 | 4 | "Odoo way" over everything integrated, as in the issue table |
-| 5 | Efficiency, time: combined cost of what was integrated (scheduled jobs, daily summary, most used screens), measured, with numbers |
+| 5 | Efficiency, time: combined cost of what was integrated (scheduled jobs, daily summary, most used screens), measured, with numbers (no data: algorithm cost analysed and estimated) |
 | 6 | Efficiency, memory over everything integrated, as in the issue table |
 | 7 | Redundant tests across branches (two branches testing the same thing) |
 | 8 | Permission audit over everything integrated, 0 mismatches |

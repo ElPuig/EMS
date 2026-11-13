@@ -61,7 +61,7 @@ Si quedes en **reserva**, el resultat t'indica quin número de reserva ets a la 
 
 Mentre la resolució provisional és vigent, l'etiqueta de dalt de la sol·licitud mostra el teu resultat provisional (per exemple, *Reserva (provisional)*).
 
-**Reclamacions.** Si no estàs d'acord amb el resultat provisional, obre **Vull reclamar** a sota, escriu què reclames i per què, adjunta els fitxers que ho justifiquin i fes clic a **Envia la reclamació**, abans del termini de reclamacions. L'EMS en deixa constància amb la data i l'hora. Rebràs un correu que confirma que ha arribat, i un altre amb la resposta de l'equip Erasmus, que també surt a **Les meves reclamacions**.
+**Reclamacions.** Si no estàs d'acord amb el resultat provisional, obre **Vull reclamar** a sota, escriu què reclames i per què, adjunta els fitxers que ho justifiquin i fes clic a **Envia la reclamació**, abans del termini de reclamacions. L'EMS en deixa constància amb la data i l'hora. Rebràs un correu que confirma que ha arribat, i un altre amb la resposta de l'equip Erasmus, que també surt a **Les meves reclamacions**: el **Resultat** (*Estimada*, *Estimada en part* o *Desestimada*) i l'explicació.
 
 **Recurs d'alçada.** Contra la resolució definitiva pots presentar recurs d'alçada davant el cap d'estudis en el termini d'un mes a comptar de l'endemà de la publicació: escriu a l'equip Erasmus, que el registrarà. El respondrà el cap d'estudis, i rebràs la resposta per correu.
 

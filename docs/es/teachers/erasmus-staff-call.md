@@ -35,7 +35,7 @@ Los documentos que pide la convocatoria están en la pestaña **Documentos** de 
 
 **Mis solicitudes** muestra tus solicitudes con **Qué tienes que hacer ahora** y el plazo. En la solicitud ves su estado, tus respuestas (pestaña **Formulario**), los documentos y, una vez publicadas, la pestaña **Resultados**: cada resolución con tu posición (descárgala con **PDF**), la plaza ofrecida y tus reclamaciones.
 
-Si no estás de acuerdo con la resolución provisional, usa **Acciones > Reclamación** antes de que acabe el plazo de reclamaciones: escribe qué reclamas y adjunta los archivos que lo justifiquen. Recibirás un justificante por correo electrónico, y el equipo Erasmus la responderá.
+Si no estás de acuerdo con la resolución provisional, usa **Acciones > Reclamación** antes de que acabe el plazo de reclamaciones: escribe qué reclamas y adjunta los archivos que lo justifiquen. Recibirás un justificante por correo electrónico, y el equipo Erasmus la responderá: estimada, estimada en parte o desestimada, y por qué.
 
 Si te seleccionan, usa **Acciones > Acepta la plaza** o **Renunciar a la plaza** antes del plazo: sin respuesta, se considera que renuncias.
 

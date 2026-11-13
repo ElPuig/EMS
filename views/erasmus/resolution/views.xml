@@ -103,6 +103,11 @@
                                 <field name="score_f" optional="hide" invisible="result == 'excluded'"/>
                                 <field name="score_total" string="Score" invisible="kind == 'admission' or result == 'excluded'"/>
                                 <field name="result" widget="badge"/>
+                                <!-- Issue #792 (4.4): why, for the team only; the published list and its PDF never
+                                     show it (the call's rules: the list has no names, each applicant gets their own
+                                     reason by email and on the portal). -->
+                                <field name="exclusion_reason" optional="show" invisible="result != 'excluded'"
+                                       groups="ems.group_erasmus,ems.group_academic_admin"/>
                             </list>
                         </field>
                     </sheet>

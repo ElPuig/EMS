@@ -46,18 +46,18 @@ Quan es publica:
 
 > **Qui queda seleccionat:** les sol·licituds elegibles (com a mínim la puntuació mínima) dins de les places de la seva modalitat. La resta de les elegibles queden en reserva, per ordre. Per sota de la puntuació mínima: no seleccionades.
 
-A la resolució, les línies surten de colors: verd, admesa o seleccionada; taronja, reserva; vermell, exclosa; negre, no seleccionada. Una línia exclosa no té posició ni puntuació. Al portal, cada persona veu la seva fila destacada a la llista publicada (mai al PDF).
+A la resolució, les línies surten de colors: verd, admesa o seleccionada; taronja, reserva; vermell, exclosa; negre, no seleccionada. Una línia exclosa no té posició ni puntuació, i la columna **Motiu d'exclusió** diu per què (només per a l'equip Erasmus: la llista publicada i el PDF no el mostren mai; cada persona llegeix el seu motiu al correu del resultat i al portal). Al portal, cada persona veu la seva fila destacada a la llista publicada (mai al PDF).
 
 ## 4. Reclamacions i recursos
 
 Les persones candidates reclamen des del portal, a sota del seu resultat provisional, fins al termini de reclamacions: l'EMS registra la reclamació amb els fitxers i el moment en què va arribar, i tot l'equip Erasmus rep una tasca per respondre-la, que queda feta quan es resol. Una reclamació que arriba per correu es registra a mà a **Erasmus+ > Convocatòries > Reclamacions** (o a la pestanya **Resultats** de la sol·licitud):
 
 1. **Sol·licitud**, **Contra** (la resolució), **Tipus** (reclamació o recurs d'alçada davant el cap d'estudis), **Rebuda el**, **Què es reclama** i els fitxers.
-2. Escriu la **Resposta** i fes clic a **Accions > Resoldre**.
+2. Tria el **Resultat** (*Estimada*, *Estimada en part* o *Desestimada*), escriu la **Resposta** i fes clic a **Accions > Resoldre**. No es pot resoldre sense totes dues coses.
 
-La persona rep un correu quan es registra la reclamació (el justificant que ha arribat dins del termini) i un altre amb la resposta, que també veu al portal, a **Les meves reclamacions**.
+La persona rep un correu quan es registra la reclamació (el justificant que ha arribat dins del termini) i un altre amb el resultat i la resposta, que també veu al portal, a **Les meves reclamacions**.
 
-**Els recursos d'alçada contra la resolució definitiva** (en el termini d'un mes des de la publicació) els respon el cap d'estudis de la persona, no l'equip Erasmus: el cap d'estudis o cap d'estudis adjunt que hi ha per sobre del tutor del grup de l'alumne (per sobre del mateix docent en una convocatòria de professorat; la directora si qui recorre és aquest cap d'estudis). Registra el recurs com s'ha explicat, amb **Tipus** *Recurs d'alçada davant el cap d'estudis*: l'EMS li crea una tasca, i ell n'escriu la **Resposta** i el resol. L'equip Erasmus veu el recurs, però no el pot respondre.
+**Els recursos d'alçada contra la resolució definitiva** (en el termini d'un mes des de la publicació) els respon el cap d'estudis de la persona, no l'equip Erasmus: el cap d'estudis o cap d'estudis adjunt que hi ha per sobre del tutor del grup de l'alumne (per sobre del mateix docent en una convocatòria de professorat; la directora si qui recorre és aquest cap d'estudis). Registra el recurs com s'ha explicat, amb **Tipus** *Recurs d'alçada davant el cap d'estudis*: l'EMS li crea una tasca, i ell en tria el **Resultat**, n'escriu la **Resposta** i el resol. L'equip Erasmus veu el recurs, però no el pot respondre.
 
 Si s'estima una reclamació, corregeix les dades de la sol·licitud (per exemple, el certificat d'idiomes) abans de preparar la resolució definitiva. EMS no deixa preparar la resolució definitiva abans del **Termini de reclamacions** ni mentre quedi alguna reclamació oberta. Després de la definitiva, publica una rectificació.
 

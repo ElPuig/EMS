@@ -9,6 +9,10 @@ from .records import check_upload
 from .workflow import check_workflow_create, check_workflow_write
 
 
+# What whoever answers an appeal writes (the Erasmus team records the rest).
+ANSWER_FIELDS = {'response', 'outcome'}
+
+
 class EmsErasmusClaim(models.Model):
     """Issue #685 - a claim against the provisional resolution or an appeal against the definitive
     one (art. 14 of the call). The applicant sends a claim from the portal (the issue-#682 review),
@@ -35,6 +39,10 @@ class EmsErasmusClaim(models.Model):
     attachment_ids = fields.Many2many(string="Files", comodel_name='ir.attachment',
                                       relation='ems_erasmus_claim_attachment_rel')
     response = fields.Text(string="Response", tracking=True)
+    # Issue #792 (4.13): whether the claim was upheld, not only the written answer.
+    outcome = fields.Selection(string="Result", tracking=True, copy=False, selection=[
+        ('upheld', "Upheld"), ('partially_upheld', "Partially upheld"), ('dismissed', "Dismissed")],
+        help="Chosen when answering: the claim is resolved with it, and the applicant reads it with the response.")
     resolved_date = fields.Date(string="Resolved on", readonly=True, copy=False)
     state = fields.Selection(string="State", required=True, default='open', readonly=True, tracking=True,
                              selection=[('open', "Open"), ('resolved', "Resolved")])
@@ -70,12 +78,12 @@ class EmsErasmusClaim(models.Model):
 
     def write(self, vals):
         """Resolved, and when, only through the actions (audit R-25). Whoever answers an appeal
-        writes only its response."""
+        writes only its response and result."""
         check_workflow_write(self, vals)
         if not self.env.su:
-            if not self.env['ems.erasmus.application']._ems_can_manage() and set(vals) - {'response'}:
+            if not self.env['ems.erasmus.application']._ems_can_manage() and set(vals) - ANSWER_FIELDS:
                 raise AccessError(_("Only the Erasmus team records a claim."))
-            if 'response' in vals:
+            if ANSWER_FIELDS & set(vals):
                 self._ems_check_can_resolve()
         result = super().write(vals)
         if 'kind' in vals:
@@ -87,6 +95,8 @@ class EmsErasmusClaim(models.Model):
         self._ems_check_can_resolve()
         if self.filtered(lambda claim: not (claim.response or '').strip()):
             raise UserError(_("Write the response first."))
+        if self.filtered(lambda claim: not claim.outcome):
+            raise UserError(_("Choose the result first: upheld, partially upheld or dismissed."))
         self.sudo().write({'state': 'resolved', 'resolved_date': self.env['ems.datetime_utils'].get_local_today()})
         self.sudo().activity_ids.action_feedback()
         self.env['ems.erasmus.application']._ems_mail(self, 'ems.email_template_erasmus_claim_resolved')
@@ -94,6 +104,11 @@ class EmsErasmusClaim(models.Model):
     def action_reopen(self):
         self._ems_check_can_resolve()
         self.sudo().write({'state': 'open', 'resolved_date': False})
+
+    def _ems_outcome_label(self):
+        """The result in the reader's language (the answer email, the portal)."""
+        self.ensure_one()
+        return dict(self._fields['outcome']._description_selection(self.env)).get(self.outcome, '')
 
     def _ems_ask_answer(self):
         """A task to answer the claim, marked done when it is resolved: for each member of the

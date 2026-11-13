@@ -275,6 +275,9 @@
                                       t-esc="claim_state_labels.get(claim.state)"/>
                             </div>
                             <p class="mb-1" style="white-space: pre-line;" t-esc="claim.description"/>
+                            <p t-if="claim.state == 'resolved' and claim.outcome" class="mb-1 o_ems_erasmus_claim_outcome">
+                                <strong>Result:</strong> <t t-esc="claim._ems_outcome_label()"/>
+                            </p>
                             <p t-if="claim.state == 'resolved' and claim.response" class="mb-0" style="white-space: pre-line;">
                                 <strong>Response:</strong> <t t-esc="claim.response"/>
                             </p>

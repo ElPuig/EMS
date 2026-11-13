@@ -298,7 +298,7 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         with self.assertRaises(AccessError, msg="The Head of Studies does not answer claims."):
             claim.with_user(self.hos).action_resolve()
         self._team(apps['claim']).language_level = 'c1'
-        claim.response = 'Accepted: C1 certificate counted (criterion 4)'
+        claim.write({'response': 'Accepted: C1 certificate counted (criterion 4)', 'outcome': 'upheld'})
         claim.action_resolve()
         self.assertEqual((apps['claim'].score_total, apps['claim'].rank), (4.5, 3))
 

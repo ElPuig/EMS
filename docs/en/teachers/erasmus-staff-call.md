@@ -35,7 +35,7 @@ The documents the call asks for are in the **Documents** tab of your application
 
 **My applications** lists your applications with **What to do now** and the deadline. In the application you see its state, your answers (**Form** tab), the documents and, once published, the **Results** tab: each resolution with your position (download it with **PDF**), the place offered and your claims.
 
-If you disagree with the provisional resolution, use **Actions > Claim** before the claims deadline: write what you claim and attach any supporting files. You receive a receipt by email, and the Erasmus team answers it.
+If you disagree with the provisional resolution, use **Actions > Claim** before the claims deadline: write what you claim and attach any supporting files. You receive a receipt by email, and the Erasmus team answers it: upheld, partially upheld or dismissed, and why.
 
 If you are selected, use **Actions > Accept the place** or **Renounce the place** before the deadline: without an answer, the place is considered renounced.
 

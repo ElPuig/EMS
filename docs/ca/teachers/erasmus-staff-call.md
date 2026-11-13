@@ -35,7 +35,7 @@ Els documents que demana la convocatòria són a la pestanya **Documents** de la
 
 **Les meves sol·licituds** mostra les teves sol·licituds amb **Què has de fer ara** i el termini. A la sol·licitud en veus l'estat, les teves respostes (pestanya **Formulari**), els documents i, un cop publicades, la pestanya **Resultats**: cada resolució amb la teva posició (descarrega-la amb **PDF**), la plaça oferida i les teves reclamacions.
 
-Si no hi estàs d'acord amb la resolució provisional, fes servir **Accions > Reclamació** abans que acabi el termini de reclamacions: escriu què reclames i adjunta-hi els fitxers que ho justifiquin. Rebràs un justificant per correu electrònic, i l'equip Erasmus la respondrà.
+Si no hi estàs d'acord amb la resolució provisional, fes servir **Accions > Reclamació** abans que acabi el termini de reclamacions: escriu què reclames i adjunta-hi els fitxers que ho justifiquin. Rebràs un justificant per correu electrònic, i l'equip Erasmus la respondrà: estimada, estimada en part o desestimada, i per què.
 
 Si et seleccionen, fes servir **Accions > Accepta la plaça** o **Renuncia a la plaça** abans del termini: sense resposta, es considera que hi renuncies.
 

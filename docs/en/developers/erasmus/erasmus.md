@@ -756,8 +756,10 @@ portal while the newest published provisional resolution is claimable
 `_ems_portal_claim` creates it with its files and gives every member of the Erasmus team a to-do
 (`ems.erasmus.claim._ems_ask_answer`). A claim or an appeal that arrives by email is recorded by the
 team. Creating one emails the applicant a receipt with the moment it arrived
-(`email_template_erasmus_claim_received`); **Resolve** needs the response, stamps the date, closes
-the to-dos and emails the response (`email_template_erasmus_claim_resolved`). Upholding a claim
+(`email_template_erasmus_claim_received`); **Resolve** needs the response and the `outcome`
+(*Upheld*, *Partially upheld*, *Dismissed*, issue #792), stamps the date, closes the to-dos and
+emails both (`email_template_erasmus_claim_resolved`); the portal shows the outcome under the claim.
+Whoever answers an appeal writes only `response` and `outcome` (`ANSWER_FIELDS`). Upholding a claim
 means correcting the application's data and publishing the next resolution (the definitive, or a
 rectification).
 
@@ -1167,6 +1169,9 @@ wizard, never on its own.
 - **Current step.** `step_note` (non-stored) on the mobility, shown on top of the team's form: the destination choice (choice not open, turn and its deadline, turn missed, choosing among what is left), the proposal waiting for the Direction or the team, then what the record lacks (commitment letter, documents by who handles them, documents to review, the EU Survey). The teacher's mobility shows `staff_next_step`, the same "what to do now" box as their application (`ems.erasmus.application._ems_staff_next()`, built on `_ems_portal_progress()`).
 - **Warnings that block nothing.** `grant_missing` on a mobility with a destination and no grant; on a group mobility `grant_missing` (names), `pocket_negative` (share of the collective invoices above the grant) and `start_warning` (no host entity, start date still ahead) before *The stay starts*; *Request the pocket money* asks for confirmation that the collective invoices are in when the centre pays them. On a project, a missing grant replaces the "committed above the grant" warning, and missing support rates for the call year are one line instead of one per participant.
 - The application's `exclusion_reason` is shown on top of the form and as a list column.
+- The resolution's lines show `exclusion_reason` on excluded lines to the Erasmus team (issue #792, 4.4); the
+  published list and its PDF never show it, as the call's rules ask (no names; each applicant reads their own
+  reason in the result email and on the portal).
 
 ### Destination choice (students, art. 15)
 

@@ -1319,6 +1319,13 @@ explicar de forma genérica"*):
 - This is a genuine rewrite, not a mechanical trim - read the full detailed content first (already
   required by the "read every file" step above), then write fresh, short prose that captures what a
   PR reviewer actually needs to know from it.
+- **Group a concept that repeats, one header level down (developer, 2026-11-13).** When several items of
+  a section belong to the same area (twelve Erasmus+ polish branches gave eight headings in a row in
+  `# Changes`), put one `## <Area>:` heading (e.g. `## Erasmus+:`) and make each item a `### ` heading
+  under it, dropping the area's name from the children's titles. It applies per section (`# Changes`,
+  `# Fixes`, `# Internal changes` each get their own group when the area repeats there) and to any area
+  that repeats, not only Erasmus+. Precedent: v18.0.0.46.0's `## Erasmus+:` with its `###` items. Do it
+  every time, without being asked; an area with a single item in a section keeps its plain `##`.
 
 **No manual line wraps within a paragraph/bullet in the final delivered document — each one
 must be a single continuous line in the file** (developer feedback 2026-09-04: *"Este texto de

@@ -14,16 +14,18 @@ Com a membre de la comissió de la convocatòria Erasmus+ del personal, valores 
 
 Quan l'equip Erasmus envia els plans a la comissió, reps una tasca a l'EMS per a cadascun, que venç el termini per corregir puntuacions de la convocatòria (dues setmanes després del tancament). Surt al resum diari de tasques pendents fins que la facis. Al menú **Erasmus+** tens **La meva participació > Plans per valorar**: els plans que tens assignats.
 
-Cada valoració mostra en pantalla el **pla de mobilitat i transferència** de la persona candidata, tal com el va escriure al formulari de sol·licitud: la proposta A (la principal) i la proposta B (la de reserva), amb les seves paraules, i què vol aprendre i com ho aplicarà a la feina, cada text sota el seu títol i a tota l'amplada. Valora les dues propostes juntes, amb una sola puntuació. No veus res més de la sol·licitud. La difusió no es valora: és la mateixa obligació per a tothom.
+Cada valoració mostra en pantalla el **pla de mobilitat** de la persona candidata, tal com el va escriure al formulari de sol·licitud: la proposta A (la principal) i la proposta B (per si la A no es pot fer), amb les seves paraules, cadascuna amb l'activitat, l'entitat o el curs, on, quan i què vol aprendre, sota el seu títol i a tota l'amplada. Valora les dues propostes juntes, amb una sola puntuació. No veus res més de la sol·licitud. La difusió no es valora: és la mateixa obligació per a tothom.
 
 ## 2. Valorar la rúbrica
 
 Per a cada aspecte, tria la descripció que s'ajusta més al pla: són les de l'annex 2 de la convocatòria, i cadascuna comença amb els punts que dona (1, 0,5 o 0).
 
+![La rúbrica del criteri 1: concreció i rellevància per a la feina](../../assets/erasmus/valoracio-pla-rubrica.png)
+
 | Aspecte | 1 punt | 0,5 punts | 0 punts |
 |---|---|---|---|
-| Rellevància i concreció | La relació amb la feina, el departament i els cicles formatius és clara, amb objectius concrets i l'entitat o el curs indicats pel nom | La relació és general o els objectius i l'activitat són poc concrets | No s'explica la relació amb la feina ni amb els cicles formatius, i els objectius i l'activitat són genèrics |
-| Aplicació a la feina | Aplicació concreta a la feina i a l'alumnat, amb accions definides | Aplicació poc concreta | No es preveu cap aplicació |
+| Concreció | L'activitat, l'entitat o el curs pel nom, el lloc i les dates | Hi falta l'entitat o el curs, o les dates | Activitat genèrica, sense entitat o curs ni dates |
+| Rellevància per a la feina | Objectiu clar i relacionat amb la feina, el departament o els cicles formatius | L'objectiu és general | No s'explica què es vol aprendre ni la relació amb la feina |
 
 Pots escriure les teves notes a **Notes de l'avaluador**.
 

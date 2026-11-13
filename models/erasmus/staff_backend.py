@@ -13,6 +13,9 @@ from odoo.exceptions import AccessError, UserError
 from .application import ANSWER_FIELDS
 from .mobility import OPEN_STATES
 
+# P17 (adriamt, 2026-11-13): when a teacher may tick their steps on return; a closed mobility, never.
+RETURN_TICK_PHASES = ('stay', 'return')
+
 
 def staff_action(env, xmlid, record=None):
     """The window action `xmlid`, opened on `record`'s form when given."""
@@ -423,15 +426,19 @@ class EmsErasmusMobilityTask(models.Model):
     staff_can_tick = fields.Boolean(string="Can tick", compute='_compute_staff_can_tick')
     staff_can_untick = fields.Boolean(string="Can untick", compute='_compute_staff_can_tick')
 
-    @api.depends('done', 'done_user_id', 'mobility_id.state')
+    @api.depends('done', 'done_user_id', 'stage', 'mobility_id.state', 'mobility_id.phase')
     @api.depends_context('uid')
     def _compute_staff_can_tick(self):
+        """A step before leaving while the mobility is open; a step on return only once the stay has
+        started and until it is closed (P17: the news piece is often written on the last day)."""
         partner = self.env.user.partner_id
         for task in self:
             own = task.sudo()
             mobility = own.mobility_id
+            in_time = (mobility.phase in RETURN_TICK_PHASES if own.stage == 'return'
+                       else mobility.state in OPEN_STATES)
             open_own = (not self.env.user.share and mobility.partner_id == partner and mobility.audience == 'staff'
-                        and mobility.state in OPEN_STATES)
+                        and in_time)
             task.staff_can_tick = open_own and not own.done
             task.staff_can_untick = open_own and own.done and own.done_user_id == self.env.user
 

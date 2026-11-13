@@ -55,13 +55,8 @@ registry.category("web_tour.tours").add("ems_erasmus_staff_backend_apply", {
             run: "edit An English course in Malta, in July",
         },
         {
-            trigger: ".modal .o_field_widget[name='plan_text'] textarea",
-            content: "What you want to learn and how you will apply it (annex 1)",
-            run: "edit Tour plan_text",
-        },
-        {
             trigger: ".modal .o_field_widget[name='declared_never_staff_mobility'] input",
-            content: "Never had a staff mobility",
+            content: "No Erasmus+ mobility at the centre yet",
             run: "click",
         },
         {
@@ -145,6 +140,11 @@ registry.category("web_tour.tours").add("ems_erasmus_staff_backend_apply", {
         {
             trigger: ".o_form_view .o_statusbar_status button[data-value='submitted'].o_arrow_button_current",
             content: "The application is submitted",
+        },
+        {
+            // P05, P08: once sent and still changeable, the same dialog says what it does now.
+            trigger: ".o_form_view .o_form_statusbar button[name='action_staff_edit']:contains('Modify the application')",
+            content: "Modify the application, once submitted",
         },
         {
             trigger: ".o_form_view",
@@ -302,17 +302,17 @@ registry.category("web_tour.tours").add("ems_erasmus_my_plan_rating", {
         },
         {
             // Issue #810: each text at full width under its title, not squeezed into a label column.
-            trigger: ".o_form_view div[name='plan']:not(.o_inner_group) .o_field_widget[name='plan_text']:contains('Test plan')",
+            trigger: ".o_form_view div[name='plan']:not(.o_inner_group) .o_field_widget[name='plan_proposal_b']:contains('Test proposal B')",
             content: "The mobility plan is on screen",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='relevance'] input[data-value='1']",
-            content: "Relevance and concreteness: 1",
+            trigger: ".o_form_view .o_field_widget[name='concreteness'] input[data-value='1']",
+            content: "Concreteness: 1",
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='transfer'] input[data-value='0.5']",
-            content: "Application and dissemination: 0.5",
+            trigger: ".o_form_view .o_field_widget[name='relevance'] input[data-value='0.5']",
+            content: "Relevance to the job: 0.5",
             run: "click",
         },
         {

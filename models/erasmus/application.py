@@ -80,19 +80,23 @@ ANSWER_FIELDS = {
     # A student's image consent is their image rights authorisation of the course (res.partner.auth_image,
     # as in the group mobilities): not asked again (the issue-#682 review).
     'student': ('fewer_opportunities', 'applicant_notes'),
-    'staff': ('proposal_a', 'proposal_b', 'plan_text', 'declared_never_staff_mobility', 'declared_centre_start_date',
+    'staff': ('proposal_a', 'proposal_b', 'declared_never_staff_mobility', 'declared_centre_start_date',
               'centre_projects', 'declared_language_level', 'support_needs', 'image_consent', 'applicant_notes'),
 }
-# Issue #697: the mobility and transfer plan of the staff call (annex 1), written in the form and
-# required to submit. The 2026-11-03 review made it friendlier (adriamt): two proposals in the
-# teacher's own words, A (the main one) and B (the backup if A falls through), each saying the
-# activity, the host entity or course, where and when ("job shadowing at a German VET school, the
-# Berufskolleg X in Cologne, in April"); and one text with what they want to observe or learn and
-# how they will apply it to their job. The panel reads it on screen and gives it one score; once
-# selected, the participant fills in the exact entity, country and dates of their mobility's
-# proposal for the Direction. Its dissemination is not asked for: it is the same obligation for
-# everyone (a news item on the website, and sharing it at a meeting if needed).
-PLAN_FIELDS = ('proposal_a', 'proposal_b', 'plan_text')
+# Issue #697: the mobility plan of the staff call (annex 1), written in the form and required to
+# submit: two proposals in the teacher's own words, A (the main one) and B (the backup if A can't be
+# done), each saying the activity, the host entity or course, where, when and what they want to learn
+# ("an English course at an academy in Bologna (Italy), in July, to improve my language skills"). How
+# it will be applied is not asked for (adriamt, 2026-11-13: the separate text went). The panel reads it
+# on screen and gives it one score; once selected, the participant fills in the exact entity, country
+# and dates of their mobility's proposal for the Direction. Its dissemination is not asked for either:
+# it is the same obligation for everyone (a news item on the website).
+PLAN_FIELDS = ('proposal_a', 'proposal_b')
+# Criteria 2 and 3 of the staff call, said on the form and the team's record (adriamt, 2026-11-13).
+FIRST_MOBILITY_HELP = ("As staff: accompanying student groups and mobilities of other programmes don't count "
+                       "(criterion 2).")
+CENTRE_PROJECTS_HELP = ("If you coordinate or take part in them: the centre projects, improvement teams or commissions "
+                        "of this school year or the last one, one per line; say which ones you coordinate.")
 # The activities of a staff mobility's proposal (ems.erasmus.mobility.proposal_activity).
 STAFF_ACTIVITIES = [('job_shadowing', "Job shadowing"), ('course', "Structured course"),
                     ('teaching', "Teaching assignment")]
@@ -143,20 +147,16 @@ class EmsErasmusApplication(models.Model):
     # Issue #686: the staff application form (art. 8 and annex 1 of the staff call); PLAN_FIELDS.
     proposal_a = fields.Text(string="Proposal A",
                              help="The main proposal, in the applicant's words: the activity, the host entity or "
-                                  "course, where and when.")
+                                  "course, where, when and what they want to learn.")
     proposal_b = fields.Text(string="Proposal B (backup)",
-                             help="The backup if proposal A falls through, in the same way.")
-    plan_text = fields.Text(string="What to learn and how to apply it",
-                            help="Annex 1: the competences the applicant wants to observe or learn, and how they "
-                                 "will apply them to their job.")
-    centre_projects = fields.Text(string="Centre projects")
+                             help="The backup if proposal A can't be done, in the same way.")
+    centre_projects = fields.Text(string="Centre projects", help=CENTRE_PROJECTS_HELP)
     support_needs = fields.Text(string="Support needs", groups=TEAM)
     # Criterion 2 (the 2026-11-03 review): the applicant only says they never had one; the Erasmus
     # team sets when the last one was for everyone else (last_staff_mobility).
     declared_never_staff_mobility = fields.Boolean(
-        string="Never had a staff mobility",
-        help="The applicant has never done an Erasmus+ staff mobility from this centre. Otherwise the Erasmus team "
-             "sets when the last one was.")
+        string="I have not done any Erasmus+ mobility at the Institut Puig Castellar",
+        help=FIRST_MOBILITY_HELP + " Otherwise the Erasmus team sets when the last one was.")
     declared_centre_start_date = fields.Date(
         string="At the centre since", help="Month and year since when the applicant works at the centre without "
                                            "interruption.")
@@ -1084,8 +1084,7 @@ class EmsErasmusApplication(models.Model):
             if application.audience == 'staff' and not application.declared_centre_start_date:
                 raise UserError(_("Say since when you work at the centre."))
             if application.audience == 'staff' and not all(application[name] for name in PLAN_FIELDS):
-                raise UserError(_("Write both proposals, A and B, and what you want to learn and how you will apply "
-                                  "it to your job."))
+                raise UserError(_("Write both proposals, A and B, each with what you want to learn."))
         corrected = self.filtered(lambda application: application.state == 'subsanation')
         self._ems_set_state('submitted')
         self.sudo().write({'submit_date': fields.Datetime.now()})

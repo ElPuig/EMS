@@ -44,7 +44,7 @@ mobilities done, and the evolution course by course. It never shows anybody's na
 
 **Erasmus+ › Quality › Satisfaction surveys** lists the answers. The whole Erasmus+ team (the coordinator
 and the mobility technician) sees the score, the comments and who answered, with their mobility;
-nobody else does. Both lists use short headers (*Type*, *Host*, *Action*, *Progress*); the whole name shows on hover.
+nobody else does. Both lists use short headers (*Type*, *Action*, *Progress*); the whole name shows on hover. The course, the host entity and the comment are in the columns menu, right of the headers, so the call, the participant and the cycle fit.
 
 **Low scores** lists every answer of 6 or lower with what did not work. The quality panel says how many there are under its indicators (*Low scores: 2, 1 without an improvement action*): click it to open them, those without an action first. Open one and choose
 **Actions › Create an improvement action**: EMS creates it in the **Quality** app, without the

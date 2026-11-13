@@ -16,7 +16,7 @@ La convocatoria del personal funciona como la del alumnado (ver [Convocatorias y
 
 En **Erasmus+ > Convocatorias > Convocatorias**, crea la convocatoria, pon *Personal* en **Solicitantes**, rellena las fechas, adjunta la convocatoria publicada y publícala. Nada más:
 
-- Los **documentos** del artículo 8 se añaden solos: solo los certificados de idiomas, opcionales (ningún currículum; el documento de identidad se pide a quien va, con los documentos de la movilidad). El **plan de movilidad y transferencia** no es un documento: las personas solicitantes lo escriben en el formulario (anexo 1), y es la única parte de la solicitud que ve la comisión. Puedes cambiarlos antes de publicar.
+- Los **documentos** del artículo 8 se añaden solos: solo los certificados de idiomas, opcionales (ningún currículum; el documento de identidad se pide a quien va, con los documentos de la movilidad). El **plan de movilidad** no es un documento: las personas solicitantes lo escriben en el formulario (anexo 1), y es la única parte de la solicitud que ve la comisión. Puedes cambiarlos antes de publicar.
 - No hay **Puntuación mínima**: la convocatoria del personal no tiene, así que EMS la pone a 0 y la oculta.
 - El **Plazo de valoración de la comisión** se rellena a partir de la fecha de cierre, como en la convocatoria de alumnado (14 días después, a las 14:00, en un día lectivo): ese día vencen las tareas de la comisión, y después los miembros ya no pueden cambiar sus valoraciones. Si cambias la fecha de cierre, el plazo la sigue, salvo que lo hayas cambiado a mano. Los demás plazos se rellenan igual.
 - Para abrir la convocatoria solo hacen falta los ajustes y el calendario: **Pueden solicitar** y **Valida las actividades** ya vienen rellenados. La pestaña **Documentos** no aparece (el único documento que se pide es el formulario, y los certificados de idiomas ya están), la pestaña **Comisión** aparece cuando la convocatoria está cerrada y el bloque **Movilidad** cuando se publica la resolución definitiva.
@@ -28,12 +28,12 @@ Una vez publicada, todo el personal con ficha de empleado ve la convocatoria en 
 
 ## 2. Qué rellena el personal
 
-Además de sus dos propuestas (A, la principal, y B, la de reserva) y de qué quiere aprender y cómo lo aplicará, escritos con sus palabras, cada persona solicitante declara:
+Además de sus dos propuestas (A, la principal, y B, por si la A no se puede hacer), cada una con la actividad, la entidad o el curso, dónde, cuándo y qué quiere aprender, escritas con sus palabras, cada persona solicitante declara:
 
-- Si **nunca ha hecho ninguna movilidad Erasmus+ de personal en el Puig**. Si no, ponéis vosotros cuándo fue la última (**Corrección**, criterio 2) con los registros del centro. Los acompañamientos de alumnado y otros programas no cuentan.
+- Si **no ha realizado ninguna movilidad Erasmus+ en el Institut Puig Castellar** (como personal). Si no, ponéis vosotros cuándo fue la última (**Corrección**, criterio 2) con los registros del centro. Los acompañamientos de alumnado y otros programas no cuentan.
 - El **mes y el año desde que trabaja en el centro** de forma continuada.
 - Su **certificado de idioma** más alto (B2 o superior), que también adjunta.
-- Los **proyectos del centro** en los que participa y, opcionalmente, sus **necesidades de apoyo** (confidenciales: solo las ve el equipo Erasmus).
+- Los **proyectos del centro**, equipos de mejora o comisiones de este curso o del pasado que coordina o en los que participa (uno por línea, indicando los que coordina) y, opcionalmente, sus **necesidades de apoyo** (confidenciales: solo las ve el equipo Erasmus).
 
 No puede enviar la solicitud sin la fecha de incorporación al centro, las dos propuestas y el plan.
 

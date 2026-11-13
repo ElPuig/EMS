@@ -132,7 +132,6 @@
                                 <group name="answers">
                                     <field name="proposal_a" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="proposal_b" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="plan_text" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="declared_never_staff_mobility" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="declared_centre_start_date" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="centre_projects" readonly="not can_manage" invisible="audience != 'staff'"/>

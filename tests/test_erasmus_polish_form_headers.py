@@ -56,7 +56,7 @@ class TestErasmusFormHeaders(ErasmusMobilityCase):
         Application = self.env['ems.erasmus.application']
         form = etree.fromstring(Application.get_view(self.env.ref('ems.view_erasmus_application_form').id)['arch'])
         self.assertFalse(form.xpath("//page[@name='answers']"), "3.11: the answers are in the Application tab.")
-        self.assertTrue(form.xpath("//page[@name='documents']//field[@name='plan_text']"))
+        self.assertTrue(form.xpath("//page[@name='documents']//field[@name='proposal_a']"))
         offers = etree.fromstring(self.env['ems.erasmus.offer'].get_view(
             self.env.ref('ems.view_erasmus_offer_list').id)['arch'])
         self.assertTrue(offers.xpath("//field[@widget='remaining_days']"), "4.8: days left to answer.")

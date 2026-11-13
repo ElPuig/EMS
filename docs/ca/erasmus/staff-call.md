@@ -16,7 +16,7 @@ La convocatòria del personal funciona com la de l'alumnat (vegeu [Convocatòrie
 
 A **Erasmus+ > Convocatòries > Convocatòries**, crea la convocatòria, posa *Personal* a **Sol·licitants**, omple les dates, adjunta la convocatòria publicada i publica-la. Res més:
 
-- Els **documents** de l'article 8 s'afegeixen sols: només els certificats de llengües, opcionals (cap currículum; el document d'identitat es demana a qui hi va, amb els documents de la mobilitat). El **pla de mobilitat i transferència** no és un document: les persones sol·licitants l'escriuen al formulari (annex 1), i és l'única part de la sol·licitud que veu la comissió. Els pots canviar abans de publicar.
+- Els **documents** de l'article 8 s'afegeixen sols: només els certificats de llengües, opcionals (cap currículum; el document d'identitat es demana a qui hi va, amb els documents de la mobilitat). El **pla de mobilitat** no és un document: les persones sol·licitants l'escriuen al formulari (annex 1), i és l'única part de la sol·licitud que veu la comissió. Els pots canviar abans de publicar.
 - No hi ha **Puntuació mínima**: la convocatòria del personal no en té, així que l'EMS la posa a 0 i l'amaga.
 - El **Termini de valoració de la comissió** s'omple a partir de la data de tancament, com a la convocatòria d'alumnat (14 dies després, a les 14:00, en un dia lectiu): aquell dia vencen les tasques de la comissió, i després els membres ja no poden canviar les seves valoracions. Si canvies la data de tancament, el termini la segueix, tret que l'hagis canviat a mà. Els altres terminis s'omplen igual.
 - Per obrir la convocatòria només calen els ajustos i el calendari: **Poden sol·licitar** i **Valida les activitats** ja venen omplerts. La pestanya **Documents** no apareix (l'únic document que es demana és el formulari, i els certificats d'idiomes ja hi són), la pestanya **Comissió** apareix quan la convocatòria és tancada i el bloc **Mobilitat** quan es publica la resolució definitiva.
@@ -28,12 +28,12 @@ Un cop publicada, tot el personal amb fitxa d'empleat veu la convocatòria a l'E
 
 ## 2. Què omple el personal
 
-A més de les seves dues propostes (A, la principal, i B, la de reserva) i de què vol aprendre i com ho aplicarà, escrits amb les seves paraules, cada persona sol·licitant declara:
+A més de les seves dues propostes (A, la principal, i B, per si la A no es pot fer), cadascuna amb l'activitat, l'entitat o el curs, on, quan i què vol aprendre, escrites amb les seves paraules, cada persona sol·licitant declara:
 
-- Si **no ha fet mai cap mobilitat Erasmus+ de personal al Puig**. Si no, poseu vosaltres quan va ser l'última (**Correcció**, criteri 2) amb els registres del centre. Els acompanyaments d'alumnat i altres programes no compten.
+- Si **no ha realitzat cap mobilitat Erasmus+ a l'Institut Puig Castellar** (com a personal). Si no, poseu vosaltres quan va ser l'última (**Correcció**, criteri 2) amb els registres del centre. Els acompanyaments d'alumnat i altres programes no compten.
 - El **mes i l'any des que treballa al centre** de manera continuada.
 - El seu **certificat de llengua** més alt (B2 o superior), que també adjunta.
-- Els **projectes del centre** en què participa i, opcionalment, les seves **necessitats de suport** (confidencials: només les veu l'equip Erasmus).
+- Els **projectes del centre**, equips de millora o comissions d'aquest curs o del passat que coordina o en què participa (un per línia, indicant els que coordina) i, opcionalment, les seves **necessitats de suport** (confidencials: només les veu l'equip Erasmus).
 
 No pot enviar la sol·licitud sense la data d'incorporació al centre, les dues propostes i el pla.
 

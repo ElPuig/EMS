@@ -51,6 +51,8 @@ On the **Grant** tab of a mobility, the *economic state* (forecast, committed, p
 2. Answer **Who it is for**: *Participants* (choose them: the amount is split equally among them and shows in their *Paid directly by the centre*) or *A group mobility* (choose it: the amount is split among its participants through their pocket money). Only the field of the answer shows. While nobody is chosen, a warning suggests registering it as a project expense instead.
 3. The Secretary pays it like a grant payment. Its history, at the bottom of the form, keeps every change, for example a transfer undone with its reason; the grant payments show theirs too.
 
+The project's **Services paid by the centre** tab lists every invoice that touches the project: its own, its participants' and its group mobilities', the same ones its figures count. An invoice for participants of two projects shows in both, with *Various* in its *Project* column (in the column picker); leave its own project empty.
+
 In the list, the **Project** column shows the invoice's project or, for a participants' invoice, their mobilities' one; when they are of different projects it says *Various*.
 
 ## Project expenses

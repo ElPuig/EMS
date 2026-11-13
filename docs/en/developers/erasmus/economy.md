@@ -152,7 +152,11 @@ enough information for the organisational support.
   final payment arrives), **Budget** (forecast, committed, other expenses, paid, committed not paid
   yet, available last), amendments, SEPIE transfers, the organisational support and the figures from
   before EMS; the Actions dropdown's **Download the economy (Excel)**. Its *Services paid by the
-  centre* and *Project expenses* tabs sit next to each other (issues #790, #791).
+  centre* and *Project expenses* tabs sit next to each other (issues #790, #791). The *Services paid
+  by the centre* tab shows `all_invoice_ids` (non-stored, `_ems_invoices()`): the project's own
+  invoices, its participants' (through their provisions) and its group mobilities', the same set
+  the figures count (C34, 2026-11-13). A participants' invoice keeps `project_id` empty, since one
+  can cover two projects; its `project_label` says *Various* then.
 - *Financial management > Project expenses* (`action_erasmus_expense`; its list has the *Register transfer* header button for the Secretary, who can select several), *Configuration > Organisational
   support rates* (`action_erasmus_support_rate`).
 - The mobility's *Grant* tab (issue #790): the economic state as a tag, a **Grant** block (grant,

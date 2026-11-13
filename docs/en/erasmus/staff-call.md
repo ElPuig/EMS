@@ -16,7 +16,7 @@ The staff call works like the students' one (see [Calls and applications](calls-
 
 In **Erasmus+ > Calls > Calls**, create the call, set **Applicants** to *Staff*, fill in the dates, attach the published call and publish it. That's all:
 
-- The **documents** of art. 8 are added on their own: only the optional language certificates (no CV; the identity document is asked of whoever goes, among the mobility's documents). The **mobility and transfer plan** is not a document: the applicants write it in the form (annex 1), and it is the only part of the application the panel sees. You can change them before publishing.
+- The **documents** of art. 8 are added on their own: only the optional language certificates (no CV; the identity document is asked of whoever goes, among the mobility's documents). The **mobility plan** is not a document: the applicants write it in the form (annex 1), and it is the only part of the application the panel sees. You can change them before publishing.
 - There is no **Minimum score**: the staff call has none, so EMS sets it to 0 and hides it.
 - The **Commission's rating deadline** is filled in from the closing date, as in the students' call (14 days later, at 14:00, on a school day): the panel's tasks are due that day, and after it the members can no longer change their ratings. It follows the closing date when you change it, unless you changed it by hand. The other deadlines are filled in the same way.
 - To open the call you only need the settings and the calendar: **Teachers of** and **Validates the activities** come filled in. The **Documents** tab does not appear (the only document asked for is the form, and the language certificates are already there), the **Panel** tab appears once the call is closed and the **Mobility** block once the definitive resolution is published.
@@ -28,12 +28,12 @@ Once published, every member of the staff with an employee file sees the call in
 
 ## 2. What the staff fill in
 
-Besides their two proposals (A, the main one, and B, the backup) and what they want to learn and how they will apply it, written in their own words, each applicant declares:
+Besides their two proposals (A, the main one, and B, in case A can't be done), each with the activity, the entity or course, where, when and what they want to learn, written in their own words, each applicant declares:
 
-- Whether they **never had an Erasmus+ staff mobility at the Puig**. Otherwise, you set when their last one was (**Correction**, criterion 2) from the centre's records. Accompanying students and other programmes don't count.
+- Whether they **have not done any Erasmus+ mobility at the Institut Puig Castellar** (as staff). Otherwise, you set when their last one was (**Correction**, criterion 2) from the centre's records. Accompanying students and other programmes don't count.
 - The **month and year since when they work at the centre** without interruption.
 - Their highest **language certificate** (B2 or higher), and they attach it.
-- The **centre projects** they take part in, and optionally their **support needs** (confidential: only the Erasmus team sees them).
+- The **centre projects**, improvement teams or commissions of this school year or the last one they coordinate or take part in (one per line, saying which ones they coordinate), and optionally their **support needs** (confidential: only the Erasmus team sees them).
 
 They can't submit without the date at the centre, both proposals and the plan.
 

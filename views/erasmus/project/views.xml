@@ -135,7 +135,8 @@
                                                decoration-success="not record_missing"/>
                                         <field name="state" column_invisible="1"/>
                                         <field name="phase" widget="badge"/>
-                                        <button name="action_open" type="object" string="Open the record" icon="fa-folder-open-o"/>
+                                        <!-- C33: icon only (the name as its tooltip), or the text was cut on the right. -->
+                                        <button name="action_open" type="object" title="Open the record" icon="fa-folder-open-o"/>
                                     </list>
                                 </field>
                                 <separator string="Group mobilities" invisible="not group_mobility_ids"/>
@@ -153,11 +154,12 @@
                                 </field>
                             </page>
                             <page string="Services paid by the centre" name="invoices" groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin">
-                                <field name="invoice_ids" readonly="1">
+                                <field name="all_invoice_ids" readonly="1">
                                     <list>
                                         <field name="date"/>
                                         <field name="name"/>
                                         <field name="supplier_id"/>
+                                        <field name="project_label" string="Project" optional="hide"/>
                                         <field name="currency_id" column_invisible="1"/>
                                         <field name="amount" sum="Total"/>
                                         <field name="state" widget="badge"/>

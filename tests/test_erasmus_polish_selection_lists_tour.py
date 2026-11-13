@@ -83,7 +83,7 @@ class TestErasmusStaffSelectionListsTour(HttpCase):
     def test_plan_ratings_tour(self):
         application = self._rated()
         rating = application.plan_rating_ids[:1]
-        rating.write({'relevance': '1', 'transfer': '1'})
+        rating.write({'concreteness': '1', 'relevance': '1'})
         rating.sudo().with_user(rating.panel_member_id).action_submit()
         self.assertEqual(rating.rated_count, 1)
         self.assertEqual(rating.plan_mean, application.plan_score)

@@ -110,7 +110,7 @@ Quan un document s'ha de corregir o en falta un d'obligatori, marca'l i fes clic
 
 Quan s'acabi el termini de sol·licitud, fes clic a **Accions > Tanca les sol·licituds**. Les sol·licituds que no s'han enviat mai queden com a *No presentada*, i l'EMS desa la mitjana de l'expedient i els avisos de conducta de la resta per a la baremació: vegeu [Baremació i entrevistes](scoring-and-interviews.md).
 
-A partir d'aquí la barra de dalt de la convocatòria i la llista de convocatòries mostren en quina fase és: *Baremació* (fins que es publica la resolució provisional; la llista d'admesos en forma part), *Resolució* (fins a la definitiva), *Ofertes* (mentre alguna oferta de plaça espera resposta) i *Finalitzada*. Si més endavant oferiu una plaça a una persona de reserva, torna a *Ofertes*.
+A partir d'aquí la barra de dalt de la convocatòria i la llista de convocatòries mostren en quina fase és: *Baremació* (fins que es publica la resolució provisional; la llista d'admesos en forma part), *Resolució* (fins a la definitiva), *Ofertes* (mentre alguna oferta de plaça espera resposta) i *Places assignades* (cap oferta espera resposta; l'alumnat encara pot estar triant destinació). Si més endavant oferiu una plaça a una persona de reserva, torna a *Ofertes*.
 
 ---
 

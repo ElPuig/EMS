@@ -60,12 +60,14 @@ class EmsErasmusCall(models.Model):
                                      "project afterwards.")
     state = fields.Selection(string="State", required=True, default='draft', tracking=True, copy=False,
                              selection=[('draft', "Draft"), ('published', "Published"), ('closed', "Closed")])
+    # C23 (adriamt, 2026-11-13): the last phase only means no offer waits for an answer (students may
+    # still be choosing their destination), so it says "Places assigned", not "Finished".
     # Issue #785 (2.8): "Closed" only meant the applications; the status bar shows the real phases of a
     # closed call from its published resolutions and its offers waiting for an answer.
     phase = fields.Selection(string="Phase", compute='_compute_phase', store=True,
                              selection=[('draft', "Draft"), ('published', "Published"), ('scoring', "Scoring"),
                                         ('resolution', "Resolution"), ('offers', "Offers"),
-                                        ('finished', "Finished")])
+                                        ('finished', "Places assigned")])
     date_open = fields.Datetime(string="Applications open", required=True, tracking=True)
     date_close = fields.Datetime(string="Applications close", required=True, tracking=True)
     subsanation_deadline = fields.Datetime(string="Corrections deadline", tracking=True, copy=False,

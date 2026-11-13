@@ -3,24 +3,20 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
-# Annex 2 of the staff call: each aspect 0, 0.5 or 1.
-# Annex 2 of the staff call: the panel picks a description, stored as its points (1, 0.5 or 0), which
-# its label shows (the 2026-11-04 usage test).
+# Annex 2 of the staff call (criterion 1, the mobility plan; changed 2026-11-13): two aspects, each
+# 1, 0.5 or 0 points. The panel picks a description, stored as its points, which its label shows
+# (the 2026-11-04 usage test).
+CONCRETENESS_RUBRIC = [
+    ('1', "1 point: The activity, the entity or course by name, the place and the dates."),
+    ('0.5', "0.5 points: The entity or course, or the dates, are missing."),
+    ('0', "0 points: A generic activity, without entity or course or dates."),
+]
 RELEVANCE_RUBRIC = [
-    ('1', "1 point: The relation with the job, the department and the training cycles is clear, with concrete objectives "
-          "and the entity or course named."),
-    ('0.5', "0.5 points: The relation is general, or the objectives and the activity are not very concrete."),
-    ('0', "0 points: The relation with the job or the training cycles is not explained, and the objectives and the activity "
-          "are generic."),
+    ('1', "1 point: A clear objective, related to the job, the department or the training cycles."),
+    ('0.5', "0.5 points: The objective is general."),
+    ('0', "0 points: It doesn't say what they want to learn or the relation with the job."),
 ]
-# The dissemination is the same obligation for everyone (a news item on the website), so the
-# second criterion rates the application to the job only (issue #697).
-TRANSFER_RUBRIC = [
-    ('1', "1 point: A concrete application to the job and the students, with defined actions."),
-    ('0.5', "0.5 points: An application not very concrete."),
-    ('0', "0 points: No application planned."),
-]
-PLAN_CRITERIA = ('relevance', 'transfer')
+PLAN_CRITERIA = ('concreteness', 'relevance')
 # Art. 11 of the staff call, criteria 3 and 6: points per merit and the criterion it counts for.
 MERIT_POINTS = {'project_collaboration': 0.5, 'project_coordination': 1.0, 'internationalisation': 0.5}
 PROJECT_MERITS = ('project_collaboration', 'project_coordination')
@@ -66,10 +62,10 @@ class EmsErasmusPlanRating(models.Model):
     abstention_reason = fields.Text(string="Abstention reason", tracking=True,
                                     help="Why the panel member does not rate this plan. The plan's score is the mean "
                                          "of the other members' ratings.")
-    relevance = fields.Selection(string="Relevance and concreteness", selection=RELEVANCE_RUBRIC, tracking=True,
+    concreteness = fields.Selection(string="Concreteness", selection=CONCRETENESS_RUBRIC, tracking=True,
+                                    help="Annex 2 of the staff call: 1, 0.5 or 0 points.")
+    relevance = fields.Selection(string="Relevance to the job", selection=RELEVANCE_RUBRIC, tracking=True,
                                  help="Annex 2 of the staff call: 1, 0.5 or 0 points.")
-    transfer = fields.Selection(string="Application to the job", selection=TRANSFER_RUBRIC, tracking=True,
-                                help="Annex 2 of the staff call: 1, 0.5 or 0 points.")
     score = fields.Float(string="Score (max 2)", digits=(3, 1), compute='_compute_score', store=True, aggregator=None)
     # The issue-#682 review: an abstention is not a plan still to rate (it read "To score", 0.0).
     rating_status = fields.Selection(string="Status", compute='_compute_rating_status', store=True, selection=[
@@ -83,7 +79,6 @@ class EmsErasmusPlanRating(models.Model):
     # Both proposals, A (main) and B (backup), are rated together with one score.
     plan_proposal_a = fields.Text(string="Proposal A", related='application_id.proposal_a')
     plan_proposal_b = fields.Text(string="Proposal B (backup)", related='application_id.proposal_b')
-    plan_text = fields.Text(string="What to learn and how to apply it", related='application_id.plan_text')
     plan_attachment_ids = fields.Many2many(string="Files for the panel", comodel_name='ir.attachment',
                                            compute='_compute_plan_attachment_ids', compute_sudo=True,
                                            help="The files of the documents the call shows to the panel, if any.")

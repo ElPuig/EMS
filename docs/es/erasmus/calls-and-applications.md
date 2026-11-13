@@ -110,7 +110,7 @@ Cuando hay que corregir un documento o falta uno obligatorio, márcalo y haz cli
 
 Cuando termine el plazo de solicitud, haz clic en **Acciones > Cerrar las solicitudes**. Las solicitudes que nunca se enviaron quedan como *No presentada*, y EMS guarda la nota media del expediente y los avisos de conducta del resto para la baremación: consulta [Baremación y entrevistas](scoring-and-interviews.md).
 
-A partir de aquí la barra de arriba de la convocatoria y la lista de convocatorias muestran en qué fase está: *Baremación* (hasta que se publica la resolución provisional; la lista de admitidos forma parte de ella), *Resolución* (hasta la definitiva), *Ofertas* (mientras alguna oferta de plaza espera respuesta) y *Finalizada*. Si más adelante ofreces una plaza a una persona de reserva, vuelve a *Ofertas*.
+A partir de aquí la barra de arriba de la convocatoria y la lista de convocatorias muestran en qué fase está: *Baremación* (hasta que se publica la resolución provisional; la lista de admitidos forma parte de ella), *Resolución* (hasta la definitiva), *Ofertas* (mientras alguna oferta de plaza espera respuesta) y *Plazas asignadas* (ninguna oferta espera respuesta; el alumnado aún puede estar eligiendo destino). Si más adelante ofreces una plaza a una persona de reserva, vuelve a *Ofertas*.
 
 ---
 

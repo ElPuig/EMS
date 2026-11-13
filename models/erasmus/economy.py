@@ -300,10 +300,19 @@ class EmsErasmusProject(models.Model):
     legacy_paid = fields.Monetary(string="Paid before EMS", groups=ECONOMY_READERS)
     legacy_support_generated = fields.Monetary(string="Organisational support generated before EMS",
                                                groups=ECONOMY_READERS)
+    # C34 (adriamt, 2026-11-13): the tab lists the same invoices the figures count, its participants'
+    # and its groups' too; their own project stays empty (one invoice can cover two projects).
+    all_invoice_ids = fields.Many2many(string="Services paid by the centre", comodel_name='ems.erasmus.invoice',
+                                       compute='_compute_all_invoice_ids', groups=ECONOMY_READERS)
     can_manage_economy = fields.Boolean(compute='_compute_can_manage_economy')
     economy_warnings = fields.Html(string="Warnings", compute='_compute_economy_warnings', groups=ECONOMY_READERS)
     economy_warning_count = fields.Integer(string="Number of warnings", compute='_compute_economy_warnings',
                                            groups=ECONOMY_READERS)
+
+    @api.depends('invoice_ids', 'mobility_ids.provision_ids.invoice_id', 'group_mobility_ids.invoice_ids')
+    def _compute_all_invoice_ids(self):
+        for project in self:
+            project.all_invoice_ids = project._ems_invoices()
 
     @api.depends_context('uid')
     def _compute_can_manage_economy(self):

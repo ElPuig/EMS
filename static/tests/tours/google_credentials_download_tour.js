@@ -17,19 +17,17 @@ registry.category("web_tour.tours").add("ems_google_credentials_download", {
             run: "click",
         },
         {
-            trigger: ".o_searchview_input",
-            content: "Search for the seeded student",
-            run: "edit GCT No Credentials",
-        },
-        {
-            trigger: ".o_searchview_input",
-            content: "Submit the search",
-            run: "press Enter",
-        },
-        {
             trigger: ".o_data_row:has(.o_data_cell:contains('GCT No Credentials')) .o_list_record_selector",
+            // The tutor's only student: no search, whose second render of the list dropped a
+            // selection made just before it.
             content: "Select the seeded student",
             run: "click",
+        },
+        {
+            // The selection must be registered first: until then the only cog is the breadcrumb's,
+            // which has no record actions.
+            trigger: ".o_list_selection_box",
+            content: "The student is selected",
         },
         {
             trigger: ".o_cp_action_menus button:has(.fa-cog)",

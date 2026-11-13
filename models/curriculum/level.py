@@ -15,7 +15,7 @@ EDUCATION_STAGES = [
 # Seeded once on a new installation (post_init_hook), then configured by the centre in Settings.
 CONVALIDATION_LEVEL_SEED = ['CFGM', 'CFGS']
 
-# Issue #800: the levels whose groups may call a student walkout, seeded once from the law (LODE,
+# Issue #800: the levels whose groups may propose supporting a student walkout, seeded once from the law (LODE,
 # art. 8: the collective decision not to attend class is recognised from the 3rd year of ESO), then
 # configured by the centre in Settings. Acronym: first course allowed (0, every course).
 WALKOUT_LEVEL_SEED = {'ESO': 3, 'BTX': 0, 'CFGB': 0, 'CFGM': 0, 'CFGS': 0, 'EFPS': 0}
@@ -82,7 +82,7 @@ class EmsLevel(models.Model):
 
 	notes = fields.Text(string="Notes")
 
-	# Issue #800: which of this level's groups may call a student walkout (an allowlist: unticked,
+	# Issue #800: which of this level's groups may propose supporting a student walkout (an allowlist: unticked,
 	# none). The centre's choice, edited in Settings: never in data/cat/ems.level.csv.
 	walkout_allowed = fields.Boolean(string="May propose supporting a student walkout", default=False,
 		help="The delegate or sub-delegate of this level's groups may propose supporting a student walkout from the portal.")
@@ -113,7 +113,7 @@ class EmsLevel(models.Model):
 					"after the last one.", level=level.display_name))
 
 	def _ems_allows_walkout(self, course):
-		"""Whether a group of this level in `course` may call a student walkout."""
+		"""Whether a group of this level in `course` may propose supporting a student walkout."""
 		self.ensure_one()
 		return self.walkout_allowed and (course or 0) >= (self.walkout_course_from or 0) and (
 			not self.walkout_course_to or (course or 0) <= self.walkout_course_to)

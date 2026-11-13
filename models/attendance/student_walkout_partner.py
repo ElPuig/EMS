@@ -10,13 +10,13 @@ class ResPartner(models.Model):
 
     def _ems_walkout_portal_student(self):
         """This partner when it is a student with portal access: only they open and vote student
-        walkout calls, never a family acting for its child."""
+        walkout proposals, never a family acting for its child."""
         self.ensure_one()
         partner = self.sudo()
         return partner.contact_type == 'student' and bool(partner.user_ids.filtered('share'))
 
     def _ems_walkout_opener_group(self):
-        """The main group this student may open a student walkout call for: their own, when they
+        """The main group this student may make a student walkout proposal for: their own, when they
         are its delegate or sub-delegate and it may call one."""
         self.ensure_one()
         group = self.sudo().main_group_id
@@ -26,7 +26,7 @@ class ResPartner(models.Model):
         return group
 
     def _ems_walkout_opener_groups(self):
-        """The groups that call a walkout together with this delegate's: their main group and the
+        """The groups that propose a walkout together with this delegate's: their main group and the
         halves of a split group that share them as delegate or sub-delegate."""
         self.ensure_one()
         group = self._ems_walkout_opener_group()

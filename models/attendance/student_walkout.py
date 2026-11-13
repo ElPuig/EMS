@@ -41,7 +41,7 @@ class EmsStudentWalkout(models.Model):
     # The calendar, in school hours (ems.datetime_utils.ems_add_school_hours): each phase starts when
     # its email reaches the students (their next class, _ems_send_moment) and lasts phase_hours; the
     # Head of Studies gets the minute at least notice_hours before walkout_start. Both kept from the
-    # settings the call was opened with.
+    # settings the proposal was made with.
     walkout_start = fields.Datetime(string="Walkout starts", compute='_compute_walkout_start')
     phase_hours = fields.Integer(string="Phase (school hours)", readonly=True)
     notice_hours = fields.Integer(string="Notice (school hours)", readonly=True)
@@ -151,7 +151,7 @@ class EmsStudentWalkout(models.Model):
 
     @api.model
     def _ems_portal_open(self, partner, values, files):
-        """Opens a walkout call for `partner`'s group: `values` has walkout_date and notes, `files` the
+        """Makes a walkout proposal for `partner`'s group: `values` has walkout_date and notes, `files` the
         union's call as (name, content) pairs. The group votes at once, with no review first."""
         partner = partner.sudo()
         group = partner._ems_walkout_opener_group()
@@ -277,7 +277,7 @@ class EmsStudentWalkout(models.Model):
         self._message_log(body=_("Cancelled by %(name)s from the portal.", name=partner.name))
 
     def _ems_is_manager(self, partner):
-        """The opener, or the group's current delegate or sub-delegate, manage the call."""
+        """The opener, or the group's current delegate or sub-delegate, manage the proposal."""
         self.ensure_one()
         return partner == self.opener_id or partner in (self.group_ids.delegate_id | self.group_ids.subdelegate_id)
 
@@ -350,7 +350,7 @@ class EmsStudentWalkout(models.Model):
                 first=format_date(self.env, self._ems_first_walkout_day(calendar))))
 
     def _ems_phase_open(self, state):
-        """Whether the phase `state` (voting, joining) is open: the call is in it and its end has not
+        """Whether the phase `state` (voting, joining) is open: the proposal is in it and its end has not
         come. Students may answer before its start too (e.g. on the weekend before)."""
         self.ensure_one()
         until = self.vote_until if state == 'voting' else self.join_until
@@ -374,7 +374,7 @@ class EmsStudentWalkout(models.Model):
 
     def _ems_start_voting(self):
         """The group votes at once: each student with portal access gets the email, and so does the
-        group's tutor, who may abort the call."""
+        group's tutor, who may abort the proposal."""
         self.ensure_one()
         self._ems_mail_students('ems.email_template_student_walkout_call')
         self._ems_mail_tutors('call')
@@ -383,14 +383,14 @@ class EmsStudentWalkout(models.Model):
     @api.model
     def _cron_ems_walkout_deadlines(self):
         """At each phase's end (woken up then, hourly as a safety net): the group vote ends; the
-        joining ends and the call closes."""
+        joining ends and the proposal closes."""
         now = fields.Datetime.now()
         self.search([('state', '=', 'voting'), ('vote_until', '<=', now)])._ems_end_group_vote()
         self.search([('state', '=', 'joining'), ('join_until', '<=', now)])._ems_close()
 
     def _ems_end_group_vote(self):
         """The group vote ends: if the group supports the walkout, each student is told the result and
-        has a phase to say whether they join (from when the email reaches them); otherwise the call
+        has a phase to say whether they join (from when the email reaches them); otherwise the proposal
         closes (nobody is justified)."""
         for walkout in self.filtered(lambda walkout: walkout.state == 'voting'):
             if walkout.group_supports:
@@ -433,7 +433,7 @@ class EmsStudentWalkout(models.Model):
         self._ems_mail_tutors('closed')
 
     def _ems_family_lines(self, validated):
-        """The students whose family hears of the call: the minors it was asked to ratify for and,
+        """The students whose family hears of the proposal: the minors it was asked to ratify for and,
         once `validated`, the adults who join and share with their family."""
         self.ensure_one()
         return self.line_ids.filtered(lambda line: line.needs_ratification or (
@@ -462,9 +462,9 @@ class EmsStudentWalkout(models.Model):
             template.send_mail(line.id, email_values={'email_to': email, 'scheduled_date': moments[group]})
 
     def _ems_head_users(self):
-        """Who gets the minute and validates the call: the Head or Deputy Head of Studies above the
+        """Who gets the minute and validates the proposal: the Head or Deputy Head of Studies above the
         group's tutor; with no tutor, every Head and Deputy Head of Studies; failing that, the academic
-        administrators. Noted on the call."""
+        administrators. Noted on the proposal."""
         self.ensure_one()
         tutor = self.group_id.tutor_id.sudo()
         if tutor:
@@ -476,7 +476,7 @@ class EmsStudentWalkout(models.Model):
         return users or self.env.ref('ems.group_academic_admin').sudo().users.filtered(lambda user: not user.share)
 
     def _ems_tutor_users(self):
-        """Who watches over the call: the tutors of its groups (co-tutors of a split group too);
+        """Who watches over the proposal: the tutors of its groups (co-tutors of a split group too);
         with no tutor, the Head of Studies who would get the minute."""
         self.ensure_one()
         return self.group_ids.tutor_id.sudo().user_id or self._ems_head_users()
@@ -484,7 +484,7 @@ class EmsStudentWalkout(models.Model):
     def _ems_mail_tutors(self, event):
         """The tutors' copy of what the group is told (`event`: call, join, closed, validated,
         rejected), when it reaches the group. An email, not a notice for the daily summary: a phase
-        lasts one school day and the tutor must be able to abort the call within it."""
+        lasts one school day and the tutor must be able to abort the proposal within it."""
         self.ensure_one()
         moment = self._ems_send_moment(self.group_ids, fields.Datetime.now())
         self.with_context(walkout_event=event)._ems_mail_staff(
@@ -652,7 +652,7 @@ class EmsStudentWalkout(models.Model):
 
 
 class EmsStudentWalkoutLine(models.Model):
-    """One student of a walkout call. Never the group vote: only whether it was cast."""
+    """One student of a walkout proposal. Never the group vote: only whether it was cast."""
     _name = 'ems.student_walkout.line'
     _description = "Student of a student walkout proposal"
     _order = 'walkout_id, student_id'
@@ -665,7 +665,7 @@ class EmsStudentWalkoutLine(models.Model):
     student_id = fields.Many2one(string="Student", comodel_name='res.partner', required=True, ondelete='cascade',
                                  index=True)
     has_portal = fields.Boolean(string="Portal access", readonly=True,
-                                help="Whether the student had access to the portal when the call was opened: "
+                                help="Whether the student had access to the portal when the proposal was made: "
                                      "only they vote.")
     voted = fields.Boolean(string="Voted", readonly=True)
     vote_date = fields.Datetime(string="Voted on", readonly=True)
@@ -693,18 +693,18 @@ class EmsStudentWalkoutLine(models.Model):
 
 
 class EmsStudentWalkoutRejectionReason(models.Model):
-    """Why a student walkout call is aborted by the tutor or not validated by the Head of Studies: the catalog they pick from, edited in
+    """Why a student walkout proposal is aborted by the tutor or not validated by the Head of Studies: the catalog they pick from, edited in
     Student's Attendances > Configuration. "Other reasons" asks for details."""
     _name = 'ems.student_walkout.rejection_reason'
     _inherit = 'ems.reason.catalog'
     _description = "Student walkout rejection reason"
 
     requires_details = fields.Boolean(string="Requires details",
-                                      help="Whoever rejects the call must explain it in the details (e.g. 'Other').")
+                                      help="Whoever rejects the proposal must explain it in the details (e.g. 'Other').")
 
 
 class EmsStudentWalkoutRejectWizard(models.TransientModel):
-    """Aborts a student walkout call (active_id) or does not validate it, with a reason from the
+    """Aborts a student walkout proposal (active_id) or does not validate it, with a reason from the
     catalog. The view explains which reasons are lawful when aborting."""
     _name = 'ems.student_walkout.reject.wizard'
     _description = "Reject a student walkout proposal"

@@ -50,6 +50,15 @@ class TestPortalStudentWalkout(HttpCase):
         self.assertIn('error=1', response.url)
         self.assertIn('too late', response.text)
 
+    def test_reason_is_required_in_the_form_and_on_the_server(self):
+        self._login(self.delegate)
+        self.assertRegex(self.url_open('/my/vagues/nova').text, r'<textarea[^>]*id="notes"[^>]*required="required"')
+        response = self._post('/my/vagues/nova', walkout_date=fields.Date.to_string(self.today + timedelta(days=7)),
+                              notes='   ', files=[('union_call', ('call.pdf', PDF, 'application/pdf'))])
+        self.assertIn('error=1', response.url)
+        self.assertIn('reason of the walkout', response.text)
+        self.assertFalse(self.env['ems.student_walkout'].search([('group_id', '=', self.group.id)]))
+
     def test_classmate_votes_then_joins(self):
         walkout = open_walkout(self)
         self._login(self.classmate)

@@ -9,7 +9,7 @@ WALKOUTS = '/my/vagues'
 
 
 class EmsPortalStudentWalkoutController(CustomerPortal):
-    """Issue #800: student walkout calls on the portal. The student is always the logged-in user's
+    """Issue #800: student walkout proposals on the portal. The student is always the logged-in user's
     own partner (never a family acting for its child), and no partner id travels in a form; a family
     only ratifies, for the children it was asked about. sudo
     because portal users have no ACL on these models; every check is in ems.student_walkout's
@@ -131,7 +131,7 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
     @http.route(f'{WALKOUTS}/<int:walkout_id>/<string:step>', type='http', auth='user', methods=['POST'],
                 website=True)
     def portal_walkout_step(self, walkout_id, step, **post):
-        """Vote, say whether one joins, or cancel the call."""
+        """Vote, say whether one joins, or cancel the proposal."""
         walkout = self._ems_walkout(walkout_id)
         if not walkout:
             return request.redirect(WALKOUTS)

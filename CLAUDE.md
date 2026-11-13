@@ -1455,6 +1455,28 @@ button per video), linking each Drive file individually (the folder isn't public
 shared by link). The `[DEV]` subject prefix a dev machine adds doesn't matter: the developer
 removes it when forwarding.
 
+**Highlighting the important novelties (developer, 2026-11-13, newsletter núm. 7).** When the
+developer says a novelty is "the plat fort" or "the main one", that is an instruction to *make it
+stand out*, never wording: the email must not contain "plat fort" or "novetat principal". Several
+important novelties each get their own card (`Novetat · 1`, `Novetat · 2`, ...) in the body, before
+the lighter items of their section, with the subject naming all of them ("les baixes d'ofici i
+Erasmus+"). Burgundy (`#970a2c`, eyebrow `#ffcf9e`, text `#f0d7dd`) is the house colour; **Erasmus+
+cards are blue** (`#003399`, eyebrow `#ffcc00`, text `#dbe6ff`), the programme's official colour. A
+rewrite after feedback is a resend with the same subject (the developer reads it in `ems@`'s inbox).
+
+**Two-column blocks (video cards): a fixed layout, never a spacer of fixed pixels.** Mail clients drop
+an empty `<td>` and ignore `border-spacing`, so cards separated by a `width:12px` empty cell touched
+each other (reported twice, 2026-11-13). What worked: `<table width="100%" cellpadding="0"
+cellspacing="0" border="0" style="border-collapse:separate;width:100%">` with
+`<td width="49%" bgcolor="#ffffff" style="width:49%;background:#ffffff;border-radius:8px">`, a middle
+`<td width="2%" style="width:2%;font-size:0;line-height:0">&nbsp;</td>` and the padding **inside** a
+`<div style="padding:12px 16px">`, not on the `<td>` (padding on a cell is added to its width and
+overflows the parent). The white background goes on the `<td>` so both cards are as tall as the
+taller one. Stacking the cards in two `<div>`s is the safe fallback, but the developer wants two
+columns. **Align the buttons by forcing the same number of text lines in both cards** (developer,
+2026-11-13): when one card's description wraps to two lines and the other's takes one, end the short
+one with `<br>&nbsp;` so both buttons sit at the same height.
+
 **Recipient is always the fixed address above, never one read from the database** — same
 principle as this file's "Email safety in tests": an address must be explicit and
 developer-authorized, never pulled from student/family/staff records, applied here to a real send.
@@ -1501,10 +1523,20 @@ mail = env['mail.mail'].create({
     'body_html': body_html,
     'email_from': 'EMS - Institut Puig Castellar <ems@elpuig.xeill.net>',
     'email_to': 'ems@elpuig.xeill.net',
+    'auto_delete': False,  # Odoo otherwise deletes the sent mail and its HTML is lost
+    'author_id': env.company.partner_id.id,  # see the OdooBot gotcha below
 })
 mail.send()
 env.cr.commit()
 ```
+**Gotcha confirmed 2026-11-13: on a dev machine a mail authored by OdooBot is cancelled.** `odoo
+shell` runs as the superuser, so without `author_id` the mail's author is OdooBot and the #752 guard
+(`models/settings/mail_guard.py`) ends it as `cancel` ("OdooBot's emails are off on this development
+machine"), while `mail.send()` still returns normally: read the `state` back (`print(mail.state)`)
+instead of assuming it left. Setting `author_id` to the company's partner is enough; do not turn
+`ems.dev_mail_odoobot` on for this. The newsletter's real send can also be checked afterwards with
+`SELECT id, state, failure_reason FROM mail_mail WHERE id = <id>`.
+
 **Gotcha confirmed 2026-09-11:** the `odoo` system user cannot read a file under a Claude Code
 session's own scratchpad directory tree (each level is `700`, owned by the session's own user) —
 `odoo shell` fails with `PermissionError` trying to open it directly. Copy the HTML body to a

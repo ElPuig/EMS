@@ -50357,3 +50357,9 @@ msgstr "todavía no hay entidad de acogida"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_project__kind
 msgid "Taken from the agreement number (KA121-VET or KA131-HED), like the short name."
 msgstr "Se saca del número de convenio (KA121-VET o KA131-HED), como el nombre corto."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "These documents can't be removed because someone already handed them in, and what is handed in is always kept: %(documents)s. If one is no longer needed, make it Optional instead."
+msgstr "Estos documentos no se pueden quitar porque alguien ya los ha entregado, y lo entregado se conserva siempre: %(documents)s. Si alguno ya no hace falta, póngalo como Opcional."

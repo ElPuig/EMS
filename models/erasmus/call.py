@@ -11,6 +11,8 @@ from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools.safe_eval import safe_eval
 from odoo.tools.sql import column_exists
 
+from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
+
 from .application import RANKED_STATES, SUBMITTED_STATES
 from .default_data import translate_default_lines, translate_default_value
 from .offer import HOLDING_STATES
@@ -1311,6 +1313,19 @@ class EmsErasmusCallDocument(models.Model):
                 for name in ('file_category', 'confidential'):
                     self.env.add_to_compute(Line._fields[name], lines)
         return result
+
+    def unlink(self):
+        """Taking a document off a call or a group mobility also removes its empty lines in every
+        application and mobility. One somebody already handed in (or the team validated) blocks it
+        with a clear message instead of the database error: what is handed in is never deleted."""
+        lines = self.env['ems.erasmus.application.document'].sudo().search([('call_document_id', 'in', self.ids)])
+        if not self.env.context.get(MODULE_UNINSTALL_FLAG):
+            if held := lines._ems_evidence().call_document_id:
+                raise UserError(_("These documents can't be removed because someone already handed them in, and "
+                                  "what is handed in is always kept: %(documents)s. If one is no longer needed, make "
+                                  "it Optional instead.", documents=", ".join(held.mapped('name'))))
+            lines.unlink()
+        return super().unlink()
 
 
 class EmsErasmusCallAnnounce(models.TransientModel):

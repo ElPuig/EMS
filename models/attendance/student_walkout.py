@@ -164,7 +164,7 @@ class EmsStudentWalkout(models.Model):
         self._ems_check_request_date(walkout_date, calendar)
         notes = (values.get('notes') or '').strip()
         if not notes:
-            raise UserError(_("Give the reason of the walkout: which union calls it and why."))
+            raise UserError(_("Give the reason of the walkout: why it is called."))
         files = [(name, content) for name, content in files or [] if name and content]
         if not files:
             raise UserError(_("Attach the call of the students' union."))

@@ -75,7 +75,7 @@
                     <div class="mb-3">
                         <label class="form-label" for="notes">Reason</label>
                         <textarea class="form-control" id="notes" name="notes" rows="3" maxlength="2000" required="required"
-                                  placeholder="Which union calls it and why"/>
+                                  placeholder="The reason of the walkout, for instance: For an accessible, quality public education for everyone."/>
                     </div>
                     <button type="submit" class="btn btn-primary o_ems_walkout_open">Propose the vote</button>
                     <a href="/my/vagues" class="btn btn-secondary ms-2">Cancel</a>

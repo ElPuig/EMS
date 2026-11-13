@@ -50346,8 +50346,8 @@ msgstr "Si el alumno tenía acceso al portal cuando se hizo la propuesta: solo e
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
-msgid "Which union calls it and why"
-msgstr "Qué sindicato la convoca y por qué"
+msgid "The reason of the walkout, for instance: For an accessible, quality public education for everyone."
+msgstr "El motivo de la huelga, por ejemplo: Por una educación pública accesible y de calidad para toda la ciudadanía."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -52281,5 +52281,5 @@ msgstr "No hay días lectivos en el calendario después del %s."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid "Give the reason of the walkout: which union calls it and why."
-msgstr "Indica el motivo de la huelga: qué sindicato la convoca y por qué."
+msgid "Give the reason of the walkout: why it is called."
+msgstr "Indica el motivo de la huelga: por qué se convoca."

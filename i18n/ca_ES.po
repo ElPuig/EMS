@@ -1322,7 +1322,6 @@ msgstr "Acció Necessària"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__active
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__active
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__active
-
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__active
 msgid "Active"
 msgstr "Actiu"
@@ -1895,7 +1894,6 @@ msgstr "Aprovat"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_rejection_reason_form
 #: model_terms:ir.ui.view,arch_db:ems.view_teaching_form
 #: model_terms:ir.ui.view,arch_db:ems.view_teaching_reduction_type_form
-
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_discard_reason_form
 msgid "Archived"
 msgstr "Arxivat"
@@ -2554,7 +2552,6 @@ msgstr "Pot editar"
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_walkout_levels_wizard_form
-
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_discard_wizard_form
 msgid "Cancel"
 msgstr "Cancel·la"
@@ -3266,7 +3263,6 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__create_uid
-
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__create_uid
 msgid "Created by"
@@ -3429,7 +3425,6 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__create_date
-
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__create_date
 msgid "Created on"
@@ -3720,7 +3715,6 @@ msgstr "Descripció i notes"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__details
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__details
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form
-
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__details
 msgid "Details"
 msgstr "Detalls"
@@ -3912,7 +3906,6 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__display_name
-
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__display_name
 msgid "Display Name"
@@ -5508,7 +5501,6 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__id
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__id
-
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__id
 msgid "ID"
@@ -6261,7 +6253,6 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__write_uid
-
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__write_uid
 msgid "Last Updated by"
@@ -6424,7 +6415,6 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__write_date
-
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__write_date
 msgid "Last Updated on"
@@ -7016,7 +7006,6 @@ msgstr "NUSS"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__name
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__name
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__name
-
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__name
 msgid "Name"
 msgstr "Nom"
@@ -9056,7 +9045,6 @@ msgstr "Enviat el"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_check__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_reason__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__sequence
-
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__sequence
 msgid "Sequence"
 msgstr "Seqüència"
@@ -11842,7 +11830,6 @@ msgstr "Sortida original"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__reason_id
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__reason_id
-
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__reason_id
 msgid "Reason"
 msgstr "Motiu"
@@ -13065,7 +13052,6 @@ msgstr "El fitxer csv és buit."
 #: code:addons/ems/models/erasmus/economy.py:0
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
-
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__ems_ampa_member__yes
 msgid "Yes"
 msgstr "Sí"
@@ -25697,7 +25683,6 @@ msgstr "Incidències"
 #: code:addons/ems/models/erasmus/satisfaction.py:0
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
-
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__ems_ampa_member__no
 msgid "No"
 msgstr "No"
@@ -51935,6 +51920,7 @@ msgstr ""
 "Marca els nivells els grups dels quals poden convocar una vaga. Deixa els cursos en blanc per a tots els\n"
 "                        cursos del nivell. Per llei, a partir de 3r d'ESO."
 
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_application_wizard_form
 msgid "E.g. job shadowing at a VET school in Porto (Portugal), in June: how they organise dual training."
 msgstr "P. ex.: job shadowing en un centre d'FP de Porto (Portugal), al juny: com organitzen la formació dual."
@@ -52154,6 +52140,7 @@ msgstr "El que et correspon menys el que ja t'han transferit."
 msgid "You have handed in %(done)s of %(total)s"
 msgstr "Has lliurat %(done)s de %(total)s"
 
+#. module: ems
 #: model:ir.model,name:ems.model_ems_absence_pending_discard_reason
 msgid "Detected absence discard reason"
 msgstr "Motiu de descart d'absència detectada"
@@ -52204,6 +52191,7 @@ msgstr ""
 msgid "Optional, for the reviewers' own reference"
 msgstr "Opcional, per a la referència de qui revisa"
 
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__ems_ampa_member
 #: model:ir.model.fields,field_description:ems.field_res_users__ems_ampa_member
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -52263,6 +52251,7 @@ msgstr ""
 msgid "Unsupported search on the AMPA membership"
 msgstr "Cerca no admesa sobre l'associació a l'AMPA"
 
+#. module: ems
 #. odoo-python
 #: code:addons/ems/models/quality/minute.py:0
 msgid "Choose the scope of the meeting."

@@ -13,8 +13,9 @@
             <field name="model">ems.erasmus.project</field>
             <field name="priority">20</field>
             <field name="arch" type="xml">
-                <list string="Economic panel" decoration-muted="not active">
-                    <field name="name"/>
+                <list string="Projects" decoration-muted="not active">
+                    <field name="code"/>
+                    <field name="name" optional="show"/>
                     <field name="kind"/>
                     <field name="call_year" string="Year" optional="show" options="{'enable_formatting': false}"/>
                     <field name="active" column_invisible="1"/>
@@ -53,8 +54,8 @@
             <field name="model">ems.erasmus.project</field>
             <field name="priority">20</field>
             <field name="arch" type="xml">
-                <search string="Economic panel">
-                    <field name="name"/>
+                <search string="Projects">
+                    <field name="name" filter_domain="['|', ('code', 'ilike', self), ('name', 'ilike', self)]"/>
                     <field name="call_year"/>
                     <filter name="vet" string="KA121-VET" domain="[('kind', '=', 'ka121_vet')]"/>
                     <filter name="hed" string="KA131-HED" domain="[('kind', '=', 'ka131_hed')]"/>
@@ -73,8 +74,10 @@
             </field>
         </record>
 
-        <record id="action_erasmus_economy_panel" model="ir.actions.act_window">
-            <field name="name">Economic panel</field>
+        <!-- Issue #789 (10.1): the Projects entry of the bar opens on these figures; the economic panel
+             was a second list of the same projects. -->
+        <record id="action_erasmus_project" model="ir.actions.act_window">
+            <field name="name">Projects</field>
             <field name="res_model">ems.erasmus.project</field>
             <field name="view_mode">list,pivot,form</field>
             <field name="view_ids" eval="[(5, 0, 0),

@@ -440,6 +440,9 @@ class EmsErasmusQualityPanel(models.TransientModel):
     breakdown_html = fields.Html(string="Satisfaction breakdown", compute='_compute_panel', sanitize=False)
     funnel_html = fields.Html(string="Calls", compute='_compute_panel', sanitize=False)
     evolution_html = fields.Html(string="Evolution by course", compute='_compute_panel', sanitize=False)
+    # Issue #789 (12.6): the low scores still without an improvement action, said where quality is looked at.
+    low_count = fields.Integer(string="Low scores", compute='_compute_panel')
+    low_note = fields.Char(string="Low scores note", compute='_compute_panel')
 
     @api.depends('course_id', 'call_id', 'project_id', 'participant_type', 'study_id', 'host_partner_id')
     def _compute_panel(self):
@@ -462,6 +465,10 @@ class EmsErasmusQualityPanel(models.TransientModel):
                 panel._ems_table(headers['by_host'], data['by_host']),
             ])
             panel.funnel_html = panel._ems_table(headers['funnel'], data['funnel'])
+            low = data['surveys'].filtered('is_low')
+            panel.low_count = len(low)
+            panel.low_note = _("Low scores: %(count)s, %(open)s without an improvement action",
+                               count=len(low), open=len(low.filtered(lambda survey: not survey.improvement_action_id)))
             panel.evolution_html = panel._ems_table(headers['evolution'], data['evolution'])
 
     @api.model
@@ -476,6 +483,14 @@ class EmsErasmusQualityPanel(models.TransientModel):
             'evolution': [_("Course"), _("Student interest"), _("Staff interest"), _("Satisfaction"), _("n")],
             'actions': [_("Code"), _("Content"), _("State"), _("Deadline")],
         }
+
+    def action_open_low_scores(self):
+        """Issue #789 (12.6): the low scores of the panel's selection, those without an improvement action first."""
+        self._ems_check_access()
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_erasmus_satisfaction_low')
+        return dict(action, domain=[('is_low', '=', True)] + self._ems_survey_domain(),
+                    context={'search_default_no_action': 1})
 
     def _ems_check_access(self):
         if not (self.env.user.has_group('ems.group_erasmus') or self.env.user.has_group('ems.group_academic_admin')):

@@ -109,7 +109,7 @@
         </record>
 
         <record id="action_erasmus_my_interviews" model="ir.actions.act_window">
-            <field name="name">My evaluations</field>
+            <field name="name">Interviews to score</field>
             <field name="res_model">ems.erasmus.interview</field>
             <field name="view_mode">list,form</field>
             <field name="domain">[('evaluator_id', '=', uid)]</field>

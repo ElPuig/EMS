@@ -6,7 +6,7 @@ import { registry } from "@web/core/registry";
 // the Secretary opens the panel in both view modes, a project's Economy tab, and registers an
 // expense from the Expenses menu. Structural selectors and fixture names only.
 registry.category("web_tour.tours").add("ems_erasmus_economy_tour", {
-    url: "/odoo/action-ems.action_erasmus_economy_panel",
+    url: "/odoo/action-ems.action_erasmus_project",
     steps: () => [
         {
             trigger: ".o_list_view .o_data_row td[name='name']:contains('2019-1-ES01-KA131-HED-000000762')",

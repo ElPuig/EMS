@@ -14,6 +14,7 @@ Aquesta secció conté els manuals per als **caps de departament** i els **caps 
 |--------|-------------|
 | [Organitzar les absències](absences.md) | Quan falta un docent del teu departament: enviar guàrdies, reorganitzar les classes, avisar les famílies d'un canvi d'horari i introduir una absència detectada |
 | [Comunicats: escriure als grups del teu departament](notice.md) | Enviar comunicats a l'alumnat i les famílies dels grups on fa classe el teu departament |
+| [Socis de l'AMPA](../tutors/ampa.md) | Veure quins alumnes dels tutors del teu departament són socis de l'AMPA, amb els mateixos passos que els tutors (manual compartit) |
 
 ## Als manuals dels professors
 

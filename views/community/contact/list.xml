@@ -145,6 +145,11 @@
                 <xpath expr="//field[@name='complete_name']" position="attributes">
                     <attribute name="optional">hide</attribute>
                 </xpath>
+                <!-- AMPA membership (#820), empty outside the reader's tutor scope. -->
+                <xpath expr="//field[@name='auth_leave']" position="after">
+                    <field name="ems_ampa_member" optional="show" groups="ems.group_tutor,ems.group_secretary"
+                           decoration-success="ems_ampa_member == 'yes'"/>
+                </xpath>
             </field>
         </record>
 

@@ -352,3 +352,6 @@ from . import test_staff_walkout_report
 from . import test_staff_walkout_report_tour
 from . import test_docs_screenshots_staff_walkout
 from . import test_docs_screenshots_student_walkout
+from . import test_ampa_membership
+from . import test_ampa_membership_tour
+from . import test_docs_screenshots_ampa

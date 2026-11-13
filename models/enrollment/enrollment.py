@@ -1050,7 +1050,7 @@ class SaleOrder(models.Model):
             'label': self._ems_installment_label(number, len(lines), line.date_maturity),
             'amount': abs(line.amount_currency),
             'residual': abs(line.amount_residual_currency),
-            'paid': line.reconciled or invoice.currency_id.is_zero(line.amount_residual),
+            'paid': line._ems_installment_paid(),
             'currency': invoice.currency_id,
         } for number, line in enumerate(lines, start=1)]
 

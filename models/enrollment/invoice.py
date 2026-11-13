@@ -62,6 +62,12 @@ class AccountMove(models.Model):
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
 
+    def _ems_installment_paid(self):
+        """Whether this installment (a payment_term line) is collected: reconciled, or nothing
+        left to pay. Shared by the portal's payment block and the AMPA membership (#820)."""
+        self.ensure_one()
+        return self.reconciled or self.move_id.currency_id.is_zero(self.amount_residual)
+
     def _reconcile_pre_hook(self):
         # Snapshot of the installments still open before this reconciliation: comparing against
         # it afterwards is what keeps _ems_notify_enrollment_payment() from ever announcing a

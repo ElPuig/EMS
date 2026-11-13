@@ -20,6 +20,7 @@ Aquesta secció conté els manuals per a **Cap d'Estudis, Cap d'Estudis Adjunt/a
 - [Tramitar una baixa o una expulsió](../secretary/graduation-withdrawal.md) — pots tramitar la baixa o l'expulsió d'un alumne, amb els mateixos passos que secretaria (manual compartit).
 - [Baixa d'ofici: Direcció, prefectura d'estudis i Convivència](ex-officio-withdrawal.md) — el vistiplau de Direcció, el que pot fer la prefectura d'estudis i els passos de Convivència del circuit d'obligatòria.
 - [Credencials de Google de l'alumnat](../tutors/google-credentials.md) — consultar-les, crear el compte i restablir la contrasenya, els mateixos passos que els tutors, per a l'alumnat dels tutors de la teva àrea.
+- [Socis de l'AMPA](../tutors/ampa.md) — veure quins alumnes dels tutors de la teva àrea són socis de l'AMPA, amb els mateixos passos que els tutors (manual compartit).
 - [Consulta dels documents de l'alumnat](student-documents.md) — Tots els documents que ha lliurat l'alumnat dels tutors de la teva àrea, només de consulta.
 - [Matriculació per l'alumnat de preinscripció](../secretary/manual-matriculacio-preinscripcio.md) — podeu consultar totes les pantalles de **Gestió acadèmica > Matrícula** (matrícules, preinscripció, alumnat sense destinació) i la seva configuració (elements i plantilles de matrícula, assignació de tasques), de tot el centre, només de consulta: els passos d'aquest manual són de secretaria (manual compartit).
 - [Decidir sobre sol·licituds de correcció de fitxatges](attendance-corrections.md)

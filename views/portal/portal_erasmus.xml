@@ -1022,7 +1022,7 @@
             <tbody>
                 <tr><td>Erasmus+ grant</td><td class="text-end" t-out="grant_amount" t-options="currency_options"/></tr>
                 <tr t-foreach="grant[0]" t-as="provision">
-                    <td>Paid by the centre: <t t-esc="provision[0]"/></td>
+                    <td>Paid directly by the centre: <t t-esc="provision[0]"/></td>
                     <td class="text-end">- <t t-out="provision[1]" t-options="currency_options"/></td>
                 </tr>
                 <tr class="fw-bold"><td>You receive</td><td class="text-end o_ems_erasmus_grant_net" t-out="net_amount" t-options="currency_options"/></tr>

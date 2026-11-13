@@ -13,7 +13,7 @@ registry.category("web_tour.tours").add("ems_erasmus_pocket_money_team", {
     steps: () => [
         {
             trigger: ".o_form_view .o_notebook a[name='expenses']",
-            content: "Open the Collective expenses tab",
+            content: "Open the Grant and expenses tab",
             run: "click",
         },
         {
@@ -32,7 +32,8 @@ registry.category("web_tour.tours").add("ems_erasmus_pocket_money_team", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='grant_participant_ids'] .o_data_row td[name='pocket_requested']:contains('500')",
+            // Issue #790 (11.10): "Requested" only when asked for; the state says it.
+            trigger: ".o_form_view .o_field_widget[name='grant_participant_ids'] .o_data_row td[name='pocket_state'] .badge.text-bg-warning",
             content: "The payments are requested",
         },
     ],
@@ -83,7 +84,7 @@ registry.category("web_tour.tours").add("ems_erasmus_pocket_money_leader", {
     steps: () => [
         {
             trigger: ".o_form_view .o_notebook a[name='expenses']",
-            content: "Open the Collective expenses tab",
+            content: "Open the Grant and expenses tab",
             run: "click",
         },
         {

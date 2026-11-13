@@ -549,11 +549,17 @@
                             </page>
                             <!-- Issue #704: the group's own invoices (flights, accommodation...), never split by EMS. -->
                             <!-- Issue #764: also read by the leader (invoices, grants and pocket money, never IBANs). -->
-                            <page string="Collective expenses" name="expenses" invisible="user_role not in ('team', 'leader')"
+                            <!-- Issue #790 (9.14, 11.10): the grants, what the centre pays and the pocket money, with
+                                 the names of the individual mobility's Grant tab. -->
+                            <page string="Grant and expenses" name="expenses" invisible="user_role not in ('team', 'leader')"
                                   groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin,ems.group_erasmus_group_teacher">
-                                <group>
-                                    <field name="currency_id" invisible="1"/>
-                                    <field name="expense_amount"/>
+                                <div name="econ_state_tag" class="mb-2"/>
+                                <group name="money">
+                                    <group string="Grant" name="grant_block">
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="expense_amount"/>
+                                    </group>
+                                    <group string="Payments to the people" name="payments_block"/>
                                 </group>
                                 <field name="invoice_ids" context="{'default_project_id': project_id}"
                                        readonly="user_role != 'team' or no_direct_costs">

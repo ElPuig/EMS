@@ -116,19 +116,22 @@
                             <field name="economy_warnings" readonly="1"/>
                         </div>
                         <group>
-                            <group string="Grant">
+                            <!-- Issue #790 (10.3, 10.4): the centre's subsidy (not a participant's grant), in the
+                                 order the money flows; the definitive figures only once the final payment arrives. -->
+                            <group string="Subsidy" name="subsidy">
                                 <field name="grant_current"/>
-                                <field name="final_grant" readonly="not can_manage_economy"/>
                                 <field name="received_amount"/>
                                 <field name="to_receive_amount"/>
+                                <field name="final_grant" readonly="not can_manage_economy"
+                                       invisible="not final_payment_date and not final_grant"/>
                             </group>
                             <group string="Budget">
                                 <field name="forecast_amount"/>
                                 <field name="committed_amount"/>
+                                <field name="other_expense_amount"/>
                                 <field name="paid_amount"/>
                                 <field name="pending_amount"/>
                                 <field name="available_amount" class="fw-bold" decoration-danger="available_amount &lt; 0"/>
-                                <field name="other_expense_amount"/>
                             </group>
                         </group>
                         <group>
@@ -204,6 +207,17 @@
                         </group>
                     </page>
                 </page>
+                <!-- Issue #790 (10.4): the awarded grant and the final payment go with the other amounts of the
+                     subsidy, in the Economy tab. -->
+                <field name="grant_current" position="before">
+                    <field name="budget" position="move"/>
+                </field>
+                <field name="final_payment_date" position="attributes">
+                    <attribute name="invisible">not final_payment_date</attribute>
+                </field>
+                <field name="final_grant" position="after">
+                    <field name="final_payment_date" position="move"/>
+                </field>
                 <page name="invoices" position="attributes">
                     <attribute name="groups">ems.group_erasmus,ems.group_secretary,ems.group_director,ems.group_academic_admin</attribute>
                 </page>
@@ -424,14 +438,24 @@
             <field name="model">ems.erasmus.mobility</field>
             <field name="inherit_id" ref="view_erasmus_mobility_form"/>
             <field name="arch" type="xml">
+                <!-- Issue #790 (11.9, 5.13): the economic state as a tag; forecast, committed, paid and pending
+                     are the project's budget figures, so they stay on the project; the organisational support
+                     (money for the centre, not the person) folded away. -->
+                <div name="econ_state_tag" position="inside">
+                    <field name="econ_state" widget="badge" decoration-info="econ_state == 'forecast'"
+                           decoration-warning="econ_state in ('committed', 'partial')"
+                           decoration-success="econ_state == 'paid'"/>
+                </div>
                 <field name="prefinancing_percent" position="after">
-                    <field name="econ_state" widget="badge"/>
-                    <field name="econ_forecast" invisible="not econ_forecast"/>
-                    <field name="econ_committed"/>
-                    <field name="econ_paid"/>
-                    <field name="econ_pending"/>
                     <field name="recovered_amount" invisible="state != 'cancelled' and not recovered_amount"/>
-                    <field name="support_type"/>
+                </field>
+                <field name="provision_ids" position="after">
+                    <details class="mt-3 o_ems_erasmus_support_type">
+                        <summary class="text-muted">Organisational support (for the centre)</summary>
+                        <group>
+                            <field name="support_type"/>
+                        </group>
+                    </details>
                 </field>
             </field>
         </record>
@@ -441,21 +465,33 @@
             <field name="model">ems.erasmus.group.mobility</field>
             <field name="inherit_id" ref="view_erasmus_group_mobility_form"/>
             <field name="arch" type="xml">
+                <div name="econ_state_tag" position="inside">
+                    <field name="econ_state" widget="badge" decoration-info="econ_state == 'forecast'"
+                           decoration-warning="econ_state in ('committed', 'partial')"
+                           decoration-success="econ_state == 'paid'"/>
+                </div>
+                <group name="money" position="before">
+                    <group>
+                        <!-- Issue #784 (9.15): who pays, asked in positive. -->
+                        <field name="no_direct_costs" invisible="1"/>
+                        <field name="travel_paid_by" widget="radio" options="{'horizontal': true}"
+                               readonly="user_role != 'team'"/>
+                    </group>
+                </group>
                 <field name="expense_amount" position="before">
                     <field name="grant_amount"/>
-                    <field name="econ_state" widget="badge"/>
-                    <field name="econ_committed"/>
-                    <field name="econ_paid"/>
-                    <field name="econ_pending"/>
-                    <!-- Issue #784 (9.15): who pays, asked in positive, and the percentage with its sign. -->
-                    <field name="no_direct_costs" invisible="1"/>
-                    <field name="travel_paid_by" widget="radio" options="{'horizontal': true}"
-                           readonly="user_role != 'team'"/>
+                </field>
+                <field name="expense_amount" position="after">
+                    <field name="pocket_total" class="fw-bold"/>
+                </field>
+                <group name="payments_block" position="inside">
+                    <field name="pocket_paid_total"/>
+                    <field name="pocket_pending_total"/>
                     <label for="prefinancing_percent"/>
                     <div class="o_row">
                         <field name="prefinancing_percent" readonly="user_role != 'team'" class="oe_inline"/> %
                     </div>
-                </field>
+                </group>
                 <field name="invoice_ids" position="before">
                     <div class="alert alert-info" role="status" invisible="travel_paid_by != 'participant'">
                         The centre pays nothing directly: each participant receives their whole grant as pocket money.
@@ -469,13 +505,13 @@
                             <field name="state" column_invisible="1"/>
                             <field name="currency_id" column_invisible="1"/>
                             <field name="grant_amount"/>
-                            <field name="invoice_share" optional="show"/>
-                            <field name="pocket_amount"/>
-                            <field name="pocket_requested" optional="show"/>
-                            <field name="pocket_paid" optional="show"/>
-                            <field name="pocket_state" widget="badge" decoration-warning="pocket_state == 'to_pay'"
+                            <field name="invoice_share" string="Paid by the centre" optional="show"/>
+                            <field name="pocket_amount" string="To transfer"/>
+                            <field name="pocket_paid" string="Transferred"/>
+                            <field name="pocket_requested" optional="hide"/>
+                            <field name="pocket_state" string="State" widget="badge" decoration-warning="pocket_state == 'to_pay'"
                                    decoration-success="pocket_state == 'paid'"/>
-                            <field name="bank_account" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                            <field name="bank_account" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
                             <field name="bank_holder" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
                         </list>
                     </field>

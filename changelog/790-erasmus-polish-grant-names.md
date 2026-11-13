@@ -1,0 +1,8 @@
+# Changes
+
+## Erasmus+ grant and subsidy in the order the money flows (issue #790):
+- Individual and staff mobility (Grant tab): two titled blocks read left to right, "Grant" (Grant, Paid directly by the centre, To transfer) and "Payments to the person" (Transferred, Pending transfer, Before leaving %); "Transferred" is a new figure; the economic state is a tag on top; Forecast, Committed, Paid and Pending payment are the project's budget figures and stay on the project; "Organisational support as" (money for the centre, not the person) is folded away; "Provision of services" is now "Paid directly by the centre" (11.9, 5.11, 5.13, 8.9, 8.10).
+- The teacher's own Grant tab and the student portal use the same names (the student already saw their grant on the portal).
+- Group mobility: the money tab is "Grant and expenses" (9.14), with the group's sums in the same order (Grants, Paid directly by the centre, To transfer, Transferred, Pending transfer) and a participants table with Grant, Paid by the centre, To transfer, Transferred and State; Requested and the IBAN only when asked for (11.10).
+- Project (Economy tab): a "Subsidy" block in the order the money flows (awarded, current, received, to receive, and the definitive figures only once the final payment arrives); the awarded subsidy and the final payment date moved there from the top of the form; in "Budget", Other expenses right below Committed and Available last, in bold (10.3, 10.4).
+- Checked, no change: a teacher's grant counts in their project like any other mobility; in the screenshot journey it seemed missing because the staff and student journeys ran in separate tests, each with its own project of the same name.

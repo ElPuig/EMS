@@ -34,7 +34,7 @@ Esta sección contiene los manuales para los **tutores de grupo**.
 | [El horario semanal de un grupo](../admin/group-schedule.md) | Consultar el horario agregado de un grupo (asignaturas, docentes, aulas, patios) y exportarlo a PDF |
 | [El horario semanal de un alumno](../admin/student-schedule.md) | Consultar el horario propio de uno de tus tutorandos (asignaturas, docentes, aulas, patios), incluyendo clases solapadas, y exportarlo a PDF |
 | [Notas públicas y notas privadas del alumno](../teachers/student-notes.md) | Dónde todo el profesorado lee las notas públicas de un alumno, y quién puede leer y escribir las privadas de tutoría |
-| [Huelgas de estudiantes](student-walkout.md) | Velar por la convocatoria de huelga de tu grupo: qué te notifica, y abortar una convocatoria solo por un defecto de forma |
+| [Huelgas de estudiantes](student-walkout.md) | Velar por la propuesta de apoyo a la huelga de tu grupo: qué te notifica, y abortar una propuesta solo por un defecto de forma |
 
 ---
 

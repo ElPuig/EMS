@@ -18,8 +18,8 @@
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Hello <t t-out="object.student_id.name"/>,</p>
                         <p>
-                            <t t-out="object.walkout_id.opener_id.name"/>, the delegate of your group, has called a
-                            vote on a student walkout for <strong t-out="format_date(object.walkout_id.walkout_date)"/>.
+                            <t t-out="object.walkout_id.opener_id.name"/>, the delegate of your group, has proposed that your group supports a
+                            student walkout called by a students' union for <strong t-out="format_date(object.walkout_id.walkout_date)"/>.
                         </p>
                         <p>
                             On the school portal (<a t-attf-href="{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}">student walkouts</a>)
@@ -122,7 +122,7 @@
                         </p>
                         <p>
                             Their group, <t t-out="object.walkout_id.group_id.name"/>, has voted to support it and the
-                            Head of Studies has validated the call, so the school justifies their absence that day.
+                            Head of Studies has validated the proposal, so the school justifies their absence that day.
                         </p>
                         <p>If you have any question, talk to the group's tutor.</p>
                         <p>
@@ -225,8 +225,8 @@
                                 family's ratification).</li>
                         </ul>
                         <p t-if="object.group_supports and object.joining_count">
-                            From the call in EMS (<a t-attf-href="{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}">open it</a>),
-                            <em>Actions &gt; Validate and justify</em> validates the call and justifies that day for the
+                            From the proposal in EMS (<a t-attf-href="{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}">open it</a>),
+                            <em>Actions &gt; Validate and justify</em> validates the proposal and justifies that day for the
                             students who can be justified (adults, and minors whose family ratified it), and <em>Do not validate</em> leaves it
                             unjustified, giving a reason.
                         </p>
@@ -250,7 +250,7 @@
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Hello <t t-out="object.student_id.name"/>,</p>
                         <p t-if="object.walkout_id.rejected_from_state in ('voting', 'joining')">
-                            <t t-out="object.walkout_id.rejected_by_id.name"/> has aborted the student walkout call of
+                            <t t-out="object.walkout_id.rejected_by_id.name"/> has aborted the student walkout proposal of
                             your group for <strong t-out="format_date(object.walkout_id.walkout_date)"/>:
                             <strong t-out="object.walkout_id.rejection_reason_id.name"/>.
                             Absences that day will not be justified.
@@ -309,7 +309,7 @@
                             Their absence that day will not be justified.
                         </p>
                         <p t-else="">
-                            The school has aborted the student walkout call of
+                            The school has aborted the student walkout proposal of
                             <t t-out="object.walkout_id.group_id.name"/> for
                             <strong t-out="format_date(object.walkout_id.walkout_date)"/>, which
                             <strong t-out="object.student_id.name"/> had said they joined:
@@ -372,11 +372,11 @@
                         <t t-if="event == 'call'">
                             <p>
                                 <t t-out="object.opener_id.name"/>, the delegate of <strong t-out="object.group_id.name"/>,
-                                has called a vote on a student walkout for <strong t-out="format_date(object.walkout_date)"/>.
+                                has proposed that the group supports a student walkout called by a students' union for <strong t-out="format_date(object.walkout_date)"/>.
                                 The group votes until <strong t-out="object.format_local_datetime(object.vote_until)"/>.
                             </p>
                             <p>
-                                As the group's tutor, check the union's call: you can abort the call while it is voted
+                                As the group's tutor, check the union's call: you can abort the proposal while it is voted
                                 or joined, only for a formal defect (no valid call of a students' union for that day,
                                 one that does not cover the group...), never because of its cause.
                             </p>
@@ -387,10 +387,10 @@
                             (<t t-out="object.group_yes_count"/> yes, <t t-out="object.group_no_count"/> no,
                             <t t-out="object.group_abstain_count"/> abstentions). Each student says whether they join
                             it until <strong t-out="object.format_local_datetime(object.join_until)"/>; you can still
-                            abort the call until then.
+                            abort the proposal until then.
                         </p>
                         <p t-elif="event == 'closed'">
-                            The call of the student walkout of <strong t-out="format_date(object.walkout_date)"/> in
+                            The proposal to support the student walkout of <strong t-out="format_date(object.walkout_date)"/> in
                             <strong t-out="object.group_id.name"/> has closed:
                             <t t-if="object.group_supports">the group supports it and
                                 <t t-out="object.joining_count"/> of <t t-out="len(object.line_ids)"/> students join it.
@@ -405,7 +405,7 @@
                         <t t-elif="event == 'rejected'">
                             <p>
                                 <t t-out="object.rejected_by_id.name"/>
-                                <t t-if="object.rejected_from_state in ('voting', 'joining')">has aborted the call of</t>
+                                <t t-if="object.rejected_from_state in ('voting', 'joining')">has aborted the proposal of</t>
                                 <t t-elif="object.rejected_from_state == 'justified'">has withdrawn the validation of</t>
                                 <t t-else="">has not validated</t>
                                 the student walkout of <strong t-out="object.group_id.name"/> on
@@ -415,7 +415,7 @@
                             <p t-if="object.rejection_details" t-out="object.rejection_details"/>
                         </t>
                         <p>
-                            <a t-attf-href="{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}">Open the call in EMS</a>
+                            <a t-attf-href="{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}">Open the proposal in EMS</a>
                         </p>
                     </div>
                 ]]>

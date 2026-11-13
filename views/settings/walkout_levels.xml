@@ -9,9 +9,9 @@
             <field name="name">ems.walkout.levels.wizard.form</field>
             <field name="model">ems.walkout.levels.wizard</field>
             <field name="arch" type="xml">
-                <form string="Levels and courses that may call a student walkout">
+                <form string="Levels and courses that may propose supporting a student walkout">
                     <p class="text-muted">
-                        Tick the levels whose groups may call a student walkout. Leave the courses empty for every
+                        Tick the levels whose groups may propose supporting a student walkout. Leave the courses empty for every
                         course of the level. By law, from the 3rd year of ESO.
                     </p>
                     <field name="line_ids" nolabel="1">
@@ -31,7 +31,7 @@
         </record>
 
         <record id="action_level_walkout_settings" model="ir.actions.act_window">
-            <field name="name">Levels and courses that may call a student walkout</field>
+            <field name="name">Levels and courses that may propose supporting a student walkout</field>
             <field name="res_model">ems.walkout.levels.wizard</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>

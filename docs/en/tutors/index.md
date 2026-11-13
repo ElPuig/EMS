@@ -34,7 +34,7 @@ This section contains the manuals for **group tutors**.
 | [A Group's Weekly Schedule](../admin/group-schedule.md) | View a group's aggregated timetable (subjects, teachers, classrooms, breaks) and export it to PDF |
 | [A Student's Weekly Schedule](../admin/student-schedule.md) | View one of your tutorands' own timetable (subjects, teachers, classrooms, breaks), including overlapping classes, and export it to PDF |
 | [A Student's Public and Private Notes](../teachers/student-notes.md) | Where every teacher reads a student's public notes, and who can read and write the private tutoring ones |
-| [Student walkouts](student-walkout.md) | Watching over your group's walkout call: what you are told, and aborting a call only for a formal defect |
+| [Student walkouts](student-walkout.md) | Watching over your group's walkout proposal: what you are told, and aborting a proposal only for a formal defect |
 
 ---
 

@@ -21,7 +21,7 @@ Aquesta secció conté els manuals per a **famílies i alumnes**.
 | [Sol·licitar unes pràctiques Erasmus+](manual-erasmus.md) | Com sol·licitar unes pràctiques Erasmus+ a l'estranger, seguir-ne la sol·licitud, consultar-ne els resultats i acceptar la plaça |
 | [Inscriure's a una mobilitat de grup Erasmus+](manual-erasmus-grup.md) | Com inscriure's des del portal amb un clic, consultar-ne el resultat i, si et seleccionen, lliurar els documents |
 | [Revisar les dades de contacte](manual-dades-contacte.md) | Com revisar i completar les dades de contacte de l'alumne i de la família al portal |
-| [Vagues d'estudiants](manual-vagues.md) | Com un grup convoca i vota una vaga, com cada alumne s'hi suma i com la família d'un alumne menor ho ratifica |
+| [Vagues d'estudiants](manual-vagues.md) | Com un grup proposa i vota donar suport a una vaga, com cada alumne s'hi suma i com la família d'un alumne menor ho ratifica |
 
 ---
 

@@ -119,7 +119,7 @@
                             <t t-set="icon" t-value="'/ems/static/src/img/vagues.svg'"/>
                             <t t-set="title">Student walkouts</t>
                             <t t-set="url" t-value="'/my/vagues'"/>
-                            <t t-set="text">Call a student walkout or vote on one of your group</t>
+                            <t t-set="text">Propose supporting a student walkout or vote on one of your group</t>
                             <t t-set="config_card" t-value="True"/>
                         </t>
                     </t>

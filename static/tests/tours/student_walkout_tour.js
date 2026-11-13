@@ -18,8 +18,8 @@ registry.category("web_tour.tours").add("ems_student_walkout_abort", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .alert-info:contains('tutor watches over the call')",
-            content: "The form says the tutor watches over the call",
+            trigger: ".o_form_view .alert-info:contains('tutor watches over the proposal')",
+            content: "The form says the tutor watches over the proposal",
         },
         ...clickAction("action_open_reject_wizard", "Abort it"),
         {
@@ -43,12 +43,12 @@ registry.category("web_tour.tours").add("ems_student_walkout_abort", {
         },
         {
             trigger: ".modal button[name='action_reject']:visible",
-            content: "Abort the call",
+            content: "Abort the proposal",
             run: "click",
         },
         {
             trigger: ".o_form_view .o_field_widget[name='rejection_details']:contains('dockers')",
-            content: "The call is aborted, with its reason",
+            content: "The proposal is aborted, with its reason",
         },
         {
             trigger: ".o_breadcrumb .breadcrumb-item:first-child a",

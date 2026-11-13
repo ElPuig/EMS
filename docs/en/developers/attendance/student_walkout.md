@@ -3,7 +3,9 @@
 ## Overview
 
 A **student walkout** is a strike called by a students' union ("vaga"/"huelga"). A group's delegate
-or sub-delegate calls the vote from the portal, attaching the union's call, with no review first:
+or sub-delegate **proposes** from the portal that the group supports a walkout called by a union, attaching the
+union's call, with no review first. *Call* (convocatòria) always means the union's document; the record this model
+holds, which the group votes on, is the **proposal** to support the walkout:
 
 1. every student of the group with portal access votes whether the group supports the walkout
    (anonymous: only the counts are kept);
@@ -12,14 +14,14 @@ or sub-delegate calls the vote from the portal, attaching the union's call, with
    Studies at least the notice before the walkout, and they **validate** it (one attendance
    justification of the walkout day for the students who join) or **do not validate** it.
 
-The **group's tutor watches over the call**: they get a copy of every email the group gets and may
+The **group's tutor watches over the proposal**: they get a copy of every email the group gets and may
 **abort** it, with a reason, while it is voted or joined, only for a formal defect (the abort
 wizard explains which reasons are lawful). The Head of Studies hears nothing until the minute,
-except a notice in their daily summary when a call is aborted. **The family of a minor who joins
+except a notice in their daily summary when a proposal is aborted. **The family of a minor who joins
 must ratify it** (Decret 102/2010, article 24.2: a minor's collective absence needs the family's
 authorization): it is asked at once and answers on the portal while joining lasts; a minor whose
 family has not ratified it (refused, did not answer, or has no portal access) is not justified.
-Other families hear nothing until the call is validated.
+Other families hear nothing until the proposal is validated.
 
 **Naming.** In English the feature is always *walkout*, never *strike*: `ems.strike` is the
 disciplinary record (Coexistence → Strikes). Catalan and Spanish say "vaga"/"huelga".
@@ -28,7 +30,7 @@ disciplinary record (Coexistence → Strikes). Catalan and Spanish say "vaga"/"h
 rejection reasons and the reject wizard), `models/attendance/student_walkout_partner.py` (the
 `res.partner` portal helpers), `models/contacts/group.py` (`_ems_walkout_allowed`,
 `_ems_school_send_time`), `models/shared/datetime_utils.py` (school hours),
-`models/curriculum/level.py` (which levels may call one), `models/settings/company.py` (the calendar settings),
+`models/curriculum/level.py` (which levels may propose one), `models/settings/company.py` (the calendar settings),
 `controllers/portal_student_walkout.py`, `views/portal/portal_student_walkout.xml`,
 `views/attendance/student_walkout/`, `views/settings/walkout_levels.xml`,
 `reports/attendance/report_student_walkout.xml`, `mails/attendance/student_walkout.xml`.
@@ -45,7 +47,7 @@ weekend, holiday or break. 24 school hours from a Friday at 13:00 end on the Mon
 clock). Not Odoo's `resource.calendar.plan_hours()`: it counts the working hours of a schedule (a
 teacher's classes, say), while a school hour here is any hour of a school day, the night included,
 and only public holidays and school breaks are taken out. Two settings (Settings → *Student Walkout Settings* → *Calendar*, `res.company`) set it,
-and each call keeps the values it was opened with (`phase_hours`, `notice_hours`):
+and each proposal keeps the values it was made with (`phase_hours`, `notice_hours`):
 
 | Setting | Default | Meaning |
 |---------|---------|---------|
@@ -60,14 +62,14 @@ and each call keeps the values it was opened with (`phase_hours`, `notice_hours`
 
 **A phase starts when its email reaches the students** (`_ems_send_moment`: now during the group's
 classes, otherwise the start of its next ones, the latest of a split group's halves; see "Student
-emails during school hours" below). A vote called on Friday at 20:00 runs from Monday 8:00 to
+emails during school hours" below). A vote proposed on Friday at 20:00 runs from Monday 8:00 to
 Tuesday 8:00. The portal lets students answer before the start too (e.g. over the weekend):
 `_ems_phase_open()` only checks the end.
 
 **Notice.** When opening, `_ems_projected_calendar()` works out the worst case (the vote taking its
 whole phase) and `_ems_check_request_date()` requires at least `notice_hours` school hours from that
 `join_until` to the walkout's 00:00, and the walkout day to be a school day. With the defaults, a
-call opened on Monday at 10:00 votes until Tuesday 10:00, joins until Wednesday 10:00, and its first
+proposal made on Monday at 10:00 votes until Tuesday 10:00, joins until Wednesday 10:00, and its first
 possible walkout day is the next Monday (Friday would only give 38 school hours). The portal form
 shows that calendar and the first possible day (`_ems_first_walkout_day()`) before sending.
 
@@ -101,8 +103,8 @@ erDiagram
 |-------|------|-------|
 | `name` | `Char` (computed, stored) | "Group - date", the date in the centre's language (`res.company._ems_centre_env()`) whoever opens it: it also names the minute |
 | `group_id` / `group_ids` | `Many2one` / `Many2many → ems.group` | The opener's main group, and every half of a split group sharing that delegate or sub-delegate |
-| `opener_id` | `Many2one → res.partner` | The delegate or sub-delegate who called it |
-| `course_id` | `Many2one → ems.course` | The current course when called |
+| `opener_id` | `Many2one → res.partner` | The delegate or sub-delegate who proposed it |
+| `course_id` | `Many2one → ems.course` | The current course when proposed |
 | `walkout_date` / `walkout_start` | `Date` / `Datetime` (computed) | The walkout day (the only date the delegate gives), and its 00:00 in the centre |
 | `phase_hours` / `notice_hours` | `Integer` | The settings when it was opened |
 | `vote_start` / `vote_until` / `join_start` / `join_until` | `Datetime` | The calendar above; the joining ones once it starts |
@@ -125,7 +127,7 @@ erDiagram
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `walkout_id`, `student_id` | `Many2one` | One line per student of `group_ids` when the vote is called |
+| `walkout_id`, `student_id` | `Many2one` | One line per student of `group_ids` when the vote is proposed |
 | `has_portal` | `Boolean` | Whether the student had portal access then; only they answer |
 | `voted` / `vote_date` | `Boolean` / `Datetime` | The group vote was cast (it never says which way) |
 | `join_answered` / `joins` / `join_date` | `Boolean` / `Boolean` / `Datetime` | Whether they said if they join, and what |
@@ -133,7 +135,7 @@ erDiagram
 | `ratified_by_id` / `ratification_date` | `Many2one → res.partner` / `Datetime` | The family contact who answered, and when |
 | `justifiable` | `Boolean` (computed) | Joins and, if a minor, the family ratified it |
 
-**Anonymity and concurrency.** The group vote only adds one to a counter of the call
+**Anonymity and concurrency.** The group vote only adds one to a counter of the proposal
 (`_ems_portal_vote`) and marks the line as `voted`, so nothing links a student to their answer. Two
 answers at the same time update the same rows: PostgreSQL refuses the second one (Odoo runs in
 REPEATABLE READ) and Odoo retries the request, so no vote is lost or counted twice.
@@ -146,7 +148,7 @@ reasons: `name` (translatable), `sequence`, `active`, `requires_details`. Seeded
 `noupdate="1"` (the centre edits it) with the formal defects only: no official call that day, the
 attached document is not a valid call, the call does not include the group's level or studies,
 another sector (not students), another autonomous community, and "Other reasons"
-(`requires_details`). A duplicate call or one opened by someone who is not the delegate cannot
+(`requires_details`). A duplicate proposal or one made by someone who is not the delegate cannot
 happen (the portal refuses both), so they are not reasons. Both are done from
 `ems.student_walkout.reject.wizard`; while aborting, it shows what the law allows (LODE art. 8: the
 centre cannot stop a walkout because of its cause, only for a formal defect) and what it does not
@@ -155,7 +157,7 @@ group).
 
 ---
 
-## Who may call one: levels and courses
+## Who may propose one: levels and courses
 
 An allowlist on `ems.level` (empty = nobody), edited in Settings → *Student Walkout Settings* →
 *Levels and courses*: a dialog (`ems.walkout.levels.wizard`, `models/settings/walkout_levels_wizard.py`)
@@ -165,7 +167,7 @@ levels):
 
 | Field | Meaning |
 |-------|---------|
-| `walkout_allowed` | The level's groups may call a walkout |
+| `walkout_allowed` | The level's groups may propose supporting a walkout |
 | `walkout_course_from` / `walkout_course_to` | Optional limits on the group's `course` (empty = no limit) |
 
 `ems.group._ems_walkout_allowed()` applies them. Seeded once, by level acronym, from the law
@@ -180,7 +182,7 @@ from `post_init_hook` and `migrations/18.0.0.49.0/post-migrate.py`). It is not c
 
 ```mermaid
 flowchart TD
-    A[Delegate / sub-delegate: portal /my/vagues/nova] --> B{"Level/course allowed, notice kept, school day, union's call attached, no other call that day?"}
+    A[Delegate / sub-delegate: portal /my/vagues/nova] --> B{"Level/course allowed, notice kept, school day, union's call attached, no other proposal that day?"}
     B -- no --> A
     B -- yes --> V["voting: vote email to each student with portal access, copy to the tutor"]
     V --> E{"result decided, or vote_until reached"}
@@ -196,7 +198,7 @@ flowchart TD
     J -. "tutor aborts, with a reason" .-> X
 ```
 
-- **Call** (`_ems_portal_open(partner, vals, files)`): the partner must be a student with portal
+- **Propose** (`_ems_portal_open(partner, vals, files)`): the partner must be a student with portal
   access who is the delegate or sub-delegate of their main group, and that group must be allowed.
   Lines for every active student of `group_ids`. The vote starts at once (`_ems_start_voting`):
   each student with portal access gets `email_template_student_walkout_call`, and the tutor a copy.
@@ -209,7 +211,7 @@ flowchart TD
   it ends (`_ems_end_group_vote`): if the group supports it, `joining` (its own phase from when the
   email reaches the group), and each student gets
   `email_template_student_walkout_join` (the result and that they can join until `join_until`);
-  otherwise the call closes and each student gets `email_template_student_walkout_result`.
+  otherwise the proposal closes and each student gets `email_template_student_walkout_result`.
 - **Join** (`_ems_portal_join(partner, joins)`): while `joining`, changeable. A minor on the walkout
   day (`_ems_is_minor`; no birth date counts as a minor) who joins gets `needs_ratification` and
   `ratification = 'pending'`, and their family is asked at once
@@ -231,7 +233,7 @@ flowchart TD
   `joining` (`ABORTABLE_STATES`): `_ems_user_may_abort`, i.e. an administrator, or the tutor of any
   of `group_ids` or the chain above them (`user_acts_as_tutor`: Department or Seminar Chief, Head or
   Deputy Head of Studies, Director); with no tutor, any Head of Studies. Every student with portal
-  access gets `email_template_student_walkout_rejected` and still sees the call and the reason on
+  access gets `email_template_student_walkout_rejected` and still sees the proposal and the reason on
   the portal; the tutor gets a copy; the Head of Studies a notice in their daily summary
   (`_ems_notify_aborted`, `ems.info_notice`).
 - **Do not validate / undo the validation** (same wizard and method) while `closed` or `justified`
@@ -248,7 +250,7 @@ flowchart TD
   Director in the tutor scope of every joining student, or an administrator. Creates an
   `ems.attendance_justification` with `ems.attendance_justification_reason_walkout`, the walkout day
   and the justifiable students (adults, and minors whose family ratified it) not already justified
-  that day (the ones skipped are noted in the chatter), marks the task as done and moves the call to
+  that day (the ones skipped are noted in the chatter), marks the task as done and moves the proposal to
   `justified`. The task only exists when somebody can be justified. Then every student with portal
   access gets `email_template_student_walkout_validated` (whether their absence is justified or
   they are expected in class), the family of each justified minor (or adult sharing with it)
@@ -278,14 +280,14 @@ family only ratifies, for the lines of its own children it was asked about.
 
 Reading comes from the record rules `rule_student_walkout_tutor_scope` and, for a group with no
 tutor, `rule_student_walkout_no_tutor` (Heads of Studies). The wizard is open to every teacher; who
-may act is checked in `_ems_check_reject`, and the call is written with `sudo()` afterwards.
+may act is checked in `_ems_check_reject`, and the proposal is written with `sudo()` afterwards.
 
 **The administrator is at the top** (`ems.base.get_user_is_top_admin()`: `base.group_system` or
 `ems.group_academic_admin`): both abort, validate and undo, outside the hierarchy. The system
 administrator has no rights on `ems.attendance_justification` of their own, so for them the walkout
 creates and removes its justification as the superuser (`_ems_justifications()`, `with_user`, since
-the justification's own checks read `env.user`), and the form stays on the call instead of opening
+the justification's own checks read `env.user`), and the form stays on the proposal instead of opening
 the justification.
 
-Nobody edits a call or its lines by hand in the backend: they come from the portal and the
-call's own methods.
+Nobody edits a proposal or its lines by hand in the backend: they come from the portal and the
+proposal's own methods.

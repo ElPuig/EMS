@@ -34,7 +34,7 @@ Aquesta secció conté els manuals per als **tutors de grup**.
 | [L'horari setmanal d'un grup](../admin/group-schedule.md) | Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF |
 | [L'horari setmanal d'un alumne](../admin/student-schedule.md) | Consultar l'horari propi d'un dels teus tutorands (assignatures, docents, aules, patis), incloent-hi classes solapades, i exportar-lo a PDF |
 | [Notes públiques i notes privades de l'alumne](../teachers/student-notes.md) | On tot el professorat llegeix les notes públiques d'un alumne, i qui pot llegir i escriure les privades de tutoria |
-| [Vagues d'estudiants](student-walkout.md) | Vetllar per la convocatòria de vaga del teu grup: què et notifica, i avortar una convocatòria només per un defecte de forma |
+| [Vagues d'estudiants](student-walkout.md) | Vetllar per la proposta de suport a la vaga del teu grup: què et notifica, i avortar una proposta només per un defecte de forma |
 
 ---
 

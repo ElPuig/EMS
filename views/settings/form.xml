@@ -186,7 +186,7 @@
                                     <div class="text-muted">A call is opened at least <field name="walkout_lead_hours" class="d-inline"/> school hours before the walkout.</div>
                                 </div>
                             </setting>
-                            <setting string="Levels and courses" help="The groups whose delegate or sub-delegate may call a student walkout. By law, from the 3rd year of ESO." id="walkout_levels">
+                            <setting string="Levels and courses" help="The groups whose delegate or sub-delegate may propose supporting a student walkout. By law, from the 3rd year of ESO." id="walkout_levels">
                                 <div class="content-group mt8">
                                     <span><field name="walkout_level_count" class="d-inline"/> levels allowed</span>
                                     <button name="%(ems.action_level_walkout_settings)d" type="action"

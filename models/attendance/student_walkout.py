@@ -22,7 +22,7 @@ class EmsStudentWalkout(models.Model):
     by a group's delegate or sub-delegate and voted by the group. "Walkout", never "strike":
     ems.strike is the disciplinary record. See docs/en/developers/attendance/student_walkout.md."""
     _name = 'ems.student_walkout'
-    _description = "Student walkout call"
+    _description = "Student walkout proposal"
     _inherit = ['ems.base', 'ems.datetime_utils']
     _order = 'walkout_date desc, id desc'
 
@@ -32,7 +32,7 @@ class EmsStudentWalkout(models.Model):
     # The halves of a split group sharing the delegate vote together.
     group_ids = fields.Many2many(string="Groups", comodel_name='ems.group', relation='ems_student_walkout_group_rel',
                                  column1='walkout_id', column2='group_id', readonly=True)
-    opener_id = fields.Many2one(string="Opened by", comodel_name='res.partner', required=True, readonly=True,
+    opener_id = fields.Many2one(string="Proposed by", comodel_name='res.partner', required=True, readonly=True,
                                 ondelete='restrict')
     course_id = fields.Many2one(string="Course", comodel_name='ems.course', readonly=True, ondelete='restrict')
     company_id = fields.Many2one(string="Company", comodel_name='res.company', required=True, readonly=True,
@@ -156,8 +156,8 @@ class EmsStudentWalkout(models.Model):
         partner = partner.sudo()
         group = partner._ems_walkout_opener_group()
         if not group:
-            raise UserError(_("Only the delegate or the sub-delegate of a group that may call a student walkout "
-                              "can open one."))
+            raise UserError(_("Only the delegate or the sub-delegate of a group that may propose supporting a student walkout "
+                              "can propose it."))
         groups = partner._ems_walkout_opener_groups()
         walkout_date = fields.Date.to_date(values.get('walkout_date'))
         calendar = self._ems_projected_calendar(groups)
@@ -167,7 +167,7 @@ class EmsStudentWalkout(models.Model):
             raise UserError(_("Attach the call of the students' union."))
         if self.search_count([('group_ids', 'in', groups.ids), ('walkout_date', '=', walkout_date),
                               ('state', '!=', 'cancelled')]):
-            raise UserError(_("Your group already has a student walkout call for %(date)s.",
+            raise UserError(_("Your group already has a student walkout proposal for %(date)s.",
                               date=format_date(self.env, walkout_date)))
         students = self.env['res.partner'].search([('contact_type', '=', 'student'),
                                                    ('main_group_id', 'in', groups.ids)])
@@ -190,7 +190,7 @@ class EmsStudentWalkout(models.Model):
         walkout.attachment_ids = self.env['ir.attachment'].create([{
             'name': name, 'raw': content, 'res_model': self._name, 'res_id': walkout.id,
         } for name, content in files])
-        walkout._message_log(body=_("Opened by %(name)s from the portal.", name=partner.name))
+        walkout._message_log(body=_("Proposed by %(name)s from the portal.", name=partner.name))
         walkout._ems_start_voting()
         return walkout
 
@@ -269,7 +269,7 @@ class EmsStudentWalkout(models.Model):
     def _ems_portal_cancel(self, partner):
         self._ems_check_manager(partner)
         if self.state not in ('voting', 'joining'):
-            raise UserError(_("Only a call still being voted or joined can be cancelled."))
+            raise UserError(_("Only a proposal still being voted or joined can be cancelled."))
         self.state = 'cancelled'
         self._message_log(body=_("Cancelled by %(name)s from the portal.", name=partner.name))
 
@@ -280,7 +280,7 @@ class EmsStudentWalkout(models.Model):
 
     def _ems_check_manager(self, partner):
         if not self._ems_is_manager(partner):
-            raise UserError(_("Only the delegate or the sub-delegate of the group can manage this call."))
+            raise UserError(_("Only the delegate or the sub-delegate of the group can manage this proposal."))
 
     # The calendar
 
@@ -336,12 +336,12 @@ class EmsStudentWalkout(models.Model):
         if not walkout_date:
             raise UserError(_("Give the walkout day."))
         if not self._ems_school_days(walkout_date, walkout_date):
-            raise UserError(_("A student walkout can only be called for a school day."))
+            raise UserError(_("A student walkout can only be on a school day."))
         if not self._ems_notice_kept(calendar, walkout_date):
             raise UserError(_(
-                "It is too late to call a student walkout for %(day)s: the group vote and the joining take "
+                "It is too late to propose supporting a student walkout for %(day)s: the group vote and the joining take "
                 "%(phase)s school hours each and the Head of Studies must get the minute %(notice)s school hours "
-                "before the walkout (weekends, public holidays and school breaks do not count). A call opened "
+                "before the walkout (weekends, public holidays and school breaks do not count). A proposal made "
                 "now can be for %(first)s at the earliest.", day=format_date(self.env, walkout_date),
                 phase=calendar['phase_hours'], notice=calendar['notice_hours'],
                 first=format_date(self.env, self._ems_first_walkout_day(calendar))))
@@ -518,19 +518,19 @@ class EmsStudentWalkout(models.Model):
             if not self._ems_user_may_abort():
                 raise UserError(_("Only the tutor of the group, the chain above them (Department or Seminar Chief, Head "
                                   "or Deputy Head of Studies, Director) or an administrator can abort a student "
-                                  "walkout call."))
+                                  "walkout proposal."))
         elif self.state in VALIDATION_STATES:
             if not self._ems_user_may_reject():
                 raise UserError(_("Only the Head of Studies, the Deputy Head of Studies or the Director of these "
                                   "students, or an administrator, can decide whether a student walkout is validated."))
         else:
-            raise UserError(_("This student walkout call can no longer be aborted nor rejected."))
+            raise UserError(_("This student walkout proposal can no longer be aborted nor rejected."))
 
     def action_open_reject_wizard(self):
         self._ems_check_reject()
         return {
             'type': 'ir.actions.act_window',
-            'name': _("Abort the student walkout call") if self.state in ABORTABLE_STATES
+            'name': _("Abort the student walkout proposal") if self.state in ABORTABLE_STATES
             else _("Do not validate the student walkout"),
             'res_model': 'ems.student_walkout.reject.wizard',
             'view_mode': 'form',
@@ -571,7 +571,7 @@ class EmsStudentWalkout(models.Model):
         for user in self._ems_head_users():
             env = self.with_context(lang=user.lang or self.env.lang).env
             text = body.format(env._(
-                "Student walkout: %(name)s has aborted the call of %(group)s for a walkout on %(day)s. Reason: "
+                "Student walkout: %(name)s has aborted the proposal of %(group)s for a walkout on %(day)s. Reason: "
                 "%(reason)s.", name=self.rejected_by_id.name, group=self.group_id.name,
                 day=format_date(env, self.walkout_date),
                 reason=self.rejection_reason_id.with_env(env).name + (
@@ -651,13 +651,13 @@ class EmsStudentWalkout(models.Model):
 class EmsStudentWalkoutLine(models.Model):
     """One student of a walkout call. Never the group vote: only whether it was cast."""
     _name = 'ems.student_walkout.line'
-    _description = "Student of a student walkout call"
+    _description = "Student of a student walkout proposal"
     _order = 'walkout_id, student_id'
     _sql_constraints = [
-        ('student_unique', 'UNIQUE(walkout_id, student_id)', 'A student appears only once in a walkout call.'),
+        ('student_unique', 'UNIQUE(walkout_id, student_id)', 'A student appears only once in a walkout proposal.'),
     ]
 
-    walkout_id = fields.Many2one(string="Walkout call", comodel_name='ems.student_walkout', required=True,
+    walkout_id = fields.Many2one(string="Walkout proposal", comodel_name='ems.student_walkout', required=True,
                                  ondelete='cascade', index=True)
     student_id = fields.Many2one(string="Student", comodel_name='res.partner', required=True, ondelete='cascade',
                                  index=True)
@@ -704,9 +704,9 @@ class EmsStudentWalkoutRejectWizard(models.TransientModel):
     """Aborts a student walkout call (active_id) or does not validate it, with a reason from the
     catalog. The view explains which reasons are lawful when aborting."""
     _name = 'ems.student_walkout.reject.wizard'
-    _description = "Reject a student walkout call"
+    _description = "Reject a student walkout proposal"
 
-    walkout_id = fields.Many2one(string="Walkout call", comodel_name='ems.student_walkout', required=True,
+    walkout_id = fields.Many2one(string="Walkout proposal", comodel_name='ems.student_walkout', required=True,
                                  default=lambda self: self.env.context.get('active_id'), ondelete='cascade')
     walkout_state = fields.Selection(related='walkout_id.state')
     reason_id = fields.Many2one(string="Reason", comodel_name='ems.student_walkout.rejection_reason', required=True)

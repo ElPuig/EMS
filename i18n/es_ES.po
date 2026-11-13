@@ -49881,8 +49881,8 @@ msgstr "<i class=\"fa fa-file-pdf-o me-1\"/>Acta"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
-msgid "<i class=\"fa fa-plus me-1\"/> Call a student walkout"
-msgstr "<i class=\"fa fa-plus me-1\"/> Convocar una huelga"
+msgid "<i class=\"fa fa-plus me-1\"/> Propose supporting a student walkout"
+msgstr "<i class=\"fa fa-plus me-1\"/> Proponer apoyar una huelga"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -49895,8 +49895,8 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "<strong>Called by:</strong>"
-msgstr "<strong>Convocada por:</strong>"
+msgid "<strong>Proposed by:</strong>"
+msgstr "<strong>Propuesta por:</strong>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -49925,17 +49925,13 @@ msgstr "<strong>Convocatoria del sindicato:</strong>"
 
 #. module: ems
 #: model_terms:ir.actions.act_window,help:ems.action_student_walkout
-msgid ""
-"A group's delegate or sub-delegate calls one from the portal; the group "
-"votes there."
-msgstr ""
-"El delegado o el subdelegado de un grupo la convoca desde el portal, y el "
-"grupo vota allí."
+msgid "A group's delegate or sub-delegate proposes one from the portal; the group votes there."
+msgstr "El delegado o el subdelegado de un grupo la propone desde el portal, y el grupo vota allí."
 
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_student_walkout_line_student_unique
-msgid "A student appears only once in a walkout call."
-msgstr "Un alumno solo puede aparecer una vez en una convocatoria de huelga."
+msgid "A student appears only once in a walkout proposal."
+msgstr "Un alumno solo puede aparecer una vez en una propuesta de apoyo a la huelga."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -49950,13 +49946,13 @@ msgstr "Adjunta la convocatoria del sindicato de estudiantes."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
-msgid "Call a student walkout -"
-msgstr "Convocar una huelga -"
+msgid "Propose supporting a student walkout -"
+msgstr "Proponer apoyar una huelga -"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
-msgid "Call a student walkout or vote on one of your group"
-msgstr "Convoca una huelga o vota la de tu grupo"
+msgid "Propose supporting a student walkout or vote on one of your group"
+msgstr "Propón apoyar una huelga o vota una de tu grupo"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
@@ -50001,9 +49997,8 @@ msgstr "EMS: huelga de estudiantes, votación"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_level__walkout_course_from
-msgid "First course whose groups may call it. Empty: from the first one."
-msgstr ""
-"Primer curso cuyos grupos la pueden convocar. En blanco: desde el primero."
+msgid "First course whose groups may propose it. Empty: from the first one."
+msgstr "Primer curso cuyos grupos lo pueden proponer. En blanco: desde el primero."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_level__walkout_course_from
@@ -50048,9 +50043,8 @@ msgstr "Justificar la huelga de estudiantes"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_level__walkout_course_to
-msgid "Last course whose groups may call it. Empty: up to the last one."
-msgstr ""
-"Último curso cuyos grupos la pueden convocar. En blanco: hasta el último."
+msgid "Last course whose groups may propose it. Empty: up to the last one."
+msgstr "Último curso cuyos grupos lo pueden proponer. En blanco: hasta el último."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -50062,14 +50056,14 @@ msgstr "Niveles y cursos"
 #: model_terms:ir.ui.view,arch_db:ems.view_level_walkout_list
 #: model:ir.model,name:ems.model_ems_walkout_levels_wizard
 #: model_terms:ir.ui.view,arch_db:ems.view_walkout_levels_wizard_form
-msgid "Levels and courses that may call a student walkout"
-msgstr "Niveles y cursos que pueden convocar una huelga"
+msgid "Levels and courses that may propose supporting a student walkout"
+msgstr "Niveles y cursos que pueden proponer apoyar una huelga"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_level__walkout_allowed
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__walkout_allowed
-msgid "May call a student walkout"
-msgstr "Puede convocar una huelga"
+msgid "May propose supporting a student walkout"
+msgstr "Puede proponer apoyar una huelga"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__voter_count
@@ -50088,8 +50082,8 @@ msgstr "Sin acceso al portal"
 
 #. module: ems
 #: model_terms:ir.actions.act_window,help:ems.action_student_walkout
-msgid "No student walkout call yet."
-msgstr "Todavía no hay ninguna convocatoria de huelga."
+msgid "No student walkout proposal yet."
+msgstr "Todavía no hay ninguna propuesta de apoyo a una huelga."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_search
@@ -50117,21 +50111,14 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid ""
-"Only the delegate or the sub-delegate of a group that may call a student "
-"walkout can open one."
-msgstr ""
-"Solo el delegado o el subdelegado de un grupo que puede convocar una huelga "
-"puede abrir una."
+msgid "Only the delegate or the sub-delegate of a group that may propose supporting a student walkout can propose it."
+msgstr "Solo el delegado o el subdelegado de un grupo que puede proponer apoyar una huelga lo puede proponer."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid ""
-"Only the delegate or the sub-delegate of the group can manage this call."
-msgstr ""
-"Solo el delegado o el subdelegado del grupo pueden gestionar esta "
-"convocatoria."
+msgid "Only the delegate or the sub-delegate of the group can manage this proposal."
+msgstr "Solo el delegado o el subdelegado del grupo pueden gestionar esta propuesta."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
@@ -50141,14 +50128,14 @@ msgstr "Abrir el justificante"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__opener_id
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
-msgid "Opened by"
-msgstr "Abierta por"
+msgid "Proposed by"
+msgstr "Propuesta por"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid "Opened by %(name)s from the portal."
-msgstr "Abierta por %(name)s desde el portal."
+msgid "Proposed by %(name)s from the portal."
+msgstr "Propuesta por %(name)s desde el portal."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
@@ -50172,12 +50159,12 @@ msgstr "Indica si el grupo apoya la huelga."
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Student Walkout Settings"
-msgstr "Convocatorias de huelga"
+msgstr "Huelgas de estudiantes"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_student_walkout_line
-msgid "Student of a student walkout call"
-msgstr "Alumno de una convocatoria de huelga"
+msgid "Student of a student walkout proposal"
+msgstr "Alumno de una propuesta de apoyo a la huelga"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -50186,8 +50173,8 @@ msgstr "Huelga -"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_student_walkout
-msgid "Student walkout call"
-msgstr "Convocatoria de huelga"
+msgid "Student walkout proposal"
+msgstr "Propuesta de apoyo a la huelga"
 
 #. module: ems
 #: model:ir.actions.report,name:ems.action_report_student_walkout
@@ -50237,7 +50224,7 @@ msgstr ""
 #: model:ir.ui.menu,name:ems.menu_attendance_config_walkouts
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
 msgid "Student walkouts"
-msgstr "Convocatorias de huelga"
+msgstr "Huelgas de estudiantes"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
@@ -50256,12 +50243,8 @@ msgstr "Alumnos sin acceso al portal"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_level__walkout_allowed
-msgid ""
-"The delegate or sub-delegate of this level's groups may call a student "
-"walkout from the portal."
-msgstr ""
-"El delegado o el subdelegado de los grupos de este nivel puede convocar una "
-"huelga desde el portal."
+msgid "The delegate or sub-delegate of this level's groups may propose supporting a student walkout from the portal."
+msgstr "El delegado o el subdelegado de los grupos de este nivel puede proponer apoyar una huelga desde el portal."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -50280,17 +50263,13 @@ msgstr "El grupo apoya la huelga."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
-msgid ""
-"The groups whose delegate or sub-delegate may call a student walkout. By "
-"law, from the 3rd year of ESO."
-msgstr ""
-"Los grupos cuyo delegado o subdelegado puede convocar una huelga. Por ley, a"
-" partir de 3.º de ESO."
+msgid "The groups whose delegate or sub-delegate may propose supporting a student walkout. By law, from the 3rd year of ESO."
+msgstr "Los grupos cuyo delegado o subdelegado puede proponer apoyar una huelga. Por ley, a partir de 3.º de ESO."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
-msgid "There are no student walkout calls in your group."
-msgstr "No hay ninguna convocatoria de huelga en tu grupo."
+msgid "There are no student walkout proposals in your group."
+msgstr "No hay ninguna propuesta de apoyo a una huelga en tu grupo."
 
 #. module: ems
 #. odoo-python
@@ -50304,12 +50283,8 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.actions.act_window,help:ems.action_level_walkout_settings
-msgid ""
-"Tick the levels whose groups may call a student walkout. Leave the courses "
-"empty for every course of the level."
-msgstr ""
-"Marca los niveles cuyos grupos pueden convocar una huelga. Deja los cursos "
-"en blanco para todos los cursos del nivel."
+msgid "Tick the levels whose groups may propose supporting a student walkout. Leave the courses empty for every course of the level."
+msgstr "Marca los niveles cuyos grupos pueden proponer apoyar una huelga. Deja los cursos en blanco para todos los cursos del nivel."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_level__walkout_course_to
@@ -50349,13 +50324,13 @@ msgstr "En votación"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_level_count
 msgid "Walkout Level Count"
-msgstr "Número de niveles que pueden convocar huelga"
+msgstr "Número de niveles que pueden proponer apoyar una huelga"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__walkout_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__walkout_id
-msgid "Walkout call"
-msgstr "Convocatoria de huelga"
+msgid "Walkout proposal"
+msgstr "Propuesta de apoyo a la huelga"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__walkout_date
@@ -50366,12 +50341,8 @@ msgstr "Día de la huelga"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_student_walkout_line__has_portal
-msgid ""
-"Whether the student had access to the portal when the call was opened: only "
-"they vote."
-msgstr ""
-"Si el alumno tenía acceso al portal cuando se abrió la convocatoria: solo "
-"esos alumnos votan."
+msgid "Whether the student had access to the portal when the proposal was made: only they vote."
+msgstr "Si el alumno tenía acceso al portal cuando se hizo la propuesta: solo esos alumnos votan."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
@@ -50395,8 +50366,8 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid "Your group already has a student walkout call for %(date)s."
-msgstr "Tu grupo ya tiene una convocatoria de huelga para el %(date)s."
+msgid "Your group already has a student walkout proposal for %(date)s."
+msgstr "Tu grupo ya tiene una propuesta de apoyo a la huelga para el %(date)s."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
@@ -50426,10 +50397,8 @@ msgstr "sí,"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/curriculum/level.py:0
-msgid ""
-"%(level)s: the first course that may call a student walkout cannot be after "
-"the last one."
-msgstr "%(level)s: el primer curso que puede convocar una huelga no puede ser posterior al último."
+msgid "%(level)s: the first course that may propose supporting a student walkout cannot be after the last one."
+msgstr "%(level)s: el primer curso que puede proponer apoyar una huelga no puede ser posterior al último."
 
 #. module: ems
 #: model:mail.template,name:ems.email_template_student_walkout_rejected
@@ -50456,14 +50425,14 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_student_walkout_reject_wizard
-msgid "Reject a student walkout call"
-msgstr "Rechazar una convocatoria de huelga"
+msgid "Reject a student walkout proposal"
+msgstr "Rechazar una propuesta de apoyo a la huelga"
 
 #. module: ems
 #. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
-msgid "Reject the student walkout call"
-msgstr "Rechazar la convocatoria de huelga"
+msgid "Reject the student walkout proposal"
+msgstr "Rechazar la propuesta de apoyo a la huelga"
 
 #. module: ems
 #. odoo-python
@@ -50493,12 +50462,12 @@ msgstr ""
 #. module: ems
 #: model:ir.model,name:ems.model_ems_student_walkout_rejection_reason
 msgid "Student walkout rejection reason"
-msgstr "Motivo de rechazo de una convocatoria de huelga"
+msgstr "Motivo de rechazo de una propuesta de apoyo a la huelga"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_student_walkout_rejection_reason
 msgid "Student walkout rejection reasons"
-msgstr "Motivos de rechazo de las convocatorias de huelga"
+msgstr "Motivos de rechazo de las propuestas de apoyo a la huelga"
 
 #. module: ems
 #: model:ems.student_walkout.rejection_reason,name:ems.student_walkout_rejection_document
@@ -50523,11 +50492,8 @@ msgstr "La convocatoria es de otro sector, no de los estudiantes"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_student_walkout_reject_wizard__requires_details
 #: model:ir.model.fields,help:ems.field_ems_student_walkout_rejection_reason__requires_details
-msgid ""
-"Whoever rejects the call must explain it in the details (e.g. 'Other')."
-msgstr ""
-"Quien rechaza la convocatoria lo debe explicar en los detalles (p. ej. "
-"«Otros»)."
+msgid "Whoever rejects the proposal must explain it in the details (e.g. 'Other')."
+msgstr "Quien rechaza la propuesta lo debe explicar en los detalles (p. ej. «Otros»)."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__can_reject
@@ -50582,7 +50548,7 @@ msgstr ""
 "                            Las faltas de ese día no se justificarán a nadie del grupo.\n"
 "                        </p>\n"
 "                        <p>\n"
-"                            El acta está en el portal del centro (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">convocatorias de huelga</a>).\n"
+"                            El acta está en el portal del centro (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">huelgas de estudiantes</a>).\n"
 "                        </p>\n"
 "                        <p>\n"
 "                            Un cordial saludo,<br/>\n"
@@ -50757,8 +50723,8 @@ msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>Hello <t t-out=\"object.student_id.name\"/>,</p>\n"
 "                        <p>\n"
-"                            <t t-out=\"object.walkout_id.opener_id.name\"/>, the delegate of your group, has called a\n"
-"                            vote on a student walkout for <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>.\n"
+"                            <t t-out=\"object.walkout_id.opener_id.name\"/>, the delegate of your group, has proposed that your group supports a\n"
+"                            student walkout called by a students' union for <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>.\n"
 "                        </p>\n"
 "                        <p>\n"
 "                            On the school portal (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">student walkouts</a>)\n"
@@ -50779,11 +50745,11 @@ msgstr ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>Hola, <t t-out=\"object.student_id.name\"/>:</p>\n"
 "                        <p>\n"
-"                            <t t-out=\"object.walkout_id.opener_id.name\"/>, el delegado de tu grupo, ha convocado una\n"
-"                            votación sobre una huelga para el <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>.\n"
+"                            <t t-out=\"object.walkout_id.opener_id.name\"/>, el delegado de tu grupo, ha propuesto que tu grupo apoye una\n"
+"                            huelga convocada por un sindicato de estudiantes para el <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>.\n"
 "                        </p>\n"
 "                        <p>\n"
-"                            En el portal del centro (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">convocatorias de huelga</a>)\n"
+"                            En el portal del centro (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">huelgas de estudiantes</a>)\n"
 "                            encontrarás la convocatoria del sindicato de estudiantes y podrás votar si el grupo apoya\n"
 "                            la huelga (un voto anónimo), hasta el\n"
 "                            <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.vote_until)\"/>.\n"
@@ -50831,7 +50797,7 @@ msgstr ""
 "                        </p>\n"
 "                        <p>\n"
 "                            Ahora cada alumno dice si se suma, en el portal del centro\n"
-"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">convocatorias de huelga</a>),\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">huelgas de estudiantes</a>),\n"
 "                            hasta el <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/>. Solo se justifica la falta\n"
 "                            de ese día a los alumnos que se suman, y sus nombres aparecen en el acta.\n"
 "                        </p>\n"
@@ -50845,13 +50811,13 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
-msgid "<i class=\"fa fa-calendar me-1\"/> <strong>Calendar if you call it now</strong> (only school days count: weekends, public holidays and school breaks do not):"
-msgstr "<i class=\"fa fa-calendar me-1\"/> <strong>Calendario si la convocas ahora</strong> (solo cuentan los días lectivos: los fines de semana, festivos y vacaciones no):"
+msgid "<i class=\"fa fa-calendar me-1\"/> <strong>Calendar if you propose it now</strong> (only school days count: weekends, public holidays and school breaks do not):"
+msgstr "<i class=\"fa fa-calendar me-1\"/> <strong>Calendario si la propones ahora</strong> (solo cuentan los días lectivos: los fines de semana, festivos y vacaciones no):"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "<i class=\"fa fa-check-circle me-1\"/> The vote has been called: your group receives an email to vote."
-msgstr "<i class=\"fa fa-check-circle me-1\"/> Se ha convocado la votación: tu grupo recibe un correo para votar."
+msgid "<i class=\"fa fa-check-circle me-1\"/> The proposal has been sent: your group receives an email to vote."
+msgstr "<i class=\"fa fa-check-circle me-1\"/> Se ha enviado la propuesta: tu grupo recibe un correo para votar."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -50870,8 +50836,8 @@ msgstr "<span class=\"o_form_label me-2\">Preaviso</span>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "<span id=\"ems_walkout_confirm_cancel\" class=\"d-none\">Cancel this student walkout call?</span>"
-msgstr "<span id=\"ems_walkout_confirm_cancel\" class=\"d-none\">¿Quieres anular esta convocatoria de huelga?</span>"
+msgid "<span id=\"ems_walkout_confirm_cancel\" class=\"d-none\">Cancel this student walkout proposal?</span>"
+msgstr "<span id=\"ems_walkout_confirm_cancel\" class=\"d-none\">¿Quieres anular esta propuesta de apoyo a la huelga?</span>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -50885,8 +50851,8 @@ msgstr "<strong>Adhesiones:</strong>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "<strong>Manage the call</strong>"
-msgstr "<strong>Gestiona la convocatoria</strong>"
+msgid "<strong>Manage the proposal</strong>"
+msgstr "<strong>Gestiona la propuesta</strong>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -50901,27 +50867,23 @@ msgstr "Cada fase empieza cuando el correo llega a tu grupo: durante sus clases,
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid "A student walkout can only be called for a school day."
-msgstr "Solo se puede convocar una huelga para un día lectivo."
+msgid "A student walkout can only be on a school day."
+msgstr "Una huelga solo puede ser en un día lectivo."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
-msgid ""
-"As the delegate or sub-delegate of your group, you can call a student walkout of a students'\n"
-"                    union. Your group votes at once whether it supports it."
-msgstr ""
-"Como delegado o subdelegado de tu grupo, puedes convocar una huelga de un sindicato de\n"
-"                    estudiantes. Tu grupo vota enseguida si la apoya."
+msgid "As the delegate or sub-delegate of your group, you can propose that your group supports a student walkout called by a students' union. Your group votes at once whether it supports it."
+msgstr "Como delegado o subdelegado de tu grupo, puedes proponer a tu grupo que apoye una huelga convocada por un sindicato de estudiantes. Tu grupo vota enseguida si la apoya."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
-msgid "Call the vote"
-msgstr "Convoca la votación"
+msgid "Propose the vote"
+msgstr "Propón la votación"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "Cancel the call"
-msgstr "Anula la convocatoria"
+msgid "Cancel the proposal"
+msgstr "Anula la propuesta"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
@@ -50940,8 +50902,8 @@ msgstr "Si la apoya, cada alumno dice si se suma,"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
-msgid "If you call it now, the earliest day the walkout can be on is"
-msgstr "Si la convocas ahora, el primer día posible de la huelga es el"
+msgid "If you propose it now, the earliest day the walkout can be on is"
+msgstr "Si la propones ahora, el primer día posible de la huelga es el"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -50951,8 +50913,8 @@ msgstr "En horas lectivas (no cuentan los fines de semana, festivos ni vacacione
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid "It is too late to call a student walkout for %(day)s: the group vote and the joining take %(phase)s school hours each and the Head of Studies must get the minute %(notice)s school hours before the walkout (weekends, public holidays and school breaks do not count). A call opened now can be for %(first)s at the earliest."
-msgstr "Es demasiado tarde para convocar una huelga para el %(day)s: la votación del grupo y las adhesiones duran %(phase)s horas lectivas cada una y jefatura de estudios debe recibir el acta %(notice)s horas lectivas antes de la huelga (no cuentan los fines de semana, festivos ni vacaciones). Una convocatoria abierta ahora puede ser como pronto para el %(first)s."
+msgid "It is too late to propose supporting a student walkout for %(day)s: the group vote and the joining take %(phase)s school hours each and the Head of Studies must get the minute %(notice)s school hours before the walkout (weekends, public holidays and school breaks do not count). A proposal made now can be for %(first)s at the earliest."
+msgstr "Es demasiado tarde para proponer apoyar una huelga para el %(day)s: la votación del grupo y las adhesiones duran %(phase)s horas lectivas cada una y jefatura de estudios debe recibir el acta %(notice)s horas lectivas antes de la huelga (no cuentan los fines de semana, festivos ni vacaciones). Una propuesta hecha ahora puede ser como pronto para el %(first)s."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__join_start
@@ -50967,8 +50929,8 @@ msgstr "Preaviso (horas lectivas)"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid "Only a call still being voted or joined can be cancelled."
-msgstr "Solo se puede anular una convocatoria en votación o en adhesiones."
+msgid "Only a proposal still being voted or joined can be cancelled."
+msgstr "Solo se puede anular una propuesta en votación o en adhesiones."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__phase_hours
@@ -51019,8 +50981,8 @@ msgstr "Inicio de la huelga"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "You had no access to the portal when the vote was called, so you cannot answer."
-msgstr "No tenías acceso al portal cuando se convocó la votación, así que no puedes responder."
+msgid "You had no access to the portal when the vote was proposed, so you cannot answer."
+msgstr "No tenías acceso al portal cuando se propuso la votación, así que no puedes responder."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
@@ -51083,7 +51045,7 @@ msgid ""
 "                        </p>\n"
 "                        <p>\n"
 "                            Their group, <t t-out=\"object.walkout_id.group_id.name\"/>, has voted to support it and the\n"
-"                            Head of Studies has validated the call, so the school justifies their absence that day.\n"
+"                            Head of Studies has validated the proposal, so the school justifies their absence that day.\n"
 "                        </p>\n"
 "                        <p>If you have any question, talk to the group's tutor.</p>\n"
 "                        <p>\n"
@@ -51102,7 +51064,7 @@ msgstr ""
 "                        </p>\n"
 "                        <p>\n"
 "                            Su grupo, <t t-out=\"object.walkout_id.group_id.name\"/>, ha votado apoyarla y\n"
-"                            jefatura de estudios ha validado la convocatoria, así que el centro justifica la falta de ese día.\n"
+"                            jefatura de estudios ha validado la propuesta, así que el centro justifica la falta de ese día.\n"
 "                        </p>\n"
 "                        <p>Si tienen cualquier duda, hablen con el tutor del grupo.</p>\n"
 "                        <p>\n"
@@ -51119,7 +51081,7 @@ msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>Hello <t t-out=\"object.student_id.name\"/>,</p>\n"
 "                        <p t-if=\"object.walkout_id.rejected_from_state in ('voting', 'joining')\">\n"
-"                            <t t-out=\"object.walkout_id.rejected_by_id.name\"/> has aborted the student walkout call of\n"
+"                            <t t-out=\"object.walkout_id.rejected_by_id.name\"/> has aborted the student walkout proposal of\n"
 "                            your group for <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>:\n"
 "                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
 "                            Absences that day will not be justified.\n"
@@ -51149,7 +51111,7 @@ msgstr ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>Hola, <t t-out=\"object.student_id.name\"/>:</p>\n"
 "                        <p t-if=\"object.walkout_id.rejected_from_state in ('voting', 'joining')\">\n"
-"                            <t t-out=\"object.walkout_id.rejected_by_id.name\"/> ha abortado la convocatoria de huelga de\n"
+"                            <t t-out=\"object.walkout_id.rejected_by_id.name\"/> ha abortado la propuesta de apoyo a la huelga de\n"
 "                            tu grupo para el <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>:\n"
 "                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
 "                            Las faltas de ese día no se justificarán.\n"
@@ -51220,11 +51182,11 @@ msgid ""
 "                        <t t-if=\"event == 'call'\">\n"
 "                            <p>\n"
 "                                <t t-out=\"object.opener_id.name\"/>, the delegate of <strong t-out=\"object.group_id.name\"/>,\n"
-"                                has called a vote on a student walkout for <strong t-out=\"format_date(object.walkout_date)\"/>.\n"
+"                                has proposed that the group supports a student walkout called by a students' union for <strong t-out=\"format_date(object.walkout_date)\"/>.\n"
 "                                The group votes until <strong t-out=\"object.format_local_datetime(object.vote_until)\"/>.\n"
 "                            </p>\n"
 "                            <p>\n"
-"                                As the group's tutor, check the union's call: you can abort the call while it is voted\n"
+"                                As the group's tutor, check the union's call: you can abort the proposal while it is voted\n"
 "                                or joined, only for a formal defect (no valid call of a students' union for that day,\n"
 "                                one that does not cover the group...), never because of its cause.\n"
 "                            </p>\n"
@@ -51235,10 +51197,10 @@ msgid ""
 "                            (<t t-out=\"object.group_yes_count\"/> yes, <t t-out=\"object.group_no_count\"/> no,\n"
 "                            <t t-out=\"object.group_abstain_count\"/> abstentions). Each student says whether they join\n"
 "                            it until <strong t-out=\"object.format_local_datetime(object.join_until)\"/>; you can still\n"
-"                            abort the call until then.\n"
+"                            abort the proposal until then.\n"
 "                        </p>\n"
 "                        <p t-elif=\"event == 'closed'\">\n"
-"                            The call of the student walkout of <strong t-out=\"format_date(object.walkout_date)\"/> in\n"
+"                            The proposal to support the student walkout of <strong t-out=\"format_date(object.walkout_date)\"/> in\n"
 "                            <strong t-out=\"object.group_id.name\"/> has closed:\n"
 "                            <t t-if=\"object.group_supports\">the group supports it and\n"
 "                                <t t-out=\"object.joining_count\"/> of <t t-out=\"len(object.line_ids)\"/> students join it.\n"
@@ -51253,7 +51215,7 @@ msgid ""
 "                        <t t-elif=\"event == 'rejected'\">\n"
 "                            <p>\n"
 "                                <t t-out=\"object.rejected_by_id.name\"/>\n"
-"                                <t t-if=\"object.rejected_from_state in ('voting', 'joining')\">has aborted the call of</t>\n"
+"                                <t t-if=\"object.rejected_from_state in ('voting', 'joining')\">has aborted the proposal of</t>\n"
 "                                <t t-elif=\"object.rejected_from_state == 'justified'\">has withdrawn the validation of</t>\n"
 "                                <t t-else=\"\">has not validated</t>\n"
 "                                the student walkout of <strong t-out=\"object.group_id.name\"/> on\n"
@@ -51263,7 +51225,7 @@ msgid ""
 "                            <p t-if=\"object.rejection_details\" t-out=\"object.rejection_details\"/>\n"
 "                        </t>\n"
 "                        <p>\n"
-"                            <a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">Open the call in EMS</a>\n"
+"                            <a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">Open the proposal in EMS</a>\n"
 "                        </p>\n"
 "                    </div>\n"
 "                \n"
@@ -51275,11 +51237,11 @@ msgstr ""
 "                        <t t-if=\"event == 'call'\">\n"
 "                            <p>\n"
 "                                <t t-out=\"object.opener_id.name\"/>, delegado de <strong t-out=\"object.group_id.name\"/>,\n"
-"                                ha convocado una votación sobre una huelga para el <strong t-out=\"format_date(object.walkout_date)\"/>.\n"
+"                                ha propuesto que el grupo apoye una huelga convocada por un sindicato de estudiantes para el <strong t-out=\"format_date(object.walkout_date)\"/>.\n"
 "                                El grupo vota hasta el <strong t-out=\"object.format_local_datetime(object.vote_until)\"/>.\n"
 "                            </p>\n"
 "                            <p>\n"
-"                                Como tutor del grupo, revisa la convocatoria del sindicato: puedes abortar la convocatoria mientras se vota\n"
+"                                Como tutor del grupo, revisa la convocatoria del sindicato: puedes abortar la propuesta mientras se vota\n"
 "                                o se suman, solo por un defecto de forma (no hay ninguna convocatoria válida de un sindicato de estudiantes para ese día,\n"
 "                                no incluye al grupo...), nunca por su causa.\n"
 "                            </p>\n"
@@ -51290,10 +51252,10 @@ msgstr ""
 "                            (<t t-out=\"object.group_yes_count\"/> sí, <t t-out=\"object.group_no_count\"/> no,\n"
 "                            <t t-out=\"object.group_abstain_count\"/> abstenciones). Cada alumno dice si se suma\n"
 "                            hasta el <strong t-out=\"object.format_local_datetime(object.join_until)\"/>; hasta entonces aún\n"
-"                            puedes abortar la convocatoria.\n"
+"                            puedes abortar la propuesta.\n"
 "                        </p>\n"
 "                        <p t-elif=\"event == 'closed'\">\n"
-"                            La convocatoria de la huelga del <strong t-out=\"format_date(object.walkout_date)\"/> en\n"
+"                            La propuesta de apoyo a la huelga del <strong t-out=\"format_date(object.walkout_date)\"/> en\n"
 "                            <strong t-out=\"object.group_id.name\"/> se ha cerrado:\n"
 "                            <t t-if=\"object.group_supports\">el grupo la apoya y\n"
 "                                <t t-out=\"object.joining_count\"/> de <t t-out=\"len(object.line_ids)\"/> alumnos se suman.\n"
@@ -51308,7 +51270,7 @@ msgstr ""
 "                        <t t-elif=\"event == 'rejected'\">\n"
 "                            <p>\n"
 "                                <t t-out=\"object.rejected_by_id.name\"/>\n"
-"                                <t t-if=\"object.rejected_from_state in ('voting', 'joining')\">ha abortado la convocatoria de</t>\n"
+"                                <t t-if=\"object.rejected_from_state in ('voting', 'joining')\">ha abortado la propuesta de</t>\n"
 "                                <t t-elif=\"object.rejected_from_state == 'justified'\">ha retirado la validación de</t>\n"
 "                                <t t-else=\"\">no ha validado</t>\n"
 "                                la huelga de <strong t-out=\"object.group_id.name\"/> del\n"
@@ -51318,7 +51280,7 @@ msgstr ""
 "                            <p t-if=\"object.rejection_details\" t-out=\"object.rejection_details\"/>\n"
 "                        </t>\n"
 "                        <p>\n"
-"                            <a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">Abre la convocatoria en EMS</a>\n"
+"                            <a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">Abre la propuesta en EMS</a>\n"
 "                        </p>\n"
 "                    </div>\n"
 "                \n"
@@ -51326,31 +51288,31 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
-msgid "<strong>Abort a call only for a formal defect:</strong>"
-msgstr "<strong>Solo se puede abortar una convocatoria por un defecto de forma:</strong>"
+msgid "<strong>Abort a proposal only for a formal defect:</strong>"
+msgstr "<strong>Solo se puede abortar una propuesta por un defecto de forma:</strong>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
 msgid ""
 "<strong>Never because</strong> you disagree with its cause, it coincides with an exam, an outing or a\n"
 "                            deadline, you think the group cannot afford to miss class, few students would join, or to put pressure\n"
-"                            on the group. The Head of Studies is told of every aborted call and its reason."
+"                            on the group. The Head of Studies is told of every aborted proposal and its reason."
 msgstr ""
 "<strong>Nunca porque</strong> no estés de acuerdo con su causa, coincida con un examen, una salida o una\n"
 "                            entrega, creas que el grupo no puede permitirse perder clase, vayan a sumarse pocos alumnos, o para presionar\n"
-"                            al grupo. Jefatura de estudios recibe un aviso de cada convocatoria abortada y de su motivo."
+"                            al grupo. Jefatura de estudios recibe un aviso de cada propuesta abortada y de su motivo."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
-msgid "Abort the call"
-msgstr "Abortar la convocatoria"
+msgid "Abort the proposal"
+msgstr "Abortar la propuesta"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid "Abort the student walkout call"
-msgstr "Abortar la convocatoria de huelga"
+msgid "Abort the student walkout proposal"
+msgstr "Abortar la propuesta de apoyo a la huelga"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
@@ -51393,8 +51355,8 @@ msgstr "Solo el jefe de estudios, el jefe de estudios adjunto o la dirección de
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid "Only the tutor of the group, the chain above them (Department or Seminar Chief, Head or Deputy Head of Studies, Director) or an administrator can abort a student walkout call."
-msgstr "Solo el tutor del grupo, la cadena por encima de él (jefe de departamento o de seminario, jefe de estudios o jefe de estudios adjunto, dirección) o un administrador pueden abortar una convocatoria de huelga."
+msgid "Only the tutor of the group, the chain above them (Department or Seminar Chief, Head or Deputy Head of Studies, Director) or an administrator can abort a student walkout proposal."
+msgstr "Solo el tutor del grupo, la cadena por encima de él (jefe de departamento o de seminario, jefe de estudios o jefe de estudios adjunto, dirección) o un administrador pueden abortar una propuesta de apoyo a la huelga."
 
 #. module: ems
 #: model:mail.template,subject:ems.email_template_student_walkout_validated
@@ -51404,8 +51366,8 @@ msgstr "Huelga del {{ format_date(object.walkout_id.walkout_date) }}: validada"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid "Student walkout: %(name)s has aborted the call of %(group)s for a walkout on %(day)s. Reason: %(reason)s."
-msgstr "Huelga: %(name)s ha abortado la convocatoria de %(group)s para una huelga el %(day)s. Motivo: %(reason)s."
+msgid "Student walkout: %(name)s has aborted the proposal of %(group)s for a walkout on %(day)s. Reason: %(reason)s."
+msgstr "Huelga: %(name)s ha abortado la propuesta de %(group)s para una huelga el %(day)s. Motivo: %(reason)s."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -51420,22 +51382,22 @@ msgstr "Jefatura de estudios ha retirado la validación de esta huelga:"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
 msgid ""
-"The group's tutor watches over the call: check the union's call and, only if it has a formal\n"
+"The group's tutor watches over the proposal: check the union's call and, only if it has a formal\n"
 "                            defect, abort it giving a reason. Once closed, the Head of Studies validates it or not."
 msgstr ""
-"El tutor del grupo vela por la convocatoria: revisa la convocatoria del sindicato y, solo si tiene un defecto\n"
+"El tutor del grupo vela por la propuesta: revisa la convocatoria del sindicato y, solo si tiene un defecto\n"
 "                            de forma, abórtala indicando el motivo. Una vez cerrada, jefatura de estudios la valida o no."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "This call has been aborted:"
-msgstr "Se ha abortado esta convocatoria:"
+msgid "This proposal has been aborted:"
+msgstr "Se ha abortado esta propuesta:"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid "This student walkout call can no longer be aborted nor rejected."
-msgstr "Esta convocatoria de huelga ya no se puede abortar ni rechazar."
+msgid "This student walkout proposal can no longer be aborted nor rejected."
+msgstr "Esta propuesta de apoyo a la huelga ya no se puede abortar ni rechazar."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
@@ -51514,7 +51476,7 @@ msgstr ""
 "                        <p>\n"
 "                            Como es menor de edad, su falta de ese día solo se justifica si ratificáis su decisión.\n"
 "                            Podéis ratificarla o no en el portal del centro\n"
-"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues\">convocatorias de huelga</a>) hasta el\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues\">huelgas de estudiantes</a>) hasta el\n"
 "                            <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/>.\n"
 "                            Si no hay respuesta antes, no se justifica.\n"
 "                        </p>\n"
@@ -51801,7 +51763,7 @@ msgid ""
 "                            Their absence that day will not be justified.\n"
 "                        </p>\n"
 "                        <p t-else=\"\">\n"
-"                            The school has aborted the student walkout call of\n"
+"                            The school has aborted the student walkout proposal of\n"
 "                            <t t-out=\"object.walkout_id.group_id.name\"/> for\n"
 "                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, which\n"
 "                            <strong t-out=\"object.student_id.name\"/> had said they joined:\n"
@@ -51836,7 +51798,7 @@ msgstr ""
 "                            La falta de ese día no se justificará.\n"
 "                        </p>\n"
 "                        <p t-else=\"\">\n"
-"                            El centro ha anulado la convocatoria de huelga de\n"
+"                            El centro ha anulado la propuesta de apoyo a la huelga de\n"
 "                            <t t-out=\"object.walkout_id.group_id.name\"/> para el\n"
 "                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, a la que\n"
 "                            <strong t-out=\"object.student_id.name\"/> había dicho que se sumaba:\n"
@@ -51871,8 +51833,8 @@ msgid ""
 "                                family's ratification).</li>\n"
 "                        </ul>\n"
 "                        <p t-if=\"object.group_supports and object.joining_count\">\n"
-"                            From the call in EMS (<a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">open it</a>),\n"
-"                            <em>Actions &gt; Validate and justify</em> validates the call and justifies that day for the\n"
+"                            From the proposal in EMS (<a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">open it</a>),\n"
+"                            <em>Actions &gt; Validate and justify</em> validates the proposal and justifies that day for the\n"
 "                            students who can be justified (adults, and minors whose family ratified it), and <em>Do not validate</em> leaves it\n"
 "                            unjustified, giving a reason.\n"
 "                        </p>\n"
@@ -51897,8 +51859,8 @@ msgstr ""
 "                                la ratificación de la familia).</li>\n"
 "                        </ul>\n"
 "                        <p t-if=\"object.group_supports and object.joining_count\">\n"
-"                            Desde la convocatoria en EMS (<a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">ábrela</a>),\n"
-"                            <em>Acciones &gt; Validar y justificar</em> valida la convocatoria y justifica ese día a los\n"
+"                            Desde la propuesta en EMS (<a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">ábrela</a>),\n"
+"                            <em>Acciones &gt; Validar y justificar</em> valida la propuesta y justifica ese día a los\n"
 "                            alumnos que se pueden justificar (los mayores de edad y los menores con la ratificación de la familia), y <em>No validar</em> la deja\n"
 "                            sin justificar, indicando el motivo.\n"
 "                        </p>\n"
@@ -51919,16 +51881,14 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_walkout_levels_wizard_line
-msgid "Level that may call a student walkout"
-msgstr "Nivel que puede convocar una huelga"
+msgid "Level that may propose supporting a student walkout"
+msgstr "Nivel que puede proponer apoyar una huelga"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/settings/walkout_levels_wizard.py:0
-msgid ""
-"Only an administrator can change which levels may call a student walkout."
-msgstr ""
-"Solo un administrador puede cambiar qué niveles pueden convocar una huelga."
+msgid "Only an administrator can change which levels may propose supporting a student walkout."
+msgstr "Solo un administrador puede cambiar qué niveles pueden proponer apoyar una huelga."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
@@ -51951,10 +51911,10 @@ msgstr ""
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_walkout_levels_wizard_form
 msgid ""
-"Tick the levels whose groups may call a student walkout. Leave the courses empty for every\n"
+"Tick the levels whose groups may propose supporting a student walkout. Leave the courses empty for every\n"
 "                        course of the level. By law, from the 3rd year of ESO."
 msgstr ""
-"Marca los niveles cuyos grupos pueden convocar una huelga. Deja los cursos en blanco para todos los\n"
+"Marca los niveles cuyos grupos pueden proponer apoyar una huelga. Deja los cursos en blanco para todos los\n"
 "                        cursos del nivel. Por ley, a partir de 3.º de ESO."
 
 #. module: ems

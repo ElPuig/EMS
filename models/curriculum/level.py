@@ -84,12 +84,12 @@ class EmsLevel(models.Model):
 
 	# Issue #800: which of this level's groups may call a student walkout (an allowlist: unticked,
 	# none). The centre's choice, edited in Settings: never in data/cat/ems.level.csv.
-	walkout_allowed = fields.Boolean(string="May call a student walkout", default=False,
-		help="The delegate or sub-delegate of this level's groups may call a student walkout from the portal.")
+	walkout_allowed = fields.Boolean(string="May propose supporting a student walkout", default=False,
+		help="The delegate or sub-delegate of this level's groups may propose supporting a student walkout from the portal.")
 	walkout_course_from = fields.Integer(string="From course",
-		help="First course whose groups may call it. Empty: from the first one.")
+		help="First course whose groups may propose it. Empty: from the first one.")
 	walkout_course_to = fields.Integer(string="To course",
-		help="Last course whose groups may call it. Empty: up to the last one.")
+		help="Last course whose groups may propose it. Empty: up to the last one.")
 
 	@api.depends('acronym')
 	def _compute_card_color(self):
@@ -109,7 +109,7 @@ class EmsLevel(models.Model):
 		for level in self:
 			if level.walkout_course_from < 0 or level.walkout_course_to < 0 or (
 					level.walkout_course_to and level.walkout_course_from > level.walkout_course_to):
-				raise ValidationError(_("%(level)s: the first course that may call a student walkout cannot be "
+				raise ValidationError(_("%(level)s: the first course that may propose supporting a student walkout cannot be "
 					"after the last one.", level=level.display_name))
 
 	def _ems_allows_walkout(self, course):

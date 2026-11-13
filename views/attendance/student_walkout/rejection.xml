@@ -8,7 +8,7 @@
             <field name="name">ems.student_walkout.reject.wizard.form</field>
             <field name="model">ems.student_walkout.reject.wizard</field>
             <field name="arch" type="xml">
-                <form string="Reject the student walkout call">
+                <form string="Reject the student walkout proposal">
                     <field name="walkout_state" invisible="1"/>
                     <div class="alert alert-warning" role="alert" invisible="walkout_state not in ('voting', 'joining')">
                         <p>
@@ -17,7 +17,7 @@
                             cannot stop it because of its cause. In Catalonia, a minor's absence also needs their family's
                             authorization (Decret 102/2010, article 24.2): their family ratifies it on the portal while joining lasts.
                         </p>
-                        <p class="mb-1"><strong>Abort a call only for a formal defect:</strong></p>
+                        <p class="mb-1"><strong>Abort a proposal only for a formal defect:</strong></p>
                         <ul>
                             <li>there is no official call of a students' union for that day, or the attached document is not one;</li>
                             <li>the call does not cover the group's level or studies, or is for another sector (teachers, for instance) or another autonomous community.</li>
@@ -25,7 +25,7 @@
                         <p class="mb-0">
                             <strong>Never because</strong> you disagree with its cause, it coincides with an exam, an outing or a
                             deadline, you think the group cannot afford to miss class, few students would join, or to put pressure
-                            on the group. The Head of Studies is told of every aborted call and its reason.
+                            on the group. The Head of Studies is told of every aborted proposal and its reason.
                         </p>
                     </div>
                     <p class="text-muted" invisible="walkout_state not in ('voting', 'joining')">The students of the group, its tutor and the families asked to ratify that a minor joins are told, with the reason.</p>
@@ -38,7 +38,7 @@
                         <field name="details" required="requires_details" placeholder="Explain why"/>
                     </group>
                     <footer>
-                        <button name="action_reject" type="object" string="Abort the call" class="btn-primary"
+                        <button name="action_reject" type="object" string="Abort the proposal" class="btn-primary"
                                 invisible="walkout_state not in ('voting', 'joining')"/>
                         <button name="action_reject" type="object" string="Do not validate" class="btn-primary"
                                 invisible="walkout_state != 'closed'"/>

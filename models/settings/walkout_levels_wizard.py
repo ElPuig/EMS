@@ -11,7 +11,7 @@ class EmsWalkoutLevelsWizard(models.TransientModel):
     sets which levels (and courses) may call a student walkout, like the convalidation levels: only
     these three fields of ems.level, written with sudo, without granting write access to the levels."""
     _name = 'ems.walkout.levels.wizard'
-    _description = "Levels and courses that may call a student walkout"
+    _description = "Levels and courses that may propose supporting a student walkout"
 
     line_ids = fields.One2many(string="Levels", comodel_name='ems.walkout.levels.wizard.line',
                                inverse_name='wizard_id', default=lambda self: self._default_line_ids())
@@ -24,7 +24,7 @@ class EmsWalkoutLevelsWizard(models.TransientModel):
     def action_save(self):
         self.ensure_one()
         if not self.env['ems.base'].get_user_is_top_admin():
-            raise AccessError(_("Only an administrator can change which levels may call a student walkout."))
+            raise AccessError(_("Only an administrator can change which levels may propose supporting a student walkout."))
         for line in self.line_ids:
             vals = {name: line[name] for name in WALKOUT_FIELDS}
             level = line.level_id.sudo()
@@ -35,13 +35,13 @@ class EmsWalkoutLevelsWizard(models.TransientModel):
 
 class EmsWalkoutLevelsWizardLine(models.TransientModel):
     _name = 'ems.walkout.levels.wizard.line'
-    _description = "Level that may call a student walkout"
+    _description = "Level that may propose supporting a student walkout"
     _order = 'level_acronym'
 
     wizard_id = fields.Many2one(comodel_name='ems.walkout.levels.wizard', required=True, ondelete='cascade')
     level_id = fields.Many2one(string="Level", comodel_name='ems.level', required=True, readonly=True,
                                ondelete='cascade')
     level_acronym = fields.Char(related='level_id.acronym', string="Acronym")
-    walkout_allowed = fields.Boolean(string="May call a student walkout")
+    walkout_allowed = fields.Boolean(string="May propose supporting a student walkout")
     walkout_course_from = fields.Integer(string="From course")
     walkout_course_to = fields.Integer(string="To course")

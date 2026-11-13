@@ -5,7 +5,7 @@
             <field name="name">ems.absence_pending.discard_reason.list</field>
             <field name="model">ems.absence_pending.discard_reason</field>
             <field name="arch" type="xml">
-                <list default_order="sequence, name">
+                <list default_order="sequence, name" delete="0">
                     <field name="sequence" widget="handle"/>
                     <field name="name"/>
                 </list>
@@ -16,7 +16,7 @@
             <field name="name">ems.absence_pending.discard_reason.form</field>
             <field name="model">ems.absence_pending.discard_reason</field>
             <field name="arch" type="xml">
-                <form string="Discard reason">
+                <form string="Discard reason" delete="0">
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                         <field name="active" invisible="1"/>

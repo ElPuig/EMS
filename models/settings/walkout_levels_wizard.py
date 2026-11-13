@@ -11,6 +11,7 @@ class EmsWalkoutLevelsWizard(models.TransientModel):
     sets which levels (and courses) may call a student walkout, like the convalidation levels: only
     these three fields of ems.level, written with sudo, without granting write access to the levels."""
     _name = 'ems.walkout.levels.wizard'
+    _inherit = ['ems.base']
     _description = "Levels and courses that may call a student walkout"
 
     line_ids = fields.One2many(string="Levels", comodel_name='ems.walkout.levels.wizard.line',
@@ -23,7 +24,7 @@ class EmsWalkoutLevelsWizard(models.TransientModel):
 
     def action_save(self):
         self.ensure_one()
-        if not (self.env.user.has_group('base.group_system') or self.env.user.has_group('ems.group_academic_admin')):
+        if not self.get_user_is_top_admin():
             raise AccessError(_("Only an administrator can change which levels may call a student walkout."))
         for line in self.line_ids:
             vals = {name: line[name] for name in WALKOUT_FIELDS}

@@ -671,7 +671,7 @@ class TestErasmusGroupFiles(ErasmusGroupMobilityCase):
                          self.companion)
         self.assertFalse(participants.registration_ids.filtered(lambda registration: registration.result != 'selected'))
         lines = participants.document_ids
-        self.mobility.with_user(self.coordinator_user).action_sync_requirements()
+        self.mobility._ems_sync_requirements()
         self.assertEqual(participants.document_ids, lines, "Updating never duplicates a document.")
 
     def test_teachers_join_without_a_staff_call(self):

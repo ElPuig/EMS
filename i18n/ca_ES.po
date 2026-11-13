@@ -33910,11 +33910,6 @@ msgid "Add the destinations first."
 msgstr "Primer afegeix les destinacions."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
-msgid "Adds the documents and steps of the call that this mobility does not have yet."
-msgstr "Afegeix els documents i els passos de la convocatòria que aquesta mobilitat encara no té."
-
-#. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_erasmus_mobility_application_unique
 msgid "An application has only one mobility."
 msgstr "Una sol·licitud només té una mobilitat."
@@ -34626,11 +34621,6 @@ msgstr "Marcat per"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_document_signature__signed_date
 msgid "Ticked on"
 msgstr "Marcat el"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
-msgid "Update documents and checklist"
-msgstr "Actualitza documents i passos"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
@@ -38126,11 +38116,6 @@ msgid "Activity programme"
 msgstr "Programa d'activitats"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
-msgid "Adds to every file the documents asked for that it does not have yet."
-msgstr "Afegeix a cada expedient els documents demanats que encara no té."
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid "Agreements with the host entity"
@@ -39226,11 +39211,6 @@ msgstr "Total de les despeses col·lectives"
 #: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid "Travel and accommodation documents"
 msgstr "Documents de viatge i allotjament"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
-msgid "Update documents"
-msgstr "Actualitza els documents"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
@@ -52903,3 +52883,14 @@ msgstr "l'estada està prevista per al %s"
 #: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid "there is no host entity yet"
 msgstr "encara no hi ha entitat d'acollida"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_project__kind
+msgid "Taken from the agreement number (KA121-VET or KA131-HED), like the short name."
+msgstr "Es treu del número de conveni (KA121-VET o KA131-HED), com el nom curt."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "These documents can't be removed because someone already handed them in, and what is handed in is always kept: %(documents)s. If one is no longer needed, make it Optional instead."
+msgstr "Aquests documents no es poden treure perquè algú ja els ha lliurat, i el que s'ha lliurat es conserva sempre: %(documents)s. Si un ja no cal, poseu-lo com a Opcional."

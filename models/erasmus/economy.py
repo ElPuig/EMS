@@ -604,8 +604,9 @@ class EmsErasmusSupportRate(models.Model):
     kind = fields.Selection(string="Action", selection=PROJECTS, required=True)
     mobility_type = fields.Selection(string="Mobility", selection=SUPPORT_TYPES, required=True,
                                      default='student_short')
+    # Issue #788 (13.9): it only depends on the action, so EMS sets it.
     band_scope = fields.Selection(string="Count the participants of", selection=BAND_SCOPES, required=True,
-                                  default='same',
+                                  compute='_compute_band_scope', store=True, readonly=False, precompute=True,
                                   help="For the band: the participant's position among those of the same kind of "
                                        "mobility (KA121-VET), or among every participant of the project, students "
                                        "and staff together (KA131-HED).")
@@ -619,6 +620,11 @@ class EmsErasmusSupportRate(models.Model):
     # Issue #782 (13.8): the list is grouped by year, and a sum of rates or positions means nothing.
     amount = fields.Monetary(string="Amount per participant", required=True, aggregator=None)
     note = fields.Char(string="Conditions", help="Other eligibility conditions of the funding rules, as a reminder.")
+
+    @api.depends('kind')
+    def _compute_band_scope(self):
+        for rate in self:
+            rate.band_scope = 'project' if rate.kind == 'ka131_hed' else 'same'
 
     @api.constrains('call_year', 'kind', 'mobility_type', 'band_from', 'band_to')
     def _check_bands(self):

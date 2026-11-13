@@ -378,7 +378,8 @@
                     <field name="call_year" string="Year" options="{'enable_formatting': false}" optional="hide"/>
                     <field name="kind"/>
                     <field name="mobility_type"/>
-                    <field name="band_scope"/>
+                    <!-- Issue #788 (13.9): set from the action; shown only to correct it. -->
+                    <field name="band_scope" optional="hide"/>
                     <field name="band_from" string="From"/>
                     <field name="band_to" string="Up to" widget="ems_blank_zero" placeholder="No limit"/>
                     <field name="min_days" string="Min. days" widget="ems_blank_zero" optional="show" placeholder="Any"/>

@@ -17,6 +17,8 @@ LARGE_PROJECT = 60000
 # Issue #772: the short name a project takes from its agreement number, e.g. "2026-VET" from
 # "2026-1-ES01-KA121-VET-000123456".
 AGREEMENT_NUMBER = re.compile(r'^(\d{4})-.*-(VET|HED)-')
+# Issue #788 (10.8): the kind the agreement number names, e.g. KA121-VET in "2026-1-ES01-KA121-VET-000123456".
+AGREEMENT_KIND = re.compile(r'-(KA121-VET|KA131-HED)-')
 
 
 class EmsErasmusProject(models.Model):
@@ -35,7 +37,9 @@ class EmsErasmusProject(models.Model):
     code = fields.Char(string="Short name", compute='_compute_code', store=True, readonly=False, precompute=True,
                        help="What lists and dropdowns show, e.g. 2026-VET. Taken from the agreement number, "
                             "editable.")
-    kind = fields.Selection(string="Kind", selection=PROJECTS, required=True)
+    kind = fields.Selection(string="Kind", selection=PROJECTS, required=True, compute='_compute_kind', store=True,
+                            readonly=False, precompute=True,
+                            help="Taken from the agreement number (KA121-VET or KA131-HED), like the short name.")
     date_start = fields.Date(string="Start")
     date_end = fields.Date(string="End")
     active = fields.Boolean(string="Active", default=True)
@@ -84,6 +88,16 @@ class EmsErasmusProject(models.Model):
                 project.code = f"{match[1]}-{match[2]}"
             elif not project.code:
                 project.code = False
+
+    @api.depends('name')
+    def _compute_kind(self):
+        kinds = {label: kind for kind, label in PROJECTS}
+        for project in self:
+            match = AGREEMENT_KIND.search(project.name or '')
+            if match:
+                project.kind = kinds[match[1]]
+            elif not project.kind:
+                project.kind = False
 
     @api.depends('mobility_ids.state', 'mobility_ids.record_missing')
     def _compute_record_counts(self):

@@ -137,9 +137,6 @@
                                     help="The group's common documents and every participant's record as a ZIP, in the record's categories, with an index of what is missing and the files' hashes."/>
                             <button name="action_propose_substitution" type="object" string="Propose the next reserve"
                                     invisible="not next_reserve or user_role not in ('team', 'leader')"/>
-                            <button name="action_sync_requirements" type="object" string="Update documents"
-                                    invisible="state not in ('preparation', 'stay', 'return') or user_role != 'team'"
-                                    help="Adds to every file the documents asked for that it does not have yet."/>
                             <!-- Issue #764: the participants' pocket money. -->
                             <!-- Issue #787 (9.16): with collective invoices, the pocket money is the grant minus each
                                  one's share of them, so they must all be in first. -->

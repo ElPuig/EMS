@@ -1007,6 +1007,26 @@ apply. Never report it and carry on, never lean on each issue's own close for a 
 ("relied on each issue's close") and merged anyway, the third time this happened: the audit done
 afterwards found duplication between the integrated branches already in production (issue #749).
 
+**The table is a gate, not a report (developer, 2026-11-14, the fourth time).** *"No pueden quedar items
+de la tabla en ⚠️. Si detectas eso, debes actuar, y si tienes dudas, debes preguntar. Pero no puedes dar
+por bueno (✅) algo que no lo es."* On v18.0.0.49.0 (PR #823) the release was merged and deployed with
+three rows in ⚠️ ("partial review", "did not measure the combined cost") and with ✅ on rows whose own
+note said "I did not read all of them" or "4 mismatches". What that means, without exception:
+- **The table is built before the merge, and a row that is not ✅ is work, not information.** A ⚠️ or ❌
+  means: do the check in full now, or, if something is unclear (what to measure, whether a finding is
+  acceptable, a judgment call), ask the developer and wait. A ⚠️ or ❌ never goes in the final message of
+  a merge or a deploy: the only states that reach it are ✅ and a ➖ proved with evidence.
+- **A ✅ is only for a check done in full on everything the row covers, with its evidence in the note**
+  (the command or script and its numbers, the files read). If the note needs a "but" (*partial*, *not all
+  of them*, *did not measure*, *except*, *4 mismatches*), the row is not ✅: do the missing part, or ask.
+  Never mark ✅ what was done on a subset, by sampling, from an earlier pass or by assumption.
+- **A conditional go-ahead does not waive the table.** *"Si el CI sale verde, procede con el deploy"*
+  covers the CI condition only: the table must still be all ✅ (every row, the audits included) before
+  the merge. With any row not ✅, stop, finish it or ask, and only then merge.
+- **A finding is a finding.** A permission, quality or test finding in the audit is fixed (own branch if
+  it is outside the release), or the developer decides explicitly that it stays; it is never turned into a
+  ✅ by explaining it away in the note.
+
 Issue items:
 
 | # | Item |

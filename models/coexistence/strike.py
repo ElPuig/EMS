@@ -21,7 +21,7 @@ class ems_strike(models.Model):
     group_id = fields.Many2one(string="Group", comodel_name="ems.group", compute="_compute_session_data", store=True, index=True)
     subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", compute="_compute_session_data", store=True)
     space_id = fields.Many2one(string="Classroom", comodel_name="ems.space", compute="_compute_session_data", store=True)
-    reason_id = fields.Many2one(string="Reason", comodel_name="ems.strike.reason", required=True, default=lambda self: self._default_reason_id())
+    reason_id = fields.Many2one(string="Reason", comodel_name="ems.strike.reason", required=True, default=lambda self: self.env['ems.strike.reason'].default_reason())
     date = fields.Datetime(string="Date and time", default=fields.Datetime.now, required=True)
     notes = fields.Text(string="Details")
     kicked_out = fields.Boolean(string="Kicked out of class", default=False)
@@ -29,11 +29,6 @@ class ems_strike(models.Model):
     strike_count = fields.Integer(string="Strike count", compute="_compute_strike_count")
     duplicate_warning = fields.Char(string="Possible duplicate", compute="_compute_duplicate_warning")
 
-    @api.model
-    def _default_reason_id(self):
-        """First active reason by its own order, the same one the roll-call dialog preselects
-        (attendance_session_view.js), so both ways of issuing a strike agree."""
-        return self.env["ems.strike.reason"].search([], limit=1)
 
     @api.depends("student_id", "date", "reason_id")
     def _compute_display_name(self):

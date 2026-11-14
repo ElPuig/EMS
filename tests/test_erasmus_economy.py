@@ -113,8 +113,10 @@ class TestErasmusEconomy(ErasmusEconomyMixin, ErasmusGrantCase):
         document = self.env['ems.erasmus.project.document'].with_context(default_category='03_Economia').create({
             'project_id': self.project.id, 'name': 'Grant agreement',
             'attachment_ids': [(0, 0, {'name': 'agreement.pdf', 'raw': PDF})]})
-        self.assertEqual(self.project.economy_document_ids, document)
-        self.assertEqual(self.project.with_user(self.director_user).economy_document_ids.attachment_ids.raw, PDF)
+        economic = self.project.with_user(self.director_user).document_ids.filtered(
+            lambda line: line.category == '03_Economia')
+        self.assertEqual(economic, document, "Issue #784: in the Documentation tab, not repeated in Economy.")
+        self.assertEqual(economic.attachment_ids.raw, PDF)
 
     def test_a_mobility_is_a_forecast_until_confirmed_and_then_committed(self):
         first, _second = self._accepted()
@@ -185,7 +187,7 @@ class TestErasmusEconomy(ErasmusEconomyMixin, ErasmusGrantCase):
         expense = self._expense(self.project, 40)
         warnings = self.project.economy_warnings
         self.assertIn(f'{expense.name}', warnings, "An expense without an invoice or receipt.")
-        self.assertIn('payments to make', warnings, "The prefinancing and the expense still to transfer.")
+        self.assertIn('requested payments still to make', warnings, "The prefinancing and the expense still to transfer.")
         self.assertIn(second.partner_id.name, warnings, "Paid above their grant.")
         self.assertIn('organisational support', warnings, "No rate for the call year.")
         self._pay(first.payment_ids, self.secretary_user)
@@ -437,6 +439,6 @@ class TestErasmusEconomyTour(ErasmusEconomyMixin, HttpCase, ErasmusGrantCase):
             'name': '2019-1-ES01-KA131-HED-000000762', 'kind': 'ka131_hed', 'budget': 5000})
         self._expense(project, 75, concept='Merchandising')
         self.secretary_user.lang = 'en_US'
-        self.start_tour('/odoo/action-ems.action_erasmus_economy_panel', 'ems_erasmus_economy_tour', login=self.secretary_user.login)
+        self.start_tour('/odoo/action-ems.action_erasmus_project', 'ems_erasmus_economy_tour', login=self.secretary_user.login)
         expense = self.env['ems.erasmus.expense'].search([('concept', '=', 'Tour dissemination service')])
         self.assertEqual((expense.project_id, expense.amount), (project, 120))

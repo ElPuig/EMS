@@ -25,6 +25,9 @@ class ResPartner(models.Model):
     # Issue #782 (13.4): how much a host entity has been used, on its list.
     erasmus_mobility_count = fields.Integer(string="Mobilities", compute='_compute_erasmus_mobility_count',
                                             help="Individual and group mobilities hosted, cancelled ones aside.")
+    # Issue #784 (13.5): the same, split, for the host entity's buttons.
+    erasmus_individual_count = fields.Integer(string="Individual mobilities", compute='_compute_erasmus_mobility_count')
+    erasmus_group_count = fields.Integer(string="Group mobilities", compute='_compute_erasmus_mobility_count')
 
     @api.depends('is_erasmus_host', 'parent_id.is_erasmus_host')
     @api.depends_context('uid')
@@ -35,14 +38,29 @@ class ResPartner(models.Model):
 
     def _compute_erasmus_mobility_count(self):
         """One grouped count per model for the whole list, never a search per row."""
-        counts = dict.fromkeys(self.ids, 0)
+        counts = {}
         for model in ('ems.erasmus.mobility', 'ems.erasmus.group.mobility'):
-            for host, count in self.env[model].sudo()._read_group(
-                    [('host_partner_id', 'in', self.ids), ('state', '!=', 'cancelled')], ['host_partner_id'],
-                    ['__count']):
-                counts[host.id] += count
+            counts[model] = dict(self.env[model].sudo()._read_group(
+                [('host_partner_id', 'in', self.ids), ('state', '!=', 'cancelled')], ['host_partner_id'],
+                ['__count']))
         for partner in self:
-            partner.erasmus_mobility_count = counts.get(partner.id, 0)
+            partner.erasmus_individual_count = counts['ems.erasmus.mobility'].get(partner._origin, 0)
+            partner.erasmus_group_count = counts['ems.erasmus.group.mobility'].get(partner._origin, 0)
+            partner.erasmus_mobility_count = partner.erasmus_individual_count + partner.erasmus_group_count
+
+    def action_view_erasmus_mobilities(self):
+        """Issue #784 (13.5): the mobilities a host entity has hosted, to decide whether to repeat it."""
+        return self._ems_erasmus_hosted_action('ems.action_erasmus_mobility')
+
+    def action_view_erasmus_group_mobilities(self):
+        return self._ems_erasmus_hosted_action('ems.action_erasmus_group_mobility')
+
+    def _ems_erasmus_hosted_action(self, xmlid):
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id(xmlid)
+        action['domain'] = [('host_partner_id', '=', self.id)]
+        action['context'] = {'ems_mobility_short_name': True}
+        return action
 
     def _ems_erasmus_email(self):
         """The address every Erasmus+ email to this person goes to: a student's school address

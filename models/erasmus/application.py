@@ -29,6 +29,22 @@ STAMPED_FIELDS = ('requirements_check', 'language_level', 'fewer_opportunities_c
 SUBMITTED_STATES = ('submitted', 'subsanation', 'admitted', 'excluded')
 # Application states that compete in the ranking (issue #685): admitted, and the results after it.
 RANKED_STATES = ('admitted', 'selected', 'reserve', 'not_selected', 'accepted', 'renounced')
+# The steps the status bar shows for each state (ems_statusbar_path widget, as on a detected absence):
+# the way an application of that state really went, and the ones still ahead. A fixed list showed
+# "Selected" and "Place accepted" ahead of an excluded or a not-selected application.
+STATUS_PATHS = {
+    'draft': 'draft,submitted,admitted,selected,accepted',
+    'submitted': 'draft,submitted,admitted,selected,accepted',
+    'subsanation': 'draft,submitted,subsanation,admitted,selected,accepted',
+    'admitted': 'draft,submitted,admitted,selected,accepted',
+    'excluded': 'draft,submitted,excluded',
+    'not_submitted': 'draft,not_submitted',
+    'selected': 'draft,submitted,admitted,selected,accepted',
+    'reserve': 'draft,submitted,admitted,reserve,accepted',
+    'not_selected': 'draft,submitted,admitted,not_selected',
+    'accepted': 'draft,submitted,admitted,selected,accepted',
+    'renounced': 'draft,submitted,admitted,selected,renounced',
+}
 # The colour of each state's badge on the portal (the issue-#682 review).
 PORTAL_STATE_BADGES = {
     'draft': 'secondary', 'submitted': 'info', 'subsanation': 'warning', 'admitted': 'info', 'excluded': 'danger',
@@ -64,19 +80,23 @@ ANSWER_FIELDS = {
     # A student's image consent is their image rights authorisation of the course (res.partner.auth_image,
     # as in the group mobilities): not asked again (the issue-#682 review).
     'student': ('fewer_opportunities', 'applicant_notes'),
-    'staff': ('proposal_a', 'proposal_b', 'plan_text', 'declared_never_staff_mobility', 'declared_centre_start_date',
+    'staff': ('proposal_a', 'proposal_b', 'declared_never_staff_mobility', 'declared_centre_start_date',
               'centre_projects', 'declared_language_level', 'support_needs', 'image_consent', 'applicant_notes'),
 }
-# Issue #697: the mobility and transfer plan of the staff call (annex 1), written in the form and
-# required to submit. The 2026-11-03 review made it friendlier (adriamt): two proposals in the
-# teacher's own words, A (the main one) and B (the backup if A falls through), each saying the
-# activity, the host entity or course, where and when ("job shadowing at a German VET school, the
-# Berufskolleg X in Cologne, in April"); and one text with what they want to observe or learn and
-# how they will apply it to their job. The panel reads it on screen and gives it one score; once
-# selected, the participant fills in the exact entity, country and dates of their mobility's
-# proposal for the Direction. Its dissemination is not asked for: it is the same obligation for
-# everyone (a news item on the website, and sharing it at a meeting if needed).
-PLAN_FIELDS = ('proposal_a', 'proposal_b', 'plan_text')
+# Issue #697: the mobility plan of the staff call (annex 1), written in the form and required to
+# submit: two proposals in the teacher's own words, A (the main one) and B (the backup if A can't be
+# done), each saying the activity, the host entity or course, where, when and what they want to learn
+# ("an English course at an academy in Bologna (Italy), in July, to improve my language skills"). How
+# it will be applied is not asked for (adriamt, 2026-11-13: the separate text went). The panel reads it
+# on screen and gives it one score; once selected, the participant fills in the exact entity, country
+# and dates of their mobility's proposal for the Direction. Its dissemination is not asked for either:
+# it is the same obligation for everyone (a news item on the website).
+PLAN_FIELDS = ('proposal_a', 'proposal_b')
+# Criteria 2 and 3 of the staff call, said on the form and the team's record (adriamt, 2026-11-13).
+FIRST_MOBILITY_HELP = ("As staff: accompanying student groups and mobilities of other programmes don't count "
+                       "(criterion 2).")
+CENTRE_PROJECTS_HELP = ("If you coordinate or take part in them: the centre projects, improvement teams or commissions "
+                        "of this school year or the last one, one per line; say which ones you coordinate.")
 # The activities of a staff mobility's proposal (ems.erasmus.mobility.proposal_activity).
 STAFF_ACTIVITIES = [('job_shadowing', "Job shadowing"), ('course', "Structured course"),
                     ('teaching', "Teaching assignment")]
@@ -116,6 +136,7 @@ class EmsErasmusApplication(models.Model):
                              ])
     submit_date = fields.Datetime(string="Submitted on", readonly=True, copy=False)
     is_minor = fields.Boolean(string="Minor", compute='_compute_is_minor')
+    status_path = fields.Char(string="Status steps", compute='_compute_status_path')
 
     # Audit D-4: what the applicant declares is the team's, as the accredited check (the Head of Studies reads
     # the conduct warnings and the exclusion reason, not this).
@@ -126,20 +147,16 @@ class EmsErasmusApplication(models.Model):
     # Issue #686: the staff application form (art. 8 and annex 1 of the staff call); PLAN_FIELDS.
     proposal_a = fields.Text(string="Proposal A",
                              help="The main proposal, in the applicant's words: the activity, the host entity or "
-                                  "course, where and when.")
+                                  "course, where, when and what they want to learn.")
     proposal_b = fields.Text(string="Proposal B (backup)",
-                             help="The backup if proposal A falls through, in the same way.")
-    plan_text = fields.Text(string="What to learn and how to apply it",
-                            help="Annex 1: the competences the applicant wants to observe or learn, and how they "
-                                 "will apply them to their job.")
-    centre_projects = fields.Text(string="Centre projects")
+                             help="The backup if proposal A can't be done, in the same way.")
+    centre_projects = fields.Text(string="Centre projects", help=CENTRE_PROJECTS_HELP)
     support_needs = fields.Text(string="Support needs", groups=TEAM)
     # Criterion 2 (the 2026-11-03 review): the applicant only says they never had one; the Erasmus
     # team sets when the last one was for everyone else (last_staff_mobility).
     declared_never_staff_mobility = fields.Boolean(
-        string="Never had a staff mobility",
-        help="The applicant has never done an Erasmus+ staff mobility from this centre. Otherwise the Erasmus team "
-             "sets when the last one was.")
+        string="I have not done any Erasmus+ mobility at the Institut Puig Castellar",
+        help=FIRST_MOBILITY_HELP + " Otherwise the Erasmus team sets when the last one was.")
     declared_centre_start_date = fields.Date(
         string="At the centre since", help="Month and year since when the applicant works at the centre without "
                                            "interruption.")
@@ -311,6 +328,11 @@ class EmsErasmusApplication(models.Model):
     def _compute_is_minor(self):
         for application in self:
             application.is_minor = application.audience == 'student' and not application.partner_id.is_adult
+
+    @api.depends('state')
+    def _compute_status_path(self):
+        for application in self:
+            application.status_path = STATUS_PATHS.get(application.state, '')
 
     @api.depends_context('uid')
     def _compute_permissions(self):
@@ -517,8 +539,8 @@ class EmsErasmusApplication(models.Model):
                 vals.update({f'{name}_user_id': self.env.uid, f'{name}_date': now})
         result = super().write(vals)
         if 'modality_id' in vals:
-            # Issue #687: a corrected modality brings its documents.
-            self.mobility_ids.filtered(lambda mobility: mobility.state in ('choosing', 'preparing'))._ems_sync_requirements()
+            # Issue #687: a corrected modality brings its documents; issue #788, its project if only one fits.
+            self.mobility_ids._ems_sync_open_requirements()._ems_fill_project()
         return result
 
     @api.depends_context('uid')
@@ -553,6 +575,12 @@ class EmsErasmusApplication(models.Model):
         return super().unlink()
 
     # --- team actions ----------------------------------------------------------------------
+
+    def action_open_employee(self):
+        """Issue #784 (7.8): the teacher's staff record, from the application's button."""
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'res_model': 'hr.employee', 'res_id': self.employee_id.id,
+                'views': [(False, 'form')]}
 
     def action_request_subsanation(self):
         """Ask the applicant to correct or complete the documents marked as needing changes or
@@ -921,7 +949,8 @@ class EmsErasmusApplication(models.Model):
     def _ems_portal_progress(self):
         """The issue-#682 review: where the applicant is in the call's process, for the portal's
         step bar, and what they have to do now (or what they are waiting for), with its deadline.
-        Returns {'steps': [(label, status)], 'next': {'text', 'deadline', 'is_date', 'level', 'key'}}, a
+        Returns {'steps': [(label, status)], 'position': {'number', 'total', 'label'},
+        'next': {'text', 'deadline', 'is_date', 'level', 'key'}}, a
         status being 'done', 'current', 'todo' or 'failed', the deadline a datetime, a date or False,
         and the level the colour of its box (warning: something to do)."""
         self.ensure_one()
@@ -1006,8 +1035,11 @@ class EmsErasmusApplication(models.Model):
         # The two moments with their own box before this review keep its class.
         key = 'subsanation' if state == 'subsanation' else 'interview' if current == 2 and self.interview_call_date \
             and call.audience == 'student' else ''
-        return {'steps': steps, 'next': {'text': text, 'deadline': deadline, 'level': level, 'key': key,
-                                         'is_date': bool(deadline) and not isinstance(deadline, datetime)}}
+        # Issue #785 (A06): a phone shows only the current step, "Step 6 of 8" (the last one once all are done).
+        number = min(current, len(labels) - 1)
+        return {'steps': steps, 'position': {'number': number + 1, 'total': len(labels), 'label': labels[number]},
+                'next': {'text': text, 'deadline': deadline, 'level': level, 'key': key,
+                         'is_date': bool(deadline) and not isinstance(deadline, datetime)}}
 
     def _ems_portal_choosing_next(self, mobility):
         """What the applicant does while their mobility is being defined (destination or proposal)."""
@@ -1052,8 +1084,7 @@ class EmsErasmusApplication(models.Model):
             if application.audience == 'staff' and not application.declared_centre_start_date:
                 raise UserError(_("Say since when you work at the centre."))
             if application.audience == 'staff' and not all(application[name] for name in PLAN_FIELDS):
-                raise UserError(_("Write both proposals, A and B, and what you want to learn and how you will apply "
-                                  "it to your job."))
+                raise UserError(_("Write both proposals, A and B, each with what you want to learn."))
         corrected = self.filtered(lambda application: application.state == 'subsanation')
         self._ems_set_state('submitted')
         self.sudo().write({'submit_date': fields.Datetime.now()})
@@ -1229,8 +1260,9 @@ class EmsErasmusApplicationDocument(models.Model):
     file_category = fields.Selection(string="Category", selection=PARTICIPANT_CATEGORIES,
                                      compute='_compute_file_category', store=True,
                                      help="Where it goes in the participant's record.")
+    # Issue #810: "To hand in", as todo_state says it, wherever the participant or the family read it.
     file_state = fields.Selection(string="Status", compute='_compute_file_state', selection=[
-        ('missing', "Missing"), ('to_review', "Pending review"), ('needs_change', "Needs changes"),
+        ('missing', "To hand in"), ('to_review', "Pending review"), ('needs_change', "Needs changes"),
         ('complete', "Complete"), ('optional', "Optional"), ('not_applicable', "Not applicable")],
         help="Complete: valid after the team's review (a signed document is only complete once checked, not when "
              "uploaded); one the team provides, once it is uploaded.")
@@ -1242,7 +1274,7 @@ class EmsErasmusApplicationDocument(models.Model):
     # is red. A missing document the Erasmus team uploads, or one that is not due yet (the destination
     # not set, it opens later, a return document before the end of the stay), is not.
     todo_state = fields.Selection(string="To do", compute='_compute_todo_state', selection=[
-        ('missing', "Missing"), ('waiting_team', "Waiting for the team"), ('not_yet', "Not yet"),
+        ('missing', "To hand in"), ('waiting_team', "Waiting for the team"), ('not_yet', "Not yet"),
         ('to_review', "Pending review"), ('needs_change', "Needs changes"), ('complete', "Complete"),
         ('optional', "Optional"), ('not_applicable', "Not applicable")])
 

@@ -16,6 +16,7 @@ from .workflow import check_applicant_action, check_kept, check_workflow_create,
 
 # A mobility still going on: its place is held and a graduate keeps the portal (issue #687).
 OPEN_STATES = ('choosing', 'preparing')
+
 STAGES = [('preparation', "Before leaving"), ('return', "On return")]
 PROPOSAL_FIELDS = ('proposal_activity', 'proposal_host', 'proposal_contact', 'proposal_country_id', 'proposal_city',
                    'proposal_date_start', 'proposal_date_end', 'proposal_notes')
@@ -30,6 +31,13 @@ PLACEMENT_TYPES = [('curricular', "Curricular work placement (sBID)"), ('extracu
                    ('graduate', "Recent graduate")]
 TASK_REQUIREMENTS = [('required', "Required"), ('optional', "Optional"),
                      ('short_blended', "Short blended mobilities only")]
+
+
+def host_place_vals(record, host):
+    """Issue #788 (13.6): the host entity's country and city for a mobility (or the agreed
+    destination's dialog) that has none yet, so they are not written twice."""
+    return {**({'country_id': host.country_id} if host.country_id and not record.country_id else {}),
+            **({'city': host.city} if host.city and not record.city else {})}
 
 
 class EmsErasmusDestination(models.Model):
@@ -139,6 +147,13 @@ class EmsErasmusMobility(models.Model):
     state = fields.Selection(string="State", required=True, default='choosing', tracking=True, readonly=True,
                              selection=[('choosing', "Defining the mobility"), ('preparing', "Preparing"),
                                         ('done', "Closed"), ('cancelled', "Cancelled")])
+    # Issue #785 (5.5, 5.7): what the status bar shows. "Preparing" covered everything from the
+    # destination to the closing; the stay and the return come from the dates, refreshed daily by
+    # _cron_update_phase (stored, so the lists and the kanban can group by it).
+    phase = fields.Selection(string="Phase", compute='_compute_phase', store=True, index=True,
+                             selection=[('choosing', "Defining"), ('preparing', "Preparation"),
+                                        ('stay', "Mobility stay"), ('return', "Return home"), ('done', "Closed"),
+                                        ('cancelled', "Cancelled")])
     cancel_reason = fields.Text(string="Reason for cancelling", tracking=True)
 
     # Students: destination choice by turns (art. 15).
@@ -225,6 +240,12 @@ class EmsErasmusMobility(models.Model):
     # Audit D-8: once the stay is over the participant answers the EU Survey (by default within 30 days)
     # and says so on the portal; the team validates it before closing the mobility.
     eu_survey_deadline = fields.Date(compute='_compute_eu_survey_deadline', store=True, readonly=False)
+    # Issue #784 (5.7): the EU Survey only means something once the stay is over.
+    stay_over = fields.Boolean(string="Stay over", compute='_compute_stay_over')
+    # Issue #787 (5.3, 8.1): the step in progress and who has it, on top of the team's form.
+    step_note = fields.Char(string="Current step", compute='_compute_step_note')
+    # Issue #787 (5.12): the grant is copied by hand from the Beneficiary Module; nothing is calculated.
+    grant_missing = fields.Boolean(string="Grant amount missing", compute='_compute_grant_missing')
     preparation_complete = fields.Boolean(string="Ready to leave", compute='_compute_complete')
     return_complete = fields.Boolean(string="Return complete", compute='_compute_complete')
     # The participant's record: every document of the call that applies, by category, and the
@@ -239,6 +260,12 @@ class EmsErasmusMobility(models.Model):
                                          "changes.")
     record_progress = fields.Char(string="Record", compute='_compute_record',
                                   help="Required documents complete out of those required.")
+    # Issue #784 (5.6, 8.6): one count, as a bar, red only when a document is past its deadline.
+    record_done = fields.Integer(string="Complete documents", compute='_compute_record',
+                                 help="Required documents complete out of those required.")
+    record_total = fields.Integer(string="Required documents", compute='_compute_record')
+    record_overdue = fields.Integer(string="Overdue", compute='_compute_record',
+                                    help="Required documents not complete whose deadline has passed.")
     project_document_ids = fields.Many2many(string="Other documents", comodel_name='ems.erasmus.project.document',
                                             relation='ems_erasmus_project_document_mobility_rel',
                                             column1='ems_erasmus_mobility_id',
@@ -251,18 +278,32 @@ class EmsErasmusMobility(models.Model):
     currency_id = fields.Many2one(string="Currency", comodel_name='res.currency', compute='_compute_currency_id')
     grant_amount = fields.Monetary(string="Grant", tracking=True,
                                    help="The participant's grant, as calculated in the Beneficiary Module.")
-    prefinancing_percent = fields.Float(string="Prefinancing (%)", default=80.0, tracking=True,
+    prefinancing_percent = fields.Float(string="Before leaving (%)", default=80.0, tracking=True,
                                         help="Part of the grant paid before leaving; the rest, on return. 100: a "
                                              "single payment.")
-    provision_ids = fields.One2many(string="Provision of services", comodel_name='ems.erasmus.provision',
+    provision_ids = fields.One2many(string="Services paid directly by the centre", comodel_name='ems.erasmus.provision',
                                     inverse_name='mobility_id',
                                     help="What the centre pays directly out of the grant: flights, accommodation, "
                                          "course fees...")
-    provision_amount = fields.Monetary(string="Paid by the centre", compute='_compute_grant_net')
-    grant_net = fields.Monetary(string="To transfer to the participant", compute='_compute_grant_net',
+    # compute_sudo: a teacher reads their own grant (issue #810) without access to the centre's
+    # invoices, provisions or payments.
+    provision_amount = fields.Monetary(string="Paid directly by the centre", compute='_compute_grant_net',
+                                       compute_sudo=True)
+    grant_net = fields.Monetary(string="To transfer", compute='_compute_grant_net',
+                                compute_sudo=True,
                                 help="The grant minus the services the centre pays directly. Below zero, the "
                                      "centre paid more than the grant: the project warns about it.")
     payment_ids = fields.One2many(string="Payments", comodel_name='ems.erasmus.payment', inverse_name='mobility_id')
+    # Issue #790 (11.9): what has reached the person's account, and what is still to transfer.
+    grant_paid = fields.Monetary(string="Transferred", compute='_compute_grant_paid', compute_sudo=True,
+                                 help="What the Secretary has already transferred to the person's account.")
+    grant_to_receive = fields.Monetary(string="Pending transfer", compute='_compute_grant_paid', compute_sudo=True,
+                                       help="What is to transfer minus what has already been transferred.")
+    # Issue #810: the teacher's own record, in words. Only what they hand in themselves counts:
+    # neither what the Erasmus team uploads (or prepares for them to sign) nor the application's.
+    staff_record_summary = fields.Char(string="Your documents", compute='_compute_staff_record')
+    record_has_team_files = fields.Boolean(string="Has files from the team", compute='_compute_staff_record')
+    record_has_comments = fields.Boolean(string="Has comments from the team", compute='_compute_staff_record')
     host_contact_email = fields.Char(string="Contact person's email", related='host_contact_id.email')
 
     def _ems_commitment_depends(self):
@@ -349,14 +390,99 @@ class EmsErasmusMobility(models.Model):
                     and not (stage == 'preparation'
                              and (mobility.commitment_pending or mobility.commitment_guardian_pending)))
 
+    @api.depends('state', 'date_start', 'date_end')
+    def _compute_phase(self):
+        today = self.env['ems.datetime_utils'].get_local_today()
+        for mobility in self:
+            phase = mobility.state
+            if phase == 'preparing' and mobility.date_end and mobility.date_end < today:
+                phase = 'return'
+            elif phase == 'preparing' and mobility.date_start and mobility.date_start <= today:
+                phase = 'stay'
+            mobility.phase = phase
+
+    @api.depends('state', 'phase', 'proposal_state', 'turn_deadline', 'turn_missed', 'free_choice',
+                 'call_id.choice_open', 'commitment_pending', 'eu_survey_state', 'document_ids.todo_state')
+    def _compute_step_note(self):
+        for mobility in self:
+            mobility.step_note = mobility._ems_step_note()
+
+    def _ems_step_note(self):
+        """What the mobility is waiting for and who has it, in the team's words (issue #787)."""
+        self.ensure_one()
+        phase = self.phase
+        if phase in ('done', 'cancelled'):
+            return False
+        if phase == 'choosing':
+            if self.proposal_state == 'pending':
+                return (_("Waiting for the Direction to validate the proposed activity.") if self.audience == 'staff'
+                        else _("Own proposal waiting for the Erasmus team to validate it."))
+            if self.audience == 'staff':
+                return (_("Waiting for the participant to send a new activity proposal.")
+                        if self.proposal_state == 'rejected'
+                        else _("Waiting for the participant to propose the activity."))
+            if self.turn_deadline:
+                return _("Their turn to choose the destination, until %s.",
+                         self.call_id._ems_local_format(self.turn_deadline))
+            if self.free_choice:
+                return _("Choosing among the destinations left, with no deadline.")
+            if self.turn_missed:
+                return _("Missed their turn: chooses among the destinations left once the others have chosen.")
+            if not self.call_id.choice_open:
+                return _("Waiting for the destination choice to open.")
+            return _("Waiting for their turn to choose the destination.")
+        lines = self.document_ids
+        participant = lines.filtered(lambda line: line.todo_state in ('missing', 'needs_change')
+                                     and line.handled_by == 'participant')
+        team = lines.filtered(lambda line: line.todo_state in ('missing', 'needs_change')
+                              and line.handled_by != 'participant')
+        review = lines.filtered(lambda line: line.todo_state == 'to_review')
+        parts = []
+        if self.commitment_pending:
+            parts.append(_("the participant has to sign the commitment letter"))
+        if participant:
+            parts.append(_("%s documents missing from the participant", len(participant)))
+        if team:
+            parts.append(_("%s documents for the Erasmus team to upload", len(team)))
+        if review:
+            parts.append(_("%s documents to review", len(review)))
+        if phase == 'return' and self.eu_survey_state == 'pending':
+            parts.append(_("the participant has to answer the EU Survey"))
+        elif phase == 'return' and self.eu_survey_state == 'done':
+            parts.append(_("the EU Survey to validate"))
+        if parts:
+            return _("Pending: %s.", ", ".join(parts))
+        if phase == 'preparing':
+            return _("Ready to leave.")
+        if phase == 'stay':
+            return _("Stay in progress.")
+        return _("Back home: check that nothing is left to pay and close the mobility.")
+
+    @api.depends('state', 'country_id', 'destination_id', 'grant_amount')
+    def _compute_grant_missing(self):
+        for mobility in self:
+            mobility.grant_missing = (mobility.state in OPEN_STATES and bool(mobility.country_id or mobility.destination_id)
+                                      and not mobility.grant_amount)
+
+    @api.depends('date_end', 'state')
+    def _compute_stay_over(self):
+        today = self.env['ems.datetime_utils'].get_local_today()
+        for mobility in self:
+            mobility.stay_over = mobility.state == 'done' or bool(mobility.date_end and mobility.date_end < today)
+
     @api.depends('application_id.document_ids.file_state', 'document_ids.file_state')
     def _compute_record(self):
+        today = self.env['ems.datetime_utils'].get_local_today()
         for mobility in self:
             lines = mobility._ems_record_lines()
             required = lines.filtered('is_required')
+            pending = required.filtered(lambda line: line.file_state != 'complete')
             mobility.application_document_ids = lines - mobility.document_ids
-            mobility.record_missing = len(required.filtered(lambda line: line.file_state != 'complete'))
-            mobility.record_progress = f"{len(required) - mobility.record_missing} / {len(required)}"
+            mobility.record_missing = len(pending)
+            mobility.record_total = len(required)
+            mobility.record_done = len(required) - len(pending)
+            mobility.record_progress = f"{mobility.record_done} / {len(required)}"
+            mobility.record_overdue = len(pending.filtered(lambda line: line.deadline and line.deadline < today))
 
     def _ems_record_lines(self):
         """The documents of the participant's record for this mobility: those of the application and
@@ -389,14 +515,35 @@ class EmsErasmusMobility(models.Model):
             mobility.provision_amount = sum(mobility.provision_ids.mapped('amount'))
             mobility.grant_net = mobility.grant_amount - mobility.provision_amount
 
+    @api.depends('grant_net', 'payment_ids.amount', 'payment_ids.state')
+    def _compute_grant_paid(self):
+        for mobility in self:
+            mobility.grant_paid = sum(mobility.payment_ids.filtered(lambda payment: payment.state == 'paid')
+                                      .mapped('amount'))
+            mobility.grant_to_receive = max(mobility.grant_net - mobility.grant_paid, 0.0)
+
+    @api.depends('document_ids.is_required', 'document_ids.handled_by', 'document_ids.file_state',
+                 'document_ids.prepared_attachment_ids', 'document_ids.review_comment')
+    def _compute_staff_record(self):
+        for mobility in self:
+            lines = mobility.document_ids
+            own = lines.filtered(lambda line: line.is_required and line.handled_by == 'participant')
+            handed_in = own.filtered(lambda line: line.file_state in ('to_review', 'complete'))
+            mobility.staff_record_summary = _("You have handed in %(done)s of %(total)s",
+                                              done=len(handed_in), total=len(own)) if own else _("Nothing to hand in")
+            mobility.record_has_team_files = bool(lines.prepared_attachment_ids)
+            mobility.record_has_comments = any(lines.mapped('review_comment'))
+
     def _ems_payee_depends(self):
         return super()._ems_payee_depends() + ['payment_ids.kind', 'grant_amount']
 
     @api.onchange('host_partner_id')
     def _onchange_host_partner_id(self):
-        """Issue #697: the host entity's tutor, when it has only one contact."""
+        """Issue #697: the host entity's tutor, when it has only one contact; issue #788 (13.6): its
+        country and city, when the mobility has none yet."""
         if self.host_contact_id.parent_id != self.host_partner_id:
             self.host_contact_id = self._ems_single_contact(self.host_partner_id)
+        self.update(host_place_vals(self, self.host_partner_id))
 
     @api.constrains('prefinancing_percent')
     def _check_prefinancing_percent(self):
@@ -408,14 +555,21 @@ class EmsErasmusMobility(models.Model):
         for mobility in self:
             mobility.can_validate = mobility._ems_can_validate()
 
+    @api.depends_context('ems_mobility_short_name')
     def _compute_display_name(self):
+        # Issue #784 (5.4): the team's screens name a mobility by its participant only; the call is
+        # on the form already (and in the breadcrumb, through the call's button).
+        short = self.env.context.get('ems_mobility_short_name')
         for mobility in self:
-            mobility.display_name = f"{mobility.partner_id.name} - {mobility.call_id.name}"
+            mobility.display_name = (mobility.partner_id.name if short else
+                                     f"{mobility.partner_id.name} - {mobility.call_id.name}")
 
     @api.model_create_multi
     def create(self, vals_list):
         check_workflow_create(self, vals_list)
-        return super().create(vals_list)
+        mobilities = super().create(vals_list)
+        mobilities._ems_fill_project()
+        return mobilities
 
     def write(self, vals):
         """The state, the destination, the decision on a proposal and the commitment letter's
@@ -433,8 +587,7 @@ class EmsErasmusMobility(models.Model):
             self._ems_sync_training_leave()
         if 'project_id' in vals:
             # Issue #772: a staff member's project, assigned after selection, brings its documents.
-            self.filtered(lambda mobility: mobility.audience == 'staff' and mobility.state in OPEN_STATES
-                          )._ems_sync_requirements()
+            self.filtered(lambda mobility: mobility.audience == 'staff')._ems_sync_open_requirements()
         return result
 
     def unlink(self):
@@ -505,10 +658,25 @@ class EmsErasmusMobility(models.Model):
             tasks = call.task_ids.filtered(applies) - mobility.task_ids.call_task_id
             Task.create([{'mobility_id': mobility.id, 'call_task_id': task.id} for task in tasks])
 
-    def action_sync_requirements(self):
-        """After changing the call's documents or checklist."""
-        self._ems_check_manager()
-        self.filtered(lambda mobility: mobility.state in OPEN_STATES)._ems_sync_requirements()
+    def action_open_application(self):
+        """Issue #784 (5.4): the application, from the mobility's button."""
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'res_model': 'ems.erasmus.application',
+                'res_id': self.application_id.id, 'views': [(False, 'form')]}
+
+    def _ems_sync_open_requirements(self):
+        """The documents and steps missing on the mobilities still going on, which it returns."""
+        mobilities = self.filtered(lambda mobility: mobility.state in OPEN_STATES)
+        mobilities._ems_sync_requirements()
+        return mobilities
+
+    def _ems_fill_project(self):
+        """Issue #788 (5.14, 8.4): the project, when only one is possible (a single active project of
+        the modality's kind; for staff, a single project among the call's places). With two or more
+        (e.g. the agreements of two call years), the team chooses."""
+        for mobility in self.sudo().filtered(lambda mobility: not mobility.project_id):
+            if len(mobility.allowed_project_ids) == 1:
+                mobility.project_id = mobility.allowed_project_ids
 
     # --- destination choice (students, art. 15) -----------------------------------------------
 
@@ -552,6 +720,10 @@ class EmsErasmusMobility(models.Model):
         host entity and dates written on the mobility."""
         self._ems_check_manager()
         for mobility in self:
+            # Issue #786 (8.2): staff propose their activity and the Direction validates it; setting it
+            # here would skip that validation.
+            if mobility.audience == 'staff':
+                raise UserError(_("A staff member proposes their activity and the Direction validates it."))
             if mobility.state != 'choosing':
                 raise UserError(_("The destination of %s is already set.", mobility.partner_id.name))
             if not mobility.country_id:
@@ -562,6 +734,17 @@ class EmsErasmusMobility(models.Model):
                                     **(mobility.proposal_state == 'pending' and {'proposal_state': False} or {}))
         self._ems_send('ems.email_template_erasmus_mobility_assigned')
         self.call_id.filtered('choice_open')._ems_advance_choice()
+
+    @api.model
+    def _cron_update_phase(self):
+        """Issue #785: a mobility in preparation enters its stay on its start date and its return the day
+        after its end date. Only those whose phase the dates have overtaken are recomputed."""
+        today = self.env['ems.datetime_utils'].get_local_today()
+        mobilities = self.search([('state', '=', 'preparing'), '|',
+                                  '&', ('phase', '=', 'preparing'), ('date_start', '<=', today),
+                                  '&', ('phase', 'in', ('preparing', 'stay')), ('date_end', '<', today)])
+        self.env.add_to_compute(self._fields['phase'], mobilities)
+        mobilities.flush_recordset(['phase'])
 
     @api.model
     def _cron_expire_turns(self):
@@ -582,6 +765,12 @@ class EmsErasmusMobility(models.Model):
         self.ensure_one()
         return self.audience == 'staff' and self.state == 'preparing' and self.proposal_state != 'pending' and (
             not self.date_start or self.date_start > self.env['ems.datetime_utils'].get_local_today())
+
+    def _ems_can_renounce(self):
+        """The participant can renounce the place until the stay starts (issue #786): once it has
+        begun, ending it early is the Erasmus team's decision, with them."""
+        self.ensure_one()
+        return self.state in OPEN_STATES and self.phase in ('choosing', 'preparing')
 
     def _ems_portal_propose(self, values, files=(), declaration=False):
         """The participant sends a proposal: a student, their own destination with the host's
@@ -1013,6 +1202,11 @@ class EmsErasmusMobility(models.Model):
         """The participant renounces the place (art. 18 of the call): from the portal, or staff from
         the backend."""
         check_applicant_action(self)
+        for mobility in self:
+            if not mobility._ems_can_renounce():
+                raise UserError(_("The place of %s can no longer be renounced (the stay has begun): talk to the Erasmus "
+                                  "team.",
+                                  mobility.partner_id.name))
         self._ems_cancel(reason or _("Renounced by the participant."))
 
     def _ems_cancel(self, reason):

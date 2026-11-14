@@ -46,6 +46,10 @@
                             <button name="action_publish" type="object" string="Publish" class="btn-primary"
                                     invisible="state != 'draft' or not line_ids" groups="ems.group_erasmus_coordinator,ems.group_academic_admin"
                                     confirm="The list will be published on the portal and every applicant will receive their result by email. A published resolution cannot be changed. Continue?"/>
+                            <!-- Issue #786 (4.5): the list as published (the same PDF the applicants download). -->
+                            <button name="action_print" type="object" string="Print the published list"
+                                    invisible="not line_ids" groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="The PDF of the list, as the applicants see it on the portal: identified by four digits of their identity document."/>
                         </div>
                         <field name="state" widget="statusbar"/>
                     </header>
@@ -73,6 +77,7 @@
                                 <field name="published_by_id" invisible="state != 'published'"/>
                             </group>
                         </group>
+                        <field name="call_audience" invisible="1"/>
                         <field name="notes" readonly="state != 'draft'" placeholder="Notes for applicants, published with the list."/>
                         <!-- The issue-#682 review: what each colour means, and no rank or score on an excluded line. -->
                         <p class="small text-muted mb-1 o_ems_erasmus_resolution_legend">
@@ -84,7 +89,8 @@
                         <field name="line_ids">
                             <list decoration-success="result in ('admitted', 'selected')"
                                   decoration-warning="result == 'reserve'" decoration-danger="result == 'excluded'">
-                                <field name="modality_id"/>
+                                <!-- Issue #810: a staff call has no modalities since #772. -->
+                                <field name="modality_id" column_invisible="parent.call_audience == 'staff'"/>
                                 <field name="rank" invisible="kind == 'admission' or result == 'excluded'"/>
                                 <field name="public_id"/>
                                 <field name="partner_id"/>
@@ -95,8 +101,13 @@
                                 <field name="score_d" optional="hide" invisible="result == 'excluded'" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                 <field name="score_e" optional="hide" invisible="result == 'excluded'"/>
                                 <field name="score_f" optional="hide" invisible="result == 'excluded'"/>
-                                <field name="score_total" invisible="kind == 'admission' or result == 'excluded'"/>
+                                <field name="score_total" string="Score" invisible="kind == 'admission' or result == 'excluded'"/>
                                 <field name="result" widget="badge"/>
+                                <!-- Issue #792 (4.4): why, for the team only; the published list and its PDF never
+                                     show it (the call's rules: the list has no names, each applicant gets their own
+                                     reason by email and on the portal). -->
+                                <field name="exclusion_reason" optional="show" invisible="result != 'excluded'"
+                                       groups="ems.group_erasmus,ems.group_academic_admin"/>
                             </list>
                         </field>
                     </sheet>

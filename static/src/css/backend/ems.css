@@ -19,6 +19,14 @@ div[name="attachment_ids"] th.o_list_button{
     max-width: 64px !important;
 }
 
+/* Issue #810: the rule above is for icon-only buttons. A list whose buttons also carry their
+   text (the teacher's "Hand in", "Sign it here", "PDF" in the Erasmus+ screens) opts out with
+   this class, or the text spills over the table's right edge. */
+.o_ems_list_text_buttons th.o_list_button{
+    width: 9.5rem !important;
+    max-width: 9.5rem !important;
+}
+
 div.ems-kanban-label > span {
     font-style: italic;
 }

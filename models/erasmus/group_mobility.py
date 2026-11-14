@@ -191,6 +191,8 @@ class EmsErasmusGroupMobility(models.Model):
         groups='ems.group_erasmus,ems.group_academic_admin',
         help="Enrolled students not excluded with as many conduct warnings this course as the number that sends the "
              "case to the coexistence team, or more.")
+    # Issue #787 (9.5): a warning, never a block (a real stay can start before the dates say).
+    start_warning = fields.Char(string="Before the stay starts", compute='_compute_start_warning')
     not_ready = fields.Char(string="Not ready to leave", compute='_compute_not_ready',
                             help="Participants with a required document or the commitment letter still pending.")
     next_reserve = fields.Char(string="Next reserve", compute='_compute_counts',
@@ -198,7 +200,8 @@ class EmsErasmusGroupMobility(models.Model):
     user_role = fields.Selection(string="Your role", selection=[('team', "Erasmus team"), *ROLES[1:]],
                                  compute='_compute_user_role')
     currency_id = fields.Many2one(string="Currency", comodel_name='res.currency', compute='_compute_currency_id')
-    expense_amount = fields.Monetary(string="Total of the collective expenses", compute='_compute_expense_amount')
+    expense_amount = fields.Monetary(string="Paid directly by the centre", compute='_compute_expense_amount',
+                                     help="The group's collective invoices (travel, accommodation...).")
 
     @api.depends('registration_ids.state', 'registration_ids.result', 'registration_ids.proposed_result',
                  'registration_ids.needs_draw', 'registration_ids.grade_incident',
@@ -244,6 +247,17 @@ class EmsErasmusGroupMobility(models.Model):
             participants = mobility.sudo().participant_ids.filtered(
                 lambda participant: participant.state == 'active' and not participant.preparation_complete)
             mobility.not_ready = ", ".join(participants.partner_id.mapped('name'))
+
+    @api.depends('state', 'host_partner_id', 'date_start')
+    def _compute_start_warning(self):
+        today = self.env['ems.datetime_utils'].get_local_today()
+        for mobility in self:
+            parts = []
+            if mobility.state == 'preparation' and not mobility.host_partner_id:
+                parts.append(_("there is no host entity yet"))
+            if mobility.state == 'preparation' and mobility.date_start and mobility.date_start > today:
+                parts.append(_("the stay is planned to start on %s", mobility.date_start.strftime('%d/%m/%Y')))
+            mobility.start_warning = ", ".join(parts)
 
     @api.depends('resolution_ids.kind', 'resolution_ids.state')
     def _compute_provisional_published(self):
@@ -339,6 +353,9 @@ class EmsErasmusGroupMobility(models.Model):
         result = super().write(vals)
         if {'leader_id', 'companion_ids'} & set(vals):
             self._ems_sync_teachers()
+        if 'requirement_ids' in vals:
+            # Issue #788 (5.17): the files get the documents added on saving.
+            self._ems_sync_requirements()
         if 'eu_survey_attachment_ids' in vals:
             # Uploaded from the form with no res_id: tied to the mobility so the team can read it.
             for mobility in self:
@@ -785,9 +802,8 @@ class EmsErasmusGroupMobility(models.Model):
             Line.create([{'group_mobility_id': mobility.id, 'call_document_id': document.id}
                          for document in documents - mobility.document_ids.call_document_id])
 
-    def action_sync_requirements(self):
-        """After changing the documents asked for."""
-        self._ems_check_role('team')
+    def _ems_sync_requirements(self):
+        """After changing the documents asked for. Never removes a line."""
         for mobility in self.filtered(lambda mobility: mobility.state in FILE_STATES):
             mobility._ems_sync_collective_documents()
             mobility.participant_ids.filtered(lambda participant: participant.state == 'active')._ems_sync_documents()
@@ -1399,9 +1415,13 @@ class EmsErasmusGroupParticipant(models.Model):
                 or participant.commitment_pending or participant.commitment_guardian_pending
                 or participant.commitment_provisional)
 
+    @api.depends_context('ems_participant_name_only')
     def _compute_display_name(self):
+        # Issue #783 (9.12): inside its own group mobility, the mobility's name only repeats.
+        name_only = self.env.context.get('ems_participant_name_only')
         for participant in self:
-            participant.display_name = f"{participant.partner_id.name} - {participant.group_mobility_id.name}"
+            participant.display_name = (participant.partner_id.name if name_only else
+                                        f"{participant.partner_id.name} - {participant.group_mobility_id.name}")
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -1847,6 +1867,25 @@ class EmsErasmusInvoice(models.Model):
     group_mobility_id = fields.Many2one(string="Group mobility", comodel_name='ems.erasmus.group.mobility',
                                         ondelete='set null', index=True,
                                         domain="[('project_id', '=', project_id)]")
+    # Issue #791 (11.2): one question, and only the field that answers it.
+    covers = fields.Selection(string="Who it is for", selection=[('participants', "Participants"),
+                                                                ('group', "A group mobility")],
+                              compute='_compute_covers', store=True, readonly=False, precompute=True,
+                              help="A group mobility: split among its participants by their pocket money. Participants: "
+                                   "split equally among the ones chosen.")
+
+    @api.depends('group_mobility_id')
+    def _compute_covers(self):
+        for invoice in self:
+            invoice.covers = 'group' if invoice.group_mobility_id else invoice.covers or 'participants'
+
+    @api.onchange('covers')
+    def _onchange_covers(self):
+        """The other answer is emptied, so the invoice is never counted twice (issue #777)."""
+        if self.covers == 'group':
+            self.mobility_ids = False
+        else:
+            self.group_mobility_id = False
 
     @api.depends('group_mobility_id')
     def _compute_unassigned_amount(self):

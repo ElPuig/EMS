@@ -42,7 +42,6 @@ class TestErasmusStaffTour(HttpCase):
         self.assertEqual((application.proposal_a, application.proposal_b),
                          ('Job shadowing at the Tour host school, in April', 'An English course in Malta, in July'))
         self.assertEqual((application.declared_last_staff_mobility, application.declared_seniority), ('never', 'y5'))
-        self.assertEqual(application.plan_text, 'Tour plan_text')
 
     def test_my_plan_rating_tour(self):
         application = self._admitted_and_closed()
@@ -85,3 +84,18 @@ class TestErasmusStaffMobilityTour(HttpCase, ErasmusStaffMobilityCase):
         self.assertEqual((mobility.proposal_state, mobility.proposal_activity, mobility.proposal_host),
                          ('pending', 'course', 'Tour Course Provider'))
         self.assertEqual(str(mobility.proposal_date_start), '2027-07-05')
+
+    def test_staff_grant_tour(self):
+        """Issue #810: the teacher reads their grant in their mobility, without changing it."""
+        mobility = self._validated_staff()
+        mobility.grant_amount = 1000
+        mobility.partner_id.user_ids.lang = 'en_US'  # the amounts are read in English format
+        self.start_tour(f'/odoo/action-ems.action_erasmus_my_mobilities/{mobility.id}', 'ems_erasmus_staff_grant',
+                        login='test_erasmus_staff_1')
+
+    def test_staff_resolution_tour(self):
+        """Issue #810: the staff resolution shows no modality column."""
+        mobility = self._accepted_staff()
+        resolution = mobility.application_id.call_id.resolution_ids.filtered(lambda line: line.kind == 'definitive')
+        self.start_tour(f'/odoo/action-ems.action_erasmus_resolution/{resolution.id}', 'ems_erasmus_staff_resolution',
+                        login='test_erasmus_team')

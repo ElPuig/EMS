@@ -425,7 +425,9 @@ class EmsErasmusQualityPanel(models.TransientModel):
     """Erasmus+ › Quality: the two indicators (interest, satisfaction) with their target, the
     response rate, the satisfaction by participant type and by host entity, each call's funnel and
     the evolution by course, for the filters chosen. Only totals and averages: never a name. The
-    figures are computed on the fly from the surveys and the calls (a few hundred records at most)."""
+    figures are computed when the panel opens, from the surveys and the calls (a few hundred records
+    at most); a call's interest is the one exception, frozen when its definitive resolution is
+    published (`ems.erasmus.call._ems_interest`), so that the history of a closed call never changes."""
     _name = 'ems.erasmus.quality.panel'
     _description = 'Erasmus+ quality panel'
 
@@ -440,6 +442,9 @@ class EmsErasmusQualityPanel(models.TransientModel):
     breakdown_html = fields.Html(string="Satisfaction breakdown", compute='_compute_panel', sanitize=False)
     funnel_html = fields.Html(string="Calls", compute='_compute_panel', sanitize=False)
     evolution_html = fields.Html(string="Evolution by course", compute='_compute_panel', sanitize=False)
+    # Issue #789 (12.6): the low scores still without an improvement action, said where quality is looked at.
+    low_count = fields.Integer(string="Low scores", compute='_compute_panel')
+    low_note = fields.Char(string="Low scores note", compute='_compute_panel')
 
     @api.depends('course_id', 'call_id', 'project_id', 'participant_type', 'study_id', 'host_partner_id')
     def _compute_panel(self):
@@ -447,8 +452,14 @@ class EmsErasmusQualityPanel(models.TransientModel):
         headers = self._ems_headers()
         for panel in self:
             data = panel._ems_data()
-            panel.indicators_html = panel._ems_table(
-                headers['indicators'], [panel._ems_indicator_row(row) for row in data['indicators']])
+            # Issue #783 (12.4): how each indicator is calculated, on hover; the PDF prints it in full.
+            rows = []
+            for indicator in data['indicators']:
+                row = panel._ems_indicator_row(indicator)
+                row[0] = Markup('<span title="{}">{} <i class="fa fa-info-circle text-muted"/></span>').format(
+                    indicator['help'], row[0])
+                rows.append(row)
+            panel.indicators_html = panel._ems_table(headers['indicators'], rows)
             panel.breakdown_html = Markup('').join([
                 Markup("<h5>{}</h5>").format(_("By participant type")),
                 panel._ems_table(headers['by_type'], data['by_type']),
@@ -456,13 +467,18 @@ class EmsErasmusQualityPanel(models.TransientModel):
                 panel._ems_table(headers['by_host'], data['by_host']),
             ])
             panel.funnel_html = panel._ems_table(headers['funnel'], data['funnel'])
+            low = data['surveys'].filtered('is_low')
+            panel.low_count = len(low)
+            panel.low_note = _("Low scores: %(count)s, %(open)s without an improvement action",
+                               count=len(low), open=len(low.filtered(lambda survey: not survey.improvement_action_id)))
             panel.evolution_html = panel._ems_table(headers['evolution'], data['evolution'])
 
     @api.model
     def _ems_headers(self):
         """The columns of each table, shared by the panel and its PDF."""
         return {
-            'indicators': [_("Indicator"), _("Value"), _("Target"), _("Met"), _("n"), _("Median")],
+            # Issue #793 (12.3): the median only in the breakdown, and what "n" counts said in words.
+            'indicators': [_("Indicator"), _("Value"), _("Target"), _("Met"), _("Answers")],
             'by_type': [_("Participant type"), _("Average"), _("Median"), _("n")],
             'by_host': [_("Host entity"), _("Average"), _("Median"), _("n")],
             'funnel': [_("Call"), _("Cycle"), _("Applications"), _("Admitted"), _("With a place"),
@@ -470,6 +486,14 @@ class EmsErasmusQualityPanel(models.TransientModel):
             'evolution': [_("Course"), _("Student interest"), _("Staff interest"), _("Satisfaction"), _("n")],
             'actions': [_("Code"), _("Content"), _("State"), _("Deadline")],
         }
+
+    def action_open_low_scores(self):
+        """Issue #789 (12.6): the low scores of the panel's selection, those without an improvement action first."""
+        self._ems_check_access()
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_erasmus_satisfaction_low')
+        return dict(action, domain=[('is_low', '=', True)] + self._ems_survey_domain(),
+                    context={'search_default_no_action': 1})
 
     def _ems_check_access(self):
         if not (self.env.user.has_group('ems.group_erasmus') or self.env.user.has_group('ems.group_academic_admin')):
@@ -535,13 +559,21 @@ class EmsErasmusQualityPanel(models.TransientModel):
         average, median, count = self._ems_stats(answered.mapped('score'))
         indicators = [
             {'name': _("Student interest"), 'value': student_rate, 'unit': '%', 'target': STUDENT_INTEREST_TARGET,
-             'n': f"{student_applicants} / {student_target}"},
+             'n': f"{student_applicants} / {student_target}",
+             'help': _("Students who applied out of every student of the call's levels: counted at the moment while "
+                       "the call is open, and frozen when its definitive resolution is published, so that it no "
+                       "longer changes. Filtered by project: the calls of its mobilities.")},
             {'name': _("Staff interest"), 'value': staff_rate, 'unit': '%', 'target': None,
-             'n': f"{staff_applicants} / {staff_target}"},
+             'n': f"{staff_applicants} / {staff_target}",
+             'help': _("Teachers who applied out of the FP teachers and the Direction that validates: counted at the "
+                       "moment while the call is open, and frozen when its definitive resolution is published, so "
+                       "that it no longer changes. Filtered by project: the calls of its mobilities.")},
             {'name': _("Satisfaction (1-10)"), 'value': average, 'unit': '', 'target': SATISFACTION_TARGET,
-             'n': count, 'median': median},
+             'n': count, 'median': median,
+             'help': _("Average of the participants' scores, from 1 to 10.")},
             {'name': _("Survey response rate"), 'value': 100.0 * len(answered) / len(surveys) if surveys else None,
-             'unit': '%', 'target': None, 'n': f"{len(answered)} / {len(surveys)}"},
+             'unit': '%', 'target': None, 'n': f"{len(answered)} / {len(surveys)}",
+             'help': _("Surveys answered out of the stays over.")},
         ]
         labels = dict(Survey._fields['participant_type']._description_selection(self.env))
         by_type = [self._ems_stats_row(labels[key], answered.filtered(lambda survey: survey.participant_type == key))
@@ -618,11 +650,20 @@ class EmsErasmusQualityPanel(models.TransientModel):
         return f"{value:.1f}{' ' + unit if unit else ''}".replace('.', ',')
 
     def _ems_indicator_row(self, row):
+        """Issue #793 (12.3): whether the target is met in green or red, as a badge (the panel and its
+        PDF); a count (the diffusion actions) without decimals and its target "≥" instead of ">"."""
         value, target = row['value'], row['target']
-        met = '-' if value is None or target is None else (_("Yes") if value > target else _("No"))
-        return [row['name'], self._ems_number(value, row['unit']),
-                f"> {self._ems_number(target, row['unit'])}" if target is not None else '-',
-                met, row['n'], self._ems_number(row.get('median'))]
+        at_least = row.get('at_least')
+        number = (lambda figure: str(figure)) if row.get('count') else (
+            lambda figure: self._ems_number(figure, row['unit']))
+        if value is None or target is None:
+            met = '-'
+        else:
+            reached = value >= target if at_least else value > target
+            met = Markup('<span class="badge {}">{}</span>').format(
+                'text-bg-success' if reached else 'text-bg-danger', _("Yes") if reached else _("No"))
+        return [row['name'], '-' if value is None else number(value),
+                f"{'≥' if at_least else '>'} {number(target)}" if target is not None else '-', met, row['n']]
 
     @api.model
     def _ems_table(self, header, rows):

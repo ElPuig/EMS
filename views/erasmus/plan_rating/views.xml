@@ -83,14 +83,22 @@
                         <!-- Issue #697: the plan as written in the application form (annex 1). -->
                         <!-- Two proposals, A (main) and B (backup), and what the applicant wants to learn,
                              rated together with one score. -->
-                        <group string="Mobility and transfer plan" name="plan" col="1">
-                            <field name="plan_proposal_a"/>
-                            <field name="plan_proposal_b"/>
-                            <field name="plan_text"/>
-                        </group>
+                        <!-- Issue #810: long texts, so each one at full width under its own title (a group put
+                             them in the labels' narrow column). -->
+                        <separator string="Mobility plan"/>
+                        <div name="plan" class="mb-4">
+                            <div class="mb-3">
+                                <label for="plan_proposal_a" class="d-block fw-bold"/>
+                                <field name="plan_proposal_a"/>
+                            </div>
+                            <div>
+                                <label for="plan_proposal_b" class="d-block fw-bold"/>
+                                <field name="plan_proposal_b"/>
+                            </div>
+                        </div>
                         <group string="Annex 2">
+                            <field name="concreteness" widget="radio" readonly="state != 'draft'"/>
                             <field name="relevance" widget="radio" readonly="state != 'draft'"/>
-                            <field name="transfer" widget="radio" readonly="state != 'draft'"/>
                             <field name="score"/>
                         </group>
                         <group>
@@ -106,7 +114,7 @@
 
 
         <record id="action_erasmus_my_plan_ratings" model="ir.actions.act_window">
-            <field name="name">My plan ratings</field>
+            <field name="name">Plans to rate</field>
             <field name="res_model">ems.erasmus.plan_rating</field>
             <field name="view_mode">list,form</field>
             <field name="domain">[('evaluator_id', '=', uid)]</field>

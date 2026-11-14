@@ -15,9 +15,9 @@ and of the Mobilitat FP network's report: **interest** and **satisfaction**.
 | Staff interest | Teachers who applied / every teacher of the FP cycles, plus the Director and the Head of Studies of FP | - |
 | Satisfaction | Average of the participants' scores, from 1 to 10 | more than 8.5 |
 | Response rate | Surveys answered / stays over | - |
+| Diffusion actions | Diffusion actions of the course (only with a course chosen) | at least 10 |
 
-The two interest figures are frozen when the call's definitive resolution is published: whoever
-joins or leaves the centre afterwards does not change them.
+While a call is open, its interest is counted at the moment you open the panel. When its definitive resolution is published, the figure is frozen: whoever joins or leaves the centre afterwards does not change it. Satisfaction and the response rate are always counted at the moment (an answered survey no longer changes).
 
 ## The satisfaction survey
 
@@ -35,18 +35,18 @@ the **coordinator** opens the survey (from the mobility, *Satisfaction survey �
 
 ## Indicators screen
 
-**Erasmus+ › Quality › Indicators** (the panel is titled *Quality indicators*) shows the figures for the filters you choose (course, call,
-project, participant type, cycle, host entity), in four tabs: the indicators with their target, the
+**Erasmus+ › Quality › Indicators** (the panel is titled *Quality indicators*) opens on the current course; empty it to see every course. It shows the figures for the filters you choose (course, call,
+project, participant type, cycle, host entity), in four tabs: the indicators (columns *Indicator*, *Value*, *Target*, *Met* in green or red, and *Answers*: how many people the figure counts), the
 satisfaction by participant type and by host entity, each call's way from the applications to the
-mobilities done, and the evolution course by course. It never shows anybody's name. Figures are rounded half up to one decimal (81.25 % shows 81.3 %). Filtered by project, the interest figures are those of the calls of its mobilities, shared with any other project of the same calls.
+mobilities done, and the evolution course by course. It never shows anybody's name. Hovering over the (i) icon of each indicator, one line explains how it is calculated; the PDF report explains it in full. Figures are rounded half up to one decimal (81.25 % shows 81.3 %). Filtered by project, the interest figures are those of the calls of its mobilities, shared with any other project of the same calls.
 
 ## Answers and improvement actions
 
 **Erasmus+ › Quality › Satisfaction surveys** lists the answers. The whole Erasmus+ team (the coordinator
 and the mobility technician) sees the score, the comments and who answered, with their mobility;
-nobody else does.
+nobody else does. Both lists use short headers (*Type*, *Action*, *Progress*); the whole name shows on hover. The course, the host entity and the comment are in the columns menu, right of the headers, so the call, the participant and the cycle fit.
 
-**Low scores** lists every answer of 6 or lower with what did not work. Open one and choose
+**Low scores** lists every answer of 6 or lower with what did not work. The quality panel says how many there are under its indicators (*Low scores: 2, 1 without an improvement action*): click it to open them, those without an action first. Open one and choose
 **Actions › Create an improvement action**: EMS creates it in the **Quality** app, without the
 participant's name, and you follow it there like any other action. It is the evidence the ISO audit
 asks for. A member of the team who is not a teacher cannot open Quality actions: EMS tells them it
@@ -76,12 +76,12 @@ rest with **New**: information sessions, ErasmusDays, the website, social media.
 in general terms ("students of CFGS"), never names, and attach a capture or the poster if you have
 one. If you don't know how many people it reached, leave that figure empty.
 
-## Earlier courses
+## Earlier course indicators
 
-**Erasmus+ › Quality › Earlier courses** holds the indicators of the courses before EMS kept them,
+**Erasmus+ › Configuration › Earlier course indicators** holds the indicators of the courses before EMS kept them,
 typed in by the coordination with their source. They appear in the evolution by course marked
 *manual load*. The courses 2022-2023 to 2025-2026 are already there.
 
-The staff columns are empty when there is no data: an empty cell and a 0 mean the same, and the panel leaves those courses blank.
+The headers are short (*Appl.*, *Elig.*); the whole name shows on hover. The staff columns (*Staff appl.*, *Staff elig.*) are hidden at first: show them from the columns menu, right of the headers. They are empty when there is no data: an empty cell and a 0 mean the same, and the panel leaves those courses blank.
 
 Click a line to see it whole, the source included: the list hides the source so that it reads well.

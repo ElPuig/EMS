@@ -15,8 +15,7 @@ from .test_erasmus import PDF, create_erasmus_fixtures, upload
 
 # The mobility plan (annex 1), written in the form and required to submit (issue #697).
 STAFF_PLAN = {'proposal_a': 'Test proposal A: job shadowing at a VET school in Porto, in June',
-              'proposal_b': 'Test proposal B: an English course in Malta, in July',
-              'plan_text': 'Test plan: what to learn and how to apply it'}
+              'proposal_b': 'Test proposal B: an English course in Malta, in July'}
 
 
 def create_staff_call_fixtures(cls):
@@ -91,17 +90,24 @@ class ErasmusStaffCase(TransactionCase):
         application.action_admit()
         return application
 
-    def _rate(self, application, relevance, transfer):
+    def _rate(self, application, concreteness, relevance):
         """Every rating of `application` scored and submitted, but the abstentions."""
         for rating in application.sudo().plan_rating_ids.filtered(
                 lambda rating: rating.state == 'draft' and not rating.abstention_reason):
-            rating.write({'relevance': relevance, 'transfer': transfer})
+            rating.write({'concreteness': concreteness, 'relevance': relevance})
             rating.action_submit()
 
     def _complete(self, application, last='never', language='none', seniority='y5', merits=()):
         application.write({'last_staff_mobility': last, 'language_level': language, 'seniority': seniority,
                            'merit_ids': [(0, 0, {'kind': kind, 'description': 'Test merit'}) for kind in merits],
                            'merits_checked': True})
+
+    def _publish(self, kind):
+        resolution = self.env['ems.erasmus.resolution'].with_user(self.erasmus_user).create({
+            'call_id': self.staff_call.id, 'kind': kind})
+        resolution.action_prepare()
+        resolution.action_publish()
+        return resolution
 
 
 @tagged('post_install', '-at_install')
@@ -238,10 +244,7 @@ class TestErasmusStaffCall(ErasmusStaffCase):
                                      {self.id_document.id: [('id.pdf', PDF)]})
         with self.assertRaises(UserError, msg="Proposal B, the backup, is required too."):
             application.action_submit()
-        application._ems_portal_save({'proposal_b': 'Test course', 'plan_text': False}, {})
-        with self.assertRaises(UserError):
-            application.action_submit()
-        application._ems_portal_save({'plan_text': 'Test plan'}, {})
+        application._ems_portal_save({'proposal_b': 'Test course in Malta, in July, to improve my English'}, {})
         application.action_submit()
         self.assertEqual(application.state, 'submitted')
 
@@ -328,12 +331,12 @@ class TestErasmusPlanRating(ErasmusStaffCase):
         mine = self.env['ems.erasmus.plan_rating'].with_user(self.panel_teacher).search(
             [('evaluator_id', '=', self.panel_teacher.id)])
         self.assertGreater(len(mine), 1)
-        mine[0].write({'relevance': '1', 'transfer': '1'})
+        mine[0].write({'concreteness': '1', 'relevance': '1'})
         action = mine[0].action_submit_next()
         self.assertEqual(mine[0].state, 'submitted')
         self.assertEqual(action['res_id'], mine[1].id, "The next plan opens.")
         for rating in mine[1:]:
-            rating.write({'relevance': '1', 'transfer': '1'})
+            rating.write({'concreteness': '1', 'relevance': '1'})
         mine[1:-1].action_submit()
         action = mine[-1].action_submit_next()
         self.assertEqual(action['res_model'], 'ems.erasmus.plan_rating')
@@ -344,7 +347,7 @@ class TestErasmusPlanRating(ErasmusStaffCase):
         self._complete(first)
         ratings = first.sudo().plan_rating_ids
         mine = ratings.filtered(lambda rating: rating.evaluator_id == self.panel_teacher)
-        mine.with_user(self.panel_teacher).write({'relevance': '1', 'transfer': '0.5'})
+        mine.with_user(self.panel_teacher).write({'concreteness': '1', 'relevance': '0.5'})
         mine.with_user(self.panel_teacher).action_submit()
         self.assertFalse(first.plan_complete)
         self.assertFalse(first.score_complete)
@@ -362,14 +365,14 @@ class TestErasmusPlanRating(ErasmusStaffCase):
         self.assertEqual(len(mine), 3)
         rating = mine.filtered(lambda rating: rating.application_id == first)
         # The plan written in the form, and none of the application's documents.
-        self.assertEqual((rating.plan_proposal_a, rating.plan_proposal_b, rating.plan_text), tuple(STAFF_PLAN.values()))
+        self.assertEqual((rating.plan_proposal_a, rating.plan_proposal_b), tuple(STAFF_PLAN.values()))
         self.assertFalse(rating.plan_attachment_ids)
         self.assertFalse(self.env['ems.erasmus.application.document'].with_user(self.panel_teacher).search([]))
         with self.assertRaises(AccessError):
             first.with_user(self.panel_teacher).read(['partner_id'])
         with self.assertRaises(AccessError):
             rating.write({'abstention_reason': 'Not mine to write'})
-        rating.write({'relevance': '1', 'transfer': '1'})
+        rating.write({'concreteness': '1', 'relevance': '1'})
         rating.action_submit()
         rating.action_reopen()
 
@@ -438,13 +441,6 @@ class TestErasmusPlanRating(ErasmusStaffCase):
 
 @tagged('post_install', '-at_install')
 class TestErasmusStaffResolution(ErasmusStaffCase):
-
-    def _publish(self, kind):
-        resolution = self.env['ems.erasmus.resolution'].with_user(self.erasmus_user).create({
-            'call_id': self.staff_call.id, 'kind': kind})
-        resolution.action_prepare()
-        resolution.action_publish()
-        return resolution
 
     def _definitive(self):
         applications = self._admitted(0), self._admitted(1), self._admitted(2)

@@ -26,3 +26,5 @@ CFGS
 EFPS
 Altres
 Departament
+LODE
+Decret

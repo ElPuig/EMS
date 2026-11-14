@@ -15,9 +15,9 @@ i de la memòria de la xarxa Mobilitat FP: l'**interès** i la **satisfacció**.
 | Interès del professorat | Professorat que ha presentat sol·licitud / tot el professorat dels cicles d'FP, més la directora i el cap d'estudis d'FP | - |
 | Satisfacció | Mitjana de les puntuacions dels participants, de l'1 al 10 | més de 8,5 |
 | Taxa de resposta | Enquestes respostes / estades acabades | - |
+| Accions de difusió | Accions de difusió del curs (només amb un curs triat) | com a mínim 10 |
 
-Les dues xifres d'interès es congelen quan es publica la resolució definitiva de la convocatòria:
-qui entra al centre o en marxa després no les canvia.
+Mentre una convocatòria és oberta, el seu interès es compta en el moment d'obrir el panell. Quan se'n publica la resolució definitiva, la xifra es congela: qui entra al centre o en marxa després no la canvia. La satisfacció i la taxa de resposta sempre es compten en el moment (una enquesta resposta ja no canvia).
 
 ## L'enquesta de satisfacció
 
@@ -35,17 +35,17 @@ manera, la **coordinació** obre l'enquesta (des de la mobilitat, *Enquesta de s
 
 ## Pantalla d'indicadors
 
-**Erasmus+ › Qualitat › Indicadors** (el panell es titula *Indicadors de qualitat*) mostra les xifres per als filtres que triïs (curs,
+**Erasmus+ › Qualitat › Indicadors** (el panell es titula *Indicadors de qualitat*) s'obre amb el curs actual; buida'l per veure tots els cursos. Mostra les xifres per als filtres que triïs (curs,
 convocatòria, projecte, tipus de participant, cicle, entitat d'acollida), en quatre pestanyes: els
-indicadors amb el seu objectiu, la satisfacció per tipus de participant i per entitat d'acollida, el
+indicadors (columnes *Indicador*, *Valor*, *Objectiu*, *Compleix* en verd o vermell, i *Respostes*: quantes persones compta la xifra), la satisfacció per tipus de participant i per entitat d'acollida, el
 recorregut de cada convocatòria des de les sol·licituds fins a les mobilitats fetes, i l'evolució
-curs a curs. No mostra mai el nom de ningú. Les xifres s'arrodoneixen cap amunt a partir de la meitat, a un decimal (81,25 % es mostra 81,3 %). Filtrades per projecte, les xifres d'interès són les de les convocatòries de les seves mobilitats, compartides amb qualsevol altre projecte de les mateixes convocatòries.
+curs a curs. No mostra mai el nom de ningú. En passar el ratolí per la icona (i) de cada indicador, una línia explica com es calcula; l'informe en PDF ho explica sencer. Les xifres s'arrodoneixen cap amunt a partir de la meitat, a un decimal (81,25 % es mostra 81,3 %). Filtrades per projecte, les xifres d'interès són les de les convocatòries de les seves mobilitats, compartides amb qualsevol altre projecte de les mateixes convocatòries.
 
 ## Respostes i accions de millora
 
-**Erasmus+ › Qualitat › Enquestes de satisfacció** llista les respostes. Tot l'equip Erasmus+ (la coordinació i el tècnic de mobilitat) veu la puntuació, els comentaris i qui ha respost, amb la seva mobilitat; ningú més.
+**Erasmus+ › Qualitat › Enquestes de satisfacció** llista les respostes. Tot l'equip Erasmus+ (la coordinació i el tècnic de mobilitat) veu la puntuació, els comentaris i qui ha respost, amb la seva mobilitat; ningú més. Les dues llistes fan servir capçaleres curtes (*Tipus*, *Acció*, *Seguiment*); el nom sencer surt en passar-hi el ratolí. El curs, l'entitat d'acollida i el comentari són al menú de columnes, a la dreta de les capçaleres, perquè hi càpiguen la convocatòria, el participant i el cicle.
 
-**Puntuacions baixes** llista totes les respostes de 6 o menys amb el que no ha funcionat. Obre'n una
+**Puntuacions baixes** llista totes les respostes de 6 o menys amb el que no ha funcionat. El panell de qualitat diu quantes n'hi ha a sota dels indicadors (*Puntuacions baixes: 2, 1 sense acció de millora*): feu-hi clic per obrir-les, primer les que no tenen acció. Obre'n una
 i tria **Accions › Crear una acció de millora**: EMS la crea a l'aplicació **Qualitat**, sense el nom
 del participant, i la segueixes allà com qualsevol altra acció. És l'evidència que demana
 l'auditoria ISO. Un membre de l'equip que no és docent no pot obrir les accions de Qualitat: l'EMS
@@ -76,12 +76,12 @@ registrat sol. Afegeix la resta amb **Nou**: sessions informatives, ErasmusDays,
 socials. Escriu els destinataris de manera general («alumnat de CFGS»), mai noms, i adjunta-hi una
 captura o el cartell si en tens. Si no saps a quantes persones ha arribat, deixa aquesta xifra buida.
 
-## Cursos anteriors
+## Indicadors de cursos anteriors
 
-**Erasmus+ › Qualitat › Cursos anteriors** guarda els indicadors dels cursos d'abans que EMS els
+**Erasmus+ › Configuració › Indicadors de cursos anteriors** guarda els indicadors dels cursos d'abans que EMS els
 guardés, introduïts per la coordinació amb la seva font. Surten a l'evolució per curs marcats com a
 *càrrega manual*. Els cursos 2022-2023 a 2025-2026 ja hi són.
 
-Les columnes de professorat queden buides quan no hi ha dada: una cel·la buida i un 0 volen dir el mateix, i el panell deixa aquests cursos en blanc.
+Les capçaleres són curtes (*Sol·l.*, *Dest.*); el nom sencer surt en passar-hi el ratolí. Les columnes de professorat (*Prof. sol·l.*, *Prof. dest.*) estan amagades d'entrada: mostra-les des del menú de columnes, a la dreta de les capçaleres. Queden buides quan no hi ha dada: una cel·la buida i un 0 volen dir el mateix, i el panell deixa aquests cursos en blanc.
 
 Fes clic en una línia per veure-la sencera, amb la font: la llista amaga la font perquè es llegeixi bé.

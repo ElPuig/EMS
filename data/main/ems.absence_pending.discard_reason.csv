@@ -1,0 +1,4 @@
+id,name,sequence
+"ems.absence_pending_discard_reason_strike","Strike",1
+"ems.absence_pending_discard_reason_error","Error",10
+"ems.absence_pending_discard_reason_other","Others",20

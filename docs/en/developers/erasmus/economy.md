@@ -20,7 +20,7 @@ erDiagram
     ems_erasmus_project ||--o{ ems_erasmus_mobility : "mobility_ids (econ_* figures)"
     ems_erasmus_project ||--o{ ems_erasmus_group_mobility : "group_mobility_ids (grant_amount, econ_*)"
     ems_erasmus_project ||--o{ ems_erasmus_invoice : "invoice_ids"
-    ems_erasmus_project ||--o{ ems_erasmus_project_document : "economy_document_ids (category 03)"
+    ems_erasmus_project ||--o{ ems_erasmus_project_document : "document_ids (category 03)"
     ems_erasmus_expense }o--o| ems_erasmus_mobility : "mobility_id (optional)"
     ems_erasmus_support_rate }o..o{ ems_erasmus_project : "call_year + kind"
 ```
@@ -30,12 +30,12 @@ erDiagram
 | Model | Purpose |
 |---|---|
 | `ems.erasmus.economy` (abstract) | The economic figures of a mobility, shared by the individual (`ems.erasmus.mobility`) and the group ones (`ems.erasmus.group.mobility`): `econ_state`, `econ_forecast`, `econ_committed`, `econ_paid`, `econ_pending` (stored computes) and `recovered_amount` (what the participant gave back). Each model gives its inputs in `_ems_economic_inputs()`; the arithmetic is the module function `economic_figures()`. |
-| `ems.erasmus.project` (extended) | `call_year` (from the agreement number, `2026-1-ES01-...`, editable), `final_grant`, the stored totals below, `support_adjustment` + reason, the aggregated figures from before EMS (`legacy_*`), `economy_warnings`, and `economy_document_ids` (its documents of category *03 Finances*: the grant agreement and annexes, in the same records and ZIP as every other document). |
+| `ems.erasmus.project` (extended) | `call_year` (from the agreement number, `2026-1-ES01-...`, editable), `final_grant`, the stored totals below, `support_adjustment` + reason, the aggregated figures from before EMS (`legacy_*`), `economy_warnings`, and its documents of category *03 Finances* (the grant agreement and annexes, kept in the Documentation tab like every other document). |
 | `ems.erasmus.project.amendment` | An amendment of the grant: date, amount (negative for a reduction), description, files. |
 | `ems.erasmus.project.income` | A transfer SEPIE made: date, kind (prefinancing, further prefinancing, balance, other), amount (> 0), files. A *balance* sets the project's `final_payment_date` if empty (the documents' keeping period counts from it). |
 | `ems.erasmus.expense` | An expense of the project outside the participants' grants (working meals, merchandising, dissemination, language preparation...): reference `DESP-<year>-<id>`, project, concept, category (*Organisational support* or *Other project expenses*), date, amount (> 0), supplier, optional mobility (of the same project, linked by the Erasmus team only), invoice or receipt files, notes; `state` to pay / paid / cancelled. Also `transferred_amount` (what was transferred, set when paid), `counted_amount` (stored: what it consumes of the budget, `_ems_value()`) and `corrected_from_id` (see *Expenses*). |
 | `ems.erasmus.expense.correct.wizard` | *Correct*: the only way to change a paid (or cancelled) expense's figures, with a required reason posted in its chatter; sets `corrected`. |
-| `ems.erasmus.support.rate` | Organisational support per participant: call year, action (KA121-VET / KA131-HED), kind of mobility (`SUPPORT_TYPES`), band of participants (`band_from`-`band_to`, empty = no limit) counted as `band_scope` says (`same`: among the same kind of mobility, KA121-VET; `project`: among every participant of the project, KA131-HED), `min_days` (empty = any length), amount, conditions. Bands of the same year, action and kind never overlap (the error names the other rate and its band). Seeded from `data/custom/erasmus/ems.erasmus.support.rate.csv` (KA121-VET 2025 and 2026, KA131-HED 2026), frozen afterwards like every `data/custom/` record: a new year's rates are added in the app. |
+| `ems.erasmus.support.rate` | Organisational support per participant: call year, action (KA121-VET / KA131-HED), kind of mobility (`SUPPORT_TYPES`), band of participants (`band_from`-`band_to`, empty = no limit) counted as `band_scope` says, set from the action and hidden in the list (issue #788; `same`: among the same kind of mobility, KA121-VET; `project`: among every participant of the project, KA131-HED), `min_days` (empty = any length), amount, conditions. Bands of the same year, action and kind never overlap (the error names the other rate and its band). Seeded from `data/custom/erasmus/ems.erasmus.support.rate.csv` (KA121-VET 2025 and 2026, KA131-HED 2026), frozen afterwards like every `data/custom/` record: a new year's rates are added in the app. |
 
 ## Economic state of a mobility
 
@@ -51,7 +51,7 @@ The economic state never replaces the mobility's own state; it is derived from i
 
 - **planned**: the grant (`grant_amount`; for a group, the sum of its active participants' own
   grants, `ems.erasmus.group.participant.grant_amount`, students and accompanying teachers alike,
-  entered on the group's *Collective expenses* tab; each is counted **once**, in the group, never as
+  entered on the group's *Grant and expenses* tab; each is counted **once**, in the group, never as
   a mobility of its own). Before the selection is approved a group has no participants, so no
   forecast.
 - **spent**: what has been requested or invoiced out of it: the grant payments plus the provisions
@@ -143,18 +143,29 @@ enough information for the organisational support.
 
 ## Screens
 
-- *Erasmus+ > Financial management > Economic panel* (`action_erasmus_economy_panel`): one row per
+- *Erasmus+ > Projects* (`action_erasmus_project`, an entry of its own in the bar since issue #789): one row per
   project (awarded, committed, paid, available, support generated, warnings), filters by action,
   final payment and *above the grant*, grouping by call year and action, and a pivot view to compare
   calls; a row opens the project's form, whose first tab is **Economy**.
-- The project's **Economy** tab: warnings, grant, budget, amendments, SEPIE transfers, the economic
-  documents, the expenses, the organisational support and the figures from before EMS; the Actions
-  dropdown's **Download the economy (Excel)**.
-- *Financial management > Expenses* (`action_erasmus_expense`; its list has the *Register transfer* header button for the Secretary, who can select several), *Configuration > Organisational
+- The project's **Economy** tab: warnings, the **Subsidy** block in the order the money flows
+  (awarded `budget`, current, received, to receive, and `final_grant`/`final_payment_date` only once the
+  final payment arrives), **Budget** (forecast, committed, other expenses, paid, committed not paid
+  yet, available last), amendments, SEPIE transfers, the organisational support and the figures from
+  before EMS; the Actions dropdown's **Download the economy (Excel)**. Its *Services paid by the
+  centre* and *Project expenses* tabs sit next to each other (issues #790, #791). The *Services paid
+  by the centre* tab shows `all_invoice_ids` (non-stored, `_ems_invoices()`): the project's own
+  invoices, its participants' (through their provisions) and its group mobilities', the same set
+  the figures count (C34, 2026-11-13). A participants' invoice keeps `project_id` empty, since one
+  can cover two projects; its `project_label` says *Various* then.
+- *Financial management > Project expenses* (`action_erasmus_expense`; its list has the *Register transfer* header button for the Secretary, who can select several), *Configuration > Organisational
   support rates* (`action_erasmus_support_rate`).
-- The mobility's *Grant* tab shows its economic figures and its *Organisational support as*; the
-  group mobility's *Collective expenses* tab, its figures and each participant's grant (editable by
-  the team), also on the participant's form. The participants' grants list has no total: the
+- The mobility's *Grant* tab (issue #790): the economic state as a tag, a **Grant** block (grant,
+  *Paid directly by the centre* `provision_amount`, *To transfer* `grant_net`) and a **Payments to the
+  person** block (*Transferred* `grant_paid`, *Pending transfer* `grant_to_receive`, before leaving
+  %); forecast, committed, paid and pending stay on the project; *Organisational support as* is
+  folded away in a `<details>`. The group mobility's *Grant and expenses* tab: the same blocks for
+  the group (grants, `expense_amount`, `pocket_total`, `pocket_paid_total`, `pocket_pending_total`) and
+  each participant's grant (editable by the team), also on the participant's form. The participants' grants list has no total: the
   group's grant above it is the total (a withdrawn participant never counts). The SEPIE transfer's
   column is *Type*.
 
@@ -173,7 +184,8 @@ and income*. No accounting entries or invoices are generated.
 | Project economic fields (`groups=`) | rw | r | r | - |
 | `ems.erasmus.project.amendment`, `.income`, `.support.rate` | rwcu | r | r | - |
 | `ems.erasmus.expense` | rwcu (correct, cancel) | rwc (+ register and undo the transfer) | r | - |
-| `ems.erasmus.payment`, `.invoice`, `.provision` | rwcu | r | r (never `bank_account`/`bank_holder`) | - |
+| `ems.erasmus.invoice` | rwcu | rwc (issue #791: the Secretary enters services paid by the centre too, reading the mobilities to say whom for) | r | - |
+| `ems.erasmus.payment`, `.provision` | rwcu | r | r (never `bank_account`/`bank_holder`) | - |
 | `ems.erasmus.expense.correct.wizard` | rwcu | - | - | - |
 | Excel export | yes | yes | yes | - |
 
@@ -227,7 +239,7 @@ percentage, when a payment may be requested and how a payment points at it (`mob
 | Model | Field | Meaning |
 |---|---|---|
 | `ems.erasmus.group.mobility` | `prefinancing_percent` | Part of the pocket money paid before leaving (default **100**: one single payment); the rest on return. |
-| | `no_direct_costs` | *The centre pays nothing directly*: no collective invoice can be added (blocked, with a warning on the form), each participant's pocket money is their whole grant. Cannot be set while the group has invoices. |
+| | `no_direct_costs` | Edited through `travel_paid_by` (*Who pays the travel and accommodation*: the centre / each participant, non-stored with an inverse, issue #784), the same choice asked in positive. Each participant: no collective invoice can be added (blocked, with a warning on the form), each participant's pocket money is their whole grant. Cannot be set while the group has invoices. |
 | `ems.erasmus.group.participant` | `invoice_share` | Their equal share of the group's collective invoices: each invoice's amount divided among the **active** participants, the cents left over on the first one (same rule as an individual invoice's shares). Computed, never typed. |
 | | `pocket_amount` | `grant_amount - invoice_share` (below zero: a warning). |
 | | `pocket_requested` / `pocket_paid` / `pocket_state` | What has been requested and paid, and *not requested*, *to pay*, *paid*. Read with sudo, so the leader sees them without reading the payments. |
@@ -287,10 +299,12 @@ is its own models. Reasons:
 - **A participant's grant is not a vendor bill.** It is part of the subvention transferred to a
   student or teacher, with no invoice behind it. Recording it as a bill or a payment would need a
   journal, accounts and every participant set up as a vendor, for no use of the centre.
-- **Collective invoices are split.** A group's flight or hotel invoice is divided among its
-  active participants and lowers each one's pocket money (`invoice_share`, `pocket_amount`); an
-  individual invoice becomes provisions of one or more mobilities. A vendor bill knows nothing of
-  this.
+- **Services paid by the centre are split.** A *service paid by the centre* (`ems.erasmus.invoice`:
+  a group's flight or hotel invoice) is divided among the group's active participants and lowers
+  each one's pocket money (`invoice_share`, `pocket_amount`); one for some participants becomes
+  provisions of their mobilities (*Paid directly by the centre* in their Grant tab). A vendor bill
+  knows nothing of this. A *project expense* (`ems.erasmus.expense`) touches no grant: the two stay
+  separate models because they do different things with the money (issue #791).
 - **Access.** The Erasmus team are teachers. Creating and paying vendor bills needs accounting
   rights (`account.group_account_invoice`), which also let them edit and pay every invoice of the
   centre, the families' enrolment invoices included. With own models their rights stop at the
@@ -298,7 +312,7 @@ is its own models. Reasons:
 
 Open question (to check with the Secretary): if the centre's official accounting is kept outside
 EMS, entries generated here would be a second, unofficial copy of it. The supplier invoices
-(`ems.erasmus.invoice`: hotels, flights) are the part closest to a native vendor bill, and could
+(`ems.erasmus.invoice`, *Services paid by the centre*: hotels, flights) are the part closest to a native vendor bill, and could
 become one if the centre ever keeps its accounting in Odoo.
 
 ## Install and upgrade

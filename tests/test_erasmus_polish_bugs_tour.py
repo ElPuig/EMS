@@ -32,7 +32,7 @@ class TestErasmusPolishBugsTour(HttpCase):
 
     def test_project_year_tour(self):
         self.assertEqual(self.project.call_year, 2099)
-        self.start_tour('/odoo/action-ems.action_erasmus_economy_panel', 'ems_erasmus_project_year',
+        self.start_tour('/odoo/action-ems.action_erasmus_project', 'ems_erasmus_project_year',
                         login=self.secretary_user.login)
 
     def test_support_rate_year_tour(self):

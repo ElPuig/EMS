@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_absence_pending_discard_reason_list">
+            <field name="name">ems.absence_pending.discard_reason.list</field>
+            <field name="model">ems.absence_pending.discard_reason</field>
+            <field name="arch" type="xml">
+                <list default_order="sequence, name">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_absence_pending_discard_reason_form">
+            <field name="name">ems.absence_pending.discard_reason.form</field>
+            <field name="model">ems.absence_pending.discard_reason</field>
+            <field name="arch" type="xml">
+                <form string="Discard reason">
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <field name="active" invisible="1"/>
+                        <group>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_absence_pending_discard_reason">
+            <field name="name">Discard reasons</field>
+            <field name="res_model">ems.absence_pending.discard_reason</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <!-- Issue #818: the catalog the reviewers of detected absences pick from when discarding
+             one; maintained by the Heads of Studies and the administrator, who archive rather
+             than delete. Absences > Configuration is hr_holidays' Administrator's only, so it is
+             widened to them: Odoo hides a parent whose children are all invisible to the user, so
+             they only see this entry under it. -->
+        <record model="ir.ui.menu" id="hr_holidays.menu_hr_holidays_configuration">
+            <field name="groups_id" eval="[(4, ref('ems.group_head_of_studies')), (4, ref('ems.group_academic_admin'))]"/>
+        </record>
+
+        <menuitem id="menu_absence_pending_discard_reason"
+                  name="Detected absence discard reasons"
+                  parent="hr_holidays.menu_hr_holidays_configuration"
+                  action="action_absence_pending_discard_reason"
+                  groups="ems.group_head_of_studies,ems.group_academic_admin,base.group_system"
+                  sequence="10"/>
+    </data>
+</odoo>

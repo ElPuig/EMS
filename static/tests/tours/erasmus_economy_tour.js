@@ -6,7 +6,7 @@ import { registry } from "@web/core/registry";
 // the Secretary opens the panel in both view modes, a project's Economy tab, and registers an
 // expense from the Expenses menu. Structural selectors and fixture names only.
 registry.category("web_tour.tours").add("ems_erasmus_economy_tour", {
-    url: "/odoo/action-ems.action_erasmus_economy_panel",
+    url: "/odoo/action-ems.action_erasmus_project",
     steps: () => [
         {
             trigger: ".o_list_view .o_data_row td[name='name']:contains('2019-1-ES01-KA131-HED-000000762')",
@@ -40,12 +40,18 @@ registry.category("web_tour.tours").add("ems_erasmus_economy_tour", {
             content: "The Economy tab is the first one",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='expense_ids'] .o_data_row td[name='concept']:contains('Merchandising')",
-            content: "The project's expense is listed",
-        },
-        {
             trigger: ".o_form_view .o_field_widget[name='economy_warnings']",
             content: "It warns about the expense without a receipt",
+        },
+        {
+            // Issue #791 (11.1): the project's expenses in their own tab, next to the services.
+            trigger: ".o_form_view .o_notebook a[name='expenses']",
+            content: "The Project expenses tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='expense_ids'] .o_data_row td[name='concept']:contains('Merchandising')",
+            content: "The project's expense is listed",
         },
         {
             trigger: ".o_main_navbar",

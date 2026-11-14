@@ -17,7 +17,7 @@ Unless the centre allows it in its settings, a justification is the only way to 
 1. Go to **Student's Attendances → Justifications** and click **New**.
 2. In **Reason**, pick why (by default, **Health reasons**). Then:
     - For most reasons, set the start and end date and time in **Period**.
-    - For a **Labour strike**, pick the **Day** instead: the justification covers the student's whole day.
+    - For a **Student walkout**, pick the **Day** instead: the justification covers the student's whole day.
     - For **Other reasons**, describe it in **Details**, which only appears for that reason.
 3. In **Justify**, choose who the justification is for:
     - **Student** (the default): pick the student in **Student**. Only that student is justified.

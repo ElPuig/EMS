@@ -10,6 +10,7 @@ CENTRE_LANG_REPORTS = {
     'ems.report_ex_officio_withdrawal',
     'ems.report_minute',
     'ems.report_student_card',
+    'ems.report_student_walkout',
 }
 
 

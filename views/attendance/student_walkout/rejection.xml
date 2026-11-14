@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #800: rejecting a student walkout call with a reason, and the catalog of reasons
+             (Student's Attendances > Configuration > Student walkouts > Rejection reasons, kept by the
+             EMS administrator and the Heads of Studies, like the justification reasons). -->
+        <record id="view_student_walkout_reject_wizard_form" model="ir.ui.view">
+            <field name="name">ems.student_walkout.reject.wizard.form</field>
+            <field name="model">ems.student_walkout.reject.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Reject the student walkout proposal">
+                    <field name="walkout_state" invisible="1"/>
+                    <div class="alert alert-warning" role="alert" invisible="walkout_state not in ('voting', 'joining')">
+                        <p>
+                            Deciding collectively not to attend class is a right of students from 3rd of ESO onwards, when it is
+                            communicated to the school's management beforehand (LODE, article 8). It is not sanctioned and the school
+                            cannot stop it because of its cause. In Catalonia, a minor's absence also needs their family's
+                            authorization (Decret 102/2010, article 24.2): their family ratifies it on the portal while joining lasts.
+                        </p>
+                        <p class="mb-1"><strong>Abort a proposal only for a formal defect:</strong></p>
+                        <ul>
+                            <li>there is no official call of a students' union for that day, or the attached document is not one;</li>
+                            <li>the call does not cover the group's level or studies, or is for another sector (teachers, for instance) or another autonomous community.</li>
+                        </ul>
+                        <p class="mb-0">
+                            <strong>Never because</strong> you disagree with its cause, it coincides with an exam, an outing or a
+                            deadline, you think the group cannot afford to miss class, few students would join, or to put pressure
+                            on the group. The Head of Studies is told of every aborted proposal and its reason.
+                        </p>
+                    </div>
+                    <p class="text-muted" invisible="walkout_state not in ('voting', 'joining')">The students of the group, its tutor and the families asked to ratify that a minor joins are told, with the reason.</p>
+                    <p class="text-muted" invisible="walkout_state != 'closed'">Absences will not be justified. The students of the group, its tutor and the families asked to ratify that a minor joins are told, with the reason.</p>
+                    <p class="text-muted" invisible="walkout_state != 'justified'">The justification is removed. The students of the group, the families of those justified and the tutor are told, with the reason.</p>
+                    <group>
+                        <field name="walkout_id" readonly="1"/>
+                        <field name="reason_id" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="requires_details" invisible="1"/>
+                        <field name="details" required="requires_details" placeholder="Explain why"/>
+                    </group>
+                    <footer>
+                        <button name="action_reject" type="object" string="Abort the proposal" class="btn-primary"
+                                invisible="walkout_state not in ('voting', 'joining')"/>
+                        <button name="action_reject" type="object" string="Do not validate" class="btn-primary"
+                                invisible="walkout_state != 'closed'"/>
+                        <button name="action_reject" type="object" string="Undo the validation" class="btn-primary"
+                                invisible="walkout_state != 'justified'"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_student_walkout_rejection_reason_list" model="ir.ui.view">
+            <field name="name">ems.student_walkout.rejection_reason.list</field>
+            <field name="model">ems.student_walkout.rejection_reason</field>
+            <field name="arch" type="xml">
+                <list default_order="sequence, name">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="requires_details"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_student_walkout_rejection_reason_form" model="ir.ui.view">
+            <field name="name">ems.student_walkout.rejection_reason.form</field>
+            <field name="model">ems.student_walkout.rejection_reason</field>
+            <field name="arch" type="xml">
+                <form string="Rejection reason">
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <field name="active" invisible="1"/>
+                        <group>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                            <field name="requires_details"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_student_walkout_rejection_reason" model="ir.actions.act_window">
+            <field name="name">Student walkout rejection reasons</field>
+            <field name="res_model">ems.student_walkout.rejection_reason</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <menuitem name="Student walkouts" sequence="3" id="menu_attendance_config_walkouts"
+                  parent="menu_attendance_config" groups="ems.group_academic_admin,ems.group_head_of_studies"/>
+        <menuitem name="Rejection reasons" sequence="1" id="menu_student_walkout_rejection_reasons"
+                  parent="menu_attendance_config_walkouts" action="action_student_walkout_rejection_reason"
+                  groups="ems.group_academic_admin,ems.group_head_of_studies"/>
+    </data>
+</odoo>

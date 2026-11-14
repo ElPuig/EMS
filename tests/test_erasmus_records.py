@@ -172,7 +172,7 @@ class TestErasmusExport(ErasmusRecordsCase):
         self.assertEqual(sums['02_Abans_de_la_mobilitat/OLS certificate/v1_ols.pdf'], hashlib.sha256(PDF).hexdigest())
         index = self._index(contents, root)
         grant = [row for row in index if row['Document'] == 'Grant agreement']
-        self.assertEqual(grant[0]['Status'], 'Missing', "The index lists what is still missing.")
+        self.assertEqual(grant[0]['Status'], 'To hand in', "The index lists what is still missing.")
         self.assertFalse(grant[0]['Path'])
         manifest = json.loads(contents[f'{root}/manifest.json'])
         self.assertEqual(manifest['requested_by'], self.erasmus_user.name)

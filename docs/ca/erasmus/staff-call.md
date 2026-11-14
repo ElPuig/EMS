@@ -16,7 +16,7 @@ La convocatòria del personal funciona com la de l'alumnat (vegeu [Convocatòrie
 
 A **Erasmus+ > Convocatòries > Convocatòries**, crea la convocatòria, posa *Personal* a **Sol·licitants**, omple les dates, adjunta la convocatòria publicada i publica-la. Res més:
 
-- Els **documents** de l'article 8 s'afegeixen sols: només els certificats de llengües, opcionals (cap currículum; el document d'identitat es demana a qui hi va, amb els documents de la mobilitat). El **pla de mobilitat i transferència** no és un document: les persones sol·licitants l'escriuen al formulari (annex 1), i és l'única part de la sol·licitud que veu la comissió. Els pots canviar abans de publicar.
+- Els **documents** de l'article 8 s'afegeixen sols: només els certificats de llengües, opcionals (cap currículum; el document d'identitat es demana a qui hi va, amb els documents de la mobilitat). El **pla de mobilitat** no és un document: les persones sol·licitants l'escriuen al formulari (annex 1), i és l'única part de la sol·licitud que veu la comissió. Els pots canviar abans de publicar.
 - No hi ha **Puntuació mínima**: la convocatòria del personal no en té, així que l'EMS la posa a 0 i l'amaga.
 - El **Termini de valoració de la comissió** s'omple a partir de la data de tancament, com a la convocatòria d'alumnat (14 dies després, a les 14:00, en un dia lectiu): aquell dia vencen les tasques de la comissió, i després els membres ja no poden canviar les seves valoracions. Si canvies la data de tancament, el termini la segueix, tret que l'hagis canviat a mà. Els altres terminis s'omplen igual.
 - Per obrir la convocatòria només calen els ajustos i el calendari: **Poden sol·licitar** i **Valida les activitats** ja venen omplerts. La pestanya **Documents** no apareix (l'únic document que es demana és el formulari, i els certificats d'idiomes ja hi són), la pestanya **Comissió** apareix quan la convocatòria és tancada i el bloc **Mobilitat** quan es publica la resolució definitiva.
@@ -28,12 +28,12 @@ Un cop publicada, tot el personal amb fitxa d'empleat veu la convocatòria a l'E
 
 ## 2. Què omple el personal
 
-A més de les seves dues propostes (A, la principal, i B, la de reserva) i de què vol aprendre i com ho aplicarà, escrits amb les seves paraules, cada persona sol·licitant declara:
+A més de les seves dues propostes (A, la principal, i B, per si la A no es pot fer), cadascuna amb l'activitat, l'entitat o el curs, on, quan i què vol aprendre, escrites amb les seves paraules, cada persona sol·licitant declara:
 
-- Si **no ha fet mai cap mobilitat Erasmus+ de personal al Puig**. Si no, poseu vosaltres quan va ser l'última (**Correcció**, criteri 2) amb els registres del centre. Els acompanyaments d'alumnat i altres programes no compten.
+- Si **no ha realitzat cap mobilitat Erasmus+ a l'Institut Puig Castellar** (com a personal). Si no, poseu vosaltres quan va ser l'última (**Correcció**, criteri 2) amb els registres del centre. Els acompanyaments d'alumnat i altres programes no compten.
 - El **mes i l'any des que treballa al centre** de manera continuada.
 - El seu **certificat de llengua** més alt (B2 o superior), que també adjunta.
-- Els **projectes del centre** en què participa i, opcionalment, les seves **necessitats de suport** (confidencials: només les veu l'equip Erasmus).
+- Els **projectes del centre**, equips de millora o comissions d'aquest curs o del passat que coordina o en què participa (un per línia, indicant els que coordina) i, opcionalment, les seves **necessitats de suport** (confidencials: només les veu l'equip Erasmus).
 
 No pot enviar la sol·licitud sense la data d'incorporació al centre, les dues propostes i el pla.
 
@@ -41,7 +41,7 @@ No pot enviar la sol·licitud sense la data d'incorporació al centre, les dues 
 
 Revisa els documents i admet o exclou com a la convocatòria de l'alumnat (les amonestacions no hi compten).
 
-Després de **Tanca les sol·licituds**, omple la pestanya **Comissió** de la convocatòria: les persones que valoren els plans de mobilitat (la direcció i els caps de departament i de seminari). Després fes clic a **Accions > Envia els plans a la comissió**. Cada membre rep una tasca per valorar tots els plans des d'**Erasmus+ > La meva participació > Les meves valoracions de plans**, que venç el **Termini de valoració de la comissió** (el botó te'l demana si és buit; si el canvies després, les tasques obertes el segueixen). Hi pots tornar a fer clic després d'admetre més sol·licituds: només crea les valoracions que falten.
+Després de **Tanca les sol·licituds**, omple la pestanya **Comissió** de la convocatòria: les persones que valoren els plans de mobilitat (la direcció i els caps de departament i de seminari). Després fes clic a **Accions > Envia els plans a la comissió**. Cada membre rep una tasca per valorar tots els plans des d'**Erasmus+ > La meva participació > Plans per valorar**, que venç el **Termini de valoració de la comissió** (el botó te'l demana si és buit; si el canvies després, les tasques obertes el segueixen). Hi pots tornar a fer clic després d'admetre més sol·licituds: només crea les valoracions que falten. El botó només surt fins que es publica la resolució provisional, que fixa les puntuacions.
 
 **Erasmus+ > Convocatòries > Valoracions del pla de mobilitat** s'obre amb una fila per sol·licitant: quants han valorat i la mitjana del pla. Fes clic en una fila per veure la valoració de cada membre.
 
@@ -74,7 +74,7 @@ Una convocatòria del personal no té modalitats: el professorat competeix en un
 
 ![Les places per projecte d'una convocatòria del personal, amb les mobilitats assignades a cadascun](../../assets/erasmus/convocatoria-personal-places-projecte.png)
 
-El personal es classifica **en una sola llista** per a tota la convocatòria (botó **Classificació** de la convocatòria). Els empats es desfan per la puntuació del pla de mobilitat, després per qui fa més temps que és al centre (el mes i l'any d'incorporació declarats al formulari, no els punts del criteri 5: qui s'hi va incorporar el 2000 va abans que qui s'hi va incorporar fa sis anys, encara que tots dos tinguin 2 punts) i, finalment, pel sorteig que fa la coordinació Erasmus des de la convocatòria (**Sorteja els empats**).
+El personal es classifica **en una sola llista** per a tota la convocatòria (botó **Classificació** de la convocatòria). Les columnes dels criteris porten un nom curt (*1. Pla*, *2. Última mob.*, *3. Projectes*, *4. Llengües*, *5. Antiguitat*, *6. Internac.*); en passar-hi el ratolí en veus el nom sencer. Les llistes de les resolucions del personal no tenen columna de modalitat. Els empats es desfan per la puntuació del pla de mobilitat, després per qui fa més temps que és al centre (el mes i l'any d'incorporació declarats al formulari, no els punts del criteri 5: qui s'hi va incorporar el 2000 va abans que qui s'hi va incorporar fa sis anys, encara que tots dos tinguin 2 punts) i, finalment, pel sorteig que fa la coordinació Erasmus des de la convocatòria (**Sorteja els empats**).
 
 Les resolucions es publiquen com a la convocatòria de l'alumnat: les llistes només mostren quatre xifres del document d'identitat, mai noms. Per al personal es treu de la seva **fitxa d'empleat** (DNI o NIE; si no, el passaport); si algú no en té, demana a la secretaria que l'afegeixi. EMS ja t'ho avisa quan n'admets la sol·licitud, i les llistes no es poden preparar fins que hi sigui. Si la puntuació d'algú no és completa quan prepares una resolució, EMS diu què falta a cada persona (per exemple, *Mèrits revisats* o *Antiguitat al centre*).
 

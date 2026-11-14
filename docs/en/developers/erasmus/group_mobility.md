@@ -305,8 +305,9 @@ Group mobilities are part of the Erasmus+ document records ([records.md](records
   (`_ems_check_programme_answered`). The executed group learning agreement records the result.
 - The leader proposes the closure; the team closes it once every required document is valid and
   the EU Survey validated.
-- Collective expenses are ordinary `ems.erasmus.invoice` records linked to the group mobility
-  (`group_mobility_id`), charged to its project and **never split** among the participants.
+- Collective expenses are ordinary `ems.erasmus.invoice` records (*Services paid by the centre*) linked to the group
+  mobility (`group_mobility_id`, `covers = 'group'`, issue #791), charged to its project and never split into provisions:
+  they lower each participant's pocket money (`invoice_share`).
 
 ## Coordinator overview
 

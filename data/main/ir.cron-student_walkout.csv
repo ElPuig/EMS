@@ -1,0 +1,2 @@
+"id","name","model_id/id","user_id/id","state","code","interval_number","interval_type"
+"ems.ir_cron_student_walkout_deadlines","EMS: Student walkout deadlines","ems.model_ems_student_walkout","base.user_root","code","model._cron_ems_walkout_deadlines()","1","hours"

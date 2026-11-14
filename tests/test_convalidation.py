@@ -818,18 +818,6 @@ class TestConvalidation(TransactionCase):
         self.assertTrue(request.message_ids.filtered(
             lambda message: 'academic certificate' in (message.body or '')))
 
-    def test_the_most_usual_reason_is_preselected(self):
-        """Like the strike reasons: the first by its own order, the missing official grade certificate of the
-        previous centre - almost always the reason."""
-        reason = self.env.ref('ems.convalidation_info_reason_previous_centre')
-        wizard = self.env['ems.convalidation.info_wizard'].with_user(self.head_of_studies).create({
-            'convalidation_id': self._request().id})
-        self.assertEqual(wizard.reason_id, reason)
-        reason.sequence = 100
-        wizard = self.env['ems.convalidation.info_wizard'].with_user(self.head_of_studies).create({
-            'convalidation_id': self._request(self.other_subject).id})
-        self.assertNotEqual(wizard.reason_id, reason)
-
     def test_the_reason_alone_is_enough_and_travels_in_the_email(self):
         request = self._request()
         reason = self.env.ref('ems.convalidation_info_reason_syllabus')

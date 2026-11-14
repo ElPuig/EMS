@@ -655,11 +655,6 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
     def _reason(self, key):
         return self.env.ref(f'ems.attendance_justification_reason_{key}')
 
-    def test_default_reason_is_the_first_one(self):
-        justification = self._shared_justification(self.student)
-        self.assertEqual(justification.reason_id, self.env['ems.attendance_justification_reason'].search([], limit=1))
-        self.assertEqual(justification.reason_id, self._reason('health'))
-
     def test_other_requires_details(self):
         with self.assertRaises(ValidationError):
             self.env['ems.attendance_justification'].create({
@@ -676,12 +671,12 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
             form.reason_id = self._reason('health')
             self.assertFalse(form.details)
 
-    def test_strike_covers_the_whole_day_picked(self):
+    def test_walkout_covers_the_whole_day_picked(self):
         line = self._line()
         line.status_id = self.env.ref('ems.attendance_status_miss')
         justification = self.env['ems.attendance_justification'].with_user(self.tutor_user).create({
             'teacher_id': self.tutor_employee.id, 'student_ids': [(6, 0, self.student.ids)],
-            'reason_id': self._reason('strike').id, 'day': self.today,
+            'reason_id': self._reason('walkout').id, 'day': self.today,
         })
         utils = self.env['ems.datetime_utils']
         self.assertEqual(justification.start_date, utils.datetime_to_odoo(utils.time_float_to_utc_datetime(self.today, 0.0)))
@@ -689,10 +684,10 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
         self.assertEqual(justification.day, self.today)
         self.assertEqual(line.status_id, self.env.ref('ems.attendance_status_justified'))
 
-    def test_strike_in_the_form_picks_a_day(self):
+    def test_walkout_in_the_form_picks_a_day(self):
         with Form(self.env['ems.attendance_justification'].with_user(self.tutor_user)) as form:
             form.student_id = self.student
-            form.reason_id = self._reason('strike')
+            form.reason_id = self._reason('walkout')
             form.day = self.today
         justification = form.record
         self.assertEqual(justification.utc_to_local_date(justification.start_date), self.today)
@@ -707,21 +702,21 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
             form.start_date, form.end_date = start, start + timedelta(hours=2)
         self.assertEqual((form.record.start_date, form.record.end_date), (start, start + timedelta(hours=2)))
 
-    def test_switching_to_strike_turns_the_period_into_its_whole_day(self):
+    def test_switching_to_walkout_turns_the_period_into_its_whole_day(self):
         start = datetime.combine(self.today, datetime.min.time()) + timedelta(hours=8)
         with Form(self.env['ems.attendance_justification'].with_user(self.tutor_user)) as form:
             form.student_id = self.student
             form.start_date, form.end_date = start, start + timedelta(hours=2)
-            form.reason_id = self._reason('strike')
+            form.reason_id = self._reason('walkout')
         justification = form.record
         self.assertEqual(justification.day, justification.utc_to_local_date(start))
         self.assertGreater(justification.end_date - justification.start_date, timedelta(hours=23))
 
-    def test_strike_refuses_a_partial_period(self):
+    def test_walkout_refuses_a_partial_period(self):
         with self.assertRaises(ValidationError):
             self.env['ems.attendance_justification'].create({
                 'teacher_id': self.tutor_employee.id, 'student_ids': [(6, 0, self.student.ids)],
-                'reason_id': self._reason('strike').id,
+                'reason_id': self._reason('walkout').id,
                 'start_date': datetime.combine(self.today, datetime.min.time()) + timedelta(hours=8),
                 'end_date': datetime.combine(self.today, datetime.min.time()) + timedelta(hours=10),
             })

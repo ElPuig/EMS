@@ -292,6 +292,11 @@ Academic and quality administrators can always start any kind (`_ems_starts_anyw
   `start_department_ids`/`start_group_ids`/`start_workgroup_ids` narrow the scope dropdown.
 - `_check_can_start` (constraint on type and scope) refuses the rest, as the user making the change;
   minutes created by the system (`sudo`) are not checked.
+- Every minute has the scope its type asks for (`_check_scope_is_set`, also for `sudo`; the form marks
+  the same fields required). A generic type's `scope_choice` has no default: it starts empty and must
+  be chosen (`none` = no particular scope, attendees added by hand, numbered under the type's code);
+  a choice of department, workgroup or group then requires that record. `_ems_missing_scope_field()`
+  names what is still missing, and the code preview waits for it.
 
 Seeded values (`data/custom/quality/ems.minute.type.csv`): generic open to all; department and
 teaching team by their scope; claustre by Director, Head of Studies, Deputy Head of Studies and

@@ -2,19 +2,28 @@
 
 ---
 
-# Erasmus+: gastos de los proyectos y panel económico
+# Erasmus+: servicios pagados por el centro, gastos y proyectos
 
-Además de pagar las becas y las facturas (**Erasmus+ > Gestión económica > Pagos de becas** y **Facturas**), Secretaría registra y paga los otros gastos de los proyectos Erasmus+, y puede consultar el presupuesto de cada proyecto.
+Además de pagar las becas (**Erasmus+ > Gestión económica > Pagos de becas**), Secretaría registra las facturas que el centro paga para los participantes (**Servicios pagados por el centro**), registra y paga los otros gastos de los proyectos Erasmus+ (**Gastos del proyecto**), y puede consultar el presupuesto de cada proyecto (**Erasmus+ > Proyectos**).
 
 **Rol necesario:** Secretaría.
 
 ---
 
-## Registrar un gasto
+## Registrar un servicio pagado por el centro
 
-1. Ve a **Erasmus+ > Gestión económica > Gastos** y haz clic en **Nuevo**.
+Cuando te llega la factura del vuelo, el alojamiento o el curso de alguien, regístrala tú: su importe se descuenta de la beca de la persona para quien es, para que no cobre dos veces.
+
+1. Ve a **Erasmus+ > Gestión económica > Servicios pagados por el centro** y haz clic en **Nuevo**.
+2. Rellena el **número de factura**, el **proveedor**, el **concepto**, el **importe** y el **proyecto**, y adjunta la factura.
+3. Responde **Para quién es**: *Participantes* (elígelos; el importe se reparte a partes iguales entre ellos) o *Una movilidad de grupo* (elígela; el importe se reparte entre sus participantes a través del dinero de bolsillo). Mientras no hay nadie elegido, un aviso sugiere registrarla como gasto del proyecto: hazlo solo si no es de nadie.
+4. Guárdala y págala como cualquier pago de beca (consulta más abajo). No puedes borrarla: si es un error, díselo a la coordinación Erasmus. Su historial, en la parte de abajo de la ficha, muestra cada cambio, como una transferencia deshecha con el motivo.
+
+## Registrar un gasto del proyecto
+
+1. Ve a **Erasmus+ > Gestión económica > Gastos del proyecto** y haz clic en **Nuevo**.
 2. Rellena el **proyecto**, el **concepto** (p. ej. *Comida de trabajo con la empresa de acogida*), la **categoría** (*Apoyo organizativo* u *Otros gastos del proyecto*; si no lo tienes claro, pregúntalo a la coordinación Erasmus), la **fecha** y el **importe**.
-3. Adjunta la **factura o el justificante**, y el **proveedor** si lo hay. Un gasto sin justificante sale como aviso en el proyecto. Vincular el gasto a una movilidad lo hace la coordinación Erasmus: no puedes abrir las movilidades.
+3. Adjunta la **factura o el justificante**, y el **proveedor** si lo hay. Un gasto sin justificante sale como aviso en el proyecto. Vincular el gasto a una movilidad lo hace la coordinación Erasmus.
 4. Guarda. EMS le da una referencia (DESP-año-número) y te añade una tarea pendiente para pagarlo.
 
 Mientras no está pagado, puedes cambiarlo. Una vez pagado, solo la coordinación Erasmus puede corregirlo, y el motivo queda en su historial. Si la corrige al alza, la diferencia aparece como un gasto nuevo para que lo pagues.
@@ -37,7 +46,7 @@ Cada pago muestra el **IBAN** y el **titular** que ha indicado el participante (
 
 ## Consultar el presupuesto de un proyecto
 
-**Erasmus+ > Gestión económica > Panel económico** muestra la subvención de cada proyecto, lo comprometido, lo pagado y lo disponible. Abre un proyecto para ver su pestaña **Economía**, y usa **Acciones > Descargar la economía (Excel)** para descargar su informe económico (resumen, becas y pagos, gastos, apoyo organizativo y transferencias del SEPIE). Los avisos y el Excel muestran el nombre y la beca de cada participante, porque los pagas, pero no abres las movilidades en sí.
+**Erasmus+ > Proyectos** muestra la subvención de cada proyecto, lo comprometido, lo pagado y lo disponible. Abre un proyecto para ver su pestaña **Economía**, y usa **Acciones > Descargar la economía (Excel)** para descargar su informe económico (resumen, becas y pagos, gastos, apoyo organizativo y transferencias del SEPIE). Los avisos y el Excel muestran el nombre y la beca de cada participante, porque los pagas.
 
 ---
 

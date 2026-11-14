@@ -92,6 +92,14 @@ class EmsAbsencePending(models.Model):
     # Readonly so that Odoo offers no Archive/Unarchive of its own: Discard is the only way, with
     # its checks and its note (issue #707).
     active = fields.Boolean(default=True, readonly=True, help="Archived when the reviewer discards it.")
+    # Issue #818: why the reviewer discarded it, for the reviewers only: the teacher is not told.
+    discard_reason_id = fields.Many2one(
+        string="Discard reason", comodel_name="ems.absence_pending.discard_reason", readonly=True, copy=False,
+        ondelete="restrict", tracking=True,
+        groups="ems.group_head_of_studies,ems.group_academic_admin,base.group_system")
+    discard_details = fields.Text(
+        string="Discard details", readonly=True, copy=False,
+        groups="ems.group_head_of_studies,ems.group_academic_admin,base.group_system")
     # Issue #707: "Prepare justification" prepares the request for the teacher, never files it: only the
     # teacher accepts the responsible declaration and sends it.
     leave_type_id = fields.Many2one(
@@ -439,9 +447,24 @@ class EmsAbsencePending(models.Model):
         return self._ems_review(apply, self._ems_check_correctable if decision == 'correct' else None)
 
     def action_discard(self):
-        """Closed and archived, nothing else: no message, no attendance, no absence."""
+        """The dialog asking why (issue #818), for this entry from its form; the list opens the
+        same dialog for its selection (action_absence_pending_discard)."""
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Discard"),
+            'res_model': 'ems.absence_pending.discard_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_absence_ids': [(6, 0, self.ids)]},
+        }
+
+    def _ems_discard(self, reason, details=False):
+        """Closed and archived with the reviewer's `reason` and `details` (issue #818), nothing
+        else: no message, no attendance, no absence. The reason is the reviewers' own: the
+        teacher is not told (discard_reason_id's groups)."""
         def apply(absences):
-            absences.sudo().write({'state': 'discarded', 'active': False})
+            absences.sudo().write({'state': 'discarded', 'active': False, 'discard_reason_id': reason.id,
+                                   'discard_details': details or False})
             absences._ems_post_review_note(_("Discarded by %(user)s.", user=self.env.user.name))
         return self._ems_review(apply)
 

@@ -93,7 +93,7 @@ class EmsErasmusInvoice(models.Model):
     flights and accommodation). Its amount is split equally among them as provisions of services,
     each share editable afterwards."""
     _name = 'ems.erasmus.invoice'
-    _description = 'Erasmus+ invoice'
+    _description = 'Erasmus+ service paid by the centre'
     _inherit = ['ems.base']
     _order = 'date desc, id desc'
 
@@ -121,6 +121,16 @@ class EmsErasmusInvoice(models.Model):
                                    help="Added by the Secretary when registering the transfer.")
     unassigned_amount = fields.Monetary(string="Not assigned", compute='_compute_unassigned_amount',
                                         help="The invoice's amount minus its shares: zero once fully assigned.")
+    project_label = fields.Char(string="Project shown", compute='_compute_project_label',
+                                help="The invoice's project, or its participants' one; Various when they are of "
+                                     "different projects.")
+
+    @api.depends('project_id', 'mobility_ids.project_id')
+    def _compute_project_label(self):
+        """Issue #810: a participants' invoice usually has no project of its own; the list shows theirs."""
+        for invoice in self:
+            projects = invoice.project_id | invoice.mobility_ids.project_id
+            invoice.project_label = _("Various") if len(projects) > 1 else projects.display_name
 
     @api.depends('amount', 'provision_ids.amount')
     def _compute_unassigned_amount(self):
@@ -162,10 +172,11 @@ class EmsErasmusInvoice(models.Model):
     def _ems_split(self):
         """One equal share per participant, the cents left over on the first one: a change of
         the amount or the participants splits it again from scratch."""
-        for invoice in self:
+        # As superuser: the shares follow the invoice, whoever enters it (the Secretary too, issue #791).
+        for invoice in self.sudo():
             invoice.provision_ids.unlink()
             mobilities = invoice.mobility_ids
-            self.env['ems.erasmus.provision'].create([{
+            self.env['ems.erasmus.provision'].sudo().create([{
                 'invoice_id': invoice.id, 'mobility_id': mobility.id, 'concept': invoice.concept,
                 'description': invoice._ems_share_description(), 'amount': share,
             } for mobility, share in zip(mobilities, split_amount(invoice.amount, len(mobilities), invoice.currency_id))])

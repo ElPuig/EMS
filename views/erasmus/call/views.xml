@@ -6,15 +6,17 @@
             <field name="name">ems.erasmus.call.list</field>
             <field name="model">ems.erasmus.call</field>
             <field name="arch" type="xml">
-                <list string="Calls" decoration-muted="state == 'closed'">
+                <list string="Calls" decoration-muted="phase == 'finished'">
                     <field name="name"/>
                     <field name="audience"/>
                     <field name="course_id" string="Course of the call" optional="show"/>
                     <field name="date_open" string="Opens" options="{'show_time': False, 'show_seconds': False}"/>
                     <field name="date_close" string="Closes" options="{'show_time': False, 'show_seconds': False}"/>
                     <field name="application_count" string="Applications"/>
-                    <field name="state" widget="badge" decoration-info="state == 'draft'"
-                           decoration-success="state == 'published'"/>
+                    <field name="state" column_invisible="1"/>
+                    <field name="phase" widget="badge" decoration-info="phase == 'draft'"
+                           decoration-success="phase == 'published'"
+                           decoration-warning="phase in ('scoring', 'resolution', 'offers')"/>
                 </list>
             </field>
         </record>
@@ -39,7 +41,8 @@
                             <button name="action_back_to_draft" type="object" string="Back to draft"
                                     invisible="state != 'published'"/>
                             <button name="action_send_to_panel" type="object" string="Send plans to the panel"
-                                    invisible="audience != 'staff' or state != 'closed'"
+                                    invisible="audience != 'staff' or phase != 'scoring'"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"
                                     help="Asks every panel member to rate the mobility plan of every admitted application."/>
                             <!-- Audit D-13: the ties left after every tie-break, drawn by EMS and kept. -->
                             <button name="action_draw_ties" type="object" string="Draw the ties"
@@ -62,7 +65,8 @@
                                     groups="ems.group_erasmus,ems.group_academic_admin"
                                     help="The selected who accepted their place choose their destination on the portal, by turns in rank order."/>
                         </div>
-                        <field name="state" widget="statusbar"/>
+                        <field name="state" invisible="1"/>
+                        <field name="phase" widget="statusbar"/>
                     </header>
                     <sheet>
                         <!-- The issue-#682 review: each button only in its phase, the latest phase first, so
@@ -72,7 +76,9 @@
                                 <field name="application_count" widget="statinfo" string="Applications"/>
                             </button>
                             <button name="action_view_mobilities" type="object" class="oe_stat_button" icon="fa-plane"
-                                    string="Mobilities" invisible="not has_final_resolution"/>
+                                    invisible="not has_final_resolution">
+                                <field name="mobility_count" widget="statinfo" string="Mobilities"/>
+                            </button>
                             <button name="action_view_offers" type="object" class="oe_stat_button" icon="fa-envelope-open-o"
                                     invisible="not has_final_resolution"
                                     groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
@@ -82,19 +88,30 @@
                                 </div>
                             </button>
                             <button name="action_view_claims" type="object" class="oe_stat_button" icon="fa-exclamation-circle"
-                                    string="Claims" invisible="not has_provisional_resolution"
-                                    groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+                                    invisible="not has_provisional_resolution"
+                                    groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
+                                <field name="claim_count" widget="statinfo" string="Claims"/>
+                            </button>
                             <button name="action_view_resolutions" type="object" class="oe_stat_button" icon="fa-gavel"
-                                    string="Resolutions" invisible="state != 'closed'"
-                                    groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+                                    invisible="state != 'closed'"
+                                    groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
+                                <field name="resolution_count" widget="statinfo" string="Resolutions"/>
+                            </button>
+                            <!-- Issue #784 (2.7): the ranking stays on hand after the definitive resolution too. -->
                             <button name="action_view_ranking" type="object" class="oe_stat_button" icon="fa-trophy"
-                                    string="Ranking" invisible="state != 'closed' or has_final_resolution"/>
+                                    invisible="state != 'closed'">
+                                <field name="ranked_count" widget="statinfo" string="Ranking"/>
+                            </button>
                             <button name="action_view_interviews" type="object" class="oe_stat_button" icon="fa-comments"
-                                    string="Interviews" invisible="audience != 'student' or state != 'closed' or has_final_resolution"
-                                    groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    invisible="audience != 'student' or state != 'closed' or has_final_resolution"
+                                    groups="ems.group_erasmus,ems.group_academic_admin">
+                                <field name="interview_count" widget="statinfo" string="Interviews"/>
+                            </button>
                             <button name="action_view_plan_ratings" type="object" class="oe_stat_button" icon="fa-star-half-o"
-                                    string="Plan ratings" invisible="audience != 'staff' or state != 'closed' or has_final_resolution"
-                                    groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    invisible="audience != 'staff' or state != 'closed' or has_final_resolution"
+                                    groups="ems.group_erasmus,ems.group_academic_admin">
+                                <field name="plan_rating_count" widget="statinfo" string="Plan ratings"/>
+                            </button>
                         </div>
                         <field name="has_final_resolution" invisible="1"/>
                         <field name="has_provisional_resolution" invisible="1"/>
@@ -210,7 +227,8 @@
                                     </page>
                                     <page string="Information for applicants" name="description">
                                         <!-- Issue #774: the code view, to paste a prepared card's HTML. -->
-                                        <field name="description" widget="ems_html_codeview"/>
+                                        <field name="description" widget="ems_html_codeview"
+                                               placeholder="Shown on the portal before applying: who can apply, destinations, dates and what to prepare..."/>
                                     </page>
                                     <!-- Issue #686: who rates the staff's mobility plans. -->
                                     <!-- Issue #767: only used once closed ("Send plans to the panel"). -->
@@ -267,7 +285,8 @@
                                 <notebook>
                                     <!-- Issue #687: mobility preparation. -->
                                     <page string="Destinations" name="destinations" invisible="audience != 'student'">
-                                        <group>
+                                        <!-- C23: Odoo's own o_label_nowrap, or the second line of a label went under the table. -->
+                                        <group class="o_label_nowrap">
                                             <field name="choice_turn_hours"/>
                                             <field name="choice_open"/>
                                         </group>

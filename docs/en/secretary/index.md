@@ -18,6 +18,7 @@ This section contains the manuals for **secretariat staff**.
 - [A Student's Weekly Schedule](../admin/student-schedule.md) — Viewing a student's own timetable (subjects, teachers, classrooms, breaks), including overlapping classes, and exporting it to PDF.
 - [Attendance Reports](attendance-reports.md) — Print the 3 PDF attendance reports (by group/student/subject) and explore attendance data with the Attendance analysis pivot/graph screen.
 - [Managing student and family contacts](student-contacts.md) — Contact types and how they change, adding a family contact to a student, and registering bonifications and exemptions.
+- [AMPA members](../tutors/ampa.md) — See which students of the centre are AMPA members and list them (manual shared with the tutors).
 - [Printing student cards](student-card.md) — Print the cards of a group, of a few students or of one as a PDF, what they show and how to print them double-sided.
 - [Authorizations: creating, sending and following up](authorizations.md) — Creating authorization forms, sending them to students during the course and following up the answers.
 - [Convalidations: registering resolutions](convalidations.md) — Registering resolved convalidations in Esfera and closing them so the student receives the resolution and sees the grade.
@@ -31,7 +32,7 @@ This section contains the manuals for **secretariat staff**.
 - [Importing students from Esfera (SAGA)](student-import-esfera.md) — Bulk-refreshing already-enrolled students' data (not to be confused with the GEDAC preinscription import), what gets matched/created, and known dedup limitations.
 - [Updating student data from a CSV file](student-update-csv.md) — A generic, any-format CSV bulk-update for existing students (never creates one), with mappable columns and an optional bank account update.
 - [Approving absences for administrative and services staff](absences.md) — Who approves ASP absences and how it differs from the Head of Studies.
-- [Erasmus+: project expenses and the economic panel](erasmus-economy.md) — Registering and paying the Erasmus+ projects' other expenses, and checking each project's budget.
+- [Erasmus+: services paid by the centre, project expenses and projects](erasmus-economy.md) — Registering the invoices the centre pays for participants, registering and paying the Erasmus+ projects' other expenses, and checking each project's budget.
 
 ## Planned Topics
 

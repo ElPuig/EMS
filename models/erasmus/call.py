@@ -11,6 +11,8 @@ from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools.safe_eval import safe_eval
 from odoo.tools.sql import column_exists
 
+from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
+
 from .application import RANKED_STATES, SUBMITTED_STATES
 from .default_data import translate_default_lines, translate_default_value
 from .offer import HOLDING_STATES
@@ -58,6 +60,14 @@ class EmsErasmusCall(models.Model):
                                      "project afterwards.")
     state = fields.Selection(string="State", required=True, default='draft', tracking=True, copy=False,
                              selection=[('draft', "Draft"), ('published', "Published"), ('closed', "Closed")])
+    # C23 (adriamt, 2026-11-13): the last phase only means no offer waits for an answer (students may
+    # still be choosing their destination), so it says "Places assigned", not "Finished".
+    # Issue #785 (2.8): "Closed" only meant the applications; the status bar shows the real phases of a
+    # closed call from its published resolutions and its offers waiting for an answer.
+    phase = fields.Selection(string="Phase", compute='_compute_phase', store=True,
+                             selection=[('draft', "Draft"), ('published', "Published"), ('scoring', "Scoring"),
+                                        ('resolution', "Resolution"), ('offers', "Offers"),
+                                        ('finished', "Places assigned")])
     date_open = fields.Datetime(string="Applications open", required=True, tracking=True)
     date_close = fields.Datetime(string="Applications close", required=True, tracking=True)
     subsanation_deadline = fields.Datetime(string="Corrections deadline", tracking=True, copy=False,
@@ -153,6 +163,12 @@ class EmsErasmusCall(models.Model):
     has_provisional_resolution = fields.Boolean(string="Provisional resolution published",
                                                 compute='_compute_has_final_resolution')
     application_count = fields.Integer(string="Number of applications", compute='_compute_application_count')
+    mobility_count = fields.Integer(string="Number of mobilities", compute='_compute_step_counts')
+    claim_count = fields.Integer(string="Number of claims", compute='_compute_step_counts')
+    resolution_count = fields.Integer(string="Number of resolutions", compute='_compute_step_counts')
+    ranked_count = fields.Integer(string="Number ranked", compute='_compute_step_counts')
+    interview_count = fields.Integer(string="Number of interviews", compute='_compute_step_counts')
+    plan_rating_count = fields.Integer(string="Number of plan ratings", compute='_compute_step_counts')
     is_accepting = fields.Boolean(string="Accepting applications", compute='_compute_is_accepting',
                                   help="Published, and the closing date has not passed yet.")
     # The notice of the open call to whoever can apply, sent by the Erasmus team, and the reminder
@@ -176,12 +192,45 @@ class EmsErasmusCall(models.Model):
         for call in self:
             call.application_count = counts.get(call, 0)
 
+    def _compute_step_counts(self):
+        """Issue #784 (2.7): a number on every button of the call's form. Only counts, so read as
+        superuser: each button's own list still applies the reader's rights."""
+        counts = {}
+        for name, model, call_field, extra in (
+                ('mobility_count', 'ems.erasmus.mobility', 'call_id', []),
+                ('claim_count', 'ems.erasmus.claim', 'call_id', []),
+                ('resolution_count', 'ems.erasmus.resolution', 'call_id', []),
+                ('ranked_count', 'ems.erasmus.application', 'call_id', [('state', 'in', RANKED_STATES)]),
+                ('interview_count', 'ems.erasmus.interview', 'application_id.call_id', []),
+                ('plan_rating_count', 'ems.erasmus.plan_rating', 'application_id.call_id', [])):
+            by_call = Counter()
+            for record, count in self.env[model].sudo()._read_group(
+                    [(call_field, 'in', self.ids), *extra], [call_field.split('.')[0]], ['__count']):
+                by_call[record.call_id if '.' in call_field else record] += count
+            counts[name] = by_call
+        for call in self:
+            for name, by_call in counts.items():
+                call[name] = by_call.get(call._origin, 0)
+
     @api.depends('application_ids.needs_draw')
     def _compute_needs_draw(self):
         tied = {call for call, in self.env['ems.erasmus.application'].sudo()._read_group(
             [('call_id', 'in', self.ids), ('needs_draw', '=', True)], ['call_id'])}
         for call in self:
             call.needs_draw = call in tied
+
+    @api.depends('state', 'resolution_ids.state', 'resolution_ids.kind', 'offer_ids.state')
+    def _compute_phase(self):
+        for call in self:
+            if call.state != 'closed':
+                call.phase = call.state
+                continue
+            kinds = call._ems_published_resolutions().mapped('kind')
+            if 'definitive' in kinds:
+                pending = call.offer_ids.filtered(lambda offer: offer.state == 'pending')
+                call.phase = 'offers' if pending else 'finished'
+            else:
+                call.phase = 'resolution' if 'provisional' in kinds else 'scoring'
 
     @api.depends('resolution_ids.state', 'resolution_ids.kind')
     def _compute_has_final_resolution(self):
@@ -568,10 +617,9 @@ class EmsErasmusCall(models.Model):
     @api.model
     def _ems_preparation_tasks(self, audience):
         if audience == 'staff':
-            # Issue #780: the same name as the students' step; sharing it is up to them (art. 15).
-            names = [('preparation', _("Preparation sessions")),
-                     ('preparation', _("Activities left for your groups")),
-                     ('return', _("News item on the centre's website, following the Erasmus+ visual identity")),
+            # Issue #783: no preparation step; teachers have no preparation sessions, and the activities
+            # left for their groups go on Moodle, outside EMS. Sharing it is up to them (art. 15).
+            names = [('return', _("News item on the centre's website, following the Erasmus+ visual identity")),
                      ('return', _("Share it at a department or cycles meeting, if it is considered necessary"),
                       {'requirement': 'optional'})]
         else:
@@ -602,6 +650,9 @@ class EmsErasmusCall(models.Model):
             call.write(deadlines)
         if 'interview_deadline' in vals or any('interview_deadline' in deadlines for deadlines in following.values()):
             self._ems_move_evaluation_activities()
+        if {'preparation_document_ids', 'task_ids'} & set(vals):
+            # Issue #788 (5.17): the mobilities still going on get the documents and steps added on saving.
+            self.sudo().mobility_ids._ems_sync_open_requirements()
         return result
 
     def _ems_move_evaluation_activities(self):
@@ -667,6 +718,9 @@ class EmsErasmusCall(models.Model):
         for call in self:
             if call.audience != 'staff' or call.state != 'closed':
                 raise UserError(_("Only a closed staff call sends the mobility plans to the panel."))
+            # Issue #786 (6.8): the scores are frozen in the provisional resolution, so only before it.
+            if call.has_provisional_resolution:
+                raise UserError(_("The mobility plans go to the panel before the provisional resolution."))
             if not call.panel_ids:
                 raise UserError(_("Add the panel members first."))
             if not call.interview_deadline:
@@ -1007,10 +1061,7 @@ class EmsErasmusCall(models.Model):
     @api.model
     def _ems_local_format(self, value):
         """A stored (UTC) datetime as the centre reads it, for the emails."""
-        if not value:
-            return ''
-        return self.env['ems.datetime_utils'].utc_datetime_to_local(value.replace(tzinfo=UTC)).strftime(
-            '%d/%m/%Y %H:%M')
+        return self.env['ems.datetime_utils'].format_local_datetime(value)
 
     def _ems_staff_can_apply(self, employee):
         """Art. 6 of the staff call: the teachers of a group of its levels and the Direction that
@@ -1261,6 +1312,19 @@ class EmsErasmusCallDocument(models.Model):
                 for name in ('file_category', 'confidential'):
                     self.env.add_to_compute(Line._fields[name], lines)
         return result
+
+    def unlink(self):
+        """Taking a document off a call or a group mobility also removes its empty lines in every
+        application and mobility. One somebody already handed in (or the team validated) blocks it
+        with a clear message instead of the database error: what is handed in is never deleted."""
+        lines = self.env['ems.erasmus.application.document'].sudo().search([('call_document_id', 'in', self.ids)])
+        if not self.env.context.get(MODULE_UNINSTALL_FLAG):
+            if held := lines._ems_evidence().call_document_id:
+                raise UserError(_("These documents can't be removed because someone already handed them in, and "
+                                  "what is handed in is always kept: %(documents)s. If one is no longer needed, make "
+                                  "it Optional instead.", documents=", ".join(held.mapped('name'))))
+            lines.unlink()
+        return super().unlink()
 
 
 class EmsErasmusCallAnnounce(models.TransientModel):

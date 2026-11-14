@@ -48,6 +48,7 @@ class EmsErasmusResolution(models.Model):
 
     call_id = fields.Many2one(string="Call", comodel_name='ems.erasmus.call', required=True, ondelete='restrict',
                               index=True)
+    call_audience = fields.Selection(string="Applicants", related='call_id.audience')
     kind = fields.Selection(string="Kind", selection=KINDS, required=True, tracking=True)
     name = fields.Char(string="Name", compute='_compute_name')
     state = fields.Selection(string="State", required=True, default='draft', tracking=True, copy=False,
@@ -109,6 +110,14 @@ class EmsErasmusResolution(models.Model):
             ('Content-Type', 'application/pdf'),
             ('Content-Disposition', content_disposition(f'{self.name}.pdf')),
         ])
+
+    def action_print(self):
+        """Issue #786 (4.5): from the form's Actions, this resolution only (a form's report binding
+        would print every record of its pager)."""
+        self.ensure_one()
+        if not self.env['ems.erasmus.application']._ems_can_manage():
+            raise AccessError(_("Only the Erasmus team prints the published lists."))
+        return self.env.ref('ems.action_report_erasmus_resolution').report_action(self)
 
     def action_prepare(self):
         """Freeze the lines as the applications are now. Can be repeated while it is a draft."""

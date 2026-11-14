@@ -135,9 +135,10 @@
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>
         <record id="rule_erasmus_group_mobility_head_of_studies" model="ir.rule">
-            <field name="name">Erasmus group mobility: all, read only (Head of Studies)</field>
+            <field name="name">Erasmus group mobility: all, read only (Head of Studies, Secretary)</field>
             <field name="model_id" ref="ems.model_ems_erasmus_group_mobility"/>
-            <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+            <!-- Issue #791 (11.11): the Secretary reads them to say whom a service paid by the centre is for. -->
+            <field name="groups" eval="[(4, ref('ems.group_head_of_studies')), (4, ref('ems.group_secretary'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
@@ -512,8 +513,30 @@
             <field name="perm_unlink" eval="False"/>
         </record>
         <record id="rule_erasmus_mobility_staff_all" model="ir.rule">
-            <field name="name">Erasmus mobility: all (Erasmus team, Head of Studies)</field>
+            <field name="name">Erasmus mobility: all (Erasmus team, Head of Studies, Secretary)</field>
             <field name="model_id" ref="ems.model_ems_erasmus_mobility"/>
+            <!-- Issue #791 (11.11): the Secretary reads them to say whom a service paid by the centre is for. -->
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies')), (4, ref('ems.group_secretary'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <!-- Issue #787 (8.8): the teacher reads the steps of their own mobility (ticked with a button). -->
+        <record id="rule_erasmus_mobility_task_staff_own" model="ir.rule">
+            <field name="name">Erasmus mobility step: own (staff)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_mobility_task"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+            <field name="domain_force">[('mobility_id.partner_id', '=', user.partner_id.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_mobility_task_staff_all" model="ir.rule">
+            <field name="name">Erasmus mobility step: all (Erasmus team, Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_mobility_task"/>
             <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="True"/>

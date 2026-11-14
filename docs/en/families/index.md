@@ -21,6 +21,7 @@ This section contains the manuals for **families and students**.
 | [Applying for an Erasmus+ internship](manual-erasmus.md) | How to apply for an Erasmus+ internship abroad, follow the application, see the results and accept the place |
 | [Enrolling in an Erasmus+ group mobility](manual-erasmus-grup.md) | How to enrol from the portal with one click, see the result and, if selected, hand in the documents |
 | [Reviewing the contact details](manual-dades-contacte.md) | How to review and complete the contact details of the student and the family on the portal |
+| [Student walkouts](manual-vagues.md) | How a group proposes and votes to support a student walkout, how each student joins it and how the family of a minor ratifies it |
 
 ---
 

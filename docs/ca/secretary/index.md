@@ -18,6 +18,7 @@ Aquesta secció conté els manuals per al **personal de secretaria**.
 - [L'horari setmanal d'un alumne](../admin/student-schedule.md) — Consultar l'horari propi d'un alumne (assignatures, docents, aules, patis), incloent-hi classes solapades, i exportar-lo a PDF.
 - [Informes d'assistència](attendance-reports.md) — Imprimir els 3 informes PDF d'assistència (per grup/alumne/assignatura) i explorar les dades amb la pantalla d'Anàlisi d'assistència.
 - [Gestió de contactes d'alumnat i família](student-contacts.md) — Tipus de contacte i com canvien, afegir un contacte familiar a un alumne, i registrar bonificacions i exempcions.
+- [Socis de l'AMPA](../tutors/ampa.md) — Veure quins alumnes del centre són socis de l'AMPA i fer-ne la llista (manual compartit amb els tutors).
 - [Imprimir els carnets d'estudiant](student-card.md) — Imprimir en PDF els carnets d'un grup, d'uns quants alumnes o d'un de sol, què hi surt i com imprimir-los a doble cara.
 - [Autoritzacions: crear-les, enviar-les i fer-ne el seguiment](authorizations.md) — Crear formularis d'autorització, enviar-los a l'alumnat durant el curs i fer el seguiment de les respostes.
 - [Convalidacions: registrar les resolucions](convalidations.md) — Registrar a l'Esfera les convalidacions ja resoltes i tancar-les perquè l'alumne rebi la resolució i en vegi la nota.
@@ -31,7 +32,7 @@ Aquesta secció conté els manuals per al **personal de secretaria**.
 - [Importar alumnat des d'Esfera (SAGA)](student-import-esfera.md) — Actualitzar massivament les dades de l'alumnat ja matriculat (no confondre amb la importació de preinscripció GEDAC), què es fa coincidir/crea, i les limitacions conegudes de deduplicació.
 - [Actualitzar dades de l'alumnat des d'un CSV](student-update-csv.md) — Actualització massiva genèrica, de qualsevol format CSV, per a alumnat existent (mai en crea), amb columnes mapejables i actualització opcional del compte bancari.
 - [Aprovar les absències del personal PAS](absences.md) — Qui aprova les absències de l'àrea ASP i en què es diferencia de prefectura d'estudis.
-- [Erasmus+: despeses dels projectes i panell econòmic](erasmus-economy.md) — Registrar i pagar les altres despeses dels projectes Erasmus+, i consultar el pressupost de cada projecte.
+- [Erasmus+: serveis pagats pel centre, despeses i projectes](erasmus-economy.md) — Registrar les factures que el centre paga per als participants, registrar i pagar les altres despeses dels projectes Erasmus+, i consultar el pressupost de cada projecte.
 
 ## Temes previstos
 

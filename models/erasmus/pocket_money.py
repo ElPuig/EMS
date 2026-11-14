@@ -29,15 +29,15 @@ class EmsErasmusGroupParticipant(models.Model):
 
     payment_ids = fields.One2many(string="Payments", comodel_name='ems.erasmus.payment',
                                   inverse_name='group_participant_id', groups=f'{PAYERS},ems.group_director')
-    invoice_share = fields.Monetary(string="Share of collective invoices", compute='_compute_pocket',
+    invoice_share = fields.Monetary(string="Paid directly by the centre", compute='_compute_pocket',
                                     groups=POCKET_READERS,
                                     help="The group's collective invoices divided equally among the participants "
                                          "taking part.")
     pocket_amount = fields.Monetary(string="Pocket money", compute='_compute_pocket', groups=POCKET_READERS,
-                                    help="What is transferred to the participant: their grant minus their share of "
-                                         "the collective invoices.")
+                                    help="The pocket money (art. 16 of the call), what is transferred to the "
+                                         "participant: their grant minus their share of the collective invoices.")
     pocket_requested = fields.Monetary(string="Requested", compute='_compute_pocket', groups=POCKET_READERS)
-    pocket_paid = fields.Monetary(string="Paid", compute='_compute_pocket', groups=POCKET_READERS)
+    pocket_paid = fields.Monetary(string="Transferred", compute='_compute_pocket', groups=POCKET_READERS)
     pocket_state = fields.Selection(string="Pocket money state", selection=POCKET_STATES, compute='_compute_pocket',
                                     groups=POCKET_READERS)
     bank_account = fields.Char(string="IBAN", groups=PAYERS, tracking=True,
@@ -122,6 +122,54 @@ class EmsErasmusGroupMobility(models.Model):
     no_direct_costs = fields.Boolean(string="The centre pays nothing directly", tracking=True,
                                      help="No collective invoice: each participant receives their whole grant as "
                                           "pocket money.")
+    # Issue #784 (9.15): the same choice asked in positive, as the team reads it on the form.
+    travel_paid_by = fields.Selection(
+        string="Who pays the travel and accommodation", compute='_compute_travel_paid_by',
+        inverse='_inverse_travel_paid_by',
+        selection=[('centre', "The centre"), ('participant', "Each participant")],
+        help="Each participant: no collective invoice, everyone receives their whole grant as pocket money.")
+
+    # Issue #790 (11.10): the group's pocket money, in the order of the individual mobility's grant.
+    pocket_total = fields.Monetary(string="To transfer", compute='_compute_pocket_totals', groups=POCKET_READERS,
+                                   help="The pocket money of the participants taking part: their grants minus what the "
+                                        "centre pays directly.")
+    pocket_paid_total = fields.Monetary(string="Transferred", compute='_compute_pocket_totals', groups=POCKET_READERS)
+    pocket_pending_total = fields.Monetary(string="Pending transfer", compute='_compute_pocket_totals',
+                                           groups=POCKET_READERS)
+
+    # Issue #787 (9.17, 9.16): what the team must not miss before paying, on top of the form.
+    grant_missing = fields.Char(string="Participants without a grant", compute='_compute_pocket_warnings',
+                                groups=ECONOMY_READERS)
+    pocket_negative = fields.Char(string="Participants with negative pocket money",
+                                  compute='_compute_pocket_warnings', groups=ECONOMY_READERS)
+
+    @api.depends('participant_ids.state', 'participant_ids.grant_amount', 'invoice_ids.amount',
+                 'participant_ids.payment_ids.amount', 'participant_ids.payment_ids.state')
+    def _compute_pocket_totals(self):
+        for mobility in self:
+            active = mobility.sudo().participant_ids.filtered(lambda participant: participant.state == 'active')
+            mobility.pocket_total = sum(active.mapped('pocket_amount'))
+            mobility.pocket_paid_total = sum(active.mapped('pocket_paid'))
+            mobility.pocket_pending_total = max(mobility.pocket_total - mobility.pocket_paid_total, 0.0)
+
+    @api.depends('participant_ids.state', 'participant_ids.grant_amount', 'invoice_ids.amount')
+    def _compute_pocket_warnings(self):
+        for mobility in self:
+            active = mobility.sudo().participant_ids.filtered(lambda participant: participant.state == 'active')
+            mobility.grant_missing = ", ".join(active.filtered(
+                lambda participant: not participant.grant_amount).partner_id.mapped('name'))
+            mobility.pocket_negative = ", ".join(active.filtered(
+                lambda participant: participant.currency_id.compare_amounts(participant.pocket_amount, 0) < 0
+            ).partner_id.mapped('name'))
+
+    @api.depends('no_direct_costs')
+    def _compute_travel_paid_by(self):
+        for mobility in self:
+            mobility.travel_paid_by = 'participant' if mobility.no_direct_costs else 'centre'
+
+    def _inverse_travel_paid_by(self):
+        for mobility in self:
+            mobility.no_direct_costs = mobility.travel_paid_by == 'participant'
 
     @api.constrains('prefinancing_percent')
     def _check_prefinancing_percent(self):
@@ -132,11 +180,12 @@ class EmsErasmusGroupMobility(models.Model):
         for mobility in self:
             if mobility.no_direct_costs and mobility.sudo().invoice_ids:
                 raise ValidationError(_("The centre pays nothing directly in %s: it cannot have collective invoices. "
-                                        "Remove them, or uncheck the option.", mobility.name))
+                                        "Remove them, or choose that the centre pays the travel and "
+                                        "accommodation.", mobility.name))
 
-    @api.onchange('no_direct_costs')
+    @api.onchange('no_direct_costs', 'travel_paid_by')
     def _onchange_no_direct_costs(self):
-        if self.no_direct_costs and self.invoice_ids:
+        if self.travel_paid_by == 'participant' and self.invoice_ids:
             return {'warning': {'title': _("Collective invoices"), 'message': _(
                 "This group mobility has collective invoices: remove them first, the centre pays nothing directly.")}}
 

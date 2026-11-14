@@ -354,7 +354,7 @@ class TestErasmusGroupMobilityEndToEnd(TransactionCase):
         self.assertFalse(hugo._ems_portal_claimable(), "The claims deadline has passed.")
         with self.assertRaises(UserError, msg="hugo's claim is not answered yet."):
             self._as(self.coordinator).action_approve_selection()
-        claim.with_user(self.technician).write({'response': "Upheld: your average is 8.5 with module 3."})
+        claim.with_user(self.technician).write({'response': "Your average is 8.5 with module 3.", 'outcome': 'upheld'})
         claim.with_user(self.technician).action_resolve()
         self.assertFalse(claim.activity_ids)
         self.assertIn('8.5', self._mails_to('hugo@example.com').filtered(

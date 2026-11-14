@@ -306,11 +306,11 @@ registry.category("web_tour.tours").add("ems_attendance_justification_strike", {
         {
             trigger: ".o_form_view .o_field_widget[name='reason_id'] input",
             content: "Search for the reason",
-            run: "edit Labour strike",
+            run: "edit Student walkout",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item:contains('Labour strike')",
-            content: "Pick Labour strike",
+            trigger: ".o-autocomplete--dropdown-item:contains('Student walkout')",
+            content: "Pick Student walkout",
             run: "click",
         },
         {

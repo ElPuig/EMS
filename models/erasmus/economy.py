@@ -203,7 +203,7 @@ class EmsErasmusGroupMobility(models.Model):
     _name = 'ems.erasmus.group.mobility'
     _inherit = ['ems.erasmus.group.mobility', 'ems.erasmus.economy']
 
-    grant_amount = fields.Monetary(string="Grants of the participants", compute='_compute_grant_amount', store=True,
+    grant_amount = fields.Monetary(string="Grants", compute='_compute_grant_amount', store=True,
                                    groups=ECONOMY_READERS,
                                    help="The sum of the grants of the participants taking part, students and "
                                         "accompanying teachers.")
@@ -249,11 +249,6 @@ class EmsErasmusProject(models.Model):
                                  inverse_name='project_id', groups=ECONOMY_READERS)
     expense_ids = fields.One2many(string="Expenses", comodel_name='ems.erasmus.expense', inverse_name='project_id',
                                   groups=ECONOMY_READERS)
-    economy_document_ids = fields.One2many(
-        string="Grant agreement and economic documents", comodel_name='ems.erasmus.project.document',
-        inverse_name='project_id', domain=[('category', '=', '03_Economia')], groups=ECONOMY_READERS,
-        help="The grant agreement, its annexes and amendments, budget follow-up... They are the project's documents "
-             "of category 03 Finances, also in its export.")
     final_grant = fields.Monetary(string="Final grant", tracking=True, groups=ECONOMY_READERS,
                                   help="What SEPIE finally recognised after the final report.")
     grant_current = fields.Monetary(string="Current grant", compute='_compute_economy', store=True,
@@ -270,8 +265,11 @@ class EmsErasmusProject(models.Model):
                                        groups=ECONOMY_READERS,
                                        help="The confirmed mobilities' grants plus the project's other expenses.")
     paid_amount = fields.Monetary(string="Paid", compute='_compute_economy', store=True, groups=ECONOMY_READERS)
-    pending_amount = fields.Monetary(string="Pending payment", compute='_compute_economy', store=True,
-                                     groups=ECONOMY_READERS, help="Committed and not paid yet.")
+    pending_amount = fields.Monetary(
+        string="Committed, not paid yet", compute='_compute_economy', store=True, groups=ECONOMY_READERS,
+        help="Everything committed and not paid yet, whether or not its payment has been requested: the grants "
+             "of the confirmed mobilities and the other expenses. The warning about payments to make counts only "
+             "the payments already requested.")
     available_amount = fields.Monetary(string="Available", compute='_compute_economy', store=True,
                                        groups=ECONOMY_READERS,
                                        help="The current grant minus what is committed. It is not the money received: "
@@ -302,10 +300,19 @@ class EmsErasmusProject(models.Model):
     legacy_paid = fields.Monetary(string="Paid before EMS", groups=ECONOMY_READERS)
     legacy_support_generated = fields.Monetary(string="Organisational support generated before EMS",
                                                groups=ECONOMY_READERS)
+    # C34 (adriamt, 2026-11-13): the tab lists the same invoices the figures count, its participants'
+    # and its groups' too; their own project stays empty (one invoice can cover two projects).
+    all_invoice_ids = fields.Many2many(string="Services paid by the centre", comodel_name='ems.erasmus.invoice',
+                                       compute='_compute_all_invoice_ids', groups=ECONOMY_READERS)
     can_manage_economy = fields.Boolean(compute='_compute_can_manage_economy')
     economy_warnings = fields.Html(string="Warnings", compute='_compute_economy_warnings', groups=ECONOMY_READERS)
     economy_warning_count = fields.Integer(string="Number of warnings", compute='_compute_economy_warnings',
                                            groups=ECONOMY_READERS)
+
+    @api.depends('invoice_ids', 'mobility_ids.provision_ids.invoice_id', 'group_mobility_ids.invoice_ids')
+    def _compute_all_invoice_ids(self):
+        for project in self:
+            project.all_invoice_ids = project._ems_invoices()
 
     @api.depends_context('uid')
     def _compute_can_manage_economy(self):
@@ -439,7 +446,10 @@ class EmsErasmusProject(models.Model):
         project = self.sudo()
         warnings = []
         money = lambda amount: formatLang(self.env, amount, currency_obj=project.currency_id)
-        if project.committed_amount > project.grant_current:
+        # Issue #787 (10.6): with no grant entered, say what is missing instead of an alarming figure.
+        if not project.grant_current:
+            warnings.append(_("The grant awarded is missing: enter it on the project (Grant awarded)."))
+        elif project.committed_amount > project.grant_current:
             warnings.append(_("What is committed (%(committed)s) is above the current grant (%(grant)s) by %(over)s.",
                               committed=money(project.committed_amount), grant=money(project.grant_current),
                               over=money(project.committed_amount - project.grant_current)))
@@ -453,8 +463,8 @@ class EmsErasmusProject(models.Model):
         if count := len(pending_payments) + len(pending_invoices) + len(pending_expenses):
             amount = sum(pending_payments.mapped('amount')) + sum(pending_invoices.mapped('amount')) \
                 + sum(pending_expenses.mapped('amount'))
-            warnings.append(_("%(count)s payments to make (%(amount)s): grant payments, invoices and expenses still "
-                              "to transfer.", count=count, amount=money(amount)))
+            warnings.append(_("%(count)s requested payments still to make (%(amount)s): grant payments, invoices "
+                              "and expenses still to transfer.", count=count, amount=money(amount)))
         if corrected := project.expense_ids.filtered('corrected'):
             warnings.append(_("Expenses changed after being paid (see their history): %s.",
                               ", ".join(corrected.mapped('name'))))
@@ -475,7 +485,14 @@ class EmsErasmusProject(models.Model):
         for group in project.group_mobility_ids.filtered(lambda group: group.state == 'cancelled' and group.econ_paid):
             warnings.append(_("The group mobility %(name)s is cancelled with %(paid)s paid.", name=group.name,
                               paid=money(group.econ_paid)))
-        missing = [line for line in project._ems_support_lines() if line.get('missing')]
+        lines = project._ems_support_lines()
+        # Issue #787 (10.6): no rate at all for the year is one line saying where to add them, not one per person.
+        if lines and project.call_year and not self.env['ems.erasmus.support.rate'].sudo().search_count(
+                [('call_year', '=', project.call_year), ('kind', '=', project.kind)], limit=1):
+            warnings.append(_("The organisational support rates of %s are missing (Configuration > Organisational "
+                              "support rates).", project.call_year))
+            lines = []
+        missing = [line for line in lines if line.get('missing')]
         if missing:
             warnings.append(_("Not enough information to compute the organisational support of %(count)s "
                               "participants (e.g. %(name)s: %(reason)s).", count=len(missing),
@@ -596,8 +613,9 @@ class EmsErasmusSupportRate(models.Model):
     kind = fields.Selection(string="Action", selection=PROJECTS, required=True)
     mobility_type = fields.Selection(string="Mobility", selection=SUPPORT_TYPES, required=True,
                                      default='student_short')
+    # Issue #788 (13.9): it only depends on the action, so EMS sets it.
     band_scope = fields.Selection(string="Count the participants of", selection=BAND_SCOPES, required=True,
-                                  default='same',
+                                  compute='_compute_band_scope', store=True, readonly=False, precompute=True,
                                   help="For the band: the participant's position among those of the same kind of "
                                        "mobility (KA121-VET), or among every participant of the project, students "
                                        "and staff together (KA131-HED).")
@@ -611,6 +629,11 @@ class EmsErasmusSupportRate(models.Model):
     # Issue #782 (13.8): the list is grouped by year, and a sum of rates or positions means nothing.
     amount = fields.Monetary(string="Amount per participant", required=True, aggregator=None)
     note = fields.Char(string="Conditions", help="Other eligibility conditions of the funding rules, as a reminder.")
+
+    @api.depends('kind')
+    def _compute_band_scope(self):
+        for rate in self:
+            rate.band_scope = 'project' if rate.kind == 'ka131_hed' else 'same'
 
     @api.constrains('call_year', 'kind', 'mobility_type', 'band_from', 'band_to')
     def _check_bands(self):

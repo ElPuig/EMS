@@ -7,7 +7,7 @@ from odoo.tests.common import TransactionCase, tagged
 from .common import create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email
 from .test_erasmus import PDF
 
-# Per teacher: (panel rating relevance/transfer, last staff mobility, merits, declared language,
+# Per teacher: (panel rating concreteness/relevance, last staff mobility, merits, declared language,
 # centre start). Every panel member who rates gives the same rating. Totals (art. 11 of the staff
 # call): 1. plan + 2. last mobility + 3. projects + 4. languages + 5. seniority + 6. internationalisation.
 NEVER, OLDER, TWO_COURSES, RECENT = 'never', 'older', 'two_courses', 'recent'
@@ -25,8 +25,7 @@ TEACHERS = {
     'fix': (('0.5', '0.5'), RECENT, (), 'none', 'y0'),                      # 1, after correcting the CV
 }
 PLAN = {'proposal_a': 'E2E proposal A: job shadowing at a VET school in Porto, in June',
-        'proposal_b': 'E2E proposal B: an English course in Malta, in July',
-        'plan_text': 'E2E plan: what to learn and how to apply it'}
+        'proposal_b': 'E2E proposal B: an English course in Malta, in July'}
 
 
 @tagged('post_install', '-at_install')
@@ -113,12 +112,12 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
     def _team(self, application):
         return application.with_user(self.technician)
 
-    def _rate(self, application, relevance, transfer):
+    def _rate(self, application, concreteness, relevance):
         """Each panel member rates from *My plan ratings*, as themselves."""
         ratings = application.sudo().plan_rating_ids.filtered(lambda rating: not rating.abstention_reason)
         for rating in ratings:
             mine = rating.with_user(rating.evaluator_id)
-            mine.write({'relevance': relevance, 'transfer': transfer})
+            mine.write({'concreteness': concreteness, 'relevance': relevance})
             mine.action_submit()
 
     def _resolution(self, kind, **vals):
@@ -180,7 +179,7 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         # 3. Applying: the mobility plan, the last mobility and the seniority are needed to submit.
         apps = {name: self._apply(name) for name in TEACHERS if name != 'fix'}
         incomplete = self.env['ems.erasmus.application']._ems_portal_get_or_create(call, self.users['no_fix'].partner_id)
-        incomplete._ems_portal_save({**PLAN, 'plan_text': False}, {self.certificate.id: [('c.pdf', PDF)]})
+        incomplete._ems_portal_save({**PLAN, 'proposal_b': False}, {self.certificate.id: [('c.pdf', PDF)]})
         with self.assertRaises(UserError, msg="No seniority, no plan."):
             incomplete.action_submit()
         apps['no_fix'] = self._apply('no_fix')
@@ -226,7 +225,7 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         self.assertNotIn(self.users['chief'], ratings.evaluator_id)
         mine = self.env['ems.erasmus.plan_rating'].with_user(self.chief_a).search([])
         self.assertEqual(len(mine), 10, "A panel member sees their own ratings only.")
-        self.assertEqual(mine[:1].plan_text, PLAN['plan_text'])
+        self.assertEqual(mine[:1].plan_proposal_b, PLAN['proposal_b'])
         with self.assertRaises(AccessError, msg="A panel member never opens the application."):
             apps['best'].with_user(self.chief_a).read(['partner_id'])
         with self.assertRaises(AccessError, msg="Nor scores someone else's rating."):
@@ -298,7 +297,7 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         with self.assertRaises(AccessError, msg="The Head of Studies does not answer claims."):
             claim.with_user(self.hos).action_resolve()
         self._team(apps['claim']).language_level = 'c1'
-        claim.response = 'Accepted: C1 certificate counted (criterion 4)'
+        claim.write({'response': 'Accepted: C1 certificate counted (criterion 4)', 'outcome': 'upheld'})
         claim.action_resolve()
         self.assertEqual((apps['claim'].score_total, apps['claim'].rank), (4.5, 3))
 

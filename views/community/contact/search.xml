@@ -20,6 +20,15 @@
                          group too, so it narrows "My students" and the facets above. -->
                     <filter name="without_birth_date" string="Without birth date"
                             domain="[('contact_type', '=', 'student'), ('birth_date', '=', False)]"/>
+                    <!-- AMPA membership (#820). Its own group so it narrows "My students"; the
+                         search itself keeps to the reader's tutor scope. -->
+                    <separator groups="ems.group_tutor,ems.group_secretary"/>
+                    <filter name="ampa_member" string="AMPA member"
+                            domain="[('ems_ampa_member', '=', 'yes')]"
+                            groups="ems.group_tutor,ems.group_secretary"/>
+                    <filter name="ampa_non_member" string="Not an AMPA member"
+                            domain="[('ems_ampa_member', '=', 'no')]"
+                            groups="ems.group_tutor,ems.group_secretary"/>
                     <separator/>
                     <filter name="alumni" string="Alumni" domain="[('contact_type', '=', 'alumni')]"/>
                     <filter name="withdrawals" string="Withdrawals" domain="[('contact_type', '=', 'withdrawal')]"/>

@@ -24,7 +24,9 @@ over, and a panel with the figures. Code: `models/erasmus/satisfaction.py`,
   and Head of Studies of FP).
 - Both counts are **frozen on the call** (`interest_applicant_count`, `interest_target_count`,
   `interest_date`) when its definitive resolution is published (`ems.erasmus.resolution._ems_after_publish`),
-  so later enrolments or leavers never change the history. Before that, `_ems_interest()` counts live.
+  so later enrolments or leavers never change the history. Before that, `_ems_interest()` counts live
+  (when the panel opens); the indicator's hover help says both (C43 of the journey review, issue #793).
+  Satisfaction and the response rate are always counted when the panel opens.
 - Satisfaction counts every participant: individual students and staff, and every active participant
   of a group mobility (students, leader, companions).
 - The **course** of a survey is the call's (or the group mobility's), never the year the stay ends.
@@ -75,27 +77,31 @@ the action's field is a link; otherwise its name and state show without one.
 
 ## Panel
 
-`ems.erasmus.quality.panel` is a transient model whose form is the panel, opened from the *Indicators* menu by `action_open_panel()` (a server action that creates it, so the title is "Quality indicators" and not "New"): filters (course, call,
+`ems.erasmus.quality.panel` is a transient model whose form is the panel, opened from the *Indicators* menu by `action_open_panel()` (a server action that creates it, so the title is "Quality indicators" and not "New", with the company's `current_course_id` as the course, issue #793): filters (course, call,
 project, participant type, cycle, host entity) and four non-stored computed HTML tables, recomputed
 on every filter change (onchange):
 
-- Indicators: value, target, met, n and, for satisfaction, the median; the response rate. Figures are rounded half up to one decimal (81.25 % shows 81.3 %).
+- Indicators (issue #793): *Indicator, Value, Target, Met, Answers*; *Met* is a green or red badge (`_ems_indicator_row`, shared with the PDF); the median only in the breakdown. Rows: the two interests, satisfaction, the response rate and the diffusion actions of the chosen course against `DIFFUSION_TARGET` (10, "≥", a count without decimals; `-` without a course), added by `quality.py`'s `_ems_data()`. Figures are rounded half up to one decimal (81.25 % shows 81.3 %).
 - Satisfaction by participant type and by host entity (average, median, n).
 - Each call's funnel: applications, admitted, with a place, mobilities done, renounced or cancelled,
   in total and by cycle (the study of the applicant's group).
 - Evolution by course of the two indicators.
+
+Under the indicators, `low_note` (*Low scores: N, M without an improvement action*, from the surveys of the
+panel's selection) opens `action_erasmus_satisfaction_low` narrowed to that selection with *Without an
+improvement action* on (`action_open_low_scores`, issue #789, 12.6). Hidden when there is none (`low_count`).
 
 There is no minimum group size: every breakdown shows whatever there is (adriamt, 2026-11-04). The
 interest only follows the course, call and participant type filters (it is a per-call figure); filtered by project, it is that of the calls of the project's mobilities, shared with any other project of the same calls.
 `_ems_data()` returns every figure as plain values, shared by the panel and the PDF. Measured on this dev DB
 (3 calls, no surveys): 0.06 s cold.
 
-## Earlier courses (manual load)
+## Earlier course indicators (manual load)
 
 `ems.erasmus.quality.history`: one row per course before EMS kept the figures (`course_name` as EMS
 names courses, `2022-2023`, since those courses may not exist as `ems.course`), with applicants and
 target (students, staff), the average satisfaction (0-10, other scales converted), n and the
-`source`. The coordinator edits them (Erasmus+ › Quality › Earlier courses); the team reads them.
+`source`. The coordinator edits them (Erasmus+ › Configuration › Earlier course indicators, issue #789: loaded once, a setting rather than quality work); the team reads them.
 The evolution table (`_ems_evolution`) adds each one marked "(manual load)" unless EMS has its own
 figures for that course. The centre's four courses 2022-2023 to 2025-2026 are seeded from
 `data/custom/erasmus/ems.erasmus.quality.history.csv` (frozen once created, like every
@@ -142,7 +148,7 @@ No personal data: only totals, generic audiences and documents that are public a
 | Administrator (`group_academic_admin`) | yes | read, write | yes | yes | yes |
 | Participant | no | own pending survey, on the portal | - | - | - |
 
-Earlier courses: the team reads, the coordinator and the administrator edit. Diffusion actions: the
+Earlier course indicators: the team reads, the coordinator and the administrator edit. Diffusion actions: the
 whole team. The Mobilitat FP evidence: the Erasmus team and the administrator.
 
 The name is shown only to the Erasmus team and the administrator, with field `groups`

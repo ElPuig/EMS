@@ -73,6 +73,8 @@ def post_init_hook(env):
     _seed_declaration_codes(env)
     # The levels that allow convalidations: not part of the catalog, so upgrades keep the centre's choice.
     env['ems.level']._ems_seed_convalidation_levels()
+    # Issue #800: the levels whose groups may call a student walkout, from the law; the centre's from then on.
+    env['ems.level']._ems_seed_walkout_levels()
 
 
 def _seed_declaration_codes(env):

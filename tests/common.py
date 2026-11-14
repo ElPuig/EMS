@@ -12,6 +12,7 @@ import time
 from unittest.mock import patch
 
 import werkzeug.urls
+from lxml import etree
 
 from odoo import fields
 from odoo.tests.common import ChromeBrowser
@@ -1065,3 +1066,10 @@ def ensure_catchall_address(case):
     if not company.catchall_email:
         company.alias_domain_id = case.env['mail.alias.domain'].create({'name': 'tests-ems.example.com'})
     return company.catchall_email
+
+
+def view_arch(env, xmlid):
+    """The arch of the EMS view `xmlid` as the server serves it (inheritance applied, groups stripped for the
+    environment's user), parsed, to assert on its buttons, fields and attributes."""
+    view = env.ref(f'ems.{xmlid}')
+    return etree.fromstring(env[view.model].get_view(view.id)['arch'])

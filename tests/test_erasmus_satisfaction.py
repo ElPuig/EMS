@@ -198,7 +198,7 @@ class TestErasmusQualityPanel(ErasmusSatisfactionCase):
         data = panel._ems_data()
         satisfaction = next(row for row in data['indicators'] if row['target'] == 8.5)
         self.assertEqual((satisfaction['value'], satisfaction['median'], satisfaction['n']), (10, 10, 1))
-        rate = data['indicators'][-1]
+        rate = next(row for row in data['indicators'] if row['name'] == 'Survey response rate')
         self.assertEqual((rate['value'], rate['n']), (50.0, '1 / 2'))
         second._ems_portal_answer(5, what_failed='Too short')
         self.assertEqual(self._panel(call_id=self.call.id)._ems_data()['indicators'][2]['value'], 7.5)

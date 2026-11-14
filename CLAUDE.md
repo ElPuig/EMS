@@ -535,6 +535,7 @@ Key rules applied in this project:
   - Read a field of many records in one batch (`records.mapped('field')` on the whole set, or keep the prefetch with `with_prefetch()` when building recordsets by `browse(ids)`): a read per record is a query per record.
   - Don't recompute the same structure several times in one request: compute it once and pass it down.
   - Measure on this box's real data before handing a screen or RPC over (`odoo shell` + `cProfile`, cold: `env.invalidate_all()` first; or the werkzeug duration column of `/var/log/odoo/odoo-server.log`) and report the numbers. The dev service runs under `debugpy`, which makes Python ~10x slower than production: a number from the service log is not production's, `odoo shell` is closer.
+  - **When there is no data to measure (a table empty on this box, a feature nobody has used yet), analyse the algorithm's cost and estimate (developer, 2026-11-13).** Never write "not measured" and move on, and never leave the number out of the closing note. State the complexity in terms of the quantities that grow (students, groups, lessons, enrolments, rows of a list, recipients of an email), the number of queries per request or per run, and what each one scans (indexed lookup or full scan), then put orders of magnitude on it with the centre's real sizes (count them: `SELECT count(*)` on the tables involved, or the production figures the developer gives). Where the code allows it, build a synthetic fixture in `odoo shell` (rolled back) at the realistic size and measure that instead of reasoning alone. The note says which it is: measured, measured on a synthetic fixture, or estimated from the cost analysis.
 - **Notifying staff: one daily summary per person, at the moment they chose (developer, 2026-10-31, issue #644).** A notice to staff that asks for no action and isn't urgent is never sent on the spot: queue it (`ems.info_notice`) and it goes out in that employee's unified daily summary, together with their pending tasks and, for tutors, their students' attendance issues, at the moment chosen in their profile (start or end of their working day, end of their students' day, a fixed time; start of the working day by default). The summary is sent with `message_notify`, so it honours the user's native "Notification: by email / in Odoo" preference. Something they must act on is an activity (it shows in that same summary's task section), never a loose email. **Schedule it quietly:** a plain `activity_schedule()` also sends Odoo's own "X has been assigned to you" email, so always pass `mail_activity_quick_update` (`record.with_context(mail_activity_quick_update=True).activity_schedule(...)`) or use `mail.thread._ems_sync_user_tasks()`, which already does. Found on 2026-11-05: ten Erasmus+ tasks sent that email because the rule said "an activity" and an ordinary `activity_schedule()` looked compliant. Only a genuinely urgent case goes out immediately (e.g. a guard duty for today), with a comment in the code saying why. Families and students are a different channel and are not affected by this rule. Details: `docs/en/developers/shared/daily_summary.md`.
 - Resulting code must be clean, simple, non-redundant, and well-refactored.
 - **All literals must be translatable:** wrap every user-facing string for translation (`_("...")` in Python, `_t("...")` in JS/OWL) so it can be picked up by the i18n files, with English as the default/source language. Wrapping is only step one — it makes a string *translatable*, it does not translate it. Every new feature must also add the actual Catalan/Spanish entries to `i18n/ca_ES.po` and `i18n/es_ES.po` before it's considered done (see the "Close" step of the Development workflow below). To find what's missing: export current terms with `odoo -d ems --i18n-export=<path>.po -l ca_ES --modules=ems --stop-after-init` (repeat for `es_ES`), diff msgids against the checked-in `.po` files, and append translated blocks for the new ones only (don't regenerate/replace the whole file — order doesn't matter to gettext, and the files may already carry unrelated pre-existing gaps that aren't your task's responsibility). Run as the `odoo` user with a path it can write to (not a sandboxed/restricted directory). Do not insert decorative section-header comments between po entries — a comment block with no following `msgid` breaks Odoo's po parser on load.
@@ -1013,7 +1014,7 @@ Issue items:
 | 1 | Test coverage first: the missing tests for what is about to be touched, written and run on the current code before refactoring |
 | 2 | Refactoring: duplicated logic (server/client and across files), convoluted code, two paths/UIs for the same job, leftovers (methods, labels, translations, comments) |
 | 3 | "Odoo way": every new custom mechanism compared with Odoo/OCA; a built-in ruled out has its reason written in the code or the developer doc |
-| 4 | Efficiency, time: what runs often (screens, RPCs, scheduled jobs, summaries) measured on real data, cold and warm, numbers in the note; filtering in the domain, no search/filtered inside loops |
+| 4 | Efficiency, time: what runs often (screens, RPCs, scheduled jobs, summaries) measured on real data, cold and warm, numbers in the note (no data: cost of the algorithm analysed and estimated, never left unmeasured); filtering in the domain, no search/filtered inside loops |
 | 5 | Efficiency, memory: no whole tables in memory, batch reads, large exports and files streamed, no unbounded caches |
 | 6 | Redundant tests (same path, same assertion) removed or merged |
 | 7 | Permission audit of the touched area, re-run with 0 mismatches |
@@ -1038,7 +1039,7 @@ Release PR items:
 | 2 | Conflicts resolved keeping both sides (`.po` blocks checked, migrations above the last tag) |
 | 3 | Refactoring across branches: what no single branch could see (helpers or methods written twice, renamed differently, name clashes, overlapping tests) |
 | 4 | "Odoo way" over everything integrated, as in the issue table |
-| 5 | Efficiency, time: combined cost of what was integrated (scheduled jobs, daily summary, most used screens), measured, with numbers |
+| 5 | Efficiency, time: combined cost of what was integrated (scheduled jobs, daily summary, most used screens), measured, with numbers (no data: algorithm cost analysed and estimated) |
 | 6 | Efficiency, memory over everything integrated, as in the issue table |
 | 7 | Redundant tests across branches (two branches testing the same thing) |
 | 8 | Permission audit over everything integrated, 0 mismatches |
@@ -1318,6 +1319,13 @@ explicar de forma genérica"*):
 - This is a genuine rewrite, not a mechanical trim - read the full detailed content first (already
   required by the "read every file" step above), then write fresh, short prose that captures what a
   PR reviewer actually needs to know from it.
+- **Group a concept that repeats, one header level down (developer, 2026-11-13).** When several items of
+  a section belong to the same area (twelve Erasmus+ polish branches gave eight headings in a row in
+  `# Changes`), put one `## <Area>:` heading (e.g. `## Erasmus+:`) and make each item a `### ` heading
+  under it, dropping the area's name from the children's titles. It applies per section (`# Changes`,
+  `# Fixes`, `# Internal changes` each get their own group when the area repeats there) and to any area
+  that repeats, not only Erasmus+. Precedent: v18.0.0.46.0's `## Erasmus+:` with its `###` items. Do it
+  every time, without being asked; an area with a single item in a section keeps its plain `##`.
 
 **No manual line wraps within a paragraph/bullet in the final delivered document — each one
 must be a single continuous line in the file** (developer feedback 2026-09-04: *"Este texto de
@@ -1455,6 +1463,28 @@ button per video), linking each Drive file individually (the folder isn't public
 shared by link). The `[DEV]` subject prefix a dev machine adds doesn't matter: the developer
 removes it when forwarding.
 
+**Highlighting the important novelties (developer, 2026-11-13, newsletter núm. 7).** When the
+developer says a novelty is "the plat fort" or "the main one", that is an instruction to *make it
+stand out*, never wording: the email must not contain "plat fort" or "novetat principal". Several
+important novelties each get their own card (`Novetat · 1`, `Novetat · 2`, ...) in the body, before
+the lighter items of their section, with the subject naming all of them ("les baixes d'ofici i
+Erasmus+"). Burgundy (`#970a2c`, eyebrow `#ffcf9e`, text `#f0d7dd`) is the house colour; **Erasmus+
+cards are blue** (`#003399`, eyebrow `#ffcc00`, text `#dbe6ff`), the programme's official colour. A
+rewrite after feedback is a resend with the same subject (the developer reads it in `ems@`'s inbox).
+
+**Two-column blocks (video cards): a fixed layout, never a spacer of fixed pixels.** Mail clients drop
+an empty `<td>` and ignore `border-spacing`, so cards separated by a `width:12px` empty cell touched
+each other (reported twice, 2026-11-13). What worked: `<table width="100%" cellpadding="0"
+cellspacing="0" border="0" style="border-collapse:separate;width:100%">` with
+`<td width="49%" bgcolor="#ffffff" style="width:49%;background:#ffffff;border-radius:8px">`, a middle
+`<td width="2%" style="width:2%;font-size:0;line-height:0">&nbsp;</td>` and the padding **inside** a
+`<div style="padding:12px 16px">`, not on the `<td>` (padding on a cell is added to its width and
+overflows the parent). The white background goes on the `<td>` so both cards are as tall as the
+taller one. Stacking the cards in two `<div>`s is the safe fallback, but the developer wants two
+columns. **Align the buttons by forcing the same number of text lines in both cards** (developer,
+2026-11-13): when one card's description wraps to two lines and the other's takes one, end the short
+one with `<br>&nbsp;` so both buttons sit at the same height.
+
 **Recipient is always the fixed address above, never one read from the database** — same
 principle as this file's "Email safety in tests": an address must be explicit and
 developer-authorized, never pulled from student/family/staff records, applied here to a real send.
@@ -1501,10 +1531,20 @@ mail = env['mail.mail'].create({
     'body_html': body_html,
     'email_from': 'EMS - Institut Puig Castellar <ems@elpuig.xeill.net>',
     'email_to': 'ems@elpuig.xeill.net',
+    'auto_delete': False,  # Odoo otherwise deletes the sent mail and its HTML is lost
+    'author_id': env.company.partner_id.id,  # see the OdooBot gotcha below
 })
 mail.send()
 env.cr.commit()
 ```
+**Gotcha confirmed 2026-11-13: on a dev machine a mail authored by OdooBot is cancelled.** `odoo
+shell` runs as the superuser, so without `author_id` the mail's author is OdooBot and the #752 guard
+(`models/settings/mail_guard.py`) ends it as `cancel` ("OdooBot's emails are off on this development
+machine"), while `mail.send()` still returns normally: read the `state` back (`print(mail.state)`)
+instead of assuming it left. Setting `author_id` to the company's partner is enough; do not turn
+`ems.dev_mail_odoobot` on for this. The newsletter's real send can also be checked afterwards with
+`SELECT id, state, failure_reason FROM mail_mail WHERE id = <id>`.
+
 **Gotcha confirmed 2026-09-11:** the `odoo` system user cannot read a file under a Claude Code
 session's own scratchpad directory tree (each level is `700`, owned by the session's own user) —
 `odoo shell` fails with `PermissionError` trying to open it directly. Copy the HTML body to a
@@ -1539,9 +1579,31 @@ markup instead of rebuilding it from this description.
 - No voice-over: they must be understood on mute, so the on-screen text is complete. One short
   video (2-4 minutes) per self-contained block.
 - MP4, 1920x1080, H.264 video with **MP3 audio** (the developer's VSCode player plays no sound
-  with AAC or Opus and rejects WebM).
-- Elements build in progressively, with a thin orange progress bar along the bottom edge for the
-  whole video.
+  with AAC or Opus and rejects WebM). The iPhone plays no sound with MP3 inside an MP4 (developer,
+  2026-11-13): also write a `<name>-iphone.mp4` with the same video and AAC audio
+  (`ffmpeg -i in.mp4 -c:v copy -c:a aac -b:a 192k -movflags +faststart out.mp4`) and send that one when
+  the developer is on the phone. A page in the browser (Artifacts) uses the AAC copy.
+- Elements build in progressively. No whole-video progress bar (the player already has one; developer,
+  2026-11-12): a thin orange bar fills over each slide's own time (bottom edge) and, in a live demo,
+  over each step's caption (in the side panel, under the text), resetting at every change, so the
+  viewer knows whether to pause to finish reading.
+- Music: when the chosen track is shorter than the video, chain a second, similar one (a different
+  artist, or a new track by the same artist) so the music reaches the end; credit every track on the
+  final slide. The tracks share the video in equal parts and are mixed (the first fades out while the
+  next fades in, 8 s, equal-power curve), never cut with a silence. Bring every track to the same
+  loudness first (-16 LUFS, a static gain per track measured with `ebur128`): two tracks of the same
+  album differed by 12.8 dB and the second one came in far louder than the first one went out
+  (developer, 2026-11-12). If a track is too short for an equal part, say so and offer a longer one
+  instead of leaving a silence. Choose human artists the developer hasn't heard in an earlier video,
+  with CC BY 4.0 or CC0 checked on each track's own page and no AI flag; one track per artist unless
+  repeating means a new track.
+- Live-demo panel (side, 480 px): who acts now (card with icon and role, white with an orange left
+  border), the circuit's steps with the current one highlighted, the caption, the centre's logo in a
+  card of the same style as the "who" card, and the per-step progress bar as a 12 px orange stripe flush
+  with the bottom edge (the mirror of the panel's top stripe). Tooling: `/root/ems-slides-video/live/`
+  (`compose_steps.py`, `make_live.py`, `gen_bo_slides.py`, `record_bo_test.py`); never launch two
+  `make_live.py` runs on the same output (killing a chain's parent shell leaves its child writing, and
+  the file comes out corrupt: check `ffmpeg -v error -i video -f null -` reports nothing).
 - When one deck yields several videos, each starts the same way (cover, the index of all blocks,
   the same index with this video's block highlighted in burgundy) and goes straight into the
   content, skipping the block's own title slide. The deck keeps its title slides for live
@@ -1566,3 +1628,21 @@ test patches on the bus (websocket allowed, bus post-commit hooks run by `TestCu
 `bus.bus._poll` from the start id); other people act through their own HTTP session
 (`self.session = None` before `authenticate()`, which otherwise logs the recording browser out). The
 demo is laid out as the app (1440 px) plus a 480 px panel with the clock and the text of each step.
+
+**Clicks and time on screen in a live demo (developer, 2026-11-13: *"No quiero tener que hacer más
+correcciones de la cuenta"*).** Both were corrected by the developer one by one in the walkout videos;
+check them yourself before handing a video over:
+- **Every click shows its orange ring.** The recorder's `_click()` draws the ring, waits 0.5 s (the capture
+  runs at ~10 fps) and only then clicks: a click that changes the page removed the ring in the same
+  instant and the video showed a cut circle. Never click in the same instant as the ring.
+- **Minimum time per caption = max(6, 2 + characters/17) seconds** (the caption's title and text, tags
+  excluded; reading speed ~17 characters/s plus 2 s to look at the screen). **Maximum 20 s** (longer feels
+  like waiting), a time-lapse at most ~8 s, the first view of a screen ~10 s, and the **last step held at
+  least 10 s** (one ended after 1 s). A step the compose step can only freeze (`_timing: {key: {hold: N}}`),
+  trim (`trim`) or speed up (`rate`).
+- **Run `/root/ems-slides-video/live/check_timing.py <recording> <captions.json> [--write]` before
+  composing**: it computes every caption's real duration from `events.json` (rate/trim/hold included),
+  lists those out of range and, with `--write`, writes the holds a too-short step needs. Deliver nothing
+  with a step flagged. Then look at a contact sheet (`sheet.py`) and at the frames around three clicks.
+- Editing a video's text or a screen: re-record and re-run these checks, never trust the previous
+  recording's numbers.

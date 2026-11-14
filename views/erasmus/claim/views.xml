@@ -15,6 +15,8 @@
                     <field name="kind"/>
                     <field name="resolution_id" optional="show"/>
                     <field name="resolved_date" optional="show"/>
+                    <field name="outcome" optional="show" widget="badge" decoration-success="outcome == 'upheld'"
+                           decoration-warning="outcome == 'partially_upheld'" decoration-danger="outcome == 'dismissed'"/>
                     <field name="state" widget="badge" decoration-warning="state == 'open'"
                            decoration-success="state == 'resolved'"/>
                 </list>
@@ -56,6 +58,8 @@
                             <field name="attachment_ids" widget="many2many_binary" readonly="not can_edit"/>
                             <field name="can_resolve" invisible="1"/>
                             <field name="can_edit" invisible="1"/>
+                            <field name="outcome" widget="radio" options="{'horizontal': true}"
+                                   readonly="not can_resolve or state != 'open'"/>
                             <field name="response" readonly="not can_resolve or state != 'open'"/>
                         </group>
                     </sheet>
@@ -84,6 +88,10 @@
             <field name="view_mode">list,form</field>
             <field name="search_view_id" ref="view_erasmus_claim_search"/>
             <field name="context">{'search_default_open': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">No open claims</p>
+                <p>Remove the filter to see the resolved ones.</p>
+            </field>
         </record>
     </data>
 </odoo>

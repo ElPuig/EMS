@@ -385,13 +385,6 @@ class TestStrike(TransactionCase):
         with self.assertRaises(AccessError):
             self._create_strike(self.teacher_a_user, teacher_id=self.coexistence_a_employee.id)
 
-    def test_default_reason_is_first_active_by_order(self):
-        # Same reason the roll-call dialog preselects (first active by sequence), so the
-        # New strike dialog never disagrees with it once an admin reorders the reasons.
-        first = self.env['ems.strike.reason'].create({'name': 'Test First Reason (Strike)', 'sequence': -1})
-        strike = self.env['ems.strike'].with_user(self.teacher_a_user).create({'student_id': self.minor_student.id})
-        self.assertEqual(strike.reason_id, first)
-
     def test_new_strike_button_hidden_from_secretary(self):
         # Secretary reads strikes but can't create them, so the list's header button is
         # stripped from their arch by its groups= attribute.

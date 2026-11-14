@@ -31,9 +31,9 @@ class TestErasmusStaffPlacesMigration(ErasmusStaffMobilityCase):
         # The kind now comes from the levels; an installed centre keeps the value the column had.
         self.env.flush_all()
         self.env.cr.execute("UPDATE ems_erasmus_call_modality SET project = %s WHERE id = %s", [kind, modality.id])
-        if project:
-            mobility.sudo().project_id = project
         mobility.application_id.sudo().modality_id = modality
+        # Before issue #788 a mobility never got its project on its own: set it as it was.
+        mobility.sudo().project_id = project
         call.project_place_ids.unlink()
         return call, mobility, modality
 

@@ -19,7 +19,7 @@ This section contains the manuals for the **Erasmus+ team**: the Erasmus coordin
 | [Preparing the mobilities](mobility-preparation.md) | The centre's projects, destinations chosen by turns, own destinations, host entities, documents with their signers and deadlines, the commitment letter signed in EMS, the electronic signature of the agreements, the checklist and closing each mobility |
 | [Group mobilities](group-mobilities.md) | Creating a group mobility, the students' enrolment from the portal, the ranking, approving the selection, withdrawals, the files and the closure |
 | [Erasmus+ quality](quality.md) | The interest and satisfaction indicators, the participants' satisfaction survey, the low scores and their improvement actions |
-| [Economic management of the projects](economy.md) | The economic panel, each project's grant, SEPIE's transfers, commitments and payments, the project's expenses, the organisational support and the Excel export |
+| [Economic management of the projects](economy.md) | The projects and their figures, each project's grant, SEPIE's transfers, commitments and payments, the services paid by the centre, the project's expenses, the organisational support and the Excel export |
 
 ---
 
@@ -27,15 +27,16 @@ This section contains the manuals for the **Erasmus+ team**: the Erasmus coordin
 
 | Menu | What you find there |
 |------|---------------------|
-| **Calls** | Calls, Applications, Ranking, Claims, Resolutions and Place offers |
+| **Calls** | Calls, Applications, Ranking, Resolutions, Claims and Place offers |
 | **Mobilities** | Individual mobilities and Group mobilities |
-| **Financial management** | Projects, Invoices and Grant payments |
-| **Quality** | Indicators, Satisfaction surveys, Low scores, Diffusion actions and Earlier courses |
-| **Configuration** | Host entities |
+| **Projects** | The centre's Erasmus+ projects with their economic figures and the comparison by call |
+| **Financial management** | Grant payments, Services paid by the centre and Project expenses |
+| **Quality** | Indicators, Satisfaction surveys, Low scores and Diffusion actions |
+| **Configuration** | Host entities, Organisational support rates and Earlier course indicators |
 
-Each person only sees the menus that concern them: the Secretary, for example, only sees **Financial management**. Every teacher has the **Erasmus+** app, right below **Meetings**, with the **My participation** section: it holds **Staff calls**, **My applications** and **My mobilities** (to apply to the staff call, follow your application and prepare your mobility, see [Applying for an Erasmus+ staff mobility](../teachers/erasmus-staff-call.md)), and the personal entries (**My evaluations**, **My plan ratings**, **My group mobilities**), which only show to whoever has something in them: an interviewer sees **My evaluations**, a member of the panel **My plan ratings**. So, if you are in the Erasmus team and also apply to the staff call, what you do as a participant is under **My participation** and the management under the other sections.
+Each person only sees the menus that concern them: the Secretary, for example, only sees **Projects** and **Financial management**. Every teacher has the **Erasmus+** app, right below **Meetings**, with the **My participation** section: it holds **Staff calls**, **My applications** and **My mobilities** (to apply to the staff call, follow your application and prepare your mobility, see [Applying for an Erasmus+ staff mobility](../teachers/erasmus-staff-call.md)), and the personal entries (**Interviews to score**, **Plans to rate**, **My group mobilities**), which only show to whoever has something in them: an interviewer sees **Interviews to score**, a member of the panel **Plans to rate**. So, if you are in the Erasmus team and also apply to the staff call, what you do as a participant is under **My participation** and the management under the other sections.
 
-**From the call:** the form of a call has a button for each step of its process (**Applications**, **Ranking**, **Interviews** or **Plan ratings**, **Resolutions**, **Claims**, **Place offers** and **Mobilities**), each one showing only that call's records. The interviews and the panel's plan ratings are only reached that way.
+**From the call:** the form of a call has a button for each step of its process (**Applications**, **Ranking**, **Interviews** or **Plan ratings**, **Resolutions**, **Claims**, **Place offers** and **Mobilities**), each one showing how many there are and only that call's records. The **Ranking** stays on hand after the definitive resolution. The interviews and the panel's plan ratings are only reached that way.
 
 ---
 

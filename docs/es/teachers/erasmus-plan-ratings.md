@@ -12,18 +12,20 @@ Como miembro de la comisión de la convocatoria Erasmus+ del personal, valoras e
 
 ## 1. Encontrar los planes
 
-Cuando el equipo Erasmus envía los planes a la comisión, recibes una tarea en EMS para cada uno, que vence el plazo para corregir puntuaciones de la convocatoria (dos semanas después del cierre). Sale en el resumen diario de tareas pendientes hasta que la hagas. En el menú **Erasmus+** tienes **Mi participación > Mis valoraciones de planes**: los planes que tienes asignados.
+Cuando el equipo Erasmus envía los planes a la comisión, recibes una tarea en EMS para cada uno, que vence el plazo para corregir puntuaciones de la convocatoria (dos semanas después del cierre). Sale en el resumen diario de tareas pendientes hasta que la hagas. En el menú **Erasmus+** tienes **Mi participación > Planes por valorar**: los planes que tienes asignados.
 
-Cada valoración muestra en pantalla el **plan de movilidad y transferencia** de la persona candidata, tal como lo escribió en el formulario de solicitud: la propuesta A (la principal) y la propuesta B (la de reserva), con sus palabras, y qué quiere aprender y cómo lo aplicará al trabajo. Valora las dos propuestas juntas, con una sola puntuación. No ves nada más de la solicitud. La difusión no se valora: es la misma obligación para todo el mundo.
+Cada valoración muestra en pantalla el **plan de movilidad** de la persona candidata, tal como lo escribió en el formulario de solicitud: la propuesta A (la principal) y la propuesta B (por si la A no se puede hacer), con sus palabras, cada una con la actividad, la entidad o el curso, dónde, cuándo y qué quiere aprender, bajo su título y a todo el ancho. Valora las dos propuestas juntas, con una sola puntuación. No ves nada más de la solicitud. La difusión no se valora: es la misma obligación para todo el mundo.
 
 ## 2. Valorar la rúbrica
 
 Para cada aspecto, elige la descripción que más se ajusta al plan: son las del anexo 2 de la convocatoria, y cada una empieza con los puntos que da (1, 0,5 o 0).
 
+![La rúbrica del criterio 1: concreción y relevancia para el trabajo](../../assets/erasmus/valoracio-pla-rubrica.png)
+
 | Aspecto | 1 punto | 0,5 puntos | 0 puntos |
 |---|---|---|---|
-| Relevancia y concreción | La relación con el trabajo, el departamento y los ciclos formativos es clara, con objetivos concretos y la entidad o el curso indicados por su nombre | La relación es general o los objetivos y la actividad son poco concretos | No se explica la relación con el trabajo ni con los ciclos formativos, y los objetivos y la actividad son genéricos |
-| Aplicación al trabajo | Aplicación concreta al trabajo y al alumnado, con acciones definidas | Aplicación poco concreta | No se prevé ninguna aplicación |
+| Concreción | La actividad, la entidad o el curso por su nombre, el lugar y las fechas | Falta la entidad o el curso, o las fechas | Actividad genérica, sin entidad o curso ni fechas |
+| Relevancia para el trabajo | Objetivo claro y relacionado con el trabajo, el departamento o los ciclos formativos | El objetivo es general | No se explica qué se quiere aprender ni la relación con el trabajo |
 
 Puedes escribir tus notas en **Notas del evaluador**.
 

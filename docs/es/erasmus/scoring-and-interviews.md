@@ -48,7 +48,7 @@ Todos los criterios empiezan vacíos. **Un criterio vacío nunca es un cero:** l
 **Una a una**, en la pestaña **Entrevista** de cada solicitud admitida:
 
 1. Rellena la **Fecha de la entrevista** y el **Lugar de la entrevista**.
-2. En la lista, añade las **dos personas evaluadoras** (cualquier miembro del personal). Cada una recibe una tarea en EMS y ve la entrevista en **Erasmus+ > Mi participación > Mis evaluaciones**. Solo ven su entrevista: ni la puntuación de la otra persona evaluadora ni el resto de la solicitud.
+2. En la lista, añade las **dos personas evaluadoras** (cualquier miembro del personal). Cada una recibe una tarea en EMS y ve la entrevista en **Erasmus+ > Mi participación > Entrevistas por puntuar**. Solo ven su entrevista: ni la puntuación de la otra persona evaluadora ni el resto de la solicitud.
 3. Haz clic en **Acciones > Enviar la convocatoria a la entrevista**. El alumno recibe un correo con la fecha y el lugar. Se debe enviar como mínimo 24 horas antes de la entrevista.
 
 Cada persona evaluadora puntúa los 7 criterios de la rúbrica (anexo 4) de 0 a 5, con los descriptores escritos en el formulario, y la envía. La puntuación de la entrevista es la media de las dos. Si por una causa justificada solo la ha podido valorar una persona, escríbelo en **Motivo de una sola valoración**.

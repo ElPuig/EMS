@@ -68,10 +68,11 @@ class TestErasmusDefaultData(TransactionCase):
         call = self._new_call('staff')
         self.assertFalse(call.modality_ids, "Issue #772: places per project instead of modalities.")
         tasks = call.task_ids.with_context(lang='en_US')
-        self.assertEqual(tasks[:1].name, "Preparation sessions")
+        self.assertEqual(set(tasks.mapped('stage')), {'return'},
+                         "Issue #783: teachers have no preparation step (no sessions; activities on Moodle).")
         share = tasks.filtered(lambda task: task.name.startswith("Share it"))
         self.assertEqual(share.requirement, 'optional')
-        self.assertEqual((tasks - share).mapped('requirement'), ['required'] * 3)
+        self.assertEqual((tasks - share).mapped('requirement'), ['required'])
         self.assertIn("Certificats de llengües", self._in(call.document_ids, 'ca_ES'))
 
     def test_a_copied_call_keeps_the_translations(self):

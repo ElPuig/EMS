@@ -2,14 +2,14 @@
 <odoo>
     <!-- Justification reasons (issue #795). noupdate: the centre reorders, renames and adds
          reasons from Configuration, and an upgrade must not undo it. The first one by sequence is
-         the default; "Other" asks for details and "Strike" covers a whole day. -->
+         the default; "Other" asks for details and "Student walkout" covers a whole day. -->
     <data noupdate="1">
         <record id="attendance_justification_reason_health" model="ems.attendance_justification_reason">
             <field name="name">Health reasons</field>
             <field name="sequence">1</field>
         </record>
-        <record id="attendance_justification_reason_strike" model="ems.attendance_justification_reason">
-            <field name="name">Labour strike</field>
+        <record id="attendance_justification_reason_walkout" model="ems.attendance_justification_reason">
+            <field name="name">Student walkout</field>
             <field name="sequence">2</field>
             <field name="full_day" eval="True"/>
         </record>

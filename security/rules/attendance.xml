@@ -496,4 +496,46 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_unlink" eval="False"/>
     </record>
+
+    <!-- Issue #800: a student walkout call is read by the tutors of its groups and the chain above
+         them (tutor scope: Department/Seminar Chief, Head/Deputy Head of Studies, Director); the
+         administrators read them all. Nobody writes one by hand: the portal and the walkout's own
+         methods do, with sudo. -->
+    <record id="rule_student_walkout_tutor_scope" model="ir.rule">
+        <field name="name">Student walkout: tutor scope</field>
+        <field name="model_id" ref="ems.model_ems_student_walkout"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('group_ids.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
+    </record>
+    <!-- A group with no tutor has no chain: its calls go to every Head and Deputy Head of Studies. -->
+    <record id="rule_student_walkout_no_tutor" model="ir.rule">
+        <field name="name">Student walkout: group with no tutor</field>
+        <field name="model_id" ref="ems.model_ems_student_walkout"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[('group_id.tutor_id', '=', False)]</field>
+    </record>
+    <record id="rule_student_walkout_admin" model="ir.rule">
+        <field name="name">Student walkout: administrator</field>
+        <field name="model_id" ref="ems.model_ems_student_walkout"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin')), (4, ref('base.group_system'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+    <record id="rule_student_walkout_line_tutor_scope" model="ir.rule">
+        <field name="name">Student walkout line: tutor scope</field>
+        <field name="model_id" ref="ems.model_ems_student_walkout_line"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('walkout_id.group_ids.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
+    </record>
+    <record id="rule_student_walkout_line_no_tutor" model="ir.rule">
+        <field name="name">Student walkout line: group with no tutor</field>
+        <field name="model_id" ref="ems.model_ems_student_walkout_line"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[('walkout_id.group_id.tutor_id', '=', False)]</field>
+    </record>
+    <record id="rule_student_walkout_line_admin" model="ir.rule">
+        <field name="name">Student walkout line: administrator</field>
+        <field name="model_id" ref="ems.model_ems_student_walkout_line"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin')), (4, ref('base.group_system'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
 </odoo>

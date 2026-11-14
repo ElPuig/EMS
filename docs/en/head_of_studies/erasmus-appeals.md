@@ -12,9 +12,9 @@ The Erasmus+ calls say that the definitive resolution (and any later rectificati
 
 1. The applicant sends the appeal to the Erasmus team, who records it in EMS. You get a to-do: *Erasmus+: answer the appeal of ...*. The applicant receives an email confirming that it arrived and when.
 2. Open the to-do. The appeal shows the application, the resolution it is against, what is appealed and the files. You can read the application and the published lists, with each applicant's total score.
-3. Write your decision in **Response** and click **Actions > Resolve**. The applicant receives the response by email and also sees it on the portal. The to-do is marked done.
+3. Choose the **Result** (*Upheld*, *Partially upheld* or *Dismissed*), explain it in **Response** and click **Actions > Resolve**. The applicant receives both by email and also sees it on the portal. The to-do is marked done.
 
-If the appeal is upheld, tell the Erasmus team: they correct the application and publish a rectification of the list. You only write the response: the rest of the appeal is the Erasmus team's.
+If the appeal is upheld, tell the Erasmus team: they correct the application and publish a rectification of the list. You only choose the result and write the response: the rest of the appeal is the Erasmus team's.
 
 ---
 

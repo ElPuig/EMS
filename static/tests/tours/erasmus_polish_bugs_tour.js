@@ -62,7 +62,7 @@ registry.category("web_tour.tours").add("ems_erasmus_host_entity_details", {
 // 10.2: a year is shown as 2099, never with a thousands separator (economic panel and project).
 registry.category("web_tour.tours").add("ems_erasmus_project_year", {
     test: true,
-    url: "/odoo/action-ems.action_erasmus_economy_panel",
+    url: "/odoo/action-ems.action_erasmus_project",
     steps: () => [
         {
             trigger: `.o_list_view .o_data_row:contains('${PROJECT}') td[name='call_year']:contains('2099')`,

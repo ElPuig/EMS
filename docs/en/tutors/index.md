@@ -24,6 +24,7 @@ This section contains the manuals for **group tutors**.
 | [Strikes: Consulting Your Group's Records](strike.md) | Consult the strikes issued to your tutees and the ones you issued yourself |
 | [Managing Your Students' Family Contacts](family-contacts.md) | Add and remove the family members (father, mother, legal guardian…) of the students you tutor |
 | [Your Students' Google Credentials](google-credentials.md) | Download the PDF with the Google account username and password of the students you tutor, one by one or for several students at once in a ZIP, create the account if they have none yet, and reset their password |
+| [AMPA members among your students](ampa.md) | See which of the students you tutor are AMPA members and list the members and the non-members |
 | [Printing student cards](../secretary/student-card.md) | Print the cards of your group or of the students you tutor as a PDF, and how to print them double-sided (manual shared with the secretary) |
 | [Justifying Your Students' Absences](attendance-justifications.md) | Record a justification (for example, a medical certificate) so a tutee's absences become justified absences, and attach the document |
 | [Attendance Reports](attendance-reports.md) | Print the 3 PDF attendance reports (by group/student/subject) and explore attendance data yourself with the Attendance analysis pivot/graph screen |
@@ -33,6 +34,7 @@ This section contains the manuals for **group tutors**.
 | [A Group's Weekly Schedule](../admin/group-schedule.md) | View a group's aggregated timetable (subjects, teachers, classrooms, breaks) and export it to PDF |
 | [A Student's Weekly Schedule](../admin/student-schedule.md) | View one of your tutorands' own timetable (subjects, teachers, classrooms, breaks), including overlapping classes, and export it to PDF |
 | [A Student's Public and Private Notes](../teachers/student-notes.md) | Where every teacher reads a student's public notes, and who can read and write the private tutoring ones |
+| [Student walkouts](student-walkout.md) | Watching over your group's walkout proposal: what you are told, and aborting a proposal only for a formal defect |
 
 ---
 

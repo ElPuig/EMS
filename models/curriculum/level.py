@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 from ..employees.non_teaching_type import LEVEL_DECLARATION_CODES
 
@@ -13,6 +14,11 @@ EDUCATION_STAGES = [
 
 # Seeded once on a new installation (post_init_hook), then configured by the centre in Settings.
 CONVALIDATION_LEVEL_SEED = ['CFGM', 'CFGS']
+
+# Issue #800: the levels whose groups may propose supporting a student walkout, seeded once from the law (LODE,
+# art. 8: the collective decision not to attend class is recognised from the 3rd year of ESO), then
+# configured by the centre in Settings. Acronym: first course allowed (0, every course).
+WALKOUT_LEVEL_SEED = {'ESO': 3, 'BTX': 0, 'CFGB': 0, 'CFGM': 0, 'CFGS': 0, 'EFPS': 0}
 
 # The student card's level colours: pastel, so the card is not garish, and never red or green, which
 # the card keeps for "may / may not leave the centre". A closed palette, so no level can pick them.
@@ -76,6 +82,15 @@ class EmsLevel(models.Model):
 
 	notes = fields.Text(string="Notes")
 
+	# Issue #800: which of this level's groups may propose supporting a student walkout (an allowlist: unticked,
+	# none). The centre's choice, edited in Settings: never in data/cat/ems.level.csv.
+	walkout_allowed = fields.Boolean(string="May propose supporting a student walkout", default=False,
+		help="The delegate or sub-delegate of this level's groups may propose supporting a student walkout from the portal.")
+	walkout_course_from = fields.Integer(string="From course",
+		help="First course whose groups may propose it. Empty: from the first one.")
+	walkout_course_to = fields.Integer(string="To course",
+		help="Last course whose groups may propose it. Empty: up to the last one.")
+
 	@api.depends('acronym')
 	def _compute_card_color(self):
 		for level in self:
@@ -89,8 +104,29 @@ class EmsLevel(models.Model):
 			name = level.name or ''
 			level.display_name = f"{acronym}: {name}".strip(': ')
 
+	@api.constrains('walkout_course_from', 'walkout_course_to')
+	def _check_walkout_courses(self):
+		for level in self:
+			if level.walkout_course_from < 0 or level.walkout_course_to < 0 or (
+					level.walkout_course_to and level.walkout_course_from > level.walkout_course_to):
+				raise ValidationError(_("%(level)s: the first course that may propose supporting a student walkout cannot be "
+					"after the last one.", level=level.display_name))
+
+	def _ems_allows_walkout(self, course):
+		"""Whether a group of this level in `course` may propose supporting a student walkout."""
+		self.ensure_one()
+		return self.walkout_allowed and (course or 0) >= (self.walkout_course_from or 0) and (
+			not self.walkout_course_to or (course or 0) <= self.walkout_course_to)
+
 	@api.model
 	def _ems_seed_convalidation_levels(self):
 		"""A new installation starts with the vocational training cycles allowing convalidations;
 		from then on the centre sets the list in Settings > Convalidations."""
 		self.search([('acronym', 'in', CONVALIDATION_LEVEL_SEED)]).allows_convalidation = True
+
+	@api.model
+	def _ems_seed_walkout_levels(self):
+		"""Issue #800: a new installation, and the upgrade that brings the feature, start with the levels
+		the law allows (WALKOUT_LEVEL_SEED); from then on the centre sets them in Settings."""
+		for level in self.search([('acronym', 'in', list(WALKOUT_LEVEL_SEED))]):
+			level.write({'walkout_allowed': True, 'walkout_course_from': WALKOUT_LEVEL_SEED[level.acronym]})

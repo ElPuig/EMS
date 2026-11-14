@@ -41,6 +41,36 @@ class ErasmusGrantCase(ErasmusMobilityCase):
 class TestErasmusGrant(ErasmusGrantCase):
     """Issue #697 - grants, provision of services, invoices and payments."""
 
+    def test_invoice_list_shows_its_participants_project_or_various(self):
+        """Issue #810: a participants' invoice shows their project; Various when they are of several."""
+        first, second = self._preparing()
+        vet, other = self.env['ems.erasmus.project'].create([
+            {'name': '2095-1-ES01-KA121-VET-000000810', 'kind': 'ka121_vet'},
+            {'name': '2095-1-ES01-KA121-VET-000000811', 'kind': 'ka121_vet'}])
+        invoice = self._invoice(first | second, 100)
+        self.assertFalse(invoice.project_label)
+        (first | second).project_id = vet
+        invoice.invalidate_recordset(['project_label'])
+        self.assertEqual(invoice.project_label, '2095-VET')
+        second.project_id = other
+        invoice.invalidate_recordset(['project_label'])
+        self.assertEqual(invoice.project_label, 'Various')
+
+    def test_project_tab_lists_its_participants_invoices_without_changing_figures(self):
+        """C34: a participants' invoice shows in its project's tab (the set the figures use); its own
+        project stays empty and no figure changes."""
+        first, second = self._preparing()
+        project = self.env['ems.erasmus.project'].create({'name': '2095-1-ES01-KA121-VET-000000824', 'kind': 'ka121_vet'})
+        (first | second).write({'project_id': project.id, 'grant_amount': 1000})
+        figures = ['committed_amount', 'paid_amount', 'other_expense_amount', 'available_amount']
+        before = project.read(figures)[0]
+        invoice = self._invoice(first | second, 620)
+        project.invalidate_recordset()
+        self.assertFalse(project.invoice_ids)
+        self.assertEqual(project.all_invoice_ids, invoice)
+        self.assertFalse(invoice.project_id)
+        self.assertEqual(project.read(figures)[0], before)
+
     def test_invoice_is_split_equally_with_the_cents_left_on_the_first_share(self):
         first, second = self._preparing()
         third = self.env['ems.erasmus.mobility']
@@ -184,12 +214,17 @@ class TestErasmusGrant(ErasmusGrantCase):
         with self.assertRaises(UserError):
             invoice.with_user(self.erasmus_user).unlink()
 
-    def test_secretary_reads_the_invoices_and_their_shares(self):
+    def test_secretary_enters_the_services_paid_by_the_centre(self):
+        """Issue #791 (11.11): the Secretary also enters them, whoever the invoice reaches first, so the
+        participants' grants are always reduced; never deletes one."""
         first, second = self._preparing()
-        invoice = self._invoice(first | second, 300).with_user(self.secretary_user)
+        invoice = self.env['ems.erasmus.invoice'].with_user(self.secretary_user).create({
+            'name': 'F-SECRETARY-1', 'amount': 300, 'mobility_ids': [(6, 0, (first | second).ids)]})
         self.assertEqual(invoice.provision_ids.partner_id, self.student | self.second)
+        invoice.amount = 400
+        self.assertEqual(sum(invoice.provision_ids.mapped('amount')), 400, "Split again.")
         with self.assertRaises(AccessError):
-            invoice.amount = 1
+            invoice.unlink()
 
     def test_team_creates_host_entities_and_their_tutors_but_no_other_contact(self):
         Partner = self.env['res.partner'].with_user(self.erasmus_user)

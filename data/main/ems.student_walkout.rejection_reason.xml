@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Issue #800: why the tutor aborts a student walkout call or the Head of Studies does not
+         validate it (only formal defects, never its cause). noupdate: the centre
+         reorders, renames and adds reasons from Configuration, and an upgrade must not undo it.
+         "Other reasons" asks for details. -->
+    <data noupdate="1">
+        <record id="student_walkout_rejection_no_call" model="ems.student_walkout.rejection_reason">
+            <field name="name">No official call of a students' union for that day</field>
+            <field name="sequence">1</field>
+        </record>
+        <record id="student_walkout_rejection_document" model="ems.student_walkout.rejection_reason">
+            <field name="name">The attached document is not a valid call</field>
+            <field name="sequence">2</field>
+        </record>
+        <record id="student_walkout_rejection_level" model="ems.student_walkout.rejection_reason">
+            <field name="name">The call does not include the group's level or studies</field>
+            <field name="sequence">3</field>
+        </record>
+        <record id="student_walkout_rejection_sector" model="ems.student_walkout.rejection_reason">
+            <field name="name">The call is for another sector, not for students</field>
+            <field name="sequence">4</field>
+        </record>
+        <record id="student_walkout_rejection_region" model="ems.student_walkout.rejection_reason">
+            <field name="name">The call is for another autonomous community</field>
+            <field name="sequence">5</field>
+        </record>
+        <record id="student_walkout_rejection_other" model="ems.student_walkout.rejection_reason">
+            <field name="name">Other reasons</field>
+            <field name="sequence">99</field>
+            <field name="requires_details" eval="True"/>
+        </record>
+    </data>
+</odoo>

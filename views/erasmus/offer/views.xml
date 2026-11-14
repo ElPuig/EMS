@@ -14,6 +14,8 @@
                     <field name="partner_id"/>
                     <field name="offer_date" options="{'show_time': False}"/>
                     <field name="deadline" options="{'show_seconds': False}"/>
+                    <!-- Issue #784 (4.8): how long is left to answer, without counting days by hand. -->
+                    <field name="deadline" widget="remaining_days" string="Time left" invisible="state != 'pending'" options="{'show_seconds': False}"/>
                     <field name="from_reserve" string="From reserve" optional="show"/>
                     <field name="answer_date" options="{'show_time': False}" optional="hide"/>
                     <button name="action_cancel" type="object" string="Withdraw" icon="fa-ban"
@@ -36,7 +38,7 @@
                                     invisible="state != 'pending'" groups="ems.group_erasmus,ems.group_academic_admin"
                                     confirm="Withdraw this offer?"/>
                         </div>
-                        <field name="state" widget="statusbar" statusbar_visible="pending,accepted,renounced"/>
+                        <field name="state" widget="statusbar" statusbar_visible="pending,accepted,renounced,expired"/>
                     </header>
                     <sheet>
                         <group>
@@ -49,6 +51,7 @@
                             <group>
                                 <field name="offer_date" options="{'show_time': False}"/>
                                 <field name="deadline" options="{'show_seconds': False}"/>
+                                <field name="deadline" widget="remaining_days" string="Time left" invisible="state != 'pending'" options="{'show_seconds': False}"/>
                                 <field name="answer_date" options="{'show_time': False}"/>
                                 <field name="renounce_reason" invisible="not renounce_reason"/>
                             </group>

@@ -68,23 +68,27 @@
                                 <field name="currency_id" invisible="1"/>
                                 <field name="budget"/>
                                 <field name="final_payment_date"/>
-                                <field name="keep_until"/>
-                                <field name="retention_hold"/>
-                                <field name="retention_note" invisible="not retention_hold" required="retention_hold"/>
-                                <field name="retention_notice_date" invisible="not retention_notice_date"/>
                             </group>
                         </group>
                         <notebook>
                             <page string="Documentation" name="documents">
+                                <!-- Issue #783 (10.10): what goes in the table, and the participants'
+                                     records as one bar instead of three loose numbers. -->
                                 <group groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
                                     <group>
-                                        <field name="record_count"/>
-                                        <field name="record_complete_count"/>
+                                        <field name="record_count" invisible="1"/>
+                                        <field name="record_complete_count" widget="progressbar"
+                                               options="{'max_value': 'record_count'}" invisible="not record_count"/>
                                     </group>
                                     <group>
-                                        <field name="record_missing_count" decoration-danger="record_missing_count"/>
+                                        <field name="record_missing_count" decoration-danger="record_missing_count"
+                                               invisible="not record_count"/>
                                     </group>
                                 </group>
+                                <div class="d-flex text-muted small mb-2">
+                                    <i class="fa fa-info-circle me-2 mt-1" title="What goes here"/>
+                                    <div>The project's agreements, reports and dissemination. Each participant's documents are already in their record.</div>
+                                </div>
                                 <field name="document_ids" context="{'default_project_id': id}">
                                     <list editable="bottom">
                                         <field name="project_id" column_invisible="1"/>
@@ -102,6 +106,18 @@
                                         <field name="notes" optional="hide"/>
                                     </list>
                                 </field>
+                                <!-- Issue #784 (10.5): keeping the papers goes with the papers, not on top of
+                                     the project from its first day. -->
+                                <group string="Retention" name="retention">
+                                    <group>
+                                        <field name="keep_until"/>
+                                        <field name="retention_notice_date" invisible="not retention_notice_date"/>
+                                    </group>
+                                    <group>
+                                        <field name="retention_hold"/>
+                                        <field name="retention_note" invisible="not retention_hold" required="retention_hold"/>
+                                    </group>
+                                </group>
                             </page>
                             <page string="Mobilities" name="mobilities" groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
                                 <!-- Issue #782 (10.11): both tables with a title, shown only when there is any. -->
@@ -117,8 +133,10 @@
                                         <field name="record_progress"/>
                                         <field name="record_missing" string="Pending" decoration-danger="record_missing"
                                                decoration-success="not record_missing"/>
-                                        <field name="state" widget="badge"/>
-                                        <button name="action_open" type="object" string="Open the record" icon="fa-folder-open-o"/>
+                                        <field name="state" column_invisible="1"/>
+                                        <field name="phase" widget="badge"/>
+                                        <!-- C33: icon only (the name as its tooltip), or the text was cut on the right. -->
+                                        <button name="action_open" type="object" title="Open the record" icon="fa-folder-open-o"/>
                                     </list>
                                 </field>
                                 <separator string="Group mobilities" invisible="not group_mobility_ids"/>
@@ -135,12 +153,13 @@
                                     </list>
                                 </field>
                             </page>
-                            <page string="Invoices" name="invoices" groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin">
-                                <field name="invoice_ids" readonly="1">
+                            <page string="Services paid by the centre" name="invoices" groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin">
+                                <field name="all_invoice_ids" readonly="1">
                                     <list>
                                         <field name="date"/>
                                         <field name="name"/>
                                         <field name="supplier_id"/>
+                                        <field name="project_label" string="Project" optional="hide"/>
                                         <field name="currency_id" column_invisible="1"/>
                                         <field name="amount" sum="Total"/>
                                         <field name="state" widget="badge"/>
@@ -214,12 +233,6 @@
                     </footer>
                 </form>
             </field>
-        </record>
-
-        <record id="action_erasmus_project" model="ir.actions.act_window">
-            <field name="name">Projects</field>
-            <field name="res_model">ems.erasmus.project</field>
-            <field name="view_mode">list,form</field>
         </record>
     </data>
 </odoo>

@@ -2,18 +2,20 @@
 <odoo>
     <data>
         <!-- Issue #697 - the invoices the centre paid for some participants, split among them as
-             provisions of services; the Secretary reads them. -->
+             provisions of services. Issue #791 (11.1): named by what they do, "Services paid by the
+             centre" (they are deducted from someone's grant), unlike the project's expenses; the
+             Secretary enters them too (11.11). -->
         <record id="view_erasmus_invoice_list" model="ir.ui.view">
             <field name="name">ems.erasmus.invoice.list</field>
             <field name="model">ems.erasmus.invoice</field>
             <field name="arch" type="xml">
-                <list string="Invoices">
+                <list string="Services paid by the centre">
                     <field name="date"/>
                     <field name="name"/>
                     <field name="supplier_id"/>
                     <field name="concept"/>
                     <field name="description" optional="hide"/>
-                    <field name="project_id" optional="show"/>
+                    <field name="project_label" string="Project" optional="show"/>
                     <field name="currency_id" column_invisible="1"/>
                     <field name="amount" sum="Total"/>
                     <field name="unassigned_amount" optional="show" decoration-danger="unassigned_amount != 0"/>
@@ -27,7 +29,7 @@
             <field name="name">ems.erasmus.invoice.search</field>
             <field name="model">ems.erasmus.invoice</field>
             <field name="arch" type="xml">
-                <search string="Invoices">
+                <search string="Services paid by the centre">
                     <field name="name"/>
                     <field name="supplier_id"/>
                     <field name="provision_ids" string="Participant" filter_domain="[('provision_ids.partner_id', 'ilike', self)]"/>
@@ -45,7 +47,7 @@
             <field name="name">ems.erasmus.invoice.form</field>
             <field name="model">ems.erasmus.invoice</field>
             <field name="arch" type="xml">
-                <form string="Invoice">
+                <form string="Service paid by the centre">
                     <header>
                         <div name="ems_actions" string="Actions">
                             <button name="action_register_transfer" type="object" string="Register transfer"
@@ -79,12 +81,20 @@
                                 <field name="receipt_ids" widget="many2many_binary" invisible="not receipt_ids"/>
                             </group>
                         </group>
-                        <field name="mobility_ids" widget="many2many_tags" options="{'no_create': True}"
-                               domain="[('state', 'not in', ('cancelled',))]"
-                               placeholder="Participants the invoice covers"
-                               groups="ems.group_erasmus,ems.group_academic_admin"/>
-                        <separator string="Share of each participant"/>
-                        <field name="provision_ids">
+                        <!-- Issue #791 (11.1): a service is always someone's; otherwise it is a project expense. -->
+                        <div class="alert alert-warning" role="alert" invisible="mobility_ids or group_mobility_id">
+                            Not for any participant? Register it as a project expense: a service paid by the centre is deducted from someone's grant.
+                        </div>
+                        <group name="for_whom">
+                            <field name="covers" widget="radio" options="{'horizontal': true}"
+                                   readonly="state == 'paid'"/>
+                            <field name="mobility_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}"
+                                   domain="[('state', 'not in', ('cancelled',))]"
+                                   placeholder="Participants the invoice covers" invisible="covers != 'participants'"
+                                   readonly="state == 'paid'" groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin"/>
+                        </group>
+                        <separator string="Share of each participant" invisible="covers != 'participants'"/>
+                        <field name="provision_ids" invisible="covers != 'participants'">
                             <list editable="bottom" create="false" delete="false">
                                 <field name="partner_id"/>
                                 <field name="currency_id" column_invisible="1"/>
@@ -92,6 +102,8 @@
                             </list>
                         </field>
                     </sheet>
+                    <!-- Issue #791 (11.7): the history, e.g. a transfer undone with its reason. -->
+                    <chatter/>
                 </form>
             </field>
         </record>
@@ -175,12 +187,12 @@
         </record>
 
         <record id="action_erasmus_invoice" model="ir.actions.act_window">
-            <field name="name">Invoices</field>
+            <field name="name">Services paid by the centre</field>
             <field name="res_model">ems.erasmus.invoice</field>
             <field name="view_mode">list,form</field>
             <field name="help" type="html">
-                <p class="o_view_nocontent_smiling_face">Upload an invoice the centre paid for some participants</p>
-                <p>Choose who it covers: its amount is split equally among them and deducted from what they receive.</p>
+                <p class="o_view_nocontent_smiling_face">Upload an invoice the centre paid for some participants or a group mobility</p>
+                <p>Travel, accommodation, course fees... Choose who it is for: its amount is deducted from what they receive (split equally among the participants). An expense that is nobody's goes in Project expenses.</p>
             </field>
         </record>
 
@@ -294,6 +306,8 @@
                             </group>
                         </group>
                     </sheet>
+                    <!-- Issue #791 (11.7): the history, e.g. a transfer undone with its reason. -->
+                    <chatter/>
                 </form>
             </field>
         </record>
@@ -375,6 +389,35 @@
                     <field name="erasmus_oid" invisible="not is_erasmus_host"
                            groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin"/>
                 </field>
+                <!-- Issue #784 (13.5): what a host entity has hosted, instead of a student's buttons
+                     (meetings, family relations) that say nothing about it. -->
+                <div name="button_box" position="inside">
+                    <button name="action_view_erasmus_mobilities" type="object" class="oe_stat_button" icon="fa-plane"
+                            invisible="not erasmus_individual_count"
+                            groups="ems.group_erasmus,ems.group_academic_admin">
+                        <field name="erasmus_individual_count" widget="statinfo" string="Mobilities"/>
+                    </button>
+                    <button name="action_view_erasmus_group_mobilities" type="object" class="oe_stat_button" icon="fa-users"
+                            invisible="not erasmus_group_count"
+                            groups="ems.group_erasmus,ems.group_academic_admin">
+                        <field name="erasmus_group_count" widget="statinfo" string="Group mobilities"/>
+                    </button>
+                </div>
+                <button name="schedule_meeting" position="attributes">
+                    <attribute name="invisible">is_erasmus_host</attribute>
+                </button>
+                <button name="action_view_relations" position="attributes">
+                    <attribute name="invisible">is_erasmus_host</attribute>
+                </button>
+                <!-- Issue #783 (13.7): every teacher reads every contact, a host entity included,
+                     so its notes say who reads them, as a student's do. -->
+                <xpath expr="//page[@name='internal_notes']/field[@name='comment']" position="before">
+                    <div class="d-flex text-muted small mb-2" invisible="not is_erasmus_host"
+                         groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin">
+                        <i class="fa fa-eye me-2 mt-1" title="Who can see these notes"/>
+                        <div>Visible to all teaching staff.</div>
+                    </div>
+                </xpath>
             </field>
         </record>
     </data>

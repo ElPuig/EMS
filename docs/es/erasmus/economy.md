@@ -10,39 +10,54 @@ Para cada proyecto Erasmus+, EMS muestra qué subvención tiene, cuánto se ha r
 
 ---
 
-## El panel económico
+## Los proyectos
 
-**Erasmus+ > Gestión económica > Panel económico** muestra una fila por proyecto: *Concedido*, *Comprometido*, *Pagado*, *Disponible*, *Apoyo generado* y cuántos avisos tiene. Puedes filtrar por tipo (KA121-VET, KA131-HED), según si se ha recibido el pago final, o los proyectos *Por encima de la subvención*, y agruparlos por año de convocatoria. La vista **tabla dinámica** compara convocatorias y tipos de proyecto: se abre con la subvención, lo comprometido y lo disponible (las demás cifras, en **Medidas**). Para ver proyectos antiguos archivados, usa el filtro **También los archivados**.
+**Erasmus+ > Proyectos**, una entrada propia en la barra entre Movilidades y Gestión económica, muestra una fila por proyecto: *Concedido*, *Comprometido*, *Pagado*, *Disponible*, *Apoyo generado* y cuántos avisos tiene. Puedes filtrar por tipo (KA121-VET, KA131-HED), según si se ha recibido el pago final, o los proyectos *Por encima de la subvención*, y agruparlos por año de convocatoria. La vista **tabla dinámica** compara convocatorias y tipos de proyecto: se abre con la subvención, lo comprometido y lo disponible (las demás cifras, en **Medidas**). Para ver proyectos antiguos archivados, usa el filtro **También los archivados**.
 
 Haz clic en un proyecto para abrir su pestaña **Economía**.
 
 ## La pestaña Economía de un proyecto
 
+La pestaña se lee de arriba abajo en el orden en que circula el dinero. El bloque **Subvención** tiene la subvención del centro (no la beca de un participante): concedida, vigente, recibida y por recibir, y la subvención definitiva y la fecha del pago final cuando llega ese pago. El bloque **Presupuesto** tiene lo previsto, lo comprometido con los otros gastos del proyecto justo debajo, lo pagado, lo comprometido pendiente de pagar y, lo último y en negrita, lo disponible.
+
 1. **Subvención concedida** es el importe del convenio. Añade cada **modificación de la subvención** (fecha, descripción, importe; negativo si la reduce): la *subvención vigente* es la inicial más las modificaciones.
 2. Añade cada **transferencia del SEPIE** (fecha, tipo, importe). Te dicen qué se ha *recibido* y qué queda *por recibir*. La transferencia de *Saldo* también rellena *Pago final recibido el*, que marca cuánto tiempo se conservan los documentos.
-3. Adjunta el **convenio de subvención y sus anexos** en *Convenio, anexos y documentos económicos*. Forman parte de los documentos del proyecto (categoría 03 Economía) y van en la exportación del proyecto.
+3. Adjunta el **convenio de subvención y sus anexos** en la pestaña **Documentación** del proyecto, con la categoría *03 Economía*. Forman parte de los documentos del proyecto y van en la exportación del proyecto.
 4. El **año de la convocatoria** sale del número de convenio (p. ej. 2025-1-ES01-...). Corrígelo si hace falta: decide qué tarifas de apoyo organizativo se aplican.
 
 **Qué significa cada cifra:**
 
 - **Previsto:** las becas de las movilidades que aún definen su destino, y de las movilidades de grupo antes de aprobar la selección. Aún no consumen presupuesto.
-- **Comprometido:** las becas de las movilidades confirmadas (*En preparación* o *Cerrada*) más los otros gastos del proyecto.
+- **Comprometido:** las becas de las movilidades confirmadas (de *Preparación* a *Cerrada*) más los otros gastos del proyecto.
 - **Pagado:** lo transferido a los participantes, más las facturas y los gastos pagados.
+- **Comprometido pendiente de pagar:** todo lo comprometido que todavía no se ha pagado, se haya solicitado su pago o no.
 - **Disponible:** subvención vigente menos comprometido. **No** es el dinero del banco: un proyecto puede tener subvención concedida que el SEPIE aún no ha transferido.
 
 **Pagar no cuenta dos veces.** Una beca de 1.500 € cuenta como 1.500 € comprometidos desde que se confirma la movilidad. Cuando Secretaría paga el anticipo y luego el resto, los 1.500 € solo pasan de *pendiente* a *pagado*. Lo mismo ocurre con una factura pagada a cargo de la beca de un participante (vuelos, alojamiento): forma parte de su beca, no es un gasto más.
 
 ## Cada movilidad
 
-En la pestaña **Beca** de una movilidad ves su *estado económico* (previsto, comprometido, parcialmente pagado, pagado, cancelado), lo que compromete, lo pagado y lo pendiente. Si cambias la beca, el compromiso cambia en la diferencia. Si pasas la movilidad a otro proyecto, sus cifras van con ella.
+En la pestaña **Beca** de una movilidad, el *estado económico* (previsto, comprometido, parcialmente pagado, pagado, cancelado) sale como una etiqueta arriba, y dos bloques se leen de izquierda a derecha con los mismos nombres que el portal del participante: **Beca** (la beca, lo **Pagado directamente por el centro**, como los vuelos o el alojamiento, y lo que queda **A transferir**) y **Pagos a la persona** (lo **Transferido**, lo **Pendiente de transferir** y el porcentaje que se paga **Antes de salir**). Debajo, los servicios que el centro ha pagado para la persona y los pagos. Lo que la movilidad compromete del presupuesto se cuenta en el proyecto. *Apoyo organizativo como* (dinero para el centro, no para la persona) queda plegado al final: ábrelo solo para corregir a mano el tipo de movilidad. Si cambias la beca, el compromiso cambia en la diferencia. Si pasas la movilidad a otro proyecto, sus cifras van con ella.
 
 **Una movilidad cancelada** solo mantiene comprometido lo que ya se ha pagado. Si el participante devuelve dinero, escríbelo en **Devuelto por el participante**. Mientras tanto, el proyecto muestra un aviso.
 
-**Movilidades de grupo:** cada participante, alumno o docente acompañante, tiene su propia beca, tal como la calcula el Beneficiary Module. Introdúcelas en la pestaña **Gastos colectivos**, en *Becas de los participantes* (una vez aprobada la selección). Las cifras del grupo las suman, cada una una sola vez: la beca del grupo que hay encima de la lista es el total (un participante que se ha dado de baja no cuenta nunca). Lo gastado de ellas son las facturas colectivas del grupo más el dinero de bolsillo de cada participante (su beca menos la parte que le toca de las facturas), que se solicita al grupo y paga la Secretaría: nada se cuenta dos veces. Consulta *Becas y dinero de bolsillo* en [Movilidades de grupo](group-mobilities.md).
+**Movilidades de grupo:** cada participante, alumno o docente acompañante, tiene su propia beca, tal como la calcula el Beneficiary Module. Introdúcelas en la pestaña **Beca y gastos**, en *Becas de los participantes* (una vez aprobada la selección). Las cifras del grupo las suman, cada una una sola vez: la beca del grupo que hay encima de la lista es el total (un participante que se ha dado de baja no cuenta nunca). Lo gastado de ellas son las facturas colectivas del grupo más el dinero de bolsillo de cada participante (su beca menos la parte que le toca de las facturas), que se solicita al grupo y paga la Secretaría: nada se cuenta dos veces. Consulta *Becas y dinero de bolsillo* en [Movilidades de grupo](group-mobilities.md).
 
-## Gastos
+## Servicios pagados por el centro
 
-**Gestión económica > Gastos** (o la lista *Gastos del proyecto* de la pestaña Economía) recoge los gastos del proyecto que no forman parte de la beca de ningún participante: comidas de trabajo, merchandising, servicios de difusión, preparación lingüística...
+**Gestión económica > Servicios pagados por el centro** recoge las facturas que el centro paga para alguien: vuelos, alojamiento, matrícula de cursos... Se descuentan de la beca de la persona para quien son, así que no son gastos del proyecto (un gasto que no es de nadie va en *Gastos del proyecto*). Las introducen tanto el equipo Erasmus como la Secretaría, según quién reciba la factura.
+
+1. Haz clic en **Nuevo** y rellena el número de factura, el proveedor, el concepto, el importe y el proyecto.
+2. Responde **Para quién es**: *Participantes* (elígelos: el importe se reparte a partes iguales entre ellos y sale en su *Pagado directamente por el centro*) o *Una movilidad de grupo* (elígela: el importe se reparte entre sus participantes a través del dinero de bolsillo). Solo sale el campo de la respuesta. Mientras no hay nadie elegido, un aviso sugiere registrarla como gasto del proyecto.
+3. La Secretaría la paga como un pago de beca. Su historial, en la parte de abajo de la ficha, guarda cada cambio, por ejemplo una transferencia deshecha con el motivo; los pagos de becas también muestran el suyo.
+
+La pestaña **Servicios pagados por el centro** del proyecto lista todas las facturas que tocan el proyecto: las suyas, las de sus participantes y las de sus movilidades de grupo, las mismas que cuentan sus cifras. Una factura para participantes de dos proyectos sale en los dos, con *Varios* en la columna *Proyecto* (en el selector de columnas); deja vacío su proyecto.
+
+En la lista, la columna **Proyecto** muestra el proyecto de la factura o, si es de los participantes, el de sus movilidades; si son de proyectos distintos, dice *Varios*.
+
+## Gastos del proyecto
+
+**Gestión económica > Gastos del proyecto** (o la pestaña **Gastos del proyecto** del proyecto, junto a *Servicios pagados por el centro*) recoge los gastos del proyecto que no forman parte de la beca de ningún participante: comidas de trabajo, merchandising, servicios de difusión, preparación lingüística...
 
 1. Haz clic en **Nuevo** y rellena el proyecto, el concepto, la categoría (*Apoyo organizativo* u *Otros gastos del proyecto*), la fecha y el importe. Opcionalmente, el proveedor, la movilidad a la que se refiere (solo el equipo Erasmus la puede elegir) y la factura o el justificante.
 2. El gasto cuenta como comprometido desde que se guarda, y Secretaría recibe una tarea para pagarlo. Pagarlo no lo vuelve a descontar.
@@ -56,7 +71,7 @@ En la pestaña **Beca** de una movilidad ves su *estado económico* (previsto, c
 
 El apoyo organizativo es dinero para gestionar las movilidades, separado de las becas de los participantes. EMS lo calcula por participante con las **tarifas del año de la convocatoria del proyecto**, no las del año actual. Las tarifas de KA121-VET 2025 y 2026 y de KA131-HED 2026 ya están en **Erasmus+ > Configuración > Tarifas de apoyo organizativo**, agrupadas por año, empezando por el año más reciente; cuando llegue una convocatoria nueva, añade allí las de su año.
 
-**La regla de los 100 participantes (las columnas «Desde el participante / Hasta el participante»):** algunas tarifas bajan a partir del participante 100. En KA121-VET se cuentan los participantes del mismo tipo de actividad: unas prácticas cortas de alumnado o un job shadowing son 350 € hasta el participante 100 y 200 € a partir del 101. En KA131-HED se cuenta a todo el proyecto, alumnado y personal juntos: 400 € para los 100 primeros y 230 € a partir del 101. EMS los cuenta por fecha de inicio; no tienes que hacer nada.
+**La regla de los 100 participantes (las columnas «Desde el participante / Hasta el participante»):** algunas tarifas bajan a partir del participante 100. En KA121-VET se cuentan los participantes del mismo tipo de actividad: unas prácticas cortas de alumnado o un job shadowing son 350 € hasta el participante 100 y 200 € a partir del 101. En KA131-HED se cuenta a todo el proyecto, alumnado y personal juntos: 400 € para los 100 primeros y 230 € a partir del 101. EMS los cuenta por fecha de inicio y rellena quién cuenta (la columna oculta **Contar los participantes de**) a partir de la acción; no tienes que hacer nada.
 
 **Vacío significa sin límite:** un *Hasta el participante* vacío es una franja sin final, y unos *Días mínimos* vacíos se aplican a cualquier duración de la estancia. Si dos franjas se solapan, EMS te dice con qué otra tarifa y franja chocan. En el Excel, la *Posición* es la que ha contado la tarifa: entre la misma clase de actividad o, en KA131-HED, entre todo el proyecto.
 
@@ -70,15 +85,16 @@ En la pestaña Economía ves:
 - **Apoyo organizativo generado:** para las movilidades realizadas, con los participantes reales. Los docentes acompañantes nunca cuentan.
 - **Gastos de apoyo organizativo:** los gastos de esa categoría, y la diferencia entre lo generado y lo gastado.
 
-La diferencia es un indicador interno, no una certificación del SEPIE. El apoyo forma parte de la subvención concedida: nunca se le suma. Para una particularidad del convenio, introduce una **Corrección** con su motivo. Para un proyecto gestionado antes de EMS, puedes rellenar las **Cifras anteriores a EMS** agregadas.
+La diferencia es un indicador interno, no una certificación del SEPIE. El apoyo forma parte de la subvención concedida: nunca se le suma. Para una particularidad del convenio, introduce una **Corrección** con su motivo. Para un proyecto gestionado antes de EMS, puedes rellenar las **Cifras anteriores a EMS** agregadas (solo aparecen en los proyectos de convocatorias anteriores a 2026 o si ya tienen alguna cifra).
+
 
 ## Avisos
 
-Arriba de la pestaña Economía, EMS avisa de lo que puede ser un error, sin bloquear nada: compromisos por encima de la subvención, gastos sin factura ni justificante, pagos pendientes, gastos cambiados después del pago, gastos pagados por encima de su importe corregido, una movilidad pagada por encima de su beca, una movilidad cancelada con dinero pagado, y participantes sin información suficiente para calcular el apoyo organizativo (por ejemplo, sin tarifa para su año de convocatoria, o sin fechas).
+Arriba de la pestaña Economía, EMS avisa de lo que puede ser un error, sin bloquear nada: compromisos por encima de la subvención, gastos sin factura ni justificante, pagos solicitados por hacer (solo los que ya se han pedido a Secretaría y aún no se han transferido; por eso la cifra puede ser menor que *Comprometido pendiente de pagar*), gastos cambiados después del pago, gastos pagados por encima de su importe corregido, una movilidad pagada por encima de su beca, una movilidad cancelada con dinero pagado, y participantes sin información suficiente para calcular el apoyo organizativo (por ejemplo, sin tarifa para su año de convocatoria, o sin fechas). Si el proyecto todavía no tiene el importe de la subvención, el aviso dice solo que falta (*Subvención concedida*), en lugar de una cifra por encima de cero; y si faltan las tarifas de apoyo organizativo de su año, una sola línea dice dónde añadirlas (**Configuración > Tarifas de apoyo organizativo**).
 
 ## Excel
 
-**Acciones > Descargar la economía (Excel)** descarga la economía del proyecto: un resumen con las mismas cifras que el panel, la beca de cada movilidad (previsto, comprometido y pagado por separado), los pagos y las facturas con sus justificantes, los gastos, el apoyo organizativo participante por participante, y las modificaciones de la subvención y las transferencias del SEPIE.
+**Acciones > Descargar la economía (Excel)** descarga la economía del proyecto: un resumen con las mismas cifras que la lista de proyectos, la beca de cada movilidad (previsto, comprometido y pagado por separado), los pagos y las facturas con sus justificantes, los gastos, el apoyo organizativo participante por participante, y las modificaciones de la subvención y las transferencias del SEPIE.
 
 ---
 

@@ -314,6 +314,9 @@ class TestErasmusResolution(ErasmusResolutionCase):
         with self.assertRaises(UserError):
             claim.action_resolve()
         claim.response = 'Reviewed: the score stands.'
+        with self.assertRaisesRegex(UserError, 'Choose the result', msg="4.13: upheld or not, not only a text."):
+            claim.action_resolve()
+        claim.outcome = 'dismissed'
         claim.action_resolve()
         self.assertEqual(claim.state, 'resolved')
         self.assertTrue(claim.resolved_date)
@@ -334,7 +337,7 @@ class TestErasmusResolution(ErasmusResolutionCase):
             'application_id': first.id, 'resolution_id': provisional.id, 'description': 'My interview score'})
         with self.assertRaises(UserError):
             self._resolution('definitive').action_prepare()
-        claim.response = 'Reviewed: the score stands.'
+        claim.write({'response': 'Reviewed: the score stands.', 'outcome': 'dismissed'})
         claim.action_resolve()
         self._publish('definitive')
 
@@ -431,7 +434,7 @@ class TestErasmusResolution(ErasmusResolutionCase):
         self.assertEqual((claim.resolution_id, claim.state, claim.attachment_ids.name),
                          (provisional, 'open', 'proof.pdf'))
         self.assertEqual(claim.activity_ids.user_id, self.env['ems.erasmus.call']._ems_erasmus_team())
-        claim.with_user(self.erasmus_user).response = 'Reviewed: the score stands.'
+        claim.with_user(self.erasmus_user).write({'response': 'Reviewed: the score stands.', 'outcome': 'dismissed'})
         claim.with_user(self.erasmus_user).action_resolve()
         self.assertFalse(claim.activity_ids, "Answering the claim closes the team's tasks.")
         self.call.claims_deadline = fields.Datetime.now() - timedelta(minutes=1)
@@ -516,8 +519,8 @@ class TestErasmusResolutionNotices(ErasmusResolutionCase):
             appeal.with_user(self.erasmus_user).response = 'Upheld'
         with self.assertRaises(AccessError, msg="Another Head of Studies is not this student's."):
             appeal.with_user(self.other_hos_user).response = 'Upheld'
-        appeal.with_user(self.hos_user).response = 'Dismissed: the score stands.'
-        with self.assertRaises(AccessError, msg="The Head of Studies only writes the response."):
+        appeal.with_user(self.hos_user).write({'response': 'Dismissed: the score stands.', 'outcome': 'dismissed'})
+        with self.assertRaises(AccessError, msg="The Head of Studies only writes the response and the result."):
             appeal.with_user(self.hos_user).description = 'Changed'
         appeal.with_user(self.hos_user).action_resolve()
         self.assertEqual(appeal.state, 'resolved')
@@ -536,10 +539,13 @@ class TestErasmusResolutionNotices(ErasmusResolutionCase):
         self.assertTrue(claim.activity_ids, "The team gets the task to answer it...")
         self.assertFalse(self._mails(claim).filtered(lambda mail: mail.message_type == 'user_notification'),
                          "...quietly: the daily summary is how they hear of it, never an 'assigned to you' email.")
-        claim.with_user(self.erasmus_user).response = 'Reviewed: the score stands.'
+        claim.with_user(self.erasmus_user).write({'response': 'Reviewed: the score stands.',
+                                                  'outcome': 'partially_upheld'})
         claim.with_user(self.erasmus_user).action_resolve()
         self.assertEqual(len(self._mails(claim)), 2, "Answered.")
         self.assertIn('Reviewed: the score stands.', self._body(self._mails(claim)))
+        self.assertIn(claim.with_context(lang=claim.partner_id.lang)._ems_outcome_label(), self._body(self._mails(claim)),
+                      "4.13: the result too.")
 
     def test_the_list_of_who_goes_says_how_to_appeal_it(self):
         first, _second = self._scored_call()
@@ -702,6 +708,11 @@ class TestPortalErasmusResolution(HttpCase, ErasmusResolutionCase):
         self.assertIn('claimed=1', response.url)
         self.assertEqual(first.claim_ids.description, 'My interview score')
         self.assertIn('o_ems_erasmus_claims', self.url_open(f'/my/erasmus/call/{self.call.id}').text)
+        first.claim_ids.sudo().write({'response': 'Your interview is scored again.', 'outcome': 'upheld'})
+        first.claim_ids.sudo().action_resolve()
+        page = self.url_open(f'/my/erasmus/call/{self.call.id}').text
+        self.assertIn('o_ems_erasmus_claim_outcome', page, "4.13: the applicant reads the result.")
+        self.assertIn('Upheld', page)
 
     def test_draft_resolution_is_not_shown(self):
         self._scored_call()

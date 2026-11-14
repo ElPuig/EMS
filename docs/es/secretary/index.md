@@ -18,6 +18,7 @@ Esta sección contiene los manuales para el **personal de secretaría**.
 - [El horario semanal de un alumno](../admin/student-schedule.md) — Consultar el horario propio de un alumno (asignaturas, docentes, aulas, patios), incluyendo clases solapadas, y exportarlo a PDF.
 - [Informes de asistencia](attendance-reports.md) — Imprimir los 3 informes PDF de asistencia (por grupo/alumno/asignatura) y explorar los datos con la pantalla de Análisis de asistencia.
 - [Gestión de contactos de alumnado y familia](student-contacts.md) — Tipos de contacto y cómo cambian, añadir un contacto familiar a un alumno, y registrar bonificaciones y exenciones.
+- [Socios del AMPA](../tutors/ampa.md) — Ver qué alumnos del centro son socios del AMPA y sacar la lista (manual compartido con los tutores).
 - [Imprimir los carnés de estudiante](student-card.md) — Imprimir en PDF los carnés de un grupo, de unos cuantos alumnos o de uno solo, qué sale en ellos y cómo imprimirlos a doble cara.
 - [Autorizaciones: crearlas, enviarlas y hacer el seguimiento](authorizations.md) — Crear formularios de autorización, enviarlos al alumnado durante el curso y hacer el seguimiento de las respuestas.
 - [Convalidaciones: registrar las resoluciones](convalidations.md) — Registrar en Esfera las convalidaciones ya resueltas y cerrarlas para que el alumno reciba la resolución y vea la nota.
@@ -31,7 +32,7 @@ Esta sección contiene los manuales para el **personal de secretaría**.
 - [Importar alumnado desde Esfera (SAGA)](student-import-esfera.md) — Actualizar masivamente los datos del alumnado ya matriculado (no confundir con la importación de preinscripción GEDAC), qué se hace coincidir/crea, y las limitaciones conocidas de deduplicación.
 - [Actualizar datos del alumnado desde un CSV](student-update-csv.md) — Actualización masiva genérica, de cualquier formato CSV, para alumnado existente (nunca crea uno), con columnas mapeables y actualización opcional de la cuenta bancaria.
 - [Aprobar las ausencias del personal PAS](absences.md) — Quién aprueba las ausencias del área ASP y en qué se diferencia de jefatura de estudios.
-- [Erasmus+: gastos de los proyectos y panel económico](erasmus-economy.md) — Registrar y pagar los otros gastos de los proyectos Erasmus+, y consultar el presupuesto de cada proyecto.
+- [Erasmus+: servicios pagados por el centro, gastos y proyectos](erasmus-economy.md) — Registrar las facturas que el centro paga para los participantes, registrar y pagar los otros gastos de los proyectos Erasmus+, y consultar el presupuesto de cada proyecto.
 
 ## Temas previstos
 

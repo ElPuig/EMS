@@ -25,6 +25,12 @@ ACCESS_MATRIX = {
         'teacher': '', 'head_of_studies': '', 'secretary': '', 'director': 'rwc', 'academic_admin': 'rwc'},
     'ems.staff_walkout_report.line': {
         'teacher': '', 'head_of_studies': '', 'secretary': '', 'director': 'rc', 'academic_admin': 'rc'},
+    # Issue #818: Discard asks why, for whoever reviews detected absences; the Heads of Studies
+    # and the administrator maintain the reasons, which only the administrator deletes.
+    'ems.absence_pending.discard_wizard': {
+        'teacher': '', 'department_chief': '', 'head_of_studies': 'rwc', 'academic_admin': 'rwc'},
+    'ems.absence_pending.discard_reason': {
+        'teacher': '', 'department_chief': '', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
     # Issue #707: "Prepare justification" from the list, for whoever reviews detected absences; who
     # may review each entry is checked when it runs (ems.absence_pending._ems_review).
     'ems.absence_pending.leave_wizard': {
@@ -56,6 +62,17 @@ ACCESS_MATRIX = {
         'settings_admin': 'rwcu'},
     # Issue #644: only the daily summary reads and writes informative notices (sudo); the
     # administrator may look at them (base.group_system, via settings_admin).
+    # Issue #800: student walkout calls come from the portal (sudo); staff only read them, within
+    # the tutor scope (record rules, test_student_walkout.py).
+    'ems.student_walkout': {
+        'teacher': 'r', 'tutor': 'r', 'secretary': '', 'head_of_studies': 'r', 'academic_admin': 'rwcu',
+        'settings_admin': 'rwcu'},
+    'ems.student_walkout.line': {'teacher': 'r', 'head_of_studies': 'r', 'secretary': '', 'academic_admin': 'rwcu'},
+    # The tutor aborts a call, the Head of Studies does not validate it: who may is checked in
+    # ems.student_walkout._ems_check_reject.
+    'ems.student_walkout.reject.wizard': {'teacher': 'rwcu', 'secretary': '', 'head_of_studies': 'rwcu', 'academic_admin': 'rwcu'},
+    'ems.student_walkout.rejection_reason': {
+        'teacher': 'r', 'secretary': '', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu', 'settings_admin': 'rwcu'},
     'ems.info_notice': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'settings_admin': 'r'},
     'ems.criteria': {'teacher': 'r', 'secretary': 'r'},
     # Issue #683: the applications have record rules and a write() guard, tested in test_erasmus.py.
@@ -82,7 +99,7 @@ ACCESS_MATRIX = {
     'ems.erasmus.destination': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.call.question': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.call.task': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
-    'ems.erasmus.mobility': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'rw', 'erasmus': 'rwcu'},
+    'ems.erasmus.mobility': {'teacher': 'r', 'secretary': 'r', 'head_of_studies': 'rw', 'erasmus': 'rwcu'},
     # The issue-#682 review: a read-only SQL view, on the student form for whoever reads the academic history.
     'ems.erasmus.history': {'teacher': 'r', 'secretary': 'r', 'head_of_studies': 'r', 'erasmus': 'r'},
     'ems.erasmus.project': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
@@ -97,7 +114,7 @@ ACCESS_MATRIX = {
     # Issue #701: a plain teacher reaches nothing; the leader and accompanying teachers (a hidden
     # group EMS manages) only their own mobilities, through record rules tested in
     # test_erasmus_group_mobility.py.
-    'ems.erasmus.group.mobility': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    'ems.erasmus.group.mobility': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.group.registration': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.group.participant': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.group.draw': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'r'},
@@ -107,7 +124,7 @@ ACCESS_MATRIX = {
     # Issue #762: the Director reads the project's money, without changing it.
     'ems.erasmus.provision': {'teacher': '', 'secretary': 'r', 'head_of_studies': '', 'director': 'r',
                               'erasmus': 'rwcu'},
-    'ems.erasmus.invoice': {'teacher': '', 'secretary': 'r', 'head_of_studies': '', 'director': 'r',
+    'ems.erasmus.invoice': {'teacher': '', 'secretary': 'rwc', 'head_of_studies': '', 'director': 'r',
                             'erasmus': 'rwcu'},
     'ems.erasmus.payment': {'teacher': '', 'secretary': 'r', 'head_of_studies': '', 'director': 'r',
                             'erasmus': 'rwcu'},
@@ -121,6 +138,11 @@ ACCESS_MATRIX = {
                                  'erasmus': 'rwcu', 'academic_admin': 'rwcu'},
     'ems.erasmus.expense.correct.wizard': {'teacher': '', 'secretary': '', 'erasmus': 'rwcu',
                                            'academic_admin': 'rwcu'},
+    # Issue #786: the team's dialogs to cancel a mobility and to set its agreed destination.
+    'ems.erasmus.mobility.cancel.wizard': {'teacher': '', 'secretary': '', 'erasmus': 'rwcu',
+                                           'academic_admin': 'rwcu'},
+    'ems.erasmus.mobility.destination.wizard': {'teacher': '', 'secretary': '', 'erasmus': 'rwcu',
+                                                'academic_admin': 'rwcu'},
     # Audit D-1: signatures are created by EMS and only ticked (write() guard, test_erasmus_decisions.py).
     'ems.erasmus.document.signature': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'erasmus': 'rw'},
     'ems.erasmus.undo.transfer.wizard': {'teacher': '', 'erasmus': '', 'secretary': 'rwcu', 'academic_admin': 'rwcu'},
@@ -132,7 +154,7 @@ ACCESS_MATRIX = {
     # Earlier commitment letters: created by EMS only, never changed (test_erasmus_integration.py).
     'ems.erasmus.commitment.version': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'erasmus': 'r'},
     'ems.erasmus.export': {'teacher': '', 'secretary': 'rc', 'head_of_studies': '', 'erasmus': 'rc'},
-    'ems.erasmus.mobility.task': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    'ems.erasmus.mobility.task': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.self_assessment': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.self_assessment.answer': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.group': {'teacher': 'r', 'secretary': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu'},

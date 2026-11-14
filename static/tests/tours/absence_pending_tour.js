@@ -158,7 +158,7 @@ registry.category("web_tour.tours").add("ems_absence_pending_teacher", {
 
 // Issue #707: the Head of Studies reviews detected absences. One from its form's Actions
 // dropdown (Request action, through its dialog, issue #735), two at once from the list's action
-// menu (Discard), and one through the Prepare justification wizard, also from the list, which
+// menu (Discard, asking why, issue #818), and one through the Prepare justification wizard, also from the list, which
 // prepares it for the teacher. Fixtures: test_absence_pending_tour.py.
 function selectRow(name) {
     return {
@@ -215,8 +215,29 @@ registry.category("web_tour.tours").add("ems_absence_pending_review", {
         selectRow("Review Teacher B"),
         selectRow("Review Teacher C"),
         ...listAction("Discard"),
+        // Issue #818: a dialog asks why, the first reason by default.
         {
-            trigger: ".o_list_view:not(:has(.o_data_row:contains('Review Teacher B'))):not(:has(.o_data_row:contains('Review Teacher C')))",
+            trigger: ".modal .o_field_widget[name='reason_id'] input",
+            content: "Pick the discard reason",
+            run: "edit Error",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Error')",
+            content: "Error",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='details'] textarea",
+            content: "Add some details",
+            run: "edit Wrong schedule loaded",
+        },
+        {
+            trigger: ".modal button[name='action_confirm']",
+            content: "Discard both",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_list_view:not(:has(.o_data_row:contains('Review Teacher B'))):not(:has(.o_data_row:contains('Review Teacher C')))",
             content: "Both discarded and out of the list",
         },
         selectRow("Review Teacher D"),

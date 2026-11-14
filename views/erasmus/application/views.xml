@@ -29,6 +29,8 @@
                            decoration-success="state in ('admitted', 'selected', 'accepted')"
                            decoration-danger="state == 'excluded'"
                            decoration-primary="state == 'reserve'"/>
+                    <!-- Issue #787 (3.3): why an application is excluded, without opening it. -->
+                    <field name="exclusion_reason" optional="show" invisible="state != 'excluded'"/>
                 </list>
             </field>
         </record>
@@ -73,18 +75,28 @@
                             <button name="action_exclude" type="object" string="Exclude"
                                     invisible="state not in ('submitted', 'subsanation', 'admitted')" groups="ems.group_erasmus,ems.group_academic_admin"/>
                             <button name="action_send_interview_call" type="object" string="Send interview call"
-                                    invisible="state != 'admitted' or not interview_date" groups="ems.group_erasmus,ems.group_academic_admin"
+                                    invisible="state != 'admitted' or not interview_date or audience != 'student'" groups="ems.group_erasmus,ems.group_academic_admin"
                                     help="Emails the applicant the interview's date and place. At least 24 hours ahead."/>
                             <button name="action_export_participants" type="object" string="Export to spreadsheet"
                                     invisible="state != 'accepted'" groups="ems.group_erasmus,ems.group_academic_admin"/>
                             <button name="action_back_to_review" type="object" string="Back to review"
                                     invisible="state not in ('admitted', 'excluded')" groups="ems.group_erasmus,ems.group_academic_admin"/>
                         </div>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,submitted,admitted,selected,accepted"/>
+                        <field name="state" widget="ems_statusbar_path" options="{'path_field': 'status_path'}"/>
                     </header>
                     <sheet>
+                        <!-- Issue #787 (3.3): the reason on top, not only in the Admission tab. -->
+                        <div class="alert alert-danger" role="alert" invisible="state != 'excluded' or not exclusion_reason">
+                            <strong>Excluded:</strong> <field name="exclusion_reason" class="d-inline" readonly="1"/>
+                        </div>
                         <div class="alert alert-warning" role="alert" invisible="not conduct_review or state not in ('submitted', 'subsanation')">
                             Serious conduct record this course (<field name="course_strike_count" class="oe_inline"/> conduct warnings): the Erasmus team may exclude the application (art. 6 of the call), after hearing the teaching team or the coexistence team. If it goes on, every warning takes points off (criterion F).
+                        </div>
+                        <!-- Issue #784 (7.8): the teacher's staff record as a button, not their name again. -->
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_open_employee" type="object" class="oe_stat_button" icon="fa-id-card-o"
+                                    string="Staff record" invisible="not employee_id"
+                                    groups="ems.group_teacher,ems.group_head_of_studies,ems.group_academic_admin"/>
                         </div>
                         <div class="oe_title">
                             <h1><field name="partner_id" readonly="1"/></h1>
@@ -94,19 +106,41 @@
                                 <field name="call_id" readonly="1"/>
                                 <field name="can_manage" invisible="1"/>
                                 <field name="audience" invisible="1"/>
+                                <field name="employee_id" invisible="1"/>
                                 <field name="modality_id" options="{'no_create': True}" readonly="not can_manage"
                                        invisible="audience == 'staff'"/>
                                 <field name="project_id" invisible="audience != 'staff' or not project_id"
                                        groups="ems.group_erasmus,ems.group_academic_admin"/>
-                                <field name="employee_id" invisible="audience != 'staff'"/>
                                 <field name="is_minor" invisible="audience != 'student'"/>
-                            </group>
-                            <group>
                                 <field name="submit_date" options="{'show_time': False}"/>
+                            </group>
+                            <!-- Issue #784 (3.4): what decides the application, on top instead of in the tabs. -->
+                            <group>
+                                <field name="requirements_check" readonly="1"/>
+                                <field name="scoring_frozen_date" invisible="1" options="{'show_time': False}"/>
+                                <field name="scores_hidden" invisible="1"/>
+                                <field name="score_total" widget="ems_score_out_of" options="{'max': 100}"
+                                       invisible="audience != 'student' or not scoring_frozen_date"/>
+                                <field name="score_total" widget="ems_score_out_of" options="{'max': 10}"
+                                       invisible="audience != 'staff' or scores_hidden or state in ('draft', 'submitted', 'subsanation', 'not_submitted', 'excluded')"/>
+                                <field name="rank" invisible="not rank"/>
                             </group>
                         </group>
                         <notebook>
-                            <page string="Documents" name="documents">
+                            <!-- Issue #784 (3.11): what the applicant sent, answers and documents together. -->
+                            <page string="Application" name="documents">
+                                <group name="answers">
+                                    <field name="proposal_a" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="proposal_b" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="declared_never_staff_mobility" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="declared_centre_start_date" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="centre_projects" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="support_needs" readonly="not can_manage" invisible="audience != 'staff'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    <field name="fewer_opportunities" readonly="not can_manage" invisible="audience != 'student'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    <field name="image_consent" readonly="not can_manage"/>
+                                    <field name="applicant_notes" readonly="not can_manage"/>
+                                </group>
+                                <separator string="Documents"/>
                                 <field name="document_ids" readonly="not can_manage">
                                     <!-- The 2026-11-04 usage test: what each document is at now (missing, to review,
                                          complete, not applicable...), the not applicable ones greyed out. -->
@@ -320,20 +354,6 @@
                                     </list>
                                 </field>
                             </page>
-                            <page string="Answers" name="answers">
-                                <group>
-                                    <field name="proposal_a" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="proposal_b" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="plan_text" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="declared_never_staff_mobility" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="declared_centre_start_date" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="centre_projects" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="support_needs" readonly="not can_manage" invisible="audience != 'staff'" groups="ems.group_erasmus,ems.group_academic_admin"/>
-                                    <field name="fewer_opportunities" readonly="not can_manage" invisible="audience != 'student'" groups="ems.group_erasmus,ems.group_academic_admin"/>
-                                    <field name="image_consent" readonly="not can_manage"/>
-                                    <field name="applicant_notes" readonly="not can_manage"/>
-                                </group>
-                            </page>
                         </notebook>
                     </sheet>
                     <chatter/>
@@ -378,12 +398,13 @@
                 <list string="Ranking" create="false" default_order="rank, score_total desc">
                     <field name="rank" invisible="not rank"/>
                     <field name="partner_id" width="220px"/>
-                    <field name="score_plan"/>
-                    <field name="score_last_mobility"/>
-                    <field name="score_projects"/>
-                    <field name="score_staff_language"/>
-                    <field name="score_seniority"/>
-                    <field name="score_internationalisation"/>
+                    <!-- Issue #810: short headers, so none is cut; the criterion's whole name on hover. -->
+                    <field name="score_plan" string="1. Plan" help="1. Mobility plan"/>
+                    <field name="score_last_mobility" string="2. Last mob." help="2. Last mobility"/>
+                    <field name="score_projects" string="3. Projects" help="3. Centre projects"/>
+                    <field name="score_staff_language" string="4. Languages" help="4. Languages"/>
+                    <field name="score_seniority" string="5. Seniority" help="5. Seniority"/>
+                    <field name="score_internationalisation" string="6. Internat." help="6. Internationalisation"/>
                     <field name="score_total" string="Total"/>
                     <field name="score_complete" optional="hide"/>
                     <field name="needs_draw" optional="hide"/>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #800: which groups may call a student walkout, by level and course, edited as one
+             list from Settings > Student Walkout Settings (no menu of its own). A wizard, so that
+             whoever enters Settings changes only these fields of the levels
+             (models/settings/walkout_levels_wizard.py). -->
+        <record id="view_walkout_levels_wizard_form" model="ir.ui.view">
+            <field name="name">ems.walkout.levels.wizard.form</field>
+            <field name="model">ems.walkout.levels.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Levels and courses that may propose supporting a student walkout">
+                    <p class="text-muted">
+                        Tick the levels whose groups may propose supporting a student walkout. Leave the courses empty for every
+                        course of the level. By law, from the 3rd year of ESO.
+                    </p>
+                    <field name="line_ids" nolabel="1">
+                        <list editable="bottom" create="0" delete="0">
+                            <field name="level_id" readonly="1" force_save="1"/>
+                            <field name="walkout_allowed" widget="boolean_toggle"/>
+                            <field name="walkout_course_from" invisible="not walkout_allowed" options="{'format': false}"/>
+                            <field name="walkout_course_to" invisible="not walkout_allowed" options="{'format': false}"/>
+                        </list>
+                    </field>
+                    <footer>
+                        <button name="action_save" type="object" string="Save" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_level_walkout_settings" model="ir.actions.act_window">
+            <field name="name">Levels and courses that may propose supporting a student walkout</field>
+            <field name="res_model">ems.walkout.levels.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

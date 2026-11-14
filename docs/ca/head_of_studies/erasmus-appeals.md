@@ -12,9 +12,9 @@ Les bases de les convocatòries Erasmus+ diuen que contra la resolució definiti
 
 1. La persona envia el recurs a l'equip Erasmus, que el registra a l'EMS. Reps una tasca: *Erasmus+: respon el recurs d'alçada de ...*. La persona rep un correu que confirma que ha arribat i quan.
 2. Obre la tasca. El recurs mostra la sol·licitud, la resolució contra la qual es recorre, què es recorre i els fitxers. Pots consultar la sol·licitud i les llistes publicades, amb la puntuació total de cada persona.
-3. Escriu la teva decisió a **Resposta** i fes clic a **Accions > Resoldre**. La persona rep la resposta per correu i també la veu al portal. La tasca queda feta.
+3. Tria el **Resultat** (*Estimada*, *Estimada en part* o *Desestimada*), explica'l a **Resposta** i fes clic a **Accions > Resoldre**. La persona rep totes dues coses per correu i també la veu al portal. La tasca queda feta.
 
-Si s'estima el recurs, digues-ho a l'equip Erasmus: corregirà la sol·licitud i publicarà una rectificació de la llista. Tu només escrius la resposta: la resta del recurs és cosa de l'equip Erasmus.
+Si s'estima el recurs, digues-ho a l'equip Erasmus: corregirà la sol·licitud i publicarà una rectificació de la llista. Tu només tries el resultat i escrius la resposta: la resta del recurs és cosa de l'equip Erasmus.
 
 ---
 

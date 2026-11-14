@@ -227,11 +227,38 @@ class TestQualityMinute(TransactionCase):
     def test_a_generic_minute_takes_the_scope_chosen_for_it(self):
         generic = self.env.ref('__import__.minute_type_generic')
         Minute = self.env['ems.minute']
-        self.assertEqual(Minute.new({'type_id': generic.id, 'course_id': self.course.id}).code_preview[:9], 'ACTA-GEN-')
+        self.assertEqual(Minute.new({'type_id': generic.id, 'course_id': self.course.id}).code_preview, 'ACTA',
+                         "a generic minute has no scope until one is chosen, so no code yet")
+        unscoped = Minute.new({'type_id': generic.id, 'scope_choice': 'none', 'course_id': self.course.id})
+        self.assertEqual(unscoped.code_preview[:9], 'ACTA-GEN-')
         waiting = Minute.new({'type_id': generic.id, 'scope_choice': 'department', 'course_id': self.course.id})
         self.assertEqual(waiting.code_preview, 'ACTA')
         waiting.department_id = self.department
         self.assertEqual(waiting.code_preview[:12], 'ACTA-MINDEP-')
+
+    def test_a_generic_minute_cannot_be_saved_without_its_scope(self):
+        """Issue #821: the scope of a generic minute is chosen, never left empty, and the scope
+        chosen asks for its record like the type of a department minute does."""
+        generic = self.env.ref('__import__.minute_type_generic')
+        with self.assertRaises(ValidationError):
+            self._minute(type_id=generic.id, department_id=False)
+        with self.assertRaises(ValidationError):
+            self._minute(type_id=generic.id, scope_choice='department', department_id=False)
+        minute = self._minute(type_id=generic.id, scope_choice='none', department_id=False)
+        self.assertTrue(minute.code.startswith('ACTA-GEN-'), minute.code)
+        with self.assertRaises(ValidationError):
+            minute.scope_choice = False
+        with self.assertRaises(ValidationError):
+            self._minute(department_id=False)
+
+    def test_the_scope_choice_starts_empty_on_a_generic_minute(self):
+        with Form(self.env['ems.minute']) as form:
+            form.type_id = self.type
+            form.type_id = self.env.ref('__import__.minute_type_generic')
+            self.assertFalse(form.scope_choice, "whoever writes the minute chooses its scope")
+            form.scope_choice = 'none'
+            form.redactor_employee_id = self.env['hr.employee.public'].browse(self.employee.id)
+        self.assertEqual(form.record.scope_choice, 'none')
 
     def _nfc_minute(self, **overrides):
         vals = {'date': False, 'start_datetime': datetime(2027, 1, 14, 11, 30), 'duration': 1.5, 'attendance_mode': 'nfc'}

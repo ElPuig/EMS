@@ -15,15 +15,12 @@ class EmsConvalidationInfoWizard(models.TransientModel):
                                        ondelete='cascade')
     student_id = fields.Many2one(string="Student", related='convalidation_id.student_id')
     reason_id = fields.Many2one(string="Reason", comodel_name='ems.convalidation.info_reason', required=True,
-                                default=lambda self: self._default_reason_id())
+                                default=lambda self: self.env['ems.convalidation.info_reason'].default_reason())
     message = fields.Text(string="Details",
                           help="Sent to the student (and their family, when it follows their convalidations) by email "
                                "after the reason, and shown on the portal, where they can answer and attach the "
                                "documents asked for.")
 
-    def _default_reason_id(self):
-        """First active reason by its own order: the most usual one, like the strike reasons."""
-        return self.env['ems.convalidation.info_reason'].search([], limit=1)
 
     def _ems_request_text(self, lang):
         """The reason, in the reader's language, followed by the details."""

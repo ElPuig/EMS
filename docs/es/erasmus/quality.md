@@ -15,9 +15,9 @@ y de la memoria de la red Mobilitat FP: el **interés** y la **satisfacción**.
 | Interés del profesorado | Profesorado que ha presentado solicitud / todo el profesorado de los ciclos de FP, más la directora y el jefe de estudios de FP | - |
 | Satisfacción | Media de las puntuaciones de los participantes, del 1 al 10 | más de 8,5 |
 | Tasa de respuesta | Encuestas respondidas / estancias terminadas | - |
+| Acciones de difusión | Acciones de difusión del curso (solo con un curso elegido) | como mínimo 10 |
 
-Las dos cifras de interés se congelan cuando se publica la resolución definitiva de la convocatoria:
-quien entra en el centro o se va después no las cambia.
+Mientras una convocatoria está abierta, su interés se cuenta en el momento de abrir el panel. Cuando se publica su resolución definitiva, la cifra se congela: quien entra en el centro o se va después no la cambia. La satisfacción y la tasa de respuesta siempre se cuentan en el momento (una encuesta respondida ya no cambia).
 
 ## La encuesta de satisfacción
 
@@ -35,17 +35,17 @@ responde de ninguna manera, la **coordinación** abre la encuesta (desde la movi
 
 ## Pantalla de indicadores
 
-**Erasmus+ › Calidad › Indicadores** (el panel se titula *Indicadores de calidad*) muestra las cifras para los filtros que elijas (curso,
+**Erasmus+ › Calidad › Indicadores** (el panel se titula *Indicadores de calidad*) se abre con el curso actual; vacíalo para ver todos los cursos. Muestra las cifras para los filtros que elijas (curso,
 convocatoria, proyecto, tipo de participante, ciclo, entidad de acogida), en cuatro pestañas: los
-indicadores con su objetivo, la satisfacción por tipo de participante y por entidad de acogida, el
+indicadores (columnas *Indicador*, *Valor*, *Objetivo*, *Cumple* en verde o rojo, y *Respuestas*: cuántas personas cuenta la cifra), la satisfacción por tipo de participante y por entidad de acogida, el
 recorrido de cada convocatoria desde las solicitudes hasta las movilidades realizadas, y la
-evolución curso a curso. No muestra nunca el nombre de nadie. Las cifras se redondean hacia arriba a partir de la mitad, a un decimal (81,25 % se muestra 81,3 %). Filtradas por proyecto, las cifras de interés son las de las convocatorias de sus movilidades, compartidas con cualquier otro proyecto de las mismas convocatorias.
+evolución curso a curso. No muestra nunca el nombre de nadie. Al pasar el ratón por el icono (i) de cada indicador, una línea explica cómo se calcula; el informe en PDF lo explica entero. Las cifras se redondean hacia arriba a partir de la mitad, a un decimal (81,25 % se muestra 81,3 %). Filtradas por proyecto, las cifras de interés son las de las convocatorias de sus movilidades, compartidas con cualquier otro proyecto de las mismas convocatorias.
 
 ## Respuestas y acciones de mejora
 
-**Erasmus+ › Calidad › Encuestas de satisfacción** lista las respuestas. Todo el equipo Erasmus+ (la coordinación y el técnico de movilidad) ve la puntuación, los comentarios y quién ha respondido, con su movilidad; nadie más.
+**Erasmus+ › Calidad › Encuestas de satisfacción** lista las respuestas. Todo el equipo Erasmus+ (la coordinación y el técnico de movilidad) ve la puntuación, los comentarios y quién ha respondido, con su movilidad; nadie más. Las dos listas usan cabeceras cortas (*Tipo*, *Acción*, *Seguimiento*); el nombre entero aparece al pasar el ratón. El curso, la entidad de acogida y el comentario están en el menú de columnas, a la derecha de las cabeceras, para que quepan la convocatoria, el participante y el ciclo.
 
-**Puntuaciones bajas** lista todas las respuestas de 6 o menos con lo que no ha funcionado. Abre una
+**Puntuaciones bajas** lista todas las respuestas de 6 o menos con lo que no ha funcionado. El panel de calidad dice cuántas hay debajo de los indicadores (*Puntuaciones bajas: 2, 1 sin acción de mejora*): haz clic para abrirlas, primero las que no tienen acción. Abre una
 y elige **Acciones › Crear una acción de mejora**: EMS la crea en la aplicación **Calidad**, sin el
 nombre del participante, y la sigues allí como cualquier otra acción. Es la evidencia que pide la
 auditoría ISO. Un miembro del equipo que no es docente no puede abrir las acciones de Calidad: EMS
@@ -76,12 +76,12 @@ registrado solo. Añade el resto con **Nuevo**: sesiones informativas, ErasmusDa
 sociales. Escribe los destinatarios de forma general («alumnado de CFGS»), nunca nombres, y adjunta
 una captura o el cartel si lo tienes. Si no sabes a cuántas personas ha llegado, deja esa cifra vacía.
 
-## Cursos anteriores
+## Indicadores de cursos anteriores
 
-**Erasmus+ › Calidad › Cursos anteriores** guarda los indicadores de los cursos de antes de que EMS
+**Erasmus+ › Configuración › Indicadores de cursos anteriores** guarda los indicadores de los cursos de antes de que EMS
 los guardara, introducidos por la coordinación con su fuente. Salen en la evolución por curso
 marcados como *carga manual*. Los cursos 2022-2023 a 2025-2026 ya están.
 
-Las columnas de profesorado quedan vacías cuando no hay dato: una celda vacía y un 0 significan lo mismo, y el panel deja esos cursos en blanco.
+Las cabeceras son cortas (*Solic.*, *Dest.*); el nombre entero aparece al pasar el ratón. Las columnas de profesorado (*Prof. solic.*, *Prof. dest.*) están ocultas de entrada: muéstralas desde el menú de columnas, a la derecha de las cabeceras. Quedan vacías cuando no hay dato: una celda vacía y un 0 significan lo mismo, y el panel deja esos cursos en blanco.
 
 Haz clic en una línea para verla entera, con la fuente: la lista oculta la fuente para que se lea bien.

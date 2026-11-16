@@ -10,6 +10,8 @@ from odoo.exceptions import UserError
 # summer) and never further than the limit from the start.
 SCHOOL_WINDOW_DAYS = 60
 SCHOOL_WINDOW_LIMIT_DAYS = 730
+# How far ahead the next class of a group is looked for.
+SCHOOL_SEND_HORIZON = 21
 
 class EmsDatetimeUtils(models.AbstractModel):
     """Every EMS date/time conversion goes through here. The whole centre works in a single timezone,
@@ -80,9 +82,12 @@ class EmsDatetimeUtils(models.AbstractModel):
             return ''
         return self.utc_datetime_to_local(UTC.localize(value)).strftime('%d/%m/%Y %H:%M')
 
-    # School hours (issue #800): only the time of school days counts, every hour of them (the night
-    # included), weekends, public holidays and school breaks never. 24 school hours from a Friday
-    # 13:00 end on the Monday at 13:00. Counted on the company's wall clock, naive UTC in and out.
+    # Counting hours over school days (issues #800, #828), on the company's wall clock, naive UTC in
+    # and out. Weekends, public holidays and school breaks never count. Without `windows`, every hour
+    # of a school day counts (the night included): 24 hours from a Friday 13:00 end on the Monday at
+    # 13:00. With `windows` ({weekday: (hour_from, hour_to)}, a group's day from its first class to
+    # its last one), only those hours count: class hours. `school_days` replaces the calendar's own
+    # (a callable (date_from, date_to) -> set of dates), for the sample shown in the settings.
 
     def _ems_school_days(self, date_from, date_to):
         """The school days between both dates (included), in one search."""
@@ -94,42 +99,75 @@ class EmsDatetimeUtils(models.AbstractModel):
     def _ems_utc_from_wall(self, wall):
         return self.datetime_to_odoo(self.local_datetime_to_utc(wall.replace(tzinfo=self.current_tz())))
 
-    def ems_add_school_hours(self, moment, hours):
-        """`moment` (naive UTC) plus `hours` school hours, as naive UTC."""
+    @staticmethod
+    def _ems_counted_span(day, windows):
+        """The stretch of `day` (a date) that counts, as naive wall datetimes, or None."""
+        midnight = datetime.combine(day, datetime.min.time())
+        if not windows:
+            return midnight, midnight + timedelta(days=1)
+        if day.weekday() not in windows:
+            return None
+        hour_from, hour_to = windows[day.weekday()]
+        return midnight + timedelta(hours=hour_from), midnight + timedelta(hours=hour_to)
+
+    def ems_add_school_hours(self, moment, hours, windows=None, school_days=None):
+        """`moment` (naive UTC) plus `hours` counted hours (see above), as naive UTC."""
+        school_days_of = school_days or self._ems_school_days
         wall = self._ems_local_wall(moment)
-        # Enough days for the hours plus any weekends and breaks in between; a longer break (the
-        # summer one) reads the next stretch of days when this one runs out, up to a limit.
+        # Enough days for the hours plus any weekends and breaks in between (class hours are a few a
+        # day); a longer break (the summer one) reads the next stretch of days when this one runs
+        # out, up to a limit.
         first_day = wall.date()
-        window_end = first_day + timedelta(days=int(hours / 24) * 3 + SCHOOL_WINDOW_DAYS)
-        school_days = self._ems_school_days(first_day, window_end)
+        span_days = int(hours / (4 if windows else 24)) * 3 + SCHOOL_WINDOW_DAYS
+        window_end = first_day + timedelta(days=span_days)
+        days = school_days_of(first_day, window_end)
         remaining = timedelta(hours=hours)
+        day = first_day
         while True:
-            if wall.date() > window_end:
-                if wall.date() - first_day > timedelta(days=SCHOOL_WINDOW_LIMIT_DAYS):
+            if day > window_end:
+                if day - first_day > timedelta(days=SCHOOL_WINDOW_LIMIT_DAYS):
                     raise UserError(_("There are no school days in the calendar after %s.", first_day))
                 next_end = window_end + timedelta(days=SCHOOL_WINDOW_DAYS)
-                school_days |= self._ems_school_days(window_end + timedelta(days=1), next_end)
+                days |= school_days_of(window_end + timedelta(days=1), next_end)
                 window_end = next_end
-            day_end = datetime.combine(wall.date() + timedelta(days=1), datetime.min.time())
-            if wall.date() in school_days:
-                if remaining <= day_end - wall:
+            span = day in days and self._ems_counted_span(day, windows)
+            if span and wall < span[1]:
+                wall = max(wall, span[0])
+                if remaining <= span[1] - wall:
                     return self._ems_utc_from_wall(wall + remaining)
-                remaining -= day_end - wall
-            wall = day_end
+                remaining -= span[1] - wall
+            day += timedelta(days=1)
 
-    def ems_school_hours_between(self, start, end):
-        """The school hours from `start` to `end` (naive UTC), 0 when `end` is not after it."""
+    def ems_school_hours_between(self, start, end, windows=None, school_days=None):
+        """The counted hours (see above) from `start` to `end` (naive UTC), 0 when `end` is not after it."""
         wall, wall_end = self._ems_local_wall(start), self._ems_local_wall(end)
         if wall_end <= wall:
             return 0.0
-        school_days = self._ems_school_days(wall.date(), wall_end.date())
-        total = timedelta()
-        while wall < wall_end:
-            day_end = min(datetime.combine(wall.date() + timedelta(days=1), datetime.min.time()), wall_end)
-            if wall.date() in school_days:
-                total += day_end - wall
-            wall = day_end
+        days = (school_days or self._ems_school_days)(wall.date(), wall_end.date())
+        total, day = timedelta(), wall.date()
+        while day <= wall_end.date():
+            span = day in days and self._ems_counted_span(day, windows)
+            if span:
+                total += max(timedelta(), min(span[1], wall_end) - max(span[0], wall))
+            day += timedelta(days=1)
         return total.total_seconds() / 3600
+
+    def ems_class_send_moment(self, moment, windows, school_days=None):
+        """When something sent at `moment` (naive UTC) reaches a group with these class `windows`:
+        `moment` itself during its classes on a school day (or with no windows), otherwise the start
+        of its next classes (naive UTC), skipping weekends, public holidays and school breaks."""
+        if not windows:
+            return moment
+        wall = self._ems_local_wall(moment)
+        today = wall.date()
+        days = (school_days or self._ems_school_days)(today, today + timedelta(days=SCHOOL_SEND_HORIZON))
+        for offset in range(SCHOOL_SEND_HORIZON + 1):
+            day = today + timedelta(days=offset)
+            span = day in days and self._ems_counted_span(day, windows)
+            if not span or wall >= span[1]:
+                continue
+            return moment if wall >= span[0] else self._ems_utc_from_wall(span[0])
+        return moment
 
     def ranges_overlap(self, start_a, end_a, start_b, end_b):
         return start_a < end_b and end_a > start_b

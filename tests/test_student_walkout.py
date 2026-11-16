@@ -2,6 +2,7 @@ from datetime import timedelta
 from unittest.mock import patch
 
 from dateutil.relativedelta import relativedelta
+from markupsafe import escape
 
 from odoo import fields
 from odoo.exceptions import AccessError, UserError
@@ -45,7 +46,8 @@ def create_walkout_fixtures(cls, prefix):
     cls.group.tutor_id = create_role_employee(cls, cls.tutor)
     create_head_of_studies_branch(cls, prefix, cls.group.tutor_id)
     cls.head_of_studies.email = f'hos.{prefix.lower()}@example.com'
-    cls.env.company.write({'walkout_phase_hours': 24, 'walkout_notice_hours': 48})
+    cls.env.company.write({'walkout_phase_hours': 24, 'walkout_notice_hours': 48, 'walkout_hours_kind': 'real',
+                           'walkout_count_from': 'email', 'walkout_count_days_off': False})
 
     def student(name, age, portal=True, **vals):
         partner = cls.env['res.partner'].create({
@@ -681,6 +683,160 @@ class TestStudentWalkout(TransactionCase):
         # During the group's classes it goes at once.
         walkout2 = open_walkout(self, self.subdelegate, days=8)
         self.assertFalse(any(self._mails(walkout2.line_ids).mapped('scheduled_date')))
+
+    # How the hours are counted (issue #828)
+
+    def _rule(self, hours_kind='real', count_from='email', count_days_off=False, **values):
+        self.env.company.write({'walkout_hours_kind': hours_kind, 'walkout_count_from': count_from,
+                                'walkout_count_days_off': count_days_off, **values})
+
+    def _schedule(self, hour_from, hour_to):
+        """The group has class from `hour_from` to `hour_to`, Monday to Friday."""
+        calendar = self.env['resource.calendar'].create({'name': 'WLK schedule', 'attendance_ids': [(5, 0, 0)]})
+        return self.env['resource.calendar.attendance'].create([{
+            'name': f'WLK {day}', 'calendar_id': calendar.id, 'dayofweek': str(day), 'hour_from': hour_from,
+            'hour_to': hour_to, 'group_ids': [(6, 0, self.group.ids)],
+        } for day in range(5)])
+
+    def test_real_hours_from_the_proposal_start_and_send_at_once(self):
+        self._rule(count_from='proposal')
+        self._schedule(15.0, 16.0)
+        # Monday 10:00, the group's class at 15:00: the vote starts now and its emails leave now.
+        walkout = open_walkout(self)
+        self.assertEqual((walkout.hours_kind, walkout.count_from, walkout.count_days_off), ('real', 'proposal', False))
+        self.assertAlmostEqual(walkout.vote_start, self._local(0, 10.0), delta=timedelta(minutes=5))
+        self.assertEqual(walkout.vote_until, walkout.vote_start + timedelta(hours=24))
+        self.assertFalse(any(self._mails(walkout.line_ids).mapped('scheduled_date')))
+        self.assertFalse(any(self._mails(walkout).mapped('scheduled_date')), "The tutor's copy leaves at once too.")
+        # The end of the vote starts the joining at that very moment, its emails at once.
+        self._supported(walkout)
+        self.assertAlmostEqual(walkout.join_start, fields.Datetime.now(), delta=timedelta(minutes=1))
+        self.assertEqual(walkout.join_until, walkout.join_start + timedelta(hours=24))
+        self.assertFalse(any(self._mails(walkout.line_ids).mapped('scheduled_date')))
+        # Friday 9:00 ends on Monday 9:00; Saturday 20:00 starts then, and counts from Monday.
+        friday = self._calendar(self._local(4, 9.0))
+        self.assertEqual((friday['vote_start'], friday['vote_until']), (self._local(4, 9.0), self._local(7, 9.0)))
+        saturday = self._calendar(self._local(5, 20.0))
+        self.assertEqual((saturday['vote_start'], saturday['vote_until']), (self._local(5, 20.0), self._local(8, 0.0)))
+
+    def test_monday_proposal_can_be_for_friday_with_24_hours_of_notice(self):
+        """The case that started issue #828: phases of 24 hours and 24 of notice, real hours from the
+        proposal: proposed on Monday at any time of the school day, the walkout can be on Friday."""
+        self._rule(count_from='proposal', walkout_notice_hours=24)
+        Walkout = self.env['ems.student_walkout']
+        for hour in (8.0, 14.0, 23.5):
+            calendar = self._calendar(self._local(0, hour))
+            self.assertEqual(Walkout._ems_first_walkout_day(calendar), self.today + timedelta(days=4), hour)
+        self.assertEqual(open_walkout(self, days=4).walkout_date, self.today + timedelta(days=4))
+
+    def test_real_hours_counting_the_days_without_class(self):
+        self._rule(count_from='proposal', count_days_off=True)
+        Walkout = self.env['ems.student_walkout']
+        add_holiday(self, self.today + timedelta(days=1))
+        # Friday 9:00 ends on Saturday 9:00; a public holiday counts as any other day.
+        friday = self._calendar(self._local(4, 9.0))
+        self.assertEqual((friday['vote_until'], friday['join_until']), (self._local(5, 9.0), self._local(6, 9.0)))
+        monday = self._calendar(self._local(0, 10.0))
+        self.assertEqual((monday['vote_until'], monday['join_until']), (self._local(1, 10.0), self._local(2, 10.0)))
+        # The notice too: from Wednesday 10:00, 48 hours reach Friday 10:00, so Saturday's 00:00 is the
+        # first that keeps it, and the walkout day must be a school day: Monday.
+        self.assertEqual(Walkout._ems_first_walkout_day(monday), self.today + timedelta(days=7))
+        self.assertTrue(Walkout._ems_notice_kept(monday, self.today + timedelta(days=5)))
+
+    def test_real_hours_from_the_email_wait_for_the_class(self):
+        self._rule(count_from='email')
+        self._schedule(8.0, 15.0)
+        # Proposed at 20:00 on Monday: the vote starts at Tuesday's first class, its emails wait.
+        calendar = self._calendar(self._local(0, 20.0))
+        self.assertEqual((calendar['vote_start'], calendar['vote_until']), (self._local(1, 8.0), self._local(2, 8.0)))
+
+    def test_school_hours_count_only_the_class_hours(self):
+        self._rule(hours_kind='school', count_from='proposal', count_days_off=True)
+        self._schedule(8.0, 15.0)
+        Walkout = self.env['ems.student_walkout']
+        # Monday 9:00, 24 class hours: Monday 6, Tuesday 7, Wednesday 7, Thursday 4: Thursday 12:00.
+        # "From the proposal" and "days without class" do not apply to school hours.
+        monday = self._calendar(self._local(0, 9.0))
+        self.assertEqual((monday['vote_start'], monday['vote_until']), (self._local(0, 9.0), self._local(3, 12.0)))
+        # Joining: Thursday 3, Friday 7, Monday 7, Tuesday 7: Tuesday 15:00 (the end of its class).
+        self.assertEqual(monday['join_until'], self._local(8, 15.0))
+        # Notice, 48 class hours from Tuesday 15:00: seven whole days of class, so the second Friday's
+        # 00:00 has 49 (Wednesday to Thursday) and the Thursday only 42.
+        self.assertEqual(Walkout._ems_first_walkout_day(monday), self.today + timedelta(days=18))
+        # Proposed at 17:00, after its classes: the vote starts at its next class, its emails wait.
+        evening = self._calendar(self._local(0, 17.0))
+        self.assertEqual((evening['vote_start'], evening['vote_until']), (self._local(1, 8.0), self._local(4, 11.0)))
+        # Opened now (Monday 10:00, in class): its emails leave at once.
+        walkout = open_walkout(self, days=21)
+        self.assertEqual(walkout.hours_kind, 'school')
+        self.assertFalse(any(self._mails(walkout.line_ids).mapped('scheduled_date')))
+
+    def test_school_hours_skip_public_holidays_and_school_breaks(self):
+        self._rule(hours_kind='school')
+        self._schedule(8.0, 15.0)
+        # A two-day school break, Tuesday and Wednesday.
+        self.env['resource.calendar.leaves'].sudo().create({
+            'name': 'WLK break', 'date_from': self._local(1, 0.0), 'date_to': self._local(3, 0.0)})
+        # Monday 9:00: Monday 6, Thursday 7, Friday 7, next Monday 4: next Monday 12:00.
+        calendar = self._calendar(self._local(0, 9.0))
+        self.assertEqual(calendar['vote_until'], self._local(7, 12.0))
+
+    def test_school_hours_of_a_group_with_no_timetable_count_its_school_days(self):
+        self._rule(hours_kind='school')
+        calendar = self._calendar(self._local(4, 13.0))
+        self.assertEqual(calendar['vote_until'], self._local(7, 13.0))
+
+    def test_a_call_keeps_the_count_it_was_opened_with(self):
+        self._schedule(15.0, 16.0)
+        walkout = open_walkout(self)  # real hours from the email: the vote from 15:00
+        self.assertEqual(walkout.vote_start, self._local(0, 15.0))
+        self._rule(count_from='proposal')
+        self._supported(walkout)
+        self.assertEqual(walkout.join_start, self._local(0, 15.0), "The joining still waits for the class.")
+        self.assertEqual(set(self._mails(walkout.line_ids).mapped('scheduled_date')), {self._local(0, 15.0)})
+
+    def test_too_late_message_explains_the_count(self):
+        self._rule(count_from='proposal', count_days_off=True)
+        with self.assertRaisesRegex(UserError, 'every day'):
+            open_walkout(self, days=1)
+
+    def test_the_settings_example_follows_the_real_count(self):
+        """The sample of the settings: a group with class from 8:00 to 15:00 proposing on a Friday at
+        17:00, for each combination, with the values the issue's design gives. The text shows the
+        moments of the same calendar, so it cannot drift from the count."""
+        Walkout = self.env['ems.student_walkout']
+        utils = self.env['ems.datetime_utils']
+        friday = self.today + timedelta(days=4)
+
+        def local(days, hour):
+            return utils.datetime_to_odoo(utils.time_float_to_utc_datetime(friday + timedelta(days=days), hour))
+
+        proposal = local(0, 17.0)
+        cases = [
+            # (rule, vote_until, join_until, first walkout day)
+            ({'hours_kind': 'real', 'count_from': 'email', 'count_days_off': False},
+             local(4, 8.0), local(5, 8.0), friday + timedelta(days=10)),
+            ({'hours_kind': 'real', 'count_from': 'proposal', 'count_days_off': False},
+             local(3, 17.0), local(4, 17.0), friday + timedelta(days=7)),
+            ({'hours_kind': 'real', 'count_from': 'proposal', 'count_days_off': True},
+             local(1, 17.0), local(2, 17.0), friday + timedelta(days=5)),
+            ({'hours_kind': 'school', 'count_from': 'proposal', 'count_days_off': False},
+             local(6, 11.0), local(11, 14.0), friday + timedelta(days=21)),
+        ]
+        for rule, vote_until, join_until, first_day in cases:
+            with self.subTest(rule=rule):
+                calendar = Walkout._ems_sample_calendar(rule, 24, 48, proposal)
+                self.assertEqual((calendar['vote_until'], calendar['join_until'], calendar['first_day']),
+                                 (vote_until, join_until, first_day))
+                html = str(Walkout._ems_sample_html(rule, 24, 48, proposal))
+                for value in (calendar['vote_until'], calendar['join_until']):
+                    self.assertIn(fields.Datetime.context_timestamp(
+                        Walkout.with_context(tz=utils.company_tz_name()), value).strftime('%-d/%-m, %H:%M'), html)
+                self.assertIn(f'{first_day.day}/{first_day.month}', html)
+                self.assertIn(str(escape(Walkout._ems_count_description(rule))), html)
+        self.assertFalse(Walkout._ems_sample_html(cases[0][0], 0, 48), "No example for an invalid phase.")
+        settings = self.env['res.config.settings'].create({'walkout_hours_kind': 'school'})
+        self.assertIn('class hours', settings.walkout_calendar_example)
 
     # Permissions and seed
 

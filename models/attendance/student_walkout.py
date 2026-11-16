@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from datetime import timedelta
+
 from dateutil.relativedelta import relativedelta
 from markupsafe import Markup
 
 from odoo import SUPERUSER_ID, _, api, fields, models
 from odoo.exceptions import UserError
-from odoo.tools import format_date
+from odoo.tools import format_date, format_datetime
 
 GROUP_VOTES = ('yes', 'no', 'abstain')
 JUSTIFY_TASK = 'ems.mail_activity_student_walkout_justify'
@@ -15,6 +17,16 @@ VISIBLE_STATES = ('voting', 'joining', 'closed', 'justified', 'rejected')
 # closed, the Head of Studies validates it (justifies) or not, and may undo a validation.
 ABORTABLE_STATES = ('voting', 'joining')
 VALIDATION_STATES = ('closed', 'justified')
+# Issue #828: the sample call shown in the settings (_ems_sample_calendar).
+SAMPLE_CLASS_FROM = 8.0
+SAMPLE_CLASS_TO = 15.0
+SAMPLE_PROPOSAL_HOUR = 17.0
+
+
+def _sample_school_days(date_from, date_to):
+    """Every weekday between both dates (included): the sample's school days."""
+    return {date_from + timedelta(days=offset) for offset in range((date_to - date_from).days + 1)
+            if (date_from + timedelta(days=offset)).weekday() < 5}
 
 
 class EmsStudentWalkout(models.Model):
@@ -38,13 +50,23 @@ class EmsStudentWalkout(models.Model):
     company_id = fields.Many2one(string="Company", comodel_name='res.company', required=True, readonly=True,
                                  default=lambda self: self.env.company)
     walkout_date = fields.Date(string="Walkout day", required=True, readonly=True)
-    # The calendar, in school hours (ems.datetime_utils.ems_add_school_hours): each phase starts when
-    # its email reaches the students (their next class, _ems_send_moment) and lasts phase_hours; the
-    # Head of Studies gets the minute at least notice_hours before walkout_start. Both kept from the
-    # settings the proposal was made with.
+    # The calendar (_ems_plan): each phase lasts phase_hours and the Head of Studies gets the minute at
+    # least notice_hours before walkout_start, counted as the settings say (issue #828): real hours or
+    # the group's class hours, from the proposal or from when the email reaches the group, with or
+    # without the days the group has no class. All kept from the settings the proposal was made with;
+    # the defaults are the count of the calls opened before issue #828.
     walkout_start = fields.Datetime(string="Walkout starts", compute='_compute_walkout_start')
-    phase_hours = fields.Integer(string="Phase (school hours)", readonly=True)
-    notice_hours = fields.Integer(string="Notice (school hours)", readonly=True)
+    phase_hours = fields.Integer(string="Phase (hours)", readonly=True)
+    notice_hours = fields.Integer(string="Notice (hours)", readonly=True)
+    hours_kind = fields.Selection(string="Kind of hours", selection=[
+        ('real', "Real hours"),
+        ('school', "School hours"),
+    ], default='real', required=True, readonly=True)
+    count_from = fields.Selection(string="Count starts", selection=[
+        ('proposal', "From the moment of the proposal"),
+        ('email', "When the group receives the email within its schedule"),
+    ], default='email', required=True, readonly=True)
+    count_days_off = fields.Boolean(string="Counts the days without class", readonly=True)
     vote_start = fields.Datetime(string="Group vote from", readonly=True, copy=False)
     vote_until = fields.Datetime(string="Group vote until", readonly=True, copy=False)
     join_start = fields.Datetime(string="Joining from", readonly=True, copy=False)
@@ -184,6 +206,7 @@ class EmsStudentWalkout(models.Model):
             'walkout_date': walkout_date,
             'phase_hours': calendar['phase_hours'],
             'notice_hours': calendar['notice_hours'],
+            **calendar['plan']['rule'],
             'vote_start': calendar['vote_start'],
             'vote_until': calendar['vote_until'],
             'notes': notes[:2000],
@@ -291,51 +314,177 @@ class EmsStudentWalkout(models.Model):
         """00:00 of `day` in the centre, naive UTC: the walkout starts then."""
         return day and self.datetime_to_odoo(self.time_float_to_utc_datetime(day, 0.0))
 
-    @api.model
-    def _ems_send_moment(self, groups, moment):
-        """When an email sent at `moment` reaches the students of `groups`: then during their
-        classes, otherwise at the next ones (the latest group's)."""
-        return max(group._ems_school_send_time(moment) or moment for group in groups)
+    # How the hours are counted (issue #828): a plan, built once per calendar, holds the rule
+    # (hours_kind, count_from, count_days_off), each group's class windows (when its email reaches it)
+    # and their union (the class hours counted with school hours). `school_days` is only given by the
+    # sample of the settings (_ems_sample_calendar); otherwise the centre's calendar is read.
 
     @api.model
-    def _ems_phase(self, groups, moment, hours):
-        """A phase whose email is sent at `moment`: from when it reaches the students, `hours` school
-        hours long."""
-        start = self._ems_send_moment(groups, moment)
-        return start, self.ems_add_school_hours(start, hours)
-
-    @api.model
-    def _ems_projected_calendar(self, groups, now=None):
-        """The calendar of a call opened `now` for `groups`, the group vote taking its whole phase:
-        the latest the minute can reach the Head of Studies (join_until)."""
+    def _ems_company_rule(self):
         company = self.env.company
-        phase, notice = company.walkout_phase_hours, company.walkout_notice_hours
-        vote_start, vote_until = self._ems_phase(groups, now or fields.Datetime.now(), phase)
-        join_start, join_until = self._ems_phase(groups, vote_until, phase)
+        return {'hours_kind': company.walkout_hours_kind, 'count_from': company.walkout_count_from,
+                'count_days_off': company.walkout_count_days_off}
+
+    def _ems_rule(self):
+        self.ensure_one()
+        return {'hours_kind': self.hours_kind, 'count_from': self.count_from, 'count_days_off': self.count_days_off}
+
+    def _ems_own_plan(self):
+        self.ensure_one()
+        return self._ems_plan(self.group_ids, self._ems_rule())
+
+    @api.model
+    def _ems_plan(self, groups, rule, group_windows=None, school_days=None):
+        group_windows = group_windows if group_windows is not None else \
+            [group._ems_class_windows() for group in groups]
+        union = {}
+        for windows in group_windows:
+            for day, (hour_from, hour_to) in windows.items():
+                start, end = union.get(day, (24.0, 0.0))
+                union[day] = (min(start, hour_from), max(end, hour_to))
+        return {'rule': rule, 'group_windows': group_windows, 'windows': union, 'school_days': school_days}
+
+    @api.model
+    def _ems_counted_windows(self, plan):
+        """The class windows the count is limited to: only with school hours. A group with no
+        schedule counts every hour of its school days."""
+        return plan['windows'] if plan['rule']['hours_kind'] == 'school' else None
+
+    @api.model
+    def _ems_counts_every_day(self, plan):
+        return plan['rule']['hours_kind'] == 'real' and plan['rule']['count_days_off']
+
+    @api.model
+    def _ems_add_hours(self, plan, moment, hours):
+        if self._ems_counts_every_day(plan):
+            return moment + timedelta(hours=hours)
+        return self.ems_add_school_hours(moment, hours, self._ems_counted_windows(plan), plan['school_days'])
+
+    @api.model
+    def _ems_hours_between(self, plan, start, end):
+        if self._ems_counts_every_day(plan):
+            return max(0.0, (end - start).total_seconds() / 3600)
+        return self.ems_school_hours_between(start, end, self._ems_counted_windows(plan), plan['school_days'])
+
+    @api.model
+    def _ems_sends_at_once(self, rule):
+        """Real hours counted from the proposal: the emails leave at once, whatever the time, instead
+        of waiting for the group's classes."""
+        return rule['hours_kind'] == 'real' and rule['count_from'] == 'proposal'
+
+    @api.model
+    def _ems_send_moment(self, plan, moment):
+        """When an email sent at `moment` reaches the students: then when the rule sends at once,
+        otherwise during their classes or at the next ones (the latest group's)."""
+        if self._ems_sends_at_once(plan['rule']):
+            return moment
+        return max([self.ems_class_send_moment(moment, windows, plan['school_days'])
+                    for windows in plan['group_windows']] or [moment])
+
+    @api.model
+    def _ems_phase(self, plan, moment, hours):
+        """A phase whose email is sent at `moment`: from when it reaches the students (or at once, see
+        _ems_sends_at_once), `hours` long."""
+        start = self._ems_send_moment(plan, moment)
+        return start, self._ems_add_hours(plan, start, hours)
+
+    @api.model
+    def _ems_projected_calendar(self, groups, now=None, plan=None, phase=None, notice=None):
+        """The calendar of a call opened `now` for `groups` with the settings (or `plan`, `phase` and
+        `notice`, for the sample of the settings), the group vote taking its whole phase: the latest
+        the minute can reach the Head of Studies (join_until)."""
+        company = self.env.company
+        plan = plan or self._ems_plan(groups, self._ems_company_rule())
+        phase = company.walkout_phase_hours if phase is None else phase
+        notice = company.walkout_notice_hours if notice is None else notice
+        vote_start, vote_until = self._ems_phase(plan, now or fields.Datetime.now(), phase)
+        join_start, join_until = self._ems_phase(plan, vote_until, phase)
         return {
-            'phase_hours': phase, 'notice_hours': notice,
+            'phase_hours': phase, 'notice_hours': notice, 'plan': plan,
             'vote_start': vote_start, 'vote_until': vote_until,
             'join_start': join_start, 'join_until': join_until,
         }
 
     @api.model
     def _ems_notice_kept(self, calendar, day):
-        """Whether a walkout on `day` keeps the notice: the minute at least notice_hours school hours
-        before its 00:00."""
-        return self.ems_school_hours_between(calendar['join_until'], self._ems_day_start(day)) >= \
+        """Whether a walkout on `day` keeps the notice: the minute at least notice_hours, counted as
+        the phases, before its 00:00."""
+        return self._ems_hours_between(calendar['plan'], calendar['join_until'], self._ems_day_start(day)) >= \
             calendar['notice_hours']
 
     @api.model
     def _ems_first_walkout_day(self, calendar):
         """The first school day a call with this calendar can be for."""
         first = self.utc_to_local_date(calendar['join_until'])
-        school_days = sorted(self._ems_school_days(first, fields.Date.add(first, days=366)))
+        school_days_of = calendar['plan']['school_days'] or self._ems_school_days
+        school_days = sorted(school_days_of(first, fields.Date.add(first, days=366)))
         return next((day for day in school_days if self._ems_notice_kept(calendar, day)), False)
+
+    @api.model
+    def _ems_sample_calendar(self, rule, phase, notice, now=None):
+        """The calendar of a sample call for the settings: a group with class from SAMPLE_CLASS_FROM to
+        SAMPLE_CLASS_TO, Monday to Friday, every weekday a school day, proposing on the next Friday
+        (`now`, by default) at SAMPLE_PROPOSAL_HOUR, after its classes. The same functions as a real
+        call, only the timetable and the school days are the sample's."""
+        if now is None:
+            today = self.get_local_today()
+            friday = today + timedelta(days=(4 - today.weekday()) % 7)
+            now = self.datetime_to_odoo(self.time_float_to_utc_datetime(friday, SAMPLE_PROPOSAL_HOUR))
+        plan = self._ems_plan(self.env['ems.group'], rule,
+                              group_windows=[{day: (SAMPLE_CLASS_FROM, SAMPLE_CLASS_TO) for day in range(5)}],
+                              school_days=_sample_school_days)
+        calendar = self._ems_projected_calendar(self.env['ems.group'], now, plan, phase, notice)
+        calendar['proposal'] = now
+        calendar['first_day'] = self._ems_first_walkout_day(calendar)
+        return calendar
+
+    @api.model
+    def _ems_sample_html(self, rule, phase, notice, now=None):
+        """The sample call of the settings, as text (see _ems_sample_calendar)."""
+        if not phase or phase < 1 or notice is None or notice < 0:
+            return ''
+        calendar = self._ems_sample_calendar(rule, phase, notice, now)
+        tz = self.company_tz_name()
+
+        def moment(value):
+            return format_datetime(self.env, value, tz=tz, dt_format='EEEE d/M, HH:mm')
+
+        lines = [
+            _("The group vote ends: %(moment)s", moment=moment(calendar['vote_until'])),
+            _("The joining ends, and the minute reaches the Head of Studies at the latest: %(moment)s",
+              moment=moment(calendar['join_until'])),
+            _("First possible walkout day: %(day)s",
+              day=format_date(self.env, calendar['first_day'], date_format='EEEE d/M')),
+        ]
+        intro = _("Example: a group with class from 8:00 to 15:00, Monday to Friday, proposes a walkout on "
+                  "%(moment)s, after its classes.", moment=moment(calendar['proposal']))
+        return Markup('<p class="mb-1">%s</p><ul class="mb-1">%s</ul><p class="mb-0">%s</p>') % (
+            intro, Markup('').join(Markup('<li>%s</li>') % line for line in lines),
+            self._ems_count_description(rule))
+
+    @api.model
+    def _ems_count_description(self, rule):
+        """What the rule means, in two sentences: shown on the portal, the settings and the error."""
+        if rule['hours_kind'] == 'school':
+            return _("Only the group's class hours count, according to its timetable: the days without class "
+                     "(weekends, public holidays and school breaks) have none. The count starts at the group's first "
+                     "class after the proposal.")
+        if rule['count_days_off']:
+            hours = _("Real hours count, every day, also the days the group has no class.")
+        else:
+            hours = _("Real hours count, except on the days the group has no class (weekends, public holidays and "
+                      "school breaks), which count nothing.")
+        if rule['count_from'] == 'proposal':
+            start = _("The count starts at the moment of the proposal, and the emails leave at once.")
+        else:
+            start = _("Each phase starts when its email reaches the group: during its classes, or at the start of "
+                      "the next ones.")
+        return f"{hours} {start}"
 
     @api.model
     def _ems_check_request_date(self, walkout_date, calendar):
         """The group vote and the joining take a phase each and the minute must reach the Head of
-        Studies the notice before the walkout, all in school hours."""
+        Studies the notice before the walkout, all counted as the settings say."""
         if not walkout_date:
             raise UserError(_("Give the walkout day."))
         if not self._ems_school_days(walkout_date, walkout_date):
@@ -343,10 +492,10 @@ class EmsStudentWalkout(models.Model):
         if not self._ems_notice_kept(calendar, walkout_date):
             raise UserError(_(
                 "It is too late to propose supporting a student walkout for %(day)s: the group vote and the joining take "
-                "%(phase)s school hours each and the Head of Studies must get the minute %(notice)s school hours "
-                "before the walkout (weekends, public holidays and school breaks do not count). A proposal made "
-                "now can be for %(first)s at the earliest.", day=format_date(self.env, walkout_date),
-                phase=calendar['phase_hours'], notice=calendar['notice_hours'],
+                "%(phase)s hours each and the Head of Studies must get the minute %(notice)s hours before the "
+                "walkout. %(count)s A proposal made now can be for %(first)s at the earliest.",
+                day=format_date(self.env, walkout_date), phase=calendar['phase_hours'],
+                notice=calendar['notice_hours'], count=self._ems_count_description(calendar['plan']['rule']),
                 first=format_date(self.env, self._ems_first_walkout_day(calendar))))
 
     def _ems_phase_open(self, state):
@@ -394,7 +543,7 @@ class EmsStudentWalkout(models.Model):
         closes (nobody is justified)."""
         for walkout in self.filtered(lambda walkout: walkout.state == 'voting'):
             if walkout.group_supports:
-                join_start, join_until = walkout._ems_phase(walkout.group_ids, fields.Datetime.now(),
+                join_start, join_until = walkout._ems_phase(walkout._ems_own_plan(), fields.Datetime.now(),
                                                             walkout.phase_hours)
                 walkout.write({'state': 'joining', 'join_start': join_start, 'join_until': join_until})
                 walkout._ems_wake_cron_at(walkout.join_until)
@@ -449,8 +598,10 @@ class EmsStudentWalkout(models.Model):
 
     def _ems_mail_students(self, template_xmlid, lines=None):
         """Each student's email (`lines`, by default those with portal access), sent during their
-        group's school hours: queued until its next class when it is outside them."""
+        group's school hours: queued until its next class when it is outside them, unless the hours
+        are counted from the proposal (_ems_sends_at_once)."""
         template = self.env.ref(template_xmlid).sudo()
+        at_once = self._ems_sends_at_once(self._ems_rule())
         moments = {}
         for line in lines if lines is not None else self.line_ids.filtered('has_portal'):
             email = line.student_id.student_email or line.student_id.email
@@ -458,7 +609,7 @@ class EmsStudentWalkout(models.Model):
                 continue
             group = line.student_id.main_group_id or self.group_id
             if group not in moments:
-                moments[group] = group._ems_school_send_time()
+                moments[group] = not at_once and group._ems_school_send_time()
             template.send_mail(line.id, email_values={'email_to': email, 'scheduled_date': moments[group]})
 
     def _ems_head_users(self):
@@ -486,7 +637,8 @@ class EmsStudentWalkout(models.Model):
         rejected), when it reaches the group. An email, not a notice for the daily summary: a phase
         lasts one school day and the tutor must be able to abort the proposal within it."""
         self.ensure_one()
-        moment = self._ems_send_moment(self.group_ids, fields.Datetime.now())
+        plan = self._ems_own_plan()
+        moment = not self._ems_sends_at_once(plan['rule']) and self._ems_send_moment(plan, fields.Datetime.now())
         self.with_context(walkout_event=event)._ems_mail_staff(
             'ems.email_template_student_walkout_tutor', self._ems_tutor_users(), scheduled_date=moment)
 

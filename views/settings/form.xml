@@ -179,11 +179,14 @@
 
                          <!-- Issue #800: student walkouts called from the portal by a group's delegate. -->
                          <block title="Student Walkout Settings" name="ems_walkout_settings">
-                            <setting string="Calendar" help="In school hours (weekends, public holidays and school breaks do not count). The group votes for one phase and, if it supports the walkout, each student says whether they join for another; the Head of Studies gets the minute at least the notice before the walkout." id="walkout_calendar">
+                            <setting string="Calendar" help="The group votes for one phase and, if it supports the walkout, each student says whether they join for another; the Head of Studies gets the minute at least the notice before the walkout. Each proposal keeps the values it was made with." id="walkout_calendar">
                                 <div class="content-group mt8">
                                     <div><span class="o_form_label me-2">Each phase</span><field name="walkout_phase_hours" class="text-center" style="width: 6ch;"/><span class="ms-2">hours</span></div>
                                     <div><span class="o_form_label me-2">Notice</span><field name="walkout_notice_hours" class="text-center" style="width: 6ch;"/><span class="ms-2">hours</span></div>
-                                    <div class="text-muted">A call is opened at least <field name="walkout_lead_hours" class="d-inline"/> school hours before the walkout.</div>
+                                    <div class="mt8"><span class="o_form_label me-2">Kind of hours</span><field name="walkout_hours_kind" class="w-auto"/></div>
+                                    <div invisible="walkout_hours_kind == 'school'"><span class="o_form_label me-2">The count starts</span><field name="walkout_count_from" class="w-auto"/></div>
+                                    <div invisible="walkout_hours_kind == 'school'" class="d-flex align-items-center"><field name="walkout_count_days_off"/><label for="walkout_count_days_off" string="Count the days the group has no class (weekends, public holidays and school breaks)" class="ms-1"/></div>
+                                    <div class="text-muted mt8 o_ems_walkout_calendar_example"><field name="walkout_calendar_example" class="w-100"/></div>
                                 </div>
                             </setting>
                             <setting string="Levels and courses" help="The groups whose delegate or sub-delegate may propose supporting a student walkout. By law, from the 3rd year of ESO." id="walkout_levels">

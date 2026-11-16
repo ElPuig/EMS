@@ -50539,11 +50539,6 @@ msgstr ""
 "            "
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
-msgid "<i class=\"fa fa-calendar me-1\"/> <strong>Calendar if you propose it now</strong> (only school days count: weekends, public holidays and school breaks do not):"
-msgstr "<i class=\"fa fa-calendar me-1\"/> <strong>Calendario si la propones ahora</strong> (solo cuentan los días lectivos: los fines de semana, festivos y vacaciones no):"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
 msgid "<i class=\"fa fa-check-circle me-1\"/> The proposal has been sent: your group receives an email to vote."
 msgstr "<i class=\"fa fa-check-circle me-1\"/> Se ha enviado la propuesta: tu grupo recibe un correo para votar."
@@ -50582,16 +50577,6 @@ msgstr "<strong>Adhesiones:</strong>"
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
 msgid "<strong>Manage the proposal</strong>"
 msgstr "<strong>Gestiona la propuesta</strong>"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
-msgid "A call is opened at least"
-msgstr "Una convocatoria se abre como mínimo"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
-msgid "A phase starts when the email reaches your group: during its classes, or at the start of the next ones."
-msgstr "Cada fase empieza cuando el correo llega a tu grupo: durante sus clases, o al inicio de las siguientes."
 
 #. module: ems
 #. odoo-python
@@ -50635,36 +50620,15 @@ msgid "If you propose it now, the earliest day the walkout can be on is"
 msgstr "Si la propones ahora, el primer día posible de la huelga es el"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
-msgid "In school hours (weekends, public holidays and school breaks do not count). The group votes for one phase and, if it supports the walkout, each student says whether they join for another; the Head of Studies gets the minute at least the notice before the walkout."
-msgstr "En horas lectivas (no cuentan los fines de semana, festivos ni vacaciones). El grupo vota durante una fase y, si apoya la huelga, cada alumno dice si se suma durante otra; jefatura de estudios recibe el acta como mínimo con el preaviso antes de la huelga."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/student_walkout.py:0
-msgid "It is too late to propose supporting a student walkout for %(day)s: the group vote and the joining take %(phase)s school hours each and the Head of Studies must get the minute %(notice)s school hours before the walkout (weekends, public holidays and school breaks do not count). A proposal made now can be for %(first)s at the earliest."
-msgstr "Es demasiado tarde para proponer apoyar una huelga para el %(day)s: la votación del grupo y las adhesiones duran %(phase)s horas lectivas cada una y jefatura de estudios debe recibir el acta %(notice)s horas lectivas antes de la huelga (no cuentan los fines de semana, festivos ni vacaciones). Una propuesta hecha ahora puede ser como pronto para el %(first)s."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__join_start
 msgid "Joining from"
 msgstr "Adhesiones desde"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__notice_hours
-msgid "Notice (school hours)"
-msgstr "Preaviso (horas lectivas)"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "Only a proposal still being voted or joined can be cancelled."
 msgstr "Solo se puede anular una propuesta en votación o en adhesiones."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__phase_hours
-msgid "Phase (school hours)"
-msgstr "Fase (horas lectivas)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__rejected_by_id
@@ -50675,23 +50639,6 @@ msgstr "Rechazada por"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__rejected_datetime
 msgid "Rejected on"
 msgstr "Rechazada el"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_lead_hours
-msgid "Student walkout lead time (school hours)"
-msgstr "Antelación de la huelga (horas lectivas)"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_company__walkout_notice_hours
-#: model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_notice_hours
-msgid "Student walkout notice (school hours)"
-msgstr "Preaviso de la huelga (horas lectivas)"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_company__walkout_phase_hours
-#: model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_phase_hours
-msgid "Student walkout phase (school hours)"
-msgstr "Fase de la huelga (horas lectivas)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
@@ -50731,22 +50678,6 @@ msgid ""
 msgstr ""
 "han respondido).\n"
 "                            Las adhesiones acaban el"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
-msgid "more school hours: until"
-msgstr "horas lectivas más: hasta el"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
-#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
-msgid "school hours before the walkout."
-msgstr "horas lectivas antes de la huelga."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
-msgid "school hours. It ends earlier if the votes still to come can no longer change the result."
-msgstr "horas lectivas. Acaba antes si los votos que faltan ya no pueden cambiar el resultado."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -53074,3 +53005,192 @@ msgstr ""
 #: code:addons/ems/models/erasmus/application.py:0
 msgid "Write both proposals, A and B, each with what you want to learn."
 msgstr "Escribe las dos propuestas, A y B, cada una con qué quieres aprender."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
+msgid "<i class=\"fa fa-calendar me-1\"/> <strong>Calendar if you propose it now</strong>:"
+msgstr "<i class=\"fa fa-calendar me-1\"/> <strong>Calendario si la propones ahora</strong>:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "<span class=\"o_form_label me-2\">Kind of hours</span>"
+msgstr "<span class=\"o_form_label me-2\">Tipo de horas</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "<span class=\"o_form_label me-2\">The count starts</span>"
+msgstr "<span class=\"o_form_label me-2\">El recuento empieza</span>"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__count_from
+msgid "Count starts"
+msgstr "El recuento empieza"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Count the days the group has no class (weekends, public holidays and school breaks)"
+msgstr "Contar los días que el grupo no tiene clase (fines de semana, festivos y vacaciones)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__count_days_off
+msgid "Counts the days without class"
+msgstr "Cuenta los días sin clase"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "Each phase starts when its email reaches the group: during its classes, or at the start of the next ones."
+msgstr "Cada fase empieza cuando su correo llega al grupo: durante sus clases, o al inicio de las siguientes."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "Example: a group with class from 8:00 to 15:00, Monday to Friday, proposes a walkout on %(moment)s, after its classes."
+msgstr "Ejemplo: un grupo con clase de 8:00 a 15:00, de lunes a viernes, propone una huelga el %(moment)s, después de sus clases."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "First possible walkout day: %(day)s"
+msgstr "Primer día posible de la huelga: %(day)s"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__count_from__proposal
+#: model:ir.model.fields.selection,name:ems.selection__res_company__walkout_count_from__proposal
+msgid "From the moment of the proposal"
+msgstr "Desde el momento de la propuesta"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "It is too late to propose supporting a student walkout for %(day)s: the group vote and the joining take %(phase)s hours each and the Head of Studies must get the minute %(notice)s hours before the walkout. %(count)s A proposal made now can be for %(first)s at the earliest."
+msgstr "Es demasiado tarde para proponer apoyar una huelga para el %(day)s: la votación del grupo y las adhesiones duran %(phase)s horas cada una y jefatura de estudios debe recibir el acta %(notice)s horas antes de la huelga. %(count)s Una propuesta hecha ahora puede ser como pronto para el %(first)s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__hours_kind
+msgid "Kind of hours"
+msgstr "Tipo de horas"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__notice_hours
+msgid "Notice (hours)"
+msgstr "Preaviso (horas)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "Only the group's class hours count, according to its timetable: the days without class (weekends, public holidays and school breaks) have none. The count starts at the group's first class after the proposal."
+msgstr "Solo cuentan las horas de clase del grupo, según su horario: los días sin clase (fines de semana, festivos y vacaciones) no tienen ninguna. El recuento empieza en la primera clase del grupo después de la propuesta."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
+msgid "Opened by"
+msgstr "Abierto por"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__phase_hours
+msgid "Phase (hours)"
+msgstr "Fase (horas)"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__hours_kind__real
+#: model:ir.model.fields.selection,name:ems.selection__res_company__walkout_hours_kind__real
+msgid "Real hours"
+msgstr "Horas reales"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "Real hours count, every day, also the days the group has no class."
+msgstr "Cuentan las horas reales, todos los días, también los días que el grupo no tiene clase."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "Real hours count, except on the days the group has no class (weekends, public holidays and school breaks), which count nothing."
+msgstr "Cuentan las horas reales, excepto los días que el grupo no tiene clase (fines de semana, festivos y vacaciones), que no cuentan."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__hours_kind__school
+#: model:ir.model.fields.selection,name:ems.selection__res_company__walkout_hours_kind__school
+msgid "School hours"
+msgstr "Horas lectivas"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_calendar_example
+msgid "Student walkout calendar example"
+msgstr "Ejemplo del calendario de la huelga"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__walkout_count_from
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_count_from
+msgid "Student walkout count starts"
+msgstr "Inicio del recuento de la huelga"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__walkout_count_days_off
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_count_days_off
+msgid "Student walkout counts the days without class"
+msgstr "La huelga cuenta los días sin clase"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__walkout_hours_kind
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_hours_kind
+msgid "Student walkout kind of hours"
+msgstr "Tipo de horas de la huelga"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__walkout_notice_hours
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_notice_hours
+msgid "Student walkout notice (hours)"
+msgstr "Preaviso de la huelga (horas)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__walkout_phase_hours
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_phase_hours
+msgid "Student walkout phase (hours)"
+msgstr "Fase de la huelga (horas)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "The count starts at the moment of the proposal, and the emails leave at once."
+msgstr "El recuento empieza en el momento de la propuesta, y los correos salen enseguida."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "The group vote ends: %(moment)s"
+msgstr "La votación del grupo acaba: %(moment)s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "The group votes for one phase and, if it supports the walkout, each student says whether they join for another; the Head of Studies gets the minute at least the notice before the walkout. Each proposal keeps the values it was made with."
+msgstr "El grupo vota durante una fase y, si apoya la huelga, cada alumno dice si se suma durante otra; jefatura de estudios recibe el acta como mínimo con el preaviso antes de la huelga. Cada propuesta mantiene los valores con los que se hizo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "The joining ends, and the minute reaches the Head of Studies at the latest: %(moment)s"
+msgstr "Las adhesiones acaban, y el acta llega a jefatura de estudios como muy tarde: %(moment)s"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__count_from__email
+#: model:ir.model.fields.selection,name:ems.selection__res_company__walkout_count_from__email
+msgid "When the group receives the email within its schedule"
+msgstr "Cuando el grupo recibe el correo dentro de su horario"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
+msgid "hours before the walkout."
+msgstr "horas antes de la huelga."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
+msgid "hours. It ends earlier if the votes still to come can no longer change the result."
+msgstr "horas. Acaba antes si los votos que faltan ya no pueden cambiar el resultado."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
+msgid "more hours: until"
+msgstr "horas más: hasta el"

@@ -26,13 +26,16 @@ Només poden proposar donar suport a una vaga els grups que el centre permet (a 
 
 ## El calendari
 
-La proposta té dues fases: primer el grup vota si dona suport a la vaga i després cada alumne diu si s'hi suma. Cada fase dura **24 hores lectives** per defecte, i el cap d'estudis ha de rebre l'acta com a mínim **48 hores lectives** abans de la vaga. Per tant, **una vaga només es pot proposar amb quatre dies lectius d'antelació com a mínim**.
+La proposta té dues fases: primer el grup vota si dona suport a la vaga i després cada alumne diu si s'hi suma. Cada fase dura **24 hores** per defecte, i el cap d'estudis ha de rebre l'acta com a mínim **48 hores** abans de la vaga. Per tant, amb la configuració per defecte, **una vaga s'ha de proposar amb uns quatre dies lectius d'antelació**.
 
-- Només compten els dies lectius: els caps de setmana, els festius i les vacances no. Una fase que comença divendres a les 13:00 acaba dilluns a les 13:00 (durant el cap de setmana també pots respondre).
-- Cada fase comença quan el correu arriba al teu grup: durant les classes o, si s'envia fora de l'horari, a l'inici de les següents.
+El centre decideix com es compten les hores, i el formulari t'ho explica:
+
+- Normalment, són **hores reals**, però els dies que el teu grup no té classe (caps de setmana, festius i vacances) no compten: una fase que comença divendres a les 9:00 acaba dilluns a les 9:00 (durant el cap de setmana també pots respondre).
+- El recompte comença **quan la proposes**, i els correus surten de seguida, o **quan el correu arriba al teu grup**: durant les classes o, si s'envia fora de l'horari, a l'inici de les següents.
+- El centre també pot comptar només les **hores de classe** del teu grup: llavors el calendari és més llarg.
 - La votació acaba abans si els vots que falten ja no poden canviar el resultat.
 
-Abans d'enviar-la, el formulari et mostra el calendari exacte i el primer dia possible de la vaga.
+Abans d'enviar-la, el formulari et mostra el calendari exacte, com es compten les hores i el primer dia possible de la vaga.
 
 ---
 

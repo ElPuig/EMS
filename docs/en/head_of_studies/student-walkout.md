@@ -14,7 +14,7 @@ Not to be confused with **Strikes** (Coexistence), the disciplinary record, nor 
 
 - **Nothing when a proposal is made**: the tutor watches over it.
 - **A notice in your daily summary** when a tutor (or someone above them) aborts a proposal, with the reason.
-- **The minute, by email**, when the proposal closes: at least 48 school hours before the walkout (by default), with the vote count and the students who join it. If somebody is to be justified, you also get the task **Justify the student walkout**.
+- **The minute, by email**, when the proposal closes: at least 48 hours before the walkout (by default), with the vote count and the students who join it. If somebody is to be justified, you also get the task **Justify the student walkout**.
 
 The minute reaches the Head or Deputy Head of Studies above the group's tutor; for a group with no tutor, every Head and Deputy Head of Studies.
 
@@ -39,7 +39,14 @@ The reasons come from **Student's Attendances > Configuration > Student walkouts
 An administrator sets it in **Settings > Student Walkout Settings**:
 
 - **Levels and courses**: which levels (and, optionally, which courses of them) may propose supporting a walkout. By default, from the 3rd year of ESO, baccalaureate and vocational training.
-- **Calendar**: how long each phase lasts and how long before the walkout you must get the minute, in school hours (24 and 48 by default). A proposal keeps the values it was made with.
+- **Calendar**: how long each phase lasts and how long before the walkout you must get the minute (24 and 48 hours by default), and how those hours are counted:
+  - **Kind of hours**: **real hours** (any time of the day) or **school hours** (only the hours the group is in class, according to its timetable; the calendar gets much longer).
+  - **The count starts** (real hours only): **from the moment of the proposal** (the emails to the group and the tutor leave at once, whatever the time) or **when the group receives the email within its schedule**.
+  - **Count the days the group has no class** (real hours only, off by default): off, weekends, public holidays and school breaks count nothing (24 hours from Friday at 9:00 end on Monday at 9:00); on, they count like any other day (they end on Saturday at 9:00).
+
+  Below the controls, an **example** shows, before saving, when a sample proposal's vote and joining would end and its first possible walkout day with the values on screen. A proposal keeps the values it was made with.
+
+![Calendar settings of the student walkouts, with the example](../../assets/head_of_studies/hos-walkout-calendar-settings.png)
 
 ---
 

@@ -24,6 +24,8 @@ You get an email, at the same time as your group, every time something happens:
 
 If you tutor a split group, every co-tutor is told. A group with no tutor goes to the Head and Deputy Head of Studies.
 
+The emails reach you when they reach your group: at once when the centre counts the hours from the moment of the proposal (whatever the time), otherwise during the group's classes or at the start of the next ones.
+
 ---
 
 ## Looking at a proposal

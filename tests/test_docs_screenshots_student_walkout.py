@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Regenerates the screenshots of the student walkout manuals (issue #800): the students' and
-families' portal, the tutor's abort wizard and the Head of Studies' closed call. Tagged
+families' portal, the tutor's abort wizard, the Head of Studies' closed call and the calendar
+settings (issue #828). Tagged
 '-standard' on purpose - see the NOTE in test_docs_screenshots.py. Run it by hand:
 
     sudo -u odoo bash -c "odoo -d ems -u ems --test-enable --test-tags='*/ems:TestDocsScreenshotsStudentWalkout' --stop-after-init -c /etc/odoo/odoo.conf"
@@ -12,7 +13,7 @@ from datetime import timedelta
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import DocsScreenshotMixin, mock_outgoing_email
+from .common import DocsScreenshotMixin, create_role_user, mock_outgoing_email
 from .test_student_walkout import create_walkout_fixtures, end_phase, open_walkout
 
 
@@ -85,3 +86,13 @@ class TestDocsScreenshotsStudentWalkout(DocsScreenshotMixin, HttpCase):
                       wait_for='.o_form_view .o_ems_actions_toggle',
                       click='.o_ems_actions_toggle', wait_after='.o_ems_actions_menu',
                       beyond_viewport=False, max_height=860)
+
+    def test_capture_settings_calendar(self):
+        """Issue #828: Settings > Student Walkout Settings > Calendar, with its example."""
+        admin = create_role_user(self, 'settings_admin', 'doc_shot_walkout_settings', lang='ca_ES')
+        self._capture('/odoo/action-base_setup.action_general_configuration', '#walkout_calendar',
+                      'hos-walkout-calendar-settings.png', login=admin.login,
+                      wait_for=".settings_tab a.tab[data-key='ems']",
+                      run=["document.querySelector(\".settings_tab a.tab[data-key='ems']\").click()",
+                           "document.querySelector('#walkout_calendar').scrollIntoView()"],
+                      wait_after='#walkout_calendar .o_ems_walkout_calendar_example li', beyond_viewport=False)

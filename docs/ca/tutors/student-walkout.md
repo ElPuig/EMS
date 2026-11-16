@@ -24,6 +24,8 @@ Reps un correu, alhora que el teu grup, cada vegada que passa alguna cosa:
 
 Si ets tutor d'un grup desdoblat, se n'avisa cada cotutor. Un grup sense tutor ho rep el cap d'estudis i el cap d'estudis adjunt.
 
+Els correus t'arriben quan arriben al teu grup: de seguida si el centre compta les hores des del moment de la proposta (sigui l'hora que sigui) i, si no, durant les classes del grup o a l'inici de les següents.
+
 ---
 
 ## Consultar una proposta

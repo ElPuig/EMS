@@ -124,3 +124,59 @@ registry.category("web_tour.tours").add("ems_student_walkout_levels", {
         },
     ],
 });
+
+// Issue #828: Settings > Student Walkout Settings > Calendar, as a settings administrator
+// (test_student_walkout_tour.py): the kind of hours hides the other two controls when they do not
+// apply, and the example follows every control. Discarded, not saved (see settings_tour.js).
+const walkoutBlock = ".app_settings_block[data-key='ems'] #walkout_calendar";
+registry.category("web_tour.tours").add("ems_student_walkout_calendar", {
+    test: true,
+    url: "/odoo/action-base_setup.action_general_configuration",
+    steps: () => [
+        {
+            trigger: ".settings_tab a.tab[data-key='ems']",
+            content: "Switch to the EMS Management tab",
+            run: "click",
+        },
+        {
+            trigger: `${walkoutBlock} .o_ems_walkout_calendar_example:contains('Each phase starts when its email reaches the group')`,
+            content: "The example of today's count: real hours, from the email",
+        },
+        {
+            trigger: `${walkoutBlock} .o_field_widget[name='walkout_count_from'] select`,
+            content: "Count from the proposal",
+            run: "selectByLabel From the moment of the proposal",
+        },
+        {
+            trigger: `${walkoutBlock} .o_ems_walkout_calendar_example:contains('the emails leave at once')`,
+            content: "The example follows",
+        },
+        {
+            trigger: `${walkoutBlock} .o_field_widget[name='walkout_count_days_off'] input`,
+            content: "Count the days without class",
+            run: "click",
+        },
+        {
+            trigger: `${walkoutBlock} .o_ems_walkout_calendar_example:contains('every day')`,
+            content: "The example follows",
+        },
+        {
+            trigger: `${walkoutBlock} .o_field_widget[name='walkout_hours_kind'] select`,
+            content: "School hours",
+            run: "selectByLabel School hours",
+        },
+        {
+            trigger: `${walkoutBlock}:not(:has(.o_field_widget[name='walkout_count_from'])):not(:has(.o_field_widget[name='walkout_count_days_off'])) .o_ems_walkout_calendar_example:contains('class hours')`,
+            content: "The start and the days without class do not apply; the example counts class hours",
+        },
+        {
+            trigger: ".o_form_button_cancel",
+            content: "Discard, to leave the form clean",
+            run: "click",
+        },
+        {
+            trigger: `${walkoutBlock} .o_field_widget[name='walkout_count_from'] select`,
+            content: "Discarded: real hours again",
+        },
+    ],
+});

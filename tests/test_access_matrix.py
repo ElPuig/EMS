@@ -52,6 +52,9 @@ ACCESS_MATRIX = {
     # act is checked when it runs (ems.certificate._ems_check_can_act).
     'ems.certificate.type': {'teacher': 'r', 'vet_coordinator': 'r', 'secretary': 'r', 'director': 'r', 'academic_admin': 'rwcu'},
     'ems.certificate.type.step': {'teacher': 'r', 'vet_coordinator': 'r', 'secretary': 'r', 'director': 'r', 'academic_admin': 'rwcu'},
+    'ems.certificate.type.document': {'teacher': 'r', 'vet_coordinator': 'r', 'secretary': 'r', 'director': 'r', 'academic_admin': 'rwcu'},
+    # Lines created by the request itself; whoever may attach a file writes them (can_upload).
+    'ems.certificate.document': {'teacher': 'rw', 'vet_coordinator': 'rw', 'secretary': 'rw', 'director': 'rw', 'academic_admin': 'rwcu'},
     'ems.certificate.wizard': {'teacher': 'rwc', 'vet_coordinator': 'rwc', 'secretary': 'rwc', 'academic_admin': 'rwcu'},
     'ems.course': {'teacher': 'r', 'secretary': 'r', 'erasmus': 'r'},
     # Issue #726: who decides a proposal dismisses it; whether they may is checked on confirming

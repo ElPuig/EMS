@@ -30,13 +30,32 @@
                         <group>
                             <group>
                                 <field name="kind"/>
-                                <field name="requires_annex"/>
+                                <field name="requires_documents"/>
                             </group>
                             <group>
                                 <field name="level_ids" widget="many2many_tags" options="{'no_create': True}"/>
                             </group>
                         </group>
                         <field name="description" placeholder="What the applicant reads on the request form..."/>
+                        <field name="circuit_role_ids" invisible="1"/>
+                        <div invisible="not requires_documents">
+                            <separator string="Required documents"/>
+                            <field name="document_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="applicant_uploads"/>
+                                    <field name="role_ids" widget="many2many_tags" options="{'no_create': True}"
+                                           domain="[('id', 'in', parent.circuit_role_ids)]"/>
+                                    <field name="append_to_certificate"/>
+                                </list>
+                            </field>
+                            <div class="text-muted mb-3">
+                                <i class="fa fa-info-circle me-1"/>Who attaches each document: the applicant and/or the
+                                positions ticked; with nobody ticked, anyone taking part. They are required before the
+                                certificate is issued. Any other document can always be attached as optional.
+                            </div>
+                        </div>
                         <separator string="Approval circuit"/>
                         <field name="step_ids">
                             <list editable="bottom">

@@ -28,7 +28,22 @@ class EmsPortalCertificateController(CustomerPortal):
         return student if partner._ems_can_file_requests_for(student) else student.browse()
 
     def _ems_certificate_files(self):
-        return [upload for upload in request.httprequest.files.getlist('documents') if upload.filename]
+        """The uploaded files by document: `document_<id>` inputs for the required documents of the
+        type (ems.certificate.type.document), `documents` (key None) for the optional ones."""
+        files = {}
+        for key in request.httprequest.files:
+            uploads = [upload for upload in request.httprequest.files.getlist(key) if upload.filename]
+            if not uploads:
+                continue
+            if key == 'documents':
+                files[None] = uploads
+            elif key.startswith('document_') and key[9:].isdigit():
+                files[int(key[9:])] = uploads
+        return files
+
+    def _ems_certificate_portal_documents(self, certificate_type):
+        """The required documents of the type the applicant may attach."""
+        return certificate_type._ems_required_documents().filtered(lambda document: document._ems_applicant_may_upload())
 
     def _ems_certificate_studies(self, certificate_type, current_study):
         """The studies to choose from: those of the type's levels, the student's own first."""
@@ -65,6 +80,7 @@ class EmsPortalCertificateController(CustomerPortal):
             types=types,
             defaults=defaults,
             studies=self._ems_certificate_studies(types[:1], current_study),
+            portal_documents=self._ems_certificate_portal_documents(types[:1]),
             certificates=Certificate.search([('student_id', '=', viewed.id)]),
             error=kwargs.get('error'),
             submitted=kwargs.get('submitted'),
@@ -117,6 +133,7 @@ class EmsPortalCertificateController(CustomerPortal):
             certificate=certificate,
             access_token=certificate.access_token,
             studies=self._ems_certificate_studies(certificate.type_id, current_study),
+            portal_documents=certificate._ems_portal_documents().type_document_id,
             defaults={name: certificate[name].id if name == 'study_id' else certificate[name]
                       for name in ('student_name', 'student_document', 'study_id', 'fct_school_year',
                                    'company_name', 'company_vat', 'agreement_reference')},

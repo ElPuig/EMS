@@ -62,11 +62,29 @@
                 <input id="certificate_agreement_reference" type="text" name="agreement_reference" class="form-control"
                        maxlength="50" t-att-value="defaults.get('agreement_reference')"/>
             </div>
+        </div>
+
+        <t t-call="ems.portal_certificate_documents"/>
+    </template>
+
+    <!-- The files the applicant may attach: one input per required document of the type they may
+         attach (input document_<ems.certificate.type.document id>), and the optional ones. Required
+         documents are only demanded before the certificate is issued: the centre may attach the
+         ones it has. -->
+    <template id="portal_certificate_documents" name="Certificate request documents">
+        <h6 class="fw-bold mt-2">Documentation</h6>
+        <div class="row">
+            <div t-foreach="portal_documents" t-as="portal_document" class="col-md-6 mb-3 o_ems_certificate_document">
+                <label class="form-label" t-att-for="'certificate_document_%s' % portal_document.id" t-esc="portal_document.name"/>
+                <input t-att-id="'certificate_document_%s' % portal_document.id" type="file"
+                       t-att-name="'document_%s' % portal_document.id" class="form-control" multiple="multiple"
+                       accept="application/pdf,image/jpeg,image/png"/>
+                <div class="form-text">A PDF or photos of its pages. If you do not have it, the centre attaches it.</div>
+            </div>
             <div class="col-md-6 mb-3">
-                <label class="form-label" for="certificate_documents">Training agreement, if you keep a copy</label>
+                <label class="form-label" for="certificate_documents">Other documentation (optional)</label>
                 <input id="certificate_documents" type="file" name="documents" class="form-control" multiple="multiple"
                        accept="application/pdf,image/jpeg,image/png"/>
-                <div class="form-text">A PDF or photos of its pages.</div>
             </div>
         </div>
     </template>
@@ -185,8 +203,7 @@
                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                             <label class="form-label fw-bold small" for="certificate_reply_message">Answer or add documentation</label>
                             <textarea id="certificate_reply_message" name="message" rows="2" class="form-control form-control-sm mb-2" maxlength="2000"/>
-                            <input type="file" name="documents" class="form-control form-control-sm mb-2" multiple="multiple"
-                                   accept="application/pdf,image/jpeg,image/png"/>
+                            <t t-call="ems.portal_certificate_documents"/>
                             <button type="submit" class="btn btn-sm btn-primary">Send</button>
                         </form>
                     </div>

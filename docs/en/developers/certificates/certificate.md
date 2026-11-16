@@ -16,7 +16,7 @@ a number of hours of workplace training at a collaborating company. Its circuit:
    number, period, hours, agreement registration number);
 2. the **Secretary** (`ems.role_secretary`) issues it: it gets its number and the "Issued" stamp;
 3. the **Director** (`ems.role_director`) approves it ("Vist i plau"): the final PDF is generated,
-   with the agreement's pages appended, and sent to the applicant.
+   with the pages of the required documents appended (FCT: the agreement), and sent to the applicant.
 
 How a request starts:
 
@@ -30,8 +30,15 @@ How a request starts:
   certificate.
 
 The applicant's details (name, identity document, study, school year of the FCT) are mandatory; the
-company's (name, VAT number, period, hours, agreement number and the agreement file) are optional,
-since the applicant rarely has them: the VET coordinator completes them.
+company's (name, VAT number, period, hours, agreement number) are optional, since the applicant
+rarely has them: the VET coordinator completes them.
+
+**Documentation.** A type may require documents (**Required attached documentation**, with one line
+per document: e.g. FCT requires the *FCT agreement*). Each line says who may attach it: the
+applicant, positions of the circuit, or - nobody ticked - anyone taking part; the administrator
+always. Every required document must be attached before the issuing step, and a line with **Add to
+the certificate** has its pages appended to the PDF. Besides, any request takes **Other
+documentation**: optional files anyone taking part attaches, never added to the certificate.
 
 > **Not a qualified electronic signature:** the stamps are EMS's own record of who issued and approved
 > the certificate (`ems.report_validation_stamp`, as in minutes and convalidation resolutions).
@@ -54,6 +61,11 @@ since the applicant rarely has them: the VET coordinator completes them.
 ```mermaid
 erDiagram
     EMS_CERTIFICATE_TYPE ||--|{ EMS_CERTIFICATE_TYPE_STEP : "step_ids (cascade)"
+    EMS_CERTIFICATE_TYPE ||--o{ EMS_CERTIFICATE_TYPE_DOCUMENT : "document_ids (cascade)"
+    EMS_ROLE }o--o{ EMS_CERTIFICATE_TYPE_DOCUMENT : "role_ids (who attaches it)"
+    EMS_CERTIFICATE ||--o{ EMS_CERTIFICATE_DOCUMENT : "document_ids (cascade)"
+    EMS_CERTIFICATE_TYPE_DOCUMENT ||--o{ EMS_CERTIFICATE_DOCUMENT : "type_document_id (cascade)"
+    EMS_CERTIFICATE_DOCUMENT }o--o{ IR_ATTACHMENT : "attachment_ids (its files)"
     EMS_CERTIFICATE_TYPE }o--o{ EMS_LEVEL : "level_ids (who may request it on the portal)"
     EMS_ROLE ||--o{ EMS_CERTIFICATE_TYPE_STEP : "role_id (restrict)"
     EMS_CERTIFICATE_TYPE ||--o{ EMS_CERTIFICATE : "type_id (restrict)"
@@ -63,7 +75,7 @@ erDiagram
     EMS_STUDY |o--o{ EMS_CERTIFICATE : "study_id"
     EMS_COURSE |o--o{ EMS_CERTIFICATE : "course_id (course it was issued in)"
     EMS_CERTIFICATE ||--o{ EMS_CERTIFICATE_STAMP : "stamp_ids (cascade)"
-    EMS_CERTIFICATE }o--o{ IR_ATTACHMENT : "annex_attachment_ids (the agreement)"
+    EMS_CERTIFICATE }o--o{ IR_ATTACHMENT : "other_attachment_ids (optional documentation)"
     EMS_CERTIFICATE |o--o| IR_ATTACHMENT : "certificate_pdf_id"
 ```
 
@@ -74,9 +86,19 @@ erDiagram
 | `name` | Char, translatable | E.g. "FCT (Formació en Centres de Treball)". |
 | `kind` | Selection | What the certificate says and which data it needs: only `fct` for now. Each kind has its own report body and form fields. |
 | `level_ids` | M2m `ems.level` | Levels whose current students may request it from the portal (FCT: CFGM, CFGS). Empty: never offered on the portal (the secretariat still registers it). |
-| `requires_annex` | Boolean | The agreement file must be attached before the issuing step (FCT: yes). |
+| `requires_documents` | Boolean | "Required attached documentation": the `document_ids` lines are required before the issuing step (FCT: yes). Ticked with no line is refused (`_check_documents`). |
+| `document_ids` | O2m `ems.certificate.type.document` | The required documents, by `sequence`. |
 | `step_ids` | O2m `ems.certificate.type.step` | The approval circuit, by `sequence`. |
 | `active` | Boolean | Archived types are no longer offered. |
+
+### `ems.certificate.type.document`
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `sequence`, `name` | Integer, Char (translatable) | Order and the document's name ("FCT agreement"). |
+| `applicant_uploads` | Boolean | The applicant may attach it (portal or form link). |
+| `role_ids` | M2m `ems.role` | Positions whose holders may attach it (the type form offers the circuit's). Neither the applicant nor a position ticked: anyone taking part. |
+| `append_to_certificate` | Boolean | Its pages are appended to the PDF. |
 
 Seeded in `data/main/ems.certificate.type.xml` with `noupdate="1"`: the centre configures the circuit
 from the UI and no upgrade reverts it.
@@ -107,11 +129,24 @@ Constraints (`_check_steps` on the type): at least one step, exactly one `issue`
 | `training_company_id` | M2o `res.partner` | Collaborating company (`contact_type = 'company'`). Required by the `complete` step and after. |
 | `company_name`, `company_vat` | Char | What the applicant wrote, kept as text: the form never creates contacts. **Create company** (`action_create_company`) creates one from them. |
 | `period_start`, `period_end`, `hours`, `agreement_reference` | Date, Date, Integer, Char | The workplace training; the first three required by the `complete` step. |
-| `annex_attachment_ids` | M2m `ir.attachment` | The agreement (PDF or images). Required by the `issue` step when the type `requires_annex`. Appended to the certificate's PDF (images become pages). |
+| `document_ids` | O2m `ems.certificate.document` | One line per required document of the type, created with the request (`_ems_sync_documents`, again if the type changes while in draft). Each must have files before the `issue` step. |
+| `other_attachment_ids` | M2m `ir.attachment` | Optional documentation, anyone taking part. Never appended. |
 | `stamp_ids` | O2m `ems.certificate.stamp` | One per finished step: step, action, user, date. The PDF prints those of `issue` and `approve` steps. |
 | `certificate_pdf_id` | M2o `ir.attachment` | The final PDF. |
 | `info_request`, `return_reason`, `reject_reason`, `cancel_reason` | Text | Last request for documentation, the last return to the previous step, why it was rejected or cancelled. |
 | `step_user_ids` | M2m `res.users`, computed, searchable | Holders of the current step's role. `is_pending_for_me` (searchable) = the current user is one of them, or is the administrator and the request is in progress. `can_act` = may press the step's button. `can_manage` = may reject, cancel or mark the documentation received: the secretariat (and the administrator) or a holder of the current step. The form only offers each button to whoever can use it. |
+
+### `ems.certificate.document` (a required document of a request)
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `type_document_id` | M2o `ems.certificate.type.document` | Name, order, who attaches it and whether it is appended come from it. |
+| `attachment_ids` | M2m `ir.attachment` | Its files (PDF or images), tied to the line (`_ems_link_to`). |
+| `uploaders`, `is_attached`, `can_upload` | computed | Who attaches it ("Anyone", or the applicant and positions); whether it has files; whether the current user may attach them (administrator, anyone-line, or holder of one of its positions, while the request is open). `write()` only accepts `attachment_ids`, and only from who `can_upload`. |
+
+On the portal, the applicant gets one file input per required document they may attach
+(`document_<ems.certificate.type.document id>`) and one for other documentation (`documents`);
+`_ems_portal_attach` ignores a document the applicant may not attach.
 
 ## CRUD flow
 
@@ -139,8 +174,8 @@ stateDiagram-v2
 - The PDF (`ems.report_certificate`, in the centre language, `CENTRE_LANG_REPORTS`) prints its
   sentences from `_ems_report_paragraphs()`: each one a single translatable string with named
   placeholders, so Catalan and Spanish keep their own word order (a sentence written in QWeb around
-  `t-esc` nodes is split into fragments that can't be translated well). The agreement's files are
-  appended by `_ems_generate_pdf()` with `odoo.tools.pdf.merge_pdf`, an image becoming one page
+  `t-esc` nodes is split into fragments that can't be translated well). The files of the required
+  documents marked *Add to the certificate* are appended by `_ems_generate_pdf()` with `odoo.tools.pdf.merge_pdf`, an image becoming one page
   (Pillow).
 
 ## Performance
@@ -154,8 +189,10 @@ centre issues FCT certificates in the order of tens to a few hundred a year.
 - The record rule for staff joins `ems_certificate_type` → steps → positions → employees: a few
   rows each, whatever the number of requests.
 - The portal page: one search by `student_id` (indexed).
-- Generating the PDF happens once per certificate; its memory is bounded by the agreement's files
-  (a few MB), merged in memory once.
+- Generating the PDF happens once per certificate; its memory is bounded by the appended documents'
+  files (a few MB), merged in memory once.
+- The documentation tab: a type requires a handful of documents; `can_upload` reads each position's
+  holders once per request page (memoized per role), not once per line.
 
 ## Access control
 

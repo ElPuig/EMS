@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { inputFiles } from "@web/../tests/utils";
 import { clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // Issue #835 - the VET coordinator completes a certificate request's workplace training and hands
@@ -33,6 +34,38 @@ registry.category("web_tour.tours").add("ems_certificate_complete", {
             trigger: ".o_form_view .o_field_widget[name='hours'] input",
             content: "Write the hours",
             run: "edit 400",
+        },
+        {
+            trigger: ".o_form_view .o_notebook .nav-link[name='documentation']",
+            content: "Open the documentation",
+            run: "click",
+        },
+        {
+            // Its name is the fixture's own text, not a translatable label.
+            trigger: ".o_field_widget[name='document_ids'] .o_data_row:contains('Training report') td[name='name']",
+            content: "Open the required document only the coordinator's position attaches",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids'] .o_attach",
+            content: "Attach its file",
+            async run() {
+                const files = [new File(["%PDF-1.4"], "Report.pdf", { type: "application/pdf" })];
+                await inputFiles(".modal .o_field_widget[name='attachment_ids'] .o_input_file", files);
+            },
+        },
+        {
+            trigger: ".modal .o_field_widget[name='attachment_ids'] .o_attachment[title='Report.pdf']:not(.o_attachment_uploading)",
+            content: "The file is uploaded",
+        },
+        {
+            trigger: ".modal .o_form_button_save",
+            content: "Keep it",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='document_ids'] .o_data_row:contains('Training report') td[name='attachment_ids']:contains('Report.pdf')",
+            content: "The document shows its file",
         },
         ...clickAction("action_done_step", "Done: hand it over to the next step"),
         {

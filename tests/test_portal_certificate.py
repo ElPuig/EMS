@@ -55,14 +55,23 @@ class TestPortalCertificate(HttpCase):
         self.assertIn('error=missing', response.url)
         self.assertFalse(self._requests())
 
-        files = [('documents', ('agreement.pdf', one_page_pdf(), 'application/pdf'))]
+        # The agreement (anyone attaches it) and an optional file; the training report is only the
+        # first step's position's, so the portal does not offer it and ignores it if sent.
+        self.assertIn(f'document_{self.agreement_document.id}', response.text)
+        self.assertNotIn(f'document_{self.report_document.id}', response.text)
+        files = [(f'document_{self.agreement_document.id}', ('agreement.pdf', one_page_pdf(), 'application/pdf')),
+                 (f'document_{self.report_document.id}', ('report.pdf', one_page_pdf(), 'application/pdf')),
+                 ('documents', ('other.pdf', one_page_pdf(), 'application/pdf'))]
         response = self.url_open('/my/certificats/submit', data=self._form(), files=files)
         self.assertIn('submitted=1', response.url)
         certificate = self._requests()
         self.assertEqual((certificate.state, certificate.origin, certificate.step_id),
                          ('in_progress', 'portal', self.steps[0]))
         self.assertEqual((certificate.requester_id, certificate.company_name), (self.student, 'Some Company'))
-        self.assertEqual(certificate.annex_attachment_ids.mapped('name'), ['agreement.pdf'])
+        agreement, report = certificate.document_ids.sorted('sequence')
+        self.assertEqual(agreement.attachment_ids.mapped('name'), ['agreement.pdf'])
+        self.assertFalse(report.attachment_ids)
+        self.assertEqual(certificate.other_attachment_ids.mapped('name'), ['other.pdf'])
 
     def test_not_offered_to_other_levels(self):
         self.authenticate(self.other_user.login, self.other_user.login)
@@ -90,11 +99,12 @@ class TestPortalCertificate(HttpCase):
         response = self.url_open(f'/my/certificats/{certificate.id}/reply?access_token={token}',
                                  data={'csrf_token': Request.csrf_token(self), 'message': ''})
         self.assertIn('error=reply', response.url)
-        files = [('documents', ('agreement.png', b'\x89PNG fake', 'image/png'))]
+        files = [(f'document_{self.agreement_document.id}', ('agreement.png', b'\x89PNG fake', 'image/png'))]
         response = self.url_open(f'/my/certificats/{certificate.id}/reply?access_token={token}',
                                  data={'csrf_token': Request.csrf_token(self), 'message': 'Here'}, files=files)
         self.assertIn('replied=1', response.url)
         self.assertEqual(certificate.state, 'in_progress')
+        self.assertEqual(certificate.document_ids.attachment_ids.mapped('name'), ['agreement.png'])
 
     def test_download_the_issued_certificate(self):
         certificate = self.env['ems.certificate'].create({
@@ -106,7 +116,8 @@ class TestPortalCertificate(HttpCase):
         certificate._ems_submit()
         pdf_url = f'/my/certificats/{certificate.id}/pdf?access_token={certificate._portal_ensure_token()}'
         self.assertNotIn('%PDF', self.url_open(pdf_url).text, "Nothing to download before it is issued.")
-        certificate.annex_attachment_ids = [(0, 0, {'name': 'a.pdf', 'raw': one_page_pdf(), 'mimetype': 'application/pdf'})]
+        for line in certificate.document_ids:
+            line.attachment_ids = [(0, 0, {'name': 'a.pdf', 'raw': one_page_pdf(), 'mimetype': 'application/pdf'})]
         with patch('odoo.addons.base.models.ir_actions_report.IrActionsReport._render_qweb_pdf',
                    return_value=(one_page_pdf(), 'pdf')):
             for _step in range(3):

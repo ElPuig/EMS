@@ -27,7 +27,9 @@ def png_image():
 def create_certificate_fixtures(cls, prefix='TCRT'):
     """A certificate type with the FCT circuit (complete, issue, approve) on positions of its own,
     each held by a fixture user: a VET coordinator, a secretary and a director; a teacher who holds
-    none; a current student of a level that may request it, and a collaborating company."""
+    none; a current student of a level that may request it, and a collaborating company. It requires
+    two documents: the agreement, which anyone attaches and is appended to the certificate, and a
+    training report only the first step's position attaches, not appended."""
     cls.level, cls.study, cls.group = create_level_study_group(cls, prefix)
     cls.coordinator = create_role_user(cls, 'vet_coordinator', f'test_{prefix.lower()}_coordinator',
                                        name=f'{prefix} Coordinator')
@@ -45,7 +47,12 @@ def create_certificate_fixtures(cls, prefix='TCRT'):
     create_role_employee(cls, cls.teacher)
     cls.roles = roles
     cls.certificate_type = cls.env['ems.certificate.type'].create({
-        'name': f'{prefix} FCT', 'kind': 'fct', 'requires_annex': True, 'level_ids': [(6, 0, cls.level.ids)],
+        'name': f'{prefix} FCT', 'kind': 'fct', 'requires_documents': True, 'level_ids': [(6, 0, cls.level.ids)],
+        'document_ids': [
+            (0, 0, {'sequence': 10, 'name': 'Agreement', 'append_to_certificate': True}),
+            (0, 0, {'sequence': 20, 'name': 'Training report', 'role_ids': [(6, 0, roles['complete'].ids)],
+                    'append_to_certificate': False}),
+        ],
         'step_ids': [
             (0, 0, {'sequence': 10, 'name': 'Complete', 'role_id': roles['complete'].id, 'action': 'complete'}),
             (0, 0, {'sequence': 20, 'name': 'Issue', 'role_id': roles['issue'].id, 'action': 'issue'}),
@@ -53,6 +60,7 @@ def create_certificate_fixtures(cls, prefix='TCRT'):
         ],
     })
     cls.steps = cls.certificate_type.step_ids.sorted('sequence')
+    cls.agreement_document, cls.report_document = cls.certificate_type.document_ids.sorted('sequence')
     cls.student = cls.env['res.partner'].create({
         'name': f'{prefix} Student', 'contact_type': 'student', 'student_id': next_student_id(),
         'main_group_id': cls.group.id, 'birth_date': '2000-01-01', 'document_id': '12345678Z',
@@ -97,10 +105,19 @@ class TestCertificate(TransactionCase):
             'agreement_reference': '2026178505',
         })
 
-    def _annex(self, certificate, name, raw, mimetype):
-        return self.env['ir.attachment'].create({
-            'name': name, 'raw': raw, 'mimetype': mimetype, 'res_model': 'ems.certificate', 'res_id': certificate.id,
+    def _attach(self, certificate, document, user=None, name='a.pdf', raw=None, mimetype='application/pdf'):
+        """Attach a file to one of the request's required documents, as `user` (default: superuser)."""
+        line = certificate.document_ids.filtered(lambda line: line.type_document_id == document)
+        attachment = self.env['ir.attachment'].create({
+            'name': name, 'raw': raw or one_page_pdf(), 'mimetype': mimetype,
+            'res_model': 'ems.certificate.document', 'res_id': line.id,
         })
+        line.with_user(user or self.env.user).write({'attachment_ids': [(4, attachment.id)]})
+        return attachment
+
+    def _attach_required(self, certificate):
+        for document in (self.agreement_document, self.report_document):
+            self._attach(certificate, document)
 
     # --- the circuit -----------------------------------------------------------
 
@@ -119,12 +136,21 @@ class TestCertificate(TransactionCase):
         self.assertEqual(certificate.step_id, self.steps[1])
         self.assertEqual(certificate.activity_ids.user_id, self.secretary, "The previous task closes.")
 
-        # The secretary cannot issue it without the agreement.
+        # The secretary cannot issue it without the required documents. Anyone attaches the
+        # agreement; only the first step's position the training report.
+        self.assertEqual(certificate.document_ids.type_document_id, self.agreement_document | self.report_document)
         with self.assertRaises(UserError):
             certificate.with_user(self.secretary).action_done_step()
-        pdf = self._annex(certificate, 'agreement.pdf', one_page_pdf('gray'), 'application/pdf')
-        image = self._annex(certificate, 'page2.png', png_image(), 'image/png')
-        certificate.annex_attachment_ids = [(6, 0, (pdf | image).ids)]
+        self._attach(certificate, self.agreement_document, self.secretary, 'agreement.pdf', one_page_pdf('gray'))
+        self._attach(certificate, self.agreement_document, self.secretary, 'page2.png', png_image(), 'image/png')
+        with self.assertRaises(UserError):
+            certificate.with_user(self.secretary).action_done_step()
+        with self.assertRaises(AccessError):
+            self._attach(certificate, self.report_document, self.secretary, 'report.pdf')
+        self._attach(certificate, self.report_document, self.coordinator, 'report.pdf')
+        # Optional documentation, never added to the certificate.
+        certificate.with_user(self.secretary).other_attachment_ids = [(0, 0, {
+            'name': 'note.pdf', 'raw': one_page_pdf(), 'mimetype': 'application/pdf'})]
         certificate.with_user(self.secretary).action_done_step()
         course = self.env['ems.course'].search([('is_current', '=', True)], limit=1)
         self.assertTrue(certificate.name.startswith(f'CERT-{course.start}-'))
@@ -134,7 +160,8 @@ class TestCertificate(TransactionCase):
         self.assertEqual(certificate.state, 'issued')
         self.assertFalse(certificate.activity_ids)
         self.assertEqual(certificate.stamp_ids.mapped('user_id'), self.coordinator | self.secretary | self.director)
-        # The certificate, then the agreement's PDF page and the image as one more page.
+        # The certificate, then the agreement's PDF page and the image as one more page: neither the
+        # training report (not appended) nor the optional documentation.
         reader = PdfFileReader(io.BytesIO(certificate.certificate_pdf_id.raw))
         self.assertEqual(len(reader.pages), 3)
         self.assertIn(('ems.email_template_certificate_issued', certificate.id, None), sent())
@@ -172,7 +199,7 @@ class TestCertificate(TransactionCase):
         self.assertEqual(certificate.state, 'documentation')
         self.assertFalse(certificate.activity_ids)
         self.assertIn(('ems.email_template_certificate_info_request', certificate.id, None), sent())
-        certificate.sudo()._ems_portal_answer("Here it is", [])
+        certificate.sudo()._ems_portal_answer("Here it is", {})
         self.assertEqual((certificate.state, certificate.step_id), ('in_progress', self.steps[0]))
         self.assertIn(self.coordinator, certificate.activity_ids.user_id)
 
@@ -191,7 +218,7 @@ class TestCertificate(TransactionCase):
         other = self._submitted()
         self._complete_training(other)
         other.with_user(self.coordinator).action_done_step()
-        other.annex_attachment_ids = [(4, self._annex(other, 'a.pdf', one_page_pdf(), 'application/pdf').id)]
+        self._attach_required(other)
         other.with_user(self.secretary).action_done_step()
         with self.assertRaises(UserError):
             other.with_user(self.secretary)._ems_cancel("Duplicate")
@@ -219,7 +246,7 @@ class TestCertificate(TransactionCase):
         })
         self.assertFalse(missing)
         self.assertEqual((values['hours'], values['period_start']), (0, False))
-        certificate.sudo()._ems_portal_fill(values, [])
+        certificate.sudo()._ems_portal_fill(values, {})
         self.assertEqual((certificate.state, certificate.step_id), ('in_progress', self.steps[0]))
 
     def test_create_company_from_the_applicant(self):
@@ -259,6 +286,17 @@ class TestCertificate(TransactionCase):
 
     # --- configuration --------------------------------------------------------
 
+    def test_documents_follow_the_type(self):
+        """Without Required attached documentation ticked the type requires nothing, and it cannot
+        be ticked with no document listed."""
+        self.assertFalse(self.certificate_type.copy({'requires_documents': False})._ems_required_documents())
+        with self.assertRaises(ValidationError):
+            self.env['ems.certificate.type'].create({
+                'name': 'TCRT no documents', 'requires_documents': True,
+                'step_ids': [(0, 0, {'name': 'Issue', 'role_id': self.roles['issue'].id, 'action': 'issue'})],
+            })
+        self.assertEqual(self._submitted().document_ids.mapped('uploaders'), ['Anyone', 'TCRT complete position'])
+
     def test_circuit_constraints(self):
         with self.assertRaises(ValidationError):
             self.certificate_type.write({'step_ids': [(2, self.steps[1].id)]})
@@ -276,7 +314,7 @@ class TestCertificate(TransactionCase):
         certificate = self._submitted()
         self._complete_training(certificate)
         certificate.with_user(self.coordinator).action_done_step()
-        certificate.annex_attachment_ids = [(4, self._annex(certificate, 'a.pdf', one_page_pdf(), 'application/pdf').id)]
+        self._attach_required(certificate)
         certificate.with_user(self.secretary).action_done_step()
         html = self.env['ir.actions.report'].with_context(lang='en_US')._render_qweb_html(
             'ems.action_report_certificate', certificate.ids)[0].decode()

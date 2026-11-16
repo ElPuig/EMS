@@ -148,12 +148,37 @@
                                     </group>
                                 </group>
                             </page>
-                            <page name="agreement" string="Agreement">
-                                <field name="annex_attachment_ids" widget="many2many_binary"
+                            <page name="documentation" string="Documentation">
+                                <field name="document_ids" invisible="not document_ids" readonly="state not in ('draft', 'in_progress', 'documentation')">
+                                    <list create="0" delete="0" decoration-danger="not is_attached" decoration-success="is_attached">
+                                        <field name="name"/>
+                                        <field name="uploaders"/>
+                                        <field name="attachment_ids" widget="many2many_tags"/>
+                                        <field name="is_attached" widget="boolean_toggle" readonly="1"/>
+                                        <field name="append_to_certificate" optional="hide"/>
+                                    </list>
+                                    <form>
+                                        <field name="can_upload" invisible="1"/>
+                                        <group>
+                                            <field name="name"/>
+                                            <field name="uploaders"/>
+                                            <field name="append_to_certificate"/>
+                                        </group>
+                                        <field name="attachment_ids" widget="many2many_binary" readonly="not can_upload"/>
+                                        <div class="text-muted">
+                                            <i class="fa fa-info-circle me-1"/>A PDF or photos of its pages (JPG, PNG).
+                                        </div>
+                                    </form>
+                                </field>
+                                <div class="text-muted mb-3" invisible="not document_ids">
+                                    <i class="fa fa-info-circle me-1"/>Required before the certificate is issued. Open a
+                                    document to attach its files.
+                                </div>
+                                <separator string="Other documentation"/>
+                                <field name="other_attachment_ids" widget="many2many_binary"
                                        readonly="state not in ('draft', 'in_progress', 'documentation')"/>
                                 <div class="text-muted">
-                                    <i class="fa fa-info-circle me-1"/>A PDF or photos of its pages (JPG, PNG): they are
-                                    appended to the certificate.
+                                    <i class="fa fa-info-circle me-1"/>Optional. These files are not added to the certificate.
                                 </div>
                             </page>
                             <page name="certificate" string="Certificate">

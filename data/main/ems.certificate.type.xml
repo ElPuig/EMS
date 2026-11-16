@@ -8,8 +8,17 @@
             <field name="name">FCT (Formació en Centres de Treball)</field>
             <field name="kind">fct</field>
             <field name="description">Certifies the hours of workplace training (FCT) you did at a company. Fill in your details; the company's are optional: the centre completes them.</field>
-            <field name="requires_annex" eval="True"/>
+            <field name="requires_documents" eval="True"/>
             <field name="level_ids" eval="[(6, 0, [ref('ems.level_cfgm'), ref('ems.level_cfgs')])]"/>
+        </record>
+
+        <!-- The agreement: anyone taking part may attach it (the applicant, if they keep a copy, or
+             the centre), and its pages are appended to the certificate. -->
+        <record id="certificate_document_fct_agreement" model="ems.certificate.type.document">
+            <field name="type_id" ref="certificate_type_fct"/>
+            <field name="sequence">10</field>
+            <field name="name">FCT agreement</field>
+            <field name="append_to_certificate" eval="True"/>
         </record>
 
         <!-- Each step a record of its own, with an XML id, so its name is translated (an inline

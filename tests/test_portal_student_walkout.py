@@ -148,3 +148,66 @@ class TestPortalStudentWalkout(HttpCase):
         self._post(f'/my/vagues/ratifica/{line.id}', decision='no')
         self.assertEqual(line.ratification, 'refused')
 
+
+    # --- Issue #833: whoever signs in, by password or with Google, gets their own portal ---------
+
+    def _password_login(self, user, login):
+        """Sign in by password with `login` (what the person types), as the login page does."""
+        user.password = 'shared-email-833'
+        self.authenticate(login, 'shared-email-833')
+
+    def _google_login(self, email):
+        """The login Google sign-in opens for a verified corporate email (auth_oauth's own step)."""
+        return self.env['res.users'].sudo()._auth_oauth_signin(
+            self.env.ref('auth_oauth.provider_google').id,
+            {'user_id': f'google-{email}', 'email': email, 'email_verified': True},
+            {'access_token': 'token-833', 'state': '{}'})
+
+    def _assert_student_mode(self):
+        """The student's own portal: the walkouts entry and the proposal form (a delegate or
+        sub-delegate), never a family's ratification page."""
+        home = self.url_open('/my/home').text
+        self.assertIn('href="/my/vagues" class="nav-link"', home)
+        self.assertNotIn('o_ems_walkout_ratify_banner', home)
+        self.assertIn('/my/vagues/nova', self.url_open('/my/vagues').text)
+        self.assertEqual(self.url_open('/my/vagues/nova').status_code, 200)
+
+    def test_a_student_sharing_the_email_signs_in_as_a_student_and_the_family_as_a_family(self):
+        self.env.company.google_ws_domain = 'example.com'
+        self.subdelegate.email = self.family.email
+        (self.family | self.subdelegate)._ems_sync_portal_login()
+        student_user, family_user = self.subdelegate.user_ids, self.family_user
+        self.assertEqual(student_user.login, self.subdelegate.student_email)
+        self.assertEqual(family_user.login, self.family.email)
+
+        # The student: with the corporate email and the portal password, or with Google.
+        self._password_login(student_user, self.subdelegate.student_email)
+        self._assert_student_mode()
+        self.assertEqual(self._google_login(self.subdelegate.student_email), student_user.login)
+
+        # The family, with the shared email: the family's portal, never the student's.
+        walkout = open_walkout(self)
+        walkout._ems_portal_vote(self.delegate, 'yes')
+        walkout._ems_portal_vote(self.subdelegate, 'yes')
+        walkout._ems_portal_join(self.subdelegate, True)
+        self._password_login(family_user, self.family.email)
+        home = self.url_open('/my/home').text
+        self.assertIn('o_ems_walkout_ratify_banner', home)
+        page = self.url_open('/my/vagues').text
+        self.assertIn('o_ems_walkout_ratify', page)
+        self.assertIn(f'<strong>{self.subdelegate.name}</strong>', page)
+        # A family never proposes a walkout for its child: back to its ratification page.
+        response = self.url_open('/my/vagues/nova')
+        self.assertTrue(response.url.endswith('/my/vagues'))
+        self.assertIn('o_ems_walkout_ratify', response.text)
+        self.assertNotIn('o_ems_walkout_calendar', response.text)
+
+    def test_a_student_with_their_own_email_signs_in_as_a_student_both_ways(self):
+        self.env.company.google_ws_domain = 'example.com'
+        self.delegate.email = 'delegate.own.833@example.org'
+        self.delegate._ems_sync_portal_login()
+        user = self.delegate.user_ids
+        self.assertEqual(user.login, 'delegate.own.833@example.org')
+        self._password_login(user, 'delegate.own.833@example.org')
+        self._assert_student_mode()
+        self.assertEqual(self._google_login(self.delegate.student_email), user.login)

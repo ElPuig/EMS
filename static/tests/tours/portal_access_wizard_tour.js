@@ -121,7 +121,7 @@ registry.category("web_tour.tours").add("ems_portal_access_wizard_shared_email",
     test: true,
     steps: () => [
         {
-            trigger: ".o_form_view .alert-warning:contains('signs in with their corporate email')",
+            trigger: ".o_form_view .o_ems_shared_email_warning",
             content: "The student form warns that the main email is the family's",
         },
         ...clickAction("action_portal_access_bulk", "Open 'Portal access (students/families)'"),

@@ -104,6 +104,9 @@ El alumnado puede entrar con su correo principal y su contraseña, o con la cuen
 En la matrícula, a menudo el centro recibe un solo correo para toda la familia, y el correo principal del alumno es el mismo que el de un familiar. Un usuario del portal solo puede tener un correo como usuario de acceso, y ese siempre es el de la **familia**. Entonces el alumno entra con la **cuenta del centro** (`@elpuig.xeill.net`): con el botón **Acceder con Google**, o escribiendo la cuenta del centro y la contraseña del portal que eligió con su invitación.
 
 - La ficha del alumno lo indica con un aviso amarillo en la parte superior. Es solo un aviso: podéis mantener el correo compartido, no se bloquea nada.
+
+  ![Aviso en la ficha del alumno: el correo principal es también el de un familiar](../../assets/tutors/correu-compartit-01-avis.png)
+
 - En la previsualización de destinatarios, la columna **Nota** del alumno muestra la cuenta del centro con la que entrará.
 - Si el alumno aún no tiene cuenta del centro, no recibe usuario del portal y la columna **Nota** lo indica. El acceso se abre automáticamente cuando se crea la cuenta del centro (la familia debe tener acceso), y la invitación se envía al correo compartido.
 - Los correos con las credenciales de la cuenta del centro (cuenta nueva o contraseña nueva) se siguen enviando al correo compartido, como siempre.

@@ -73,12 +73,11 @@ class EmsPortalAccessWizard(models.TransientModel):
                     note = _('Recipient without email')
                 elif no_family:
                     note = _('No family contact found')
-                elif r._ems_email_shared_with_family() and r.student_email:
+                elif r._ems_email_shared_with_family():
                     # Issue #833: the login with that email is the family's.
                     note = _('Same email as the family: signs in with the corporate email %s') % (
-                        r.student_email)
-                elif r._ems_email_shared_with_family():
-                    note = _('Same email as the family: no access until the corporate email exists')
+                        r.student_email) if r.student_email else _(
+                        'Same email as the family: no access until the corporate email exists')
                 else:
                     note = ''
                 lines.append((0, 0, {

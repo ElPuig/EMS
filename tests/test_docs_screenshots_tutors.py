@@ -75,6 +75,25 @@ class TestDocsScreenshotsTutors(DocsScreenshotMixin, HttpCase):
         })
         return '/odoo/action-%d/%d' % (action.id, student.id)
 
+    def test_capture_shared_email(self):
+        """Issue #833: the warning on the form of a student whose main email is the family's."""
+        student = self._student('Pau Exemple Roca', email='familia.roca@example.com',
+                                student_email='proca@elpuig.xeill.net')
+        family = self.env['res.partner'].create({
+            'name': 'Marta Roca Vila', 'contact_type': 'family', 'email': 'familia.roca@example.com',
+        })
+        self.env['res.partner.relation'].create({
+            'left_partner_id': family.id, 'type_id': self.env.ref('ems.relation_type_mother').id,
+            'right_partner_id': student.id,
+        })
+        action = self.env['ir.actions.act_window'].create({
+            'name': 'Alumnes', 'res_model': 'res.partner', 'view_mode': 'form',
+            'domain': [('id', '=', student.id)],
+        })
+        banner = '.o_form_view .o_ems_shared_email_warning'
+        self._capture('/odoo/action-%d/%d' % (action.id, student.id), banner,
+                      'correu-compartit-01-avis.png', login='doc_shot_tutor', wait_for=banner)
+
     def test_capture_attendance_reports(self):
         # The colleague's session, so the tutee's by-student report has a date range to fill in.
         subject = self.env['ems.subject'].create({

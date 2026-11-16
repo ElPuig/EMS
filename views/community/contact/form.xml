@@ -225,7 +225,7 @@
                     <!-- Issue #833: a single address for the whole family is common at enrolment, so
                          this only warns. Same placement and pattern as the banners above. -->
                     <field name="portal_email_shared_with_family" invisible="1"/>
-                    <div class="alert alert-warning" role="alert"
+                    <div class="alert alert-warning o_ems_shared_email_warning" role="alert"
                          invisible="not portal_email_shared_with_family">
                         This student's main email is also a family member's. The portal login with that email is the family's: the student signs in with their corporate email (Log in with Google, or the corporate email and its portal password).
                     </div>

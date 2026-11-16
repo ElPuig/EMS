@@ -53,6 +53,8 @@ Se n'avisa l'alumnat del grup, amb el motiu, i el cap d'estudis rep un avís de 
 
 També la poden avortar els qui són per sobre teu a la jerarquia (cap de departament o de seminari, cap d'estudis o cap d'estudis adjunt, direcció) i l'administrador.
 
+Una proposta avortada ja no compta: el grup en pot fer una altra per al mateix dia.
+
 ---
 
 [← Tornar als manuals de tutors](index.md)

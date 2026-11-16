@@ -101,7 +101,7 @@ L'alumnat pot entrar amb el seu correu principal i la seva contrasenya, o amb el
 
 ## Quan l'alumne i la família comparteixen el correu
 
-En la matrícula, sovint el centre rep un sol correu per a tota la família, i el correu principal de l'alumne és el mateix que el d'un familiar. Un usuari del portal només pot tenir un correu com a usuari d'accés, i aquest sempre és el de la **família**. Aleshores l'alumne entra amb el **compte del centre** (`@elpuig.xeill.net`): amb **Inicia sessió amb Google**, o escrivint el compte del centre i la contrasenya del portal que va triar amb la seva invitació.
+En la matrícula, sovint el centre rep un sol correu per a tota la família, i el correu principal de l'alumne és el mateix que el d'un familiar. Un usuari del portal només pot tenir un correu com a usuari d'accés, i aquest sempre és el de la **família**. Aleshores l'alumne entra amb el **compte del centre** (`@elpuig.xeill.net`): amb el botó **Inicia sessió amb Google**, o escrivint el compte del centre i la contrasenya del portal que va triar amb la seva invitació.
 
 - La fitxa de l'alumne ho indica amb un avís groc a la part superior. És només un avís: podeu mantenir el correu compartit, no es bloqueja res.
 - A la previsualització de destinataris, la columna **Nota** de l'alumne mostra el compte del centre amb què entrarà.

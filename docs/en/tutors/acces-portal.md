@@ -101,7 +101,7 @@ Students can sign in with their main email and password, or with their school ac
 
 ## When the student and the family share an email
 
-At enrollment the centre often receives a single email for the whole family, so the student's main email is the same as a family member's. A portal user can only have one email as its login, and that one is always the **family's**. The student then signs in with their **school account** (`@elpuig.xeill.net`): with **Log in with Google**, or by typing the school account and the portal password set from their invitation.
+At enrollment the centre often receives a single email for the whole family, so the student's main email is the same as a family member's. A portal user can only have one email as its login, and that one is always the **family's**. The student then signs in with their **school account** (`@elpuig.xeill.net`): with the **Log in with Google** button, or by typing the school account and the portal password set from their invitation.
 
 - The student's form shows a yellow warning at the top saying so. It is only a warning: you can keep the shared email, nothing is blocked.
 - In the recipients preview, the student's **Note** column shows the school account they will sign in with.

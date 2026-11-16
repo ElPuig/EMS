@@ -171,7 +171,9 @@ stateDiagram-v2
   (`mail_activity_quick_update`): the holders find it in their daily summary.
 - `ems.certificate.wizard` (`mode`: `info`, `return`, `reject`, `cancel`) asks for the text and runs
   the matching method.
-- The PDF (`ems.report_certificate`, in the centre language, `CENTRE_LANG_REPORTS`) prints its
+- The PDF (`ems.report_certificate`, in the centre language, `CENTRE_LANG_REPORTS`) is one page: a
+  header band in the company's colour (as minutes' headings) with the number, the text with wider
+  side margins than the letterhead, and the signature boxes anchored at the foot of the page. It prints its
   sentences from `_ems_report_paragraphs()`: each one a single translatable string with named
   placeholders, so Catalan and Spanish keep their own word order (a sentence written in QWeb around
   `t-esc` nodes is split into fragments that can't be translated well). The files of the required

@@ -348,13 +348,7 @@ class TestPortalAccessWizard(TransactionCase):
         result = wizard.action_apply()
         self.assertIn('no family contact to manage', result['params']['message'])
 
-    # --- _sync_user_login --------------------------------------------------------
-
-    def _portal_wizard_user(self, partner):
-        # _sync_user_login expects a portal.wizard.user line (has .user_id/.partner_id),
-        # not a bare res.users record — build one the same way _apply_one does.
-        wizard = self.env['portal.wizard'].with_context(active_ids=partner.ids).sudo().create({})
-        return wizard.user_ids.filtered(lambda u: u.partner_id.id == partner.id)[:1]
+    # --- res.partner._ems_sync_portal_login (a reactivated user keeps its old login) ----------
 
     def test_sync_user_login_resyncs_email_on_regrant(self):
         old_email = 'old.login.pw@example.com'
@@ -363,9 +357,7 @@ class TestPortalAccessWizard(TransactionCase):
             'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])], 'active': False,
         })
         self.adult_student.user_ids = [(4, portal_user.id)]
-        wu = self._portal_wizard_user(self.adult_student)
-        wizard = self._wizard(mode='grant')
-        wizard._sync_user_login(wu)
+        self.adult_student._ems_sync_portal_login()
         self.assertEqual(portal_user.login, 'adult.student.pw@example.com')
 
     def test_sync_user_login_skips_on_login_conflict(self):
@@ -379,7 +371,5 @@ class TestPortalAccessWizard(TransactionCase):
             'name': 'Login Owner (Portal Wizard)', 'login': 'adult.student.pw@example.com',
         })
         self.adult_student.user_ids = [(4, portal_user.id)]
-        wu = self._portal_wizard_user(self.adult_student)
-        wizard = self._wizard(mode='grant')
-        wizard._sync_user_login(wu)
+        self.adult_student._ems_sync_portal_login()
         self.assertEqual(portal_user.login, old_email)

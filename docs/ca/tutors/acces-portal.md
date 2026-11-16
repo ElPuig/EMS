@@ -18,6 +18,7 @@ El portal és l'espai on alumnes i famílies consulten i confirmen la informaci�
 4. [Les accions disponibles](#les-accions-disponibles)
 5. [La previsualització de destinataris](#la-previsualització-de-destinataris)
 6. [Qui rep l'accés: alumnes i famílies](#qui-rep-laccés-alumnes-i-famílies)
+7. [Quan l'alumne i la família comparteixen el correu](#quan-lalumne-i-la-família-comparteixen-el-correu)
 
 ---
 
@@ -95,6 +96,22 @@ El sistema decideix automàticament els destinataris segons l'edat de l'alumne:
 Si a un destinatari li falta el correu electrònic, l'avís apareix a la columna **Nota** i no se li envia res; la resta de destinataris es processen igualment. Si un alumne menor no té cap familiar associat, l'alumne rep igualment el seu accés i la columna **Nota** avisa que no s'ha trobat cap familiar.
 
 L'alumnat pot entrar amb el seu correu principal i la seva contrasenya, o amb el compte del centre (`@elpuig.xeill.net`) mitjançant **Inicia sessió amb Google**. És útil quan un alumne ha perdut la contrasenya del portal: el compte del centre obre el mateix portal.
+
+---
+
+## Quan l'alumne i la família comparteixen el correu
+
+En la matrícula, sovint el centre rep un sol correu per a tota la família, i el correu principal de l'alumne és el mateix que el d'un familiar. Un usuari del portal només pot tenir un correu com a usuari d'accés, i aquest sempre és el de la **família**. Aleshores l'alumne entra amb el **compte del centre** (`@elpuig.xeill.net`): amb el botó **Inicia sessió amb Google**, o escrivint el compte del centre i la contrasenya del portal que va triar amb la seva invitació.
+
+- La fitxa de l'alumne ho indica amb un avís groc a la part superior. És només un avís: podeu mantenir el correu compartit, no es bloqueja res.
+
+  ![Avís a la fitxa de l'alumne: el correu principal és també el d'un familiar](../../assets/tutors/correu-compartit-01-avis.png)
+
+- A la previsualització de destinataris, la columna **Nota** de l'alumne mostra el compte del centre amb què entrarà.
+- Si l'alumne encara no té compte del centre, no rep usuari del portal i la columna **Nota** ho indica. L'accés s'obre automàticament quan es crea el compte del centre (la família ha de tenir accés), i la invitació s'envia al correu compartit.
+- Els correus amb les credencials del compte del centre (compte nou o contrasenya nova) s'envien igualment al correu compartit, com sempre.
+
+Si més endavant l'alumne té un correu propi, canvieu-lo a la seva fitxa: el seu accés al portal passa a aquest correu.
 
 ---
 

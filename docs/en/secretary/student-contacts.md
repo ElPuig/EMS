@@ -65,6 +65,8 @@ The same relation shows up on the family member's own record too, listing which 
 
 The **personal email** of a student, applicant or family member can't be an address of the centre's own domain (for example, `@elpuig.xeill.net`): that is the corporate account, which EMS creates and manages itself (shown as **Corporate email**). EMS refuses to save it and asks for a personal address instead.
 
+If a student's main email is the same as a family member's (frequent when the centre gets a single address for the whole family), the student's form shows a yellow warning at the top. It doesn't block anything: the portal login with that email is the family's, and the student signs in with their school account. See [When the student and the family share an email](../tutors/acces-portal.md#when-the-student-and-the-family-share-an-email).
+
 **To remove a family member**, click the trash icon on their row and confirm with **Ok**. The family member is no longer linked to the student. If they are left related to no other student and have no user (portal access), their contact is deleted too; otherwise it is kept.
 
 ## Enrolling a student in subjects

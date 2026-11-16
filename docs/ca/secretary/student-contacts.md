@@ -65,6 +65,8 @@ La mateixa relació també apareix a la fitxa del familiar, indicant amb quin(s)
 
 El **correu personal** d'un alumne, aspirant o familiar no pot ser una adreça del domini del centre (per exemple, `@elpuig.xeill.net`): aquest és el compte corporatiu, que EMS crea i gestiona tot sol (es mostra com a **Correu corporatiu**). EMS no el deixa desar i demana una adreça personal.
 
+Si el correu principal d'un alumne és el mateix que el d'un familiar (freqüent quan el centre rep una sola adreça per a tota la família), la fitxa de l'alumne mostra un avís groc a la part superior. No bloqueja res: l'usuari del portal amb aquest correu és de la família, i l'alumne hi entra amb el compte del centre. Vegeu [Quan l'alumne i la família comparteixen el correu](../tutors/acces-portal.md#quan-lalumne-i-la-família-comparteixen-el-correu).
+
 **Per treure un familiar**, clica la icona de la paperera de la seva fila i confirma amb **Ok**. El familiar deixa d'estar vinculat a l'alumne. Si no queda relacionat amb cap altre alumne i no té usuari (accés al portal), també s'esborra el seu contacte; si no, es conserva.
 
 ## Matricular un alumne en assignatures

@@ -113,3 +113,30 @@ registry.category("web_tour.tours").add("ems_portal_access_wizard_form", {
         },
     ],
 });
+
+// Issue #833: a student whose main email is also the family's. Run by the student's tutor: the
+// form warns about it, the wizard's preview explains the login, and granting gives the student the
+// corporate email as login (asserted in test_portal_access_wizard_shared_email_tour).
+registry.category("web_tour.tours").add("ems_portal_access_wizard_shared_email", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_ems_shared_email_warning",
+            content: "The student form warns that the main email is the family's",
+        },
+        ...clickAction("action_portal_access_bulk", "Open 'Portal access (students/families)'"),
+        {
+            trigger: ".modal .o_field_widget[name='line_ids'] .o_data_row td:contains('shared.tour@shared-tour.example.com')",
+            content: "The preview explains the student signs in with the corporate email",
+        },
+        {
+            trigger: ".modal footer button[name='action_apply']",
+            content: "Apply - grant portal access to the student and the family",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal))",
+            content: "The wizard dialog closed after a successful apply",
+        },
+    ],
+});

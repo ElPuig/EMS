@@ -53159,3 +53159,38 @@ msgstr "hores. Acaba abans si els vots que falten ja no poden canviar el resulta
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
 msgid "more hours: until"
 msgstr "hores més: fins al"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__portal_email_shared_with_family
+#: model:ir.model.fields,field_description:ems.field_res_users__portal_email_shared_with_family
+msgid "Main email shared with the family"
+msgstr "Correu principal compartit amb la família"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "%s has the same main email as their family, so that login is the family's. They will get portal access with their corporate email when their Google account is created."
+msgstr "%s té el mateix correu principal que la seva família, i per tant aquest usuari d'accés és de la família. Tindrà accés al portal amb el correu corporatiu quan es creï el seu compte de Google."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal_access_wizard.py:0
+msgid "Same email as the family: signs in with the corporate email %s"
+msgstr "Mateix correu que la família: entra amb el correu corporatiu %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal_access_wizard.py:0
+msgid "Same email as the family: no access until the corporate email exists"
+msgstr "Mateix correu que la família: sense accés fins que tingui el correu corporatiu"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Portal access granted with the corporate email %s: the main email is the family's login."
+msgstr "Accés al portal concedit amb el correu corporatiu %s: el correu principal és l'usuari d'accés de la família."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "This student's main email is also a family member's. The portal login with that email is the family's: the student signs in with their corporate email (Log in with Google, or the corporate email and its portal password)."
+msgstr "El correu principal d'aquest alumne és també el d'un familiar. L'usuari del portal amb aquest correu és de la família: l'alumne hi entra amb el correu corporatiu (Inicia sessió amb Google, o el correu corporatiu i la seva contrasenya del portal)."

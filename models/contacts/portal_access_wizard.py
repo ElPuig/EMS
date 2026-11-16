@@ -73,6 +73,11 @@ class EmsPortalAccessWizard(models.TransientModel):
                     note = _('Recipient without email')
                 elif no_family:
                     note = _('No family contact found')
+                elif r._ems_email_shared_with_family():
+                    # Issue #833: the login with that email is the family's.
+                    note = _('Same email as the family: signs in with the corporate email %s') % (
+                        r.student_email) if r.student_email else _(
+                        'Same email as the family: no access until the corporate email exists')
                 else:
                     note = ''
                 lines.append((0, 0, {
@@ -84,24 +89,6 @@ class EmsPortalAccessWizard(models.TransientModel):
                     'note': note,
                 }))
         return lines
-
-    def _sync_user_login(self, wu):
-        """Sync a (re)granted portal user's login/email with the partner's current email.
-
-        Revoking access archives the res.users instead of deleting it, keeping the old
-        login/email. When access is later granted again, Odoo reactivates that archived
-        user without refreshing its login, so a changed email never takes effect. We
-        realign it here, unless another user already owns that login (in which case the
-        native _assert_user_email_uniqueness raises a clean "already registered" error).
-        """
-        user = wu.user_id.sudo()
-        new_email = email_normalize(wu.partner_id.email)
-        if not user or not new_email or email_normalize(user.login) == new_email:
-            return
-        conflict = self.env['res.users'].with_context(active_test=False).sudo().search_count(
-            [('login', '=', new_email), ('id', '!=', user.id)])
-        if not conflict:
-            user.write({'login': new_email, 'email': new_email})
 
     def _apply_one(self, partner):
         """Grant/revoke/resend portal access for a single partner via the native portal wizard.
@@ -117,7 +104,11 @@ class EmsPortalAccessWizard(models.TransientModel):
         if self.mode == 'grant':
             if wu.is_portal or wu.is_internal:
                 return 'skipped'
-            self._sync_user_login(wu)
+            partner._ems_check_portal_login()
+            # Realign the login of a reactivated user, and take the family's email back from a
+            # student who holds it as login (issue #833), before Odoo checks it is free.
+            (partner._ems_students_sharing_email() | partner)._ems_sync_portal_login()
+            wu.invalidate_recordset(['email_state'])
             wu.action_grant_access()
             return 'granted'
         elif self.mode == 'resend':
@@ -155,7 +146,8 @@ class EmsPortalAccessWizard(models.TransientModel):
                         'student': student.name, 'name': r.name})
                     continue
                 try:
-                    result = self._apply_one(r)
+                    with self.env.cr.savepoint():
+                        result = self._apply_one(r)
                     if result == 'granted':
                         granted += 1
                     elif result == 'revoked':
@@ -206,3 +198,35 @@ class EmsPortalAccessWizardLine(models.TransientModel):
     has_portal = fields.Boolean(string='Has portal access')
     connected = fields.Boolean(string='Connected')
     note = fields.Char(string='Note')
+
+
+class PortalWizardUser(models.TransientModel):
+    """Odoo's portal wizard line, with the login of issue #833: a student sharing the main email
+    with the family gets the corporate email as login (res.partner._ems_portal_login), so both
+    the "already registered" check and the user creation look at that login, not at the email.
+    Every EMS grant goes through here (ems.portal.access.wizard._apply_one), and so does Odoo's
+    own "Grant portal access" action."""
+    _inherit = 'portal.wizard.user'
+
+    def _ems_login(self):
+        self.ensure_one()
+        return self.partner_id._ems_portal_login(self.email)
+
+    def _get_similar_users_domain(self, portal_users_with_email):
+        return [('login', 'in', [portal_user._ems_login() for portal_user in portal_users_with_email])]
+
+    def _is_portal_similar_than_user(self, user, portal_user):
+        return user['login'] == portal_user._ems_login() and user['id'] != portal_user.user_id.id
+
+    def _create_user(self):
+        login = self._ems_login()
+        if login == email_normalize(self.email):
+            return super()._create_user()
+        self.partner_id._ems_check_portal_login()
+        return self.env['res.users'].with_context(no_reset_password=True)._create_user_from_template({
+            'email': email_normalize(self.email),
+            'login': login,
+            'partner_id': self.partner_id.id,
+            'company_id': self.env.company.id,
+            'company_ids': [(6, 0, self.env.company.ids)],
+        })

@@ -75,6 +75,8 @@ def post_init_hook(env):
     env['ems.level']._ems_seed_convalidation_levels()
     # Issue #800: the levels whose groups may call a student walkout, from the law; the centre's from then on.
     env['ems.level']._ems_seed_walkout_levels()
+    # Issue #828: a new installation counts a student walkout's hours from the moment of the proposal.
+    env['res.company'].search([]).write({'walkout_count_from': 'proposal'})
 
 
 def _seed_declaration_codes(env):

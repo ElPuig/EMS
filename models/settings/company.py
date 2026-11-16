@@ -39,11 +39,23 @@ class ems_company(models.Model):
     # the roll-call can't (issue #587). Read through ems.attendance_status.roll_call_selectable.
     attendance_manual_justified = fields.Boolean(default=False)
     strike_escalation_threshold = fields.Integer(default=3)
-    # Issue #800: a student walkout call's calendar, in school hours (ems.datetime_utils): the group vote
-    # and the joining last a phase each, and the Head of Studies gets the minute this long before the
-    # walkout. Each call keeps the values it was opened with.
-    walkout_phase_hours = fields.Integer(string="Student walkout phase (school hours)", default=24)
-    walkout_notice_hours = fields.Integer(string="Student walkout notice (school hours)", default=48)
+    # Issue #800: a student walkout call's calendar: the group vote and the joining last a phase each,
+    # and the Head of Studies gets the minute this long before the walkout. Each call keeps the values
+    # it was opened with. Issue #828: how those hours are counted (ems.student_walkout._ems_plan). The
+    # defaults keep the count of an installation upgrading into this version (real hours from when the
+    # group receives the email, days without class not counted); a new installation counts from the
+    # proposal, set by post_init_hook (see __init__.py).
+    walkout_phase_hours = fields.Integer(string="Student walkout phase (hours)", default=24)
+    walkout_notice_hours = fields.Integer(string="Student walkout notice (hours)", default=48)
+    walkout_hours_kind = fields.Selection(string="Student walkout kind of hours", selection=[
+        ('real', "Real hours"),
+        ('school', "School hours"),
+    ], default='real', required=True)
+    walkout_count_from = fields.Selection(string="Student walkout count starts", selection=[
+        ('proposal', "From the moment of the proposal"),
+        ('email', "When the group receives the email within its schedule"),
+    ], default='email', required=True)
+    walkout_count_days_off = fields.Boolean(string="Student walkout counts the days without class", default=False)
     # Minutes; 0 disables the possible-duplicate warning (ems.strike.get_duplicate_warning).
     strike_duplicate_window = fields.Integer(default=1)
     # NOTE: defaults to 'all' so an installation upgrading into this version keeps today's

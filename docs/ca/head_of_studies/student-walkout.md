@@ -14,7 +14,7 @@ No s'ha de confondre amb els **Strikes** (Convivència), el registre disciplinar
 
 - **Res quan es fa una proposta**: hi vetlla el tutor.
 - **Un avís al teu resum diari** quan un tutor (o algú per sobre seu) avorta una proposta, amb el motiu.
-- **L'acta, per correu**, quan la proposta es tanca: com a mínim 48 hores lectives abans de la vaga (per defecte), amb el recompte de vots i els alumnes que s'hi sumen. Si s'ha de justificar la falta d'algú, també reps la tasca **Justificar la vaga d'estudiants**.
+- **L'acta, per correu**, quan la proposta es tanca: com a mínim 48 hores abans de la vaga (per defecte), amb el recompte de vots i els alumnes que s'hi sumen. Si s'ha de justificar la falta d'algú, també reps la tasca **Justificar la vaga d'estudiants**.
 
 L'acta arriba al cap d'estudis o al cap d'estudis adjunt per sobre del tutor del grup; d'un grup sense tutor, a tots els caps d'estudis i caps d'estudis adjunts.
 
@@ -39,7 +39,14 @@ Els motius surten d'**Assistència dels estudiants > Configuració > Vagues d'al
 Un administrador la defineix a **Ajustos > Vagues d'alumnes**:
 
 - **Nivells i cursos**: quins nivells (i, si cal, quins cursos) poden proposar donar suport a una vaga. Per defecte, a partir de 3r d'ESO, batxillerat i formació professional.
-- **Calendari**: quant dura cada fase i amb quanta antelació has de rebre l'acta abans de la vaga, en hores lectives (24 i 48 per defecte). Cada proposta manté els valors amb què es va fer.
+- **Calendari**: quant dura cada fase i amb quanta antelació has de rebre l'acta abans de la vaga (24 i 48 hores per defecte), i com es compten aquestes hores:
+  - **Tipus d'hores**: **hores reals** (qualsevol hora del dia) o **hores lectives** (només les hores que el grup és a classe, segons el seu horari; el calendari s'allarga molt).
+  - **El recompte comença** (només amb hores reals): **des del moment de la proposta** (els correus al grup i al tutor surten de seguida, sigui l'hora que sigui) o **quan el grup rep el correu dins del seu horari**.
+  - **Comptar els dies que el grup no té classe** (només amb hores reals, desactivat per defecte): desactivat, els caps de setmana, els festius i les vacances no compten (24 hores des de divendres a les 9:00 acaben dilluns a les 9:00); activat, compten com qualsevol altre dia (acaben dissabte a les 9:00).
+
+  Sota els controls, un **exemple** mostra, abans de desar, quan acabarien la votació i l'adhesió d'una proposta de mostra i el primer dia possible de la vaga amb els valors de la pantalla. Cada proposta manté els valors amb què es va fer.
+
+![Configuració del calendari de les vagues d'estudiants, amb l'exemple](../../assets/head_of_studies/hos-walkout-calendar-settings.png)
 
 ---
 

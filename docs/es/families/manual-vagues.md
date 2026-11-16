@@ -26,13 +26,16 @@ Solo pueden proponer apoyar una huelga los grupos que el centro permite (a parti
 
 ## El calendario
 
-La propuesta tiene dos fases: primero el grupo vota si apoya la huelga y después cada alumno dice si se suma. Cada fase dura **24 horas lectivas** por defecto, y la jefatura de estudios debe recibir el acta como mínimo **48 horas lectivas** antes de la huelga. Por tanto, **una huelga solo se puede proponer con cuatro días lectivos de antelación como mínimo**.
+La propuesta tiene dos fases: primero el grupo vota si apoya la huelga y después cada alumno dice si se suma. Cada fase dura **24 horas** por defecto, y la jefatura de estudios debe recibir el acta como mínimo **48 horas** antes de la huelga. Por tanto, con la configuración por defecto, **una huelga se tiene que proponer con unos cuatro días lectivos de antelación**.
 
-- Solo cuentan los días lectivos: los fines de semana, los festivos y las vacaciones no. Una fase que empieza el viernes a las 13:00 acaba el lunes a las 13:00 (durante el fin de semana también puedes responder).
-- Cada fase empieza cuando el correo llega a tu grupo: durante las clases o, si se envía fuera del horario, al inicio de las siguientes.
+El centro decide cómo se cuentan las horas, y el formulario te lo explica:
+
+- Normalmente, son **horas reales**, pero los días que tu grupo no tiene clase (fines de semana, festivos y vacaciones) no cuentan: una fase que empieza el viernes a las 9:00 acaba el lunes a las 9:00 (durante el fin de semana también puedes responder).
+- El recuento empieza **cuando la propones**, y los correos salen enseguida, o **cuando el correo llega a tu grupo**: durante las clases o, si se envía fuera del horario, al inicio de las siguientes.
+- El centro también puede contar solo las **horas de clase** de tu grupo: entonces el calendario es más largo.
 - La votación acaba antes si los votos que faltan ya no pueden cambiar el resultado.
 
-Antes de enviarla, el formulario te muestra el calendario exacto y el primer día posible de la huelga.
+Antes de enviarla, el formulario te muestra el calendario exacto, cómo se cuentan las horas y el primer día posible de la huelga.
 
 ---
 

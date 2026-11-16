@@ -317,6 +317,28 @@ class TestStudentWalkout(TransactionCase):
         self.assertEqual(walkout.group_ids, self.group | half)
         self.assertIn(other, walkout.line_ids.student_id)
 
+    def test_split_group_halves_with_different_schedules(self):
+        """The latest half's class decides when an email reaches the group (and the tutor's copy waits
+        for it too); with school hours, the union of both halves' class time counts."""
+        half = self.group.copy({'acronym': 'B'})
+        half.write({'delegate_id': self.delegate.id, 'subdelegate_id': self.subdelegate.id})
+        self.group.joinable_group_ids = half
+        self._schedule(15.0, 16.0)
+        calendar = self.env['resource.calendar'].create({'name': 'WLK schedule B', 'attendance_ids': [(5, 0, 0)]})
+        self.env['resource.calendar.attendance'].create([{
+            'name': f'WLK B {day}', 'calendar_id': calendar.id, 'dayofweek': str(day), 'hour_from': 17.0,
+            'hour_to': 18.0, 'group_ids': [(6, 0, half.ids)],
+        } for day in range(5)])
+        walkout = open_walkout(self, days=8)  # the vote from 17:00: Monday is too soon
+        self.assertEqual((walkout.vote_start, walkout.vote_until), (self._local(0, 17.0), self._local(1, 17.0)))
+        self.assertEqual(set(self._mails(walkout).mapped('scheduled_date')), {self._local(0, 17.0)},
+                         "The tutor's copy waits for the group too.")
+        # School hours: 15:00 to 18:00 each day, from Monday 17:00: 1 + 3 a day, ending on the second
+        # Thursday at 17:00.
+        self._rule(hours_kind='school')
+        calendar = self._calendar(self._local(0, 10.0), self.group | half)
+        self.assertEqual((calendar['vote_start'], calendar['vote_until']), (self._local(0, 17.0), self._local(10, 17.0)))
+
     # Aborting
 
     def test_the_tutor_chain_may_abort_it_with_a_reason(self):

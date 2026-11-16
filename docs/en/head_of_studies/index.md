@@ -12,6 +12,7 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 
 - [Academic history: cohort queries](academic-history.md)
 - [Convalidations: reviewing and resolving requests](convalidations.md) — Reviewing each module and drafting the proposal (Head of Studies), resolving it officially (Director) or filing it with the Ministry.
+- [Certificates: approving](certificates.md) — Approving the certificates the secretariat issued (Director); EMS generates the PDF and sends it to the applicant.
 - [Erasmus+: validating the staff's activities](erasmus-staff-validation.md) — The Director validates the activity, host, destination and dates of each selected staff member.
 - [Erasmus+: answering an appeal against a resolution](erasmus-appeals.md) — The applicant's own Head of Studies answers the appeals against the definitive list of an Erasmus+ call.
 - [Meeting attendance with the NFC tag](../secretary/meeting-attendance.md) — Confirming attendance to a staff meeting or any meeting with the NFC reader at the door (shared manual with the secretariat).

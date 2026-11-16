@@ -147,6 +147,8 @@ class TestCertificate(TransactionCase):
             certificate.with_user(self.secretary).action_done_step()
         with self.assertRaises(AccessError):
             self._attach(certificate, self.report_document, self.secretary, 'report.pdf')
+        with self.assertRaises(UserError):
+            certificate.document_ids[:1].with_user(self.secretary).write({'type_document_id': self.report_document.id})
         self._attach(certificate, self.report_document, self.coordinator, 'report.pdf')
         # Optional documentation, never added to the certificate.
         certificate.with_user(self.secretary).other_attachment_ids = [(0, 0, {
@@ -203,6 +205,17 @@ class TestCertificate(TransactionCase):
         self.assertEqual((certificate.state, certificate.step_id), ('in_progress', self.steps[0]))
         self.assertIn(self.coordinator, certificate.activity_ids.user_id)
 
+        # The documentation arrived some other way: the secretariat (or the step's holder) says
+        # so and the request goes back to its step; nobody else can.
+        self.env['ems.certificate.wizard'].with_user(self.coordinator).create({
+            'certificate_id': certificate.id, 'mode': 'info', 'message': 'The signed copy',
+        }).action_confirm()
+        with self.assertRaises(AccessError):
+            certificate.with_user(self.director).action_documentation_received()
+        certificate.with_user(self.secretary).action_documentation_received()
+        self.assertEqual((certificate.state, certificate.step_id), ('in_progress', self.steps[0]))
+        self.assertIn(self.coordinator, certificate.activity_ids.user_id)
+
     def test_reject_and_cancel(self):
         sent = capture_template_emails(self)
         certificate = self._submitted()
@@ -222,6 +235,18 @@ class TestCertificate(TransactionCase):
         other.with_user(self.secretary).action_done_step()
         with self.assertRaises(UserError):
             other.with_user(self.secretary)._ems_cancel("Duplicate")
+
+        # Cancelled before being issued, the secretariat reopens it on the first step.
+        third = self._submitted()
+        self.env['ems.certificate.wizard'].with_user(self.secretary).create({
+            'certificate_id': third.id, 'mode': 'cancel', 'message': 'Duplicate',
+        }).action_confirm()
+        self.assertEqual((third.state, third.cancel_reason, third.activity_ids), ('cancelled', 'Duplicate', self.env['mail.activity']))
+        with self.assertRaises(AccessError):
+            third.with_user(self.coordinator).action_reopen()
+        third.with_user(self.secretary).action_reopen()
+        self.assertEqual((third.state, third.step_id, third.cancel_reason), ('in_progress', self.steps[0], False))
+        self.assertIn(self.coordinator, third.activity_ids.user_id)
 
     def test_former_student_form(self):
         """The secretariat registers a former student's request and sends the form by link."""

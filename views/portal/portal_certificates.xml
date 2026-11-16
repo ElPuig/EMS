@@ -174,7 +174,7 @@
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <t t-call="ems.portal_certificate_status"/>
-                            <a t-att-href="certificate.get_portal_url()" class="btn btn-sm btn-outline-primary">Open</a>
+                            <a t-att-href="certificate.get_portal_url()" class="btn btn-sm btn-outline-primary">Open my request</a>
                         </div>
                     </div>
                 </div>

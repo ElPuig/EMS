@@ -6092,8 +6092,6 @@ msgstr "Es tutoría"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_issue_status__attendance_status__a_issue model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__status__a_issue model:ems.attendance_status,name:ems.attendance_status_issue
-#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_stamp__action__issue
-#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_step__action__issue
 msgid "Issue"
 msgstr "Asunto"
 
@@ -7725,7 +7723,6 @@ msgstr "Solo los tutores pueden justificar las faltas de los alumnos."
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_search
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form_satisfaction
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_search
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
 msgid "Open"
 msgstr "Abierta"
 
@@ -18480,8 +18477,6 @@ msgstr "Pedir más información al solicitante de una convalidación."
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__file_state__complete
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__todo_state__complete
 #: code:addons/ems/models/erasmus/quality.py:0
-#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_stamp__action__complete
-#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_step__action__complete
 msgid "Complete"
 msgstr "Completar"
 
@@ -27794,6 +27789,7 @@ msgstr "Cuándo, con palabras"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_panel__post
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__role_id
 msgid "Post"
 msgstr "Cargo"
 
@@ -32969,7 +32965,6 @@ msgstr "Plazas no aceptadas ni ofrecidas a alguien que aún debe responder."
 #: code:addons/ems/models/erasmus/export.py:0
 #: code:addons/ems/models/erasmus/economy.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_list
-#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__role_id
 msgid "Position"
 msgstr "Posición"
 
@@ -53941,6 +53936,8 @@ msgstr ""
 #. module: ems
 #: model:ems.certificate.type.step,name:ems.certificate_step_fct_issue
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_stamp__action__issue
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_step__action__issue
 msgid "Issue the certificate"
 msgstr "Expedir el certificado"
 
@@ -54773,6 +54770,7 @@ msgstr "Rellenar la solicitud"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.mail_layout_certificate
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
 msgid "Open my request"
 msgstr "Ver la solicitud"
 
@@ -54836,3 +54834,10 @@ msgstr "La persona solicitante aún puede editar sus datos"
 #: code:addons/ems/models/certificates/certificate.py:0
 msgid "The applicant updated their details."
 msgstr "La persona solicitante ha actualizado sus datos."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_stamp__action__complete
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_step__action__complete
+msgid "Complete the data"
+msgstr "Completar los datos"
+

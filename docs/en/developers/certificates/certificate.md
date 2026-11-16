@@ -56,7 +56,8 @@ documentation**: optional files anyone taking part attaches, never added to the 
 `views/academic_management/certificates/`, `views/academic_management/certificate_type/`,
 `views/community/contact/company.xml`, `views/portal/portal_certificates.xml`,
 `tests/test_certificate.py`, `tests/test_portal_certificate.py`, `tests/test_certificate_tour.py`,
-`static/tests/tours/certificate_tour.js`
+`static/tests/tours/certificate_tour.js`, `tests/test_docs_screenshots_certificates.py` (the manuals'
+screenshots)
 
 ## Hierarchy and relations
 
@@ -111,7 +112,7 @@ from the UI and no upgrade reverts it.
 |-------|------|-------|
 | `sequence`, `name` | Integer, Char (translatable) | Order and label ("Complete the company's details"). |
 | `role_id` | M2o `ems.role` | Whose step it is: its holders get the task and may act. The administrator may always act too. |
-| `action` | Selection | `complete` (fills in data, moves on), `issue` (number + "Issued" stamp), `approve` ("Approved" stamp). |
+| `action` | Selection | `complete` ("Complete the data": fills in data, moves on), `issue` ("Issue the certificate": number + "Issued" stamp), `approve` ("Approve": "Approved" stamp). The labels are full phrases on purpose: a bare "Issue" or "Complete" would take another screen's translation ("Incident"). |
 
 Constraints (`_check_steps` on the type): at least one step, exactly one `issue` step, and every
 `approve` step after it. The last step finishes the request: the PDF is generated and sent.
@@ -144,7 +145,7 @@ Constraints (`_check_steps` on the type): at least one step, exactly one `issue`
 | Field | Type | Notes |
 |-------|------|-------|
 | `type_document_id` | M2o `ems.certificate.type.document` | Name, order, who attaches it and whether it is appended come from it. |
-| `attachment_ids` | M2m `ir.attachment` | Its files (PDF or images), tied to the line (`_ems_link_to`). |
+| `attachment_ids` | M2m `ir.attachment` | Its files (PDF or images), tied to the line by `ems.attachment_link_mixin`, so they follow the request's access rights. |
 | `uploaders`, `is_attached`, `can_upload` | computed | Who attaches it ("Anyone", or the applicant and positions); whether it has files; whether the current user may attach them (administrator, anyone-line, or holder of one of its positions, while the request is open). `write()` only accepts `attachment_ids`, and only from who `can_upload`. |
 
 On the portal, the applicant gets one file input per required document they may attach
@@ -194,8 +195,10 @@ certificate, or see the request.
 
 ## Performance
 
-Measured on nothing: no certificate exists on this box yet, so this is the cost analysis. A
-centre issues FCT certificates in the order of tens to a few hundred a year.
+Measured on a synthetic fixture of 300 requests (rolled back), as a holder of the VET coordinator
+position: list *Pending for me* (80 rows) 24 ms / 16 queries cold, 14 ms / 4 warm; list without
+filter 14 ms / 6 cold; form read 18 ms / 23 cold, 1 ms warm; the documentation lines' `can_upload`
+14 ms / 15 cold. A centre issues FCT certificates in the order of tens to a few hundred a year.
 
 - The list (filter *Pending for me*): one query on `ems_role` (the user's positions) and one search
   of `ems_certificate` by `state` (indexed) and `step_id`; then `step_user_ids` reads the holders
@@ -207,6 +210,16 @@ centre issues FCT certificates in the order of tens to a few hundred a year.
   files (a few MB), merged in memory once.
 - The documentation tab: a type requires a handful of documents; `can_upload` reads each position's
   holders once per request page (memoized per role), not once per line.
+
+### Permission audit (2026-11-17)
+
+Every role of `ROLE_GROUP_XMLIDS`, in a rolled-back `odoo shell` transaction: menus Certificates,
+Certificate types and Collaborating companies, ACL, readable records and what the views offer. 0
+mismatches: the Certificates menu shows to the administrator, the secretariat, the Director and the
+VET coordinator (Academic management shows to the VET coordinator for it, and nothing else of that
+menu); the types to the administrator only; the companies to the administrator, the secretariat,
+Heads of Studies and the VET coordinator. A user given the VET coordinator group without holding the
+position reads no request: the group comes from the position, and the record rule reads its holders.
 
 ## Access control
 

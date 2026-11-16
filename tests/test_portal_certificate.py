@@ -128,6 +128,24 @@ class TestPortalCertificate(HttpCase):
             self.assertIn(text, html)
         self.assertNotIn('As Written SL', html, "The company the centre linked replaces the one written.")
 
+    def test_cancel_from_the_link(self):
+        """The applicant cancels their own request from its page, until it is issued."""
+        certificate = self.env['ems.certificate'].create({
+            'type_id': self.certificate_type.id, 'student_id': self.student.id, 'origin': 'portal',
+            'student_name': 'TPCR Student', 'student_document': '12345678Z', 'study_id': self.study.id,
+            'fct_school_year': '2025-2026',
+        })
+        certificate._ems_submit()
+        self.authenticate(None, None)
+        token = certificate._portal_ensure_token()
+        self.url_open(f'/my/certificats/{certificate.id}/cancel?access_token=wrong',
+                      data={'csrf_token': Request.csrf_token(self)})
+        self.assertEqual(certificate.state, 'in_progress', "A wrong token cancels nothing.")
+        self.url_open(f'/my/certificats/{certificate.id}/cancel?access_token={token}',
+                      data={'csrf_token': Request.csrf_token(self)})
+        self.assertEqual(certificate.state, 'cancelled')
+        self.assertFalse(certificate.activity_ids)
+
     def test_download_the_issued_certificate(self):
         certificate = self.env['ems.certificate'].create({
             'type_id': self.certificate_type.id, 'student_id': self.student.id, 'origin': 'portal',

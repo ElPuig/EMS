@@ -11,6 +11,7 @@
 - Every step can return the request to the previous one, ask the applicant for documentation, or reject it; the secretariat cancels or reopens. Each step is a quiet task for whoever holds its position (daily summary).
 - Each certificate type can require documents ("Required attached documentation"): one line per document (FCT: the FCT agreement) saying who attaches it (the applicant and/or positions of the circuit; nobody ticked, anyone taking part) and whether its pages are added to the certificate. They must all be attached before the certificate is issued. Any request also takes optional "Other documentation", never added to the certificate.
 - New contact type "Collaborating company", with its menu Educational Community > Collaborating companies and its VAT number on the form. The certificate links one, or creates it from what the applicant wrote.
+- User manuals in Catalan, Spanish and English for the secretariat, the VET coordinator, the Director, students and families, and the administrator (certificate types), with screenshots.
 - New security group VET coordinator (given by the "VET coordinator" position): Academic management > Certificates (and nothing else of that menu) and the collaborating companies.
 
 # Internal changes

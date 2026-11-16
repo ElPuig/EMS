@@ -7,8 +7,8 @@ from odoo.exceptions import ValidationError
 # certificate its number and the "Issued" stamp; 'approve' adds an "Approved" stamp. Whichever is
 # last finishes the request: the PDF is generated and sent.
 STEP_ACTIONS = [
-    ('complete', 'Complete'),
-    ('issue', 'Issue'),
+    ('complete', 'Complete the data'),
+    ('issue', 'Issue the certificate'),
     ('approve', 'Approve'),
 ]
 
@@ -91,7 +91,7 @@ class EmsCertificateTypeStep(models.Model):
                               ondelete='cascade', index=True)
     sequence = fields.Integer(string="Sequence", default=10)
     name = fields.Char(string="Name", required=True, translate=True)
-    role_id = fields.Many2one(string="Position", comodel_name='ems.role', required=True, ondelete='restrict',
+    role_id = fields.Many2one(string="Post", comodel_name='ems.role', required=True, ondelete='restrict',
                               help="Whoever holds this position gets the task and does the step. The "
                                    "administrator can always do it too.")
     action = fields.Selection(string="Action", selection=STEP_ACTIONS, required=True, default='complete')

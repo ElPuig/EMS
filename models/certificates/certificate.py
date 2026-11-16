@@ -316,8 +316,8 @@ class EmsCertificate(models.Model):
         labels = dict(self._fields['state']._description_selection(self.env))
         for certificate in self:
             if certificate.state not in expected:
-                raise UserError(_("This request cannot be processed in its current state (%s).")
-                                % labels[certificate.state])
+                raise UserError(_("This request cannot be processed in its current state (%s).",
+                                  labels[certificate.state]))
 
     # --- the circuit ---------------------------------------------------------
 
@@ -792,6 +792,7 @@ class EmsCertificateDocument(models.Model):
     says may attach them: the applicant (from the portal), the holders of its positions, or anyone
     taking part when it names nobody; the administrator always."""
     _name = 'ems.certificate.document'
+    _inherit = ['ems.attachment_link_mixin']
     _description = "Required document of a certificate request, with its files."
     _order = 'certificate_id, sequence, id'
 
@@ -850,11 +851,7 @@ class EmsCertificateDocument(models.Model):
                 if not line.can_upload:
                     raise AccessError(_("You cannot attach %(document)s: it is attached by %(who)s.",
                                         document=line.name, who=line.uploaders))
-        res = super().write(vals)
-        if 'attachment_ids' in vals:
-            for line in self:
-                line.attachment_ids._ems_link_to(line)
-        return res
+        return super().write(vals)
 
 
 class EmsCertificateStamp(models.Model):

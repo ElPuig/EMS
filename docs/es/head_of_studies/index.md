@@ -12,6 +12,7 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 
 - [Histórico académico: consultas de cohorte](academic-history.md)
 - [Convalidaciones: revisar y resolver las solicitudes](convalidations.md) — Revisar cada módulo y hacer la propuesta (Jefatura de Estudios), resolverla oficialmente (Dirección) o tramitarla con el Ministerio.
+- [Certificados: dar el visto bueno](certificates.md) — Dar el visto bueno a los certificados expedidos por secretaría (Dirección); EMS genera el PDF y lo envía a la persona solicitante.
 - [Erasmus+: validar las actividades del personal](erasmus-staff-validation.md) — La dirección valida la actividad, la entidad, el destino y las fechas de cada persona seleccionada del personal.
 - [Erasmus+: responder un recurso de alzada contra una resolución](erasmus-appeals.md) — El jefe de estudios de la persona responde los recursos contra la lista definitiva de una convocatoria Erasmus+.
 - [Asistencia a reuniones con la tarjeta NFC](../secretary/meeting-attendance.md) — Confirmar la asistencia a un claustro o a una reunión con el lector NFC de la entrada (manual compartido con secretaría).

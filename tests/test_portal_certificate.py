@@ -50,9 +50,12 @@ class TestPortalCertificate(HttpCase):
         response = self.url_open('/my/certificats')
         self.assertIn('o_ems_certificate_new', response.text)
         self.assertIn(self.study.name, response.text)
+        self.assertIn('id="certificate_new_body" class="collapse "', response.text, "The form starts folded.")
 
         response = self.url_open('/my/certificats/submit', data=self._form(student_document=''))
         self.assertIn('error=missing', response.url)
+        self.assertIn('id="certificate_new_body" class="collapse show"', response.text,
+                      "Back with an error, the form is open.")
         self.assertFalse(self._requests())
 
         # The agreement (anyone attaches it) and an optional file; the training report is only the
@@ -105,6 +108,22 @@ class TestPortalCertificate(HttpCase):
         self.assertIn('replied=1', response.url)
         self.assertEqual(certificate.state, 'in_progress')
         self.assertEqual(certificate.document_ids.attachment_ids.mapped('name'), ['agreement.png'])
+
+    def test_request_summary(self):
+        """The request's page shows the applicant what they wrote and what the centre added."""
+        certificate = self.env['ems.certificate'].create({
+            'type_id': self.certificate_type.id, 'student_id': self.student.id, 'origin': 'portal',
+            'student_name': 'TPCR Student', 'student_document': '12345678Z', 'study_id': self.study.id,
+            'fct_school_year': '2025-2026', 'company_name': 'As Written SL',
+        })
+        certificate._ems_submit()
+        certificate.write({'training_company_id': self.company.id, 'hours': 380})
+        self.authenticate(None, None)
+        html = self.url_open(certificate.get_portal_url()).text
+        self.assertIn('o_ems_certificate_summary', html)
+        for text in ('12345678Z', '2025-2026', self.company.name, 'B12345678', '380', self.steps[0].name):
+            self.assertIn(text, html)
+        self.assertNotIn('As Written SL', html, "The company the centre linked replaces the one written.")
 
     def test_download_the_issued_certificate(self):
         certificate = self.env['ems.certificate'].create({

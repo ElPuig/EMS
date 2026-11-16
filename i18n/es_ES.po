@@ -2864,6 +2864,7 @@ msgstr "Compañías"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__company_id
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
 #: model_terms:ir.ui.view,arch_db:ems.view_company_search
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Company"
 msgstr "Compañía"
 
@@ -4051,6 +4052,7 @@ msgstr "Tipo de documento"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_documents
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Documentation"
 msgstr "Documentación"
 
@@ -4909,6 +4911,7 @@ msgstr "De"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_name model_terms:ir.ui.view,arch_db:ems.portal_documentation
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__student_name
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Full name"
 msgstr "Nombre completo"
 
@@ -7976,6 +7979,7 @@ msgstr "Plan de pago"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout_line__ratification__pending
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__step_role_id
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Pending"
 msgstr "Pendiente"
 
@@ -9755,6 +9759,7 @@ msgstr "Estudios para matriculación"
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__study_id
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__study_id
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Study"
 msgstr "Estudio"
 
@@ -20522,6 +20527,7 @@ msgstr "Puede ver la identificación"
 #: code:addons/ems/models/erasmus/call.py:0
 #: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__student_document
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Identity document"
 msgstr "Documento de identidad"
 
@@ -20927,6 +20933,7 @@ msgstr "Representante"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__submission_date
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Request date"
 msgstr "Fecha de la solicitud"
 
@@ -23371,6 +23378,7 @@ msgstr "%s se reconoció a partir de las optativas de un expediente anterior y n
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_grade__hours
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__hours
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Hours"
 msgstr "Horas"
 
@@ -48536,6 +48544,7 @@ msgstr "Subvención"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__period_start
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "From"
 msgstr "Desde"
 
@@ -48699,6 +48708,7 @@ msgstr "Equipo y participante"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__period_end
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "To"
 msgstr "Hasta"
 
@@ -53595,6 +53605,7 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "<i class=\"fa fa-arrow-right me-1\"/>Current step:"
 msgstr "<i class=\"fa fa-arrow-right me-1\"/>Paso actual:"
 
@@ -53724,6 +53735,7 @@ msgstr "Advertencia de acceso"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__agreement_reference
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Agreement registration number"
 msgstr "Número de registro del convenio"
 
@@ -54237,6 +54249,7 @@ msgstr "Devuelta a \"%s\" por %s:"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__fct_school_year
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "School year of the training"
 msgstr "Curso de la formación"
 
@@ -54464,6 +54477,7 @@ msgstr "La formación no puede terminar antes de empezar."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "VAT number"
 msgstr "NIF"
 
@@ -54517,6 +54531,7 @@ msgstr "Por qué se devolvió la solicitud al paso anterior la última vez."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Workplace training"
 msgstr "Formación en centros de trabajo"
 
@@ -54563,6 +54578,7 @@ msgstr "Tu certificado {{ object.name }} - {{ object.type_id.name }}"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Your details"
 msgstr "Tus datos"
 
@@ -54767,3 +54783,15 @@ msgstr ""
 #: code:addons/ems/models/certificates/certificate.py:0
 msgid "You cannot attach %(document)s: it is attached by %(who)s."
 msgstr "No puedes adjuntar %(document)s: lo adjunta %(who)s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+msgid ""
+"<i class=\"fa fa-paperclip me-1\"/>\n"
+"                            <strong>Other documentation</strong>:"
+msgstr "<i class=\"fa fa-paperclip me-1\"/> <strong>Otra documentación</strong>:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+msgid "The centre completes these details."
+msgstr "El centro completa estos datos."

@@ -98,6 +98,12 @@
     <template id="portal_certificates" name="Certificates">
         <t t-call="portal.portal_layout">
             <div class="container mt-4 o_ems_portal_certificates">
+                <style>
+                    /* The chevron is drawn here, not as an element: an extra node inside the button
+                       would change the translatable term of its label. */
+                    .o_ems_certificate_toggle::after { font-family: FontAwesome; content: "\f078"; margin-left: auto; transition: transform .2s; }
+                    .o_ems_certificate_toggle:not(.collapsed)::after { transform: rotate(180deg); }
+                </style>
                 <t t-call="ems.portal_loading_overlay"/>
                 <h3 class="mb-1">Certificates</h3>
                 <p class="text-muted small mb-3" t-esc="student.name"/>
@@ -112,8 +118,18 @@
                     <i class="fa fa-exclamation-triangle me-1"/> Fill in all your details: they are mandatory.
                 </div>
 
+                <!-- Folded by default, as convalidations: most visits check the requests already made,
+                     which an open form would push out of sight. Opened when asked for (?new=1) or
+                     when a submission came back with an error. -->
+                <t t-set="form_open" t-value="open_new or error == 'missing'"/>
                 <div t-if="can_request and types" class="card shadow-sm mb-4 o_ems_certificate_new">
-                    <div class="card-header bg-ems-primary text-white"><i class="fa fa-plus me-2"/>New certificate request</div>
+                    <button type="button"
+                            t-attf-class="card-header bg-ems-primary text-white border-0 w-100 text-start d-flex align-items-center o_ems_certificate_toggle #{'' if form_open else 'collapsed'}"
+                            data-bs-toggle="collapse" data-bs-target="#certificate_new_body"
+                            aria-controls="certificate_new_body" t-att-aria-expanded="'true' if form_open else 'false'">
+                        <i class="fa fa-plus me-2"/>New certificate request
+                    </button>
+                    <div id="certificate_new_body" t-attf-class="collapse #{'show' if form_open else ''}">
                     <div class="card-body">
                         <form action="/my/certificats/submit" method="post" enctype="multipart/form-data" class="ems-loading-form">
                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
@@ -133,6 +149,7 @@
                             <t t-call="ems.portal_certificate_fields"/>
                             <button type="submit" class="btn btn-primary">Submit request</button>
                         </form>
+                    </div>
                     </div>
                 </div>
 
@@ -155,6 +172,73 @@
                 </div>
             </div>
         </t>
+    </template>
+
+    <!-- What the request holds, for the applicant to follow it: their details, the training as the
+         centre completed it, where it is and the documentation attached. Only what has a value. -->
+    <template id="portal_certificate_summary" name="Certificate request summary">
+        <div class="card shadow-sm mb-4 o_ems_certificate_summary">
+            <div class="card-body">
+                <p t-if="certificate.state == 'in_progress' and certificate.step_id" class="mb-3 o_ems_certificate_step">
+                    <i class="fa fa-arrow-right me-1"/>Current step: <strong t-esc="certificate.step_id.name"/>
+                </p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold">Your details</h6>
+                        <dl class="row small mb-3">
+                            <dt class="col-5">Full name</dt><dd class="col-7" t-esc="certificate.student_name"/>
+                            <dt class="col-5">Identity document</dt><dd class="col-7" t-esc="certificate.student_document"/>
+                            <dt class="col-5">Study</dt><dd class="col-7" t-esc="certificate.study_id.name"/>
+                            <t t-if="certificate.kind == 'fct'">
+                                <dt class="col-5">School year of the training</dt><dd class="col-7" t-esc="certificate.fct_school_year"/>
+                            </t>
+                            <t t-if="certificate.submission_date">
+                                <dt class="col-5">Request date</dt>
+                                <dd class="col-7"><t t-out="certificate.submission_date" t-options="{'widget': 'date'}"/></dd>
+                            </t>
+                        </dl>
+                    </div>
+                    <div t-if="certificate.kind == 'fct'" class="col-md-6">
+                        <h6 class="fw-bold">Workplace training</h6>
+                        <t t-set="company_label" t-value="certificate.training_company_id.name or certificate.company_name"/>
+                        <t t-set="vat_label" t-value="certificate.training_company_id.vat or certificate.company_vat"/>
+                        <dl class="row small mb-3">
+                            <t t-if="company_label"><dt class="col-5">Company</dt><dd class="col-7" t-esc="company_label"/></t>
+                            <t t-if="vat_label"><dt class="col-5">VAT number</dt><dd class="col-7" t-esc="vat_label"/></t>
+                            <t t-if="certificate.period_start">
+                                <dt class="col-5">From</dt>
+                                <dd class="col-7"><t t-out="certificate.period_start" t-options="{'widget': 'date'}"/></dd>
+                            </t>
+                            <t t-if="certificate.period_end">
+                                <dt class="col-5">To</dt>
+                                <dd class="col-7"><t t-out="certificate.period_end" t-options="{'widget': 'date'}"/></dd>
+                            </t>
+                            <t t-if="certificate.hours"><dt class="col-5">Hours</dt><dd class="col-7" t-esc="certificate.hours"/></t>
+                            <t t-if="certificate.agreement_reference">
+                                <dt class="col-5">Agreement registration number</dt><dd class="col-7" t-esc="certificate.agreement_reference"/>
+                            </t>
+                        </dl>
+                        <p t-if="not (company_label or certificate.hours)" class="small text-muted">The centre completes these details.</p>
+                    </div>
+                </div>
+                <t t-if="certificate.document_ids or certificate.other_attachment_ids">
+                    <h6 class="fw-bold">Documentation</h6>
+                    <ul class="list-unstyled small mb-0">
+                        <li t-foreach="certificate.document_ids" t-as="line" class="o_ems_certificate_summary_document">
+                            <i t-attf-class="fa me-1 #{'fa-check text-success' if line.attachment_ids else 'fa-clock-o text-warning'}"/>
+                            <strong t-esc="line.name"/>:
+                            <t t-if="line.attachment_ids" t-esc="', '.join(line.attachment_ids.mapped('name'))"/>
+                            <span t-else="" class="text-muted">Pending</span>
+                        </li>
+                        <li t-if="certificate.other_attachment_ids">
+                            <i class="fa fa-paperclip me-1"/>
+                            <strong>Other documentation</strong>:
+                            <t t-esc="', '.join(certificate.other_attachment_ids.mapped('name'))"/>
+                        </li>
+                    </ul>
+                </t>
+            </div>
+        </div>
     </template>
 
     <!-- One request, opened with its link (access token). -->
@@ -208,6 +292,8 @@
                         </form>
                     </div>
                 </div>
+
+                <t t-if="certificate.state != 'draft'" t-call="ems.portal_certificate_summary"/>
 
                 <p t-if="certificate.state == 'in_progress'" class="text-muted">
                     <i class="fa fa-hourglass-half me-1"/> The centre is processing your request. You will receive the certificate by email.

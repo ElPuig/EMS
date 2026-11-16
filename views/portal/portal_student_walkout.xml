@@ -30,7 +30,7 @@
                         </span>
                         <t t-set="line" t-value="walkout.line_ids.filtered(lambda line: line.student_id == partner)"/>
                         <span t-if="walkout._ems_phase_open('voting') and line.has_portal and not line.voted" class="badge text-bg-warning">Vote pending</span>
-                        <span t-elif="walkout._ems_phase_open('joining') and line.has_portal and not line.join_answered" class="badge text-bg-warning">Say whether you join</span>
+                        <span t-elif="walkout._ems_phase_open('joining') and line and not line.join_answered" class="badge text-bg-warning">Say whether you join</span>
                         <span t-elif="walkout.state == 'voting'" class="badge text-bg-info">Voting</span>
                         <span t-elif="walkout.state == 'joining'" class="badge text-bg-info">Joining</span>
                         <span t-elif="walkout.state == 'rejected' and walkout.rejected_from_state in ('voting', 'joining')" class="badge text-bg-danger">Aborted</span>
@@ -178,7 +178,8 @@
                     <t t-elif="line.ratification == 'refused'">Your family has not ratified that you join the walkout: your absence that day will not be justified.</t>
                     <t t-else="">As you are a minor, your family has to ratify on the portal that you join the walkout, while joining lasts. Without it, your absence that day is not justified.</t>
                 </div>
-                <div t-if="line and not line.has_portal" class="alert alert-info">You had no access to the portal when the vote was proposed, so you cannot answer.</div>
+                <!-- Issue #830: without portal access at the proposal a student does not vote, but joins. -->
+                <div t-if="line and not line.has_portal and walkout.state == 'voting'" class="alert alert-info">You had no access to the portal when the walkout was proposed, so you cannot vote. If the group supports it, you will be able to say whether you join.</div>
 
                 <!-- The result, once closed. -->
                 <div t-if="walkout.state in ('closed', 'justified')" class="card shadow-sm mb-4 o_ems_walkout_result">

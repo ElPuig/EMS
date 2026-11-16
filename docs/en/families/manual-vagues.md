@@ -67,7 +67,7 @@ The home page of the portal warns you when your group is voting. Open the propos
 
 If the group does not support it, the proposal closes and nobody's absence is justified that day.
 
-A student who had no access to the portal when the vote was proposed appears in the minute but cannot answer.
+A student who had no access to the portal when the walkout was proposed appears in the minute and does not vote, but if the group supports the walkout and they get access while joining is open, they can say whether they join: they are sent the email at that moment.
 
 ---
 

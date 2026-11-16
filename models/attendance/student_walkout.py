@@ -196,8 +196,7 @@ class EmsStudentWalkout(models.Model):
                               date=format_date(self.env, walkout_date)))
         students = self.env['res.partner'].search([('contact_type', '=', 'student'),
                                                    ('main_group_id', 'in', groups.ids)])
-        with_portal = set(self.env['res.users'].search([('partner_id', 'in', students.ids),
-                                                        ('share', '=', True)]).partner_id.ids)
+        with_portal = set(self._ems_with_portal(students).ids)
         walkout = self.create({
             'group_id': group.id,
             'group_ids': [(6, 0, groups.ids)],
@@ -220,17 +219,43 @@ class EmsStudentWalkout(models.Model):
         walkout._ems_start_voting()
         return walkout
 
-    def _ems_portal_line(self, partner):
-        line = self.line_ids.filtered(lambda line: line.student_id == partner and line.has_portal)
+    @api.model
+    def _ems_with_portal(self, students):
+        """The students of `students` with access to the portal now (an active portal user)."""
+        return self.env['res.users'].sudo().search([('partner_id', 'in', students.ids), ('share', '=', True)]).partner_id
+
+    def _ems_portal_line(self, partner, voting=False):
+        """`partner`'s line, to answer on the portal. The group vote is only for the students with
+        portal access when the proposal was made (has_portal): its majority is counted over them.
+        Joining is each student's own decision, so any student of the call answers, also one who got
+        access afterwards (issue #830): answering on the portal already means having it."""
+        line = self.line_ids.filtered(lambda line: line.student_id == partner and (line.has_portal or not voting))
         if not line:
             raise UserError(_("Only the students of the group with access to the portal can answer."))
         return line
+
+    def _ems_joining_lines(self):
+        """The lines told that joining is open: every student of the call with portal access now."""
+        self.ensure_one()
+        with_portal = self._ems_with_portal(self.line_ids.student_id)
+        return self.line_ids.filtered(lambda line: line.student_id in with_portal)
+
+    @api.model
+    def _ems_portal_access_granted(self, partners):
+        """Issue #830: a student who gets portal access while their call's joining is open and has
+        not answered yet gets the joining email, so they know they can still say whether they join."""
+        now = fields.Datetime.now()
+        lines = self.env['ems.student_walkout.line'].sudo().search([
+            ('student_id', 'in', partners.ids), ('join_answered', '=', False), ('walkout_id.state', '=', 'joining'),
+            ('walkout_id.join_until', '>', now)])
+        for walkout, walkout_lines in lines.grouped('walkout_id').items():
+            walkout._ems_mail_students('ems.email_template_student_walkout_join', walkout_lines)
 
     def _ems_portal_vote(self, partner, group_vote):
         """`partner` votes whether the group supports the walkout: once, never linked to them. The
         vote ends as soon as its result is decided (_ems_vote_decided)."""
         self.ensure_one()
-        line = self._ems_portal_line(partner)
+        line = self._ems_portal_line(partner, voting=True)
         if not self._ems_phase_open('voting'):
             raise UserError(_("The group vote of this student walkout is closed."))
         if line.voted:
@@ -547,7 +572,7 @@ class EmsStudentWalkout(models.Model):
                                                             walkout.phase_hours)
                 walkout.write({'state': 'joining', 'join_start': join_start, 'join_until': join_until})
                 walkout._ems_wake_cron_at(walkout.join_until)
-                walkout._ems_mail_students('ems.email_template_student_walkout_join')
+                walkout._ems_mail_students('ems.email_template_student_walkout_join', walkout._ems_joining_lines())
                 walkout._ems_mail_tutors('join')
             else:
                 walkout._ems_close()

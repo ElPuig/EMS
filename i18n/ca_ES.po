@@ -53721,11 +53721,12 @@ msgstr "Certificats"
 #: model:ems.certificate.type,description:ems.certificate_type_fct
 msgid ""
 "Certifies the hours of workplace training (FCT) you did at a company. Fill "
-"in your details; the company's are optional: the centre completes them."
+"in your details and as much information about the company and the training "
+"as you can; the centre completes the rest."
 msgstr ""
 "Certifica les hores de formació en centres de treball (FCT) que vas fer en "
-"una empresa. Omple les teves dades; les de l'empresa són opcionals: les "
-"completa el centre."
+"una empresa. Omple les teves dades i tota la informació possible de "
+"l'empresa i de la formació; el centre completa la resta."
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_company_kanban

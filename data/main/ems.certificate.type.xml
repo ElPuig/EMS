@@ -7,7 +7,7 @@
         <record id="certificate_type_fct" model="ems.certificate.type">
             <field name="name">FCT (Formació en Centres de Treball)</field>
             <field name="kind">fct</field>
-            <field name="description">Certifies the hours of workplace training (FCT) you did at a company. Fill in your details; the company's are optional: the centre completes them.</field>
+            <field name="description">Certifies the hours of workplace training (FCT) you did at a company. Fill in your details and as much information about the company and the training as you can; the centre completes the rest.</field>
             <field name="requires_documents" eval="True"/>
             <field name="level_ids" eval="[(6, 0, [ref('ems.level_cfgm'), ref('ems.level_cfgs')])]"/>
         </record>

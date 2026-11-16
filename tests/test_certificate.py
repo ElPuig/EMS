@@ -249,6 +249,37 @@ class TestCertificate(TransactionCase):
         certificate.sudo()._ems_portal_fill(values, {})
         self.assertEqual((certificate.state, certificate.step_id), ('in_progress', self.steps[0]))
 
+    def test_former_student_not_in_ems(self):
+        """A former student who is not in EMS: no contact, only their email; the form, the circuit
+        and the certificate work from the details they write."""
+        sent = capture_template_emails(self)
+        # Their full name and email are enough to open it; without either, it cannot be opened.
+        for vals in ({'student_name': 'Unknown Former'}, {'applicant_email': 'unknown.former@example.com'}):
+            with self.subTest(vals=vals), self.assertRaises(ValidationError):
+                self.env['ems.certificate'].with_user(self.secretary).create({'type_id': self.certificate_type.id, **vals})
+        certificate = self.env['ems.certificate'].with_user(self.secretary).create({
+            'type_id': self.certificate_type.id, 'student_name': 'Unknown Former',
+            'applicant_email': 'unknown.former@example.com',
+        })
+        self.assertFalse(certificate.student_id)
+        certificate.with_user(self.secretary).action_send_form()
+        self.assertIn(('ems.email_template_certificate_form', certificate.id, None), sent())
+        self.assertEqual(certificate._ems_recipients(), [('unknown.former@example.com', self.env.company.ems_lang)])
+        values, _missing = certificate._ems_parse_portal_form({
+            'student_name': 'Unknown Former', 'student_document': 'Y7654321G', 'study_id': str(self.study.id),
+            'fct_school_year': '2015-2016',
+        })
+        certificate.sudo()._ems_portal_fill(values, {})
+        self.assertIn('Unknown Former', certificate.display_name)
+        self.assertIn('Unknown Former', certificate.activity_ids.summary)
+        self._complete_training(certificate)
+        certificate.with_user(self.coordinator).action_done_step()
+        self._attach_required(certificate)
+        certificate.with_user(self.secretary).action_done_step()
+        certificate.with_user(self.director).action_done_step()
+        self.assertEqual(certificate.state, 'issued')
+        self.assertIn(('ems.email_template_certificate_issued', certificate.id, None), sent())
+
     def test_create_company_from_the_applicant(self):
         certificate = self._submitted(company_name='New Training Company', company_vat='B87654321')
         certificate.with_user(self.coordinator).action_create_company()

@@ -54762,3 +54762,41 @@ msgstr "<i class=\"fa fa-paperclip me-1\"/> <strong>Altra documentació</strong>
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "The centre completes these details."
 msgstr "El centre completa aquestes dades."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>A former student who is not in EMS: leave it empty, write\n"
+"                                their full name and email, and send them the form to fill in the rest."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>Un exalumne que no és a EMS: deixa-ho "
+"buit, escriu-ne el nom i cognoms i el correu, i envia-li el formulari perquè"
+" ompli la resta."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "Student (if in EMS)"
+msgstr "Estudiant (si és a EMS)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__student_id
+msgid ""
+"The student or former student in EMS. A former student who is not in EMS can"
+" be left empty: the applicant's details and email are enough."
+msgstr ""
+"L'estudiant o exalumne a EMS. Un exalumne que no és a EMS es pot deixar "
+"buit: n'hi ha prou amb les dades i el correu de la persona sol·licitant."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Write the email of the former student: the request form is sent there."
+msgstr ""
+"Escriu el correu de l'exalumne: el formulari de sol·licitud s'hi envia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Write the full name of the student the certificate is for."
+msgstr ""
+"Escriu el nom i cognoms de l'estudiant a qui va adreçat el certificat."

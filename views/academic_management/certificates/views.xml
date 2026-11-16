@@ -9,7 +9,8 @@
                 <list string="Certificates" decoration-muted="state == 'cancelled'"
                       decoration-success="state == 'issued'">
                     <field name="name"/>
-                    <field name="student_id"/>
+                    <field name="student_name"/>
+                    <field name="student_id" optional="hide"/>
                     <field name="type_id"/>
                     <field name="study_id" optional="show"/>
                     <field name="training_company_id" optional="show"/>
@@ -93,13 +94,19 @@
                         </div>
                         <div class="oe_title">
                             <div class="text-muted" invisible="not name"><field name="name"/></div>
-                            <h1><field name="student_id" placeholder="Student" options="{'no_create': True}"
+                            <h1><field name="student_id" placeholder="Student (if in EMS)" options="{'no_create': True}"
                                        readonly="state != 'draft'"/></h1>
+                            <div class="text-muted small" invisible="student_id or state != 'draft'">
+                                <i class="fa fa-info-circle me-1"/>A former student who is not in EMS: leave it empty, write
+                                their full name and email, and send them the form to fill in the rest.
+                            </div>
                         </div>
                         <group>
                             <group>
                                 <field name="type_id" options="{'no_create': True}" readonly="state != 'draft'"/>
-                                <field name="applicant_email" widget="email"
+                                <field name="student_name" required="not student_id"
+                                       readonly="state not in ('draft', 'in_progress', 'documentation')"/>
+                                <field name="applicant_email" widget="email" required="origin == 'secretariat' and not student_id"
                                        readonly="state not in ('draft', 'in_progress', 'documentation')"
                                        invisible="origin != 'secretariat'"/>
                             </group>
@@ -114,7 +121,6 @@
                             <page name="applicant" string="Applicant">
                                 <group>
                                     <group>
-                                        <field name="student_name" readonly="state not in ('draft', 'in_progress', 'documentation')"/>
                                         <field name="student_document" readonly="state not in ('draft', 'in_progress', 'documentation')"/>
                                     </group>
                                     <group>

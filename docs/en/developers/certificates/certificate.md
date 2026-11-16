@@ -24,7 +24,8 @@ How a request starts:
   `res.partner._ems_can_file_requests_for`) request it from the portal (`/my/certificats`) when their
   study's level is one of the type's levels.
 - **Former students** have no portal (the course transition revokes it). The secretariat registers
-  the request in the backend and presses **Send form**: the applicant gets an email with a link
+  the request in the backend (the contact if they are in EMS; otherwise just their full name and
+  email, no contact needed) and presses **Send form**: the applicant gets an email with a link
   carrying an access token (`portal.mixin`, `/my/certificats/<id>?access_token=...`) to the same form,
   no login needed. The same link later shows how far the request has got and downloads the
   certificate.
@@ -122,7 +123,7 @@ Constraints (`_check_steps` on the type): at least one step, exactly one `issue`
 | `type_id`, `kind` | M2o, related | |
 | `state` | Selection | `draft` (waiting for the applicant's form, former students only), `in_progress`, `documentation` (waiting for the applicant), `issued`, `rejected`, `cancelled`. Written by the actions only (`write()` refuses it outside `sudo`). |
 | `step_id` | M2o `ems.certificate.type.step` | The current step while `in_progress`/`documentation`. |
-| `student_id`, `requester_id` | M2o `res.partner` | The student (or former student) and who filed it on the portal. |
+| `student_id`, `requester_id` | M2o `res.partner` | The student (or former student) in EMS, and who filed it on the portal. Optional: a former student who is not in EMS is opened with only their full name (`student_name`) and email (`_check_applicant`), and fills in the rest in the form. |
 | `origin` | Selection | `portal` or `secretariat`. |
 | `applicant_email` | Char | Where a former student's form link, requests for documentation and the certificate go. Portal requests use `student_id._ems_informed_recipients()`. |
 | `student_name`, `student_document`, `study_id`, `fct_school_year` | Char, Char, M2o, Char | The applicant's details, mandatory on submission. Prefilled from the contact when known. |

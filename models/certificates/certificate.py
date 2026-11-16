@@ -64,8 +64,10 @@ class EmsCertificate(models.Model):
         ('secretariat', 'Secretariat'),
     ])
     submission_date = fields.Date(string="Request date", readonly=True, copy=False)
-    student_id = fields.Many2one(string="Student", comodel_name='res.partner', required=True, ondelete='restrict',
-                                 index=True, domain=[('contact_type', 'in', ('student', 'alumni', 'withdrawal'))])
+    student_id = fields.Many2one(string="Student", comodel_name='res.partner', ondelete='restrict', index=True,
+                                 domain=[('contact_type', 'in', ('student', 'alumni', 'withdrawal'))],
+                                 help="The student or former student in EMS. A former student who is not in EMS can "
+                                      "be left empty: the applicant's details and email are enough.")
     requester_id = fields.Many2one(string="Requested by", comodel_name='res.partner', readonly=True,
                                    ondelete='set null')
     applicant_email = fields.Char(string="Applicant's email",
@@ -176,10 +178,10 @@ class EmsCertificate(models.Model):
         for certificate in self:
             certificate.is_first_step = certificate.step_id == certificate._ems_steps()[:1]
 
-    @api.depends('name', 'student_id', 'type_id')
+    @api.depends('name', 'student_id', 'student_name', 'type_id')
     def _compute_display_name(self):
         for certificate in self:
-            label = f"{certificate.type_id.name or ''} - {certificate.student_id.display_name or ''}"
+            label = f"{certificate.type_id.name or ''} - {certificate._ems_applicant_name()}"
             certificate.display_name = f"{certificate.name} - {label}" if certificate.name else label
 
     @api.constrains('period_start', 'period_end')
@@ -188,12 +190,28 @@ class EmsCertificate(models.Model):
             if certificate.period_start and certificate.period_end and certificate.period_end < certificate.period_start:
                 raise ValidationError(_("The training cannot end before it starts."))
 
+    @api.constrains('student_id', 'student_name', 'applicant_email', 'origin')
+    def _check_applicant(self):
+        """Opening a request for a former student who is not in EMS takes their full name and email:
+        the rest they write in the form sent to that email."""
+        for certificate in self:
+            if not certificate.student_id and not certificate.student_name:
+                raise ValidationError(_("Write the full name of the student the certificate is for."))
+            if certificate.origin == 'secretariat' and not certificate.student_id and not certificate.applicant_email:
+                raise ValidationError(_("Write the email of the former student: the request form is sent there."))
+
     @api.constrains('hours')
     def _check_hours(self):
         if any(certificate.hours < 0 for certificate in self):
             raise ValidationError(_("The hours cannot be negative."))
 
     # --- CRUD ----------------------------------------------------------------
+
+    def _ems_applicant_name(self):
+        """Who the certificate is for: the contact in EMS, or the name written in the request for a
+        former student who is not in EMS."""
+        self.ensure_one()
+        return self.student_id.display_name or self.student_name or self.applicant_email or ''
 
     @api.onchange('student_id')
     def _onchange_student_id(self):
@@ -520,7 +538,7 @@ class EmsCertificate(models.Model):
             for user in base.task_users(base.role_users(step.role_id), step.role_id.name):
                 certificate.sudo().with_context(mail_activity_quick_update=True).activity_schedule(
                     act_type_xmlid='ems.mail_activity_certificate_step',
-                    summary=_("%(step)s: %(student)s", step=step.name, student=certificate.student_id.display_name),
+                    summary=_("%(step)s: %(student)s", step=step.name, student=certificate._ems_applicant_name()),
                     user_id=user.id,
                 )
 
@@ -539,7 +557,8 @@ class EmsCertificate(models.Model):
         registered (a former student), else the student and whoever is kept informed about them."""
         self.ensure_one()
         if self.origin == 'secretariat' and self.applicant_email:
-            return [(self.applicant_email, self.student_id.lang)]
+            # A former student who is not in EMS: the centre language.
+            return [(self.applicant_email, self.student_id.lang or self.env.company.sudo().ems_lang)]
         recipients = self.student_id.sudo()._ems_informed_recipients().filtered('email')
         return [(recipient.email, recipient.lang or self.student_id.lang) for recipient in recipients]
 

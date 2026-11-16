@@ -11,7 +11,7 @@ registry.category("web_tour.tours").add("ems_certificate_complete", {
     url: "/odoo/action-ems.action_certificate",
     steps: () => [
         {
-            trigger: ".o_list_view .o_data_row td[name='student_id']:contains('TCTR Student')",
+            trigger: ".o_list_view .o_data_row td[name='student_name']:contains('TCTR Student')",
             content: "The request waiting for the coordinator is listed under Pending for me",
             run: "click",
         },

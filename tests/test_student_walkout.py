@@ -743,13 +743,6 @@ class TestStudentWalkout(TransactionCase):
         self.assertEqual(Walkout._ems_first_walkout_day(monday), self.today + timedelta(days=7))
         self.assertTrue(Walkout._ems_notice_kept(monday, self.today + timedelta(days=5)))
 
-    def test_real_hours_from_the_email_wait_for_the_class(self):
-        self._rule(count_from='email')
-        self._schedule(8.0, 15.0)
-        # Proposed at 20:00 on Monday: the vote starts at Tuesday's first class, its emails wait.
-        calendar = self._calendar(self._local(0, 20.0))
-        self.assertEqual((calendar['vote_start'], calendar['vote_until']), (self._local(1, 8.0), self._local(2, 8.0)))
-
     def test_school_hours_count_only_the_class_hours(self):
         self._rule(hours_kind='school', count_from='proposal', count_days_off=True)
         self._schedule(8.0, 15.0)

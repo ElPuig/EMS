@@ -53194,3 +53194,38 @@ msgstr "horas. Acaba antes si los votos que faltan ya no pueden cambiar el resul
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
 msgid "more hours: until"
 msgstr "horas más: hasta el"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__portal_email_shared_with_family
+#: model:ir.model.fields,field_description:ems.field_res_users__portal_email_shared_with_family
+msgid "Main email shared with the family"
+msgstr "Correo principal compartido con la familia"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "%s has the same main email as their family, so that login is the family's. They will get portal access with their corporate email when their Google account is created."
+msgstr "%s tiene el mismo correo principal que su familia, así que ese usuario de acceso es de la familia. Tendrá acceso al portal con el correo corporativo cuando se cree su cuenta de Google."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal_access_wizard.py:0
+msgid "Same email as the family: signs in with the corporate email %s"
+msgstr "Mismo correo que la familia: entra con el correo corporativo %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal_access_wizard.py:0
+msgid "Same email as the family: no access until the corporate email exists"
+msgstr "Mismo correo que la familia: sin acceso hasta que tenga el correo corporativo"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Portal access granted with the corporate email %s: the main email is the family's login."
+msgstr "Acceso al portal concedido con el correo corporativo %s: el correo principal es el usuario de acceso de la familia."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "This student's main email is also a family member's. The portal login with that email is the family's: the student signs in with their corporate email (Log in with Google, or the corporate email and its portal password)."
+msgstr "El correo principal de este alumno es también el de un familiar. El usuario del portal con ese correo es de la familia: el alumno entra con el correo corporativo (Acceder con Google, o el correo corporativo y su contraseña del portal)."

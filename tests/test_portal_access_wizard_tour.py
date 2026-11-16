@@ -4,7 +4,10 @@ from dateutil.relativedelta import relativedelta
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group, force_user_language_to_english, mock_outgoing_email, next_student_id
+from .common import (
+    create_level_study_group, create_role_employee, create_role_user, force_user_language_to_english,
+    mock_outgoing_email, next_student_id,
+)
 
 
 @tagged('post_install', '-at_install')
@@ -48,3 +51,28 @@ class TestPortalAccessWizardTour(HttpCase):
         force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.start_tour(f"/odoo/res.partner/{self.student.id}",
                         "ems_portal_access_wizard_form", login="admin")
+
+    def test_portal_access_wizard_shared_email_tour(self):
+        """Issue #833, as the student's tutor: the form warns that the main email is the
+        family's, and granting gives the student the corporate email as login."""
+        tutor = create_role_user(self, 'tutor', 'test_tutor_shared_email_tour',
+                                 email='tutor.shared.tour@example.com')
+        self.group.tutor_id = create_role_employee(self, tutor)
+        student = self.env['res.partner'].create({
+            'name': 'Shared Email Tour Student', 'contact_type': 'student',
+            'student_id': next_student_id(), 'main_group_id': self.group.id,
+            'email': 'home.tour@example.com', 'student_email': 'shared.tour@shared-tour.example.com',
+            'birth_date': date.today() - relativedelta(years=15),
+        })
+        family = self.env['res.partner'].create({
+            'name': 'Shared Email Tour Family', 'contact_type': 'family', 'email': 'home.tour@example.com',
+        })
+        self.env['res.partner.relation'].create({
+            'left_partner_id': family.id, 'type_id': self.env.ref('ems.relation_type_father').id,
+            'right_partner_id': student.id,
+        })
+        self.start_tour(f"/odoo/res.partner/{student.id}", "ems_portal_access_wizard_shared_email",
+                        login=tutor.login)
+        self.assertEqual(student.with_context(active_test=False).user_ids.login,
+                         'shared.tour@shared-tour.example.com')
+        self.assertEqual(family.with_context(active_test=False).user_ids.login, 'home.tour@example.com')

@@ -535,6 +535,14 @@ class ResPartnerGoogleWorkspace(models.Model):
             **self._gw_delivery_note(pdf_saved, emailed),
         })
 
+        # Issue #833: a student whose main email is the family's was left without a portal
+        # user; the corporate email is their login, so the access waiting for it opens now.
+        portal = self._ems_grant_portal_with_corporate_email()
+        if portal and portal['granted']:
+            self.sudo().message_post(body=_(
+                "Portal access granted with the corporate email %s: the main email is the "
+                "family's login.") % email)
+
     def _gw_delivery_note(self, pdf_saved, emailed):
         """The 'pdf'/'mail' parts of the chatter note that follows a credentials delivery."""
         return {

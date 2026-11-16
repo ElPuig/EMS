@@ -117,7 +117,9 @@ flowchart TD
     C --> D{"mode"}
     D -- grant --> E{"already portal or internal?"}
     E -- yes --> S1["'skipped'"]
-    E -- no --> F["_sync_user_login(wu)"] --> G["action_grant_access()"] --> R1["'granted'"]
+    E -- no --> P["partner._ems_check_portal_login()\n(shared email, no corporate one: UserError)"]
+    P --> F["(students sharing this family email | partner)._ems_sync_portal_login()"]
+    F --> G["action_grant_access()"] --> R1["'granted'"]
     D -- resend --> H{"is_portal AND never logged in?"}
     H -- no --> S2["'skipped'"]
     H -- yes --> I["action_invite_again()"] --> R2["'resent'"]
@@ -130,9 +132,41 @@ Runs entirely under `sudo()` — tutors have no `res.users` creation/write right
 - `res.partner._apply_portal_email_change()` (`contact.py`) — revoke at the old email, then grant at the new one, whenever a student/family's main email changes while they hold active portal access.
 - `res.partner._ems_revoke_student_portal()` (`portal.py`) — used by the graduation/withdrawal flow and by a data migration backfill.
 
-### `_sync_user_login(wu)` — stale login after a re-grant
+### `res.partner._ems_sync_portal_login()` — stale login after a re-grant
 
-Revoking access archives the `res.users` record rather than deleting it, so it keeps its old login/email. If the partner's email changed while access was revoked, a plain re-grant would silently reactivate the user with the **stale** login. `_sync_user_login` realigns `login`/`email` to the partner's current email right before granting — unless another user already owns that target login, in which case it leaves the stale login alone and lets the native `_assert_user_email_uniqueness` raise a clean "already registered" error instead of silently colliding.
+Revoking access archives the `res.users` record rather than deleting it, so it keeps its old login. If the partner's email changed while access was revoked, a plain re-grant would silently reactivate the user with the **stale** login. `_ems_sync_portal_login` (`portal.py`) realigns the portal user's `login` with `_ems_portal_login()` (below) right before granting — unless another user already owns that target login, in which case it leaves the stale login alone and lets the native `_assert_user_email_uniqueness` raise a clean "already registered" error instead of silently colliding. Each `_apply_one` call runs inside a savepoint (in `action_apply` and in `res.partner._ems_apply_portal_access`), so a recipient that fails leaves none of its writes behind.
+
+### A student sharing the main email with the family (issue #833)
+
+A portal login is unique and Odoo's portal wizard uses the partner's main email as login. At enrolment the centre often gets a single address for the whole family, so a student's `email` is frequently a family member's too. The rule:
+
+- **The family wins:** the login with the shared email is always the family member's.
+- **The student signs in with the corporate email** (`student_email`): it is the login of their portal user, and "Log in with Google" matches on it too (`google_workspace_student.md`).
+- **No collision, no change:** a student with their own personal email keeps it as login.
+
+| Method (`res.partner`, `portal.py`) | Role |
+|---|---|
+| `_ems_email_shared_with_family()` | The student's (or ex-student's) normalized `email` is one of their family contacts' `email_normalized`, or the login of a family contact's user. |
+| `_ems_portal_login(email=None)` | The login the partner's portal user must have: the main email, or the corporate email of a student sharing it (`False` while they have none). |
+| `_ems_check_portal_login()` | Raises a `UserError` saying why a student sharing the email gets no user until their Google account exists (replaces Odoo's generic "same email as an existing user"). |
+| `_ems_students_sharing_email()` | For a family member: the related students whose email is theirs. Granting the family first realigns them, which takes the shared login back from a student who held it. |
+| `_ems_grant_portal_with_corporate_email()` | Called by `_gw_create_account()` once `student_email` is set: grants a student left waiting, only when a family member already has active portal access (that is how the centre granted it for this student) and the student has no user at all (an archived one means access was revoked). Posts a chatter note. |
+| `portal_email_shared_with_family` | Non-stored compute behind the yellow warning at the top of the student form. |
+
+`portal.wizard.user` is inherited in `portal_access_wizard.py` so Odoo's own checks use that login: `_get_similar_users_domain`/`_is_portal_similar_than_user` (the "already registered" check) compare against `_ems_portal_login(self.email)` instead of the email, and `_create_user` creates the user with it (the user's `email` stays the shared address, so every email to the student still goes there, the credentials ones included). Every path that grants goes through `_apply_one`, so the rule holds for the wizard, `_apply_portal_email_change`, `_ems_grant_student_portal` (undoing a withdrawal), the contact data request's grant, and Odoo's native "Grant portal access" action. Changing `student_email` realigns the login of a student sharing the email (`portal_google_signin.py`). Coming of age changes nothing: the login does not depend on age.
+
+Odoo itself emails a "login changed" security notice to the user's email (the shared address) whenever a login moves, which tells the family what the student's new login is.
+
+```mermaid
+flowchart TD
+    A["grant for a minor: recipients = family | student"] --> B["family: _ems_sync_portal_login() on the\nstudents holding its email, then grant\nlogin = shared email"]
+    B --> C{"student has student_email?"}
+    C -- yes --> D["grant: login = student_email"]
+    C -- no --> E["UserError reported in the notification;\nno user yet"]
+    E --> F["_gw_create_account() sets student_email"] --> G["_ems_grant_portal_with_corporate_email()\nlogin = student_email"]
+```
+
+**Existing installations** (migration `18.0.0.49.3/post-migrate.py`): `_ems_students_sharing_email_with_family()` finds every student or ex-student sharing the email, and `_ems_fix_shared_email_portals()` moves the login of those holding the shared one to `student_email`, grants the family members they kept out (only the ones acting for the student, `_ems_notification_recipients`), and grants the students left without a user (same conditions as after the Google account). Failures (e.g. two family members with one email, where the login is already the other's) are logged, not raised. A clean installation has no such data, so `post_init_hook` needs nothing.
 
 ---
 
@@ -144,7 +178,7 @@ Loops `student_ids`; per student: re-checks `_user_can_manage` (defense in depth
 
 ## Preview (`line_ids`) — `default_get` / `_onchange_mode` / `_build_lines`
 
-The form shows a **read-only preview** of who will be affected before the user clicks Apply — `_build_lines` resolves recipients per selected student and computes `has_portal`/`connected` (from `recipient.user_ids[:1]`, `active_test=False` so an archived/revoked user is still found) and a `note` (`"Recipient without email"` if the recipient has none, otherwise `"No family contact found"` on the student's own line when `_ems_notification_recipients()` came back empty). `default_get` builds the initial preview from `active_ids` (the selected `res.partner` records the wizard was opened from); `_onchange_mode` rebuilds it whenever the mode radio changes, additionally filtering to `has_portal and not connected` when switching to `resend` (only those recipients would actually be affected).
+The form shows a **read-only preview** of who will be affected before the user clicks Apply — `_build_lines` resolves recipients per selected student and computes `has_portal`/`connected` (from `recipient.user_ids[:1]`, `active_test=False` so an archived/revoked user is still found) and a `note` (`"Recipient without email"` if the recipient has none, otherwise `"No family contact found"` on the student's own line when `_ems_notification_recipients()` came back empty, otherwise, for a student sharing the email with the family, the corporate email they sign in with or that they have no access until it exists). `default_get` builds the initial preview from `active_ids` (the selected `res.partner` records the wizard was opened from); `_onchange_mode` rebuilds it whenever the mode radio changes, additionally filtering to `has_portal and not connected` when switching to `resend` (only those recipients would actually be affected).
 
 `default_get`/`_build_lines` are **not** re-triggered by a plain ORM `create()` from Python — that's an onchange, which only fires through the web client (or an explicit test call to `_onchange_mode()`); this is a common testing gotcha, not a wizard bug.
 

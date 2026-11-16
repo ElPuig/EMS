@@ -54220,11 +54220,11 @@ msgstr ""
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
 msgid ""
-"The company <span class=\"text-muted fw-normal\">(optional: the centre "
-"completes what you do not know)</span>"
+"The company <span class=\"text-muted fw-normal\">(fill in as much "
+"information as you can)</span>"
 msgstr ""
-"L'empresa <span class=\"text-muted fw-normal\">(opcional: el centre completa"
-" el que no sàpigues)</span>"
+"L'empresa <span class=\"text-muted fw-normal\">(completa tota la informació "
+"possible)</span>"
 
 #. module: ems
 #. odoo-python

@@ -421,6 +421,50 @@ class TestStudentWalkout(TransactionCase):
         with self.assertRaises(UserError):
             self._vote(walkout, self.family)
 
+    # Issue #830: a student without portal access at the proposal does not vote, but joins.
+
+    def _give_portal_access(self, student):
+        """`student` gets portal access the way the centre gives it (the portal wizard), which also
+        sends the invitation email."""
+        student.email = student.student_email
+        wizard = self.env['portal.wizard'].with_context(active_ids=student.ids).create({})
+        wizard.user_ids.filtered(lambda user: user.partner_id == student).action_grant_access()
+        self.assertTrue(student.user_ids.filtered('share'))
+
+    def _join_mails_to(self, walkout, student):
+        """The emails of `student`'s line: with no access at the proposal they got no vote email, so
+        these can only be the joining ones."""
+        line = walkout.line_ids.filtered(lambda line: line.student_id == student)
+        return self._mails(line).filtered(lambda mail: student.student_email in (mail.email_to or ''))
+
+    def test_access_granted_after_the_proposal_joins_but_does_not_vote(self):
+        walkout = open_walkout(self)
+        self._give_portal_access(self.offline)
+        with self.assertRaises(UserError):
+            self._vote(walkout, self.offline)  # the vote's electorate is the one of the proposal
+        self.assertTrue(self.offline._ems_walkout_portal_visible())
+        self.assertNotIn(walkout, self.offline._ems_walkout_pending_votes())
+        self._supported(walkout)
+        self.assertEqual(walkout.voter_count, 3, "Getting access later never changes the vote's count.")
+        self.assertIn(walkout, self.offline._ems_walkout_pending_votes(), "The portal tells them to answer.")
+        self.assertTrue(self._join_mails_to(walkout, self.offline), "Joining opened: they are told too.")
+        self._join(walkout, self.offline)
+        self.assertIn(self.offline, walkout.joining_student_ids)
+        self.assertNotIn(walkout, self.offline._ems_walkout_pending_votes())
+
+    def test_access_granted_while_joining_sends_the_joining_email(self):
+        walkout = open_walkout(self)
+        self._supported(walkout)
+        self.assertFalse(self._join_mails_to(walkout, self.offline), "No access: no email.")
+        self._give_portal_access(self.offline)
+        self.assertEqual(len(self._join_mails_to(walkout, self.offline)), 1, "Told at once that they can join.")
+        self._join(walkout, self.offline, False)
+        self.assertFalse(walkout.joining_student_ids & self.offline)
+        # Access given again after answering, or for a call no longer joining: nothing more.
+        self.offline.user_ids.action_archive()
+        self._give_portal_access(self.offline)
+        self.assertEqual(len(self._join_mails_to(walkout, self.offline)), 1)
+
     def test_vote_ends_early_once_everybody_voted(self):
         walkout = open_walkout(self)
         self._vote(walkout, self.delegate, 'yes')

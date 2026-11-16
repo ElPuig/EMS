@@ -67,7 +67,7 @@ La página de inicio del portal te avisa cuando tu grupo está votando. Abre la 
 
 Si el grupo no la apoya, la propuesta se cierra y no se justifica la falta de nadie ese día.
 
-Un alumno que no tenía acceso al portal cuando se propuso la votación sale en el acta, pero no puede responder.
+Un alumno que no tenía acceso al portal cuando se propuso la huelga sale en el acta y no vota, pero, si el grupo la apoya y obtiene el acceso mientras la adhesión está abierta, puede decir si se suma: recibe el correo en ese momento.
 
 ---
 

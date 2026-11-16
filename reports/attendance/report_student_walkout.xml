@@ -72,9 +72,9 @@
                             <tr t-foreach="doc.line_ids.sorted(lambda line: line.student_id.name or '')" t-as="line">
                                 <td t-out="line.student_id.name"/>
                                 <td>
-                                    <t t-if="not line.has_portal">No access to the portal</t>
-                                    <t t-elif="line.joins">Yes</t>
+                                    <t t-if="line.joins">Yes</t>
                                     <t t-elif="line.join_answered">No</t>
+                                    <t t-elif="not line.has_portal">No access to the portal</t>
                                     <t t-else="">Did not answer</t>
                                 </td>
                                 <td>

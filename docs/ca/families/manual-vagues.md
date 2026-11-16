@@ -67,7 +67,7 @@ La pàgina d'inici del portal t'avisa quan el teu grup està votant. Obre la pro
 
 Si el grup no hi dona suport, la proposta es tanca i no es justifica la falta de ningú aquell dia.
 
-Un alumne que no tenia accés al portal quan es va proposar la votació surt a l'acta, però no pot respondre.
+Un alumne que no tenia accés al portal quan es va proposar la vaga surt a l'acta i no vota, però, si el grup hi dona suport i obté l'accés mentre l'adhesió és oberta, pot dir si s'hi suma: rep el correu en aquell moment.
 
 ---
 

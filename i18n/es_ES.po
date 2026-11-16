@@ -50657,8 +50657,8 @@ msgstr "Inicio de la huelga"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "You had no access to the portal when the vote was proposed, so you cannot answer."
-msgstr "No tenías acceso al portal cuando se propuso la votación, así que no puedes responder."
+msgid "You had no access to the portal when the walkout was proposed, so you cannot vote. If the group supports it, you will be able to say whether you join."
+msgstr "No tenías acceso al portal cuando se propuso la huelga, así que no puedes votar. Si el grupo la apoya, podrás decir si te sumas."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new

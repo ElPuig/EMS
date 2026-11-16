@@ -181,6 +181,15 @@ stateDiagram-v2
   documents marked *Add to the certificate* are appended by `_ems_generate_pdf()` with `odoo.tools.pdf.merge_pdf`, an image becoming one page
   (Pillow).
 
+### Emails
+
+The four emails (`mails/certificates/certificate.xml`: the form for a former student, a request for
+documentation, the certificate issued, the request rejected) use the card layout of EMS emails, as
+the Google account ones (`ems.mail_layout_certificate`, built on `ems.mail_layout_card` in
+`views/shared/mail_layout/card.xml`). Its button opens the request with its access token and says
+what to do there by the request's state: fill in the form, answer the centre, download the
+certificate, or see the request.
+
 ## Performance
 
 Measured on nothing: no certificate exists on this box yet, so this is the cost analysis. A

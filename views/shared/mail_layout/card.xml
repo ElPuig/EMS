@@ -55,4 +55,18 @@
             <t t-set="button_url" t-value="'https://mail.google.com/a/%s/' % company.google_ws_domain if company.google_ws_domain else False"/>
         </t>
     </template>
+
+    <!-- Certificate requests (issue #835): the button opens the request with its access token,
+         saying what the applicant has to do there. -->
+    <template id="mail_layout_certificate">
+        <t t-call="ems.mail_layout_card">
+            <t t-set="area">Certificates</t>
+            <t t-set="unit">School Secretariat</t>
+            <t t-set="button_url" t-value="record._ems_form_url() if record else False"/>
+            <t t-if="record.state == 'draft'" t-set="button_label">Fill in the request</t>
+            <t t-elif="record.state == 'documentation'" t-set="button_label">Answer the centre</t>
+            <t t-elif="record.state == 'issued'" t-set="button_label">Download the certificate</t>
+            <t t-else="" t-set="button_label">Open my request</t>
+        </t>
+    </template>
 </odoo>

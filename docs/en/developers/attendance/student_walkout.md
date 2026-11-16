@@ -7,9 +7,10 @@ or sub-delegate **proposes** from the portal that the group supports a walkout c
 union's call, with no review first. *Call* (convocatòria) always means the union's document; the record this model
 holds, which the group votes on, is the **proposal** to support the walkout:
 
-1. every student of the group with portal access votes whether the group supports the walkout
-   (anonymous: only the counts are kept);
-2. if it does, each student says whether they join it (by name, changeable until the phase ends);
+1. every student of the group with portal access when the proposal is made votes whether the group
+   supports the walkout (anonymous: only the counts are kept);
+2. if it does, each student says whether they join it (by name, changeable until the phase ends),
+   also one who got portal access after the proposal;
 3. the minute (a PDF in the centre language) goes to the group's Head of Studies / Deputy Head of
    Studies at least the notice before the walkout, and they **validate** it (one attendance
    justification of the walkout day for the students who join) or **do not validate** it.
@@ -169,7 +170,7 @@ erDiagram
 | Field | Type | Notes |
 |-------|------|-------|
 | `walkout_id`, `student_id` | `Many2one` | One line per student of `group_ids` when the vote is proposed |
-| `has_portal` | `Boolean` | Whether the student had portal access then; only they answer |
+| `has_portal` | `Boolean` | Whether the student had portal access when the proposal was made: the group vote's electorate (`voter_count`). Joining is open to every line (issue #830) |
 | `voted` / `vote_date` | `Boolean` / `Datetime` | The group vote was cast (it never says which way) |
 | `join_answered` / `joins` / `join_date` | `Boolean` / `Boolean` / `Datetime` | Whether they said if they join, and what |
 | `needs_ratification` / `ratification` | `Boolean` / `Selection` (`pending`, `ratified`, `refused`) | A minor on the walkout day (no birth date counts as a minor) who joins needs the family's ratification |
@@ -253,7 +254,14 @@ flowchart TD
   email reaches the group), and each student gets
   `email_template_student_walkout_join` (the result and that they can join until `join_until`);
   otherwise the proposal closes and each student gets `email_template_student_walkout_result`.
-- **Join** (`_ems_portal_join(partner, joins)`): while `joining`, changeable. A minor on the walkout
+  The joining email goes to every student of the call with portal access at that moment
+  (`_ems_joining_lines`), not only to the vote's electorate.
+- **Join** (`_ems_portal_join(partner, joins)`): while `joining`, changeable. Any student of the
+  call answers, also one without portal access when the proposal was made (`has_portal` only limits
+  the group vote, whose majority is counted over a fixed electorate; joining is each student's own
+  decision, issue #830). A student given portal access while joining is open
+  (`portal.wizard.user.action_grant_access` → `_ems_portal_access_granted`) gets the joining email
+  at once if they have not answered yet. A minor on the walkout
   day (`_ems_is_minor`; no birth date counts as a minor) who joins gets `needs_ratification` and
   `ratification = 'pending'`, and their family is asked at once
   (`email_template_student_walkout_ratify`, not tied to school hours). Withdrawing clears it;

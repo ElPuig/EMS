@@ -82,6 +82,27 @@ class TestPortalStudentWalkout(HttpCase):
         self._post(f'/my/vagues/{walkout.id}/suma', joins='yes')
         self.assertEqual(walkout.joining_student_ids, self.classmate)
 
+    def test_a_student_given_access_after_the_proposal_joins(self):
+        """Issue #830: told they cannot vote while the group votes, and able to join once it opens."""
+        walkout = open_walkout(self)
+        self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': self.offline.name, 'login': 'test_walkout_offline_late', 'password': 'test_walkout_offline_late',
+            'partner_id': self.offline.id, 'lang': 'en_US', 'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
+        })
+        self._login(self.offline)
+        page = self.url_open(f'/my/vagues/{walkout.id}').text
+        self.assertNotIn('o_ems_walkout_vote', page)
+        self.assertIn('so you cannot vote', page)
+        walkout._ems_portal_vote(self.delegate, 'yes')
+        walkout._ems_portal_vote(self.subdelegate, 'yes')
+        self.assertEqual(walkout.state, 'joining')
+        self.assertIn('o_ems_walkout_banner', self.url_open('/my/home').text)
+        page = self.url_open(f'/my/vagues/{walkout.id}').text
+        self.assertIn('o_ems_walkout_join', page)
+        self.assertNotIn('so you cannot', page)
+        self._post(f'/my/vagues/{walkout.id}/suma', joins='yes')
+        self.assertIn(self.offline, walkout.joining_student_ids)
+
     def test_delegate_cancels_the_call(self):
         walkout = open_walkout(self)
         self._login(self.subdelegate)

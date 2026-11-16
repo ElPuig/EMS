@@ -122,7 +122,9 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
             'walkout': walkout,
             'line': line,
             'can_vote': bool(line.has_portal) and walkout._ems_phase_open('voting'),
-            'can_join': bool(line.has_portal) and walkout._ems_phase_open('joining'),
+            # Joining is for every student of the call, also one who got portal access after the
+            # proposal (issue #830); the vote only for who had it then.
+            'can_join': bool(line) and walkout._ems_phase_open('joining'),
             'can_manage': walkout.state in ('voting', 'joining') and walkout._ems_is_manager(partner),
             'state_labels': dict(walkout._fields['state']._description_selection(request.env)),
             'opened': kwargs.get('opened'),

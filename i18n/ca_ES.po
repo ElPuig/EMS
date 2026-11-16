@@ -50627,8 +50627,8 @@ msgstr "Inici de la vaga"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "You had no access to the portal when the vote was proposed, so you cannot answer."
-msgstr "No tenies accés al portal quan es va proposar la votació, així que no pots respondre."
+msgid "You had no access to the portal when the walkout was proposed, so you cannot vote. If the group supports it, you will be able to say whether you join."
+msgstr "No tenies accés al portal quan es va proposar la vaga, així que no pots votar. Si el grup hi dona suport, podràs dir si t'hi sumes."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new

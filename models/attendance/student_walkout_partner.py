@@ -76,11 +76,24 @@ class ResPartner(models.Model):
         if not self._ems_walkout_portal_student():
             return self.env['ems.student_walkout']
         now = fields.Datetime.now()
-        mine = [('student_id', '=', self.id), ('has_portal', '=', True)]
+        # The vote only for who had portal access at the proposal; joining for every student of the
+        # call (issue #830, ems.student_walkout._ems_portal_line).
+        mine = [('student_id', '=', self.id)]
         return self.env['ems.student_walkout'].sudo().search([
             '|',
             '&', '&', ('state', '=', 'voting'), ('vote_until', '>', now),
-            ('line_ids', 'any', mine + [('voted', '=', False)]),
+            ('line_ids', 'any', mine + [('has_portal', '=', True), ('voted', '=', False)]),
             '&', '&', ('state', '=', 'joining'), ('join_until', '>', now),
             ('line_ids', 'any', mine + [('join_answered', '=', False)]),
         ])
+
+
+class PortalWizardUser(models.TransientModel):
+    _inherit = 'portal.wizard.user'
+
+    def action_grant_access(self):
+        """Issue #830: a student given portal access while their walkout call's joining is open is
+        told they can still join."""
+        result = super().action_grant_access()
+        self.env['ems.student_walkout']._ems_portal_access_granted(self.partner_id)
+        return result

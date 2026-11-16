@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Issue #835: certificate requests. The administrator, the secretariat and the Director see
+         every request (the ACL decides what each may do). Any other member of the staff only the
+         requests of a type whose circuit has a step of a position they hold: they reach them from
+         their task, and the VET coordinator from the Certificates menu too. Whether it is their
+         turn is checked by each button (ems.certificate.can_act). -->
+    <record id="rule_certificate_all" model="ir.rule">
+        <field name="name">Certificate request: administrator, secretariat and Director (every request)</field>
+        <field name="model_id" ref="ems.model_ems_certificate"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin')), (4, ref('ems.group_secretary')), (4, ref('ems.group_director'))]"/>
+        <field name="domain_force">[]</field>
+    </record>
+    <record id="rule_certificate_step" model="ir.rule">
+        <field name="name">Certificate request: holders of a position of its circuit</field>
+        <field name="model_id" ref="ems.model_ems_certificate"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('type_id.step_ids.role_id.employee_ids.user_id', '=', user.id)]</field>
+    </record>
+
+    <record id="rule_certificate_stamp_all" model="ir.rule">
+        <field name="name">Certificate stamp: administrator, secretariat and Director</field>
+        <field name="model_id" ref="ems.model_ems_certificate_stamp"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin')), (4, ref('ems.group_secretary')), (4, ref('ems.group_director'))]"/>
+        <field name="domain_force">[]</field>
+    </record>
+    <record id="rule_certificate_stamp_step" model="ir.rule">
+        <field name="name">Certificate stamp: holders of a position of its circuit</field>
+        <field name="model_id" ref="ems.model_ems_certificate_stamp"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('certificate_id.type_id.step_ids.role_id.employee_ids.user_id', '=', user.id)]</field>
+    </record>
+
+    <!-- The VET coordinator maintains the collaborating companies (and their contacts, such as the
+         company tutor), whose details the FCT certificate needs. Teachers only read contacts. -->
+    <record id="rule_contact_vet_coordinator_company" model="ir.rule">
+        <field name="name">Contact: VET coordinator (collaborating companies)</field>
+        <field name="model_id" ref="ems.model_res_partner"/>
+        <field name="groups" eval="[(4, ref('ems.group_vet_coordinator'))]"/>
+        <field name="domain_force">[('contact_type', '=', 'company')]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+</odoo>

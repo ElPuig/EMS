@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Issue #835 - certificate requests on the portal. See controllers/portal_certificate.py. -->
+
+    <!-- The applicant's form, shared by a new request (/my/certificats) and the link sent to a
+         former student (/my/certificats/<id>): their details are mandatory, the company's optional. -->
+    <template id="portal_certificate_fields" name="Certificate request fields">
+        <h6 class="fw-bold mt-1">Your details</h6>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label" for="certificate_student_name">Full name <span class="text-danger">*</span></label>
+                <input id="certificate_student_name" type="text" name="student_name" class="form-control" required="required"
+                       maxlength="200" t-att-value="defaults.get('student_name')"/>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label" for="certificate_student_document">Identity document (DNI, NIE or passport) <span class="text-danger">*</span></label>
+                <input id="certificate_student_document" type="text" name="student_document" class="form-control" required="required"
+                       maxlength="30" t-att-value="defaults.get('student_document')"/>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label" for="certificate_study_id">Study <span class="text-danger">*</span></label>
+                <select id="certificate_study_id" name="study_id" class="form-select" required="required">
+                    <option value="">-</option>
+                    <t t-foreach="studies" t-as="study">
+                        <option t-att-value="study.id" t-att-selected="study.id == defaults.get('study_id')" t-esc="study.name"/>
+                    </t>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label" for="certificate_fct_school_year">School year of the training <span class="text-danger">*</span></label>
+                <input id="certificate_fct_school_year" type="text" name="fct_school_year" class="form-control" required="required"
+                       maxlength="20" placeholder="2024-2025" t-att-value="defaults.get('fct_school_year')"/>
+            </div>
+        </div>
+
+        <h6 class="fw-bold mt-2">The company <span class="text-muted fw-normal">(optional: the centre completes what you do not know)</span></h6>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label" for="certificate_company_name">Company</label>
+                <input id="certificate_company_name" type="text" name="company_name" class="form-control" maxlength="200"
+                       t-att-value="defaults.get('company_name')"/>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label" for="certificate_company_vat">Company VAT number</label>
+                <input id="certificate_company_vat" type="text" name="company_vat" class="form-control" maxlength="30"
+                       t-att-value="defaults.get('company_vat')"/>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label" for="certificate_period_start">From</label>
+                <input id="certificate_period_start" type="date" name="period_start" class="form-control"/>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label" for="certificate_period_end">To</label>
+                <input id="certificate_period_end" type="date" name="period_end" class="form-control"/>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label" for="certificate_hours">Hours</label>
+                <input id="certificate_hours" type="number" min="0" name="hours" class="form-control"/>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label" for="certificate_agreement_reference">Agreement registration number (sBID)</label>
+                <input id="certificate_agreement_reference" type="text" name="agreement_reference" class="form-control"
+                       maxlength="50" t-att-value="defaults.get('agreement_reference')"/>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label" for="certificate_documents">Training agreement, if you keep a copy</label>
+                <input id="certificate_documents" type="file" name="documents" class="form-control" multiple="multiple"
+                       accept="application/pdf,image/jpeg,image/png"/>
+                <div class="form-text">A PDF or photos of its pages.</div>
+            </div>
+        </div>
+    </template>
+
+    <!-- A request's state as the applicant reads it. -->
+    <template id="portal_certificate_status" name="Certificate request status">
+        <span t-attf-class="badge #{'text-bg-success' if certificate.state == 'issued' else 'text-bg-danger' if certificate.state == 'rejected' else 'text-bg-secondary' if certificate.state == 'cancelled' else 'text-bg-warning' if certificate.state in ('draft', 'documentation') else 'text-bg-info'}"
+              t-esc="state_labels.get(certificate.state)"/>
+    </template>
+
+    <template id="portal_certificates" name="Certificates">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-4 o_ems_portal_certificates">
+                <t t-call="ems.portal_loading_overlay"/>
+                <h3 class="mb-1">Certificates</h3>
+                <p class="text-muted small mb-3" t-esc="student.name"/>
+
+                <div t-if="viewing_as_family" class="alert alert-info mb-3">
+                    <i class="fa fa-user me-1"/> Viewing certificates for: <strong t-esc="student.name"/>
+                </div>
+                <div t-if="submitted" class="alert alert-success mb-3 o_ems_certificate_submitted">
+                    <i class="fa fa-check-circle me-1"/> Your request has been submitted. You will receive the certificate by email.
+                </div>
+                <div t-if="error == 'missing'" class="alert alert-danger mb-3">
+                    <i class="fa fa-exclamation-triangle me-1"/> Fill in all your details: they are mandatory.
+                </div>
+
+                <div t-if="can_request and types" class="card shadow-sm mb-4 o_ems_certificate_new">
+                    <div class="card-header bg-ems-primary text-white"><i class="fa fa-plus me-2"/>New certificate request</div>
+                    <div class="card-body">
+                        <form action="/my/certificats/submit" method="post" enctype="multipart/form-data" class="ems-loading-form">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <div class="mb-3" t-if="len(types) &gt; 1">
+                                <label class="form-label fw-bold" for="certificate_type_id">Certificate</label>
+                                <select id="certificate_type_id" name="type_id" class="form-select">
+                                    <t t-foreach="types" t-as="certificate_type">
+                                        <option t-att-value="certificate_type.id" t-esc="certificate_type.name"/>
+                                    </t>
+                                </select>
+                            </div>
+                            <t t-else="">
+                                <input type="hidden" name="type_id" t-att-value="types[:1].id"/>
+                                <p class="fw-bold mb-1" t-esc="types[:1].name"/>
+                            </t>
+                            <p t-if="types[:1].description" class="small text-muted" t-esc="types[:1].description"/>
+                            <t t-call="ems.portal_certificate_fields"/>
+                            <button type="submit" class="btn btn-primary">Submit request</button>
+                        </form>
+                    </div>
+                </div>
+
+                <h5 class="mt-4">Your requests</h5>
+                <p t-if="not certificates" class="text-muted">You have not requested any certificate yet.</p>
+                <div t-foreach="certificates" t-as="certificate" class="card shadow-sm mb-2 o_ems_certificate_request">
+                    <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-2">
+                        <div>
+                            <strong t-esc="certificate.type_id.name"/>
+                            <span t-if="certificate.name" class="text-muted ms-2" t-esc="certificate.name"/>
+                            <div class="small text-muted" t-if="certificate.submission_date">
+                                Requested on <t t-out="certificate.submission_date" t-options="{'widget': 'date'}"/>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <t t-call="ems.portal_certificate_status"/>
+                            <a t-att-href="certificate.get_portal_url()" class="btn btn-sm btn-outline-primary">Open</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- One request, opened with its link (access token). -->
+    <template id="portal_certificate" name="Certificate request">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-4 o_ems_portal_certificate">
+                <t t-call="ems.portal_loading_overlay"/>
+                <h3 class="mb-1" t-esc="certificate.type_id.name"/>
+                <p class="mb-3">
+                    <span t-if="certificate.name" class="text-muted me-2" t-esc="certificate.name"/>
+                    <t t-call="ems.portal_certificate_status"/>
+                </p>
+
+                <div t-if="submitted" class="alert alert-success mb-3 o_ems_certificate_submitted">
+                    <i class="fa fa-check-circle me-1"/> Your request has been submitted. You will receive the certificate by email.
+                </div>
+                <div t-if="replied" class="alert alert-success mb-3 o_ems_certificate_replied">
+                    <i class="fa fa-check-circle me-1"/> Your answer has been added to the request.
+                </div>
+                <div t-if="error == 'missing'" class="alert alert-danger mb-3">
+                    <i class="fa fa-exclamation-triangle me-1"/> Fill in all your details: they are mandatory.
+                </div>
+                <div t-if="error == 'reply'" class="alert alert-danger mb-3">
+                    <i class="fa fa-exclamation-triangle me-1"/> Write an answer or attach a document before sending.
+                </div>
+
+                <!-- A former student's form, sent by the secretariat. -->
+                <div t-if="certificate.state == 'draft'" class="card shadow-sm mb-4 o_ems_certificate_form">
+                    <div class="card-body">
+                        <p t-if="certificate.type_id.description" class="small text-muted" t-esc="certificate.type_id.description"/>
+                        <form t-attf-action="/my/certificats/#{certificate.id}/submit?access_token=#{access_token}" method="post"
+                              enctype="multipart/form-data" class="ems-loading-form">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <t t-call="ems.portal_certificate_fields"/>
+                            <button type="submit" class="btn btn-primary">Submit request</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div t-if="certificate.state == 'documentation'" class="card shadow-sm mb-4 o_ems_certificate_documentation">
+                    <div class="card-body">
+                        <p class="fw-bold mb-1">The centre needs some more information:</p>
+                        <p style="white-space: pre-line;" t-esc="certificate.info_request"/>
+                        <form t-attf-action="/my/certificats/#{certificate.id}/reply?access_token=#{access_token}" method="post"
+                              enctype="multipart/form-data" class="ems-loading-form o_ems_certificate_reply">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <label class="form-label fw-bold small" for="certificate_reply_message">Answer or add documentation</label>
+                            <textarea id="certificate_reply_message" name="message" rows="2" class="form-control form-control-sm mb-2" maxlength="2000"/>
+                            <input type="file" name="documents" class="form-control form-control-sm mb-2" multiple="multiple"
+                                   accept="application/pdf,image/jpeg,image/png"/>
+                            <button type="submit" class="btn btn-sm btn-primary">Send</button>
+                        </form>
+                    </div>
+                </div>
+
+                <p t-if="certificate.state == 'in_progress'" class="text-muted">
+                    <i class="fa fa-hourglass-half me-1"/> The centre is processing your request. You will receive the certificate by email.
+                </p>
+                <div t-if="certificate.state == 'rejected'" class="alert alert-danger">
+                    <strong>The centre cannot issue this certificate:</strong>
+                    <p class="mb-0" style="white-space: pre-line;" t-esc="certificate.reject_reason"/>
+                </div>
+                <p t-if="certificate.state == 'issued'">
+                    <a t-attf-href="/my/certificats/#{certificate.id}/pdf?access_token=#{access_token}" class="btn btn-primary">
+                        <i class="fa fa-download me-1"/>Download the certificate
+                    </a>
+                </p>
+
+                <form t-if="certificate._ems_is_cancellable()" t-attf-action="/my/certificats/#{certificate.id}/cancel?access_token=#{access_token}"
+                      method="post" class="mt-3">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fa fa-times me-1"/>Cancel request</button>
+                </form>
+            </div>
+        </t>
+    </template>
+</odoo>

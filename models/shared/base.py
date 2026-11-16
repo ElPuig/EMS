@@ -52,10 +52,13 @@ class EmsBase(models.AbstractModel):
     def role_task_users(self, role_xmlid):
         """The users holding a position of the centre (ems.role), for a task that is theirs."""
         role = self.env.ref(role_xmlid, raise_if_not_found=False)
-        users = self.env['res.users']
-        if role:
-            users = self.env['hr.employee'].sudo().browse(role.sudo().employee_ids.ids).exists().user_id
-        return self.task_users(users, role_xmlid)
+        return self.task_users(self.role_users(role), role_xmlid)
+
+    def role_users(self, role):
+        """The users of whoever holds `role` (an ems.role, possibly empty)."""
+        if not role:
+            return self.env['res.users']
+        return self.env['hr.employee'].sudo().browse(role.sudo().employee_ids.ids).exists().user_id
 
     def secretariat_task_users(self):
         """The whole secretariat, for a task that is its. The EMS administrator is left out: it

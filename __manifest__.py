@@ -74,6 +74,7 @@
         'security/rules/student_data_reader.xml',
         'security/rules/task_assignment.xml',
         'security/rules/ex_officio_withdrawal.xml',
+        'security/rules/certificates.xml',
         'security/ir.model.access.csv',
 
 
@@ -143,6 +144,7 @@
             'views/community/contact/relation_wizard.xml',
             'views/community/contact/kanban.xml',
             'views/community/contact/menu.xml',
+            'views/community/contact/company.xml',
             'views/community/contact/import_wizard.xml',
             'views/community/contact/update_wizard.xml',            
             'views/community/contact/portal_access_wizard.xml',
@@ -372,6 +374,7 @@
             'reports/contacts/report_student_card.xml',
             'reports/facilities/report_space_schedule.xml',
             'reports/grades/report_convalidation_resolution.xml',
+            'reports/certificates/report_certificate.xml',
         'reports/enrollment/templates/report_enrollment_template.xml',
         'reports/enrollment/enrollment.xml',
             'views/academic_management/enrollment_configuration/enrollment_template_form.xml',
@@ -397,6 +400,9 @@
             'views/academic_management/convalidation_rejection_reason/list.xml',
             'views/academic_management/convalidation_rejection_reason/form.xml',
             'views/academic_management/convalidation_rejection_reason/menu.xml',
+            'views/academic_management/certificates/views.xml',
+            'views/academic_management/certificates/menu.xml',
+            'views/academic_management/certificate_type/views.xml',
 
         'views/erasmus/call/views.xml',
         'views/erasmus/application/views.xml',
@@ -437,6 +443,7 @@
             'views/portal/portal_contact_data.xml',
             'views/portal/portal_documentation.xml',
             'views/portal/portal_convalidations.xml',
+            'views/portal/portal_certificates.xml',
             'views/portal/portal_erasmus.xml',
             'views/portal/portal_erasmus_group.xml',
             'views/portal/portal_student_walkout.xml',
@@ -458,6 +465,7 @@
         'mails/enrollment/authorization_send.xml',
         'mails/grades/convalidation_resolved.xml',
         'mails/grades/convalidation_info_request.xml',
+        'mails/certificates/certificate.xml',
         'mails/erasmus/layout.xml',
         'mails/erasmus/application.xml',
         'mails/erasmus/call.xml',
@@ -542,6 +550,8 @@
         'data/cat/ems.content.csv',
         'data/cat/ems.outcome.csv',    
         'data/cat/ems.role.csv',
+        # After the levels and the positions its circuit refers to.
+        'data/main/ems.certificate.type.xml',
         'data/main/ems.workgroup.xml',
         'data/main/sync_quality_committee.xml',
         'data/cat/hr.job.csv',

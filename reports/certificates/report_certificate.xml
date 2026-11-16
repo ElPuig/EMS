@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #835 - a certificate of the centre, generated after the last step of its circuit
+             (ems.certificate._ems_generate_pdf) in the centre language, with the agreement's pages
+             appended. Not bound to the Print menu: the certificate is the PDF kept on the request.
+             Under each signature, the stamp EMS puts (ems.report_validation_stamp): not a qualified
+             electronic signature, EMS's own record of who issued and approved it. -->
+        <record id="action_report_certificate" model="ir.actions.report">
+            <field name="name">Certificate</field>
+            <field name="model">ems.certificate</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_certificate</field>
+            <field name="report_file">ems.report_certificate</field>
+        </record>
+
+        <template id="report_certificate">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+                        <t t-set="stamps" t-value="doc._ems_stamps_to_print()"/>
+                        <div class="page o_ems_certificate">
+                            <style>
+                                .o_ems_certificate { font-size: 13px; }
+                                .o_ems_certificate h2 { font-size: 20px; margin: 12px 0 4px 0; text-align: center; }
+                                .o_ems_certificate .o_ems_certificate_number { text-align: center; margin-bottom: 28px; }
+                                .o_ems_certificate p { text-align: justify; line-height: 1.6; }
+                                .o_ems_certificate_signatures { width: 100%; margin-top: 36px; border-collapse: collapse; }
+                                .o_ems_certificate_signatures td { width: 50%; vertical-align: top; padding: 0 8px; border: none !important; }
+                            </style>
+
+                            <h2>Certificate</h2>
+                            <div class="o_ems_certificate_number">Certificate number: <strong t-esc="doc.name"/></div>
+
+                            <p t-foreach="doc._ems_report_paragraphs()" t-as="paragraph" t-out="paragraph"/>
+
+                            <table class="o_ems_certificate_signatures">
+                                <tr>
+                                    <td t-foreach="stamps" t-as="stamp">
+                                        <t t-if="stamp.action == 'issue'">
+                                            <div>The secretary</div>
+                                            <t t-call="ems.report_validation_stamp">
+                                                <t t-set="stamp_title">Issued in EMS</t>
+                                                <t t-set="stamp_by_label">Issued by:</t>
+                                                <t t-set="stamp_by" t-value="stamp.user_id.name"/>
+                                                <t t-set="stamp_date" t-value="stamp.date"/>
+                                                <t t-set="stamp_reference" t-value="doc.name"/>
+                                            </t>
+                                        </t>
+                                        <t t-else="">
+                                            <div>Approved by the director</div>
+                                            <t t-call="ems.report_validation_stamp">
+                                                <t t-set="stamp_title">Approved in EMS</t>
+                                                <t t-set="stamp_by_label">Approved by:</t>
+                                                <t t-set="stamp_by" t-value="stamp.user_id.name"/>
+                                                <t t-set="stamp_date" t-value="stamp.date"/>
+                                                <t t-set="stamp_reference" t-value="doc.name"/>
+                                            </t>
+                                        </t>
+                                        <div t-esc="stamp.user_id.name"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

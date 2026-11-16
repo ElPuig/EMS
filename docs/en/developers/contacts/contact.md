@@ -30,7 +30,7 @@ stateDiagram-v2
     [*] --> provider: parent_id of a provider
 ```
 
-`contact_type` also has two lifecycle-independent values not shown above: `family` and `provider`, auto-assigned in `create()` from the parent contact's own `contact_type` whenever `parent_id` is set (a child contact of a student becomes `family`; of a provider, `provider` — see `create()`'s inline note on why this can't rely on the value arriving from the popup form).
+`contact_type` also has three lifecycle-independent values not shown above: `family`, `provider` and `company` (a collaborating company where students do their workplace training, issue #835, see [`certificate.md`](../certificates/certificate.md)), auto-assigned in `create()` from the parent contact's own `contact_type` whenever `parent_id` is set (a child contact of a student becomes `family`; of a provider or a company, the same type as its parent — see `create()`'s inline note on why this can't rely on the value arriving from the popup form). A company shows the same company fields as a provider, plus its VAT number; the VET coordinator edits it (`can_edit_company`, `rule_contact_vet_coordinator_company`).
 
 `has_graduated` is a **permanent** mark, set once by the graduation wizard and never cleared — it is what `_ems_convert_to_ex_student()` uses to decide `alumni` vs `withdrawal` on exit, even after a later re-enrolment. **`expelled` (added 2026-08-01) overrides this entirely**: `_ems_convert_to_ex_student(kind='expulsion')`, called only by the withdrawal wizard when the admin picks "Expulsion", always produces `contact_type = 'expelled'` regardless of `has_graduated` — see [Graduation & withdrawal wizards](exit_wizards.md#exit_kind--withdrawal-vs-expulsion-added-2026-08-01) for the full `exit_kind` design (and why it required a full audit of every place `contact_type` was filtered/branched on before adding the new value).
 
@@ -474,7 +474,7 @@ The **field-level** editing surface for tutors is narrower than the record rule 
 | Form | `views/community/contact/form.xml` | Inherits `base.view_partner_form`; `js_class="studentpopup_expand_button"`; conditional pages per `contact_type` - see "Student form pages" below |
 | Search | `views/community/contact/search.xml` | `view_student_search` carries the `students_only` default facet and the `my_students` one (issue #421, see above) |
 | Relation wizard | `views/community/contact/relation_wizard.xml` | `action_contact_relation_wizard` |
-| Menu | `views/community/contact/menu.xml` + `views/community/menu.xml` | `action_student_kanban` (top-level "Educational Community" entry), `action_family_list`, `action_provider_kanban` |
+| Menu | `views/community/contact/menu.xml` + `views/community/menu.xml` + `views/community/contact/company.xml` | `action_student_kanban` (top-level "Educational Community" entry), `action_family_list`, `action_provider_kanban`, `action_company_kanban` (Collaborating companies) |
 
 ### Student form button box
 

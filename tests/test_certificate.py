@@ -1,0 +1,285 @@
+import io
+from unittest.mock import patch
+
+from PIL import Image
+
+from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.tests.common import TransactionCase, tagged
+from odoo.tools.pdf import PdfFileReader
+
+from .common import (capture_template_emails, create_level_study_group, create_role_employee, create_role_user,
+                     mock_outgoing_email, next_student_id)
+
+
+def one_page_pdf(color='white'):
+    """A real one-page PDF, built with Pillow."""
+    output = io.BytesIO()
+    Image.new('RGB', (200, 280), color).save(output, format='PDF')
+    return output.getvalue()
+
+
+def png_image():
+    output = io.BytesIO()
+    Image.new('RGB', (120, 160), 'blue').save(output, format='PNG')
+    return output.getvalue()
+
+
+def create_certificate_fixtures(cls, prefix='TCRT'):
+    """A certificate type with the FCT circuit (complete, issue, approve) on positions of its own,
+    each held by a fixture user: a VET coordinator, a secretary and a director; a teacher who holds
+    none; a current student of a level that may request it, and a collaborating company."""
+    cls.level, cls.study, cls.group = create_level_study_group(cls, prefix)
+    cls.coordinator = create_role_user(cls, 'vet_coordinator', f'test_{prefix.lower()}_coordinator',
+                                       name=f'{prefix} Coordinator')
+    cls.secretary = create_role_user(cls, 'secretary', f'test_{prefix.lower()}_secretary', name=f'{prefix} Secretary')
+    cls.director = create_role_user(cls, 'director', f'test_{prefix.lower()}_director', name=f'{prefix} Director')
+    cls.teacher = create_role_user(cls, 'teacher', f'test_{prefix.lower()}_teacher', name=f'{prefix} Teacher')
+    roles = {}
+    for key, user, employee_type in (('complete', cls.coordinator, 'teacher'), ('issue', cls.secretary, 'asp'),
+                                     ('approve', cls.director, 'teacher')):
+        employee = create_role_employee(cls, user, employee_type=employee_type)
+        roles[key] = cls.env['ems.role'].create({
+            'name': f'{prefix} {key} position', 'employee_type': employee_type,
+            'employee_ids': [(6, 0, [employee.id])],
+        })
+    create_role_employee(cls, cls.teacher)
+    cls.roles = roles
+    cls.certificate_type = cls.env['ems.certificate.type'].create({
+        'name': f'{prefix} FCT', 'kind': 'fct', 'requires_annex': True, 'level_ids': [(6, 0, cls.level.ids)],
+        'step_ids': [
+            (0, 0, {'sequence': 10, 'name': 'Complete', 'role_id': roles['complete'].id, 'action': 'complete'}),
+            (0, 0, {'sequence': 20, 'name': 'Issue', 'role_id': roles['issue'].id, 'action': 'issue'}),
+            (0, 0, {'sequence': 30, 'name': 'Approve', 'role_id': roles['approve'].id, 'action': 'approve'}),
+        ],
+    })
+    cls.steps = cls.certificate_type.step_ids.sorted('sequence')
+    cls.student = cls.env['res.partner'].create({
+        'name': f'{prefix} Student', 'contact_type': 'student', 'student_id': next_student_id(),
+        'main_group_id': cls.group.id, 'birth_date': '2000-01-01', 'document_id': '12345678Z',
+        'email': f'{prefix.lower()}.student@example.com',
+    })
+    cls.company = cls.env['res.partner'].create({
+        'name': f'{prefix} Company SL', 'contact_type': 'company', 'is_company': True, 'vat': 'B12345678',
+    })
+
+
+@tagged('post_install', '-at_install')
+class TestCertificate(TransactionCase):
+    """Issue #835 - certificate requests and their approval circuit."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        mock_outgoing_email(cls)
+        create_certificate_fixtures(cls)
+
+    def setUp(self):
+        super().setUp()
+        # Odoo renders reports as HTML under test: a real one-page PDF instead, so the annex
+        # merge can be checked page by page.
+        patcher = patch('odoo.addons.base.models.ir_actions_report.IrActionsReport._render_qweb_pdf',
+                        return_value=(one_page_pdf(), 'pdf'))
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def _submitted(self, **vals):
+        certificate = self.env['ems.certificate'].create({
+            'type_id': self.certificate_type.id, 'student_id': self.student.id, 'origin': 'portal',
+            'student_name': self.student.name, 'student_document': '12345678Z', 'study_id': self.study.id,
+            'fct_school_year': '2025-2026', **vals,
+        })
+        certificate._ems_submit()
+        return certificate
+
+    def _complete_training(self, certificate):
+        certificate.with_user(self.coordinator).write({
+            'training_company_id': self.company.id, 'period_start': '2026-03-01', 'period_end': '2026-06-15', 'hours': 400,
+            'agreement_reference': '2026178505',
+        })
+
+    def _annex(self, certificate, name, raw, mimetype):
+        return self.env['ir.attachment'].create({
+            'name': name, 'raw': raw, 'mimetype': mimetype, 'res_model': 'ems.certificate', 'res_id': certificate.id,
+        })
+
+    # --- the circuit -----------------------------------------------------------
+
+    def test_full_circuit(self):
+        sent = capture_template_emails(self)
+        certificate = self._submitted()
+        self.assertEqual((certificate.state, certificate.step_id), ('in_progress', self.steps[0]))
+        self.assertFalse(certificate.name, "The number is given when the certificate is issued.")
+        self.assertIn(self.coordinator, certificate.activity_ids.user_id, "The first step's holder gets the task.")
+
+        # The coordinator cannot hand it over without the workplace training.
+        with self.assertRaises(UserError):
+            certificate.with_user(self.coordinator).action_done_step()
+        self._complete_training(certificate)
+        certificate.with_user(self.coordinator).action_done_step()
+        self.assertEqual(certificate.step_id, self.steps[1])
+        self.assertEqual(certificate.activity_ids.user_id, self.secretary, "The previous task closes.")
+
+        # The secretary cannot issue it without the agreement.
+        with self.assertRaises(UserError):
+            certificate.with_user(self.secretary).action_done_step()
+        pdf = self._annex(certificate, 'agreement.pdf', one_page_pdf('gray'), 'application/pdf')
+        image = self._annex(certificate, 'page2.png', png_image(), 'image/png')
+        certificate.annex_attachment_ids = [(6, 0, (pdf | image).ids)]
+        certificate.with_user(self.secretary).action_done_step()
+        course = self.env['ems.course'].search([('is_current', '=', True)], limit=1)
+        self.assertTrue(certificate.name.startswith(f'CERT-{course.start}-'))
+        self.assertEqual(certificate.course_id, course)
+
+        certificate.with_user(self.director).action_done_step()
+        self.assertEqual(certificate.state, 'issued')
+        self.assertFalse(certificate.activity_ids)
+        self.assertEqual(certificate.stamp_ids.mapped('user_id'), self.coordinator | self.secretary | self.director)
+        # The certificate, then the agreement's PDF page and the image as one more page.
+        reader = PdfFileReader(io.BytesIO(certificate.certificate_pdf_id.raw))
+        self.assertEqual(len(reader.pages), 3)
+        self.assertIn(('ems.email_template_certificate_issued', certificate.id, None), sent())
+
+    def test_only_the_step_holder_or_the_administrator_acts(self):
+        certificate = self._submitted()
+        self._complete_training(certificate)
+        for user in (self.secretary, self.director):
+            with self.subTest(user=user.name), self.assertRaises(AccessError):
+                certificate.with_user(user).action_done_step()
+        admin = create_role_user(self, 'academic_admin', 'test_tcrt_admin')
+        certificate.with_user(admin).action_done_step()
+        self.assertEqual(certificate.step_id, self.steps[1])
+
+    def test_return_undoes_the_previous_stamp(self):
+        certificate = self._submitted()
+        self._complete_training(certificate)
+        certificate.with_user(self.coordinator).action_done_step()
+        with self.assertRaises(UserError):
+            certificate.with_user(self.coordinator)._ems_return("Too early")
+        self.env['ems.certificate.wizard'].with_user(self.secretary).create({
+            'certificate_id': certificate.id, 'mode': 'return', 'message': 'The hours are wrong',
+        }).action_confirm()
+        self.assertEqual(certificate.step_id, self.steps[0])
+        self.assertEqual(certificate.return_reason, 'The hours are wrong')
+        self.assertFalse(certificate.stamp_ids)
+        self.assertIn(self.coordinator, certificate.activity_ids.user_id)
+
+    def test_documentation_round_trip(self):
+        sent = capture_template_emails(self)
+        certificate = self._submitted()
+        self.env['ems.certificate.wizard'].with_user(self.coordinator).create({
+            'certificate_id': certificate.id, 'mode': 'info', 'message': 'Attach the agreement',
+        }).action_confirm()
+        self.assertEqual(certificate.state, 'documentation')
+        self.assertFalse(certificate.activity_ids)
+        self.assertIn(('ems.email_template_certificate_info_request', certificate.id, None), sent())
+        certificate.sudo()._ems_portal_answer("Here it is", [])
+        self.assertEqual((certificate.state, certificate.step_id), ('in_progress', self.steps[0]))
+        self.assertIn(self.coordinator, certificate.activity_ids.user_id)
+
+    def test_reject_and_cancel(self):
+        sent = capture_template_emails(self)
+        certificate = self._submitted()
+        self.env['ems.certificate.wizard'].with_user(self.secretary).create({
+            'certificate_id': certificate.id, 'mode': 'reject', 'message': 'No training on record',
+        }).action_confirm()
+        self.assertEqual(certificate.state, 'rejected')
+        self.assertIn(('ems.email_template_certificate_rejected', certificate.id, None), sent())
+        with self.assertRaises(UserError):
+            certificate.with_user(self.secretary).write({'hours': 10})
+
+        # Cancellable until issued: afterwards it has a number of the registry.
+        other = self._submitted()
+        self._complete_training(other)
+        other.with_user(self.coordinator).action_done_step()
+        other.annex_attachment_ids = [(4, self._annex(other, 'a.pdf', one_page_pdf(), 'application/pdf').id)]
+        other.with_user(self.secretary).action_done_step()
+        with self.assertRaises(UserError):
+            other.with_user(self.secretary)._ems_cancel("Duplicate")
+
+    def test_former_student_form(self):
+        """The secretariat registers a former student's request and sends the form by link."""
+        sent = capture_template_emails(self)
+        certificate = self.env['ems.certificate'].with_user(self.secretary).create({
+            'type_id': self.certificate_type.id, 'student_id': self.student.id,
+        })
+        self.assertEqual((certificate.state, certificate.origin), ('draft', 'secretariat'))
+        with self.assertRaises(UserError):
+            certificate.with_user(self.secretary).action_send_form()
+        certificate.with_user(self.secretary).applicant_email = 'former.student@example.com'
+        certificate.with_user(self.secretary).action_send_form()
+        self.assertIn(('ems.email_template_certificate_form', certificate.id, None), sent())
+        self.assertIn('access_token=', certificate._ems_form_url())
+        self.assertEqual(certificate._ems_recipients(), [('former.student@example.com', self.student.lang)])
+
+        values, missing = certificate._ems_parse_portal_form({'student_name': 'Former Student'})
+        self.assertEqual(len(missing), 3, "The identity document, the study and the school year are mandatory.")
+        values, missing = certificate._ems_parse_portal_form({
+            'student_name': 'Former Student', 'student_document': 'X1234567L', 'study_id': str(self.study.id),
+            'fct_school_year': '2019-2020', 'hours': 'many', 'period_start': 'not a date',
+        })
+        self.assertFalse(missing)
+        self.assertEqual((values['hours'], values['period_start']), (0, False))
+        certificate.sudo()._ems_portal_fill(values, [])
+        self.assertEqual((certificate.state, certificate.step_id), ('in_progress', self.steps[0]))
+
+    def test_create_company_from_the_applicant(self):
+        certificate = self._submitted(company_name='New Training Company', company_vat='B87654321')
+        certificate.with_user(self.coordinator).action_create_company()
+        self.assertEqual((certificate.training_company_id.name, certificate.training_company_id.contact_type), ('New Training Company', 'company'))
+        self.assertIn(self.env.ref('ems.partner_category_company'), certificate.training_company_id.category_id)
+        # The same VAT number links the existing company instead of creating another one.
+        again = self._submitted(company_name='New Training Company SL', company_vat='B87654321')
+        again.with_user(self.coordinator).action_create_company()
+        self.assertEqual(again.training_company_id, certificate.training_company_id)
+
+    # --- records the staff see ------------------------------------------------
+
+    def test_record_rules(self):
+        certificate = self._submitted()
+        Certificate = self.env['ems.certificate']
+        for user in (self.coordinator, self.secretary, self.director):
+            self.assertEqual(Certificate.with_user(user).search([('id', '=', certificate.id)]), certificate)
+        self.assertFalse(Certificate.with_user(self.teacher).search([('id', '=', certificate.id)]),
+                         "A teacher who holds no position of the circuit does not see it.")
+        self.assertEqual(Certificate.with_user(self.coordinator).search([('is_pending_for_me', '=', True)]), certificate)
+        self.assertFalse(Certificate.with_user(self.director).search([('is_pending_for_me', '=', True),
+                                                                      ('id', '=', certificate.id)]))
+        # Rejecting and cancelling: the secretariat and whoever does the current step, nobody else.
+        self.assertTrue(certificate.with_user(self.secretary).can_manage)
+        self.assertTrue(certificate.with_user(self.coordinator).can_manage)
+        self.assertFalse(certificate.with_user(self.director).can_manage)
+        with self.assertRaises(AccessError):
+            certificate.with_user(self.director)._ems_reject("Not mine to reject")
+
+    def test_vet_coordinator_edits_collaborating_companies_only(self):
+        self.company.with_user(self.coordinator).write({'phone': '930000000'})
+        self.assertTrue(self.company.with_user(self.coordinator).can_edit_company)
+        with self.assertRaises(AccessError):
+            self.student.with_user(self.coordinator).write({'phone': '930000000'})
+
+    # --- configuration --------------------------------------------------------
+
+    def test_circuit_constraints(self):
+        with self.assertRaises(ValidationError):
+            self.certificate_type.write({'step_ids': [(2, self.steps[1].id)]})
+        with self.assertRaises(ValidationError):
+            self.certificate_type.write({'step_ids': [(1, self.steps[2].id, {'sequence': 5})]})
+
+    def test_portal_visibility(self):
+        self.assertTrue(self.student._ems_certificate_portal_visible())
+        self.assertEqual(self.env['ems.certificate']._ems_portal_types(self.student), self.certificate_type)
+        self.certificate_type.level_ids = False
+        self.assertFalse(self.student._ems_certificate_portal_visible())
+
+    def test_report_content(self):
+        """The certificate's text, rendered for real (HTML under test)."""
+        certificate = self._submitted()
+        self._complete_training(certificate)
+        certificate.with_user(self.coordinator).action_done_step()
+        certificate.annex_attachment_ids = [(4, self._annex(certificate, 'a.pdf', one_page_pdf(), 'application/pdf').id)]
+        certificate.with_user(self.secretary).action_done_step()
+        html = self.env['ir.actions.report'].with_context(lang='en_US')._render_qweb_html(
+            'ems.action_report_certificate', certificate.ids)[0].decode()
+        for text in (certificate.name, self.student.name, '12345678Z', self.company.name, 'B12345678', '400',
+                     '2026178505', self.secretary.name):
+            self.assertIn(text, html)

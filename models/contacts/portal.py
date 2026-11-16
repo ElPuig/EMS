@@ -207,9 +207,10 @@ class ems_contact_portal(models.Model):
         return student in self.get_portal_students() \
             and self in student._ems_notification_recipients()
 
-    def _ems_convalidation_can_request(self, student):
-        """Whether this portal partner may file (and follow up) convalidation requests for the
-        student - a rule of its own, narrower and wider than _ems_portal_can_act_for (issue #529):
+    def _ems_can_file_requests_for(self, student):
+        """Whether this portal partner may file (and follow up) requests for the student -
+        convalidations and certificates (issue #835) - a rule of its own, narrower and wider than
+        _ems_portal_can_act_for (issue #529):
 
         - a minor never files them himself, only his family; a minor with no family contact on
           file cannot have any filed until someone fills that contact in;
@@ -229,7 +230,7 @@ class ems_contact_portal(models.Model):
         self.ensure_one()
         student = self.get_portal_student()
         return student.contact_type in ('student', 'applicant') \
-            and (student == self or self._ems_convalidation_can_request(student))
+            and (student == self or self._ems_can_file_requests_for(student))
 
     def _ems_informed_recipients(self):
         """Whoever is kept informed about this student (convalidations, issue #529; Erasmus+

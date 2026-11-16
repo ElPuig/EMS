@@ -49,7 +49,7 @@ class EMSPortalCommsController(CustomerPortal):
         # follows them, even from a view-only account (the family of an adult who authorized it).
         if ems_portal_is_view_only():
             origin = [('partner_ids', 'in', [partner.id])]
-            if request.env.user.partner_id._ems_convalidation_can_request(partner):
+            if request.env.user.partner_id._ems_can_file_requests_for(partner):
                 origin = ['|'] + origin + ['&', ('model', '=', 'ems.convalidation'), ('res_id', 'in', convalidation_ids)]
         else:
             origin = [

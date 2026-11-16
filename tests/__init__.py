@@ -25,6 +25,9 @@ from . import test_level
 from . import test_level_tour
 from . import test_student_document
 from . import test_convalidation
+from . import test_certificate
+from . import test_portal_certificate
+from . import test_certificate_tour
 from . import test_convalidation_period
 from . import test_preenrollment_period
 from . import test_enrollment_head_of_studies

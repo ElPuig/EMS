@@ -156,6 +156,13 @@ class TestPortalStudentWalkout(HttpCase):
         user.password = 'shared-email-833'
         self.authenticate(login, 'shared-email-833')
 
+    def _corporate_domain(self, *students):
+        """A Workspace domain of its own (a personal email may never be on it, issue #514) and a
+        corporate email on it for each student."""
+        self.env.company.google_ws_domain = 'school-833.example.net'
+        for student in students:
+            student.student_email = f'{student.student_id.lower()}@school-833.example.net'
+
     def _google_login(self, email):
         """The login Google sign-in opens for a verified corporate email (auth_oauth's own step)."""
         return self.env['res.users'].sudo()._auth_oauth_signin(
@@ -173,7 +180,7 @@ class TestPortalStudentWalkout(HttpCase):
         self.assertEqual(self.url_open('/my/vagues/nova').status_code, 200)
 
     def test_a_student_sharing_the_email_signs_in_as_a_student_and_the_family_as_a_family(self):
-        self.env.company.google_ws_domain = 'example.com'
+        self._corporate_domain(self.subdelegate)
         self.subdelegate.email = self.family.email
         (self.family | self.subdelegate)._ems_sync_portal_login()
         student_user, family_user = self.subdelegate.user_ids, self.family_user
@@ -203,7 +210,7 @@ class TestPortalStudentWalkout(HttpCase):
         self.assertNotIn('o_ems_walkout_calendar', response.text)
 
     def test_a_student_with_their_own_email_signs_in_as_a_student_both_ways(self):
-        self.env.company.google_ws_domain = 'example.com'
+        self._corporate_domain(self.delegate)
         self.delegate.email = 'delegate.own.833@example.org'
         self.delegate._ems_sync_portal_login()
         user = self.delegate.user_ids

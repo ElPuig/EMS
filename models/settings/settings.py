@@ -141,6 +141,9 @@ class ems_settings(models.TransientModel):
             'count_days_off': settings.walkout_count_days_off,
          }, settings.walkout_phase_hours, settings.walkout_notice_hours)
 
+   # Like base_setup's language_count: a compute with no dependency is never computed for the new
+   # record the settings form opens (onchange), so the count showed 0 whatever the levels said.
+   @api.depends('company_id')
    def _compute_walkout_level_count(self):
       count = self.env['ems.level'].search_count([('walkout_allowed', '=', True)])
       for settings in self:

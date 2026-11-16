@@ -878,6 +878,16 @@ class TestStudentWalkout(TransactionCase):
         with self.assertRaises(AccessError):
             self.env['ems.walkout.levels.wizard'].with_user(self.tutor).create({})
 
+    def test_settings_show_how_many_levels_are_allowed(self):
+        """The count next to "Levels and courses", as the settings form gets it when it opens (an
+        onchange on a new record, the company in the spec like the web client sends it)."""
+        settings_admin = create_role_user(self, 'settings_admin', 'test_walkout_settings_count')
+        expected = self.env['ems.level'].search_count([('walkout_allowed', '=', True)])
+        self.assertTrue(expected)
+        result = self.env['res.config.settings'].with_user(settings_admin).onchange(
+            {}, [], {'company_id': {}, 'walkout_level_count': {}})
+        self.assertEqual(result['value']['walkout_level_count'], expected)
+
     def test_seed_follows_the_law(self):
         Level = self.env['ems.level']
         levels = {acronym: Level.search([('acronym', '=', acronym)]) for acronym in ('ESO', 'BTX', 'CFGM', 'PFI')}

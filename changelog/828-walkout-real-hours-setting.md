@@ -7,6 +7,11 @@
 - Each proposal stores the rule it was opened with (`hours_kind`, `count_from`, `count_days_off`, next to `phase_hours`/`notice_hours`), so changing the settings never moves a running call. The portal form and the "too late" error explain the count in force.
 - No migration: the new company fields default to today's count (real hours, from when the group receives the email, days without class not counted), so an upgraded installation behaves as before until changed in Settings; a new installation counts from the proposal (`post_init_hook`). Existing proposals get the same defaults.
 
+# Fixes
+
+## Student walkout settings always showed "0 levels allowed":
+- The count next to "Levels and courses" had no dependency, and Odoo never computes such a field for the new record the settings form opens, so it always read 0 whatever the levels said. It now depends on the company, like Odoo's own language count in the general settings. Regression test included (it failed before the fix).
+
 # Internal changes
 
 ## One counting core for school days and class hours (#828):

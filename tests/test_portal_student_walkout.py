@@ -34,6 +34,7 @@ class TestPortalStudentWalkout(HttpCase):
         self.assertEqual(form.status_code, 200)
         # The calendar of a call opened now, and the first day it can be for (next Monday).
         self.assertIn('o_ems_walkout_calendar', form.text)
+        self.assertIn('Each phase starts when its email reaches the group', form.text)
         walkout_date = self.today + timedelta(days=7)
         self.assertIn(f'min="{fields.Date.to_string(walkout_date)}"', form.text)
         response = self._post('/my/vagues/nova', walkout_date=fields.Date.to_string(walkout_date), notes='Union',

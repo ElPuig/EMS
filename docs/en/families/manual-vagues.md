@@ -26,13 +26,16 @@ Only the groups the centre allows can propose supporting a walkout (from the 3rd
 
 ## The calendar
 
-The proposal goes in two phases: first the group votes whether it supports the walkout, then each student says whether they join it. Each phase lasts **24 school hours** by default, and the Head of Studies must get the minute at least **48 school hours** before the walkout. So **a walkout can only be proposed at least four school days ahead**.
+The proposal goes in two phases: first the group votes whether it supports the walkout, then each student says whether they join it. Each phase lasts **24 hours** by default, and the Head of Studies must get the minute at least **48 hours** before the walkout. So, with the default settings, **a walkout has to be proposed about four school days ahead**.
 
-- Only school days count: weekends, public holidays and school breaks do not. A phase starting on Friday at 13:00 ends on Monday at 13:00 (you can still answer during the weekend).
-- Each phase starts when its email reaches your group: during its classes or, if it is sent outside them, at the start of the next ones.
+How the hours count is decided by the centre, and the form explains it to you:
+
+- Usually they are **real hours**, but the days your group has no class (weekends, public holidays and school breaks) count nothing: a phase starting on Friday at 9:00 ends on Monday at 9:00 (you can still answer during the weekend).
+- The count starts **when you propose it**, and the emails leave at once, or **when the email reaches your group**: during its classes or, if it is sent outside them, at the start of the next ones.
+- The centre can also count only your group's **class hours**: then the calendar is longer.
 - The vote ends early once the votes still to come can no longer change the result.
 
-The form shows you the exact calendar and the first day the walkout can be on before you send it.
+The form shows you the exact calendar, what the hours count and the first day the walkout can be on before you send it.
 
 ---
 

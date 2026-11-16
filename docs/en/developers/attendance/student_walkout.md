@@ -29,7 +29,7 @@ disciplinary record (Coexistence → Strikes). Catalan and Spanish say "vaga"/"h
 **Module files:** `models/attendance/student_walkout.py` (`ems.student_walkout`, its lines, the
 rejection reasons and the reject wizard), `models/attendance/student_walkout_partner.py` (the
 `res.partner` portal helpers), `models/contacts/group.py` (`_ems_walkout_allowed`,
-`_ems_school_send_time`), `models/shared/datetime_utils.py` (school hours),
+`_ems_class_windows`, `_ems_school_send_time`), `models/shared/datetime_utils.py` (counting hours over school days),
 `models/curriculum/level.py` (which levels may propose one), `models/settings/company.py` (the calendar settings),
 `controllers/portal_student_walkout.py`, `views/portal/portal_student_walkout.xml`,
 `views/attendance/student_walkout/`, `views/settings/walkout_levels.xml`,
@@ -39,39 +39,79 @@ rejection reasons and the reject wizard), `models/attendance/student_walkout_par
 
 ## The calendar
 
-Counted in **school hours**: every hour of a school day (a weekday that is no public holiday nor
-school break, `resource.calendar.leaves._ems_school_days`, the same set the ex officio
-withdrawal and the Erasmus+ deadlines count with), the night included, and no hour of a
-weekend, holiday or break. 24 school hours from a Friday at 13:00 end on the Monday at 13:00
-(`ems.datetime_utils.ems_add_school_hours()` / `ems_school_hours_between()`, on the centre's wall
-clock). Not Odoo's `resource.calendar.plan_hours()`: it counts the working hours of a schedule (a
-teacher's classes, say), while a school hour here is any hour of a school day, the night included,
-and only public holidays and school breaks are taken out. Two settings (Settings → *Student Walkout Settings* → *Calendar*, `res.company`) set it,
-and each proposal keeps the values it was made with (`phase_hours`, `notice_hours`):
+Each phase (the group vote, then the joining) lasts `phase_hours`, and the Head of Studies must get
+the minute at least `notice_hours` before the walkout's 00:00. How those hours are counted is set in
+Settings → *Student Walkout Settings* → *Calendar* (`res.company`, issue #828), and each proposal
+keeps the values it was made with (stored on the proposal):
 
-| Setting | Default | Meaning |
-|---------|---------|---------|
-| `walkout_phase_hours` | 24 | How long the group vote lasts, and then the joining |
-| `walkout_notice_hours` | 48 | How long before the walkout (its 00:00) the Head of Studies gets the minute |
+| Setting (`res.company`) | Proposal field | Default | Meaning |
+|---------|---------|---------|---------|
+| `walkout_phase_hours` | `phase_hours` | 24 | How long the group vote lasts, and then the joining |
+| `walkout_notice_hours` | `notice_hours` | 48 | How long before the walkout (its 00:00) the Head of Studies gets the minute |
+| `walkout_hours_kind` | `hours_kind` | `real` | `real`: 60 real minutes, any time of the day. `school`: only the group's class hours |
+| `walkout_count_from` | `count_from` | `email` (upgrade), `proposal` (new installation) | Real hours only. `proposal`: from the moment of the proposal, emails sent at once. `email`: when the group receives the email within its schedule |
+| `walkout_count_days_off` | `count_days_off` | off | Real hours only. On: the days the group has no class (weekends, public holidays, school breaks) count like any other |
+
+The `walkout_count_from` field default (`email`) is today's behaviour, so an installation upgrading
+into this version keeps it with no migration; `post_init_hook` sets `proposal` on a new installation
+(the same pattern as `strike_family_notification_mode`). Proposals opened before issue #828 got the
+column defaults (`real`, `email`, off), i.e. the count they were made with.
+
+What each combination counts (`_ems_add_hours()` / `_ems_hours_between()`, both reading a **plan**
+built once per calendar by `_ems_plan(groups, rule)`: the rule, each group's class windows and their
+union):
+
+| Kind | Days without class | Count | Function |
+|------|------|------|------|
+| Real | not counted (default) | every hour of a school day, the night included, none of a weekend, public holiday or school break: 24 hours from a Friday 13:00 end on Monday 13:00 | `ems.datetime_utils.ems_add_school_hours()` / `ems_school_hours_between()` with no windows |
+| Real | counted | plain clock time: 24 hours from a Friday 9:00 end on Saturday 9:00 | `moment + timedelta(hours=...)` |
+| School | (never) | only the group's class hours on school days: with class from 8:00 to 15:00, 24 hours from Monday 9:00 end on Thursday 12:00 | the same functions with `windows` = the groups' class windows |
+
+A school day is a weekday that is no public holiday nor school break
+(`resource.calendar.leaves._ems_school_days`, the same set the ex officio withdrawal and the
+Erasmus+ deadlines count with), always counted on the centre's wall clock. A group's class windows
+(`ems.group._ems_class_windows()`) are, per weekday, from its first class to its last one in its
+schedule (`resource.calendar.attendance.group_ids`), the union for the halves of a split group; a
+group with no schedule counts every hour of its school days even with school hours. Not Odoo's
+`resource.calendar.plan_hours()`: it counts the working hours of one `resource.calendar` with its
+own leaves, while this needs the union of several groups' slots, the centre's school days and, for
+the default, every hour of a school day (the night included), which no calendar describes.
 
 | Phase | State | From | Until |
 |-------|-------|------|-------|
-| The group votes whether it supports it | `voting` | `vote_start`: when the email reaches the group | `vote_until` = `vote_start` + phase, or earlier once the result is decided |
-| Each student says whether they join | `joining` | `join_start`: when the result email reaches the group | `join_until` = `join_start` + phase |
+| The group votes whether it supports it | `voting` | `vote_start`: the proposal, or when the email reaches the group | `vote_until` = `vote_start` + phase, or earlier once the result is decided |
+| Each student says whether they join | `joining` | `join_start`: the vote's end, or when the result email reaches the group | `join_until` = `join_start` + phase |
 | The minute goes to the Head of Studies | `closed` | `join_until` (or the vote's end, if not supported) | — |
 
-**A phase starts when its email reaches the students** (`_ems_send_moment`: now during the group's
-classes, otherwise the start of its next ones, the latest of a split group's halves; see "Student
-emails during school hours" below). A vote proposed on Friday at 20:00 runs from Monday 8:00 to
-Tuesday 8:00. The portal lets students answer before the start too (e.g. over the weekend):
-`_ems_phase_open()` only checks the end.
+**When a phase starts** (`_ems_phase` → `_ems_send_moment(plan, moment)`). With real hours counted
+from the proposal (`_ems_sends_at_once()`), at that very moment, and every email of the proposal to
+the students and the tutor leaves at once, whatever the time: the one exception to "Student emails
+during school hours" below. Otherwise, when its email reaches the students: now during the group's
+classes, otherwise the start of its next ones (`ems.datetime_utils.ems_class_send_moment()`, the
+latest of a split group's halves). A vote proposed on Friday at 20:00 then runs from Monday 8:00 to
+Tuesday 8:00. With school hours that is the same as counting from the proposal, since no hour counts
+before the first class. The portal lets students answer before the start too (e.g. over the
+weekend): `_ems_phase_open()` only checks the end.
 
 **Notice.** When opening, `_ems_projected_calendar()` works out the worst case (the vote taking its
-whole phase) and `_ems_check_request_date()` requires at least `notice_hours` school hours from that
-`join_until` to the walkout's 00:00, and the walkout day to be a school day. With the defaults, a
-proposal made on Monday at 10:00 votes until Tuesday 10:00, joins until Wednesday 10:00, and its first
-possible walkout day is the next Monday (Friday would only give 38 school hours). The portal form
-shows that calendar and the first possible day (`_ems_first_walkout_day()`) before sending.
+whole phase) and `_ems_check_request_date()` requires at least `notice_hours`, counted in the same
+way as the phases, from that `join_until` to the walkout's 00:00, and the walkout day to be a school
+day. With phases of 24 hours, 48 of notice and today's count (real hours from the email), a proposal
+made on Monday at 10:00 votes until Tuesday 10:00, joins until Wednesday 10:00, and its first
+possible walkout day is the next Monday (Friday would only give 38 hours). With 24 hours of notice
+and real hours from the proposal, a proposal made on Monday at any time can be for Friday. The
+portal form shows that calendar, the first possible day (`_ems_first_walkout_day()`) and what the
+count means (`_ems_count_description(rule)`, also in the "too late" error) before sending.
+
+**The example in the settings** (`res.config.settings.walkout_calendar_example` →
+`_ems_sample_html()`). A read-only text that changes with every control, before saving: a sample
+group with class from 8:00 to 15:00, Monday to Friday, proposing on the next Friday at 17:00 (after
+its classes, so that every combination gives a different calendar), with when its vote ends, when
+the joining ends (the latest the minute reaches the Head of Studies) and the first possible walkout
+day, plus `_ems_count_description()`. `_ems_sample_calendar()` runs the very same `_ems_plan` /
+`_ems_projected_calendar` / `_ems_first_walkout_day` as a real proposal; only the class windows and
+the school days (every weekday, so the example never depends on this year's holidays) are the
+sample's, passed in the plan (`group_windows`, `school_days`).
 
 **The vote ends early** (`_ems_vote_decided()`, after each vote) once the votes still to come cannot
 change the result: everybody voted, more yes than no plus the votes to come, or yes plus the votes
@@ -107,6 +147,7 @@ erDiagram
 | `course_id` | `Many2one → ems.course` | The current course when proposed |
 | `walkout_date` / `walkout_start` | `Date` / `Datetime` (computed) | The walkout day (the only date the delegate gives), and its 00:00 in the centre |
 | `phase_hours` / `notice_hours` | `Integer` | The settings when it was opened |
+| `hours_kind` / `count_from` / `count_days_off` | `Selection` / `Selection` / `Boolean` | How its hours are counted, from the settings when it was opened (issue #828) |
 | `vote_start` / `vote_until` / `join_start` / `join_until` | `Datetime` | The calendar above; the joining ones once it starts |
 | `notes` | `Text` | The reason the delegate gives (why the walkout is called), labelled "Reason"; required to propose it |
 | `attachment_ids` | `Many2many → ir.attachment` | The union's call: at least one file |
@@ -204,7 +245,7 @@ flowchart TD
   each student with portal access gets `email_template_student_walkout_call`, and the tutor a copy.
 - **Tutor's copy** (`_ems_mail_tutors(event)`): `email_template_student_walkout_tutor`, one template
   whose text depends on `ctx['walkout_event']` (`call`, `join`, `closed`, `validated`, `rejected`),
-  scheduled for when the group's email reaches it. To the users of `group_ids.tutor_id` (co-tutors
+  scheduled for when the group's email reaches it (at once when counting from the proposal). To the users of `group_ids.tutor_id` (co-tutors
   of a split group too; `_ems_tutor_users`); with no tutor, to the Head of Studies. An email, not a
   daily-summary notice: a phase lasts one school day and the tutor must be able to act within it.
 - **Group vote** (`_ems_portal_vote(partner, group_vote)`): once per student, yes/no/abstain. When
@@ -257,7 +298,8 @@ flowchart TD
   `email_template_student_walkout_family`, and the tutor a copy.
 - **Student emails during school hours.** Every email to students goes through
   `_ems_mail_students`, which sets `mail.mail.scheduled_date` (Odoo's own mail queue sends it then)
-  to `ems.group._ems_school_send_time()` of the student's main group: now during its classes,
+  to `ems.group._ems_school_send_time()` of the student's main group (unless the proposal counts
+  real hours from the proposal, see "When a phase starts"): now during its classes,
   otherwise the start of its next classes, skipping weekends, public holidays and school breaks
   (`resource.calendar.leaves._ems_holiday_dates`). The group's day is from its first to its last
   class of that weekday in its schedule (`resource.calendar.attendance.group_ids`): one search per

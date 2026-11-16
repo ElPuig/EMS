@@ -93,6 +93,7 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
             'calendar': {key: Walkout.format_local_datetime(value) if key.endswith(('_start', '_until')) else value
                          for key, value in calendar.items()},
             'first_day': fields.Date.to_string(Walkout._ems_first_walkout_day(calendar)),
+            'count_description': Walkout._ems_count_description(calendar['plan']['rule']),
         }, **kwargs)
 
     @http.route(f'{WALKOUTS}/nova', type='http', auth='user', methods=['POST'], website=True)

@@ -14,7 +14,7 @@ No hay que confundirla con los **Strikes** (Convivencia), el registro disciplina
 
 - **Nada cuando se hace una propuesta**: vela por ella el tutor.
 - **Un aviso en tu resumen diario** cuando un tutor (o alguien por encima de él) aborta una propuesta, con el motivo.
-- **El acta, por correo**, cuando la propuesta se cierra: como mínimo 48 horas lectivas antes de la huelga (por defecto), con el recuento de votos y los alumnos que se suman. Si hay que justificar la falta de alguien, también recibes la tarea **Justificar la huelga de estudiantes**.
+- **El acta, por correo**, cuando la propuesta se cierra: como mínimo 48 horas antes de la huelga (por defecto), con el recuento de votos y los alumnos que se suman. Si hay que justificar la falta de alguien, también recibes la tarea **Justificar la huelga de estudiantes**.
 
 El acta llega al jefe de estudios o al jefe de estudios adjunto por encima del tutor del grupo; la de un grupo sin tutor, a todos los jefes de estudios y jefes de estudios adjuntos.
 
@@ -39,7 +39,14 @@ Los motivos salen de **Asistencia de los estudiantes > Configuración > Huelgas 
 Un administrador la define en **Ajustes > Huelgas de estudiantes**:
 
 - **Niveles y cursos**: qué niveles (y, si hace falta, qué cursos) pueden proponer apoyar una huelga. Por defecto, a partir de 3.º de ESO, bachillerato y formación profesional.
-- **Calendario**: cuánto dura cada fase y con cuánta antelación debes recibir el acta antes de la huelga, en horas lectivas (24 y 48 por defecto). Cada propuesta mantiene los valores con los que se hizo.
+- **Calendario**: cuánto dura cada fase y con cuánta antelación debes recibir el acta antes de la huelga (24 y 48 horas por defecto), y cómo se cuentan esas horas:
+  - **Tipo de horas**: **horas reales** (cualquier hora del día) u **horas lectivas** (solo las horas que el grupo está en clase, según su horario; el calendario se alarga mucho).
+  - **El recuento empieza** (solo con horas reales): **desde el momento de la propuesta** (los correos al grupo y al tutor salen enseguida, sea la hora que sea) o **cuando el grupo recibe el correo dentro de su horario**.
+  - **Contar los días que el grupo no tiene clase** (solo con horas reales, desactivado por defecto): desactivado, los fines de semana, los festivos y las vacaciones no cuentan (24 horas desde el viernes a las 9:00 acaban el lunes a las 9:00); activado, cuentan como cualquier otro día (acaban el sábado a las 9:00).
+
+  Bajo los controles, un **ejemplo** muestra, antes de guardar, cuándo acabarían la votación y la adhesión de una propuesta de muestra y el primer día posible de la huelga con los valores de la pantalla. Cada propuesta mantiene los valores con los que se hizo.
+
+![Configuración del calendario de las huelgas de estudiantes, con el ejemplo](../../assets/head_of_studies/hos-walkout-calendar-settings.png)
 
 ---
 

@@ -41,3 +41,7 @@ class TestStudentWalkoutTour(HttpCase):
         self.start_tour("/odoo", "ems_student_walkout_levels", login=settings_admin.login)
         self.assertEqual(self.level.walkout_course_from, 2)
 
+    def test_settings_admin_sees_the_calendar_example(self):
+        """Issue #828: the count's controls and their example, in Settings."""
+        settings_admin = create_role_user(self, 'settings_admin', 'test_walkout_tour_calendar_admin')
+        self.start_tour("/odoo", "ems_student_walkout_calendar", login=settings_admin.login)

@@ -60,13 +60,13 @@
                         </div>
                     </div>
                     <div class="alert alert-info o_ems_walkout_calendar">
-                        <p class="mb-1"><i class="fa fa-calendar me-1"/> <strong>Calendar if you propose it now</strong> (only school days count: weekends, public holidays and school breaks do not):</p>
+                        <p class="mb-1"><i class="fa fa-calendar me-1"/> <strong>Calendar if you propose it now</strong>:</p>
                         <ul class="mb-1">
-                            <li>Your group votes whether it supports the walkout from <strong t-esc="calendar['vote_start']"/> to <strong t-esc="calendar['vote_until']"/>, <t t-esc="calendar['phase_hours']"/> school hours. It ends earlier if the votes still to come can no longer change the result.</li>
-                            <li>If it supports it, each student says whether they join, <t t-esc="calendar['phase_hours']"/> more school hours: until <strong t-esc="calendar['join_until']"/> at the latest.</li>
-                            <li>Then the Head of Studies gets the minute, at least <t t-esc="calendar['notice_hours']"/> school hours before the walkout.</li>
+                            <li>Your group votes whether it supports the walkout from <strong t-esc="calendar['vote_start']"/> to <strong t-esc="calendar['vote_until']"/>, <t t-esc="calendar['phase_hours']"/> hours. It ends earlier if the votes still to come can no longer change the result.</li>
+                            <li>If it supports it, each student says whether they join, <t t-esc="calendar['phase_hours']"/> more hours: until <strong t-esc="calendar['join_until']"/> at the latest.</li>
+                            <li>Then the Head of Studies gets the minute, at least <t t-esc="calendar['notice_hours']"/> hours before the walkout.</li>
                         </ul>
-                        <p class="mb-0 small">A phase starts when the email reaches your group: during its classes, or at the start of the next ones.</p>
+                        <p class="mb-0 small o_ems_walkout_count" t-esc="count_description"/>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="union_call">Call of the students' union</label>

@@ -29,7 +29,13 @@ class ems_settings(models.TransientModel):
    strike_escalation_threshold = fields.Integer(related="company_id.strike_escalation_threshold", readonly=False)
    walkout_phase_hours = fields.Integer(related="company_id.walkout_phase_hours", readonly=False)
    walkout_notice_hours = fields.Integer(related="company_id.walkout_notice_hours", readonly=False)
-   walkout_lead_hours = fields.Integer(string="Student walkout lead time (school hours)", compute="_compute_walkout_lead_hours")
+   walkout_hours_kind = fields.Selection(related="company_id.walkout_hours_kind", readonly=False)
+   walkout_count_from = fields.Selection(related="company_id.walkout_count_from", readonly=False)
+   walkout_count_days_off = fields.Boolean(related="company_id.walkout_count_days_off", readonly=False)
+   # Issue #828: a sample call with the values on screen, computed with the real calendar's functions.
+   # Built from escaped text and fixed markup only (ems.student_walkout._ems_sample_html).
+   walkout_calendar_example = fields.Html(string="Student walkout calendar example",
+                                          compute="_compute_walkout_calendar_example", sanitize=False)
    walkout_level_count = fields.Integer(compute="_compute_walkout_level_count")
    strike_duplicate_window = fields.Integer(related="company_id.strike_duplicate_window", readonly=False)
    strike_family_notification_mode = fields.Selection(related="company_id.strike_family_notification_mode", readonly=False)
@@ -125,11 +131,19 @@ class ems_settings(models.TransientModel):
    # also wrap it in a <p> and push it out of line).
    ems_version_message = fields.Html(string="Version check", compute="_compute_ems_version_status", sanitize=False)
 
-   @api.depends('walkout_phase_hours', 'walkout_notice_hours')
-   def _compute_walkout_lead_hours(self):
+   @api.depends('walkout_phase_hours', 'walkout_notice_hours', 'walkout_hours_kind', 'walkout_count_from',
+                'walkout_count_days_off')
+   def _compute_walkout_calendar_example(self):
+      Walkout = self.env['ems.student_walkout']
       for settings in self:
-         settings.walkout_lead_hours = 2 * settings.walkout_phase_hours + settings.walkout_notice_hours
+         settings.walkout_calendar_example = Walkout._ems_sample_html({
+            'hours_kind': settings.walkout_hours_kind, 'count_from': settings.walkout_count_from,
+            'count_days_off': settings.walkout_count_days_off,
+         }, settings.walkout_phase_hours, settings.walkout_notice_hours)
 
+   # Like base_setup's language_count: a compute with no dependency is never computed for the new
+   # record the settings form opens (onchange), so the count showed 0 whatever the levels said.
+   @api.depends('company_id')
    def _compute_walkout_level_count(self):
       count = self.env['ems.level'].search_count([('walkout_allowed', '=', True)])
       for settings in self:

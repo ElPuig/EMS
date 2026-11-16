@@ -24,6 +24,8 @@ Recibes un correo, a la vez que tu grupo, cada vez que pasa algo:
 
 Si eres tutor de un grupo desdoblado, se avisa a cada cotutor. Un grupo sin tutor lo recibe el jefe de estudios y el jefe de estudios adjunto.
 
+Los correos te llegan cuando llegan a tu grupo: enseguida si el centro cuenta las horas desde el momento de la propuesta (sea la hora que sea) y, si no, durante las clases del grupo o al inicio de las siguientes.
+
 ---
 
 ## Consultar una propuesta

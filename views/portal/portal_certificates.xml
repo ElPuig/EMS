@@ -28,8 +28,13 @@
             </div>
             <div class="col-md-6 mb-3">
                 <label class="form-label" for="certificate_fct_school_year">School year of the training <span class="text-danger">*</span></label>
+                <!-- One of the courses EMS has, or any other written by hand (an older year). -->
                 <input id="certificate_fct_school_year" type="text" name="fct_school_year" class="form-control" required="required"
-                       maxlength="20" placeholder="2024-2025" t-att-value="defaults.get('fct_school_year')"/>
+                       maxlength="20" placeholder="2024-2025" list="certificate_courses" autocomplete="off"
+                       t-att-value="defaults.get('fct_school_year')"/>
+                <datalist id="certificate_courses">
+                    <option t-foreach="courses or []" t-as="course_name" t-att-value="course_name"/>
+                </datalist>
             </div>
         </div>
 
@@ -47,15 +52,18 @@
             </div>
             <div class="col-md-4 mb-3">
                 <label class="form-label" for="certificate_period_start">From</label>
-                <input id="certificate_period_start" type="date" name="period_start" class="form-control"/>
+                <input id="certificate_period_start" type="date" name="period_start" class="form-control"
+                       t-att-value="defaults.get('period_start') or ''"/>
             </div>
             <div class="col-md-4 mb-3">
                 <label class="form-label" for="certificate_period_end">To</label>
-                <input id="certificate_period_end" type="date" name="period_end" class="form-control"/>
+                <input id="certificate_period_end" type="date" name="period_end" class="form-control"
+                       t-att-value="defaults.get('period_end') or ''"/>
             </div>
             <div class="col-md-4 mb-3">
                 <label class="form-label" for="certificate_hours">Hours</label>
-                <input id="certificate_hours" type="number" min="0" name="hours" class="form-control"/>
+                <input id="certificate_hours" type="number" min="0" name="hours" class="form-control"
+                       t-att-value="defaults.get('hours') or ''"/>
             </div>
             <div class="col-md-6 mb-3">
                 <label class="form-label" for="certificate_agreement_reference">Agreement registration number (sBID)</label>
@@ -255,6 +263,9 @@
                 <div t-if="submitted" class="alert alert-success mb-3 o_ems_certificate_submitted">
                     <i class="fa fa-check-circle me-1"/> Your request has been submitted. You will receive the certificate by email.
                 </div>
+                <div t-if="updated" class="alert alert-success mb-3 o_ems_certificate_updated">
+                    <i class="fa fa-check-circle me-1"/> Your changes have been saved.
+                </div>
                 <div t-if="replied" class="alert alert-success mb-3 o_ems_certificate_replied">
                     <i class="fa fa-check-circle me-1"/> Your answer has been added to the request.
                 </div>
@@ -265,15 +276,23 @@
                     <i class="fa fa-exclamation-triangle me-1"/> Write an answer or attach a document before sending.
                 </div>
 
-                <!-- A former student's form, sent by the secretariat. -->
-                <div t-if="certificate.state == 'draft'" class="card shadow-sm mb-4 o_ems_certificate_form">
+                <t t-if="certificate.state != 'draft'" t-call="ems.portal_certificate_summary"/>
+
+                <!-- The applicant's form: a former student's, sent by the secretariat, and, once the
+                     request is in its circuit, open to complete or correct until the centre changes
+                     or acts on it (ems.certificate._ems_portal_can_edit). -->
+                <div t-if="certificate._ems_portal_can_edit()" class="card shadow-sm mb-4 o_ems_certificate_form">
                     <div class="card-body">
+                        <p t-if="certificate.state != 'draft'" class="small mb-2 o_ems_certificate_form_open">
+                            <i class="fa fa-pencil me-1"/> You can still complete or correct your details and documents until the centre starts working on your request.
+                        </p>
                         <p t-if="certificate.type_id.description" class="small text-muted" t-esc="certificate.type_id.description"/>
                         <form t-attf-action="/my/certificats/#{certificate.id}/submit?access_token=#{access_token}" method="post"
                               enctype="multipart/form-data" class="ems-loading-form">
                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                             <t t-call="ems.portal_certificate_fields"/>
-                            <button type="submit" class="btn btn-primary">Submit request</button>
+                            <button t-if="certificate.state == 'draft'" type="submit" class="btn btn-primary">Submit request</button>
+                            <button t-else="" type="submit" class="btn btn-primary">Save changes</button>
                         </form>
                     </div>
                 </div>
@@ -292,8 +311,6 @@
                         </form>
                     </div>
                 </div>
-
-                <t t-if="certificate.state != 'draft'" t-call="ems.portal_certificate_summary"/>
 
                 <p t-if="certificate.state == 'in_progress'" class="text-muted">
                     <i class="fa fa-hourglass-half me-1"/> The centre is processing your request. You will receive the certificate by email.

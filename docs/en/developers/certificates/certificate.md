@@ -25,7 +25,8 @@ How a request starts:
   study's level is one of the type's levels.
 - **Former students** have no portal (the course transition revokes it). The secretariat registers
   the request in the backend (the contact if they are in EMS; otherwise just their full name and
-  email, no contact needed) and presses **Send form**: the applicant gets an email with a link
+  email, no contact needed) and presses **Send form**. If the secretariat already wrote every
+  mandatory detail, sending the form also hands the request to the first step. Either way the applicant gets an email with a link
   carrying an access token (`portal.mixin`, `/my/certificats/<id>?access_token=...`) to the same form,
   no login needed. The same link later shows how far the request has got and downloads the
   certificate.
@@ -126,7 +127,7 @@ Constraints (`_check_steps` on the type): at least one step, exactly one `issue`
 | `student_id`, `requester_id` | M2o `res.partner` | The student (or former student) in EMS, and who filed it on the portal. Optional: a former student who is not in EMS is opened with only their full name (`student_name`) and email (`_check_applicant`), and fills in the rest in the form. |
 | `origin` | Selection | `portal` or `secretariat`. |
 | `applicant_email` | Char | Where a former student's form link, requests for documentation and the certificate go. Portal requests use `student_id._ems_informed_recipients()`. |
-| `student_name`, `student_document`, `study_id`, `fct_school_year` | Char, Char, M2o, Char | The applicant's details, mandatory on submission. Prefilled from the contact when known. |
+| `student_name`, `student_document`, `study_id`, `fct_school_year` | Char, Char, M2o, Char | The applicant's details, mandatory on submission. Prefilled from the contact when known. `study_id` must belong to one of the type's levels (`_check_study_level`; the form and the portal only offer those). On the portal, `fct_school_year` suggests the courses EMS has (a datalist) but takes any text, for older years. |
 | `training_company_id` | M2o `res.partner` | Collaborating company (`contact_type = 'company'`). Required by the `complete` step and after. |
 | `company_name`, `company_vat` | Char | What the applicant wrote, kept as text: the form never creates contacts. **Create company** (`action_create_company`) creates one from them. |
 | `period_start`, `period_end`, `hours`, `agreement_reference` | Date, Date, Integer, Char | The workplace training; the first three required by the `complete` step. |
@@ -134,6 +135,7 @@ Constraints (`_check_steps` on the type): at least one step, exactly one `issue`
 | `other_attachment_ids` | M2m `ir.attachment` | Optional documentation, anyone taking part. Never appended. |
 | `stamp_ids` | O2m `ems.certificate.stamp` | One per finished step: step, action, user, date. The PDF prints those of `issue` and `approve` steps. |
 | `certificate_pdf_id` | M2o `ir.attachment` | The final PDF. |
+| `applicant_form_open` | Boolean | The applicant may still edit their form from the link: set when the form is sent or the portal request filed, cleared as soon as someone of the centre writes the request (or one of its documents) or acts on it (step done, return, request documentation, reject, cancel). `_ems_portal_can_edit()`: in draft, or in progress with this flag. While open, the portal shows the form with **Save changes** (`_ems_portal_fill` updates and leaves a note). |
 | `info_request`, `return_reason`, `reject_reason`, `cancel_reason` | Text | Last request for documentation, the last return to the previous step, why it was rejected or cancelled. |
 | `step_user_ids` | M2m `res.users`, computed, searchable | Holders of the current step's role. `is_pending_for_me` (searchable) = the current user is one of them, or is the administrator and the request is in progress. `can_act` = may press the step's button. `can_manage` = may reject, cancel or mark the documentation received: the secretariat (and the administrator) or a holder of the current step. The form only offers each button to whoever can use it. |
 

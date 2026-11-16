@@ -53816,6 +53816,7 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_certificate_type__level_ids
+#: model:ir.model.fields,help:ems.field_ems_certificate__type_level_ids
 msgid ""
 "Current students of these levels may request it from the portal. Leave it "
 "empty to register its requests from the backend only."
@@ -53882,15 +53883,6 @@ msgstr "EMS: Certificado, formulario de solicitud"
 #: model:ir.module.category,description:ems.category_vet
 msgid "Educational Management System - Vocational training coordination"
 msgstr "Sistema de Gestión Educativa - Coordinación de formación profesional"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
-msgid ""
-"Email the applicant the link to the request form, where they fill in their "
-"details (no login needed)."
-msgstr ""
-"Envía por correo a la persona solicitante el enlace al formulario, donde "
-"rellena sus datos (sin iniciar sesión)."
 
 #. module: ems
 #: model:ems.certificate.type,name:ems.certificate_type_fct
@@ -53974,6 +53966,7 @@ msgstr "Curso de expedición"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type__level_ids
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__type_level_ids
 msgid "Levels that may request it"
 msgstr "Niveles que pueden pedirlo"
 
@@ -54781,3 +54774,64 @@ msgstr "Rellenar la solicitud"
 #: model_terms:ir.ui.view,arch_db:ems.mail_layout_certificate
 msgid "Open my request"
 msgstr "Ver la solicitud"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "%(study)s is not a study of the levels of %(type)s."
+msgstr "%(study)s no es un estudio de los niveles de %(type)s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+msgid "<i class=\"fa fa-check-circle me-1\"/> Your changes have been saved."
+msgstr "<i class=\"fa fa-check-circle me-1\"/> Se han guardado tus cambios."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+msgid ""
+"<i class=\"fa fa-pencil me-1\"/> You can still complete or correct your "
+"details and documents until the centre starts working on your request."
+msgstr ""
+"<i class=\"fa fa-pencil me-1\"/> Todavía puedes completar o corregir tus "
+"datos y documentos hasta que el centro empiece a trabajar en tu solicitud."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"Email the applicant the link to the request form (no login needed). If their"
+" mandatory details are already filled in, the request also goes on to its "
+"first step, and the applicant may still complete them until the centre acts "
+"on it."
+msgstr ""
+"Envía por correo a la persona solicitante el enlace al formulario (sin "
+"iniciar sesión). Si sus datos obligatorios ya están rellenados, la solicitud"
+" pasa también a su primer paso, y la persona solicitante aún puede "
+"completarlos hasta que el centro actúe sobre ella."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__applicant_form_open
+msgid ""
+"From the moment the form is sent (or the portal request filed) until someone"
+" of the centre changes or acts on the request: meanwhile the applicant may "
+"complete or correct their details and documents from the link."
+msgstr ""
+"Desde que se envía el formulario (o se presenta la solicitud en el portal) "
+"hasta que alguien del centro cambia o actúa sobre la solicitud: mientras "
+"tanto la persona solicitante puede completar o corregir sus datos y "
+"documentos desde el enlace."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+msgid "Save changes"
+msgstr "Guardar cambios"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__applicant_form_open
+msgid "The applicant can still edit their details"
+msgstr "La persona solicitante aún puede editar sus datos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "The applicant updated their details."
+msgstr "La persona solicitante ha actualizado sus datos."

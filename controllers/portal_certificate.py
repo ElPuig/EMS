@@ -46,11 +46,19 @@ class EmsPortalCertificateController(CustomerPortal):
         return certificate_type._ems_required_documents().filtered(lambda document: document._ems_applicant_may_upload())
 
     def _ems_certificate_studies(self, certificate_type, current_study):
-        """The studies to choose from: those of the type's levels, the student's own first."""
+        """The studies to choose from: those of the type's levels (any, for a type without levels),
+        the student's own first when it is one of them."""
         Study = request.env['ems.study'].sudo()
-        studies = Study.search([('level_id', 'in', certificate_type.level_ids.ids)]) \
-            if certificate_type.level_ids else Study.search([])
-        return current_study | studies
+        levels = certificate_type.level_ids
+        studies = Study.search([('level_id', 'in', levels.ids)]) if levels else Study.search([])
+        if current_study and (not levels or current_study.level_id in levels):
+            return current_study | studies
+        return studies
+
+    def _ems_certificate_courses(self):
+        """The courses EMS has, offered for the school year of the training; the applicant may
+        still write another one (an older year EMS never had)."""
+        return request.env['ems.course'].sudo().search([], order='start desc').mapped('name')
 
     def _ems_certificate_values(self, **extra):
         Certificate = request.env['ems.certificate'].sudo()
@@ -80,6 +88,7 @@ class EmsPortalCertificateController(CustomerPortal):
             types=types,
             defaults=defaults,
             studies=self._ems_certificate_studies(types[:1], current_study),
+            courses=self._ems_certificate_courses(),
             portal_documents=self._ems_certificate_portal_documents(types[:1]),
             certificates=Certificate.search([('student_id', '=', viewed.id)]),
             error=kwargs.get('error'),
@@ -98,7 +107,7 @@ class EmsPortalCertificateController(CustomerPortal):
         certificate_type = types.filtered(lambda t: str(t.id) == type_id) if type_id else types[:1]
         if not certificate_type:
             return request.redirect(self._certificate_redirect)
-        values, missing = Certificate._ems_parse_portal_form(post)
+        values, missing = Certificate._ems_parse_portal_form(post, certificate_type)
         if missing:
             return request.redirect(f'{self._certificate_redirect}?error=missing')
         certificate = Certificate.create({
@@ -106,6 +115,8 @@ class EmsPortalCertificateController(CustomerPortal):
             'student_id': student.id,
             'requester_id': request.env.user.partner_id.id,
             'origin': 'portal',
+            # The applicant may complete or correct it until the centre starts working on it.
+            'applicant_form_open': True,
             **values,
         })
         certificate._ems_portal_attach(self._ems_certificate_files())
@@ -133,12 +144,15 @@ class EmsPortalCertificateController(CustomerPortal):
             certificate=certificate,
             access_token=certificate.access_token,
             studies=self._ems_certificate_studies(certificate.type_id, current_study),
+            courses=self._ems_certificate_courses(),
             portal_documents=certificate._ems_portal_documents().type_document_id,
             defaults={name: certificate[name].id if name == 'study_id' else certificate[name]
                       for name in ('student_name', 'student_document', 'study_id', 'fct_school_year',
-                                   'company_name', 'company_vat', 'agreement_reference')},
+                                   'company_name', 'company_vat', 'agreement_reference', 'period_start',
+                                   'period_end', 'hours')},
             error=kwargs.get('error'),
             submitted=kwargs.get('submitted'),
+            updated=kwargs.get('updated'),
             replied=kwargs.get('replied'),
         ))
 
@@ -146,13 +160,16 @@ class EmsPortalCertificateController(CustomerPortal):
                 website=True)
     def portal_certificate_fill(self, certificate_id, access_token=None, **post):
         certificate = self._ems_certificate_access(certificate_id, access_token)
-        if certificate is None or certificate.state != 'draft':
+        if certificate is None:
             return request.redirect('/my')
+        if not certificate._ems_portal_can_edit():
+            return request.redirect(self._ems_certificate_url(certificate))
         values, missing = certificate._ems_parse_portal_form(post)
         if missing:
             return request.redirect(self._ems_certificate_url(certificate, 'error=missing'))
+        was_draft = certificate.state == 'draft'
         certificate._ems_portal_fill(values, self._ems_certificate_files())
-        return request.redirect(self._ems_certificate_url(certificate, 'submitted=1'))
+        return request.redirect(self._ems_certificate_url(certificate, 'submitted=1' if was_draft else 'updated=1'))
 
     @http.route('/my/certificats/<int:certificate_id>/reply', type='http', auth='public', methods=['POST'],
                 website=True)

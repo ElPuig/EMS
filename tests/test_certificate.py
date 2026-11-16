@@ -280,6 +280,44 @@ class TestCertificate(TransactionCase):
         self.assertEqual(certificate.state, 'issued')
         self.assertIn(('ems.email_template_certificate_issued', certificate.id, None), sent())
 
+    def test_send_form_with_every_detail_starts_the_circuit(self):
+        """The secretariat wrote every mandatory detail: sending the form also hands the request to
+        the first step, and the applicant may complete it until the centre changes or acts on it."""
+        sent = capture_template_emails(self)
+        certificate = self.env['ems.certificate'].with_user(self.secretary).create({
+            'type_id': self.certificate_type.id, 'student_name': 'Complete Former', 'student_document': 'Z1234567R',
+            'study_id': self.study.id, 'fct_school_year': '2020-2021', 'applicant_email': 'complete.former@example.com',
+        })
+        certificate.with_user(self.secretary).action_send_form()
+        self.assertIn(('ems.email_template_certificate_form', certificate.id, None), sent())
+        self.assertEqual((certificate.state, certificate.step_id), ('in_progress', self.steps[0]))
+        self.assertIn(self.coordinator, certificate.activity_ids.user_id)
+        self.assertTrue(certificate.applicant_form_open)
+
+        values, _missing = certificate._ems_parse_portal_form({
+            'student_name': 'Complete Former', 'student_document': 'Z1234567R', 'study_id': str(self.study.id),
+            'fct_school_year': '2020-2021', 'hours': '350', 'company_name': 'Written SL',
+        })
+        certificate.sudo()._ems_portal_fill(values, {})
+        self.assertEqual((certificate.state, certificate.step_id, certificate.hours), ('in_progress', self.steps[0], 350))
+        self.assertTrue(certificate._ems_portal_can_edit())
+
+        # The coordinator changes something: the applicant's form closes.
+        certificate.with_user(self.coordinator).write({'training_company_id': self.company.id})
+        self.assertFalse(certificate.applicant_form_open)
+        with self.assertRaises(UserError):
+            certificate.sudo()._ems_portal_fill(values, {})
+
+    def test_study_of_the_type_levels_only(self):
+        _level, other_study, _group = create_level_study_group(self, 'TCRX')
+        with self.assertRaises(ValidationError):
+            self._submitted(study_id=other_study.id)
+        values, missing = self.env['ems.certificate']._ems_parse_portal_form(
+            {'student_name': 'X', 'student_document': 'X', 'study_id': str(other_study.id), 'fct_school_year': 'X'},
+            self.certificate_type)
+        self.assertFalse(values['study_id'])
+        self.assertEqual(len(missing), 1, "A study outside the type's levels counts as not chosen.")
+
     def test_create_company_from_the_applicant(self):
         certificate = self._submitted(company_name='New Training Company', company_vat='B87654321')
         certificate.with_user(self.coordinator).action_create_company()

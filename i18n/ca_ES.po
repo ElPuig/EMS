@@ -53781,6 +53781,7 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_certificate_type__level_ids
+#: model:ir.model.fields,help:ems.field_ems_certificate__type_level_ids
 msgid ""
 "Current students of these levels may request it from the portal. Leave it "
 "empty to register its requests from the backend only."
@@ -53847,15 +53848,6 @@ msgstr "EMS: Certificat, formulari de sol·licitud"
 #: model:ir.module.category,description:ems.category_vet
 msgid "Educational Management System - Vocational training coordination"
 msgstr "Sistema de Gestió Educativa - Coordinació de formació professional"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
-msgid ""
-"Email the applicant the link to the request form, where they fill in their "
-"details (no login needed)."
-msgstr ""
-"Envia per correu a la persona sol·licitant l'enllaç al formulari, on omple "
-"les seves dades (sense iniciar sessió)."
 
 #. module: ems
 #: model:ems.certificate.type,name:ems.certificate_type_fct
@@ -53939,6 +53931,7 @@ msgstr "Curs d'expedició"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type__level_ids
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__type_level_ids
 msgid "Levels that may request it"
 msgstr "Nivells que el poden demanar"
 
@@ -54747,3 +54740,65 @@ msgstr "Omplir la sol·licitud"
 #: model_terms:ir.ui.view,arch_db:ems.mail_layout_certificate
 msgid "Open my request"
 msgstr "Veure la sol·licitud"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "%(study)s is not a study of the levels of %(type)s."
+msgstr "%(study)s no és un estudi dels nivells de %(type)s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+msgid "<i class=\"fa fa-check-circle me-1\"/> Your changes have been saved."
+msgstr "<i class=\"fa fa-check-circle me-1\"/> S'han desat els teus canvis."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+msgid ""
+"<i class=\"fa fa-pencil me-1\"/> You can still complete or correct your "
+"details and documents until the centre starts working on your request."
+msgstr ""
+"<i class=\"fa fa-pencil me-1\"/> Encara pots completar o corregir les teves "
+"dades i documents fins que el centre comenci a treballar en la teva "
+"sol·licitud."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"Email the applicant the link to the request form (no login needed). If their"
+" mandatory details are already filled in, the request also goes on to its "
+"first step, and the applicant may still complete them until the centre acts "
+"on it."
+msgstr ""
+"Envia per correu a la persona sol·licitant l'enllaç al formulari (sense "
+"iniciar sessió). Si les seves dades obligatòries ja estan omplertes, la "
+"sol·licitud passa també al primer pas, i la persona sol·licitant encara les "
+"pot completar fins que el centre hi actuï."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__applicant_form_open
+msgid ""
+"From the moment the form is sent (or the portal request filed) until someone"
+" of the centre changes or acts on the request: meanwhile the applicant may "
+"complete or correct their details and documents from the link."
+msgstr ""
+"Des que s'envia el formulari (o es presenta la sol·licitud al portal) fins "
+"que algú del centre canvia o actua sobre la sol·licitud: mentrestant la "
+"persona sol·licitant pot completar o corregir les seves dades i documents "
+"des de l'enllaç."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+msgid "Save changes"
+msgstr "Desar els canvis"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__applicant_form_open
+msgid "The applicant can still edit their details"
+msgstr "La persona sol·licitant encara pot editar les seves dades"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "The applicant updated their details."
+msgstr "La persona sol·licitant ha actualitzat les seves dades."

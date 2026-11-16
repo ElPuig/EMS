@@ -26,7 +26,8 @@ APPLICANT_OPTIONAL_FIELDS = ('company_name', 'company_vat', 'period_start', 'per
 COMPANY_REQUIRED_FIELDS = ('training_company_id', 'period_start', 'period_end', 'hours')
 
 # Written only by the circuit's own methods (with sudo).
-CIRCUIT_FIELDS = {'state', 'step_id', 'name', 'course_id', 'stamp_ids', 'certificate_pdf_id', 'origin'}
+CIRCUIT_FIELDS = {'state', 'step_id', 'name', 'course_id', 'stamp_ids', 'certificate_pdf_id', 'origin',
+                  'applicant_form_open'}
 
 # Files a document appended to the certificate may come as: a PDF, or photos/scans of its pages.
 ANNEX_IMAGE_MIMETYPES = ('image/jpeg', 'image/png')
@@ -81,6 +82,7 @@ class EmsCertificate(models.Model):
     student_name = fields.Char(string="Full name")
     student_document = fields.Char(string="Identity document", help="DNI, NIE or passport.")
     study_id = fields.Many2one(string="Study", comodel_name='ems.study', ondelete='restrict')
+    type_level_ids = fields.Many2many(related='type_id.level_ids')
     fct_school_year = fields.Char(string="School year of the training", help="E.g. 2024-2025.")
 
     # The workplace training.
@@ -100,6 +102,12 @@ class EmsCertificate(models.Model):
                                             column1='certificate_id', column2='attachment_id',
                                             help="Optional documents anyone taking part may attach. They are not "
                                                  "added to the certificate.")
+
+    applicant_form_open = fields.Boolean(
+        string="The applicant can still edit their details", readonly=True, copy=False,
+        help="From the moment the form is sent (or the portal request filed) until someone of the centre changes or "
+             "acts on the request: meanwhile the applicant may complete or correct their details and documents "
+             "from the link.")
 
     stamp_ids = fields.One2many(string="Stamps", comodel_name='ems.certificate.stamp', inverse_name='certificate_id',
                                 readonly=True, copy=False)
@@ -200,6 +208,15 @@ class EmsCertificate(models.Model):
             if certificate.origin == 'secretariat' and not certificate.student_id and not certificate.applicant_email:
                 raise ValidationError(_("Write the email of the former student: the request form is sent there."))
 
+    @api.constrains('type_id', 'study_id')
+    def _check_study_level(self):
+        """A type for some levels (FCT: CFGM and CFGS) certifies only studies of those levels."""
+        for certificate in self:
+            levels = certificate.type_id.level_ids
+            if levels and certificate.study_id and certificate.study_id.level_id not in levels:
+                raise ValidationError(_("%(study)s is not a study of the levels of %(type)s.",
+                                        study=certificate.study_id.name, type=certificate.type_id.name))
+
     @api.constrains('hours')
     def _check_hours(self):
         if any(certificate.hours < 0 for certificate in self):
@@ -245,12 +262,20 @@ class EmsCertificate(models.Model):
                 raise UserError(_("The state of a certificate request only changes through its buttons."))
             if self.filtered(lambda certificate: certificate.state not in ('draft',) + OPEN_STATES):
                 raise UserError(_("A certificate request that is closed cannot be changed."))
+            self._ems_close_applicant_form()
         res = super().write(vals)
         if 'type_id' in vals:
             self._ems_sync_documents()
         if 'other_attachment_ids' in vals:
             self._ems_link_other_attachments()
         return res
+
+    def _ems_close_applicant_form(self):
+        """Someone of the centre changes or acts on a request already in its circuit: from then on
+        the applicant only follows it, they can no longer edit their form."""
+        opened = self.filtered(lambda certificate: certificate.applicant_form_open and certificate.state != 'draft')
+        if opened:
+            super(EmsCertificate, opened.sudo()).write({'applicant_form_open': False})
 
     def _ems_link_other_attachments(self):
         for certificate in self:
@@ -360,6 +385,7 @@ class EmsCertificate(models.Model):
         self._ems_check_state(('in_progress',))
         self._ems_check_can_act()
         self._ems_check_step_data()
+        self._ems_close_applicant_form()
         today = fields.Date.context_today(self)
         for certificate in self:
             step = certificate.step_id
@@ -395,6 +421,7 @@ class EmsCertificate(models.Model):
         The certificate keeps its number if it already had one."""
         self._ems_check_state(('in_progress',))
         self._ems_check_can_act()
+        self._ems_close_applicant_form()
         for certificate in self:
             previous = certificate._ems_previous_step()
             if not previous:
@@ -411,6 +438,7 @@ class EmsCertificate(models.Model):
         answer and attach it. The request waits for them."""
         self._ems_check_state(('in_progress',))
         self._ems_check_can_act()
+        self._ems_close_applicant_form()
         self._ems_close_tasks()
         self.sudo().write({'state': 'documentation', 'info_request': message})
         for certificate in self:
@@ -438,7 +466,7 @@ class EmsCertificate(models.Model):
         self._ems_check_state(OPEN_STATES)
         self._ems_check_secretariat_or_step()
         self._ems_close_tasks()
-        self.sudo().write({'state': 'rejected', 'reject_reason': reason})
+        self.sudo().write({'state': 'rejected', 'reject_reason': reason, 'applicant_form_open': False})
         for certificate in self:
             certificate._ems_send('ems.email_template_certificate_rejected')
 
@@ -453,7 +481,7 @@ class EmsCertificate(models.Model):
             if not certificate._ems_is_cancellable():
                 raise UserError(_("An issued certificate cannot be cancelled: reject it instead."))
         self._ems_close_tasks()
-        self.sudo().write({'state': 'cancelled', 'cancel_reason': reason})
+        self.sudo().write({'state': 'cancelled', 'cancel_reason': reason, 'applicant_form_open': False})
         body = _("Request cancelled by %s.", self.env.user.name)
         for certificate in self:
             certificate._ems_post_note(Markup("<p>{}</p><p>{}</p>").format(body, reason) if reason else body)
@@ -493,13 +521,23 @@ class EmsCertificate(models.Model):
 
     def action_send_form(self):
         """Email a former student the link to the request form (portal.mixin's access token):
-        they fill in their details there, no login needed."""
+        they fill in their details there, no login needed. When the secretariat already wrote every
+        mandatory detail, the request also starts its circuit right away: the first step works on it
+        while the applicant may still complete or correct it from the link, until the centre
+        changes or acts on it (applicant_form_open)."""
         self._ems_check_state(('draft',))
         self._ems_check_secretariat()
         for certificate in self:
             if not certificate.applicant_email:
                 raise UserError(_("Fill in the applicant's email first."))
+        self.sudo().write({'applicant_form_open': True})
+        for certificate in self:
             certificate._ems_send('ems.email_template_certificate_form')
+        self.filtered(lambda certificate: certificate._ems_applicant_data_complete())._ems_submit()
+
+    def _ems_applicant_data_complete(self):
+        self.ensure_one()
+        return all(self[name] for name in APPLICANT_REQUIRED_FIELDS)
 
     def action_submit(self):
         """The secretariat fills in the details itself (e.g. a request on paper) and starts the
@@ -669,16 +707,18 @@ class EmsCertificate(models.Model):
         return self.env['ems.certificate.type'].sudo().search([('level_ids', 'in', level.ids)])
 
     @api.model
-    def _ems_parse_portal_form(self, post):
+    def _ems_parse_portal_form(self, post, certificate_type=None):
         """The applicant's form as field values: the text as written, dates and hours parsed, an
-        unknown study or a wrong date left out. Returns (values, missing required labels)."""
+        unknown study (or one outside the type's levels) or a wrong date left out. Returns
+        (values, missing required labels)."""
         values = {}
         for name in ('student_name', 'student_document', 'fct_school_year', 'company_name', 'company_vat',
                      'agreement_reference'):
             values[name] = (post.get(name) or '').strip() or False
         study = post.get('study_id')
-        values['study_id'] = int(study) if study and study.isdigit() \
-            and self.env['ems.study'].sudo().browse(int(study)).exists() else False
+        study = self.env['ems.study'].sudo().browse(int(study)).exists() if study and study.isdigit() else False
+        levels = (certificate_type or self.type_id).level_ids
+        values['study_id'] = study.id if study and (not levels or study.level_id in levels) else False
         for name in ('period_start', 'period_end'):
             try:
                 values[name] = fields.Date.to_date(post.get(name)) if post.get(name) else False
@@ -716,13 +756,25 @@ class EmsCertificate(models.Model):
             attached |= attachments
         return attached
 
-    def _ems_portal_fill(self, values, files):
-        """The form submitted from the token link: the details, the files, and the circuit starts."""
+    def _ems_portal_can_edit(self):
+        """Whether the applicant's form is still open: before the request starts, or afterwards
+        until the centre changes or acts on it."""
         self.ensure_one()
-        self._ems_check_state(('draft',))
+        return self.state == 'draft' or (self.state == 'in_progress' and self.applicant_form_open)
+
+    def _ems_portal_fill(self, values, files):
+        """The form submitted from the token link: the details and the files. A request still
+        waiting for it starts its circuit; one already in it (the form left open) is only
+        updated, and the staff are told in the chatter."""
+        self.ensure_one()
+        if not self._ems_portal_can_edit():
+            raise UserError(_("A certificate request that is closed cannot be changed."))
         self.sudo().write(values)
         self._ems_portal_attach(files)
-        self.sudo()._ems_submit()
+        if self.state == 'draft':
+            self.sudo()._ems_submit()
+        else:
+            self._ems_post_note(_("The applicant updated their details."))
 
     def _ems_portal_answer(self, message, files):
         """The applicant's answer to a request for documentation: back to the step it was on."""
@@ -793,6 +845,7 @@ class EmsCertificateDocument(models.Model):
         if not self.env.su:
             if set(vals) - {'attachment_ids'}:
                 raise UserError(_("Only the files of a required document can be changed."))
+            self.certificate_id._ems_close_applicant_form()
             for line in self:
                 if not line.can_upload:
                     raise AccessError(_("You cannot attach %(document)s: it is attached by %(who)s.",

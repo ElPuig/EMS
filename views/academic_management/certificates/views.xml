@@ -41,7 +41,7 @@
                             <button name="action_send_form" type="object" string="Send form" class="btn-primary"
                                     invisible="state != 'draft'"
                                     groups="ems.group_secretary,ems.group_academic_admin"
-                                    help="Email the applicant the link to the request form, where they fill in their details (no login needed)."/>
+                                    help="Email the applicant the link to the request form (no login needed). If their mandatory details are already filled in, the request also goes on to its first step, and the applicant may still complete them until the centre acts on it."/>
                             <button name="action_submit" type="object" string="Start the request"
                                     invisible="state != 'draft'"
                                     groups="ems.group_secretary,ems.group_academic_admin"
@@ -113,6 +113,7 @@
                             <group>
                                 <field name="origin"/>
                                 <field name="submission_date" invisible="not submission_date"/>
+                                <field name="applicant_form_open" invisible="not applicant_form_open"/>
                                 <field name="requester_id" invisible="not requester_id"/>
                                 <field name="course_id" invisible="not course_id"/>
                             </group>
@@ -124,7 +125,9 @@
                                         <field name="student_document" readonly="state not in ('draft', 'in_progress', 'documentation')"/>
                                     </group>
                                     <group>
+                                        <field name="type_level_ids" invisible="1"/>
                                         <field name="study_id" options="{'no_create': True}"
+                                               domain="[('level_id', 'in', type_level_ids)] if type_level_ids else []"
                                                readonly="state not in ('draft', 'in_progress', 'documentation')"/>
                                         <field name="fct_school_year" invisible="kind != 'fct'"
                                                readonly="state not in ('draft', 'in_progress', 'documentation')"/>

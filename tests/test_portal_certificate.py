@@ -24,7 +24,7 @@ class TestPortalCertificate(HttpCase):
             'groups_id': [(6, 0, [cls.env.ref('base.group_portal').id])],
         })
         # A student of a level no certificate type is offered to.
-        _level, _study, other_group = create_level_study_group(cls, 'TPCX')
+        _level, cls.other_study, other_group = create_level_study_group(cls, 'TPCX')
         cls.other_student = cls.env['res.partner'].create({
             'name': 'TPCX Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': other_group.id, 'birth_date': '2000-01-01',
@@ -51,6 +51,9 @@ class TestPortalCertificate(HttpCase):
         self.assertIn('o_ems_certificate_new', response.text)
         self.assertIn(self.study.name, response.text)
         self.assertIn('id="certificate_new_body" class="collapse "', response.text, "The form starts folded.")
+        self.assertNotIn(self.other_study.name, response.text, "Only studies of the type's levels are offered.")
+        self.assertIn(f'<option value="{self.env["ems.course"].search([], limit=1).name}"', response.text,
+                      "The courses EMS has are suggested for the school year.")
 
         response = self.url_open('/my/certificats/submit', data=self._form(student_document=''))
         self.assertIn('error=missing', response.url)

@@ -370,8 +370,13 @@ write path.
 ## Portal sign-in with Google
 
 A student's portal user has his **personal** email as login: it exists before the corporate
-account does (applicants, first-year students). He can also open that same user with his
-corporate account through the login page's "Sign in with Google" button (the
+account does (applicants, first-year students). When that email is also a family member's,
+the login with it is the family's, and the student's portal user has the **corporate** email as
+login instead, created once the Google account exists (issue #833, see "A student sharing the
+main email with the family" in the [portal access wizard](portal_access_wizard.md)): the
+account creation grants that waiting access (`_ems_grant_portal_with_corporate_email`). Either
+way he can also open that same user with his
+corporate account through the login page's "Log in with Google" button (the
 `auth_oauth.provider_google` provider staff already use). One user, two ways in: `auth_oauth`
 keeps password login working on a user that also has `oauth_uid` set.
 
@@ -389,7 +394,7 @@ flowchart TD
     E -- no --> D
     E -- yes --> F{"Google id free?\n(res.users._ems_link_google_signin)"}
     F -- no --> D
-    F -- yes --> G["write oauth_provider_id, oauth_uid,\noauth_access_token"] --> OK2["log in; login stays\nthe personal email"]
+    F -- yes --> G["write oauth_provider_id, oauth_uid,\noauth_access_token"] --> OK2["log in; the login\nis not changed"]
 ```
 
 - The email Google returns is trusted **only** when verified and inside the centre's own
@@ -399,7 +404,8 @@ flowchart TD
   single linking helper shared with the staff flow.
 - **A changed `student_email` unlinks Google sign-in** from the student's portal users
   (`res.partner.write()` in the same file): the stored `oauth_uid` points at the old Google
-  account. The next sign-in with the new address links again. A deleted account needs
+  account. The next sign-in with the new address links again. A student whose login is the
+  corporate email (shared main email) gets the new one as login too. A deleted account needs
   nothing: Google never reuses an account id, and a suspended or deleted account cannot sign
   in anyway, while the personal-email login keeps working.
 - A minor's own portal user signs in the same way. What he can do once inside is decided by

@@ -12,7 +12,9 @@ _logger = logging.getLogger(__name__)
 class ResUsersPortalGoogleSignin(models.Model):
     """Students sign into the portal with their corporate Google account as well as with
     their personal email and password. The portal user keeps its personal-email login (it
-    exists before the corporate account does); "Sign in with Google" is linked to it lazily,
+    exists before the corporate account does), except when that email is also the family's,
+    whose login it is: then the login is the corporate email (issue #833,
+    res.partner._ems_portal_login). "Sign in with Google" is linked to it lazily,
     on the first Google sign-in whose verified email is the student's student_email. auth_oauth
     keeps password login working on a linked user, so both ways in coexist on one account. See
     docs/en/developers/contacts/google_workspace_student.md."""
@@ -69,4 +71,7 @@ class ResPartnerPortalGoogleSignin(models.Model):
             changed.sudo().with_context(active_test=False).user_ids.filtered(
                 lambda user: user.share and user.oauth_provider_id == google
             ).write({'oauth_uid': False, 'oauth_provider_id': False, 'oauth_access_token': False})
+        # A student signing in with the corporate email as login (main email shared with the
+        # family, issue #833) follows its change.
+        changed.filtered(lambda partner: partner._ems_email_shared_with_family())._ems_sync_portal_login()
         return result

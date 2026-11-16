@@ -18,6 +18,7 @@ The portal is the space where students and families review and confirm the stude
 4. [Available actions](#available-actions)
 5. [The recipients preview](#the-recipients-preview)
 6. [Who receives access: students and families](#who-receives-access-students-and-families)
+7. [When the student and the family share an email](#when-the-student-and-the-family-share-an-email)
 
 ---
 
@@ -95,6 +96,19 @@ The system automatically decides the recipients based on the student's age:
 If a recipient is missing an email address, the warning appears in the **Note** column and nothing is sent to them; the rest of the recipients are still processed. If a minor student has no associated family member, the student still receives their own access and the **Note** column warns that no family member was found.
 
 Students can sign in with their main email and password, or with their school account (`@elpuig.xeill.net`) through **Log in with Google**. This is useful when a student has lost the portal password: the school account opens the same portal.
+
+---
+
+## When the student and the family share an email
+
+At enrollment the centre often receives a single email for the whole family, so the student's main email is the same as a family member's. A portal user can only have one email as its login, and that one is always the **family's**. The student then signs in with their **school account** (`@elpuig.xeill.net`): with **Log in with Google**, or by typing the school account and the portal password set from their invitation.
+
+- The student's form shows a yellow warning at the top saying so. It is only a warning: you can keep the shared email, nothing is blocked.
+- In the recipients preview, the student's **Note** column shows the school account they will sign in with.
+- If the student has no school account yet, they don't get a portal user and the **Note** column says so. Their access opens on its own when the school account is created (the family must already have access), and the invitation is sent to the shared email.
+- The emails with the school account's credentials (new account or new password) are still sent to the shared email, as always.
+
+If the student gets an email of their own later, change it on their form: their portal access moves to that email.
 
 ---
 

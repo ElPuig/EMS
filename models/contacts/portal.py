@@ -2,11 +2,27 @@
 
 from dateutil.relativedelta import relativedelta
 
-from odoo import _, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
+from odoo.tools import email_normalize
+
+# Contact types that are (or were) a student: the only ones with family contacts.
+STUDENT_LIKE_TYPES = ('student', 'applicant', 'alumni', 'withdrawal', 'expelled')
 
 
 class ems_contact_portal(models.Model):
     _inherit = 'res.partner'
+
+    # Issue #833: drives the warning at the top of the student form. Non-stored, like the form's
+    # other banners (enrollment_slot_broken_count): it reads the family's emails and logins.
+    portal_email_shared_with_family = fields.Boolean(
+        string="Main email shared with the family",
+        compute='_compute_portal_email_shared_with_family')
+
+    @api.depends('email', 'contact_type', 'relation_all_ids')
+    def _compute_portal_email_shared_with_family(self):
+        for partner in self:
+            partner.portal_email_shared_with_family = partner._ems_email_shared_with_family()
 
     def get_portal_students(self):
         """Returns the student partners this family contact may see on the portal.
@@ -107,7 +123,10 @@ class ems_contact_portal(models.Model):
         done = 'granted' if mode == 'grant' else 'revoked'
         for partner in self:
             try:
-                if wizard._apply_one(partner) == done:
+                # A savepoint per contact: a failure must not leave half of its writes behind.
+                with self.env.cr.savepoint():
+                    result = wizard._apply_one(partner)
+                if result == done:
                     summary[done].append(partner.display_name)
             except Exception as e:
                 msg = e.args[0] if getattr(e, 'args', None) else str(e)
@@ -253,6 +272,118 @@ class ems_contact_portal(models.Model):
                 return self.selected_student_id
             return students[0]
         return self
+
+    # ------------------------------------------------------------------
+    # A student sharing the main email with the family (issue #833)
+    # ------------------------------------------------------------------
+    def _ems_email_shared_with_family(self):
+        """Whether this student's main email is also a family member's (their email, or their
+        portal user's login): at enrolment the centre often gets a single address for the whole
+        family. A portal login is unique, and the one with that email is the family's; the
+        student signs in with the corporate account instead (_ems_portal_login)."""
+        self.ensure_one()
+        email = email_normalize(self.email)
+        if not email or self.contact_type not in STUDENT_LIKE_TYPES or not self._origin.id:
+            return False
+        family = self._origin._ems_family_contacts()
+        addresses = set(family.mapped('email_normalized'))
+        addresses.update(map(email_normalize, family.with_context(active_test=False).sudo().user_ids.mapped('login')))
+        return email in addresses
+
+    def _ems_portal_login(self, email=None):
+        """Login of this partner's portal user: their main email (or `email`, the one typed in
+        Odoo's own portal wizard), except for a student sharing it with the family, who gets the
+        corporate email; False while that student has none yet."""
+        self.ensure_one()
+        if self._ems_email_shared_with_family():
+            return email_normalize(self.student_email) or False
+        return email_normalize(email or self.email) or False
+
+    def _ems_check_portal_login(self):
+        """Refuse, with a message saying why, a portal user for a student sharing the email with
+        the family while the corporate account that gives them their own login doesn't exist."""
+        self.ensure_one()
+        if not self._ems_portal_login() and self._ems_email_shared_with_family():
+            raise UserError(_(
+                "%s has the same main email as their family, so that login is the family's. They "
+                "will get portal access with their corporate email when their Google account is "
+                "created.") % self.name)
+
+    def _ems_sync_portal_login(self):
+        """Realign each partner's portal user's login with _ems_portal_login(), unless another
+        user already holds it. Revoking access archives the user with its old login, and Odoo
+        reactivates it without refreshing the login, so a changed email (or a student who must
+        hand the shared email back to the family) would never take effect otherwise."""
+        Users = self.env['res.users'].sudo().with_context(active_test=False)
+        for partner in self:
+            user = partner.sudo().with_context(active_test=False).user_ids.filtered('share')[:1]
+            login = partner._ems_portal_login()
+            if not user or not login or email_normalize(user.login) == login:
+                continue
+            if not Users.search_count([('login', '=', login), ('id', '!=', user.id)]):
+                user.write({'login': login})
+
+    def _ems_students_sharing_email(self):
+        """For a family member: the related students whose main email is this family member's
+        too (each of them signs in with the corporate email, never with this one)."""
+        self.ensure_one()
+        email = email_normalize(self.email)
+        if not email or self.contact_type != 'family':
+            return self.browse()
+        return self.env['res.partner.relation.all'].sudo().search([
+            ('this_partner_id', '=', self.id),
+            ('other_partner_id.contact_type', 'in', STUDENT_LIKE_TYPES),
+            ('other_partner_id.email_normalized', '=', email),
+        ]).mapped('other_partner_id')
+
+    def _ems_grant_portal_with_corporate_email(self):
+        """Grant the portal to a student left without it because their main email is the
+        family's, now that the corporate email gives them a login of their own. Only when the
+        family already has portal access, which is how the centre granted it for this student;
+        never to one with a user already (an archived one means access was revoked). Returns
+        the summary of _ems_apply_portal_access, or None when there was nothing to do."""
+        self.ensure_one()
+        if self.sudo().with_context(active_test=False).user_ids \
+                or not self._ems_email_shared_with_family() \
+                or not any(member._has_active_portal_user() for member in self._ems_family_contacts()):
+            return None
+        summary = {'granted': [], 'issues': []}
+        self._ems_apply_portal_access('grant', summary)
+        return summary
+
+    @api.model
+    def _ems_students_sharing_email_with_family(self):
+        """Every student (or ex-student) whose main email is also a family member's, for the
+        migration that fixes the existing portals (18.0.0.49.3)."""
+        family_emails = self.with_context(active_test=False).search([
+            ('contact_type', '=', 'family'), ('email_normalized', '!=', False),
+        ]).mapped('email_normalized')
+        candidates = self.with_context(active_test=False).search([
+            ('contact_type', 'in', STUDENT_LIKE_TYPES),
+            ('email_normalized', 'in', family_emails),
+        ])
+        return candidates.filtered(lambda student: student._ems_email_shared_with_family())
+
+    def _ems_fix_shared_email_portals(self):
+        """Bring the portals of these students sharing the email with the family to the issue
+        #833 rule, for installations that granted them before it: a student holding the shared
+        login moves to the corporate one and the family members they kept out are granted; a
+        student left without a user gets one with the corporate login. Returns the summary
+        {'granted': [...], 'issues': [...]} for the migration's log."""
+        summary = {'granted': [], 'issues': []}
+        for student in self.filtered(lambda partner: partner._ems_email_shared_with_family()):
+            student._ems_sync_portal_login()
+            if student._has_active_portal_user():
+                family = (student._ems_notification_recipients() - student).filtered(
+                    lambda member: member.email
+                    and not member.sudo().with_context(active_test=False).user_ids)
+                family._ems_apply_portal_access('grant', summary)
+            else:
+                result = student._ems_grant_portal_with_corporate_email()
+                if result:
+                    summary['granted'] += result['granted']
+                    summary['issues'] += result['issues']
+        return summary
 
     def get_portal_inner_circle_ids(self):
         """Returns partner IDs considered 'own side' in portal chats:

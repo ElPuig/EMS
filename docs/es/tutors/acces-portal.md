@@ -18,6 +18,7 @@ El portal es el espacio donde alumnos y familias consultan y confirman la inform
 4. [Las acciones disponibles](#las-acciones-disponibles)
 5. [La previsualización de destinatarios](#la-previsualización-de-destinatarios)
 6. [Quién recibe el acceso: alumnos y familias](#quién-recibe-el-acceso-alumnos-y-familias)
+7. [Cuando el alumno y la familia comparten el correo](#cuando-el-alumno-y-la-familia-comparten-el-correo)
 
 ---
 
@@ -95,6 +96,19 @@ El sistema decide automáticamente los destinatarios según la edad del alumno:
 Si a un destinatario le falta el correo electrónico, el aviso aparece en la columna **Nota** y no se le envía nada; el resto de destinatarios se procesan igualmente. Si un alumno menor no tiene ningún familiar asociado, el alumno recibe igualmente su acceso y la columna **Nota** avisa de que no se ha encontrado ningún familiar.
 
 El alumnado puede entrar con su correo principal y su contraseña, o con la cuenta del centro (`@elpuig.xeill.net`) mediante **Acceder con Google**. Es útil cuando un alumno ha perdido la contraseña del portal: la cuenta del centro abre el mismo portal.
+
+---
+
+## Cuando el alumno y la familia comparten el correo
+
+En la matrícula, a menudo el centro recibe un solo correo para toda la familia, y el correo principal del alumno es el mismo que el de un familiar. Un usuario del portal solo puede tener un correo como usuario de acceso, y ese siempre es el de la **familia**. Entonces el alumno entra con la **cuenta del centro** (`@elpuig.xeill.net`): con **Acceder con Google**, o escribiendo la cuenta del centro y la contraseña del portal que eligió con su invitación.
+
+- La ficha del alumno lo indica con un aviso amarillo en la parte superior. Es solo un aviso: podéis mantener el correo compartido, no se bloquea nada.
+- En la previsualización de destinatarios, la columna **Nota** del alumno muestra la cuenta del centro con la que entrará.
+- Si el alumno aún no tiene cuenta del centro, no recibe usuario del portal y la columna **Nota** lo indica. El acceso se abre automáticamente cuando se crea la cuenta del centro (la familia debe tener acceso), y la invitación se envía al correo compartido.
+- Los correos con las credenciales de la cuenta del centro (cuenta nueva o contraseña nueva) se siguen enviando al correo compartido, como siempre.
+
+Si más adelante el alumno tiene un correo propio, cambiadlo en su ficha: su acceso al portal pasa a ese correo.
 
 ---
 

@@ -204,23 +204,34 @@ a la paperera de Drive.
 ## Reunions per correu
 
 Quan un tema no necessita que tothom sigui a la mateixa sala, qualsevol acta de reunió es pot fer per
-correu: trieu **Per correu** com a **modalitat**. L'acta conserva el seu tipus (d'equip docent, de
+correu: trieu **Per correu electrònic** com a **modalitat**. L'acta conserva el seu tipus (d'equip docent, de
 departament...), de manera que continua les actes anteriors del mateix àmbit com qualsevol altra. Els
 participants hi intervenen responent un correu, o des d'EMS.
 
-1. Prepareu l'acta com sempre, amb la modalitat **Per correu**. En lloc d'hora, sala i quiosc, demana
+1. Prepareu l'acta com sempre, amb la modalitat **Per correu electrònic**. En lloc d'hora, sala i quiosc, demana
    **Respostes fins al**, l'últim dia per participar-hi. Escriviu els **punts a tractar** i reviseu qui
    hi és convocat a la pestanya **Assistència**.
+
+   ![Una acta de departament per correu en preparació: la modalitat (1) i fins quan es pot respondre (2)](../../assets/teachers/actes-11-correu-preparar.png)
+
 2. **Accions → Obre el fil**. Totes les persones convocades reben un correu amb l'ordre del dia i la data
    límit, i totes comencen a **Persones que hi manquen**.
 3. Cada participant **respon aquest correu** des de la seva bústia. Tothom rep totes les respostes, com
    en una llista de correu, i en pocs minuts la resposta queda escrita a **Precs i preguntes**, amb
    l'autor i la data i sense el text que cita. Qui respon passa sol als **Assistents**. Un missatge
    escrit a l'historial de l'acta també hi compta.
+
+   ![Precs i preguntes amb una resposta per correu, el seu autor i quan va arribar](../../assets/teachers/actes-12-correu-precs.png)
+
 4. Per dir alguna cosa sobre punts concrets, obriu l'acta a EMS i feu servir **Accions → Afegeix
    intervencions**: hi ha un quadre per a cada punt a tractar i un per a **Precs i preguntes**. Escriviu
    als que vulgueu i deixeu la resta en blanc. Cada text queda escrit sota el seu punt, i tot arriba a
    tothom en un sol correu, indicant de quin punt es tracta cada part.
+
+   ![El diàleg Afegeix intervencions: un quadre per a cada punt i un per a Precs i preguntes](../../assets/teachers/actes-14-correu-intervencions.png)
+
+   ![Els punts a tractar amb les intervencions escrites sota cadascun](../../assets/teachers/actes-13-correu-punts.png)
+
 5. Qui redacta l'acta pot retocar tot el que s'hi ha escrit i corregir les llistes: qui en surt deixa de
    rebre el fil.
 6. Quan s'acabi el termini, escriviu els acords i els temes pendents, i **Accions → Enviar a aprovar**,

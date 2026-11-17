@@ -792,6 +792,21 @@ class EmsMinute(models.Model):
             })]
         return self.env['mail.mail'].sudo().create(vals)
 
+    def _ems_mail_people(self, template, subject, values, staff, guests, guest_values=None, guest_pdf=None):
+        """Email a message about the meeting (the call, the draft, the approved minute): one message
+        to the `staff`, with every address in it, and one to each of the `guests` from outside EMS,
+        with `guest_values` over `values` (leaving out what they cannot open) and the PDF that
+        `guest_pdf` gives attached, rendered only if there is a guest. Returns how many people."""
+        mails = self.env['mail.mail'].sudo()
+        if staff:
+            mails |= self._ems_meeting_mail(template, subject, values, ", ".join(staff.mapped('work_email')))
+        pdf = guest_pdf() if guests and guest_pdf else None
+        for guest in guests:
+            mails |= self._ems_meeting_mail(template, subject, {**values, **(guest_values or {})},
+                                            formataddr((f"{guest.name} {guest.surname}", guest.email)), pdf, staff=False)
+        mails.send()
+        return len(staff) + len(guests)
+
     def _ems_convener(self):
         """Who calls the meeting: whoever is to approve its minute, which by default is the person
         answering for the scope that meets (the department's chief for a department minute), not
@@ -932,16 +947,8 @@ class EmsMinute(models.Model):
         values = self._ems_call_values()
         subject = (_("Updated call: %s", self.name) if values['is_update'] else _("Call: %s", self.name))
         subject = f"{subject} ({values['date_label']}, {self.time})"
-        mails = self.env['mail.mail'].sudo()
-        if recipients:
-            mails |= self._ems_meeting_mail('ems.minute_call_email', subject, values, ", ".join(recipients.mapped('work_email')))
-        # People from outside EMS get it one by one: the staff's message shows every address, and
-        # theirs leaves out the link to the previous minute, which they cannot open.
-        for guest in guests:
-            mails |= self._ems_meeting_mail('ems.minute_call_email', subject, {**values, 'previous_url': False},
-                                            formataddr((f"{guest.name} {guest.surname}", guest.email)), staff=False)
-        mails.send()
-        count = len(recipients) + len(guests)
+        # The guests' message leaves out the link to the previous minute, which they cannot open.
+        count = self._ems_mail_people('ems.minute_call_email', subject, values, recipients, guests, {'previous_url': False})
         self.write({'call_sent_datetime': fields.Datetime.now(), 'call_recipient_count': count})
         self.message_post(body=_("Call sent to %s people.", count))
         return self._ems_sent_notice(_("The call has been sent to %s people.", count))
@@ -992,18 +999,10 @@ class EmsMinute(models.Model):
         }
         if self.modality == 'email':
             return self._ems_send_draft_by_thread(subject, values)
-        mails = self.env['mail.mail'].sudo()
-        if staff:
-            pdf_url = f"{minute.get_base_url()}/report/pdf/ems.report_minute/{minute.id}"
-            mails |= minute._ems_meeting_mail('ems.minute_draft_email', subject, {**values, 'pdf_url': pdf_url},
-                                              ", ".join(staff.mapped('work_email')))
-        if guests:
-            pdf = self.env['ir.actions.report'].sudo()._render_qweb_pdf('ems.report_minute', minute.ids)[0]
-            for guest in guests:
-                mails |= minute._ems_meeting_mail('ems.minute_draft_email', subject, {**values, 'pdf_url': False},
-                                                  formataddr((f"{guest.name} {guest.surname}", guest.email)), pdf, staff=False)
-        mails.send()
-        count = len(staff) + len(guests)
+        count = minute._ems_mail_people(
+            'ems.minute_draft_email', subject,
+            {**values, 'pdf_url': f"{minute.get_base_url()}/report/pdf/ems.report_minute/{minute.id}"}, staff, guests,
+            {'pdf_url': False}, lambda: self.env['ir.actions.report'].sudo()._render_qweb_pdf('ems.report_minute', minute.ids)[0])
         self.message_post(body=_("Draft sent to %s people.", count))
         return self._ems_sent_notice(_("The draft has been sent to %s people.", count))
 
@@ -1382,16 +1381,8 @@ class EmsMinute(models.Model):
                 centre._ems_thread_post('ems.minute_approved_email', subject, values)
                 count = len(minute.message_partner_ids - self.env.user.partner_id)
             else:
-                mails = self.env['mail.mail'].sudo()
-                if staff:
-                    mails |= centre._ems_meeting_mail('ems.minute_approved_email', subject, values,
-                                                      ", ".join(staff.mapped('work_email')))
-                pdf = minute.sudo().pdf_attachment_id.raw
-                for guest in guests:
-                    mails |= centre._ems_meeting_mail('ems.minute_approved_email', subject, {**values, 'pdf_url': False},
-                                                      formataddr((f"{guest.name} {guest.surname}", guest.email)), pdf, staff=False)
-                mails.send()
-                count = len(staff) + len(guests)
+                count = centre._ems_mail_people('ems.minute_approved_email', subject, values, staff, guests,
+                                                {'pdf_url': False}, lambda: minute.sudo().pdf_attachment_id.raw)
             minute.sudo().message_post(body=_("Approved minute sent to %s people.", count), author_id=self.env.user.partner_id.id)
 
     def action_reopen(self):

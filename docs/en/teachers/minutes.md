@@ -209,16 +209,27 @@ answering an email, or from EMS.
 1. Prepare the minute as usual, with **By email** as the modality. Instead of a time, room and kiosk it
    asks for **Answers until**, the last day to take part. Write the **items to discuss** and check who is
    convened in the **Attendance** tab.
+
+   ![A department minute held by email being prepared: the modality (1) and until when to answer (2)](../../assets/teachers/actes-11-correu-preparar.png)
+
 2. **Actions → Open the thread**. Everybody convened gets an email with the agenda and the deadline, and
    they all start among the **absentees**.
 3. Each participant **replies to that email** from their mailbox. Everybody receives every answer, as in
    a mailing list, and within a few minutes the answer is written under **Precs i preguntes**, with its
    author and date and without the text it quotes. Whoever answers moves to the **attendees** by
    themselves. A message written in the minute's history counts too.
+
+   ![Precs i preguntes with an answer by email, its author and when it arrived](../../assets/teachers/actes-12-correu-precs.png)
+
 4. To say something about particular items, open the minute in EMS and use **Actions → Add
    interventions**: there is one box per item to discuss and one for **Precs i preguntes**. Write in the
    ones you want and leave the rest empty. Each text is written under its item, and everything reaches
    everybody in a single email, saying which item each part is about.
+
+   ![The Add interventions dialog: one box per item and one for Precs i preguntes](../../assets/teachers/actes-14-correu-intervencions.png)
+
+   ![The items to discuss with the interventions written under each one](../../assets/teachers/actes-13-correu-punts.png)
+
 5. Whoever writes the minute can retouch everything written in it, and correct the lists: whoever is
    taken off them stops getting the thread.
 6. When the deadline is over, write the agreements and the pending topics, and **Actions → Send for

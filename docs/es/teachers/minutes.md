@@ -207,23 +207,34 @@ Si se borra un acta, su copia va a la papelera de Drive.
 ## Reuniones por correo
 
 Cuando un tema no necesita que todo el mundo esté en la misma sala, cualquier acta de reunión se puede
-hacer por correo: elegid **Por correo** como **modalidad**. El acta conserva su tipo (de equipo docente,
+hacer por correo: elegid **Por correo electrónico** como **modalidad**. El acta conserva su tipo (de equipo docente,
 de departamento...), de modo que continúa las actas anteriores del mismo ámbito como cualquier otra. Los
 participantes intervienen respondiendo un correo, o desde EMS.
 
-1. Preparad el acta como siempre, con la modalidad **Por correo**. En lugar de hora, sala y quiosco, pide
+1. Preparad el acta como siempre, con la modalidad **Por correo electrónico**. En lugar de hora, sala y quiosco, pide
    **Respuestas hasta el**, el último día para participar. Escribid los **puntos a tratar** y revisad
    quién está convocado en la pestaña **Asistencia**.
+
+   ![Un acta de departamento por correo en preparación: la modalidad (1) y hasta cuándo se puede responder (2)](../../assets/teachers/actes-11-correu-preparar.png)
+
 2. **Acciones → Abrir el hilo**. Todas las personas convocadas reciben un correo con el orden del día y la
    fecha límite, y todas empiezan en **Personas que faltan**.
 3. Cada participante **responde a ese correo** desde su buzón. Todo el mundo recibe todas las respuestas,
    como en una lista de correo, y en pocos minutos la respuesta queda escrita en **Precs i preguntes**,
    con su autor y su fecha y sin el texto que cita. Quien responde pasa solo a **Asistentes**. Un mensaje
    escrito en el historial del acta también cuenta.
+
+   ![Precs i preguntes con una respuesta por correo, su autor y cuándo llegó](../../assets/teachers/actes-12-correu-precs.png)
+
 4. Para decir algo sobre puntos concretos, abrid el acta en EMS y usad **Acciones → Añadir
    intervenciones**: hay un recuadro para cada punto a tratar y uno para **Precs i preguntes**. Escribid
    en los que queráis y dejad el resto en blanco. Cada texto queda escrito bajo su punto, y todo llega a
    todo el mundo en un solo correo, indicando de qué punto se trata cada parte.
+
+   ![El diálogo Añadir intervenciones: un recuadro para cada punto y uno para Precs i preguntes](../../assets/teachers/actes-14-correu-intervencions.png)
+
+   ![Los puntos a tratar con las intervenciones escritas bajo cada uno](../../assets/teachers/actes-13-correu-punts.png)
+
 5. Quien redacta el acta puede retocar todo lo que se ha escrito en ella y corregir las listas: quien sale
    de ellas deja de recibir el hilo.
 6. Cuando acabe el plazo, escribid los acuerdos y los temas pendientes, y **Acciones → Enviar a aprobar**,

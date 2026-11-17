@@ -100,6 +100,12 @@
                                         <field name="join_answered"/>
                                         <field name="joins"/>
                                         <field name="ratification" optional="show"/>
+                                        <field name="ratified_manually" optional="show"/>
+                                        <field name="can_ratify_manually" column_invisible="1"/>
+                                        <button name="action_ratify_manually" type="object" icon="fa-check"
+                                                string="Ratify by hand" title="Mark the family's ratification by hand"
+                                                invisible="not can_ratify_manually"
+                                                confirm="Mark that the family of this student ratifies that they join the walkout? Do it only when the family has told the centre so."/>
                                         <field name="justifiable" optional="show"/>
                                         <field name="vote_date" optional="hide"/>
                                         <field name="join_date" optional="hide"/>
@@ -142,7 +148,11 @@
             </field>
         </record>
 
+        <!-- Only who can read a call: a tutor and the roles above them (Department or Seminar Chief,
+             Head or Deputy Head of Studies, Director), and the administrators. A teacher who tutors
+             no group would only see an empty list. -->
         <menuitem name="Student walkouts" sequence="4" id="menu_student_walkout" parent="menu_attendance"
-                  action="action_student_walkout"/>
+                  action="action_student_walkout"
+                  groups="ems.group_tutor,ems.group_academic_admin,base.group_system"/>
     </data>
 </odoo>

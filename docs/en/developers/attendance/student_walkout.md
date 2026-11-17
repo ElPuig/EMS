@@ -21,7 +21,8 @@ wizard explains which reasons are lawful). The Head of Studies hears nothing unt
 except a notice in their daily summary when a proposal is aborted. **The family of a minor who joins
 must ratify it** (Decret 102/2010, article 24.2: a minor's collective absence needs the family's
 authorization): it is asked at once and answers on the portal while joining lasts; a minor whose
-family has not ratified it (refused, did not answer, or has no portal access) is not justified.
+family has not ratified it (refused, did not answer, or has no portal access) is not justified,
+unless the tutor (or whoever is above them) marks the ratification by hand for a family that cannot use the portal.
 Other families hear nothing until the proposal is validated.
 
 **Naming.** In English the feature is always *walkout*, never *strike*: `ems.strike` is the
@@ -187,7 +188,8 @@ erDiagram
 | `voted` / `vote_date` | `Boolean` / `Datetime` | The group vote was cast (it never says which way) |
 | `join_answered` / `joins` / `join_date` | `Boolean` / `Boolean` / `Datetime` | Whether they said if they join, and what |
 | `needs_ratification` / `ratification` | `Boolean` / `Selection` (`pending`, `ratified`, `refused`) | A minor on the walkout day (no birth date counts as a minor) who joins needs the family's ratification |
-| `ratified_by_id` / `ratification_date` | `Many2one → res.partner` / `Datetime` | The family contact who answered, and when |
+| `ratified_by_id` / `ratification_date` | `Many2one → res.partner` / `Datetime` | Who answered (the family contact, or the staff member who marked it by hand), and when |
+| `ratified_manually` / `can_ratify_manually` | `Boolean` / `Boolean` (computed, per user) | Marked by hand by the centre (issue #840); whether the current user may do it now |
 | `justifiable` | `Boolean` (computed) | Joins and, if a minor, the family ratified it |
 
 **Anonymity and concurrency.** The group vote only adds one to a counter of the proposal
@@ -285,8 +287,15 @@ flowchart TD
   `/my/vagues/ratifica/<line>`): a family contact of the student (`_ems_family_contacts`) with portal
   access, only while `joining` (until `join_until`), changeable meanwhile. A refusal is told to the
   student (`email_template_student_walkout_ratification_refused`). A family with no portal access
-  cannot ratify: that minor is not justified. The family sees the lines it was asked about
+  cannot ratify: that minor is not justified unless the centre marks it by hand (next item). The family sees the lines it was asked about
   (`res.partner._ems_walkout_family_lines`) and a banner on the portal home while one is pending.
+- **Ratify by hand** (`ems.student_walkout.line.action_ratify_manually()`, issue #840): for a family that
+  cannot use the portal and asks the centre. Whoever may abort the proposal (`_ems_user_may_abort`:
+  tutor, the chain above them, administrator) marks a `pending` ratification of a minor who joins, from
+  joining until the Head of Studies validates (`joining` or `closed`). A family's refusal is never
+  overridden. It sets `ratification = 'ratified'`, `ratified_by_id` = the staff member's contact,
+  `ratified_manually` and logs it in the walkout's chatter; the family answering on the portal later,
+  or the student withdrawing, clears `ratified_manually`. The button sits on the form's Students tab.
 - **Close** (`_ems_close`): renders the minute (`ems.report_student_walkout`, centre language), emails
   it to the Head of Studies right away (`email_template_student_walkout_head`: the walkout is a few
   days off, so not in the daily summary) and, when the group supports it and somebody joins,
@@ -345,6 +354,8 @@ flowchart TD
 ---
 
 ## Access control
+
+The **Student walkouts** menu (Student's Attendances) is shown only to who can read a call: `ems.group_tutor` (which Department or Seminar Chief, Head or Deputy Head of Studies and Director imply) and the administrators. A teacher who tutors no group would only see an empty list (issue #840).
 
 Portal users have no ACL on these models: the controller works with `sudo()` and always takes the
 student from the logged-in user (`request.env.user.partner_id`, `contact_type == 'student'`). A

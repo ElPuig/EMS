@@ -35,6 +35,10 @@ The emails reach you when they reach your group: at once when the centre counts 
 
 A minor who joins it needs their family's ratification on the portal while joining lasts (Decret 102/2010, article 24.2): without it, their absence is not justified. The **Can be justified** column tells you who will be justified if the walkout is validated.
 
+If a minor's family cannot use the portal and tells you (or the centre) that they ratify it, click **Ratify by hand** on that student's row of the **Students** tab and confirm. You can do it from when students join until the Head of Studies validates the walkout, only for families that have not answered (never to override a refusal). The row then shows who marked it, and the change is logged in the chatter.
+
+![Students tab with the button to ratify by hand](../../assets/tutors/tutor-walkout-ratify-by-hand.png)
+
 ---
 
 ## Aborting a proposal

@@ -8,7 +8,8 @@ from odoo import fields
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase, tagged
 
-from .common import (create_head_of_studies_branch, create_level_study_group, create_role_employee,
+from .common import (ROLE_GROUP_XMLIDS, create_head_of_studies_branch, create_level_study_group,
+                     create_role_employee,
                      create_role_user, mock_outgoing_email, next_student_id, shift_ems_clock)
 
 PDF = b'%PDF-1.4 test union call'
@@ -742,6 +743,76 @@ class TestStudentWalkout(TransactionCase):
         self._join(walkout, self.classmate)
         self.assertEqual(line.ratification, 'pending')
         self.assertEqual(len(self._family_mails(walkout)), 2)
+
+    def test_the_tutor_chain_ratifies_by_hand_for_a_family_without_portal_access(self):
+        """Issue #840: the tutor (or whoever is above them, or an administrator) marks the ratification
+        of a family that cannot use the portal, until the Head of Studies validates."""
+        walkout = open_walkout(self)
+        self._supported(walkout)
+        self._join(walkout, self.delegate)  # an adult: nothing to ratify
+        self._join(walkout, self.classmate)
+        self._join(walkout, self.subdelegate)
+        line = walkout.line_ids.filtered(lambda line: line.student_id == self.classmate)
+        adult = walkout.line_ids.filtered(lambda line: line.student_id == self.delegate)
+        for user in (self.tutor, self.department_chief, self.head_of_studies):
+            self.assertTrue(line.with_user(user).can_ratify_manually, user.name)
+        self.assertFalse(adult.with_user(self.tutor).can_ratify_manually, "An adult has nothing to ratify.")
+        self.assertFalse(line.with_user(self.other_department_chief).can_ratify_manually)
+        with self.assertRaises(Exception):  # outside the chain: they cannot even read it
+            line.with_user(self.other_head_of_studies).action_ratify_manually()
+        with self.assertRaises(UserError):
+            adult.with_user(self.tutor).action_ratify_manually()
+        line.with_user(self.tutor).action_ratify_manually()
+        self.assertEqual((line.ratification, line.ratified_by_id, line.ratified_manually),
+                         ('ratified', self.tutor.partner_id, True))
+        self.assertTrue(line.ratification_date)
+        self.assertIn(self.classmate.name, str(walkout.message_ids[:1].body))
+        self.assertEqual(walkout.justifiable_student_ids, self.delegate | self.classmate)
+        self.assertFalse(line.with_user(self.tutor).can_ratify_manually, "Already ratified.")
+        # A refusal of the family is theirs to change: the tutor does not override it.
+        ratify(walkout, self.family, self.subdelegate, False)
+        refused = walkout.line_ids.filtered(lambda line: line.student_id == self.subdelegate)
+        self.assertFalse(refused.with_user(self.tutor).can_ratify_manually)
+        # The family answering later on the portal takes over the answer.
+        ratify(walkout, self.family, self.classmate, False)
+        self.assertEqual((line.ratification, line.ratified_manually), ('refused', False))
+
+    def test_a_manual_ratification_is_possible_until_the_head_of_studies_validates(self):
+        walkout = open_walkout(self)
+        self._supported(walkout)
+        self._join(walkout, self.classmate)
+        line = walkout.line_ids.filtered(lambda line: line.student_id == self.classmate)
+        end_phase(walkout)
+        self.assertEqual(walkout.state, 'closed')
+        self.assertTrue(line.with_user(self.tutor).can_ratify_manually, "Joining is over, not yet validated.")
+        line.with_user(self.tutor).action_ratify_manually()
+        self.assertTrue(line.justifiable)
+        walkout.with_user(self.head_of_studies).action_generate_justification()
+        self.assertEqual(walkout.state, 'justified')
+        with self.assertRaises(UserError):
+            line.with_user(self.tutor).action_ratify_manually()
+        # Withdrawing, or being asked again, clears the manual mark.
+
+    def test_withdrawing_clears_a_manual_ratification(self):
+        walkout = open_walkout(self)
+        self._supported(walkout)
+        self._join(walkout, self.classmate)
+        line = walkout.line_ids.filtered(lambda line: line.student_id == self.classmate)
+        line.with_user(self.tutor).action_ratify_manually()
+        self._join(walkout, self.classmate, False)
+        self.assertFalse(line.ratified_manually or line.ratification)
+        self._join(walkout, self.classmate)  # joining again asks the family again
+        self.assertEqual((line.ratification, line.ratified_manually), ('pending', False))
+        self.assertTrue(line.with_user(self.tutor).can_ratify_manually)
+
+    def test_the_menu_is_only_for_who_can_read_a_call(self):
+        """Issue #840: a tutor, the roles above them and the administrators; a teacher who tutors no group
+        would only see an empty list."""
+        menu = self.env.ref('ems.menu_student_walkout')
+        shown = {role for role in ROLE_GROUP_XMLIDS if menu.id in self.env(user=create_role_user(
+            self, role, f'test_walkout_menu_{role}'))['ir.ui.menu']._visible_menu_ids()}
+        self.assertEqual(shown, {'tutor', 'department_chief', 'head_of_studies', 'director', 'academic_admin',
+                                 'settings_admin'})
 
     def test_a_family_that_refuses_is_heard_and_the_student_told(self):
         walkout = open_walkout(self)

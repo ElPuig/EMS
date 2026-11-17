@@ -126,6 +126,10 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
             # proposal (issue #830); the vote only for who had it then.
             'can_join': bool(line) and walkout._ems_phase_open('joining'),
             'can_manage': walkout.state in ('voting', 'joining') and walkout._ems_is_manager(partner),
+            # The delegates extend the joining once, also when it is over (issue #838).
+            'can_extend': walkout._ems_is_manager(partner) and not walkout.delegate_extended and
+            bool(walkout._ems_extension()),
+            'extension_until': walkout.format_local_datetime(walkout._ems_extension() or walkout.join_until),
             'state_labels': dict(walkout._fields['state']._description_selection(request.env)),
             'opened': kwargs.get('opened'),
             'saved': kwargs.get('saved'),
@@ -134,7 +138,7 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
     @http.route(f'{WALKOUTS}/<int:walkout_id>/<string:step>', type='http', auth='user', methods=['POST'],
                 website=True)
     def portal_walkout_step(self, walkout_id, step, **post):
-        """Vote, say whether one joins, or cancel the proposal."""
+        """Vote, say whether one joins, extend the joining, or cancel the proposal."""
         walkout = self._ems_walkout(walkout_id)
         if not walkout:
             return request.redirect(WALKOUTS)
@@ -145,6 +149,8 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
                 walkout._ems_portal_vote(partner, post.get('group_vote'))
             elif step == 'suma':
                 walkout._ems_portal_join(partner, post.get('joins') == 'yes')
+            elif step == 'amplia':
+                walkout._ems_portal_extend(partner)
             elif step == 'anulla':
                 walkout._ems_portal_cancel(partner)
                 return request.redirect(WALKOUTS)

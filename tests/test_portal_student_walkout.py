@@ -218,3 +218,23 @@ class TestPortalStudentWalkout(HttpCase):
         self._password_login(user, 'delegate.own.833@example.org')
         self._assert_student_mode()
         self.assertEqual(self._google_login(self.delegate.student_email), user.login)
+
+    def test_delegate_extends_the_joining_once_from_the_portal(self):
+        """Issue #838: also once it is closed; a classmate never."""
+        walkout = open_walkout(self, days=14)
+        walkout._ems_portal_vote(self.delegate, 'yes')
+        walkout._ems_portal_vote(self.subdelegate, 'yes')
+        walkout._ems_close()
+        self._login(self.classmate)
+        self.assertNotIn('o_ems_walkout_extend', self.url_open(f'/my/vagues/{walkout.id}').text)
+        self._post(f'/my/vagues/{walkout.id}/amplia')
+        self.assertEqual(walkout.state, 'closed')
+        self._login(self.delegate)
+        self.assertIn('o_ems_walkout_extend_send', self.url_open(f'/my/vagues/{walkout.id}').text)
+        response = self._post(f'/my/vagues/{walkout.id}/amplia')
+        self.assertIn('saved=1', response.url)
+        self.assertEqual((walkout.state, walkout.delegate_extended), ('joining', True))
+        self.assertNotIn('o_ems_walkout_extend_send', self.url_open(f'/my/vagues/{walkout.id}').text,
+                         "Only once.")
+        response = self._post(f'/my/vagues/{walkout.id}/amplia')
+        self.assertIn('error=1', response.url)

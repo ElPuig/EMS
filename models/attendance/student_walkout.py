@@ -98,6 +98,9 @@ class EmsStudentWalkout(models.Model):
         ('closed', "Closed"),
         ('justified', "Justified"),
     ], readonly=True, copy=False)
+    # Issue #838: the delegates extend the joining once; the tutor chain, any number of times.
+    delegate_extended = fields.Boolean(string="Extended by the delegates", readonly=True, copy=False)
+    can_extend = fields.Boolean(compute='_compute_can_reject')
     can_abort = fields.Boolean(compute='_compute_can_reject')
     can_reject = fields.Boolean(compute='_compute_can_reject')
     # The group vote, anonymous: only the counts, never who voted what (_ems_portal_vote).
@@ -155,10 +158,11 @@ class EmsStudentWalkout(models.Model):
             walkout.voted_count = len(walkout.line_ids.filtered('voted'))
             walkout.join_answered_count = len(walkout.line_ids.filtered('join_answered'))
 
-    @api.depends('state')
+    @api.depends('state', 'join_until')
     @api.depends_context('uid')
     def _compute_can_reject(self):
         for walkout in self:
+            walkout.can_extend = walkout._ems_user_may_abort() and bool(walkout._ems_extension())
             walkout.can_abort = walkout.state in ABORTABLE_STATES and walkout._ems_user_may_abort()
             walkout.can_reject = walkout.state in VALIDATION_STATES and walkout._ems_user_may_reject()
 
@@ -323,6 +327,20 @@ class EmsStudentWalkout(models.Model):
             raise UserError(_("Only a proposal still being voted or joined can be cancelled."))
         self.state = 'cancelled'
         self._message_log(body=_("Cancelled by %(name)s from the portal.", name=partner.name))
+
+    def _ems_portal_extend(self, partner):
+        """The delegates extend the joining once."""
+        self._ems_check_manager(partner)
+        if self.delegate_extended:
+            raise UserError(_("The delegates can extend the joining only once."))
+        self._ems_extend_joining(partner.name, as_delegate=True)
+
+    def action_extend_joining(self):
+        """The tutor chain (and the administrators) extend the joining any time, as often as needed."""
+        if not self._ems_user_may_abort():
+            raise UserError(_("Only the tutor of the group, the chain above them (Department or Seminar Chief, Head "
+                              "or Deputy Head of Studies, Director) or an administrator can extend the joining."))
+        self._ems_extend_joining(self.env.user.name)
 
     def _ems_is_manager(self, partner):
         """The opener, or the group's current delegate or sub-delegate, manage the proposal."""
@@ -529,6 +547,50 @@ class EmsStudentWalkout(models.Model):
         self.ensure_one()
         until = self.vote_until if state == 'voting' else self.join_until
         return self.state == state and bool(until) and fields.Datetime.now() < until
+
+    def _ems_extension(self):
+        """Issue #838: what the joining can be extended to, or False when it cannot: only a proposal the
+        group supports, still joining or already closed (its minute goes out again when it closes), and
+        one phase more (from now when the joining is over) must still leave the Head of Studies the
+        notice before the walkout."""
+        self.ensure_one()
+        if not (self.state == 'joining' or (self.state == 'closed' and self.group_supports)):
+            return False
+        plan = self._ems_own_plan()
+        until = self._ems_add_hours(plan, max(self.join_until, self._ems_send_moment(plan, fields.Datetime.now())),
+                                    self.phase_hours)
+        calendar = {'plan': plan, 'join_until': until, 'notice_hours': self.notice_hours}
+        return until if self._ems_notice_kept(calendar, self.walkout_date) else False
+
+    def _ems_extend_joining(self, by_name, as_delegate=False):
+        """Joining lasts one phase more. A closed proposal reopens: its minute and its task are withdrawn
+        (the Head of Studies is told in their daily summary) and both are made again when it closes."""
+        self.ensure_one()
+        until = self._ems_extension()
+        if not until:
+            raise UserError(_(
+                "The joining cannot be extended: it has to be a proposal the group supports, and the Head of Studies "
+                "must get the minute at least %(notice)s hours before the walkout of %(day)s, also after %(phase)s "
+                "more hours.", notice=self.notice_hours, day=format_date(self.env, self.walkout_date),
+                phase=self.phase_hours))
+        walkout = self.sudo()
+        was_closed = walkout.state == 'closed'
+        values = {'state': 'joining', 'join_until': until, 'delegate_extended': walkout.delegate_extended or as_delegate}
+        if was_closed:
+            walkout.pdf_attachment_id.unlink()
+            values['closed_datetime'] = False
+            walkout._ems_sync_user_tasks(self.env.ref(JUSTIFY_TASK), self.env['res.users'], walkout.walkout_date)
+        walkout.write(values)
+        walkout._ems_wake_cron_at(until)
+        walkout._ems_mail_students('ems.email_template_student_walkout_join_extended', walkout._ems_joining_lines())
+        walkout._ems_mail_tutors('extended')
+        if was_closed:
+            walkout._ems_notify_heads(lambda env: env._(
+                "Student walkout: %(name)s has extended the joining of %(group)s for the walkout on %(day)s, so the "
+                "minute is held back until it closes again.", name=by_name, group=walkout.group_id.name,
+                day=format_date(env, walkout.walkout_date)))
+        walkout._message_log(body=_("Joining extended by %(name)s until %(until)s.", name=by_name,
+                                    until=walkout.format_local_datetime(until)))
 
     def _ems_vote_decided(self):
         """Whether the group vote's result is known: everybody voted, or the votes still to come
@@ -747,16 +809,19 @@ class EmsStudentWalkout(models.Model):
     def _ems_notify_aborted(self):
         """The Head of Studies is told of every aborted call and why, in their daily summary (no
         action asked)."""
+        self._ems_notify_heads(lambda env: env._(
+            "Student walkout: %(name)s has aborted the proposal of %(group)s for a walkout on %(day)s. Reason: "
+            "%(reason)s.", name=self.rejected_by_id.name, group=self.group_id.name,
+            day=format_date(env, self.walkout_date),
+            reason=self.rejection_reason_id.with_env(env).name + (
+                f" ({self.rejection_details})" if self.rejection_details else '')))
+
+    def _ems_notify_heads(self, text):
+        """A notice in the daily summary of whoever gets the minute, in their language: `text(env)`."""
         body = Markup("<p>{}</p>")
         for user in self._ems_head_users():
-            env = self.with_context(lang=user.lang or self.env.lang).env
-            text = body.format(env._(
-                "Student walkout: %(name)s has aborted the proposal of %(group)s for a walkout on %(day)s. Reason: "
-                "%(reason)s.", name=self.rejected_by_id.name, group=self.group_id.name,
-                day=format_date(env, self.walkout_date),
-                reason=self.rejection_reason_id.with_env(env).name + (
-                    f" ({self.rejection_details})" if self.rejection_details else '')))
-            self.env['ems.info_notice']._ems_queue(user, self, lambda _user, text=text: text)
+            body_text = body.format(text(self.with_context(lang=user.lang or self.env.lang).env))
+            self.env['ems.info_notice']._ems_queue(user, self, lambda _user, text=body_text: text)
 
     # Justifying
 

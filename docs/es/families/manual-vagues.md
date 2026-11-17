@@ -83,6 +83,16 @@ Si el grupo la apoya, recibes un correo y la propuesta te pregunta **¿Te sumas 
 
 ---
 
+## Ampliar las adhesiones (delegado o subdelegado)
+
+Si las adhesiones están a punto de acabar, o ya han acabado, y el alumnado necesita más tiempo, abre la página de la propuesta y haz clic en **Amplía las adhesiones**. Las adhesiones duran una fase más (el mismo tiempo que cada fase en la configuración del centro), contada desde el final de las adhesiones, o desde ahora si ya han acabado. Se avisa a todo el alumnado.
+
+- **Solo puedes hacerlo una vez.** El tutor del grupo, y quien tiene por encima, pueden ampliarlas más veces.
+- Si las adhesiones ya habían acabado, la propuesta vuelve a estar abierta y el acta llega a jefatura de estudios cuando se cierre de nuevo.
+- No siempre es posible: jefatura de estudios debe recibir el acta con la antelación prevista antes de la huelga. El botón solo aparece cuando lo es.
+
+---
+
 ## Ratificarlo (familia de un alumno menor de edad)
 
 Cuando vuestro hijo o hija (menor de 18 años el día de la huelga) dice que se suma a una huelga, recibís un correo enseguida. En el portal, la página de inicio os avisa: haced clic en **Responde**, o abrid **Huelgas de estudiantes**.

@@ -83,6 +83,16 @@ Si el grup hi dona suport, reps un correu i la proposta et pregunta **Et sumes a
 
 ---
 
+## Ampliar les adhesions (delegat o sotsdelegat)
+
+Si les adhesions estan a punt d'acabar, o ja han acabat, i l'alumnat necessita més temps, obre la pàgina de la proposta i fes clic a **Amplia les adhesions**. Les adhesions duren una fase més (el mateix temps que cada fase a la configuració del centre), comptada des del final de les adhesions, o des d'ara si ja han acabat. S'avisa tot l'alumnat.
+
+- **Només ho pots fer una vegada.** El tutor del grup, i qui té per sobre, poden ampliar-les més vegades.
+- Si les adhesions ja havien acabat, la proposta torna a estar oberta i l'acta arriba al cap d'estudis quan es tanqui de nou.
+- No sempre és possible: el cap d'estudis ha de rebre l'acta amb l'antelació prevista abans de la vaga. El botó només apareix quan ho és.
+
+---
+
 ## Ratificar-ho (família d'un alumne menor d'edat)
 
 Quan el vostre fill o filla (menor de 18 anys el dia de la vaga) diu que se suma a una vaga, rebeu un correu de seguida. Al portal, la pàgina d'inici us n'avisa: feu clic a **Respon**, o obriu **Vagues d'alumnes**.

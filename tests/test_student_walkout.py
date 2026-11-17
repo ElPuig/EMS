@@ -546,6 +546,107 @@ class TestStudentWalkout(TransactionCase):
                          "Only the request to ratify that the minor joins: the result waits for the validation.")
         self.assertIn(self.tutor.email, ' '.join(self._mails(walkout).mapped('email_to')), "The tutor is told.")
 
+    # Extending the joining (issue #838)
+
+    def test_the_delegate_extends_the_joining_once(self):
+        walkout = open_walkout(self, days=14)
+        self._supported(walkout)
+        until = walkout.join_until
+        self.assertTrue(walkout._ems_extension())
+        walkout._ems_portal_extend(self.delegate)
+        self.assertEqual(walkout.state, 'joining')
+        self.assertAlmostEqual(walkout.join_until, until + timedelta(hours=24), delta=timedelta(hours=1))
+        self.assertTrue(walkout.delegate_extended)
+        self.assertEqual(len(self._tutor_mails(walkout)), 3, "The tutor is told: call, joining, extension.")
+        with self.assertRaises(UserError):  # a delegate extends it once
+            walkout._ems_portal_extend(self.subdelegate)
+        with self.assertRaises(UserError):  # a classmate is not a delegate
+            walkout._ems_portal_extend(self.classmate)
+        cron = self.env.ref('ems.ir_cron_student_walkout_deadlines')
+        self.assertTrue(self.env['ir.cron.trigger'].sudo().search([('cron_id', '=', cron.id),
+                                                                   ('call_at', '=', walkout.join_until)]))
+
+    def test_the_extension_is_a_phase_long(self):
+        self.env.company.walkout_phase_hours = 12
+        walkout = open_walkout(self, days=14)
+        self._supported(walkout)
+        until = walkout.join_until
+        walkout._ems_portal_extend(self.delegate)
+        self.assertAlmostEqual(walkout.join_until, until + timedelta(hours=12), delta=timedelta(hours=1))
+
+    def test_the_tutor_chain_extends_any_time_and_any_number_of_times(self):
+        walkout = open_walkout(self, days=21)
+        self._supported(walkout)
+        for user in (self.tutor, self.head_of_studies):
+            self.assertTrue(walkout.with_user(user).can_extend, user.name)
+        until = walkout.join_until
+        walkout.with_user(self.tutor).action_extend_joining()
+        walkout.with_user(self.head_of_studies).action_extend_joining()
+        self.assertAlmostEqual(walkout.join_until, until + timedelta(hours=48), delta=timedelta(hours=2))
+        self.assertFalse(walkout.delegate_extended, "The delegates' own extension is still theirs.")
+        walkout._ems_portal_extend(self.delegate)
+        with self.assertRaises(Exception):  # outside the chain: they cannot even read it
+            walkout.with_user(self.other_head_of_studies).action_extend_joining()
+
+    def test_an_extension_that_breaks_the_notice_is_refused(self):
+        walkout = open_walkout(self)  # the vote ended early: one extension still keeps the 48 hours, two do not
+        self._supported(walkout)
+        walkout.with_user(self.tutor).action_extend_joining()
+        until = walkout.join_until
+        self.assertFalse(walkout._ems_extension())
+        self.assertFalse(walkout.with_user(self.tutor).can_extend)
+        with self.assertRaises(UserError):
+            walkout._ems_portal_extend(self.delegate)
+        with self.assertRaises(UserError):
+            walkout.with_user(self.tutor).action_extend_joining()
+        self.assertEqual((walkout.join_until, walkout.delegate_extended), (until, False))
+
+    def test_a_closed_proposal_reopens_and_the_minute_is_sent_again(self):
+        walkout = open_walkout(self, days=14)
+        self._supported(walkout)
+        self._join(walkout, self.delegate)
+        end_phase(walkout)
+        self.assertEqual(walkout.state, 'closed')
+        first_minute = walkout.pdf_attachment_id
+        self.assertTrue(walkout.activity_ids)
+        walkout._ems_portal_extend(self.delegate)
+        self.assertEqual(walkout.state, 'joining')
+        self.assertGreater(walkout.join_until, fields.Datetime.now())
+        self.assertFalse(first_minute.exists(), "The old minute is gone.")
+        self.assertFalse(walkout.activity_ids, "Nothing to justify until it closes again.")
+        self.assertEqual(self._notices(walkout).user_id, self.head_of_studies,
+                         "The Head of Studies is told in the daily summary that the minute is held back.")
+        self._join(walkout, self.classmate)  # joining is open again
+        end_phase(walkout)
+        self.assertEqual(walkout.state, 'closed')
+        self.assertTrue(walkout.pdf_attachment_id)
+        self.assertEqual(len(self._mails(walkout).filtered(lambda mail: self.head_of_studies.email in mail.email_to)), 2,
+                         "A new minute is sent to the Head of Studies.")
+        self.assertEqual(walkout.joining_student_ids, self.delegate | self.classmate)
+
+    def test_only_a_supported_open_or_closed_proposal_is_extended(self):
+        walkout = open_walkout(self, days=14)
+        with self.assertRaises(UserError):  # still voting
+            walkout._ems_portal_extend(self.delegate)
+        self.assertFalse(walkout._ems_extension())
+        self._vote(walkout, self.delegate, 'no')
+        self._vote(walkout, self.subdelegate, 'no')
+        self.assertEqual((walkout.state, walkout.group_supports), ('closed', False))
+        with self.assertRaises(UserError):  # the group did not support it
+            walkout._ems_portal_extend(self.delegate)
+        other = open_walkout(self, days=15)
+        self._supported(other)
+        reject_walkout(other, self.tutor)
+        with self.assertRaises(UserError):
+            other.with_user(self.tutor).action_extend_joining()
+
+    def test_extending_asks_the_students_again(self):
+        walkout = open_walkout(self, days=14)
+        self._supported(walkout)
+        sent = len(self._mails(walkout.line_ids))
+        walkout._ems_portal_extend(self.delegate)
+        self.assertEqual(len(self._mails(walkout.line_ids)), sent + 3, "Each student with portal access.")
+
     def test_generate_the_justification(self):
         walkout = open_walkout(self)
         self._supported(walkout)

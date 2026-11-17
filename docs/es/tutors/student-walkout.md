@@ -18,6 +18,7 @@ Recibes un correo, a la vez que tu grupo, cada vez que pasa algo:
 |--------|--------------------|
 | El delegado propone la votación | Quién la ha propuesto, para qué día, y hasta cuándo vota el grupo |
 | El grupo la apoya | El recuento de votos, y hasta cuándo cada alumno dice si se suma |
+| Se amplían las adhesiones | Hasta cuándo puede decir ahora cada alumno si se suma; hasta entonces todavía puedes abortar la propuesta |
 | La propuesta se cierra | Si el grupo la apoya y cuántos alumnos se suman |
 | La jefatura de estudios la valida | Que la falta de quienes se suman está justificada |
 | Se aborta o no se valida | Quién lo ha hecho, y el motivo |
@@ -52,6 +53,16 @@ Nunca porque no estés de acuerdo con su causa, coincida con un examen, una sali
 Se avisa al alumnado del grupo, con el motivo, y la jefatura de estudios recibe un aviso de cada propuesta abortada en su resumen diario. Una vez cerrada la propuesta, solo decide la jefatura de estudios.
 
 También la pueden abortar quienes están por encima de ti en la jerarquía (jefe de departamento o de seminario, jefe de estudios o jefe de estudios adjunto, dirección) y el administrador.
+
+---
+
+## Ampliar las adhesiones
+
+Si el alumnado necesita más tiempo para decir si se suma, **Acciones > Amplía las adhesiones** le da una fase más (el tiempo fijado para cada fase en la configuración del centro), contada desde el final de las adhesiones, o desde ahora si ya han acabado. Puedes hacerlo en cualquier momento y tantas veces como haga falta, mientras el jefe de estudios todavía reciba el acta con la antelación prevista antes de la huelga: cuando no es posible, la acción no aparece. Se avisa a todo el alumnado.
+
+- El delegado y el subdelegado pueden ampliarlas una vez por su cuenta, desde el portal.
+- Si la propuesta ya se había cerrado, se vuelve a abrir: el acta que llegó al jefe de estudios se retira (recibe un aviso en su resumen diario) y se envía una nueva cuando se cierre de nuevo.
+- Solo se pueden ampliar las propuestas que el grupo apoya: una que el grupo no ha apoyado, una abortada o una ya validada no.
 
 ---
 

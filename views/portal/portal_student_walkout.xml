@@ -207,6 +207,20 @@
                     </div>
                 </div>
 
+                <!-- Issue #838: the delegates extend the joining once, even when it is over. -->
+                <div t-if="can_extend" class="card shadow-sm mb-4 o_ems_walkout_extend">
+                    <div class="card-header"><strong>Need more time?</strong></div>
+                    <div class="card-body">
+                        <p>You can extend the joining once, until <t t-esc="extension_until"/>. Students will be told.</p>
+                        <span id="ems_walkout_confirm_extend" class="d-none">Extend the joining? You can do it only once.</span>
+                        <form t-attf-action="/my/vagues/#{walkout.id}/amplia" method="post" class="d-inline">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <button type="submit" class="btn btn-outline-primary o_ems_walkout_extend_send"
+                                    onclick="return confirm(document.getElementById('ems_walkout_confirm_extend').textContent)">Extend the joining</button>
+                        </form>
+                    </div>
+                </div>
+
                 <!-- The delegate: follow the call and cancel it. -->
                 <div t-if="can_manage" class="card shadow-sm mb-4 o_ems_walkout_manage">
                     <div class="card-header"><strong>Manage the proposal</strong></div>

@@ -103,6 +103,34 @@
             </field>
         </record>
 
+        <!-- Issue #838: the joining was extended (by a delegate, or by the tutor chain). -->
+        <record id="email_template_student_walkout_join_extended" model="mail.template">
+            <field name="name">EMS: student walkout, joining extended</field>
+            <field name="model_id" ref="ems.model_ems_student_walkout_line"/>
+            <field name="subject">Student walkout on {{ format_date(object.walkout_id.walkout_date) }}: more time to join it</field>
+            <field name="email_from">{{ object.walkout_id.company_id.name }} &lt;{{ object.walkout_id.company_id.email }}&gt;</field>
+            <field name="lang">{{ object.student_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html">
+                <![CDATA[
+                    <div style="font-family: Arial, sans-serif; font-size: 14px;">
+                        <p>Hello <t t-out="object.student_id.name"/>,</p>
+                        <p>
+                            The time to say whether you join the student walkout of
+                            <strong t-out="format_date(object.walkout_id.walkout_date)"/> has been extended: you can answer, or change
+                            your answer, on the school portal
+                            (<a t-attf-href="{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}">student walkouts</a>),
+                            until <strong t-out="object.walkout_id.format_local_datetime(object.walkout_id.join_until)"/>.
+                        </p>
+                        <p>
+                            Kind regards,<br/>
+                            <t t-out="object.walkout_id.company_id.name"/>
+                        </p>
+                    </div>
+                ]]>
+            </field>
+        </record>
+
         <!-- To the family of each justified student (a minor whose family ratified it, or an adult who
              shares with it), once the Head of Studies validates the call. -->
         <record id="email_template_student_walkout_family" model="mail.template">
@@ -355,7 +383,7 @@
         </record>
 
         <!-- To the group's tutors (or, with no tutor, the Head of Studies), a copy of what the group is
-             told, when it reaches the group (ctx walkout_event: call, join, closed, validated, rejected).
+             told, when it reaches the group (ctx walkout_event: call, join, extended, closed, validated, rejected).
              An email at once: the tutor may abort the call within the phase. -->
         <record id="email_template_student_walkout_tutor" model="mail.template">
             <field name="name">EMS: student walkout, tutor</field>
@@ -388,6 +416,12 @@
                             <t t-out="object.group_abstain_count"/> abstentions). Each student says whether they join
                             it until <strong t-out="object.format_local_datetime(object.join_until)"/>; you can still
                             abort the proposal until then.
+                        </p>
+                        <p t-elif="event == 'extended'">
+                            The time to say whether the students of <strong t-out="object.group_id.name"/> join the
+                            student walkout of <strong t-out="format_date(object.walkout_date)"/> has been extended until
+                            <strong t-out="object.format_local_datetime(object.join_until)"/>. You can still abort the
+                            proposal until then.
                         </p>
                         <p t-elif="event == 'closed'">
                             The proposal to support the student walkout of <strong t-out="format_date(object.walkout_date)"/> in

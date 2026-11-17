@@ -83,6 +83,16 @@ If the group supports it, you get an email and the proposal asks you **Do you jo
 
 ---
 
+## Extending the joining (delegate or sub-delegate)
+
+If joining is about to end, or has ended, and students still need time, open the proposal's page and click **Extend the joining**. Joining lasts one phase more (the same time as each phase in the centre's settings), counted from the end of joining, or from now if it has already ended. Every student is told.
+
+- **You can do it only once.** The group's tutor, and whoever is above them, can extend it more times.
+- If joining had already ended, the proposal is open again and the minute goes to the Head of Studies when it closes again.
+- It is not always possible: the Head of Studies must still get the minute with the notice before the walkout. The button only appears when it is.
+
+---
+
 ## Ratifying it (family of a minor)
 
 When your child (under 18 on the walkout day) says that they join a walkout, you get an email at once. On the portal, the home page warns you; click **Answer**, or open **Student walkouts**.

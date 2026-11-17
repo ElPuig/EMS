@@ -18,6 +18,7 @@ Reps un correu, alhora que el teu grup, cada vegada que passa alguna cosa:
 |------|-------------------|
 | El delegat proposa la votació | Qui l'ha proposada, per a quin dia, i fins quan vota el grup |
 | El grup hi dona suport | El recompte de vots, i fins quan cada alumne diu si s'hi suma |
+| S'amplien les adhesions | Fins quan cada alumne pot dir ara si s'hi suma; fins llavors encara pots avortar la proposta |
 | La proposta es tanca | Si el grup hi dona suport i quants alumnes s'hi sumen |
 | El cap d'estudis la valida | Que la falta dels qui s'hi sumen està justificada |
 | S'avorta o no es valida | Qui ho ha fet, i el motiu |
@@ -52,6 +53,16 @@ Mai perquè no hi estiguis d'acord, coincideixi amb un examen, una sortida o un 
 Se n'avisa l'alumnat del grup, amb el motiu, i el cap d'estudis rep un avís de cada proposta avortada al seu resum diari. Un cop tancada la proposta, només decideix el cap d'estudis.
 
 També la poden avortar els qui són per sobre teu a la jerarquia (cap de departament o de seminari, cap d'estudis o cap d'estudis adjunt, direcció) i l'administrador.
+
+---
+
+## Ampliar les adhesions
+
+Si l'alumnat necessita més temps per dir si s'hi suma, **Accions > Amplia les adhesions** li dona una fase més (el temps fixat per a cada fase a la configuració del centre), comptada des del final de les adhesions, o des d'ara si ja han acabat. Ho pots fer en qualsevol moment i tantes vegades com calgui, mentre el cap d'estudis encara rebi l'acta amb l'antelació prevista abans de la vaga: quan no és possible, l'acció no apareix. S'avisa tot l'alumnat.
+
+- El delegat i el sotsdelegat poden ampliar-les una vegada pel seu compte, des del portal.
+- Si la proposta ja s'havia tancat, es torna a obrir: l'acta que va arribar al cap d'estudis es retira (en rep un avís al resum diari) i se n'envia una de nova quan es tanqui de nou.
+- Només es poden ampliar les propostes a les quals el grup dona suport: una a la qual el grup no ha donat suport, una d'avortada o una ja validada no.
 
 ---
 

@@ -67,6 +67,29 @@ registry.category("web_tour.tours").add("ems_student_walkout_abort", {
     ],
 });
 
+// Issue #838: the tutor extends the joining of a closed call, which reopens it.
+registry.category("web_tour.tours").add("ems_student_walkout_extend", {
+    test: true,
+    url: "/odoo/action-ems.action_student_walkout",
+    steps: () => [
+        {
+            trigger: `${ROW} .o_field_badge:contains('Closed')`,
+            content: "Open the closed call",
+            run: "click",
+        },
+        ...clickAction("action_extend_joining", "Extend the joining"),
+        {
+            trigger: ".modal .btn-primary:contains('Ok')",
+            content: "Confirm the extension",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_statusbar_status .o_arrow_button_current:contains('Joining')",
+            content: "The call is open to joining again",
+        },
+    ],
+});
+
 registry.category("web_tour.tours").add("ems_student_walkout_validate", {
     test: true,
     url: "/odoo/action-ems.action_student_walkout",

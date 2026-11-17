@@ -18,6 +18,7 @@ You get an email, at the same time as your group, every time something happens:
 |------|---------------------|
 | The delegate proposes the vote | Who proposed it, for which day, and until when the group votes |
 | The group supports it | The vote count, and until when each student says whether they join |
+| Joining is extended | Until when each student can now say whether they join; you can still abort the proposal until then |
 | The proposal closes | Whether the group supports it and how many students join it |
 | The Head of Studies validates it | That the absences of those who join it are justified |
 | It is aborted or not validated | Who did it, and the reason |
@@ -52,6 +53,16 @@ Never because you disagree with its cause, it coincides with an exam, an outing 
 The students of the group are told, with the reason, and the Head of Studies gets a notice of every aborted proposal in their daily summary. Once the proposal has closed, only the Head of Studies decides.
 
 Whoever is above you in the hierarchy (Department or Seminar Chief, Head or Deputy Head of Studies, Director) and the administrator can abort it too.
+
+---
+
+## Extending the joining
+
+If students need more time to say whether they join, **Actions > Extend the joining** gives them one phase more (the time set for each phase in the centre's settings), counted from the end of joining, or from now if it has already ended. You can do it at any time and as many times as needed, as long as the Head of Studies still gets the minute with the notice before the walkout: when it is not possible, the action does not appear. Every student is told.
+
+- The delegate and sub-delegate can extend it once by themselves, from the portal.
+- If the proposal had already closed, it opens again: the minute that went to the Head of Studies is withdrawn (they get a notice in their daily summary) and a new one is sent when it closes again.
+- Only a proposal the group supports can be extended: not one the group did not support, an aborted one or one already validated.
 
 ---
 

@@ -543,6 +543,8 @@ class TestQualityMinute(TransactionCase):
         mail = self.env['mail.mail'].sudo().search([('model', '=', 'ems.minute'), ('res_id', '=', minute.id)])
         self.assertEqual(mail.email_to, 'minute.writer@example.com')
         self.assertIn('Budget for the workshop', mail.body_html)
+        self.assertIn('Open the minute in EMS', mail.body_html, "inside the meetings card layout, with its button")
+        self.assertIn(f"/odoo/action-ems.action_minute/{minute.id}", mail.body_html)
         self.assertIn('12:30', mail.body_html, "the time the centre reads, not UTC")
         self.assertIn(f"/odoo/action-ems.action_minute/{first.id}", mail.body_html, "a link to the previous minute, to read before approving it")
         self.assertNotIn('replaces the one sent before', mail.body_html)
@@ -642,6 +644,7 @@ class TestQualityMinute(TransactionCase):
         self.assertEqual(len(guest), 1, "a guest gets a message of their own")
         self.assertEqual(guest.attachment_ids.mimetype, 'application/pdf', "with the PDF attached, having no account")
         self.assertNotIn('/report/pdf', guest.body_html)
+        self.assertNotIn('/odoo/action-ems.action_minute', guest.body_html, "no button to a minute they cannot open")
         self.assertTrue(mails.filtered(lambda mail: 'pau.away@example.com' in mail.email_to), "and so does a guest who did not come")
         self.assertTrue(minute.message_ids.filtered(lambda message: 'Draft sent to 4 people' in (message.body or '')))
 

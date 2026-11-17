@@ -16,6 +16,8 @@ from .minute_type import SCOPE_FIELDS
 
 # The task of whoever is to approve a minute sent for approval (issue #753).
 APPROVAL_TASK_XMLID = 'ems.mail_activity_minute_approval'
+# Every email about a meeting, sent by hand or from the minute's thread (issue #822).
+MAIL_LAYOUT = 'ems.mail_layout_minutes'
 
 # What the old free-text 'type' column held, kept in step with the new type's scope so the column
 # stays meaningful for anything reading the database directly. It is no longer used by the
@@ -754,12 +756,20 @@ class EmsMinute(models.Model):
             'convener_name': self._ems_convener().name,
         }
 
-    def _ems_meeting_mail(self, template, subject, values, email_to, pdf=None):
+    def _ems_meeting_mail(self, template, subject, values, email_to, pdf=None, staff=True):
         """A message about the meeting from whoever sends it (the call, the draft), rendered from
-        `template`; `pdf`, the minute's PDF to attach for somebody who cannot open it in EMS."""
+        `template` inside the meetings card layout, with a button to the minute for the `staff`
+        (a guest from outside EMS cannot open it); `pdf`, the minute's PDF to attach for a guest."""
+        qweb = self.env['ir.qweb']
+        body = qweb._render(template, values, minimal_qcontext=True)
         vals = {
             'subject': subject,
-            'body_html': self.env['ir.qweb']._render(template, values, minimal_qcontext=True),
+            'body_html': qweb._render(MAIL_LAYOUT, {
+                'body': body,
+                'record': self,
+                'company': self.env.company,
+                'minute_url': staff and f"{self.get_base_url()}/odoo/action-ems.action_minute/{self.id}",
+            }, minimal_qcontext=True),
             'email_from': self.env.user.email_formatted or self.env.company.email_formatted,
             'reply_to': self.env.user.email_formatted or self.env.company.email_formatted,
             'email_to': email_to,
@@ -924,7 +934,7 @@ class EmsMinute(models.Model):
         # theirs leaves out the link to the previous minute, which they cannot open.
         for guest in guests:
             mails |= self._ems_meeting_mail('ems.minute_call_email', subject, {**values, 'previous_url': False},
-                                            formataddr((f"{guest.name} {guest.surname}", guest.email)))
+                                            formataddr((f"{guest.name} {guest.surname}", guest.email)), staff=False)
         mails.send()
         count = len(recipients) + len(guests)
         self.write({'call_sent_datetime': fields.Datetime.now(), 'call_recipient_count': count})
@@ -986,7 +996,7 @@ class EmsMinute(models.Model):
             pdf = self.env['ir.actions.report'].sudo()._render_qweb_pdf('ems.report_minute', minute.ids)[0]
             for guest in guests:
                 mails |= minute._ems_meeting_mail('ems.minute_draft_email', subject, {**values, 'pdf_url': False},
-                                                  formataddr((f"{guest.name} {guest.surname}", guest.email)), pdf)
+                                                  formataddr((f"{guest.name} {guest.surname}", guest.email)), pdf, staff=False)
         mails.send()
         count = len(staff) + len(guests)
         self.message_post(body=_("Draft sent to %s people.", count))
@@ -1047,6 +1057,12 @@ class EmsMinute(models.Model):
         count = len(self.message_partner_ids - self.env.user.partner_id)
         self.message_post(body=_("Draft sent to %s people.", count))
         return self._ems_sent_notice(_("The draft has been sent to %s people.", count))
+
+    def message_post(self, **kwargs):
+        """Every email sent from a minute's thread looks like the rest of the meeting's emails (the
+        opening and draft of a meeting held by email, and the answers it relays)."""
+        kwargs.setdefault('email_layout_xmlid', MAIL_LAYOUT)
+        return super().message_post(**kwargs)
 
     def _notify_get_recipients(self, message, msg_vals=False, **kwargs):
         """A meeting held by email is a mailing list: every message of its thread reaches each

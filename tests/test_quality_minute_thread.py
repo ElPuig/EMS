@@ -113,6 +113,11 @@ class TestQualityMinuteThread(TransactionCase):
         self.assertEqual(notification.notification_type, 'email')
         # Opening it is not anybody's intervention.
         self.assertFalse(minute.intervention_ids)
+        # Sent inside the meetings card layout, which asks for an answer instead of saying none is needed.
+        self.assertEqual(opening.email_layout_xmlid, 'ems.mail_layout_minutes')
+        sent = self.mail_transport.call_args.args[0].get_body(('html',)).get_content()
+        self.assertIn('Answer this message to take part', sent)
+        self.assertNotIn('There is no need to reply', sent)
 
     def test_whoever_has_not_answered_yet_can_read_it(self):
         """They start among the absentees, and still open the minute and its draft from the emails."""
@@ -144,6 +149,7 @@ class TestQualityMinuteThread(TransactionCase):
         # Whoever opened it follows the thread and gets the answer, as in a mailing list.
         message = intervention.message_id
         self.assertIn(self.writer_user.partner_id, message.notified_partner_ids)
+        self.assertEqual(message.email_layout_xmlid, 'ems.mail_layout_minutes', "relayed in the meetings layout too")
 
     def test_an_answer_from_an_unknown_address_is_filed_but_names_nobody_as_attendee(self):
         minute = self._thread()

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Pieces shared by every email about a meeting, in the style of the card layout
+             (ems.mail_layout_minutes, issue #822): rendered inside its body. -->
+
+        <!-- A small coloured label above the title: `tag`, its text; `warning`, amber instead of
+             the house colour. -->
+        <template id="minute_mail_heading" name="Minute email: label and title">
+            <t t-set="brand_color" t-value="minute.env.company.email_primary_color or '#a51d2d'"/>
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr>
+                <td t-if="warning" style="background-color:#fff6db;border:1px solid #f1d58a;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#8a6100;text-transform:uppercase;" t-out="tag"/>
+                <td t-else="" t-attf-style="background-color:#fbeff1;border:1px solid #f0cdd4;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:{{ brand_color }};text-transform:uppercase;" t-out="tag"/>
+            </tr></table>
+            <h1 style="margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;" t-out="minute.name"/>
+        </template>
+
+        <!-- The key facts of the meeting in a bordered card: `facts`, a list of (label, value). -->
+        <template id="minute_mail_facts" name="Minute email: facts card">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;background-color:#fafbfc;">
+                <tr><td style="padding:16px 21px 14px 21px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+                        <tr t-foreach="facts" t-as="fact">
+                            <td valign="top" style="padding:4px 14px 4px 0;width:120px;font-size:11px;line-height:20px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;" t-out="fact[0]"/>
+                            <td valign="top" style="padding:4px 0;font-size:15px;line-height:20px;font-weight:bold;color:#243044;" t-out="fact[1]"/>
+                        </tr>
+                    </table>
+                </td></tr>
+            </table>
+        </template>
+
+        <!-- A highlighted note: `note`, its content. -->
+        <template id="minute_mail_note" name="Minute email: highlighted note">
+            <t t-set="stripe_color" t-value="minute.env.company.email_secondary_color or '#e66100'"/>
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" t-attf-style="border-collapse:separate;margin:0 0 20px 0;background-color:#fdf3ea;border-left:3px solid {{ stripe_color }};border-radius:4px;">
+                <tr><td style="padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5b3a1c;" t-out="note"/></tr>
+            </table>
+        </template>
+
+        <!-- A secondary button inside the body: `url` and `label`. -->
+        <template id="minute_mail_button" name="Minute email: button">
+            <t t-set="brand_color" t-value="minute.env.company.email_primary_color or '#a51d2d'"/>
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;margin:0 0 20px 0;"><tr>
+                <td t-attf-style="border:1px solid {{ brand_color }};border-radius:6px;">
+                    <a t-att-href="url" target="_blank" t-attf-style="display:inline-block;padding:10px 20px;font-size:14px;line-height:20px;font-weight:bold;color:{{ brand_color }};text-decoration:none;" t-out="label"/>
+                </td>
+            </tr></table>
+        </template>
+
+        <!-- The agenda of the meeting under its heading: `empty`, what to say when there is none. -->
+        <template id="minute_mail_agenda" name="Minute email: agenda">
+            <p style="margin:0 0 6px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;">Agenda</p>
+            <div t-if="minute.agenda_html" style="margin:0 0 20px 0;font-size:14px;line-height:22px;color:#243044;" t-out="minute.agenda_html"/>
+            <p t-else="" style="margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;" t-out="empty"/>
+        </template>
+    </data>
+</odoo>

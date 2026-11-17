@@ -3543,6 +3543,7 @@ msgstr "Dades descarregades"
 #. module: ems
 #. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__date model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__issue_date model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__date model:ir.model.fields,field_description:ems.field_ems_minute__date model:ir.model.fields.selection,name:ems.selection__ems_authorization_field__field_type__date model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__date model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+#: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_monthly_list
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__date model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
@@ -20169,6 +20170,7 @@ msgstr "Línia d'assistència a reunió"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/meetings/presence.py:0
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_minutes
 #: model:ir.ui.menu,name:ems.menu_minutes
 #: code:addons/ems/models/erasmus/quality.py:0
 msgid "Meetings"
@@ -26663,11 +26665,10 @@ msgstr "Acceptació"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__agenda
+#: model_terms:ir.ui.view,arch_db:ems.minute_mail_agenda
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 #: model:ir.model.fields,field_description:ems.field_ems_minute__agenda_html
-#: model_terms:ir.ui.view,arch_db:ems.minute_call_email
-#: model_terms:ir.ui.view,arch_db:ems.minute_thread_open_email
 msgid "Agenda"
 msgstr "Ordre del dia"
 
@@ -46131,12 +46132,6 @@ msgid "If anything needs correcting, please reply to this email."
 msgstr "Si cal corregir-hi alguna cosa, us preguem que respongueu aquest correu."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
-#: model_terms:ir.ui.view,arch_db:ems.minute_thread_draft_email
-msgid "It will be approved by"
-msgstr "L'aprovarà"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_submit_wizard_form
 msgid "None of the people convened has an email address: the draft cannot be sent to them."
 msgstr "Cap de les persones convocades té adreça de correu: no se'ls pot enviar l'esborrany."
@@ -51313,7 +51308,6 @@ msgstr "No hi ha res a ratificar per a aquest alumne."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
-#: model_terms:ir.ui.view,arch_db:ems.minute_thread_open_email
 msgid "You can answer until"
 msgstr "Podeu respondre fins al"
 
@@ -53217,15 +53211,6 @@ msgid "%(name)s (answers until %(date)s)"
 msgstr "%(name)s (respostes fins al %(date)s)"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.minute_thread_open_email
-msgid ""
-".\n"
-"                    Everybody taking part receives every answer, and each one is written into the minute as an intervention."
-msgstr ""
-".\n"
-"                    Tothom qui hi participa rep totes les respostes, i cadascuna queda escrita a l'acta com una intervenció."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__addressed
 msgid "Addressed"
 msgstr "Atesa"
@@ -53243,6 +53228,7 @@ msgstr "Esmenes a l'esborrany"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__reply_deadline
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_open_email
 msgid "Answers until"
 msgstr "Respostes fins al"
 
@@ -53446,6 +53432,56 @@ msgstr ""
 "Qui respon al fil passa sol als assistents; corregiu les llistes si cal."
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_minutes
+msgid "Answering this message writes to whoever sent it."
+msgstr "Si respons aquest missatge, escriuràs a qui te l'ha enviat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_draft_email
+msgid "Approval"
+msgstr "Aprovació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_call_email
+msgid "Call to a meeting"
+msgstr "Convocatòria"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_draft_email
+msgid "Draft minute"
+msgstr "Esborrany de l'acta"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.minute_thread_open_email
-msgid "You can also follow it in EMS:"
-msgstr "També el podeu seguir a EMS:"
+msgid ""
+"Everybody taking part receives every answer, and each one is written into "
+"the minute as an intervention."
+msgstr ""
+"Tothom qui hi participa rep totes les respostes, i cadascuna queda escrita a"
+" l'acta com una intervenció."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_open_email
+msgid "Meeting held by email"
+msgstr "Reunió per correu"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_minutes
+msgid ""
+"Meeting held by email · Answer this message to take part: everybody taking "
+"part receives your answer."
+msgstr ""
+"Reunió per correu · Respon aquest missatge per participar-hi: tothom qui hi "
+"participa rebrà la teva resposta."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_minutes
+msgid "Open the minute in EMS"
+msgstr "Obre l'acta a EMS"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_call_email
+msgid "Updated call"
+msgstr "Convocatòria actualitzada"

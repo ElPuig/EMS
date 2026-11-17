@@ -59,8 +59,8 @@ What to expect from it:
 Direct notices (`message_notify()`) and templates with their own `reply_to` do not go through
 this: their answers go straight to a person.
 
-The same circuit carries meetings held by email: a minute of kind `email_thread` is a thread whose
-answers become its interventions (see [quality_overview.md](../quality/quality_overview.md#meetings-held-by-email-issue-822)).
+The same circuit carries meetings held by email: a meeting minute with the modality "By email" is a thread
+whose answers are written into the minute (see [quality_overview.md](../quality/quality_overview.md#meetings-held-by-email-issue-822)).
 
 ## Development machines
 

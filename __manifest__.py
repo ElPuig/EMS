@@ -87,6 +87,7 @@
         'views/minutes_agreements/minute/draft_email.xml',
         'views/minutes_agreements/minute/thread_email.xml',
         'views/minutes_agreements/minute/submit_wizard.xml',
+        'views/minutes_agreements/minute/intervention_wizard.xml',
         'views/minutes_agreements/menu.xml',
             'views/minutes_agreements/minute/search.xml',
             'views/minutes_agreements/minute/list.xml',

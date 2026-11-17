@@ -70,7 +70,7 @@
             <t t-set="area">Meetings</t>
             <t t-set="button_label">Open the minute in EMS</t>
             <t t-set="button_url" t-value="minute_url or (has_button_access and button_access and button_access.get('url'))"/>
-            <t t-if="record and record._name == 'ems.minute' and record.type_kind == 'email_thread'">
+            <t t-if="record and record._name == 'ems.minute' and record.modality == 'email'">
                 <t t-set="reply_note">Meeting held by email · Answer this message to take part: everybody taking part receives your answer.</t>
             </t>
             <t t-else="">

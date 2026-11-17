@@ -33,7 +33,6 @@ a meeting you were convened to, one of your department) opens **read-only**, wit
    | Type | Who can start it |
    |---|---|
    | Acta de reunió genèrica | Anybody |
-   | Fil de correu (a meeting held by email, see [below](#meetings-held-by-email)) | Anybody |
    | Acta de reunió de departament | The Department or Seminar Chief, and those above them, only for their own department |
    | Acta de claustre | The management team: Director, Head of Studies, Deputy Head of Studies and Secretary |
    | Acta d'equip docent | The group's tutor, those above them and the teachers who teach the group |
@@ -200,30 +199,30 @@ Drive bin.
 
 ## Meetings held by email
 
-When a matter does not need everybody in the same room, the meeting can be held by email with the
-**Fil de correu** type: the participants take part by answering an email, and every answer is written into
-the minute.
+When a matter does not need everybody in the same room, any meeting minute can be held by email: choose
+**By email** as its **modality**. The minute keeps its own type (a teaching team's, a department's...), so
+it follows on from the earlier minutes of the same scope like any other. The participants take part by
+answering an email, or from EMS.
 
-1. **New** and the **Fil de correu** type. Choose the **scope of the meeting** as in a generic minute; with
-   *No particular scope*, add the participants to the **Attendance** tab yourself, and you are proposed as
-   whoever approves it.
-2. Set **Answers until**, the last day to take part, and write the **items to discuss** in their tab.
-   There is no time, room or kiosk.
-3. **Actions → Open the thread**. Everybody convened gets an email with the agenda and the deadline, and
+1. Prepare the minute as usual, with **By email** as the modality. Instead of a time, room and kiosk it
+   asks for **Answers until**, the last day to take part. Write the **items to discuss** and check who is
+   convened in the **Attendance** tab.
+2. **Actions → Open the thread**. Everybody convened gets an email with the agenda and the deadline, and
    they all start among the **absentees**.
-4. Each participant **replies to that email** from their mailbox. Everybody receives every answer, as in
-   a mailing list, and within a few minutes the answer appears in the **Interventions** block of the
-   minute, with its author and date and without the text it quotes. Whoever answers moves to the
-   **attendees** by themselves. You can retouch the text of an intervention, and correct the lists. A
-   message written in the minute's history also counts as an intervention.
-5. When the deadline is over, write the agreements and the pending topics, and **Actions → Send for
+3. Each participant **replies to that email** from their mailbox. Everybody receives every answer, as in
+   a mailing list, and within a few minutes the answer is written under **Precs i preguntes**, with its
+   author and date and without the text it quotes. Whoever answers moves to the **attendees** by
+   themselves. A message written in the minute's history counts too.
+4. To say something about one item in particular, open the minute in EMS and use **Actions → Add an
+   intervention**: choose the **item to discuss** and write it. It is written under that item, and it
+   reaches everybody by email too, saying which item it is about. Left without an item, it goes under
+   **Precs i preguntes**.
+5. Whoever writes the minute can retouch everything written in it, and correct the lists: whoever is
+   taken off them stops getting the thread.
+6. When the deadline is over, write the agreements and the pending topics, and **Actions → Send for
    approval**, with the draft for the participants ticked: they get it as one more email of the same
-   thread.
-6. Whatever the participants answer to the draft appears in the **Amendments to the draft** block.
-   - With amendments: **Actions → Back to the meeting**, apply them and send it for approval again. If an
-     amendment needs no change, tick **Addressed** instead.
-   - With no amendments (or all of them addressed), whoever gives the approval approves it as any other
-     minute.
+   thread. What they answer to the draft stays in the minute's history, for whoever writes it to apply;
+   it does not hold back the approval.
 
 Answer from the email address the centre has for you: an answer from a personal address is written into
 the minute, but does not make you an attendee.

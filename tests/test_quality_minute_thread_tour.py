@@ -12,8 +12,8 @@ from .test_quality_minute_thread import REPLY
 
 @tagged('post_install', '-at_install')
 class TestQualityMinuteThreadTour(HttpCase):
-    """Browser coverage of a meeting held by email (issue #822), as a teacher: any teacher can
-    open one, so it is the least-privileged role that uses the screen."""
+    """Browser coverage of a meeting held by email (issue #822), as teachers: one opens it, and a
+    participant who can only read the minute takes part from EMS."""
 
     @classmethod
     def setUpClass(cls):
@@ -25,13 +25,16 @@ class TestQualityMinuteThreadTour(HttpCase):
                                     email='thread.tour@example.com')
         writer = create_role_employee(cls, cls.user)
         writer.work_email = 'thread.tour@example.com'
-        other = create_role_employee(cls, create_role_user(cls, 'teacher', 'thread.other@example.com', name='TMTT Other',
-                                                           email='thread.other@example.com'))
+        cls.other_user = create_role_user(cls, 'teacher', 'thread.other@example.com', name='TMTT Other',
+                                          email='thread.other@example.com')
+        other = create_role_employee(cls, cls.other_user)
         other.work_email = 'thread.other@example.com'
         public = cls.env['hr.employee.public']
         cls.minute = cls.env['ems.minute'].with_user(cls.user).create({
-            'type_id': cls.env.ref('__import__.minute_type_email_thread').id,
+            'type_id': cls.env.ref('__import__.minute_type_generic').id,
             'scope_choice': 'none',
+            'modality': 'email',
+            'agenda_ids': [(0, 0, {'name': 'TMTT item'})],
             'redactor_employee_id': writer.id,
             'attendee_ids': [(6, 0, (public.browse(writer.id) | public.browse(other.id)).ids)],
             'reply_deadline': fields.Date.today() + timedelta(days=7),
@@ -48,5 +51,7 @@ class TestQualityMinuteThreadTour(HttpCase):
         self.env['mail.thread'].message_process(False, REPLY.format(
             sender='TMTT Other <thread.other@example.com>', to=ensure_catchall_address(self),
             parent=opening.message_id, number=901, text='TMTT I agree with the item'))
+        # The participant who answered, who can only read the minute, adds an intervention from EMS.
         self.start_tour(f"/odoo/action-ems.action_minute/{self.minute.id}", "ems_minute_thread_interventions",
-                        login="thread.tour@example.com")
+                        login="thread.other@example.com")
+        self.assertIn('TMTT said on the item', self.minute.agenda_ids.notes)

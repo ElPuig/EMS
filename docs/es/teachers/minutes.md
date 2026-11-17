@@ -33,7 +33,6 @@ veáis (la de una reunión a la que se os convocó, la de vuestro departamento) 
    | Tipo | Quién puede iniciarla |
    |---|---|
    | Acta de reunió genèrica | Cualquier persona |
-   | Fil de correu (una reunión por correo, ved [más abajo](#reuniones-por-correo)) | Cualquier persona |
    | Acta de reunió de departament | El jefe de departamento o de seminario, y quien está por encima, solo de su departamento |
    | Acta de claustre | El equipo directivo: director, jefe de estudios, jefe de estudios adjunto y secretaria |
    | Acta d'equip docent | El tutor o tutora del grupo, quien está por encima y el profesorado que da clase en él |
@@ -205,28 +204,30 @@ Si se borra un acta, su copia va a la papelera de Drive.
 
 ## Reuniones por correo
 
-Cuando un tema no necesita que todo el mundo esté en la misma sala, la reunión se puede hacer por correo
-con el tipo **Fil de correu**: los participantes intervienen respondiendo un correo, y cada respuesta queda
-escrita en el acta.
+Cuando un tema no necesita que todo el mundo esté en la misma sala, cualquier acta de reunión se puede
+hacer por correo: elegid **Por correo** como **modalidad**. El acta conserva su tipo (de equipo docente,
+de departamento...), de modo que continúa las actas anteriores del mismo ámbito como cualquier otra. Los
+participantes intervienen respondiendo un correo, o desde EMS.
 
-1. **Nuevo** y el tipo **Fil de correu**. Elegid el **ámbito de la reunión** como en un acta genérica;
-   con *Sin ámbito concreto*, añadid vosotros los participantes en la pestaña **Asistencia**, y se os
-   propone a vosotros para dar el visto bueno.
-2. Indicad **Respuestas hasta el**, el último día para participar, y escribid los **puntos a tratar** en
-   su pestaña. No hay hora, sala ni quiosco.
-3. **Acciones → Abrir el hilo**. Todas las personas convocadas reciben un correo con el orden del día y la
+1. Preparad el acta como siempre, con la modalidad **Por correo**. En lugar de hora, sala y quiosco, pide
+   **Respuestas hasta el**, el último día para participar. Escribid los **puntos a tratar** y revisad
+   quién está convocado en la pestaña **Asistencia**.
+2. **Acciones → Abrir el hilo**. Todas las personas convocadas reciben un correo con el orden del día y la
    fecha límite, y todas empiezan en **Personas que faltan**.
-4. Cada participante **responde a ese correo** desde su buzón. Todo el mundo recibe todas las respuestas,
-   como en una lista de correo, y en pocos minutos la respuesta aparece en el bloque **Intervenciones**
-   del acta, con su autor y su fecha y sin el texto que cita. Quien responde pasa solo a **Asistentes**.
-   Podéis retocar el texto de una intervención y corregir las listas. Un mensaje escrito en el historial
-   del acta también cuenta como una intervención.
-5. Cuando acabe el plazo, escribid los acuerdos y los temas pendientes, y **Acciones → Enviar a aprobar**,
-   con el borrador para los participantes marcado: lo reciben como un correo más del mismo hilo.
-6. Lo que los participantes respondan al borrador aparece en el bloque **Enmiendas al borrador**.
-   - Con enmiendas: **Acciones → Volver a la reunión**, aplicadlas y volved a enviarla a aprobar. Si una
-     enmienda no requiere ningún cambio, marcadla como **Atendida**.
-   - Sin enmiendas (o con todas atendidas), quien da el visto bueno la aprueba como cualquier otra acta.
+3. Cada participante **responde a ese correo** desde su buzón. Todo el mundo recibe todas las respuestas,
+   como en una lista de correo, y en pocos minutos la respuesta queda escrita en **Precs i preguntes**,
+   con su autor y su fecha y sin el texto que cita. Quien responde pasa solo a **Asistentes**. Un mensaje
+   escrito en el historial del acta también cuenta.
+4. Para decir algo sobre un punto concreto, abrid el acta en EMS y usad **Acciones → Añadir una
+   intervención**: elegid el **punto a tratar** y escribidla. Queda escrita bajo ese punto y también llega
+   a todo el mundo por correo, indicando de qué punto se trata. Si no elegís ningún punto, va a **Precs i
+   preguntes**.
+5. Quien redacta el acta puede retocar todo lo que se ha escrito en ella y corregir las listas: quien sale
+   de ellas deja de recibir el hilo.
+6. Cuando acabe el plazo, escribid los acuerdos y los temas pendientes, y **Acciones → Enviar a aprobar**,
+   con el borrador para los participantes marcado: lo reciben como un correo más del mismo hilo. Lo que
+   respondan al borrador queda en el historial del acta, para que quien la redacta lo aplique; no detiene
+   la aprobación.
 
 Responded desde la dirección de correo que el centro tiene vuestra: una respuesta desde una dirección
 personal queda escrita en el acta, pero no os cuenta como asistentes.

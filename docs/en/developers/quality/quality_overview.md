@@ -275,9 +275,12 @@ the person saving uploaded (or any, under superuser). The list is read-only once
 
 ### Meetings held by email (issue #822)
 
-A minute type of kind `email_thread` (seeded: `__import__.minute_type_email_thread`, "Fil de correu", generic
-scope, open to anybody) is a meeting held by email: the minute's own chatter is the thread. It reuses the
-meeting's states; what changes is how it is held.
+A meeting held by email is a **modality** of any meeting minute (`modality = 'email'`, "By email"), not a type
+of its own: the minute keeps its type, scope and numbering, so it follows on from the earlier minutes of the
+same scope (previous minute, carried agreements and pending topics) and shows in the default "Meeting minutes"
+filter. The minute's own chatter is the thread. It reuses the meeting's states; what changes is how it is held.
+Only a type with a section of kind `requests` (the centre's "Precs i preguntes", `__import__.minute_section_requests`)
+can be held by email (`_check_email_modality`): that is where the answers are written.
 
 ```mermaid
 sequenceDiagram
@@ -287,17 +290,17 @@ sequenceDiagram
     W->>M: Open the thread (action_start_meeting)
     M->>P: Opening email (agenda, reply_deadline), Reply-To = catchall
     P->>M: Answers by email (incoming mail server)
-    Note over M: _ems_file_intervention: intervention, author to the attendees
-    M->>P: Every answer, to every follower
+    Note over M: _ems_file_intervention: under "Precs i preguntes", author to the attendees
+    P->>M: Intervention on an item (wizard in EMS)
+    Note over M: under the item's notes, posted to the thread
+    M->>P: Every message, to every follower
     W->>M: Send for approval + draft (by the thread)
-    P->>M: Answers to the draft
-    Note over M: filed as amendments; approval waits for them
+    P->>M: Answers to the draft (stay in the chatter)
 ```
 
-- **Preparing:** `reply_deadline` ("Answers until") replaces the time, duration, modality, room and attendance
-  mode (always `manual`, never a kiosk: `_ems_sync_presence` and `_ems_sync_leaves` only act on kind `meeting`).
-  No call is sent (`action_send_call` refuses it); the PDF's place says "By email" (`place_name`). With scope
-  *No particular scope*, `_ems_approver_candidates()` proposes whoever writes it.
+- **Preparing:** `reply_deadline` ("Answers until") replaces the time, duration, room and attendance mode
+  (always `manual`, never a kiosk: the modality onchange and `create()` force it). No call is sent
+  (`action_send_call` refuses it); `place_name` says "By email".
 - **Opening** (`action_start_meeting` → `_ems_open_thread()`): needs `reply_deadline` and somebody convened with an
   email. Everybody convened (`attendee_ids | absentee_ids`, through `work_contact_id`) follows the minute with
   the *Discussions* subtype only, `start_datetime` becomes now, and all of them move to `absentee_ids`; the opening
@@ -305,28 +308,34 @@ sequenceDiagram
   `mt_comment` flagged `ems_thread_own_post`, so its `Reply-To` is the catchall address and it is not an intervention.
   It can no longer go back to being prepared (`action_back_to_draft`).
 - **Everybody gets every message by email:** `_notify_get_recipients()` turns `inbox` recipients into `email` for
-  the `mt_comment` messages of an `email_thread` minute, so a user who reads notifications inside Odoo is not left
-  out of a mailing list. Tracking messages and notes are untouched.
-- **Interventions:** `_message_post_after_hook()` → `_ems_file_intervention()` files every `comment`/`email` message
-  of subtype `mt_comment` (an answer fetched from the mailbox, or a message written in the chatter) as an
-  `ems.minute.intervention`: kind `intervention` while the minute is in `meeting`, `amendment` in `to_approve`;
-  other states file nothing. The body is the message's without the quoted text (`_without_quoted_text()`: the
-  nodes `odoo.tools.mail.tag_quote` marked `data-o-mail-quote`); an answer that only quotes is skipped. The
-  author is resolved to an employee by `work_contact_id` or user partner; while the thread is open, that employee
-  moves from the absentees to the attendees. An answer from an address EMS does not know is filed under that
-  address and names nobody. The intervention's text is editable by whoever writes the minute; the message stays in
-  the chatter as it came. The PDF prints the interventions after the items discussed (not the amendments).
+  the `mt_comment` messages of a minute held by email, so a user who reads notifications inside Odoo is not left
+  out of a mailing list. Tracking messages and notes are untouched. Whoever is taken off the lists of an open
+  thread is unsubscribed (`write()` → `_ems_thread_unsubscribe()`), unless they write or approve the minute.
+- **Answers:** `_message_post_after_hook()` → `_ems_file_intervention()` writes every `comment`/`email` message of
+  subtype `mt_comment` (an answer fetched from the mailbox, or a message written in the chatter) while the minute is
+  in `meeting`, through `_ems_add_intervention()`: appended to the `requests` section's content as "**author**
+  (date and time, in the centre's language and timezone)" followed by the body without the quoted text
+  (`_without_quoted_text()`: the nodes `odoo.tools.mail.tag_quote` marked `data-o-mail-quote`; an answer that only
+  quotes is skipped). The author is resolved to an employee by `work_contact_id` or user partner and moves from the
+  absentees to the attendees; an answer from an address EMS does not know is written under that address and names
+  nobody. The text is then plain minute content, which whoever writes the minute edits like the rest.
+- **Interventions on an item, from EMS:** `ems.minute.intervention.wizard` (Actions → Add an intervention, offered
+  while `can_intervene`: the minute is held by email, in `meeting`, and the user's employee is convened, whether
+  or not they can write the minute). It writes into the chosen item's `notes` (or the `requests` section when no
+  item is chosen) with `_ems_add_intervention()` under `sudo`, and posts the text on the thread as the user
+  ("On item N: name" when there is one) flagged `ems_thread_own_post`, so everybody gets it and it is not written
+  twice. On sending for approval, the items' notes become the development of the session as in any meeting.
 - **Draft:** `action_send_draft` posts `ems.minute_thread_draft_email` on the thread (`_ems_send_draft_by_thread()`,
-  link to the PDF) instead of the per-recipient `mail.mail`; guests from outside EMS are not offered on this kind.
-- **Approval:** `action_approve` refuses while an amendment is not `addressed`; `action_back_to_meeting` marks them
-  all addressed (going back is how they get applied), and the writer can tick one that needs no change.
+  link to the PDF) instead of the per-recipient `mail.mail`. Whatever is answered to it (state `to_approve`) only
+  stays in the chatter for the writer to apply; nothing holds the approval.
 
-`ems.minute.intervention` has the access of the minute's other line models (ACL for teachers, secretary, quality
-and academic administrators; no rule of its own). Filing runs with `sudo`, since the incoming email is processed by
-the mail gateway. Cost: one employee lookup and one insert per message, whatever the size of the thread. The
-production circuit (catchall, incoming mail server) is the one described in
-[chatter_email_answers.md](../shared/chatter_email_answers.md); on a development machine nothing is fetched, so
-this is tested with `message_process()` (`tests/test_quality_minute_thread.py`, `tests/test_quality_minute_thread_tour.py`).
+Filing runs with `sudo`, since the incoming email is processed by the mail gateway. Cost per message: one indexed
+employee lookup and one write of the section (or item), whatever the size of the thread; unsubscribing on a list
+change is one query on the minute's followers. The production circuit (catchall, incoming mail server) is the one
+described in [chatter_email_answers.md](../shared/chatter_email_answers.md); on a development machine nothing is
+fetched, so this is tested with `message_process()` (`tests/test_quality_minute_thread.py`,
+`tests/test_quality_minute_thread_tour.py`). The section kind `requests` was set on existing installations by
+`migrations/18.0.0.49.4/post-migrate.py`.
 
 ### Who can start each kind of minute
 

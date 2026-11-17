@@ -9,7 +9,7 @@ from markupsafe import Markup
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools import format_date, is_html_empty
+from odoo.tools import format_date, format_datetime, is_html_empty
 
 from .common import scope_code
 from .minute_type import SCOPE_FIELDS
@@ -77,7 +77,7 @@ class EmsMinute(models.Model):
     )
     modality = fields.Selection(
         string="Modality",
-        selection=[("in-person", "In-person"), ("online", "Online"), ("hybrid", "Hybrid")],
+        selection=[("in-person", "In-person"), ("online", "Online"), ("hybrid", "Hybrid"), ("email", "By email")],
         required=True,
         default="in-person",
     )
@@ -198,19 +198,13 @@ class EmsMinute(models.Model):
     )
     agreement_review_ids = fields.One2many(string="Agreements reviewed", comodel_name="ems.minute.agreement.review", inverse_name="minute_id")
     pending_topic_ids = fields.One2many(string="Pending topics", comodel_name="ems.minute.pending.topic", inverse_name="minute_id")
-    # A meeting held by email (issue #822): until when the participants answer, and what each said,
-    # filed from the minute's thread as it arrives - while it is open, and as amendments to the draft.
+    # A meeting held by email (issue #822): until when the participants answer the thread.
     reply_deadline = fields.Date(
         string="Answers until",
         tracking=True,
         help="The last day to take part, stated in the email that opens the thread. Whoever writes the minute closes it by sending it for approval.",
     )
-    intervention_ids = fields.One2many(
-        string="Interventions", comodel_name="ems.minute.intervention", inverse_name="minute_id",
-        domain=[('kind', '=', 'intervention')])
-    amendment_ids = fields.One2many(
-        string="Amendments to the draft", comodel_name="ems.minute.intervention", inverse_name="minute_id",
-        domain=[('kind', '=', 'amendment')])
+    can_intervene = fields.Boolean(string="Can take part", compute="_compute_can_intervene")
     # Issue #803: the files that go with the minute (a budget, a report...), uploaded from the
     # writer's computer.
     annex_attachment_ids = fields.Many2many(
@@ -330,10 +324,10 @@ class EmsMinute(models.Model):
         for minute in self:
             minute.scope_name = minute.with_env(minute.env['res.company']._ems_centre_env())._scope_label()
 
-    @api.depends('space_id', 'place_text', 'type_kind')
+    @api.depends('space_id', 'place_text', 'modality')
     def _compute_place_name(self):
         for minute in self:
-            if minute.type_kind == 'email_thread':
+            if minute.modality == 'email':
                 minute.place_name = minute.env._("By email")
                 continue
             # The room as the centre names it everywhere else, with its code: "Stallman (0.01)".
@@ -379,6 +373,13 @@ class EmsMinute(models.Model):
                                             type=minute.type_id.name, scope=scope_record.display_name))
                 raise ValidationError(_("You cannot start a minute of type \"%s\".", minute.type_id.name))
 
+    @api.constrains('modality', 'type_id')
+    def _check_email_modality(self):
+        for minute in self:
+            if minute.modality == 'email' and (minute.type_kind != 'meeting' or not minute.type_id._has_section('requests')):
+                raise ValidationError(_("A meeting can only be held by email when its type of minute has a section for any other business: "
+                                        "that is where the answers are written."))
+
     @api.constrains('type_id', 'scope_choice', 'department_id', 'workgroup_id', 'group_id')
     def _check_scope_is_set(self):
         """The form asks for the scope; this keeps a minute created by code from going without it."""
@@ -418,9 +419,13 @@ class EmsMinute(models.Model):
             if scope_kind != 'teaching_team':
                 self.group_id = False
         self.is_centre = scope_kind == 'centre'
-        if self.type_id.kind == 'email_thread':
-            self.attendance_mode = 'manual'
         self._ems_build_sections()
+
+    @api.onchange('modality')
+    def _onchange_modality(self):
+        # A meeting held by email has no kiosk: whoever answers counts as present.
+        if self.modality == 'email':
+            self.attendance_mode = 'manual'
 
     @api.onchange('scope_choice')
     def _onchange_scope_choice(self):
@@ -433,8 +438,6 @@ class EmsMinute(models.Model):
         if self.scope_choice != 'group':
             self.group_id = False
         self.is_centre = self.scope_choice == 'centre'
-        if self.scope_choice == 'none':
-            self.approver_employee_id = self._ems_approver_candidates()[:1]
 
     @api.onchange('start_datetime')
     def _onchange_start_datetime(self):
@@ -481,7 +484,7 @@ class EmsMinute(models.Model):
                 minute.template_document_id = minute.type_id.template_document_id
             if not minute.approver_role_id:
                 minute.approver_role_id = minute.type_id.approver_role_id
-            if minute.type_kind == 'email_thread' and minute.attendance_mode != 'manual':
+            if minute.modality == 'email' and minute.attendance_mode != 'manual':
                 minute.attendance_mode = 'manual'
             if minute.type_id.scope_kind == 'centre' and not minute.is_centre:
                 minute.is_centre = True
@@ -503,7 +506,12 @@ class EmsMinute(models.Model):
         if vals.get('start_datetime'):
             derived = self._ems_vals_from_start(vals['start_datetime'])
             vals = {**derived, **vals, 'date': derived['date'], 'time': derived['time']}
+        threads = self.filtered(lambda minute: minute.modality == 'email' and minute.state in ('meeting', 'to_approve')) \
+            if {'attendee_ids', 'absentee_ids'} & set(vals) else self.browse()
+        convened_before = {minute.id: minute.attendee_ids | minute.absentee_ids for minute in threads}
         result = super().write(vals)
+        for minute in threads:
+            minute._ems_thread_unsubscribe(convened_before[minute.id] - minute.attendee_ids - minute.absentee_ids)
         if 'annex_attachment_ids' in vals:
             self._ems_link_annex_files()
         if {'attendance_mode', 'start_datetime', 'duration', 'attendee_ids', 'state'} & set(vals) \
@@ -809,9 +817,6 @@ class EmsMinute(models.Model):
         if not candidates and self.approver_role_id:
             holders = self.env['hr.employee.public'].search([('role_ids', 'in', self.approver_role_id.ids)], limit=6)
             candidates = holders if len(holders) <= 5 else candidates
-        # A thread with no particular scope has nobody answering for it: whoever opens it does.
-        if not candidates and self.type_id.kind == 'email_thread' and self.scope_choice == 'none':
-            candidates = self.redactor_employee_id
         return candidates
 
     @api.depends('type_id', 'department_id', 'workgroup_id', 'group_id', 'is_centre', 'approver_role_id', 'scope_choice', 'redactor_employee_id')
@@ -916,7 +921,7 @@ class EmsMinute(models.Model):
         self.ensure_one()
         self.check_access('write')
         self = self.with_env(self.env['res.company']._ems_centre_env())
-        if self.state in ('to_approve', 'approved') or self.type_kind != 'meeting':
+        if self.state in ('to_approve', 'approved') or self.type_kind != 'meeting' or self.modality == 'email':
             raise UserError(_("A call can only be sent for a meeting whose minute has not been sent for approval yet."))
         if not self.start_datetime:
             raise UserError(_("Set the date and time of the meeting before sending its call."))
@@ -985,7 +990,7 @@ class EmsMinute(models.Model):
             'date_label': format_date(minute.env, minute.date),
             'approver_name': minute.approver_employee_id.name or minute.approver_role_id.name,
         }
-        if self.type_kind == 'email_thread':
+        if self.modality == 'email':
             return self._ems_send_draft_by_thread(subject, values)
         mails = self.env['mail.mail'].sudo()
         if staff:
@@ -1021,6 +1026,15 @@ class EmsMinute(models.Model):
             self.sudo().message_subscribe(partner_ids=partners.ids, subtype_ids=[self.env.ref('mail.mt_comment').id])
         return partners
 
+    def _ems_thread_unsubscribe(self, employees):
+        """Whoever is taken off the lists of an open thread stops getting it, unless they write or
+        approve the minute."""
+        self.ensure_one()
+        employees -= self.redactor_employee_id | self.approver_employee_id
+        partners = employees.sudo().work_contact_id | employees.sudo().user_id.partner_id
+        if partners:
+            self.sudo().message_unsubscribe(partner_ids=partners.ids)
+
     def _ems_open_thread(self):
         """Open a meeting held by email: everybody convened follows the minute and gets the opening
         email (its agenda and until when to answer). Nobody has said anything yet, so they all
@@ -1048,7 +1062,7 @@ class EmsMinute(models.Model):
 
     def _ems_send_draft_by_thread(self, subject, values):
         """The draft of a meeting held by email goes by its own thread: whatever the participants
-        answer while it waits for approval is filed as an amendment."""
+        answer to it stays in the minute's history, for whoever writes it to apply."""
         self.ensure_one()
         minute = values['minute']
         self._ems_thread_subscribe()
@@ -1069,7 +1083,7 @@ class EmsMinute(models.Model):
         participant by email, also those who read their notifications inside Odoo, who would
         otherwise miss the thread in their mailbox."""
         recipients = super()._notify_get_recipients(message, msg_vals, **kwargs)
-        if len(self) == 1 and self.type_kind == 'email_thread':
+        if len(self) == 1 and self.modality == 'email':
             message_type = msg_vals.get('message_type') if msg_vals else message.sudo().message_type
             subtype_id = msg_vals.get('subtype_id') if msg_vals else message.sudo().subtype_id.id
             if message_type in ('comment', 'email') and subtype_id == self.env.ref('mail.mt_comment').id:
@@ -1085,10 +1099,10 @@ class EmsMinute(models.Model):
         return result
 
     def _ems_file_intervention(self, message):
-        """File what a participant writes on the thread - an answer by email or a message from the
-        minute's history - as their intervention while the meeting is held, or as an amendment
-        while the draft waits for approval. Whoever speaks counts as an attendee."""
-        if len(self) != 1 or self.type_kind != 'email_thread' or self.state not in ('meeting', 'to_approve'):
+        """File what a participant writes on the thread of a meeting held by email - an answer by
+        email, or a message from the minute's history - under "Any other business" while the
+        meeting is held. Answers to the draft stay in the history only."""
+        if len(self) != 1 or self.modality != 'email' or self.state != 'meeting':
             return
         message = message.sudo()
         if message.message_type not in ('comment', 'email') or message.subtype_id != self.env.ref('mail.mt_comment'):
@@ -1099,19 +1113,48 @@ class EmsMinute(models.Model):
         partner = message.author_id
         employee = partner and self.env['hr.employee.public'].sudo().search(
             ['|', ('work_contact_id', '=', partner.id), ('user_id.partner_id', '=', partner.id)], limit=1)
-        self.env['ems.minute.intervention'].sudo().create({
-            'minute_id': self.id,
-            'kind': 'amendment' if self.state == 'to_approve' else 'intervention',
-            'message_id': message.id,
-            'date': message.date,
-            'author_id': partner.id,
-            'employee_id': employee.id if employee else False,
-            'author_name': (employee or partner).name or message.email_from or _("Unknown sender"),
-            'body': body,
-        })
-        if employee and self.state == 'meeting' and employee not in self.attendee_ids:
-            self.sudo().with_context(ems_leave_sync=True).write({
+        self._ems_add_intervention((employee or partner).name or message.email_from or _("Unknown sender"),
+                                   message.date, body, employee=employee)
+
+    def _ems_add_intervention(self, author_name, date, body, item=None, employee=None):
+        """Write an intervention into the minute, with who said it and when: under the agenda `item`
+        it is about, or else under "Any other business". Whoever speaks counts as an attendee."""
+        self.ensure_one()
+        minute = self.sudo()
+        # In the centre's language, whoever triggers it (an email is processed with no language).
+        centre_env = self.env['res.company']._ems_centre_env()
+        when = format_datetime(centre_env, date, tz=self.env['ems.datetime_utils'].company_tz_name(), dt_format='short')
+        block = Markup('<p><strong>%s</strong> <span style="color:#888;">(%s)</span></p>%s') % (author_name, when, body)
+        target = item.sudo() if item else minute.section_value_ids.filtered(lambda value: value.kind == 'requests')[:1]
+        field = 'notes' if item else 'content'
+        if target:
+            current = target[field]
+            target[field] = (current + block) if not is_html_empty(current) else block
+        if employee and employee not in minute.attendee_ids:
+            minute.with_context(ems_leave_sync=True).write({
                 'absentee_ids': [(3, employee.id)], 'attendee_ids': [(4, employee.id)]})
+
+    @api.depends_context('uid')
+    @api.depends('modality', 'state', 'attendee_ids', 'absentee_ids')
+    def _compute_can_intervene(self):
+        employee = self.env['hr.employee.public'].search([('user_id', '=', self.env.uid)], limit=1)
+        for minute in self:
+            minute.can_intervene = (minute.modality == 'email' and minute.state == 'meeting'
+                                    and bool(employee) and employee in (minute.attendee_ids | minute.absentee_ids))
+
+    def action_open_intervention_wizard(self):
+        """A participant's intervention written in EMS, on an item of the agenda or in general."""
+        self.ensure_one()
+        if not self.can_intervene:
+            raise UserError(_("Only the people convened can take part, while the meeting held by email is open."))
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Add an intervention"),
+            'res_model': 'ems.minute.intervention.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_minute_id': self.id},
+        }
 
     # --- Attendance with the NFC tag -----------------------------------------------------------
 
@@ -1238,7 +1281,7 @@ class EmsMinute(models.Model):
         for minute in self:
             if minute.state != 'draft' or minute.type_kind == 'record':
                 raise UserError(_("Only a meeting that is still being prepared can be started."))
-            if minute.type_kind == 'email_thread':
+            if minute.modality == 'email':
                 minute._ems_open_thread()
             else:
                 minute.state = 'meeting'
@@ -1247,8 +1290,6 @@ class EmsMinute(models.Model):
         for minute in self:
             if minute.state != 'to_approve':
                 raise UserError(_("Only a minute waiting for approval can go back to the meeting."))
-            # Going back is how the amendments get applied.
-            minute.amendment_ids.filtered(lambda amendment: not amendment.addressed).write({'addressed': True})
             minute.write({'state': 'meeting', 'submission_date': False, 'submitted_by_id': False})
 
     def action_delete(self):
@@ -1261,7 +1302,7 @@ class EmsMinute(models.Model):
         was sent."""
         if any(minute.state == 'meeting' and minute.presence_id and minute.presence_id.sudo().state != 'draft' for minute in self):
             raise UserError(_("Attendance has already been taken at the kiosk: the meeting can no longer go back to being prepared."))
-        if any(minute.state == 'meeting' and minute.type_kind == 'email_thread' for minute in self):
+        if any(minute.state == 'meeting' and minute.modality == 'email' for minute in self):
             raise UserError(_("The thread has already been opened to the participants: it can no longer go back to being prepared."))
         result = super().action_back_to_draft()
         self.write({'submission_date': False, 'submitted_by_id': False})
@@ -1307,10 +1348,6 @@ class EmsMinute(models.Model):
             if not minute._ems_user_may_approve():
                 raise UserError(_("Only %s can approve this minute.",
                                   minute.approver_employee_id.name or minute.approver_role_id.name or _("the person who approves it")))
-            pending = minute.amendment_ids.filtered(lambda amendment: not amendment.addressed)
-            if pending:
-                raise UserError(_("The draft has amendments still to be dealt with (%s): go back to the meeting to apply them, "
-                                  "or mark them as addressed.", len(pending)))
             # Who actually approves it, when that is somebody other than the person it was meant for.
             if employee:
                 minute.approver_employee_id = employee
@@ -1389,3 +1426,34 @@ class EmsMinuteSubmitWizard(models.TransientModel):
             return self.minute_id.action_send_draft()
         return {'type': 'ir.actions.act_window_close'}
 
+
+class EmsMinuteInterventionWizard(models.TransientModel):
+    """A participant's intervention in a meeting held by email, written in EMS (issue #822): on an
+    item of the agenda, or in general. It goes into the minute and, by the thread, to everybody."""
+    _name = "ems.minute.intervention.wizard"
+    _description = "Add an intervention to a meeting held by email."
+
+    minute_id = fields.Many2one(string="Minute", comodel_name="ems.minute", required=True, ondelete='cascade')
+    agenda_id = fields.Many2one(
+        string="Item to discuss", comodel_name="ems.minute.agenda", domain="[('minute_id', '=', minute_id)]",
+        help="Leave it empty for something about no item in particular: it goes under any other business.")
+    body = fields.Html(string="Intervention", required=True)
+
+    def action_confirm(self):
+        self.ensure_one()
+        minute = self.minute_id
+        if not minute.can_intervene:
+            raise UserError(_("Only the people convened can take part, while the meeting held by email is open."))
+        if is_html_empty(self.body):
+            raise UserError(_("Write the intervention first."))
+        employee = self.env['hr.employee.public'].search([('user_id', '=', self.env.uid)], limit=1)
+        minute._ems_add_intervention(employee.name, fields.Datetime.now(), self.body, item=self.agenda_id, employee=employee)
+        body = self.body
+        if self.agenda_id:
+            position = minute.agenda_ids.sorted('sequence').ids.index(self.agenda_id.id) + 1
+            body = Markup('<p><strong>%s</strong></p>%s') % (
+                _("On item %(number)s: %(item)s", number=position, item=self.agenda_id.name), body)
+        # Already written into the minute: posted to the thread only so everybody gets it.
+        minute.sudo().with_context(ems_thread_own_post=True).message_post(
+            body=body, author_id=self.env.user.partner_id.id, message_type='comment', subtype_xmlid='mail.mt_comment')
+        return {'type': 'ir.actions.act_window_close'}

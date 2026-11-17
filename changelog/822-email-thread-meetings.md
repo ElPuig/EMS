@@ -1,12 +1,12 @@
 # What's new
 
-## Meetings held by email ("Fil de correu" minute type):
+## Meetings held by email ("By email" modality):
 
-- New minute type of kind "Email thread", seeded as "Fil de correu" (generic scope, anybody can start it). Instead of a time, room and kiosk it asks for "Answers until" (the last day to take part); "Open the thread" emails everybody convened the agenda and the deadline from the minute's own chatter, so answers come back through the catchall address and the existing incoming mail server (issue #586).
-- Every answer (by email, or a message written in the minute's history) is filed in a new "Interventions" block (`ems.minute.intervention`) with its author and date and without the quoted text (`data-o-mail-quote`), editable by whoever writes the minute and printed in the PDF. Everybody convened starts among the absentees and moves to the attendees as they answer; an answer from an unknown address is filed but names nobody.
-- Every message of the thread reaches each participant by email, also those who read notifications inside Odoo (`_notify_get_recipients`), as in a mailing list.
-- The draft goes by the same thread; answers to it are "Amendments to the draft". Approval waits until every amendment is addressed: going back to the meeting marks them addressed, and one that needs no change can be ticked by hand.
-- With "No particular scope", whoever writes the thread is proposed as its approver. An opened thread can no longer go back to being prepared, and no call is sent for it.
+- Any meeting minute can be held by email by choosing the new modality "By email" (next to in-person, online and hybrid). The minute keeps its own type, scope and numbering, so it follows on from the earlier minutes of the same scope and stays in the default "Meeting minutes" filter. Instead of a time, room and kiosk it asks for "Answers until"; "Open the thread" emails everybody convened the agenda and the deadline from the minute's own chatter, so answers come back through the catchall address and the existing incoming mail server (issue #586).
+- Every answer (by email, or a message written in the minute's history) is written under the "Precs i preguntes" section with its author and date and without the quoted text (`data-o-mail-quote`); everybody convened starts among the absentees and moves to the attendees as they answer. "Precs i preguntes" gets a section kind of its own (`requests`), set on existing installations by a migration; only types with that section can be held by email.
+- Participants (even those who can only read the minute) can add an intervention from EMS (Actions → Add an intervention) on a specific item, written under that item, or in general; it also goes to everybody by the thread, saying which item it is about.
+- Every message of the thread reaches each participant by email, also those who read notifications inside Odoo, as in a mailing list; whoever is taken off the lists stops getting it.
+- The draft goes by the same thread; whatever is answered to it stays in the minute's history for the writer to apply, without holding the approval. No call is sent for a meeting held by email, and once opened it can no longer go back to being prepared.
 
 ## Meeting emails in the EMS card layout:
 

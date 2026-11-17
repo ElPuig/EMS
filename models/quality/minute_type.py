@@ -8,6 +8,7 @@ from odoo import api, fields, models
 SECTION_KINDS = [
     ('text', "Free text"),
     ('development', "Development of the session"),
+    ('requests', "Any other business"),
     ('agenda', "Agenda"),
     ('previous_approval', "Approval of the previous minute"),
     ('agreement_followup', "Follow-up of earlier agreements"),
@@ -66,7 +67,7 @@ class EmsMinuteType(models.Model):
     # them is configuration.
     kind = fields.Selection(
         string="Kind",
-        selection=[('meeting', "Meeting minute"), ('record', "Evidence record"), ('email_thread', "Email thread")],
+        selection=[('meeting', "Meeting minute"), ('record', "Evidence record")],
         required=True,
         default='meeting',
     )

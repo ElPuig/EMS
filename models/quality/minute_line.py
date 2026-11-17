@@ -39,7 +39,7 @@ class EmsMinuteSectionValue(models.Model):
     def _compute_is_written(self):
         for value in self:
             has_items = 'agenda' in value.minute_id.type_id.section_ids.mapped('section_id.kind')
-            value.is_written = value.kind == 'text' or (value.kind == 'development' and not has_items)
+            value.is_written = value.kind in ('text', 'requests') or (value.kind == 'development' and not has_items)
 
     @api.depends('minute_id.type_id', 'section_id')
     def _compute_required(self):
@@ -204,33 +204,3 @@ class EmsMinuteObjectiveLine(models.Model):
     indicator = fields.Text(string="Indicator", help="What is measured, as a single objective fact.")
     acceptance_value = fields.Char(string="Acceptance", help="The minimum value that counts as achieved.")
     target_value = fields.Char(string="Target", help="The value aimed for in future iterations.")
-
-
-class EmsMinuteIntervention(models.Model):
-    """What a participant said in a meeting held by email (issue #822): each answer to the
-    minute's thread, filed by EMS as it arrives, without the text it quotes. Whoever writes the
-    minute can retouch it; the message itself stays in the minute's history as it came."""
-    _name = "ems.minute.intervention"
-    _description = "Intervention in a meeting held by email, or amendment to its draft."
-    _order = "minute_id, date, id"
-
-    minute_id = fields.Many2one(string="Minute", comodel_name="ems.minute", required=True, ondelete='cascade', index=True)
-    # Said while the thread was open, or an amendment to the draft sent for approval.
-    kind = fields.Selection(
-        string="Kind",
-        selection=[('intervention', "Intervention"), ('amendment', "Amendment to the draft")],
-        required=True,
-        default='intervention',
-    )
-    message_id = fields.Many2one(string="Message", comodel_name="mail.message", ondelete='set null', readonly=True)
-    date = fields.Datetime(string="Date", required=True, default=fields.Datetime.now)
-    author_id = fields.Many2one(string="Author contact", comodel_name="res.partner", ondelete='set null', readonly=True)
-    # The participant it comes from, when it comes from one of the staff; an answer from an address
-    # EMS does not know has none, and keeps the address as its author.
-    employee_id = fields.Many2one(string="Participant", comodel_name="hr.employee.public", ondelete='set null')
-    author_name = fields.Char(string="Author", required=True)
-    body = fields.Html(string="What they said")
-    addressed = fields.Boolean(
-        string="Addressed",
-        help="The amendment has been dealt with: the minute can be approved once every amendment is.",
-    )

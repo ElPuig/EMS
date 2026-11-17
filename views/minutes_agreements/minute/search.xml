@@ -18,7 +18,7 @@
                     <separator/>
                     <filter name="meetings" string="Meeting minutes" domain="[('type_kind', '=', 'meeting')]"/>
                     <filter name="records" string="Evidence records" domain="[('type_kind', '=', 'record')]"/>
-                    <filter name="email_threads" string="Email threads" domain="[('type_kind', '=', 'email_thread')]"/>
+                    <filter name="email_meetings" string="Held by email" domain="[('modality', '=', 'email')]"/>
                     <separator/>
                     <filter name="current_course" string="Current course" domain="[('course_id.is_current', '=', True)]"/>
                     <separator/>

@@ -86,9 +86,8 @@
                             <p class="o_ems_minute_muted" t-out="doc.code"/>
 
                             <!-- Three columns, two rows: when, how, where. An evidence record is no
-                                 meeting, so it has no nature or modality column; a meeting held by
-                                 email has no modality either (its place says it). -->
-                            <t t-set="is_meeting" t-value="doc.type_kind == 'meeting'"/>
+                                 meeting, so it has no nature or modality column. -->
+                            <t t-set="is_meeting" t-value="doc.type_kind != 'record'"/>
                             <table class="o_ems_minute_facts">
                                 <tr>
                                     <th>Date</th><td t-out="doc.date" t-options="{'widget': 'date'}"/>
@@ -156,18 +155,6 @@
                                 <t t-foreach="items" t-as="item">
                                     <h5><t t-out="item_index + 1"/>. <t t-out="item.name"/></h5>
                                     <div t-if="item.notes" t-out="item.notes"/>
-                                </t>
-                            </t>
-
-                            <!-- A meeting held by email: what each participant answered, in order (issue #822). -->
-                            <t t-if="doc.intervention_ids">
-                                <h4>Interventions</h4>
-                                <t t-foreach="doc.intervention_ids.sorted(lambda line: (line.date, line.id))" t-as="intervention">
-                                    <p style="margin-bottom: 0;">
-                                        <strong t-out="intervention.author_name"/>
-                                        <span class="o_ems_minute_muted" t-out="intervention.date" t-options="{'widget': 'datetime', 'tz_name': doc.env['ems.datetime_utils'].company_tz_name()}"/>
-                                    </p>
-                                    <div t-out="intervention.body"/>
                                 </t>
                             </t>
 

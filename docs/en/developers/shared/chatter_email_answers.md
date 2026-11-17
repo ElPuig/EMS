@@ -59,6 +59,9 @@ What to expect from it:
 Direct notices (`message_notify()`) and templates with their own `reply_to` do not go through
 this: their answers go straight to a person.
 
+The same circuit carries meetings held by email: a minute of kind `email_thread` is a thread whose
+answers become its interventions (see [quality_overview.md](../quality/quality_overview.md#meetings-held-by-email-issue-822)).
+
 ## Development machines
 
 A database restored from production carries production's incoming mail server. An email is

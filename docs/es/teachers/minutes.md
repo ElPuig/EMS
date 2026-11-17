@@ -15,7 +15,7 @@ Solo quien redacta un acta y quien debe darle el visto bueno pueden modificarla,
 (por ejemplo, el jefe de seminario de quien la redacta); si quien debe aprobarla no
 está, pueden aprobarla en su lugar sus superiores (jefe de departamento, jefe de estudios o jefe de
 estudios adjunto, director). Cualquier otra acta que
-veáis (la de una reunión a la que asististeis, la de vuestro departamento) se abre **solo en lectura**, sin acciones.
+veáis (la de una reunión a la que se os convocó, la de vuestro departamento) se abre **solo en lectura**, sin acciones.
 
 ![Lista de actas del curso con las facetas Las mías o Pendientes de que yo apruebe, Actas de reunión y Curso actual](../../assets/teachers/actes-01-llistat.png)
 
@@ -33,6 +33,7 @@ veáis (la de una reunión a la que asististeis, la de vuestro departamento) se 
    | Tipo | Quién puede iniciarla |
    |---|---|
    | Acta de reunió genèrica | Cualquier persona |
+   | Fil de correu (una reunión por correo, ved [más abajo](#reuniones-por-correo)) | Cualquier persona |
    | Acta de reunió de departament | El jefe de departamento o de seminario, y quien está por encima, solo de su departamento |
    | Acta de claustre | El equipo directivo: director, jefe de estudios, jefe de estudios adjunto y secretaria |
    | Acta d'equip docent | El tutor o tutora del grupo, quien está por encima y el profesorado que da clase en él |
@@ -201,6 +202,34 @@ crea, cuando empieza la reunión, cuando se envía a aprobar, se aprueba o se de
 la carpeta siempre hay un solo archivo por acta, tal como estaba en el último cambio de estado: lo que escribáis
 entre medias llega a Drive en el siguiente. Una vez guardada, **En Drive → Abrir en Drive**, en **Firmas**, la abre.
 Si se borra un acta, su copia va a la papelera de Drive.
+
+## Reuniones por correo
+
+Cuando un tema no necesita que todo el mundo esté en la misma sala, la reunión se puede hacer por correo
+con el tipo **Fil de correu**: los participantes intervienen respondiendo un correo, y cada respuesta queda
+escrita en el acta.
+
+1. **Nuevo** y el tipo **Fil de correu**. Elegid el **ámbito de la reunión** como en un acta genérica;
+   con *Sin ámbito concreto*, añadid vosotros los participantes en la pestaña **Asistencia**, y se os
+   propone a vosotros para dar el visto bueno.
+2. Indicad **Respuestas hasta el**, el último día para participar, y escribid los **puntos a tratar** en
+   su pestaña. No hay hora, sala ni quiosco.
+3. **Acciones → Abrir el hilo**. Todas las personas convocadas reciben un correo con el orden del día y la
+   fecha límite, y todas empiezan en **Personas que faltan**.
+4. Cada participante **responde a ese correo** desde su buzón. Todo el mundo recibe todas las respuestas,
+   como en una lista de correo, y en pocos minutos la respuesta aparece en el bloque **Intervenciones**
+   del acta, con su autor y su fecha y sin el texto que cita. Quien responde pasa solo a **Asistentes**.
+   Podéis retocar el texto de una intervención y corregir las listas. Un mensaje escrito en el historial
+   del acta también cuenta como una intervención.
+5. Cuando acabe el plazo, escribid los acuerdos y los temas pendientes, y **Acciones → Enviar a aprobar**,
+   con el borrador para los participantes marcado: lo reciben como un correo más del mismo hilo.
+6. Lo que los participantes respondan al borrador aparece en el bloque **Enmiendas al borrador**.
+   - Con enmiendas: **Acciones → Volver a la reunión**, aplicadlas y volved a enviarla a aprobar. Si una
+     enmienda no requiere ningún cambio, marcadla como **Atendida**.
+   - Sin enmiendas (o con todas atendidas), quien da el visto bueno la aprueba como cualquier otra acta.
+
+Responded desde la dirección de correo que el centro tiene vuestra: una respuesta desde una dirección
+personal queda escrita en el acta, pero no os cuenta como asistentes.
 
 ## Mis acuerdos
 

@@ -15,7 +15,7 @@ Només qui redacta una acta i qui li ha de donar el vistiplau la poden modificar
 (per exemple, el cap de seminari de qui la redacta); si qui l'ha d'aprovar no hi
 és, la poden aprovar en lloc seu els seus superiors (cap de departament, cap d'estudis o cap d'estudis
 adjunt, director). Qualsevol altra acta que
-veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **només en lectura**, sense accions.
+veieu (la d'una reunió a la qual se us va convocar, la del vostre departament) s'obre **només en lectura**, sense accions.
 
 ![Llista d'actes del curs amb les facetes Les meves o Pendents que jo aprovi, Actes de reunió i Curs actual](../../assets/teachers/actes-01-llistat.png)
 
@@ -33,6 +33,7 @@ veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **nom
    | Tipus | Qui la pot iniciar |
    |---|---|
    | Acta de reunió genèrica | Qualsevol persona |
+   | Fil de correu (una reunió per correu, vegeu [més avall](#reunions-per-correu)) | Qualsevol persona |
    | Acta de reunió de departament | El cap de departament o de seminari, i qui en té per sobre, només del seu departament |
    | Acta de claustre | L'equip directiu: director, cap d'estudis, cap d'estudis adjunt i secretària |
    | Acta d'equip docent | El tutor o tutora del grup, qui en té per sobre i el professorat que hi fa classe |
@@ -198,6 +199,34 @@ comença la reunió, quan s'envia a aprovar, s'aprova o es desfà l'aprovació),
 un sol fitxer per acta, tal com era en l'últim canvi d'estat: el que escriviu entremig arriba a Drive en el
 següent. Un cop desada, **A Drive → Obre a Drive**, a **Signatures**, l'obre. Si s'esborra una acta, la seva còpia va
 a la paperera de Drive.
+
+## Reunions per correu
+
+Quan un tema no necessita que tothom sigui a la mateixa sala, la reunió es pot fer per correu amb el tipus
+**Fil de correu**: els participants hi intervenen responent un correu, i cada resposta queda escrita a
+l'acta.
+
+1. **Nou** i el tipus **Fil de correu**. Trieu l'**àmbit de la reunió** com en una acta genèrica; amb
+   *Sense àmbit concret*, afegiu vosaltres els participants a la pestanya **Assistència**, i se us proposa
+   a vosaltres per donar-hi el vistiplau.
+2. Indiqueu **Respostes fins al**, l'últim dia per participar-hi, i escriviu els **punts a tractar** a la
+   seva pestanya. No hi ha hora, sala ni quiosc.
+3. **Accions → Obre el fil**. Totes les persones convocades reben un correu amb l'ordre del dia i la data
+   límit, i totes comencen a **Persones que hi manquen**.
+4. Cada participant **respon aquest correu** des de la seva bústia. Tothom rep totes les respostes, com
+   en una llista de correu, i en pocs minuts la resposta apareix al bloc **Intervencions** de l'acta, amb
+   l'autor i la data i sense el text que cita. Qui respon passa sol als **Assistents**. Podeu retocar el
+   text d'una intervenció i corregir les llistes. Un missatge escrit a l'historial de l'acta també compta
+   com una intervenció.
+5. Quan s'acabi el termini, escriviu els acords i els temes pendents, i **Accions → Enviar a aprovar**,
+   amb l'esborrany per als participants marcat: el reben com un correu més del mateix fil.
+6. El que els participants responguin a l'esborrany apareix al bloc **Esmenes a l'esborrany**.
+   - Amb esmenes: **Accions → Torna a la reunió**, apliqueu-les i torneu-la a enviar a aprovar. Si una
+     esmena no requereix cap canvi, marqueu-la com a **Atesa**.
+   - Sense esmenes (o amb totes ateses), qui dona el vistiplau l'aprova com qualsevol altra acta.
+
+Responeu des de l'adreça de correu que el centre té de vosaltres: una resposta des d'una adreça personal
+queda escrita a l'acta, però no us compta com a assistents.
 
 ## Els meus acords
 

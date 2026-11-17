@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- A meeting held by email (issue #822): both are posted on the minute's own thread, so the
+             participants' answers come back to the minute (ems.minute._ems_thread_post). -->
+        <template id="minute_thread_open_email" name="Minute: opening of a meeting held by email">
+            <div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #222;">
+                <p>Hello! This meeting is held by email: to take part, reply to this email.</p>
+                <h2 style="font-size: 18px; margin: 12px 0 4px 0;" t-out="minute.name"/>
+                <p style="background: #eef4fb; border-left: 4px solid #4a86e8; padding: 8px 12px;">
+                    You can answer until <strong t-out="deadline_label"/>.
+                    Everybody taking part receives every answer, and each one is written into the minute as an intervention.
+                </p>
+                <h3 style="font-size: 15px; border-bottom: 1px solid #dadce0; padding-bottom: 4px;">Agenda</h3>
+                <div t-if="minute.agenda_html" t-out="minute.agenda_html"/>
+                <p t-else="">There is no agenda: say what you think of the subject of the email.</p>
+                <p style="margin-top: 16px;">
+                    You can also follow it in EMS: <a t-att-href="url" t-out="minute.display_name"/>
+                </p>
+            </div>
+        </template>
+
+        <template id="minute_thread_draft_email" name="Minute: draft of a meeting held by email">
+            <div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #222;">
+                <p>The time to take part is over. Please find the draft of the minute below, for your review.</p>
+                <h2 style="font-size: 18px; margin: 12px 0 4px 0;" t-out="minute.name"/>
+                <p style="margin: 0 0 16px 0;">
+                    <a t-att-href="pdf_url" target="_blank"
+                       style="display: inline-block; background: #1a73e8; color: #ffffff; text-decoration: none; padding: 8px 14px; border-radius: 4px;">
+                        Read the draft (PDF)
+                    </a>
+                </p>
+                <p>If anything needs correcting, reply to this email: your answer is recorded as an amendment. If everything is right, there is no need to reply.</p>
+                <p t-if="approver_name" style="margin-top: 16px; color: #666;">It will be approved by <span t-out="approver_name"/>.</p>
+            </div>
+        </template>
+    </data>
+</odoo>

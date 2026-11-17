@@ -60,11 +60,13 @@ class EmsMinuteType(models.Model):
 
     code = fields.Char(string="Code", required=True)
     name = fields.Char(string="Name", required=True, translate=True)
-    # A meeting deliberates and produces agreements; a record just states that something happened.
-    # Same model, same machinery, different sections - which is why adding either is configuration.
+    # A meeting deliberates and produces agreements; a record just states that something happened;
+    # an email thread is a meeting held by email, whose participants speak by answering the thread
+    # (issue #822). Same model, same machinery, different sections - which is why adding any of
+    # them is configuration.
     kind = fields.Selection(
         string="Kind",
-        selection=[('meeting', "Meeting minute"), ('record', "Evidence record")],
+        selection=[('meeting', "Meeting minute"), ('record', "Evidence record"), ('email_thread', "Email thread")],
         required=True,
         default='meeting',
     )

@@ -3271,6 +3271,7 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -3435,6 +3436,7 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3566,6 +3568,7 @@ msgstr "Datos descargados"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_line__date
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 #: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report__date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__date
 msgid "Date"
 msgstr "Fecha"
 
@@ -3918,6 +3921,7 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -5518,6 +5522,7 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__id
 msgid "ID"
 msgstr "ID"
 
@@ -6272,6 +6277,7 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -6436,6 +6442,7 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -6784,6 +6791,7 @@ msgstr "Miembros"
 #: model:ir.model.fields,field_description:ems.field_ems_notice__message
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message
 #: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__message
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__message_id
 msgid "Message"
 msgstr "Mensaje"
 
@@ -6874,6 +6882,7 @@ msgstr "Beca ministerio"
 #: model:ir.model.fields,field_description:ems.field_ems_minute_guest__minute_id
 #: model:ir.model.fields,field_description:ems.field_ems_minute_submit_wizard__minute_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__pdf_attachment_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__minute_id
 msgid "Minute"
 msgstr "Acta"
 
@@ -12406,6 +12415,7 @@ msgstr "Esto expulsa inmediatamente a los estudiantes seleccionados. ¿Quieres c
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__kind
 #: code:addons/ems/models/erasmus/economy.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_economy_panel_search
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__kind
 msgid "Kind"
 msgstr "Tipo"
 
@@ -26661,6 +26671,7 @@ msgstr "Aceptación"
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 #: model:ir.model.fields,field_description:ems.field_ems_minute__agenda_html
 #: model_terms:ir.ui.view,arch_db:ems.minute_call_email
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_open_email
 msgid "Agenda"
 msgstr "Orden del día"
 
@@ -34331,6 +34342,7 @@ msgstr "Abrir la elección de destino"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__partner_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__partner_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__employee_id
 msgid "Participant"
 msgstr "Participante"
 
@@ -46145,6 +46157,7 @@ msgstr "Si hay que corregir algo, os rogamos que respondáis a este correo."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_draft_email
 msgid "It will be approved by"
 msgstr "La aprobará"
 
@@ -46160,6 +46173,7 @@ msgstr "Participantes con dirección de correo"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_draft_email
 msgid "Read the draft (PDF)"
 msgstr "Leer el borrador (PDF)"
 
@@ -51329,6 +51343,7 @@ msgstr "No hay nada que ratificar para este alumno."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_open_email
 msgid "You can answer until"
 msgstr "Podéis responder hasta el"
 
@@ -53229,3 +53244,247 @@ msgstr "Acceso al portal concedido con el correo corporativo %s: el correo princ
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "This student's main email is also a family member's. The portal login with that email is the family's: the student signs in with their corporate email (Log in with Google, or the corporate email and its portal password)."
 msgstr "El correo principal de este alumno es también el de un familiar. El usuario del portal con ese correo es de la familia: el alumno entra con el correo corporativo (Acceder con Google, o el correo corporativo y su contraseña del portal)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "%(name)s (answers until %(date)s)"
+msgstr "%(name)s (respuestas hasta el %(date)s)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_open_email
+msgid ""
+".\n"
+"                    Everybody taking part receives every answer, and each one is written into the minute as an intervention."
+msgstr ""
+".\n"
+"                    Todos los que participan reciben todas las respuestas, y cada una queda escrita en el acta como una intervención."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__addressed
+msgid "Addressed"
+msgstr "Atendida"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_intervention__kind__amendment
+msgid "Amendment to the draft"
+msgstr "Enmienda al borrador"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__amendment_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Amendments to the draft"
+msgstr "Enmiendas al borrador"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__reply_deadline
+msgid "Answers until"
+msgstr "Respuestas hasta el"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__author_name
+msgid "Author"
+msgstr "Autor"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__author_id
+msgid "Author contact"
+msgstr "Contacto del autor"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "By email"
+msgstr "Por correo electrónico"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_type__kind__email_thread
+msgid "Email thread"
+msgstr "Hilo de correo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
+msgid "Email threads"
+msgstr "Hilos de correo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid ""
+"Everybody convened will get the opening email and can answer it until the "
+"deadline; every answer is written into the minute. Open the thread?"
+msgstr ""
+"Todas las personas convocadas recibirán el correo de apertura y podrán "
+"responderlo hasta la fecha límite; cada respuesta se escribe en el acta. ¿Lo"
+" abrís?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid ""
+"Everybody on these lists gets the email that opens the thread. Once it is "
+"open, each of them moves to the attendees as they answer."
+msgstr ""
+"Todas las personas de estas listas reciben el correo que abre el hilo. Una "
+"vez abierto, cada una pasa a los asistentes cuando responde."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_open_email
+msgid ""
+"Hello! This meeting is held by email: to take part, reply to this email."
+msgstr ""
+"¡Hola! Esta reunión se hace por correo: para participar, responded a este "
+"correo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_draft_email
+msgid ""
+"If anything needs correcting, reply to this email: your answer is recorded "
+"as an amendment. If everything is right, there is no need to reply."
+msgstr ""
+"Si hay que corregir algo, responded a este correo: la respuesta queda "
+"registrada como una enmienda. Si todo es correcto, no hace falta responder."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_intervention__kind__intervention
+msgid "Intervention"
+msgstr "Intervención"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_minute_intervention
+msgid "Intervention in a meeting held by email, or amendment to its draft."
+msgstr "Intervención en una reunión por correo, o enmienda a su borrador."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__intervention_ids
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Interventions"
+msgstr "Intervenciones"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid ""
+"Nobody has answered the thread yet. Each answer appears here as it arrives "
+"(within a few minutes)."
+msgstr ""
+"Todavía no ha respondido nadie al hilo. Cada respuesta aparece aquí cuando "
+"llega (en pocos minutos)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Open the thread"
+msgstr "Abrir el hilo"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Set until when the participants can answer before opening the thread."
+msgstr ""
+"Indicad hasta cuándo pueden responder los participantes antes de abrir el "
+"hilo."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_intervention__addressed
+msgid ""
+"The amendment has been dealt with: the minute can be approved once every "
+"amendment is."
+msgstr ""
+"La enmienda se ha atendido: el acta se puede aprobar cuando se han atendido "
+"todas las enmiendas."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid ""
+"The draft goes to every participant by the thread, with a link to its PDF; "
+"whatever they answer is recorded as an amendment. Send it?"
+msgstr ""
+"El borrador llega a cada participante por el hilo, con un enlace al PDF; lo "
+"que respondan queda registrado como una enmienda. ¿Lo enviáis?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid ""
+"The draft has amendments still to be dealt with (%s): go back to the meeting"
+" to apply them, or mark them as addressed."
+msgstr ""
+"El borrador tiene enmiendas pendientes de atender (%s): volved a la reunión "
+"para aplicarlas o marcadlas como atendidas."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute__reply_deadline
+msgid ""
+"The last day to take part, stated in the email that opens the thread. "
+"Whoever writes the minute closes it by sending it for approval."
+msgstr ""
+"El último día para participar, que consta en el correo que abre el hilo. "
+"Quien redacta el acta lo cierra al enviarla a aprobar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid ""
+"The thread has already been opened to the participants: it can no longer go "
+"back to being prepared."
+msgstr ""
+"El hilo ya se ha abierto a los participantes: ya no puede volver a la "
+"preparación."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_draft_email
+msgid ""
+"The time to take part is over. Please find the draft of the minute below, "
+"for your review."
+msgstr ""
+"El plazo para participar ha terminado. Os hacemos llegar el borrador del "
+"acta para que lo reviséis."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_open_email
+msgid "There is no agenda: say what you think of the subject of the email."
+msgstr "No hay orden del día: decid qué opináis del asunto del correo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid ""
+"There is nobody to open the thread to: none of the people convened has an "
+"email address."
+msgstr ""
+"No hay nadie a quien abrir el hilo: ninguna de las personas convocadas tiene"
+" dirección de correo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Unknown sender"
+msgstr "Remitente desconocido"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid ""
+"What the participants answered to the draft. Go back to the meeting to apply"
+" them, or tick those that need no change: the minute is approved once every "
+"one is addressed."
+msgstr ""
+"Lo que los participantes han respondido al borrador. Volved a la reunión "
+"para aplicarlo, o marcad las enmiendas que no requieren ningún cambio: el "
+"acta se aprueba cuando todas están atendidas."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__body
+msgid "What they said"
+msgstr "Lo que ha dicho"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid ""
+"Whoever answers the thread moves to the attendees by themselves; correct the"
+" lists if needed."
+msgstr ""
+"Quien responde al hilo pasa solo a los asistentes; corregid las listas si "
+"hace falta."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_open_email
+msgid "You can also follow it in EMS:"
+msgstr "También podéis seguirlo en EMS:"

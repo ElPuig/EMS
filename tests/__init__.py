@@ -285,6 +285,8 @@ from . import test_mail_reply_to
 from . import test_quality_minute
 from . import test_centre_language
 from . import test_quality_minute_start
+from . import test_quality_minute_thread
+from . import test_quality_minute_thread_tour
 from . import test_quality_minute_tour
 from . import test_quality_minute_rules
 from . import test_quality_minute_guest

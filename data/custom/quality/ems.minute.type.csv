@@ -6,3 +6,4 @@ __import__.minute_type_teaching_team,ED,Acta d'equip docent,meeting,teaching_tea
 __import__.minute_type_team_const,EM-CONST,Acta de constitució d'equip de millora,meeting,workgroup,ems.role_quality,__import__.quality_doc_pe3_01_17,1,60,ems.role_quality,0
 __import__.minute_type_team_meeting,EM-REU,Acta de reunió d'equip de millora,meeting,workgroup,ems.role_quality,__import__.quality_doc_pe3_01_17,0,70,ems.role_quality,1
 __import__.minute_type_team_end,EM-FI,Acta de finalització d'equip de millora,meeting,workgroup,ems.role_quality,__import__.quality_doc_pe3_01_17,1,80,ems.role_quality,0
+__import__.minute_type_email_thread,FIL,Fil de correu,email_thread,generic,,__import__.quality_doc_pe3_01_17,0,15,,0

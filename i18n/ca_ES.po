@@ -3271,6 +3271,7 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -3435,6 +3436,7 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3566,6 +3568,7 @@ msgstr "Dades descarregades"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_line__date
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 #: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report__date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__date
 msgid "Date"
 msgstr "Data"
 
@@ -3918,6 +3921,7 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -5518,6 +5522,7 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__id
 msgid "ID"
 msgstr "ID"
 
@@ -6272,6 +6277,7 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -6436,6 +6442,7 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -6784,6 +6791,7 @@ msgstr "Membres"
 #: model:ir.model.fields,field_description:ems.field_ems_notice__message
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message
 #: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__message
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__message_id
 msgid "Message"
 msgstr "Missatge"
 
@@ -6874,6 +6882,7 @@ msgstr "Beca ministeri"
 #: model:ir.model.fields,field_description:ems.field_ems_minute_guest__minute_id
 #: model:ir.model.fields,field_description:ems.field_ems_minute_submit_wizard__minute_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__pdf_attachment_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__minute_id
 msgid "Minute"
 msgstr "Acta"
 
@@ -12406,6 +12415,7 @@ msgstr "Això expulsa immediatament els estudiants seleccionats. Vols continuar?
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__kind
 #: code:addons/ems/models/erasmus/economy.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_economy_panel_search
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__kind
 msgid "Kind"
 msgstr "Tipus"
 
@@ -26657,6 +26667,7 @@ msgstr "Acceptació"
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 #: model:ir.model.fields,field_description:ems.field_ems_minute__agenda_html
 #: model_terms:ir.ui.view,arch_db:ems.minute_call_email
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_open_email
 msgid "Agenda"
 msgstr "Ordre del dia"
 
@@ -34317,6 +34328,7 @@ msgstr "Obre l'elecció de destinació"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__partner_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__partner_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__employee_id
 msgid "Participant"
 msgstr "Participant"
 
@@ -46120,6 +46132,7 @@ msgstr "Si cal corregir-hi alguna cosa, us preguem que respongueu aquest correu.
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_draft_email
 msgid "It will be approved by"
 msgstr "L'aprovarà"
 
@@ -46135,6 +46148,7 @@ msgstr "Participants amb adreça de correu"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_draft_email
 msgid "Read the draft (PDF)"
 msgstr "Llegeix l'esborrany (PDF)"
 
@@ -51299,6 +51313,7 @@ msgstr "No hi ha res a ratificar per a aquest alumne."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_open_email
 msgid "You can answer until"
 msgstr "Podeu respondre fins al"
 
@@ -53194,3 +53209,243 @@ msgstr "Accés al portal concedit amb el correu corporatiu %s: el correu princip
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "This student's main email is also a family member's. The portal login with that email is the family's: the student signs in with their corporate email (Log in with Google, or the corporate email and its portal password)."
 msgstr "El correu principal d'aquest alumne és també el d'un familiar. L'usuari del portal amb aquest correu és de la família: l'alumne hi entra amb el correu corporatiu (Inicia sessió amb Google, o el correu corporatiu i la seva contrasenya del portal)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "%(name)s (answers until %(date)s)"
+msgstr "%(name)s (respostes fins al %(date)s)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_open_email
+msgid ""
+".\n"
+"                    Everybody taking part receives every answer, and each one is written into the minute as an intervention."
+msgstr ""
+".\n"
+"                    Tothom qui hi participa rep totes les respostes, i cadascuna queda escrita a l'acta com una intervenció."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__addressed
+msgid "Addressed"
+msgstr "Atesa"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_intervention__kind__amendment
+msgid "Amendment to the draft"
+msgstr "Esmena a l'esborrany"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__amendment_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Amendments to the draft"
+msgstr "Esmenes a l'esborrany"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__reply_deadline
+msgid "Answers until"
+msgstr "Respostes fins al"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__author_name
+msgid "Author"
+msgstr "Autor"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__author_id
+msgid "Author contact"
+msgstr "Contacte de l'autor"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "By email"
+msgstr "Per correu electrònic"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_type__kind__email_thread
+msgid "Email thread"
+msgstr "Fil de correu"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
+msgid "Email threads"
+msgstr "Fils de correu"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid ""
+"Everybody convened will get the opening email and can answer it until the "
+"deadline; every answer is written into the minute. Open the thread?"
+msgstr ""
+"Totes les persones convocades rebran el correu d'obertura i hi podran "
+"respondre fins a la data límit; cada resposta s'escriu a l'acta. L'obriu?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid ""
+"Everybody on these lists gets the email that opens the thread. Once it is "
+"open, each of them moves to the attendees as they answer."
+msgstr ""
+"Totes les persones d'aquestes llistes reben el correu que obre el fil. Un "
+"cop obert, cadascuna passa als assistents quan respon."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_open_email
+msgid ""
+"Hello! This meeting is held by email: to take part, reply to this email."
+msgstr ""
+"Hola! Aquesta reunió es fa per correu: per participar-hi, respongueu aquest "
+"correu."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_draft_email
+msgid ""
+"If anything needs correcting, reply to this email: your answer is recorded "
+"as an amendment. If everything is right, there is no need to reply."
+msgstr ""
+"Si cal corregir-hi alguna cosa, respongueu aquest correu: la resposta queda "
+"registrada com una esmena. Si tot és correcte, no cal respondre."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_intervention__kind__intervention
+msgid "Intervention"
+msgstr "Intervenció"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_minute_intervention
+msgid "Intervention in a meeting held by email, or amendment to its draft."
+msgstr "Intervenció en una reunió per correu, o esmena al seu esborrany."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__intervention_ids
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Interventions"
+msgstr "Intervencions"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid ""
+"Nobody has answered the thread yet. Each answer appears here as it arrives "
+"(within a few minutes)."
+msgstr ""
+"Encara no ha respost ningú al fil. Cada resposta apareix aquí quan arriba "
+"(en pocs minuts)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Open the thread"
+msgstr "Obre el fil"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Set until when the participants can answer before opening the thread."
+msgstr ""
+"Indiqueu fins quan poden respondre els participants abans d'obrir el fil."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_intervention__addressed
+msgid ""
+"The amendment has been dealt with: the minute can be approved once every "
+"amendment is."
+msgstr ""
+"L'esmena s'ha atès: l'acta es pot aprovar quan s'han atès totes les esmenes."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid ""
+"The draft goes to every participant by the thread, with a link to its PDF; "
+"whatever they answer is recorded as an amendment. Send it?"
+msgstr ""
+"L'esborrany arriba a cada participant pel fil, amb un enllaç al PDF; el que "
+"hi responguin queda registrat com una esmena. L'envieu?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid ""
+"The draft has amendments still to be dealt with (%s): go back to the meeting"
+" to apply them, or mark them as addressed."
+msgstr ""
+"L'esborrany té esmenes pendents d'atendre (%s): torneu a la reunió per "
+"aplicar-les o marqueu-les com a ateses."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute__reply_deadline
+msgid ""
+"The last day to take part, stated in the email that opens the thread. "
+"Whoever writes the minute closes it by sending it for approval."
+msgstr ""
+"L'últim dia per participar-hi, que consta al correu que obre el fil. Qui "
+"redacta l'acta el tanca en enviar-la a aprovar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid ""
+"The thread has already been opened to the participants: it can no longer go "
+"back to being prepared."
+msgstr ""
+"El fil ja s'ha obert als participants: ja no pot tornar a la preparació."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_draft_email
+msgid ""
+"The time to take part is over. Please find the draft of the minute below, "
+"for your review."
+msgstr ""
+"El termini per participar-hi ha acabat. Us fem arribar l'esborrany de l'acta"
+" perquè el reviseu."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_open_email
+msgid "There is no agenda: say what you think of the subject of the email."
+msgstr ""
+"No hi ha ordre del dia: digueu què en penseu, de l'assumpte del correu."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid ""
+"There is nobody to open the thread to: none of the people convened has an "
+"email address."
+msgstr ""
+"No hi ha ningú a qui obrir el fil: cap de les persones convocades no té "
+"adreça de correu."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Unknown sender"
+msgstr "Remitent desconegut"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid ""
+"What the participants answered to the draft. Go back to the meeting to apply"
+" them, or tick those that need no change: the minute is approved once every "
+"one is addressed."
+msgstr ""
+"El que els participants han respost a l'esborrany. Torneu a la reunió per "
+"aplicar-ho, o marqueu les esmenes que no requereixen cap canvi: l'acta "
+"s'aprova quan totes estan ateses."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_intervention__body
+msgid "What they said"
+msgstr "El que ha dit"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid ""
+"Whoever answers the thread moves to the attendees by themselves; correct the"
+" lists if needed."
+msgstr ""
+"Qui respon al fil passa sol als assistents; corregiu les llistes si cal."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_thread_open_email
+msgid "You can also follow it in EMS:"
+msgstr "També el podeu seguir a EMS:"

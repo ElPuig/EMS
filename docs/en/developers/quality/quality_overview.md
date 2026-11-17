@@ -98,8 +98,8 @@ access is unchanged: this is only about not presenting every field as editable b
 ### Minutes: read-only for whoever may only read them
 
 `ems.minute` inherits `ems.quality.can.edit` too, without the "Edit" step: a minute is written live,
-so whoever may write it gets it editable straight away. Whoever may only read it (an attendee, a
-department colleague: see `rule_minute_teacher` vs `rule_minute_teacher_write` in
+so whoever may write it gets it editable straight away. Whoever may only read it (an attendee or an
+absentee, who were both convened and get its draft; a department colleague: see `rule_minute_teacher` vs `rule_minute_teacher_write` in
 `security/rules/quality.xml`) gets it read-only. The form's `js_class="ems_minute_form"`
 (`static/src/js/backend/minute_form.js`) adds an `onRootLoaded` hook that switches the record to
 `readonly` mode when `can_edit` is False, and back to `edit` when it is True, on every load (the pager
@@ -272,6 +272,61 @@ in the PDF. A file uploaded while the minute is still unsaved has no `res_id`, s
 `write()` of `annex_attachment_ids`) gives it the minute's `res_model`/`res_id`, so it follows the minute's
 own access (whoever reads the minute downloads it, whoever writes it removes it). It only takes over files
 the person saving uploaded (or any, under superuser). The list is read-only once approved.
+
+### Meetings held by email (issue #822)
+
+A minute type of kind `email_thread` (seeded: `__import__.minute_type_email_thread`, "Fil de correu", generic
+scope, open to anybody) is a meeting held by email: the minute's own chatter is the thread. It reuses the
+meeting's states; what changes is how it is held.
+
+```mermaid
+sequenceDiagram
+    participant W as Writer
+    participant M as Minute (chatter)
+    participant P as Participants
+    W->>M: Open the thread (action_start_meeting)
+    M->>P: Opening email (agenda, reply_deadline), Reply-To = catchall
+    P->>M: Answers by email (incoming mail server)
+    Note over M: _ems_file_intervention: intervention, author to the attendees
+    M->>P: Every answer, to every follower
+    W->>M: Send for approval + draft (by the thread)
+    P->>M: Answers to the draft
+    Note over M: filed as amendments; approval waits for them
+```
+
+- **Preparing:** `reply_deadline` ("Answers until") replaces the time, duration, modality, room and attendance
+  mode (always `manual`, never a kiosk: `_ems_sync_presence` and `_ems_sync_leaves` only act on kind `meeting`).
+  No call is sent (`action_send_call` refuses it); the PDF's place says "By email" (`place_name`). With scope
+  *No particular scope*, `_ems_approver_candidates()` proposes whoever writes it.
+- **Opening** (`action_start_meeting` → `_ems_open_thread()`): needs `reply_deadline` and somebody convened with an
+  email. Everybody convened (`attendee_ids | absentee_ids`, through `work_contact_id`) follows the minute with
+  the *Discussions* subtype only, `start_datetime` becomes now, and all of them move to `absentee_ids`; the opening
+  email (`ems.minute_thread_open_email`) is posted with `_ems_thread_post()`, a `message_post` of subtype
+  `mt_comment` flagged `ems_thread_own_post`, so its `Reply-To` is the catchall address and it is not an intervention.
+  It can no longer go back to being prepared (`action_back_to_draft`).
+- **Everybody gets every message by email:** `_notify_get_recipients()` turns `inbox` recipients into `email` for
+  the `mt_comment` messages of an `email_thread` minute, so a user who reads notifications inside Odoo is not left
+  out of a mailing list. Tracking messages and notes are untouched.
+- **Interventions:** `_message_post_after_hook()` → `_ems_file_intervention()` files every `comment`/`email` message
+  of subtype `mt_comment` (an answer fetched from the mailbox, or a message written in the chatter) as an
+  `ems.minute.intervention`: kind `intervention` while the minute is in `meeting`, `amendment` in `to_approve`;
+  other states file nothing. The body is the message's without the quoted text (`_without_quoted_text()`: the
+  nodes `odoo.tools.mail.tag_quote` marked `data-o-mail-quote`); an answer that only quotes is skipped. The
+  author is resolved to an employee by `work_contact_id` or user partner; while the thread is open, that employee
+  moves from the absentees to the attendees. An answer from an address EMS does not know is filed under that
+  address and names nobody. The intervention's text is editable by whoever writes the minute; the message stays in
+  the chatter as it came. The PDF prints the interventions after the items discussed (not the amendments).
+- **Draft:** `action_send_draft` posts `ems.minute_thread_draft_email` on the thread (`_ems_send_draft_by_thread()`,
+  link to the PDF) instead of the per-recipient `mail.mail`; guests from outside EMS are not offered on this kind.
+- **Approval:** `action_approve` refuses while an amendment is not `addressed`; `action_back_to_meeting` marks them
+  all addressed (going back is how they get applied), and the writer can tick one that needs no change.
+
+`ems.minute.intervention` has the access of the minute's other line models (ACL for teachers, secretary, quality
+and academic administrators; no rule of its own). Filing runs with `sudo`, since the incoming email is processed by
+the mail gateway. Cost: one employee lookup and one insert per message, whatever the size of the thread. The
+production circuit (catchall, incoming mail server) is the one described in
+[chatter_email_answers.md](../shared/chatter_email_answers.md); on a development machine nothing is fetched, so
+this is tested with `message_process()` (`tests/test_quality_minute_thread.py`, `tests/test_quality_minute_thread_tour.py`).
 
 ### Who can start each kind of minute
 

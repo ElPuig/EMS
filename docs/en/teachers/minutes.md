@@ -14,7 +14,7 @@ departments and groups that hang from you.
 Only whoever writes a minute and whoever approves it can change it, and so can their chiefs (for instance
 the Seminar Chief of whoever writes it); if whoever approves it is away, their
 chiefs (Department Chief, Head or Deputy Head of Studies, Director) can approve it in their place. Any other minute you can see (one of
-a meeting you attended, one of your department) opens **read-only**, with no actions.
+a meeting you were convened to, one of your department) opens **read-only**, with no actions.
 
 ![List of the year's minutes with the facets Mine or Awaiting my approval, Meeting minutes and Current course](../../assets/teachers/actes-01-llistat.png)
 
@@ -33,6 +33,7 @@ a meeting you attended, one of your department) opens **read-only**, with no act
    | Type | Who can start it |
    |---|---|
    | Acta de reunió genèrica | Anybody |
+   | Fil de correu (a meeting held by email, see [below](#meetings-held-by-email)) | Anybody |
    | Acta de reunió de departament | The Department or Seminar Chief, and those above them, only for their own department |
    | Acta de claustre | The management team: Director, Head of Studies, Deputy Head of Studies and Secretary |
    | Acta d'equip docent | The group's tutor, those above them and the teachers who teach the group |
@@ -196,6 +197,36 @@ meeting starts, when it is sent for approval, approved or reopened), so the fold
 minute, as the minute stood at its last change of state: what you write in between reaches Drive at the next one.
 Once filed, **In Drive → Open in Drive**, under **Signatures**, opens it. Deleting a minute sends its copy to the
 Drive bin.
+
+## Meetings held by email
+
+When a matter does not need everybody in the same room, the meeting can be held by email with the
+**Fil de correu** type: the participants take part by answering an email, and every answer is written into
+the minute.
+
+1. **New** and the **Fil de correu** type. Choose the **scope of the meeting** as in a generic minute; with
+   *No particular scope*, add the participants to the **Attendance** tab yourself, and you are proposed as
+   whoever approves it.
+2. Set **Answers until**, the last day to take part, and write the **items to discuss** in their tab.
+   There is no time, room or kiosk.
+3. **Actions → Open the thread**. Everybody convened gets an email with the agenda and the deadline, and
+   they all start among the **absentees**.
+4. Each participant **replies to that email** from their mailbox. Everybody receives every answer, as in
+   a mailing list, and within a few minutes the answer appears in the **Interventions** block of the
+   minute, with its author and date and without the text it quotes. Whoever answers moves to the
+   **attendees** by themselves. You can retouch the text of an intervention, and correct the lists. A
+   message written in the minute's history also counts as an intervention.
+5. When the deadline is over, write the agreements and the pending topics, and **Actions → Send for
+   approval**, with the draft for the participants ticked: they get it as one more email of the same
+   thread.
+6. Whatever the participants answer to the draft appears in the **Amendments to the draft** block.
+   - With amendments: **Actions → Back to the meeting**, apply them and send it for approval again. If an
+     amendment needs no change, tick **Addressed** instead.
+   - With no amendments (or all of them addressed), whoever gives the approval approves it as any other
+     minute.
+
+Answer from the email address the centre has for you: an answer from a personal address is written into
+the minute, but does not make you an attendee.
 
 ## My agreements
 

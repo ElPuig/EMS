@@ -53,6 +53,8 @@ The students of the group are told, with the reason, and the Head of Studies get
 
 Whoever is above you in the hierarchy (Department or Seminar Chief, Head or Deputy Head of Studies, Director) and the administrator can abort it too.
 
+An aborted proposal no longer counts: the group can propose another walkout for the same day.
+
 ---
 
 [← Back to the tutors' manuals](index.md)

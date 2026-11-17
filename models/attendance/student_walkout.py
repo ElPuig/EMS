@@ -191,7 +191,7 @@ class EmsStudentWalkout(models.Model):
         if not files:
             raise UserError(_("Attach the call of the students' union."))
         if self.search_count([('group_ids', 'in', groups.ids), ('walkout_date', '=', walkout_date),
-                              ('state', '!=', 'cancelled')]):
+                              ('state', 'not in', ('cancelled', 'rejected'))]):
             raise UserError(_("Your group already has a student walkout proposal for %(date)s.",
                               date=format_date(self.env, walkout_date)))
         students = self.env['res.partner'].search([('contact_type', '=', 'student'),

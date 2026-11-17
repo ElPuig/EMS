@@ -341,6 +341,21 @@ class TestStudentWalkout(TransactionCase):
 
     # Aborting
 
+    def test_a_rejected_call_frees_the_day_for_the_group(self):
+        # Aborted by the tutor while voting, and not validated by the Head of Studies once closed.
+        walkout = open_walkout(self)
+        reject_walkout(walkout, self.tutor, 'ems.student_walkout_rejection_other', "A dockers' strike")
+        self.assertEqual(walkout.state, 'rejected')
+        again = open_walkout(self, self.subdelegate)
+        self.assertTrue(again)
+        self._supported(again)
+        self._join(again, self.delegate)
+        end_phase(again)
+        self.assertEqual(again.state, 'closed')
+        reject_walkout(again, self.head_of_studies, 'ems.student_walkout_rejection_other', "Not a real call")
+        self.assertEqual((again.state, again.rejected_from_state), ('rejected', 'closed'))
+        self.assertTrue(open_walkout(self, self.delegate))
+
     def test_the_tutor_chain_may_abort_it_with_a_reason(self):
         walkout = open_walkout(self)
         for user in (self.tutor, self.department_chief, self.head_of_studies):

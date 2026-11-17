@@ -53,6 +53,8 @@ Se avisa al alumnado del grupo, con el motivo, y la jefatura de estudios recibe 
 
 También la pueden abortar quienes están por encima de ti en la jerarquía (jefe de departamento o de seminario, jefe de estudios o jefe de estudios adjunto, dirección) y el administrador.
 
+Una propuesta abortada ya no cuenta: el grupo puede hacer otra para el mismo día.
+
 ---
 
 [← Volver a los manuales de tutores](index.md)

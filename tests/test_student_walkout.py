@@ -8,7 +8,8 @@ from odoo import fields
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase, tagged
 
-from .common import (create_head_of_studies_branch, create_level_study_group, create_role_employee,
+from .common import (ROLE_GROUP_XMLIDS, create_head_of_studies_branch, create_level_study_group,
+                     create_role_employee,
                      create_role_user, mock_outgoing_email, next_student_id, shift_ems_clock)
 
 PDF = b'%PDF-1.4 test union call'
@@ -222,15 +223,17 @@ class TestStudentWalkout(TransactionCase):
 
     def test_notice_in_school_hours(self):
         """Opened on Monday at 10:00: vote until Tuesday 10:00, joining until Wednesday 10:00, and the
-        minute 48 school hours before the walkout: Friday (38 hours) is too soon, the weekend does
-        not count, next Monday is the first day."""
+        minute 48 school hours before the walkout: Thursday is too soon, Friday (38 hours with a whole
+        joining) is only possible with a shorter joining, the weekend does not count and next Monday is
+        the first day with both phases whole."""
         with self.assertRaisesRegex(UserError, 'too late'):
-            open_walkout(self, days=4)
+            open_walkout(self, days=3)
         with self.assertRaisesRegex(UserError, 'school day'):
             open_walkout(self, days=5)  # Saturday
         Walkout = self.env['ems.student_walkout']
-        self.assertEqual(Walkout._ems_first_walkout_day(self._calendar(fields.Datetime.now())),
-                         self.today + timedelta(days=7))
+        calendar = self._calendar(fields.Datetime.now())
+        self.assertEqual(Walkout._ems_first_walkout_day(calendar), self.today + timedelta(days=7))
+        self.assertEqual(Walkout._ems_first_walkout_day(calendar, shortened=True), self.today + timedelta(days=4))
         self.assertTrue(open_walkout(self, days=7))
 
     def test_school_hours_cross_a_break_longer_than_the_search_window(self):
@@ -251,14 +254,30 @@ class TestStudentWalkout(TransactionCase):
 
     def test_notice_boundary_is_exact(self):
         """Opened on Monday at 00:00: the minute on Wednesday at 00:00, exactly 48 school hours before
-        Friday. A minute later, Friday is too soon."""
+        Friday, with the whole joining. Later the joining is cut to keep the notice, down to 5 minutes;
+        a minute less than that, Friday is too soon."""
         Walkout = self.env['ems.student_walkout']
         friday = self.today + timedelta(days=4)
         at_midnight = self._calendar(self._local(0, 0.0))
         self.assertEqual(at_midnight['join_until'], self._local(2, 0.0))
+        self.assertEqual(Walkout._ems_join_until_for(at_midnight, friday), self._local(2, 0.0))
         Walkout._ems_check_request_date(friday, at_midnight)
+        late = self._calendar(self._local(0, 0.0) + timedelta(minutes=1))
+        self.assertEqual(Walkout._ems_join_until_for(late, friday), self._local(2, 0.0), "Cut by a minute.")
+        Walkout._ems_check_request_date(friday, late)
+        Walkout._ems_check_request_date(friday, self._calendar(self._local(0, 23.0) + timedelta(minutes=55)))
         with self.assertRaises(UserError):
-            Walkout._ems_check_request_date(friday, self._calendar(self._local(0, 0.0) + timedelta(minutes=1)))
+            Walkout._ems_check_request_date(friday, self._calendar(self._local(0, 23.0) + timedelta(minutes=56)))
+
+    def test_a_shortened_joining_is_warned_and_lengthens_when_the_vote_ends_early(self):
+        """Issue #838: Friday keeps the notice only if the joining is cut: 14 hours instead of 24 when
+        the vote takes its whole phase, the whole 24 when the group decides at once."""
+        walkout = open_walkout(self, days=4)
+        self.assertEqual(walkout._ems_worst_join_hours(), 14.0)
+        self.assertFalse(open_walkout(self, days=7)._ems_worst_join_hours(), "Nothing to warn about.")
+        self._supported(walkout)  # decided now: the joining starts now, 24 hours fit
+        self.assertEqual(walkout.state, 'joining')
+        self.assertAlmostEqual(walkout.join_until, walkout.join_start + timedelta(hours=24), delta=timedelta(hours=1))
 
     def test_weekends_and_holidays_do_not_count(self):
         Walkout = self.env['ems.student_walkout']
@@ -341,6 +360,21 @@ class TestStudentWalkout(TransactionCase):
 
     # Aborting
 
+    def test_a_rejected_call_frees_the_day_for_the_group(self):
+        # Aborted by the tutor while voting, and not validated by the Head of Studies once closed.
+        walkout = open_walkout(self)
+        reject_walkout(walkout, self.tutor, 'ems.student_walkout_rejection_other', "A dockers' strike")
+        self.assertEqual(walkout.state, 'rejected')
+        again = open_walkout(self, self.subdelegate)
+        self.assertTrue(again)
+        self._supported(again)
+        self._join(again, self.delegate)
+        end_phase(again)
+        self.assertEqual(again.state, 'closed')
+        reject_walkout(again, self.head_of_studies, 'ems.student_walkout_rejection_other', "Not a real call")
+        self.assertEqual((again.state, again.rejected_from_state), ('rejected', 'closed'))
+        self.assertTrue(open_walkout(self, self.delegate))
+
     def test_the_tutor_chain_may_abort_it_with_a_reason(self):
         walkout = open_walkout(self)
         for user in (self.tutor, self.department_chief, self.head_of_studies):
@@ -360,12 +394,16 @@ class TestStudentWalkout(TransactionCase):
         self.assertIn("A dockers", str(notice.body))
 
     def test_the_system_administrator_is_at_the_top(self):
-        """Above Direction, outside the hierarchy: may abort a call and validate another."""
+        """Above Direction, outside the hierarchy: may abort a call, extend its joining and validate another."""
         admin = create_role_user(self, 'settings_admin', 'test_walkout_sysadmin_wlk', name='WLK System Administrator')
         walkout = open_walkout(self)
         self.assertTrue(walkout.with_user(admin).can_abort)
         reject_walkout(walkout, admin, 'ems.student_walkout_rejection_region')
         self.assertEqual((walkout.state, walkout.rejected_by_id), ('rejected', admin))
+        extendable = open_walkout(self, days=14)
+        self._supported(extendable)
+        self.assertTrue(extendable.with_user(admin).can_extend)
+        extendable.with_user(admin).action_extend_joining()
         closed = open_walkout(self, days=8)
         self._supported(closed)
         self._join(closed, self.delegate)
@@ -546,6 +584,112 @@ class TestStudentWalkout(TransactionCase):
                          "Only the request to ratify that the minor joins: the result waits for the validation.")
         self.assertIn(self.tutor.email, ' '.join(self._mails(walkout).mapped('email_to')), "The tutor is told.")
 
+    # Extending the joining (issue #838)
+
+    def test_the_delegate_extends_the_joining_once(self):
+        walkout = open_walkout(self, days=14)
+        self._supported(walkout)
+        until = walkout.join_until
+        self.assertTrue(walkout._ems_extension())
+        walkout._ems_portal_extend(self.delegate)
+        self.assertEqual(walkout.state, 'joining')
+        self.assertAlmostEqual(walkout.join_until, until + timedelta(hours=24), delta=timedelta(hours=1))
+        self.assertTrue(walkout.delegate_extended)
+        self.assertEqual(len(self._tutor_mails(walkout)), 3, "The tutor is told: call, joining, extension.")
+        with self.assertRaises(UserError):  # a delegate extends it once
+            walkout._ems_portal_extend(self.subdelegate)
+        with self.assertRaises(UserError):  # a classmate is not a delegate
+            walkout._ems_portal_extend(self.classmate)
+        cron = self.env.ref('ems.ir_cron_student_walkout_deadlines')
+        self.assertTrue(self.env['ir.cron.trigger'].sudo().search([('cron_id', '=', cron.id),
+                                                                   ('call_at', '=', walkout.join_until)]))
+
+    def test_the_extension_is_a_phase_long(self):
+        self.env.company.walkout_phase_hours = 12
+        walkout = open_walkout(self, days=14)
+        self._supported(walkout)
+        until = walkout.join_until
+        walkout._ems_portal_extend(self.delegate)
+        self.assertAlmostEqual(walkout.join_until, until + timedelta(hours=12), delta=timedelta(hours=1))
+
+    def test_the_tutor_chain_extends_any_time_and_any_number_of_times(self):
+        walkout = open_walkout(self, days=21)
+        self._supported(walkout)
+        for user in (self.tutor, self.head_of_studies):
+            self.assertTrue(walkout.with_user(user).can_extend, user.name)
+        until = walkout.join_until
+        walkout.with_user(self.tutor).action_extend_joining()
+        walkout.with_user(self.head_of_studies).action_extend_joining()
+        self.assertAlmostEqual(walkout.join_until, until + timedelta(hours=48), delta=timedelta(hours=2))
+        self.assertFalse(walkout.delegate_extended, "The delegates' own extension is still theirs.")
+        walkout._ems_portal_extend(self.delegate)
+        with self.assertRaises(Exception):  # outside the chain: they cannot even read it
+            walkout.with_user(self.other_head_of_studies).action_extend_joining()
+
+    def test_an_extension_is_cut_to_what_the_notice_allows(self):
+        walkout = open_walkout(self)  # the vote ended early: one full extension keeps the 48 hours
+        self._supported(walkout)
+        walkout.with_user(self.tutor).action_extend_joining()
+        before = walkout.join_until
+        # A second one would leave 38 hours: it is allowed up to the last end that keeps the 48.
+        latest = walkout._ems_extension()
+        self.assertTrue(latest)
+        self.assertLess(latest - before, timedelta(hours=24))
+        self.assertAlmostEqual(walkout.ems_school_hours_between(latest, walkout.walkout_start), 48, delta=0.05)
+        walkout._ems_portal_extend(self.delegate)
+        self.assertEqual((walkout.join_until, walkout.delegate_extended), (latest, True))
+        # Nothing is left to extend.
+        self.assertFalse(walkout._ems_extension())
+        self.assertFalse(walkout.with_user(self.tutor).can_extend)
+        with self.assertRaises(UserError):
+            walkout.with_user(self.tutor).action_extend_joining()
+
+    def test_a_closed_proposal_reopens_and_the_minute_is_sent_again(self):
+        walkout = open_walkout(self, days=14)
+        self._supported(walkout)
+        self._join(walkout, self.delegate)
+        end_phase(walkout)
+        self.assertEqual(walkout.state, 'closed')
+        first_minute = walkout.pdf_attachment_id
+        self.assertTrue(walkout.activity_ids)
+        walkout._ems_portal_extend(self.delegate)
+        self.assertEqual(walkout.state, 'joining')
+        self.assertGreater(walkout.join_until, fields.Datetime.now())
+        self.assertFalse(first_minute.exists(), "The old minute is gone.")
+        self.assertFalse(walkout.activity_ids, "Nothing to justify until it closes again.")
+        self.assertEqual(self._notices(walkout).user_id, self.head_of_studies,
+                         "The Head of Studies is told in the daily summary that the minute is held back.")
+        self._join(walkout, self.classmate)  # joining is open again
+        end_phase(walkout)
+        self.assertEqual(walkout.state, 'closed')
+        self.assertTrue(walkout.pdf_attachment_id)
+        self.assertEqual(len(self._mails(walkout).filtered(lambda mail: self.head_of_studies.email in mail.email_to)), 2,
+                         "A new minute is sent to the Head of Studies.")
+        self.assertEqual(walkout.joining_student_ids, self.delegate | self.classmate)
+
+    def test_only_a_supported_open_or_closed_proposal_is_extended(self):
+        walkout = open_walkout(self, days=14)
+        with self.assertRaises(UserError):  # still voting
+            walkout._ems_portal_extend(self.delegate)
+        self.assertFalse(walkout._ems_extension())
+        self._vote(walkout, self.delegate, 'no')
+        self._vote(walkout, self.subdelegate, 'no')
+        self.assertEqual((walkout.state, walkout.group_supports), ('closed', False))
+        with self.assertRaises(UserError):  # the group did not support it
+            walkout._ems_portal_extend(self.delegate)
+        other = open_walkout(self, days=15)
+        self._supported(other)
+        reject_walkout(other, self.tutor)
+        with self.assertRaises(UserError):
+            other.with_user(self.tutor).action_extend_joining()
+
+    def test_extending_asks_the_students_again(self):
+        walkout = open_walkout(self, days=14)
+        self._supported(walkout)
+        sent = len(self._mails(walkout.line_ids))
+        walkout._ems_portal_extend(self.delegate)
+        self.assertEqual(len(self._mails(walkout.line_ids)), sent + 3, "Each student with portal access.")
+
     def test_generate_the_justification(self):
         walkout = open_walkout(self)
         self._supported(walkout)
@@ -599,6 +743,76 @@ class TestStudentWalkout(TransactionCase):
         self._join(walkout, self.classmate)
         self.assertEqual(line.ratification, 'pending')
         self.assertEqual(len(self._family_mails(walkout)), 2)
+
+    def test_the_tutor_chain_ratifies_by_hand_for_a_family_without_portal_access(self):
+        """Issue #840: the tutor (or whoever is above them, or an administrator) marks the ratification
+        of a family that cannot use the portal, until the Head of Studies validates."""
+        walkout = open_walkout(self)
+        self._supported(walkout)
+        self._join(walkout, self.delegate)  # an adult: nothing to ratify
+        self._join(walkout, self.classmate)
+        self._join(walkout, self.subdelegate)
+        line = walkout.line_ids.filtered(lambda line: line.student_id == self.classmate)
+        adult = walkout.line_ids.filtered(lambda line: line.student_id == self.delegate)
+        for user in (self.tutor, self.department_chief, self.head_of_studies):
+            self.assertTrue(line.with_user(user).can_ratify_manually, user.name)
+        self.assertFalse(adult.with_user(self.tutor).can_ratify_manually, "An adult has nothing to ratify.")
+        self.assertFalse(line.with_user(self.other_department_chief).can_ratify_manually)
+        with self.assertRaises(Exception):  # outside the chain: they cannot even read it
+            line.with_user(self.other_head_of_studies).action_ratify_manually()
+        with self.assertRaises(UserError):
+            adult.with_user(self.tutor).action_ratify_manually()
+        line.with_user(self.tutor).action_ratify_manually()
+        self.assertEqual((line.ratification, line.ratified_by_id, line.ratified_manually),
+                         ('ratified', self.tutor.partner_id, True))
+        self.assertTrue(line.ratification_date)
+        self.assertIn(self.classmate.name, str(walkout.message_ids[:1].body))
+        self.assertEqual(walkout.justifiable_student_ids, self.delegate | self.classmate)
+        self.assertFalse(line.with_user(self.tutor).can_ratify_manually, "Already ratified.")
+        # A refusal of the family is theirs to change: the tutor does not override it.
+        ratify(walkout, self.family, self.subdelegate, False)
+        refused = walkout.line_ids.filtered(lambda line: line.student_id == self.subdelegate)
+        self.assertFalse(refused.with_user(self.tutor).can_ratify_manually)
+        # The family answering later on the portal takes over the answer.
+        ratify(walkout, self.family, self.classmate, False)
+        self.assertEqual((line.ratification, line.ratified_manually), ('refused', False))
+
+    def test_a_manual_ratification_is_possible_until_the_head_of_studies_validates(self):
+        walkout = open_walkout(self)
+        self._supported(walkout)
+        self._join(walkout, self.classmate)
+        line = walkout.line_ids.filtered(lambda line: line.student_id == self.classmate)
+        end_phase(walkout)
+        self.assertEqual(walkout.state, 'closed')
+        self.assertTrue(line.with_user(self.tutor).can_ratify_manually, "Joining is over, not yet validated.")
+        line.with_user(self.tutor).action_ratify_manually()
+        self.assertTrue(line.justifiable)
+        walkout.with_user(self.head_of_studies).action_generate_justification()
+        self.assertEqual(walkout.state, 'justified')
+        with self.assertRaises(UserError):
+            line.with_user(self.tutor).action_ratify_manually()
+        # Withdrawing, or being asked again, clears the manual mark.
+
+    def test_withdrawing_clears_a_manual_ratification(self):
+        walkout = open_walkout(self)
+        self._supported(walkout)
+        self._join(walkout, self.classmate)
+        line = walkout.line_ids.filtered(lambda line: line.student_id == self.classmate)
+        line.with_user(self.tutor).action_ratify_manually()
+        self._join(walkout, self.classmate, False)
+        self.assertFalse(line.ratified_manually or line.ratification)
+        self._join(walkout, self.classmate)  # joining again asks the family again
+        self.assertEqual((line.ratification, line.ratified_manually), ('pending', False))
+        self.assertTrue(line.with_user(self.tutor).can_ratify_manually)
+
+    def test_the_menu_is_only_for_who_can_read_a_call(self):
+        """Issue #840: a tutor, the roles above them and the administrators; a teacher who tutors no group
+        would only see an empty list."""
+        menu = self.env.ref('ems.menu_student_walkout')
+        shown = {role for role in ROLE_GROUP_XMLIDS if menu.id in self.env(user=create_role_user(
+            self, role, f'test_walkout_menu_{role}'))['ir.ui.menu']._visible_menu_ids()}
+        self.assertEqual(shown, {'tutor', 'department_chief', 'head_of_studies', 'director', 'academic_admin',
+                                 'settings_admin'})
 
     def test_a_family_that_refuses_is_heard_and_the_student_told(self):
         walkout = open_walkout(self)
@@ -893,6 +1107,10 @@ class TestStudentWalkout(TransactionCase):
                         Walkout.with_context(tz=utils.company_tz_name()), value).strftime('%-d/%-m, %H:%M'), html)
                 self.assertIn(f'{first_day.day}/{first_day.month}', html)
                 self.assertIn(str(escape(Walkout._ems_count_description(rule))), html)
+                # Issue #838: the earliest day, with a shorter joining, when it comes before.
+                earliest = calendar['earliest_day']
+                self.assertLessEqual(earliest, first_day)
+                self.assertEqual('Earliest walkout day' in html, earliest != first_day)
         self.assertFalse(Walkout._ems_sample_html(cases[0][0], 0, 48), "No example for an invalid phase.")
         settings = self.env['res.config.settings'].create({'walkout_hours_kind': 'school'})
         self.assertIn('class hours', settings.walkout_calendar_example)

@@ -23,6 +23,7 @@ class TestStudentWalkoutTour(HttpCase):
         for student in (cls.delegate, cls.subdelegate):
             cls.walkout._ems_portal_vote(student, 'yes')
         cls.walkout._ems_portal_join(cls.delegate, True)
+        cls.walkout._ems_portal_join(cls.classmate, True)  # a minor: its family must ratify it
         end_phase(cls.walkout)  # the joining ended: closed
         cls.voting = open_walkout(cls, days=8)
 
@@ -30,6 +31,18 @@ class TestStudentWalkoutTour(HttpCase):
         self.start_tour("/odoo", "ems_student_walkout_abort", login=self.tutor.login)
         self.assertEqual((self.voting.state, self.voting.rejected_by_id), ('rejected', self.tutor))
         self.assertEqual(self.walkout.state, 'closed')
+
+    def test_tutor_extends_the_joining(self):
+        """Issue #838: a closed call reopens for one phase more."""
+        self.start_tour("/odoo", "ems_student_walkout_extend", login=self.tutor.login)
+        self.assertEqual((self.walkout.state, self.walkout.delegate_extended), ('joining', False))
+
+    def test_tutor_ratifies_by_hand(self):
+        """Issue #840: the family of a minor cannot use the portal; the tutor marks its ratification."""
+        self.start_tour("/odoo", "ems_student_walkout_ratify_by_hand", login=self.tutor.login)
+        line = self.walkout.line_ids.filtered(lambda line: line.student_id == self.classmate)
+        self.assertEqual((line.ratification, line.ratified_by_id, line.ratified_manually),
+                         ('ratified', self.tutor.partner_id, True))
 
     def test_head_of_studies_validates(self):
         self.start_tour("/odoo", "ems_student_walkout_validate", login=self.head_of_studies.login)

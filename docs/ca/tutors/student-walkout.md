@@ -18,6 +18,7 @@ Reps un correu, alhora que el teu grup, cada vegada que passa alguna cosa:
 |------|-------------------|
 | El delegat proposa la votació | Qui l'ha proposada, per a quin dia, i fins quan vota el grup |
 | El grup hi dona suport | El recompte de vots, i fins quan cada alumne diu si s'hi suma |
+| S'amplien les adhesions | Fins quan cada alumne pot dir ara si s'hi suma; fins llavors encara pots avortar la proposta |
 | La proposta es tanca | Si el grup hi dona suport i quants alumnes s'hi sumen |
 | El cap d'estudis la valida | Que la falta dels qui s'hi sumen està justificada |
 | S'avorta o no es valida | Qui ho ha fet, i el motiu |
@@ -33,6 +34,10 @@ Els correus t'arriben quan arriben al teu grup: de seguida si el centre compta l
 **Assistència dels estudiants > Vagues d'alumnes** mostra les propostes dels teus grups. El formulari mostra el calendari, la convocatòria del sindicat, el recompte de vots i, a la pestanya **Alumnat**, qui ha votat (mai què), qui s'hi suma i la ratificació de la família dels alumnes menors d'edat.
 
 Un alumne menor que s'hi suma necessita que la seva família ho ratifiqui al portal mentre duren les adhesions (Decret 102/2010, article 24.2): sense la ratificació, la seva falta no es justifica. La columna **Es pot justificar** et diu a qui es justificarà la falta si la vaga es valida.
+
+Si la família d'un menor no pot utilitzar el portal i et comunica (a tu o al centre) que ho ratifica, fes clic a **Ratifica a mà** a la fila d'aquest alumne de la pestanya **Alumnat** i confirma-ho. Ho pots fer des que els alumnes s'hi sumen fins que la cap d'estudis valida la vaga, només per a famílies que no han respost (mai per anul·lar un rebuig). La fila mostra qui ho ha marcat i el canvi queda registrat al xat.
+
+![Pestanya Alumnat amb el botó per ratificar a mà](../../assets/tutors/tutor-walkout-ratify-by-hand.png)
 
 ---
 
@@ -52,6 +57,18 @@ Mai perquè no hi estiguis d'acord, coincideixi amb un examen, una sortida o un 
 Se n'avisa l'alumnat del grup, amb el motiu, i el cap d'estudis rep un avís de cada proposta avortada al seu resum diari. Un cop tancada la proposta, només decideix el cap d'estudis.
 
 També la poden avortar els qui són per sobre teu a la jerarquia (cap de departament o de seminari, cap d'estudis o cap d'estudis adjunt, direcció) i l'administrador.
+
+Una proposta avortada ja no compta: el grup en pot fer una altra per al mateix dia.
+
+---
+
+## Ampliar les adhesions
+
+Si l'alumnat necessita més temps per dir si s'hi suma, **Accions > Amplia les adhesions** li dona una fase més (el temps fixat per a cada fase a la configuració del centre), o menys si el cap d'estudis no rebria l'acta a temps: tant com es pot. Es compta des del final de les adhesions, o des d'ara si ja han acabat. Ho pots fer en qualsevol moment i tantes vegades com calgui, mentre el cap d'estudis encara rebi l'acta amb l'antelació prevista abans de la vaga: quan no és possible, l'acció no apareix. S'avisa tot l'alumnat.
+
+- El delegat i el sotsdelegat poden ampliar-les una vegada pel seu compte, des del portal.
+- Si la proposta ja s'havia tancat, es torna a obrir: l'acta que va arribar al cap d'estudis es retira (en rep un avís al resum diari) i se n'envia una de nova quan es tanqui de nou.
+- Només es poden ampliar les propostes a les quals el grup dona suport: una a la qual el grup no ha donat suport, una d'avortada o una ja validada no.
 
 ---
 

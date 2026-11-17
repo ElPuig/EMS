@@ -21,7 +21,8 @@ wizard explains which reasons are lawful). The Head of Studies hears nothing unt
 except a notice in their daily summary when a proposal is aborted. **The family of a minor who joins
 must ratify it** (Decret 102/2010, article 24.2: a minor's collective absence needs the family's
 authorization): it is asked at once and answers on the portal while joining lasts; a minor whose
-family has not ratified it (refused, did not answer, or has no portal access) is not justified.
+family has not ratified it (refused, did not answer, or has no portal access) is not justified,
+unless the tutor (or whoever is above them) marks the ratification by hand for a family that cannot use the portal.
 Other families hear nothing until the proposal is validated.
 
 **Naming.** In English the feature is always *walkout*, never *strike*: `ems.strike` is the
@@ -94,10 +95,21 @@ Tuesday 8:00. With school hours that is the same as counting from the proposal, 
 before the first class. The portal lets students answer before the start too (e.g. over the
 weekend): `_ems_phase_open()` only checks the end.
 
+**A shortened joining (issue #838).** The joining does not need its whole phase to fit before the notice: it lasts
+`phase_hours`, or, if the minute would then reach the Head of Studies too late, the longest part of it that keeps the
+notice (`_ems_longest_end()`, bisection over minutes, the same helper as the extension below), at least
+`MIN_PHASE_MINUTES` (5). It is worked out **when the joining starts** (`_ems_end_group_vote`), so a vote that ends
+early leaves it more time, up to the phase. When opening, `_ems_check_request_date()` only needs the worst case
+(the vote taking its whole phase) to leave those 5 minutes (`_ems_join_until_for(calendar, day)`); a proposal that
+needs the cut is created and the delegate is warned on its page (`_ems_worst_join_hours()`, alert
+`o_ems_walkout_join_cut`, only for the delegates while voting), not asked to confirm. `_ems_first_walkout_day()`
+gives the first day with both phases whole, or with `shortened=True` the earliest one; the form's minimum date is the
+latter and says until which day the joining is shorter. The settings example adds the earliest day when it differs.
+
 **Notice.** When opening, `_ems_projected_calendar()` works out the worst case (the vote taking its
-whole phase) and `_ems_check_request_date()` requires at least `notice_hours`, counted in the same
-way as the phases, from that `join_until` to the walkout's 00:00, and the walkout day to be a school
-day. With phases of 24 hours, 48 of notice and today's count (real hours from the email), a proposal
+whole phase) and `_ems_check_request_date()` requires the minute to reach the Head of Studies at least `notice_hours`, counted in the
+same way as the phases, before the walkout's 00:00 (with the joining cut if needed, see above), and the walkout day
+to be a school day. With phases of 24 hours, 48 of notice and today's count (real hours from the email), a proposal
 made on Monday at 10:00 votes until Tuesday 10:00, joins until Wednesday 10:00, and its first
 possible walkout day is the next Monday (Friday would only give 38 hours). With 24 hours of notice
 and real hours from the proposal, a proposal made on Monday at any time can be for Friday. The
@@ -156,6 +168,8 @@ erDiagram
 | `head_of_studies_id` | `Many2one → hr.employee` | Who gets the minute |
 | `rejected_by_id` / `rejected_datetime` | `Many2one → res.users` / `Datetime` | Who aborted it or did not validate it, and when |
 | `rejection_reason_id` / `rejection_details` | `Many2one → ems.student_walkout.rejection_reason` / `Text` | Why; details are required for a reason with `requires_details` ("Other reasons") |
+| `delegate_extended` | `Boolean` | The delegates already used their one extension of the joining (issue #838) |
+| `can_extend` | `Boolean` (computed per user) | Whether the user may extend the joining and it is possible (`_ems_user_may_abort` and `_ems_extension()`) |
 | `rejected_from_state` | `Selection` | `voting`/`joining`: aborted; `closed`: not validated; `justified`: validation undone |
 | `can_abort` / `can_reject` | `Boolean` (computed per user) | Whether the user may abort it / not validate it (`_ems_user_may_abort` / `_ems_user_may_reject`) |
 | `group_yes_count` / `group_no_count` / `group_abstain_count` | `Integer` | The anonymous group vote: only these counters, never who voted what |
@@ -174,7 +188,8 @@ erDiagram
 | `voted` / `vote_date` | `Boolean` / `Datetime` | The group vote was cast (it never says which way) |
 | `join_answered` / `joins` / `join_date` | `Boolean` / `Boolean` / `Datetime` | Whether they said if they join, and what |
 | `needs_ratification` / `ratification` | `Boolean` / `Selection` (`pending`, `ratified`, `refused`) | A minor on the walkout day (no birth date counts as a minor) who joins needs the family's ratification |
-| `ratified_by_id` / `ratification_date` | `Many2one → res.partner` / `Datetime` | The family contact who answered, and when |
+| `ratified_by_id` / `ratification_date` | `Many2one → res.partner` / `Datetime` | Who answered (the family contact, or the staff member who marked it by hand), and when |
+| `ratified_manually` / `can_ratify_manually` | `Boolean` / `Boolean` (computed, per user) | Marked by hand by the centre (issue #840); whether the current user may do it now |
 | `justifiable` | `Boolean` (computed) | Joins and, if a minor, the family ratified it |
 
 **Anonymity and concurrency.** The group vote only adds one to a counter of the proposal
@@ -236,6 +251,8 @@ flowchart TD
     F --> I["Validate and justify: full-day justification of adults and ratified minors; students, families and tutor told"]
     F -. "do not validate, with a reason" .-> Y["rejected: students, tutor and the families asked to ratify told"]
     I -. "undo the validation, with a reason" .-> Z["rejected: justification removed; students, families and tutor told"]
+    J -. "delegate (once) / tutor chain extends" .-> J
+    F -. "delegate (once) / tutor chain extends" .-> J
     V -. "tutor aborts, with a reason" .-> X["rejected: students and tutor told; notice in the HoS/DHoS daily summary"]
     J -. "tutor aborts, with a reason" .-> X
 ```
@@ -270,14 +287,34 @@ flowchart TD
   `/my/vagues/ratifica/<line>`): a family contact of the student (`_ems_family_contacts`) with portal
   access, only while `joining` (until `join_until`), changeable meanwhile. A refusal is told to the
   student (`email_template_student_walkout_ratification_refused`). A family with no portal access
-  cannot ratify: that minor is not justified. The family sees the lines it was asked about
+  cannot ratify: that minor is not justified unless the centre marks it by hand (next item). The family sees the lines it was asked about
   (`res.partner._ems_walkout_family_lines`) and a banner on the portal home while one is pending.
+- **Ratify by hand** (`ems.student_walkout.line.action_ratify_manually()`, issue #840): for a family that
+  cannot use the portal and asks the centre. Whoever may abort the proposal (`_ems_user_may_abort`:
+  tutor, the chain above them, administrator) marks a `pending` ratification of a minor who joins, from
+  joining until the Head of Studies validates (`joining` or `closed`). A family's refusal is never
+  overridden. It sets `ratification = 'ratified'`, `ratified_by_id` = the staff member's contact,
+  `ratified_manually` and logs it in the walkout's chatter; the family answering on the portal later,
+  or the student withdrawing, clears `ratified_manually`. The button sits on the form's Students tab.
 - **Close** (`_ems_close`): renders the minute (`ems.report_student_walkout`, centre language), emails
   it to the Head of Studies right away (`email_template_student_walkout_head`: the walkout is a few
   days off, so not in the daily summary) and, when the group supports it and somebody joins,
   schedules the quiet task "Justify the student walkout"; the tutor gets a copy. The families are
   not told yet. The Head of Studies (`_ems_head_users`) is `group.tutor_id.find_head_of_studies()`;
   with no tutor, every Head and Deputy Head of Studies; failing that, the academic administrators.
+- **Extend the joining** (issue #838): only the joining, never the group vote. A proposal the group supports can be
+  extended while `joining` or once `closed`. `_ems_extension()` gives the new `join_until`: one phase
+  (`phase_hours`, the same setting as every phase, no setting of its own), or the longest part of it that keeps the notice (bisection over minutes), from the later of the current
+  `join_until` and the moment the email reaches the group (`_ems_send_moment`), counted like the phases; it is
+  `False` when the state does not allow it or not even a minute more keeps the notice (so the buttons only exist
+  when it is possible; a proposal for the first possible day gets a full extension, then a shorter one, then none). The delegates (`_ems_is_manager`) extend it **once** from the portal
+  (`_ems_portal_extend`, POST `/my/vagues/<id>/amplia`, `delegate_extended`); the tutor chain and the administrators
+  (`_ems_user_may_abort`) as often as they want, from **Actions > Extend the joining** (`action_extend_joining`).
+  Both go through `_ems_extend_joining()`: a `closed` proposal goes back to `joining` (its minute and its justify
+  task are removed, `closed_datetime` cleared, and the Head of Studies gets a notice in their daily summary,
+  `_ems_notify_heads`), the deadlines cron is woken for the new end, every student with portal access gets
+  `email_template_student_walkout_join_extended` and the tutor a copy (event `extended`). When it closes again
+  `_ems_close()` renders and sends a new minute. Families asked to ratify answer until the new end.
 - **Abort** (`action_open_reject_wizard()` → `_ems_reject(reason, details)`) while `voting` or
   `joining` (`ABORTABLE_STATES`): `_ems_user_may_abort`, i.e. an administrator, or the tutor of any
   of `group_ids` or the chain above them (`user_acts_as_tutor`: Department or Seminar Chief, Head or
@@ -318,13 +355,15 @@ flowchart TD
 
 ## Access control
 
+The **Student walkouts** menu (Student's Attendances) is shown only to who can read a call: `ems.group_tutor` (which Department or Seminar Chief, Head or Deputy Head of Studies and Director imply) and the administrators. A teacher who tutors no group would only see an empty list (issue #840).
+
 Portal users have no ACL on these models: the controller works with `sudo()` and always takes the
 student from the logged-in user (`request.env.user.partner_id`, `contact_type == 'student'`). A
 family only ratifies, for the lines of its own children it was asked about.
 
 | Role | Read | Abort (voting, joining) | Validate, do not validate, undo | Rejection reasons |
 |------|:----:|:--:|:--:|:--:|
-| Tutor, Department / Seminar Chief (the chain above, `tutor_scope_user_ids`) | ✓ (their groups) | ✓ | — | read |
+| Tutor, Department / Seminar Chief (the chain above, `tutor_scope_user_ids`) | ✓ (their groups) | ✓ (and extend the joining) | — | read |
 | Head of Studies / Deputy Head of Studies / Director | ✓ (their branch, tutor scope; every group with no tutor) | ✓ | ✓ | read, write, create |
 | Administrator (`ems.group_academic_admin`, `base.group_system`) | ✓ (all) | ✓ | ✓ | all |
 

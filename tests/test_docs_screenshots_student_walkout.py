@@ -73,11 +73,22 @@ class TestDocsScreenshotsStudentWalkout(DocsScreenshotMixin, HttpCase):
         self._capture('/my/vagues', '.o_ems_portal_walkout_family', 'walkout-portal-family.png',
                       login='doc_shot_walkout_family')
 
+    def test_capture_delegate_extend(self):
+        """Issue #838: the delegate extends the joining of a closed call, once."""
+        self._capture(f'/my/vagues/{self.closed.id}', '.o_ems_walkout_extend', 'walkout-portal-extend.png',
+                      login=self._login(self.delegate))
+
     def test_capture_tutor_abort(self):
         self._capture(f'/odoo/action-ems.action_student_walkout/{self.voting.id}', '.modal-content',
                       'tutor-walkout-abort.png', login=self.tutor.login,
                       wait_for='.o_form_view .o_form_statusbar',
                       click="button[name='action_open_reject_wizard']", wait_after='.modal .alert-warning')
+
+    def test_capture_tutor_ratify_by_hand(self):
+        """Issue #840: the Students tab, with the button to ratify by hand a minor whose family has not answered."""
+        self._capture(f'/odoo/action-ems.action_student_walkout/{self.joining.id}', ".o_field_widget[name='line_ids']",
+                      'tutor-walkout-ratify-by-hand.png', login=self.tutor.login,
+                      wait_for="button[name='action_ratify_manually']")
 
     def test_capture_head_of_studies_closed(self):
         # beyond_viewport=False: resizing the page for a taller shot would close the dropdown.

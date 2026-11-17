@@ -13,6 +13,8 @@ GROUP_VOTES = ('yes', 'no', 'abstain')
 JUSTIFY_TASK = 'ems.mail_activity_student_walkout_justify'
 # What the group sees: a call cancelled by its delegate is only theirs.
 VISIBLE_STATES = ('voting', 'joining', 'closed', 'justified', 'rejected')
+# Issue #838: the least a phase can last when it is cut to keep the notice before the walkout.
+MIN_PHASE_MINUTES = 5
 # The group's tutor (and the chain above them) may abort a call while it is voted or joined; once
 # closed, the Head of Studies validates it (justifies) or not, and may undo a validation.
 ABORTABLE_STATES = ('voting', 'joining')
@@ -98,6 +100,9 @@ class EmsStudentWalkout(models.Model):
         ('closed', "Closed"),
         ('justified', "Justified"),
     ], readonly=True, copy=False)
+    # Issue #838: the delegates extend the joining once; the tutor chain, any number of times.
+    delegate_extended = fields.Boolean(string="Extended by the delegates", readonly=True, copy=False)
+    can_extend = fields.Boolean(compute='_compute_can_reject')
     can_abort = fields.Boolean(compute='_compute_can_reject')
     can_reject = fields.Boolean(compute='_compute_can_reject')
     # The group vote, anonymous: only the counts, never who voted what (_ems_portal_vote).
@@ -155,10 +160,11 @@ class EmsStudentWalkout(models.Model):
             walkout.voted_count = len(walkout.line_ids.filtered('voted'))
             walkout.join_answered_count = len(walkout.line_ids.filtered('join_answered'))
 
-    @api.depends('state')
+    @api.depends('state', 'join_until')
     @api.depends_context('uid')
     def _compute_can_reject(self):
         for walkout in self:
+            walkout.can_extend = walkout._ems_user_may_abort() and bool(walkout._ems_extension())
             walkout.can_abort = walkout.state in ABORTABLE_STATES and walkout._ems_user_may_abort()
             walkout.can_reject = walkout.state in VALIDATION_STATES and walkout._ems_user_may_reject()
 
@@ -191,7 +197,7 @@ class EmsStudentWalkout(models.Model):
         if not files:
             raise UserError(_("Attach the call of the students' union."))
         if self.search_count([('group_ids', 'in', groups.ids), ('walkout_date', '=', walkout_date),
-                              ('state', '!=', 'cancelled')]):
+                              ('state', 'not in', ('cancelled', 'rejected'))]):
             raise UserError(_("Your group already has a student walkout proposal for %(date)s.",
                               date=format_date(self.env, walkout_date)))
         students = self.env['res.partner'].search([('contact_type', '=', 'student'),
@@ -282,10 +288,10 @@ class EmsStudentWalkout(models.Model):
         asks = bool(joins) and not line.joins and self._ems_is_minor(line.student_id)
         if not joins:
             vals.update({'needs_ratification': False, 'ratification': False, 'ratified_by_id': False,
-                         'ratification_date': False})
+                         'ratification_date': False, 'ratified_manually': False})
         elif asks:
             vals.update({'needs_ratification': True, 'ratification': 'pending', 'ratified_by_id': False,
-                         'ratification_date': False})
+                         'ratification_date': False, 'ratified_manually': False})
         line.write(vals)
         if asks:
             self._ems_mail_families('ems.email_template_student_walkout_ratify', line)
@@ -313,7 +319,7 @@ class EmsStudentWalkout(models.Model):
             raise UserError(_("The time to ratify it is over: joining this student walkout is closed."))
         refused_now = not ratifies and line.ratification != 'refused'
         line.write({'ratification': 'ratified' if ratifies else 'refused', 'ratified_by_id': family.id,
-                    'ratification_date': fields.Datetime.now()})
+                    'ratification_date': fields.Datetime.now(), 'ratified_manually': False})
         if refused_now:
             self._ems_mail_students('ems.email_template_student_walkout_ratification_refused', line)
 
@@ -323,6 +329,20 @@ class EmsStudentWalkout(models.Model):
             raise UserError(_("Only a proposal still being voted or joined can be cancelled."))
         self.state = 'cancelled'
         self._message_log(body=_("Cancelled by %(name)s from the portal.", name=partner.name))
+
+    def _ems_portal_extend(self, partner):
+        """The delegates extend the joining once."""
+        self._ems_check_manager(partner)
+        if self.delegate_extended:
+            raise UserError(_("The delegates can extend the joining only once."))
+        self._ems_extend_joining(partner.name, as_delegate=True)
+
+    def action_extend_joining(self):
+        """The tutor chain (and the administrators) extend the joining any time, as often as needed."""
+        if not self._ems_user_may_abort():
+            raise UserError(_("Only the tutor of the group, the chain above them (Department or Seminar Chief, Head "
+                              "or Deputy Head of Studies, Director) or an administrator can extend the joining."))
+        self._ems_extend_joining(self.env.user.name)
 
     def _ems_is_manager(self, partner):
         """The opener, or the group's current delegate or sub-delegate, manage the proposal."""
@@ -438,12 +458,46 @@ class EmsStudentWalkout(models.Model):
             calendar['notice_hours']
 
     @api.model
-    def _ems_first_walkout_day(self, calendar):
-        """The first school day a call with this calendar can be for."""
-        first = self.utc_to_local_date(calendar['join_until'])
+    def _ems_longest_end(self, plan, start, hours, day, notice_hours):
+        """Issue #838: the end of a phase that starts at `start` and lasts `hours`, or, when the minute would
+        then not reach the Head of Studies `notice_hours` before `day`, the longest part of it that does
+        (bisection over minutes). False when not even MIN_PHASE_MINUTES keep the notice."""
+        day_start = self._ems_day_start(day)
+
+        def end(minutes):
+            return self._ems_add_hours(plan, start, minutes / 60)
+
+        def kept(minutes):
+            return self._ems_hours_between(plan, end(minutes), day_start) >= notice_hours
+
+        longest = int(hours * 60)
+        if kept(longest):
+            return end(longest)
+        if not kept(MIN_PHASE_MINUTES):
+            return False
+        low, high = MIN_PHASE_MINUTES, longest
+        while high - low > 1:
+            middle = (low + high) // 2
+            low, high = (middle, high) if kept(middle) else (low, middle)
+        return end(low)
+
+    @api.model
+    def _ems_join_until_for(self, calendar, day):
+        """When the joining of a call for `day` ends at the latest: its whole phase, or shorter when the
+        notice needs it (False when not even a few minutes fit)."""
+        return self._ems_longest_end(calendar['plan'], calendar['join_start'], calendar['phase_hours'], day,
+                                     calendar['notice_hours'])
+
+    @api.model
+    def _ems_first_walkout_day(self, calendar, shortened=False):
+        """The first school day a call with this calendar can be for, with both phases whole or, with
+        `shortened`, with the joining cut to what the notice allows."""
+        first = self.utc_to_local_date(calendar['join_start' if shortened else 'join_until'])
         school_days_of = calendar['plan']['school_days'] or self._ems_school_days
         school_days = sorted(school_days_of(first, fields.Date.add(first, days=366)))
-        return next((day for day in school_days if self._ems_notice_kept(calendar, day)), False)
+        fits = (lambda day: self._ems_join_until_for(calendar, day)) if shortened else \
+            (lambda day: self._ems_notice_kept(calendar, day))
+        return next((day for day in school_days if fits(day)), False)
 
     @api.model
     def _ems_sample_calendar(self, rule, phase, notice, now=None):
@@ -461,6 +515,7 @@ class EmsStudentWalkout(models.Model):
         calendar = self._ems_projected_calendar(self.env['ems.group'], now, plan, phase, notice)
         calendar['proposal'] = now
         calendar['first_day'] = self._ems_first_walkout_day(calendar)
+        calendar['earliest_day'] = self._ems_first_walkout_day(calendar, shortened=True)
         return calendar
 
     @api.model
@@ -481,6 +536,9 @@ class EmsStudentWalkout(models.Model):
             _("First possible walkout day: %(day)s",
               day=format_date(self.env, calendar['first_day'], date_format='EEEE d/M')),
         ]
+        if calendar['earliest_day'] != calendar['first_day']:
+            lines.append(_("Earliest walkout day, with a shorter joining: %(day)s",
+                           day=format_date(self.env, calendar['earliest_day'], date_format='EEEE d/M')))
         intro = _("Example: a group with class from 8:00 to 15:00, Monday to Friday, proposes a walkout on "
                   "%(moment)s, after its classes.", moment=moment(calendar['proposal']))
         return Markup('<p class="mb-1">%s</p><ul class="mb-1">%s</ul><p class="mb-0">%s</p>') % (
@@ -508,20 +566,34 @@ class EmsStudentWalkout(models.Model):
 
     @api.model
     def _ems_check_request_date(self, walkout_date, calendar):
-        """The group vote and the joining take a phase each and the minute must reach the Head of
-        Studies the notice before the walkout, all counted as the settings say."""
+        """The group vote takes a whole phase, the joining the rest of what the notice leaves (at least
+        MIN_PHASE_MINUTES) and the minute must reach the Head of Studies the notice before the walkout, all
+        counted as the settings say."""
         if not walkout_date:
             raise UserError(_("Give the walkout day."))
         if not self._ems_school_days(walkout_date, walkout_date):
             raise UserError(_("A student walkout can only be on a school day."))
-        if not self._ems_notice_kept(calendar, walkout_date):
+        if not self._ems_join_until_for(calendar, walkout_date):
             raise UserError(_(
-                "It is too late to propose supporting a student walkout for %(day)s: the group vote and the joining take "
-                "%(phase)s hours each and the Head of Studies must get the minute %(notice)s hours before the "
-                "walkout. %(count)s A proposal made now can be for %(first)s at the earliest.",
-                day=format_date(self.env, walkout_date), phase=calendar['phase_hours'],
+                "It is too late to propose supporting a student walkout for %(day)s: the group vote takes %(phase)s "
+                "hours, the joining can be shortened but needs at least %(minutes)s minutes, and the Head of Studies "
+                "must get the minute %(notice)s hours before the walkout. %(count)s A proposal made now can be for "
+                "%(first)s at the earliest.",
+                day=format_date(self.env, walkout_date), phase=calendar['phase_hours'], minutes=MIN_PHASE_MINUTES,
                 notice=calendar['notice_hours'], count=self._ems_count_description(calendar['plan']['rule']),
-                first=format_date(self.env, self._ems_first_walkout_day(calendar))))
+                first=format_date(self.env, self._ems_first_walkout_day(calendar, shortened=True))))
+
+    def _ems_worst_join_hours(self):
+        """Issue #838: when a proposal still being voted could not give the joining its whole phase even if
+        the vote takes all of its own, the hours the joining would last then (a shorter vote lengthens it, up
+        to the phase); False when the whole phase fits."""
+        self.ensure_one()
+        plan = self._ems_own_plan()
+        start = self._ems_send_moment(plan, self.vote_until)
+        until = self._ems_longest_end(plan, start, self.phase_hours, self.walkout_date, self.notice_hours) or \
+            self._ems_add_hours(plan, start, MIN_PHASE_MINUTES / 60)
+        hours = self._ems_hours_between(plan, start, until)
+        return round(hours, 1) if hours < self.phase_hours else False
 
     def _ems_phase_open(self, state):
         """Whether the phase `state` (voting, joining) is open: the proposal is in it and its end has not
@@ -529,6 +601,47 @@ class EmsStudentWalkout(models.Model):
         self.ensure_one()
         until = self.vote_until if state == 'voting' else self.join_until
         return self.state == state and bool(until) and fields.Datetime.now() < until
+
+    def _ems_extension(self):
+        """Issue #838: what the joining can be extended to, or False when it cannot: only a proposal the
+        group supports, still joining or already closed (its minute goes out again when it closes), and
+        the minute must still reach the Head of Studies the notice before the walkout. An extension is
+        one phase long, or, when that would break the notice, as long as it allows (_ems_longest_end)."""
+        self.ensure_one()
+        if not (self.state == 'joining' or (self.state == 'closed' and self.group_supports)):
+            return False
+        plan = self._ems_own_plan()
+        start = max(self.join_until, self._ems_send_moment(plan, fields.Datetime.now()))
+        return self._ems_longest_end(plan, start, self.phase_hours, self.walkout_date, self.notice_hours)
+
+    def _ems_extend_joining(self, by_name, as_delegate=False):
+        """Joining lasts one phase more. A closed proposal reopens: its minute and its task are withdrawn
+        (the Head of Studies is told in their daily summary) and both are made again when it closes."""
+        self.ensure_one()
+        until = self._ems_extension()
+        if not until:
+            raise UserError(_(
+                "The joining cannot be extended: it has to be a proposal the group supports, and the Head of Studies "
+                "must get the minute at least %(notice)s hours before the walkout of %(day)s.",
+                notice=self.notice_hours, day=format_date(self.env, self.walkout_date)))
+        walkout = self.sudo()
+        was_closed = walkout.state == 'closed'
+        values = {'state': 'joining', 'join_until': until, 'delegate_extended': walkout.delegate_extended or as_delegate}
+        if was_closed:
+            walkout.pdf_attachment_id.unlink()
+            values['closed_datetime'] = False
+            walkout._ems_sync_user_tasks(self.env.ref(JUSTIFY_TASK), self.env['res.users'], walkout.walkout_date)
+        walkout.write(values)
+        walkout._ems_wake_cron_at(until)
+        walkout._ems_mail_students('ems.email_template_student_walkout_join_extended', walkout._ems_joining_lines())
+        walkout._ems_mail_tutors('extended')
+        if was_closed:
+            walkout._ems_notify_heads(lambda env: env._(
+                "Student walkout: %(name)s has extended the joining of %(group)s for the walkout on %(day)s, so the "
+                "minute is held back until it closes again.", name=by_name, group=walkout.group_id.name,
+                day=format_date(env, walkout.walkout_date)))
+        walkout._message_log(body=_("Joining extended by %(name)s until %(until)s.", name=by_name,
+                                    until=walkout.format_local_datetime(until)))
 
     def _ems_vote_decided(self):
         """Whether the group vote's result is known: everybody voted, or the votes still to come
@@ -568,8 +681,13 @@ class EmsStudentWalkout(models.Model):
         closes (nobody is justified)."""
         for walkout in self.filtered(lambda walkout: walkout.state == 'voting'):
             if walkout.group_supports:
-                join_start, join_until = walkout._ems_phase(walkout._ems_own_plan(), fields.Datetime.now(),
-                                                            walkout.phase_hours)
+                # The joining lasts a whole phase, or less when the notice needs it: a vote that ended early
+                # leaves it more time (issue #838). Late by the cron, at least the shortest it can be.
+                plan = walkout._ems_own_plan()
+                join_start = walkout._ems_send_moment(plan, fields.Datetime.now())
+                join_until = walkout._ems_longest_end(plan, join_start, walkout.phase_hours, walkout.walkout_date,
+                                                      walkout.notice_hours) or \
+                    walkout._ems_add_hours(plan, join_start, MIN_PHASE_MINUTES / 60)
                 walkout.write({'state': 'joining', 'join_start': join_start, 'join_until': join_until})
                 walkout._ems_wake_cron_at(walkout.join_until)
                 walkout._ems_mail_students('ems.email_template_student_walkout_join', walkout._ems_joining_lines())
@@ -747,16 +865,19 @@ class EmsStudentWalkout(models.Model):
     def _ems_notify_aborted(self):
         """The Head of Studies is told of every aborted call and why, in their daily summary (no
         action asked)."""
+        self._ems_notify_heads(lambda env: env._(
+            "Student walkout: %(name)s has aborted the proposal of %(group)s for a walkout on %(day)s. Reason: "
+            "%(reason)s.", name=self.rejected_by_id.name, group=self.group_id.name,
+            day=format_date(env, self.walkout_date),
+            reason=self.rejection_reason_id.with_env(env).name + (
+                f" ({self.rejection_details})" if self.rejection_details else '')))
+
+    def _ems_notify_heads(self, text):
+        """A notice in the daily summary of whoever gets the minute, in their language: `text(env)`."""
         body = Markup("<p>{}</p>")
         for user in self._ems_head_users():
-            env = self.with_context(lang=user.lang or self.env.lang).env
-            text = body.format(env._(
-                "Student walkout: %(name)s has aborted the proposal of %(group)s for a walkout on %(day)s. Reason: "
-                "%(reason)s.", name=self.rejected_by_id.name, group=self.group_id.name,
-                day=format_date(env, self.walkout_date),
-                reason=self.rejection_reason_id.with_env(env).name + (
-                    f" ({self.rejection_details})" if self.rejection_details else '')))
-            self.env['ems.info_notice']._ems_queue(user, self, lambda _user, text=text: text)
+            body_text = body.format(text(self.with_context(lang=user.lang or self.env.lang).env))
+            self.env['ems.info_notice']._ems_queue(user, self, lambda _user, text=body_text: text)
 
     # Justifying
 
@@ -860,6 +981,11 @@ class EmsStudentWalkoutLine(models.Model):
     ratified_by_id = fields.Many2one(string="Answered by", comodel_name='res.partner', readonly=True,
                                      ondelete='set null')
     ratification_date = fields.Datetime(string="Family answered on", readonly=True)
+    # Issue #840: a family that cannot use the portal asks the centre to ratify it; the tutor (or
+    # whoever is above them) marks it by hand, and `ratified_by_id` is then that staff member.
+    ratified_manually = fields.Boolean(string="Ratified by the centre", readonly=True,
+                                       help="The tutor, or whoever is above them, marked the family's ratification by hand.")
+    can_ratify_manually = fields.Boolean(compute='_compute_can_ratify_manually')
     justifiable = fields.Boolean(string="Can be justified", compute='_compute_justifiable',
                                  help="Joins the walkout and, if a minor, their family ratified it.")
 
@@ -867,6 +993,40 @@ class EmsStudentWalkoutLine(models.Model):
     def _compute_justifiable(self):
         for line in self:
             line.justifiable = line.joins and (not line.needs_ratification or line.ratification == 'ratified')
+
+    @api.depends('joins', 'needs_ratification', 'ratification', 'walkout_id.state')
+    @api.depends_context('uid')
+    def _compute_can_ratify_manually(self):
+        # The permission is the walkout's: checked once per walkout, not once per student.
+        may_abort = {walkout: walkout._ems_user_may_abort() for walkout in self.walkout_id}
+        for line in self:
+            line.can_ratify_manually = line._ems_ratification_is_open() and may_abort[line.walkout_id]
+
+    def _ems_ratification_is_open(self):
+        """A minor's pending ratification, from joining until the Head of Studies validates. A family's
+        refusal is theirs to change, never overridden."""
+        self.ensure_one()
+        return (self.joins and self.needs_ratification and self.ratification == 'pending'
+                and self.walkout_id.state in ('joining', 'closed'))
+
+    def _ems_can_ratify_manually(self):
+        """Whoever may abort the proposal (the tutor, the chain above them, an administrator) may mark it."""
+        self.ensure_one()
+        return self._ems_ratification_is_open() and self.walkout_id._ems_user_may_abort()
+
+    def action_ratify_manually(self):
+        """Marks the family's ratification by hand, for a family that cannot use the portal."""
+        self.ensure_one()
+        if not self._ems_can_ratify_manually():
+            raise UserError(_("The ratification of %(student)s cannot be marked by you now: only the tutor of the "
+                              "group, the chain above them or an administrator can, for a minor whose family has "
+                              "not answered, until the Head of Studies validates the walkout.",
+                              student=self.student_id.name))
+        self.sudo().write({'ratification': 'ratified', 'ratified_by_id': self.env.user.partner_id.id,
+                           'ratification_date': fields.Datetime.now(), 'ratified_manually': True})
+        self.walkout_id.sudo()._message_log(body=_(
+            "%(user)s marked by hand the family's ratification that %(student)s joins the walkout.",
+            user=self.env.user.name, student=self.student_id.name))
 
 
 class EmsStudentWalkoutRejectionReason(models.Model):

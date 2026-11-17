@@ -50666,11 +50666,6 @@ msgid "Your group votes whether it supports the walkout from"
 msgstr "Tu grupo vota si apoya la huelga desde el"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
-msgid "at the latest."
-msgstr "como muy tarde."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
 msgid ""
 "have answered).\n"
@@ -50859,6 +50854,12 @@ msgid ""
 "                            it until <strong t-out=\"object.format_local_datetime(object.join_until)\"/>; you can still\n"
 "                            abort the proposal until then.\n"
 "                        </p>\n"
+"                        <p t-elif=\"event == 'extended'\">\n"
+"                            The time to say whether the students of <strong t-out=\"object.group_id.name\"/> join the\n"
+"                            student walkout of <strong t-out=\"format_date(object.walkout_date)\"/> has been extended until\n"
+"                            <strong t-out=\"object.format_local_datetime(object.join_until)\"/>. You can still abort the\n"
+"                            proposal until then.\n"
+"                        </p>\n"
 "                        <p t-elif=\"event == 'closed'\">\n"
 "                            The proposal to support the student walkout of <strong t-out=\"format_date(object.walkout_date)\"/> in\n"
 "                            <strong t-out=\"object.group_id.name\"/> has closed:\n"
@@ -50913,6 +50914,12 @@ msgstr ""
 "                            <t t-out=\"object.group_abstain_count\"/> abstenciones). Cada alumno dice si se suma\n"
 "                            hasta el <strong t-out=\"object.format_local_datetime(object.join_until)\"/>; hasta entonces aún\n"
 "                            puedes abortar la propuesta.\n"
+"                        </p>\n"
+"                        <p t-elif=\"event == 'extended'\">\n"
+"                            Se ha ampliado hasta el <strong t-out=\"object.format_local_datetime(object.join_until)\"/> el tiempo para que los\n"
+"                            alumnos de <strong t-out=\"object.group_id.name\"/> digan si se suman a la huelga del\n"
+"                            <strong t-out=\"format_date(object.walkout_date)\"/>. Hasta entonces todavía puedes abortar la\n"
+"                            propuesta.\n"
 "                        </p>\n"
 "                        <p t-elif=\"event == 'closed'\">\n"
 "                            La propuesta de apoyo a la huelga del <strong t-out=\"format_date(object.walkout_date)\"/> en\n"
@@ -53061,12 +53068,6 @@ msgid "From the moment of the proposal"
 msgstr "Desde el momento de la propuesta"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/student_walkout.py:0
-msgid "It is too late to propose supporting a student walkout for %(day)s: the group vote and the joining take %(phase)s hours each and the Head of Studies must get the minute %(notice)s hours before the walkout. %(count)s A proposal made now can be for %(first)s at the earliest."
-msgstr "Es demasiado tarde para proponer apoyar una huelga para el %(day)s: la votación del grupo y las adhesiones duran %(phase)s horas cada una y jefatura de estudios debe recibir el acta %(notice)s horas antes de la huelga. %(count)s Una propuesta hecha ahora puede ser como pronto para el %(first)s."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__hours_kind
 msgid "Kind of hours"
 msgstr "Tipo de horas"
@@ -53229,3 +53230,256 @@ msgstr "Acceso al portal concedido con el correo corporativo %s: el correo princ
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "This student's main email is also a family member's. The portal login with that email is the family's: the student signs in with their corporate email (Log in with Google, or the corporate email and its portal password)."
 msgstr "El correo principal de este alumno es también el de un familiar. El usuario del portal con ese correo es de la familia: el alumno entra con el correo corporativo (Acceder con Google, o el correo corporativo y su contraseña del portal)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid ". Students will be told."
+msgstr ". Se avisará a los alumnos."
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_student_walkout_join_extended
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello <t t-out=\"object.student_id.name\"/>,</p>\n"
+"                        <p>\n"
+"                            The time to say whether you join the student walkout of\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/> has been extended: you can answer, or change\n"
+"                            your answer, on the school portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">student walkouts</a>),\n"
+"                            until <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/>.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola, <t t-out=\"object.student_id.name\"/>:</p>\n"
+"                        <p>\n"
+"                            Se ha ampliado el tiempo para decir si te sumas a la huelga del\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>: puedes responder, o cambiar tu respuesta, en el portal del centro\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">huelgas de estudiantes</a>),\n"
+"                            hasta el <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/>.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Un cordial saludo,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid ""
+"<span id=\"ems_walkout_confirm_extend\" class=\"d-none\">Extend the joining?"
+" You can do it only once.</span>"
+msgstr ""
+"<span id=\"ems_walkout_confirm_extend\" class=\"d-none\">¿Quieres ampliar "
+"las adhesiones? Solo puedes hacerlo una vez.</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "<strong>Need more time?</strong>"
+msgstr "<strong>¿Necesitas más tiempo?</strong>"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__can_extend
+msgid "Can Extend"
+msgstr "Puede ampliar"
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_student_walkout_join_extended
+msgid "EMS: student walkout, joining extended"
+msgstr "EMS: huelga de alumnos, adhesiones ampliadas"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
+msgid "Extend the joining"
+msgstr "Amplía las adhesiones"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__delegate_extended
+msgid "Extended by the delegates"
+msgstr "Ampliada por los delegados"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "Joining extended by %(name)s until %(until)s."
+msgstr "Adhesiones ampliadas por %(name)s hasta el %(until)s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
+msgid "Joining will last one phase more. Extend it?"
+msgstr "Las adhesiones durarán una fase más. ¿Quieres ampliarlas?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid ""
+"Only the tutor of the group, the chain above them (Department or Seminar "
+"Chief, Head or Deputy Head of Studies, Director) or an administrator can "
+"extend the joining."
+msgstr ""
+"Solo el tutor del grupo, la cadena que tiene por encima (jefe de "
+"departamento o de seminario, jefe de estudios o jefe de estudios adjunto, "
+"director) o un administrador pueden ampliar las adhesiones."
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_student_walkout_join_extended
+msgid ""
+"Student walkout on {{ format_date(object.walkout_id.walkout_date) }}: more "
+"time to join it"
+msgstr ""
+"Huelga del {{ format_date(object.walkout_id.walkout_date) }}: más tiempo "
+"para sumarse"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid ""
+"Student walkout: %(name)s has extended the joining of %(group)s for the "
+"walkout on %(day)s, so the minute is held back until it closes again."
+msgstr ""
+"Huelga de alumnos: %(name)s ha ampliado las adhesiones de %(group)s para la "
+"huelga del %(day)s, de modo que el acta se retrasa hasta que se cierre de "
+"nuevo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "The delegates can extend the joining only once."
+msgstr "Los delegados solo pueden ampliar las adhesiones una vez."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid ""
+"The joining cannot be extended: it has to be a proposal the group supports, "
+"and the Head of Studies must get the minute at least %(notice)s hours before"
+" the walkout of %(day)s."
+msgstr ""
+"No se pueden ampliar las adhesiones: tiene que ser una propuesta a la que el"
+" grupo da apoyo, y la jefatura de estudios debe recibir el acta al menos "
+"%(notice)s horas antes de la huelga del %(day)s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "You can extend the joining once, until"
+msgstr "Puedes ampliar las adhesiones una vez, hasta el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
+msgid "(not included), the joining phase will be shorter than"
+msgstr "(no incluido), la fase de adhesión será más corta de"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "Earliest walkout day, with a shorter joining: %(day)s"
+msgstr "Primer día posible de huelga, con una adhesión más corta: %(day)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid ""
+"It is too late to propose supporting a student walkout for %(day)s: the "
+"group vote takes %(phase)s hours, the joining can be shortened but needs at "
+"least %(minutes)s minutes, and the Head of Studies must get the minute "
+"%(notice)s hours before the walkout. %(count)s A proposal made now can be "
+"for %(first)s at the earliest."
+msgstr ""
+"Es demasiado tarde para proponer apoyar una huelga para el %(day)s: la "
+"votación del grupo dura %(phase)s horas, la adhesión se puede acortar, pero "
+"necesita al menos %(minutes)s minutos, y jefatura de estudios debe recibir "
+"el acta %(notice)s horas antes de la huelga. %(count)s Una propuesta hecha "
+"ahora puede ser como pronto para el %(first)s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "The individual joining phase will last"
+msgstr "La fase de adhesión individual durará como máximo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
+msgid "Until"
+msgstr "Hasta el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
+msgid "at the latest (less if the walkout day is close, see above)."
+msgstr ""
+"como muy tarde (menos si el día de la huelga está cerca, véase más arriba)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "h at most instead of"
+msgstr "h en lugar de"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "h."
+msgstr "h."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid ""
+"h. If the group support vote ends earlier because the majority has already "
+"decided, the joining phase will be extended with the time gained, up to a "
+"maximum of"
+msgstr ""
+"h. Si la votación de la fase de apoyo como grupo termina antes porque la "
+"mayoría ya ha decidido, la fase de adhesión se alargará con el tiempo "
+"ganado, hasta un máximo de"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
+msgid "hours, and you will be warned."
+msgstr "horas, y se te avisará."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__can_ratify_manually
+msgid "Can Ratify Manually"
+msgstr "Puede ratificar a mano"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__ratified_manually
+msgid "Ratified by the centre"
+msgstr "Ratificada por el centro"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_walkout_line__ratified_manually
+msgid "The tutor, or whoever is above them, marked the family's ratification by hand."
+msgstr "El tutor, o quien está por encima, ha marcado a mano la ratificación de la familia."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
+msgid "Ratify by hand"
+msgstr "Ratifica a mano"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
+msgid "Mark the family's ratification by hand"
+msgstr "Marca a mano la ratificación de la familia"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
+msgid "Mark that the family of this student ratifies that they join the walkout? Do it only when the family has told the centre so."
+msgstr "¿Quieres marcar que la familia de este alumno ratifica que se adhiere a la huelga? Hazlo solo cuando la familia lo haya comunicado al centro."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "The ratification of %(student)s cannot be marked by you now: only the tutor of the group, the chain above them or an administrator can, for a minor whose family has not answered, until the Head of Studies validates the walkout."
+msgstr "Ahora no puedes marcar la ratificación de %(student)s: solo pueden hacerlo el tutor del grupo, la cadena que tiene por encima o un administrador, para un menor cuya familia no ha respondido, hasta que la jefatura de estudios valide la huelga."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "%(user)s marked by hand the family's ratification that %(student)s joins the walkout."
+msgstr "%(user)s ha marcado a mano la ratificación de la familia de que %(student)s se adhiere a la huelga."

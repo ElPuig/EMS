@@ -67,6 +67,56 @@ registry.category("web_tour.tours").add("ems_student_walkout_abort", {
     ],
 });
 
+// Issue #838: the tutor extends the joining of a closed call, which reopens it.
+registry.category("web_tour.tours").add("ems_student_walkout_extend", {
+    test: true,
+    url: "/odoo/action-ems.action_student_walkout",
+    steps: () => [
+        {
+            trigger: `${ROW} .o_field_badge:contains('Closed')`,
+            content: "Open the closed call",
+            run: "click",
+        },
+        ...clickAction("action_extend_joining", "Extend the joining"),
+        {
+            trigger: ".modal .btn-primary:contains('Ok')",
+            content: "Confirm the extension",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_statusbar_status .o_arrow_button_current:contains('Joining')",
+            content: "The call is open to joining again",
+        },
+    ],
+});
+
+// Issue #840: the tutor marks by hand the ratification of a minor whose family cannot use the portal.
+registry.category("web_tour.tours").add("ems_student_walkout_ratify_by_hand", {
+    test: true,
+    url: "/odoo/action-ems.action_student_walkout",
+    steps: () => [
+        {
+            trigger: `${ROW} .o_field_badge:contains('Closed')`,
+            content: "Open the closed call",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row:contains('WLT Classmate') button[name='action_ratify_manually']",
+            content: "The minor's family has not answered: ratify it by hand",
+            run: "click",
+        },
+        {
+            trigger: ".modal .btn-primary:contains('Ok')",
+            content: "Confirm",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row:contains('WLT Classmate'):contains('Ratified'):not(:has(button[name='action_ratify_manually']))",
+            content: "Ratified, with nothing left to do",
+        },
+    ],
+});
+
 registry.category("web_tour.tours").add("ems_student_walkout_validate", {
     test: true,
     url: "/odoo/action-ems.action_student_walkout",

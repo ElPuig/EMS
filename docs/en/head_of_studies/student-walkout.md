@@ -15,6 +15,7 @@ Not to be confused with **Strikes** (Coexistence), the disciplinary record, nor 
 - **Nothing when a proposal is made**: the tutor watches over it.
 - **A notice in your daily summary** when a tutor (or someone above them) aborts a proposal, with the reason.
 - **The minute, by email**, when the proposal closes: at least 48 hours before the walkout (by default), with the vote count and the students who join it. If somebody is to be justified, you also get the task **Justify the student walkout**.
+- **A notice in your daily summary** when a closed proposal is reopened because its joining was extended: the minute you had is withdrawn and a new one arrives when it closes again.
 
 The minute reaches the Head or Deputy Head of Studies above the group's tutor; for a group with no tutor, every Head and Deputy Head of Studies.
 

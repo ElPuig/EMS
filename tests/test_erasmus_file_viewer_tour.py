@@ -14,6 +14,10 @@ class TestErasmusFileViewerTour(HttpCase):
     def setUpClass(cls):
         super().setUpClass()
         mock_outgoing_email(cls)
+        # In test mode the request's cursor only simulates a read-only one and can't open the read/write
+        # one the note of an opening is written in (models/erasmus/binary.py); a real server can.
+        cls.registry.test_readonly_enabled = False
+        cls.addClassCleanup(setattr, cls.registry, 'test_readonly_enabled', True)
         create_portal_erasmus_fixtures(cls)
         cls.application = cls.env['ems.erasmus.application']._ems_portal_get_or_create(cls.call, cls.student)
         upload(cls.application, cls.cv)

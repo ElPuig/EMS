@@ -7,7 +7,7 @@ import { FileViewer } from "@web/core/file_viewer/file_viewer";
 // no Download or Print buttons, and the PDF reader's own download, print and open buttons are
 // hidden too. Only what the browser shows can be hidden: a screenshot is still possible, and the
 // server refuses the download whatever the buttons (models/erasmus/binary.py).
-const PDF_HIDDEN = "#download, #secondaryDownload, #print, #secondaryPrint, #openFile, #secondaryOpenFile, #viewBookmark";
+const PDF_HIDDEN = "#downloadButton, #secondaryDownload, #printButton, #secondaryPrint, #openFile, #secondaryOpenFile, #viewBookmark";
 
 patch(FileViewer.prototype, {
     emsOnPdfLoad(ev) {

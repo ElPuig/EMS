@@ -217,8 +217,9 @@ A document whose own `confidential` field is set (`ems.erasmus.application.docum
   turn the `UserError` into a 404. Without `download` the file is served to whoever the record rules
   let read it (the Erasmus team and the administration; the Head of Studies and the panel never
   reach it) and an opening is added to the owner's chatter (the application, or the project):
-  author, file and time, once per person and file within ten minutes. The `readonly` route retries
-  with a read-write cursor for that write. The portal controllers don't set the context key, so an
+  author, file and time, once per person and file within ten minutes. `/web/content` runs on a
+  read-only cursor, so the note is written in a cursor of its own (a write on it would only fail and
+  make Odoo retry the request, with an ERROR in the log). The portal controllers don't set the context key, so an
   applicant still downloads their own files, and the audit export (`include_confidential`, only the
   coordinator) reads the files through the ORM, unchanged.
 - Not encrypted: the file is stored as any other, and a screenshot of the screen is still possible.

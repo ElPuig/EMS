@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
+from contextlib import nullcontext
 from datetime import timedelta
 
 from markupsafe import escape
 
-from odoo import _, fields, models
+from odoo import SUPERUSER_ID, _, api, fields, models
 from odoo.exceptions import UserError
 
 # A confidential document's files and where its owner is: model -> (fields holding the files, the owner).
@@ -45,16 +46,21 @@ class IrBinary(models.AbstractModel):
         return [document for found in documents for document in found]
 
     def _ems_note_view(self, attachment, documents):
-        """'Who opened it and when' on the owner's history, once per person and file within VIEW_LOG_MINUTES."""
+        """'Who opened it and when' on the owner's history, once per person and file within VIEW_LOG_MINUTES.
+        On /web/content's read-only cursor it is written in a cursor of its own: a write there only fails (an
+        ERROR in the log) before Odoo retries the whole request."""
         user = self.env.user
         label = _("%(user)s viewed the confidential document \"%(file)s\"", user=user.name, file=attachment.name)
-        for document in documents:
-            owner = document[CONFIDENTIAL_FILES[document._name][1]]
-            recent = self.env['mail.message'].sudo().search_count([
-                ('model', '=', owner._name), ('res_id', '=', owner.id), ('author_id', '=', user.partner_id.id),
-                ('date', '>=', fields.Datetime.now() - timedelta(minutes=VIEW_LOG_MINUTES)),
-                ('body', 'ilike', str(escape(attachment.name))),
-            ])
-            if not recent:
-                owner.sudo().message_post(body=label, author_id=user.partner_id.id,
-                                          message_type='comment', subtype_xmlid='mail.mt_note')
+        owners = [(document._name, document[CONFIDENTIAL_FILES[document._name][1]].id) for document in documents]
+        since = fields.Datetime.now() - timedelta(minutes=VIEW_LOG_MINUTES)
+        with (self.env.registry.cursor() if self.env.cr.readonly else nullcontext(self.env.cr)) as cr:
+            env = api.Environment(cr, SUPERUSER_ID, {})
+            for model, owner_id in owners:
+                owner_model = env[model]._fields[CONFIDENTIAL_FILES[model][1]].comodel_name
+                recent = env['mail.message'].search_count([
+                    ('model', '=', owner_model), ('res_id', '=', owner_id), ('author_id', '=', user.partner_id.id),
+                    ('date', '>=', since), ('body', 'ilike', str(escape(attachment.name))),
+                ])
+                if not recent:
+                    env[owner_model].browse(owner_id).message_post(
+                        body=label, author_id=user.partner_id.id, message_type='comment', subtype_xmlid='mail.mt_note')

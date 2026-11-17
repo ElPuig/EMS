@@ -30,6 +30,9 @@
                 <form string="Student walkout" create="0" edit="0" delete="0">
                     <header>
                         <div name="ems_actions" string="Actions">
+                            <button name="action_extend_joining" type="object" string="Extend the joining" icon="fa-clock-o"
+                                    invisible="not can_extend"
+                                    confirm="Joining will last one phase more. Extend it?"/>
                             <button name="action_open_reject_wizard" type="object" string="Abort the proposal" icon="fa-ban"
                                     invisible="not can_abort"/>
                             <button name="action_generate_justification" type="object" string="Validate and justify"
@@ -43,6 +46,7 @@
                         </div>
                         <field name="state" widget="statusbar" statusbar_visible="voting,joining,closed,justified"/>
                         <field name="can_generate_justification" invisible="1"/>
+                        <field name="can_extend" invisible="1"/>
                         <field name="can_abort" invisible="1"/>
                         <field name="can_reject" invisible="1"/>
                     </header>

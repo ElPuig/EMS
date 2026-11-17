@@ -31,6 +31,11 @@ class TestStudentWalkoutTour(HttpCase):
         self.assertEqual((self.voting.state, self.voting.rejected_by_id), ('rejected', self.tutor))
         self.assertEqual(self.walkout.state, 'closed')
 
+    def test_tutor_extends_the_joining(self):
+        """Issue #838: a closed call reopens for one phase more."""
+        self.start_tour("/odoo", "ems_student_walkout_extend", login=self.tutor.login)
+        self.assertEqual((self.walkout.state, self.walkout.delegate_extended), ('joining', False))
+
     def test_head_of_studies_validates(self):
         self.start_tour("/odoo", "ems_student_walkout_validate", login=self.head_of_studies.login)
         self.assertEqual(self.walkout.state, 'justified')

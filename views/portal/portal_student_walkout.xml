@@ -56,14 +56,15 @@
                         <input type="date" class="form-control w-auto" id="walkout_date" name="walkout_date"
                                t-att-min="first_day" required="required"/>
                         <div class="form-text">
-                            If you propose it now, the earliest day the walkout can be on is <span t-esc="first_day" t-options="{'widget': 'date'}"/>
+                            If you propose it now, the earliest day the walkout can be on is <span t-esc="first_day" t-options="{'widget': 'date'}"/>.
+                            <t t-if="first_full_day != first_day">Until <span t-esc="first_full_day" t-options="{'widget': 'date'}"/> (not included), the joining phase will be shorter than <t t-esc="calendar['phase_hours']"/> hours, and you will be warned.</t>
                         </div>
                     </div>
                     <div class="alert alert-info o_ems_walkout_calendar">
                         <p class="mb-1"><i class="fa fa-calendar me-1"/> <strong>Calendar if you propose it now</strong>:</p>
                         <ul class="mb-1">
                             <li>Your group votes whether it supports the walkout from <strong t-esc="calendar['vote_start']"/> to <strong t-esc="calendar['vote_until']"/>, <t t-esc="calendar['phase_hours']"/> hours. It ends earlier if the votes still to come can no longer change the result.</li>
-                            <li>If it supports it, each student says whether they join, <t t-esc="calendar['phase_hours']"/> more hours: until <strong t-esc="calendar['join_until']"/> at the latest.</li>
+                            <li>If it supports it, each student says whether they join, <t t-esc="calendar['phase_hours']"/> more hours: until <strong t-esc="calendar['join_until']"/> at the latest (less if the walkout day is close, see above).</li>
                             <li>Then the Head of Studies gets the minute, at least <t t-esc="calendar['notice_hours']"/> hours before the walkout.</li>
                         </ul>
                         <p class="mb-0 small o_ems_walkout_count" t-esc="count_description"/>
@@ -207,6 +208,24 @@
                     </div>
                 </div>
 
+                <!-- Issue #838: the delegates extend the joining once, even when it is over. -->
+                <div t-if="can_extend" class="card shadow-sm mb-4 o_ems_walkout_extend">
+                    <div class="card-header"><strong>Need more time?</strong></div>
+                    <div class="card-body">
+                        <p>You can extend the joining once, until <t t-esc="extension_until"/>. Students will be told.</p>
+                        <span id="ems_walkout_confirm_extend" class="d-none">Extend the joining? You can do it only once.</span>
+                        <form t-attf-action="/my/vagues/#{walkout.id}/amplia" method="post" class="d-inline">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <button type="submit" class="btn btn-outline-primary o_ems_walkout_extend_send"
+                                    onclick="return confirm(document.getElementById('ems_walkout_confirm_extend').textContent)">Extend the joining</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Issue #838: the joining phase may be cut to keep the notice before the walkout. -->
+                <div t-if="can_manage and join_worst_hours" class="alert alert-warning o_ems_walkout_join_cut">
+                    The individual joining phase will last <t t-esc="join_worst_hours"/> h at most instead of <t t-esc="walkout.phase_hours"/> h. If the group support vote ends earlier because the majority has already decided, the joining phase will be extended with the time gained, up to a maximum of <t t-esc="walkout.phase_hours"/> h.
+                </div>
                 <!-- The delegate: follow the call and cancel it. -->
                 <div t-if="can_manage" class="card shadow-sm mb-4 o_ems_walkout_manage">
                     <div class="card-header"><strong>Manage the proposal</strong></div>

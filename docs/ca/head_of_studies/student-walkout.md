@@ -15,6 +15,7 @@ No s'ha de confondre amb els **Strikes** (Convivència), el registre disciplinar
 - **Res quan es fa una proposta**: hi vetlla el tutor.
 - **Un avís al teu resum diari** quan un tutor (o algú per sobre seu) avorta una proposta, amb el motiu.
 - **L'acta, per correu**, quan la proposta es tanca: com a mínim 48 hores abans de la vaga (per defecte), amb el recompte de vots i els alumnes que s'hi sumen. Si s'ha de justificar la falta d'algú, també reps la tasca **Justificar la vaga d'estudiants**.
+- **Un avís al teu resum diari** quan es torna a obrir una proposta tancada perquè se n'han ampliat les adhesions: l'acta que tenies es retira i en rep una de nova quan es tanqui de nou.
 
 L'acta arriba al cap d'estudis o al cap d'estudis adjunt per sobre del tutor del grup; d'un grup sense tutor, a tots els caps d'estudis i caps d'estudis adjunts.
 

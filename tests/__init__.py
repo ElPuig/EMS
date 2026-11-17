@@ -292,6 +292,8 @@ from . import test_quality_daily_summary
 from . import test_title_registration
 from . import test_title_registration_tour
 from . import test_erasmus
+from . import test_erasmus_confidential_view
+from . import test_erasmus_file_viewer_tour
 from . import test_erasmus_scoring
 from . import test_erasmus_resolution
 from . import test_erasmus_student_call_e2e

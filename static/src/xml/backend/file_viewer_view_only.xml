@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-inherit="web.FileViewer" t-inherit-mode="extension">
+        <xpath expr="//*[hasclass('o-FileViewer-header')]//*[hasclass('o-FileViewer-download')]" position="attributes">
+            <attribute name="t-if">!state.file.emsViewOnly</attribute>
+        </xpath>
+        <xpath expr="//*[hasclass('o-FileViewer-toolbarButton') and @title='Print']" position="attributes">
+            <attribute name="t-if">!state.file.emsViewOnly</attribute>
+        </xpath>
+        <xpath expr="//*[hasclass('o-FileViewer-toolbarButton') and hasclass('o-FileViewer-download')]" position="attributes">
+            <attribute name="t-if">!state.file.emsViewOnly</attribute>
+        </xpath>
+        <xpath expr="//iframe[@t-ref='iframeViewerPdf']" position="attributes">
+            <attribute name="t-on-load">(ev) => this.emsOnPdfLoad(ev)</attribute>
+        </xpath>
+    </t>
+
+</templates>

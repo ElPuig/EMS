@@ -72,9 +72,10 @@ class EmsErasmusCall(models.Model):
     date_close = fields.Datetime(string="Applications close", required=True, tracking=True)
     subsanation_deadline = fields.Datetime(string="Corrections deadline", tracking=True, copy=False,
                                            help="Until when applicants can upload the corrections asked for.")
-    interview_deadline = fields.Datetime(string="Score correction deadline", tracking=True, copy=False,
-                                         help="Until when evaluators can reopen and change their interviews or "
-                                              "mobility plan ratings, and the due date of the panel's tasks.")
+    interview_deadline = fields.Datetime(string="Interview/evaluation deadline", tracking=True, copy=False,
+                                         help="Until when evaluators can reopen and change their interviews (student "
+                                              "calls) or their evaluations of mobility plans (staff calls), and the "
+                                              "due date of the panel's tasks.")
     claims_deadline = fields.Datetime(string="Claims deadline", tracking=True, copy=False,
                                       help="Until when applicants can claim against the provisional resolution "
                                            "(shown to them on the portal).")

@@ -75,7 +75,7 @@
                                        groups="ems.group_erasmus,ems.group_academic_admin"/>
                             </group>
                             <group>
-                                <field name="plan_attachment_ids" widget="many2many_binary" readonly="1"
+                                <field name="plan_attachment_ids" widget="ems_attachments" readonly="1"
                                        invisible="not plan_attachment_ids"/>
                                 <field name="submit_date" options="{'show_time': False}"/>
                             </group>

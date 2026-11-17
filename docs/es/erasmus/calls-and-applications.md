@@ -28,7 +28,7 @@ La parte de arriba de la convocatoria tiene dos bloques: **Ajustes** (para quié
 | Plazo | Cuándo lo pone EMS | Convocatoria 2026-27 (cierra el viernes 20/11) |
 |---|---|---|
 | Plazo de subsanación | 7 días después del cierre | Viernes 27/11, 14:00 |
-| Plazo para corregir puntuaciones | 14 días después del cierre | Viernes 04/12, 14:00 |
+| Plazo de entrevistas/evaluación | 14 días después del cierre | Viernes 04/12, 14:00 |
 | Plazo de reclamaciones | 19 días después del cierre | Miércoles 09/12, 14:00 |
 | Plazo de aceptación | 25 días después del cierre | Martes 15/12, 14:00 |
 
@@ -51,7 +51,9 @@ Pestaña **Documentos**: una línea por cada documento que pide la convocatoria,
 
 **Se entrega como**: *Ficheros* (cualquiera), *Solo PDF* (el currículum: se rechazan los demás ficheros) o *Un enlace* (el vídeo de presentación: el alumno pega el enlace de Google Drive en lugar de subirlo). Las **Instrucciones** y el **Enlace de las instrucciones** (por ejemplo, el editor de Europass) se muestran al alumno con el documento. Una convocatoria de alumnado nueva ya trae el currículum (PDF), el vídeo (enlace), los certificados de idiomas y la acreditación de menos oportunidades, con sus instrucciones. Para solicitar no se pide autorización familiar: el justificante de la solicitud de un menor también llega a la familia, y la familia acepta la carta de compromiso cuando se acepta la plaza, y con ello autoriza su participación.
 
-Marca **Confidencial** en los documentos que solo puede ver el equipo Erasmus, como la acreditación de menos oportunidades.
+Marca **Confidencial** en los documentos que solo puede ver el equipo Erasmus, como la acreditación de menos oportunidades. Un archivo confidencial solo se **ve** (el ojo de su tarjeta lo abre en pantalla): no tiene botón de descarga, EMS tampoco lo sirve como descarga, y cada vez que alguien lo abre se añade una línea (quién y cuándo) al chatter de la solicitud, una vez por persona y archivo cada diez minutos. También lo ve la administración; la jefatura de estudios y el panel no. Como cualquier pantalla, se puede fotografiar o capturar.
+
+Cualquier otro archivo de una solicitud, movilidad o proyecto también se abre en pantalla con el ojo, y se descarga o se elimina desde su tarjeta.
 
 **Un solo archivo** (marcado por defecto): solo cuenta el archivo más reciente que sube el alumno; los anteriores se conservan y se muestran como *Versión anterior*, y el justificante solo muestra el más reciente. Desmárcalo para un documento con varios archivos, como los certificados de idiomas (uno por idioma). **Modelo para descargar**: un archivo que el alumno (y la familia de un menor) descarga desde el portal, rellena y entrega, por ejemplo la autorización familiar.
 

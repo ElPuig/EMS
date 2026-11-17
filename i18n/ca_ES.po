@@ -33642,8 +33642,8 @@ msgstr "Només quan el certificat no coincideix amb el que ha declarat la person
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__interview_deadline
-msgid "Score correction deadline"
-msgstr "Termini per corregir puntuacions"
+msgid "Interview/evaluation deadline"
+msgstr "Termini d'entrevistes/avaluació"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application__declared_language_level
@@ -36416,8 +36416,8 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_call__interview_deadline
-msgid "Until when evaluators can reopen and change their interviews or mobility plan ratings, and the due date of the panel's tasks."
-msgstr "Fins quan les persones avaluadores poden reobrir i canviar les seves entrevistes o valoracions de plans de mobilitat, i la data de venciment de les tasques de la comissió."
+msgid "Until when evaluators can reopen and change their interviews (student calls) or their evaluations of mobility plans (staff calls), and the due date of the panel's tasks."
+msgstr "Fins quan les persones avaluadores poden reobrir i canviar les seves entrevistes (convocatòries d'alumnat) o les seves avaluacions de plans de mobilitat (convocatòries de personal), i la data de venciment de les tasques de la comissió."
 
 #. module: ems
 #: model:mail.template,body_html:ems.email_template_erasmus_proposal_validated
@@ -53446,3 +53446,15 @@ msgstr "Ara no pots marcar la ratificació de %(student)s: només ho poden fer e
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "%(user)s marked by hand the family's ratification that %(student)s joins the walkout."
 msgstr "%(user)s ha marcat a mà la ratificació de la família que %(student)s s'adhereix a la vaga."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/binary.py:0
+msgid "This document is confidential: it can be viewed, not downloaded."
+msgstr "Aquest document és confidencial: es pot veure, però no descarregar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/binary.py:0
+msgid "%(user)s viewed the confidential document \"%(file)s\""
+msgstr "%(user)s ha vist el document confidencial \"%(file)s\""

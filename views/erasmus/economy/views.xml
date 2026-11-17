@@ -142,7 +142,7 @@
                                         <field name="name" placeholder="e.g. Amendment 1"/>
                                         <field name="currency_id" column_invisible="1"/>
                                         <field name="amount" sum="Total"/>
-                                        <field name="attachment_ids" widget="many2many_binary" optional="show"/>
+                                        <field name="attachment_ids" widget="ems_attachments" optional="show"/>
                                     </list>
                                 </field>
                             </group>
@@ -154,7 +154,7 @@
                                         <field name="name" optional="hide"/>
                                         <field name="currency_id" column_invisible="1"/>
                                         <field name="amount" sum="Total"/>
-                                        <field name="attachment_ids" widget="many2many_binary" optional="show"/>
+                                        <field name="attachment_ids" widget="ems_attachments" optional="show"/>
                                     </list>
                                 </field>
                             </group>
@@ -332,13 +332,13 @@
                             <group>
                                 <field name="supplier_id"/>
                                 <field name="mobility_id" readonly="state != 'to_pay' or not can_manage" options="{'no_create': True}"/>
-                                <field name="attachment_ids" widget="many2many_binary"/>
+                                <field name="attachment_ids" widget="ems_attachments"/>
                                 <field name="corrected" invisible="not corrected"/>
                                 <field name="transferred_amount" invisible="state != 'paid' or transferred_amount == amount"/>
                                 <field name="corrected_from_id" invisible="not corrected_from_id"/>
                                 <field name="paid_date" invisible="state != 'paid'"/>
                                 <field name="paid_by_id" invisible="state != 'paid'"/>
-                                <field name="receipt_ids" widget="many2many_binary" invisible="not receipt_ids"/>
+                                <field name="receipt_ids" widget="ems_attachments" invisible="not receipt_ids"/>
                             </group>
                         </group>
                         <field name="notes" placeholder="Notes"/>

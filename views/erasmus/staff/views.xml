@@ -184,7 +184,8 @@
                                     <list class="o_ems_list_text_buttons" create="false" delete="false">
                                         <field name="name"/>
                                         <field name="is_required"/>
-                                        <field name="current_attachment_ids" widget="many2many_binary" readonly="1" string="Handed in"/>
+                                        <field name="confidential" column_invisible="1"/>
+                                        <field name="current_attachment_ids" widget="ems_attachments" readonly="1" string="Handed in"/>
                                         <field name="todo_state" widget="badge" decoration-success="todo_state == 'complete'"
                                                decoration-danger="todo_state in ('missing', 'needs_change')"
                                                decoration-warning="todo_state == 'to_review'"/>
@@ -325,7 +326,7 @@
                                 <field name="proposal_date_start" invisible="not proposal_date_start"/>
                                 <field name="proposal_date_end" invisible="not proposal_date_end"/>
                                 <field name="proposal_notes" invisible="not proposal_notes"/>
-                                <field name="proposal_attachment_ids" widget="many2many_binary" readonly="1"
+                                <field name="proposal_attachment_ids" widget="ems_attachments" readonly="1"
                                        invisible="not proposal_attachment_ids"/>
                             </group>
                             <group string="Validation by the Direction" invisible="not proposal_state">
@@ -357,9 +358,10 @@
                                         <field name="description" optional="hide"/>
                                         <field name="deadline"/>
                                         <!-- Issue #810: the team's columns only once there is something in them. -->
-                                        <field name="prepared_attachment_ids" widget="many2many_binary" readonly="1" string="From the Erasmus team"
+                                        <field name="confidential" column_invisible="1"/>
+                                        <field name="prepared_attachment_ids" widget="ems_attachments" readonly="1" string="From the Erasmus team"
                                                column_invisible="not parent.record_has_team_files"/>
-                                        <field name="attachment_ids" widget="many2many_binary" readonly="1" string="Handed in"/>
+                                        <field name="attachment_ids" widget="ems_attachments" readonly="1" string="Handed in"/>
                                         <field name="file_state" column_invisible="1"/>
                                         <field name="todo_state" widget="badge" decoration-success="todo_state == 'complete'"
                                                decoration-danger="todo_state in ('missing', 'needs_change')"
@@ -495,7 +497,7 @@
                     <field name="upload_kind" invisible="1"/>
                     <field name="description" readonly="1" invisible="not description"/>
                     <!-- Issue #783 (P07): the upload button already says "Files"; no label repeating it. -->
-                    <field name="attachment_ids" widget="many2many_binary" invisible="upload_kind == 'link'"/>
+                    <field name="attachment_ids" widget="ems_attachments" invisible="upload_kind == 'link'"/>
                     <group invisible="upload_kind != 'link'">
                         <field name="link" widget="url" required="upload_kind == 'link'"/>
                     </group>
@@ -516,7 +518,7 @@
                     <field name="application_id" invisible="1"/>
                     <group>
                         <field name="description"/>
-                        <field name="attachment_ids" widget="many2many_binary" nolabel="1" colspan="2"/>
+                        <field name="attachment_ids" widget="ems_attachments" nolabel="1" colspan="2"/>
                     </group>
                     <footer>
                         <button name="action_confirm" type="object" string="Send the claim" class="btn-primary"/>
@@ -563,7 +565,7 @@
                         <group>
                             <field name="proposal_date_start"/>
                             <field name="proposal_date_end"/>
-                            <field name="attachment_ids" widget="many2many_binary" nolabel="1" colspan="2"/>
+                            <field name="attachment_ids" widget="ems_attachments" nolabel="1" colspan="2"/>
                         </group>
                     </group>
                     <group>

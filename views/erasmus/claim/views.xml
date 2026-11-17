@@ -55,7 +55,7 @@
                         </group>
                         <group>
                             <field name="description" readonly="not can_edit"/>
-                            <field name="attachment_ids" widget="many2many_binary" readonly="not can_edit"/>
+                            <field name="attachment_ids" widget="ems_attachments" readonly="not can_edit"/>
                             <field name="can_resolve" invisible="1"/>
                             <field name="can_edit" invisible="1"/>
                             <field name="outcome" widget="radio" options="{'horizontal': true}"

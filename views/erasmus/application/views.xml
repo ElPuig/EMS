@@ -151,9 +151,10 @@
                                         <field name="file_state" widget="badge" decoration-danger="file_state == 'missing'"
                                                decoration-warning="file_state in ('to_review', 'needs_change')"
                                                decoration-success="file_state == 'complete'"/>
-                                        <field name="current_attachment_ids" widget="many2many_binary"/>
+                                        <field name="confidential" column_invisible="1"/>
+                                        <field name="current_attachment_ids" widget="ems_attachments"/>
                                         <field name="link_url" widget="url" optional="hide"/>
-                                        <field name="attachment_ids" widget="many2many_binary" readonly="1" optional="hide"/>
+                                        <field name="attachment_ids" widget="ems_attachments" readonly="1" optional="hide"/>
                                         <field name="review_state" optional="hide"/>
                                         <!-- Only where it says something: to correct, or already written. -->
                                         <field name="review_comment" invisible="review_state != 'needs_change' and not review_comment"/>

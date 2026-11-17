@@ -339,7 +339,7 @@
                                 <field name="is_automatic" invisible="not is_automatic"/>
                             </group>
                         </group>
-                        <field name="attachment_ids" widget="many2many_binary"/>
+                        <field name="attachment_ids" widget="ems_attachments"/>
                     </sheet>
                 </form>
             </field>

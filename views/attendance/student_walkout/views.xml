@@ -100,6 +100,12 @@
                                         <field name="join_answered"/>
                                         <field name="joins"/>
                                         <field name="ratification" optional="show"/>
+                                        <field name="ratified_manually" optional="show"/>
+                                        <field name="can_ratify_manually" column_invisible="1"/>
+                                        <button name="action_ratify_manually" type="object" icon="fa-check"
+                                                string="Ratify by hand" title="Mark the family's ratification by hand"
+                                                invisible="not can_ratify_manually"
+                                                confirm="Mark that the family of this student ratifies that they join the walkout? Do it only when the family has told the centre so."/>
                                         <field name="justifiable" optional="show"/>
                                         <field name="vote_date" optional="hide"/>
                                         <field name="join_date" optional="hide"/>

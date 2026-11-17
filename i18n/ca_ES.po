@@ -53404,3 +53404,45 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
 msgid "hours, and you will be warned."
 msgstr "hores, i se t'avisarà."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__can_ratify_manually
+msgid "Can Ratify Manually"
+msgstr "Pot ratificar a mà"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__ratified_manually
+msgid "Ratified by the centre"
+msgstr "Ratificada pel centre"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_walkout_line__ratified_manually
+msgid "The tutor, or whoever is above them, marked the family's ratification by hand."
+msgstr "El tutor, o qui està per damunt, ha marcat a mà la ratificació de la família."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
+msgid "Ratify by hand"
+msgstr "Ratifica a mà"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
+msgid "Mark the family's ratification by hand"
+msgstr "Marca a mà la ratificació de la família"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
+msgid "Mark that the family of this student ratifies that they join the walkout? Do it only when the family has told the centre so."
+msgstr "Vols marcar que la família d'aquest alumne ratifica que s'adhereix a la vaga? Fes-ho només quan la família ho hagi comunicat al centre."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "The ratification of %(student)s cannot be marked by you now: only the tutor of the group, the chain above them or an administrator can, for a minor whose family has not answered, until the Head of Studies validates the walkout."
+msgstr "Ara no pots marcar la ratificació de %(student)s: només ho poden fer el tutor del grup, la cadena que té per damunt o un administrador, per a un menor la família del qual no ha respost, fins que la cap d'estudis validi la vaga."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "%(user)s marked by hand the family's ratification that %(student)s joins the walkout."
+msgstr "%(user)s ha marcat a mà la ratificació de la família que %(student)s s'adhereix a la vaga."

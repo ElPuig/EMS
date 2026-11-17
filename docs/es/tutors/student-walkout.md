@@ -35,6 +35,8 @@ Los correos te llegan cuando llegan a tu grupo: enseguida si el centro cuenta la
 
 Un alumno menor que se suma necesita que su familia lo ratifique en el portal mientras duran las adhesiones (Decret 102/2010, artículo 24.2): sin la ratificación, su falta no se justifica. La columna **Se puede justificar** te dice a quién se le justificará la falta si la huelga se valida.
 
+Si la familia de un menor no puede usar el portal y te comunica (a ti o al centro) que lo ratifica, haz clic en **Ratifica a mano** en la fila de ese alumno de la pestaña **Alumnado** y confírmalo. Puedes hacerlo desde que los alumnos se suman hasta que la jefatura de estudios valida la huelga, solo para familias que no han respondido (nunca para anular un rechazo). La fila muestra quién lo ha marcado y el cambio queda registrado en el chat.
+
 ---
 
 ## Abortar una propuesta

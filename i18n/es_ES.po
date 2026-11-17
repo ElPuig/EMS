@@ -53441,3 +53441,45 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
 msgid "hours, and you will be warned."
 msgstr "horas, y se te avisará."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__can_ratify_manually
+msgid "Can Ratify Manually"
+msgstr "Puede ratificar a mano"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__ratified_manually
+msgid "Ratified by the centre"
+msgstr "Ratificada por el centro"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_walkout_line__ratified_manually
+msgid "The tutor, or whoever is above them, marked the family's ratification by hand."
+msgstr "El tutor, o quien está por encima, ha marcado a mano la ratificación de la familia."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
+msgid "Ratify by hand"
+msgstr "Ratifica a mano"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
+msgid "Mark the family's ratification by hand"
+msgstr "Marca a mano la ratificación de la familia"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
+msgid "Mark that the family of this student ratifies that they join the walkout? Do it only when the family has told the centre so."
+msgstr "¿Quieres marcar que la familia de este alumno ratifica que se adhiere a la huelga? Hazlo solo cuando la familia lo haya comunicado al centro."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "The ratification of %(student)s cannot be marked by you now: only the tutor of the group, the chain above them or an administrator can, for a minor whose family has not answered, until the Head of Studies validates the walkout."
+msgstr "Ahora no puedes marcar la ratificación de %(student)s: solo pueden hacerlo el tutor del grupo, la cadena que tiene por encima o un administrador, para un menor cuya familia no ha respondido, hasta que la jefatura de estudios valide la huelga."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "%(user)s marked by hand the family's ratification that %(student)s joins the walkout."
+msgstr "%(user)s ha marcado a mano la ratificación de la familia de que %(student)s se adhiere a la huelga."

@@ -800,6 +800,9 @@ class TestStudentWalkout(TransactionCase):
         line.with_user(self.tutor).action_ratify_manually()
         self._join(walkout, self.classmate, False)
         self.assertFalse(line.ratified_manually or line.ratification)
+        self._join(walkout, self.classmate)  # joining again asks the family again
+        self.assertEqual((line.ratification, line.ratified_manually), ('pending', False))
+        self.assertTrue(line.with_user(self.tutor).can_ratify_manually)
 
     def test_a_family_that_refuses_is_heard_and_the_student_told(self):
         walkout = open_walkout(self)

@@ -8,7 +8,8 @@ from odoo import fields
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase, tagged
 
-from .common import (create_head_of_studies_branch, create_level_study_group, create_role_employee,
+from .common import (ROLE_GROUP_XMLIDS, create_head_of_studies_branch, create_level_study_group,
+                     create_role_employee,
                      create_role_user, mock_outgoing_email, next_student_id, shift_ems_clock)
 
 PDF = b'%PDF-1.4 test union call'
@@ -803,6 +804,15 @@ class TestStudentWalkout(TransactionCase):
         self._join(walkout, self.classmate)  # joining again asks the family again
         self.assertEqual((line.ratification, line.ratified_manually), ('pending', False))
         self.assertTrue(line.with_user(self.tutor).can_ratify_manually)
+
+    def test_the_menu_is_only_for_who_can_read_a_call(self):
+        """Issue #840: a tutor, the roles above them and the administrators; a teacher who tutors no group
+        would only see an empty list."""
+        menu = self.env.ref('ems.menu_student_walkout')
+        shown = {role for role in ROLE_GROUP_XMLIDS if menu.id in self.env(user=create_role_user(
+            self, role, f'test_walkout_menu_{role}'))['ir.ui.menu']._visible_menu_ids()}
+        self.assertEqual(shown, {'tutor', 'department_chief', 'head_of_studies', 'director', 'academic_admin',
+                                 'settings_admin'})
 
     def test_a_family_that_refuses_is_heard_and_the_student_told(self):
         walkout = open_walkout(self)

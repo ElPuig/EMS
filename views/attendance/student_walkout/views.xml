@@ -148,7 +148,11 @@
             </field>
         </record>
 
+        <!-- Only who can read a call: a tutor and the roles above them (Department or Seminar Chief,
+             Head or Deputy Head of Studies, Director), and the administrators. A teacher who tutors
+             no group would only see an empty list. -->
         <menuitem name="Student walkouts" sequence="4" id="menu_student_walkout" parent="menu_attendance"
-                  action="action_student_walkout"/>
+                  action="action_student_walkout"
+                  groups="ems.group_tutor,ems.group_academic_admin,base.group_system"/>
     </data>
 </odoo>

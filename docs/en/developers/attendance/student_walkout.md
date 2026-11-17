@@ -355,6 +355,8 @@ flowchart TD
 
 ## Access control
 
+The **Student walkouts** menu (Student's Attendances) is shown only to who can read a call: `ems.group_tutor` (which Department or Seminar Chief, Head or Deputy Head of Studies and Director imply) and the administrators. A teacher who tutors no group would only see an empty list (issue #840).
+
 Portal users have no ACL on these models: the controller works with `sudo()` and always takes the
 student from the logged-in user (`request.env.user.partner_id`, `contact_type == 'student'`). A
 family only ratifies, for the lines of its own children it was asked about.

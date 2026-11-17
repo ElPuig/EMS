@@ -4,9 +4,9 @@
 
 # Student walkouts
 
-When a students' union calls a walkout, your group can decide on the portal whether it supports it, and each student says whether they join it. If the walkout is validated, the absence of the students who join it is justified that day.
+When a students' union calls a walkout, your group can decide on the portal whether it supports it, and each student says whether they join it. The students who join it are off the roll-calls of that day: neither absent nor present.
 
-Collectively deciding not to attend class is a right of students from the 3rd year of ESO onwards, when the school's management is told beforehand (LODE, article 8). In Catalonia, a minor also needs their family's authorization (Decret 102/2010, article 24.2): the family ratifies it on the portal.
+It is a collective decision not to attend class, of students from the 3rd year of ESO onwards, told to the school's management beforehand (LODE, article 8). Nobody can revoke it, the family included: the school only informs. In Catalonia, the family of a minor is asked to ratify it on the portal (Decret 102/2010, article 24.2), only to know that it is aware and agrees.
 
 ---
 
@@ -16,9 +16,9 @@ Collectively deciding not to attend class is a right of students from the 3rd ye
 |-----|--------------|
 | The group's delegate or sub-delegate | Proposes the vote, attaching the union's call |
 | Every student of the group with portal access | Votes whether the group supports the walkout and, if it does, says whether they join it |
-| The family of a minor who joins | Ratifies it, or not, on the portal |
+| The family of a minor who joins | Ratifies it, or not, on the portal: it only says that it is aware and agrees |
 | The group's tutor | Is told of everything and can stop the proposal if it has a formal defect |
-| The Head of Studies | Gets the minute and validates the walkout (justifies the absences) or not |
+| The Head of Studies | Gets the minute and validates the walkout or not |
 
 Only the groups the centre allows can propose supporting a walkout (from the 3rd year of ESO, baccalaureate and vocational training).
 
@@ -59,7 +59,7 @@ While the proposal is being voted or joined, its page shows you how many student
 
 ## Voting (every student)
 
-The home page of the portal warns you when your group is voting. Open the proposal and answer **Does the group support the walkout?**: **Yes**, **No** or **Abstain**, and click **Send**.
+The home page of the portal warns you when your group is voting. Open the proposal and answer **Does the group support the walkout?**: **Yes**, **No** or **Abstain**, and click **Send**. A pop-up confirms that your vote is saved.
 
 ![Vote of the group on whether it supports the walkout](../../assets/families/walkout-portal-vote.png)
 
@@ -67,7 +67,7 @@ The home page of the portal warns you when your group is voting. Open the propos
 - You vote **once**: it cannot be changed afterwards.
 - The group supports the walkout when there are more yes than no among the votes cast (a tie does not support it).
 
-If the group does not support it, the proposal closes and nobody's absence is justified that day.
+If the group does not support it, the proposal closes and everybody is expected in class that day.
 
 A student who had no access to the portal when the walkout was proposed appears in the minute and does not vote, but if the group supports the walkout and they get access while joining is open, they can say whether they join: they are sent the email at that moment.
 
@@ -75,13 +75,13 @@ A student who had no access to the portal when the walkout was proposed appears 
 
 ## Joining (every student)
 
-If the group supports it, you get an email and the proposal asks you **Do you join the walkout?** Answer **Yes, I join it** or **No** and click **Send**. You can change your answer until joining ends.
+If the group supports it, you get an email and the proposal asks you **Do you join the walkout?** Answer **Yes, I join it** or **No** and click **Send**. A pop-up confirms your answer, and the form closes and shows it. You can change it with **Change my answer** until joining ends.
 
 ![Joining the walkout, with the warning for a minor](../../assets/families/walkout-portal-join.png)
 
 - Your name appears in the minute the Head of Studies gets.
-- Only the students who join it have their absence justified that day, if the walkout is validated.
-- **If you are a minor**, your family has to ratify on the portal that you join, while joining lasts. Without it, your absence is not justified. The page tells you whether your family has ratified it.
+- The classes of that day do not count as absences for you: you are off the roll-calls. If the walkout is not validated, they do count.
+- **If you are a minor**, your family is asked to ratify on the portal that you join, while joining lasts, only to know that it is aware and agrees. Nobody can revoke your decision. If it does not ratify it, it is told of each class you do not attend that day, for information. The page tells you whether your family has ratified it.
 
 ---
 
@@ -101,13 +101,14 @@ If joining is about to end, or has ended, and students still need time, open the
 
 When your child (under 18 on the walkout day) says that they join a walkout, you get an email at once. On the portal, the home page warns you; click **Answer**, or open **Student walkouts**.
 
-For each walkout, click **I ratify it** or **I do not ratify it**. You can change your answer until joining ends (the page tells you until when).
+For each walkout, click **I ratify it** or **I do not ratify it**. A pop-up confirms your answer, and the page shows it. You can change it with **Change my answer** until joining ends (the page tells you until when).
 
 ![Family page to ratify that their child joins the walkout](../../assets/families/walkout-portal-family.png)
 
-- If you do not ratify it, or do not answer in time, your child's absence that day is **not justified**. If you refuse, your child is told.
+- Ratifying it only tells the school that you are aware and agree. It is a collective decision of the students that nobody can revoke, and the classes of that day do not count as absences. **Once ratified, you do not need to do anything else**: the rest is automatic.
+- If you do not ratify it, or do not answer in time, you are told of each class your child does not attend that day, for information only. If you refuse, your child is told too.
 - To ratify it you need access to the portal. If you don't have it, ask the school for it in time.
-- Once the walkout is validated you get an email confirming that the absence is justified. If the proposal is aborted or not validated instead, you are told too.
+- Once the walkout is validated you get an email, for information. If the proposal is aborted or not validated instead, you are told too.
 
 ---
 
@@ -115,8 +116,8 @@ For each walkout, click **I ratify it** or **I do not ratify it**. You can chang
 
 The minute goes to the Head of Studies, who decides whether to validate the walkout:
 
-- **Validated**: the absences of the students who join it (adults, and minors whose family ratified it) are justified that day. Every student is told, and so is the family of each minor whose absence is justified.
-- **Not validated**: nobody's absence is justified. Every student is told, with the reason.
+- **Validated**: the students who join it stay off the roll-calls of that day. Every student is told, and so is the family of each minor who joins.
+- **Not validated**: the classes of that day of the students who join it count as absences. Every student is told, with the reason.
 
 Meanwhile, the group's tutor can **abort** the proposal while it is being voted or joined, only for a formal defect (for instance, there is no official call of a students' union for that day). Every student is told, with the reason.
 
@@ -129,7 +130,7 @@ The minute (PDF) is on the proposal's page once it closes.
 | **Voting** | The group is voting whether it supports the walkout |
 | **Joining** | The group supports it: each student says whether they join it |
 | **Closed** | The Head of Studies has the minute and decides |
-| **Validated** | The absences of those who join it are justified |
+| **Validated** | Those who join it are off the roll-calls of that day |
 | **Aborted** | The tutor stopped the proposal, with a reason |
 | **Not validated** | The Head of Studies did not validate it, with a reason |
 | **Cancelled** | The delegate cancelled it |

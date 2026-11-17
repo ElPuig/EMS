@@ -70,8 +70,12 @@ class TestPortalStudentWalkout(HttpCase):
         page = self.url_open(f'/my/vagues/{walkout.id}').text
         self.assertIn('o_ems_walkout_vote', page)
         self.assertNotIn('o_ems_walkout_join', page, "Joining comes after the group vote.")
-        self._post(f'/my/vagues/{walkout.id}/vota', group_vote='yes')
+        response = self._post(f'/my/vagues/{walkout.id}/vota', group_vote='yes')
         self.assertEqual(walkout.group_yes_count, 1)
+        # Issue #844: what was saved pops up, and the vote shows as cast.
+        self.assertIn('saved=vote', response.url)
+        self.assertIn('o_ems_walkout_saved_modal', response.text)
+        self.assertIn('o_ems_walkout_group_voted', response.text)
         self.assertNotIn('o_ems_walkout_banner', self.url_open('/my/home').text)
         # A classmate cannot cancel it: the student is always the logged-in one, and not its delegate.
         self._post(f'/my/vagues/{walkout.id}/anulla')
@@ -81,8 +85,16 @@ class TestPortalStudentWalkout(HttpCase):
         page = self.url_open(f'/my/vagues/{walkout.id}').text
         self.assertIn('o_ems_walkout_join', page)
         self.assertIn('o_ems_walkout_banner', self.url_open('/my/home').text, "A pending answer: whether to join.")
-        self._post(f'/my/vagues/{walkout.id}/suma', joins='yes')
+        response = self._post(f'/my/vagues/{walkout.id}/suma', joins='yes')
         self.assertEqual(walkout.joining_student_ids, self.classmate)
+        # Issue #844: the form closes on the answer (which can still be changed) and a pop-up says so.
+        self.assertIn('saved=join', response.url)
+        self.assertIn('o_ems_walkout_saved_modal', response.text)
+        self.assertIn('o_ems_walkout_join_answer', response.text)
+        self.assertIn('o_ems_walkout_join_change', response.text)
+        self.assertRegex(response.text, r'<form[^>]*(collapse[^>]*/suma|/suma[^>]*collapse)')
+        self.assertNotIn('o_ems_walkout_saved_modal', self.url_open(f'/my/vagues/{walkout.id}').text,
+                         "Only right after saving.")
 
     def test_a_student_given_access_after_the_proposal_joins(self):
         """Issue #830: told they cannot vote while the group votes, and able to join once it opens."""
@@ -144,8 +156,12 @@ class TestPortalStudentWalkout(HttpCase):
         self.assertIn(f'<strong>{self.classmate.name}</strong>', page)
         self.assertNotIn(f'<strong>{self.subdelegate.name}</strong>', page, "Only the children who join.")
         # A family can only answer for its own children: another call's line is refused.
-        self._post(f'/my/vagues/ratifica/{line.id}', decision='yes')
+        response = self._post(f'/my/vagues/ratifica/{line.id}', decision='yes')
         self.assertEqual(line.ratification, 'ratified')
+        self.assertIn('saved=ratified', response.url)
+        self.assertIn('o_ems_walkout_saved_modal', response.text)
+        self.assertIn('o_ems_walkout_ratify_answer', response.text)
+        self.assertIn('o_ems_walkout_ratify_change', response.text)
         self.assertNotIn('o_ems_walkout_ratify_banner', self.url_open('/my/home').text)
         self._post(f'/my/vagues/ratifica/{line.id}', decision='no')
         self.assertEqual(line.ratification, 'refused')
@@ -234,7 +250,7 @@ class TestPortalStudentWalkout(HttpCase):
         self._login(self.delegate)
         self.assertIn('o_ems_walkout_extend_send', self.url_open(f'/my/vagues/{walkout.id}').text)
         response = self._post(f'/my/vagues/{walkout.id}/amplia')
-        self.assertIn('saved=1', response.url)
+        self.assertIn('saved=extend', response.url)
         self.assertEqual((walkout.state, walkout.delegate_extended), ('joining', True))
         self.assertNotIn('o_ems_walkout_extend_send', self.url_open(f'/my/vagues/{walkout.id}').text,
                          "Only once.")

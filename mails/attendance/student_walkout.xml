@@ -56,7 +56,8 @@
                             has ended: the group does not support it
                             (<t t-out="object.walkout_id.group_yes_count"/> yes, <t t-out="object.walkout_id.group_no_count"/> no,
                             <t t-out="object.walkout_id.group_abstain_count"/> abstentions).
-                            The absences of that day will not be justified for anybody in the group.
+                            Everybody in the group is expected in class that day, and a class missed counts as an
+                            absence.
                         </p>
                         <p>
                             The minute is on the school portal (<a t-attf-href="{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}">student walkouts</a>).
@@ -91,8 +92,10 @@
                         <p>
                             Now each student says whether they join it, on the school portal
                             (<a t-attf-href="{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}">student walkouts</a>),
-                            until <strong t-out="object.walkout_id.format_local_datetime(object.walkout_id.join_until)"/>. Only the students who
-                            join have their absence justified that day, and their names appear in the minute.
+                            until <strong t-out="object.walkout_id.format_local_datetime(object.walkout_id.join_until)"/>. The classes
+                            of that day of the students who join the collective decision not to attend class do not count as
+                            absences, and their names appear in the minute. Nobody can revoke your decision: if you are a
+                            minor, your family is asked to ratify it, only to know that it is aware and agrees.
                         </p>
                         <p>
                             Kind regards,<br/>
@@ -131,7 +134,7 @@
             </field>
         </record>
 
-        <!-- To the family of each justified student (a minor whose family ratified it, or an adult who
+        <!-- To the family of each student who joins (a minor, whatever the family answered, or an adult who
              shares with it), once the Head of Studies validates the call. -->
         <record id="email_template_student_walkout_family" model="mail.template">
             <field name="name">EMS: student walkout, family</field>
@@ -145,12 +148,13 @@
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Dear family,</p>
                         <p>
-                            <strong t-out="object.student_id.name"/> has said that they join the student walkout
-                            called by a students' union for <strong t-out="format_date(object.walkout_id.walkout_date)"/>.
+                            <strong t-out="object.student_id.name"/> has said that they join the collective decision not to
+                            attend class of <strong t-out="format_date(object.walkout_id.walkout_date)"/>, taken by their group,
+                            <t t-out="object.walkout_id.group_id.name"/>, after a call of a students' union.
                         </p>
                         <p>
-                            Their group, <t t-out="object.walkout_id.group_id.name"/>, has voted to support it and the
-                            Head of Studies has validated the proposal, so the school justifies their absence that day.
+                            The Head of Studies has validated it: the classes of that day do not count as absences. This
+                            email is only for your information, you do not need to do anything.
                         </p>
                         <p>If you have any question, talk to the group's tutor.</p>
                         <p>
@@ -163,8 +167,8 @@
         </record>
 
         <!-- To the family of a minor who joins, at once: it ratifies (or refuses) on the portal, while
-             joining lasts; without it the student's absence is not justified (Decret 102/2010,
-             art. 24.2). -->
+             joining lasts (Decret 102/2010, art. 24.2). Issue #844: it only says the family knows and
+             agrees; nobody can revoke the student's decision. -->
         <record id="email_template_student_walkout_ratify" model="mail.template">
             <field name="name">EMS: student walkout, family to ratify</field>
             <field name="model_id" ref="ems.model_ems_student_walkout_line"/>
@@ -177,16 +181,21 @@
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Dear family,</p>
                         <p>
-                            <strong t-out="object.student_id.name"/> has said that they join the student walkout
-                            called by a students' union for <strong t-out="format_date(object.walkout_id.walkout_date)"/>,
-                            which their group, <t t-out="object.walkout_id.group_id.name"/>, has voted to support.
+                            <strong t-out="object.student_id.name"/> has said that they join the collective decision not to
+                            attend class of <strong t-out="format_date(object.walkout_id.walkout_date)"/>, which their group,
+                            <t t-out="object.walkout_id.group_id.name"/>, has voted to support after a call of a students' union.
                         </p>
                         <p>
-                            As they are a minor, their absence that day is only justified if you ratify their decision.
-                            You can ratify it or refuse it on the school portal
-                            (<a t-attf-href="{{ object.get_base_url() }}/my/vagues">student walkouts</a>) until
-                            <strong t-out="object.walkout_id.format_local_datetime(object.walkout_id.join_until)"/>.
-                            Without your answer by then, it is not justified.
+                            The school only informs you: it is a collective decision of the students that nobody can revoke,
+                            and the classes of that day do not count as absences. As they are a minor, we ask you to ratify it
+                            on the school portal (<a t-attf-href="{{ object.get_base_url() }}/my/vagues">student walkouts</a>)
+                            until <strong t-out="object.walkout_id.format_local_datetime(object.walkout_id.join_until)"/>, only to
+                            know that you are aware and agree.
+                        </p>
+                        <p>
+                            <strong>Once you have ratified it, you do not need to do anything else:</strong> the rest is
+                            automatic. If you do not ratify it, the school will tell you of each class they do not attend
+                            that day, for information only.
                         </p>
                         <p>If you have any question, talk to the group's tutor.</p>
                         <p>
@@ -199,7 +208,7 @@
         </record>
 
         <!-- To a student whose family refuses to ratify that they join (during the group's school
-             hours). -->
+             hours): for information only (issue #844). -->
         <record id="email_template_student_walkout_ratification_refused" model="mail.template">
             <field name="name">EMS: student walkout, family refused</field>
             <field name="model_id" ref="ems.model_ems_student_walkout_line"/>
@@ -212,9 +221,13 @@
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Hello <t t-out="object.student_id.name"/>,</p>
                         <p>
-                            Your family has not ratified that you join the student walkout of
-                            <strong t-out="format_date(object.walkout_id.walkout_date)"/>, so your absence that day
-                            will not be justified.
+                            Your family has not ratified that you join the collective decision not to attend class of
+                            <strong t-out="format_date(object.walkout_id.walkout_date)"/>. This does not change your decision,
+                            which nobody can revoke, and the classes of that day do not count as absences.
+                        </p>
+                        <p>
+                            This email is for information only: the school will tell your family of each class you do not
+                            attend that day, also for information only.
                         </p>
                         <p>If you have any question, talk to your tutor.</p>
                         <p>
@@ -248,17 +261,16 @@
                                 <t t-out="object.group_abstain_count"/> abstentions.
                                 <strong t-if="object.group_supports">The group supports it.</strong>
                                 <strong t-else="">The group does not support it.</strong></li>
-                            <li>Students who join: <t t-out="object.joining_count"/> of <t t-out="len(object.line_ids)"/>;
-                                can be justified: <t t-out="len(object.justifiable_student_ids)"/> (minors need their
-                                family's ratification).</li>
+                            <li>Students who join: <t t-out="object.joining_count"/> of <t t-out="len(object.line_ids)"/>.
+                                They are off the roll-calls of that day: neither absent nor present. The families of the
+                                minors who join without their ratification are told of each class, for information.</li>
                         </ul>
                         <p t-if="object.group_supports and object.joining_count">
                             From the proposal in EMS (<a t-attf-href="{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}">open it</a>),
-                            <em>Actions &gt; Validate and justify</em> validates the proposal and justifies that day for the
-                            students who can be justified (adults, and minors whose family ratified it), and <em>Do not validate</em> leaves it
-                            unjustified, giving a reason.
+                            <em>Actions &gt; Validate</em> confirms it, and <em>Do not validate</em>, giving a reason, turns the
+                            classes of that day of the students who join it into regular absences.
                         </p>
-                        <p t-else="">Nobody's absence is to be justified.</p>
+                        <p t-else="">Nobody joins it: there is nothing to validate.</p>
                     </div>
                 ]]>
             </field>
@@ -281,19 +293,19 @@
                             <t t-out="object.walkout_id.rejected_by_id.name"/> has aborted the student walkout proposal of
                             your group for <strong t-out="format_date(object.walkout_id.walkout_date)"/>:
                             <strong t-out="object.walkout_id.rejection_reason_id.name"/>.
-                            Absences that day will not be justified.
+                            You are expected in class that day, and a class missed counts as an absence.
                         </p>
-                        <p t-elif="object.walkout_id.rejected_from_state == 'justified'">
+                        <p t-elif="object.walkout_id.rejected_from_state == 'validated'">
                             The Head of Studies has withdrawn the validation of the student walkout of your group on
                             <strong t-out="format_date(object.walkout_id.walkout_date)"/>:
                             <strong t-out="object.walkout_id.rejection_reason_id.name"/>.
-                            Absences that day are no longer justified.
+                            The classes of that day missed count as absences.
                         </p>
                         <p t-else="">
                             The Head of Studies has not validated the student walkout of your group on
                             <strong t-out="format_date(object.walkout_id.walkout_date)"/>:
                             <strong t-out="object.walkout_id.rejection_reason_id.name"/>.
-                            Absences that day will not be justified.
+                            The classes of that day missed count as absences.
                         </p>
                         <p t-if="object.walkout_id.rejection_details" t-out="object.walkout_id.rejection_details"/>
                         <p>If you have any question, talk to your tutor.</p>
@@ -307,8 +319,8 @@
         </record>
 
         <!-- To the families that heard of the call (asked to ratify that a minor joins, or told of its
-             validation) when it ends without a justification: aborted by the tutor, not validated by the
-             Head of Studies, or its validation withdrawn. -->
+             validation) when it ends: aborted by the tutor, not validated by the Head of Studies, or its
+             validation withdrawn. -->
         <record id="email_template_student_walkout_family_rejected" model="mail.template">
             <field name="name">EMS: student walkout, rejected, family</field>
             <field name="model_id" ref="ems.model_ems_student_walkout_line"/>
@@ -320,13 +332,13 @@
                 <![CDATA[
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Dear family,</p>
-                        <p t-if="object.walkout_id.rejected_from_state == 'justified'">
+                        <p t-if="object.walkout_id.rejected_from_state == 'validated'">
                             The Head of Studies has withdrawn the validation of the student walkout of
                             <t t-out="object.walkout_id.group_id.name"/> on
                             <strong t-out="format_date(object.walkout_id.walkout_date)"/>, which
                             <strong t-out="object.student_id.name"/> had said they joined:
                             <strong t-out="object.walkout_id.rejection_reason_id.name"/>.
-                            Their absence that day is no longer justified.
+                            The classes of that day they miss count as absences.
                         </p>
                         <p t-elif="object.walkout_id.rejected_from_state == 'closed'">
                             The Head of Studies has not validated the student walkout of
@@ -334,7 +346,7 @@
                             <strong t-out="format_date(object.walkout_id.walkout_date)"/>, which
                             <strong t-out="object.student_id.name"/> had said they joined:
                             <strong t-out="object.walkout_id.rejection_reason_id.name"/>.
-                            Their absence that day will not be justified.
+                            The classes of that day they miss count as absences.
                         </p>
                         <p t-else="">
                             The school has aborted the student walkout proposal of
@@ -342,7 +354,7 @@
                             <strong t-out="format_date(object.walkout_id.walkout_date)"/>, which
                             <strong t-out="object.student_id.name"/> had said they joined:
                             <strong t-out="object.walkout_id.rejection_reason_id.name"/>.
-                            There is nothing left to ratify, and their absence that day will not be justified.
+                            There is nothing left to ratify, and they are expected in class that day.
                         </p>
                         <p>If you have any question, talk to the group's tutor.</p>
                         <p>
@@ -371,7 +383,7 @@
                             The Head of Studies has validated the student walkout of your group on
                             <strong t-out="format_date(object.walkout_id.walkout_date)"/>.
                         </p>
-                        <p t-if="object.joins">You said you join it: your absence that day is justified.</p>
+                        <p t-if="object.joins">You said you join it: the classes of that day do not count as absences.</p>
                         <p t-else="">You did not say you join it: you are expected in class that day.</p>
                         <p>
                             Kind regards,<br/>
@@ -429,18 +441,18 @@
                             <t t-if="object.group_supports">the group supports it and
                                 <t t-out="object.joining_count"/> of <t t-out="len(object.line_ids)"/> students join it.
                                 The Head of Studies has the minute and decides whether to validate it.</t>
-                            <t t-else="">the group does not support it, so nobody's absence will be justified.</t>
+                            <t t-else="">the group does not support it, so everybody is expected in class that day.</t>
                         </p>
                         <p t-elif="event == 'validated'">
                             The Head of Studies has validated the student walkout of <strong t-out="object.group_id.name"/>
-                            on <strong t-out="format_date(object.walkout_date)"/>: the absences of the
-                            <t t-out="object.joining_count"/> students who join it are justified.
+                            on <strong t-out="format_date(object.walkout_date)"/>: the
+                            <t t-out="object.joining_count"/> students who join it are off the roll-calls of that day.
                         </p>
                         <t t-elif="event == 'rejected'">
                             <p>
                                 <t t-out="object.rejected_by_id.name"/>
                                 <t t-if="object.rejected_from_state in ('voting', 'joining')">has aborted the proposal of</t>
-                                <t t-elif="object.rejected_from_state == 'justified'">has withdrawn the validation of</t>
+                                <t t-elif="object.rejected_from_state == 'validated'">has withdrawn the validation of</t>
                                 <t t-else="">has not validated</t>
                                 the student walkout of <strong t-out="object.group_id.name"/> on
                                 <strong t-out="format_date(object.walkout_date)"/>:

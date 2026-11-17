@@ -198,6 +198,7 @@ class EmsAttendanceSessionHeader(models.Model):
                 'attendance_issue_student_id': issue_student.id,
                 'attendance_session_line_id': attendance_session_line,
                 'attendance_status_id': as_id.status_id.id if as_id.active else False,
+                'not_expected_reason': False if as_id.active else as_id.not_expected_reason,
                 'rectification': rectification,
                 'notes': as_id.notes,
                 'send_to': send_to,
@@ -466,9 +467,11 @@ class EmsAttendanceSessionHeader(models.Model):
             if record.session_teacher_id.user_id == self.env.user:
                 record._auto_checkin_teacher(record.session_teacher_id, record.date, record.attendance_schedule_id)
 
-            # NOTE: Collecting all status data first allow some optimizations.
+            # NOTE: Collecting all status data first allow some optimizations. The lines off the
+            # roll-call too: a minor off it for a student walkout their family has not ratified is
+            # told (issue #844, status_is_notificable).
             issue_status_by_tutor = dict()
-            for attendance_session_line in record.attendance_session_line_ids:
+            for attendance_session_line in record.with_context(active_test=False).attendance_session_line_ids:
                 record.collect_issue_status_data(attendance_session_line, issue_status_by_tutor)
 
             record.create_notification_entries(issue_status_by_tutor, notification_status_eta=notification_status_eta)
@@ -877,8 +880,23 @@ class EmsAttendanceSessionLine(models.Model):
             # The teacher puts the student back (they came after all): the reason no longer applies
             # to this line, and undoing it later must not touch it.
             vals = dict(vals, not_expected_reason=False)
+        if vals.get("active") is False and "not_expected_reason" not in vals:
+            # Removed by hand (issue #844): a reason that still applies (put back by mistake) comes
+            # back with it, and so does what it means (e.g. the family's notice of a walkout).
+            vals = {**vals, **self._ems_current_not_expected_vals()}
         super().write(vals)
         self._update_notification()
+
+    def _ems_current_not_expected_vals(self):
+        """The values the system would leave this student off this session with now (its reason),
+        or no reason. One line at a time, like _update_notification."""
+        self.ensure_one()
+        session = self.attendance_session_id
+        reasons = self.env['res.partner']._ems_not_expected_reasons(
+            self.student_id, session.attendance_schedule_id.attendance_template_id.subject_id, session.start_date)
+        vals = dict(reasons.get(self.student_id.id) or {'not_expected_reason': False})
+        vals.pop('active', None)
+        return vals
 
     def report_eval(self, field):
         # NOTE: this is used within the 'details_table' template in order to render custom fields.

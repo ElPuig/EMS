@@ -73,11 +73,13 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
             lambda line: line.id == line_id)
         if not line:
             return request.redirect('/my/home')
+        ratifies = decision == 'yes'
         try:
-            line.walkout_id._ems_portal_ratify(family, line, decision == 'yes')
+            line.walkout_id._ems_portal_ratify(family, line, ratifies)
         except UserError as error:
             return self._ems_error_redirect(WALKOUTS, error)
-        return request.redirect(f'{WALKOUTS}?saved=1')
+        # Issue #844: the page pops up what was saved (portal_student_walkout_saved_modal).
+        return request.redirect(f"{WALKOUTS}?saved={'ratified' if ratifies else 'refused'}")
 
     @http.route(f'{WALKOUTS}/nova', type='http', auth='user', methods=['GET'], website=True)
     def portal_walkout_new(self, **kwargs):
@@ -141,7 +143,8 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
     @http.route(f'{WALKOUTS}/<int:walkout_id>/<string:step>', type='http', auth='user', methods=['POST'],
                 website=True)
     def portal_walkout_step(self, walkout_id, step, **post):
-        """Vote, say whether one joins, extend the joining, or cancel the proposal."""
+        """Vote, say whether one joins, extend the joining, or cancel the proposal. Issue #844: the page
+        then pops up what was saved (`saved`: vote, join, extend)."""
         walkout = self._ems_walkout(walkout_id)
         if not walkout:
             return request.redirect(WALKOUTS)
@@ -150,10 +153,13 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
         try:
             if step == 'vota':
                 walkout._ems_portal_vote(partner, post.get('group_vote'))
+                saved = 'vote'
             elif step == 'suma':
                 walkout._ems_portal_join(partner, post.get('joins') == 'yes')
+                saved = 'join'
             elif step == 'amplia':
                 walkout._ems_portal_extend(partner)
+                saved = 'extend'
             elif step == 'anulla':
                 walkout._ems_portal_cancel(partner)
                 return request.redirect(WALKOUTS)
@@ -161,7 +167,7 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
                 return request.redirect(page)
         except UserError as error:
             return self._ems_error_redirect(page, error)
-        return request.redirect(f'{page}?saved=1')
+        return request.redirect(f'{page}?saved={saved}')
 
     @http.route(f'{WALKOUTS}/<int:walkout_id>/fitxer/<int:attachment_id>', type='http', auth='user', website=True)
     def portal_walkout_file(self, walkout_id, attachment_id, **kwargs):

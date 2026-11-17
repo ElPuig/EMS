@@ -20,7 +20,7 @@ Recibes un correo, a la vez que tu grupo, cada vez que pasa algo:
 | El grupo la apoya | El recuento de votos, y hasta cuándo cada alumno dice si se suma |
 | Se amplían las adhesiones | Hasta cuándo puede decir ahora cada alumno si se suma; hasta entonces todavía puedes abortar la propuesta |
 | La propuesta se cierra | Si el grupo la apoya y cuántos alumnos se suman |
-| La jefatura de estudios la valida | Que la falta de quienes se suman está justificada |
+| La jefatura de estudios la valida | Que la huelga está validada: quienes se suman siguen sin constar en el pase de lista de ese día |
 | Se aborta o no se valida | Quién lo ha hecho, y el motivo |
 
 Si eres tutor de un grupo desdoblado, se avisa a cada cotutor. Un grupo sin tutor lo recibe el jefe de estudios y el jefe de estudios adjunto.
@@ -33,7 +33,9 @@ Los correos te llegan cuando llegan a tu grupo: enseguida si el centro cuenta la
 
 **Asistencia de los estudiantes > Huelgas de estudiantes** muestra las propuestas de tus grupos. El formulario muestra el calendario, la convocatoria del sindicato, el recuento de votos y, en la pestaña **Alumnado**, quién ha votado (nunca qué), quién se suma y la ratificación de la familia de los alumnos menores de edad.
 
-Un alumno menor que se suma necesita que su familia lo ratifique en el portal mientras duran las adhesiones (Decret 102/2010, artículo 24.2): sin la ratificación, su falta no se justifica. La columna **Se puede justificar** te dice a quién se le justificará la falta si la huelga se valida.
+A la familia de un alumno menor que se suma se le pide que lo ratifique en el portal mientras duran las adhesiones (Decret 102/2010, artículo 24.2). La ratificación solo indica que la familia está al corriente y de acuerdo: es una decisión colectiva del alumnado que nadie puede revocar, tampoco la familia.
+
+**El pase de lista del día de la huelga.** Cuando se cierran las adhesiones y el grupo la apoya, los alumnos que se suman aparecen en gris en el pase de lista de ese día, como «No tiene que asistir: huelga»: ni faltan ni asisten, y no hay que justificar nada. Si un alumno menor se suma sin la ratificación de la familia, la etiqueta lo indica y la familia recibe, a título informativo, el aviso de cada clase a la que no asiste. Si el alumno viene a clase, el profesor lo vuelve a poner en la lista; si se ha equivocado y lo vuelve a quitar, recupera el motivo «huelga» (y el aviso a la familia). Si la huelga no se valida, esas clases cuentan como faltas.
 
 Si la familia de un menor no puede usar el portal y te comunica (a ti o al centro) que lo ratifica, haz clic en **Ratifica a mano** en la fila de ese alumno de la pestaña **Alumnado** y confírmalo. Puedes hacerlo desde que los alumnos se suman hasta que la jefatura de estudios valida la huelga, solo para familias que no han respondido (nunca para anular un rechazo). La fila muestra quién lo ha marcado y el cambio queda registrado en el chat.
 

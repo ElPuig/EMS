@@ -134,9 +134,13 @@ Un alumne també pot sortir ja tret de la llista quan comences la sessió, amb e
   tramita la baixa (vegeu [Baixa prevista d'un alumne](../tutors/withdrawal-expected.md)).
 - **No ha d'assistir: convalidació en tràmit**: ha demanat convalidar aquest mòdul i ha triat no
   assistir-hi mentre es resol.
+- **No ha d'assistir: vaga**: s'ha sumat a la vaga d'estudiants del seu grup d'aquell dia. Si és menor
+  d'edat i la seva família no ho ha ratificat, l'etiqueta ho diu: la família rep l'avís d'aquesta classe,
+  a títol informatiu.
 
 Tampoc no compten ni com a assistència ni com a falta. Si l'alumne es presenta igualment, fes clic a
-la icona de restaurar i marca'l com a qualsevol altre. Si la baixa prevista es reverteix, o el mòdul
+la icona de restaurar i marca'l com a qualsevol altre. Si l'has restaurat per error, torna'l a treure:
+recupera el seu motiu. Si la baixa prevista es reverteix, o el mòdul
 no es convalida, aquestes sessions passen a ser faltes. Rebràs un avís de tots dos casos al teu
 [resum diari](daily-summary.md).
 

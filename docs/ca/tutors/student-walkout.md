@@ -20,7 +20,7 @@ Reps un correu, alhora que el teu grup, cada vegada que passa alguna cosa:
 | El grup hi dona suport | El recompte de vots, i fins quan cada alumne diu si s'hi suma |
 | S'amplien les adhesions | Fins quan cada alumne pot dir ara si s'hi suma; fins llavors encara pots avortar la proposta |
 | La proposta es tanca | Si el grup hi dona suport i quants alumnes s'hi sumen |
-| El cap d'estudis la valida | Que la falta dels qui s'hi sumen està justificada |
+| El cap d'estudis la valida | Que la vaga està validada: els qui s'hi sumen continuen sense constar al passi de llista d'aquell dia |
 | S'avorta o no es valida | Qui ho ha fet, i el motiu |
 
 Si ets tutor d'un grup desdoblat, se n'avisa cada cotutor. Un grup sense tutor ho rep el cap d'estudis i el cap d'estudis adjunt.
@@ -33,7 +33,9 @@ Els correus t'arriben quan arriben al teu grup: de seguida si el centre compta l
 
 **Assistència dels estudiants > Vagues d'alumnes** mostra les propostes dels teus grups. El formulari mostra el calendari, la convocatòria del sindicat, el recompte de vots i, a la pestanya **Alumnat**, qui ha votat (mai què), qui s'hi suma i la ratificació de la família dels alumnes menors d'edat.
 
-Un alumne menor que s'hi suma necessita que la seva família ho ratifiqui al portal mentre duren les adhesions (Decret 102/2010, article 24.2): sense la ratificació, la seva falta no es justifica. La columna **Es pot justificar** et diu a qui es justificarà la falta si la vaga es valida.
+A la família d'un alumne menor que s'hi suma se li demana que ho ratifiqui al portal mentre duren les adhesions (Decret 102/2010, article 24.2). La ratificació només indica que la família n'està al corrent i hi està d'acord: és una decisió col·lectiva dels alumnes que ningú no pot revocar, tampoc la família.
+
+**El passi de llista del dia de la vaga.** Quan es tanquen les adhesions i el grup hi dona suport, els alumnes que s'hi sumen surten en gris al passi de llista d'aquell dia, com a «No ha d'assistir: vaga»: no hi falten ni hi assisteixen, i no cal justificar res. Si un alumne menor s'hi suma sense la ratificació de la família, l'etiqueta ho indica i la família rep, a títol informatiu, l'avís de cada classe a què no assisteix. Si l'alumne ve a classe, el professor el torna a posar a la llista; si s'ha equivocat i el torna a treure, recupera el motiu «vaga» (i l'avís a la família). Si la vaga no es valida, aquelles classes compten com a faltes.
 
 Si la família d'un menor no pot utilitzar el portal i et comunica (a tu o al centre) que ho ratifica, fes clic a **Ratifica a mà** a la fila d'aquest alumne de la pestanya **Alumnat** i confirma-ho. Ho pots fer des que els alumnes s'hi sumen fins que la cap d'estudis valida la vaga, només per a famílies que no han respost (mai per anul·lar un rebuig). La fila mostra qui ho ha marcat i el canvi queda registrat al xat.
 

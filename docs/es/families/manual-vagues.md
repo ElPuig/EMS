@@ -4,9 +4,9 @@
 
 # Huelgas de estudiantes
 
-Cuando un sindicato de estudiantes convoca una huelga, tu grupo puede decidir en el portal si la apoya, y cada alumno dice si se suma. Si la huelga se valida, la falta de los alumnos que se suman queda justificada ese día.
+Cuando un sindicato de estudiantes convoca una huelga, tu grupo puede decidir en el portal si la apoya, y cada alumno dice si se suma. Los alumnos que se suman no constan en el pase de lista de ese día: ni faltan ni asisten.
 
-Decidir colectivamente no asistir a clase es un derecho del alumnado a partir de 3.º de ESO, cuando se comunica previamente a la dirección del centro (LODE, artículo 8). En Cataluña, un alumno menor de edad también necesita la autorización de su familia (Decret 102/2010, artículo 24.2): la familia la ratifica en el portal.
+Es una decisión colectiva de inasistencia a clase del alumnado a partir de 3.º de ESO, comunicada previamente a la dirección del centro (LODE, artículo 8). Nadie puede revocarla, tampoco la familia: el centro solo informa. En Cataluña, se pide a la familia de un alumno menor de edad que la ratifique en el portal (Decret 102/2010, artículo 24.2), solo para saber que está al corriente y de acuerdo.
 
 ---
 
@@ -16,9 +16,9 @@ Decidir colectivamente no asistir a clase es un derecho del alumnado a partir de
 |-------|----------|
 | El delegado o el subdelegado del grupo | Propone la votación y adjunta la convocatoria del sindicato |
 | Cada alumno del grupo con acceso al portal | Vota si el grupo apoya la huelga y, si la apoya, dice si se suma |
-| La familia de un alumno menor que se suma | Lo ratifica, o no, en el portal |
+| La familia de un alumno menor que se suma | Lo ratifica, o no, en el portal: solo indica que está al corriente y de acuerdo |
 | El tutor del grupo | Recibe un aviso de cada paso y puede detener la propuesta si tiene un defecto de forma |
-| La jefatura de estudios | Recibe el acta y valida la huelga (justifica las faltas) o no |
+| La jefatura de estudios | Recibe el acta y valida la huelga o no |
 
 Solo pueden proponer apoyar una huelga los grupos que el centro permite (a partir de 3.º de ESO, bachillerato y formación profesional).
 
@@ -59,7 +59,7 @@ Mientras la propuesta está en votación o en adhesiones, su página te muestra 
 
 ## Votar (todo el alumnado)
 
-La página de inicio del portal te avisa cuando tu grupo está votando. Abre la propuesta y responde **¿El grupo apoya la huelga?**: **Sí**, **No** o **Me abstengo**, y haz clic en **Enviar**.
+La página de inicio del portal te avisa cuando tu grupo está votando. Abre la propuesta y responde **¿El grupo apoya la huelga?**: **Sí**, **No** o **Me abstengo**, y haz clic en **Enviar**. Una ventana te confirma que el voto se ha guardado.
 
 ![Votación del grupo sobre si apoya la huelga](../../assets/families/walkout-portal-vote.png)
 
@@ -67,7 +67,7 @@ La página de inicio del portal te avisa cuando tu grupo está votando. Abre la 
 - Votas **una sola vez**: después no se puede cambiar.
 - El grupo apoya la huelga cuando hay más votos a favor que en contra entre los votos emitidos (un empate no la apoya).
 
-Si el grupo no la apoya, la propuesta se cierra y no se justifica la falta de nadie ese día.
+Si el grupo no la apoya, la propuesta se cierra y ese día se espera a todo el mundo en clase.
 
 Un alumno que no tenía acceso al portal cuando se propuso la huelga sale en el acta y no vota, pero, si el grupo la apoya y obtiene el acceso mientras la adhesión está abierta, puede decir si se suma: recibe el correo en ese momento.
 
@@ -75,13 +75,13 @@ Un alumno que no tenía acceso al portal cuando se propuso la huelga sale en el 
 
 ## Sumarse (todo el alumnado)
 
-Si el grupo la apoya, recibes un correo y la propuesta te pregunta **¿Te sumas a la huelga?** Responde **Sí, me sumo** o **No** y haz clic en **Enviar**. Puedes cambiar la respuesta hasta que acaben las adhesiones.
+Si el grupo la apoya, recibes un correo y la propuesta te pregunta **¿Te sumas a la huelga?** Responde **Sí, me sumo** o **No** y haz clic en **Enviar**. Una ventana te confirma la respuesta, y el formulario se cierra y la muestra. Puedes cambiarla hasta que acaben las adhesiones con **Cambiar mi respuesta**.
 
 ![Adhesión a la huelga, con el aviso para un alumno menor de edad](../../assets/families/walkout-portal-join.png)
 
 - Tu nombre sale en el acta que recibe la jefatura de estudios.
-- Solo se justifica la falta de los alumnos que se suman, si la huelga se valida.
-- **Si eres menor de edad**, tu familia tiene que ratificar en el portal que te sumas, mientras duren las adhesiones. Sin la ratificación, tu falta no se justifica. La página te dice si tu familia ya lo ha ratificado.
+- Las clases de ese día no te cuentan como faltas: no constan en el pase de lista. Si la huelga no se valida, sí cuentan.
+- **Si eres menor de edad**, se pide a tu familia que ratifique en el portal que te sumas, mientras duren las adhesiones, solo para saber que está al corriente y de acuerdo. Nadie puede revocar tu decisión. Si no lo ratifica, se le informa de cada clase a la que no asistas ese día, a título informativo. La página te dice si tu familia ya lo ha ratificado.
 
 ---
 
@@ -101,13 +101,14 @@ Si las adhesiones están a punto de acabar, o ya han acabado, y el alumnado nece
 
 Cuando vuestro hijo o hija (menor de 18 años el día de la huelga) dice que se suma a una huelga, recibís un correo enseguida. En el portal, la página de inicio os avisa: haced clic en **Responde**, o abrid **Huelgas de estudiantes**.
 
-Para cada huelga, haced clic en **Lo ratifico** o **No lo ratifico**. Podéis cambiar la respuesta hasta que acaben las adhesiones (la página os dice hasta cuándo).
+Para cada huelga, haced clic en **Lo ratifico** o **No lo ratifico**. Una ventana os confirma la respuesta, y la página la muestra. Podéis cambiarla con **Cambiar mi respuesta** hasta que acaben las adhesiones (la página os dice hasta cuándo).
 
 ![Página de la familia para ratificar que su hijo o hija se suma a la huelga](../../assets/families/walkout-portal-family.png)
 
-- Si no lo ratificáis, o no respondéis a tiempo, la falta de ese día **no se justifica**. Si no lo ratificáis, se avisa a vuestro hijo o hija.
+- Ratificarlo solo indica al centro que estáis al corriente y de acuerdo. Es una decisión colectiva del alumnado que nadie puede revocar, y las clases de ese día no cuentan como faltas. **Una vez ratificado, no tenéis que hacer nada más**: el resto es automático.
+- Si no lo ratificáis, o no respondéis a tiempo, recibiréis un aviso de cada clase a la que no asista ese día, solo a título informativo. Si no lo ratificáis, también se avisa a vuestro hijo o hija.
 - Para ratificarlo necesitáis acceso al portal. Si no lo tenéis, pedidlo al centro con tiempo.
-- Cuando la huelga se valida, recibís un correo que confirma que la falta está justificada. Si, en cambio, la propuesta se aborta o no se valida, también se os avisa.
+- Cuando la huelga se valida, recibís un correo informativo. Si, en cambio, la propuesta se aborta o no se valida, también se os avisa.
 
 ---
 
@@ -115,8 +116,8 @@ Para cada huelga, haced clic en **Lo ratifico** o **No lo ratifico**. Podéis ca
 
 El acta llega a la jefatura de estudios, que decide si valida la huelga:
 
-- **Validada**: se justifica ese día la falta de los alumnos que se suman (los mayores de edad, y los menores cuya familia lo ha ratificado). Se avisa a todo el alumnado, y también a la familia de cada alumno menor con la falta justificada.
-- **No validada**: no se justifica la falta de nadie. Se avisa a todo el alumnado, con el motivo.
+- **Validada**: los alumnos que se suman siguen sin constar en el pase de lista de ese día. Se avisa a todo el alumnado, y también a la familia de cada alumno menor que se suma.
+- **No validada**: las clases de ese día de los alumnos que se suman cuentan como faltas. Se avisa a todo el alumnado, con el motivo.
 
 Mientras tanto, el tutor del grupo puede **abortar** la propuesta mientras está en votación o en adhesiones, solo por un defecto de forma (por ejemplo, si no hay ninguna convocatoria oficial de un sindicato de estudiantes para ese día). Se avisa a todo el alumnado, con el motivo.
 
@@ -129,7 +130,7 @@ El acta (PDF) está en la página de la propuesta una vez cerrada.
 | **En votación** | El grupo vota si apoya la huelga |
 | **Adhesiones** | El grupo la apoya: cada alumno dice si se suma |
 | **Cerrada** | La jefatura de estudios tiene el acta y decide |
-| **Validada** | La falta de quienes se suman está justificada |
+| **Validada** | Quienes se suman no constan en el pase de lista de ese día |
 | **Abortada** | El tutor ha detenido la propuesta, con un motivo |
 | **No validada** | La jefatura de estudios no la ha validado, con un motivo |
 | **Anulada** | El delegado la ha anulado |

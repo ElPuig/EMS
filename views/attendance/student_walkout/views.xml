@@ -2,7 +2,7 @@
 <odoo>
     <data>
         <!-- Issue #800: student walkout calls, opened and voted from the portal; read here by the
-             tutors of the groups and the chain above them, and justified by the Head of Studies.
+             tutors of the groups and the chain above them, and validated by the Head of Studies.
              Never created nor edited by hand: create="0" edit="0". -->
         <record id="view_student_walkout_list" model="ir.ui.view">
             <field name="name">ems.student_walkout.list</field>
@@ -18,7 +18,7 @@
                     <field name="joining_count" optional="show"/>
                     <field name="state" widget="badge"
                            decoration-info="state in ('voting', 'joining')" decoration-warning="state == 'closed'"
-                           decoration-success="state == 'justified'" decoration-danger="state == 'rejected'"/>
+                           decoration-success="state == 'validated'" decoration-danger="state == 'rejected'"/>
                 </list>
             </field>
         </record>
@@ -35,17 +35,15 @@
                                     confirm="Joining will last one phase more. Extend it?"/>
                             <button name="action_open_reject_wizard" type="object" string="Abort the proposal" icon="fa-ban"
                                     invisible="not can_abort"/>
-                            <button name="action_generate_justification" type="object" string="Validate and justify"
-                                    icon="fa-check" invisible="not can_generate_justification"/>
+                            <button name="action_validate" type="object" string="Validate"
+                                    icon="fa-check" invisible="not can_validate"/>
                             <button name="action_open_reject_wizard" type="object" string="Do not validate" icon="fa-times"
                                     invisible="not can_reject or state != 'closed'"/>
                             <button name="action_open_reject_wizard" type="object" string="Undo the validation" icon="fa-undo"
-                                    invisible="not can_reject or state != 'justified'"/>
-                            <button name="action_open_justification" type="object" string="Open the justification"
-                                    icon="fa-external-link" invisible="not justification_id"/>
+                                    invisible="not can_reject or state != 'validated'"/>
                         </div>
-                        <field name="state" widget="statusbar" statusbar_visible="voting,joining,closed,justified"/>
-                        <field name="can_generate_justification" invisible="1"/>
+                        <field name="state" widget="statusbar" statusbar_visible="voting,joining,closed,validated"/>
+                        <field name="can_validate" invisible="1"/>
                         <field name="can_extend" invisible="1"/>
                         <field name="can_abort" invisible="1"/>
                         <field name="can_reject" invisible="1"/>
@@ -86,7 +84,6 @@
                                 <field name="head_of_studies_id" invisible="not head_of_studies_id"/>
                                 <field name="rejected_by_id" invisible="not rejected_by_id"/>
                                 <field name="rejected_datetime" invisible="not rejected_datetime" options="{'show_seconds': False}"/>
-                                <field name="justification_id" invisible="not justification_id"/>
                             </group>
                         </group>
                         <field name="notes" invisible="not notes" nolabel="1"/>
@@ -106,7 +103,6 @@
                                                 string="Ratify by hand" title="Mark the family's ratification by hand"
                                                 invisible="not can_ratify_manually"
                                                 confirm="Mark that the family of this student ratifies that they join the walkout? Do it only when the family has told the centre so."/>
-                                        <field name="justifiable" optional="show"/>
                                         <field name="vote_date" optional="hide"/>
                                         <field name="join_date" optional="hide"/>
                                     </list>
@@ -126,7 +122,7 @@
                 <search>
                     <field name="group_id"/>
                     <field name="opener_id"/>
-                    <filter name="to_justify" string="To justify" domain="[('state', '=', 'closed'), ('justification_id', '=', False)]"/>
+                    <filter name="to_validate" string="To validate" domain="[('state', '=', 'closed')]"/>
                     <filter name="voting" string="Voting or joining" domain="[('state', 'in', ('voting', 'joining'))]"/>
                     <separator/>
                     <filter name="not_cancelled" string="Not cancelled" domain="[('state', '!=', 'cancelled')]"/>

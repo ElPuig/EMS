@@ -60,7 +60,7 @@
                     </table>
                     <p>
                         <strong t-if="doc.group_supports">Result: the group supports the walkout.</strong>
-                        <strong t-else="">Result: the group does not support the walkout, so no absence is justified.</strong>
+                        <strong t-else="">Result: the group does not support the walkout, so everybody is expected in class that day.</strong>
                     </p>
 
                     <h3 t-if="doc.group_supports">Who joins the walkout</h3>
@@ -80,7 +80,7 @@
                                 <td>
                                     <t t-if="line.joins and line.needs_ratification">
                                         <span t-field="line.ratification"/>
-                                        <t t-if="line.ratification == 'pending'">(not ratified: not justified)</t>
+                                        <t t-if="line.ratification != 'ratified'">(the family is told of each class, for information)</t>
                                     </t>
                                 </td>
                             </tr>

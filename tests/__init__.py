@@ -335,6 +335,7 @@ from . import test_student_walkout
 from . import test_school_hours
 from . import test_portal_student_walkout
 from . import test_student_walkout_tour
+from . import test_student_walkout_attendance
 from . import test_erasmus_info_codeview_tour
 from . import test_erasmus_polish_bugs_tour
 from . import test_erasmus_polish_dates_numbers

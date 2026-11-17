@@ -4,7 +4,7 @@
 
 # Vagues d'estudiants: validar-les
 
-El delegat d'un grup proposa al portal que el grup doni suport a una vaga convocada per un sindicat d'estudiants, el grup hi vota, i el tutor del grup vetlla per la proposta. Tu reps l'acta quan es tanca i decideixes si la valides: validar-la justifica la falta dels qui s'hi sumen. Com hi participen l'alumnat i les famílies es pot llegir al [manual de famílies](../families/manual-vagues.md), i la part del tutor al [manual de tutors](../tutors/student-walkout.md).
+El delegat d'un grup proposa al portal que el grup doni suport a una vaga convocada per un sindicat d'estudiants, el grup hi vota, i el tutor del grup vetlla per la proposta. Tu reps l'acta quan es tanca i decideixes si la valides. Els alumnes que s'hi sumen no consten al passi de llista d'aquell dia (no hi falten ni hi assisteixen), i no es justifica res. Com hi participen l'alumnat i les famílies es pot llegir al [manual de famílies](../families/manual-vagues.md), i la part del tutor al [manual de tutors](../tutors/student-walkout.md).
 
 No s'ha de confondre amb els **Strikes** (Convivència), el registre disciplinari, ni amb l'informe de vaga del personal.
 
@@ -14,7 +14,7 @@ No s'ha de confondre amb els **Strikes** (Convivència), el registre disciplinar
 
 - **Res quan es fa una proposta**: hi vetlla el tutor.
 - **Un avís al teu resum diari** quan un tutor (o algú per sobre seu) avorta una proposta, amb el motiu.
-- **L'acta, per correu**, quan la proposta es tanca: com a mínim 48 hores abans de la vaga (per defecte), amb el recompte de vots i els alumnes que s'hi sumen. Si s'ha de justificar la falta d'algú, també reps la tasca **Justificar la vaga d'estudiants**.
+- **L'acta, per correu**, quan la proposta es tanca: com a mínim 48 hores abans de la vaga (per defecte), amb el recompte de vots i els alumnes que s'hi sumen. Si algú s'hi suma, també reps la tasca **Validar la vaga d'estudiants**.
 - **Un avís al teu resum diari** quan es torna a obrir una proposta tancada perquè se n'han ampliat les adhesions: l'acta que tenies es retira i en rep una de nova quan es tanqui de nou.
 
 L'acta arriba al cap d'estudis o al cap d'estudis adjunt per sobre del tutor del grup; d'un grup sense tutor, a tots els caps d'estudis i caps d'estudis adjunts.
@@ -25,11 +25,11 @@ L'acta arriba al cap d'estudis o al cap d'estudis adjunt per sobre del tutor del
 
 Obre la proposta des del correu o des d'**Assistència dels estudiants > Vagues d'alumnes**.
 
-![Proposta tancada amb les seves accions: Valida i justifica, No la validis](../../assets/head_of_studies/hos-walkout-closed.png)
+![Proposta tancada amb les seves accions: Valida, No la validis](../../assets/head_of_studies/hos-walkout-closed.png)
 
-- **Accions > Valida i justifica**: crea un justificant de tot el dia de la vaga per als alumnes a qui es pot justificar la falta, i l'obre. Són els majors d'edat que s'hi sumen i els menors la família dels quals ho ha ratificat (Decret 102/2010, article 24.2: la columna **Es pot justificar** de la pestanya **Alumnat**). Si un alumne ja tenia un justificant aquell dia, se'l salta i queda anotat a la convocatòria. Se n'avisa tot l'alumnat del grup, la família de cada alumne menor amb la falta justificada, i el tutor.
-- **Accions > No la validis**: tria un motiu; no es justifica la falta de ningú. Se n'avisa tot l'alumnat, el tutor i les famílies a qui es va demanar que ho ratifiquessin.
-- **Accions > Desfés la validació** (en una proposta validada): esborra el justificant, de manera que les faltes deixen d'estar justificades. Se n'avisa l'alumnat, les famílies i el tutor, amb el motiu.
+- **Accions > Valida**: confirma la vaga. Els alumnes que s'hi sumen continuen sense constar al passi de llista d'aquell dia; la ratificació de la família d'un menor no hi canvia res (només indica que n'està al corrent i hi està d'acord), però la família que no l'ha ratificada rep, a títol informatiu, l'avís de cada classe a què no assisteix. Se n'avisa tot l'alumnat del grup, la família de cada alumne menor que s'hi suma, i el tutor.
+- **Accions > No la validis**: tria un motiu; les classes d'aquell dia dels alumnes que s'hi sumen compten com a faltes. Se n'avisa tot l'alumnat, el tutor i les famílies a qui es va demanar que ho ratifiquessin.
+- **Accions > Desfés la validació** (en una proposta validada): igual que no validar-la, les classes d'aquell dia tornen a comptar com a faltes. Se n'avisa l'alumnat, les famílies i el tutor, amb el motiu.
 
 Els motius surten d'**Assistència dels estudiants > Configuració > Vagues d'alumnes > Motius de rebuig**, els mateixos que fa servir el tutor per avortar una proposta. Els pots afegir, canviar de nom o reordenar; «Altres» demana detalls.
 

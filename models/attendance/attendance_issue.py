@@ -140,7 +140,15 @@ class EmsAttendanceIssueStatus(models.Model):
 
     # NOTE: We want a copy of the original status, because a miss can be justified later, but we want to keep the original notification status.
     attendance_status_id = fields.Many2one(string="Attendance status", comodel_name="ems.attendance_status")
+    # Issue #844: why the line was off the roll-call when notified (a student walkout an unratified
+    # minor joined): the notice then says so instead of a status.
+    not_expected_reason = fields.Selection(string="Not required to attend because",
+                                           selection='_selection_not_expected_reason', readonly=True)
     notes = fields.Text(string="Notes")
+
+    @api.model
+    def _selection_not_expected_reason(self):
+        return self.env['ems.attendance_session_line']._fields['not_expected_reason']._description_selection(self.env)
 
     @api.depends('attendance_session_line_id')
     def _compute_display_name(self):

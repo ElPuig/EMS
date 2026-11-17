@@ -7,7 +7,8 @@ const ROW = ".o_list_view .o_data_row:contains('WLT')";
 
 // Issue #800 (test_student_walkout_tour.py): two calls of the same group, on different walkout days.
 // The group's tutor aborts the one being voted, with a reason, after reading which reasons are
-// lawful; the Head of Studies validates the closed one, which justifies the students who join.
+// lawful; the Head of Studies validates the closed one (issue #844: nothing is justified, the students
+// who join are already off the roll-calls of the day).
 registry.category("web_tour.tours").add("ems_student_walkout_abort", {
     test: true,
     url: "/odoo/action-ems.action_student_walkout",
@@ -130,10 +131,10 @@ registry.category("web_tour.tours").add("ems_student_walkout_validate", {
             trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row:contains('WLT Delegate')",
             content: "The form shows every student of the group",
         },
-        ...clickAction("action_generate_justification", "Validate and justify"),
+        ...clickAction("action_validate", "Validate"),
         {
-            trigger: ".o_form_view .o_field_widget[name='student_ids']:contains('WLT Delegate')",
-            content: "The justification of the walkout day opens, for the students who join",
+            trigger: ".o_form_view .o_statusbar_status .o_arrow_button_current:contains('Validated')",
+            content: "The call is validated, with no justification to open",
         },
         {
             trigger: ".o_breadcrumb .breadcrumb-item:first-child a",
@@ -141,7 +142,7 @@ registry.category("web_tour.tours").add("ems_student_walkout_validate", {
             run: "click",
         },
         {
-            trigger: `${ROW} .o_field_badge:contains('Justified')`,
+            trigger: `${ROW} .o_field_badge:contains('Validated')`,
             content: "The call is validated",
         },
     ],
@@ -227,6 +228,72 @@ registry.category("web_tour.tours").add("ems_student_walkout_calendar", {
         {
             trigger: `${walkoutBlock} .o_field_widget[name='walkout_count_from'] select`,
             content: "Discarded: real hours again",
+        },
+    ],
+});
+
+// Issue #844, on the portal (test_student_walkout_tour.py): a student says they join; the form closes on
+// their answer, a pop-up says it is saved, and the answer can still be changed while joining lasts.
+registry.category("web_tour.tours").add("ems_student_walkout_portal_join", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_ems_walkout_join input#joins_yes",
+            content: "Yes, I join it",
+            run: "click",
+        },
+        {
+            trigger: ".o_ems_walkout_join button.o_ems_walkout_join_send",
+            content: "Send",
+            run: "click",
+        },
+        {
+            trigger: ".modal.show.o_ems_walkout_saved_modal:contains('join the walkout')",
+            content: "A pop-up says the answer is saved and what comes next",
+        },
+        {
+            trigger: ".modal.show.o_ems_walkout_saved_modal .modal-footer button",
+            content: "Close it",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal.show)) .o_ems_walkout_join_answer:contains('Yes')",
+            content: "The form is closed on the answer",
+        },
+        {
+            trigger: ".o_ems_walkout_join_change",
+            content: "Change the answer",
+            run: "click",
+        },
+        {
+            trigger: ".o_ems_walkout_join form.show input#joins_no",
+            content: "The form opens again",
+        },
+    ],
+});
+
+// Issue #844: the family of a minor ratifies on the portal; a pop-up says that is all it has to do.
+registry.category("web_tour.tours").add("ems_student_walkout_portal_ratify", {
+    test: true,
+    url: "/my/vagues",
+    steps: () => [
+        {
+            trigger: ".o_ems_walkout_ratify button.o_ems_walkout_ratify_yes",
+            content: "I ratify it",
+            run: "click",
+        },
+        {
+            trigger: ".modal.show.o_ems_walkout_saved_modal:contains('nothing else')",
+            content: "A pop-up says there is nothing else to do",
+        },
+        {
+            trigger: ".modal.show.o_ems_walkout_saved_modal .modal-footer button",
+            content: "Close it",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal.show)) .o_ems_walkout_ratify_answer:contains('Ratified')",
+            content: "The answer is shown, the buttons are folded away",
         },
     ],
 });

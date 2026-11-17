@@ -12,25 +12,39 @@ holds, which the group votes on, is the **proposal** to support the walkout:
 2. if it does, each student says whether they join it (by name, changeable until the phase ends),
    also one who got portal access after the proposal;
 3. the minute (a PDF in the centre language) goes to the group's Head of Studies / Deputy Head of
-   Studies at least the notice before the walkout, and they **validate** it (one attendance
-   justification of the walkout day for the students who join) or **do not validate** it.
+   Studies at least the notice before the walkout, and they **validate** it or **do not validate** it.
+
+**Every student who joins is off the roll-calls of the walkout day** (issue #844): from the moment joining
+closes with the group's support, their session lines of that day are archived with the reason
+`walkout` ("not required to attend: student walkout"), the #644 mechanism the expected withdrawal and
+the convalidation already use. Neither an absence nor a presence, and **nothing is justified**: the
+walkout creates no `ems.attendance_justification`. Not validating it, or undoing the validation, turns
+those classes into regular absences.
 
 The **group's tutor watches over the proposal**: they get a copy of every email the group gets and may
 **abort** it, with a reason, while it is voted or joined, only for a formal defect (the abort
 wizard explains which reasons are lawful). The Head of Studies hears nothing until the minute,
 except a notice in their daily summary when a proposal is aborted. **The family of a minor who joins
-must ratify it** (Decret 102/2010, article 24.2: a minor's collective absence needs the family's
-authorization): it is asked at once and answers on the portal while joining lasts; a minor whose
-family has not ratified it (refused, did not answer, or has no portal access) is not justified,
-unless the tutor (or whoever is above them) marks the ratification by hand for a family that cannot use the portal.
-Other families hear nothing until the proposal is validated.
+is asked to ratify it** (Decret 102/2010, article 24.2): it is asked at once and answers on the portal
+while joining lasts, or the tutor (or whoever is above them) marks it by hand for a family that cannot
+use the portal. The ratification **only says the family knows and agrees**: it is a collective
+decision of the students that nobody can revoke, the family included, and it changes nothing in the
+roll-calls. What it does change: the family of a minor who joins **without** it (refused, did not
+answer, or has no portal access) is told of each class of the day, for information only, through the
+usual attendance notice (see "The roll-calls of the walkout day"). Other families hear nothing until
+the proposal is validated.
+
+**Wording towards families and students** (emails, portal, attendance notices): "collective decision
+not to attend class" (ca: "decisió col·lectiva d'inassistència a classe"), never "the right to strike".
 
 **Naming.** In English the feature is always *walkout*, never *strike*: `ems.strike` is the
 disciplinary record (Coexistence → Strikes). Catalan and Spanish say "vaga"/"huelga".
 
 **Module files:** `models/attendance/student_walkout.py` (`ems.student_walkout`, its lines, the
 rejection reasons and the reject wizard), `models/attendance/student_walkout_partner.py` (the
-`res.partner` portal helpers), `models/contacts/group.py` (`_ems_walkout_allowed`,
+`res.partner` portal helpers), `models/contacts/student_walkout_attendance.py` (the `walkout` reason of
+the roll-call and its notice; in `contacts/` because it extends `_ems_not_expected_reasons`, which
+`withdrawal_expected.py` defines), `models/contacts/group.py` (`_ems_walkout_allowed`,
 `_ems_class_windows`, `_ems_school_send_time`), `models/shared/datetime_utils.py` (counting hours over school days),
 `models/curriculum/level.py` (which levels may propose one), `models/settings/company.py` (the calendar settings),
 `controllers/portal_student_walkout.py`, `views/portal/portal_student_walkout.xml`,
@@ -146,8 +160,8 @@ erDiagram
     ems_student_walkout }o--o{ ems_group : "group_ids (with the halves sharing the delegate)"
     ems_student_walkout }o--|| res_partner : "opener_id (delegate / sub-delegate)"
     ems_student_walkout }o--o| ems_student_walkout_rejection_reason : "rejection_reason_id"
-    ems_student_walkout }o--o| ems_attendance_justification : "justification_id"
     ems_student_walkout_line }o--|| res_partner : "student_id"
+    ems_attendance_session_line }o--|| res_partner : "student_id (not_expected_reason = walkout on the walkout day)"
 ```
 
 ### `ems.student_walkout`
@@ -164,20 +178,18 @@ erDiagram
 | `vote_start` / `vote_until` / `join_start` / `join_until` | `Datetime` | The calendar above; the joining ones once it starts |
 | `notes` | `Text` | The reason the delegate gives (why the walkout is called), labelled "Reason"; required to propose it |
 | `attachment_ids` | `Many2many → ir.attachment` | The union's call: at least one file |
-| `state` | `Selection` | `voting` → `joining` → `closed` → `justified`; or `rejected`, `cancelled` (by the delegate). A group vote that does not support it goes from `voting` to `closed` |
+| `state` | `Selection` | `voting` → `joining` → `closed` → `validated`; or `rejected`, `cancelled` (by the delegate). A group vote that does not support it goes from `voting` to `closed` |
 | `head_of_studies_id` | `Many2one → hr.employee` | Who gets the minute |
 | `rejected_by_id` / `rejected_datetime` | `Many2one → res.users` / `Datetime` | Who aborted it or did not validate it, and when |
 | `rejection_reason_id` / `rejection_details` | `Many2one → ems.student_walkout.rejection_reason` / `Text` | Why; details are required for a reason with `requires_details` ("Other reasons") |
 | `delegate_extended` | `Boolean` | The delegates already used their one extension of the joining (issue #838) |
 | `can_extend` | `Boolean` (computed per user) | Whether the user may extend the joining and it is possible (`_ems_user_may_abort` and `_ems_extension()`) |
-| `rejected_from_state` | `Selection` | `voting`/`joining`: aborted; `closed`: not validated; `justified`: validation undone |
-| `can_abort` / `can_reject` | `Boolean` (computed per user) | Whether the user may abort it / not validate it (`_ems_user_may_abort` / `_ems_user_may_reject`) |
+| `rejected_from_state` | `Selection` | `voting`/`joining`: aborted; `closed`: not validated; `validated`: validation undone |
+| `can_abort` / `can_reject` / `can_validate` | `Boolean` (computed per user) | Whether the user may abort it / not validate it / validate it (`_ems_user_may_abort` / `_ems_user_may_reject` / `_ems_user_may_validate`) |
 | `group_yes_count` / `group_no_count` / `group_abstain_count` | `Integer` | The anonymous group vote: only these counters, never who voted what |
 | `group_supports` | `Boolean` (computed) | More yes than no among the votes cast (a tie does not support it) |
 | `joining_student_ids` | `Many2many` (computed) | The students whose line says they join |
-| `justifiable_student_ids` | `Many2many` (computed) | Those who join and can be justified: adults, and minors whose family ratified it |
 | `pdf_attachment_id` | `Many2one → ir.attachment` | The minute, rendered on closing |
-| `justification_id` | `Many2one → ems.attendance_justification` | Created by *Validate and justify* |
 
 ### `ems.student_walkout.line`
 
@@ -187,10 +199,9 @@ erDiagram
 | `has_portal` | `Boolean` | Whether the student had portal access when the proposal was made: the group vote's electorate (`voter_count`). Joining is open to every line (issue #830) |
 | `voted` / `vote_date` | `Boolean` / `Datetime` | The group vote was cast (it never says which way) |
 | `join_answered` / `joins` / `join_date` | `Boolean` / `Boolean` / `Datetime` | Whether they said if they join, and what |
-| `needs_ratification` / `ratification` | `Boolean` / `Selection` (`pending`, `ratified`, `refused`) | A minor on the walkout day (no birth date counts as a minor) who joins needs the family's ratification |
+| `needs_ratification` / `ratification` | `Boolean` / `Selection` (`pending`, `ratified`, `refused`) | The family of a minor on the walkout day (no birth date counts as a minor) who joins is asked to ratify it: informative only |
 | `ratified_by_id` / `ratification_date` | `Many2one → res.partner` / `Datetime` | Who answered (the family contact, or the staff member who marked it by hand), and when |
 | `ratified_manually` / `can_ratify_manually` | `Boolean` / `Boolean` (computed, per user) | Marked by hand by the centre (issue #840); whether the current user may do it now |
-| `justifiable` | `Boolean` (computed) | Joins and, if a minor, the family ratified it |
 
 **Anonymity and concurrency.** The group vote only adds one to a counter of the proposal
 (`_ems_portal_vote`) and marks the line as `voted`, so nothing links a student to their answer. Two
@@ -247,10 +258,10 @@ flowchart TD
     E -- supports it --> J["joining: result + 'do you join?' email to each student, copy to the tutor"]
     J -. "a minor joins" .-> R["family asked at once; ratifies or refuses on the portal while joining lasts"]
     J --> K{"join_until reached"}
-    K --> F["closed: minute to the HoS/DHoS, task 'Justify', copy to the tutor"]
-    F --> I["Validate and justify: full-day justification of adults and ratified minors; students, families and tutor told"]
-    F -. "do not validate, with a reason" .-> Y["rejected: students, tutor and the families asked to ratify told"]
-    I -. "undo the validation, with a reason" .-> Z["rejected: justification removed; students, families and tutor told"]
+    K --> F["closed: those who join are off the roll-calls of the day (walkout); minute to the HoS/DHoS, task 'Validate', copy to the tutor"]
+    F --> I["validated: students, families of those who join and tutor told"]
+    F -. "do not validate, with a reason" .-> Y["rejected: classes of the day back as absences; students, tutor and the families asked to ratify told"]
+    I -. "undo the validation, with a reason" .-> Z["rejected: classes of the day back as absences; students, families and tutor told"]
     J -. "delegate (once) / tutor chain extends" .-> J
     F -. "delegate (once) / tutor chain extends" .-> J
     V -. "tutor aborts, with a reason" .-> X["rejected: students and tutor told; notice in the HoS/DHoS daily summary"]
@@ -282,12 +293,15 @@ flowchart TD
   day (`_ems_is_minor`; no birth date counts as a minor) who joins gets `needs_ratification` and
   `ratification = 'pending'`, and their family is asked at once
   (`email_template_student_walkout_ratify`, not tied to school hours). Withdrawing clears it;
-  joining again asks again.
+  joining again asks again. The emails and the portal say that it is a collective decision nobody can
+  revoke, that the classes of that day do not count as absences and, to the family, that once ratified
+  there is nothing else to do.
 - **Ratify** (`_ems_portal_ratify(family, line, ratifies)`, portal `/my/vagues`, POST
   `/my/vagues/ratifica/<line>`): a family contact of the student (`_ems_family_contacts`) with portal
   access, only while `joining` (until `join_until`), changeable meanwhile. A refusal is told to the
-  student (`email_template_student_walkout_ratification_refused`). A family with no portal access
-  cannot ratify: that minor is not justified unless the centre marks it by hand (next item). The family sees the lines it was asked about
+  student, for information (`email_template_student_walkout_ratification_refused`: their family will be
+  told of each class they miss that day). A family with no portal access cannot ratify, unless the
+  centre marks it by hand (next item). The family sees the lines it was asked about
   (`res.partner._ems_walkout_family_lines`) and a banner on the portal home while one is pending.
 - **Ratify by hand** (`ems.student_walkout.line.action_ratify_manually()`, issue #840): for a family that
   cannot use the portal and asks the centre. Whoever may abort the proposal (`_ems_user_may_abort`:
@@ -296,11 +310,20 @@ flowchart TD
   overridden. It sets `ratification = 'ratified'`, `ratified_by_id` = the staff member's contact,
   `ratified_manually` and logs it in the walkout's chatter; the family answering on the portal later,
   or the student withdrawing, clears `ratified_manually`. The button sits on the form's Students tab.
+  Marked once the roll-calls of the day exist, their pending notice to the family is withdrawn
+  (`_ems_refresh_walkout_notices`).
+- **Saved, on the portal** (issue #844): after voting, saying whether one joins, extending or ratifying,
+  the controller redirects with `?saved=<vote|join|extend|ratified|refused>` and the page pops up what
+  was saved and what comes next (`ems.portal_student_walkout_saved_modal`, opened on load by the
+  public widget `static/src/js/frontend/walkout_saved_modal.js`, which also drops `saved` from the
+  address). Once answered, the joining form and the family's buttons are folded under the answer, with
+  a "Change my answer" button (Bootstrap collapse) while joining lasts.
 - **Close** (`_ems_close`): renders the minute (`ems.report_student_walkout`, centre language), emails
   it to the Head of Studies right away (`email_template_student_walkout_head`: the walkout is a few
   days off, so not in the daily summary) and, when the group supports it and somebody joins,
-  schedules the quiet task "Justify the student walkout"; the tutor gets a copy. The families are
-  not told yet. The Head of Studies (`_ems_head_users`) is `group.tutor_id.find_head_of_studies()`;
+  schedules the quiet task "Validate the student walkout"; the tutor gets a copy. The families are
+  not told yet. Every student who joins is taken off the roll-calls of the day
+  (`_ems_apply_walkout_lines`, see below). The Head of Studies (`_ems_head_users`) is `group.tutor_id.find_head_of_studies()`;
   with no tutor, every Head and Deputy Head of Studies; failing that, the academic administrators.
 - **Extend the joining** (issue #838): only the joining, never the group vote. A proposal the group supports can be
   extended while `joining` or once `closed`. `_ems_extension()` gives the new `join_until`: one phase
@@ -310,11 +333,12 @@ flowchart TD
   when it is possible; a proposal for the first possible day gets a full extension, then a shorter one, then none). The delegates (`_ems_is_manager`) extend it **once** from the portal
   (`_ems_portal_extend`, POST `/my/vagues/<id>/amplia`, `delegate_extended`); the tutor chain and the administrators
   (`_ems_user_may_abort`) as often as they want, from **Actions > Extend the joining** (`action_extend_joining`).
-  Both go through `_ems_extend_joining()`: a `closed` proposal goes back to `joining` (its minute and its justify
+  Both go through `_ems_extend_joining()`: a `closed` proposal goes back to `joining` (its minute and its validate
   task are removed, `closed_datetime` cleared, and the Head of Studies gets a notice in their daily summary,
   `_ems_notify_heads`), the deadlines cron is woken for the new end, every student with portal access gets
   `email_template_student_walkout_join_extended` and the tutor a copy (event `extended`). When it closes again
-  `_ems_close()` renders and sends a new minute. Families asked to ratify answer until the new end.
+  `_ems_close()` renders and sends a new minute and syncs the roll-calls: whoever withdrew meanwhile is back on
+  them. Families asked to ratify answer until the new end.
 - **Abort** (`action_open_reject_wizard()` → `_ems_reject(reason, details)`) while `voting` or
   `joining` (`ABORTABLE_STATES`): `_ems_user_may_abort`, i.e. an administrator, or the tutor of any
   of `group_ids` or the chain above them (`user_acts_as_tutor`: Department or Seminar Chief, Head or
@@ -322,25 +346,25 @@ flowchart TD
   access gets `email_template_student_walkout_rejected` and still sees the proposal and the reason on
   the portal; the tutor gets a copy; the Head of Studies a notice in their daily summary
   (`_ems_notify_aborted`, `ems.info_notice`).
-- **Do not validate / undo the validation** (same wizard and method) while `closed` or `justified`
+- **Do not validate / undo the validation** (same wizard and method) while `closed` or `validated`
   (`VALIDATION_STATES`): `_ems_user_may_reject`, whoever may validate it. The students and the tutor
   are told, and so are the families that heard of it (`_ems_family_lines`: the ones asked to
   ratify and, when undoing a validation, the adults' families told of it), with
   `email_template_student_walkout_family_rejected`, whose text depends on `rejected_from_state`
-  (aborted, not validated, validation withdrawn). The same goes for an abort. A
-  justification already generated is deleted (as the user rejecting it: its absences go back to
-  unjustified), and the justify task is removed.
+  (aborted, not validated, validation withdrawn). The same goes for an abort. The classes of the
+  walkout day of those who join become regular absences (`_ems_restore_walkout_lines` →
+  `res.partner._ems_restore_not_expected_lines`, without telling the families of past days), and the
+  validate task is removed.
 - **Cancel** (`_ems_portal_cancel(partner)`): the opener or the group's delegates, while voting or
   joining; the group no longer sees it. Nobody closes a phase by hand.
-- **Validate and justify** (`action_generate_justification()`): Head of Studies / Deputy /
-  Director in the tutor scope of every joining student, or an administrator. Creates an
-  `ems.attendance_justification` with `ems.attendance_justification_reason_walkout`, the walkout day
-  and the justifiable students (adults, and minors whose family ratified it) not already justified
-  that day (the ones skipped are noted in the chatter), marks the task as done and moves the proposal to
-  `justified`. The task only exists when somebody can be justified. Then every student with portal
-  access gets `email_template_student_walkout_validated` (whether their absence is justified or
-  they are expected in class), the family of each justified minor (or adult sharing with it)
-  `email_template_student_walkout_family`, and the tutor a copy.
+- **Validate** (`action_validate()`): Head of Studies / Deputy / Director in the tutor scope of every
+  joining student (`_ems_user_may_validate`, the same rule as justifying them), or an administrator.
+  Justifies nothing: it marks the task as done and moves the proposal to `validated`. The task only
+  exists when somebody joins. Then every student with portal access gets
+  `email_template_student_walkout_validated`, the family of each minor who joins (ratified or not) and
+  of each adult who joins and shares with it `email_template_student_walkout_family` (for information,
+  nothing to do), and the tutor a copy. The justification reason `attendance_justification_reason_walkout`
+  stays in the catalog for justifications made by hand (e.g. a whole group's strike day, issue #795).
 - **Student emails during school hours.** Every email to students goes through
   `_ems_mail_students`, which sets `mail.mail.scheduled_date` (Odoo's own mail queue sends it then)
   to `ems.group._ems_school_send_time()` of the student's main group (unless the proposal counts
@@ -350,6 +374,35 @@ flowchart TD
   class of that weekday in its schedule (`resource.calendar.attendance.group_ids`): one search per
   group, not one per student. A group with no schedule gets it at once. The tutor's copy waits for
   the same moment; the minute and the family emails are sent at once.
+
+---
+
+## The roll-calls of the walkout day (issue #844)
+
+| Moment | What happens to the session lines of the walkout day | Method |
+|--------|------|------|
+| Joining closes, the group supports it | Lines already taken of every student who joins: archived with `not_expected_reason = 'walkout'` (not those with strikes); lines of students who no longer join (after an extension): back on the roll-call | `ems.student_walkout._ems_apply_walkout_lines()` |
+| A roll-call of that day is taken afterwards | The student starts off it with the reason | `res.partner._ems_not_expected_reasons()` (override in `student_walkout_attendance.py`, one search per roster) |
+| The teacher puts a student back (they came) | Active, reason cleared | `ems.attendance_session_line.write()` (#644) |
+| The teacher removes them again (put back by mistake) | Any reason that still applies comes back with it (also an expected withdrawal or a convalidation), and so does its notice | `write()` → `_ems_current_not_expected_vals()` |
+| Not validated, or validation undone | Back on the roll-call as absences, families of past days not emailed | `_ems_restore_walkout_lines()` |
+
+**Who is told.** Archived lines are left out of reports and notifications (#537), with one exception:
+a line off the roll-call for a walkout its student joins as a **minor without the family's
+ratification** is notifiable (`ems.attendance_session_line.status_is_notificable()` →
+`_ems_unratified_walkout_lines()`, one search per day). The session's creation collects its archived
+lines too, so the notice is created with the usual delay and cancelled or rectified like any absence's
+when the teacher puts the student back. `ems.attendance_issue_status.not_expected_reason` keeps a copy
+of the reason, and `mail_attendance_issue_status_family` / `_student` then say, for information only,
+that the student did not attend that class because they joined the collective decision not to attend
+class of their group, that the school must tell the families of minors, and that it is neither an
+absence nor a sanction. The tutor's daily summary shows it as such. The roll-call label adds "not
+ratified by the family: it will be told", so the teacher knows.
+
+**Cost.** Creating a session adds one indexed search on `ems_student_walkout_line` (by student, joined
+to its walkout's date and state) for the whole roster, plus one more per day when there are archived
+walkout lines to check; closing a walkout, two searches on the session lines of its day for the whole
+call, then one write per line found (a group of 30 with 6 classes: at most 180 writes, once).
 
 ---
 
@@ -372,11 +425,7 @@ tutor, `rule_student_walkout_no_tutor` (Heads of Studies). The wizard is open to
 may act is checked in `_ems_check_reject`, and the proposal is written with `sudo()` afterwards.
 
 **The administrator is at the top** (`ems.base.get_user_is_top_admin()`: `base.group_system` or
-`ems.group_academic_admin`): both abort, validate and undo, outside the hierarchy. The system
-administrator has no rights on `ems.attendance_justification` of their own, so for them the walkout
-creates and removes its justification as the superuser (`_ems_justifications()`, `with_user`, since
-the justification's own checks read `env.user`), and the form stays on the proposal instead of opening
-the justification.
+`ems.group_academic_admin`): both abort, validate and undo, outside the hierarchy.
 
 Nobody edits a proposal or its lines by hand in the backend: they come from the portal and the
 proposal's own methods.

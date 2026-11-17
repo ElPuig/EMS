@@ -2,6 +2,32 @@
 <odoo>
     <!-- Issue #800: student walkout calls on the portal (controllers/portal_student_walkout.py). -->
 
+    <!-- Issue #844: what was just saved, in a pop-up (static/src/js/frontend/walkout_saved_modal.js opens
+         it on load), so nobody thinks nothing happened. `saved`: vote, join, extend, ratified, refused. -->
+    <template id="portal_student_walkout_saved_modal" name="Student walkout saved">
+        <div t-if="saved" class="modal o_ems_walkout_saved_modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="fa fa-check-circle text-success me-2"/>Saved</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"/>
+                    </div>
+                    <div class="modal-body">
+                        <t t-if="saved == 'vote'">Your vote is saved. It is anonymous and cannot be changed. If the group supports the walkout, you will get an email to say whether you join it.</t>
+                        <t t-elif="saved == 'join' and line.joins">Your answer is saved: you join the walkout. Your name will appear in the minute. You can change your answer until <t t-esc="walkout.format_local_datetime(walkout.join_until)"/>.</t>
+                        <t t-elif="saved == 'join'">Your answer is saved: you do not join the walkout, so you are expected in class that day. You can change your answer until <t t-esc="walkout.format_local_datetime(walkout.join_until)"/>.</t>
+                        <t t-elif="saved == 'extend'">The joining has been extended until <t t-esc="walkout.format_local_datetime(walkout.join_until)"/>. The students of the group are told.</t>
+                        <t t-elif="saved == 'ratified'">Thank you: you have ratified it. There is nothing else to do: the rest is automatic.</t>
+                        <t t-elif="saved == 'refused'">Your answer is saved. You will be told of each class they do not attend that day, for information only.</t>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
     <template id="portal_student_walkout_error" name="Student walkout error">
         <div t-if="error_message" class="alert alert-danger mb-3 o_ems_walkout_error">
             <i class="fa fa-exclamation-triangle me-1"/> <t t-esc="error_message"/>
@@ -35,7 +61,7 @@
                         <span t-elif="walkout.state == 'joining'" class="badge text-bg-info">Joining</span>
                         <span t-elif="walkout.state == 'rejected' and walkout.rejected_from_state in ('voting', 'joining')" class="badge text-bg-danger">Aborted</span>
                         <span t-elif="walkout.state == 'rejected'" class="badge text-bg-danger">Not validated</span>
-                        <span t-elif="walkout.state == 'justified'" class="badge text-bg-success">Validated</span>
+                        <span t-elif="walkout.state == 'validated'" class="badge text-bg-success">Validated</span>
                         <span t-elif="walkout.state == 'cancelled'" class="badge text-bg-light">Cancelled</span>
                         <span t-else="" class="badge text-bg-secondary">Closed</span>
                     </a>
@@ -96,14 +122,12 @@
                 <div t-if="walkout.state == 'rejected'" class="alert alert-danger mb-3 o_ems_walkout_rejected">
                     <p class="mb-1"><i class="fa fa-times-circle me-1"/>
                         <t t-if="walkout.rejected_from_state in ('voting', 'joining')">This proposal has been aborted:</t>
-                        <t t-elif="walkout.rejected_from_state == 'justified'">The Head of Studies has withdrawn the validation of this walkout:</t>
+                        <t t-elif="walkout.rejected_from_state == 'validated'">The Head of Studies has withdrawn the validation of this walkout:</t>
                         <t t-else="">The Head of Studies has not validated this walkout:</t>
                         <strong t-esc="walkout.rejection_reason_id.name"/></p>
                     <p t-if="walkout.rejection_details" class="mb-0" t-esc="walkout.rejection_details"/>
                 </div>
-                <div t-if="saved" class="alert alert-success mb-3 o_ems_walkout_saved">
-                    <i class="fa fa-check-circle me-1"/> Saved.
-                </div>
+                <t t-call="ems.portal_student_walkout_saved_modal"/>
 
                 <div class="card shadow-sm mb-4">
                     <div class="card-body">
@@ -152,15 +176,23 @@
                 </div>
 
                 <!-- Phase 2, once the group supports it: each student says whether they join, by name. -->
+                <!-- Issue #844: once answered, the form is folded away under the answer, which can still
+                     be changed while joining lasts. -->
                 <div t-if="can_join" class="card shadow-sm mb-4 o_ems_walkout_join">
                     <div class="card-header bg-ems-primary text-white"><strong>Do you join the walkout?</strong></div>
-                    <form t-attf-action="/my/vagues/#{walkout.id}/suma" method="post" class="card-body">
+                    <div t-if="line.join_answered" class="card-body pb-0 o_ems_walkout_join_answer">
+                        <p class="mb-2">Your answer: <strong t-if="line.joins">Yes, I join it</strong><strong t-else="">No</strong></p>
+                        <button type="button" class="btn btn-outline-primary btn-sm mb-3 o_ems_walkout_join_change"
+                                data-bs-toggle="collapse" data-bs-target="#ems_walkout_join_form">Change my answer</button>
+                    </div>
+                    <form id="ems_walkout_join_form" t-attf-action="/my/vagues/#{walkout.id}/suma" method="post"
+                          t-attf-class="card-body #{'collapse' if line.join_answered else ''}">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <p class="small">
                             The group supports the walkout (<t t-esc="walkout.group_yes_count"/> yes,
                             <t t-esc="walkout.group_no_count"/> no, <t t-esc="walkout.group_abstain_count"/> abstentions).
                         </p>
-                        <p class="text-muted small">Your name appears in the minute, and only the students who join have their absence justified that day. You can change your answer until <t t-esc="walkout.format_local_datetime(walkout.join_until)"/>.</p>
+                        <p class="text-muted small">Joining the collective decision not to attend class is your own decision and nobody can revoke it: the classes of that day do not count as absences, and your name appears in the minute. If you are a minor, your family is asked to ratify it, only to know that it is aware and agrees. You can change your answer until <t t-esc="walkout.format_local_datetime(walkout.join_until)"/>.</p>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="joins" id="joins_yes" value="yes" required="required" t-att-checked="line.join_answered and line.joins"/>
                             <label class="form-check-label" for="joins_yes">Yes, I join it</label>
@@ -172,18 +204,19 @@
                         <button type="submit" class="btn btn-primary o_ems_walkout_join_send">Send</button>
                     </form>
                 </div>
-                <!-- A minor who joins: their family ratifies it (Decret 102/2010, art. 24.2). -->
+                <!-- A minor who joins: their family is asked to ratify it (Decret 102/2010, art. 24.2), only
+                     to know that it is aware and agrees (issue #844). -->
                 <div t-if="line and line.joins and line.needs_ratification"
-                     t-attf-class="alert mb-4 o_ems_walkout_ratification alert-#{'success' if line.ratification == 'ratified' else 'danger' if line.ratification == 'refused' else 'warning'}">
-                    <t t-if="line.ratification == 'ratified'">Your family has ratified that you join the walkout.</t>
-                    <t t-elif="line.ratification == 'refused'">Your family has not ratified that you join the walkout: your absence that day will not be justified.</t>
-                    <t t-else="">As you are a minor, your family has to ratify on the portal that you join the walkout, while joining lasts. Without it, your absence that day is not justified.</t>
+                     t-attf-class="alert mb-4 o_ems_walkout_ratification alert-#{'success' if line.ratification == 'ratified' else 'info'}">
+                    <t t-if="line.ratification == 'ratified'">Your family has ratified that you join: it is aware and agrees.</t>
+                    <t t-elif="line.ratification == 'refused'">Your family has not ratified that you join. This does not change your decision: the school will only tell your family, for information, of each class you do not attend that day.</t>
+                    <t t-else="">As you are a minor, your family is asked on the portal, while joining lasts, to ratify that you join: only to know that it is aware and agrees. If it does not, it will be told of each class you do not attend that day, for information.</t>
                 </div>
                 <!-- Issue #830: without portal access at the proposal a student does not vote, but joins. -->
                 <div t-if="line and not line.has_portal and walkout.state == 'voting'" class="alert alert-info">You had no access to the portal when the walkout was proposed, so you cannot vote. If the group supports it, you will be able to say whether you join.</div>
 
                 <!-- The result, once closed. -->
-                <div t-if="walkout.state in ('closed', 'justified')" class="card shadow-sm mb-4 o_ems_walkout_result">
+                <div t-if="walkout.state in ('closed', 'validated')" class="card shadow-sm mb-4 o_ems_walkout_result">
                     <div class="card-header"><strong>Result</strong></div>
                     <div class="card-body">
                         <p class="mb-1">
@@ -192,13 +225,12 @@
                         </p>
                         <p class="mb-1">
                             <strong t-if="walkout.group_supports">The group supports the walkout.</strong>
-                            <strong t-else="">The group does not support the walkout: nobody's absence is justified.</strong>
+                            <strong t-else="">The group does not support the walkout: everybody is expected in class that day.</strong>
                         </p>
                         <p class="mb-1" t-if="walkout.group_supports and line">
-                            <t t-if="line.joins and not line.justifiable">You join it, but your family has not ratified it: your absence that day is not justified.</t>
-                            <t t-elif="line.joins and walkout.state == 'justified'">You join it: the Head of Studies has validated the walkout and your absence that day is justified.</t>
-                            <t t-elif="line.joins">You join it: the Head of Studies has the minute and decides whether to validate the walkout and justify your absence that day.</t>
-                            <t t-else="">You do not join it.</t>
+                            <t t-if="line.joins and walkout.state == 'validated'">You join it: the Head of Studies has validated the walkout, and the classes of that day do not count as absences.</t>
+                            <t t-elif="line.joins">You join it: the classes of that day do not count as absences. The Head of Studies has the minute and decides whether to validate the walkout.</t>
+                            <t t-else="">You do not join it: you are expected in class that day.</t>
                         </p>
                         <p class="mb-0" t-if="walkout.pdf_attachment_id">
                             <a t-attf-href="/my/vagues/#{walkout.id}/fitxer/#{walkout.pdf_attachment_id.id}">
@@ -259,12 +291,13 @@
             <div class="container mt-4 o_ems_portal_walkout_family">
                 <h3 class="mb-3">Student walkouts</h3>
                 <t t-call="ems.portal_student_walkout_error"/>
-                <div t-if="saved" class="alert alert-success mb-3 o_ems_walkout_saved">
-                    <i class="fa fa-check-circle me-1"/> Saved.
-                </div>
+                <t t-call="ems.portal_student_walkout_saved_modal"/>
                 <p class="text-muted small">
-                    A minor's absence on the day of a student walkout is only justified if the family ratifies that
-                    they join it. You can change your answer until joining ends.
+                    The school only informs you: joining the collective decision not to attend class of their group is
+                    the student's own decision, nobody can revoke it, and the classes of that day do not count as
+                    absences. Ratifying it only tells the school that you are aware and agree; once ratified, you do not
+                    need to do anything else. If you do not ratify it, you will be told of each class they do not attend
+                    that day, for information. You can change your answer until joining ends.
                 </p>
                 <div t-foreach="lines" t-as="line" class="card shadow-sm mb-3 o_ems_walkout_ratify">
                     <t t-set="walkout" t-value="line.walkout_id"/>
@@ -274,26 +307,35 @@
                     </div>
                     <div class="card-body">
                         <p class="mb-2">
-                            <t t-esc="line.student_id.name"/> has said that they join the student walkout, which their
-                            group has voted to support.
-                            <t t-if="line.ratification">Your answer: <strong t-esc="ratification_labels.get(line.ratification)"/>.</t>
+                            <t t-esc="line.student_id.name"/> has said that they join the collective decision not to
+                            attend class of their group.
                         </p>
+                        <t t-set="answered" t-value="line.ratification in ('ratified', 'refused')"/>
                         <t t-if="walkout._ems_phase_open('joining')">
-                            <p class="small text-muted mb-2">You can answer until <t t-esc="walkout.format_local_datetime(walkout.join_until)"/>.</p>
-                            <form t-attf-action="/my/vagues/ratifica/#{line.id}" method="post" class="d-inline">
-                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                <input type="hidden" name="decision" value="yes"/>
-                                <button type="submit" class="btn btn-primary btn-sm o_ems_walkout_ratify_yes">I ratify it</button>
-                            </form>
-                            <form t-attf-action="/my/vagues/ratifica/#{line.id}" method="post" class="d-inline ms-2">
-                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                <input type="hidden" name="decision" value="no"/>
-                                <button type="submit" class="btn btn-outline-danger btn-sm o_ems_walkout_ratify_no">I do not ratify it</button>
-                            </form>
+                            <!-- Issue #844: once answered, the buttons are folded away under the answer. -->
+                            <div t-if="answered" class="o_ems_walkout_ratify_answer">
+                                <p class="mb-2">Your answer: <strong t-esc="ratification_labels.get(line.ratification)"/>.</p>
+                                <button type="button" class="btn btn-outline-primary btn-sm mb-2 o_ems_walkout_ratify_change"
+                                        data-bs-toggle="collapse" t-attf-data-bs-target="#ems_walkout_ratify_#{line.id}">Change my answer</button>
+                            </div>
+                            <div t-attf-id="ems_walkout_ratify_#{line.id}" t-attf-class="#{'collapse' if answered else ''}">
+                                <p class="small text-muted mb-2">You can answer until <t t-esc="walkout.format_local_datetime(walkout.join_until)"/>.</p>
+                                <form t-attf-action="/my/vagues/ratifica/#{line.id}" method="post" class="d-inline">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <input type="hidden" name="decision" value="yes"/>
+                                    <button type="submit" class="btn btn-primary btn-sm o_ems_walkout_ratify_yes">I ratify it</button>
+                                </form>
+                                <form t-attf-action="/my/vagues/ratifica/#{line.id}" method="post" class="d-inline ms-2">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <input type="hidden" name="decision" value="no"/>
+                                    <button type="submit" class="btn btn-outline-danger btn-sm o_ems_walkout_ratify_no">I do not ratify it</button>
+                                </form>
+                            </div>
                         </t>
                         <p t-else="" class="small text-muted mb-0">
                             The time to answer is over.
-                            <t t-if="not line.justifiable">The absence that day is not justified.</t>
+                            <t t-if="line.ratification">Your answer: <strong t-esc="ratification_labels.get(line.ratification)"/>.</t>
+                            <t t-if="line.ratification != 'ratified'">You will be told of each class they do not attend that day, for information.</t>
                         </p>
                     </div>
                 </div>

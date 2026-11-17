@@ -4,9 +4,9 @@
 
 # Vagues d'estudiants
 
-Quan un sindicat d'estudiants convoca una vaga, el teu grup pot decidir al portal si hi dona suport, i cada alumne diu si s'hi suma. Si la vaga es valida, la falta dels alumnes que s'hi sumen queda justificada aquell dia.
+Quan un sindicat d'estudiants convoca una vaga, el teu grup pot decidir al portal si hi dona suport, i cada alumne diu si s'hi suma. Els alumnes que s'hi sumen no consten al passi de llista d'aquell dia: no hi falten ni hi assisteixen.
 
-Decidir col·lectivament no assistir a classe és un dret de l'alumnat a partir de 3r d'ESO, quan es comunica prèviament a la direcció del centre (LODE, article 8). A Catalunya, un alumne menor d'edat també necessita l'autorització de la seva família (Decret 102/2010, article 24.2): la família la ratifica al portal.
+És una decisió col·lectiva d'inassistència a classe de l'alumnat a partir de 3r d'ESO, comunicada prèviament a la direcció del centre (LODE, article 8). Ningú no la pot revocar, tampoc la família: el centre només n'informa. A Catalunya, es demana a la família d'un alumne menor d'edat que la ratifiqui al portal (Decret 102/2010, article 24.2), només per saber que n'està al corrent i hi està d'acord.
 
 ---
 
@@ -16,9 +16,9 @@ Decidir col·lectivament no assistir a classe és un dret de l'alumnat a partir 
 |-----|--------|
 | El delegat o el sotsdelegat del grup | Proposa la votació i hi adjunta la convocatòria del sindicat |
 | Cada alumne del grup amb accés al portal | Vota si el grup dona suport a la vaga i, si hi dona suport, diu si s'hi suma |
-| La família d'un alumne menor que s'hi suma | Ho ratifica, o no, al portal |
+| La família d'un alumne menor que s'hi suma | Ho ratifica, o no, al portal: només indica que n'està al corrent i hi està d'acord |
 | El tutor del grup | Rep un avís de cada pas i pot aturar la proposta si té un defecte de forma |
-| El cap d'estudis | Rep l'acta i valida la vaga (justifica les faltes) o no |
+| El cap d'estudis | Rep l'acta i valida la vaga o no |
 
 Només poden proposar donar suport a una vaga els grups que el centre permet (a partir de 3r d'ESO, batxillerat i formació professional).
 
@@ -59,7 +59,7 @@ Mentre la proposta està en votació o en adhesions, la seva pàgina et mostra q
 
 ## Votar (tot l'alumnat)
 
-La pàgina d'inici del portal t'avisa quan el teu grup està votant. Obre la proposta i respon **El grup dona suport a la vaga?**: **Sí**, **No** o **M'abstinc**, i fes clic a **Enviar**.
+La pàgina d'inici del portal t'avisa quan el teu grup està votant. Obre la proposta i respon **El grup dona suport a la vaga?**: **Sí**, **No** o **M'abstinc**, i fes clic a **Enviar**. Una finestra et confirma que el vot s'ha desat.
 
 ![Votació del grup sobre si dona suport a la vaga](../../assets/families/walkout-portal-vote.png)
 
@@ -67,7 +67,7 @@ La pàgina d'inici del portal t'avisa quan el teu grup està votant. Obre la pro
 - Votes **una sola vegada**: després no es pot canviar.
 - El grup dona suport a la vaga quan hi ha més vots a favor que en contra entre els vots emesos (un empat no hi dona suport).
 
-Si el grup no hi dona suport, la proposta es tanca i no es justifica la falta de ningú aquell dia.
+Si el grup no hi dona suport, la proposta es tanca i aquell dia s'espera tothom a classe.
 
 Un alumne que no tenia accés al portal quan es va proposar la vaga surt a l'acta i no vota, però, si el grup hi dona suport i obté l'accés mentre l'adhesió és oberta, pot dir si s'hi suma: rep el correu en aquell moment.
 
@@ -75,13 +75,13 @@ Un alumne que no tenia accés al portal quan es va proposar la vaga surt a l'act
 
 ## Sumar-s'hi (tot l'alumnat)
 
-Si el grup hi dona suport, reps un correu i la proposta et pregunta **Et sumes a la vaga?** Respon **Sí, m'hi sumo** o **No** i fes clic a **Enviar**. Pots canviar la resposta fins que acabin les adhesions.
+Si el grup hi dona suport, reps un correu i la proposta et pregunta **Et sumes a la vaga?** Respon **Sí, m'hi sumo** o **No** i fes clic a **Enviar**. Una finestra et confirma la resposta, i el formulari es tanca i la mostra. Pots canviar-la fins que acabin les adhesions amb **Canvia la resposta**.
 
 ![Adhesió a la vaga, amb l'avís per a un alumne menor d'edat](../../assets/families/walkout-portal-join.png)
 
 - El teu nom surt a l'acta que rep el cap d'estudis.
-- Només es justifica la falta dels alumnes que s'hi sumen, si la vaga es valida.
-- **Si ets menor d'edat**, la teva família ha de ratificar al portal que t'hi sumes, mentre durin les adhesions. Sense la ratificació, la teva falta no es justifica. La pàgina et diu si la teva família ja ho ha ratificat.
+- Les classes d'aquell dia no et compten com a faltes: no consten al passi de llista. Si la vaga no es valida, sí que hi compten.
+- **Si ets menor d'edat**, es demana a la teva família que ratifiqui al portal que t'hi sumes, mentre durin les adhesions, només per saber que n'està al corrent i hi està d'acord. Ningú no pot revocar la teva decisió. Si no ho ratifica, se l'informa de cada classe a què no assisteixis aquell dia, a títol informatiu. La pàgina et diu si la teva família ja ho ha ratificat.
 
 ---
 
@@ -101,13 +101,14 @@ Si les adhesions estan a punt d'acabar, o ja han acabat, i l'alumnat necessita m
 
 Quan el vostre fill o filla (menor de 18 anys el dia de la vaga) diu que se suma a una vaga, rebeu un correu de seguida. Al portal, la pàgina d'inici us n'avisa: feu clic a **Respon**, o obriu **Vagues d'alumnes**.
 
-Per a cada vaga, feu clic a **Ho ratifico** o **No ho ratifico**. Podeu canviar la resposta fins que acabin les adhesions (la pàgina us diu fins quan).
+Per a cada vaga, feu clic a **Ho ratifico** o **No ho ratifico**. Una finestra us confirma la resposta, i la pàgina la mostra. Podeu canviar-la amb **Canvia la resposta** fins que acabin les adhesions (la pàgina us diu fins quan).
 
 ![Pàgina de la família per ratificar que el seu fill o filla se suma a la vaga](../../assets/families/walkout-portal-family.png)
 
-- Si no ho ratifiqueu, o no responeu a temps, la falta d'aquell dia **no es justifica**. Si no ho ratifiqueu, el vostre fill o filla en rep un avís.
+- Ratificar-ho només indica al centre que n'esteu al corrent i hi esteu d'acord. És una decisió col·lectiva dels alumnes que ningú no pot revocar, i les classes d'aquell dia no compten com a faltes. **Un cop ratificat, no cal que feu res més**: la resta és automàtic.
+- Si no ho ratifiqueu, o no responeu a temps, rebreu un avís de cada classe a què no assisteixi aquell dia, només a títol informatiu. Si no ho ratifiqueu, el vostre fill o filla també en rep un avís.
 - Per ratificar-ho necessiteu accés al portal. Si no en teniu, demaneu-lo al centre amb temps.
-- Quan la vaga es valida, rebeu un correu que confirma que la falta està justificada. Si, en canvi, la proposta s'avorta o no es valida, també se us avisa.
+- Quan la vaga es valida, rebeu un correu informatiu. Si, en canvi, la proposta s'avorta o no es valida, també se us avisa.
 
 ---
 
@@ -115,8 +116,8 @@ Per a cada vaga, feu clic a **Ho ratifico** o **No ho ratifico**. Podeu canviar 
 
 L'acta arriba al cap d'estudis, que decideix si valida la vaga:
 
-- **Validada**: es justifica aquell dia la falta dels alumnes que s'hi sumen (els majors d'edat, i els menors la família dels quals ho ha ratificat). Se n'avisa tot l'alumnat, i també la família de cada alumne menor amb la falta justificada.
-- **No validada**: no es justifica la falta de ningú. Se n'avisa tot l'alumnat, amb el motiu.
+- **Validada**: els alumnes que s'hi sumen continuen sense constar al passi de llista d'aquell dia. Se n'avisa tot l'alumnat, i també la família de cada alumne menor que s'hi suma.
+- **No validada**: les classes d'aquell dia dels alumnes que s'hi sumen compten com a faltes. Se n'avisa tot l'alumnat, amb el motiu.
 
 Mentrestant, el tutor del grup pot **avortar** la proposta mentre està en votació o en adhesions, només per un defecte de forma (per exemple, si no hi ha cap convocatòria oficial d'un sindicat d'estudiants per a aquell dia). Se n'avisa tot l'alumnat, amb el motiu.
 
@@ -129,7 +130,7 @@ L'acta (PDF) és a la pàgina de la proposta un cop tancada.
 | **En votació** | El grup vota si dona suport a la vaga |
 | **Adhesions** | El grup hi dona suport: cada alumne diu si s'hi suma |
 | **Tancada** | El cap d'estudis té l'acta i decideix |
-| **Validada** | La falta dels qui s'hi sumen està justificada |
+| **Validada** | Els qui s'hi sumen no consten al passi de llista d'aquell dia |
 | **Avortada** | El tutor ha aturat la proposta, amb un motiu |
 | **No validada** | El cap d'estudis no l'ha validat, amb un motiu |
 | **Anul·lada** | El delegat l'ha anul·lat |

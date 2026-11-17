@@ -10,7 +10,7 @@ from .test_student_walkout import create_walkout_fixtures, end_phase, open_walko
 class TestStudentWalkoutTour(HttpCase):
     """Issue #800: the group's tutor (the least privileged role that aborts a walkout call) aborts a
     call being voted with a reason; the Head of Studies (the one who validates) validates a closed
-    one. List and form."""
+    one. List and form. Issue #844: a student joins and a family ratifies on the portal."""
 
     @classmethod
     def setUpClass(cls):
@@ -46,8 +46,28 @@ class TestStudentWalkoutTour(HttpCase):
 
     def test_head_of_studies_validates(self):
         self.start_tour("/odoo", "ems_student_walkout_validate", login=self.head_of_studies.login)
-        self.assertEqual(self.walkout.state, 'justified')
-        self.assertEqual(self.walkout.justification_id.student_ids, self.delegate)
+        self.assertEqual(self.walkout.state, 'validated')
+
+    def _joining(self):
+        walkout = open_walkout(self, days=9)
+        for student in (self.delegate, self.subdelegate):
+            walkout._ems_portal_vote(student, 'yes')
+        self.assertEqual(walkout.state, 'joining')
+        return walkout
+
+    def test_student_joins_on_the_portal(self):
+        """Issue #844: the form closes on the answer and a pop-up says it is saved."""
+        walkout = self._joining()
+        login = self.classmate.user_ids.login
+        self.start_tour(f"/my/vagues/{walkout.id}", "ems_student_walkout_portal_join", login=login)
+        self.assertEqual(walkout.joining_student_ids, self.classmate)
+
+    def test_family_ratifies_on_the_portal(self):
+        walkout = self._joining()
+        walkout._ems_portal_join(self.classmate, True)
+        self.start_tour("/my/vagues", "ems_student_walkout_portal_ratify", login=self.family_user.login)
+        line = walkout.line_ids.filtered(lambda line: line.student_id == self.classmate)
+        self.assertEqual(line.ratification, 'ratified')
 
     def test_settings_admin_sets_the_levels(self):
         settings_admin = create_role_user(self, 'settings_admin', 'test_walkout_tour_settings_admin')

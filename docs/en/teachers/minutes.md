@@ -5,7 +5,7 @@
 # Meeting minutes
 
 Minutes are written in **Meetings → Minutes and records**. The screen opens on yours: the
-ones you wrote, the ones of meetings you attended and the ones awaiting your approval, for the current
+ones you wrote, the ones of meetings you were convened to (whether you came or not) and the ones awaiting your approval, for the current
 year. Removing a facet in the search bar shows more.
 
 If you are a Department or Seminar Chief, or Head or Deputy Head of Studies, you also see the minutes of the
@@ -176,6 +176,8 @@ under the *Awaiting my approval* facet, and also gets an *Approve the minute* ta
 - Records **who approved it and when**.
 - Generates the **PDF**, kept as an attachment on the minute.
 - Makes the minute **read-only**.
+- Emails the approved minute to everybody convened, whether they came or not: the staff, a link to its PDF;
+  the guests from outside EMS, the PDF attached. A meeting held by email gets it by its own thread.
 
 ### Correcting an approved minute
 
@@ -213,10 +215,10 @@ answering an email, or from EMS.
    a mailing list, and within a few minutes the answer is written under **Precs i preguntes**, with its
    author and date and without the text it quotes. Whoever answers moves to the **attendees** by
    themselves. A message written in the minute's history counts too.
-4. To say something about one item in particular, open the minute in EMS and use **Actions → Add an
-   intervention**: choose the **item to discuss** and write it. It is written under that item, and it
-   reaches everybody by email too, saying which item it is about. Left without an item, it goes under
-   **Precs i preguntes**.
+4. To say something about particular items, open the minute in EMS and use **Actions → Add
+   interventions**: there is one box per item to discuss and one for **Precs i preguntes**. Write in the
+   ones you want and leave the rest empty. Each text is written under its item, and everything reaches
+   everybody in a single email, saying which item each part is about.
 5. Whoever writes the minute can retouch everything written in it, and correct the lists: whoever is
    taken off them stops getting the thread.
 6. When the deadline is over, write the agreements and the pending topics, and **Actions → Send for

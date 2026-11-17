@@ -23,5 +23,28 @@
                 <p style="margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;">If anything needs correcting, please reply to this email.</p>
             </div>
         </template>
+
+        <!-- The approved minute, emailed to everybody convened once it is approved
+             (ems.minute._ems_send_approved, issue #822): the staff get a link to its approved PDF,
+             the guests from outside EMS get it attached; a meeting held by email gets it by its thread. -->
+        <template id="minute_approved_email" name="Minute: approved minute for the participants">
+            <div>
+                <t t-call="ems.minute_mail_heading">
+                    <t t-set="tag">Approved minute</t>
+                </t>
+                <p style="margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;">The minute of the meeting has been approved. This is its final version.</p>
+                <t t-set="date_title">Date</t>
+                <t t-set="approver_title">Approved by</t>
+                <t t-set="approval_title">Approved on</t>
+                <t t-call="ems.minute_mail_facts">
+                    <t t-set="facts" t-value="[fact for fact in [(date_title, date_label), (approver_title, approver_name), (approval_title, approval_label)] if fact[1]]"/>
+                </t>
+                <t t-if="pdf_url" t-call="ems.minute_mail_button">
+                    <t t-set="url" t-value="pdf_url"/>
+                    <t t-set="label">Read the approved minute (PDF)</t>
+                </t>
+                <p t-else="" style="margin:0 0 12px 0;font-size:14px;line-height:22px;color:#596679;">The approved minute is attached to this email as a PDF.</p>
+            </div>
+        </template>
     </data>
 </odoo>

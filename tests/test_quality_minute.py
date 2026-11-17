@@ -4,10 +4,12 @@ from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 from googleapiclient.errors import HttpError
+from lxml import etree
 
 from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import Form, TransactionCase
+from odoo.tools.safe_eval import safe_eval
 
 from .common import course_monday, create_absence, create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email
 
@@ -686,6 +688,30 @@ class TestQualityMinute(TransactionCase):
         minute.action_approve()
         with self.assertRaises(UserError):
             minute.action_send_draft()
+
+    def test_the_approved_minute_goes_to_everybody_convened(self):
+        """Issue #822: approving closes the process with the approved PDF for every participant,
+        whatever the modality - a link for the staff, the file attached for a guest."""
+        minute = self._held_minute()
+        minute.action_submit()
+        minute.action_approve()
+        mails = self.env['mail.mail'].sudo().search([('model', '=', 'ems.minute'), ('res_id', '=', minute.id),
+                                                     ('subject', 'like', 'Approved minute')])
+        staff = mails.filtered(lambda mail: 'minute.writer@example.com' in mail.email_to)
+        self.assertIn('minute.absent@example.com', staff.email_to, "whoever was absent gets it too")
+        self.assertIn(f'/web/content/{minute.pdf_attachment_id.id}', staff.body_html, "the approved PDF, not a new rendering")
+        guest = mails.filtered(lambda mail: 'ana.guest@example.com' in mail.email_to)
+        self.assertEqual(guest.attachment_ids.mimetype, 'application/pdf')
+        self.assertNotIn('/web/content', guest.body_html)
+        self.assertTrue(minute.message_ids.filtered(lambda message: 'Approved minute sent to 4 people' in (message.body or '')))
+
+    def test_a_participant_who_missed_the_meeting_finds_it_among_theirs(self):
+        """The default "Mine" filter counts whoever was convened, whether they came or not."""
+        minute = self._held_minute()
+        absentee = minute.absentee_ids
+        arch = etree.fromstring(self.env.ref('ems.view_minute_search').arch)
+        domain = safe_eval(arch.xpath("//filter[@name='mine']")[0].get('domain'), {'uid': absentee.user_id.id})
+        self.assertIn(minute, self.env['ems.minute'].search(domain))
 
     # --- Deleting ---------------------------------------------------------------------------------
 

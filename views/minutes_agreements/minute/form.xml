@@ -40,7 +40,7 @@
                                     invisible="not can_edit or state not in ('meeting', 'to_approve') or type_kind != 'meeting' or modality != 'email'"
                                     confirm="The draft goes to every participant by the thread, with a link to its PDF; whatever they answer stays in the minute's history. Send it?"/>
                             <!-- A participant of a meeting held by email, on an item or in general (issue #822). -->
-                            <button name="action_open_intervention_wizard" string="Add an intervention" type="object" invisible="not can_intervene"/>
+                            <button name="action_open_intervention_wizard" string="Add interventions" type="object" invisible="not can_intervene"/>
                             <!-- Only for whoever gives the approval (can_approve), not for whoever can edit. -->
                             <button name="action_approve" string="Approve" type="object" invisible="not can_approve or state != 'to_approve'"
                                     confirm="Once approved, its PDF is filed and the minute can only be changed by undoing the approval. Approve it?"/>

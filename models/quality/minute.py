@@ -1014,8 +1014,10 @@ class EmsMinute(models.Model):
         answers, sent to the catchall address, come back to the minute. Not an intervention."""
         self.ensure_one()
         body = self.env['ir.qweb']._render(template, values, minimal_qcontext=True)
-        return self.with_context(ems_thread_own_post=True).message_post(
-            body=body, subject=subject, message_type='comment', subtype_xmlid='mail.mt_comment')
+        # As whoever sends it, though they may no longer write the minute (the approver, once approved).
+        return self.sudo().with_context(ems_thread_own_post=True).message_post(
+            body=body, subject=subject, message_type='comment', subtype_xmlid='mail.mt_comment',
+            author_id=self.env.user.partner_id.id)
 
     def _ems_thread_subscribe(self):
         """Make everybody convened with an email follow the thread, for its discussions only (not its
@@ -1149,7 +1151,7 @@ class EmsMinute(models.Model):
             raise UserError(_("Only the people convened can take part, while the meeting held by email is open."))
         return {
             'type': 'ir.actions.act_window',
-            'name': _("Add an intervention"),
+            'name': _("Add interventions"),
             'res_model': 'ems.minute.intervention.wizard',
             'view_mode': 'form',
             'target': 'new',
@@ -1353,7 +1355,44 @@ class EmsMinute(models.Model):
                 minute.approver_employee_id = employee
             # Approved again after being reopened: the date says when the changes were approved.
             minute.approval_date = self.env['ems.datetime_utils'].get_local_today()
-        return super().action_approve()
+        result = super().action_approve()
+        self._ems_send_approved()
+        return result
+
+    def _ems_send_approved(self):
+        """Tell everybody convened that the minute of their meeting is approved, with its approved
+        PDF, which closes the process: the staff get a link to it, the guests from outside EMS get it
+        attached, and a meeting held by email gets it by its own thread."""
+        for minute in self.filtered(lambda item: item.type_kind == 'meeting' and item.pdf_attachment_id):
+            staff, guests = minute._ems_draft_recipients()
+            if not staff and not guests:
+                continue
+            centre = minute.with_env(minute.env['res.company']._ems_centre_env())
+            date_label = format_date(centre.env, centre.date)
+            values = {
+                'minute': centre,
+                'date_label': date_label,
+                'approver_name': centre.approver_employee_id.name or centre.approver_role_id.name,
+                'approval_label': format_date(centre.env, centre.approval_date),
+                'pdf_url': f"{centre.get_base_url()}/web/content/{minute.sudo().pdf_attachment_id.id}?download=false",
+            }
+            subject = centre.env._("Approved minute: %(name)s (%(date)s)", name=centre.name, date=date_label)
+            if minute.modality == 'email':
+                minute._ems_thread_subscribe()
+                centre._ems_thread_post('ems.minute_approved_email', subject, values)
+                count = len(minute.message_partner_ids - self.env.user.partner_id)
+            else:
+                mails = self.env['mail.mail'].sudo()
+                if staff:
+                    mails |= centre._ems_meeting_mail('ems.minute_approved_email', subject, values,
+                                                      ", ".join(staff.mapped('work_email')))
+                pdf = minute.sudo().pdf_attachment_id.raw
+                for guest in guests:
+                    mails |= centre._ems_meeting_mail('ems.minute_approved_email', subject, {**values, 'pdf_url': False},
+                                                      formataddr((f"{guest.name} {guest.surname}", guest.email)), pdf, staff=False)
+                mails.send()
+                count = len(staff) + len(guests)
+            minute.sudo().message_post(body=_("Approved minute sent to %s people.", count), author_id=self.env.user.partner_id.id)
 
     def action_reopen(self):
         """Take back the approval to change the minute (issue #756): it goes back to waiting for
@@ -1428,32 +1467,58 @@ class EmsMinuteSubmitWizard(models.TransientModel):
 
 
 class EmsMinuteInterventionWizard(models.TransientModel):
-    """A participant's intervention in a meeting held by email, written in EMS (issue #822): on an
-    item of the agenda, or in general. It goes into the minute and, by the thread, to everybody."""
+    """A participant's interventions in a meeting held by email, written in EMS (issue #822): on
+    any of the items of the agenda and in general, all at once. They go into the minute and, in a
+    single email by the thread, to everybody."""
     _name = "ems.minute.intervention.wizard"
-    _description = "Add an intervention to a meeting held by email."
+    _description = "Add interventions to a meeting held by email."
 
     minute_id = fields.Many2one(string="Minute", comodel_name="ems.minute", required=True, ondelete='cascade')
-    agenda_id = fields.Many2one(
-        string="Item to discuss", comodel_name="ems.minute.agenda", domain="[('minute_id', '=', minute_id)]",
-        help="Leave it empty for something about no item in particular: it goes under any other business.")
-    body = fields.Html(string="Intervention", required=True)
+    line_ids = fields.One2many(string="Interventions", comodel_name="ems.minute.intervention.wizard.line", inverse_name="wizard_id")
+
+    @api.model
+    def default_get(self, fields_list):
+        """One block per item of the agenda, in its order, and one for any other business."""
+        values = super().default_get(fields_list)
+        minute = self.env['ems.minute'].browse(values.get('minute_id'))
+        if minute and 'line_ids' in fields_list:
+            requests = minute.section_value_ids.filtered(lambda value: value.kind == 'requests')[:1]
+            values['line_ids'] = [
+                (0, 0, {'agenda_id': item.id, 'title': f"{position}. {item.name}"})
+                for position, item in enumerate(minute.agenda_ids.sorted('sequence'), start=1)
+            ] + [(0, 0, {'agenda_id': False, 'title': requests.name or _("Any other business")})]
+        return values
 
     def action_confirm(self):
         self.ensure_one()
         minute = self.minute_id
         if not minute.can_intervene:
             raise UserError(_("Only the people convened can take part, while the meeting held by email is open."))
-        if is_html_empty(self.body):
-            raise UserError(_("Write the intervention first."))
+        written = self.line_ids.filtered(lambda line: not is_html_empty(line.body))
+        if not written:
+            raise UserError(_("Write at least one intervention first."))
         employee = self.env['hr.employee.public'].search([('user_id', '=', self.env.uid)], limit=1)
-        minute._ems_add_intervention(employee.name, fields.Datetime.now(), self.body, item=self.agenda_id, employee=employee)
-        body = self.body
-        if self.agenda_id:
-            position = minute.agenda_ids.sorted('sequence').ids.index(self.agenda_id.id) + 1
-            body = Markup('<p><strong>%s</strong></p>%s') % (
-                _("On item %(number)s: %(item)s", number=position, item=self.agenda_id.name), body)
-        # Already written into the minute: posted to the thread only so everybody gets it.
+        now = fields.Datetime.now()
+        positions = {item.id: position for position, item in enumerate(minute.agenda_ids.sorted('sequence'), start=1)}
+        parts = []
+        for line in written:
+            minute._ems_add_intervention(employee.name, now, line.body, item=line.agenda_id, employee=employee)
+            heading = (_("On item %(number)s: %(item)s", number=positions[line.agenda_id.id], item=line.agenda_id.name)
+                       if line.agenda_id else line.title)
+            parts.append(Markup('<p><strong>%s</strong></p>%s') % (heading, line.body))
+        # Already written into the minute: posted to the thread, in one message, only so everybody gets it.
         minute.sudo().with_context(ems_thread_own_post=True).message_post(
-            body=body, author_id=self.env.user.partner_id.id, message_type='comment', subtype_xmlid='mail.mt_comment')
+            body=Markup().join(parts), author_id=self.env.user.partner_id.id, message_type='comment', subtype_xmlid='mail.mt_comment')
         return {'type': 'ir.actions.act_window_close'}
+
+
+class EmsMinuteInterventionWizardLine(models.TransientModel):
+    """What a participant says on one item of the agenda, or under any other business."""
+    _name = "ems.minute.intervention.wizard.line"
+    _description = "An intervention on one item of a meeting held by email."
+    _order = "id"
+
+    wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.minute.intervention.wizard", required=True, ondelete='cascade')
+    agenda_id = fields.Many2one(string="Item to discuss", comodel_name="ems.minute.agenda", ondelete='cascade')
+    title = fields.Char(string="Item", readonly=True)
+    body = fields.Html(string="Intervention")

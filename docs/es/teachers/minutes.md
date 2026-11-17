@@ -5,7 +5,7 @@
 # Actas de reunión
 
 Las actas se redactan en **Reuniones → Actas y registros**. La pantalla se abre con las vuestras:
-las que habéis redactado, las de reuniones donde constáis como asistente y las que esperan vuestro visto
+las que habéis redactado, las de reuniones a las que se os convocó (asistierais o no) y las que esperan vuestro visto
 bueno, del curso actual. Quitando una faceta de la barra de búsqueda veis más.
 
 Si sois jefe de departamento o de seminario, o jefe de estudios o jefe de estudios adjunto, también veis las
@@ -180,6 +180,8 @@ pantalla con la faceta *Pendientes de que yo apruebe*, y también recibe la tare
 - Queda registrado **quién la ha aprobado y cuándo**.
 - Se genera el **PDF**, que queda adjunto al acta.
 - El acta **ya no se puede modificar**.
+- Se envía el acta aprobada a todas las personas convocadas, asistieran o no: al personal, un enlace a su
+  PDF; a las personas de fuera de EMS, el PDF adjunto. Una reunión por correo la recibe por su propio hilo.
 
 ### Corregir un acta aprobada
 
@@ -218,10 +220,10 @@ participantes intervienen respondiendo un correo, o desde EMS.
    como en una lista de correo, y en pocos minutos la respuesta queda escrita en **Precs i preguntes**,
    con su autor y su fecha y sin el texto que cita. Quien responde pasa solo a **Asistentes**. Un mensaje
    escrito en el historial del acta también cuenta.
-4. Para decir algo sobre un punto concreto, abrid el acta en EMS y usad **Acciones → Añadir una
-   intervención**: elegid el **punto a tratar** y escribidla. Queda escrita bajo ese punto y también llega
-   a todo el mundo por correo, indicando de qué punto se trata. Si no elegís ningún punto, va a **Precs i
-   preguntes**.
+4. Para decir algo sobre puntos concretos, abrid el acta en EMS y usad **Acciones → Añadir
+   intervenciones**: hay un recuadro para cada punto a tratar y uno para **Precs i preguntes**. Escribid
+   en los que queráis y dejad el resto en blanco. Cada texto queda escrito bajo su punto, y todo llega a
+   todo el mundo en un solo correo, indicando de qué punto se trata cada parte.
 5. Quien redacta el acta puede retocar todo lo que se ha escrito en ella y corregir las listas: quien sale
    de ellas deja de recibir el hilo.
 6. Cuando acabe el plazo, escribid los acuerdos y los temas pendientes, y **Acciones → Enviar a aprobar**,

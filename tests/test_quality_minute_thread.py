@@ -87,9 +87,15 @@ class TestQualityMinuteThread(TransactionCase):
             sender=sender, to=catchall, parent=self._last_post(minute).message_id, number=number, text=text))
         minute.invalidate_recordset()
 
-    def _intervene(self, minute, user, text, item=None):
-        wizard = self.env['ems.minute.intervention.wizard'].with_user(user).create({
-            'minute_id': minute.id, 'agenda_id': item.id if item else False, 'body': f'<p>{text}</p>'})
+    def _intervene(self, minute, user, texts):
+        """Fill the wizard's blocks as the participant would: `texts` maps an item (or None, for any
+        other business) to what they say; the other blocks stay empty."""
+        Wizard = self.env['ems.minute.intervention.wizard'].with_user(user).with_context(default_minute_id=minute.id)
+        wizard = Wizard.create(Wizard.default_get(['minute_id', 'line_ids']))
+        for line in wizard.line_ids:
+            text = texts.get(line.agenda_id or None)
+            if text:
+                line.body = f'<p>{text}</p>'
         wizard.action_confirm()
         minute.invalidate_recordset()
 
@@ -193,7 +199,7 @@ class TestQualityMinuteThread(TransactionCase):
         self.assertTrue(minute.with_user(self.other_user).can_intervene)
         self.mail_transport.reset_mock()
 
-        self._intervene(minute, self.other_user, 'TMTH about the second item', item=second)
+        self._intervene(minute, self.other_user, {second: 'TMTH about the second item'})
 
         self.assertIn('TMTH about the second item', second.notes)
         self.assertIn(self.other.name, second.notes)
@@ -206,8 +212,29 @@ class TestQualityMinuteThread(TransactionCase):
 
     def test_a_participant_intervention_with_no_item_goes_under_any_other_business(self):
         minute = self._open()
-        self._intervene(minute, self.silent_user, 'TMTH in general')
+        self._intervene(minute, self.silent_user, {None: 'TMTH in general'})
         self.assertIn('TMTH in general', self._requests(minute))
+
+    def test_interventions_on_several_items_go_in_a_single_email(self):
+        minute = self._open()
+        first, second = minute.agenda_ids.sorted('sequence')
+        posts_before = len(minute.message_ids)
+
+        self._intervene(minute, self.other_user, {first: 'TMTH on the first', second: 'TMTH on the second', None: 'TMTH in general'})
+
+        self.assertIn('TMTH on the first', first.notes)
+        self.assertIn('TMTH on the second', second.notes)
+        self.assertIn('TMTH in general', self._requests(minute))
+        self.assertEqual(len(minute.message_ids) - posts_before, 1, "one message, so one email to everybody")
+        post = self._last_post(minute)
+        self.assertIn('On item 1: TMTH first item', post.body)
+        self.assertIn('On item 2: TMTH second item', post.body)
+        self.assertIn('TMTH in general', post.body)
+
+    def test_an_empty_wizard_adds_nothing(self):
+        minute = self._open()
+        with self.assertRaises(UserError):
+            self._intervene(minute, self.other_user, {})
 
     def test_only_the_people_convened_intervene_while_it_is_open(self):
         outsider = create_role_user(self, 'teacher', 'tmth.outsider@example.com', name='TMTH Outsider')
@@ -216,7 +243,7 @@ class TestQualityMinuteThread(TransactionCase):
         self.assertFalse(minute.with_user(self.other_user).can_intervene, "not before it is opened")
         minute.with_user(self.writer_user).action_start_meeting()
         with self.assertRaises(Exception):
-            self._intervene(minute, outsider, 'TMTH not convened')
+            self._intervene(minute, outsider, {None: 'TMTH not convened'})
 
     def test_whoever_is_taken_off_the_lists_stops_getting_the_thread(self):
         minute = self._open()
@@ -229,7 +256,7 @@ class TestQualityMinuteThread(TransactionCase):
 
     def test_answers_to_the_draft_stay_in_the_history_and_do_not_hold_the_approval(self):
         minute = self._open()
-        self._intervene(minute, self.other_user, 'TMTH I agree', item=minute.agenda_ids[:1])
+        self._intervene(minute, self.other_user, {minute.agenda_ids.sorted('sequence')[:1]: 'TMTH I agree'})
         minute.with_user(self.writer_user).action_submit()
         minute.with_user(self.writer_user).action_send_draft()
         self.assertIn('/report/pdf/ems.report_minute/', self._last_post(minute).body)
@@ -240,6 +267,10 @@ class TestQualityMinuteThread(TransactionCase):
         self.assertTrue(minute.message_ids.filtered(lambda message: 'TMTH please correct my name' in (message.body or '')))
         minute.with_user(self.writer_user).action_approve()
         self.assertEqual(minute.state, 'approved')
+        # The approved minute closes the thread: everybody gets the link to its approved PDF.
+        approved = self._last_post(minute)
+        self.assertIn(f'/web/content/{minute.pdf_attachment_id.id}', approved.body)
+        self.assertIn(self.other_user.partner_id, approved.notified_partner_ids)
 
     def test_the_pdf_prints_the_interventions(self):
         minute = self._open()

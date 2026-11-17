@@ -97,6 +97,10 @@ access is unchanged: this is only about not presenting every field as editable b
 
 ### Minutes: read-only for whoever may only read them
 
+The minutes list (`action_minute`) opens on *Mine* or *Awaiting my approval* (same filter group, so ORed),
+*Meeting minutes* and *Current course*. *Mine* covers whoever writes the minute and whoever was convened to it,
+attendee or absentee: a meeting somebody missed, or one held by email they have not answered yet, is theirs too.
+
 `ems.minute` inherits `ems.quality.can.edit` too, without the "Edit" step: a minute is written live,
 so whoever may write it gets it editable straight away. Whoever may only read it (an attendee or an
 absentee, who were both convened and get its draft; a department colleague: see `rule_minute_teacher` vs `rule_minute_teacher_write` in
@@ -181,7 +185,7 @@ stateDiagram-v2
 | Back to preparing / to the meeting / to draft | `action_back_to_draft`, `action_back_to_meeting` | whoever can write it | back to preparing is refused once its NFC session has been opened |
 | Send for approval | `action_open_submit_dialog` → `ems.minute.submit.wizard.action_confirm` → `action_submit` (an evidence record calls `action_submit` straight away) | whoever can write it | NFC attendance copied into the lists; the development composed from the items; *Approve the minute* task for the approver |
 | (meeting or waiting for approval) Send the draft to the participants | `action_send_draft`, also from the submit dialog's *Also send the draft to the participants* | whoever can write it | emails everybody convened, whether they came or not: the attendees and absentees who have a `work_email` (one message, with a link to `/report/pdf/ems.report_minute/<id>`, the draft as it stands) and each guest with an email (a message of their own with the PDF attached, having no account); a note "Draft sent to N people" |
-| Approve | `action_approve` | **whoever gives the approval** (`can_approve`) | approval date set, PDF rendered and attached; approval task done; its agreements announced (tasks and notices) |
+| Approve | `action_approve` | **whoever gives the approval** (`can_approve`) | approval date set, PDF rendered and attached; approval task done; its agreements announced (tasks and notices); the approved minute emailed to everybody convened (`_ems_send_approved()`: the staff in one message with a link to the stored PDF, `/web/content/<pdf_attachment_id>`; each guest with an email, the PDF attached; a meeting held by email by its thread) and a note "Approved minute sent to N people" |
 | (approved) Undo the approval | `action_reopen` | whoever gives the approval, whoever answers for the scope (`_ems_approver_candidates`) and whoever wrote it with their chain of command (`redactor_scope_user_ids`): `can_reopen` / `_ems_user_may_reopen` | back to `to_approve` (written with sudo, since the record rules never let anybody write an approved minute); `approval_date` and `pdf_attachment_id` cleared, the previous PDF stays attached to the record; a note in its history; the approval task comes back. Approving again sets the new date and PDF and announces its agreements again: `_ems_sync_tasks` brings the tasks in line with what the minute now says, and `_ems_queue_notice(once=True)` skips a notice a user already had in the same words (compared as plain text), so only what changed is told |
 
 "Whoever can write it" is the write rule (`rule_minute_teacher_write`): the writer and their chain of
@@ -319,12 +323,14 @@ sequenceDiagram
   quotes is skipped). The author is resolved to an employee by `work_contact_id` or user partner and moves from the
   absentees to the attendees; an answer from an address EMS does not know is written under that address and names
   nobody. The text is then plain minute content, which whoever writes the minute edits like the rest.
-- **Interventions on an item, from EMS:** `ems.minute.intervention.wizard` (Actions → Add an intervention, offered
-  while `can_intervene`: the minute is held by email, in `meeting`, and the user's employee is convened, whether
-  or not they can write the minute). It writes into the chosen item's `notes` (or the `requests` section when no
-  item is chosen) with `_ems_add_intervention()` under `sudo`, and posts the text on the thread as the user
-  ("On item N: name" when there is one) flagged `ems_thread_own_post`, so everybody gets it and it is not written
-  twice. On sending for approval, the items' notes become the development of the session as in any meeting.
+- **Interventions from EMS:** `ems.minute.intervention.wizard` (Actions → Add interventions, offered while
+  `can_intervene`: the minute is held by email, in `meeting`, and the user's employee is convened, whether or not
+  they can write the minute). `default_get` lays out one `ems.minute.intervention.wizard.line` per agenda item, in
+  its order, plus one for the `requests` section; the lines left empty are skipped. Each written line goes into its
+  item's `notes` (or the `requests` section) with `_ems_add_intervention()` under `sudo`, and all of them are posted
+  on the thread as a single message from the user ("On item N: name" before each part), flagged
+  `ems_thread_own_post`: one email to everybody, and nothing written twice. On sending for approval, the items'
+  notes become the development of the session as in any meeting.
 - **Draft:** `action_send_draft` posts `ems.minute_thread_draft_email` on the thread (`_ems_send_draft_by_thread()`,
   link to the PDF) instead of the per-recipient `mail.mail`. Whatever is answered to it (state `to_approve`) only
   stays in the chatter for the writer to apply; nothing holds the approval.

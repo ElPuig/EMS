@@ -6,7 +6,7 @@ from odoo import fields
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
 
-from .common import create_role_employee, create_role_user
+from .common import create_role_employee, create_role_user, mock_outgoing_email
 
 
 class MinuteRulesFixtures:
@@ -15,6 +15,8 @@ class MinuteRulesFixtures:
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # Approving a minute emails it to the participants: never a real delivery from a test.
+        mock_outgoing_email(cls)
         cls.type = cls.env.ref('__import__.minute_type_dep')
         cls.course = cls.env['ems.course'].search([('is_current', '=', True)], limit=1)
         cls.dep_a = cls.env['hr.department'].create({'name': 'Rules Department A'})

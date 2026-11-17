@@ -56,19 +56,10 @@ registry.category("web_tour.tours").add("ems_minute_thread_interventions", {
             trigger: "div[name='block_attendance'] .o_field_widget[name='attendee_ids'] .o_tag:contains('TMTT Other')",
             content: "Whoever answered is among the attendees",
         },
-        ...clickAction("action_open_intervention_wizard", "Add an intervention"),
+        ...clickAction("action_open_intervention_wizard", "Add interventions"),
         {
-            trigger: ".o_dialog .o_field_widget[name='agenda_id'] input",
-            content: "Choose the item it is about",
-            run: "edit TMTT item",
-        },
-        {
-            trigger: ".o-autocomplete--dropdown-item:contains('TMTT item')",
-            run: "click",
-        },
-        {
-            trigger: ".o_dialog .o_field_widget[name='body'] .odoo-editor-editable",
-            content: "Write the intervention",
+            trigger: ".o_dialog .o_ems_text_block:contains('TMTT item') .odoo-editor-editable",
+            content: "Write on the item (one block per item, and one for any other business)",
             run: "editor TMTT said on the item",
         },
         {

@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <!-- A participant's intervention in a meeting held by email, written in EMS (issue #822). -->
+    <!-- A participant's interventions in a meeting held by email, written in EMS (issue #822): one
+         block per item of the agenda and one for any other business; the ones left empty are skipped. -->
     <record id="view_minute_intervention_wizard_form" model="ir.ui.view">
         <field name="name">ems.minute.intervention.wizard.form</field>
         <field name="model">ems.minute.intervention.wizard</field>
         <field name="arch" type="xml">
             <form>
-                <p>Your intervention is written into the minute and sent to everybody taking part, as an answer to the thread would be.</p>
-                <group>
-                    <field name="minute_id" invisible="1"/>
-                    <field name="agenda_id" options="{'no_create': True, 'no_open': True}" placeholder="Any other business"/>
-                    <field name="body" widget="html"/>
-                </group>
+                <p>Write on the items you want to say something about and leave the rest empty. Everything is written into the minute and sent to everybody taking part in a single email.</p>
+                <field name="minute_id" invisible="1"/>
+                <field name="line_ids" widget="ems_text_blocks" nolabel="1" options="{'title_field': 'title', 'body_field': 'body'}">
+                    <list>
+                        <field name="agenda_id" column_invisible="1"/>
+                        <field name="title" force_save="1"/>
+                        <field name="body" widget="html" placeholder="What you want to say about it"/>
+                    </list>
+                </field>
                 <footer>
-                    <button name="action_confirm" string="Add the intervention" type="object" class="btn-primary"/>
+                    <button name="action_confirm" string="Add the interventions" type="object" class="btn-primary"/>
                     <button string="Cancel" special="cancel" class="btn-secondary"/>
                 </footer>
             </form>

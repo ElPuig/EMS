@@ -5,7 +5,7 @@
 # Actes de reunió
 
 Les actes es redacten a **Reunions → Actes i registres**. La pantalla s'obre amb les vostres: les
-que heu redactat, les de reunions on consteu com a assistent i les que esperen el vostre vistiplau, del
+que heu redactat, les de reunions a les quals se us va convocar (hi assistíssiu o no) i les que esperen el vostre vistiplau, del
 curs actual. Traient una faceta de la barra de cerca veieu més.
 
 Si sou cap de departament o de seminari, o cap d'estudis o cap d'estudis adjunt, també veieu les actes dels
@@ -178,6 +178,8 @@ pantalla amb la faceta *Pendents que jo aprovi*, i també rep la tasca *Aprovar 
 - Queda registrat **qui l'ha aprovada i quan**.
 - Es genera el **PDF**, que queda adjunt a l'acta.
 - L'acta **ja no es pot modificar**.
+- S'envia l'acta aprovada a totes les persones convocades, hi assistissin o no: al personal, un enllaç al
+  PDF; a les persones de fora d'EMS, el PDF adjunt. Una reunió per correu la rep pel seu mateix fil.
 
 ### Corregir una acta aprovada
 
@@ -215,10 +217,10 @@ participants hi intervenen responent un correu, o des d'EMS.
    en una llista de correu, i en pocs minuts la resposta queda escrita a **Precs i preguntes**, amb
    l'autor i la data i sense el text que cita. Qui respon passa sol als **Assistents**. Un missatge
    escrit a l'historial de l'acta també hi compta.
-4. Per dir alguna cosa sobre un punt concret, obriu l'acta a EMS i feu servir **Accions → Afegeix una
-   intervenció**: trieu el **punt a tractar** i escriviu-la. Queda escrita sota aquest punt i també
-   arriba a tothom per correu, indicant de quin punt es tracta. Si no hi trieu cap punt, va a **Precs i
-   preguntes**.
+4. Per dir alguna cosa sobre punts concrets, obriu l'acta a EMS i feu servir **Accions → Afegeix
+   intervencions**: hi ha un quadre per a cada punt a tractar i un per a **Precs i preguntes**. Escriviu
+   als que vulgueu i deixeu la resta en blanc. Cada text queda escrit sota el seu punt, i tot arriba a
+   tothom en un sol correu, indicant de quin punt es tracta cada part.
 5. Qui redacta l'acta pot retocar tot el que s'hi ha escrit i corregir les llistes: qui en surt deixa de
    rebre el fil.
 6. Quan s'acabi el termini, escriviu els acords i els temes pendents, i **Accions → Enviar a aprovar**,

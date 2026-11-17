@@ -200,6 +200,7 @@ ACCESS_MATRIX = {
     'ems.minute.submit.wizard': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': ''},
     'ems.minute.guest': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
     'ems.minute.intervention.wizard': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': ''},
+    'ems.minute.intervention.wizard.line': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': ''},
     'ems.minute.member.line': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
     'ems.minute.objective.line': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
     'ems.minute.pending.topic': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},

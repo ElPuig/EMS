@@ -36,7 +36,9 @@ class TestPortalStudentWalkout(HttpCase):
         self.assertIn('o_ems_walkout_calendar', form.text)
         self.assertIn('Each phase starts when its email reaches the group', form.text)
         walkout_date = self.today + timedelta(days=7)
-        self.assertIn(f'min="{fields.Date.to_string(walkout_date)}"', form.text)
+        # The earliest day needs a shorter joining; the first one with both phases whole is next Monday.
+        self.assertIn(f'min="{fields.Date.to_string(self.today + timedelta(days=4))}"', form.text)
+        self.assertIn('the joining phase will be shorter', form.text)
         response = self._post('/my/vagues/nova', walkout_date=fields.Date.to_string(walkout_date), notes='Union',
                               files=[('union_call', ('call.pdf', PDF, 'application/pdf'))])
         self.assertIn('opened=1', response.url)
@@ -46,7 +48,7 @@ class TestPortalStudentWalkout(HttpCase):
 
     def test_refused_call_shows_why(self):
         self._login(self.delegate)
-        response = self._post('/my/vagues/nova', walkout_date=fields.Date.to_string(self.today + timedelta(days=4)),
+        response = self._post('/my/vagues/nova', walkout_date=fields.Date.to_string(self.today + timedelta(days=3)),
                               files=[('union_call', ('call.pdf', PDF, 'application/pdf'))])
         self.assertIn('error=1', response.url)
         self.assertIn('too late', response.text)
@@ -238,3 +240,18 @@ class TestPortalStudentWalkout(HttpCase):
                          "Only once.")
         response = self._post(f'/my/vagues/{walkout.id}/amplia')
         self.assertIn('error=1', response.url)
+
+    def test_a_shortened_joining_warns_the_delegate(self):
+        """Issue #838: Friday is only possible with a shorter joining phase: it is created, with a warning."""
+        self._login(self.delegate)
+        friday = fields.Date.to_string(self.today + timedelta(days=4))
+        response = self._post('/my/vagues/nova', walkout_date=friday, notes='Union',
+                              files=[('union_call', ('call.pdf', PDF, 'application/pdf'))])
+        self.assertIn('opened=1', response.url)
+        self.assertIn('o_ems_walkout_join_cut', response.text)
+        self.assertIn('14.0 h at most instead of 24 h', response.text)
+        self.assertIn('up to a maximum of 24 h', response.text)
+        self._login(self.classmate)
+        walkout = self.env['ems.student_walkout'].search([('group_id', '=', self.group.id)])
+        self.assertNotIn('o_ems_walkout_join_cut', self.url_open(f'/my/vagues/{walkout.id}').text,
+                         "Only the delegates are warned.")

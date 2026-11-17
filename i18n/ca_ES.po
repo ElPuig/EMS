@@ -50636,11 +50636,6 @@ msgid "Your group votes whether it supports the walkout from"
 msgstr "El teu grup vota si dona suport a la vaga des del"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
-msgid "at the latest."
-msgstr "a tot tardar."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
 msgid ""
 "have answered).\n"
@@ -53038,12 +53033,6 @@ msgid "From the moment of the proposal"
 msgstr "Des del moment de la proposta"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/student_walkout.py:0
-msgid "It is too late to propose supporting a student walkout for %(day)s: the group vote and the joining take %(phase)s hours each and the Head of Studies must get the minute %(notice)s hours before the walkout. %(count)s A proposal made now can be for %(first)s at the earliest."
-msgstr "És massa tard per proposar donar suport a una vaga per al %(day)s: la votació del grup i les adhesions duren %(phase)s hores cadascuna i el cap d'estudis ha de rebre l'acta %(notice)s hores abans de la vaga. %(count)s Una proposta feta ara pot ser com a molt aviat per al %(first)s."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__hours_kind
 msgid "Kind of hours"
 msgstr "Tipus d'hores"
@@ -53347,3 +53336,71 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
 msgid "You can extend the joining once, until"
 msgstr "Pots ampliar les adhesions una vegada, fins al"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
+msgid "(not included), the joining phase will be shorter than"
+msgstr "(no inclòs), la fase d'adhesió serà més curta de"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "Earliest walkout day, with a shorter joining: %(day)s"
+msgstr "Primer dia possible de vaga, amb una adhesió més curta: %(day)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid ""
+"It is too late to propose supporting a student walkout for %(day)s: the "
+"group vote takes %(phase)s hours, the joining can be shortened but needs at "
+"least %(minutes)s minutes, and the Head of Studies must get the minute "
+"%(notice)s hours before the walkout. %(count)s A proposal made now can be "
+"for %(first)s at the earliest."
+msgstr ""
+"És massa tard per proposar donar suport a una vaga per al %(day)s: la "
+"votació del grup dura %(phase)s hores, l'adhesió es pot escurçar, però "
+"necessita almenys %(minutes)s minuts, i el cap d'estudis ha de rebre l'acta "
+"%(notice)s hores abans de la vaga. %(count)s Una proposta feta ara pot ser "
+"com a molt aviat per al %(first)s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "The individual joining phase will last"
+msgstr "La fase d'adhesió individual durarà com a màxim"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
+msgid "Until"
+msgstr "Fins al"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
+msgid "at the latest (less if the walkout day is close, see above)."
+msgstr "a tot tardar (menys si el dia de la vaga és proper, vegeu més amunt)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "h at most instead of"
+msgstr "h en comptes de"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "h."
+msgstr "h."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid ""
+"h. If the group support vote ends earlier because the majority has already "
+"decided, the joining phase will be extended with the time gained, up to a "
+"maximum of"
+msgstr ""
+"h. Si la votació de la fase de suport com a grup acaba abans perquè la "
+"majoria ja ha decidit, la fase d'adhesió s'allargarà amb el temps guanyat, "
+"fins a un màxim de"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
+msgid "hours, and you will be warned."
+msgstr "hores, i se t'avisarà."

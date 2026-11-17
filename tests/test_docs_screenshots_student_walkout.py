@@ -73,6 +73,11 @@ class TestDocsScreenshotsStudentWalkout(DocsScreenshotMixin, HttpCase):
         self._capture('/my/vagues', '.o_ems_portal_walkout_family', 'walkout-portal-family.png',
                       login='doc_shot_walkout_family')
 
+    def test_capture_delegate_extend(self):
+        """Issue #838: the delegate extends the joining of a closed call, once."""
+        self._capture(f'/my/vagues/{self.closed.id}', '.o_ems_walkout_extend', 'walkout-portal-extend.png',
+                      login=self._login(self.delegate))
+
     def test_capture_tutor_abort(self):
         self._capture(f'/odoo/action-ems.action_student_walkout/{self.voting.id}', '.modal-content',
                       'tutor-walkout-abort.png', login=self.tutor.login,

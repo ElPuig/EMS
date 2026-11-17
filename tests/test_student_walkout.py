@@ -222,15 +222,17 @@ class TestStudentWalkout(TransactionCase):
 
     def test_notice_in_school_hours(self):
         """Opened on Monday at 10:00: vote until Tuesday 10:00, joining until Wednesday 10:00, and the
-        minute 48 school hours before the walkout: Friday (38 hours) is too soon, the weekend does
-        not count, next Monday is the first day."""
+        minute 48 school hours before the walkout: Thursday is too soon, Friday (38 hours with a whole
+        joining) is only possible with a shorter joining, the weekend does not count and next Monday is
+        the first day with both phases whole."""
         with self.assertRaisesRegex(UserError, 'too late'):
-            open_walkout(self, days=4)
+            open_walkout(self, days=3)
         with self.assertRaisesRegex(UserError, 'school day'):
             open_walkout(self, days=5)  # Saturday
         Walkout = self.env['ems.student_walkout']
-        self.assertEqual(Walkout._ems_first_walkout_day(self._calendar(fields.Datetime.now())),
-                         self.today + timedelta(days=7))
+        calendar = self._calendar(fields.Datetime.now())
+        self.assertEqual(Walkout._ems_first_walkout_day(calendar), self.today + timedelta(days=7))
+        self.assertEqual(Walkout._ems_first_walkout_day(calendar, shortened=True), self.today + timedelta(days=4))
         self.assertTrue(open_walkout(self, days=7))
 
     def test_school_hours_cross_a_break_longer_than_the_search_window(self):
@@ -251,14 +253,30 @@ class TestStudentWalkout(TransactionCase):
 
     def test_notice_boundary_is_exact(self):
         """Opened on Monday at 00:00: the minute on Wednesday at 00:00, exactly 48 school hours before
-        Friday. A minute later, Friday is too soon."""
+        Friday, with the whole joining. Later the joining is cut to keep the notice, down to 5 minutes;
+        a minute less than that, Friday is too soon."""
         Walkout = self.env['ems.student_walkout']
         friday = self.today + timedelta(days=4)
         at_midnight = self._calendar(self._local(0, 0.0))
         self.assertEqual(at_midnight['join_until'], self._local(2, 0.0))
+        self.assertEqual(Walkout._ems_join_until_for(at_midnight, friday), self._local(2, 0.0))
         Walkout._ems_check_request_date(friday, at_midnight)
+        late = self._calendar(self._local(0, 0.0) + timedelta(minutes=1))
+        self.assertEqual(Walkout._ems_join_until_for(late, friday), self._local(2, 0.0), "Cut by a minute.")
+        Walkout._ems_check_request_date(friday, late)
+        Walkout._ems_check_request_date(friday, self._calendar(self._local(0, 23.0) + timedelta(minutes=55)))
         with self.assertRaises(UserError):
-            Walkout._ems_check_request_date(friday, self._calendar(self._local(0, 0.0) + timedelta(minutes=1)))
+            Walkout._ems_check_request_date(friday, self._calendar(self._local(0, 23.0) + timedelta(minutes=56)))
+
+    def test_a_shortened_joining_is_warned_and_lengthens_when_the_vote_ends_early(self):
+        """Issue #838: Friday keeps the notice only if the joining is cut: 14 hours instead of 24 when
+        the vote takes its whole phase, the whole 24 when the group decides at once."""
+        walkout = open_walkout(self, days=4)
+        self.assertEqual(walkout._ems_worst_join_hours(), 14.0)
+        self.assertFalse(open_walkout(self, days=7)._ems_worst_join_hours(), "Nothing to warn about.")
+        self._supported(walkout)  # decided now: the joining starts now, 24 hours fit
+        self.assertEqual(walkout.state, 'joining')
+        self.assertAlmostEqual(walkout.join_until, walkout.join_start + timedelta(hours=24), delta=timedelta(hours=1))
 
     def test_weekends_and_holidays_do_not_count(self):
         Walkout = self.env['ems.student_walkout']
@@ -360,12 +378,16 @@ class TestStudentWalkout(TransactionCase):
         self.assertIn("A dockers", str(notice.body))
 
     def test_the_system_administrator_is_at_the_top(self):
-        """Above Direction, outside the hierarchy: may abort a call and validate another."""
+        """Above Direction, outside the hierarchy: may abort a call, extend its joining and validate another."""
         admin = create_role_user(self, 'settings_admin', 'test_walkout_sysadmin_wlk', name='WLK System Administrator')
         walkout = open_walkout(self)
         self.assertTrue(walkout.with_user(admin).can_abort)
         reject_walkout(walkout, admin, 'ems.student_walkout_rejection_region')
         self.assertEqual((walkout.state, walkout.rejected_by_id), ('rejected', admin))
+        extendable = open_walkout(self, days=14)
+        self._supported(extendable)
+        self.assertTrue(extendable.with_user(admin).can_extend)
+        extendable.with_user(admin).action_extend_joining()
         closed = open_walkout(self, days=8)
         self._supported(closed)
         self._join(closed, self.delegate)
@@ -999,6 +1021,10 @@ class TestStudentWalkout(TransactionCase):
                         Walkout.with_context(tz=utils.company_tz_name()), value).strftime('%-d/%-m, %H:%M'), html)
                 self.assertIn(f'{first_day.day}/{first_day.month}', html)
                 self.assertIn(str(escape(Walkout._ems_count_description(rule))), html)
+                # Issue #838: the earliest day, with a shorter joining, when it comes before.
+                earliest = calendar['earliest_day']
+                self.assertLessEqual(earliest, first_day)
+                self.assertEqual('Earliest walkout day' in html, earliest != first_day)
         self.assertFalse(Walkout._ems_sample_html(cases[0][0], 0, 48), "No example for an invalid phase.")
         settings = self.env['res.config.settings'].create({'walkout_hours_kind': 'school'})
         self.assertIn('class hours', settings.walkout_calendar_example)

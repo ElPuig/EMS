@@ -37,6 +37,8 @@ How the hours count is decided by the centre, and the form explains it to you:
 
 The form shows you the exact calendar, what the hours count and the first day the walkout can be on before you send it.
 
+**A walkout closer than that.** If both phases do not fit whole before the notice, but part of the joining does (at least 5 minutes), you can propose it anyway: the form tells you from which day, and **the joining phase will be shorter**. Once proposed, its page warns you: the individual joining phase will last at most so many hours instead of 24. If the group vote ends earlier because the majority has already decided, the joining phase is extended with the time gained, up to the usual 24 hours.
+
 ---
 
 ## Proposing the vote (delegate or sub-delegate)
@@ -86,6 +88,8 @@ If the group supports it, you get an email and the proposal asks you **Do you jo
 ## Extending the joining (delegate or sub-delegate)
 
 If joining is about to end, or has ended, and students still need time, open the proposal's page and click **Extend the joining**. Joining lasts one phase more (the same time as each phase in the centre's settings), or less if the Head of Studies would then not get the minute in time: it is extended as far as possible. It is counted from the end of joining, or from now if it has already ended. Every student is told.
+
+![The delegate's card to extend the joining](../../assets/families/walkout-portal-extend.png)
 
 - **You can do it only once.** The group's tutor, and whoever is above them, can extend it more times.
 - If joining had already ended, the proposal is open again and the minute goes to the Head of Studies when it closes again.

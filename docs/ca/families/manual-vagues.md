@@ -37,6 +37,8 @@ El centre decideix com es compten les hores, i el formulari t'ho explica:
 
 Abans d'enviar-la, el formulari et mostra el calendari exacte, com es compten les hores i el primer dia possible de la vaga.
 
+**Una vaga més propera.** Si les dues fases no hi caben senceres abans de l'antelació, però sí una part de l'adhesió (almenys 5 minuts), la pots proposar igualment: el formulari t'indica a partir de quin dia, i **la fase d'adhesió serà més curta**. Un cop proposada, la seva pàgina t'avisa: la fase d'adhesió individual durarà com a màxim tantes hores en comptes de 24. Si la votació del grup acaba abans perquè la majoria ja ha decidit, la fase d'adhesió s'allarga amb el temps guanyat, fins a les 24 hores habituals.
+
 ---
 
 ## Proposar la votació (delegat o sotsdelegat)
@@ -86,6 +88,8 @@ Si el grup hi dona suport, reps un correu i la proposta et pregunta **Et sumes a
 ## Ampliar les adhesions (delegat o sotsdelegat)
 
 Si les adhesions estan a punt d'acabar, o ja han acabat, i l'alumnat necessita més temps, obre la pàgina de la proposta i fes clic a **Amplia les adhesions**. Les adhesions duren una fase més (el mateix temps que cada fase a la configuració del centre), o menys si el cap d'estudis no rebria l'acta a temps: s'amplien tant com es pot. Es compta des del final de les adhesions, o des d'ara si ja han acabat. S'avisa tot l'alumnat.
+
+![La targeta del delegat per ampliar les adhesions](../../assets/families/walkout-portal-extend.png)
 
 - **Només ho pots fer una vegada.** El tutor del grup, i qui té per sobre, poden ampliar-les més vegades.
 - Si les adhesions ja havien acabat, la proposta torna a estar oberta i l'acta arriba al cap d'estudis quan es tanqui de nou.

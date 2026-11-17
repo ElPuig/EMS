@@ -15,6 +15,8 @@ JUSTIFY_TASK = 'ems.mail_activity_student_walkout_justify'
 VISIBLE_STATES = ('voting', 'joining', 'closed', 'justified', 'rejected')
 # The group's tutor (and the chain above them) may abort a call while it is voted or joined; once
 # closed, the Head of Studies validates it (justifies) or not, and may undo a validation.
+# Issue #838: the least a phase can last when it is cut to keep the notice before the walkout.
+MIN_PHASE_MINUTES = 5
 ABORTABLE_STATES = ('voting', 'joining')
 VALIDATION_STATES = ('closed', 'justified')
 # Issue #828: the sample call shown in the settings (_ems_sample_calendar).
@@ -456,12 +458,46 @@ class EmsStudentWalkout(models.Model):
             calendar['notice_hours']
 
     @api.model
-    def _ems_first_walkout_day(self, calendar):
-        """The first school day a call with this calendar can be for."""
-        first = self.utc_to_local_date(calendar['join_until'])
+    def _ems_longest_end(self, plan, start, hours, day, notice_hours):
+        """Issue #838: the end of a phase that starts at `start` and lasts `hours`, or, when the minute would
+        then not reach the Head of Studies `notice_hours` before `day`, the longest part of it that does
+        (bisection over minutes). False when not even MIN_PHASE_MINUTES keep the notice."""
+        day_start = self._ems_day_start(day)
+
+        def end(minutes):
+            return self._ems_add_hours(plan, start, minutes / 60)
+
+        def kept(minutes):
+            return self._ems_hours_between(plan, end(minutes), day_start) >= notice_hours
+
+        longest = int(hours * 60)
+        if kept(longest):
+            return end(longest)
+        if not kept(MIN_PHASE_MINUTES):
+            return False
+        low, high = MIN_PHASE_MINUTES, longest
+        while high - low > 1:
+            middle = (low + high) // 2
+            low, high = (middle, high) if kept(middle) else (low, middle)
+        return end(low)
+
+    @api.model
+    def _ems_join_until_for(self, calendar, day):
+        """When the joining of a call for `day` ends at the latest: its whole phase, or shorter when the
+        notice needs it (False when not even a few minutes fit)."""
+        return self._ems_longest_end(calendar['plan'], calendar['join_start'], calendar['phase_hours'], day,
+                                     calendar['notice_hours'])
+
+    @api.model
+    def _ems_first_walkout_day(self, calendar, shortened=False):
+        """The first school day a call with this calendar can be for, with both phases whole or, with
+        `shortened`, with the joining cut to what the notice allows."""
+        first = self.utc_to_local_date(calendar['join_start' if shortened else 'join_until'])
         school_days_of = calendar['plan']['school_days'] or self._ems_school_days
         school_days = sorted(school_days_of(first, fields.Date.add(first, days=366)))
-        return next((day for day in school_days if self._ems_notice_kept(calendar, day)), False)
+        fits = (lambda day: self._ems_join_until_for(calendar, day)) if shortened else \
+            (lambda day: self._ems_notice_kept(calendar, day))
+        return next((day for day in school_days if fits(day)), False)
 
     @api.model
     def _ems_sample_calendar(self, rule, phase, notice, now=None):
@@ -479,6 +515,7 @@ class EmsStudentWalkout(models.Model):
         calendar = self._ems_projected_calendar(self.env['ems.group'], now, plan, phase, notice)
         calendar['proposal'] = now
         calendar['first_day'] = self._ems_first_walkout_day(calendar)
+        calendar['earliest_day'] = self._ems_first_walkout_day(calendar, shortened=True)
         return calendar
 
     @api.model
@@ -499,6 +536,9 @@ class EmsStudentWalkout(models.Model):
             _("First possible walkout day: %(day)s",
               day=format_date(self.env, calendar['first_day'], date_format='EEEE d/M')),
         ]
+        if calendar['earliest_day'] != calendar['first_day']:
+            lines.append(_("Earliest walkout day, with a shorter joining: %(day)s",
+                           day=format_date(self.env, calendar['earliest_day'], date_format='EEEE d/M')))
         intro = _("Example: a group with class from 8:00 to 15:00, Monday to Friday, proposes a walkout on "
                   "%(moment)s, after its classes.", moment=moment(calendar['proposal']))
         return Markup('<p class="mb-1">%s</p><ul class="mb-1">%s</ul><p class="mb-0">%s</p>') % (
@@ -526,20 +566,34 @@ class EmsStudentWalkout(models.Model):
 
     @api.model
     def _ems_check_request_date(self, walkout_date, calendar):
-        """The group vote and the joining take a phase each and the minute must reach the Head of
-        Studies the notice before the walkout, all counted as the settings say."""
+        """The group vote takes a whole phase, the joining the rest of what the notice leaves (at least
+        MIN_PHASE_MINUTES) and the minute must reach the Head of Studies the notice before the walkout, all
+        counted as the settings say."""
         if not walkout_date:
             raise UserError(_("Give the walkout day."))
         if not self._ems_school_days(walkout_date, walkout_date):
             raise UserError(_("A student walkout can only be on a school day."))
-        if not self._ems_notice_kept(calendar, walkout_date):
+        if not self._ems_join_until_for(calendar, walkout_date):
             raise UserError(_(
-                "It is too late to propose supporting a student walkout for %(day)s: the group vote and the joining take "
-                "%(phase)s hours each and the Head of Studies must get the minute %(notice)s hours before the "
-                "walkout. %(count)s A proposal made now can be for %(first)s at the earliest.",
-                day=format_date(self.env, walkout_date), phase=calendar['phase_hours'],
+                "It is too late to propose supporting a student walkout for %(day)s: the group vote takes %(phase)s "
+                "hours, the joining can be shortened but needs at least %(minutes)s minutes, and the Head of Studies "
+                "must get the minute %(notice)s hours before the walkout. %(count)s A proposal made now can be for "
+                "%(first)s at the earliest.",
+                day=format_date(self.env, walkout_date), phase=calendar['phase_hours'], minutes=MIN_PHASE_MINUTES,
                 notice=calendar['notice_hours'], count=self._ems_count_description(calendar['plan']['rule']),
-                first=format_date(self.env, self._ems_first_walkout_day(calendar))))
+                first=format_date(self.env, self._ems_first_walkout_day(calendar, shortened=True))))
+
+    def _ems_worst_join_hours(self):
+        """Issue #838: when a proposal still being voted could not give the joining its whole phase even if
+        the vote takes all of its own, the hours the joining would last then (a shorter vote lengthens it, up
+        to the phase); False when the whole phase fits."""
+        self.ensure_one()
+        plan = self._ems_own_plan()
+        start = self._ems_send_moment(plan, self.vote_until)
+        until = self._ems_longest_end(plan, start, self.phase_hours, self.walkout_date, self.notice_hours) or \
+            self._ems_add_hours(plan, start, MIN_PHASE_MINUTES / 60)
+        hours = self._ems_hours_between(plan, start, until)
+        return round(hours, 1) if hours < self.phase_hours else False
 
     def _ems_phase_open(self, state):
         """Whether the phase `state` (voting, joining) is open: the proposal is in it and its end has not
@@ -552,31 +606,13 @@ class EmsStudentWalkout(models.Model):
         """Issue #838: what the joining can be extended to, or False when it cannot: only a proposal the
         group supports, still joining or already closed (its minute goes out again when it closes), and
         the minute must still reach the Head of Studies the notice before the walkout. An extension is
-        one phase long, or, when that would break the notice, as long as the notice allows (the latest
-        end that keeps it), counted like the phases."""
+        one phase long, or, when that would break the notice, as long as it allows (_ems_longest_end)."""
         self.ensure_one()
         if not (self.state == 'joining' or (self.state == 'closed' and self.group_supports)):
             return False
         plan = self._ems_own_plan()
         start = max(self.join_until, self._ems_send_moment(plan, fields.Datetime.now()))
-
-        def until(minutes):
-            return self._ems_add_hours(plan, start, minutes / 60)
-
-        def kept(minutes):
-            return self._ems_notice_kept({'plan': plan, 'join_until': until(minutes), 'notice_hours': self.notice_hours},
-                                         self.walkout_date)
-
-        longest = int(self.phase_hours * 60)
-        if kept(longest):
-            return until(longest)
-        if not kept(0):
-            return False
-        low, high = 0, longest  # the longest extension, in minutes, that keeps the notice: found by bisection
-        while high - low > 1:
-            middle = (low + high) // 2
-            low, high = (middle, high) if kept(middle) else (low, middle)
-        return until(low) if low else False
+        return self._ems_longest_end(plan, start, self.phase_hours, self.walkout_date, self.notice_hours)
 
     def _ems_extend_joining(self, by_name, as_delegate=False):
         """Joining lasts one phase more. A closed proposal reopens: its minute and its task are withdrawn
@@ -645,8 +681,13 @@ class EmsStudentWalkout(models.Model):
         closes (nobody is justified)."""
         for walkout in self.filtered(lambda walkout: walkout.state == 'voting'):
             if walkout.group_supports:
-                join_start, join_until = walkout._ems_phase(walkout._ems_own_plan(), fields.Datetime.now(),
-                                                            walkout.phase_hours)
+                # The joining lasts a whole phase, or less when the notice needs it: a vote that ended early
+                # leaves it more time (issue #838). Late by the cron, at least the shortest it can be.
+                plan = walkout._ems_own_plan()
+                join_start = walkout._ems_send_moment(plan, fields.Datetime.now())
+                join_until = walkout._ems_longest_end(plan, join_start, walkout.phase_hours, walkout.walkout_date,
+                                                      walkout.notice_hours) or \
+                    walkout._ems_add_hours(plan, join_start, MIN_PHASE_MINUTES / 60)
                 walkout.write({'state': 'joining', 'join_start': join_start, 'join_until': join_until})
                 walkout._ems_wake_cron_at(walkout.join_until)
                 walkout._ems_mail_students('ems.email_template_student_walkout_join', walkout._ems_joining_lines())

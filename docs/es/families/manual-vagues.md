@@ -37,6 +37,8 @@ El centro decide cómo se cuentan las horas, y el formulario te lo explica:
 
 Antes de enviarla, el formulario te muestra el calendario exacto, cómo se cuentan las horas y el primer día posible de la huelga.
 
+**Una huelga más cercana.** Si las dos fases no caben enteras antes del preaviso, pero sí una parte de la adhesión (al menos 5 minutos), puedes proponerla igualmente: el formulario te indica a partir de qué día, y **la fase de adhesión será más corta**. Una vez propuesta, su página te avisa: la fase de adhesión individual durará como máximo tantas horas en lugar de 24. Si la votación del grupo termina antes porque la mayoría ya ha decidido, la fase de adhesión se alarga con el tiempo ganado, hasta las 24 horas habituales.
+
 ---
 
 ## Proponer la votación (delegado o subdelegado)
@@ -86,6 +88,8 @@ Si el grupo la apoya, recibes un correo y la propuesta te pregunta **¿Te sumas 
 ## Ampliar las adhesiones (delegado o subdelegado)
 
 Si las adhesiones están a punto de acabar, o ya han acabado, y el alumnado necesita más tiempo, abre la página de la propuesta y haz clic en **Amplía las adhesiones**. Las adhesiones duran una fase más (el mismo tiempo que cada fase en la configuración del centro), o menos si jefatura de estudios no recibiría el acta a tiempo: se amplían todo lo posible. Se cuenta desde el final de las adhesiones, o desde ahora si ya han acabado. Se avisa a todo el alumnado.
+
+![La tarjeta del delegado para ampliar las adhesiones](../../assets/families/walkout-portal-extend.png)
 
 - **Solo puedes hacerlo una vez.** El tutor del grupo, y quien tiene por encima, pueden ampliarlas más veces.
 - Si las adhesiones ya habían acabado, la propuesta vuelve a estar abierta y el acta llega a jefatura de estudios cuando se cierre de nuevo.

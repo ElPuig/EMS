@@ -7,3 +7,9 @@
 # Internal changes:
 ## Daily-summary notices to the Head of Studies:
 - One helper (`_ems_notify_heads`) now builds the notice sent when a proposal is aborted or its joining is extended.
+
+# Changes:
+## Student walkout proposals that only fit with a shorter joining phase:
+- A proposal for a day that does not leave room for both whole phases before the notice is now accepted when at least 5 minutes of the individual joining phase fit; the group vote and the notice stay whole.
+- The delegate is warned on the proposal's page of how long the joining phase will last at most, and that it grows with the time gained if the group vote ends early, up to the usual phase.
+- The form shows the earliest possible day, and the settings example shows it too.

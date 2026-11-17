@@ -94,10 +94,21 @@ Tuesday 8:00. With school hours that is the same as counting from the proposal, 
 before the first class. The portal lets students answer before the start too (e.g. over the
 weekend): `_ems_phase_open()` only checks the end.
 
+**A shortened joining (issue #838).** The joining does not need its whole phase to fit before the notice: it lasts
+`phase_hours`, or, if the minute would then reach the Head of Studies too late, the longest part of it that keeps the
+notice (`_ems_longest_end()`, bisection over minutes, the same helper as the extension below), at least
+`MIN_PHASE_MINUTES` (5). It is worked out **when the joining starts** (`_ems_end_group_vote`), so a vote that ends
+early leaves it more time, up to the phase. When opening, `_ems_check_request_date()` only needs the worst case
+(the vote taking its whole phase) to leave those 5 minutes (`_ems_join_until_for(calendar, day)`); a proposal that
+needs the cut is created and the delegate is warned on its page (`_ems_worst_join_hours()`, alert
+`o_ems_walkout_join_cut`, only for the delegates while voting), not asked to confirm. `_ems_first_walkout_day()`
+gives the first day with both phases whole, or with `shortened=True` the earliest one; the form's minimum date is the
+latter and says until which day the joining is shorter. The settings example adds the earliest day when it differs.
+
 **Notice.** When opening, `_ems_projected_calendar()` works out the worst case (the vote taking its
-whole phase) and `_ems_check_request_date()` requires at least `notice_hours`, counted in the same
-way as the phases, from that `join_until` to the walkout's 00:00, and the walkout day to be a school
-day. With phases of 24 hours, 48 of notice and today's count (real hours from the email), a proposal
+whole phase) and `_ems_check_request_date()` requires the minute to reach the Head of Studies at least `notice_hours`, counted in the
+same way as the phases, before the walkout's 00:00 (with the joining cut if needed, see above), and the walkout day
+to be a school day. With phases of 24 hours, 48 of notice and today's count (real hours from the email), a proposal
 made on Monday at 10:00 votes until Tuesday 10:00, joins until Wednesday 10:00, and its first
 possible walkout day is the next Monday (Friday would only give 38 hours). With 24 hours of notice
 and real hours from the proposal, a proposal made on Monday at any time can be for Friday. The

@@ -92,7 +92,8 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
             'group': group,
             'calendar': {key: Walkout.format_local_datetime(value) if key.endswith(('_start', '_until')) else value
                          for key, value in calendar.items()},
-            'first_day': fields.Date.to_string(Walkout._ems_first_walkout_day(calendar)),
+            'first_day': fields.Date.to_string(Walkout._ems_first_walkout_day(calendar, shortened=True)),
+            'first_full_day': fields.Date.to_string(Walkout._ems_first_walkout_day(calendar)),
             'count_description': Walkout._ems_count_description(calendar['plan']['rule']),
         }, **kwargs)
 
@@ -129,6 +130,8 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
             # The delegates extend the joining once, also when it is over (issue #838).
             'can_extend': walkout._ems_is_manager(partner) and not walkout.delegate_extended and
             bool(walkout._ems_extension()),
+            # Issue #838: the joining may be shorter than a phase to keep the notice.
+            'join_worst_hours': walkout.state == 'voting' and walkout._ems_worst_join_hours(),
             'extension_until': walkout.format_local_datetime(walkout._ems_extension() or walkout.join_until),
             'state_labels': dict(walkout._fields['state']._description_selection(request.env)),
             'opened': kwargs.get('opened'),

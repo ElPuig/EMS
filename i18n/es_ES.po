@@ -50666,11 +50666,6 @@ msgid "Your group votes whether it supports the walkout from"
 msgstr "Tu grupo vota si apoya la huelga desde el"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
-msgid "at the latest."
-msgstr "como muy tarde."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
 msgid ""
 "have answered).\n"
@@ -53073,12 +53068,6 @@ msgid "From the moment of the proposal"
 msgstr "Desde el momento de la propuesta"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/student_walkout.py:0
-msgid "It is too late to propose supporting a student walkout for %(day)s: the group vote and the joining take %(phase)s hours each and the Head of Studies must get the minute %(notice)s hours before the walkout. %(count)s A proposal made now can be for %(first)s at the earliest."
-msgstr "Es demasiado tarde para proponer apoyar una huelga para el %(day)s: la votación del grupo y las adhesiones duran %(phase)s horas cada una y jefatura de estudios debe recibir el acta %(notice)s horas antes de la huelga. %(count)s Una propuesta hecha ahora puede ser como pronto para el %(first)s."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__hours_kind
 msgid "Kind of hours"
 msgstr "Tipo de horas"
@@ -53383,3 +53372,72 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
 msgid "You can extend the joining once, until"
 msgstr "Puedes ampliar las adhesiones una vez, hasta el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
+msgid "(not included), the joining phase will be shorter than"
+msgstr "(no incluido), la fase de adhesión será más corta de"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid "Earliest walkout day, with a shorter joining: %(day)s"
+msgstr "Primer día posible de huelga, con una adhesión más corta: %(day)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/student_walkout.py:0
+msgid ""
+"It is too late to propose supporting a student walkout for %(day)s: the "
+"group vote takes %(phase)s hours, the joining can be shortened but needs at "
+"least %(minutes)s minutes, and the Head of Studies must get the minute "
+"%(notice)s hours before the walkout. %(count)s A proposal made now can be "
+"for %(first)s at the earliest."
+msgstr ""
+"Es demasiado tarde para proponer apoyar una huelga para el %(day)s: la "
+"votación del grupo dura %(phase)s horas, la adhesión se puede acortar, pero "
+"necesita al menos %(minutes)s minutos, y jefatura de estudios debe recibir "
+"el acta %(notice)s horas antes de la huelga. %(count)s Una propuesta hecha "
+"ahora puede ser como pronto para el %(first)s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "The individual joining phase will last"
+msgstr "La fase de adhesión individual durará como máximo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
+msgid "Until"
+msgstr "Hasta el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
+msgid "at the latest (less if the walkout day is close, see above)."
+msgstr ""
+"como muy tarde (menos si el día de la huelga está cerca, véase más arriba)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "h at most instead of"
+msgstr "h en lugar de"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "h."
+msgstr "h."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid ""
+"h. If the group support vote ends earlier because the majority has already "
+"decided, the joining phase will be extended with the time gained, up to a "
+"maximum of"
+msgstr ""
+"h. Si la votación de la fase de apoyo como grupo termina antes porque la "
+"mayoría ya ha decidido, la fase de adhesión se alargará con el tiempo "
+"ganado, hasta un máximo de"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
+msgid "hours, and you will be warned."
+msgstr "horas, y se te avisará."

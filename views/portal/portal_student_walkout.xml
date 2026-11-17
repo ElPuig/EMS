@@ -334,8 +334,8 @@
                         </t>
                         <p t-else="" class="small text-muted mb-0">
                             The time to answer is over.
-                            <t t-if="line.ratification">Your answer: <strong t-esc="ratification_labels.get(line.ratification)"/>.</t>
-                            <t t-if="line.ratification != 'ratified'">You will be told of each class they do not attend that day, for information.</t>
+                            <t t-if="answered">Your answer: <strong t-esc="ratification_labels.get(line.ratification)"/>.</t>
+                            <t t-if="line.ratification != 'ratified' and walkout.state != 'rejected'">You will be told of each class they do not attend that day, for information.</t>
                         </p>
                     </div>
                 </div>

@@ -84,6 +84,12 @@ class TestDocsScreenshotsStudentWalkout(DocsScreenshotMixin, HttpCase):
                       wait_for='.o_form_view .o_form_statusbar',
                       click="button[name='action_open_reject_wizard']", wait_after='.modal .alert-warning')
 
+    def test_capture_tutor_ratify_by_hand(self):
+        """Issue #840: the Students tab, with the button to ratify by hand a minor whose family has not answered."""
+        self._capture(f'/odoo/action-ems.action_student_walkout/{self.joining.id}', ".o_field_widget[name='line_ids']",
+                      'tutor-walkout-ratify-by-hand.png', login=self.tutor.login,
+                      wait_for="button[name='action_ratify_manually']")
+
     def test_capture_head_of_studies_closed(self):
         # beyond_viewport=False: resizing the page for a taller shot would close the dropdown.
         self._capture(f'/odoo/action-ems.action_student_walkout/{self.closed.id}', '.o_action_manager',

@@ -997,16 +997,22 @@ class EmsStudentWalkoutLine(models.Model):
     @api.depends('joins', 'needs_ratification', 'ratification', 'walkout_id.state')
     @api.depends_context('uid')
     def _compute_can_ratify_manually(self):
+        # The permission is the walkout's: checked once per walkout, not once per student.
+        may_abort = {walkout: walkout._ems_user_may_abort() for walkout in self.walkout_id}
         for line in self:
-            line.can_ratify_manually = line._ems_can_ratify_manually()
+            line.can_ratify_manually = line._ems_ratification_is_open() and may_abort[line.walkout_id]
 
-    def _ems_can_ratify_manually(self):
-        """A minor's pending ratification, from joining until the Head of Studies validates, by whoever
-        may abort the proposal (the tutor, the chain above them, an administrator). A family's refusal
-        is theirs to change, never overridden."""
+    def _ems_ratification_is_open(self):
+        """A minor's pending ratification, from joining until the Head of Studies validates. A family's
+        refusal is theirs to change, never overridden."""
         self.ensure_one()
         return (self.joins and self.needs_ratification and self.ratification == 'pending'
-                and self.walkout_id.state in ('joining', 'closed') and self.walkout_id._ems_user_may_abort())
+                and self.walkout_id.state in ('joining', 'closed'))
+
+    def _ems_can_ratify_manually(self):
+        """Whoever may abort the proposal (the tutor, the chain above them, an administrator) may mark it."""
+        self.ensure_one()
+        return self._ems_ratification_is_open() and self.walkout_id._ems_user_may_abort()
 
     def action_ratify_manually(self):
         """Marks the family's ratification by hand, for a family that cannot use the portal."""

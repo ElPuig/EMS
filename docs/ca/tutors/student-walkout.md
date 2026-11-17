@@ -37,6 +37,8 @@ Un alumne menor que s'hi suma necessita que la seva família ho ratifiqui al por
 
 Si la família d'un menor no pot utilitzar el portal i et comunica (a tu o al centre) que ho ratifica, fes clic a **Ratifica a mà** a la fila d'aquest alumne de la pestanya **Alumnat** i confirma-ho. Ho pots fer des que els alumnes s'hi sumen fins que la cap d'estudis valida la vaga, només per a famílies que no han respost (mai per anul·lar un rebuig). La fila mostra qui ho ha marcat i el canvi queda registrat al xat.
 
+![Pestanya Alumnat amb el botó per ratificar a mà](../../assets/tutors/tutor-walkout-ratify-by-hand.png)
+
 ---
 
 ## Avortar una proposta

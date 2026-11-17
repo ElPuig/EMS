@@ -37,6 +37,8 @@ A minor who joins it needs their family's ratification on the portal while joini
 
 If a minor's family cannot use the portal and tells you (or the centre) that they ratify it, click **Ratify by hand** on that student's row of the **Students** tab and confirm. You can do it from when students join until the Head of Studies validates the walkout, only for families that have not answered (never to override a refusal). The row then shows who marked it, and the change is logged in the chatter.
 
+![Students tab with the button to ratify by hand](../../assets/tutors/tutor-walkout-ratify-by-hand.png)
+
 ---
 
 ## Aborting a proposal

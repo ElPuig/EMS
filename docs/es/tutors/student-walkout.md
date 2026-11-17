@@ -37,6 +37,8 @@ Un alumno menor que se suma necesita que su familia lo ratifique en el portal mi
 
 Si la familia de un menor no puede usar el portal y te comunica (a ti o al centro) que lo ratifica, haz clic en **Ratifica a mano** en la fila de ese alumno de la pestaña **Alumnado** y confírmalo. Puedes hacerlo desde que los alumnos se suman hasta que la jefatura de estudios valida la huelga, solo para familias que no han respondido (nunca para anular un rechazo). La fila muestra quién lo ha marcado y el cambio queda registrado en el chat.
 
+![Pestaña Alumnado con el botón para ratificar a mano](../../assets/tutors/tutor-walkout-ratify-by-hand.png)
+
 ---
 
 ## Abortar una propuesta

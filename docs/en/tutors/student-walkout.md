@@ -58,7 +58,7 @@ Whoever is above you in the hierarchy (Department or Seminar Chief, Head or Depu
 
 ## Extending the joining
 
-If students need more time to say whether they join, **Actions > Extend the joining** gives them one phase more (the time set for each phase in the centre's settings), counted from the end of joining, or from now if it has already ended. You can do it at any time and as many times as needed, as long as the Head of Studies still gets the minute with the notice before the walkout: when it is not possible, the action does not appear. Every student is told.
+If students need more time to say whether they join, **Actions > Extend the joining** gives them one phase more (the time set for each phase in the centre's settings), or less if the Head of Studies would then not get the minute in time: as far as possible. It is counted from the end of joining, or from now if it has already ended. You can do it at any time and as many times as needed, as long as the Head of Studies still gets the minute with the notice before the walkout: when it is not possible, the action does not appear. Every student is told.
 
 - The delegate and sub-delegate can extend it once by themselves, from the portal.
 - If the proposal had already closed, it opens again: the minute that went to the Head of Studies is withdrawn (they get a notice in their daily summary) and a new one is sent when it closes again.

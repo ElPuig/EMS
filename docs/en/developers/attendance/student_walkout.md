@@ -284,11 +284,10 @@ flowchart TD
   with no tutor, every Head and Deputy Head of Studies; failing that, the academic administrators.
 - **Extend the joining** (issue #838): only the joining, never the group vote. A proposal the group supports can be
   extended while `joining` or once `closed`. `_ems_extension()` gives the new `join_until`: one phase
-  (`phase_hours`, the same setting as every phase, no setting of its own) from the later of the current
+  (`phase_hours`, the same setting as every phase, no setting of its own), or the longest part of it that keeps the notice (bisection over minutes), from the later of the current
   `join_until` and the moment the email reaches the group (`_ems_send_moment`), counted like the phases; it is
-  `False` when the state does not allow it or the minute would no longer reach the Head of Studies the
-  `notice_hours` before the walkout (so the buttons only exist when it is possible, and a proposal for the first
-  possible day cannot be extended twice). The delegates (`_ems_is_manager`) extend it **once** from the portal
+  `False` when the state does not allow it or not even a minute more keeps the notice (so the buttons only exist
+  when it is possible; a proposal for the first possible day gets a full extension, then a shorter one, then none). The delegates (`_ems_is_manager`) extend it **once** from the portal
   (`_ems_portal_extend`, POST `/my/vagues/<id>/amplia`, `delegate_extended`); the tutor chain and the administrators
   (`_ems_user_may_abort`) as often as they want, from **Actions > Extend the joining** (`action_extend_joining`).
   Both go through `_ems_extend_joining()`: a `closed` proposal goes back to `joining` (its minute and its justify

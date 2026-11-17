@@ -58,7 +58,7 @@ També la poden avortar els qui són per sobre teu a la jerarquia (cap de depart
 
 ## Ampliar les adhesions
 
-Si l'alumnat necessita més temps per dir si s'hi suma, **Accions > Amplia les adhesions** li dona una fase més (el temps fixat per a cada fase a la configuració del centre), comptada des del final de les adhesions, o des d'ara si ja han acabat. Ho pots fer en qualsevol moment i tantes vegades com calgui, mentre el cap d'estudis encara rebi l'acta amb l'antelació prevista abans de la vaga: quan no és possible, l'acció no apareix. S'avisa tot l'alumnat.
+Si l'alumnat necessita més temps per dir si s'hi suma, **Accions > Amplia les adhesions** li dona una fase més (el temps fixat per a cada fase a la configuració del centre), o menys si el cap d'estudis no rebria l'acta a temps: tant com es pot. Es compta des del final de les adhesions, o des d'ara si ja han acabat. Ho pots fer en qualsevol moment i tantes vegades com calgui, mentre el cap d'estudis encara rebi l'acta amb l'antelació prevista abans de la vaga: quan no és possible, l'acció no apareix. S'avisa tot l'alumnat.
 
 - El delegat i el sotsdelegat poden ampliar-les una vegada pel seu compte, des del portal.
 - Si la proposta ja s'havia tancat, es torna a obrir: l'acta que va arribar al cap d'estudis es retira (en rep un avís al resum diari) i se n'envia una de nova quan es tanqui de nou.

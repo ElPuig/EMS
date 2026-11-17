@@ -551,16 +551,32 @@ class EmsStudentWalkout(models.Model):
     def _ems_extension(self):
         """Issue #838: what the joining can be extended to, or False when it cannot: only a proposal the
         group supports, still joining or already closed (its minute goes out again when it closes), and
-        one phase more (from now when the joining is over) must still leave the Head of Studies the
-        notice before the walkout."""
+        the minute must still reach the Head of Studies the notice before the walkout. An extension is
+        one phase long, or, when that would break the notice, as long as the notice allows (the latest
+        end that keeps it), counted like the phases."""
         self.ensure_one()
         if not (self.state == 'joining' or (self.state == 'closed' and self.group_supports)):
             return False
         plan = self._ems_own_plan()
-        until = self._ems_add_hours(plan, max(self.join_until, self._ems_send_moment(plan, fields.Datetime.now())),
-                                    self.phase_hours)
-        calendar = {'plan': plan, 'join_until': until, 'notice_hours': self.notice_hours}
-        return until if self._ems_notice_kept(calendar, self.walkout_date) else False
+        start = max(self.join_until, self._ems_send_moment(plan, fields.Datetime.now()))
+
+        def until(minutes):
+            return self._ems_add_hours(plan, start, minutes / 60)
+
+        def kept(minutes):
+            return self._ems_notice_kept({'plan': plan, 'join_until': until(minutes), 'notice_hours': self.notice_hours},
+                                         self.walkout_date)
+
+        longest = int(self.phase_hours * 60)
+        if kept(longest):
+            return until(longest)
+        if not kept(0):
+            return False
+        low, high = 0, longest  # the longest extension, in minutes, that keeps the notice: found by bisection
+        while high - low > 1:
+            middle = (low + high) // 2
+            low, high = (middle, high) if kept(middle) else (low, middle)
+        return until(low) if low else False
 
     def _ems_extend_joining(self, by_name, as_delegate=False):
         """Joining lasts one phase more. A closed proposal reopens: its minute and its task are withdrawn
@@ -570,9 +586,8 @@ class EmsStudentWalkout(models.Model):
         if not until:
             raise UserError(_(
                 "The joining cannot be extended: it has to be a proposal the group supports, and the Head of Studies "
-                "must get the minute at least %(notice)s hours before the walkout of %(day)s, also after %(phase)s "
-                "more hours.", notice=self.notice_hours, day=format_date(self.env, self.walkout_date),
-                phase=self.phase_hours))
+                "must get the minute at least %(notice)s hours before the walkout of %(day)s.",
+                notice=self.notice_hours, day=format_date(self.env, self.walkout_date)))
         walkout = self.sudo()
         was_closed = walkout.state == 'closed'
         values = {'state': 'joining', 'join_until': until, 'delegate_extended': walkout.delegate_extended or as_delegate}

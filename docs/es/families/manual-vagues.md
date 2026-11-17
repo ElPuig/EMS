@@ -85,7 +85,7 @@ Si el grupo la apoya, recibes un correo y la propuesta te pregunta **¿Te sumas 
 
 ## Ampliar las adhesiones (delegado o subdelegado)
 
-Si las adhesiones están a punto de acabar, o ya han acabado, y el alumnado necesita más tiempo, abre la página de la propuesta y haz clic en **Amplía las adhesiones**. Las adhesiones duran una fase más (el mismo tiempo que cada fase en la configuración del centro), contada desde el final de las adhesiones, o desde ahora si ya han acabado. Se avisa a todo el alumnado.
+Si las adhesiones están a punto de acabar, o ya han acabado, y el alumnado necesita más tiempo, abre la página de la propuesta y haz clic en **Amplía las adhesiones**. Las adhesiones duran una fase más (el mismo tiempo que cada fase en la configuración del centro), o menos si jefatura de estudios no recibiría el acta a tiempo: se amplían todo lo posible. Se cuenta desde el final de las adhesiones, o desde ahora si ya han acabado. Se avisa a todo el alumnado.
 
 - **Solo puedes hacerlo una vez.** El tutor del grupo, y quien tiene por encima, pueden ampliarlas más veces.
 - Si las adhesiones ya habían acabado, la propuesta vuelve a estar abierta y el acta llega a jefatura de estudios cuando se cierre de nuevo.

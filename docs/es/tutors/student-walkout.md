@@ -58,7 +58,7 @@ También la pueden abortar quienes están por encima de ti en la jerarquía (jef
 
 ## Ampliar las adhesiones
 
-Si el alumnado necesita más tiempo para decir si se suma, **Acciones > Amplía las adhesiones** le da una fase más (el tiempo fijado para cada fase en la configuración del centro), contada desde el final de las adhesiones, o desde ahora si ya han acabado. Puedes hacerlo en cualquier momento y tantas veces como haga falta, mientras el jefe de estudios todavía reciba el acta con la antelación prevista antes de la huelga: cuando no es posible, la acción no aparece. Se avisa a todo el alumnado.
+Si el alumnado necesita más tiempo para decir si se suma, **Acciones > Amplía las adhesiones** le da una fase más (el tiempo fijado para cada fase en la configuración del centro), o menos si el jefe de estudios no recibiría el acta a tiempo: todo lo posible. Se cuenta desde el final de las adhesiones, o desde ahora si ya han acabado. Puedes hacerlo en cualquier momento y tantas veces como haga falta, mientras el jefe de estudios todavía reciba el acta con la antelación prevista antes de la huelga: cuando no es posible, la acción no aparece. Se avisa a todo el alumnado.
 
 - El delegado y el subdelegado pueden ampliarlas una vez por su cuenta, desde el portal.
 - Si la propuesta ya se había cerrado, se vuelve a abrir: el acta que llegó al jefe de estudios se retira (recibe un aviso en su resumen diario) y se envía una nueva cuando se cierre de nuevo.

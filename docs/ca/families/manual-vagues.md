@@ -85,7 +85,7 @@ Si el grup hi dona suport, reps un correu i la proposta et pregunta **Et sumes a
 
 ## Ampliar les adhesions (delegat o sotsdelegat)
 
-Si les adhesions estan a punt d'acabar, o ja han acabat, i l'alumnat necessita més temps, obre la pàgina de la proposta i fes clic a **Amplia les adhesions**. Les adhesions duren una fase més (el mateix temps que cada fase a la configuració del centre), comptada des del final de les adhesions, o des d'ara si ja han acabat. S'avisa tot l'alumnat.
+Si les adhesions estan a punt d'acabar, o ja han acabat, i l'alumnat necessita més temps, obre la pàgina de la proposta i fes clic a **Amplia les adhesions**. Les adhesions duren una fase més (el mateix temps que cada fase a la configuració del centre), o menys si el cap d'estudis no rebria l'acta a temps: s'amplien tant com es pot. Es compta des del final de les adhesions, o des d'ara si ja han acabat. S'avisa tot l'alumnat.
 
 - **Només ho pots fer una vegada.** El tutor del grup, i qui té per sobre, poden ampliar-les més vegades.
 - Si les adhesions ja havien acabat, la proposta torna a estar oberta i l'acta arriba al cap d'estudis quan es tanqui de nou.

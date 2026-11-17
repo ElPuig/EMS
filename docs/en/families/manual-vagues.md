@@ -85,7 +85,7 @@ If the group supports it, you get an email and the proposal asks you **Do you jo
 
 ## Extending the joining (delegate or sub-delegate)
 
-If joining is about to end, or has ended, and students still need time, open the proposal's page and click **Extend the joining**. Joining lasts one phase more (the same time as each phase in the centre's settings), counted from the end of joining, or from now if it has already ended. Every student is told.
+If joining is about to end, or has ended, and students still need time, open the proposal's page and click **Extend the joining**. Joining lasts one phase more (the same time as each phase in the centre's settings), or less if the Head of Studies would then not get the minute in time: it is extended as far as possible. It is counted from the end of joining, or from now if it has already ended. Every student is told.
 
 - **You can do it only once.** The group's tutor, and whoever is above them, can extend it more times.
 - If joining had already ended, the proposal is open again and the minute goes to the Head of Studies when it closes again.

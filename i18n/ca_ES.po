@@ -53337,11 +53337,11 @@ msgstr "Els delegats només poden ampliar les adhesions una vegada."
 msgid ""
 "The joining cannot be extended: it has to be a proposal the group supports, "
 "and the Head of Studies must get the minute at least %(notice)s hours before"
-" the walkout of %(day)s, also after %(phase)s more hours."
+" the walkout of %(day)s."
 msgstr ""
 "No es poden ampliar les adhesions: ha de ser una proposta a la qual el grup "
 "dona suport, i la prefectura d'estudis ha de rebre l'acta almenys %(notice)s"
-" hores abans de la vaga del %(day)s, també després de %(phase)s hores més."
+" hores abans de la vaga del %(day)s."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout

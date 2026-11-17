@@ -588,18 +588,23 @@ class TestStudentWalkout(TransactionCase):
         with self.assertRaises(Exception):  # outside the chain: they cannot even read it
             walkout.with_user(self.other_head_of_studies).action_extend_joining()
 
-    def test_an_extension_that_breaks_the_notice_is_refused(self):
-        walkout = open_walkout(self)  # the vote ended early: one extension still keeps the 48 hours, two do not
+    def test_an_extension_is_cut_to_what_the_notice_allows(self):
+        walkout = open_walkout(self)  # the vote ended early: one full extension keeps the 48 hours
         self._supported(walkout)
         walkout.with_user(self.tutor).action_extend_joining()
-        until = walkout.join_until
+        before = walkout.join_until
+        # A second one would leave 38 hours: it is allowed up to the last end that keeps the 48.
+        latest = walkout._ems_extension()
+        self.assertTrue(latest)
+        self.assertLess(latest - before, timedelta(hours=24))
+        self.assertAlmostEqual(walkout.ems_school_hours_between(latest, walkout.walkout_start), 48, delta=0.05)
+        walkout._ems_portal_extend(self.delegate)
+        self.assertEqual((walkout.join_until, walkout.delegate_extended), (latest, True))
+        # Nothing is left to extend.
         self.assertFalse(walkout._ems_extension())
         self.assertFalse(walkout.with_user(self.tutor).can_extend)
         with self.assertRaises(UserError):
-            walkout._ems_portal_extend(self.delegate)
-        with self.assertRaises(UserError):
             walkout.with_user(self.tutor).action_extend_joining()
-        self.assertEqual((walkout.join_until, walkout.delegate_extended), (until, False))
 
     def test_a_closed_proposal_reopens_and_the_minute_is_sent_again(self):
         walkout = open_walkout(self, days=14)

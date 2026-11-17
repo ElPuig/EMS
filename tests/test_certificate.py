@@ -415,3 +415,6 @@ class TestCertificate(TransactionCase):
         for text in (certificate.name, self.student.name, '12345678Z', self.company.name, 'B12345678', '400',
                      '2026178505', self.secretary.name):
             self.assertIn(text, html)
+        footer = html[html.index('o_ems_footer_note'):]
+        self.assertIn('PC3.02.01 Model de certificat (EMS)', footer[:300], "the ISO document goes in the layout's footer")
+        self.assertIn('Revisió: 17/11/2026', footer[:300])

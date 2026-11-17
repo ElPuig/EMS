@@ -17,6 +17,11 @@
         <template id="report_certificate">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
+                    <!-- ISO 9001: the controlled document every certificate is printed on, in the
+                         layout's footer (ems.report_layout_footer_note). Kept verbatim, in Catalan, as in
+                         the centre's documentation (not a translatable term); a new revision of the
+                         model means editing it here. -->
+                    <t t-set="ems_footer_note" t-value="&quot;PC3.02.01 Model de certificat (EMS) – Revisió: 17/11/2026&quot;"/>
                     <t t-call="web.external_layout">
                         <t t-set="stamps" t-value="doc._ems_stamps_to_print()"/>
                         <!-- The brand colour is the company's own, the one minutes use for their

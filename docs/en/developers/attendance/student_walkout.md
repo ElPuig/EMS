@@ -34,8 +34,14 @@ answer, or has no portal access) is told of each class of the day, for informati
 usual attendance notice (see "The roll-calls of the walkout day"). Other families hear nothing until
 the proposal is validated.
 
-**Wording towards families and students** (emails, portal, attendance notices): "collective decision
-not to attend class" (ca: "decisió col·lectiva d'inassistència a classe"), never "the right to strike".
+**Wording towards families and students** (portal, their emails, the minute, attendance notices, the
+families' manual): in Catalan and Spanish the students' decision is never a "vaga"/"huelga" but a
+"decisió col·lectiva d'inassistència a classe" / "decisión colectiva de inasistencia a clase" (short
+form for titles, buttons and labels: "inassistència col·lectiva" / "inasistencia colectiva"); what the
+union calls stays a "convocatòria de vaga" / "convocatoria de huelga". The notices never speak of "the
+right to strike". Staff screens, staff emails and staff manuals keep "vaga"/"huelga"; a term shared
+with them (the menu name, "Dia de la vaga") has a separate `.po` block for the portal's references.
+English keeps *walkout*.
 
 **Naming.** In English the feature is always *walkout*, never *strike*: `ems.strike` is the
 disciplinary record (Coexistence → Strikes). Catalan and Spanish say "vaga"/"huelga".

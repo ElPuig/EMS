@@ -53373,8 +53373,8 @@ msgstr "<i class=\"fa fa-check-circle text-success me-2\"/>S'ha desat"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "As you are a minor, your family is asked on the portal, while joining lasts, to ratify that you join: only to know that it is aware and agrees. If it does not, it will be told of each class you do not attend that day, for information."
-msgstr "Com que ets menor d'edat, es demana a la teva família que ratifiqui al portal, mentre duri l'adhesió, que t'hi sumes: només per saber que n'està al corrent i hi està d'acord. Si no ho fa, se l'informarà de cada classe a què no assisteixis aquell dia, a títol informatiu."
+msgid "As you are a minor, your family will be asked to ratify that you join the walkout. It has a single purpose: for your family to confirm that it is aware and agrees. If your family does not ratify it, you still have the right to join the call with no penalty for missed classes, but we will have to tell your family that you did not attend, so that it is aware."
+msgstr "Com que ets menor d'edat, es demanarà a la teva família que ratifiqui que et sumes a la vaga. Té un únic motiu: que la família confirmi que n'està al corrent i que hi està d'acord. Si la teva família no ho ratifica, continues tenint dret a sumar-te a la convocatòria sense cap penalització per faltes d'assistència, però li haurem de comunicar que no has assistit a classe perquè n'estigui al corrent."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__can_validate

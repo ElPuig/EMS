@@ -178,6 +178,49 @@ class TestCertificate(TransactionCase):
         certificate.with_user(admin).action_done_step()
         self.assertEqual(certificate.step_id, self.steps[1])
 
+    def test_issuer_issues_it_now_skipping_earlier_steps(self):
+        certificate = self._submitted()
+        self.assertTrue(certificate.with_user(self.secretary).can_issue_now)
+        for user in (self.coordinator, self.director):
+            with self.subTest(user=user.name):
+                self.assertFalse(certificate.with_user(user).can_issue_now)
+                with self.assertRaises(AccessError):
+                    certificate.with_user(user).action_issue_now()
+        # Every mandatory detail is checked as when issuing: the workplace training, then every
+        # required document; nothing changes while one is missing.
+        with self.assertRaisesRegex(UserError, 'workplace training'):
+            certificate.with_user(self.secretary).action_issue_now()
+        self._complete_training(certificate)
+        with self.assertRaisesRegex(UserError, 'required documentation'):
+            certificate.with_user(self.secretary).action_issue_now()
+        self.assertEqual(certificate.step_id, self.steps[0])
+        self._attach_required(certificate)
+        certificate.with_user(self.secretary).action_issue_now()
+        self.assertEqual(certificate.step_id, self.steps[2])
+        self.assertTrue(certificate.name)
+        self.assertEqual(certificate.stamp_ids.mapped('action'), ['issue'], "No stamp for the skipped step.")
+        self.assertEqual(certificate.activity_ids.user_id, self.director, "The coordinator's task is closed.")
+        self.assertTrue(certificate.message_ids.filtered(lambda message: 'skipping: Complete' in message.body),
+                        "A note names the skipped step.")
+        self.assertFalse(certificate.with_user(self.secretary).can_issue_now, "Only before the issuing step.")
+        certificate.with_user(self.director).action_done_step()
+        self.assertEqual(certificate.state, 'issued')
+
+    def test_issue_now_from_a_draft(self):
+        """A request the secretariat registers with every detail goes straight to issuing."""
+        certificate = self.env['ems.certificate'].create({
+            'type_id': self.certificate_type.id, 'student_id': self.student.id, 'student_name': self.student.name,
+            'student_document': '12345678Z', 'study_id': self.study.id, 'fct_school_year': '2025-2026',
+        })
+        self._complete_training(certificate)
+        self._attach_required(certificate)
+        admin = create_role_user(self, 'academic_admin', 'test_tcrt_admin_now')
+        self.assertTrue(certificate.with_user(admin).can_issue_now)
+        certificate.with_user(admin).action_issue_now()
+        self.assertEqual((certificate.state, certificate.step_id), ('in_progress', self.steps[2]))
+        self.assertTrue(certificate.submission_date)
+        self.assertNotIn(self.coordinator, certificate.activity_ids.user_id)
+
     def test_return_undoes_the_previous_stamp(self):
         certificate = self._submitted()
         self._complete_training(certificate)

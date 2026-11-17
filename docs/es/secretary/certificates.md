@@ -64,6 +64,16 @@ El estudio tiene que ser de uno de los niveles del tipo de certificado (para el 
 
 Si falta algún dato o algún documento obligatorio, EMS te lo indica y no deja expedirlo.
 
+### Expedirlo sin esperar a los pasos anteriores
+
+A veces ya tienes todos los datos y documentos de una solicitud que aún está en un paso anterior (por ejemplo, esperando a que el coordinador de FP complete la formación en centros de trabajo). No hace falta que esperes:
+
+1. Abre la solicitud. Aún no aparece en **Pendientes de mí**: quita ese filtro para encontrarla.
+2. Completa lo que falte en las pestañas **Solicitante** y **Formación en centros de trabajo**, y adjunta los documentos obligatorios en **Documentación**.
+3. Abre **Acciones → Expedir ahora** y confirma que tienes todos los datos y documentos obligatorios.
+
+Los pasos anteriores se saltan y sus tareas pendientes se cierran, y el historial de la solicitud registra quién los ha saltado. El certificado recibe su número y tu sello, y pasa a la aprobación de la dirección como siempre. Se hacen las mismas comprobaciones que al expedirlo en su paso: si falta algo obligatorio, EMS te indica qué y no lo expide. El botón también está disponible en una solicitud que acabas de registrar, antes de enviar el formulario o de iniciarla.
+
 ---
 
 ## Otras acciones

@@ -129,6 +129,9 @@ class EmsCertificate(models.Model):
     can_manage = fields.Boolean(string="Can reject or cancel it", compute='_compute_is_pending_for_me',
                                 help="The secretariat, and whoever does the current step.")
     is_first_step = fields.Boolean(string="On the first step", compute='_compute_is_first_step')
+    can_issue_now = fields.Boolean(string="Can issue it right away", compute='_compute_can_issue_now',
+                                   help="Whoever issues the certificate, while the request is still before their "
+                                        "step: they may skip the earlier ones when they already have every detail.")
 
     # --- computes ------------------------------------------------------------
 
@@ -185,6 +188,23 @@ class EmsCertificate(models.Model):
     def _compute_is_first_step(self):
         for certificate in self:
             certificate.is_first_step = certificate.step_id == certificate._ems_steps()[:1]
+
+    @api.depends('state', 'step_id', 'type_id.step_ids')
+    @api.depends_context('uid')
+    def _compute_can_issue_now(self):
+        is_admin = self._ems_is_admin()
+        base = self.env['ems.base']
+        issuers_by_role = {}
+        for certificate in self:
+            issue_step = certificate._ems_issue_step()
+            if certificate.state not in ('draft', 'in_progress') or not issue_step or (
+                    certificate.state == 'in_progress' and certificate.step_id.sequence >= issue_step.sequence):
+                certificate.can_issue_now = False
+                continue
+            role = issue_step.role_id
+            if role not in issuers_by_role:
+                issuers_by_role[role] = base.role_users(role)
+            certificate.can_issue_now = is_admin or self.env.user in issuers_by_role[role]
 
     @api.depends('name', 'student_id', 'student_name', 'type_id')
     def _compute_display_name(self):
@@ -335,6 +355,10 @@ class EmsCertificate(models.Model):
         index = list(steps).index(self.step_id)
         return steps[index - 1] if index else steps.browse()
 
+    def _ems_issue_step(self):
+        self.ensure_one()
+        return self._ems_steps().filtered(lambda step: step.action == 'issue')[:1]
+
     def _ems_is_issued_step_done(self):
         """Whether the certificate already has its number and the issuer's stamp."""
         self.ensure_one()
@@ -347,20 +371,20 @@ class EmsCertificate(models.Model):
             if missing:
                 raise UserError(_("Fill in the applicant's details first: %s.", ", ".join(missing)))
 
-    def _ems_check_step_data(self):
-        """What the current step needs before it is done: the applicant's details always; the
-        workplace training from the step that completes it on (and at the latest when issuing);
-        every document the type requires before issuing."""
+    def _ems_check_step_data(self, action=None):
+        """What the current step (or a step doing `action`) needs before it is done: the
+        applicant's details always; the workplace training from the step that completes it on
+        (and at the latest when issuing); every document the type requires before issuing."""
         self._ems_check_applicant_data()
         labels = self.fields_get(COMPANY_REQUIRED_FIELDS, ['string'])
         for certificate in self:
-            action = certificate.step_id.action
-            if certificate.kind == 'fct' and action in ('complete', 'issue'):
+            checked_action = action or certificate.step_id.action
+            if certificate.kind == 'fct' and checked_action in ('complete', 'issue'):
                 missing = [labels[name]['string'] for name in COMPANY_REQUIRED_FIELDS if not certificate[name]]
                 if missing:
                     raise UserError(_("Fill in the workplace training first: %s.", ", ".join(missing)))
             missing_documents = certificate.document_ids.filtered(lambda line: not line.attachment_ids)
-            if action == 'issue' and missing_documents:
+            if checked_action == 'issue' and missing_documents:
                 raise UserError(_("Attach the required documentation before issuing the certificate: %s.",
                                   ", ".join(missing_documents.mapped('name'))))
 
@@ -404,6 +428,32 @@ class EmsCertificate(models.Model):
                 certificate._ems_schedule_task()
             else:
                 certificate._ems_finish()
+
+    def action_issue_now(self):
+        """Whoever issues the certificate already has every detail: the steps before theirs are
+        skipped (their tasks closed, a note says who skipped them) and the certificate is issued
+        at once, with the same checks as the issuing step always makes."""
+        self._ems_check_state(('draft', 'in_progress'))
+        for certificate in self:
+            if not certificate.can_issue_now:
+                raise AccessError(_("Only whoever issues %s can issue it right away, and only before its "
+                                    "issuing step.", certificate.display_name))
+        # Every mandatory detail and document, before anything moves.
+        self._ems_check_step_data(action='issue')
+        today = fields.Date.context_today(self)
+        for certificate in self:
+            issue_step = certificate._ems_issue_step()
+            steps = certificate._ems_steps()
+            skipped = steps.filtered(lambda step: step.sequence < issue_step.sequence and (
+                certificate.state == 'draft' or step.sequence >= certificate.step_id.sequence))
+            vals = {'state': 'in_progress', 'step_id': issue_step.id, 'return_reason': False}
+            if certificate.state == 'draft':
+                vals['submission_date'] = today
+            certificate._ems_close_tasks()
+            certificate.sudo().write(vals)
+            certificate._ems_post_note(_("%(user)s issues the certificate right away, skipping: %(steps)s.",
+                                         user=self.env.user.name, steps=", ".join(skipped.mapped('name')) or "-"))
+        self.action_done_step()
 
     @api.model
     def _ems_next_number(self, course):

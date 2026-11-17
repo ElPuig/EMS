@@ -36,6 +36,7 @@
                     <field name="can_manage" invisible="1"/>
                     <field name="step_action" invisible="1"/>
                     <field name="is_first_step" invisible="1"/>
+                    <field name="can_issue_now" invisible="1"/>
                     <header>
                         <div name="ems_actions" string="Actions">
                             <button name="action_send_form" type="object" string="Send form" class="btn-primary"
@@ -54,6 +55,10 @@
                             <button name="action_done_step" type="object" string="Approve" class="btn-primary"
                                     invisible="not can_act or step_action != 'approve'"
                                     confirm="The certificate gets your stamp of approval. If it is the last step, its PDF is generated and sent to the applicant. Continue?"/>
+                            <button name="action_issue_now" type="object" string="Issue it now"
+                                    invisible="not can_issue_now"
+                                    confirm="Confirm you have every mandatory detail and document of the request. The steps before issuing are skipped (their pending tasks are closed) and the certificate gets its number and your stamp. If anything mandatory is missing, it is not issued and you are told what. Continue?"
+                                    help="Skip the steps before issuing (e.g. completing the workplace training) when you already have every detail and document."/>
                             <button name="action_open_wizard" type="object" string="Request documentation"
                                     invisible="not can_act" context="{'certificate_wizard_mode': 'info'}"/>
                             <button name="action_documentation_received" type="object" string="Documentation received"

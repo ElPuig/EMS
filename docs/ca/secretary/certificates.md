@@ -64,6 +64,16 @@ L'estudi ha de ser d'un dels nivells del tipus de certificat (per al de FCT, CFG
 
 Si falta alguna dada o algun document obligatori, EMS t'ho indica i no deixa expedir-lo.
 
+### Expedir-lo sense esperar els passos anteriors
+
+De vegades ja tens totes les dades i documents d'una sol·licitud que encara és en un pas anterior (per exemple, esperant que el coordinador de FP completi la formació en centres de treball). No cal que esperis:
+
+1. Obre la sol·licitud. Encara no surt a **Pendents de mi**: treu aquest filtre per trobar-la.
+2. Completa el que falti a les pestanyes **Sol·licitant** i **Formació en centres de treball**, i adjunta els documents obligatoris a **Documentació**.
+3. Obre **Accions → Expedir ara** i confirma que tens totes les dades i documents obligatoris.
+
+Els passos anteriors se salten i les seves tasques pendents es tanquen, i l'historial de la sol·licitud registra qui els ha saltat. El certificat rep el número i el teu segell, i passa a l'aprovació de la direcció com sempre. Es fan les mateixes comprovacions que quan l'expedeixes al seu pas: si falta alguna cosa obligatòria, EMS t'indica què i no l'expedeix. El botó també és disponible en una sol·licitud que acabes de registrar, abans d'enviar el formulari o d'iniciar-la.
+
 ---
 
 ## Altres accions

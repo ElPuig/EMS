@@ -138,7 +138,7 @@ Constraints (`_check_steps` on the type): at least one step, exactly one `issue`
 | `certificate_pdf_id` | M2o `ir.attachment` | The final PDF. |
 | `applicant_form_open` | Boolean | The applicant may still edit their form from the link: set when the form is sent or the portal request filed, cleared as soon as someone of the centre writes the request (or one of its documents) or acts on it (step done, return, request documentation, reject, cancel). `_ems_portal_can_edit()`: in draft, or in progress with this flag. While open, the portal shows the form with **Save changes** (`_ems_portal_fill` updates and leaves a note). |
 | `info_request`, `return_reason`, `reject_reason`, `cancel_reason` | Text | Last request for documentation, the last return to the previous step, why it was rejected or cancelled. |
-| `step_user_ids` | M2m `res.users`, computed, searchable | Holders of the current step's role. `is_pending_for_me` (searchable) = the current user is one of them, or is the administrator and the request is in progress. `can_act` = may press the step's button. `can_manage` = may reject, cancel or mark the documentation received: the secretariat (and the administrator) or a holder of the current step. The form only offers each button to whoever can use it. |
+| `step_user_ids` | M2m `res.users`, computed, searchable | Holders of the current step's role. `is_pending_for_me` (searchable) = the current user is one of them, or is the administrator and the request is in progress. `can_act` = may press the step's button. `can_manage` = may reject, cancel or mark the documentation received: the secretariat (and the administrator) or a holder of the current step. `can_issue_now` = may issue it right away (`action_issue_now`): a holder of the `issue` step's position, or the administrator, while the request is in draft or before that step. The form only offers each button to whoever can use it. |
 
 ### `ems.certificate.document` (a required document of a request)
 
@@ -164,6 +164,8 @@ stateDiagram-v2
     in_progress --> in_progress: step done (next step) / Return (previous step)
     in_progress --> issued: last step done (PDF + email)
     in_progress --> rejected: Reject
+    draft --> in_progress: Issue it now (issue step done)
+    in_progress --> in_progress: Issue it now (earlier steps skipped)
     draft --> cancelled: Cancel
     in_progress --> cancelled: Cancel (before the issue step)
     cancelled --> in_progress: Reopen (first step)
@@ -171,6 +173,14 @@ stateDiagram-v2
 
 - `action_done_step()`: checks the step's data (`_ems_check_step_data`), records the stamp, assigns
   the number on `issue`, and moves to the next step (task to its role holders) or finishes.
+- `action_issue_now()`: whoever holds the `issue` step's position (or the administrator,
+  `can_issue_now`) issues the certificate while the request is still in draft or on an earlier
+  step, when they already have every detail. It runs the issuing step's checks first
+  (`_ems_check_step_data(action='issue')`: applicant, workplace training, required documents), so
+  nothing moves while something mandatory is missing; then it closes the earlier steps' tasks,
+  posts a note naming the skipped steps and their skipper, puts the request on the `issue` step and
+  calls `action_done_step()`. A skipped `complete` step leaves no stamp (it is never printed
+  anyway); approvals after the issue step are never skipped.
 - Every step change closes the previous task and schedules the next one quietly
   (`mail_activity_quick_update`): the holders find it in their daily summary.
 - `ems.certificate.wizard` (`mode`: `info`, `return`, `reject`, `cancel`) asks for the text and runs
@@ -226,7 +236,7 @@ position reads no request: the group comes from the position, and the record rul
 | Role | `ems.certificate` | Types and steps | Notes |
 |------|-------------------|-----------------|-------|
 | Administrator (`group_academic_admin`) | rwcu | rwcu | May act on any step. |
-| Secretariat (`group_secretary`) | rwc, every request | r | Registers former students' requests, sends the form, follows every request up. Acts on the steps of the roles it holds. |
+| Secretariat (`group_secretary`) | rwc, every request | r | Registers former students' requests, sends the form, follows every request up. Acts on the steps of the roles it holds, and, holding the `issue` step's, may issue a request right away, skipping the steps before it (`action_issue_now`). |
 | Director (`group_director`) | rw, every request | r | Acts on the `approve` step (role holder). |
 | VET coordinator (`group_vet_coordinator`, given by `role_vetcoord`) | rw, requests of types with a step of a role they hold | r | Acts on the `complete` step. |
 | Any teacher (`group_teacher`) | rw, same rule | r | A role holder of a step without the menu (any role an administrator puts in a circuit) reaches it from the task. |

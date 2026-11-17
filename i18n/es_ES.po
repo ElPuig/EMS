@@ -54841,3 +54841,61 @@ msgstr "La persona solicitante ha actualizado sus datos."
 msgid "Complete the data"
 msgstr "Completar los datos"
 
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "%(user)s issues the certificate right away, skipping: %(steps)s."
+msgstr "%(user)s expide el certificado directamente y salta: %(steps)s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__can_issue_now
+msgid "Can issue it right away"
+msgstr "Puede expedirlo directamente"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"Confirm you have every mandatory detail and document of the request. The "
+"steps before issuing are skipped (their pending tasks are closed) and the "
+"certificate gets its number and your stamp. If anything mandatory is "
+"missing, it is not issued and you are told what. Continue?"
+msgstr ""
+"Confirma que tienes todos los datos y documentos obligatorios de la "
+"solicitud. Los pasos anteriores a la expedición se saltan (sus tareas "
+"pendientes se cierran) y el certificado recibe su número y tu sello. Si "
+"falta algo obligatorio, no se expide y se te indica qué. ¿Quieres continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "Issue it now"
+msgstr "Expedir ahora"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid ""
+"Only whoever issues %s can issue it right away, and only before its issuing "
+"step."
+msgstr ""
+"Solo quien expide %s puede expedirlo directamente, y solo antes del paso de "
+"expedición."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"Skip the steps before issuing (e.g. completing the workplace training) when "
+"you already have every detail and document."
+msgstr ""
+"Salta los pasos anteriores a la expedición (por ejemplo, completar la "
+"formación en centros de trabajo) cuando ya tienes todos los datos y "
+"documentos."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__can_issue_now
+msgid ""
+"Whoever issues the certificate, while the request is still before their "
+"step: they may skip the earlier ones when they already have every detail."
+msgstr ""
+"Quien expide el certificado, mientras la solicitud aún está antes de su "
+"paso: puede saltar los anteriores cuando ya tiene todos los datos."

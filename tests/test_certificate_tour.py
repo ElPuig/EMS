@@ -1,7 +1,7 @@
 from odoo.tests import HttpCase, tagged
 
 from .common import mock_outgoing_email
-from .test_certificate import create_certificate_fixtures
+from .test_certificate import create_certificate_fixtures, one_page_pdf
 
 
 @tagged('post_install', '-at_install')
@@ -32,3 +32,21 @@ class TestCertificateTour(HttpCase):
         report = self.certificate.document_ids.filtered(lambda line: line.type_document_id == self.report_document)
         self.assertEqual(report.attachment_ids.mapped('name'), ['Report.pdf'])
         self.assertEqual(report.attachment_ids.res_id, report.id, "The file follows the request's access rights.")
+
+    def test_secretary_issues_it_now(self):
+        """A request with every detail and document, still waiting for the coordinator: the secretary
+        issues it right away, and the coordinator's step is skipped."""
+        certificate = self.env['ems.certificate'].create({
+            'type_id': self.certificate_type.id, 'origin': 'secretariat', 'student_name': 'TCTR Ready Student',
+            'applicant_email': 'tctr.ready@example.com', 'student_document': '87654321X', 'study_id': self.study.id,
+            'fct_school_year': '2025-2026', 'training_company_id': self.company.id, 'period_start': '2026-03-01',
+            'period_end': '2026-06-15', 'hours': 400,
+        })
+        certificate._ems_submit()
+        for line in certificate.document_ids:
+            line.attachment_ids = [(0, 0, {'name': 'doc.pdf', 'raw': one_page_pdf(), 'mimetype': 'application/pdf',
+                                           'res_model': 'ems.certificate.document', 'res_id': line.id})]
+        self.start_tour("/odoo", 'ems_certificate_issue_now', login=self.secretary.login)
+        self.assertEqual(certificate.step_id, self.steps[2])
+        self.assertTrue(certificate.name)
+        self.assertEqual(certificate.activity_ids.user_id, self.director)

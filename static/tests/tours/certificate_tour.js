@@ -78,3 +78,35 @@ registry.category("web_tour.tours").add("ems_certificate_complete", {
         },
     ],
 });
+
+// The secretary already has every detail of a request still waiting for the coordinator: they
+// issue it right away from the Actions dropdown, skipping the coordinator's step.
+registry.category("web_tour.tours").add("ems_certificate_issue_now", {
+    url: "/odoo/action-ems.action_certificate",
+    steps: () => [
+        {
+            trigger: ".o_searchview .o_facet_remove",
+            content: "The request is not pending for the secretary yet: drop the Pending for me filter",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row td[name='student_name']:contains('TCTR Ready Student')",
+            content: "Open the request that is still with the coordinator",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='step_id']:contains('Complete')",
+            content: "It is on the coordinator's step",
+        },
+        ...clickAction("action_issue_now", "Issue it now"),
+        {
+            trigger: ".modal .modal-footer .btn-primary",
+            content: "Confirm every mandatory detail and document is there",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='step_id']:contains('Approve')",
+            content: "The certificate is issued and waits for its approval",
+        },
+    ],
+});

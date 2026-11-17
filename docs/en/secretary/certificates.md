@@ -64,6 +64,16 @@ The study must belong to one of the certificate type's levels (CFGM or CFGS for 
 
 If a detail or a required document is missing, EMS says so and does not let you issue it.
 
+### Issuing it without waiting for the earlier steps
+
+Sometimes you already have every detail and document of a request that is still with an earlier step (for example, waiting for the VET coordinator to complete the workplace training). You don't need to wait:
+
+1. Open the request. It is not under **Pending for me** yet: remove that filter to find it.
+2. Fill in whatever is missing in the **Applicant** and **Workplace training** tabs, and attach the required documents in **Documentation**.
+3. Open **Actions → Issue it now** and confirm that you have every mandatory detail and document.
+
+The earlier steps are skipped and their pending tasks closed, and the request's history records who skipped them. The certificate gets its number and your stamp, and goes on to the Director's approval as usual. The same checks apply as when issuing it at its step: if anything mandatory is missing, EMS says what and does not issue it. The button is also available on a request you have just registered, before sending the form or starting it.
+
 ---
 
 ## Other actions

@@ -13,10 +13,10 @@ GROUP_VOTES = ('yes', 'no', 'abstain')
 JUSTIFY_TASK = 'ems.mail_activity_student_walkout_justify'
 # What the group sees: a call cancelled by its delegate is only theirs.
 VISIBLE_STATES = ('voting', 'joining', 'closed', 'justified', 'rejected')
-# The group's tutor (and the chain above them) may abort a call while it is voted or joined; once
-# closed, the Head of Studies validates it (justifies) or not, and may undo a validation.
 # Issue #838: the least a phase can last when it is cut to keep the notice before the walkout.
 MIN_PHASE_MINUTES = 5
+# The group's tutor (and the chain above them) may abort a call while it is voted or joined; once
+# closed, the Head of Studies validates it (justifies) or not, and may undo a validation.
 ABORTABLE_STATES = ('voting', 'joining')
 VALIDATION_STATES = ('closed', 'justified')
 # Issue #828: the sample call shown in the settings (_ems_sample_calendar).

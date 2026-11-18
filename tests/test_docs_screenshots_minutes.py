@@ -12,6 +12,8 @@ Run it with:
 
 from datetime import datetime
 
+from markupsafe import Markup
+
 from odoo.tests.common import HttpCase, tagged
 
 from .common import DocsScreenshotMixin, create_role_employee, create_role_user, mock_outgoing_email
@@ -119,6 +121,26 @@ class TestDocsScreenshotsMinutes(DocsScreenshotMixin, HttpCase):
                        'involved_employee_ids': [(6, 0, public.browse(cls.colleagues[:3].ids).ids)],
                        'description': '<p>Reserva de l\'autocar i autoritzacions de les famílies.</p>'})
 
+        # A meeting held by email (issue #822): one being prepared, and one already open with the
+        # first answers written in.
+        def _by_email(**vals):
+            return Minute.create({'type_id': dep_type.id, 'department_id': cls.department.id, 'course_id': cls.course.id,
+                                  'modality': 'email', 'reply_deadline': datetime(2026, 11, 20).date(),
+                                  'redactor_employee_id': cls.teacher_public.id,
+                                  'agenda_ids': [(0, 0, {'sequence': 1, 'name': 'Calendari de les proves de recuperació'}),
+                                                 (0, 0, {'sequence': 2, 'name': 'Compra de material de laboratori'})], **vals})
+        cls.by_email_draft = _by_email()
+        cls.by_email = _by_email()
+        cls.by_email.action_start_meeting()
+        answers = (
+            (cls.colleagues[0], None, '<p>Hi estic d\'acord. Proposo fer la reunió de desembre presencial.</p>'),
+            (cls.colleagues[1], cls.by_email.agenda_ids.sorted('sequence')[0], '<p>Millor la setmana del 12 de gener, que no coincideix amb cap sortida.</p>'),
+            (cls.seminar_employee, cls.by_email.agenda_ids.sorted('sequence')[1], '<p>Hi ha pressupost per a dues balances noves.</p>'),
+        )
+        for when, (employee, item, text) in enumerate(answers):
+            employee_public = public.browse(employee.id)
+            cls.by_email._ems_add_intervention(employee.name, datetime(2026, 11, 16, 9 + when, 15), Markup(text), item=item, employee=employee_public)
+
         # The agreements screen, scoped to these fixtures so nothing real can show up in it.
         cls.agreements_action = cls.env['ir.actions.act_window'].create({
             'name': 'Accions i acords', 'res_model': 'ems.quality.action', 'view_mode': 'list,form',
@@ -184,6 +206,26 @@ class TestDocsScreenshotsMinutes(DocsScreenshotMixin, HttpCase):
                       + ";document.querySelector('.o_group:has(.o_field_widget[name=approver_employee_id]) .o_inner_group:last-child').style.paddingLeft = '40px'",
                       wait_after='.o_field_widget[name=approver_employee_id]', beyond_viewport=False,
                       marks=[('label[for^=approver_employee_id]', 1, 'left')])
+
+    def test_capture_email_meeting(self):
+        """Issue #822: a meeting held by email - preparing it, its answers, and the participants' interventions."""
+        login = self.TEACHER
+        self._capture(self._minute_url(self.by_email_draft), '.o_form_sheet', 'actes-11-correu-preparar.png', login=login,
+                      wait_for='.o_field_widget[name=reply_deadline]', run=self._room('.o_form_sheet', 64), wait_after='.o_form_sheet',
+                      max_height=418,
+                      marks=[('label[for^=modality]', 1, 'left'), ('label[for^=reply_deadline]', 2, 'left')])
+        self._capture(self._minute_url(self.by_email), "div[name=block_texts]", 'actes-12-correu-precs.png', login=login,
+                      wait_for="div[name=block_texts] .o_ems_text_block", run=self._show("div[name=block_texts]"),
+                      wait_after="div[name=block_texts]", max_height=300, beyond_viewport=False)
+        self._capture(self._minute_url(self.by_email), "div[name=block_items]", 'actes-13-correu-punts.png', login=login,
+                      wait_for="div[name=block_items] .o_ems_text_block", run=self._show("div[name=block_items]"),
+                      wait_after="div[name=block_items]", beyond_viewport=False)
+        self._capture(self._minute_url(self.by_email), '.modal-content', 'actes-14-correu-intervencions.png', login=login,
+                      wait_for='.o_form_statusbar .o_ems_actions_toggle',
+                      run=["document.querySelector('.o_form_statusbar .o_ems_actions_toggle').click()",
+                           "document.querySelector(\".o_ems_actions_menu button[name='action_open_intervention_wizard']\").click()"],
+                      wait_after=[".o_ems_actions_menu button[name='action_open_intervention_wizard']", '.modal-content .o_ems_text_block'],
+                      padding=0)
 
     def test_capture_agreements(self):
         action = self.agreements_action.id

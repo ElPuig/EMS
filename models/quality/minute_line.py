@@ -39,7 +39,7 @@ class EmsMinuteSectionValue(models.Model):
     def _compute_is_written(self):
         for value in self:
             has_items = 'agenda' in value.minute_id.type_id.section_ids.mapped('section_id.kind')
-            value.is_written = value.kind == 'text' or (value.kind == 'development' and not has_items)
+            value.is_written = value.kind in ('text', 'requests') or (value.kind == 'development' and not has_items)
 
     @api.depends('minute_id.type_id', 'section_id')
     def _compute_required(self):

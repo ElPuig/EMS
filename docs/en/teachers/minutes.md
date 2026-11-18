@@ -5,7 +5,7 @@
 # Meeting minutes
 
 Minutes are written in **Meetings → Minutes and records**. The screen opens on yours: the
-ones you wrote, the ones of meetings you attended and the ones awaiting your approval, for the current
+ones you wrote, the ones of meetings you were convened to (whether you came or not) and the ones awaiting your approval, for the current
 year. Removing a facet in the search bar shows more.
 
 If you are a Department or Seminar Chief, or Head or Deputy Head of Studies, you also see the minutes of the
@@ -14,7 +14,7 @@ departments and groups that hang from you.
 Only whoever writes a minute and whoever approves it can change it, and so can their chiefs (for instance
 the Seminar Chief of whoever writes it); if whoever approves it is away, their
 chiefs (Department Chief, Head or Deputy Head of Studies, Director) can approve it in their place. Any other minute you can see (one of
-a meeting you attended, one of your department) opens **read-only**, with no actions.
+a meeting you were convened to, one of your department) opens **read-only**, with no actions.
 
 ![List of the year's minutes with the facets Mine or Awaiting my approval, Meeting minutes and Current course](../../assets/teachers/actes-01-llistat.png)
 
@@ -176,6 +176,8 @@ under the *Awaiting my approval* facet, and also gets an *Approve the minute* ta
 - Records **who approved it and when**.
 - Generates the **PDF**, kept as an attachment on the minute.
 - Makes the minute **read-only**.
+- Emails the approved minute to everybody convened, whether they came or not: the staff, a link to its PDF;
+  the guests from outside EMS, the PDF attached. A meeting held by email gets it by its own thread.
 
 ### Correcting an approved minute
 
@@ -196,6 +198,47 @@ meeting starts, when it is sent for approval, approved or reopened), so the fold
 minute, as the minute stood at its last change of state: what you write in between reaches Drive at the next one.
 Once filed, **In Drive → Open in Drive**, under **Signatures**, opens it. Deleting a minute sends its copy to the
 Drive bin.
+
+## Meetings held by email
+
+When a matter does not need everybody in the same room, any meeting minute can be held by email: choose
+**By email** as its **modality**. The minute keeps its own type (a teaching team's, a department's...), so
+it follows on from the earlier minutes of the same scope like any other. The participants take part by
+answering an email, or from EMS.
+
+1. Prepare the minute as usual, with **By email** as the modality. Instead of a time, room and kiosk it
+   asks for **Answers until**, the last day to take part. Write the **items to discuss** and check who is
+   convened in the **Attendance** tab.
+
+   ![A department minute held by email being prepared: the modality (1) and until when to answer (2)](../../assets/teachers/actes-11-correu-preparar.png)
+
+2. **Actions → Open the thread**. Everybody convened gets an email with the agenda and the deadline, and
+   they all start among the **absentees**.
+3. Each participant **replies to that email** from their mailbox. Everybody receives every answer, as in
+   a mailing list, and within a few minutes the answer is written under **Precs i preguntes**, with its
+   author and date and without the text it quotes. Whoever answers moves to the **attendees** by
+   themselves. A message written in the minute's history counts too.
+
+   ![Precs i preguntes with an answer by email, its author and when it arrived](../../assets/teachers/actes-12-correu-precs.png)
+
+4. To say something about particular items, open the minute in EMS and use **Actions → Add
+   interventions**: there is one box per item to discuss and one for **Precs i preguntes**. Write in the
+   ones you want and leave the rest empty. Each text is written under its item, and everything reaches
+   everybody in a single email, saying which item each part is about.
+
+   ![The Add interventions dialog: one box per item and one for Precs i preguntes](../../assets/teachers/actes-14-correu-intervencions.png)
+
+   ![The items to discuss with the interventions written under each one](../../assets/teachers/actes-13-correu-punts.png)
+
+5. Whoever writes the minute can retouch everything written in it, and correct the lists: whoever is
+   taken off them stops getting the thread.
+6. When the deadline is over, write the agreements and the pending topics, and **Actions → Send for
+   approval**, with the draft for the participants ticked: they get it as one more email of the same
+   thread. What they answer to the draft stays in the minute's history, for whoever writes it to apply;
+   it does not hold back the approval.
+
+Answer from the email address the centre has for you: an answer from a personal address is written into
+the minute, but does not make you an attendee.
 
 ## My agreements
 

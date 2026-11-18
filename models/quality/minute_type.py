@@ -8,6 +8,7 @@ from odoo import api, fields, models
 SECTION_KINDS = [
     ('text', "Free text"),
     ('development', "Development of the session"),
+    ('requests', "Any other business"),
     ('agenda', "Agenda"),
     ('previous_approval', "Approval of the previous minute"),
     ('agreement_followup', "Follow-up of earlier agreements"),
@@ -60,8 +61,10 @@ class EmsMinuteType(models.Model):
 
     code = fields.Char(string="Code", required=True)
     name = fields.Char(string="Name", required=True, translate=True)
-    # A meeting deliberates and produces agreements; a record just states that something happened.
-    # Same model, same machinery, different sections - which is why adding either is configuration.
+    # A meeting deliberates and produces agreements; a record just states that something happened;
+    # an email thread is a meeting held by email, whose participants speak by answering the thread
+    # (issue #822). Same model, same machinery, different sections - which is why adding any of
+    # them is configuration.
     kind = fields.Selection(
         string="Kind",
         selection=[('meeting', "Meeting minute"), ('record', "Evidence record")],

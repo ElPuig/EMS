@@ -5,7 +5,7 @@
 # Actas de reunión
 
 Las actas se redactan en **Reuniones → Actas y registros**. La pantalla se abre con las vuestras:
-las que habéis redactado, las de reuniones donde constáis como asistente y las que esperan vuestro visto
+las que habéis redactado, las de reuniones a las que se os convocó (asistierais o no) y las que esperan vuestro visto
 bueno, del curso actual. Quitando una faceta de la barra de búsqueda veis más.
 
 Si sois jefe de departamento o de seminario, o jefe de estudios o jefe de estudios adjunto, también veis las
@@ -15,7 +15,7 @@ Solo quien redacta un acta y quien debe darle el visto bueno pueden modificarla,
 (por ejemplo, el jefe de seminario de quien la redacta); si quien debe aprobarla no
 está, pueden aprobarla en su lugar sus superiores (jefe de departamento, jefe de estudios o jefe de
 estudios adjunto, director). Cualquier otra acta que
-veáis (la de una reunión a la que asististeis, la de vuestro departamento) se abre **solo en lectura**, sin acciones.
+veáis (la de una reunión a la que se os convocó, la de vuestro departamento) se abre **solo en lectura**, sin acciones.
 
 ![Lista de actas del curso con las facetas Las mías o Pendientes de que yo apruebe, Actas de reunión y Curso actual](../../assets/teachers/actes-01-llistat.png)
 
@@ -180,6 +180,8 @@ pantalla con la faceta *Pendientes de que yo apruebe*, y también recibe la tare
 - Queda registrado **quién la ha aprobado y cuándo**.
 - Se genera el **PDF**, que queda adjunto al acta.
 - El acta **ya no se puede modificar**.
+- Se envía el acta aprobada a todas las personas convocadas, asistieran o no: al personal, un enlace a su
+  PDF; a las personas de fuera de EMS, el PDF adjunto. Una reunión por correo la recibe por su propio hilo.
 
 ### Corregir un acta aprobada
 
@@ -201,6 +203,47 @@ crea, cuando empieza la reunión, cuando se envía a aprobar, se aprueba o se de
 la carpeta siempre hay un solo archivo por acta, tal como estaba en el último cambio de estado: lo que escribáis
 entre medias llega a Drive en el siguiente. Una vez guardada, **En Drive → Abrir en Drive**, en **Firmas**, la abre.
 Si se borra un acta, su copia va a la papelera de Drive.
+
+## Reuniones por correo
+
+Cuando un tema no necesita que todo el mundo esté en la misma sala, cualquier acta de reunión se puede
+hacer por correo: elegid **Por correo electrónico** como **modalidad**. El acta conserva su tipo (de equipo docente,
+de departamento...), de modo que continúa las actas anteriores del mismo ámbito como cualquier otra. Los
+participantes intervienen respondiendo un correo, o desde EMS.
+
+1. Preparad el acta como siempre, con la modalidad **Por correo electrónico**. En lugar de hora, sala y quiosco, pide
+   **Respuestas hasta el**, el último día para participar. Escribid los **puntos a tratar** y revisad
+   quién está convocado en la pestaña **Asistencia**.
+
+   ![Un acta de departamento por correo en preparación: la modalidad (1) y hasta cuándo se puede responder (2)](../../assets/teachers/actes-11-correu-preparar.png)
+
+2. **Acciones → Abrir el hilo**. Todas las personas convocadas reciben un correo con el orden del día y la
+   fecha límite, y todas empiezan en **Personas que faltan**.
+3. Cada participante **responde a ese correo** desde su buzón. Todo el mundo recibe todas las respuestas,
+   como en una lista de correo, y en pocos minutos la respuesta queda escrita en **Precs i preguntes**,
+   con su autor y su fecha y sin el texto que cita. Quien responde pasa solo a **Asistentes**. Un mensaje
+   escrito en el historial del acta también cuenta.
+
+   ![Precs i preguntes con una respuesta por correo, su autor y cuándo llegó](../../assets/teachers/actes-12-correu-precs.png)
+
+4. Para decir algo sobre puntos concretos, abrid el acta en EMS y usad **Acciones → Añadir
+   intervenciones**: hay un recuadro para cada punto a tratar y uno para **Precs i preguntes**. Escribid
+   en los que queráis y dejad el resto en blanco. Cada texto queda escrito bajo su punto, y todo llega a
+   todo el mundo en un solo correo, indicando de qué punto se trata cada parte.
+
+   ![El diálogo Añadir intervenciones: un recuadro para cada punto y uno para Precs i preguntes](../../assets/teachers/actes-14-correu-intervencions.png)
+
+   ![Los puntos a tratar con las intervenciones escritas bajo cada uno](../../assets/teachers/actes-13-correu-punts.png)
+
+5. Quien redacta el acta puede retocar todo lo que se ha escrito en ella y corregir las listas: quien sale
+   de ellas deja de recibir el hilo.
+6. Cuando acabe el plazo, escribid los acuerdos y los temas pendientes, y **Acciones → Enviar a aprobar**,
+   con el borrador para los participantes marcado: lo reciben como un correo más del mismo hilo. Lo que
+   respondan al borrador queda en el historial del acta, para que quien la redacta lo aplique; no detiene
+   la aprobación.
+
+Responded desde la dirección de correo que el centro tiene vuestra: una respuesta desde una dirección
+personal queda escrita en el acta, pero no os cuenta como asistentes.
 
 ## Mis acuerdos
 

@@ -20,7 +20,7 @@ Ve a **Erasmus+ > Convocatorias > Convocatorias** y haz clic en **Nuevo**:
 |---|---|
 | Nombre | Por ejemplo, *Prácticas Erasmus+ 2026-27* |
 | Curso | El curso escolar de la convocatoria |
-| Convocatoria publicada | El PDF de la convocatoria, que el alumnado puede descargar desde el portal |
+| Convocatoria publicada | El PDF de la convocatoria, que el alumnado abre en el portal (en una pestaña nueva, sin descargarlo); en la convocatoria, **Ver las bases de la convocatoria** lo abre igual |
 | Apertura / Cierre de solicitudes | Cuándo puede solicitar el alumnado. Después de la fecha de cierre nadie puede modificar su solicitud |
 
 La parte de arriba de la convocatoria tiene dos bloques: **Ajustes** (para quién es, el curso, la puntuación mínima y el PDF de la convocatoria) y **Calendario** (las fechas, en el orden del proceso). EMS rellena los cuatro plazos posteriores al cierre a partir de la fecha de cierre, a las 14:00, y los muestra plegados en **Plazos después del cierre**: haz clic para verlos o cambiarlos.

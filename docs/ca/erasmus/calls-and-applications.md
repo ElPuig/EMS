@@ -20,7 +20,7 @@ Ves a **Erasmus+ > Convocatòries > Convocatòries** i fes clic a **Nou**:
 |---|---|
 | Nom | Per exemple, *Pràctiques Erasmus+ 2026-27* |
 | Curs | El curs escolar de la convocatòria |
-| Convocatòria publicada | El PDF de la convocatòria, que l'alumnat pot descarregar des del portal |
+| Convocatòria publicada | El PDF de la convocatòria, que l'alumnat obre al portal (en una pestanya nova, sense descarregar-lo); a la convocatòria, **Veure les bases de la convocatòria** l'obre igual |
 | Obertura / Tancament de sol·licituds | Quan pot sol·licitar l'alumnat. Després de la data de tancament ningú no pot modificar la seva sol·licitud |
 
 La part de dalt de la convocatòria té dos blocs: **Ajustos** (per a qui és, el curs, la puntuació mínima i el PDF de la convocatòria) i **Calendari** (les dates, en l'ordre del procés). L'EMS omple els quatre terminis posteriors al tancament a partir de la data de tancament, a les 14:00, i els mostra plegats a **Terminis després del tancament**: fes-hi clic per veure'ls o canviar-los.

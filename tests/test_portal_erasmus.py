@@ -155,6 +155,7 @@ class TestPortalErasmus(HttpCase):
         self._login(self.student_user)
         response = self.url_open(f'/my/erasmus/call/{self.call.id}/rules')
         self.assertEqual(response.content, b'%PDF-1.4')
+        self.assertTrue(response.headers.get('Content-Disposition', '').startswith('inline'))
         self._login(self.outsider_user)
         response = self.url_open(f'/my/erasmus/call/{self.call.id}/rules')
         self.assertNotEqual(response.content, b'%PDF-1.4')

@@ -42897,8 +42897,8 @@ msgstr "Es mostra amb les instruccions, per exemple l'editor del currículum Eur
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_call__rules_document
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application__rules_document
-msgid "The signed PDF of the call's rules. Applicants download it on the portal with \"Read the call\", and it goes into the project's documents."
-msgstr "El PDF signat de les bases de la convocatòria. Les persones sol·licitants el descarreguen al portal amb «Llegeix la convocatòria», i va a la documentació del projecte."
+msgid "The signed PDF of the call's rules. Applicants open it on the portal with \"Read the call\", and it goes into the project's documents."
+msgstr "El PDF signat de les bases de la convocatòria. Les persones sol·licitants l'obren al portal amb «Llegeix la convocatòria», i va a la documentació del projecte."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_group_registration__strike_count
@@ -53458,3 +53458,9 @@ msgstr "Aquest document és confidencial: es pot veure, però no descarregar."
 #: code:addons/ems/models/erasmus/binary.py:0
 msgid "%(user)s viewed the confidential document \"%(file)s\""
 msgstr "%(user)s ha vist el document confidencial \"%(file)s\""
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_staff_form
+msgid "View the call rules"
+msgstr "Veure les bases de la convocatòria"

@@ -6,6 +6,9 @@
 
 # Changes
 
+## Call rules open on screen:
+- The call rules ("Read the call" on the portal, and a new "View the call rules" button on the call in the backend) open in a new browser tab instead of being downloaded.
+
 ## Interview/evaluation deadline:
 - The call's "Score correction deadline" is now "Interview/evaluation deadline", since it also serves the staff calls where the panel rates plans.
 

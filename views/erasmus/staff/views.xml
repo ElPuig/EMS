@@ -48,8 +48,9 @@
                                 <field name="is_accepting" invisible="1"/>
                             </group>
                             <group>
-                                <field name="rules_document" filename="rules_filename" invisible="not rules_document"/>
-                                <field name="rules_filename" invisible="1"/>
+                                <field name="rules_document" invisible="1"/>
+                                <button name="action_view_rules" type="object" string="View the call rules"
+                                        class="btn btn-link px-0" icon="fa-file-pdf-o" invisible="not rules_document"/>
                                 <field name="staff_application_id" string="My application" invisible="not staff_application_id"/>
                             </group>
                         </group>
@@ -157,8 +158,9 @@
                                 <field name="submit_date" options="{'show_time': False}" invisible="not submit_date"/>
                             </group>
                             <group>
-                                <field name="rules_document" filename="rules_filename" invisible="not rules_document"/>
-                                <field name="rules_filename" invisible="1"/>
+                                <field name="rules_document" invisible="1"/>
+                                <button name="action_view_rules" type="object" string="View the call rules"
+                                        class="btn btn-link px-0" icon="fa-file-pdf-o" invisible="not rules_document"/>
                             </group>
                         </group>
                         <notebook>

@@ -98,7 +98,7 @@ class EmsErasmusCall(models.Model):
     description = fields.Html(string="Information for applicants",
                               help="Shown on the portal above the application form.")
     rules_document = fields.Binary(string="Call rules (PDF)", attachment=True, copy=False,
-                                   help="The signed PDF of the call's rules. Applicants download it on the portal "
+                                   help="The signed PDF of the call's rules. Applicants open it on the portal "
                                         "with \"Read the call\", and it goes into the project's documents.")
     rules_filename = fields.Char(string="Call rules file name", copy=False)
     modality_ids = fields.One2many(string="Modalities", comodel_name='ems.erasmus.call.modality',
@@ -741,6 +741,15 @@ class EmsErasmusCall(models.Model):
             if not vals_list:
                 raise UserError(_("Every admitted application already has its ratings."))
             Rating.create(vals_list)
+
+    def action_view_rules(self):
+        """Open the call's rules PDF in the browser's own viewer (a new tab), never as a download."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content/{self._name}/{self.id}/rules_document?download=false',
+            'target': 'new',
+        }
 
     def action_view_ranking(self):
         self.ensure_one()

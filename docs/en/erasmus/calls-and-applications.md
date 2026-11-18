@@ -20,7 +20,7 @@ Go to **Erasmus+ > Calls > Calls** and click **New**:
 |---|---|
 | Name | For example, *Erasmus+ internships 2026-27* |
 | Course | The school year of the call |
-| Published call | The PDF of the call, which students can download from the portal |
+| Published call | The PDF of the call, which students open on the portal (in a new tab, without downloading it); in the call, **View the call rules** opens it the same way |
 | Applications open / close | When students can apply. After the closing date nobody can change their application |
 
 The top of the call has two blocks: **Settings** (who it is for, the course, the minimum score and the call's PDF) and **Calendar** (the dates, in the order of the process). EMS fills in the four deadlines after closing from the closing date, at 14:00, and shows them folded under **Deadlines after closing**: click it to see or change them.

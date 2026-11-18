@@ -88,7 +88,14 @@ class TestDocsScreenshotsStudentWalkout(DocsScreenshotMixin, HttpCase):
         """Issue #840: the Students tab, with the button to ratify by hand a minor whose family has not answered."""
         self._capture(f'/odoo/action-ems.action_student_walkout/{self.joining.id}', ".o_field_widget[name='line_ids']",
                       'tutor-walkout-ratify-by-hand.png', login=self.tutor.login,
-                      wait_for="button[name='action_ratify_manually']")
+                      wait_for="button[name='action_ratify_manually']",
+                      # Two columns this manual does not talk about are hidden: with them, the button's
+                      # column falls off the right edge of the tab.
+                      run="document.head.insertAdjacentHTML('beforeend', '<style>.o_field_widget[name=line_ids] "
+                          "th[data-name=has_portal], .o_field_widget[name=line_ids] td[name=has_portal], "
+                          ".o_field_widget[name=line_ids] th[data-name=voted], .o_field_widget[name=line_ids] td[name=voted] "
+                          "{display: none !important}</style>')",
+                      wait_after="button[name='action_ratify_manually']")
 
     def test_capture_head_of_studies_closed(self):
         # beyond_viewport=False: resizing the page for a taller shot would close the dropdown.

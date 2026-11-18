@@ -237,7 +237,7 @@ class TestScheduleDeclaration(TransactionCase):
         self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'eso': 1})
 
     def test_migration_moves_only_student_support_coded_tutoring(self):
-        migration = self._load_migration('18.0.0.49.5')
+        migration = self._load_migration('18.0.0.50.0')
         atal = self._student_support_type()
         tutorship_time = self.env.ref('ems.non_teaching_tt')
         tutorship_time.declaration_code = 'tutoring'
@@ -245,7 +245,7 @@ class TestScheduleDeclaration(TransactionCase):
             with self.subTest(code=code):
                 atal.declaration_code = code
                 self.env.flush_all()
-                migration.migrate(self.env.cr, '18.0.0.49.4')
+                migration._student_support_chooses_level_or_tutoring(self.env.cr)
                 self.env.invalidate_all()
                 self.assertEqual(atal.declaration_code, expected)
                 self.assertEqual(tutorship_time.declaration_code, 'tutoring')

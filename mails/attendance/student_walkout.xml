@@ -188,12 +188,10 @@
                             and the classes of that day do not count as absences. As they are a minor, we ask you to acknowledge receipt of this notice
                             on the school portal (<a t-attf-href="{{ object.get_base_url() }}/my/vagues">student walkouts</a>)
                             until <strong t-out="object.walkout_id.format_local_datetime(object.walkout_id.join_until)"/>, and to say whether
-                            you agree or not.
+                            you agree or not. If you agree, we will not tell you of any class they do not attend that day; if you do not agree, or do not answer, we will tell you of each class they do not attend, for information only.
                         </p>
                         <p>
-                            <strong>Once you have answered, you do not need to do anything else:</strong> the rest is
-                            automatic. If you do not say that you agree, the school will tell you of each class they do not attend
-                            that day, for information only.
+                            <strong>Once you have answered, you do not need to do anything else:</strong> the rest is automatic.
                         </p>
                         <p>If you have any question, talk to the group's tutor.</p>
                         <p>

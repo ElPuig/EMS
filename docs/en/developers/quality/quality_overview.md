@@ -341,7 +341,7 @@ change is one query on the minute's followers. The production circuit (catchall,
 described in [chatter_email_answers.md](../shared/chatter_email_answers.md); on a development machine nothing is
 fetched, so this is tested with `message_process()` (`tests/test_quality_minute_thread.py`,
 `tests/test_quality_minute_thread_tour.py`). The section kind `requests` was set on existing installations by
-`migrations/18.0.0.49.4/post-migrate.py`.
+`migrations/18.0.0.50.0/post-migrate.py`.
 
 ### Who can start each kind of minute
 

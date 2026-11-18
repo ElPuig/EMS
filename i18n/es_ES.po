@@ -49724,7 +49724,6 @@ msgstr "Acta de huelga"
 
 #. module: ems
 #: model:mail.template,subject:ems.email_template_student_walkout_head
-#: model:mail.template,subject:ems.email_template_student_walkout_tutor
 msgid ""
 "Student walkout on {{ format_date(object.walkout_date) }}: {{ "
 "object.group_id.name }}"
@@ -53511,3 +53510,8 @@ msgstr "». Di si te sumas."
 #: model:ems.student_walkout.rejection_reason,name:ems.student_walkout_rejection_document
 msgid "The attached document does not support the proposal"
 msgstr "El documento adjunto no justifica la propuesta"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_student_walkout_tutor
+msgid "Student walkout on {{ format_date(object.walkout_date) }}: {{ object.group_id.name }}"
+msgstr "Inasistencia colectiva del {{ format_date(object.walkout_date) }}: {{ object.group_id.name }}"

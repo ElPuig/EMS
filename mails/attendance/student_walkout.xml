@@ -282,8 +282,7 @@
                                 <strong t-if="object.group_supports">The group supports it.</strong>
                                 <strong t-else="">The group does not support it.</strong></li>
                             <li>Students who join: <t t-out="object.joining_count"/> of <t t-out="len(object.line_ids)"/>.
-                                They are off the roll-calls of that day: neither absent nor present. The families of the
-                                minors who join without having said that they agree are told of each class, for information.</li>
+                                They are off the roll-calls of that day: neither absent nor present. The families of the minors who join without having said that they agree receive a notice of each class, for information.</li>
                         </ul>
                         <p t-if="object.group_supports and object.joining_count">
                             From the proposal in EMS (<a t-attf-href="{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}">open it</a>),

@@ -100,7 +100,7 @@ def open_walkout(cls, partner=None, days=7, files=None, **values):
     }, files if files is not None else [('union_call.pdf', PDF)])
 
 
-def reject_walkout(walkout, user, reason_xmlid='ems.student_walkout_rejection_no_call', details=False):
+def reject_walkout(walkout, user, reason_xmlid='ems.student_walkout_rejection_document', details=False):
     """`user` aborts `walkout` (voting, joining) or does not validate it (closed, validated), from
     its wizard."""
     wizard = walkout.env['ems.student_walkout.reject.wizard'].with_user(user).with_context(
@@ -306,9 +306,12 @@ class TestStudentWalkout(TransactionCase):
         with self.assertRaises(Exception):
             self.env.company.write({'walkout_phase_hours': 0})
 
-    def test_union_call_is_required(self):
+    def test_a_supporting_document_is_required(self):
+        """Issue #844: any document (a union's call, the group's assembly minute...), but always one."""
         with self.assertRaises(UserError):
             open_walkout(self, files=[])
+        walkout = open_walkout(self, files=[('assembly_minute.pdf', PDF)])
+        self.assertEqual(walkout.attachment_ids.mapped('name'), ['assembly_minute.pdf'])
 
     def test_reason_is_required(self):
         for empty in ('', '   ', False):
@@ -410,7 +413,7 @@ class TestStudentWalkout(TransactionCase):
         end_phase(closed)
         closed.with_user(admin).action_validate()
         self.assertEqual(closed.state, 'validated')
-        reject_walkout(closed, admin, 'ems.student_walkout_rejection_no_call')  # undoes the validation
+        reject_walkout(closed, admin, 'ems.student_walkout_rejection_document')  # undoes the validation
         self.assertEqual((closed.state, closed.rejected_from_state), ('rejected', 'validated'))
 
     def test_co_tutors_of_a_split_group(self):
@@ -901,7 +904,7 @@ class TestStudentWalkout(TransactionCase):
         end_phase(walkout)
         walkout.with_user(self.head_of_studies).action_validate()
         before = self._mails(walkout.line_ids)
-        reject_walkout(walkout, self.head_of_studies, 'ems.student_walkout_rejection_no_call')
+        reject_walkout(walkout, self.head_of_studies, 'ems.student_walkout_rejection_document')
         self.assertEqual((walkout.state, walkout.rejected_from_state), ('rejected', 'validated'))
         self.assertFalse(self._notices(walkout), "Not an aborted call: no notice.")
         self.assertIn(self.family.email, ' '.join((self._mails(walkout.line_ids) - before).mapped('email_to')),

@@ -53,7 +53,7 @@
                             <h1><field name="name"/></h1>
                         </div>
                         <div class="alert alert-info" role="alert" invisible="state not in ('voting', 'joining')">
-                            The group's tutor watches over the proposal: check the union's call and, only if it has a formal
+                            The group's tutor watches over the proposal: check the supporting document and, only if it has a formal
                             defect, abort it giving a reason. Once closed, the Head of Studies validates it or not.
                         </div>
                         <group invisible="state != 'rejected'">

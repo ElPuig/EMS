@@ -18,16 +18,16 @@
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Hello <t t-out="object.student_id.name"/>,</p>
                         <p>
-                            <t t-out="object.walkout_id.opener_id.name"/>, the delegate of your group, has proposed that your group supports a
-                            student walkout called by a students' union for <strong t-out="format_date(object.walkout_id.walkout_date)"/>.
+                            <t t-out="object.walkout_id.opener_id.name"/>, the delegate of your group, has proposed that your group walks out
+                            on <strong t-out="format_date(object.walkout_id.walkout_date)"/>, because of: «<t t-out="(object.walkout_id.notes or '').strip().rstrip('.')"/>».
                         </p>
                         <p>
                             On the school portal (<a t-attf-href="{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}">student walkouts</a>)
-                            you will find the call of the students' union and you can vote whether the group supports
-                            the walkout (an anonymous vote), until
+                            you will find the document that supports it and you can vote whether the group walks out (an
+                            anonymous vote), until
                             <strong t-out="object.walkout_id.format_local_datetime(object.walkout_id.vote_until)"/>.
                             The vote ends earlier if the votes still to come can no longer change the result. If the
-                            group supports it, you will then be asked whether you join it.
+                            group decides to walk out, you will then be asked whether you join it.
                         </p>
                         <p>
                             Kind regards,<br/>
@@ -52,8 +52,8 @@
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Hello <t t-out="object.student_id.name"/>,</p>
                         <p>
-                            The group vote on the student walkout of <strong t-out="format_date(object.walkout_id.walkout_date)"/>
-                            has ended: the group does not support it
+                            The group vote on walking out on <strong t-out="format_date(object.walkout_id.walkout_date)"/>
+                            has ended: the group has decided not to walk out
                             (<t t-out="object.walkout_id.group_yes_count"/> yes, <t t-out="object.walkout_id.group_no_count"/> no,
                             <t t-out="object.walkout_id.group_abstain_count"/> abstentions).
                             Everybody in the group is expected in class that day, and a class missed counts as an
@@ -85,7 +85,7 @@
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Hello <t t-out="object.student_id.name"/>,</p>
                         <p>
-                            Your group supports the student walkout of <strong t-out="format_date(object.walkout_id.walkout_date)"/>
+                            Your group has decided to walk out on <strong t-out="format_date(object.walkout_id.walkout_date)"/>
                             (<t t-out="object.walkout_id.group_yes_count"/> yes, <t t-out="object.walkout_id.group_no_count"/> no,
                             <t t-out="object.walkout_id.group_abstain_count"/> abstentions).
                         </p>
@@ -412,13 +412,13 @@
                         <t t-if="event == 'call'">
                             <p>
                                 <t t-out="object.opener_id.name"/>, the delegate of <strong t-out="object.group_id.name"/>,
-                                has proposed that the group supports a student walkout called by a students' union for <strong t-out="format_date(object.walkout_date)"/>.
+                                has proposed that the group walks out on <strong t-out="format_date(object.walkout_date)"/>, because of: «<t t-out="(object.notes or '').strip().rstrip('.')"/>».
                                 The group votes until <strong t-out="object.format_local_datetime(object.vote_until)"/>.
                             </p>
                             <p>
-                                As the group's tutor, check the union's call: you can abort the proposal while it is voted
-                                or joined, only for a formal defect (no valid call of a students' union for that day,
-                                one that does not cover the group...), never because of its cause.
+                                As the group's tutor, check the supporting document: you can abort the proposal while it is
+                                voted or joined, only for a formal defect (a document that does not support it, a union's call
+                                that does not cover the group...), never because of its cause.
                             </p>
                         </t>
                         <p t-elif="event == 'join'">

@@ -31,7 +31,7 @@ The emails reach you when they reach your group: at once when the centre counts 
 
 ## Looking at a proposal
 
-**Student's Attendances > Student walkouts** lists your groups' proposals. The form shows the calendar, the union's call, the vote count and, on the **Students** tab, who voted (never what), who joins it, and the family ratification of the minors.
+**Student's Attendances > Student walkouts** lists your groups' proposals. The form shows the calendar, the reason, the supporting document, the vote count and, on the **Students** tab, who voted (never what), who joins it, and the family ratification of the minors.
 
 The family of a minor who joins it is asked to ratify it on the portal while joining lasts (Decret 102/2010, article 24.2). The ratification only says that the family is aware and agrees: it is a collective decision of the students that nobody can revoke, the family included.
 
@@ -51,8 +51,8 @@ While the group is voting or joining, you can stop the proposal: **Actions > Abo
 
 **Only for a formal defect.** Collectively deciding not to attend class is a right of students from the 3rd year of ESO onwards (LODE, article 8): the school cannot stop it because of its cause. You can abort it when:
 
-- there is no official call of a students' union for that day, or the attached document is not one;
-- the call does not cover the group's level or studies, or is for another sector (teachers, for instance) or another autonomous community.
+- the attached document does not support the proposal (it does not explain why the group walks out, or it is for another day). It may be a students' union's call, the minute of the group's assembly or any document that explains the decision;
+- when it is a students' union's call: it does not cover the group's level or studies, or is for another sector (teachers, for instance) or another autonomous community.
 
 Never because you disagree with its cause, it coincides with an exam, an outing or a deadline, you think the group cannot afford to miss class, or few students would join it.
 

@@ -2,10 +2,12 @@
 
 ## Overview
 
-A **student walkout** is a strike called by a students' union ("vaga"/"huelga"). A group's delegate
-or sub-delegate **proposes** from the portal that the group supports a walkout called by a union, attaching the
-union's call, with no review first. *Call* (convocatòria) always means the union's document; the record this model
-holds, which the group votes on, is the **proposal** to support the walkout:
+A **student walkout** is a collective decision of a group not to attend class on a given day (LODE,
+article 8), often after a students' union calls a strike. A group's delegate or sub-delegate **proposes**
+it from the portal, with no review first, giving the **reason** (shown in every banner and email of the
+group) and attaching a **supporting document**: a union's call, the minute of the group's assembly or any
+document that explains the decision (issue #844: before it, only a union's call). Both are required. The
+record this model holds, which the group votes on, is the **proposal**:
 
 1. every student of the group with portal access when the proposal is made votes whether the group
    supports the walkout (anonymous: only the counts are kept);
@@ -33,6 +35,10 @@ roll-calls. What it does change: the family of a minor who joins **without** it 
 answer, or has no portal access) is told of each class of the day, for information only, through the
 usual attendance notice (see "The roll-calls of the walkout day"). Other families hear nothing until
 the proposal is validated.
+
+**Banners and emails carry the reason.** The portal home banners (vote pending, joining open, a family
+asked to ratify) and the students' vote email quote `notes` in full ("because of: «...»"); it is at
+most 2,000 characters.
 
 **Wording towards families and students** (portal, their emails, the minute, attendance notices, the
 families' manual): in Catalan and Spanish the students' decision is never a "vaga"/"huelga" but a
@@ -183,7 +189,7 @@ erDiagram
 | `hours_kind` / `count_from` / `count_days_off` | `Selection` / `Selection` / `Boolean` | How its hours are counted, from the settings when it was opened (issue #828) |
 | `vote_start` / `vote_until` / `join_start` / `join_until` | `Datetime` | The calendar above; the joining ones once it starts |
 | `notes` | `Text` | The reason the delegate gives (why the walkout is called), labelled "Reason"; required to propose it |
-| `attachment_ids` | `Many2many → ir.attachment` | The union's call: at least one file |
+| `attachment_ids` | `Many2many → ir.attachment` | The supporting document (a union's call, the group's assembly minute...): at least one file |
 | `state` | `Selection` | `voting` → `joining` → `closed` → `validated`; or `rejected`, `cancelled` (by the delegate). A group vote that does not support it goes from `voting` to `closed` |
 | `head_of_studies_id` | `Many2one → hr.employee` | Who gets the minute |
 | `rejected_by_id` / `rejected_datetime` | `Many2one → res.users` / `Datetime` | Who aborted it or did not validate it, and when |
@@ -219,10 +225,12 @@ REPEATABLE READ) and Odoo retries the request, so no vote is lost or counted twi
 One catalog for aborting and for not validating (Student's Attendances → Configuration → Student
 walkouts → Rejection reasons; academic administrators and Heads of Studies), like the justification
 reasons: `name` (translatable), `sequence`, `active`, `requires_details`. Seeded with
-`noupdate="1"` (the centre edits it) with the formal defects only: no official call that day, the
-attached document is not a valid call, the call does not include the group's level or studies,
+`noupdate="1"` (the centre edits it) with the formal defects only: the attached document does not
+support the proposal; for a union's call, it does not include the group's level or studies,
 another sector (not students), another autonomous community, and "Other reasons"
-(`requires_details`). A duplicate proposal or one made by someone who is not the delegate cannot
+(`requires_details`). "No official call of a students' union" was archived by issue #844 (any
+document may support a walkout now), and "the attached document is not a valid call" renamed; the
+migration leaves a reason the centre had renamed as it is. A duplicate proposal or one made by someone who is not the delegate cannot
 happen (the portal refuses both), so they are not reasons. Both are done from
 `ems.student_walkout.reject.wizard`; while aborting, it shows what the law allows (LODE art. 8: the
 centre cannot stop a walkout because of its cause, only for a formal defect) and what it does not
@@ -256,7 +264,7 @@ from `post_init_hook` and `migrations/18.0.0.49.0/post-migrate.py`). It is not c
 
 ```mermaid
 flowchart TD
-    A[Delegate / sub-delegate: portal /my/vagues/nova] --> B{"Level/course allowed, notice kept, school day, union's call attached, no other proposal that day?"}
+    A[Delegate / sub-delegate: portal /my/vagues/nova] --> B{"Level/course allowed, notice kept, school day, reason and supporting document attached, no other proposal that day?"}
     B -- no --> A
     B -- yes --> V["voting: vote email to each student with portal access, copy to the tutor"]
     V --> E{"result decided, or vote_until reached"}

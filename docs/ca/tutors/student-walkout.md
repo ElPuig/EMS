@@ -31,7 +31,7 @@ Els correus t'arriben quan arriben al teu grup: de seguida si el centre compta l
 
 ## Consultar una proposta
 
-**Assistència dels estudiants > Vagues d'alumnes** mostra les propostes dels teus grups. El formulari mostra el calendari, la convocatòria del sindicat, el recompte de vots i, a la pestanya **Alumnat**, qui ha votat (mai què), qui s'hi suma i la ratificació de la família dels alumnes menors d'edat.
+**Assistència dels estudiants > Vagues d'alumnes** mostra les propostes dels teus grups. El formulari mostra el calendari, el motiu, el document que la justifica, el recompte de vots i, a la pestanya **Alumnat**, qui ha votat (mai què), qui s'hi suma i la ratificació de la família dels alumnes menors d'edat.
 
 A la família d'un alumne menor que s'hi suma se li demana que ho ratifiqui al portal mentre duren les adhesions (Decret 102/2010, article 24.2). La ratificació només indica que la família n'està al corrent i hi està d'acord: és una decisió col·lectiva dels alumnes que ningú no pot revocar, tampoc la família.
 
@@ -51,8 +51,8 @@ Mentre el grup vota o hi ha adhesions, pots aturar la proposta: **Accions > Avor
 
 **Només per un defecte de forma.** Decidir col·lectivament no assistir a classe és un dret de l'alumnat a partir de 3r d'ESO (LODE, article 8): el centre no la pot aturar pel motiu que la causa. La pots avortar quan:
 
-- no hi ha cap convocatòria oficial d'un sindicat d'estudiants per a aquell dia, o el document adjunt no ho és;
-- la convocatòria no inclou el nivell o els estudis del grup, o és per a un altre sector (el professorat, per exemple) o una altra comunitat autònoma.
+- el document adjunt no justifica la proposta (no explica per què el grup fa vaga, o és d'un altre dia). Pot ser la convocatòria d'un sindicat d'estudiants, l'acta de l'assemblea del grup o qualsevol document que expliqui la decisió;
+- si és la convocatòria d'un sindicat d'estudiants: no inclou el nivell o els estudis del grup, o és per a un altre sector (el professorat, per exemple) o una altra comunitat autònoma.
 
 Mai perquè no hi estiguis d'acord, coincideixi amb un examen, una sortida o un lliurament, creguis que el grup no es pot permetre perdre classe, o s'hi hagin de sumar pocs alumnes.
 

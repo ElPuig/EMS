@@ -31,7 +31,7 @@ Los correos te llegan cuando llegan a tu grupo: enseguida si el centro cuenta la
 
 ## Consultar una propuesta
 
-**Asistencia de los estudiantes > Huelgas de estudiantes** muestra las propuestas de tus grupos. El formulario muestra el calendario, la convocatoria del sindicato, el recuento de votos y, en la pestaña **Alumnado**, quién ha votado (nunca qué), quién se suma y la ratificación de la familia de los alumnos menores de edad.
+**Asistencia de los estudiantes > Huelgas de estudiantes** muestra las propuestas de tus grupos. El formulario muestra el calendario, el motivo, el documento que la justifica, el recuento de votos y, en la pestaña **Alumnado**, quién ha votado (nunca qué), quién se suma y la ratificación de la familia de los alumnos menores de edad.
 
 A la familia de un alumno menor que se suma se le pide que lo ratifique en el portal mientras duran las adhesiones (Decret 102/2010, artículo 24.2). La ratificación solo indica que la familia está al corriente y de acuerdo: es una decisión colectiva del alumnado que nadie puede revocar, tampoco la familia.
 
@@ -51,8 +51,8 @@ Mientras el grupo vota o hay adhesiones, puedes detener la propuesta: **Acciones
 
 **Solo por un defecto de forma.** Decidir colectivamente no asistir a clase es un derecho del alumnado a partir de 3.º de ESO (LODE, artículo 8): el centro no puede impedirla por su causa. La puedes abortar cuando:
 
-- no hay ninguna convocatoria oficial de un sindicato de estudiantes para ese día, o el documento adjunto no lo es;
-- la convocatoria no incluye el nivel o los estudios del grupo, o es para otro sector (el profesorado, por ejemplo) u otra comunidad autónoma.
+- el documento adjunto no justifica la propuesta (no explica por qué el grupo hace huelga, o es de otro día). Puede ser la convocatoria de un sindicato de estudiantes, el acta de la asamblea del grupo o cualquier documento que explique la decisión;
+- si es la convocatoria de un sindicato de estudiantes: no incluye el nivel o los estudios del grupo, o es para otro sector (el profesorado, por ejemplo) u otra comunidad autónoma.
 
 Nunca porque no estés de acuerdo con su causa, coincida con un examen, una salida o una entrega, creas que el grupo no puede permitirse perder clase, o vayan a sumarse pocos alumnos.
 

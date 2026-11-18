@@ -171,7 +171,7 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
 
     @http.route(f'{WALKOUTS}/<int:walkout_id>/fitxer/<int:attachment_id>', type='http', auth='user', website=True)
     def portal_walkout_file(self, walkout_id, attachment_id, **kwargs):
-        """The union's call, or the minute once the vote is closed."""
+        """The supporting document, or the minute once the vote is closed."""
         walkout = self._ems_walkout(walkout_id)
         attachment = walkout and (walkout.attachment_ids | walkout.pdf_attachment_id).filtered(
             lambda attachment: attachment.id == attachment_id)

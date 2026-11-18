@@ -4,7 +4,7 @@
 
 # Student walkouts: validating them
 
-A group's delegate proposes on the portal that the group supports a walkout called by a students' union, the group votes on it, and the group's tutor watches over the proposal. You get the minute when it closes and decide whether to validate it. The students who join it are off the roll-calls of that day (neither absent nor present), and nothing is justified. How students and families take part is in the [families' manual](../families/manual-vagues.md), and the tutor's part in the [tutors' manual](../tutors/student-walkout.md).
+A group's delegate proposes on the portal that the group walks out on a given day (giving the reason and attaching a supporting document, such as a students' union's call), the group votes on it, and the group's tutor watches over the proposal. You get the minute when it closes and decide whether to validate it. The students who join it are off the roll-calls of that day (neither absent nor present), and nothing is justified. How students and families take part is in the [families' manual](../families/manual-vagues.md), and the tutor's part in the [tutors' manual](../tutors/student-walkout.md).
 
 Not to be confused with **Strikes** (Coexistence), the disciplinary record, nor with the staff walkout report.
 

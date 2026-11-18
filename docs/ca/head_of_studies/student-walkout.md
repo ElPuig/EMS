@@ -4,7 +4,7 @@
 
 # Vagues d'estudiants: validar-les
 
-El delegat d'un grup proposa al portal que el grup doni suport a una vaga convocada per un sindicat d'estudiants, el grup hi vota, i el tutor del grup vetlla per la proposta. Tu reps l'acta quan es tanca i decideixes si la valides. Els alumnes que s'hi sumen no consten al passi de llista d'aquell dia (no hi falten ni hi assisteixen), i no es justifica res. Com hi participen l'alumnat i les famílies es pot llegir al [manual de famílies](../families/manual-vagues.md), i la part del tutor al [manual de tutors](../tutors/student-walkout.md).
+El delegat d'un grup proposa al portal que el grup faci vaga un dia concret (n'indica el motiu i hi adjunta un document que la justifica, com ara la convocatòria d'un sindicat d'estudiants), el grup hi vota, i el tutor del grup vetlla per la proposta. Tu reps l'acta quan es tanca i decideixes si la valides. Els alumnes que s'hi sumen no consten al passi de llista d'aquell dia (no hi falten ni hi assisteixen), i no es justifica res. Com hi participen l'alumnat i les famílies es pot llegir al [manual de famílies](../families/manual-vagues.md), i la part del tutor al [manual de tutors](../tutors/student-walkout.md).
 
 No s'ha de confondre amb els **Strikes** (Convivència), el registre disciplinari, ni amb l'informe de vaga del personal.
 

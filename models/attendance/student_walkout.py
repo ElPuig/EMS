@@ -74,7 +74,9 @@ class EmsStudentWalkout(models.Model):
     join_start = fields.Datetime(string="Joining from", readonly=True, copy=False)
     join_until = fields.Datetime(string="Joining until", readonly=True, copy=False)
     notes = fields.Text(string="Reason", readonly=True)
-    attachment_ids = fields.Many2many(string="Union's call", comodel_name='ir.attachment',
+    # Issue #844: any document that supports the decision (a union's call, the minute of the group's
+    # assembly...), always required.
+    attachment_ids = fields.Many2many(string="Supporting document", comodel_name='ir.attachment',
                                       relation='ems_student_walkout_attachment_rel', column1='walkout_id',
                                       column2='attachment_id', readonly=True)
     state = fields.Selection(string="State", selection=[
@@ -172,7 +174,7 @@ class EmsStudentWalkout(models.Model):
     @api.model
     def _ems_portal_open(self, partner, values, files):
         """Makes a walkout proposal for `partner`'s group: `values` has walkout_date and notes, `files` the
-        union's call as (name, content) pairs. The group votes at once, with no review first."""
+        supporting document as (name, content) pairs. The group votes at once, with no review first."""
         partner = partner.sudo()
         group = partner._ems_walkout_opener_group()
         if not group:
@@ -187,7 +189,8 @@ class EmsStudentWalkout(models.Model):
             raise UserError(_("Give the reason of the walkout: why it is called."))
         files = [(name, content) for name, content in files or [] if name and content]
         if not files:
-            raise UserError(_("Attach the call of the students' union."))
+            raise UserError(_("Attach the document that supports the walkout: the call of a students' union, the minute "
+                              "of the group's assembly or any document that explains the decision."))
         if self.search_count([('group_ids', 'in', groups.ids), ('walkout_date', '=', walkout_date),
                               ('state', 'not in', ('cancelled', 'rejected'))]):
             raise UserError(_("Your group already has a student walkout proposal for %(date)s.",

@@ -65,7 +65,9 @@ class TestPortalStudentWalkout(HttpCase):
     def test_classmate_votes_then_joins(self):
         walkout = open_walkout(self)
         self._login(self.classmate)
-        self.assertIn('o_ems_walkout_banner', self.url_open('/my/home').text)
+        home = self.url_open('/my/home').text
+        self.assertIn('o_ems_walkout_banner', home)
+        self.assertIn(walkout.notes, home, "Issue #844: the banner says why the group would walk out.")
         self.assertNotIn('/my/vagues/nova', self.url_open('/my/vagues').text, "Only the delegates call one.")
         page = self.url_open(f'/my/vagues/{walkout.id}').text
         self.assertIn('o_ems_walkout_vote', page)

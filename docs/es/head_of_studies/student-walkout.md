@@ -4,7 +4,7 @@
 
 # Huelgas de estudiantes: validarlas
 
-El delegado de un grupo propone en el portal que el grupo apoye una huelga convocada por un sindicato de estudiantes, el grupo vota, y el tutor del grupo vela por la propuesta. Tú recibes el acta cuando se cierra y decides si la validas. Los alumnos que se suman no constan en el pase de lista de ese día (ni faltan ni asisten), y no se justifica nada. Cómo participan el alumnado y las familias se explica en el [manual de familias](../families/manual-vagues.md), y la parte del tutor en el [manual de tutores](../tutors/student-walkout.md).
+El delegado de un grupo propone en el portal que el grupo haga huelga un día concreto (indica el motivo y adjunta un documento que la justifica, como la convocatoria de un sindicato de estudiantes), el grupo vota, y el tutor del grupo vela por la propuesta. Tú recibes el acta cuando se cierra y decides si la validas. Los alumnos que se suman no constan en el pase de lista de ese día (ni faltan ni asisten), y no se justifica nada. Cómo participan el alumnado y las familias se explica en el [manual de familias](../families/manual-vagues.md), y la parte del tutor en el [manual de tutores](../tutors/student-walkout.md).
 
 No hay que confundirla con los **Strikes** (Convivencia), el registro disciplinario, ni con el informe de huelga del personal.
 

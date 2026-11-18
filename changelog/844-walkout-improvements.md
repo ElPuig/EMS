@@ -8,6 +8,11 @@
 - What students and families read (portal, their emails, the minute, the families' manual) no longer calls their decision a "vaga"/"huelga" in Catalan and Spanish: it is a "decisió col·lectiva d'inassistència a classe" (short: "inassistència col·lectiva"), and what the union calls stays a "convocatòria de vaga". Staff screens and emails keep "vaga".
 - Texts for students and families (portal, emails, manuals) rewritten: a collective decision not to attend class that nobody can revoke, the classes of that day do not count as absences, and, for families, once ratified there is nothing else to do.
 
+## Student walkout: any supporting document, the reason in every banner (issue #844):
+- What the group votes is a collective decision not to attend class that day (LODE, art. 8), not support for a union's strike: a union's call is one possible reason among others. The proposal still requires a reason and a document, but the document may be any that supports the decision (a students' union's call, the minute of the group's assembly...).
+- The portal banners (vote pending, joining open, family asked to ratify) and the students' vote email quote the reason in full; the vote question, the proposal form, the page, the minute and the emails say that the group decides whether it walks out.
+- Rejection reasons: "No official call of a students' union for that day" is archived and "The attached document is not a valid call" becomes "The attached document does not support the proposal" (a migration renames it unless the centre already had); the union-specific ones (level, sector, region) stay for when the document is a union's call. The abort wizard, the tutor's email and the manuals say so.
+
 ## Student walkout portal: answers confirmed in a pop-up (issue #844):
 - After voting, saying whether one joins, extending the joining or ratifying, the page pops up what was saved and what comes next (`saved=<vote|join|extend|ratified|refused>`), and the joining form and the family's buttons fold under the answer with a "Change my answer" button while joining lasts.
 

@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+from unittest.mock import patch
 
 from odoo.tests.common import TransactionCase, tagged
 
@@ -182,6 +183,15 @@ class TestStudentWalkoutAttendance(TransactionCase):
         self.assertIn(self.family.email, notice.send_to)
         self.assertFalse(self._notices(self._line(session, self.subdelegate)), "Ratified: nothing to tell.")
         self.assertFalse(self._notices(self._line(session, self.delegate)), "An adult: nothing to tell.")
+
+    def test_a_session_works_out_who_is_told_once_not_per_line(self):
+        """The notice of each line off the roll-call is decided with one search for the whole session."""
+        walkout = self._closed()
+        model = type(self.env['ems.attendance_session_line'])
+        with patch.object(model, '_ems_unratified_walkout_lines', autospec=True,
+                          side_effect=model._ems_unratified_walkout_lines) as spy:
+            self._session(walkout.walkout_date)
+        self.assertEqual(spy.call_count, 1)
 
     def test_a_refusal_is_told_too(self):
         walkout = self._closed(ratifies=False)

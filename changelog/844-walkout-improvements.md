@@ -28,5 +28,8 @@
 
 # Internal changes:
 
+## Roll-call notices of a walkout day (issue #844):
+- Creating a session works out once which of its lines off the roll-call are told to the family of a minor, instead of one search per line.
+
 ## Student walkout migration (issue #844):
 - `migrations/18.0.0.50.0/pre-migrate.py` renames the state `justified` to `validated` (also as `rejected_from_state`) and the task's xmlid; `post-migrate.py` deletes the justifications validated walkouts had created, drops `ems_student_walkout.justification_id` and takes the classes of the students who joined closed or validated walkouts off the roll-call, without notifying families.

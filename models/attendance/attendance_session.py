@@ -471,7 +471,10 @@ class EmsAttendanceSessionHeader(models.Model):
             # roll-call too: a minor off it for a student walkout their family has not ratified is
             # told (issue #844, status_is_notificable).
             issue_status_by_tutor = dict()
-            for attendance_session_line in record.with_context(active_test=False).attendance_session_line_ids:
+            session_lines = record.with_context(active_test=False).attendance_session_line_ids
+            session_lines = session_lines.with_context(
+                ems_unratified_walkout_line_ids=session_lines._ems_unratified_walkout_lines().ids)
+            for attendance_session_line in session_lines:
                 record.collect_issue_status_data(attendance_session_line, issue_status_by_tutor)
 
             record.create_notification_entries(issue_status_by_tutor, notification_status_eta=notification_status_eta)

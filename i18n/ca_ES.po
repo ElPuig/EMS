@@ -50345,7 +50345,7 @@ msgstr "EMS: inassistència col·lectiva, la família no hi està d'acord"
 #. module: ems
 #: model:mail.template,name:ems.email_template_student_walkout_ratify
 msgid "EMS: student walkout, family to acknowledge"
-msgstr "EMS: inassistència col·lectiva, acús de rebuda de la família"
+msgstr "EMS: inassistència col·lectiva, confirmació de rebuda de la família"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__ratification_date
@@ -50375,7 +50375,7 @@ msgstr "Hi estic d'acord"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__needs_ratification
 msgid "Needs the family's acknowledgement"
-msgstr "Necessita l'acús de rebuda de la família"
+msgstr "Necessita la confirmació de rebuda de la família"
 
 #. module: ems
 #. odoo-python

@@ -55,7 +55,12 @@ class EmsStudentWalkoutAttendanceSessionLine(models.Model):
         return unratified
 
     def status_is_notificable(self):
-        return super().status_is_notificable() or bool(self._ems_unratified_walkout_lines())
+        if super().status_is_notificable():
+            return True
+        # A session's creation works the whole session out once (ems_unratified_walkout_line_ids), not
+        # with a search per line.
+        known = self.env.context.get('ems_unratified_walkout_line_ids')
+        return self.id in known if known is not None else bool(self._ems_unratified_walkout_lines())
 
     @api.depends('active', 'not_expected_reason')
     def _compute_roll_call_label(self):

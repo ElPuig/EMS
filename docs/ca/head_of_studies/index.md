@@ -27,6 +27,7 @@ Aquesta secció conté els manuals per a **Cap d'Estudis, Cap d'Estudis Adjunt/a
 - [Decidir sobre sol·licituds de correcció de fitxatges](attendance-corrections.md)
 - [Strikes: menú Convivència i correus d'escalat](strike.md)
 - [L'horari setmanal d'un grup](../admin/group-schedule.md)
+- [Horaris dels docents i marcs horaris](../admin/working-schedules.md)
 - [Informes d'assistència](attendance-reports.md)
 - [Gestionar les absències del personal](absences.md) — Aprovar les absències de la teva àrea, ajustar-ne el còmput, l'aprovació de Direcció i els dos informes.
 - [Crear i editar professorat](staff-management.md)

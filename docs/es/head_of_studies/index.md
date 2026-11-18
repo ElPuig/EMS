@@ -27,6 +27,7 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 - [Decidir sobre solicitudes de corrección de fichajes](attendance-corrections.md)
 - [Strikes: menú Convivencia y correos de escalado](strike.md)
 - [El horario semanal de un grupo](../admin/group-schedule.md)
+- [Horarios de los docentes y marcos horarios](../admin/working-schedules.md)
 - [Informes de asistencia](attendance-reports.md)
 - [Gestionar las ausencias del personal](absences.md) — Aprobar las ausencias de tu área, ajustar su cómputo, la aprobación de Dirección y los dos informes.
 - [Crear y editar profesorado](staff-management.md)

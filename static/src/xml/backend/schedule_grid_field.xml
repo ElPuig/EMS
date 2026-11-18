@@ -150,6 +150,20 @@
                                            t-att-value="card.topic || ''"
                                            t-att-placeholder="topicPlaceholder"
                                            t-on-change="(ev) => this.onCardTopicChange(day.index, card.id, ev)"/>
+                                    <select t-if="isTutoringCard(card)" class="o_schedule_grid_select o_schedule_grid_card_level"
+                                            t-on-change="(ev) => this.onCardLevelChange(day.index, card.id, ev)">
+                                        <option value="" t-att-selected="!card.levelId">Level (optional)</option>
+                                        <t t-foreach="catalog.levels" t-as="level" t-key="level.id">
+                                            <option t-att-value="level.id" t-esc="level.display_name"
+                                                    t-att-selected="card.levelId === level.id"/>
+                                        </t>
+                                    </select>
+                                    <select t-if="isLevelOrTutoringCard(card)" class="o_schedule_grid_select o_schedule_grid_card_attention"
+                                            title="Attention type"
+                                            t-on-change="(ev) => this.onCardAttentionTypeChange(day.index, card.id, ev)">
+                                        <option value="support" t-att-selected="card.attentionType !== 'tutoring'">Support</option>
+                                        <option value="tutoring" t-att-selected="card.attentionType === 'tutoring'">Tutoring</option>
+                                    </select>
                                     <select class="o_schedule_grid_select o_schedule_grid_card_space"
                                             t-on-change="(ev) => this.onCardSpaceChange(day.index, card.id, ev)">
                                         <option value="" t-att-selected="!card.spaceId">—</option>

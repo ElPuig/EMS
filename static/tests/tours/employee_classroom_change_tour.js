@@ -61,7 +61,7 @@ registry.category("web_tour.tours").add("ems_employee_classroom_change_wizard", 
             run: "click",
         },
         {
-            trigger: ".o_form_view:not(:has(.modal)):not(:has(.alert-warning))",
+            trigger: ".o_form_view:not(:has(.modal)):not(:has(.alert-warning)) .o_form_saved",
             content: "Wizard closed and the pending-classroom banner is gone - nothing left to resolve",
         },
     ],

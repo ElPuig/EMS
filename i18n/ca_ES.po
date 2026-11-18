@@ -6482,6 +6482,7 @@ msgstr "Text legal (renderitzat)"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__level_id
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__level_id
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__level_id
 msgid "Level"
 msgstr "Nivell"
 
@@ -22597,7 +22598,10 @@ msgid "Strategic"
 msgstr "Estratègic"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_quality_process__kind__support
+#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__attention_type__support
 msgid "Support"
 msgstr "Suport"
 
@@ -29459,6 +29463,7 @@ msgstr "Torna-ho a provar d'aquí a uns minuts."
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_level__declaration_code
 #: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__declaration_code
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__non_teaching_declaration_code
 msgid "Schedule declaration code"
 msgstr "Codi a la declaració horària"
 
@@ -29469,8 +29474,8 @@ msgstr "Fila del quadre resum de la declaració horària oficial on se sumen les
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_non_teaching_type__declaration_code
-msgid "Row of the summary table of the official schedule declaration these hours are added to. Tutoring goes to the row of the tutored group's level. Empty: not declared (e.g. the break)."
-msgstr "Fila del quadre resum de la declaració horària oficial on se sumen aquestes hores. La tutoria va a la fila del nivell del grup tutoritzat. Buit: no es declara (p. ex. el pati)."
+msgid "Row of the summary table of the official schedule declaration these hours are added to. Tutoring goes to the row of the tutored group's level. Level or tutoring: each block chooses between its level's row and that level's tutoring row. Empty: not declared (e.g. the break)."
+msgstr "Fila del quadre resum de la declaració horària oficial on se sumen aquestes hores. La tutoria va a la fila del nivell del grup tutoritzat. Nivell o tutoria: cada bloc tria entre la fila del seu nivell i la fila de tutoria d'aquest nivell. Buit: no es declara (p. ex. el pati)."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_non_teaching_type__declaration_code__other
@@ -55707,3 +55712,33 @@ msgstr "%(user)s ha vist el document confidencial \"%(file)s\""
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_staff_form
 msgid "View the call rules"
 msgstr "Veure les bases de la convocatòria"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Level (optional)"
+msgstr "Nivell (opcional)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__attention_type
+msgid "Attention type"
+msgstr "Tipus d'atenció"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__attention_type__tutoring
+msgid "Tutoring"
+msgstr "Tutoria"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_non_teaching_type__declaration_code__level_or_tutoring
+msgid "Level or tutoring (chosen on each block)"
+msgstr "Nivell o tutoria (a triar a cada bloc)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_users__can_view_schedule
+msgid "Can view schedule"
+msgstr "Pot veure l'horari"

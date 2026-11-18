@@ -40,12 +40,15 @@ LEVEL_DECLARATION_CODES = [
 # Tutoring is declared on the row of the tutored group's level (developer, 2026-10-29).
 TUTORING_CODE_BY_LEVEL_CODE = {'eso': 't_eso', 'bat': 't_bat', 'pfi': 'pfi'}
 TUTORING_DEFAULT_CODE = 't_fp'
+# The codes declared through a level's tutoring row. 'level_or_tutoring' (issue #846): each block
+# chooses between its level's own row and that level's tutoring row; it is not a row of the form.
+TUTORING_DECLARATION_CODES = ('tutoring', 'level_or_tutoring')
 
 # Seeded once (post_init_hook and migrations/18.0.0.43.0), then configured by the centre.
 # False: not declared at all (the break, a reduction of working hours).
 NON_TEACHING_DECLARATION_SEED = {
     'MT': 'cd', 'CT': 'cc', 'AC': 'cc', 'WIC': 'cc', 'CM': 'rd_rc', 'MM': 'rd_rc',
-    'G': 'g', 'GB': 'g', 'GWC': 'g', 'TT': 'tutoring', 'ATAL': 'tutoring',
+    'G': 'g', 'GB': 'g', 'GWC': 'g', 'TT': 'tutoring', 'ATAL': 'level_or_tutoring',
     'AA': 'other', 'S': 'other', 'SC': 'other',
     'BR': False, 'R': False,
 }
@@ -77,10 +80,14 @@ class EmsNonTeachingType(models.Model):
              "instead of each one counting at least one hour (e.g. break guard duties: three of 25 minutes "
              "count 2 hours).")
     declaration_code = fields.Selection(
-        selection=DECLARATION_CODES + [('tutoring', 'Tutoring (T-ESO, T-BAT, T-FP or PFI)')],
+        selection=DECLARATION_CODES + [
+            ('tutoring', 'Tutoring (T-ESO, T-BAT, T-FP or PFI)'),
+            ('level_or_tutoring', 'Level or tutoring (chosen on each block)'),
+        ],
         string="Schedule declaration code", default='other',
         help="Row of the summary table of the official schedule declaration these hours are added to. "
-             "Tutoring goes to the row of the tutored group's level. Empty: not declared (e.g. the break).")
+             "Tutoring goes to the row of the tutored group's level. Level or tutoring: each block chooses "
+             "between its level's row and that level's tutoring row. Empty: not declared (e.g. the break).")
     active = fields.Boolean(string="Active", default=True)
 
     @api.model

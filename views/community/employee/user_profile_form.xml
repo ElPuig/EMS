@@ -263,7 +263,9 @@
                      it's inserted here doesn't matter - the reordering block below moves every
                      tab (this one included) to its final position regardless. -->
                 <xpath expr="//page[@name='skills_resume']" position="after">
-                    <page string="Schedule" name="schedule">
+                    <!-- Issue #846: only the roles that can read what this tab loads (groups, subjects, rooms...).
+                         Not 'groups': this view is built as superuser (see can_view_schedule). -->
+                    <page string="Schedule" name="schedule" invisible="not can_view_schedule">
                         <field name="resource_calendar_id" invisible="1"/>
                         <field name="can_edit_schedule" invisible="1"/>
                         <!-- Lets the schedule_grid widget resolve the real hr.employee id for its
@@ -287,6 +289,8 @@
                                 <field name="date_from"/>
                                 <field name="date_to"/>
                                 <field name="space_id"/>
+                                <field name="level_id"/>
+                                <field name="attention_type"/>
                             </list>
                         </field>
                     </page>

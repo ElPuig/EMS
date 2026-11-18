@@ -98,6 +98,8 @@ Quan el compte es crea, o se'n restableix la contrasenya, les credencials viatge
 
 La declaració horària oficial del Departament de cada docent ("Horari professor/a"), a punt per signar: a **Comunitat Educativa → Professors**, passeu a la vista de llista, seleccioneu els docents i trieu **Imprimeix → Declaració horària** (una pàgina per docent), o obriu un docent i trieu **Accions → Imprimeix la declaració horària**. A [Imprimir la declaració horària oficial](../admin/working-schedules.md#imprimir-la-declaració-horària-oficial) teniu què conté cada pàgina i com s'omple el quadre resum.
 
+Les hores d'un bloc d'*Atenció a l'alumnat* compten a la fila del seu nivell o a la fila de tutoria d'aquest nivell segons el nivell i el tipus d'atenció indicats a la seva targeta: vegeu [Horaris dels docents i marcs horaris](../admin/working-schedules.md).
+
 ![El menú Imprimeix de la llista de professors, amb dos docents seleccionats i Declaració horària](../../assets/head_of_studies/hos-declaracio-horaria-llista.png)
 
 ![La fitxa d'un docent amb el desplegable Accions obert: Imprimeix la declaració horària](../../assets/head_of_studies/hos-declaracio-horaria-accions.png)

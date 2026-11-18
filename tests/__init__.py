@@ -140,6 +140,8 @@ from . import test_working_schedule_split_period_tour
 from . import test_working_schedule_stale_breaks_tour
 from . import test_working_schedule_multi_group_tour
 from . import test_working_schedule_role_edit_tour
+from . import test_working_schedule_tutoring_level_tour
+from . import test_working_schedule_limited_role_tour
 from . import test_task_assignment
 from . import test_year_record
 from . import test_grade_review

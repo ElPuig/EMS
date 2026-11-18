@@ -7,6 +7,9 @@
             <field name="arch" type="xml">
                 <field name="dayofweek" position="after">
                     <field name="non_teaching"/>
+                    <field name="non_teaching_declaration_code" invisible="1"/>
+                    <field name="level_id" invisible="non_teaching_declaration_code not in ('tutoring', 'level_or_tutoring')"/>
+                    <field name="attention_type" invisible="non_teaching_declaration_code != 'level_or_tutoring'"/>
                     <field name="subject_id" invisible="non_teaching != False"/>
                     <field name="topic" invisible="non_teaching != False"/>
                     <field name="group_ids" widget="many2many_tags" invisible="non_teaching != False"/>

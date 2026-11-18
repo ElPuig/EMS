@@ -6,7 +6,7 @@
 
 Manage each teacher's weekly timetable from their own employee record, and set up the bell-schedule templates ("schedule frameworks") new teachers start from.
 
-**Required role:** Department Chief or above (Department Chief, Head of Studies, Director, Administrator) can edit schedules and use the import wizard; every other role can only view their own schedule, read-only, but everyone can export a schedule to PDF.
+**Required role:** Department Chief or above (Department Chief, Head of Studies, Director, Administrator) can edit schedules and use the import wizard; every other role can only view their own schedule, read-only, but everyone can export a schedule to PDF. Someone whose only roles are Quality, Settings or Erasmus+, or who has no EMS role, doesn't have the **Schedule** tab. A Settings administrator with no other role sees teachers without their roles, tutorships and subjects.
 
 ---
 
@@ -142,6 +142,8 @@ The weekly grid splits into 5 day columns (Monday–Friday); within each day, in
    ![Two cards on the same weekday, each with its own date range, time, subject, group and classroom](../../assets/admin/working-schedules-edit-cards.png)
 
 Cards within a day are always shown sorted by start time, then end time — two cards at the exact same time sort by their own start date instead.
+
+**Level and attention type of a tutoring card:** a card whose non-teaching type has the declaration code *Tutoring* or *Level or tutoring* (by default *Tutorship Time* and *Student support*) also shows a **Level** dropdown: pick the level whose students those hours are given to (ESO, Bachillerato...). A card of a *Level or tutoring* type also shows an **attention type** dropdown: **Support** (the default) counts its hours in that level's own row of the [schedule declaration](#print-the-official-schedule-declaration) (ESO, BAT, CFGM...), and **Tutoring** counts them in that level's tutoring row (T-ESO, T-BAT, T-FP...). A teacher with student support in two levels sets one level on each card. Leave the level blank and the declaration decides, as explained there. Importing the schedule again keeps both values on a block with the same day, hours and type.
 
 **Changing a card's classroom (step 5) when the class is co-taught:** if the new room is free at that day/time, the change applies immediately for every teacher sharing that class — nothing else to do. If the new room is already taken by someone else at that exact time, the change is held back instead of failing outright: a yellow banner appears at the top of the teacher's own form, regardless of which tab is open ("A classroom change requested from this teacher's own schedule, but N teaching block(s) could not move to it automatically because of a room collision"), with a **Resolve pending classrooms** button. See "Resolving a Pending Classroom Conflict" in [Groups](groups.md) for how to resolve it from there — the same screen also opens from a group's own form when a group-wide classroom change hits the same kind of collision.
 
@@ -287,7 +289,8 @@ Each page has the centre's code, name and municipality (from the company setting
 **Which row each hour goes to** is configuration, set up for you on installation and editable afterwards:
 
 - A class counts in the row of its group's **level**: the level's **Schedule declaration code** (**Educational Community → Configuration → Curriculum → Levels**). EMS sets it for the official levels (ESO, BTX, CFGB, CFGM, CFGS, EFPS, PFI), as the Departament defines it, so it can't be changed on the form. A split or optative group with no level of its own takes the level of its main groups. A level with no code (e.g. one created by the centre) goes to *Altres*.
-- A tutorship (a tutorship subject, or a non-teaching type coded as tutoring: *Tutorship Time* and *Student support* by default) counts in T-ESO, T-BAT or T-FP (or PFI) by the tutored group's level. A teacher who tutors no group: by the level where they teach the most hours.
+- A tutorship (a tutorship subject, or a non-teaching type coded as tutoring: *Tutorship Time* by default) counts in T-ESO, T-BAT or T-FP (or PFI) by the tutored group's level. A teacher who tutors no group: by the level where they teach the most hours. A tutoring block can also name its own **Level** on its card of the Schedule tab, and then counts in that level's row, whatever the teacher tutors or teaches.
+- A non-teaching type coded **Level or tutoring** (*Student support* by default) finds its level the same way, and each block's **attention type** says where it counts: as **Support** (the default) in that level's own row (ESO, BAT, CFGM...), or in *Altres* if no level can be worked out; as **Tutoring** in that level's tutoring row. It adds no row to the summary table.
 - Any other non-teaching hour counts in the row set in its type's **Schedule declaration code** (**Configuration → Teachers → Non-teaching types**); empty means not declared.
 - Teaching-hour reductions appear only as their hours, in "Si disposeu de reducció de jornada", and are added to the lective TOTAL.
 

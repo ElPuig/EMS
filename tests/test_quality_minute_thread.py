@@ -34,6 +34,7 @@ class TestQualityMinuteThread(TransactionCase):
         cls.mail_transport = mock_outgoing_email(cls)
         cls.mail_transport.side_effect = lambda message, *args, **kwargs: message['Message-Id']
         cls.env.company.ems_lang = 'en_US'
+        ensure_catchall_address(cls)  # a fresh database (CI) has no alias domain: the opening needs the catchall as reply address
         cls.env.company.alias_domain_id.write({'bounce_alias': 'bounce.tmth', 'catchall_alias': 'answers.tmth'})
         cls.type = cls.env.ref('__import__.minute_type_generic')
         cls.writer_user = create_role_user(cls, 'teacher', 'tmth.writer@example.com', name='TMTH Writer',

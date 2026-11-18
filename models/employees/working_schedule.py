@@ -1950,8 +1950,25 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		new_slots = {(entry['dayofweek'], entry['hour_from'], entry['hour_to']) for entry in entries}
 		superseded = existing.filtered(
 			lambda attendance: (attendance.dayofweek, attendance.hour_from, attendance.hour_to) in new_slots)
+		# Issue #846: the level and the attention type are set by hand and the planner's file doesn't
+		# have them, so a non-teaching block imported again keeps them. Read before the unlink.
+		hand_set_values = {
+			self._non_teaching_slot_key(block.dayofweek, block.hour_from, block.hour_to, block.non_teaching.id): {
+				'level_id': block.level_id.id, 'attention_type': block.attention_type,
+			}
+			for block in existing.filtered('non_teaching')
+		}
 		(existing if self.import_mode == 'replace' else superseded).unlink()
-		calendar.write({'attendance_ids': [(0, 0, entry) for entry in entries]})
+		calendar.write({'attendance_ids': [(0, 0, {
+			**entry,
+			**hand_set_values.get(self._non_teaching_slot_key(
+				entry['dayofweek'], entry['hour_from'], entry['hour_to'], entry.get('non_teaching')), {}),
+		}) for entry in entries]})
+
+	@staticmethod
+	def _non_teaching_slot_key(dayofweek, hour_from, hour_to, non_teaching_id):
+		"""In whole minutes: the same period can store hours that differ in the last decimal."""
+		return dayofweek, round(hour_from * 60), round(hour_to * 60), non_teaching_id
 
 	def _apply_import(self, node_cache):
 		"""Writes everything (resource.calendar/ems.teaching per teacher, then the

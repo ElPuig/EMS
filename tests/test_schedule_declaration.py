@@ -2,6 +2,7 @@ import importlib.util
 import os
 
 from odoo.exceptions import AccessError
+from odoo.tests import Form
 from odoo.tests.common import TransactionCase
 
 from .common import create_level_study_group, create_role_employee, create_role_user
@@ -157,16 +158,16 @@ class TestScheduleDeclaration(TransactionCase):
 
     def test_block_level_is_kept_by_apply_schedule_changes_and_copies(self):
         """The Schedule tab saves the whole week through apply_schedule_changes()."""
-        non_teaching = self.env.ref('ems.non_teaching_tt')
-        non_teaching.declaration_code = 'tutoring'
         self.calendar.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 8, 'hour_to': 9, 'day_period': 'morning', 'name': 'TSDE',
-            'non_teaching': non_teaching.id, 'level_id': self.level.id,
+            'non_teaching': self._student_support_type().id, 'level_id': self.level.id,
+            'attention_type': 'tutoring',
         }])
 
         block = self.calendar.attendance_ids.filtered('non_teaching')
-        self.assertEqual(block.level_id, self.level)
-        self.assertEqual(block.copy().level_id, self.level)
+        for kept in (block, block.copy()):
+            self.assertEqual(kept.level_id, self.level)
+            self.assertEqual(kept.attention_type, 'tutoring')
 
     def test_student_support_counts_in_the_row_its_attention_type_says(self):
         """Issue #846: the reported case, 3 h of ESO and 4 of Bachillerato classes plus 8 h of student
@@ -214,13 +215,18 @@ class TestScheduleDeclaration(TransactionCase):
 
         self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'t_eso': 1})
 
-    def test_student_support_recoded_by_the_centre_follows_its_code(self):
-        """ATAL given another declaration code stops being a support/tutoring choice."""
+    def test_attendance_form_asks_only_what_the_type_needs(self):
         atal = self._student_support_type()
-        atal.declaration_code = 'cc'
+        tutorship_time = self.env.ref('ems.non_teaching_tt')
+        tutorship_time.declaration_code = 'tutoring'
         self._apply(atal)
-
-        self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'cc': 1})
+        form = Form(self.calendar.attendance_ids.filtered('non_teaching'))
+        for non_teaching, level_hidden, attention_hidden in (
+                (atal, False, False), (tutorship_time, False, True), (self.env.ref('ems.non_teaching_g'), True, True)):
+            with self.subTest(code=non_teaching.code):
+                form.non_teaching = non_teaching
+                self.assertEqual(form._get_modifier('level_id', 'invisible'), level_hidden)
+                self.assertEqual(form._get_modifier('attention_type', 'invisible'), attention_hidden)
 
     def test_any_type_can_let_its_blocks_choose_level_or_tutoring(self):
         """The choice comes from the type's code, not from being ATAL."""
@@ -243,17 +249,6 @@ class TestScheduleDeclaration(TransactionCase):
                 self.env.invalidate_all()
                 self.assertEqual(atal.declaration_code, expected)
                 self.assertEqual(tutorship_time.declaration_code, 'tutoring')
-
-    def test_attention_type_is_kept_by_apply_schedule_changes_and_copies(self):
-        atal = self._student_support_type()
-        self.calendar.apply_schedule_changes([{
-            'dayofweek': '0', 'hour_from': 8, 'hour_to': 9, 'day_period': 'morning', 'name': 'TSDE',
-            'non_teaching': atal.id, 'attention_type': 'tutoring',
-        }])
-
-        block = self.calendar.attendance_ids.filtered('non_teaching')
-        self.assertEqual(block.attention_type, 'tutoring')
-        self.assertEqual(block.copy().attention_type, 'tutoring')
 
     def test_tutorship_subject_goes_to_its_groups_tutoring_row(self):
         self.subject.is_tutorship = True

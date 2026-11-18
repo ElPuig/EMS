@@ -26,6 +26,7 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 - [Deciding on Attendance Correction Requests](attendance-corrections.md)
 - [Strikes: Convivencia Menu and Escalation Emails](strike.md)
 - [A Group's Weekly Schedule](../admin/group-schedule.md)
+- [Teacher Working Schedules & Schedule Frameworks](../admin/working-schedules.md)
 - [Attendance Reports](attendance-reports.md)
 - [Managing staff absences](absences.md)
 - [Creating and Editing Teachers](staff-management.md)

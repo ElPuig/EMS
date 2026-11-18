@@ -98,6 +98,8 @@ Cuando la cuenta se crea, o se restablece su contraseña, las credenciales viaja
 
 La declaración horaria oficial del Departament de cada docente ("Horari professor/a"), lista para firmar: en **Comunidad Educativa → Profesores**, pasad a la vista de lista, seleccionad los docentes y elegid **Imprimir → Declaración horaria** (una página por docente), o abrid un docente y elegid **Acciones → Imprimir la declaración horaria**. En [Imprimir la declaración horaria oficial](../admin/working-schedules.md#imprimir-la-declaración-horaria-oficial) tenéis qué contiene cada página y cómo se rellena el cuadro resumen.
 
+Las horas de un bloque de *Atención al alumnado* cuentan en la fila de su nivel o en la fila de tutoría de ese nivel según el nivel y el tipo de atención indicados en su tarjeta: consultad [Horarios de los docentes y marcos horarios](../admin/working-schedules.md).
+
 ![El menú Imprimir de la lista de profesores, con dos docentes seleccionados y Declaración horaria](../../assets/head_of_studies/hos-declaracio-horaria-llista.png)
 
 ![La ficha de un docente con el desplegable Acciones abierto: Imprimir la declaración horaria](../../assets/head_of_studies/hos-declaracio-horaria-accions.png)

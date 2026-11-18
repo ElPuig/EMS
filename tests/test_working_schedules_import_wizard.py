@@ -1003,6 +1003,33 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         )
         return base64.b64encode(xml.encode())
 
+    def test_reimport_keeps_the_level_and_attention_type_of_the_same_block(self):
+        """Issue #846: what was set by hand on a non-teaching block is not in the planner's file, so
+        importing the same block again keeps it, in both modes. Another type in that slot starts clean."""
+        NonTeaching = self.env['ems.non_teaching_type'].with_context(active_test=False)
+        atal = NonTeaching.search([('code', '=', 'ATAL')]) or NonTeaching.create({'code': 'ATAL', 'name': 'Support'})
+        atal.write({'declaration_code': 'level_or_tutoring', 'active': True})
+        level, _study = create_level_study(self, 'TWIAT', level={'declaration_code': 'eso'})
+        teacher_attr = 'test.wizard.teacher.import.wizard@example.com Someone'
+        atal_file = self._xml_file_with_hour_node(teacher_attr, '<NonTeaching name="ATAL Support"/>')
+        calendar = self.teacher.resource_calendar_id
+        self._import({'attachment_ids': self._attachment_ids(atal_file)})
+        calendar.attendance_ids.filtered('non_teaching').write({'level_id': level.id, 'attention_type': 'tutoring'})
+
+        for import_mode in ('combine', 'replace'):
+            with self.subTest(import_mode=import_mode):
+                self._import({'attachment_ids': self._attachment_ids(atal_file), 'import_mode': import_mode})
+                block = calendar.attendance_ids.filtered('non_teaching')
+                self.assertEqual(block.non_teaching, atal)
+                self.assertEqual(block.level_id, level)
+                self.assertEqual(block.attention_type, 'tutoring')
+
+        self._import({'attachment_ids': self._attachment_ids(self._xml_file(teacher_attr))})
+        block = calendar.attendance_ids.filtered('non_teaching')
+        self.assertEqual(block.non_teaching, self.env.ref('ems.non_teaching_g'))
+        self.assertFalse(block.level_id)
+        self.assertEqual(block.attention_type, 'support')
+
     def test_import_mode_combine_default_preserves_unrelated_earlier_schedule(self):
         """'combine' (the default) never touches a weekday slot a later, separate import doesn't
         even mention - the fix for the real bug this whole feature grew out of (a teacher shared

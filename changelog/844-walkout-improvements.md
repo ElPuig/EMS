@@ -15,6 +15,7 @@
 
 ## Student walkout: the family's answer is an acknowledgement of receipt (issue #844):
 - The family of a minor who joins is no longer asked to "ratify" it (a word that sounds like an authorisation the exercise of the right does not need): it acknowledges receipt on the portal and says "I agree" or "I do not agree". Portal, emails, the form's button ("Family agrees (by hand)"), the report, the roll-call label, the daily summary, the manuals and the translations say so; the technical keys keep their names. The behavior does not change: the answer never revokes the decision, and the family that has not said it agrees is told of each class, for information.
+- A student whose family first did not agree and then does is told by email that no absence will be notified (the portal notice already changed with the answer).
 - The abort wizard no longer cites the Decret 102/2010 and says that a proposal is never aborted because of who calls it or where.
 - The same group-vote route stays: each group's delegate starts the vote (the NOFC will say so; a vote of all the delegates is impossible with morning and afternoon shifts).
 

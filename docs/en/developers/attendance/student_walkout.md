@@ -318,7 +318,8 @@ flowchart TD
   `/my/vagues/ratifica/<line>`): a family contact of the student (`_ems_family_contacts`) with portal
   access, only while `joining` (until `join_until`), changeable meanwhile. A "does not agree" is told to the
   student, for information (`email_template_student_walkout_ratification_refused`: their family will be
-  told of each class they miss that day). A family with no portal access cannot answer, unless the
+  told of each class they miss that day); a family that then agrees is told to the student too
+  (`email_template_student_walkout_ratification_agreed`: no absence will be notified). A family with no portal access cannot answer, unless the
   centre marks it by hand (next item). The family sees the lines it was asked about
   (`res.partner._ems_walkout_family_lines`) and a banner on the portal home while one is pending.
 - **Family agrees (by hand)** (`ems.student_walkout.line.action_ratify_manually()`, issue #840): for a family that

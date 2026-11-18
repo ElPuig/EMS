@@ -108,7 +108,7 @@ Para cada inasistencia colectiva, haced clic en **Estoy de acuerdo** o **No esto
 ![Página de la familia para acusar recibo y decir si está de acuerdo en que su hijo o hija se suma a la inasistencia colectiva](../../assets/families/walkout-portal-family.png)
 
 - Responder solo indica al centro que habéis recibido el aviso y si estáis de acuerdo. Es una decisión colectiva del alumnado que nadie puede revocar, y las clases de ese día no cuentan como faltas. **Una vez respondido, no tenéis que hacer nada más**: el resto es automático.
-- Si no decís que estáis de acuerdo, o no respondéis a tiempo, recibiréis un aviso de cada clase a la que no asista vuestro hijo o hija ese día, solo a título informativo. Si decís que no estáis de acuerdo, también se avisa a vuestro hijo o hija.
+- Si no decís que estáis de acuerdo, o no respondéis a tiempo, recibiréis un aviso de cada clase a la que no asista vuestro hijo o hija ese día, solo a título informativo. Si decís que no estáis de acuerdo, también se avisa a vuestro hijo o hija, y de nuevo si después cambiáis a «Estoy de acuerdo».
 - Para responder necesitáis acceso al portal. Si no lo tenéis, pedidlo al centro con tiempo.
 - Cuando la inasistencia colectiva se valida, recibís un correo informativo. Si, en cambio, la propuesta se aborta o no se valida, también se os avisa.
 

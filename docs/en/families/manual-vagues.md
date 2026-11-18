@@ -108,7 +108,7 @@ For each walkout, click **I agree** or **I do not agree**. A pop-up confirms you
 ![Family page to acknowledge receipt and say whether you agree that their child joins the walkout](../../assets/families/walkout-portal-family.png)
 
 - Answering only tells the school that you have received the notice and whether you agree. It is a collective decision of the students that nobody can revoke, and the classes of that day do not count as absences. **Once answered, you do not need to do anything else**: the rest is automatic.
-- If you do not say that you agree, or do not answer in time, you are told of each class your child does not attend that day, for information only. If you say that you do not agree, your child is told too.
+- If you do not say that you agree, or do not answer in time, you are told of each class your child does not attend that day, for information only. If you say that you do not agree, your child is told too, and told again if you later change to "I agree".
 - To answer you need access to the portal. If you don't have it, ask the school for it in time.
 - Once the walkout is validated you get an email, for information. If the proposal is aborted or not validated instead, you are told too.
 

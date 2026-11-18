@@ -108,7 +108,7 @@ Per a cada inassistència col·lectiva, feu clic a **Hi estic d'acord** o **No h
 ![Pàgina de la família per acusar rebuda i dir si hi està d'acord que el seu fill o filla se suma a la inassistència col·lectiva](../../assets/families/walkout-portal-family.png)
 
 - Respondre només indica al centre que heu rebut l'avís i si hi esteu d'acord. És una decisió col·lectiva dels alumnes que ningú no pot revocar, i les classes d'aquell dia no compten com a faltes. **Un cop respost, no cal que feu res més**: la resta és automàtic.
-- Si no dieu que hi esteu d'acord, o no responeu a temps, rebreu un avís de cada classe a què no assisteixi el vostre fill o filla aquell dia, només a títol informatiu. Si dieu que no hi esteu d'acord, el vostre fill o filla també en rep un avís.
+- Si no dieu que hi esteu d'acord, o no responeu a temps, rebreu un avís de cada classe a què no assisteixi el vostre fill o filla aquell dia, només a títol informatiu. Si dieu que no hi esteu d'acord, el vostre fill o filla també en rep un avís, i un altre si després canvieu a «Hi estic d'acord».
 - Per respondre necessiteu accés al portal. Si no en teniu, demaneu-lo al centre amb temps.
 - Quan la inassistència col·lectiva es valida, rebeu un correu informatiu. Si, en canvi, la proposta s'avorta o no es valida, també se us avisa.
 

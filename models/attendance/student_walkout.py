@@ -304,7 +304,7 @@ class EmsStudentWalkout(models.Model):
         """`family` agrees (or not) that its child joins, on the portal, while joining lasts; it
         can change its answer meanwhile. Only a family contact of the student with portal access. It
         only says the family knows and agrees (issue #844): nobody can revoke the student's decision. A
-        refusal is told to the student, for information."""
+        refusal is told to the student, for information, and so is a family that then agrees."""
         self.ensure_one()
         family = family.sudo()
         if line.walkout_id != self or not (line.joins and line.needs_ratification):
@@ -314,10 +314,13 @@ class EmsStudentWalkout(models.Model):
         if not self._ems_phase_open('joining'):
             raise UserError(_("The time to answer is over: joining this student walkout is closed."))
         refused_now = not ratifies and line.ratification != 'refused'
+        agrees_now = ratifies and line.ratification == 'refused'
         line.write({'ratification': 'ratified' if ratifies else 'refused', 'ratified_by_id': family.id,
                     'ratification_date': fields.Datetime.now(), 'ratified_manually': False})
         if refused_now:
             self._ems_mail_students('ems.email_template_student_walkout_ratification_refused', line)
+        elif agrees_now:
+            self._ems_mail_students('ems.email_template_student_walkout_ratification_agreed', line)
 
     def _ems_portal_cancel(self, partner):
         self._ems_check_manager(partner)

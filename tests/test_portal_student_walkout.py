@@ -129,7 +129,7 @@ class TestPortalStudentWalkout(HttpCase):
 
     def test_the_group_sees_why_a_call_was_rejected(self):
         walkout = open_walkout(self)
-        reject_walkout(walkout, self.head_of_studies, 'ems.student_walkout_rejection_region')
+        reject_walkout(walkout, self.head_of_studies, 'ems.student_walkout_rejection_document')
         self._login(self.classmate)
         page = self.url_open(f'/my/vagues/{walkout.id}').text
         self.assertIn('o_ems_walkout_rejected', page)

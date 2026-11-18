@@ -27,8 +27,8 @@ Obre la proposta des del correu o des d'**Assistència dels estudiants > Inassis
 
 ![Proposta tancada amb les seves accions: Valida, No la validis](../../assets/head_of_studies/hos-walkout-closed.png)
 
-- **Accions > Valida**: confirma la inassistència col·lectiva. Els alumnes que s'hi sumen continuen sense constar al passi de llista d'aquell dia; la ratificació de la família d'un menor no hi canvia res (només indica que n'està al corrent i hi està d'acord), però la família que no l'ha ratificada rep, a títol informatiu, l'avís de cada classe a què no assisteix. Se n'avisa tot l'alumnat del grup, la família de cada alumne menor que s'hi suma, i el tutor.
-- **Accions > No la validis**: tria un motiu; les classes d'aquell dia dels alumnes que s'hi sumen compten com a faltes. Se n'avisa tot l'alumnat, el tutor i les famílies a qui es va demanar que ho ratifiquessin.
+- **Accions > Valida**: confirma la inassistència col·lectiva. Els alumnes que s'hi sumen continuen sense constar al passi de llista d'aquell dia; la resposta de la família d'un menor (acusar rebuda i dir si hi està d'acord) no hi canvia res, però la família que no ha dit que hi està d'acord rep, a títol informatiu, l'avís de cada classe a què no assisteix. Se n'avisa tot l'alumnat del grup, la família de cada alumne menor que s'hi suma, i el tutor.
+- **Accions > No la validis**: tria un motiu; les classes d'aquell dia dels alumnes que s'hi sumen compten com a faltes. Se n'avisa tot l'alumnat, el tutor i les famílies dels menors que s'hi sumaven.
 - **Accions > Desfés la validació** (en una proposta validada): igual que no validar-la, les classes d'aquell dia tornen a comptar com a faltes. Se n'avisa l'alumnat, les famílies i el tutor, amb el motiu.
 
 Els motius surten d'**Assistència dels estudiants > Configuració > Inassistències col·lectives > Motius de rebuig**, els mateixos que fa servir el tutor per avortar una proposta. Els pots afegir, canviar de nom o reordenar; «Altres» demana detalls.

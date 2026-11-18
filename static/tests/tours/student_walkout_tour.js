@@ -112,8 +112,8 @@ registry.category("web_tour.tours").add("ems_student_walkout_ratify_by_hand", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row:contains('WLT Classmate'):contains('Ratified'):not(:has(button[name='action_ratify_manually']))",
-            content: "Ratified, with nothing left to do",
+            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row:contains('WLT Classmate'):contains('Agrees'):not(:has(button[name='action_ratify_manually']))",
+            content: "Agrees, with nothing left to do",
         },
     ],
 });
@@ -292,7 +292,7 @@ registry.category("web_tour.tours").add("ems_student_walkout_portal_ratify", {
             run: "click",
         },
         {
-            trigger: "body:not(:has(.modal.show)) .o_ems_walkout_ratify_answer:contains('Ratified')",
+            trigger: "body:not(:has(.modal.show)) .o_ems_walkout_ratify_answer:contains('Agrees')",
             content: "The answer is shown, the buttons are folded away",
         },
     ],

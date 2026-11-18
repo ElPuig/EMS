@@ -46,7 +46,7 @@ class EmsPortalStudentWalkoutController(CustomerPortal):
     def portal_walkouts(self, **kwargs):
         family = request.env.user.partner_id
         if family._ems_walkout_portal_family():
-            # A family ratifies, or refuses, that its minor children join a walkout.
+            # A family acknowledges receipt, and says whether it agrees, that its minor children join a walkout.
             lines = family._ems_walkout_family_lines()
             if not lines:
                 return request.redirect('/my/home')

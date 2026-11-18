@@ -27,8 +27,8 @@ Abre la propuesta desde el correo o desde **Asistencia de los estudiantes > Inas
 
 ![Propuesta cerrada con sus acciones: Validar, No validar](../../assets/head_of_studies/hos-walkout-closed.png)
 
-- **Acciones > Validar**: confirma la inasistencia colectiva. Los alumnos que se suman siguen sin constar en el pase de lista de ese día; la ratificación de la familia de un menor no cambia nada (solo indica que está al corriente y de acuerdo), pero la familia que no la ha ratificado recibe, a título informativo, el aviso de cada clase a la que no asiste. Se avisa a todo el alumnado del grupo, a la familia de cada alumno menor que se suma, y al tutor.
-- **Acciones > No validar**: elige un motivo; las clases de ese día de los alumnos que se suman cuentan como faltas. Se avisa a todo el alumnado, al tutor y a las familias a las que se pidió que lo ratificaran.
+- **Acciones > Validar**: confirma la inasistencia colectiva. Los alumnos que se suman siguen sin constar en el pase de lista de ese día; la respuesta de la familia de un menor (acusar recibo y decir si está de acuerdo) no cambia nada, pero la familia que no ha dicho que está de acuerdo recibe, a título informativo, el aviso de cada clase a la que no asiste. Se avisa a todo el alumnado del grupo, a la familia de cada alumno menor que se suma, y al tutor.
+- **Acciones > No validar**: elige un motivo; las clases de ese día de los alumnos que se suman cuentan como faltas. Se avisa a todo el alumnado, al tutor y a las familias de los menores que se sumaban.
 - **Acciones > Deshacer la validación** (en una propuesta validada): igual que no validarla, las clases de ese día vuelven a contar como faltas. Se avisa al alumnado, a las familias y al tutor, con el motivo.
 
 Los motivos salen de **Asistencia de los estudiantes > Configuración > Inasistencias colectivas > Motivos de rechazo**, los mismos que usa el tutor para abortar una propuesta. Puedes añadirlos, cambiarles el nombre o reordenarlos; «Otros» pide detalles.

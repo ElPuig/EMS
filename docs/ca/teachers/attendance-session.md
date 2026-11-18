@@ -135,7 +135,7 @@ Un alumne també pot sortir ja tret de la llista quan comences la sessió, amb e
 - **No ha d'assistir: convalidació en tràmit**: ha demanat convalidar aquest mòdul i ha triat no
   assistir-hi mentre es resol.
 - **No ha d'assistir: inassistència col·lectiva**: s'ha sumat a la inassistència col·lectiva del seu grup d'aquell dia. Si és menor
-  d'edat i la seva família no ho ha ratificat, l'etiqueta ho diu: la família rep l'avís d'aquesta classe,
+  d'edat i la seva família no ha dit que hi està d'acord, l'etiqueta ho diu: la família rep l'avís d'aquesta classe,
   a títol informatiu.
 
 Tampoc no compten ni com a assistència ni com a falta. Si l'alumne es presenta igualment, fes clic a

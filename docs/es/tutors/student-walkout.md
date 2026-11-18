@@ -33,13 +33,13 @@ Los correos te llegan cuando llegan a tu grupo: enseguida si el centro cuenta la
 
 **Asistencia de los estudiantes > Inasistencias colectivas** muestra las propuestas de tus grupos. El formulario muestra el calendario, el motivo, el documento que la justifica, el recuento de votos y, en la pestaña **Alumnado**, quién ha votado (nunca qué), quién se suma y la ratificación de la familia de los alumnos menores de edad.
 
-A la familia de un alumno menor que se suma se le pide que lo ratifique en el portal mientras duran las adhesiones (Decret 102/2010, artículo 24.2). La ratificación solo indica que la familia está al corriente y de acuerdo: es una decisión colectiva del alumnado que nadie puede revocar, tampoco la familia.
+A la familia de un alumno menor que se suma se le pide en el portal, mientras duran las adhesiones, que acuse recibo y que diga si está de acuerdo. La respuesta solo indica al centro que la familia ha sido informada: es una decisión colectiva del alumnado que nadie puede revocar, tampoco la familia.
 
-**El pase de lista del día de la inasistencia colectiva.** Cuando se cierran las adhesiones y el grupo la hace, los alumnos que se suman aparecen en gris en el pase de lista de ese día, como «No tiene que asistir: inasistencia colectiva»: ni faltan ni asisten, y no hay que justificar nada. Si un alumno menor se suma sin la ratificación de la familia, la etiqueta lo indica y la familia recibe, a título informativo, el aviso de cada clase a la que no asiste. Si el alumno viene a clase, el profesor lo vuelve a poner en la lista; si se ha equivocado y lo vuelve a quitar, recupera el motivo «inasistencia colectiva» (y el aviso a la familia). Si la inasistencia colectiva no se valida, esas clases cuentan como faltas.
+**El pase de lista del día de la inasistencia colectiva.** Cuando se cierran las adhesiones y el grupo la hace, los alumnos que se suman aparecen en gris en el pase de lista de ese día, como «No tiene que asistir: inasistencia colectiva»: ni faltan ni asisten, y no hay que justificar nada. Si un alumno menor se suma y la familia no ha dicho que está de acuerdo, la etiqueta lo indica y la familia recibe, a título informativo, el aviso de cada clase a la que no asiste. Si el alumno viene a clase, el profesor lo vuelve a poner en la lista; si se ha equivocado y lo vuelve a quitar, recupera el motivo «inasistencia colectiva» (y el aviso a la familia). Si la inasistencia colectiva no se valida, esas clases cuentan como faltas.
 
-Si la familia de un menor no puede usar el portal y te comunica (a ti o al centro) que lo ratifica, haz clic en **Ratifica a mano** en la fila de ese alumno de la pestaña **Alumnado** y confírmalo. Puedes hacerlo desde que los alumnos se suman hasta que la jefatura de estudios valida la inasistencia colectiva, solo para familias que no han respondido (nunca para anular un rechazo). La fila muestra quién lo ha marcado y el cambio queda registrado en el chat.
+Si la familia de un menor no puede usar el portal y te comunica (a ti o al centro) que ha recibido el aviso y está de acuerdo, haz clic en **La familia está de acuerdo (a mano)** en la fila de ese alumno de la pestaña **Alumnado** y confírmalo. Puedes hacerlo desde que los alumnos se suman hasta que la jefatura de estudios valida la inasistencia colectiva, solo para familias que no han respondido (nunca para anular un «no estoy de acuerdo»). La fila muestra quién lo ha marcado y el cambio queda registrado en el chat.
 
-![Pestaña Alumnado con el botón para ratificar a mano](../../assets/tutors/tutor-walkout-ratify-by-hand.png)
+![Pestaña Alumnado con el botón para marcar a mano que la familia está de acuerdo](../../assets/tutors/tutor-walkout-ratify-by-hand.png)
 
 ---
 
@@ -51,10 +51,9 @@ Mientras el grupo vota o hay adhesiones, puedes detener la propuesta: **Acciones
 
 **Solo por un defecto de forma.** Decidir colectivamente no asistir a clase es un derecho del alumnado a partir de 3.º de ESO (LODE, artículo 8): el centro no puede impedirla por su causa. La puedes abortar cuando:
 
-- el documento adjunto no justifica la propuesta (no explica por qué el grupo hace la inasistencia colectiva, o es de otro día). Puede ser la convocatoria de un sindicato de estudiantes, el acta de la asamblea del grupo o cualquier documento que explique la decisión;
-- si es la convocatoria de un sindicato de estudiantes: no incluye el nivel o los estudios del grupo, o es para otro sector (el profesorado, por ejemplo) u otra comunidad autónoma.
+- el documento adjunto no justifica la propuesta (no explica por qué el grupo hace la inasistencia colectiva, o es de otro día). Puede ser la convocatoria de un sindicato de estudiantes, el acta de la asamblea del grupo o cualquier documento que explique la decisión.
 
-Nunca porque no estés de acuerdo con su causa, coincida con un examen, una salida o una entrega, creas que el grupo no puede permitirse perder clase, o vayan a sumarse pocos alumnos.
+Nunca porque no estés de acuerdo con su causa, con quien la convoca o con dónde se convoca (un sindicato, una asamblea, otro sector u otro territorio), coincida con un examen, una salida o una entrega, creas que el grupo no puede permitirse perder clase, o vayan a sumarse pocos alumnos.
 
 Se avisa al alumnado del grupo, con el motivo, y la jefatura de estudios recibe un aviso de cada propuesta abortada en su resumen diario. Una vez cerrada la propuesta, solo decide la jefatura de estudios.
 

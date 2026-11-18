@@ -33,13 +33,13 @@ The emails reach you when they reach your group: at once when the centre counts 
 
 **Student's Attendances > Student walkouts** lists your groups' proposals. The form shows the calendar, the reason, the supporting document, the vote count and, on the **Students** tab, who voted (never what), who joins it, and the family ratification of the minors.
 
-The family of a minor who joins it is asked to ratify it on the portal while joining lasts (Decret 102/2010, article 24.2). The ratification only says that the family is aware and agrees: it is a collective decision of the students that nobody can revoke, the family included.
+The family of a minor who joins it is asked on the portal, while joining lasts, to acknowledge receipt and to say whether it agrees. The answer only tells the school that the family has been informed: it is a collective decision of the students that nobody can revoke, the family included.
 
-**The roll-call of the walkout day.** Once joining closes and the group supports it, the students who join it show greyed out on the roll-calls of that day, as "Not required to attend: student walkout": neither absent nor present, and nothing to justify. When a minor joins without the family's ratification, the label says so and the family gets, for information, the notice of each class they do not attend. If the student comes to class, the teacher puts them back on the list; if that was a mistake and the teacher removes them again, the "student walkout" reason comes back (and so does the family's notice). If the walkout is not validated, those classes count as absences.
+**The roll-call of the walkout day.** Once joining closes and the group supports it, the students who join it show greyed out on the roll-calls of that day, as "Not required to attend: student walkout": neither absent nor present, and nothing to justify. When a minor joins and the family has not said it agrees, the label says so and the family gets, for information, the notice of each class they do not attend. If the student comes to class, the teacher puts them back on the list; if that was a mistake and the teacher removes them again, the "student walkout" reason comes back (and so does the family's notice). If the walkout is not validated, those classes count as absences.
 
-If a minor's family cannot use the portal and tells you (or the centre) that they ratify it, click **Ratify by hand** on that student's row of the **Students** tab and confirm. You can do it from when students join until the Head of Studies validates the walkout, only for families that have not answered (never to override a refusal). The row then shows who marked it, and the change is logged in the chatter.
+If a minor's family cannot use the portal and tells you (or the centre) that it has received the notice and agrees, click **Family agrees (by hand)** on that student's row of the **Students** tab and confirm. You can do it from when students join until the Head of Studies validates the walkout, only for families that have not answered (never to override a "does not agree"). The row then shows who marked it, and the change is logged in the chatter.
 
-![Students tab with the button to ratify by hand](../../assets/tutors/tutor-walkout-ratify-by-hand.png)
+![Students tab with the button to mark by hand that the family agrees](../../assets/tutors/tutor-walkout-ratify-by-hand.png)
 
 ---
 
@@ -51,10 +51,9 @@ While the group is voting or joining, you can stop the proposal: **Actions > Abo
 
 **Only for a formal defect.** Collectively deciding not to attend class is a right of students from the 3rd year of ESO onwards (LODE, article 8): the school cannot stop it because of its cause. You can abort it when:
 
-- the attached document does not support the proposal (it does not explain why the group walks out, or it is for another day). It may be a students' union's call, the minute of the group's assembly or any document that explains the decision;
-- when it is a students' union's call: it does not cover the group's level or studies, or is for another sector (teachers, for instance) or another autonomous community.
+- the attached document does not support the proposal (it does not explain why the group walks out, or it is for another day). It may be a students' union's call, the minute of the group's assembly or any document that explains the decision.
 
-Never because you disagree with its cause, it coincides with an exam, an outing or a deadline, you think the group cannot afford to miss class, or few students would join it.
+Never because you disagree with its cause, with who calls it or where (a union, an assembly, another sector or another territory), it coincides with an exam, an outing or a deadline, you think the group cannot afford to miss class, or few students would join it.
 
 The students of the group are told, with the reason, and the Head of Studies gets a notice of every aborted proposal in their daily summary. Once the proposal has closed, only the Head of Studies decides.
 

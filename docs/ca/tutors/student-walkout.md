@@ -33,13 +33,13 @@ Els correus t'arriben quan arriben al teu grup: de seguida si el centre compta l
 
 **Assistència dels estudiants > Inassistències col·lectives** mostra les propostes dels teus grups. El formulari mostra el calendari, el motiu, el document que la justifica, el recompte de vots i, a la pestanya **Alumnat**, qui ha votat (mai què), qui s'hi suma i la ratificació de la família dels alumnes menors d'edat.
 
-A la família d'un alumne menor que s'hi suma se li demana que ho ratifiqui al portal mentre duren les adhesions (Decret 102/2010, article 24.2). La ratificació només indica que la família n'està al corrent i hi està d'acord: és una decisió col·lectiva dels alumnes que ningú no pot revocar, tampoc la família.
+A la família d'un alumne menor que s'hi suma se li demana al portal, mentre duren les adhesions, que n'acusi rebuda i que digui si hi està d'acord. La resposta només indica al centre que la família n'ha estat informada: és una decisió col·lectiva dels alumnes que ningú no pot revocar, tampoc la família.
 
-**El passi de llista del dia de la inassistència col·lectiva.** Quan es tanquen les adhesions i el grup la fa, els alumnes que s'hi sumen surten en gris al passi de llista d'aquell dia, com a «No ha d'assistir: inassistència col·lectiva»: no hi falten ni hi assisteixen, i no cal justificar res. Si un alumne menor s'hi suma sense la ratificació de la família, l'etiqueta ho indica i la família rep, a títol informatiu, l'avís de cada classe a què no assisteix. Si l'alumne ve a classe, el professor el torna a posar a la llista; si s'ha equivocat i el torna a treure, recupera el motiu «inassistència col·lectiva» (i l'avís a la família). Si la inassistència col·lectiva no es valida, aquelles classes compten com a faltes.
+**El passi de llista del dia de la inassistència col·lectiva.** Quan es tanquen les adhesions i el grup la fa, els alumnes que s'hi sumen surten en gris al passi de llista d'aquell dia, com a «No ha d'assistir: inassistència col·lectiva»: no hi falten ni hi assisteixen, i no cal justificar res. Si un alumne menor s'hi suma i la família no ha dit que hi està d'acord, l'etiqueta ho indica i la família rep, a títol informatiu, l'avís de cada classe a què no assisteix. Si l'alumne ve a classe, el professor el torna a posar a la llista; si s'ha equivocat i el torna a treure, recupera el motiu «inassistència col·lectiva» (i l'avís a la família). Si la inassistència col·lectiva no es valida, aquelles classes compten com a faltes.
 
-Si la família d'un menor no pot utilitzar el portal i et comunica (a tu o al centre) que ho ratifica, fes clic a **Ratifica a mà** a la fila d'aquest alumne de la pestanya **Alumnat** i confirma-ho. Ho pots fer des que els alumnes s'hi sumen fins que la cap d'estudis valida la inassistència col·lectiva, només per a famílies que no han respost (mai per anul·lar un rebuig). La fila mostra qui ho ha marcat i el canvi queda registrat al xat.
+Si la família d'un menor no pot utilitzar el portal i et comunica (a tu o al centre) que n'ha rebut l'avís i hi està d'acord, fes clic a **La família hi està d'acord (a mà)** a la fila d'aquest alumne de la pestanya **Alumnat** i confirma-ho. Ho pots fer des que els alumnes s'hi sumen fins que la cap d'estudis valida la inassistència col·lectiva, només per a famílies que no han respost (mai per anul·lar un «no hi estic d'acord»). La fila mostra qui ho ha marcat i el canvi queda registrat al xat.
 
-![Pestanya Alumnat amb el botó per ratificar a mà](../../assets/tutors/tutor-walkout-ratify-by-hand.png)
+![Pestanya Alumnat amb el botó per marcar a mà que la família hi està d'acord](../../assets/tutors/tutor-walkout-ratify-by-hand.png)
 
 ---
 
@@ -51,10 +51,9 @@ Mentre el grup vota o hi ha adhesions, pots aturar la proposta: **Accions > Avor
 
 **Només per un defecte de forma.** Decidir col·lectivament no assistir a classe és un dret de l'alumnat a partir de 3r d'ESO (LODE, article 8): el centre no la pot aturar pel motiu que la causa. La pots avortar quan:
 
-- el document adjunt no justifica la proposta (no explica per què el grup fa la inassistència col·lectiva, o és d'un altre dia). Pot ser la convocatòria d'un sindicat d'estudiants, l'acta de l'assemblea del grup o qualsevol document que expliqui la decisió;
-- si és la convocatòria d'un sindicat d'estudiants: no inclou el nivell o els estudis del grup, o és per a un altre sector (el professorat, per exemple) o una altra comunitat autònoma.
+- el document adjunt no justifica la proposta (no explica per què el grup fa la inassistència col·lectiva, o és d'un altre dia). Pot ser la convocatòria d'un sindicat d'estudiants, l'acta de l'assemblea del grup o qualsevol document que expliqui la decisió.
 
-Mai perquè no hi estiguis d'acord, coincideixi amb un examen, una sortida o un lliurament, creguis que el grup no es pot permetre perdre classe, o s'hi hagin de sumar pocs alumnes.
+Mai perquè no hi estiguis d'acord amb la causa, amb qui la convoca o amb on es convoca (un sindicat, una assemblea, un altre sector o un altre territori), coincideixi amb un examen, una sortida o un lliurament, creguis que el grup no es pot permetre perdre classe, o s'hi hagin de sumar pocs alumnes.
 
 Se n'avisa l'alumnat del grup, amb el motiu, i el cap d'estudis rep un avís de cada proposta avortada al seu resum diari. Un cop tancada la proposta, només decideix el cap d'estudis.
 

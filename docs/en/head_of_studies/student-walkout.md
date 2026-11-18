@@ -27,8 +27,8 @@ Open the proposal from the email or from **Student's Attendances > Student walko
 
 ![Closed proposal with its Actions: Validate, Do not validate](../../assets/head_of_studies/hos-walkout-closed.png)
 
-- **Actions > Validate**: confirms the walkout. The students who join it stay off the roll-calls of that day; the family's ratification of a minor changes nothing there (it only says it is aware and agrees), but a family that did not ratify it gets, for information, the notice of each class the minor does not attend. Every student of the group is told, the family of each minor who joins too, and the tutor.
-- **Actions > Do not validate**: choose a reason; the classes of that day of the students who join it count as absences. Every student is told, and so are the tutor and the families that were asked to ratify it.
+- **Actions > Validate**: confirms the walkout. The students who join it stay off the roll-calls of that day; the family's answer for a minor (acknowledging receipt and saying whether it agrees) changes nothing there, but a family that did not say it agrees gets, for information, the notice of each class the minor does not attend. Every student of the group is told, the family of each minor who joins too, and the tutor.
+- **Actions > Do not validate**: choose a reason; the classes of that day of the students who join it count as absences. Every student is told, and so are the tutor and the families of the minors who joined it.
 - **Actions > Undo the validation** (on a validated proposal): like not validating it, the classes of that day count as absences again. Students, families and tutor are told, with the reason.
 
 The reasons come from **Student's Attendances > Configuration > Student walkouts > Rejection reasons**, the same ones the tutor uses to abort a proposal. You can add, rename or reorder them; "Other reasons" asks for details.

@@ -27,17 +27,18 @@ The **group's tutor watches over the proposal**: they get a copy of every email 
 **abort** it, with a reason, while it is voted or joined, only for a formal defect (the abort
 wizard explains which reasons are lawful). The Head of Studies hears nothing until the minute,
 except a notice in their daily summary when a proposal is aborted. **The family of a minor who joins
-is asked to ratify it** (Decret 102/2010, article 24.2): it is asked at once and answers on the portal
-while joining lasts, or the tutor (or whoever is above them) marks it by hand for a family that cannot
-use the portal. The ratification **only says the family knows and agrees**: it is a collective
-decision of the students that nobody can revoke, the family included, and it changes nothing in the
-roll-calls. What it does change: the family of a minor who joins **without** it (refused, did not
-answer, or has no portal access) is told of each class of the day, for information only, through the
+is asked to acknowledge receipt and to say whether it agrees** (it is no authorisation: the exercise
+of the right needs none, LODE art. 8 and STS 5389/2014): it is asked at once and answers "I agree" or
+"I do not agree" on the portal while joining lasts, or the tutor (or whoever is above them) marks it
+by hand for a family that cannot use the portal. The answer **only says the family knows and
+agrees**: it is a collective decision of the students that nobody can revoke, the family included,
+and it changes nothing in the roll-calls. What it does change: the family of a minor who joins
+**without having said it agrees** (does not agree, did not answer, or has no portal access) is told of each class of the day, for information only, through the
 usual attendance notice (see "The roll-calls of the walkout day"). Other families hear nothing until
 the proposal is validated.
 
 **Banners and emails carry the reason.** The portal home banners (vote pending, joining open, a family
-asked to ratify) and the students' vote email quote `notes` in full ("because of: «...»"); it is at
+asked for its answer) and the students' vote email quote `notes` in full ("because of: «...»"); it is at
 most 2,000 characters.
 
 **Wording in Catalan and Spanish** (everywhere: portal, emails, the minute, staff screens, settings and
@@ -212,7 +213,7 @@ erDiagram
 | `has_portal` | `Boolean` | Whether the student had portal access when the proposal was made: the group vote's electorate (`voter_count`). Joining is open to every line (issue #830) |
 | `voted` / `vote_date` | `Boolean` / `Datetime` | The group vote was cast (it never says which way) |
 | `join_answered` / `joins` / `join_date` | `Boolean` / `Boolean` / `Datetime` | Whether they said if they join, and what |
-| `needs_ratification` / `ratification` | `Boolean` / `Selection` (`pending`, `ratified`, `refused`) | The family of a minor on the walkout day (no birth date counts as a minor) who joins is asked to ratify it: informative only |
+| `needs_ratification` / `ratification` | `Boolean` / `Selection` (`pending`, `ratified`, `refused`) | The family of a minor on the walkout day (no birth date counts as a minor) who joins is asked to acknowledge receipt and say whether it agrees: informative only (`ratified` = "Agrees", `refused` = "Does not agree"; the keys keep the old names) |
 | `ratified_by_id` / `ratification_date` | `Many2one → res.partner` / `Datetime` | Who answered (the family contact, or the staff member who marked it by hand), and when |
 | `ratified_manually` / `can_ratify_manually` | `Boolean` / `Boolean` (computed, per user) | Marked by hand by the centre (issue #840); whether the current user may do it now |
 
@@ -227,9 +228,11 @@ One catalog for aborting and for not validating (Student's Attendances → Confi
 walkouts → Rejection reasons; academic administrators and Heads of Studies), like the justification
 reasons: `name` (translatable), `sequence`, `active`, `requires_details`. Seeded with
 `noupdate="1"` (the centre edits it) with the formal defects only: the attached document does not
-support the proposal; for a union's call, it does not include the group's level or studies,
-another sector (not students), another autonomous community, and "Other reasons"
-(`requires_details`). "No official call of a students' union" was archived by issue #844 (any
+support the proposal, and "Other reasons" (`requires_details`). Only the procedure is judged (a
+protest shown by a document, a group from 3rd of ESO, notice in time), never who calls it, which
+sector or which territory: "the call does not include the group's level or studies", "the call is
+for another sector" and "the call is for another autonomous community" were archived by issue #844
+(migration 18.0.0.50.0; the proposals already rejected with one keep it). "No official call of a students' union" was archived by issue #844 (any
 document may support a walkout now), and "the attached document is not a valid call" renamed; the
 migration leaves a reason the centre had renamed as it is. A duplicate proposal or one made by someone who is not the delegate cannot
 happen (the portal refuses both), so they are not reasons. Both are done from
@@ -271,11 +274,11 @@ flowchart TD
     V --> E{"result decided, or vote_until reached"}
     E -- "does not support it" --> N["closed: minute to the HoS/DHoS, 'not supported' email to the group"]
     E -- supports it --> J["joining: result + 'do you join?' email to each student, copy to the tutor"]
-    J -. "a minor joins" .-> R["family asked at once; ratifies or refuses on the portal while joining lasts"]
+    J -. "a minor joins" .-> R["family asked at once; acknowledges receipt and says whether it agrees on the portal while joining lasts"]
     J --> K{"join_until reached"}
     K --> F["closed: those who join are off the roll-calls of the day (walkout); minute to the HoS/DHoS, task 'Validate', copy to the tutor"]
     F --> I["validated: students, families of those who join and tutor told"]
-    F -. "do not validate, with a reason" .-> Y["rejected: classes of the day back as absences; students, tutor and the families asked to ratify told"]
+    F -. "do not validate, with a reason" .-> Y["rejected: classes of the day back as absences; students, tutor and the families of the minors who joined told"]
     I -. "undo the validation, with a reason" .-> Z["rejected: classes of the day back as absences; students, families and tutor told"]
     J -. "delegate (once) / tutor chain extends" .-> J
     F -. "delegate (once) / tutor chain extends" .-> J
@@ -309,25 +312,25 @@ flowchart TD
   `ratification = 'pending'`, and their family is asked at once
   (`email_template_student_walkout_ratify`, not tied to school hours). Withdrawing clears it;
   joining again asks again. The emails and the portal say that it is a collective decision nobody can
-  revoke, that the classes of that day do not count as absences and, to the family, that once ratified
-  there is nothing else to do.
-- **Ratify** (`_ems_portal_ratify(family, line, ratifies)`, portal `/my/vagues`, POST
+  revoke, that the classes of that day do not count as absences and, to the family, that once
+  answered there is nothing else to do.
+- **Answer** (`_ems_portal_ratify(family, line, ratifies)`; `ratifies` is "I agree", portal `/my/vagues`, POST
   `/my/vagues/ratifica/<line>`): a family contact of the student (`_ems_family_contacts`) with portal
-  access, only while `joining` (until `join_until`), changeable meanwhile. A refusal is told to the
+  access, only while `joining` (until `join_until`), changeable meanwhile. A "does not agree" is told to the
   student, for information (`email_template_student_walkout_ratification_refused`: their family will be
-  told of each class they miss that day). A family with no portal access cannot ratify, unless the
+  told of each class they miss that day). A family with no portal access cannot answer, unless the
   centre marks it by hand (next item). The family sees the lines it was asked about
   (`res.partner._ems_walkout_family_lines`) and a banner on the portal home while one is pending.
-- **Ratify by hand** (`ems.student_walkout.line.action_ratify_manually()`, issue #840): for a family that
+- **Family agrees (by hand)** (`ems.student_walkout.line.action_ratify_manually()`, issue #840): for a family that
   cannot use the portal and asks the centre. Whoever may abort the proposal (`_ems_user_may_abort`:
-  tutor, the chain above them, administrator) marks a `pending` ratification of a minor who joins, from
-  joining until the Head of Studies validates (`joining` or `closed`). A family's refusal is never
+  tutor, the chain above them, administrator) marks a `pending` answer of a minor who joins, from
+  joining until the Head of Studies validates (`joining` or `closed`). A family's "does not agree" is never
   overridden. It sets `ratification = 'ratified'`, `ratified_by_id` = the staff member's contact,
   `ratified_manually` and logs it in the walkout's chatter; the family answering on the portal later,
   or the student withdrawing, clears `ratified_manually`. The button sits on the form's Students tab.
   Marked once the roll-calls of the day exist, their pending notice to the family is withdrawn
   (`_ems_refresh_walkout_notices`).
-- **Saved, on the portal** (issue #844): after voting, saying whether one joins, extending or ratifying,
+- **Saved, on the portal** (issue #844): after voting, saying whether one joins, extending or answering as a family,
   the controller redirects with `?saved=<vote|join|extend|ratified|refused>` and the page pops up what
   was saved and what comes next (`ems.portal_student_walkout_saved_modal`, opened on load by the
   public widget `static/src/js/frontend/walkout_saved_modal.js`, which also drops `saved` from the
@@ -353,7 +356,7 @@ flowchart TD
   `_ems_notify_heads`), the deadlines cron is woken for the new end, every student with portal access gets
   `email_template_student_walkout_join_extended` and the tutor a copy (event `extended`). When it closes again
   `_ems_close()` renders and sends a new minute and syncs the roll-calls: whoever withdrew meanwhile is back on
-  them. Families asked to ratify answer until the new end.
+  them. Families asked for their answer have until the new end.
 - **Abort** (`action_open_reject_wizard()` → `_ems_reject(reason, details)`) while `voting` or
   `joining` (`ABORTABLE_STATES`): `_ems_user_may_abort`, i.e. an administrator, or the tutor of any
   of `group_ids` or the chain above them (`user_acts_as_tutor`: Department or Seminar Chief, Head or
@@ -363,8 +366,8 @@ flowchart TD
   (`_ems_notify_aborted`, `ems.info_notice`).
 - **Do not validate / undo the validation** (same wizard and method) while `closed` or `validated`
   (`VALIDATION_STATES`): `_ems_user_may_reject`, whoever may validate it. The students and the tutor
-  are told, and so are the families that heard of it (`_ems_family_lines`: the ones asked to
-  ratify and, when undoing a validation, the adults' families told of it), with
+  are told, and so are the families that heard of it (`_ems_family_lines`: the ones asked for
+  their answer and, when undoing a validation, the adults' families told of it), with
   `email_template_student_walkout_family_rejected`, whose text depends on `rejected_from_state`
   (aborted, not validated, validation withdrawn). The same goes for an abort. The classes of the
   walkout day of those who join become regular absences (`_ems_restore_walkout_lines` →
@@ -376,7 +379,7 @@ flowchart TD
   joining student (`_ems_user_may_validate`, the same rule as justifying them), or an administrator.
   Justifies nothing: it marks the task as done and moves the proposal to `validated`. The task only
   exists when somebody joins. Then every student with portal access gets
-  `email_template_student_walkout_validated`, the family of each minor who joins (ratified or not) and
+  `email_template_student_walkout_validated`, the family of each minor who joins (agreeing or not) and
   of each adult who joins and shares with it `email_template_student_walkout_family` (for information,
   nothing to do), and the tutor a copy. The justification reason `attendance_justification_reason_walkout`
   stays in the catalog for justifications made by hand (e.g. a whole group's strike day, issue #795).
@@ -403,16 +406,16 @@ flowchart TD
 | Not validated, or validation undone | Back on the roll-call as absences, families of past days not emailed | `_ems_restore_walkout_lines()` |
 
 **Who is told.** Archived lines are left out of reports and notifications (#537), with one exception:
-a line off the roll-call for a walkout its student joins as a **minor without the family's
-ratification** is notifiable (`ems.attendance_session_line.status_is_notificable()` →
+a line off the roll-call for a walkout its student joins as a **minor whose family has not said it
+agrees** is notifiable (`ems.attendance_session_line.status_is_notificable()` →
 `_ems_unratified_walkout_lines()`, one search per day). The session's creation collects its archived
 lines too, so the notice is created with the usual delay and cancelled or rectified like any absence's
 when the teacher puts the student back. `ems.attendance_issue_status.not_expected_reason` keeps a copy
 of the reason, and `mail_attendance_issue_status_family` / `_student` then say, for information only,
 that the student did not attend that class because they joined the collective decision not to attend
 class of their group, that the school must tell the families of minors, and that it is neither an
-absence nor a sanction. The tutor's daily summary shows it as such. The roll-call label adds "not
-ratified by the family: it will be told", so the teacher knows.
+absence nor a sanction. The tutor's daily summary shows it as such. The roll-call label adds "the
+family has not said it agrees: it will be told", so the teacher knows.
 
 **Cost.** Creating a session adds one indexed search on `ems_student_walkout_line` (by student, joined
 to its walkout's date and state) for the whole roster, plus one more per day when there are archived
@@ -427,7 +430,7 @@ The **Student walkouts** menu (Student's Attendances) is shown only to who can r
 
 Portal users have no ACL on these models: the controller works with `sudo()` and always takes the
 student from the logged-in user (`request.env.user.partner_id`, `contact_type == 'student'`). A
-family only ratifies, for the lines of its own children it was asked about.
+family only answers, for the lines of its own children it was asked about.
 
 | Role | Read | Abort (voting, joining) | Validate, do not validate, undo | Rejection reasons |
 |------|:----:|:--:|:--:|:--:|

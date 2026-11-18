@@ -6,7 +6,7 @@
 
 Your group can decide on the portal whether it walks out on a given day (for instance, after a students' union calls a walkout), and each student says whether they join it. The students who join it are off the roll-calls of that day: neither absent nor present.
 
-It is a collective decision not to attend class, of students from the 3rd year of ESO onwards, told to the school's management beforehand (LODE, article 8). Nobody can revoke it, the family included: the school only informs. In Catalonia, the family of a minor is asked to ratify it on the portal (Decret 102/2010, article 24.2), only to know that it is aware and agrees.
+It is a collective decision not to attend class, of students from the 3rd year of ESO onwards, told to the school's management beforehand. Nobody can revoke it, the family included: the school only informs. The family of a minor is asked on the portal to acknowledge receipt and to say whether it agrees.
 
 ---
 
@@ -16,7 +16,7 @@ It is a collective decision not to attend class, of students from the 3rd year o
 |-----|--------------|
 | The group's delegate or sub-delegate | Proposes the vote, gives the reason and attaches the document that supports it |
 | Every student of the group with portal access | Votes whether the group walks out and, if it does, says whether they join it |
-| The family of a minor who joins | Ratifies it, or not, on the portal: it only says that it is aware and agrees |
+| The family of a minor who joins | Acknowledges receipt on the portal and says "I agree" or "I do not agree": it does not change the student's decision |
 | The group's tutor | Is told of everything and can stop the proposal if it has a formal defect |
 | The Head of Studies | Gets the minute and validates the walkout or not |
 
@@ -83,7 +83,7 @@ If the group decides to walk out, you get an email and the proposal asks you **D
 
 - Your name appears in the minute the Head of Studies gets.
 - The classes of that day do not count as absences for you: you are off the roll-calls. If the walkout is not validated, they do count.
-- **If you are a minor**, your family is asked to ratify on the portal that you join, while joining lasts, only to know that it is aware and agrees. Nobody can revoke your decision. If it does not ratify it, it is told of each class you do not attend that day, for information. The page tells you whether your family has ratified it.
+- **If you are a minor**, your family is asked on the portal, while joining lasts, to acknowledge receipt and say whether it agrees that you join. Nobody can revoke your decision. If it does not say that it agrees, it is told of each class you do not attend that day, for information. The page tells you what your family has answered.
 
 ---
 
@@ -99,17 +99,17 @@ If joining is about to end, or has ended, and students still need time, open the
 
 ---
 
-## Ratifying it (family of a minor)
+## Acknowledging receipt (family of a minor)
 
 When your child (under 18 on the walkout day) says that they join a walkout, you get an email at once. On the portal, the home page warns you; click **Answer**, or open **Student walkouts**.
 
-For each walkout, click **I ratify it** or **I do not ratify it**. A pop-up confirms your answer, and the page shows it. You can change it with **Change my answer** until joining ends (the page tells you until when).
+For each walkout, click **I agree** or **I do not agree**. A pop-up confirms your answer, and the page shows it. You can change it with **Change my answer** until joining ends (the page tells you until when).
 
-![Family page to ratify that their child joins the walkout](../../assets/families/walkout-portal-family.png)
+![Family page to acknowledge receipt and say whether you agree that their child joins the walkout](../../assets/families/walkout-portal-family.png)
 
-- Ratifying it only tells the school that you are aware and agree. It is a collective decision of the students that nobody can revoke, and the classes of that day do not count as absences. **Once ratified, you do not need to do anything else**: the rest is automatic.
-- If you do not ratify it, or do not answer in time, you are told of each class your child does not attend that day, for information only. If you refuse, your child is told too.
-- To ratify it you need access to the portal. If you don't have it, ask the school for it in time.
+- Answering only tells the school that you have received the notice and whether you agree. It is a collective decision of the students that nobody can revoke, and the classes of that day do not count as absences. **Once answered, you do not need to do anything else**: the rest is automatic.
+- If you do not say that you agree, or do not answer in time, you are told of each class your child does not attend that day, for information only. If you say that you do not agree, your child is told too.
+- To answer you need access to the portal. If you don't have it, ask the school for it in time.
 - Once the walkout is validated you get an email, for information. If the proposal is aborted or not validated instead, you are told too.
 
 ---

@@ -14,24 +14,22 @@
                         <p>
                             Deciding collectively not to attend class is a right of students from 3rd of ESO onwards, when it is
                             communicated to the school's management beforehand (LODE, article 8). It is not sanctioned and the school
-                            cannot stop it because of its cause. In Catalonia, the family of a minor who joins is asked to ratify it on
-                            the portal while joining lasts (Decret 102/2010, article 24.2): it only says that the family knows and
-                            agrees, it cannot revoke the decision, and the family that does not ratify it is told of each class, for
-                            information.
+                            cannot stop it because of its cause. In Catalonia, the family of a minor who joins is asked to acknowledge receipt on
+                            the portal while joining lasts and to say whether it agrees: it cannot revoke the decision, and the family
+                            that does not say that it agrees is told of each class, for information.
                         </p>
                         <p class="mb-1"><strong>Abort a proposal only for a formal defect:</strong></p>
                         <ul>
                             <li>the attached document does not support the proposal (it does not explain why the group walks out, or it is for another day);</li>
-                            <li>when it is the call of a students' union: it does not cover the group's level or studies, or it is for another sector (teachers, for instance) or another autonomous community.</li>
                         </ul>
                         <p class="mb-0">
-                            <strong>Never because</strong> you disagree with its cause, it coincides with an exam, an outing or a
+                            <strong>Never because</strong> you disagree with its cause or with who calls it or where (a union, an assembly, another sector or another territory), it coincides with an exam, an outing or a
                             deadline, you think the group cannot afford to miss class, few students would join, or to put pressure
                             on the group. The Head of Studies is told of every aborted proposal and its reason.
                         </p>
                     </div>
-                    <p class="text-muted" invisible="walkout_state not in ('voting', 'joining')">The students of the group, its tutor and the families asked to ratify that a minor joins are told, with the reason.</p>
-                    <p class="text-muted" invisible="walkout_state != 'closed'">The classes of the walkout day of the students who join it count as regular absences. The students of the group, its tutor and the families asked to ratify that a minor joins are told, with the reason.</p>
+                    <p class="text-muted" invisible="walkout_state not in ('voting', 'joining')">The students of the group, its tutor and the families of the minors who join are told, with the reason.</p>
+                    <p class="text-muted" invisible="walkout_state != 'closed'">The classes of the walkout day of the students who join it count as regular absences. The students of the group, its tutor and the families of the minors who join are told, with the reason.</p>
                     <p class="text-muted" invisible="walkout_state != 'validated'">The classes of the walkout day of the students who join it count as regular absences again. The students of the group, the families of those who join and the tutor are told, with the reason.</p>
                     <group>
                         <field name="walkout_id" readonly="1"/>

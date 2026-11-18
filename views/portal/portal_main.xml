@@ -38,7 +38,7 @@
                 <t t-set="_ems_walkout_ratify" t-value="request.env.user.share and _ems_partner._ems_walkout_portal_family() and _ems_partner._ems_walkout_family_lines(pending=True)"/>
                 <div t-foreach="_ems_walkout_ratify or []" t-as="_line"
                      class="alert alert-warning d-flex justify-content-between align-items-center mt-3 o_ems_walkout_ratify_banner">
-                    <span><strong t-esc="_line.student_id.name"/> joins the walkout on <strong t-field="_line.walkout_id.walkout_date"/>, because of: «<t t-esc="(_line.walkout_id.notes or '').strip().rstrip('.')"/>». Do you ratify it?</span>
+                    <span><strong t-esc="_line.student_id.name"/> joins the walkout on <strong t-field="_line.walkout_id.walkout_date"/>, because of: «<t t-esc="(_line.walkout_id.notes or '').strip().rstrip('.')"/>». Please acknowledge receipt and say whether you agree.</span>
                     <a href="/my/vagues" class="btn btn-primary btn-sm ms-3">Answer it</a>
                 </div>
 

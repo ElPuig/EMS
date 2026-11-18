@@ -98,9 +98,9 @@ class TestStudentWalkoutAttendance(TransactionCase):
     def test_the_label_says_when_the_family_will_be_told(self):
         walkout = self._closed()
         session = self._session(walkout.walkout_date)
-        self.assertIn('not ratified', self._line(session, self.classmate).roll_call_label)
-        self.assertNotIn('not ratified', self._line(session, self.subdelegate).roll_call_label)
-        self.assertNotIn('not ratified', self._line(session, self.delegate).roll_call_label)
+        self.assertIn('not said it agrees', self._line(session, self.classmate).roll_call_label)
+        self.assertNotIn('not said it agrees', self._line(session, self.subdelegate).roll_call_label)
+        self.assertNotIn('not said it agrees', self._line(session, self.delegate).roll_call_label)
 
     def test_other_days_are_not_touched(self):
         walkout = self._closed()
@@ -165,7 +165,7 @@ class TestStudentWalkoutAttendance(TransactionCase):
                 session = self._session(walkout.walkout_date, 8.0 + undo, 9.0 + undo)
                 if undo:
                     walkout.with_user(self.head_of_studies).action_validate()
-                reject_walkout(walkout, self.head_of_studies, 'ems.student_walkout_rejection_level')
+                reject_walkout(walkout, self.head_of_studies, 'ems.student_walkout_rejection_document')
                 for student in (self.delegate, self.subdelegate, self.classmate):
                     line = self._line(session, student)
                     self.assertEqual((line.active, line.not_expected_reason, line.status_id),
@@ -214,7 +214,7 @@ class TestStudentWalkoutAttendance(TransactionCase):
         walkout_line = walkout.line_ids.filtered(lambda line: line.student_id == self.classmate)
         walkout_line.with_user(self.tutor).action_ratify_manually()
         self.assertFalse(self._notices(line), "Not sent yet: withdrawn.")
-        self.assertNotIn('not ratified', line.roll_call_label)
+        self.assertNotIn('not said it agrees', line.roll_call_label)
 
     def test_who_no_longer_joins_after_an_extension_is_back_on_the_roll_call(self):
         """Issue #838: a closed call reopens for one phase more; whoever then withdraws is expected again

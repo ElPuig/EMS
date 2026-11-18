@@ -18108,9 +18108,13 @@ msgstr "Valida"
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__refused
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_head_state__refused
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__refused
-#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout_line__ratification__refused
 msgid "Refused"
 msgstr "Rebutjat"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout_line__ratification__refused
+msgid "Does not agree"
+msgstr "No hi està d'acord"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_hr_holidays_filter_ems
@@ -50210,11 +50214,11 @@ msgstr "<strong>Només es pot avortar una proposta per un defecte de forma:</str
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
 msgid ""
-"<strong>Never because</strong> you disagree with its cause, it coincides with an exam, an outing or a\n"
+"<strong>Never because</strong> you disagree with its cause or with who calls it or where (a union, an assembly, another sector or another territory), it coincides with an exam, an outing or a\n"
 "                            deadline, you think the group cannot afford to miss class, few students would join, or to put pressure\n"
 "                            on the group. The Head of Studies is told of every aborted proposal and its reason."
 msgstr ""
-"<strong>Mai perquè</strong> no hi estiguis d'acord, coincideixi amb un examen, una sortida o un\n"
+"<strong>Mai perquè</strong> no hi estiguis d'acord amb la causa, amb qui la convoca o amb on es convoca (un sindicat, una assemblea, un altre sector o un altre territori), coincideixi amb un examen, una sortida o un\n"
 "                            lliurament, creguis que el grup no es pot permetre perdre classe, s'hi hagin de sumar pocs alumnes, o per pressionar\n"
 "                            el grup. El cap d'estudis rep un avís de cada proposta avortada i del seu motiu."
 
@@ -50315,12 +50319,12 @@ msgstr "Desfés la validació"
 #. module: ems
 #: model:mail.template,name:ems.email_template_student_walkout_ratification_refused
 msgid "EMS: student walkout, family refused"
-msgstr "EMS: inassistència col·lectiva, la família no ho ratifica"
+msgstr "EMS: inassistència col·lectiva, la família no hi està d'acord"
 
 #. module: ems
 #: model:mail.template,name:ems.email_template_student_walkout_ratify
-msgid "EMS: student walkout, family to ratify"
-msgstr "EMS: inassistència col·lectiva, ratificació de la família"
+msgid "EMS: student walkout, family to acknowledge"
+msgstr "EMS: inassistència col·lectiva, acús de rebuda de la família"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__ratification_date
@@ -50329,50 +50333,58 @@ msgstr "Resposta de la família el"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__ratification
-msgid "Family ratification"
-msgstr "Ratificació de la família"
+msgid "Family answer"
+msgstr "Resposta de la família"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
-msgid "Family ratification (minors)"
-msgstr "Ratificació de la família (menors)"
+msgid "Family answer (minors)"
+msgstr "Resposta de la família (menors)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
-msgid "I do not ratify it"
-msgstr "No ho ratifico"
+msgid "I do not agree"
+msgstr "No hi estic d'acord"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
-msgid "I ratify it"
-msgstr "Ho ratifico"
+msgid "I agree"
+msgstr "Hi estic d'acord"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__needs_ratification
-msgid "Needs the family's ratification"
-msgstr "Necessita la ratificació de la família"
+msgid "Needs the family's acknowledgement"
+msgstr "Necessita l'acús de rebuda de la família"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid ""
-"Only the family of the student, with access to the portal, can ratify it."
-msgstr "Només ho pot ratificar la família de l'alumne, amb accés al portal."
+"Only the family of the student, with access to the portal, can answer it."
+msgstr "Només ho pot respondre la família de l'alumne, amb accés al portal."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout_line__ratification__ratified
-msgid "Ratified"
-msgstr "Ratificat"
+msgid "Agrees"
+msgstr "Hi està d'acord"
 
 #. module: ems
 #: model:mail.template,subject:ems.email_template_student_walkout_ratification_refused
-msgid "Student walkout on {{ format_date(object.walkout_id.walkout_date) }}: your family has not ratified it"
-msgstr "Inassistència col·lectiva del {{ format_date(object.walkout_id.walkout_date) }}: la teva família no ho ha ratificat"
+msgid ""
+"Student walkout on {{ format_date(object.walkout_id.walkout_date) }}: your "
+"family does not agree"
+msgstr ""
+"Inassistència col·lectiva del {{ format_date(object.walkout_id.walkout_date)"
+" }}: la teva família no hi està d'acord"
 
 #. module: ems
 #: model:mail.template,subject:ems.email_template_student_walkout_ratify
-msgid "Student walkout on {{ format_date(object.walkout_id.walkout_date) }}: {{ object.student_id.name }} joins it, do you ratify it?"
-msgstr "Inassistència col·lectiva del {{ format_date(object.walkout_id.walkout_date) }}: {{ object.student_id.name }} s'hi suma, ho ratifiqueu?"
+msgid ""
+"Student walkout on {{ format_date(object.walkout_id.walkout_date) }}: {{ "
+"object.student_id.name }} joins it, please acknowledge receipt"
+msgstr ""
+"Inassistència col·lectiva del {{ format_date(object.walkout_id.walkout_date)"
+" }}: {{ object.student_id.name }} s'hi suma, acuseu-ne rebuda"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
@@ -50382,14 +50394,16 @@ msgstr "El termini per respondre s'ha acabat."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid "The time to ratify it is over: joining this student walkout is closed."
-msgstr "El termini per ratificar-ho s'ha acabat: les adhesions a aquesta inassistència col·lectiva estan tancades."
+msgid "The time to answer is over: joining this student walkout is closed."
+msgstr ""
+"El termini per respondre s'ha acabat: les adhesions a aquesta inassistència "
+"col·lectiva estan tancades."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid "There is nothing to ratify for this student."
-msgstr "No hi ha res a ratificar per a aquest alumne."
+msgid "There is nothing to answer for this student."
+msgstr "No hi ha res a respondre per a aquest alumne."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
@@ -50439,11 +50453,11 @@ msgstr "Només un administrador pot canviar quins nivells poden proposar una ina
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
 msgid ""
-"The students of the group, its tutor and the families asked to ratify that a"
-" minor joins are told, with the reason."
+"The students of the group, its tutor and the families of the minors who join"
+" are told, with the reason."
 msgstr ""
-"S'avisa els alumnes del grup, el seu tutor i les famílies a les quals es va "
-"demanar que ratifiquessin que un menor s'hi suma, amb el motiu."
+"S'avisa els alumnes del grup, el seu tutor i les famílies dels menors que "
+"s'hi sumen, amb el motiu."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_walkout_levels_wizard_form
@@ -52282,46 +52296,66 @@ msgstr "Pot ratificar a mà"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__ratified_manually
-msgid "Ratified by the centre"
-msgstr "Ratificada pel centre"
+msgid "Answered by the centre"
+msgstr "Respost pel centre"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_student_walkout_line__ratified_manually
-msgid "The tutor, or whoever is above them, marked the family's ratification by hand."
-msgstr "El tutor, o qui està per damunt, ha marcat a mà la ratificació de la família."
+msgid ""
+"The tutor, or whoever is above them, marked the family's answer by hand."
+msgstr ""
+"El tutor, o qui està per damunt, ha marcat a mà la resposta de la família."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
-msgid "Ratify by hand"
-msgstr "Ratifica a mà"
+msgid "Family agrees (by hand)"
+msgstr "La família hi està d'acord (a mà)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
-msgid "Mark the family's ratification by hand"
-msgstr "Marca a mà la ratificació de la família"
+msgid "Mark by hand that the family acknowledges and agrees"
+msgstr "Marca a mà que la família n'ha rebut l'avís i hi està d'acord"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
-msgid "Mark that the family of this student ratifies that they join the walkout? Do it only when the family has told the centre so."
-msgstr "Vols marcar que la família d'aquest alumne ratifica que s'adhereix a la inassistència col·lectiva? Fes-ho només quan la família ho hagi comunicat al centre."
+msgid ""
+"Mark that the family of this student has acknowledged receipt and agrees "
+"that they join the walkout? Do it only when the family has told the centre "
+"so."
+msgstr ""
+"Vols marcar que la família d'aquest alumne n'ha rebut l'avís i està d'acord "
+"que s'adhereixi a la inassistència col·lectiva? Fes-ho només quan la família"
+" ho hagi comunicat al centre."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid "The ratification of %(student)s cannot be marked by you now: only the tutor of the group, the chain above them or an administrator can, for a minor whose family has not answered, until the Head of Studies validates the walkout."
-msgstr "Ara no pots marcar la ratificació de %(student)s: només ho poden fer el tutor del grup, la cadena que té per damunt o un administrador, per a un menor la família del qual no ha respost, fins que la cap d'estudis validi la inassistència col·lectiva."
+msgid ""
+"The family's answer for %(student)s cannot be marked by you now: only the "
+"tutor of the group, the chain above them or an administrator can, for a "
+"minor whose family has not answered, until the Head of Studies validates the"
+" walkout."
+msgstr ""
+"Ara no pots marcar la resposta de la família de %(student)s: només ho poden "
+"fer el tutor del grup, la cadena que té per damunt o un administrador, per a"
+" un menor la família del qual no ha respost, fins que la cap d'estudis "
+"validi la inassistència col·lectiva."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid "%(user)s marked by hand the family's ratification that %(student)s joins the walkout."
-msgstr "%(user)s ha marcat a mà la ratificació de la família que %(student)s s'adhereix a la inassistència col·lectiva."
+msgid ""
+"%(user)s marked by hand that the family of %(student)s acknowledges receipt "
+"and agrees that they join the walkout."
+msgstr ""
+"%(user)s ha marcat a mà que la família de %(student)s n'ha rebut l'avís i "
+"està d'acord que s'adhereixi a la inassistència col·lectiva."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/student_walkout_attendance.py:0
-msgid "%(label)s (not ratified by the family: it will be told)"
-msgstr "%(label)s (sense ratificació de la família: se l'informarà)"
+msgid "%(label)s (the family has not said it agrees: it will be told)"
+msgstr "%(label)s (la família no ha dit que hi està d'acord: se l'informarà)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
@@ -52360,7 +52394,7 @@ msgid ""
 "                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, which\n"
 "                            <strong t-out=\"object.student_id.name\"/> had said they joined:\n"
 "                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
-"                            There is nothing left to ratify, and they are expected in class that day.\n"
+"                            There is nothing left to answer, and they are expected in class that day.\n"
 "                        </p>\n"
 "                        <p>If you have any question, talk to the group's tutor.</p>\n"
 "                        <p>\n"
@@ -52395,7 +52429,7 @@ msgstr ""
 "                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, a la qual\n"
 "                            <strong t-out=\"object.student_id.name\"/> havia dit que se sumava:\n"
 "                            <strong t-out=\"object.walkout_id.rejection_reason_id.name\"/>.\n"
-"                            Ja no cal ratificar res, i aquell dia se l'espera a classe.\n"
+"                            Ja no cal respondre res, i aquell dia se l'espera a classe.\n"
 "                        </p>\n"
 "                        <p>Si teniu qualsevol dubte, parleu amb el tutor del grup.</p>\n"
 "                        <p>\n"
@@ -52458,14 +52492,14 @@ msgid ""
 "                        </p>\n"
 "                        <p>\n"
 "                            The school only informs you: it is a collective decision of the students that nobody can revoke,\n"
-"                            and the classes of that day do not count as absences. As they are a minor, we ask you to ratify it\n"
+"                            and the classes of that day do not count as absences. As they are a minor, we ask you to acknowledge receipt of this notice\n"
 "                            on the school portal (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues\">student walkouts</a>)\n"
-"                            until <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/>, only to\n"
-"                            know that you are aware and agree.\n"
+"                            until <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/>, and to say whether\n"
+"                            you agree or not.\n"
 "                        </p>\n"
 "                        <p>\n"
-"                            <strong>Once you have ratified it, you do not need to do anything else:</strong> the rest is\n"
-"                            automatic. If you do not ratify it, the school will tell you of each class they do not attend\n"
+"                            <strong>Once you have answered, you do not need to do anything else:</strong> the rest is\n"
+"                            automatic. If you do not say that you agree, the school will tell you of each class they do not attend\n"
 "                            that day, for information only.\n"
 "                        </p>\n"
 "                        <p>If you have any question, talk to the group's tutor.</p>\n"
@@ -52485,13 +52519,13 @@ msgstr ""
 "                            que el seu grup, <t t-out=\"object.walkout_id.group_id.name\"/>, ha decidit prendre, arran de: «<t t-out=\"(object.walkout_id.notes or '').strip().rstrip('.')\"/>».\n"
 "                        </p>\n"
 "                        <p>\n"
-"                            El centre només us n'informa: és una decisió col·lectiva dels alumnes que ningú no pot revocar, i les classes d'aquell dia no compten com a faltes. Com que és menor d'edat, us demanem que la ratifiqueu\n"
+"                            El centre només us n'informa: és una decisió col·lectiva dels alumnes que ningú no pot revocar, i les classes d'aquell dia no compten com a faltes. Com que és menor d'edat, us demanem que n'acuseu rebuda\n"
 "                            al portal del centre\n"
 "                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues\">inassistències col·lectives</a>) fins al\n"
-"                            <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/>, només per saber que n'esteu al corrent i hi esteu d'acord.\n"
+"                            <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/>, i que digueu si hi esteu d'acord o no.\n"
 "                            </p>\n"
 "                            <p>\n"
-"                            <strong>Un cop ratificada, no cal que feu res més:</strong> la resta és automàtic. Si no la ratifiqueu, el centre us informarà de cada classe a què no assisteixi aquell dia, només a títol informatiu.\n"
+"                            <strong>Un cop respost, no cal que feu res més:</strong> la resta és automàtic. Si no indiqueu que hi esteu d'acord, el centre us informarà de cada classe a què no assisteixi aquell dia, només a títol informatiu.\n"
 "                        </p>\n"
 "                        <p>Si teniu qualsevol dubte, parleu amb el tutor del grup.</p>\n"
 "                        <p>\n"
@@ -52606,7 +52640,7 @@ msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>Hello <t t-out=\"object.student_id.name\"/>,</p>\n"
 "                        <p>\n"
-"                            Your family has not ratified that you join the collective decision not to attend class of\n"
+"                            Your family has acknowledged receipt and does not agree that you join the collective decision not to attend class of\n"
 "                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>. You can still join it with no\n"
 "                            penalty for missed classes, but we will have to tell your family of each class you do not\n"
 "                            attend that day, so that it is aware.\n"
@@ -52623,7 +52657,7 @@ msgstr ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>Hola, <t t-out=\"object.student_id.name\"/>:</p>\n"
 "                        <p>\n"
-"                            La teva família no ha ratificat que et sumis a la decisió col·lectiva d'inassistència a classe del <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>. Pots sumar-t'hi igualment, sense cap penalització per faltes d'assistència, però haurem de comunicar a la teva família cada classe a què no assisteixis aquell dia perquè n'estigui al corrent.\n"
+"                            La teva família n'ha acusat rebuda i no hi està d'acord que et sumis a la decisió col·lectiva d'inassistència a classe del <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>. Pots sumar-t'hi igualment, sense cap penalització per faltes d'assistència, però haurem de comunicar a la teva família cada classe a què no assisteixis aquell dia perquè n'estigui al corrent.\n"
 "                        </p>\n"
 "                        <p>Si tens qualsevol dubte, parla amb el teu tutor.</p>\n"
 "                        <p>\n"
@@ -52650,7 +52684,7 @@ msgid ""
 "                                <strong t-else=\"\">The group does not support it.</strong></li>\n"
 "                            <li>Students who join: <t t-out=\"object.joining_count\"/> of <t t-out=\"len(object.line_ids)\"/>.\n"
 "                                They are off the roll-calls of that day: neither absent nor present. The families of the\n"
-"                                minors who join without their ratification are told of each class, for information.</li>\n"
+"                                minors who join without having said that they agree are told of each class, for information.</li>\n"
 "                        </ul>\n"
 "                        <p t-if=\"object.group_supports and object.joining_count\">\n"
 "                            From the proposal in EMS (<a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">open it</a>),\n"
@@ -52675,7 +52709,7 @@ msgstr ""
 "                                <strong t-else=\"\">El grup no hi dona suport.</strong></li>\n"
 "                            <li>Alumnes que s'hi sumen: <t t-out=\"object.joining_count\"/> de <t t-out=\"len(object.line_ids)\"/>.\n"
 "                                Les seves faltes d'assistència d'aquell dia no es tenen en compte. S'informa les famílies dels\n"
-"                                menors que s'hi sumen sense la seva ratificació de cada classe, a títol informatiu.</li>\n"
+"                                menors que s'hi sumen sense haver dit que hi estan d'acord de cada classe, a títol informatiu.</li>\n"
 "                        </ul>\n"
 "                        <p t-if=\"object.group_supports and object.joining_count\">\n"
 "                            Des de la proposta a EMS (<a t-attf-href=\"{{ object.get_base_url() }}/odoo/action-ems.action_student_walkout/{{ object.id }}\">obre-la</a>),\n"
@@ -52777,7 +52811,7 @@ msgid ""
 "                            Dear family,\n"
 "                        </p>\n"
 "                        <!-- Issue #844: a minor off the roll-call for a student walkout their family has not\n"
-"                             ratified. Purely informative: never an absence. -->\n"
+"                             said it agrees. Purely informative: never an absence. -->\n"
 "                        <t t-if=\"object.not_expected_reason == 'walkout'\">\n"
 "                            <p>\n"
 "                                This is an automated email, only for your information:\n"
@@ -52861,8 +52895,19 @@ msgstr "<i class=\"fa fa-check-circle text-success me-2\"/>S'ha desat"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "As you are a minor, your family will be asked to ratify that you join the walkout. It has a single purpose: for your family to confirm that it is aware and agrees. If your family does not ratify it, you can still join it with no penalty for missed classes, but we will have to tell your family that you did not attend, so that it is aware."
-msgstr "Com que ets menor d'edat, es demanarà a la teva família que ratifiqui que et sumes a la decisió col·lectiva d'inassistència a classe. Té un únic motiu: que la família confirmi que n'està al corrent i que hi està d'acord. Si la teva família no ho ratifica, pots sumar-t'hi igualment, sense cap penalització per faltes d'assistència, però li haurem de comunicar que no has assistit a classe perquè n'estigui al corrent."
+msgid ""
+"As you are a minor, your family will be asked to acknowledge receipt and to "
+"say whether it agrees that you join the walkout. If your family does not say"
+" that it agrees, you can still join it with no penalty for missed classes, "
+"but we will have to tell your family that you did not attend, so that it is "
+"aware."
+msgstr ""
+"Com que ets menor d'edat, es demanarà a la teva família que n'acusi rebuda i"
+" que digui si hi està d'acord que et sumis a la decisió col·lectiva "
+"d'inassistència a classe. Si la teva família no diu que hi està d'acord, "
+"pots sumar-t'hi igualment, sense cap penalització per faltes d'assistència, "
+"però li haurem de comunicar que no has assistit a classe perquè n'estigui al"
+" corrent."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__can_validate
@@ -52874,16 +52919,32 @@ msgstr "Pot validar"
 msgid ""
 "Deciding collectively not to attend class is a right of students from 3rd of ESO onwards, when it is\n"
 "                            communicated to the school's management beforehand (LODE, article 8). It is not sanctioned and the school\n"
-"                            cannot stop it because of its cause. In Catalonia, the family of a minor who joins is asked to ratify it on\n"
-"                            the portal while joining lasts (Decret 102/2010, article 24.2): it only says that the family knows and\n"
-"                            agrees, it cannot revoke the decision, and the family that does not ratify it is told of each class, for\n"
-"                            information."
-msgstr "Decidir col·lectivament no assistir a classe és un dret de l'alumnat a partir de 3r d'ESO, quan es comunica prèviament a la direcció del centre (LODE, article 8). No se sanciona i el centre no la pot aturar pel motiu que la causa. A Catalunya, es demana a la família d'un menor que s'hi suma que la ratifiqui al portal mentre duren les adhesions (Decret 102/2010, article 24.2): només indica que la família n'està al corrent i hi està d'acord, no pot revocar la decisió, i la família que no la ratifica és informada de cada classe, a títol informatiu."
+"                            cannot stop it because of its cause. In Catalonia, the family of a minor who joins is asked to acknowledge receipt on\n"
+"                            the portal while joining lasts and to say whether it agrees: it cannot revoke the decision, and the family\n"
+"                            that does not say that it agrees is told of each class, for information."
+msgstr ""
+"Decidir col·lectivament no assistir a classe és un dret de l'alumnat a "
+"partir de 3r d'ESO, quan es comunica prèviament a la direcció del centre "
+"(LODE, article 8). No se sanciona i el centre no la pot aturar pel motiu que"
+" la causa. A Catalunya, es demana a la família d'un menor que s'hi suma que "
+"n'acusi rebuda al portal mentre duren les adhesions i que digui si hi està "
+"d'acord: no pot revocar la decisió, i la família que no diu que hi està "
+"d'acord és informada de cada classe, a títol informatiu."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "Joining the collective decision not to attend class is your own decision and nobody can revoke it: the classes of that day do not count as absences, and your name appears in the minute. If you are a minor, your family is asked to ratify it, only to know that it is aware and agrees. You can change your answer until"
-msgstr "Sumar-te a la decisió col·lectiva d'inassistència a classe és una decisió teva i ningú no la pot revocar: les classes d'aquell dia no compten com a faltes, i el teu nom surt a l'acta. Si ets menor d'edat, es demana a la teva família que la ratifiqui, només per saber que n'està al corrent i hi està d'acord. Pots canviar la resposta fins al"
+msgid ""
+"Joining the collective decision not to attend class is your own decision and"
+" nobody can revoke it: the classes of that day do not count as absences, and"
+" your name appears in the minute. If you are a minor, your family is asked "
+"to acknowledge receipt and say whether it agrees. You can change your answer"
+" until"
+msgstr ""
+"Sumar-te a la decisió col·lectiva d'inassistència a classe és una decisió "
+"teva i ningú no la pot revocar: les classes d'aquell dia no compten com a "
+"faltes, i el teu nom surt a l'acta. Si ets menor d'edat, es demana a la teva"
+" família que n'acusi rebuda i que digui si hi està d'acord. Pots canviar la "
+"resposta fins al"
 
 #. module: ems
 #. odoo-python
@@ -52893,13 +52954,20 @@ msgstr "Només el cap d'estudis, el cap d'estudis adjunt o el director d'aquests
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
-msgid "Student walkout, not ratified by the family (told for information)"
-msgstr "Inassistència col·lectiva, sense ratificació de la família (se l'informa a títol informatiu)"
+msgid ""
+"Student walkout, the family has not said it agrees (told for information)"
+msgstr ""
+"Inassistència col·lectiva, la família no ha dit que hi està d'acord (se "
+"l'informa a títol informatiu)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_saved_modal
-msgid "Thank you: you have ratified it. There is nothing else to do: the rest is automatic."
-msgstr "Gràcies: l'heu ratificada. No cal fer res més: la resta és automàtic."
+msgid ""
+"Thank you: you have acknowledged receipt and said you agree. There is "
+"nothing else to do: the rest is automatic."
+msgstr ""
+"Gràcies: n'heu acusat rebuda i heu dit que hi esteu d'acord. No cal fer res "
+"més: la resta és automàtic."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
@@ -52908,8 +52976,14 @@ msgstr "Les classes del dia de la inassistència col·lectiva dels alumnes que s
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
-msgid "The classes of the walkout day of the students who join it count as regular absences. The students of the group, its tutor and the families asked to ratify that a minor joins are told, with the reason."
-msgstr "Les classes del dia de la inassistència col·lectiva dels alumnes que s'hi sumen compten com a faltes ordinàries. S'informa l'alumnat del grup, el seu tutor i les famílies a qui s'ha demanat que ratifiquin que un menor s'hi suma, amb el motiu."
+msgid ""
+"The classes of the walkout day of the students who join it count as regular "
+"absences. The students of the group, its tutor and the families of the "
+"minors who join are told, with the reason."
+msgstr ""
+"Les classes del dia de la inassistència col·lectiva dels alumnes que s'hi "
+"sumen compten com a faltes ordinàries. S'informa l'alumnat del grup, el seu "
+"tutor i les famílies dels menors que s'hi sumen, amb el motiu."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_saved_modal
@@ -52921,10 +52995,17 @@ msgstr "S'ha ampliat l'adhesió fins al"
 msgid ""
 "The school only informs you: joining the collective decision not to attend class of their group is\n"
 "                    the student's own decision, nobody can revoke it, and the classes of that day do not count as\n"
-"                    absences. Ratifying it only tells the school that you are aware and agree; once ratified, you do not\n"
-"                    need to do anything else. If you do not ratify it, you will be told of each class they do not attend\n"
+"                    absences. Answering only tells the school that you have received this notice and whether you agree; once answered, you do not\n"
+"                    need to do anything else. If you do not say that you agree, you will be told of each class they do not attend\n"
 "                    that day, for information. You can change your answer until joining ends."
-msgstr "El centre només us n'informa: sumar-se a la decisió col·lectiva d'inassistència a classe del seu grup és una decisió de l'alumne, ningú no la pot revocar, i les classes d'aquell dia no compten com a faltes. Ratificar-la només indica al centre que n'esteu al corrent i hi esteu d'acord; un cop ratificada, no cal que feu res més. Si no la ratifiqueu, se us informarà de cada classe a què no assisteixi aquell dia, a títol informatiu. Podeu canviar la resposta fins que acabi l'adhesió."
+msgstr ""
+"El centre només us n'informa: sumar-se a la decisió col·lectiva "
+"d'inassistència a classe del seu grup és una decisió de l'alumne, ningú no "
+"la pot revocar, i les classes d'aquell dia no compten com a faltes. "
+"Respondre només indica al centre que heu rebut aquest avís i si hi esteu "
+"d'acord o no; un cop respost, no cal que feu res més. Si no indiqueu que hi "
+"esteu d'acord, se us informarà de cada classe a què no assisteixi aquell "
+"dia, a títol informatiu. Podeu canviar la resposta fins que acabi l'adhesió."
 
 #. module: ems
 #. odoo-python
@@ -52979,13 +53060,20 @@ msgstr "S'ha desat la resposta: et sumes a la decisió col·lectiva d'inassistè
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "Your family has not ratified that you join the walkout. You can still join it with no penalty for missed classes, but we will have to tell your family that you did not attend, so that it is aware."
-msgstr "La teva família no ha ratificat que et sumis a la decisió col·lectiva d'inassistència a classe. Pots sumar-t'hi igualment, sense cap penalització per faltes d'assistència, però li haurem de comunicar que no has assistit a classe perquè n'estigui al corrent."
+msgid ""
+"Your family has acknowledged receipt and does not agree that you join the "
+"walkout. You can still join it with no penalty for missed classes, but we "
+"will have to tell your family that you did not attend, so that it is aware."
+msgstr ""
+"La teva família n'ha acusat rebuda i no hi està d'acord que t'hi sumis. Pots"
+" sumar-t'hi igualment, sense cap penalització per faltes d'assistència, però"
+" li haurem de comunicar que no has assistit a classe perquè n'estigui al "
+"corrent."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "Your family has ratified that you join: it is aware and agrees."
-msgstr "La teva família ha ratificat que t'hi sumes: n'està al corrent i hi està d'acord."
+msgid "Your family has acknowledged receipt and agrees that you join."
+msgstr "La teva família n'ha acusat rebuda i hi està d'acord que t'hi sumis."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
@@ -53112,7 +53200,7 @@ msgid ""
 "                            until <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/>. The classes\n"
 "                            of that day of the students who join the collective decision not to attend class do not count as\n"
 "                            absences, and their names appear in the minute. Nobody can revoke your decision: if you are a\n"
-"                            minor, your family is asked to ratify it, only to know that it is aware and agrees.\n"
+"                            minor, your family is asked to acknowledge receipt and say whether it agrees.\n"
 "                        </p>\n"
 "                        <p>\n"
 "                            Kind regards,<br/>\n"
@@ -53133,7 +53221,7 @@ msgstr ""
 "                            Ara cada alumne diu si s'hi suma, al portal del centre\n"
 "                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">inassistències col·lectives</a>),\n"
 "                            fins al <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/>. Les classes\n"
-"                            d'aquell dia dels alumnes que se sumen a la decisió col·lectiva d'inassistència a classe no compten com a faltes, i els seus noms surten a l'acta. Ningú no pot revocar la teva decisió: si ets menor d'edat, es demana a la teva família que la ratifiqui, només per saber que n'està al corrent i hi està d'acord.\n"
+"                            d'aquell dia dels alumnes que se sumen a la decisió col·lectiva d'inassistència a classe no compten com a faltes, i els seus noms surten a l'acta. Ningú no pot revocar la teva decisió: si ets menor d'edat, es demana a la teva família que n'acusi rebuda i que digui si hi està d'acord.\n"
 "                        </p>\n"
 "                        <p>\n"
 "                            Salutacions cordials,<br/>\n"
@@ -53399,14 +53487,9 @@ msgid "the attached document does not support the proposal (it does not explain 
 msgstr "el document adjunt no justifica la proposta: no explica per què el grup no vol assistir a classe, o és d'un altre dia;"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
-msgid "when it is the call of a students' union: it does not cover the group's level or studies, or it is for another sector (teachers, for instance) or another autonomous community."
-msgstr "si el document és la convocatòria d'un sindicat d'estudiants: no inclou el nivell o els estudis del grup, o és per a un altre sector (el professorat, per exemple) o una altra comunitat autònoma."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
-msgid "». Do you ratify it?"
-msgstr "». Ho ratifiqueu?"
+msgid "». Please acknowledge receipt and say whether you agree."
+msgstr "». Acuseu-ne rebuda i digueu si hi esteu d'acord."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing

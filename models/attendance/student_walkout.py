@@ -273,8 +273,8 @@ class EmsStudentWalkout(models.Model):
 
     def _ems_portal_join(self, partner, joins):
         """`partner` says whether they join the walkout, by name; changeable until joining ends. The
-        family of a minor joining is asked at once to ratify it (Decret 102/2010, art. 24.2), only to
-        know whether it knows and agrees (issue #844); withdrawing clears it, joining again asks again."""
+        family of a minor joining is asked at once to acknowledge receipt and say whether it agrees,
+        only to know whether it knows and agrees (issue #844); withdrawing clears it, joining again asks again."""
         self.ensure_one()
         line = self._ems_portal_line(partner)
         if not self._ems_phase_open('joining'):
@@ -301,18 +301,18 @@ class EmsStudentWalkout(models.Model):
         return not birth_date or relativedelta(self.walkout_date, birth_date).years < ADULT_AGE
 
     def _ems_portal_ratify(self, family, line, ratifies):
-        """`family` ratifies (or refuses) that its child joins, on the portal, while joining lasts; it
+        """`family` agrees (or not) that its child joins, on the portal, while joining lasts; it
         can change its answer meanwhile. Only a family contact of the student with portal access. It
         only says the family knows and agrees (issue #844): nobody can revoke the student's decision. A
         refusal is told to the student, for information."""
         self.ensure_one()
         family = family.sudo()
         if line.walkout_id != self or not (line.joins and line.needs_ratification):
-            raise UserError(_("There is nothing to ratify for this student."))
+            raise UserError(_("There is nothing to answer for this student."))
         if not family.user_ids.filtered('share') or family not in line.student_id._ems_family_contacts():
-            raise UserError(_("Only the family of the student, with access to the portal, can ratify it."))
+            raise UserError(_("Only the family of the student, with access to the portal, can answer it."))
         if not self._ems_phase_open('joining'):
-            raise UserError(_("The time to ratify it is over: joining this student walkout is closed."))
+            raise UserError(_("The time to answer is over: joining this student walkout is closed."))
         refused_now = not ratifies and line.ratification != 'refused'
         line.write({'ratification': 'ratified' if ratifies else 'refused', 'ratified_by_id': family.id,
                     'ratification_date': fields.Datetime.now(), 'ratified_manually': False})
@@ -969,23 +969,24 @@ class EmsStudentWalkoutLine(models.Model):
     joins = fields.Boolean(string="Joins", readonly=True)
     join_answered = fields.Boolean(string="Answered whether they join", readonly=True)
     join_date = fields.Datetime(string="Answered on", readonly=True)
-    # The family of a minor joining is asked to ratify it (Decret 102/2010, art. 24.2), on the portal
-    # while joining lasts. Issue #844: it only says the family knows and agrees; nobody can revoke
-    # the student's decision, and their classes of the day are off the roll-call all the same. The
-    # family of an unratified minor is told of each class, for information only.
-    needs_ratification = fields.Boolean(string="Needs the family's ratification", readonly=True)
-    ratification = fields.Selection(string="Family ratification", selection=[
+    # The family of a minor joining is asked to acknowledge receipt and to say whether it agrees, on
+    # the portal while joining lasts. Issue #844: it only says the family knows and agrees (the key
+    # `ratified` is 'agrees', `refused` is 'does not agree'); nobody can revoke the student's
+    # decision, and their classes of the day are off the roll-call all the same. The family of a
+    # minor whose family has not said it agrees is told of each class, for information only.
+    needs_ratification = fields.Boolean(string="Needs the family's acknowledgement", readonly=True)
+    ratification = fields.Selection(string="Family answer", selection=[
         ('pending', "Pending"),
-        ('ratified', "Ratified"),
-        ('refused', "Refused"),
+        ('ratified', "Agrees"),
+        ('refused', "Does not agree"),
     ], readonly=True)
     ratified_by_id = fields.Many2one(string="Answered by", comodel_name='res.partner', readonly=True,
                                      ondelete='set null')
     ratification_date = fields.Datetime(string="Family answered on", readonly=True)
-    # Issue #840: a family that cannot use the portal asks the centre to ratify it; the tutor (or
+    # Issue #840: a family that cannot use the portal asks the centre to mark its answer; the tutor (or
     # whoever is above them) marks it by hand, and `ratified_by_id` is then that staff member.
-    ratified_manually = fields.Boolean(string="Ratified by the centre", readonly=True,
-                                       help="The tutor, or whoever is above them, marked the family's ratification by hand.")
+    ratified_manually = fields.Boolean(string="Answered by the centre", readonly=True,
+                                       help="The tutor, or whoever is above them, marked the family's answer by hand.")
     can_ratify_manually = fields.Boolean(compute='_compute_can_ratify_manually')
     @api.depends('joins', 'needs_ratification', 'ratification', 'walkout_id.state')
     @api.depends_context('uid')
@@ -1008,10 +1009,10 @@ class EmsStudentWalkoutLine(models.Model):
         return self._ems_ratification_is_open() and self.walkout_id._ems_user_may_abort()
 
     def action_ratify_manually(self):
-        """Marks the family's ratification by hand, for a family that cannot use the portal."""
+        """Marks by hand that the family agrees, for a family that cannot use the portal."""
         self.ensure_one()
         if not self._ems_can_ratify_manually():
-            raise UserError(_("The ratification of %(student)s cannot be marked by you now: only the tutor of the "
+            raise UserError(_("The family's answer for %(student)s cannot be marked by you now: only the tutor of the "
                               "group, the chain above them or an administrator can, for a minor whose family has "
                               "not answered, until the Head of Studies validates the walkout.",
                               student=self.student_id.name))
@@ -1019,7 +1020,7 @@ class EmsStudentWalkoutLine(models.Model):
                            'ratification_date': fields.Datetime.now(), 'ratified_manually': True})
         self._ems_refresh_walkout_notices()
         self.walkout_id.sudo()._message_log(body=_(
-            "%(user)s marked by hand the family's ratification that %(student)s joins the walkout.",
+            "%(user)s marked by hand that the family of %(student)s acknowledges receipt and agrees that they join the walkout.",
             user=self.env.user.name, student=self.student_id.name))
 
 

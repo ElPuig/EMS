@@ -17,7 +17,7 @@
                             Dear family,
                         </p>
                         <!-- Issue #844: a minor off the roll-call for a student walkout their family has not
-                             ratified. Purely informative: never an absence. -->
+                             said it agrees. Purely informative: never an absence. -->
                         <t t-if="object.not_expected_reason == 'walkout'">
                             <p>
                                 This is an automated email, only for your information:

@@ -135,7 +135,7 @@ their name (in the "Marking attendance" screenshot, *Laia Exemple*'s row):
 - **Not required to attend: convalidation in process**: they have asked to convalidate this subject
   and chose not to attend it while it is resolved.
 - **Not required to attend: student walkout**: they joined their group's student walkout of that day. If
-  they are a minor and their family has not ratified it, the label says so: the family gets the notice
+  they are a minor and their family has not said it agrees, the label says so: the family gets the notice
   of this class, for information.
 
 They count neither as attendance nor as an absence either. If the student turns up anyway, click the

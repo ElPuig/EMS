@@ -6,7 +6,7 @@
 
 El teu grup pot decidir al portal si fa una inassistència col·lectiva un dia concret (per exemple, arran d'una convocatòria de vaga d'un sindicat d'estudiants), i cada alumne diu si s'hi suma. Els alumnes que s'hi sumen no consten al passi de llista d'aquell dia: no hi falten ni hi assisteixen.
 
-És una decisió col·lectiva d'inassistència a classe de l'alumnat a partir de 3r d'ESO, comunicada prèviament a la direcció del centre (LODE, article 8). Ningú no la pot revocar, tampoc la família: el centre només n'informa. A Catalunya, es demana a la família d'un alumne menor d'edat que la ratifiqui al portal (Decret 102/2010, article 24.2), només per saber que n'està al corrent i hi està d'acord.
+És una decisió col·lectiva d'inassistència a classe de l'alumnat a partir de 3r d'ESO, comunicada prèviament a la direcció del centre. Ningú no la pot revocar, tampoc la família: el centre només n'informa. Es demana a la família d'un alumne menor d'edat que n'acusi rebuda al portal i que digui si hi està d'acord.
 
 ---
 
@@ -16,7 +16,7 @@ El teu grup pot decidir al portal si fa una inassistència col·lectiva un dia c
 |-----|--------|
 | El delegat o el sotsdelegat del grup | Proposa la votació, n'explica el motiu i hi adjunta el document que la justifica |
 | Cada alumne del grup amb accés al portal | Vota si el grup fa la inassistència col·lectiva i, si la fa, diu si s'hi suma |
-| La família d'un alumne menor que s'hi suma | Ho ratifica, o no, al portal: només indica que n'està al corrent i hi està d'acord |
+| La família d'un alumne menor que s'hi suma | N'acusa rebuda al portal i diu «hi estic d'acord» o «no hi estic d'acord»: no canvia la decisió de l'alumne |
 | El tutor del grup | Rep un avís de cada pas i pot aturar la proposta si té un defecte de forma |
 | El cap d'estudis | Rep l'acta i valida la inassistència col·lectiva o no |
 
@@ -83,7 +83,7 @@ Si el grup decideix fer-la, reps un correu i la proposta et pregunta **Et sumes 
 
 - El teu nom surt a l'acta que rep el cap d'estudis.
 - Les classes d'aquell dia no et compten com a faltes: no consten al passi de llista. Si la inassistència col·lectiva no es valida, sí que hi compten.
-- **Si ets menor d'edat**, es demana a la teva família que ratifiqui al portal que t'hi sumes, mentre durin les adhesions, només per saber que n'està al corrent i hi està d'acord. Ningú no pot revocar la teva decisió. Si no ho ratifica, se l'informa de cada classe a què no assisteixis aquell dia, a títol informatiu. La pàgina et diu si la teva família ja ho ha ratificat.
+- **Si ets menor d'edat**, es demana a la teva família que acusi rebuda al portal i digui si està d'acord que t'hi sumes, mentre durin les adhesions. Ningú no pot revocar la teva decisió. Si no diu que hi està d'acord, se l'informa de cada classe a què no assisteixis aquell dia, a títol informatiu. La pàgina et diu què ha respost la teva família.
 
 ---
 
@@ -99,17 +99,17 @@ Si les adhesions estan a punt d'acabar, o ja han acabat, i l'alumnat necessita m
 
 ---
 
-## Ratificar-ho (família d'un alumne menor d'edat)
+## Acusar rebuda (família d'un alumne menor d'edat)
 
 Quan el vostre fill o filla (menor de 18 anys aquell dia) diu que se suma a una decisió col·lectiva d'inassistència a classe, rebeu un correu de seguida. Al portal, la pàgina d'inici us n'avisa: feu clic a **Respon**, o obriu **Inassistències col·lectives**.
 
-Per a cada inassistència col·lectiva, feu clic a **Ho ratifico** o **No ho ratifico**. Una finestra us confirma la resposta, i la pàgina la mostra. Podeu canviar-la amb **Canvia la resposta** fins que acabin les adhesions (la pàgina us diu fins quan).
+Per a cada inassistència col·lectiva, feu clic a **Hi estic d'acord** o **No hi estic d'acord**. Una finestra us confirma la resposta, i la pàgina la mostra. Podeu canviar-la amb **Canvia la resposta** fins que acabin les adhesions (la pàgina us diu fins quan).
 
-![Pàgina de la família per ratificar que el seu fill o filla se suma a la inassistència col·lectiva](../../assets/families/walkout-portal-family.png)
+![Pàgina de la família per acusar rebuda i dir si hi està d'acord que el seu fill o filla se suma a la inassistència col·lectiva](../../assets/families/walkout-portal-family.png)
 
-- Ratificar-ho només indica al centre que n'esteu al corrent i hi esteu d'acord. És una decisió col·lectiva dels alumnes que ningú no pot revocar, i les classes d'aquell dia no compten com a faltes. **Un cop ratificat, no cal que feu res més**: la resta és automàtic.
-- Si no ho ratifiqueu, o no responeu a temps, rebreu un avís de cada classe a què no assisteixi aquell dia, només a títol informatiu. Si no ho ratifiqueu, el vostre fill o filla també en rep un avís.
-- Per ratificar-ho necessiteu accés al portal. Si no en teniu, demaneu-lo al centre amb temps.
+- Respondre només indica al centre que heu rebut l'avís i si hi esteu d'acord. És una decisió col·lectiva dels alumnes que ningú no pot revocar, i les classes d'aquell dia no compten com a faltes. **Un cop respost, no cal que feu res més**: la resta és automàtic.
+- Si no dieu que hi esteu d'acord, o no responeu a temps, rebreu un avís de cada classe a què no assisteixi el vostre fill o filla aquell dia, només a títol informatiu. Si dieu que no hi esteu d'acord, el vostre fill o filla també en rep un avís.
+- Per respondre necessiteu accés al portal. Si no en teniu, demaneu-lo al centre amb temps.
 - Quan la inassistència col·lectiva es valida, rebeu un correu informatiu. Si, en canvi, la proposta s'avorta o no es valida, també se us avisa.
 
 ---

@@ -61,5 +61,5 @@ class EmsStudentWalkoutAttendanceSessionLine(models.Model):
     def _compute_roll_call_label(self):
         super()._compute_roll_call_label()
         for line in self._ems_unratified_walkout_lines():
-            line.roll_call_label = _("%(label)s (not ratified by the family: it will be told)",
+            line.roll_call_label = _("%(label)s (the family has not said it agrees: it will be told)",
                                      label=line.roll_call_label)

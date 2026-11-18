@@ -10,6 +10,7 @@ _logger = logging.getLogger(__name__)
 def migrate(cr, version):
     _walkout_classes_off_the_roll_call(cr)
     _walkout_rejection_reasons_for_any_document(cr)
+    _walkout_rejection_reasons_by_cause_archived(cr)
 
 
 def _walkout_classes_off_the_roll_call(cr):
@@ -65,3 +66,19 @@ def _walkout_rejection_reasons_for_any_document(cr):
            AND d.name = 'student_walkout_rejection_document' AND r.name->>'en_US' = %s
     """, (json.dumps(NEW_DOCUMENT_REASON), OLD_DOCUMENT_REASON))
     _logger.info("Migration #844: walkout rejection reasons for any supporting document (%s renamed).", cr.rowcount)
+
+
+def _walkout_rejection_reasons_by_cause_archived(cr):
+    """Issue #844: a collective decision not to attend class is judged only on its procedure (a protest
+    shown by a document, a group from 3rd of ESO, notice in time), never on who calls it or where, so the
+    reasons "the call does not include the group's level or studies", "the call is for another sector" and
+    "the call is for another autonomous community" are archived (the proposals already rejected with one
+    keep it). The catalog is noupdate (the centre edits it), so the data file only reaches a clean install."""
+    cr.execute("""
+        UPDATE ems_student_walkout_rejection_reason r SET active = FALSE
+          FROM ir_model_data d
+         WHERE d.model = 'ems.student_walkout.rejection_reason' AND d.res_id = r.id AND d.module = 'ems'
+           AND d.name IN ('student_walkout_rejection_level', 'student_walkout_rejection_sector',
+                          'student_walkout_rejection_region')
+    """)
+    _logger.info("Migration #844: %s walkout rejection reason(s) by cause archived.", cr.rowcount)

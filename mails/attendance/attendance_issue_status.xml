@@ -16,7 +16,25 @@
                         <p>
                             Dear family,
                         </p>
-                        <p>
+                        <!-- Issue #844: a minor off the roll-call for a student walkout their family has not
+                             said it agrees. Purely informative: never an absence. -->
+                        <t t-if="object.not_expected_reason == 'walkout'">
+                            <p>
+                                This is an automated email, only for your information:
+                                <strong t-out="object.attendance_issue_student_id.student_id.name"/> has not attended
+                                this class because they have joined the collective decision not to attend class taken
+                                by their group for this day.
+                                <ul>
+                                    <li><strong>Date:</strong> <span t-field="object.attendance_session_id.weekday"/>, <t t-out="object.attendance_session_id.date"/> from <span t-field="object.attendance_session_id.start_time" t-options="{'widget': 'float_time'}"/> to <span t-field="object.attendance_session_id.end_time" t-options="{'widget': 'float_time'}"/></li>
+                                    <li><strong>Session:</strong> <span t-field="object.attendance_session_id.attendance_schedule_id.attendance_template_id"/></li>
+                                </ul>
+                            </p>
+                            <p>
+                                The school sends it because it must tell the families of minors about every class they
+                                do not attend. It is not an absence nor a sanction, and you do not need to do anything.
+                            </p>
+                        </t>
+                        <p t-else="">
                             This is an automated email, in order to inform you about an attendance status:
                             <ul>
                                 <li><strong>Student:</strong> <span t-field="object.attendance_issue_student_id.student_id"/></li>
@@ -54,7 +72,24 @@
                         <p>
                             Dear <t t-out="object.attendance_issue_student_id.student_id.name"/>,
                         </p>
-                        <p>
+                        <!-- Issue #844: the same informative notice as the family's, for the student. -->
+                        <t t-if="object.not_expected_reason == 'walkout'">
+                            <p>
+                                This is an automated email, only for your information: you have not attended this
+                                class because you have joined the collective decision not to attend class taken by
+                                your group for this day.
+                                <ul>
+                                    <li><strong>Date:</strong> <span t-field="object.attendance_session_id.weekday"/>, <t t-out="object.attendance_session_id.date"/> from <span t-field="object.attendance_session_id.start_time" t-options="{'widget': 'float_time'}"/> to <span t-field="object.attendance_session_id.end_time" t-options="{'widget': 'float_time'}"/></li>
+                                    <li><strong>Session:</strong> <span t-field="object.attendance_session_id.attendance_schedule_id.attendance_template_id"/></li>
+                                </ul>
+                            </p>
+                            <p>
+                                Your family is told too, because the school must tell the families of minors about every
+                                class they do not attend. It is not an absence nor a sanction, and nobody needs to do
+                                anything.
+                            </p>
+                        </t>
+                        <p t-else="">
                             This is an automated email, to inform you about your attendance status:
                             <ul>
                                 <li><strong>Date:</strong> <span t-field="object.attendance_session_id.weekday"/>, <t t-out="object.attendance_session_id.date"/> from <span t-field="object.attendance_session_id.start_time" t-options="{'widget': 'float_time'}"/> to <span t-field="object.attendance_session_id.end_time" t-options="{'widget': 'float_time'}"/></li>

@@ -43,12 +43,12 @@
                             <tr><th>Group vote</th><td><t t-esc="doc.format_local_datetime(doc.vote_start)"/> - <t t-esc="doc.format_local_datetime(doc.vote_until)"/></td></tr>
                             <tr t-if="doc.join_start"><th>Joining</th><td><t t-esc="doc.format_local_datetime(doc.join_start)"/> - <t t-esc="doc.format_local_datetime(doc.join_until)"/></td></tr>
                             <tr><th>Closed on</th><td><t t-esc="doc.format_local_datetime(doc.closed_datetime)"/></td></tr>
-                            <tr><th>Union's call</th><td t-out="', '.join(doc.attachment_ids.mapped('name'))"/></tr>
+                            <tr><th>Supporting document</th><td t-out="', '.join(doc.attachment_ids.mapped('name'))"/></tr>
                             <tr t-if="doc.notes"><th>Reason</th><td t-out="doc.notes"/></tr>
                         </tbody>
                     </table>
 
-                    <h3>Does the group support the walkout? (anonymous vote)</h3>
+                    <h3>Does the group walk out? (anonymous vote)</h3>
                     <table class="table table-sm table-bordered w-50">
                         <tbody>
                             <tr><th>Yes</th><td t-out="doc.group_yes_count"/></tr>
@@ -59,14 +59,14 @@
                         </tbody>
                     </table>
                     <p>
-                        <strong t-if="doc.group_supports">Result: the group supports the walkout.</strong>
-                        <strong t-else="">Result: the group does not support the walkout, so no absence is justified.</strong>
+                        <strong t-if="doc.group_supports">Result: the group has decided to walk out.</strong>
+                        <strong t-else="">Result: the group has decided not to walk out, so everybody is expected in class that day.</strong>
                     </p>
 
                     <h3 t-if="doc.group_supports">Who joins the walkout</h3>
                     <table t-if="doc.group_supports" class="table table-sm table-bordered">
                         <thead>
-                            <tr><th>Student</th><th>Joins the walkout</th><th>Family ratification (minors)</th></tr>
+                            <tr><th>Student</th><th>Joins the walkout</th><th>Family answer (minors)</th></tr>
                         </thead>
                         <tbody>
                             <tr t-foreach="doc.line_ids.sorted(lambda line: line.student_id.name or '')" t-as="line">
@@ -80,7 +80,7 @@
                                 <td>
                                     <t t-if="line.joins and line.needs_ratification">
                                         <span t-field="line.ratification"/>
-                                        <t t-if="line.ratification == 'pending'">(not ratified: not justified)</t>
+                                        <t t-if="line.ratification != 'ratified'">(the family is told of each class, for information)</t>
                                     </t>
                                 </td>
                             </tr>

@@ -12,7 +12,10 @@ up absences. An **expected withdrawal** (issue #644) bridges that gap:
   "Remove from the roll-call" (see [Removing a student from the roll-call](../attendance/attendance_session.md#removing-a-student-from-the-roll-call-active-issue-537)),
   with `not_expected_reason = 'withdrawal'`. Archived lines count neither as attended nor as absent
   and notify nobody.
-- If the student comes after all, the teacher restores the line as usual.
+- If the student comes after all, the teacher restores the line as usual (its reason is cleared). If they
+  restored it by mistake and remove it again, the reason comes back with it while it still applies
+  (`ems.attendance_session_line.write()` → `_ems_current_not_expected_vals()`, issue #844): the same for
+  every reason (expected withdrawal, convalidation, student walkout).
 - **Reverting** it turns every session the student was taken off for it into an absence (or keeps
   it justified, when the tutor had justified it), without notifying the family: the tutor gets them
   in their [daily summary](../shared/daily_summary.md).

@@ -57,12 +57,11 @@ A la pestanya **Baremació** de la sol·licitud, l'EMS mostra el que ha declarat
 
 | Criteri | Surt de | Es corregeix a | Punts |
 |---|---|---|---|
-| 1. Pla de mobilitat | La mitjana de la comissió | - | Fins a 2 |
-| 2. Última mobilitat de personal | **Última mobilitat de personal declarada** (el curs del mes indicat) | **Correcció** | Mai o fa més de dos cursos 1,5; fa dos cursos 0,5; el curs passat o l'actual 0 |
-| 3. Projectes del centre | Els **Mèrits** que registres: cada col·laboració 0,5, cada coordinació 1 | - | Fins a 1,5 |
-| 4. Llengües | **Certificat de llengua declarat** | **Correcció** | B2 1; C1 1,5; C2 2 |
+| 1. Pla de mobilitat | La mitjana de la comissió | - | Fins a 2,5 (0,5 per un job shadowing o una docència a la proposta A) |
+| 2. Última mobilitat de personal | **Última mobilitat de personal declarada** (el curs del mes indicat) | **Correcció** | Mai o fa més de dos cursos 1; fa dos cursos 0,5; el curs passat o l'actual 0 |
+| 3. Projectes del centre | Els **Mèrits** que registres: cada col·laboració 0,5, cada coordinació 1 | - | Fins a 2 |
+| 4. Llengües | **Certificat de llengua declarat** | **Correcció** | B2 1,5; C1 2; C2 2,5 |
 | 5. Antiguitat | **Antiguitat declarada** (a la data de tancament) | **Correcció** | Menys d'1 any 0; d'1 a 2 anys 1; de 2 a 5 anys 1,5; 5 anys o més 2 |
-| 6. Internacionalització | Els **Mèrits** que registres: cada activitat 0,5 | - | Fins a 1 |
 
 Cada camp **Correcció** diu *Correcte, com ha declarat* mentre és buit: deixa'l així quan el que ha declarat la persona és correcte, i tria un valor només quan no ho és. Cada criteri mostra els punts sobre el màxim (*1,5 / 2*). La taula **Valoracions de la comissió** mostra què ha donat al pla cada membre.
 
@@ -74,7 +73,7 @@ Una convocatòria del personal no té modalitats: el professorat competeix en un
 
 ![Les places per projecte d'una convocatòria del personal, amb les mobilitats assignades a cadascun](../../assets/erasmus/convocatoria-personal-places-projecte.png)
 
-El personal es classifica **en una sola llista** per a tota la convocatòria (botó **Classificació** de la convocatòria). Les columnes dels criteris porten un nom curt (*1. Pla*, *2. Última mob.*, *3. Projectes*, *4. Llengües*, *5. Antiguitat*, *6. Internac.*); en passar-hi el ratolí en veus el nom sencer. Les llistes de les resolucions del personal no tenen columna de modalitat. Els empats es desfan per la puntuació del pla de mobilitat, després per qui fa més temps que és al centre (el mes i l'any d'incorporació declarats al formulari, no els punts del criteri 5: qui s'hi va incorporar el 2000 va abans que qui s'hi va incorporar fa sis anys, encara que tots dos tinguin 2 punts) i, finalment, pel sorteig que fa la coordinació Erasmus des de la convocatòria (**Sorteja els empats**).
+El personal es classifica **en una sola llista** per a tota la convocatòria (botó **Classificació** de la convocatòria). Les columnes dels criteris porten un nom curt (*1. Pla*, *2. Última mob.*, *3. Projectes*, *4. Llengües*, *5. Antiguitat*); en passar-hi el ratolí en veus el nom sencer. Les llistes de les resolucions del personal no tenen columna de modalitat. Els empats es desfan per la puntuació del pla de mobilitat, després per qui fa més temps que és al centre (el mes i l'any d'incorporació declarats al formulari, no els punts del criteri 5: qui s'hi va incorporar el 2000 va abans que qui s'hi va incorporar fa sis anys, encara que tots dos tinguin 2 punts) i, finalment, pel sorteig que fa la coordinació Erasmus des de la convocatòria (**Sorteja els empats**).
 
 Les resolucions es publiquen com a la convocatòria de l'alumnat: les llistes només mostren quatre xifres del document d'identitat, mai noms. Per al personal es treu de la seva **fitxa d'empleat** (DNI o NIE; si no, el passaport); si algú no en té, demana a la secretaria que l'afegeixi. EMS ja t'ho avisa quan n'admets la sol·licitud, i les llistes no es poden preparar fins que hi sigui. Si la puntuació d'algú no és completa quan prepares una resolució, EMS diu què falta a cada persona (per exemple, *Mèrits revisats* o *Antiguitat al centre*).
 

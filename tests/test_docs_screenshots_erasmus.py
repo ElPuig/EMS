@@ -160,7 +160,7 @@ class TestDocsScreenshotsErasmusStaff(DocsScreenshotMixin, HttpCase):
         self.staff_call.action_close()
         self.staff_call.action_send_to_panel()
         rating = application.plan_rating_ids[:1]
-        rating.write({'concreteness': '1', 'relevance': '1'})
+        rating.write({'concreteness': '1', 'relevance': '1', 'activity_kind': '0.5'})
         rating.sudo().with_user(rating.panel_member_id).action_submit()
         self._capture('/odoo/action-ems.action_erasmus_plan_rating', '.o_list_renderer',
                       'valoracions-per-sollicitant.png', login=TestDocsScreenshotsErasmus.TECHNICIAN,
@@ -183,10 +183,10 @@ class TestDocsScreenshotsErasmusStaff(DocsScreenshotMixin, HttpCase):
             self.staff_call, self.staff_users[0].partner_id)
         application._ems_portal_save(
             {'declared_never_staff_mobility': True, 'declared_centre_start_date': '2015-09-01',
-             'proposal_a': "Un curs d'anglès en una acadèmia de Bolonya (Itàlia), al juliol, per millorar la meva "
-                           "competència lingüística.",
-             'proposal_b': "Job shadowing en un institut d'FP de Porto (Portugal), al juny, per veure com organitzen "
-                           "la formació dual."},
+             'proposal_a': "Job shadowing en un institut d'FP de Porto (Portugal), al juny, per veure com organitzen "
+                           "la formació dual.",
+             'proposal_b': "Un curs d'anglès en una acadèmia de Bolonya (Itàlia), al juliol, per millorar la meva "
+                           "competència lingüística."},
             {self.id_document.id: [('id.pdf', PDF)]})
         application.action_submit()
         application.requirements_check = 'met'

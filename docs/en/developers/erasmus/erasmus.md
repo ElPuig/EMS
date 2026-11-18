@@ -869,7 +869,7 @@ what differs:
 | Modality | Computed from the level when applying; required to publish | Not needed to publish (the places may change), but publishing without places warns the team (`action_publish()` returns a notification); required before preparing the provisional resolution; the team assigns each selected person's project and period |
 | Documents | Configured per call; a new call brings the five of art. 8 (`_ems_student_documents`, on create) | Only the optional language certificates (`_ems_staff_documents`, on create and on the `audience` onchange); the plan is written in the form (`PLAN_FIELDS`) |
 | Admission checks | Requirements; a serious conduct record this course is pointed out, the team may exclude | Requirements only |
-| Scoring | Art. 12 (A-F), A and F frozen at closing | Art. 11 of the staff call (1-6): the panel, what the applicant declares (last mobility, seniority, language) and the merits the team records |
+| Scoring | Art. 12 (A-F), A and F frozen at closing | Art. 11 of the staff call (1-5): the panel, what the applicant declares (last mobility, seniority, language) and the merits the team records |
 | Ranking | Per modality | One list for the whole call |
 | Places | Per modality | Issue #772: `project_place_ids` (places per project, the team's planning), offered as one pool (`_ems_places()`, the sum); staff only see the total |
 | Modalities | Levels and places; the project from the levels | None. The team sets the mobility's `project_id` (domain `allowed_project_ids`: the projects of the call's table; `_check_project` refuses another), which brings the documents of its kind (`project_kind` = the project's kind; `write` re-syncs the requirements). `project_places` ("2026-VET: 1 of 2 places left") and `project_places_over` (a warning, not a block) on the mobility; `places_without_project` warns on the call (note 7.1) and the application list shows `project_id` from a staff call's button (`ems_staff_call` context) |
@@ -892,8 +892,8 @@ erDiagram
 | Model | Purpose |
 |---|---|
 | `ems.erasmus.call.panel` | A panel member of a staff call (user, post), copied when the call is duplicated. |
-| `ems.erasmus.plan_rating` | One panel member's rating of one application's mobility plan (annex 2, criterion 1 "Mobility plan" since 2026-11-13: `concreteness` and `relevance` (to the job), each up to 1 point; their selection labels are the annex's descriptions, their keys the points, 1 / 0.5 / 0). The old `transfer` aspect was removed with no migration: the selection keys are the same, and no staff call had reached the panel in production. Unique per (application, panel member). Inherits `ems.erasmus.evaluation`. |
-| `ems.erasmus.application.merit` | A merit of criteria 3 (centre project: collaboration 0.5, coordination 1) or 6 (internationalisation activity 0.5), with its justification. |
+| `ems.erasmus.plan_rating` | One panel member's rating of one application's mobility plan (annex 2, criterion 1 "Mobility plan": `concreteness` and `relevance` (to the job), each 1 / 0.5 / 0 points, and, since 2026-11-18, `activity_kind`, the activity of proposal A, 0.5 for a job shadowing or a teaching assignment and 0 for a course, so that the centre favours them over courses (adriamt); max 2.5. Their selection labels are the annex's descriptions, their keys the points). The panel reads it from proposal A's text: the application stores no activity type, which is only chosen on the mobility after accepting the place, and nothing checks it against that later choice (adriamt, 2026-11-18: only the application counts). The old `transfer` aspect was removed with no migration: the selection keys are the same, and no staff call had reached the panel in production. Unique per (application, panel member). Inherits `ems.erasmus.evaluation`. |
+| `ems.erasmus.application.merit` | A merit of criterion 3 (centre project: collaboration 0.5, coordination 1), with its justification. |
 
 ### Application form
 
@@ -972,12 +972,11 @@ read only); the rating shows those files (`plan_attachment_ids`). Nothing else o
 
 | | Criterion | Field(s) | Points |
 |---|---|---|---|
-| 1 | Mobility plan | `plan_score` → `score_plan` | max 2 |
-| 2 | Last staff mobility | `last_staff_mobility` (team correction) else `declared_last_staff_mobility` → `score_last_mobility` | never / older 1.5, two courses ago 0.5, recent 0 |
-| 3 | Centre projects | `merit_ids` (project kinds) → `score_projects` | sum, max 1.5 |
-| 4 | Languages | `language_level` (checked by the team) else `declared_language_level` (the applicant's) → `score_staff_language` | B2 1, C1 1.5, C2 2 (B1 0) |
+| 1 | Mobility plan | `plan_score` → `score_plan` | max 2.5 |
+| 2 | Last staff mobility | `last_staff_mobility` (team correction) else `declared_last_staff_mobility` → `score_last_mobility` | never / older 1, two courses ago 0.5, recent 0 |
+| 3 | Centre projects | `merit_ids` (project kinds) → `score_projects` | sum, max 2 |
+| 4 | Languages | `language_level` (checked by the team) else `declared_language_level` (the applicant's) → `score_staff_language` | B2 1.5, C1 2, C2 2.5 (B1 0) |
 | 5 | Seniority | `seniority` (team correction) else `declared_seniority` → `score_seniority` | < 1 year 0, 1-2 1, 2-5 1.5, ≥ 5 2 |
-| 6 | Internationalisation | `merit_ids` (internationalisation) → `score_internationalisation` | sum, max 1 |
 
 **Declared values** (`_compute_declared_staff_bands`): the applicant only ticks that they never had an
 Erasmus+ staff mobility at the Puig (`declared_never_staff_mobility` → band `never`); for everyone

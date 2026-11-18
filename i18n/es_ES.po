@@ -33219,14 +33219,6 @@ msgid "5. Seniority at the centre"
 msgstr "5. Antigüedad en el centro"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_internationalisation
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_internationalisation
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
-msgid "6. Internationalisation"
-msgstr "6. Internacionalización"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
 msgid "A call with applications cannot change who it is for."
@@ -33385,11 +33377,6 @@ msgid "Host entity or course"
 msgstr "Entidad de acogida o curso"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_merit__kind__internationalisation
-msgid "Internationalisation activity (0.5)"
-msgstr "Actividad de internacionalización (0,5)"
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__staff_activity__job_shadowing
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__proposal_activity__job_shadowing
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__staff_activity_b__job_shadowing
@@ -33540,8 +33527,8 @@ msgstr "Reabre la evaluación antes de cambiar sus puntuaciones."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__score
-msgid "Score (max 2)"
-msgstr "Puntuación (máx. 2)"
+msgid "Score (max 2.5)"
+msgstr "Puntuación (máx. 2,5)"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_call__min_score
@@ -33703,8 +33690,8 @@ msgstr "Hace dos cursos"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application_merit__description
-msgid "Which project, commission or activity, and in which course."
-msgstr "Qué proyecto, comisión o actividad, y en qué curso."
+msgid "Which project or commission, and in which course."
+msgstr "Qué proyecto o comisión, y en qué curso."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_evaluation__rectification_note
@@ -50768,11 +50755,6 @@ msgid "3. Projects"
 msgstr "3. Proyectos"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
-msgid "6. Internat."
-msgstr "6. Internac."
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__todo_state__missing
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__file_state__missing
 msgid "To hand in"
@@ -52128,11 +52110,9 @@ msgstr ""
 msgid ""
 "The mobility plan is the training activity, the destination and the dates of"
 " your mobility. Give two proposals: B is in case A can't be done. In each "
-"one, say what you want to learn."
-msgstr ""
-"El plan de movilidad es la actividad formativa, el destino y las fechas de "
-"tu movilidad. Indica dos propuestas: la B es por si la A no se puede hacer. "
-"En cada una, di qué quieres aprender."
+"one, say what you want to learn. A job shadowing or a teaching assignment in "
+"proposal A scores half a point more than a course."
+msgstr "El plan de movilidad es la actividad formativa, el destino y las fechas de tu movilidad. Indica dos propuestas: la B es por si la A no se puede hacer. En cada una, di qué quieres aprender. Un job shadowing o una estancia de docencia en la propuesta A tiene medio punto más que un curso."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
@@ -55775,3 +55755,25 @@ msgstr "Nivel o tutoría (a elegir en cada bloque)"
 #: model:ir.model.fields,field_description:ems.field_res_users__can_view_schedule
 msgid "Can view schedule"
 msgstr "Puede ver el horario"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__activity_kind
+msgid "Activity of proposal A"
+msgstr "Actividad de la propuesta A"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__activity_kind
+msgid ""
+"Annex 2 of the staff call: 0.5 points for a job shadowing or a teaching "
+"assignment, 0 for a course. Only proposal A counts."
+msgstr "Anexo 2 de la convocatoria del personal: 0,5 puntos para un job shadowing o una estancia de docencia, 0 para un curso. Solo cuenta la propuesta A."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__activity_kind__0_5
+msgid "0.5 points: Proposal A is a job shadowing or a teaching assignment."
+msgstr "0,5 puntos: la propuesta A es un job shadowing o una estancia de docencia."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__activity_kind__0
+msgid "0 points: Proposal A is a course."
+msgstr "0 puntos: la propuesta A es un curso."

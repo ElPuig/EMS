@@ -531,6 +531,22 @@ class TestStudentWalkout(TransactionCase):
         self.assertFalse(other.group_supports)
         self.assertTrue(other.pdf_attachment_id)
 
+    def test_the_group_vote_result_is_pending_until_the_vote_ends(self):
+        walkout = open_walkout(self)
+        self._vote(walkout, self.delegate, 'yes')
+        self.assertTrue(walkout.group_supports, "One yes against no one: the count alone says so already.")
+        self.assertEqual(walkout.group_vote_result, 'pending', "But the vote is still open.")
+        self._vote(walkout, self.subdelegate, 'yes')
+        self.assertEqual(walkout.group_vote_result, 'supports')
+        other = open_walkout(self, days=8)
+        self._vote(other, self.delegate, 'yes')
+        self._vote(other, self.subdelegate, 'no')
+        end_phase(other)
+        self.assertEqual(other.group_vote_result, 'does_not_support')
+        aborted = open_walkout(self, days=9)
+        aborted.sudo().write({'state': 'rejected', 'rejected_from_state': 'voting'})
+        self.assertFalse(aborted.group_vote_result, "Aborted before the vote ended: no result.")
+
     def test_students_may_answer_before_the_phase_starts(self):
         """The email may wait for the group's next class, but the portal lets them vote meanwhile
         (e.g. on the weekend)."""

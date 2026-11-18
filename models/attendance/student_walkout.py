@@ -112,6 +112,13 @@ class EmsStudentWalkout(models.Model):
     group_no_count = fields.Integer(string="Group does not support it", readonly=True, copy=False)
     group_abstain_count = fields.Integer(string="Abstentions", readonly=True, copy=False)
     group_supports = fields.Boolean(string="The group supports it", compute='_compute_group_supports')
+    # What the screens show of the group vote: `group_supports` alone is true as soon as there is one
+    # more yes than no, while the vote is still open (the logic needs it so, _ems_end_group_vote).
+    group_vote_result = fields.Selection(string="Group vote", selection=[
+        ('pending', "Pending"),
+        ('supports', "Group supports it"),
+        ('does_not_support', "Group does not support it"),
+    ], compute='_compute_group_vote_result')
     line_ids = fields.One2many(string="Students", comodel_name='ems.student_walkout.line', inverse_name='walkout_id',
                                readonly=True)
     joining_student_ids = fields.Many2many(string="Students who join", comodel_name='res.partner',
@@ -144,6 +151,18 @@ class EmsStudentWalkout(models.Model):
     def _compute_group_supports(self):
         for walkout in self:
             walkout.group_supports = walkout.group_yes_count > walkout.group_no_count
+
+    @api.depends('state', 'rejected_from_state', 'group_yes_count', 'group_no_count')
+    def _compute_group_vote_result(self):
+        """Pending while the vote is open; empty when the proposal was aborted or cancelled before the vote
+        ended; otherwise its result."""
+        for walkout in self:
+            if walkout.state == 'voting':
+                walkout.group_vote_result = 'pending'
+            elif walkout.state == 'cancelled' or walkout.rejected_from_state == 'voting':
+                walkout.group_vote_result = False
+            else:
+                walkout.group_vote_result = 'supports' if walkout.group_supports else 'does_not_support'
 
     @api.depends('line_ids.joins', 'line_ids.voted', 'line_ids.has_portal', 'line_ids.join_answered')
     def _compute_line_counts(self):

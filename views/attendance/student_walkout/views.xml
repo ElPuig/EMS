@@ -14,7 +14,9 @@
                     <field name="group_id"/>
                     <field name="opener_id"/>
                     <field name="join_until" options="{'show_seconds': False}"/>
-                    <field name="group_supports" widget="boolean" optional="show"/>
+                    <field name="group_vote_result" widget="badge" optional="show"
+                           decoration-info="group_vote_result == 'pending'" decoration-success="group_vote_result == 'supports'"
+                           decoration-danger="group_vote_result == 'does_not_support'"/>
                     <field name="joining_count" optional="show"/>
                     <field name="state" widget="badge"
                            decoration-info="state in ('voting', 'joining')" decoration-warning="state == 'closed'"
@@ -77,7 +79,7 @@
                                 <field name="group_yes_count"/>
                                 <field name="group_no_count"/>
                                 <field name="group_abstain_count"/>
-                                <field name="group_supports"/>
+                                <field name="group_vote_result"/>
                                 <field name="voted_count"/>
                                 <field name="joining_count"/>
                                 <field name="pdf_attachment_id" invisible="not pdf_attachment_id"/>

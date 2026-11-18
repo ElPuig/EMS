@@ -15,7 +15,7 @@ Esta sección contiene los manuales para los **jefes de departamento** y los **j
 | [Organizar las ausencias](absences.md) | Cuando falta un docente de tu departamento: enviar guardias, reorganizar las clases, avisar a las familias de un cambio de horario e introducir una ausencia detectada |
 | [Comunicados: escribir a los grupos de tu departamento](notice.md) | Enviar comunicados al alumnado y las familias de los grupos donde da clase tu departamento |
 | [Socios del AMPA](../tutors/ampa.md) | Ver qué alumnos de los tutores de tu departamento son socios del AMPA, con los mismos pasos que los tutores (manual compartido) |
-| [Horarios de los docentes y marcos horarios](../admin/working-schedules.md) | Editar la pestaña Horario de un docente, incluidos el nivel y el tipo de atención de las tarjetas de tutoría y de atención al alumnado (manual compartido) |
+| [Horarios de los docentes y marcos horarios](../admin/working-schedules.md) | Manual compartido: editar la pestaña Horario de un docente, incluidos el nivel y el tipo de atención de las tarjetas de tutoría y de atención al alumnado. |
 
 ## En los manuales de los profesores
 

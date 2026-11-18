@@ -242,7 +242,9 @@
                 </field>
 
                 <field name="category_ids" position="replace">
-                    <field name="role_ids" placeholder="Roles" widget="role_color_tags" options="{'color_field': 'color', 'no_create_edit': True}" />
+                    <!-- Issue #846: 'groups' here and on Tutorships/Subjects below: a role that can't read them
+                         (Settings administrator) would otherwise not be able to open this form at all. -->
+                    <field name="role_ids" placeholder="Roles" widget="role_color_tags" options="{'color_field': 'color', 'no_create_edit': True}" groups="ems.group_teacher,ems.group_secretary"/>
                 </field>
 
                 <field name="coach_id" position="attributes">
@@ -378,7 +380,9 @@
                 </xpath>
 
                 <xpath expr="//notebook" position="inside">
-                    <page string="Schedule" name="schedule" invisible="employee_type == 'asp'">
+                    <!-- Issue #846: only the roles that can read what this tab loads (groups, subjects, rooms...).
+                         Without them the whole form fails with an access error. -->
+                    <page string="Schedule" name="schedule" invisible="employee_type == 'asp'" groups="ems.group_teacher,ems.group_secretary">
                         <field name="resource_calendar_id" invisible="1"/>
                         <field name="can_edit_schedule" invisible="1"/>
                         <field name="schedule_attendance_ids" widget="schedule_grid" nolabel="1">
@@ -403,7 +407,7 @@
                     </page>
 
                     <page string="Teaching" invisible="employee_type == 'asp'">
-                        <group string="Tutorships">
+                        <group string="Tutorships" groups="ems.group_teacher,ems.group_secretary">
                             <field name="tutorship_ids" widget="many2many_tags" nolabel="1" />
                         </group>
 
@@ -412,7 +416,7 @@
                             <field name="seminar_department_ids" widget="many2many_tags" nolabel="1" readonly="1"/>
                         </group>
 
-                        <group string="Subjects">
+                        <group string="Subjects" groups="ems.group_teacher,ems.group_secretary">
                             <field name="teaching_ids" nolabel="1" readonly="1">
                                 <list default_order="subject_id asc, group_id asc">
                                     <field name="subject_id" />

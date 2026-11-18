@@ -6,7 +6,7 @@
 
 Gestiona l'horari setmanal de cada docent des de la seva pròpia fitxa d'empleat, i configura les plantilles d'horari ("marcs horaris") amb què comencen els docents nous.
 
-**Rol necessari:** Cap de departament o superior (Cap de departament, Cap d'estudis, Director, Administrador) pot editar horaris i utilitzar l'assistent d'importació; la resta de rols només poden veure el seu propi horari, en mode lectura, però tothom pot exportar un horari a PDF.
+**Rol necessari:** Cap de departament o superior (cap de departament, cap d'estudis, director, administrador) pot editar horaris i utilitzar l'assistent d'importació; la resta de rols només poden veure el seu propi horari, en mode lectura, però tothom pot exportar un horari a PDF. Qui només té els rols de Qualitat, Configuració o Erasmus+, o no té cap rol d'EMS, no té la pestanya **Horari**. Un administrador de Configuració sense cap altre rol veu els docents sense els seus rols, tutories ni matèries.
 
 ---
 

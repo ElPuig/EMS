@@ -53476,3 +53476,8 @@ msgstr "Tutoria"
 #: model:ir.model.fields.selection,name:ems.selection__ems_non_teaching_type__declaration_code__level_or_tutoring
 msgid "Level or tutoring (chosen on each block)"
 msgstr "Nivell o tutoria (a triar a cada bloc)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_users__can_view_schedule
+msgid "Can view schedule"
+msgstr "Pot veure l'horari"

@@ -6,7 +6,7 @@
 
 Gestiona el horario semanal de cada docente desde su propia ficha de empleado, y configura las plantillas de horario ("marcos horarios") con los que empiezan los docentes nuevos.
 
-**Rol necesario:** Jefe de departamento o superior (Jefe de departamento, Jefe de estudios, Director, Administrador) puede editar horarios y usar el asistente de importación; el resto de roles solo pueden ver su propio horario, en modo lectura, pero cualquiera puede exportar un horario a PDF.
+**Rol necesario:** Jefe de departamento o superior (jefe de departamento, jefe de estudios, director, administrador) puede editar horarios y usar el asistente de importación; el resto de roles solo pueden ver su propio horario, en modo lectura, pero cualquiera puede exportar un horario a PDF. Quien solo tiene los roles de Calidad, Configuración o Erasmus+, o no tiene ningún rol de EMS, no tiene la pestaña **Horario**. Un administrador de Configuración sin ningún otro rol ve a los docentes sin sus roles, tutorías ni asignaturas.
 
 ---
 

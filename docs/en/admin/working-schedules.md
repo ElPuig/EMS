@@ -6,7 +6,7 @@
 
 Manage each teacher's weekly timetable from their own employee record, and set up the bell-schedule templates ("schedule frameworks") new teachers start from.
 
-**Required role:** Department Chief or above (Department Chief, Head of Studies, Director, Administrator) can edit schedules and use the import wizard; every other role can only view their own schedule, read-only, but everyone can export a schedule to PDF.
+**Required role:** Department Chief or above (Department Chief, Head of Studies, Director, Administrator) can edit schedules and use the import wizard; every other role can only view their own schedule, read-only, but everyone can export a schedule to PDF. Someone whose only roles are Quality, Settings or Erasmus+, or who has no EMS role, doesn't have the **Schedule** tab. A Settings administrator with no other role sees teachers without their roles, tutorships and subjects.
 
 ---
 

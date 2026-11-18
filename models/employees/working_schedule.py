@@ -11,7 +11,9 @@ import json
 import math
 import re
 
-from .non_teaching_type import DECLARATION_ROWS, TUTORING_CODE_BY_LEVEL_CODE, TUTORING_DEFAULT_CODE
+from .non_teaching_type import (
+	DECLARATION_ROWS, TUTORING_CODE_BY_LEVEL_CODE, TUTORING_DECLARATION_CODES, TUTORING_DEFAULT_CODE,
+)
 from ..shared.schedule_report_mixin import HOUR_EPSILON
 from ..shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC, EMS_SKIP_GROUP_CLASSROOM_CASCADE
 
@@ -389,8 +391,9 @@ class ems_working_schedule(models.Model):
 		  ATAL), by the block's own level (issue #846) or, when it names none, the level of the
 		  teacher's tutorship or, for a teacher who tutors no group, the level where they teach the
 		  most hours (developer, 2026-10-30);
-		- a student support block (ATAL) whose attention type is 'support' goes to the class row of
-		  that same level instead (no level at all: 'other'); no new row exists for it (issue #846);
+		- a block of a type coded 'level_or_tutoring' (ATAL) finds its level the same way, and its
+		  attention type decides: 'tutoring' as above, 'support' the class row of that level (no level
+		  at all: 'other'); it adds no row of its own (issue #846);
 		- any other non-teaching block goes to its type's declaration_code; no code: left out;
 		- the teaching-hour reductions are only given as their total hours ('reduction'), and are
 		  counted in the lective total, as on the Schedule tab (developer, 2026-10-29)."""
@@ -413,11 +416,10 @@ class ems_working_schedule(models.Model):
 					if level_code:
 						class_hours_by_level[level_code] = class_hours_by_level.get(level_code, 0) + duration
 			else:
-				non_teaching = attendance.non_teaching
-				code = non_teaching.declaration_code
-				if code == 'tutoring':
+				code = attendance.non_teaching.declaration_code
+				if code in TUTORING_DECLARATION_CODES:
 					# A block without its own level needs the whole week's classes: resolved below.
-					is_support = non_teaching.is_student_support and attendance.attention_type != 'tutoring'
+					is_support = code == 'level_or_tutoring' and attendance.attention_type != 'tutoring'
 					key = (column_key, attendance.level_id.declaration_code if attendance.level_id else False, is_support)
 					tutoring_hours[key] = tutoring_hours.get(key, 0) + duration
 					continue
@@ -455,12 +457,12 @@ class ems_working_schedule_assignation(models.Model):
 	# 'resource.calendar.action_archive()'); any other change of 'active' clears it (write() below).
 	archived_with_calendar = fields.Boolean(string="Archived with its calendar", copy=False)
 	non_teaching = fields.Many2one(string="Non-teaching", comodel_name="ems.non_teaching_type")
-	# Issue #846: the level a tutoring block (ATAL, TT: declaration_code 'tutoring') is given to, so
+	# Issue #846: the level a tutoring block (TT, ATAL: TUTORING_DECLARATION_CODES) is given to, so
 	# the schedule declaration puts its hours on that level's T- row. Optional: without it the
 	# declaration falls back to the teacher's tutored level or the level with most class hours.
 	level_id = fields.Many2one(string="Level", comodel_name="ems.level")
-	# Issue #846: read only on a student support block (ATAL): 'support' counts its hours in the
-	# level's class row of the schedule declaration, 'tutoring' in that level's tutoring row.
+	# Issue #846: read only on a block whose type is coded 'level_or_tutoring' (ATAL): 'support' counts
+	# its hours in the level's class row of the schedule declaration, 'tutoring' in its tutoring row.
 	attention_type = fields.Selection(
 		string="Attention type", selection=[('support', 'Support'), ('tutoring', 'Tutoring')], default='support')
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
@@ -547,7 +549,6 @@ class ems_working_schedule_assignation(models.Model):
 	# Issue #846: lets the attendance form show 'level_id' only on a tutoring block (not stored: read
 	# for display alone).
 	non_teaching_declaration_code = fields.Selection(related="non_teaching.declaration_code")
-	non_teaching_is_student_support = fields.Boolean(related="non_teaching.is_student_support")
 
 	# NOTE: Phase 4 of the bottom-up sync redesign (2026-09-08, see EMS_SKIP_AUTO_SCHEDULE_SYNC's
 	# own docstring in ems.attendance_mixin) - only these fields can actually change what

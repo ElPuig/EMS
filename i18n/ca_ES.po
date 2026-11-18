@@ -29391,8 +29391,8 @@ msgstr "Fila del quadre resum de la declaració horària oficial on se sumen les
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_non_teaching_type__declaration_code
-msgid "Row of the summary table of the official schedule declaration these hours are added to. Tutoring goes to the row of the tutored group's level. Empty: not declared (e.g. the break)."
-msgstr "Fila del quadre resum de la declaració horària oficial on se sumen aquestes hores. La tutoria va a la fila del nivell del grup tutoritzat. Buit: no es declara (p. ex. el pati)."
+msgid "Row of the summary table of the official schedule declaration these hours are added to. Tutoring goes to the row of the tutored group's level. Level or tutoring: each block chooses between its level's row and that level's tutoring row. Empty: not declared (e.g. the break)."
+msgstr "Fila del quadre resum de la declaració horària oficial on se sumen aquestes hores. La tutoria va a la fila del nivell del grup tutoritzat. Nivell o tutoria: cada bloc tria entre la fila del seu nivell i la fila de tutoria d'aquest nivell. Buit: no es declara (p. ex. el pati)."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_non_teaching_type__declaration_code__other
@@ -53473,7 +53473,6 @@ msgid "Tutoring"
 msgstr "Tutoria"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__is_student_support
-#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__non_teaching_is_student_support
-msgid "Is student support"
-msgstr "És atenció a l'alumnat"
+#: model:ir.model.fields.selection,name:ems.selection__ems_non_teaching_type__declaration_code__level_or_tutoring
+msgid "Level or tutoring (chosen on each block)"
+msgstr "Nivell o tutoria (a triar a cada bloc)"

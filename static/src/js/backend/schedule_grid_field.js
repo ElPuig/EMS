@@ -65,7 +65,7 @@ export class ScheduleGridField extends Component {
         this._nextCardId = 1;
         this._pendingSourceFrameworkId = false;
         this.newPanel = useState({ open: false, value: "", frameworks: [], teachers: [] });
-        this.catalog = useState({ subjects: [], groups: [], nonTeaching: [], tutoringTypeIds: [], studentSupportTypeIds: [], levels: [], spaces: [] });
+        this.catalog = useState({ subjects: [], groups: [], nonTeaching: [], tutoringTypeIds: [], levelOrTutoringTypeIds: [], levels: [], spaces: [] });
         this.summary = useState({ teaching: { rows: [], total: 0 }, fixed: { rows: [], total: 0 }, total: 0 });
         this.derivedBreaks = useState({ list: [] });
         // Reference catalogs never depend on which employee record is being viewed - loaded once,
@@ -74,7 +74,7 @@ export class ScheduleGridField extends Component {
             const [subjects, groups, nonTeachingTypes, spaces, levels] = await Promise.all([
                 this.orm.searchRead("ems.subject", [], ["id", "display_name"]),
                 this.orm.searchRead("ems.group", [], ["id", "display_name"]),
-                this.orm.searchRead("ems.non_teaching_type", [], ["id", "name", "declaration_code", "is_student_support"]),
+                this.orm.searchRead("ems.non_teaching_type", [], ["id", "name", "declaration_code"]),
                 this.orm.searchRead("ems.space", [], ["id", "display_name"]),
                 this.orm.searchRead("ems.level", [], ["id", "display_name"]),
             ]);
@@ -82,9 +82,9 @@ export class ScheduleGridField extends Component {
             this.catalog.groups = groups;
             this.catalog.nonTeaching = nonTeachingTypes.map((item) => [item.id, item.name]);
             // Issue #846: a tutoring type (ATAL, TT) is the only one whose card asks for a level.
-            this.catalog.tutoringTypeIds = nonTeachingTypes.filter((item) => item.declaration_code === "tutoring").map((item) => item.id);
-            // Only student support (ATAL) says whether its hours count as support or as tutoring.
-            this.catalog.studentSupportTypeIds = nonTeachingTypes.filter((item) => item.is_student_support).map((item) => item.id);
+            this.catalog.tutoringTypeIds = nonTeachingTypes.filter((item) => ["tutoring", "level_or_tutoring"].includes(item.declaration_code)).map((item) => item.id);
+            // Only these types (ATAL by default) say whether their hours count as support or as tutoring.
+            this.catalog.levelOrTutoringTypeIds = nonTeachingTypes.filter((item) => item.declaration_code === "level_or_tutoring").map((item) => item.id);
             this.catalog.levels = levels;
             this.catalog.spaces = spaces;
         });
@@ -601,10 +601,10 @@ export class ScheduleGridField extends Component {
         this.dirty.value = true;
     }
 
-    // Issue #846: a student support card (ATAL) counts as support (the level's class row of the
-    // schedule declaration) or as tutoring (that level's tutoring row).
-    isStudentSupportCard(card) {
-        return card.kind === "non_teaching" && this.catalog.studentSupportTypeIds.includes(card.nonTeaching);
+    // Issue #846: a card of a type coded 'level_or_tutoring' (ATAL) counts as support (the level's
+    // class row of the schedule declaration) or as tutoring (that level's tutoring row).
+    isLevelOrTutoringCard(card) {
+        return card.kind === "non_teaching" && this.catalog.levelOrTutoringTypeIds.includes(card.nonTeaching);
     }
 
     onCardAttentionTypeChange(dayIndex, cardId, ev) {
@@ -804,7 +804,7 @@ export class ScheduleGridField extends Component {
                     if (card.levelId && this.isTutoringCard(card)) {
                         cell.level_id = card.levelId;
                     }
-                    if (this.isStudentSupportCard(card)) {
+                    if (this.isLevelOrTutoringCard(card)) {
                         cell.attention_type = card.attentionType;
                     }
                 } else {

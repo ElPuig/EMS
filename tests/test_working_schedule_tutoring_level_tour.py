@@ -30,7 +30,7 @@ class TestWorkingScheduleTutoringLevelTour(HttpCase):
         NonTeaching = cls.env['ems.non_teaching_type'].with_context(active_test=False)
         cls.student_support = NonTeaching.search([('code', '=', 'ATAL')]) or NonTeaching.create(
             {'code': 'ATAL', 'name': 'Student support'})
-        cls.student_support.write({'declaration_code': 'tutoring', 'active': True})
+        cls.student_support.write({'declaration_code': 'level_or_tutoring', 'active': True})
         cls.teacher = cls.env['hr.employee'].create({
             'name': 'Tutoring Level Tour Teacher', 'employee_type': 'teacher',
         })

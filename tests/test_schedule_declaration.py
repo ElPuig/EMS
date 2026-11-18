@@ -32,8 +32,16 @@ class TestScheduleDeclaration(TransactionCase):
         NonTeaching = self.env['ems.non_teaching_type'].with_context(active_test=False)
         atal = NonTeaching.search([('code', '=', 'ATAL')]) or NonTeaching.create(
             {'code': 'ATAL', 'name': "Atenció a l'alumnat"})
-        atal.declaration_code = 'tutoring'
+        atal.declaration_code = 'level_or_tutoring'
         return atal
+
+    @staticmethod
+    def _load_migration(version):
+        path = os.path.join(os.path.dirname(__file__), '..', 'migrations', version, 'post-migrate.py')
+        spec = importlib.util.spec_from_file_location(f"ems_migration_{version.replace('.', '_')}", path)
+        migration = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(migration)
+        return migration
 
     def _apply(self, *blocks):
         """Saves 'blocks' as the teacher's whole schedule (apply_schedule_changes replaces it), one
@@ -198,13 +206,12 @@ class TestScheduleDeclaration(TransactionCase):
         self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'eso': 6, 'bat': 3})
 
     def test_tutorship_time_always_counts_as_tutoring(self):
-        """The attention type only applies to student support: TT keeps its tutoring row."""
+        """A type coded 'tutoring' ignores the attention type: TT keeps its tutoring row."""
         self.env.ref('ems.non_teaching_tt').declaration_code = 'tutoring'
         self._apply('ems.non_teaching_tt')
         block = self.calendar.attendance_ids.filtered('non_teaching')
         block.write({'level_id': self.level.id, 'attention_type': 'support'})
 
-        self.assertFalse(block.non_teaching.is_student_support)
         self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'t_eso': 1})
 
     def test_student_support_recoded_by_the_centre_follows_its_code(self):
@@ -213,8 +220,29 @@ class TestScheduleDeclaration(TransactionCase):
         atal.declaration_code = 'cc'
         self._apply(atal)
 
-        self.assertFalse(atal.is_student_support)
         self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'cc': 1})
+
+    def test_any_type_can_let_its_blocks_choose_level_or_tutoring(self):
+        """The choice comes from the type's code, not from being ATAL."""
+        self.env.ref('ems.non_teaching_tt').declaration_code = 'level_or_tutoring'
+        self._apply('ems.non_teaching_tt')
+        self.calendar.attendance_ids.filtered('non_teaching').level_id = self.level
+
+        self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'eso': 1})
+
+    def test_migration_moves_only_student_support_coded_tutoring(self):
+        migration = self._load_migration('18.0.0.49.5')
+        atal = self._student_support_type()
+        tutorship_time = self.env.ref('ems.non_teaching_tt')
+        tutorship_time.declaration_code = 'tutoring'
+        for code, expected in (('tutoring', 'level_or_tutoring'), ('cc', 'cc')):
+            with self.subTest(code=code):
+                atal.declaration_code = code
+                self.env.flush_all()
+                migration.migrate(self.env.cr, '18.0.0.49.4')
+                self.env.invalidate_all()
+                self.assertEqual(atal.declaration_code, expected)
+                self.assertEqual(tutorship_time.declaration_code, 'tutoring')
 
     def test_attention_type_is_kept_by_apply_schedule_changes_and_copies(self):
         atal = self._student_support_type()
@@ -255,7 +283,7 @@ class TestScheduleDeclaration(TransactionCase):
 
         self.assertEqual(self.env.ref('ems.non_teaching_wic').declaration_code, 'cc')
         self.assertEqual(self.env.ref('ems.non_teaching_tt').declaration_code, 'tutoring')
-        self.assertEqual(atal.declaration_code, 'tutoring')
+        self.assertEqual(atal.declaration_code, 'level_or_tutoring')
         self.assertFalse(self.env.ref('ems.non_teaching_br').declaration_code)
         self.assertFalse(self.env.ref('ems.non_teaching_r').declaration_code)
         self.assertTrue(self.env.ref('ems.non_teaching_gb').adds_up_periods)
@@ -343,10 +371,7 @@ class TestScheduleDeclaration(TransactionCase):
         self.assertEqual(block.get_report_label(), f"{self.subject.display_name} ({self.group.name})")
 
     def test_migration_rewrites_old_block_names(self):
-        path = os.path.join(os.path.dirname(__file__), '..', 'migrations', '18.0.0.43.0', 'post-migrate.py')
-        spec = importlib.util.spec_from_file_location('ems_migration_18_0_0_43_0', path)
-        migration = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(migration)
+        migration = self._load_migration('18.0.0.43.0')
         self._apply(self.group)
         block = self.calendar.attendance_ids.filtered('subject_id')
         block.name = f"{self.subject.display_name}: {self.group.name}"

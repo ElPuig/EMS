@@ -158,7 +158,7 @@
                                                     t-att-selected="card.levelId === level.id"/>
                                         </t>
                                     </select>
-                                    <select t-if="isStudentSupportCard(card)" class="o_schedule_grid_select o_schedule_grid_card_attention"
+                                    <select t-if="isLevelOrTutoringCard(card)" class="o_schedule_grid_select o_schedule_grid_card_attention"
                                             title="Attention type"
                                             t-on-change="(ev) => this.onCardAttentionTypeChange(day.index, card.id, ev)">
                                         <option value="support" t-att-selected="card.attentionType !== 'tutoring'">Support</option>

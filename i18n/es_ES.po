@@ -52936,8 +52936,8 @@ msgstr "<i class=\"fa fa-check-circle text-success me-2\"/>Guardado"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "As you are a minor, your family will be asked to ratify that you join the walkout. It has a single purpose: for your family to confirm that it is aware and agrees. If your family does not ratify it, you still have the right to join the call with no penalty for missed classes, but we will have to tell your family that you did not attend, so that it is aware."
-msgstr "Como eres menor de edad, se pedirá a tu familia que ratifique que te sumas a la decisión colectiva de inasistencia a clase. Tiene un único motivo: que la familia confirme que está al corriente y de acuerdo. Si tu familia no lo ratifica, sigues teniendo derecho a sumarte a la convocatoria sin ninguna penalización por faltas de asistencia, pero tendremos que comunicarle que no has asistido a clase para que esté al corriente."
+msgid "As you are a minor, your family will be asked to ratify that you join the walkout. It has a single purpose: for your family to confirm that it is aware and agrees. If your family does not ratify it, you can still join it with no penalty for missed classes, but we will have to tell your family that you did not attend, so that it is aware."
+msgstr "Como eres menor de edad, se pedirá a tu familia que ratifique que te sumas a la decisión colectiva de inasistencia a clase. Tiene un único motivo: que la familia confirme que está al corriente y de acuerdo. Si tu familia no lo ratifica, puedes sumarte igualmente, sin ninguna penalización por faltas de asistencia, pero tendremos que comunicarle que no has asistido a clase para que esté al corriente."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__can_validate

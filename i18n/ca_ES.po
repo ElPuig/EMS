@@ -33423,8 +33423,8 @@ msgstr "Reobre l'avaluació abans de canviar-ne les puntuacions."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__score
-msgid "Score (max 3)"
-msgstr "Puntuació (màx. 3)"
+msgid "Score (max 2.5)"
+msgstr "Puntuació (màx. 2,5)"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_call__min_score
@@ -52936,8 +52936,8 @@ msgid ""
 "The mobility plan is the training activity, the destination and the dates of"
 " your mobility. Give two proposals: B is in case A can't be done. In each "
 "one, say what you want to learn. A job shadowing or a teaching assignment in "
-"proposal A scores one more point than a course."
-msgstr "El pla de mobilitat és l'activitat formativa, el destí i les dates de la teva mobilitat. Indica'n dues propostes: la B és per si la A no es pot fer. En cadascuna, digues què vols aprendre. Un job shadowing o una estada de docència a la proposta A té un punt més que un curs."
+"proposal A scores half a point more than a course."
+msgstr "El pla de mobilitat és l'activitat formativa, el destí i les dates de la teva mobilitat. Indica'n dues propostes: la B és per si la A no es pot fer. En cadascuna, digues què vols aprendre. Un job shadowing o una estada de docència a la proposta A té mig punt més que un curs."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
@@ -53435,14 +53435,14 @@ msgstr "Activitat de la proposta A"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__activity_kind
 msgid ""
-"Annex 2 of the staff call: 1 point for a job shadowing or a teaching "
+"Annex 2 of the staff call: 0.5 points for a job shadowing or a teaching "
 "assignment, 0 for a course. Only proposal A counts."
-msgstr "Annex 2 de la convocatòria del personal: 1 punt per a un job shadowing o una estada de docència, 0 per a un curs. Només compta la proposta A."
+msgstr "Annex 2 de la convocatòria del personal: 0,5 punts per a un job shadowing o una estada de docència, 0 per a un curs. Només compta la proposta A."
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__activity_kind__1
-msgid "1 point: Proposal A is a job shadowing or a teaching assignment."
-msgstr "1 punt: la proposta A és un job shadowing o una estada de docència."
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__activity_kind__0_5
+msgid "0.5 points: Proposal A is a job shadowing or a teaching assignment."
+msgstr "0,5 punts: la proposta A és un job shadowing o una estada de docència."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__activity_kind__0

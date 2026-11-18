@@ -60,9 +60,9 @@ STAFF_SCORE_FIELDS = ('score_plan', 'score_last_mobility', 'score_projects', 'sc
 # application until the panel has rated every plan of the call (decided with the coordinator
 # 2026-10-30): a panel member still to rate would otherwise see the others' mean.
 PANEL_PENDING_HIDDEN = ('plan_score', 'score_total') + STAFF_SCORE_FIELDS
-# The staff call's criteria since 2026-11-18 (adriamt): the mobility plan gained a point for the activity of
-# proposal A (criterion 1, max 3), the last staff mobility went down to max 1, and the internationalisation
-# criterion was dropped, its point split between the centre projects (max 1.5) and the languages (max 2.5).
+# The staff call's criteria since 2026-11-18 (adriamt): the mobility plan gained half a point for the activity
+# of proposal A (criterion 1, max 2.5), the last staff mobility went down to max 1, and the internationalisation
+# criterion was dropped; the centre projects went up to max 2 and the languages to max 2.5.
 # Criterion 4: from B2, the highest certificate.
 STAFF_LANGUAGE_SCORES = {'b2': 1.5, 'c1': 2.0, 'c2': 2.5}
 # Criterion 2: the last staff mobility. Criterion 5: continuous seniority at the closing date.
@@ -407,13 +407,13 @@ class EmsErasmusApplication(models.Model):
 
     def _ems_staff_scores(self):
         """Art. 11 of the staff call: 1 + 2 + 3 + 4 + 5, max 10. Criterion 3 adds up the merits, up
-        to 1.5."""
+        to 2."""
         merits = self.merit_ids
         self.update({
             'score_plan': self.plan_score,
             'score_last_mobility': LAST_MOBILITY_SCORES.get(self._ems_staff_last_mobility(), 0.0),
             'score_projects': min(sum(merits.filtered(lambda merit: merit.kind in PROJECT_MERITS).mapped('points')),
-                                  1.5),
+                                  2.0),
             'score_staff_language': STAFF_LANGUAGE_SCORES.get(self._ems_staff_language_level(), 0.0),
             'score_seniority': SENIORITY_SCORES.get(self._ems_staff_seniority(), 0.0),
         })

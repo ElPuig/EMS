@@ -4,7 +4,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 # Annex 2 of the staff call (criterion 1, the mobility plan; changed 2026-11-13 and 2026-11-18):
-# concreteness and relevance, 1, 0.5 or 0 points each, and the activity of proposal A, 1 or 0, so
+# concreteness and relevance, 1, 0.5 or 0 points each, and the activity of proposal A, 0.5 or 0, so
 # that job shadowings and teaching assignments weigh more than courses (adriamt, 2026-11-18). The
 # panel picks a description, stored as its points, which its label shows (the 2026-11-04 usage test).
 CONCRETENESS_RUBRIC = [
@@ -18,7 +18,7 @@ RELEVANCE_RUBRIC = [
     ('0', "0 points: It doesn't say what they want to learn or the relation with the job."),
 ]
 ACTIVITY_RUBRIC = [
-    ('1', "1 point: Proposal A is a job shadowing or a teaching assignment."),
+    ('0.5', "0.5 points: Proposal A is a job shadowing or a teaching assignment."),
     ('0', "0 points: Proposal A is a course."),
 ]
 PLAN_CRITERIA = ('concreteness', 'relevance', 'activity_kind')
@@ -72,9 +72,9 @@ class EmsErasmusPlanRating(models.Model):
     relevance = fields.Selection(string="Relevance to the job", selection=RELEVANCE_RUBRIC, tracking=True,
                                  help="Annex 2 of the staff call: 1, 0.5 or 0 points.")
     activity_kind = fields.Selection(string="Activity of proposal A", selection=ACTIVITY_RUBRIC, tracking=True,
-                                     help="Annex 2 of the staff call: 1 point for a job shadowing or a teaching "
+                                     help="Annex 2 of the staff call: 0.5 points for a job shadowing or a teaching "
                                           "assignment, 0 for a course. Only proposal A counts.")
-    score = fields.Float(string="Score (max 3)", digits=(3, 1), compute='_compute_score', store=True, aggregator=None)
+    score = fields.Float(string="Score (max 2.5)", digits=(3, 1), compute='_compute_score', store=True, aggregator=None)
     # The issue-#682 review: an abstention is not a plan still to rate (it read "To score", 0.0).
     rating_status = fields.Selection(string="Status", compute='_compute_rating_status', store=True, selection=[
         ('draft', "To score"), ('submitted', "Submitted"), ('abstention', "Abstention")])
@@ -150,7 +150,7 @@ class EmsErasmusPlanRating(models.Model):
 class EmsErasmusApplicationMerit(models.Model):
     """Issue #686 - a merit of a staff applicant, recorded by the Erasmus team with its
     justification (art. 11 of the staff call): a collaboration in a centre project (0.5) or its
-    coordination (1), criterion 3, max 1.5."""
+    coordination (1), criterion 3, max 2."""
     _name = 'ems.erasmus.application.merit'
     _description = 'Erasmus+ staff merit'
     _order = 'application_id, kind, id'

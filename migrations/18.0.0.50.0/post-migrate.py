@@ -5,15 +5,15 @@ from odoo import SUPERUSER_ID, api
 _logger = logging.getLogger(__name__)
 
 # The staff criteria whose points changed on 2026-11-18 (adriamt: favour job shadowings and teaching
-# over courses): the mobility plan gained the activity of proposal A (max 3), the last staff mobility
-# went down to max 1, and the internationalisation criterion was dropped, its point split between the
-# centre projects (max 1.5) and the languages (B2 1.5, C1 2, C2 2.5).
+# over courses): the mobility plan gained the activity of proposal A (max 2.5), the last staff mobility
+# went down to max 1, and the internationalisation criterion was dropped; the centre projects went up to
+# max 2 and the languages to B2 1.5, C1 2, C2 2.5.
 STAFF_SCORE_FIELDS = ('score_plan', 'score_last_mobility', 'score_projects', 'score_staff_language', 'score_total',
                       'score_complete', 'is_eligible')
 
 
 def _drop_stale_plan_score_translations(cr):
-    """The rating's "Score (max 2)" became "Score (max 3)". The upgrade writes the new English
+    """The rating's "Score (max 2)" became "Score (max 2.5)". The upgrade writes the new English
     label, but loads the .po files without overwriting existing values, so the Catalan and Spanish
     labels kept "max. 2". Dropping those two keys here (post-migrate runs before the translations
     load) lets the .po fill them in again."""

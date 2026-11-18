@@ -316,12 +316,12 @@ registry.category("web_tour.tours").add("ems_erasmus_my_plan_rating", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='activity_kind'] input[data-value='1']",
-            content: "Activity of proposal A: a job shadowing, 1",
+            trigger: ".o_form_view .o_field_widget[name='activity_kind'] input[data-value='0.5']",
+            content: "Activity of proposal A: a job shadowing, 0.5",
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='score']:contains('2.5')",
+            trigger: ".o_form_view .o_field_widget[name='score']:contains('2.0')",
             content: "The rating adds up",
         },
         ...clickAction("action_submit", "Submit the rating"),

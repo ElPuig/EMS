@@ -71,7 +71,7 @@ registry.category("web_tour.tours").add("ems_erasmus_staff_labels", {
             content: "The ratings no longer repeat the person",
         },
         {
-            trigger: ".o_field_widget[name='plan_rating_ids'] .o_data_row td[name='score']:contains('/ 3')",
+            trigger: ".o_field_widget[name='plan_rating_ids'] .o_data_row td[name='score']:contains('/ 2.5')",
             content: "A rating over its maximum",
         },
     ],

@@ -229,16 +229,16 @@
                                         <field name="draw_order" invisible="not needs_draw and not draw_order"/>
                                     </group>
                                     <group string="Criteria">
-                                        <field name="score_plan" widget="ems_score_out_of" options="{'max': 3}"/>
+                                        <field name="score_plan" widget="ems_score_out_of" options="{'max': 2.5}"/>
                                         <field name="score_last_mobility" widget="ems_score_out_of" options="{'max': 1}"/>
-                                        <field name="score_projects" widget="ems_score_out_of" options="{'max': 1.5}"/>
+                                        <field name="score_projects" widget="ems_score_out_of" options="{'max': 2}"/>
                                         <field name="score_staff_language" widget="ems_score_out_of" options="{'max': 2.5}"/>
                                         <field name="score_seniority" widget="ems_score_out_of" options="{'max': 2}"/>
                                     </group>
                                 </group>
                                 <group>
                                     <group string="1. Mobility plan" invisible="scores_hidden">
-                                        <field name="plan_score" widget="ems_score_out_of" options="{'max': 3}"/>
+                                        <field name="plan_score" widget="ems_score_out_of" options="{'max': 2.5}"/>
                                         <field name="plan_complete"/>
                                     </group>
                                     <group string="Checked by the Erasmus team">
@@ -257,7 +257,7 @@
                                     <list>
                                         <field name="panel_member_id"/>
                                         <field name="abstention_reason" optional="show"/>
-                                        <field name="score" string="Score" widget="ems_score_out_of" options="{'max': 3}"/>
+                                        <field name="score" string="Score" widget="ems_score_out_of" options="{'max': 2.5}"/>
                                         <field name="state" widget="badge" decoration-success="state == 'submitted'"/>
                                     </list>
                                 </field>

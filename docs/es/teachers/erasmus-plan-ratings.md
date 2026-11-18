@@ -18,7 +18,7 @@ Cada valoración muestra en pantalla el **plan de movilidad** de la persona cand
 
 ## 2. Valorar la rúbrica
 
-Para cada aspecto, elige la descripción que más se ajusta al plan: son las del anexo 2 de la convocatoria, y cada una empieza con los puntos que da (1, 0,5 o 0; la actividad, 1 o 0). El plan es sobre 3.
+Para cada aspecto, elige la descripción que más se ajusta al plan: son las del anexo 2 de la convocatoria, y cada una empieza con los puntos que da (1, 0,5 o 0; la actividad, 0,5 o 0). El plan es sobre 2,5.
 
 ![La rúbrica del criterio 1: concreción, relevancia para el trabajo y actividad de la propuesta A](../../assets/erasmus/valoracio-pla-rubrica.png)
 
@@ -26,9 +26,9 @@ Para cada aspecto, elige la descripción que más se ajusta al plan: son las del
 |---|---|---|---|
 | Concreción | La actividad, la entidad o el curso por su nombre, el lugar y las fechas | Falta la entidad o el curso, o las fechas | Actividad genérica, sin entidad o curso ni fechas |
 | Relevancia para el trabajo | Objetivo claro y relacionado con el trabajo, el departamento o los ciclos formativos | El objetivo es general | No se explica qué se quiere aprender ni la relación con el trabajo |
-| Actividad de la propuesta A | Un job shadowing o una estancia de docencia | - | Un curso |
+| Actividad de la propuesta A | - | Un job shadowing o una estancia de docencia | Un curso |
 
-Para la actividad solo cuenta la propuesta A: el centro da a los job shadowing y a las estancias de docencia un punto más que a los cursos.
+Para la actividad solo cuenta la propuesta A: el centro da a los job shadowing y a las estancias de docencia medio punto más que a los cursos.
 
 Puedes escribir tus notas en **Notas del evaluador**.
 

@@ -160,7 +160,7 @@ class TestDocsScreenshotsErasmusStaff(DocsScreenshotMixin, HttpCase):
         self.staff_call.action_close()
         self.staff_call.action_send_to_panel()
         rating = application.plan_rating_ids[:1]
-        rating.write({'concreteness': '1', 'relevance': '1', 'activity_kind': '1'})
+        rating.write({'concreteness': '1', 'relevance': '1', 'activity_kind': '0.5'})
         rating.sudo().with_user(rating.panel_member_id).action_submit()
         self._capture('/odoo/action-ems.action_erasmus_plan_rating', '.o_list_renderer',
                       'valoracions-per-sollicitant.png', login=TestDocsScreenshotsErasmus.TECHNICIAN,

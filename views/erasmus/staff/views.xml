@@ -458,10 +458,10 @@
                     <field name="application_id" invisible="1"/>
                     <!-- Annex 1 of the staff call (adriamt, 2026-11-13): what to learn goes inside each
                          proposal, with the rules' own examples. Since 2026-11-18 a job shadowing or teaching
-                         in proposal A scores one more point (annex 2), so it is said here and A's example is
+                         in proposal A scores half a point more (annex 2), so it is said here and A's example is
                          the job shadowing. -->
                     <separator string="Mobility plan"/>
-                    <p class="text-muted">The mobility plan is the training activity, the destination and the dates of your mobility. Give two proposals: B is in case A can't be done. In each one, say what you want to learn. A job shadowing or a teaching assignment in proposal A scores one more point than a course.</p>
+                    <p class="text-muted">The mobility plan is the training activity, the destination and the dates of your mobility. Give two proposals: B is in case A can't be done. In each one, say what you want to learn. A job shadowing or a teaching assignment in proposal A scores half a point more than a course.</p>
                     <group>
                         <field name="proposal_a"
                                placeholder="E.g. Job shadowing at a VET school in Porto (Portugal), in June, to see how they organise dual training."/>

@@ -18,7 +18,7 @@ Each rating shows the candidate's **mobility plan** on screen, as they wrote it 
 
 ## 2. Rate the rubric
 
-For each aspect, choose the description that fits the plan best: they are the ones of annex 2 of the call, and each one starts with the points it gives (1, 0.5 or 0; the activity, 1 or 0). The plan is out of 3.
+For each aspect, choose the description that fits the plan best: they are the ones of annex 2 of the call, and each one starts with the points it gives (1, 0.5 or 0; the activity, 0.5 or 0). The plan is out of 2.5.
 
 ![The rubric of criterion 1: concreteness, relevance to the job and the activity of proposal A](../../assets/erasmus/valoracio-pla-rubrica.png)
 
@@ -26,9 +26,9 @@ For each aspect, choose the description that fits the plan best: they are the on
 |---|---|---|---|
 | Concreteness | The activity, the entity or course by name, the place and the dates | The entity or course, or the dates, are missing | A generic activity, without entity or course or dates |
 | Relevance to the job | A clear objective, related to the job, the department or the training cycles | The objective is general | It doesn't say what they want to learn or the relation with the job |
-| Activity of proposal A | A job shadowing or a teaching assignment | - | A course |
+| Activity of proposal A | - | A job shadowing or a teaching assignment | A course |
 
-Only proposal A counts for the activity: the centre gives job shadowings and teaching assignments one more point than courses.
+Only proposal A counts for the activity: the centre gives job shadowings and teaching assignments half a point more than courses.
 
 You can write your own notes in **Evaluator's notes**.
 

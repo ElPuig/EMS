@@ -15,7 +15,7 @@ import { PX_PER_HOUR, DEFAULT_START, WEEKDAYS, MIN_ENTRY_HEIGHT, dayLabels, comp
 // subject at a different point in the year" feature, instead of adding new EMS-only fields.
 // 'space_id' - exposed as its own explicit per-card field since the 2026-08-11 card-based edit mode
 // redesign (previously only ever inferred server-side, never shown/editable in this widget at all).
-const ATTENDANCE_FIELDS = ["dayofweek", "hour_from", "hour_to", "non_teaching", "subject_id", "topic", "group_ids", "date_from", "date_to", "space_id", "level_id"];
+const ATTENDANCE_FIELDS = ["dayofweek", "hour_from", "hour_to", "non_teaching", "subject_id", "topic", "group_ids", "date_from", "date_to", "space_id", "level_id", "attention_type"];
 
 // Two different layouts for two different jobs:
 //   - VIEW mode (read-only): a visual weekly grid (day columns x hourly rows), entries positioned
@@ -65,7 +65,7 @@ export class ScheduleGridField extends Component {
         this._nextCardId = 1;
         this._pendingSourceFrameworkId = false;
         this.newPanel = useState({ open: false, value: "", frameworks: [], teachers: [] });
-        this.catalog = useState({ subjects: [], groups: [], nonTeaching: [], tutoringTypeIds: [], levels: [], spaces: [] });
+        this.catalog = useState({ subjects: [], groups: [], nonTeaching: [], tutoringTypeIds: [], studentSupportTypeIds: [], levels: [], spaces: [] });
         this.summary = useState({ teaching: { rows: [], total: 0 }, fixed: { rows: [], total: 0 }, total: 0 });
         this.derivedBreaks = useState({ list: [] });
         // Reference catalogs never depend on which employee record is being viewed - loaded once,
@@ -74,7 +74,7 @@ export class ScheduleGridField extends Component {
             const [subjects, groups, nonTeachingTypes, spaces, levels] = await Promise.all([
                 this.orm.searchRead("ems.subject", [], ["id", "display_name"]),
                 this.orm.searchRead("ems.group", [], ["id", "display_name"]),
-                this.orm.searchRead("ems.non_teaching_type", [], ["id", "name", "declaration_code"]),
+                this.orm.searchRead("ems.non_teaching_type", [], ["id", "name", "declaration_code", "is_student_support"]),
                 this.orm.searchRead("ems.space", [], ["id", "display_name"]),
                 this.orm.searchRead("ems.level", [], ["id", "display_name"]),
             ]);
@@ -83,6 +83,8 @@ export class ScheduleGridField extends Component {
             this.catalog.nonTeaching = nonTeachingTypes.map((item) => [item.id, item.name]);
             // Issue #846: a tutoring type (ATAL, TT) is the only one whose card asks for a level.
             this.catalog.tutoringTypeIds = nonTeachingTypes.filter((item) => item.declaration_code === "tutoring").map((item) => item.id);
+            // Only student support (ATAL) says whether its hours count as support or as tutoring.
+            this.catalog.studentSupportTypeIds = nonTeachingTypes.filter((item) => item.is_student_support).map((item) => item.id);
             this.catalog.levels = levels;
             this.catalog.spaces = spaces;
         });
@@ -375,6 +377,7 @@ export class ScheduleGridField extends Component {
             groupIds: groupIds,
             spaceId: data.space_id ? data.space_id[0] : false,
             levelId: data.level_id ? data.level_id[0] : false,
+            attentionType: data.attention_type || "support",
             // "YYYY-MM-DD" string or false - each card's own date range (2026-08-11 card redesign;
             // previously carried on a shared "period" row). Reads core Odoo's own 'date_from'/
             // 'date_to' (not EMS-specific fields).
@@ -389,12 +392,12 @@ export class ScheduleGridField extends Component {
     // joining two official groups in the same room), so a card must be able to hold more than one.
     _kindFromNormalized(n) {
         if (n.non_teaching) {
-            return { kind: "non_teaching", subjectId: false, groupIds: [], nonTeaching: n.non_teaching, levelId: n.levelId };
+            return { kind: "non_teaching", subjectId: false, groupIds: [], nonTeaching: n.non_teaching, levelId: n.levelId, attentionType: n.attentionType };
         }
         if (n.subjectId) {
-            return { kind: "subject", subjectId: n.subjectId, groupIds: n.groupIds, nonTeaching: false, levelId: false };
+            return { kind: "subject", subjectId: n.subjectId, groupIds: n.groupIds, nonTeaching: false, levelId: false, attentionType: "support" };
         }
-        return { kind: "blank", subjectId: false, groupIds: [], nonTeaching: false, levelId: false };
+        return { kind: "blank", subjectId: false, groupIds: [], nonTeaching: false, levelId: false, attentionType: "support" };
     }
 
     _cardFromNormalized(n) {
@@ -402,7 +405,7 @@ export class ScheduleGridField extends Component {
     }
 
     _blankCard(hourFrom, hourTo) {
-        return { id: this._nextCardId++, hourFrom, hourTo, startDate: false, endDate: false, spaceId: false, topic: false, kind: "blank", subjectId: false, groupIds: [], nonTeaching: false, levelId: false };
+        return { id: this._nextCardId++, hourFrom, hourTo, startDate: false, endDate: false, spaceId: false, topic: false, kind: "blank", subjectId: false, groupIds: [], nonTeaching: false, levelId: false, attentionType: "support" };
     }
 
     // Cards within a day sort by start time, then end time, then start date - the developer's own
@@ -510,11 +513,11 @@ export class ScheduleGridField extends Component {
         }
         const value = ev.target.value;
         if (value.startsWith("n_")) {
-            Object.assign(card, { kind: "non_teaching", subjectId: false, groupIds: [], nonTeaching: Number(value.slice(2)), topic: false, levelId: false });
+            Object.assign(card, { kind: "non_teaching", subjectId: false, groupIds: [], nonTeaching: Number(value.slice(2)), topic: false, levelId: false, attentionType: "support" });
         } else if (value.startsWith("s_")) {
-            Object.assign(card, { kind: "subject", subjectId: Number(value.slice(2)), nonTeaching: false, levelId: false });
+            Object.assign(card, { kind: "subject", subjectId: Number(value.slice(2)), nonTeaching: false, levelId: false, attentionType: "support" });
         } else {
-            Object.assign(card, { kind: "blank", subjectId: false, groupIds: [], nonTeaching: false, topic: false, levelId: false });
+            Object.assign(card, { kind: "blank", subjectId: false, groupIds: [], nonTeaching: false, topic: false, levelId: false, attentionType: "support" });
         }
         this.dirty.value = true;
     }
@@ -595,6 +598,21 @@ export class ScheduleGridField extends Component {
             return;
         }
         card.levelId = ev.target.value ? Number(ev.target.value) : false;
+        this.dirty.value = true;
+    }
+
+    // Issue #846: a student support card (ATAL) counts as support (the level's class row of the
+    // schedule declaration) or as tutoring (that level's tutoring row).
+    isStudentSupportCard(card) {
+        return card.kind === "non_teaching" && this.catalog.studentSupportTypeIds.includes(card.nonTeaching);
+    }
+
+    onCardAttentionTypeChange(dayIndex, cardId, ev) {
+        const card = this._findCard(dayIndex, cardId);
+        if (!card) {
+            return;
+        }
+        card.attentionType = ev.target.value;
         this.dirty.value = true;
     }
 
@@ -785,6 +803,9 @@ export class ScheduleGridField extends Component {
                     cell.name = nonTeachingById.get(card.nonTeaching) || card.nonTeaching;
                     if (card.levelId && this.isTutoringCard(card)) {
                         cell.level_id = card.levelId;
+                    }
+                    if (this.isStudentSupportCard(card)) {
+                        cell.attention_type = card.attentionType;
                     }
                 } else {
                     continue; // a subject was picked but no group yet: skip until both are set

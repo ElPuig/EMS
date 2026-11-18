@@ -4,7 +4,18 @@ import { registry } from "@web/core/registry";
 
 // Issue #846: a Department Chief (the least-privileged role allowed to edit a schedule) picks the
 // level a tutoring (ATAL/TT) card is given to on the Schedule tab and saves; a class card has no
-// level selector.
+// level selector. A student support (ATAL) card also says whether it counts as tutoring; no other
+// card offers that choice.
+function pickLevel(day) {
+    const select = document.querySelector(`.o_schedule_grid_day_column[data-day='${day}'] .o_schedule_grid_card_level`);
+    const option = [...select.options].find((item) => item.textContent.includes("Tutoring Level Tour Level"));
+    if (!option) {
+        throw new Error("The tour's level is not offered");
+    }
+    select.value = option.value;
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
 registry.category("web_tour.tours").add("ems_working_schedule_tutoring_level", {
     test: true,
     url: "/odoo/action-ems.action_employee_kanban",
@@ -50,14 +61,28 @@ registry.category("web_tour.tours").add("ems_working_schedule_tutoring_level", {
         {
             trigger: ".o_schedule_grid_day_column[data-day='0'] .o_schedule_grid_card_level",
             content: "The tutoring card asks for a level",
+            run: () => pickLevel(0),
+        },
+        {
+            trigger: ".o_schedule_grid_day_column[data-day='2'] .o_schedule_grid_card_attention",
+            content: "The student support card gets a level and is marked as tutoring",
             run: function () {
-                const select = document.querySelector(".o_schedule_grid_day_column[data-day='0'] .o_schedule_grid_card_level");
-                const option = [...select.options].find((item) => item.textContent.includes("Tutoring Level Tour Level"));
-                if (!option) {
-                    throw new Error("The tour's level is not offered");
+                pickLevel(2);
+                const select = document.querySelector(".o_schedule_grid_day_column[data-day='2'] .o_schedule_grid_card_attention");
+                if (select.value !== "support") {
+                    throw new Error("A student support card must start as support");
                 }
-                select.value = option.value;
+                select.value = "tutoring";
                 select.dispatchEvent(new Event("change", { bubbles: true }));
+            },
+        },
+        {
+            trigger: ".o_schedule_grid_day_column[data-day='0'] .o_schedule_grid_card_level",
+            content: "A tutorship time card has no attention type selector",
+            run: function () {
+                if (document.querySelector(".o_schedule_grid_day_column[data-day='0'] .o_schedule_grid_card_attention")) {
+                    throw new Error("Only a student support card asks for the attention type");
+                }
             },
         },
         {

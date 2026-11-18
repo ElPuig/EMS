@@ -27,15 +27,24 @@ class TestScheduleDeclaration(TransactionCase):
         })
         cls.teacher.resource_calendar_id = cls.calendar
 
+    def _student_support_type(self):
+        """ATAL is the centre's own type (not EMS data), so it may not exist yet."""
+        NonTeaching = self.env['ems.non_teaching_type'].with_context(active_test=False)
+        atal = NonTeaching.search([('code', '=', 'ATAL')]) or NonTeaching.create(
+            {'code': 'ATAL', 'name': "Atenció a l'alumnat"})
+        atal.declaration_code = 'tutoring'
+        return atal
+
     def _apply(self, *blocks):
         """Saves 'blocks' as the teacher's whole schedule (apply_schedule_changes replaces it), one
-        after the other from 8:00. A block: a group (a class) or a non-teaching type's xmlid, or a
+        after the other from 8:00. A block: a group (a class), a non-teaching type or its xmlid, or a
         (block, dayofweek) pair, or a (block, dayofweek, hours) triple."""
         entries, hour_from = [], 8
         for block in blocks:
             block = block if isinstance(block, tuple) else (block,)
             block, dayofweek, hours = block + ('0', 1)[len(block) - 1:]
-            vals = ({'non_teaching': self.env.ref(block).id} if isinstance(block, str)
+            block = self.env.ref(block) if isinstance(block, str) else block
+            vals = ({'non_teaching': block.id} if block._name == 'ems.non_teaching_type'
                     else {'subject_id': self.subject.id, 'group_ids': [block.id]})
             entries.append({'dayofweek': dayofweek, 'hour_from': hour_from, 'hour_to': hour_from + hours,
                             'day_period': 'morning', 'name': 'TSDE', **vals})
@@ -150,6 +159,73 @@ class TestScheduleDeclaration(TransactionCase):
         block = self.calendar.attendance_ids.filtered('non_teaching')
         self.assertEqual(block.level_id, self.level)
         self.assertEqual(block.copy().level_id, self.level)
+
+    def test_student_support_counts_in_the_row_its_attention_type_says(self):
+        """Issue #846: the reported case, 3 h of ESO and 4 of Bachillerato classes plus 8 h of student
+        support in ESO: support adds them to ESO's row, and tutoring to T-ESO. No other row appears."""
+        atal = self._student_support_type()
+        _bat_level, _study, bat_group = create_level_study_group(self, 'TSDS', level={'declaration_code': 'bat'})
+        self._apply((self.group, '0', 3), (bat_group, '1', 4), (atal, '2', 8))
+        block = self.calendar.attendance_ids.filtered('non_teaching')
+        block.level_id = self.level
+
+        self.assertEqual(block.attention_type, 'support')
+        self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'eso': 11, 'bat': 4})
+
+        block.attention_type = 'tutoring'
+        self.assertEqual(
+            self.calendar.get_schedule_declaration_summary()['lective'], {'eso': 3, 'bat': 4, 't_eso': 8})
+
+    def test_student_support_without_level_uses_the_deduced_level(self):
+        atal = self._student_support_type()
+        self._apply((self.group, '0', 2), (atal, '1', 1))
+
+        self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'eso': 3})
+
+    def test_student_support_without_any_level_goes_to_others(self):
+        self._apply(self._student_support_type())
+
+        self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'other': 1})
+
+    def test_student_support_hours_do_not_decide_the_deduced_level(self):
+        """Support hours given to ESO don't make ESO the level with most classes."""
+        atal = self._student_support_type()
+        _bat_level, _study, bat_group = create_level_study_group(self, 'TSDH', level={'declaration_code': 'bat'})
+        self._apply((self.group, '0', 1), (bat_group, '1', 2), (atal, '2', 5), (atal, '3', 1))
+        blocks = self.calendar.attendance_ids.filtered('non_teaching').sorted('dayofweek')
+        blocks[0].level_id = self.level
+
+        self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'eso': 6, 'bat': 3})
+
+    def test_tutorship_time_always_counts_as_tutoring(self):
+        """The attention type only applies to student support: TT keeps its tutoring row."""
+        self.env.ref('ems.non_teaching_tt').declaration_code = 'tutoring'
+        self._apply('ems.non_teaching_tt')
+        block = self.calendar.attendance_ids.filtered('non_teaching')
+        block.write({'level_id': self.level.id, 'attention_type': 'support'})
+
+        self.assertFalse(block.non_teaching.is_student_support)
+        self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'t_eso': 1})
+
+    def test_student_support_recoded_by_the_centre_follows_its_code(self):
+        """ATAL given another declaration code stops being a support/tutoring choice."""
+        atal = self._student_support_type()
+        atal.declaration_code = 'cc'
+        self._apply(atal)
+
+        self.assertFalse(atal.is_student_support)
+        self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'cc': 1})
+
+    def test_attention_type_is_kept_by_apply_schedule_changes_and_copies(self):
+        atal = self._student_support_type()
+        self.calendar.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 8, 'hour_to': 9, 'day_period': 'morning', 'name': 'TSDE',
+            'non_teaching': atal.id, 'attention_type': 'tutoring',
+        }])
+
+        block = self.calendar.attendance_ids.filtered('non_teaching')
+        self.assertEqual(block.attention_type, 'tutoring')
+        self.assertEqual(block.copy().attention_type, 'tutoring')
 
     def test_tutorship_subject_goes_to_its_groups_tutoring_row(self):
         self.subject.is_tutorship = True

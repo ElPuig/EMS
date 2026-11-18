@@ -158,6 +158,12 @@
                                                     t-att-selected="card.levelId === level.id"/>
                                         </t>
                                     </select>
+                                    <select t-if="isStudentSupportCard(card)" class="o_schedule_grid_select o_schedule_grid_card_attention"
+                                            title="Attention type"
+                                            t-on-change="(ev) => this.onCardAttentionTypeChange(day.index, card.id, ev)">
+                                        <option value="support" t-att-selected="card.attentionType !== 'tutoring'">Support</option>
+                                        <option value="tutoring" t-att-selected="card.attentionType === 'tutoring'">Tutoring</option>
+                                    </select>
                                     <select class="o_schedule_grid_select o_schedule_grid_card_space"
                                             t-on-change="(ev) => this.onCardSpaceChange(day.index, card.id, ev)">
                                         <option value="" t-att-selected="!card.spaceId">—</option>

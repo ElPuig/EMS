@@ -8,7 +8,7 @@ from .common import create_level_study, create_role_employee, create_role_user
 @tagged('post_install', '-at_install')
 class TestWorkingScheduleTutoringLevelTour(HttpCase):
     """Issue #846: a Department Chief gives a tutoring (ATAL/TT) card of a teacher's Schedule tab a
-    level and saves."""
+    level, marks a student support (ATAL) card as tutoring, and saves."""
 
     @classmethod
     def setUpClass(cls):
@@ -27,6 +27,10 @@ class TestWorkingScheduleTutoringLevelTour(HttpCase):
         })
         cls.non_teaching = cls.env.ref('ems.non_teaching_tt')
         cls.non_teaching.declaration_code = 'tutoring'
+        NonTeaching = cls.env['ems.non_teaching_type'].with_context(active_test=False)
+        cls.student_support = NonTeaching.search([('code', '=', 'ATAL')]) or NonTeaching.create(
+            {'code': 'ATAL', 'name': 'Student support'})
+        cls.student_support.write({'declaration_code': 'tutoring', 'active': True})
         cls.teacher = cls.env['hr.employee'].create({
             'name': 'Tutoring Level Tour Teacher', 'employee_type': 'teacher',
         })
@@ -35,6 +39,8 @@ class TestWorkingScheduleTutoringLevelTour(HttpCase):
              'non_teaching': cls.non_teaching.id, 'name': 'TT'},
             {'dayofweek': '1', 'hour_from': 20.0, 'hour_to': 21.0, 'day_period': 'afternoon',
              'subject_id': cls.subject.id, 'group_ids': [cls.group.id], 'name': 'TWSTL'},
+            {'dayofweek': '2', 'hour_from': 20.0, 'hour_to': 21.0, 'day_period': 'afternoon',
+             'non_teaching': cls.student_support.id, 'name': 'ATAL'},
         ])
         cls.chief = create_role_user(cls, 'department_chief', 'test_twstl_chief')
         create_role_employee(cls, cls.chief)
@@ -42,6 +48,10 @@ class TestWorkingScheduleTutoringLevelTour(HttpCase):
     def test_department_chief_sets_the_level_of_a_tutoring_block(self):
         self.start_tour("/odoo", "ems_working_schedule_tutoring_level", login=self.chief.login)
 
-        block = self.teacher.resource_calendar_id.attendance_ids.filtered('non_teaching')
-        self.assertEqual(block.level_id, self.level)
-        self.assertFalse(self.teacher.resource_calendar_id.attendance_ids.filtered('subject_id').level_id)
+        blocks = self.teacher.resource_calendar_id.attendance_ids
+        tutorship_time = blocks.filtered(lambda block: block.non_teaching == self.non_teaching)
+        student_support = blocks.filtered(lambda block: block.non_teaching == self.student_support)
+        self.assertEqual(tutorship_time.level_id, self.level)
+        self.assertEqual(student_support.level_id, self.level)
+        self.assertEqual(student_support.attention_type, 'tutoring')
+        self.assertFalse(blocks.filtered('subject_id').level_id)

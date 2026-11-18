@@ -40,6 +40,8 @@ LEVEL_DECLARATION_CODES = [
 # Tutoring is declared on the row of the tutored group's level (developer, 2026-10-29).
 TUTORING_CODE_BY_LEVEL_CODE = {'eso': 't_eso', 'bat': 't_bat', 'pfi': 'pfi'}
 TUTORING_DEFAULT_CODE = 't_fp'
+# Issue #846: the type whose blocks say whether they count as support or as tutoring.
+STUDENT_SUPPORT_TYPE_CODE = 'ATAL'
 
 # Seeded once (post_init_hook and migrations/18.0.0.43.0), then configured by the centre.
 # False: not declared at all (the break, a reduction of working hours).
@@ -81,7 +83,14 @@ class EmsNonTeachingType(models.Model):
         string="Schedule declaration code", default='other',
         help="Row of the summary table of the official schedule declaration these hours are added to. "
              "Tutoring goes to the row of the tutored group's level. Empty: not declared (e.g. the break).")
+    is_student_support = fields.Boolean(string="Is student support", compute="_compute_is_student_support")
     active = fields.Boolean(string="Active", default=True)
+
+    @api.depends('code', 'declaration_code')
+    def _compute_is_student_support(self):
+        for non_teaching in self:
+            non_teaching.is_student_support = (
+                non_teaching.code == STUDENT_SUPPORT_TYPE_CODE and non_teaching.declaration_code == 'tutoring')
 
     @api.model
     def _ems_seed_declaration_codes(self):

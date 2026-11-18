@@ -389,6 +389,8 @@ class ems_working_schedule(models.Model):
 		  ATAL), by the block's own level (issue #846) or, when it names none, the level of the
 		  teacher's tutorship or, for a teacher who tutors no group, the level where they teach the
 		  most hours (developer, 2026-10-30);
+		- a student support block (ATAL) whose attention type is 'support' goes to the class row of
+		  that same level instead (no level at all: 'other'); no new row exists for it (issue #846);
 		- any other non-teaching block goes to its type's declaration_code; no code: left out;
 		- the teaching-hour reductions are only given as their total hours ('reduction'), and are
 		  counted in the lective total, as on the Schedule tab (developer, 2026-10-29)."""
@@ -397,7 +399,7 @@ class ems_working_schedule(models.Model):
 		tutored_level_code = employee.tutorship_ids.sorted('id')[:1].level_id.declaration_code
 		columns = {'lective': {}, 'fixed': {}}
 		class_hours_by_level = {}
-		# Tutoring hours by (column, the block's own level code, False when it names none).
+		# Tutoring hours by (column, the block's own level code or False, counted as support).
 		tutoring_hours = {}
 		for attendance, duration, is_fixed in self._iter_summary_entries():
 			column_key = 'fixed' if is_fixed else 'lective'
@@ -411,10 +413,12 @@ class ems_working_schedule(models.Model):
 					if level_code:
 						class_hours_by_level[level_code] = class_hours_by_level.get(level_code, 0) + duration
 			else:
-				code = attendance.non_teaching.declaration_code
+				non_teaching = attendance.non_teaching
+				code = non_teaching.declaration_code
 				if code == 'tutoring':
 					# A block without its own level needs the whole week's classes: resolved below.
-					key = (column_key, attendance.level_id.declaration_code if attendance.level_id else False)
+					is_support = non_teaching.is_student_support and attendance.attention_type != 'tutoring'
+					key = (column_key, attendance.level_id.declaration_code if attendance.level_id else False, is_support)
 					tutoring_hours[key] = tutoring_hours.get(key, 0) + duration
 					continue
 				if not code:
@@ -423,8 +427,9 @@ class ems_working_schedule(models.Model):
 			column[code] = column.get(code, 0) + duration
 		fallback_level_code = tutored_level_code or max(
 			sorted(class_hours_by_level), key=class_hours_by_level.get, default=False)
-		for (column_key, block_level_code), hours in tutoring_hours.items():
-			code = self._declaration_tutoring_code(block_level_code or fallback_level_code)
+		for (column_key, block_level_code, is_support), hours in tutoring_hours.items():
+			level_code = block_level_code or fallback_level_code
+			code = (level_code or 'other') if is_support else self._declaration_tutoring_code(level_code)
 			columns[column_key][code] = columns[column_key].get(code, 0) + hours
 		reduction = sum(employee.teaching_reduction_ids.mapped('reduction_hours'))
 		return {
@@ -454,6 +459,10 @@ class ems_working_schedule_assignation(models.Model):
 	# the schedule declaration puts its hours on that level's T- row. Optional: without it the
 	# declaration falls back to the teacher's tutored level or the level with most class hours.
 	level_id = fields.Many2one(string="Level", comodel_name="ems.level")
+	# Issue #846: read only on a student support block (ATAL): 'support' counts its hours in the
+	# level's class row of the schedule declaration, 'tutoring' in that level's tutoring row.
+	attention_type = fields.Selection(
+		string="Attention type", selection=[('support', 'Support'), ('tutoring', 'Tutoring')], default='support')
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
 	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group")
 	# NOTE: added for issue #428 - some subjects (e.g. FP Basica's MP 3161) are split into several
@@ -538,6 +547,7 @@ class ems_working_schedule_assignation(models.Model):
 	# Issue #846: lets the attendance form show 'level_id' only on a tutoring block (not stored: read
 	# for display alone).
 	non_teaching_declaration_code = fields.Selection(related="non_teaching.declaration_code")
+	non_teaching_is_student_support = fields.Boolean(related="non_teaching.is_student_support")
 
 	# NOTE: Phase 4 of the bottom-up sync redesign (2026-09-08, see EMS_SKIP_AUTO_SCHEDULE_SYNC's
 	# own docstring in ems.attendance_mixin) - only these fields can actually change what

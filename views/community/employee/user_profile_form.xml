@@ -288,6 +288,7 @@
                                 <field name="date_to"/>
                                 <field name="space_id"/>
                                 <field name="level_id"/>
+                                <field name="attention_type"/>
                             </list>
                         </field>
                     </page>

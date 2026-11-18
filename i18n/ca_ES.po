@@ -22528,7 +22528,10 @@ msgid "Strategic"
 msgstr "Estratègic"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_quality_process__kind__support
+#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__attention_type__support
 msgid "Support"
 msgstr "Suport"
 
@@ -53454,3 +53457,23 @@ msgstr "%(user)s ha marcat a mà la ratificació de la família que %(student)s 
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 msgid "Level (optional)"
 msgstr "Nivell (opcional)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__attention_type
+msgid "Attention type"
+msgstr "Tipus d'atenció"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: model:ir.model.fields.selection,name:ems.selection__resource_calendar_attendance__attention_type__tutoring
+msgid "Tutoring"
+msgstr "Tutoria"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__is_student_support
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__non_teaching_is_student_support
+msgid "Is student support"
+msgstr "És atenció a l'alumnat"

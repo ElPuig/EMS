@@ -1,0 +1,54 @@
+[Català](manual-certificats.md) | [Castellano](../../es/families/manual-certificats.md) | [English](../../en/families/manual-certificats.md)
+
+---
+
+# Sol·licitar un certificat
+
+Demana al centre un certificat (per exemple, el de les hores de formació en centres de treball, FCT), segueix-ne la tramitació i descarrega'l quan estigui expedit.
+
+Al portal, els certificats de FCT els pot demanar l'alumnat de cicles formatius (CFGM i CFGS) o la seva família.
+
+---
+
+## Demanar un certificat des del portal
+
+1. Entra al portal i fes clic a la targeta **Certificats**.
+2. Fes clic a **Nova sol·licitud de certificat** per desplegar el formulari.
+3. Comprova **Les teves dades** i escriu el **Curs de la formació** (en pots triar un de la llista o escriure'n un altre).
+4. A **L'empresa**, completa tota la informació que tinguis: el nom, el NIF, les dates, les hores i el número de registre del conveni.
+5. A **Documentació**, adjunta el **Conveni de FCT** si en tens una còpia (un PDF o fotos de les pàgines). Si no el tens, l'adjunta el centre. També pots afegir **Altra documentació**.
+6. Fes clic a **Enviar sol·licitud**.
+
+![La pàgina de certificats del portal](../../assets/families/certificats-08-portal.png)
+
+![El formulari de sol·licitud](../../assets/families/certificats-09-sollicitud.png)
+
+---
+
+## Seguir la sol·licitud
+
+A **Les teves sol·licituds**, fes clic a **Veure la sol·licitud** per consultar:
+
+- l'estat i el **Pas actual**;
+- les teves dades i les de la formació, incloses les que hi afegeix el centre;
+- la documentació adjunta.
+
+Fins que el centre comenci a treballar en la sol·licitud, encara pots completar o corregir les teves dades i documents des d'aquesta mateixa pàgina, amb **Desar els canvis**.
+
+![El resum d'una sol·licitud](../../assets/families/certificats-10-resum.png)
+
+Si el centre necessita més informació, rebràs un correu: fes clic a **Respondre al centre**, escriu la resposta, adjunta el que et demanin i envia-ho.
+
+Mentre no s'hagi expedit, pots anul·lar la sol·licitud amb **Anul·la la sol·licitud**.
+
+---
+
+## Rebre el certificat
+
+Quan el certificat està expedit, el reps per correu en PDF i també el pots descarregar amb **Descarregar el certificat** des de la sol·licitud.
+
+---
+
+## Si ja no ets alumne del centre
+
+Demana el certificat a secretaria. Rebràs un correu amb un enllaç al formulari: obre'l (no cal iniciar sessió), omple les teves dades, adjunta el conveni si en tens una còpia i envia-ho. Amb el mateix enllaç podràs seguir la sol·licitud, respondre al centre i descarregar el certificat.

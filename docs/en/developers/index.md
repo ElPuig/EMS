@@ -111,6 +111,14 @@ Technical reference for developers working on the EMS module.
 
 ---
 
+## Certificates
+
+| Model | Description |
+|-------|-------------|
+| [ems.certificate](certificates/certificate.md) | Certificate requests (the FCT certificate first): types with an approval circuit configured by the administrator (positions that complete, issue and approve), portal requests and the token link for former students, the numbered PDF with EMS stamps and the agreement appended, and the collaborating companies |
+
+---
+
 ## Enrollment
 
 | Model | Description |

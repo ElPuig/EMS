@@ -1253,6 +1253,10 @@ msgstr "Acrònim"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_economy_panel_search
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_support_rate_search
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_satisfaction_list
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__step_action
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__action
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__action
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__mode
 msgid "Action"
 msgstr "Acció"
 
@@ -1288,6 +1292,7 @@ msgstr "Acció"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__message_needaction
 msgid "Action Needed"
 msgstr "Acció Necessària"
 
@@ -1324,6 +1329,7 @@ msgstr "Acció Necessària"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__active
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__active
 #: model:ir.model.fields,field_description:ems.field_ems_reason_catalog__active
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__active
 msgid "Active"
 msgstr "Actiu"
 
@@ -1418,6 +1424,7 @@ msgstr "Confirmar l'arxivat de grup(s) amb alumnes actius"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__activity_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_ids
 msgid "Activities"
 msgstr "Activitats"
 
@@ -1464,6 +1471,7 @@ msgstr "Activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "Decorador de la excepció a una activitad"
 
@@ -1498,6 +1506,7 @@ msgstr "Decorador de la excepció a una activitad"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__activity_state
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_state
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_state
 msgid "Activity State"
 msgstr "Estat de l'activitat"
 
@@ -1532,6 +1541,7 @@ msgstr "Estat de l'activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__activity_type_icon
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_type_icon
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_type_icon
 msgid "Activity Type Icon"
 msgstr "Icona del tipus d'activitat"
 
@@ -1847,6 +1857,9 @@ msgstr "Aplicant els canvis…"
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_list
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_stamp__action__approve
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_step__action__approve
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Approve"
 msgstr "Aprovar"
 
@@ -1897,6 +1910,7 @@ msgstr "Aprovat"
 #: model_terms:ir.ui.view,arch_db:ems.view_teaching_form
 #: model_terms:ir.ui.view,arch_db:ems.view_teaching_reduction_type_form
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_discard_reason_form
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
 msgid "Archived"
 msgstr "Arxivat"
 
@@ -2026,6 +2040,7 @@ msgstr "Adjunt"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__message_attachment_count
 msgid "Attachment Count"
 msgstr "Quantitat d'adjunts"
 
@@ -2556,6 +2571,8 @@ msgstr "Pot editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_walkout_levels_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_discard_wizard_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_wizard__mode__cancel
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_wizard_form
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -2837,6 +2854,7 @@ msgstr "Comunicacions"
 
 #. module: ems
 #: model:ir.model,name:ems.model_res_company
+#: model_terms:ir.ui.view,arch_db:ems.view_company_search
 msgid "Companies"
 msgstr "Empreses"
 
@@ -2846,6 +2864,9 @@ msgstr "Empreses"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__company_id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__company_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__company_id
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+#: model_terms:ir.ui.view,arch_db:ems.view_company_search
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Company"
 msgstr "Empresa"
 
@@ -3276,6 +3297,13 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -3442,6 +3470,13 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3575,6 +3610,7 @@ msgstr "Dades descarregades"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_line__date
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 #: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report__date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__date
 msgid "Date"
 msgstr "Data"
 
@@ -3712,6 +3748,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_amendment__name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_line__name
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__description
 msgid "Description"
 msgstr "Descripció"
 
@@ -3929,6 +3966,13 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -3951,6 +3995,8 @@ msgstr "Nom del fitxer"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_document_signature__line_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_file_removal_wizard__line_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_staff_document_wizard__line_id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__name
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__name
 msgid "Document"
 msgstr "Document"
 
@@ -4015,6 +4061,9 @@ msgstr "Tipus de document"
 #: code:addons/ems/static/src/js/backend/user_menu_documentation.js:0
 #: model:ir.ui.menu,name:ems.menu_quality_documentation
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_documents
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Documentation"
 msgstr "Documentació"
 
@@ -4772,6 +4821,7 @@ msgstr "Seguiment"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__message_follower_ids
 msgid "Followers"
 msgstr "Seguidors"
 
@@ -4807,6 +4857,7 @@ msgstr "Seguidors"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "Seguidors (Companys)"
 
@@ -4841,6 +4892,7 @@ msgstr "Seguidors (Companys)"
 #: model:ir.model.fields,help:ems.field_ems_ex_officio_withdrawal__activity_type_icon
 #: model:ir.model.fields,help:ems.field_ems_erasmus_expense__activity_type_icon
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_certificate__activity_type_icon
 msgid "Font awesome icon e.g. fa-tasks"
 msgstr "Icona de font impressionant, p. ex. tasques-fa"
 
@@ -4869,6 +4921,8 @@ msgstr "De"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_name model_terms:ir.ui.view,arch_db:ems.portal_documentation
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__student_name
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Full name"
 msgstr "Nom complet"
 
@@ -5153,6 +5207,7 @@ msgstr "Grup"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
 msgid "Group By"
 msgstr "Agrupar per"
 
@@ -5263,6 +5318,7 @@ msgstr "Té taxes"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__has_message
 msgid "Has Message"
 msgstr "Té missatge"
 
@@ -5531,6 +5587,13 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__id
 msgid "ID"
 msgstr "ID"
 
@@ -5573,6 +5636,7 @@ msgstr "IDALU"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__activity_exception_icon
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_exception_icon
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_exception_icon
 msgid "Icon"
 msgstr "Icona"
 
@@ -5607,6 +5671,7 @@ msgstr "Icona"
 #: model:ir.model.fields,help:ems.field_ems_ex_officio_withdrawal__activity_exception_icon
 #: model:ir.model.fields,help:ems.field_ems_erasmus_expense__activity_exception_icon
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_certificate__activity_exception_icon
 msgid "Icon to indicate an exception activity."
 msgstr "Icona per indicar una activitat d'excepció."
 
@@ -5647,6 +5712,7 @@ msgstr "Si l'IBAN està mapejat i una fila té valor, tots els comptes bancaris 
 #: model:ir.model.fields,help:ems.field_ems_ex_officio_withdrawal__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_erasmus_expense__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_certificate__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr "Si està marcat, nous missatges que requereixen de la vostra atenció. "
 
@@ -5710,6 +5776,8 @@ msgstr "Si està marcat, nous missatges que requereixen de la vostra atenció. "
 #: model:ir.model.fields,help:ems.field_ems_erasmus_expense__message_has_sms_error
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__message_has_error
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_certificate__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_certificate__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Si està marcat, alguns missatges han fallat en intentar ser lliurats."
 
@@ -6006,6 +6074,7 @@ msgstr "És taxa de matrícula"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__message_is_follower
 msgid "Is Follower"
 msgstr "És seguidor"
 
@@ -6288,6 +6357,13 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -6454,6 +6530,13 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_cancel_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_destination_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -6837,6 +6920,7 @@ msgstr "Missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__message_has_error
 msgid "Message Delivery error"
 msgstr "Error de lliurament del missatge"
 
@@ -6872,6 +6956,7 @@ msgstr "Error de lliurament del missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__message_ids
 msgid "Messages"
 msgstr "Missatges"
 
@@ -7004,6 +7089,7 @@ msgstr "Mare"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__my_activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__my_activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__my_activity_date_deadline
 msgid "My Activity Deadline"
 msgstr "Data límit de la meva activitat"
 
@@ -7046,6 +7132,9 @@ msgstr "NUSS"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__name
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__name
 #: model:ir.model.fields,field_description:ems.field_ems_reason_catalog__name
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__name
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__name
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
 msgid "Name"
 msgstr "Nom"
 
@@ -7109,6 +7198,7 @@ msgstr "Nou contacte d'alumne/a"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_date_deadline
 msgid "Next Activity Deadline"
 msgstr "Data límit de la següent activitat"
 
@@ -7143,6 +7233,7 @@ msgstr "Data límit de la següent activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__activity_summary
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_summary
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_summary
 msgid "Next Activity Summary"
 msgstr "Resum de l'activitat següent"
 
@@ -7177,6 +7268,7 @@ msgstr "Resum de l'activitat següent"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__activity_type_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_type_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_type_id
 msgid "Next Activity Type"
 msgstr "Tipus d'activitat següent"
 
@@ -7425,6 +7517,7 @@ msgstr "Número"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__message_needaction_counter
 msgid "Number of Actions"
 msgstr "Quantitat d'accions"
 
@@ -7460,6 +7553,7 @@ msgstr "Quantitat d'accions"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__message_has_error_counter
 msgid "Number of errors"
 msgstr "Quantitat d'errors"
 
@@ -7495,6 +7589,7 @@ msgstr "Quantitat d'errors"
 #: model:ir.model.fields,help:ems.field_ems_ex_officio_withdrawal__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_erasmus_expense__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_certificate__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr "Quantitat de missatges que requereixen d'una acció"
 
@@ -7530,6 +7625,7 @@ msgstr "Quantitat de missatges que requereixen d'una acció"
 #: model:ir.model.fields,help:ems.field_ems_ex_officio_withdrawal__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_erasmus_expense__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_certificate__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "Quantitat de missatges amb error de lliurament"
 
@@ -7898,6 +7994,8 @@ msgstr "Pla de pagament"
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_review__state__pending
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout_line__ratification__pending
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__step_role_id
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Pending"
 msgstr "Pendent"
 
@@ -8241,6 +8339,7 @@ msgstr "Plantilla de pressupost"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__rating_ids
 msgid "Ratings"
 msgstr "Qualificacions"
 
@@ -8369,6 +8468,8 @@ msgstr "Rectificat per"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_reject_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_wizard__mode__reject
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Reject"
 msgstr "Rebutjar"
 
@@ -8491,6 +8592,7 @@ msgstr "Data de renovació/revisió"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_document_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_form
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Reopen"
 msgstr "Reobrir"
 
@@ -8581,6 +8683,7 @@ msgstr "Detalls de la resposta"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__activity_user_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_user_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_user_id
 msgid "Responsible User"
 msgstr "Usuari responsable"
 
@@ -8750,6 +8853,7 @@ msgstr "En execució"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Error de lliurament d'un SMS"
 
@@ -8881,6 +8985,7 @@ msgstr "Segon pagament"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_step__responsible__secretariat
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate__origin__secretariat
 msgid "Secretariat"
 msgstr "Secretaria"
 
@@ -8908,6 +9013,7 @@ msgstr "Signatura"
 #. module: ems
 #: model:ems.role,name:ems.role_secretary model:hr.job,name:ems.job_secretary model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_role__secretary model:project.project,name:ems.project_secretary model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute_member_line__team_role__secretary
+#: model:ir.module.category,name:ems.category_secretary
 msgid "Secretary"
 msgstr "Secretaria"
 
@@ -9083,6 +9189,10 @@ msgstr "Enviat el"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_rejection_reason__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_discard_reason__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_reason_catalog__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__sequence
 msgid "Sequence"
 msgstr "Seqüència"
 
@@ -9362,6 +9472,8 @@ msgstr "Iniciant procés en segon pla; rebràs una notificació en finalitzar (p
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_search
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__walkout_state
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form_economy
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__state
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
 msgid "State"
 msgstr "Estat"
 
@@ -9419,6 +9531,7 @@ msgstr "Estat"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_expense__activity_state
 #: model:ir.model.fields,help:ems.field_ems_quality_action__activity_state
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__activity_state
+#: model:ir.model.fields,help:ems.field_ems_certificate__activity_state
 msgid ""
 "Status based on activities\n"
 "Overdue: Due date is already passed\n"
@@ -9495,6 +9608,7 @@ msgstr "Carrer 2"
 #: model:ir.actions.act_window,name:ems.action_student_form
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__student_id
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__student_id
 msgid "Student"
 msgstr "Estudiant"
 
@@ -9660,6 +9774,8 @@ msgstr "Estudis per a matrícula"
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__study_id
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__study_id
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Study"
 msgstr "Estudi"
 
@@ -10514,6 +10630,7 @@ msgstr "Conflicte"
 #: model:ir.model.fields,help:ems.field_ems_ex_officio_withdrawal__activity_exception_decoration
 #: model:ir.model.fields,help:ems.field_ems_erasmus_expense__activity_exception_decoration
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_certificate__activity_exception_decoration
 msgid "Type of the exception activity on record."
 msgstr "Tipus de l'activitat d'excepció registrada."
 
@@ -10846,6 +10963,7 @@ msgstr "Estem treballant en aquesta secció per oferir-te la millor experiència
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__website_message_ids
 msgid "Website Messages"
 msgstr "Missatges del lloc web"
 
@@ -10881,6 +10999,7 @@ msgstr "Missatges del lloc web"
 #: model:ir.model.fields,help:ems.field_ems_ex_officio_withdrawal__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_erasmus_expense__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_certificate__website_message_ids
 msgid "Website communication history"
 msgstr "Històric de comunicacions del lloc web"
 
@@ -11251,6 +11370,7 @@ msgstr "Mateix docent, aula diferent"
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__co_teaching model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__co_teaching
 #: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_contact_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_wizard_form
 #, python-format
 msgid "Confirm"
 msgstr "Confirmar"
@@ -12361,6 +12481,7 @@ msgid "openpyxl is required to import xlsx files."
 msgstr "openpyxl és necessari per importar fitxers xlsx."
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__applicant model:res.partner.category,name:ems.partner_category_applicant model_terms:ir.ui.view,arch_db:ems.view_applicant_list model_terms:ir.ui.view,arch_db:ems.view_applicant_search
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_evaluation__partner_id
@@ -12371,6 +12492,9 @@ msgstr "openpyxl és necessari per importar fitxers xlsx."
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__partner_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__partner_id
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_search
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: code:addons/ems/models/certificates/certificate.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__applicant_uploads
 msgid "Applicant"
 msgstr "Sol·licitant"
 
@@ -12428,6 +12552,8 @@ msgstr "Això expulsa immediatament els estudiants seleccionats. Vols continuar?
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__kind
 #: code:addons/ems/models/erasmus/economy.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_economy_panel_search
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__kind
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__kind
 msgid "Kind"
 msgstr "Tipus"
 
@@ -13317,6 +13443,7 @@ msgstr "Manca de material necessari"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_self_assessment_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_contact_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
 msgid "Send"
 msgstr "Enviar"
 
@@ -17391,6 +17518,7 @@ msgstr "<i class=\"fa fa-plus me-2\"/>Nova sol·licitud de convalidació"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
 msgid "<i class=\"fa fa-times me-1\"/>Cancel request"
 msgstr "<i class=\"fa fa-times me-1\"/>Anul·la la sol·licitud"
 
@@ -17443,6 +17571,8 @@ msgstr "CV"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_cancel_wizard_form
 #: code:addons/ems/models/grades/convalidation.py:0
+#: code:addons/ems/models/certificates/certificate.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Cancel request"
 msgstr "Anul·la la sol·licitud"
 
@@ -17608,6 +17738,7 @@ msgstr "Marqueu els mòduls que ja heu superat en altres estudis."
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__activity_calendar_event_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_expense__activity_calendar_event_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_calendar_event_id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_calendar_event_id
 msgid "Next Activity Calendar Event"
 msgstr "Esdeveniment de calendari de la següent activitat"
 
@@ -17651,12 +17782,14 @@ msgstr "Observacions"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__request_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__convalidation_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__convalidation_id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__certificate_id
 msgid "Request"
 msgstr "Sol·licitud"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__requester_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_export__requester_id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__requester_id
 msgid "Requested by"
 msgstr "Sol·licitada per"
 
@@ -18286,6 +18419,7 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
 msgid ""
 "<i class=\"fa fa-check-circle me-1\"/> Your answer has been added to the "
 "request."
@@ -18306,6 +18440,7 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
 msgid ""
 "<i class=\"fa fa-exclamation-triangle me-1\"/> Write an answer or attach a "
 "document before sending."
@@ -18345,6 +18480,7 @@ msgstr "La nota d'un mòdul convalidat ha d'estar entre %(min)s i 10."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
 msgid "Answer or add documentation"
 msgstr "Respon o afegeix documentació"
 
@@ -18425,6 +18561,7 @@ msgstr ""
 #: code:addons/ems/models/grades/convalidation_info_wizard.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__info_request
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__info_request
 msgid "Documentation requested"
 msgstr "Documentació sol·licitada"
 
@@ -18482,6 +18619,7 @@ msgstr "Informació demanada a %s."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/convalidation.py:0
+#: code:addons/ems/models/certificates/certificate.py:0
 msgid "New documentation attached."
 msgstr "S'ha adjuntat documentació nova."
 
@@ -18627,6 +18765,7 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/convalidation.py:0
+#: code:addons/ems/models/certificates/certificate.py:0
 msgid "This request cannot be processed in its current state (%s)."
 msgstr "Aquesta sol·licitud no es pot processar en l'estat actual (%s)."
 
@@ -19123,6 +19262,7 @@ msgstr "<i class=\"fa fa-plus me-1\"/>Afegeix un familiar"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data_relation_select
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
 msgid "<option value=\"\">-</option>"
 msgstr "<option value=\"\">-</option>"
 
@@ -20402,6 +20542,8 @@ msgstr "Pot veure la identificació"
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 #: code:addons/ems/models/erasmus/call.py:0
 #: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__student_document
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Identity document"
 msgstr "Document d'identitat"
 
@@ -20805,6 +20947,8 @@ msgstr "Representant"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__submission_date
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Request date"
 msgstr "Data de la sol·licitud"
 
@@ -21653,6 +21797,7 @@ msgstr "No es pot posar un strike amb data futura."
 #: model_terms:ir.ui.view,arch_db:ems.view_ex_officio_withdrawal_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_expense_form
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Actions"
 msgstr "Accions"
 
@@ -23246,6 +23391,9 @@ msgstr "%s es va reconèixer a partir de les optatives d'un expedient anterior i
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__hours
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__hours
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_grade__hours
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__hours
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Hours"
 msgstr "Hores"
 
@@ -23860,6 +24008,7 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Documentation received"
 msgstr "Documentació rebuda"
 
@@ -23916,6 +24065,8 @@ msgstr "Falta el programa de les matèries cursades"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__documentation
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate__state__documentation
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
 msgid "Pending documentation"
 msgstr "Pendent de documentació"
 
@@ -24793,6 +24944,8 @@ msgstr "Google Workspace: no s'ha pogut desar l'IDALU al compte %s perquè ja no
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__is_pending_for_me
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__is_pending_for_me
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
 msgid "Pending for me"
 msgstr "Pendents de mi"
 
@@ -27658,6 +27811,7 @@ msgstr "Quan, amb paraules"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_panel__post
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__role_id
 msgid "Post"
 msgstr "Càrrec"
 
@@ -27786,6 +27940,7 @@ msgstr "Enviada a aprovar a l'EMS"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate
 msgid "Approved in EMS"
 msgstr "Aprovada a l'EMS"
 
@@ -29157,6 +29312,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__cancel_reason
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__cancel_reason
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__cancel_reason
 msgid "Reason for cancelling"
 msgstr "Motiu de la cancel·lació"
 
@@ -31273,6 +31429,7 @@ msgstr "Motiu d'exclusió"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_amendment__attachment_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_income__attachment_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_line__attachment_ids
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__attachment_ids
 msgid "Files"
 msgstr "Fitxers"
 
@@ -33789,6 +33946,7 @@ msgstr "Amb l'experiència, les competències i una fotografia (europass.europa.
 
 #. module: ems
 #: model:res.groups,name:ems.group_erasmus_coordinator
+#: model:res.groups,name:ems.group_vet_coordinator
 msgid "Coordinator"
 msgstr "Coordinador/a"
 
@@ -34535,6 +34693,7 @@ msgstr "Signat pel participant"
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_progress
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__step_id
 msgid "Step"
 msgstr "Pas"
 
@@ -35976,6 +36135,7 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__request_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_export__date
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
 msgid "Requested on"
 msgstr "Sol·licitat el"
 
@@ -37183,6 +37343,7 @@ msgstr "Autoavaluacions respostes"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_question__kind__text
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_self_assessment_answer__kind__text
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__body
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__message
 msgid "Text"
 msgstr "Text"
 
@@ -44549,6 +44710,8 @@ msgstr "Crea els passos del circuit, cadascun amb el seu termini."
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__step_note
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__current_step_id
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__is_current
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__step_id
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
 msgid "Current step"
 msgstr "Pas actual"
 
@@ -44587,6 +44750,7 @@ msgstr "Descartada pel tutor"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_step__done_by_id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__user_id
 msgid "Done by"
 msgstr "Fet per"
 
@@ -44767,6 +44931,7 @@ msgstr "Accepta i continua"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__can_accept_step
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__can_act
 msgid "Can do the current step"
 msgstr "Pot fer el pas actual"
 
@@ -48370,6 +48535,9 @@ msgstr "Subvenció"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_support_rate_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__period_start
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "From"
 msgstr "Des de"
 
@@ -48472,6 +48640,7 @@ msgstr "Calendari"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+#: model:ir.module.category,name:ems.category_settings
 msgid "Settings"
 msgstr "Ajustos"
 
@@ -48530,6 +48699,9 @@ msgstr "Equip i participant"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__period_end
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "To"
 msgstr "Fins a"
 
@@ -48991,6 +49163,7 @@ msgstr "Obre el meu correu"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.mail_layout_google
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_certificate
 msgid "School Secretariat"
 msgstr "Secretaria del centre"
 
@@ -51381,11 +51554,17 @@ msgstr "Respon"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__cancelled
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate__state__cancelled
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
 msgid "Cancelled"
 msgstr "Anul·lada"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__state__rejected
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate__state__rejected
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
 msgid "Rejected"
 msgstr "Rebutjada"
 
@@ -52045,6 +52224,8 @@ msgstr "Documents complets"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__record_total
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__document_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
 msgid "Required documents"
 msgstr "Documents obligatoris"
 
@@ -52223,6 +52404,7 @@ msgstr "Tornada"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "<strong>Reason for cancelling:</strong>"
 msgstr "<strong>Motiu de la cancel·lació:</strong>"
 
@@ -53796,3 +53978,1491 @@ msgstr ""
 "Escriviu als punts sobre els quals vulgueu dir alguna cosa i deixeu la resta"
 " en blanc. Tot queda escrit a l'acta i s'envia a tothom qui hi participa en "
 "un sol correu."
+
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "%(email)s sent to %(to)s."
+msgstr "%(email)s enviat a %(to)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "%(secretary)s, secretary of %(centre)s,"
+msgstr "%(secretary)s, secretari/ària del centre %(centre)s,"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "%(step)s: %(student)s"
+msgstr "%(step)s: %(student)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "%(step)s: done by %(user)s."
+msgstr "%(step)s: fet per %(user)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "%s could not be sent: the applicant has no email address."
+msgstr ""
+"No s'ha pogut enviar %s: la persona sol·licitant no té adreça de correu."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+msgid "<i class=\"fa fa-arrow-right me-1\"/>Current step:"
+msgstr "<i class=\"fa fa-arrow-right me-1\"/>Pas actual:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
+msgid ""
+"<i class=\"fa fa-check-circle me-1\"/> Your request has been submitted. You "
+"will receive the certificate by email."
+msgstr ""
+"<i class=\"fa fa-check-circle me-1\"/> S'ha enviat la teva sol·licitud. "
+"Rebràs el certificat per correu."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+msgid "<i class=\"fa fa-download me-1\"/>Download the certificate"
+msgstr "<i class=\"fa fa-download me-1\"/>Descarregar el certificat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
+msgid ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> Fill in all your details: "
+"they are mandatory."
+msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> Omple totes les teves dades: "
+"són obligatòries."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+msgid ""
+"<i class=\"fa fa-hourglass-half me-1\"/> The centre is processing your "
+"request. You will receive the certificate by email."
+msgstr ""
+"<i class=\"fa fa-hourglass-half me-1\"/> El centre està tramitant la teva "
+"sol·licitud. Rebràs el certificat per correu."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>Each step is done by whoever holds its position, who\n"
+"                            gets it as a task; the administrator can do any step. One step issues the certificate (its\n"
+"                            number and the issuer's stamp); approvals go after it. The last step generates the PDF and\n"
+"                            sends it to the applicant."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>Cada pas el fa qui ocupa el seu càrrec,"
+" que el rep com a tasca; l'administrador pot fer qualsevol pas. Un pas "
+"expedeix el certificat (el número i el segell de qui l'expedeix); els "
+"vistiplaus van després. L'últim pas genera el PDF i l'envia a la persona "
+"sol·licitant."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_wizard_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>The applicant receives it by email, with a link where they can\n"
+"                        answer and attach the documents. The request waits as Pending documentation until they answer."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>La persona sol·licitant el rep per "
+"correu, amb un enllaç on pot respondre i adjuntar els documents. La "
+"sol·licitud queda com a Documentació pendent fins que respongui."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_wizard_form
+msgid "<i class=\"fa fa-info-circle me-1\"/>The applicant receives it by email."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>La persona sol·licitant el rep per "
+"correu."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_wizard_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>Whoever did the previous step gets it "
+"back with this text."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>Qui va fer el pas anterior la rep de "
+"tornada amb aquest text."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
+msgid "<i class=\"fa fa-plus me-2\"/>New certificate request"
+msgstr "<i class=\"fa fa-plus me-2\"/>Nova sol·licitud de certificat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
+msgid "<i class=\"fa fa-user me-1\"/> Viewing certificates for:"
+msgstr "<i class=\"fa fa-user me-1\"/> Veient els certificats de:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "<strong>Documentation requested from the applicant:</strong>"
+msgstr "<strong>Documentació demanada a la persona sol·licitant:</strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "<strong>Reason for rejecting:</strong>"
+msgstr "<strong>Motiu del rebuig:</strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "<strong>Returned:</strong>"
+msgstr "<strong>Retornada:</strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+msgid "<strong>The centre cannot issue this certificate:</strong>"
+msgstr "<strong>El centre no pot expedir aquest certificat:</strong>"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "A certificate request that is closed cannot be changed."
+msgstr "Una sol·licitud de certificat tancada no es pot modificar."
+
+#. module: ems
+#: model:res.groups,comment:ems.group_vet_coordinator
+msgid ""
+"Access rights for the VET coordinator: certificate requests and "
+"collaborating companies."
+msgstr ""
+"Permisos de la coordinació d'FP: sol·licituds de certificat i empreses "
+"col·laboradores."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__access_warning
+msgid "Access warning"
+msgstr "Avís d'accés"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__agreement_reference
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+msgid "Agreement registration number"
+msgstr "Número de registre del conveni"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+msgid "Agreement registration number (sBID)"
+msgstr "Número de registre del conveni (sBID)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "An issued certificate cannot be cancelled: reject it instead."
+msgstr "Un certificat expedit no es pot cancel·lar: rebutja'l."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid ""
+"And for the record, I issue this certificate at the request of the person "
+"concerned."
+msgstr ""
+"I, perquè així consti, expedeixo aquest certificat a petició de la persona "
+"interessada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Answer from the applicant:"
+msgstr "Resposta de la persona sol·licitant:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__applicant_email
+msgid "Applicant's email"
+msgstr "Correu de la persona sol·licitant"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__step_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+msgid "Approval circuit"
+msgstr "Circuit d'aprovació"
+
+#. module: ems
+#: model:ems.certificate.type.step,name:ems.certificate_step_fct_approve
+msgid "Approve the certificate"
+msgstr "Donar el vistiplau al certificat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+msgid "Approved by the director"
+msgstr "Vistiplau de la direcció"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+msgid "Approved by:"
+msgstr "Vistiplau de:"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_certificate_wizard
+msgid "Ask for the text of a certificate request's action."
+msgstr "Demana el text d'una acció de la sol·licitud de certificat."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__name
+msgid ""
+"CERT-<course>-<number>, the number starting again every course. Given when "
+"the certificate is issued."
+msgstr ""
+"CERT-<curs>-<número>; el número torna a començar cada curs. S'assigna en "
+"expedir el certificat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "CERTIFIES:"
+msgstr "CERTIFICA:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_edit_company
+#: model:ir.model.fields,field_description:ems.field_res_users__can_edit_company
+msgid "Can edit the collaborating company"
+msgstr "Pot editar l'empresa col·laboradora"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__can_manage
+msgid "Can reject or cancel it"
+msgstr "Pot rebutjar-la o cancel·lar-la"
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_report_certificate
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__certificate_pdf_link
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__certificate_id
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "Certificate"
+msgstr "Certificat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Certificate %s.pdf"
+msgstr "Certificat %s.pdf"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__certificate_pdf_id
+msgid "Certificate PDF"
+msgstr "PDF del certificat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__name
+msgid "Certificate number"
+msgstr "Número de certificat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+msgid "Certificate number:"
+msgstr "Número de certificat:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__certificate_id
+msgid "Certificate request"
+msgstr "Sol·licitud de certificat"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_certificate_step
+msgid "Certificate request step"
+msgstr "Pas de sol·licitud de certificat"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_certificate
+msgid "Certificate request: the centre certifies something about a student."
+msgstr ""
+"Sol·licitud de certificat: el centre certifica alguna cosa sobre un "
+"estudiant."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__type_id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__type_id
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__type_id
+msgid "Certificate type"
+msgstr "Tipus de certificat"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_certificate_type
+msgid "Certificate type: what a certificate says and the steps that issue it."
+msgstr ""
+"Tipus de certificat: què diu un certificat i els passos que l'expedeixen."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_certificate_type
+#: model:ir.ui.menu,name:ems.menu_ems_certificate_type
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_list
+msgid "Certificate types"
+msgstr "Tipus de certificat"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_certificate
+#: model:ir.ui.menu,name:ems.menu_ems_certificates
+#: model:ir.ui.menu,name:ems.menu_ems_configuration_certificates
+#: model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_list
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_certificate
+msgid "Certificates"
+msgstr "Certificats"
+
+#. module: ems
+#: model:ems.certificate.type,description:ems.certificate_type_fct
+msgid ""
+"Certifies the hours of workplace training (FCT) you did at a company. Fill "
+"in your details and as much information about the company and the training "
+"as you can; the centre completes the rest."
+msgstr ""
+"Certifica les hores de formació en centres de treball (FCT) que vas fer en "
+"una empresa. Omple les teves dades i tota la informació possible de "
+"l'empresa i de la formació; el centre completa la resta."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_company_kanban
+#: model:ir.ui.menu,name:ems.menu_companies
+msgid "Collaborating companies"
+msgstr "Empreses col·laboradores"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__training_company_id
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__company
+#: model:res.partner.category,name:ems.partner_category_company
+msgid "Collaborating company"
+msgstr "Empresa col·laboradora"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__company_name
+msgid "Company (as written by the applicant)"
+msgstr "Empresa (segons la persona sol·licitant)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+msgid "Company VAT number"
+msgstr "NIF de l'empresa"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__company_vat
+msgid "Company VAT number (as written by the applicant)"
+msgstr "NIF de l'empresa (segons la persona sol·licitant)"
+
+#. module: ems
+#: model:ems.certificate.type.step,name:ems.certificate_step_fct_complete
+msgid "Complete the workplace training"
+msgstr "Completar la formació en centres de treball"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_company_search
+msgid "Contacts"
+msgstr "Contactes"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "Create company"
+msgstr "Crear empresa"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"Create the collaborating company with the name and VAT number the applicant "
+"wrote, and link it."
+msgstr ""
+"Crea l'empresa col·laboradora amb el nom i el NIF que va escriure la persona"
+" sol·licitant, i la vincula."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type__level_ids
+#: model:ir.model.fields,help:ems.field_ems_certificate__type_level_ids
+msgid ""
+"Current students of these levels may request it from the portal. Leave it "
+"empty to register its requests from the backend only."
+msgstr ""
+"L'alumnat actual d'aquests nivells el pot demanar des del portal. Deixa-ho "
+"buit per registrar-ne les sol·licituds només des d'EMS."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__access_url
+msgid "Customer Portal URL"
+msgstr "URL del portal de client"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__student_document
+msgid "DNI, NIE or passport."
+msgstr "DNI, NIE o passaport."
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_certificate_info_request
+msgid ""
+"Documentation needed for your certificate request - {{ object.type_id.name "
+"}}"
+msgstr ""
+"Documentació necessària per a la teva sol·licitud de certificat - {{ "
+"object.type_id.name }}"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Documentation received: the request is back in process."
+msgstr "Documentació rebuda: la sol·licitud torna a estar en tràmit."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "Done: send to the next step"
+msgstr "Fet: enviar al pas següent"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__fct_school_year
+msgid "E.g. 2024-2025."
+msgstr "P. ex. 2024-2025."
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_certificate_info_request
+msgid "EMS: Certificate, documentation requested"
+msgstr "EMS: Certificat, documentació demanada"
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_certificate_issued
+msgid "EMS: Certificate, issued"
+msgstr "EMS: Certificat, expedit"
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_certificate_rejected
+msgid "EMS: Certificate, rejected"
+msgstr "EMS: Certificat, rebutjat"
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_certificate_form
+msgid "EMS: Certificate, request form"
+msgstr "EMS: Certificat, formulari de sol·licitud"
+
+#. module: ems
+#: model:ir.module.category,description:ems.category_vet
+msgid "Educational Management System - Vocational training coordination"
+msgstr "Sistema de Gestió Educativa - Coordinació de formació professional"
+
+#. module: ems
+#: model:ems.certificate.type,name:ems.certificate_type_fct
+msgid "FCT (Formació en Centres de Treball)"
+msgstr "FCT (Formació en Centres de Treball)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Fill in the applicant's details first: %s."
+msgstr "Omple primer les dades de la persona sol·licitant: %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Fill in the applicant's email first."
+msgstr "Omple primer el correu de la persona sol·licitant."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Fill in the workplace training first: %s."
+msgstr "Omple primer la formació en centres de treball: %s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+msgid "Full name <span class=\"text-danger\">*</span>"
+msgstr "Nom i cognoms <span class=\"text-danger\">*</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+msgid ""
+"Identity document (DNI, NIE or passport) <span class=\"text-"
+"danger\">*</span>"
+msgstr ""
+"Document d'identitat (DNI, NIE o passaport) <span class=\"text-"
+"danger\">*</span>"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate__state__in_progress
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
+msgid "In process"
+msgstr "En tràmit"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate_type.py:0
+msgid ""
+"In the approval circuit of %s, approvals go after the step that issues the "
+"certificate."
+msgstr ""
+"Al circuit d'aprovació de %s, els vistiplaus van després del pas que "
+"expedeix el certificat."
+
+#. module: ems
+#: model:ems.certificate.type.step,name:ems.certificate_step_fct_issue
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_stamp__action__issue
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_step__action__issue
+msgid "Issue the certificate"
+msgstr "Expedir el certificat"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate__state__issued
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
+msgid "Issued"
+msgstr "Expedit"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+msgid "Issued by:"
+msgstr "Expedit per:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+msgid "Issued in EMS"
+msgstr "Expedit a EMS"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__course_id
+msgid "Issued in course"
+msgstr "Curs d'expedició"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__level_ids
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__type_level_ids
+msgid "Levels that may request it"
+msgstr "Nivells que el poden demanar"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_certificate
+msgid "No certificate requests"
+msgstr "No hi ha sol·licituds de certificat"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_company_kanban
+msgid "No collaborating companies yet"
+msgstr "Encara no hi ha empreses col·laboradores"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__is_first_step
+msgid "On the first step"
+msgstr "Al primer pas"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Only the secretariat can do this."
+msgstr "Només la secretaria pot fer això."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Only the secretariat or whoever does the current step can do this."
+msgstr "Només la secretaria o qui fa el pas actual pot fer això."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__step_user_ids
+msgid "Pending for"
+msgstr "Pendent de"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate__origin__portal
+msgid "Portal"
+msgstr "Portal"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__access_url
+msgid "Portal Access URL"
+msgstr "URL d'accés al portal"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__reject_reason
+msgid "Reason for rejecting"
+msgstr "Motiu del rebuig"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Reject request"
+msgstr "Rebutjar la sol·licitud"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+msgid "Request a certificate from the centre"
+msgstr "Demana un certificat al centre"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Request cancelled by %s."
+msgstr "Sol·licitud cancel·lada per %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_wizard__mode__info
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "Request documentation"
+msgstr "Demanar documentació"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Request reopened by %s."
+msgstr "Sol·licitud reoberta per %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Request submitted: it is now with %s."
+msgstr "Sol·licitud enviada: ara la té %s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__origin
+msgid "Requested from"
+msgstr "Sol·licitat des de"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_wizard__message
+msgid ""
+"Requesting documentation or rejecting, it is emailed to the applicant. "
+"Returning or cancelling, it stays on the request for the staff."
+msgstr ""
+"En demanar documentació o rebutjar, s'envia per correu a la persona "
+"sol·licitant. En retornar o cancel·lar, queda a la sol·licitud per al "
+"personal."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_wizard__mode__return
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "Return to the previous step"
+msgstr "Retornar al pas anterior"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__return_reason
+msgid "Returned"
+msgstr "Motiu del retorn"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Returned to \"%s\" by %s:"
+msgstr "Retornada a \"%s\" per %s:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__fct_school_year
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+msgid "School year of the training"
+msgstr "Curs de la formació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+msgid "School year of the training <span class=\"text-danger\">*</span>"
+msgstr "Curs de la formació <span class=\"text-danger\">*</span>"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__access_token
+msgid "Security Token"
+msgstr "Token de seguretat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "Send form"
+msgstr "Enviar formulari"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type__description
+msgid "Shown to the applicant on the request form."
+msgstr "Es mostra a la persona sol·licitant al formulari."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid ""
+"Source: the training agreement registered in sBID with number %(number)s, a "
+"copy of which is attached."
+msgstr ""
+"Font: el conveni de formació registrat a sBID amb el número %(number)s, del "
+"qual s'adjunta una còpia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Source: the training agreement, a copy of which is attached."
+msgstr "Font: el conveni de formació, del qual s'adjunta una còpia."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_certificate_stamp
+msgid "Stamp of a certificate: a step done, by whom and when."
+msgstr "Segell d'un certificat: un pas fet, per qui i quan."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__stamp_ids
+msgid "Stamps"
+msgstr "Segells"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "Start the request"
+msgstr "Iniciar la sol·licitud"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__name
+msgid "Step name"
+msgstr "Nom del pas"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_certificate_type_step
+msgid "Step of a certificate's approval circuit: who does what."
+msgstr "Pas del circuit d'aprovació d'un certificat: qui fa què."
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_certificate
+msgid ""
+"Students request certificates from the portal. For a former student, create the request and send\n"
+"                    them the form."
+msgstr ""
+"L'alumnat demana els certificats des del portal. Per a un exalumne, crea la "
+"sol·licitud i envia-li el formulari."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+msgid "Study <span class=\"text-danger\">*</span>"
+msgstr "Estudi <span class=\"text-danger\">*</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
+msgid "Submit request"
+msgstr "Enviar sol·licitud"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid ""
+"That %(student)s, with identity document %(document)s, a student of "
+"%(study)s, did %(hours)s hours of workplace training (FCT) in the school "
+"year %(year)s at the company %(company)s, from %(start)s to %(end)s."
+msgstr ""
+"Que %(student)s, amb document d'identitat %(document)s, estudiant de "
+"%(study)s, va fer %(hours)s hores de formació en centres de treball (FCT) el"
+" curs %(year)s a l'empresa %(company)s, amb data d'inici %(start)s i data de"
+" finalització %(end)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid ""
+"That %(student)s, with identity document %(document)s, a student of "
+"%(study)s, did %(hours)s hours of workplace training (FCT) in the school "
+"year %(year)s at the company %(company)s, with VAT number %(vat)s, from "
+"%(start)s to %(end)s."
+msgstr ""
+"Que %(student)s, amb document d'identitat %(document)s, estudiant de "
+"%(study)s, va fer %(hours)s hores de formació en centres de treball (FCT) el"
+" curs %(year)s a l'empresa %(company)s, amb NIF %(vat)s, amb data d'inici "
+"%(start)s i data de finalització %(end)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "The applicant did not write the company's name."
+msgstr "La persona sol·licitant no va escriure el nom de l'empresa."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate_type.py:0
+msgid ""
+"The approval circuit of %s needs exactly one step that issues the "
+"certificate."
+msgstr ""
+"El circuit d'aprovació de %s necessita exactament un pas que expedeixi el "
+"certificat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+msgid "The centre needs some more information:"
+msgstr "El centre necessita més informació:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "The certificate gets its number and your stamp. Continue?"
+msgstr "El certificat rep el número i el teu segell. Vols continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"The certificate gets your stamp of approval. If it is the last step, its PDF"
+" is generated and sent to the applicant. Continue?"
+msgstr ""
+"El certificat rep el teu vistiplau. Si és l'últim pas, es genera el PDF i "
+"s'envia a la persona sol·licitant. Vols continuar?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "The certificate type %s has no approval circuit."
+msgstr "El tipus de certificat %s no té circuit d'aprovació."
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_company_kanban
+msgid ""
+"The companies where students do their workplace training. They are also created from a\n"
+"                    certificate request."
+msgstr ""
+"Les empreses on l'alumnat fa la formació en centres de treball. També es "
+"creen des d'una sol·licitud de certificat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+msgid ""
+"The company <span class=\"text-muted fw-normal\">(fill in as much "
+"information as you can)</span>"
+msgstr ""
+"L'empresa <span class=\"text-muted fw-normal\">(completa tota la informació "
+"possible)</span>"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "The current step of %(request)s is not yours: it is for %(position)s."
+msgstr "El pas actual de %(request)s no és teu: és de %(position)s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"The documentation arrived some other way (on paper, by email): the request "
+"goes back to its step."
+msgstr ""
+"La documentació ha arribat per una altra via (en paper, per correu): la "
+"sol·licitud torna al seu pas."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "The hours cannot be negative."
+msgstr "Les hores no poden ser negatives."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__agreement_reference
+msgid "The registration number of the agreement in sBID (or qBID)."
+msgstr "El número de registre del conveni a sBID (o qBID)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "The request is on its first step: there is no step to return it to."
+msgstr "La sol·licitud és al primer pas: no hi ha cap pas on retornar-la."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__can_manage
+msgid "The secretariat, and whoever does the current step."
+msgstr "La secretaria i qui fa el pas actual."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+msgid "The secretary"
+msgstr "El/la secretari/ària"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "The state of a certificate request only changes through its buttons."
+msgstr ""
+"L'estat d'una sol·licitud de certificat només canvia amb els seus botons."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "The training cannot end before it starts."
+msgstr "La formació no pot acabar abans de començar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+msgid "VAT number"
+msgstr "NIF"
+
+#. module: ems
+#: model:ir.module.category,name:ems.category_vet
+msgid "Vocational training"
+msgstr "Formació professional"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate__state__draft
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
+msgid "Waiting for the applicant's form"
+msgstr "Esperant el formulari"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+msgid "What the applicant reads on the request form..."
+msgstr "El que llegeix la persona sol·licitant al formulari..."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__kind
+#: model:ir.model.fields,help:ems.field_ems_certificate_type__kind
+msgid "What the certificate says, and so which data the request asks for."
+msgstr ""
+"Què diu el certificat i, per tant, quines dades demana la sol·licitud."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__applicant_email
+msgid ""
+"Where the form, the requests for documentation and the certificate are sent "
+"when the request was registered by the secretariat (a former student has no "
+"portal)."
+msgstr ""
+"On s'envien el formulari, les peticions de documentació i el certificat quan"
+" la sol·licitud la va registrar la secretaria (un exalumne no té portal)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__step_role_id
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_step__role_id
+msgid ""
+"Whoever holds this position gets the task and does the step. The "
+"administrator can always do it too."
+msgstr ""
+"Qui ocupa aquest càrrec rep la tasca i fa el pas. L'administrador també el "
+"pot fer sempre."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__return_reason
+msgid "Why the request was last sent back to the previous step."
+msgstr ""
+"Per què es va retornar la sol·licitud al pas anterior l'última vegada."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+msgid "Workplace training"
+msgstr "Formació en centres de treball"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type__kind__fct
+msgid "Workplace training (FCT)"
+msgstr "Formació en centres de treball (FCT)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_wizard_form
+msgid "Write it here..."
+msgstr "Escriu-ho aquí..."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"You filled in the applicant's details yourself: the request starts its "
+"approval circuit."
+msgstr ""
+"Has omplert tu les dades de la persona sol·licitant: la sol·licitud inicia "
+"el seu circuit d'aprovació."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
+msgid "You have not requested any certificate yet."
+msgstr "Encara no has demanat cap certificat."
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_certificate_rejected
+msgid "Your certificate request - {{ object.type_id.name }}"
+msgstr "La teva sol·licitud de certificat - {{ object.type_id.name }}"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_certificate_form
+msgid "Your certificate request: fill in the form - {{ object.type_id.name }}"
+msgstr ""
+"La teva sol·licitud de certificat: omple el formulari - {{ "
+"object.type_id.name }}"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_certificate_issued
+msgid "Your certificate {{ object.name }} - {{ object.type_id.name }}"
+msgstr "El teu certificat {{ object.name }} - {{ object.type_id.name }}"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+msgid "Your details"
+msgstr "Les teves dades"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
+msgid "Your requests"
+msgstr "Les teves sol·licituds"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>A PDF or photos of its pages (JPG, "
+"PNG)."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>Un PDF o fotos de les seves pàgines "
+"(JPG, PNG)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>Optional. These files are not added to "
+"the certificate."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>Opcional. Aquests fitxers no "
+"s'afegeixen al certificat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>Required before the certificate is issued. Open a\n"
+"                                    document to attach its files."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>Obligatoris abans d'expedir el "
+"certificat. Obre un document per adjuntar-ne els fitxers."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>Who attaches each document: the applicant and/or the\n"
+"                                positions ticked; with nobody ticked, anyone taking part. They are required before the\n"
+"                                certificate is issued. Any other document can always be attached as optional."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>Qui adjunta cada document: la persona "
+"sol·licitant i/o els càrrecs marcats; sense ningú marcat, qualsevol que hi "
+"participi. Són obligatoris abans d'expedir el certificat. Qualsevol altre "
+"document es pot adjuntar sempre com a opcional."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_documents
+msgid ""
+"A PDF or photos of its pages. If you do not have it, the centre attaches it."
+msgstr ""
+"Un PDF o fotos de les seves pàgines. Si no el tens, l'adjunta el centre."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__append_to_certificate
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__append_to_certificate
+msgid "Add to the certificate"
+msgstr "Afegir al certificat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Anyone"
+msgstr "Qualsevol"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Attach the required documentation before issuing the certificate: %s."
+msgstr ""
+"Adjunta la documentació obligatòria abans d'expedir el certificat: %s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__is_attached
+msgid "Attached"
+msgstr "Adjuntat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__uploaders
+msgid "Attached by"
+msgstr "L'adjunta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__can_upload
+msgid "Can attach it"
+msgstr "El pot adjuntar"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_certificate_type_document
+msgid "Document a certificate type requires, and who attaches it."
+msgstr "Document que exigeix un tipus de certificat, i qui l'adjunta."
+
+#. module: ems
+#: model:ems.certificate.type.document,name:ems.certificate_document_fct_agreement
+msgid "FCT agreement"
+msgstr "Conveni de FCT"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_document__role_ids
+msgid ""
+"Holders of these positions may attach it. With neither the applicant nor any"
+" position ticked, anyone taking part may attach it."
+msgstr ""
+"Qui ocupa aquests càrrecs el pot adjuntar. Sense marcar la persona "
+"sol·licitant ni cap càrrec, el pot adjuntar qualsevol que hi participi."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_document__append_to_certificate
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_document__append_to_certificate
+msgid ""
+"Its pages are appended to the certificate's PDF (a PDF as it is, each image "
+"as a page)."
+msgstr ""
+"Les seves pàgines s'afegeixen al PDF del certificat (un PDF tal com és, cada"
+" imatge com una pàgina)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate_type.py:0
+msgid ""
+"List the documents %s requires, or untick Required attached documentation."
+msgstr ""
+"Indica els documents que exigeix %s, o desmarca Documentació adjunta "
+"obligatòria."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Only the files of a required document can be changed."
+msgstr "D'un document obligatori només se'n poden canviar els fitxers."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__other_attachment_ids
+msgid ""
+"Optional documents anyone taking part may attach. They are not added to the "
+"certificate."
+msgstr ""
+"Documents opcionals que pot adjuntar qualsevol que hi participi. No "
+"s'afegeixen al certificat."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__other_attachment_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "Other documentation"
+msgstr "Altra documentació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_documents
+msgid "Other documentation (optional)"
+msgstr "Altra documentació (opcional)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__role_ids
+msgid "Positions"
+msgstr "Càrrecs"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__circuit_role_ids
+msgid "Positions of the circuit"
+msgstr "Càrrecs del circuit"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__requires_documents
+msgid "Required attached documentation"
+msgstr "Documentació adjunta obligatòria"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_document__type_document_id
+msgid "Required document"
+msgstr "Document obligatori"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_certificate_document
+msgid "Required document of a certificate request, with its files."
+msgstr ""
+"Document obligatori d'una sol·licitud de certificat, amb els seus fitxers."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__document_ids
+msgid "Required documentation"
+msgstr "Documentació obligatòria"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_document__applicant_uploads
+msgid "The applicant may attach it from the portal or the form link."
+msgstr ""
+"La persona sol·licitant el pot adjuntar des del portal o l'enllaç del "
+"formulari."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type__requires_documents
+msgid ""
+"The documents listed below must be attached before the certificate is "
+"issued. Any other document can always be attached as optional."
+msgstr ""
+"Els documents de la llista s'han d'adjuntar abans d'expedir el certificat. "
+"Qualsevol altre document es pot adjuntar sempre com a opcional."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "You cannot attach %(document)s: it is attached by %(who)s."
+msgstr "No pots adjuntar %(document)s: l'adjunta %(who)s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+msgid ""
+"<i class=\"fa fa-paperclip me-1\"/>\n"
+"                            <strong>Other documentation</strong>:"
+msgstr "<i class=\"fa fa-paperclip me-1\"/> <strong>Altra documentació</strong>:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+msgid "The centre completes these details."
+msgstr "El centre completa aquestes dades."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>A former student who is not in EMS: leave it empty, write\n"
+"                                their full name and email, and send them the form to fill in the rest."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>Un exalumne que no és a EMS: deixa-ho "
+"buit, escriu-ne el nom i cognoms i el correu, i envia-li el formulari perquè"
+" ompli la resta."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "Student (if in EMS)"
+msgstr "Estudiant (si és a EMS)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__student_id
+msgid ""
+"The student or former student in EMS. A former student who is not in EMS can"
+" be left empty: the applicant's details and email are enough."
+msgstr ""
+"L'estudiant o exalumne a EMS. Un exalumne que no és a EMS es pot deixar "
+"buit: n'hi ha prou amb les dades i el correu de la persona sol·licitant."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Write the email of the former student: the request form is sent there."
+msgstr ""
+"Escriu el correu de l'exalumne: el formulari de sol·licitud s'hi envia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Write the full name of the student the certificate is for."
+msgstr ""
+"Escriu el nom i cognoms de l'estudiant a qui va adreçat el certificat."
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_certificate_issued
+msgid ""
+"<div>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">CERTIFICATE ISSUED</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your certificate is ready</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello, the certificate you requested, <strong t-out=\"object.type_id.name\"/>, has been issued. You will find it attached to this email, and you can also download it from your request.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:18px 21px;background-color:#fafbfc;border-radius:9px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Certificate number</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.name\"/></p></td></tr></table>\n"
+"</div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;\">CERTIFICAT EXPEDIT</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">El teu certificat és a punt</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, el certificat que vas demanar, <strong t-out=\"object.type_id.name\"/>, s'ha expedit. El trobaràs adjunt a aquest correu i també el pots descarregar des de la teva sol·licitud.</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;\"><tr><td style=\"padding:18px 21px;background-color:#fafbfc;border-radius:9px;\"><p style=\"margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;\">Número de certificat</p><p style=\"margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;\"><t t-out=\"object.name\"/></p></td></tr></table>\n"
+"</div>"
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_certificate_form
+msgid ""
+"<div>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">CERTIFICATE REQUEST</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Fill in your request</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello, we have registered your request for a certificate: <strong t-out=\"object.type_id.name\"/>. To process it, fill in your details in the form; you do not need to log in.</p>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">If you keep a copy of the training agreement, you can attach it in the same form.</p>\n"
+"</div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;\">SOL·LICITUD DE CERTIFICAT</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Omple la teva sol·licitud</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, hem registrat la teva sol·licitud de certificat: <strong t-out=\"object.type_id.name\"/>. Per tramitar-la, omple les teves dades al formulari; no cal iniciar sessió.</p>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">Si guardes una còpia del conveni de formació, la pots adjuntar al mateix formulari.</p>\n"
+"</div>"
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_certificate_rejected
+msgid ""
+"<div>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#fff0ee;border:1px solid #f5cbc6;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#b33126;\">REQUEST REJECTED</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">Your certificate cannot be issued</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello, the centre cannot issue the certificate <strong t-out=\"object.type_id.name\"/> you requested, for this reason:</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin:0 0 20px 0;background-color:#fff0ee;border-left:3px solid #d9534f;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#6b2620;white-space:pre-line;\" t-out=\"object.reject_reason\"/></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">If you have any questions, contact the school secretariat.</p>\n"
+"</div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#fff0ee;border:1px solid #f5cbc6;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#b33126;\">SOL·LICITUD REBUTJADA</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">El teu certificat no es pot expedir</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, el centre no pot expedir el certificat <strong t-out=\"object.type_id.name\"/> que vas demanar, per aquest motiu:</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin:0 0 20px 0;background-color:#fff0ee;border-left:3px solid #d9534f;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#6b2620;white-space:pre-line;\" t-out=\"object.reject_reason\"/></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">Si tens qualsevol dubte, posa't en contacte amb la secretaria del centre.</p>\n"
+"</div>"
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_certificate_info_request
+msgid ""
+"<div>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#fff7e8;border:1px solid #f1d9a6;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#8a5a00;\">DOCUMENTATION NEEDED</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">The centre needs more information</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hello, to issue the certificate <strong t-out=\"object.type_id.name\"/> requested for <strong t-out=\"object.student_name or object.student_id.name\"/> we need some more information:</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin:0 0 20px 0;background-color:#fff7e8;border-left:3px solid #e0a526;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5c4510;white-space:pre-line;\" t-out=\"object.info_request\"/></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">You can answer and attach the documents from your request.</p>\n"
+"</div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse;\"><tr><td style=\"background-color:#fff7e8;border:1px solid #f1d9a6;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#8a5a00;\">DOCUMENTACIÓ NECESSÀRIA</td></tr></table>\n"
+"    <h1 style=\"margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;\">El centre necessita més informació</h1>\n"
+"    <p style=\"margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;\">Hola, per expedir el certificat <strong t-out=\"object.type_id.name\"/> demanat per a <strong t-out=\"object.student_name or object.student_id.name\"/> necessitem més informació:</p>\n"
+"    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\" style=\"border-collapse:separate;margin:0 0 20px 0;background-color:#fff7e8;border-left:3px solid #e0a526;border-radius:4px;\"><tr><td style=\"padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5c4510;white-space:pre-line;\" t-out=\"object.info_request\"/></tr></table>\n"
+"    <p style=\"margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;\">Pots respondre i adjuntar els documents des de la teva sol·licitud.</p>\n"
+"</div>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_certificate
+msgid "Answer the centre"
+msgstr "Respondre al centre"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_certificate
+msgid "Download the certificate"
+msgstr "Descarregar el certificat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_certificate
+msgid "Fill in the request"
+msgstr "Omplir la sol·licitud"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.mail_layout_certificate
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
+msgid "Open my request"
+msgstr "Veure la sol·licitud"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "%(study)s is not a study of the levels of %(type)s."
+msgstr "%(study)s no és un estudi dels nivells de %(type)s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+msgid "<i class=\"fa fa-check-circle me-1\"/> Your changes have been saved."
+msgstr "<i class=\"fa fa-check-circle me-1\"/> S'han desat els teus canvis."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+msgid ""
+"<i class=\"fa fa-pencil me-1\"/> You can still complete or correct your "
+"details and documents until the centre starts working on your request."
+msgstr ""
+"<i class=\"fa fa-pencil me-1\"/> Encara pots completar o corregir les teves "
+"dades i documents fins que el centre comenci a treballar en la teva "
+"sol·licitud."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"Email the applicant the link to the request form (no login needed). If their"
+" mandatory details are already filled in, the request also goes on to its "
+"first step, and the applicant may still complete them until the centre acts "
+"on it."
+msgstr ""
+"Envia per correu a la persona sol·licitant l'enllaç al formulari (sense "
+"iniciar sessió). Si les seves dades obligatòries ja estan omplertes, la "
+"sol·licitud passa també al primer pas, i la persona sol·licitant encara les "
+"pot completar fins que el centre hi actuï."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__applicant_form_open
+msgid ""
+"From the moment the form is sent (or the portal request filed) until someone"
+" of the centre changes or acts on the request: meanwhile the applicant may "
+"complete or correct their details and documents from the link."
+msgstr ""
+"Des que s'envia el formulari (o es presenta la sol·licitud al portal) fins "
+"que algú del centre canvia o actua sobre la sol·licitud: mentrestant la "
+"persona sol·licitant pot completar o corregir les seves dades i documents "
+"des de l'enllaç."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+msgid "Save changes"
+msgstr "Desar els canvis"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__applicant_form_open
+msgid "The applicant can still edit their details"
+msgstr "La persona sol·licitant encara pot editar les seves dades"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "The applicant updated their details."
+msgstr "La persona sol·licitant ha actualitzat les seves dades."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_stamp__action__complete
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_step__action__complete
+msgid "Complete the data"
+msgstr "Completar les dades"
+
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "%(user)s issues the certificate right away, skipping: %(steps)s."
+msgstr "%(user)s expedeix el certificat directament i salta: %(steps)s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__can_issue_now
+msgid "Can issue it right away"
+msgstr "Pot expedir-lo directament"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"Confirm you have every mandatory detail and document of the request. The "
+"steps before issuing are skipped (their pending tasks are closed) and the "
+"certificate gets its number and your stamp. If anything mandatory is "
+"missing, it is not issued and you are told what. Continue?"
+msgstr ""
+"Confirma que tens totes les dades i documents obligatoris de la sol·licitud."
+" Els passos anteriors a l'expedició se salten (les seves tasques pendents es"
+" tanquen) i el certificat rep el número i el teu segell. Si falta alguna "
+"cosa obligatòria, no s'expedeix i se t'indica què. Vols continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "Issue it now"
+msgstr "Expedir ara"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid ""
+"Only whoever issues %s can issue it right away, and only before its issuing "
+"step."
+msgstr ""
+"Només qui expedeix %s el pot expedir directament, i només abans del pas "
+"d'expedició."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"Skip the steps before issuing (e.g. completing the workplace training) when "
+"you already have every detail and document."
+msgstr ""
+"Salta els passos anteriors a l'expedició (per exemple, completar la formació"
+" en centres de treball) quan ja tens totes les dades i documents."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate__can_issue_now
+msgid ""
+"Whoever issues the certificate, while the request is still before their "
+"step: they may skip the earlier ones when they already have every detail."
+msgstr ""
+"Qui expedeix el certificat, mentre la sol·licitud encara és abans del seu "
+"pas: pot saltar els anteriors quan ja té totes les dades."

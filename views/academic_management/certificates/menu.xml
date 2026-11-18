@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #835: the secretariat registers and follows the requests up, the Director and the
+             VET coordinator do their steps. Any other position put in a circuit reaches its
+             requests from the task. -->
+        <menuitem id="menu_ems_certificates"
+                  name="Certificates"
+                  parent="menu_ems_academic_management"
+                  action="action_certificate"
+                  groups="ems.group_academic_admin,ems.group_secretary,ems.group_director,ems.group_vet_coordinator"
+                  sequence="16"/>
+    </data>
+</odoo>

@@ -25,6 +25,9 @@ from . import test_level
 from . import test_level_tour
 from . import test_student_document
 from . import test_convalidation
+from . import test_certificate
+from . import test_portal_certificate
+from . import test_certificate_tour
 from . import test_convalidation_period
 from . import test_preenrollment_period
 from . import test_enrollment_head_of_studies
@@ -326,6 +329,7 @@ from . import test_erasmus_satisfaction
 from . import test_erasmus_call_announce
 from . import test_erasmus_staff_backend
 from . import test_docs_screenshots_student_card
+from . import test_docs_screenshots_certificates
 from . import test_docs_screenshots_schedule_declaration
 from . import test_docs_screenshots_ex_officio_withdrawal
 from . import test_docs_screenshots_erasmus

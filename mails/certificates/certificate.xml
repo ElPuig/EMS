@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Issue #835 - the emails of a certificate request, sent by ems.certificate._ems_send() to
+             the applicant: the email the secretariat wrote down for a former student, else the
+             student and whoever is kept informed about them. No <field name="lang">: the sender
+             sets the recipient's language. Card layout of EMS emails (ems.mail_layout_certificate,
+             as the Google account emails), whose button opens the request with its access token
+             (portal.mixin), without logging in. -->
+        <record id="email_template_certificate_form" model="mail.template">
+            <field name="name">EMS: Certificate, request form</field>
+            <field name="model_id" ref="ems.model_ems_certificate"/>
+            <field name="subject">Your certificate request: fill in the form - {{ object.type_id.name }}</field>
+            <field name="email_from">{{ user.company_id.name }} &lt;{{ user.company_id.email }}&gt;</field>
+            <field name="reply_to">{{ user.partner_id._ems_reply_to() }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="email_layout_xmlid">ems.mail_layout_certificate</field>
+            <field name="body_html">
+                <![CDATA[
+<div>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td style="background-color:#eef4fb;border:1px solid #c9dcf3;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#2c5d99;">CERTIFICATE REQUEST</td></tr></table>
+    <h1 style="margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;">Fill in your request</h1>
+    <p style="margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;">Hello, we have registered your request for a certificate: <strong t-out="object.type_id.name"/>. To process it, fill in your details in the form; you do not need to log in.</p>
+    <p style="margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;">If you keep a copy of the training agreement, you can attach it in the same form.</p>
+</div>
+                ]]>
+            </field>
+        </record>
+
+        <record id="email_template_certificate_info_request" model="mail.template">
+            <field name="name">EMS: Certificate, documentation requested</field>
+            <field name="model_id" ref="ems.model_ems_certificate"/>
+            <field name="subject">Documentation needed for your certificate request - {{ object.type_id.name }}</field>
+            <field name="email_from">{{ user.company_id.name }} &lt;{{ user.company_id.email }}&gt;</field>
+            <field name="reply_to">{{ user.partner_id._ems_reply_to() }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="email_layout_xmlid">ems.mail_layout_certificate</field>
+            <field name="body_html">
+                <![CDATA[
+<div>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td style="background-color:#fff7e8;border:1px solid #f1d9a6;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#8a5a00;">DOCUMENTATION NEEDED</td></tr></table>
+    <h1 style="margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;">The centre needs more information</h1>
+    <p style="margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;">Hello, to issue the certificate <strong t-out="object.type_id.name"/> requested for <strong t-out="object.student_name or object.student_id.name"/> we need some more information:</p>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:separate;margin:0 0 20px 0;background-color:#fff7e8;border-left:3px solid #e0a526;border-radius:4px;"><tr><td style="padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#5c4510;white-space:pre-line;" t-out="object.info_request"/></tr></table>
+    <p style="margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;">You can answer and attach the documents from your request.</p>
+</div>
+                ]]>
+            </field>
+        </record>
+
+        <!-- Sent with the certificate's PDF attached (ems.certificate._ems_finish). -->
+        <record id="email_template_certificate_issued" model="mail.template">
+            <field name="name">EMS: Certificate, issued</field>
+            <field name="model_id" ref="ems.model_ems_certificate"/>
+            <field name="subject">Your certificate {{ object.name }} - {{ object.type_id.name }}</field>
+            <field name="email_from">{{ user.company_id.name }} &lt;{{ user.company_id.email }}&gt;</field>
+            <field name="reply_to">{{ user.partner_id._ems_reply_to() }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="email_layout_xmlid">ems.mail_layout_certificate</field>
+            <field name="body_html">
+                <![CDATA[
+<div>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td style="background-color:#ecf7ef;border:1px solid #bfe3c8;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#23753a;">CERTIFICATE ISSUED</td></tr></table>
+    <h1 style="margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;">Your certificate is ready</h1>
+    <p style="margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;">Hello, the certificate you requested, <strong t-out="object.type_id.name"/>, has been issued. You will find it attached to this email, and you can also download it from your request.</p>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:separate;border:1px solid #e1e5eb;border-radius:9px;margin:0 0 20px 0;"><tr><td style="padding:18px 21px;background-color:#fafbfc;border-radius:9px;"><p style="margin:0 0 5px 0;font-size:11px;line-height:16px;font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#7b8798;">Certificate number</p><p style="margin:0;font-size:20px;line-height:26px;font-weight:bold;color:#1a324f;"><t t-out="object.name"/></p></td></tr></table>
+</div>
+                ]]>
+            </field>
+        </record>
+
+        <record id="email_template_certificate_rejected" model="mail.template">
+            <field name="name">EMS: Certificate, rejected</field>
+            <field name="model_id" ref="ems.model_ems_certificate"/>
+            <field name="subject">Your certificate request - {{ object.type_id.name }}</field>
+            <field name="email_from">{{ user.company_id.name }} &lt;{{ user.company_id.email }}&gt;</field>
+            <field name="reply_to">{{ user.partner_id._ems_reply_to() }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="email_layout_xmlid">ems.mail_layout_certificate</field>
+            <field name="body_html">
+                <![CDATA[
+<div>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td style="background-color:#fff0ee;border:1px solid #f5cbc6;border-radius:5px;padding:6px 10px;font-size:11px;line-height:15px;font-weight:bold;letter-spacing:.5px;color:#b33126;">REQUEST REJECTED</td></tr></table>
+    <h1 style="margin:15px 0 8px 0;font-size:25px;line-height:31px;font-weight:700;letter-spacing:-.5px;color:#1c2939;">Your certificate cannot be issued</h1>
+    <p style="margin:0 0 20px 0;font-size:14px;line-height:22px;color:#596679;">Hello, the centre cannot issue the certificate <strong t-out="object.type_id.name"/> you requested, for this reason:</p>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:separate;margin:0 0 20px 0;background-color:#fff0ee;border-left:3px solid #d9534f;border-radius:4px;"><tr><td style="padding:13px 15px 15px 15px;font-size:14px;line-height:22px;color:#6b2620;white-space:pre-line;" t-out="object.reject_reason"/></tr></table>
+    <p style="margin:0 0 6px 0;font-size:14px;line-height:22px;color:#596679;">If you have any questions, contact the school secretariat.</p>
+</div>
+                ]]>
+            </field>
+        </record>
+    </data>
+</odoo>

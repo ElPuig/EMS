@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #835: the collaborating companies, where students do their workplace training
+             (FCT). The same contact screens as the providers, as a list of their own. -->
+        <record model="ir.ui.view" id="view_company_search">
+            <field name="name">ems.company.search</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="display_name" string="Company"
+                           filter_domain="['|', '|', ('display_name', 'ilike', self), ('email', 'ilike', self), ('vat', 'ilike', self)]"/>
+                    <filter name="companies" string="Companies" domain="[('is_company', '=', True)]"/>
+                    <filter name="people" string="Contacts" domain="[('is_company', '=', False)]"/>
+                    <searchpanel>
+                        <field name="commercial_partner_id" string="Company" icon="fa-building" enable_counters="1"/>
+                    </searchpanel>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_company_kanban">
+            <field name="name">Collaborating companies</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="search_view_id" ref="view_company_search"/>
+            <field name="domain">[('contact_type', '=', 'company')]</field>
+            <field name="context">{'default_contact_type': 'company', 'default_is_company': True}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">No collaborating companies yet</p>
+                <p>The companies where students do their workplace training. They are also created from a
+                    certificate request.</p>
+            </field>
+        </record>
+
+        <menuitem name="Collaborating companies" sequence="6" id="menu_companies" parent="menu_community"
+                  action="action_company_kanban"
+                  groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies,ems.group_vet_coordinator"/>
+    </data>
+</odoo>

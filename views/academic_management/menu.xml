@@ -3,6 +3,6 @@
     <data>
         <!-- Root menu items only -->
         <menuitem name="Academic management" sequence="2" id="menu_ems_academic_management"
-                  groups="ems.group_academic_admin,ems.group_secretary,ems.group_tutor,ems.group_student_data_reader"/>
+                  groups="ems.group_academic_admin,ems.group_secretary,ems.group_tutor,ems.group_student_data_reader,ems.group_vet_coordinator"/>
     </data>
 </odoo>

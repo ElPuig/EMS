@@ -16,6 +16,7 @@ Esta sección contiene los manuales para **administradores**.
 - [Curso Actual](course-settings.md) — Cambiar el año académico utilizado para las operaciones del día a día.
 - [Versión de EMS instalada](ems-version.md) — Qué versión de EMS funciona en esta instalación, y si hay una más nueva.
 - [Configuración de convalidaciones](convalidation-settings.md) — El periodo anual para solicitar convalidaciones desde el portal y los textos de la resolución oficial.
+- [Tipos de certificado y circuitos de aprobación](certificate-types.md) — Qué certificados se pueden pedir, qué documentación exigen, quién puede adjuntarla y quién hace cada paso hasta que se expiden.
 - [Idioma del centro](centre-language.md) — El idioma en el que EMS escribe por su cuenta y que reciben los usuarios nuevos.
 - [Carpeta de las actas en Drive](minutes-drive.md) — Guardar una copia del PDF de cada acta en una carpeta de una unidad compartida.
 - [Grupos de trabajo](workgroups.md) — Agrupaciones libres de empleados (equipos de proyecto, comisiones).

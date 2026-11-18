@@ -47,6 +47,15 @@ ACCESS_MATRIX = {
     # Heads of Studies maintain the reasons they pick from, archiving instead of deleting (issue #654).
     'ems.convalidation.info_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
     'ems.convalidation.rejection_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
+    # Issue #835: the administrator configures certificate types and their circuits; whoever
+    # takes part in a circuit reads them. The wizard asks for a step's text; whether its user may
+    # act is checked when it runs (ems.certificate._ems_check_can_act).
+    'ems.certificate.type': {'teacher': 'r', 'vet_coordinator': 'r', 'secretary': 'r', 'director': 'r', 'academic_admin': 'rwcu'},
+    'ems.certificate.type.step': {'teacher': 'r', 'vet_coordinator': 'r', 'secretary': 'r', 'director': 'r', 'academic_admin': 'rwcu'},
+    'ems.certificate.type.document': {'teacher': 'r', 'vet_coordinator': 'r', 'secretary': 'r', 'director': 'r', 'academic_admin': 'rwcu'},
+    # Lines created by the request itself; whoever may attach a file writes them (can_upload).
+    'ems.certificate.document': {'teacher': 'rw', 'vet_coordinator': 'rw', 'secretary': 'rw', 'director': 'rw', 'academic_admin': 'rwcu'},
+    'ems.certificate.wizard': {'teacher': 'rwc', 'vet_coordinator': 'rwc', 'secretary': 'rwc', 'academic_admin': 'rwcu'},
     'ems.course': {'teacher': 'r', 'secretary': 'r', 'erasmus': 'r'},
     # Issue #726: who decides a proposal dismisses it; whether they may is checked on confirming
     # (ems.ex_officio_withdrawal._ems_check_can_decide_proposal).

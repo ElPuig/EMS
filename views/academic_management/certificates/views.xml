@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #835: certificate requests. See docs/en/developers/certificates/certificate.md. -->
+        <record id="view_certificate_list" model="ir.ui.view">
+            <field name="name">ems.certificate.list</field>
+            <field name="model">ems.certificate</field>
+            <field name="arch" type="xml">
+                <list string="Certificates" decoration-muted="state == 'cancelled'"
+                      decoration-success="state == 'issued'">
+                    <field name="name"/>
+                    <field name="student_name"/>
+                    <field name="student_id" optional="hide"/>
+                    <field name="type_id"/>
+                    <field name="study_id" optional="show"/>
+                    <field name="training_company_id" optional="show"/>
+                    <field name="submission_date"/>
+                    <field name="origin" optional="hide"/>
+                    <field name="step_role_id" optional="show"/>
+                    <field name="state" widget="badge"
+                           decoration-info="state == 'in_progress'"
+                           decoration-warning="state in ('draft', 'documentation')"
+                           decoration-success="state == 'issued'"
+                           decoration-danger="state == 'rejected'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_certificate_form" model="ir.ui.view">
+            <field name="name">ems.certificate.form</field>
+            <field name="model">ems.certificate</field>
+            <field name="arch" type="xml">
+                <form string="Certificate request">
+                    <field name="kind" invisible="1"/>
+                    <field name="can_act" invisible="1"/>
+                    <field name="can_manage" invisible="1"/>
+                    <field name="step_action" invisible="1"/>
+                    <field name="is_first_step" invisible="1"/>
+                    <field name="can_issue_now" invisible="1"/>
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_send_form" type="object" string="Send form" class="btn-primary"
+                                    invisible="state != 'draft'"
+                                    groups="ems.group_secretary,ems.group_academic_admin"
+                                    help="Email the applicant the link to the request form (no login needed). If their mandatory details are already filled in, the request also goes on to its first step, and the applicant may still complete them until the centre acts on it."/>
+                            <button name="action_submit" type="object" string="Start the request"
+                                    invisible="state != 'draft'"
+                                    groups="ems.group_secretary,ems.group_academic_admin"
+                                    help="You filled in the applicant's details yourself: the request starts its approval circuit."/>
+                            <button name="action_done_step" type="object" string="Done: send to the next step" class="btn-primary"
+                                    invisible="not can_act or step_action != 'complete'"/>
+                            <button name="action_done_step" type="object" string="Issue the certificate" class="btn-primary"
+                                    invisible="not can_act or step_action != 'issue'"
+                                    confirm="The certificate gets its number and your stamp. Continue?"/>
+                            <button name="action_done_step" type="object" string="Approve" class="btn-primary"
+                                    invisible="not can_act or step_action != 'approve'"
+                                    confirm="The certificate gets your stamp of approval. If it is the last step, its PDF is generated and sent to the applicant. Continue?"/>
+                            <button name="action_issue_now" type="object" string="Issue it now"
+                                    invisible="not can_issue_now"
+                                    confirm="Confirm you have every mandatory detail and document of the request. The steps before issuing are skipped (their pending tasks are closed) and the certificate gets its number and your stamp. If anything mandatory is missing, it is not issued and you are told what. Continue?"
+                                    help="Skip the steps before issuing (e.g. completing the workplace training) when you already have every detail and document."/>
+                            <button name="action_open_wizard" type="object" string="Request documentation"
+                                    invisible="not can_act" context="{'certificate_wizard_mode': 'info'}"/>
+                            <button name="action_documentation_received" type="object" string="Documentation received"
+                                    invisible="state != 'documentation' or not can_manage"
+                                    help="The documentation arrived some other way (on paper, by email): the request goes back to its step."/>
+                            <button name="action_open_wizard" type="object" string="Return to the previous step"
+                                    invisible="not can_act or is_first_step" context="{'certificate_wizard_mode': 'return'}"/>
+                            <button name="action_open_wizard" type="object" string="Reject"
+                                    invisible="state not in ('in_progress', 'documentation') or not can_manage"
+                                    context="{'certificate_wizard_mode': 'reject'}"/>
+                            <button name="action_open_wizard" type="object" string="Cancel request"
+                                    invisible="state not in ('draft', 'in_progress', 'documentation') or name or not can_manage"
+                                    context="{'certificate_wizard_mode': 'cancel'}"/>
+                            <button name="action_reopen" type="object" string="Reopen"
+                                    invisible="state != 'cancelled'"
+                                    groups="ems.group_secretary,ems.group_academic_admin"/>
+                        </div>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,issued"/>
+                    </header>
+                    <sheet>
+                        <widget name="web_ribbon" title="Cancelled" bg_color="text-bg-secondary" invisible="state != 'cancelled'"/>
+                        <widget name="web_ribbon" title="Rejected" bg_color="text-bg-danger" invisible="state != 'rejected'"/>
+                        <div class="alert alert-info" role="alert" invisible="state != 'in_progress'">
+                            <i class="fa fa-arrow-right me-1"/>Current step: <field name="step_id" class="d-inline fw-bold" options="{'no_open': True}"/>
+                            (<field name="step_role_id" class="d-inline" options="{'no_open': True}"/>)
+                        </div>
+                        <div class="alert alert-warning" role="alert" invisible="state != 'in_progress' or not return_reason">
+                            <strong>Returned:</strong> <field name="return_reason" class="d-inline"/>
+                        </div>
+                        <div class="alert alert-warning" role="alert" invisible="state != 'documentation'">
+                            <strong>Documentation requested from the applicant:</strong> <field name="info_request" class="d-inline"/>
+                        </div>
+                        <div class="alert alert-danger" role="alert" invisible="state != 'rejected'">
+                            <strong>Reason for rejecting:</strong> <field name="reject_reason" class="d-inline"/>
+                        </div>
+                        <div class="alert alert-secondary" role="alert" invisible="state != 'cancelled' or not cancel_reason">
+                            <strong>Reason for cancelling:</strong> <field name="cancel_reason" class="d-inline"/>
+                        </div>
+                        <div class="oe_title">
+                            <div class="text-muted" invisible="not name"><field name="name"/></div>
+                            <h1><field name="student_id" placeholder="Student (if in EMS)" options="{'no_create': True}"
+                                       readonly="state != 'draft'"/></h1>
+                            <div class="text-muted small" invisible="student_id or state != 'draft'">
+                                <i class="fa fa-info-circle me-1"/>A former student who is not in EMS: leave it empty, write
+                                their full name and email, and send them the form to fill in the rest.
+                            </div>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="type_id" options="{'no_create': True}" readonly="state != 'draft'"/>
+                                <field name="student_name" required="not student_id"
+                                       readonly="state not in ('draft', 'in_progress', 'documentation')"/>
+                                <field name="applicant_email" widget="email" required="origin == 'secretariat' and not student_id"
+                                       readonly="state not in ('draft', 'in_progress', 'documentation')"
+                                       invisible="origin != 'secretariat'"/>
+                            </group>
+                            <group>
+                                <field name="origin"/>
+                                <field name="submission_date" invisible="not submission_date"/>
+                                <field name="applicant_form_open" invisible="not applicant_form_open"/>
+                                <field name="requester_id" invisible="not requester_id"/>
+                                <field name="course_id" invisible="not course_id"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="applicant" string="Applicant">
+                                <group>
+                                    <group>
+                                        <field name="student_document" readonly="state not in ('draft', 'in_progress', 'documentation')"/>
+                                    </group>
+                                    <group>
+                                        <field name="type_level_ids" invisible="1"/>
+                                        <field name="study_id" options="{'no_create': True}"
+                                               domain="[('level_id', 'in', type_level_ids)] if type_level_ids else []"
+                                               readonly="state not in ('draft', 'in_progress', 'documentation')"/>
+                                        <field name="fct_school_year" invisible="kind != 'fct'"
+                                               readonly="state not in ('draft', 'in_progress', 'documentation')"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page name="training" string="Workplace training" invisible="kind != 'fct'">
+                                <group>
+                                    <group>
+                                        <field name="training_company_id" context="{'default_contact_type': 'company', 'default_is_company': True}"
+                                               readonly="state not in ('draft', 'in_progress', 'documentation')"/>
+                                        <label for="company_name" invisible="not company_name"/>
+                                        <div invisible="not company_name">
+                                            <field name="company_name" readonly="1" class="d-inline"/>
+                                            <button name="action_create_company" type="object" string="Create company"
+                                                    class="btn-link" icon="fa-plus"
+                                                    invisible="training_company_id or state not in ('draft', 'in_progress', 'documentation')"
+                                                    help="Create the collaborating company with the name and VAT number the applicant wrote, and link it."/>
+                                        </div>
+                                        <field name="company_vat" readonly="1" invisible="not company_vat"/>
+                                        <field name="agreement_reference" readonly="state not in ('draft', 'in_progress', 'documentation')"/>
+                                    </group>
+                                    <group>
+                                        <field name="period_start" readonly="state not in ('draft', 'in_progress', 'documentation')"/>
+                                        <field name="period_end" readonly="state not in ('draft', 'in_progress', 'documentation')"/>
+                                        <field name="hours" readonly="state not in ('draft', 'in_progress', 'documentation')"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page name="documentation" string="Documentation">
+                                <field name="document_ids" invisible="not document_ids" readonly="state not in ('draft', 'in_progress', 'documentation')">
+                                    <list create="0" delete="0" decoration-danger="not is_attached" decoration-success="is_attached">
+                                        <field name="name"/>
+                                        <field name="uploaders"/>
+                                        <field name="attachment_ids" widget="many2many_tags"/>
+                                        <field name="is_attached" widget="boolean_toggle" readonly="1"/>
+                                        <field name="append_to_certificate" optional="hide"/>
+                                    </list>
+                                    <form>
+                                        <field name="can_upload" invisible="1"/>
+                                        <group>
+                                            <field name="name"/>
+                                            <field name="uploaders"/>
+                                            <field name="append_to_certificate"/>
+                                        </group>
+                                        <field name="attachment_ids" widget="many2many_binary" readonly="not can_upload"/>
+                                        <div class="text-muted">
+                                            <i class="fa fa-info-circle me-1"/>A PDF or photos of its pages (JPG, PNG).
+                                        </div>
+                                    </form>
+                                </field>
+                                <div class="text-muted mb-3" invisible="not document_ids">
+                                    <i class="fa fa-info-circle me-1"/>Required before the certificate is issued. Open a
+                                    document to attach its files.
+                                </div>
+                                <separator string="Other documentation"/>
+                                <field name="other_attachment_ids" widget="many2many_binary"
+                                       readonly="state not in ('draft', 'in_progress', 'documentation')"/>
+                                <div class="text-muted">
+                                    <i class="fa fa-info-circle me-1"/>Optional. These files are not added to the certificate.
+                                </div>
+                            </page>
+                            <page name="certificate" string="Certificate">
+                                <group>
+                                    <field name="certificate_pdf_id" invisible="1"/>
+                                    <field name="certificate_pdf_link" invisible="not certificate_pdf_id"/>
+                                </group>
+                                <field name="stamp_ids">
+                                    <list>
+                                        <field name="name"/>
+                                        <field name="action"/>
+                                        <field name="user_id"/>
+                                        <field name="date"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_certificate_search" model="ir.ui.view">
+            <field name="name">ems.certificate.search</field>
+            <field name="model">ems.certificate</field>
+            <field name="arch" type="xml">
+                <search string="Certificates">
+                    <field name="name"/>
+                    <field name="student_id"
+                           filter_domain="['|', '|', ('student_id', 'ilike', self), ('student_name', 'ilike', self), ('student_document', 'ilike', self)]"/>
+                    <field name="training_company_id"/>
+                    <field name="type_id"/>
+                    <filter name="pending_for_me" string="Pending for me" domain="[('is_pending_for_me', '=', True)]"/>
+                    <separator/>
+                    <filter name="draft" string="Waiting for the applicant's form" domain="[('state', '=', 'draft')]"/>
+                    <filter name="in_progress" string="In process" domain="[('state', '=', 'in_progress')]"/>
+                    <filter name="documentation" string="Pending documentation" domain="[('state', '=', 'documentation')]"/>
+                    <filter name="issued" string="Issued" domain="[('state', '=', 'issued')]"/>
+                    <filter name="rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
+                    <filter name="cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_state" string="State" context="{'group_by': 'state'}"/>
+                        <filter name="group_by_type" string="Certificate type" context="{'group_by': 'type_id'}"/>
+                        <filter name="group_by_step" string="Current step" context="{'group_by': 'step_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_certificate_wizard_form" model="ir.ui.view">
+            <field name="name">ems.certificate.wizard.form</field>
+            <field name="model">ems.certificate.wizard</field>
+            <field name="arch" type="xml">
+                <form>
+                    <field name="certificate_id" invisible="1"/>
+                    <field name="mode" invisible="1"/>
+                    <field name="message" placeholder="Write it here..."/>
+                    <div class="text-muted" invisible="mode != 'info'">
+                        <i class="fa fa-info-circle me-1"/>The applicant receives it by email, with a link where they can
+                        answer and attach the documents. The request waits as Pending documentation until they answer.
+                    </div>
+                    <div class="text-muted" invisible="mode != 'reject'">
+                        <i class="fa fa-info-circle me-1"/>The applicant receives it by email.
+                    </div>
+                    <div class="text-muted" invisible="mode != 'return'">
+                        <i class="fa fa-info-circle me-1"/>Whoever did the previous step gets it back with this text.
+                    </div>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Confirm" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_certificate" model="ir.actions.act_window">
+            <field name="name">Certificates</field>
+            <field name="res_model">ems.certificate</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_certificate_search"/>
+            <field name="context">{'search_default_pending_for_me': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">No certificate requests</p>
+                <p>Students request certificates from the portal. For a former student, create the request and send
+                    them the form.</p>
+            </field>
+        </record>
+    </data>
+</odoo>

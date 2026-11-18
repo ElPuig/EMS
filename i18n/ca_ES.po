@@ -49697,14 +49697,6 @@ msgid "Student walkout minute"
 msgstr "Acta de vaga"
 
 #. module: ems
-#: model:mail.template,subject:ems.email_template_student_walkout_head
-msgid ""
-"Student walkout on {{ format_date(object.walkout_date) }}: {{ "
-"object.group_id.name }}"
-msgstr ""
-"Vaga del {{ format_date(object.walkout_date) }}: {{ object.group_id.name }}"
-
-#. module: ems
 #: model:mail.template,subject:ems.email_template_student_walkout_result
 msgid "Student walkout on {{ format_date(object.walkout_id.walkout_date) }}: result"
 msgstr "Inassistència col·lectiva del {{ format_date(object.walkout_id.walkout_date) }}: resultat"
@@ -53479,6 +53471,7 @@ msgid "The attached document does not support the proposal"
 msgstr "El document adjunt no justifica la proposta"
 
 #. module: ems
+#: model:mail.template,subject:ems.email_template_student_walkout_head
 #: model:mail.template,subject:ems.email_template_student_walkout_tutor
 msgid "Student walkout on {{ format_date(object.walkout_date) }}: {{ object.group_id.name }}"
 msgstr "Inassistència col·lectiva del {{ format_date(object.walkout_date) }}: {{ object.group_id.name }}"

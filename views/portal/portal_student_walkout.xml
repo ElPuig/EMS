@@ -194,7 +194,7 @@
                             The group has decided to walk out (<t t-esc="walkout.group_yes_count"/> yes,
                             <t t-esc="walkout.group_no_count"/> no, <t t-esc="walkout.group_abstain_count"/> abstentions).
                         </p>
-                        <p class="text-muted small">Joining the collective decision not to attend class is your own decision and nobody can revoke it: the classes of that day do not count as absences, and your name appears in the minute. If you are a minor, your family is asked to acknowledge receipt and say whether it agrees. You can change your answer until <t t-esc="walkout.format_local_datetime(walkout.join_until)"/>.</p>
+                        <p class="text-muted small">Joining the collective decision not to attend class is your own decision and nobody can revoke it: the classes of that day do not count as absences, and your name appears in the minute. If you are a minor, your family is asked to acknowledge receipt and say whether it agrees, for merely informative purposes. You can change your answer until <t t-esc="walkout.format_local_datetime(walkout.join_until)"/>.</p>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="joins" id="joins_yes" value="yes" required="required" t-att-checked="line.join_answered and line.joins"/>
                             <label class="form-check-label" for="joins_yes">Yes, I join it</label>
@@ -210,7 +210,7 @@
                      only to know that it is aware and agrees (issue #844). -->
                 <div t-if="line and line.joins and line.needs_ratification"
                      t-attf-class="alert mb-4 o_ems_walkout_ratification alert-#{'success' if line.ratification == 'ratified' else 'info'}">
-                    <t t-if="line.ratification == 'ratified'">Your family has acknowledged receipt and agrees that you join.</t>
+                    <t t-if="line.ratification == 'ratified'">Your family has acknowledged receipt and agrees that you join. We will not notify them of any absence from class that day, as they are already aware.</t>
                     <t t-elif="line.ratification == 'refused'">Your family has acknowledged receipt and does not agree that you join the walkout. You can still join it with no penalty for missed classes, but we will have to tell your family that you did not attend, so that it is aware.</t>
                     <t t-else="">As you are a minor, your family will be asked to acknowledge receipt and to say whether it agrees that you join the walkout. If your family does not say that it agrees, you can still join it with no penalty for missed classes, but we will have to tell your family that you did not attend, so that it is aware.</t>
                 </div>

@@ -95,7 +95,7 @@
                             until <strong t-out="object.walkout_id.format_local_datetime(object.walkout_id.join_until)"/>. The classes
                             of that day of the students who join the collective decision not to attend class do not count as
                             absences, and their names appear in the minute. Nobody can revoke your decision: if you are a
-                            minor, your family is asked to acknowledge receipt and say whether it agrees.
+                            minor, your family is asked to acknowledge receipt and say whether it agrees, for merely informative purposes.
                         </p>
                         <p>
                             Kind regards,<br/>

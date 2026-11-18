@@ -7,22 +7,22 @@ from odoo.tests.common import TransactionCase, tagged
 from .common import create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email
 from .test_erasmus import PDF
 
-# Per teacher: (panel rating concreteness/relevance, last staff mobility, merits, declared language,
-# centre start). Every panel member who rates gives the same rating. Totals (art. 11 of the staff
+# Per teacher: (panel rating concreteness/relevance/activity of proposal A, last staff mobility, merits,
+# declared language, centre start). Every panel member who rates gives the same rating. Totals (art. 11 of the staff
 # call): 1. plan + 2. last mobility + 3. projects + 4. languages + 5. seniority + 6. internationalisation.
 NEVER, OLDER, TWO_COURSES, RECENT = 'never', 'older', 'two_courses', 'recent'
 TEACHERS = {
-    'best': (('1', '1'), NEVER, ('project_coordination', 'project_collaboration', 'internationalisation',
-                                 'internationalisation'), 'c1', 'y5_old'),   # 2 + 1.5 + 1.5 + 1.5 + 2 + 1 = 9.5
-    'chief': (('1', '0.5'), OLDER, ('project_collaboration',), 'b2', 'y2'),  # 1.5 + 1.5 + 0.5 + 1 + 1.5 = 6
-    'senior_old': (('1', '0.5'), TWO_COURSES, (), 'none', 'y5_old'),        # 1.5 + 0.5 + 2 = 4, since 2000
-    'senior_new': (('1', '0.5'), TWO_COURSES, (), 'none', 'y5_new'),        # the same, 6 years only
-    'plan_hi': (('1', '1'), RECENT, (), 'none', 'y2'),                      # 2 + 1.5 = 3.5
-    'plan_lo': (('0.5', '0.5'), RECENT, ('project_collaboration',), 'none', 'y5_new'),  # 1 + 0.5 + 2 = 3.5
-    'claim': (('0.5', '0'), NEVER, (), 'none', 'y1'),                       # 0.5 + 1.5 + 1 = 3; C1 claimed: 4.5
-    'draw_1': (('0.5', '0.5'), RECENT, (), 'none', 'y1'),                   # 1 + 1 = 2
-    'draw_2': (('0.5', '0.5'), RECENT, (), 'none', 'y1'),                   # the same: drawn
-    'fix': (('0.5', '0.5'), RECENT, (), 'none', 'y0'),                      # 1, after correcting the CV
+    'best': (('1', '1', '1'), NEVER, ('project_coordination', 'project_collaboration', 'internationalisation',
+                                      'internationalisation'), 'c1', 'y5_old'),  # 3 + 1 + 1 + 1.5 + 2 + 1 = 9.5
+    'chief': (('1', '0.5', '1'), OLDER, ('project_collaboration',), 'b2', 'y2'),  # 2.5 + 1 + 0.5 + 1 + 1.5 = 6.5
+    'senior_old': (('1', '0.5', '1'), TWO_COURSES, (), 'none', 'y5_old'),        # 2.5 + 0.5 + 2 = 5, since 2000
+    'senior_new': (('1', '0.5', '1'), TWO_COURSES, (), 'none', 'y5_new'),        # the same, 6 years only
+    'plan_hi': (('1', '1', '1'), RECENT, (), 'none', 'y2'),                      # 3 + 1.5 = 4.5
+    'plan_lo': (('0.5', '0.5', '1'), RECENT, ('project_collaboration',), 'none', 'y5_new'),  # 2 + 0.5 + 2 = 4.5
+    'claim': (('1', '1', '0'), NEVER, (), 'none', 'y1'),     # a course: 2 + 1 + 1 = 4; C1 claimed: 5.5
+    'draw_1': (('0.5', '0.5', '1'), RECENT, (), 'none', 'y1'),                   # 2 + 1 = 3
+    'draw_2': (('0.5', '0.5', '1'), RECENT, (), 'none', 'y1'),                   # the same: drawn
+    'fix': (('0.5', '0.5', '1'), RECENT, (), 'none', 'y0'),                      # 2, after correcting the CV
 }
 PLAN = {'proposal_a': 'E2E proposal A: job shadowing at a VET school in Porto, in June',
         'proposal_b': 'E2E proposal B: an English course in Malta, in July'}
@@ -112,12 +112,12 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
     def _team(self, application):
         return application.with_user(self.technician)
 
-    def _rate(self, application, concreteness, relevance):
+    def _rate(self, application, concreteness, relevance, activity='1'):
         """Each panel member rates from *My plan ratings*, as themselves."""
         ratings = application.sudo().plan_rating_ids.filtered(lambda rating: not rating.abstention_reason)
         for rating in ratings:
             mine = rating.with_user(rating.evaluator_id)
-            mine.write({'concreteness': concreteness, 'relevance': relevance})
+            mine.write({'concreteness': concreteness, 'relevance': relevance, 'activity_kind': activity})
             mine.action_submit()
 
     def _resolution(self, kind, **vals):
@@ -235,7 +235,7 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         self.assertFalse(self.chief_a.has_group('ems.group_erasmus_evaluator'), "No interview to score.")
         for name, (rating, *_rest) in TEACHERS.items():
             self._rate(apps[name], *rating)
-        self.assertEqual(apps['best'].plan_score, 2.0)
+        self.assertEqual(apps['best'].plan_score, 3.0)
         self.assertTrue(apps['chief'].plan_complete, "Rated by the other three.")
 
         # 6. The team's criteria: merits (3, 6) reviewed for everyone; criteria 2, 4, 5 as declared.
@@ -243,10 +243,10 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
             self._team(apps[name]).write({
                 'merit_ids': [(0, 0, {'kind': kind, 'description': 'E2E merit'}) for kind in merits],
                 'merits_checked': True})
-        expected = {'best': 9.5, 'chief': 6.0, 'senior_old': 4.0, 'senior_new': 4.0, 'plan_hi': 3.5, 'plan_lo': 3.5,
-                    'claim': 3.0, 'draw_1': 2.0, 'draw_2': 2.0, 'fix': 1.0}
+        expected = {'best': 9.5, 'chief': 6.5, 'senior_old': 5.0, 'senior_new': 5.0, 'plan_hi': 4.5, 'plan_lo': 4.5,
+                    'claim': 4.0, 'draw_1': 3.0, 'draw_2': 3.0, 'fix': 2.0}
         self.assertEqual({name: apps[name].score_total for name in expected}, expected)
-        self.assertEqual((apps['best'].score_projects, apps['best'].score_internationalisation), (1.5, 1.0))
+        self.assertEqual((apps['best'].score_projects, apps['best'].score_internationalisation), (1.0, 1.0))
 
         # 7. One ranking: the plan breaks a tie, then the seniority (since 2000 before 6 years), then a draw.
         self.assertEqual([apps[name].rank for name in ('best', 'chief', 'senior_old', 'senior_new', 'plan_hi',
@@ -299,7 +299,7 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         self._team(apps['claim']).language_level = 'c1'
         claim.write({'response': 'Accepted: C1 certificate counted (criterion 4)', 'outcome': 'upheld'})
         claim.action_resolve()
-        self.assertEqual((apps['claim'].score_total, apps['claim'].rank), (4.5, 3))
+        self.assertEqual((apps['claim'].score_total, apps['claim'].rank), (5.5, 3))
 
         # 10. Definitive list, once the claims period is over: results set, offers to the selected.
         with self.assertRaises(UserError, msg="Not before the claims deadline."):
@@ -352,12 +352,12 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         with self.assertRaises(ValidationError, msg="Only a project of the call's places."):
             best.project_id = other
 
-        # 12. Rectification: plan_hi's project coordination had been missed (+1: 4.5, ahead of claim
+        # 12. Rectification: plan_hi's project coordination had been missed (+1: 5.5, ahead of claim
         # by the plan). Three people already accepted: selecting plan_hi too would leave four people
         # for three places, so it cannot be published until the team adds a place.
         self._team(apps['plan_hi']).write({'merit_ids': [(0, 0, {'kind': 'project_coordination',
                                                                  'description': 'E2E missed merit'})]})
-        self.assertEqual((apps['plan_hi'].score_total, apps['plan_hi'].rank, apps['claim'].rank), (4.5, 3, 4))
+        self.assertEqual((apps['plan_hi'].score_total, apps['plan_hi'].rank, apps['claim'].rank), (5.5, 3, 4))
         rectification = self._resolution('rectification', notes='Project coordination of plan_hi counted')
         self.assertTrue(rectification.places_warning)
         with self.assertRaises(UserError):
@@ -393,4 +393,4 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         call.with_user(self.technician).action_send_to_panel()
         self.assertFalse(self.users['chief'].has_group('ems.group_erasmus_panel'), "Nothing to rate.")
         self._rate(apps['best'], '1', '0.5')
-        self.assertEqual((apps['best'].plan_score, apps['best'].plan_complete), (1.5, True))
+        self.assertEqual((apps['best'].plan_score, apps['best'].plan_complete), (2.5, True))

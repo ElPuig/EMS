@@ -57,9 +57,9 @@ En la pestaña **Baremación** de la solicitud, EMS muestra lo que ha declarado 
 
 | Criterio | Sale de | Se corrige en | Puntos |
 |---|---|---|---|
-| 1. Plan de movilidad | La media de la comisión | - | Hasta 2 |
-| 2. Última movilidad de personal | **Última movilidad de personal declarada** (el curso del mes indicado) | **Corrección** | Nunca o hace más de dos cursos 1,5; hace dos cursos 0,5; el curso pasado o el actual 0 |
-| 3. Proyectos del centro | Los **Méritos** que registras: cada colaboración 0,5, cada coordinación 1 | - | Hasta 1,5 |
+| 1. Plan de movilidad | La media de la comisión | - | Hasta 3 (1 de ellos por un job shadowing o una docencia en la propuesta A) |
+| 2. Última movilidad de personal | **Última movilidad de personal declarada** (el curso del mes indicado) | **Corrección** | Nunca o hace más de dos cursos 1; hace dos cursos 0,5; el curso pasado o el actual 0 |
+| 3. Proyectos del centro | Los **Méritos** que registras: cada colaboración 0,5, cada coordinación 1 | - | Hasta 1 |
 | 4. Idiomas | **Certificado de idioma declarado** | **Corrección** | B2 1; C1 1,5; C2 2 |
 | 5. Antigüedad | **Antigüedad declarada** (en la fecha de cierre) | **Corrección** | Menos de 1 año 0; de 1 a 2 años 1; de 2 a 5 años 1,5; 5 años o más 2 |
 | 6. Internacionalización | Los **Méritos** que registras: cada actividad 0,5 | - | Hasta 1 |

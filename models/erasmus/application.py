@@ -62,8 +62,9 @@ STAFF_SCORE_FIELDS = ('score_plan', 'score_last_mobility', 'score_projects', 'sc
 PANEL_PENDING_HIDDEN = ('plan_score', 'score_total') + STAFF_SCORE_FIELDS
 # Criterion 4 of the staff call: from B2, the highest certificate.
 STAFF_LANGUAGE_SCORES = {'b2': 1.0, 'c1': 1.5, 'c2': 2.0}
-# Criterion 2: the last staff mobility. Criterion 5: continuous seniority at the closing date.
-LAST_MOBILITY_SCORES = {'never': 1.5, 'older': 1.5, 'two_courses': 0.5, 'recent': 0.0}
+# Criterion 2: the last staff mobility (max 1, and criterion 3 max 1, since 2026-11-18: the point
+# went to the activity of the mobility plan, criterion 1). Criterion 5: continuous seniority at the closing date.
+LAST_MOBILITY_SCORES = {'never': 1.0, 'older': 1.0, 'two_courses': 0.5, 'recent': 0.0}
 SENIORITY_SCORES = {'y0': 0.0, 'y1': 1.0, 'y2': 1.5, 'y5': 2.0}
 LAST_MOBILITY_BANDS = [('never', "Never"), ('older', "More than two courses ago"), ('two_courses', "Two courses ago"),
                        ('recent', "Last course or this one")]
@@ -412,7 +413,7 @@ class EmsErasmusApplication(models.Model):
             'score_plan': self.plan_score,
             'score_last_mobility': LAST_MOBILITY_SCORES.get(self._ems_staff_last_mobility(), 0.0),
             'score_projects': min(sum(merits.filtered(lambda merit: merit.kind in PROJECT_MERITS).mapped('points')),
-                                  1.5),
+                                  1.0),
             'score_staff_language': STAFF_LANGUAGE_SCORES.get(self._ems_staff_language_level(), 0.0),
             'score_seniority': SENIORITY_SCORES.get(self._ems_staff_seniority(), 0.0),
             'score_internationalisation': min(

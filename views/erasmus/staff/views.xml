@@ -457,14 +457,16 @@
                 <form string="My application" class="o_field_highlight">
                     <field name="application_id" invisible="1"/>
                     <!-- Annex 1 of the staff call (adriamt, 2026-11-13): what to learn goes inside each
-                         proposal, with the rules' own examples. -->
+                         proposal, with the rules' own examples. Since 2026-11-18 a job shadowing or teaching
+                         in proposal A scores one more point (annex 2), so it is said here and A's example is
+                         the job shadowing. -->
                     <separator string="Mobility plan"/>
-                    <p class="text-muted">The mobility plan is the training activity, the destination and the dates of your mobility. Give two proposals: B is in case A can't be done. In each one, say what you want to learn.</p>
+                    <p class="text-muted">The mobility plan is the training activity, the destination and the dates of your mobility. Give two proposals: B is in case A can't be done. In each one, say what you want to learn. A job shadowing or a teaching assignment in proposal A scores one more point than a course.</p>
                     <group>
                         <field name="proposal_a"
-                               placeholder="E.g. An English course at an academy in Bologna (Italy), in July, to improve my language skills."/>
-                        <field name="proposal_b"
                                placeholder="E.g. Job shadowing at a VET school in Porto (Portugal), in June, to see how they organise dual training."/>
+                        <field name="proposal_b"
+                               placeholder="E.g. An English course at an academy in Bologna (Italy), in July, to improve my language skills."/>
                     </group>
                     <group string="About you">
                         <field name="declared_never_staff_mobility"/>

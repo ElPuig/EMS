@@ -868,7 +868,7 @@ erDiagram
 | Model | Purpose |
 |---|---|
 | `ems.erasmus.call.panel` | A panel member of a staff call (user, post), copied when the call is duplicated. |
-| `ems.erasmus.plan_rating` | One panel member's rating of one application's mobility plan (annex 2, criterion 1 "Mobility plan" since 2026-11-13: `concreteness` and `relevance` (to the job), each up to 1 point; their selection labels are the annex's descriptions, their keys the points, 1 / 0.5 / 0). The old `transfer` aspect was removed with no migration: the selection keys are the same, and no staff call had reached the panel in production. Unique per (application, panel member). Inherits `ems.erasmus.evaluation`. |
+| `ems.erasmus.plan_rating` | One panel member's rating of one application's mobility plan (annex 2, criterion 1 "Mobility plan": `concreteness` and `relevance` (to the job), each 1 / 0.5 / 0 points, and, since 2026-11-18, `activity_kind`, the activity of proposal A, 1 for a job shadowing or a teaching assignment and 0 for a course, so that the centre favours them over courses (adriamt); max 3. Their selection labels are the annex's descriptions, their keys the points). The panel reads it from proposal A's text: the application stores no activity type, which is only chosen on the mobility after accepting the place, and nothing checks it against that later choice (adriamt, 2026-11-18: only the application counts). The old `transfer` aspect was removed with no migration: the selection keys are the same, and no staff call had reached the panel in production. Unique per (application, panel member). Inherits `ems.erasmus.evaluation`. |
 | `ems.erasmus.application.merit` | A merit of criteria 3 (centre project: collaboration 0.5, coordination 1) or 6 (internationalisation activity 0.5), with its justification. |
 
 ### Application form
@@ -948,9 +948,9 @@ read only); the rating shows those files (`plan_attachment_ids`). Nothing else o
 
 | | Criterion | Field(s) | Points |
 |---|---|---|---|
-| 1 | Mobility plan | `plan_score` → `score_plan` | max 2 |
-| 2 | Last staff mobility | `last_staff_mobility` (team correction) else `declared_last_staff_mobility` → `score_last_mobility` | never / older 1.5, two courses ago 0.5, recent 0 |
-| 3 | Centre projects | `merit_ids` (project kinds) → `score_projects` | sum, max 1.5 |
+| 1 | Mobility plan | `plan_score` → `score_plan` | max 3 |
+| 2 | Last staff mobility | `last_staff_mobility` (team correction) else `declared_last_staff_mobility` → `score_last_mobility` | never / older 1, two courses ago 0.5, recent 0 |
+| 3 | Centre projects | `merit_ids` (project kinds) → `score_projects` | sum, max 1 |
 | 4 | Languages | `language_level` (checked by the team) else `declared_language_level` (the applicant's) → `score_staff_language` | B2 1, C1 1.5, C2 2 (B1 0) |
 | 5 | Seniority | `seniority` (team correction) else `declared_seniority` → `score_seniority` | < 1 year 0, 1-2 1, 2-5 1.5, ≥ 5 2 |
 | 6 | Internationalisation | `merit_ids` (internationalisation) → `score_internationalisation` | sum, max 1 |

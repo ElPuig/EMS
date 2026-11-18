@@ -49,7 +49,7 @@ class TestErasmusStaffTour(HttpCase):
         self.start_tour('/odoo/action-ems.action_erasmus_my_plan_ratings', 'ems_erasmus_my_plan_rating',
                         login='test_erasmus_panel_teacher')
         rating = application.plan_rating_ids.filtered(lambda rating: rating.evaluator_id == self.panel_teacher)
-        self.assertEqual((rating.state, rating.score), ('submitted', 1.5))
+        self.assertEqual((rating.state, rating.score), ('submitted', 2.5))
 
     def test_staff_scoring_tour(self):
         application = self._admitted_and_closed()

@@ -99,6 +99,7 @@
                         <group string="Annex 2">
                             <field name="concreteness" widget="radio" readonly="state != 'draft'"/>
                             <field name="relevance" widget="radio" readonly="state != 'draft'"/>
+                            <field name="activity_kind" widget="radio" readonly="state != 'draft'"/>
                             <field name="score"/>
                         </group>
                         <group>

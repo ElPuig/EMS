@@ -229,9 +229,9 @@
                                         <field name="draw_order" invisible="not needs_draw and not draw_order"/>
                                     </group>
                                     <group string="Criteria">
-                                        <field name="score_plan" widget="ems_score_out_of" options="{'max': 2}"/>
-                                        <field name="score_last_mobility" widget="ems_score_out_of" options="{'max': 1.5}"/>
-                                        <field name="score_projects" widget="ems_score_out_of" options="{'max': 1.5}"/>
+                                        <field name="score_plan" widget="ems_score_out_of" options="{'max': 3}"/>
+                                        <field name="score_last_mobility" widget="ems_score_out_of" options="{'max': 1}"/>
+                                        <field name="score_projects" widget="ems_score_out_of" options="{'max': 1}"/>
                                         <field name="score_staff_language" widget="ems_score_out_of" options="{'max': 2}"/>
                                         <field name="score_seniority" widget="ems_score_out_of" options="{'max': 2}"/>
                                         <field name="score_internationalisation" widget="ems_score_out_of" options="{'max': 1}"/>

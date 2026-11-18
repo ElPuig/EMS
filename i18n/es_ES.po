@@ -33450,8 +33450,8 @@ msgstr "Reabre la evaluación antes de cambiar sus puntuaciones."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__score
-msgid "Score (max 2)"
-msgstr "Puntuación (máx. 2)"
+msgid "Score (max 3)"
+msgstr "Puntuación (máx. 3)"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_call__min_score
@@ -52988,11 +52988,9 @@ msgstr ""
 msgid ""
 "The mobility plan is the training activity, the destination and the dates of"
 " your mobility. Give two proposals: B is in case A can't be done. In each "
-"one, say what you want to learn."
-msgstr ""
-"El plan de movilidad es la actividad formativa, el destino y las fechas de "
-"tu movilidad. Indica dos propuestas: la B es por si la A no se puede hacer. "
-"En cada una, di qué quieres aprender."
+"one, say what you want to learn. A job shadowing or a teaching assignment in "
+"proposal A scores one more point than a course."
+msgstr "El plan de movilidad es la actividad formativa, el destino y las fechas de tu movilidad. Indica dos propuestas: la B es por si la A no se puede hacer. En cada una, di qué quieres aprender. Un job shadowing o una estancia de docencia en la propuesta A tiene un punto más que un curso."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
@@ -53483,3 +53481,25 @@ msgstr "Ahora no puedes marcar la ratificación de %(student)s: solo pueden hace
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "%(user)s marked by hand the family's ratification that %(student)s joins the walkout."
 msgstr "%(user)s ha marcado a mano la ratificación de la familia de que %(student)s se adhiere a la huelga."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__activity_kind
+msgid "Activity of proposal A"
+msgstr "Actividad de la propuesta A"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__activity_kind
+msgid ""
+"Annex 2 of the staff call: 1 point for a job shadowing or a teaching "
+"assignment, 0 for a course. Only proposal A counts."
+msgstr "Anexo 2 de la convocatoria del personal: 1 punto para un job shadowing o una estancia de docencia, 0 para un curso. Solo cuenta la propuesta A."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__activity_kind__1
+msgid "1 point: Proposal A is a job shadowing or a teaching assignment."
+msgstr "1 punto: la propuesta A es un job shadowing o una estancia de docencia."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__activity_kind__0
+msgid "0 points: Proposal A is a course."
+msgstr "0 puntos: la propuesta A es un curso."

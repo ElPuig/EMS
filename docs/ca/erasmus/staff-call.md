@@ -57,9 +57,9 @@ A la pestanya **Baremació** de la sol·licitud, l'EMS mostra el que ha declarat
 
 | Criteri | Surt de | Es corregeix a | Punts |
 |---|---|---|---|
-| 1. Pla de mobilitat | La mitjana de la comissió | - | Fins a 2 |
-| 2. Última mobilitat de personal | **Última mobilitat de personal declarada** (el curs del mes indicat) | **Correcció** | Mai o fa més de dos cursos 1,5; fa dos cursos 0,5; el curs passat o l'actual 0 |
-| 3. Projectes del centre | Els **Mèrits** que registres: cada col·laboració 0,5, cada coordinació 1 | - | Fins a 1,5 |
+| 1. Pla de mobilitat | La mitjana de la comissió | - | Fins a 3 (1 d'ells per un job shadowing o una docència a la proposta A) |
+| 2. Última mobilitat de personal | **Última mobilitat de personal declarada** (el curs del mes indicat) | **Correcció** | Mai o fa més de dos cursos 1; fa dos cursos 0,5; el curs passat o l'actual 0 |
+| 3. Projectes del centre | Els **Mèrits** que registres: cada col·laboració 0,5, cada coordinació 1 | - | Fins a 1 |
 | 4. Llengües | **Certificat de llengua declarat** | **Correcció** | B2 1; C1 1,5; C2 2 |
 | 5. Antiguitat | **Antiguitat declarada** (a la data de tancament) | **Correcció** | Menys d'1 any 0; d'1 a 2 anys 1; de 2 a 5 anys 1,5; 5 anys o més 2 |
 | 6. Internacionalització | Els **Mèrits** que registres: cada activitat 0,5 | - | Fins a 1 |

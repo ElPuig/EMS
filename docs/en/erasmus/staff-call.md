@@ -57,9 +57,9 @@ On the application's **Scoring** tab EMS shows what the applicant declared and t
 
 | Criterion | Comes from | Correct it in | Points |
 |---|---|---|---|
-| 1. Mobility plan | The panel's mean | - | Up to 2 |
-| 2. Last staff mobility | **Declared last staff mobility** (the course of the month they gave) | **Correction** | Never or more than two courses ago 1.5; two courses ago 0.5; last course or this one 0 |
-| 3. Centre projects | **Merits** you record: each collaboration 0.5, each coordination 1 | - | Up to 1.5 |
+| 1. Mobility plan | The panel's mean | - | Up to 3 (1 of them for a job shadowing or teaching in proposal A) |
+| 2. Last staff mobility | **Declared last staff mobility** (the course of the month they gave) | **Correction** | Never or more than two courses ago 1; two courses ago 0.5; last course or this one 0 |
+| 3. Centre projects | **Merits** you record: each collaboration 0.5, each coordination 1 | - | Up to 1 |
 | 4. Languages | **Declared language certificate** | **Correction** | B2 1; C1 1.5; C2 2 |
 | 5. Seniority | **Declared seniority** (at the closing date) | **Correction** | Less than 1 year 0; 1 to 2 years 1; 2 to 5 years 1.5; 5 years or more 2 |
 | 6. Internationalisation | **Merits** you record: each activity 0.5 | - | Up to 1 |

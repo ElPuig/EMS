@@ -18,14 +18,17 @@ Cada valoració mostra en pantalla el **pla de mobilitat** de la persona candida
 
 ## 2. Valorar la rúbrica
 
-Per a cada aspecte, tria la descripció que s'ajusta més al pla: són les de l'annex 2 de la convocatòria, i cadascuna comença amb els punts que dona (1, 0,5 o 0).
+Per a cada aspecte, tria la descripció que s'ajusta més al pla: són les de l'annex 2 de la convocatòria, i cadascuna comença amb els punts que dona (1, 0,5 o 0; l'activitat, 1 o 0). El pla és sobre 3.
 
-![La rúbrica del criteri 1: concreció i rellevància per a la feina](../../assets/erasmus/valoracio-pla-rubrica.png)
+![La rúbrica del criteri 1: concreció, rellevància per a la feina i activitat de la proposta A](../../assets/erasmus/valoracio-pla-rubrica.png)
 
 | Aspecte | 1 punt | 0,5 punts | 0 punts |
 |---|---|---|---|
 | Concreció | L'activitat, l'entitat o el curs pel nom, el lloc i les dates | Hi falta l'entitat o el curs, o les dates | Activitat genèrica, sense entitat o curs ni dates |
 | Rellevància per a la feina | Objectiu clar i relacionat amb la feina, el departament o els cicles formatius | L'objectiu és general | No s'explica què es vol aprendre ni la relació amb la feina |
+| Activitat de la proposta A | Un job shadowing o una estada de docència | - | Un curs |
+
+Per a l'activitat només compta la proposta A: el centre dona als job shadowing i a les estades de docència un punt més que als cursos.
 
 Pots escriure les teves notes a **Notes de l'avaluador**.
 

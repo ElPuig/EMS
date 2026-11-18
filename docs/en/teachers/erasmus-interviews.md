@@ -31,7 +31,7 @@ You can write your own notes in **Evaluator's notes**.
 
 Click **Actions > Submit** once every criterion is scored. The task is marked as done. **Actions > Submit and next** submits it and opens the next interview you still have to score.
 
-Until the call's **score correction deadline** you can **Reopen** it and change it. After the deadline it can no longer be changed: if there is a mistake, tell the Erasmus team.
+Until the call's **interview/evaluation deadline** you can **Reopen** it and change it. After the deadline it can no longer be changed: if there is a mistake, tell the Erasmus team.
 
 ---
 

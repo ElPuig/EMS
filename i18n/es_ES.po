@@ -33741,8 +33741,8 @@ msgstr "Solo cuando el certificado no coincide con lo que ha declarado la person
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__interview_deadline
-msgid "Score correction deadline"
-msgstr "Plazo para corregir puntuaciones"
+msgid "Interview/evaluation deadline"
+msgstr "Plazo de entrevistas/evaluación"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application__declared_language_level
@@ -36514,8 +36514,8 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_call__interview_deadline
-msgid "Until when evaluators can reopen and change their interviews or mobility plan ratings, and the due date of the panel's tasks."
-msgstr "Hasta cuándo las personas evaluadoras pueden reabrir y cambiar sus entrevistas o valoraciones de planes de movilidad, y la fecha de vencimiento de las tareas de la comisión."
+msgid "Until when evaluators can reopen and change their interviews (student calls) or their evaluations of mobility plans (staff calls), and the due date of the panel's tasks."
+msgstr "Hasta cuándo las personas evaluadoras pueden reabrir y cambiar sus entrevistas (convocatorias de alumnado) o sus evaluaciones de planes de movilidad (convocatorias de personal), y la fecha de vencimiento de las tareas de la comisión."
 
 #. module: ems
 #: model:mail.template,body_html:ems.email_template_erasmus_proposal_validated
@@ -43003,8 +43003,8 @@ msgstr "Se muestra con las instrucciones, por ejemplo el editor del currículum 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_call__rules_document
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application__rules_document
-msgid "The signed PDF of the call's rules. Applicants download it on the portal with \"Read the call\", and it goes into the project's documents."
-msgstr "El PDF firmado de las bases de la convocatoria. Las personas solicitantes lo descargan en el portal con «Leer la convocatoria», y va a la documentación del proyecto."
+msgid "The signed PDF of the call's rules. Applicants open it on the portal with \"Read the call\", and it goes into the project's documents."
+msgstr "El PDF firmado de las bases de la convocatoria. Las personas solicitantes lo abren en el portal con «Leer la convocatoria», y va a la documentación del proyecto."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_group_registration__strike_count
@@ -55722,3 +55722,21 @@ msgstr "En curso"
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
 msgid "Change my answer"
 msgstr "Cambiar mi respuesta"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/binary.py:0
+msgid "This document is confidential: it can be viewed, not downloaded."
+msgstr "Este documento es confidencial: se puede ver, pero no descargar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/binary.py:0
+msgid "%(user)s viewed the confidential document \"%(file)s\""
+msgstr "%(user)s ha visto el documento confidencial \"%(file)s\""
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_staff_form
+msgid "View the call rules"
+msgstr "Ver las bases de la convocatoria"

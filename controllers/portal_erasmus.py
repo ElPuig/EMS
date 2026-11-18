@@ -277,7 +277,7 @@ class EmsPortalErasmusController(CustomerPortal):
             return request.redirect(self._erasmus_redirect)
         return request.env['ir.binary']._get_stream_from(
             call, 'rules_document', filename_field='rules_filename').get_response(
-            as_attachment=True)
+            as_attachment=False)
 
     # --- issue #685: resolutions and place offers ----------------------------------------------
 

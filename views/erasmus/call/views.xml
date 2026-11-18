@@ -152,6 +152,8 @@
                                 <field name="min_score" invisible="audience == 'staff'"/>
                                 <field name="rules_document" filename="rules_filename"/>
                                 <field name="rules_filename" invisible="1"/>
+                                <button name="action_view_rules" type="object" string="View the call rules"
+                                        class="btn btn-link px-0" icon="fa-file-pdf-o" invisible="not rules_document"/>
                             </group>
                             <group string="Calendar" name="calendar">
                                 <field name="date_open" options="{'show_time': False, 'show_seconds': False}"/>

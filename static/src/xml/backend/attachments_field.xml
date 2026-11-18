@@ -17,7 +17,7 @@
                 <div class="o_ems_attachment_actions d-flex flex-shrink-0 gap-1">
                     <button t-if="file.isViewable" type="button" class="btn btn-link btn-sm p-1 fa fa-eye o_ems_attachment_preview"
                             title="Preview" aria-label="Preview" t-on-click.stop="() => this.onFilePreview(file)"/>
-                    <a class="btn btn-link btn-sm p-1 fa fa-download o_ems_attachment_download"
+                    <a t-if="!viewOnly" class="btn btn-link btn-sm p-1 fa fa-download o_ems_attachment_download"
                        t-att-href="getUrl(file.id)" download="" title="Download" aria-label="Download"/>
                     <button t-if="!props.readonly" type="button" class="btn btn-link btn-sm p-1 fa fa-trash o_ems_attachment_delete"
                             title="Delete" aria-label="Delete" t-on-click.stop="() => this.onFileRemove(file.id)"/>

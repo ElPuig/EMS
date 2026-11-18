@@ -78,7 +78,7 @@ when none does: the students may still be choosing their destination, so it does
 
 The four deadlines after closing are filled in by EMS from `date_close` (`_ems_deadlines()`, the
 same for students' and staff calls): that many days after the closing day (`DEADLINE_DAYS`:
-corrections 7, score correction 14, claims 19, acceptance 25), at 14:00 in the centre
+corrections 7, interview/evaluation 14, claims 19, acceptance 25), at 14:00 in the centre
 (`DEADLINE_HOUR`), moved to the next school day when that day is a weekend, a public holiday or a
 school break (`resource.calendar.leaves._ems_nth_school_days()`, shared with the ex officio
 withdrawal circuit, which reads the holidays once for the four deadlines). `create()` fills the ones not given; `write()` and the onchange of
@@ -199,6 +199,30 @@ stateDiagram-v2
 Every upload adds an attachment to the document line; earlier files are never removed, so every
 version stays. A new upload puts the line back to *Pending review*. The team marks each line
 *Valid* or *Needs changes* (with a comment the applicant sees on the portal).
+
+### Viewing files, confidential ones view only (issue #845)
+
+Every file field of the Erasmus+ views uses the `ems_attachments` widget (eye: Odoo's file viewer;
+download; remove while editable). Odoo's stock `many2many_binary` is no longer used in
+`views/erasmus/`. The call's Bases PDF is a single `Binary` field with its own pencil, download and
+bin, not a many2many, and is left as it is.
+
+A document whose own `confidential` field is set (`ems.erasmus.application.document` and
+`ems.erasmus.project.document`; the view must carry that field, as `column_invisible`) is view only:
+- The widget hides the download link and marks its files `emsViewOnly`; `file_viewer_view_only.js`
+  then hides the viewer's Download and Print buttons and, in a PDF, the reader's own download,
+  print and open buttons.
+- `ir.binary._get_stream_from` (`models/erasmus/binary.py`) refuses the download of such a file when
+  `/web/content` or `/web/image` pass `download_attachments=True` (`?download=true`): the controllers
+  turn the `UserError` into a 404. Without `download` the file is served to whoever the record rules
+  let read it (the Erasmus team and the administration; the Head of Studies and the panel never
+  reach it) and an opening is added to the owner's chatter (the application, or the project):
+  author, file and time, once per person and file within ten minutes. `/web/content` runs on a
+  read-only cursor, so the note is written in a cursor of its own (a write on it would only fail and
+  make Odoo retry the request, with an ERROR in the log). The portal controllers don't set the context key, so an
+  applicant still downloads their own files, and the audit export (`include_confidential`, only the
+  coordinator) reads the files through the ORM, unchanged.
+- Not encrypted: the file is stored as any other, and a screenshot of the screen is still possible.
 
 ## Admission checks
 
@@ -584,7 +608,7 @@ stateDiagram-v2
   other evaluator's, nor anything else of the application. Being assigned adds them to
   `ems.group_erasmus_evaluator` (*Erasmus+ > My participation > Interviews to score*); losing every interview removes it.
   The panel's plan ratings use `ems.group_erasmus_panel` the same way (*Plans to rate*).
-- After the call's `interview_deadline` (label *Score correction deadline*, shared with the plan ratings) the evaluator can no longer change or reopen; the team
+- After the call's `interview_deadline` (label *Interview/evaluation deadline*, shared with the plan ratings) the evaluator can no longer change or reopen; the team
   can still reopen, writing a rectification note (`rectification_note`), posted in the chatter.
 - The application's interview score is the mean of the submitted interviews, complete when every
   assigned interview is submitted and there are two of them, or one with a recorded reason
@@ -852,7 +876,7 @@ what differs:
 | Dissemination | - | Not part of the plan nor of the rubric: the same obligation for everyone, a news item on the website and sharing it at a meeting if needed (two return steps of the checklist) |
 | Identity document of the lists | `res.partner.document_id` / `passport_id` | `hr.employee.identification_id` / `passport_id` (`_ems_identity_document`) |
 | Minimum score | 50 | 0 (set by `create()` and the onchange of `audience`; hidden in the form) |
-| Score correction deadline (`interview_deadline`) | From `date_close` (`_ems_deadlines()`), like every deadline | The same rule: it is the panel's deadline |
+| Interview/evaluation deadline (`interview_deadline`) | From `date_close` (`_ems_deadlines()`), like every deadline | The same rule: it is the panel's deadline |
 
 ```mermaid
 erDiagram

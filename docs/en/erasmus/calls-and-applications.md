@@ -20,7 +20,7 @@ Go to **Erasmus+ > Calls > Calls** and click **New**:
 |---|---|
 | Name | For example, *Erasmus+ internships 2026-27* |
 | Course | The school year of the call |
-| Published call | The PDF of the call, which students can download from the portal |
+| Published call | The PDF of the call, which students open on the portal (in a new tab, without downloading it); in the call, **View the call rules** opens it the same way |
 | Applications open / close | When students can apply. After the closing date nobody can change their application |
 
 The top of the call has two blocks: **Settings** (who it is for, the course, the minimum score and the call's PDF) and **Calendar** (the dates, in the order of the process). EMS fills in the four deadlines after closing from the closing date, at 14:00, and shows them folded under **Deadlines after closing**: click it to see or change them.
@@ -28,7 +28,7 @@ The top of the call has two blocks: **Settings** (who it is for, the course, the
 | Deadline | When EMS sets it | 2026-27 call (closes on Friday 20/11) |
 |---|---|---|
 | Corrections deadline | 7 days after closing | Friday 27/11, 14:00 |
-| Score correction deadline | 14 days after closing | Friday 04/12, 14:00 |
+| Interview/evaluation deadline | 14 days after closing | Friday 04/12, 14:00 |
 | Claims deadline | 19 days after closing | Wednesday 09/12, 14:00 |
 | Acceptance deadline | 25 days after closing | Tuesday 15/12, 14:00 |
 
@@ -51,7 +51,9 @@ The call's tabs are in two blocks: **Selection** (modalities, documents, informa
 
 **Handed in as**: *Files* (any), *PDF only* (the CV: other files are refused) or *A link* (the presentation video: the student pastes the Google Drive link instead of uploading it). **Instructions** and **Instructions link** (e.g. the Europass editor) are shown to the student with the document. A new students' call already brings the CV (PDF), the video (link), the language certificates, and the evidence of fewer opportunities, with their instructions. No family authorisation is asked for to apply: the receipt of a minor's application goes to the family too, and the family accepts the commitment letter once the place is accepted, which authorises taking part.
 
-Tick **Confidential** for documents only the Erasmus team may see, such as the evidence of fewer opportunities.
+Tick **Confidential** for documents only the Erasmus team may see, such as the evidence of fewer opportunities. A confidential file is only **viewed** (the eye on its card opens it on screen): it has no download button, EMS does not serve it as a download either, and every time someone opens it a line (who and when) is added to the application's chatter, once per person and file every ten minutes. The administration also sees it; the Head of Studies and the panel don't. Like any screen, it can still be photographed or captured.
+
+Every other file of an application, mobility or project is also opened on screen with the eye, and downloaded or removed from its card.
 
 **One file** (ticked by default): only the newest file the student uploads counts; the earlier ones are kept and shown as *Earlier version*, and the receipt lists only the newest. Untick it for a document with several files, such as the language certificates (one per language). **Model to download**: a file the student (and the family of a minor) downloads from the portal, fills in and hands in, for example the family authorisation.
 

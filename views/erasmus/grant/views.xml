@@ -78,7 +78,7 @@
                                 <field name="document" filename="document_filename"/>
                                 <field name="document_filename" invisible="1"/>
                                 <field name="paid_date" invisible="state != 'paid'"/>
-                                <field name="receipt_ids" widget="many2many_binary" invisible="not receipt_ids"/>
+                                <field name="receipt_ids" widget="ems_attachments" invisible="not receipt_ids"/>
                             </group>
                         </group>
                         <!-- Issue #791 (11.1): a service is always someone's; otherwise it is a project expense. -->
@@ -239,7 +239,7 @@
                     <field name="state" widget="badge" decoration-warning="state == 'to_pay'"
                            decoration-success="state == 'paid'"/>
                     <field name="paid_date" optional="show"/>
-                    <field name="receipt_ids" string="Receipt" widget="many2many_binary" optional="show"/>
+                    <field name="receipt_ids" string="Receipt" widget="ems_attachments" optional="show"/>
                 </list>
             </field>
         </record>
@@ -302,7 +302,7 @@
                                 <field name="request_date"/>
                                 <field name="paid_date"/>
                                 <field name="paid_by_id"/>
-                                <field name="receipt_ids" widget="many2many_binary"/>
+                                <field name="receipt_ids" widget="ems_attachments"/>
                             </group>
                         </group>
                     </sheet>

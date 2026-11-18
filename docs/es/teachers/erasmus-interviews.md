@@ -31,7 +31,7 @@ Puedes escribir tus observaciones en **Notas del evaluador**.
 
 Haz clic en **Acciones > Enviar** cuando tengas todos los criterios puntuados. La tarea queda hecha. **Acciones > Enviar y siguiente** la envía y abre la siguiente entrevista que aún tienes que puntuar.
 
-Hasta el **plazo para corregir puntuaciones** de la convocatoria puedes **Reabrirla** y cambiarla. Pasado el plazo ya no se puede modificar: si hay un error, avisa al equipo Erasmus.
+Hasta el **plazo de entrevistas/evaluación** de la convocatoria puedes **Reabrirla** y cambiarla. Pasado el plazo ya no se puede modificar: si hay un error, avisa al equipo Erasmus.
 
 ---
 

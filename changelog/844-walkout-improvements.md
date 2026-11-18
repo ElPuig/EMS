@@ -19,6 +19,10 @@
 - The abort wizard no longer cites the Decret 102/2010 and says that a proposal is never aborted because of who calls it or where.
 - The same group-vote route stays: each group's delegate starts the vote (the NOFC will say so; a vote of all the delegates is impossible with morning and afternoon shifts).
 
+## Student walkout form: the two phases shown apart (issue #844):
+- The proposal's list and form no longer show a ticked "the group supports it" as soon as the first yes arrives: the group vote shows as pending until the vote ends, then as supporting or not supporting it.
+- The form groups the proposal, "Phase 1: group vote" and "Phase 2: individual joining" (each with its status, dates and progress as "x / y"; the second also counts the families of the minors who agree, do not agree or have not answered) and "Closing and validation".
+
 ## Student walkout portal: answers confirmed in a pop-up (issue #844):
 - After voting, saying whether one joins, extending the joining or ratifying, the page pops up what was saved and what comes next (`saved=<vote|join|extend|ratified|refused>`), and the joining form and the family's buttons fold under the answer with a "Change my answer" button while joining lasts.
 

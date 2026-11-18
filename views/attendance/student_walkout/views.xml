@@ -63,27 +63,51 @@
                             <field name="rejected_from_state"/>
                             <field name="rejection_details" invisible="not rejection_details"/>
                         </group>
-                        <group>
+                        <group string="Proposal">
                             <group>
                                 <field name="group_ids" widget="many2many_tags"/>
                                 <field name="opener_id"/>
                                 <field name="walkout_date"/>
                                 <field name="walkout_start" options="{'show_seconds': False}"/>
-                                <field name="vote_start" options="{'show_seconds': False}"/>
-                                <field name="vote_until" options="{'show_seconds': False}"/>
-                                <field name="join_start" invisible="not join_start" options="{'show_seconds': False}"/>
-                                <field name="join_until" invisible="not join_until" options="{'show_seconds': False}"/>
-                                <field name="attachment_ids" widget="many2many_binary"/>
                             </group>
                             <group>
+                                <field name="attachment_ids" widget="many2many_binary"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Phase 1: group vote" name="vote_phase">
+                                <field name="vote_phase_state" widget="badge"
+                                       decoration-info="vote_phase_state == 'open'" decoration-success="vote_phase_state == 'closed'"
+                                       decoration-danger="vote_phase_state == 'aborted'"/>
+                                <field name="vote_start" options="{'show_seconds': False}"/>
+                                <field name="vote_until" options="{'show_seconds': False}"/>
                                 <field name="group_yes_count"/>
                                 <field name="group_no_count"/>
                                 <field name="group_abstain_count"/>
+                                <field name="vote_progress"/>
                                 <field name="group_vote_result"/>
-                                <field name="voted_count"/>
-                                <field name="joining_count"/>
+                            </group>
+                            <group string="Phase 2: individual joining" name="join_phase">
+                                <field name="join_phase_state" widget="badge"
+                                       decoration-muted="join_phase_state in ('waiting', 'not_opened')"
+                                       decoration-info="join_phase_state == 'open'" decoration-success="join_phase_state == 'closed'"
+                                       decoration-danger="join_phase_state == 'aborted'"/>
+                                <field name="join_start" invisible="not join_start" options="{'show_seconds': False}"/>
+                                <field name="join_until" invisible="not join_until" options="{'show_seconds': False}"/>
+                                <field name="join_progress" invisible="join_phase_state in ('waiting', 'not_opened')"/>
+                                <field name="join_answered_progress" invisible="join_phase_state in ('waiting', 'not_opened')"/>
+                                <field name="family_agrees_count" invisible="family_agrees_count + family_disagrees_count + family_pending_count == 0"/>
+                                <field name="family_disagrees_count" invisible="family_agrees_count + family_disagrees_count + family_pending_count == 0"/>
+                                <field name="family_pending_count" invisible="family_agrees_count + family_disagrees_count + family_pending_count == 0"/>
+                            </group>
+                        </group>
+                        <group string="Closing and validation" name="closing"
+                               invisible="not (pdf_attachment_id or head_of_studies_id or rejected_by_id)">
+                            <group>
                                 <field name="pdf_attachment_id" invisible="not pdf_attachment_id"/>
                                 <field name="head_of_studies_id" invisible="not head_of_studies_id"/>
+                            </group>
+                            <group>
                                 <field name="rejected_by_id" invisible="not rejected_by_id"/>
                                 <field name="rejected_datetime" invisible="not rejected_datetime" options="{'show_seconds': False}"/>
                             </group>

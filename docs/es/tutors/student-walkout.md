@@ -31,7 +31,7 @@ Los correos te llegan cuando llegan a tu grupo: enseguida si el centro cuenta la
 
 ## Consultar una propuesta
 
-**Asistencia de los estudiantes > Inasistencias colectivas** muestra las propuestas de tus grupos. El formulario muestra el calendario, el motivo, el documento que la justifica, el recuento de votos y, en la pestaña **Alumnado**, quién ha votado (nunca qué), quién se suma y la ratificación de la familia de los alumnos menores de edad.
+**Asistencia de los estudiantes > Inasistencias colectivas** muestra las propuestas de tus grupos. El formulario muestra la propuesta (calendario, motivo y documento que la justifica) y, a continuación, las dos fases por separado. **Fase 1, votación del grupo**: en qué punto está (en proceso o cerrada), las fechas, el recuento de votos, cuántos han votado y el resultado, que sigue pendiente hasta que acaba la votación. **Fase 2, adhesiones individuales**: en qué punto está, las fechas, cuántos se suman y cuántos han respondido y, de los menores que se suman, cuántas familias están de acuerdo, no están de acuerdo o no han respondido. Mientras el grupo no apoya la propuesta, esta fase aparece como no empezada o no abierta. En la pestaña **Alumnado** ves quién ha votado (nunca qué), quién se suma y la respuesta de la familia de los menores.
 
 A la familia de un alumno menor que se suma se le pide en el portal, mientras duran las adhesiones, que acuse recibo y que diga si está de acuerdo. La respuesta solo indica al centro que la familia ha sido informada: es una decisión colectiva del alumnado que nadie puede revocar, tampoco la familia.
 

@@ -31,7 +31,7 @@ The emails reach you when they reach your group: at once when the centre counts 
 
 ## Looking at a proposal
 
-**Student's Attendances > Student walkouts** lists your groups' proposals. The form shows the calendar, the reason, the supporting document, the vote count and, on the **Students** tab, who voted (never what), who joins it, and the family ratification of the minors.
+**Student's Attendances > Student walkouts** lists your groups' proposals. The form shows the proposal (calendar, reason and supporting document) and then the two phases apart. **Phase 1, group vote**: where it is (in progress or closed), its dates, the vote count, how many have voted and its result, which stays pending until the vote ends. **Phase 2, individual joining**: where it is, its dates, how many join and how many have answered and, for the minors who join, how many families agree, do not agree or have not answered. Until the group supports the proposal this phase shows as not started or not opened. On the **Students** tab you see who voted (never what), who joins it, and the family's answer for the minors.
 
 The family of a minor who joins it is asked on the portal, while joining lasts, to acknowledge receipt and to say whether it agrees. The answer only tells the school that the family has been informed: it is a collective decision of the students that nobody can revoke, the family included.
 

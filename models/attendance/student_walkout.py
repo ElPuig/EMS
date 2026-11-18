@@ -114,11 +114,30 @@ class EmsStudentWalkout(models.Model):
     group_supports = fields.Boolean(string="The group supports it", compute='_compute_group_supports')
     # What the screens show of the group vote: `group_supports` alone is true as soon as there is one
     # more yes than no, while the vote is still open (the logic needs it so, _ems_end_group_vote).
-    group_vote_result = fields.Selection(string="Group vote", selection=[
+    group_vote_result = fields.Selection(string="Vote result", selection=[
         ('pending', "Pending"),
         ('supports', "Group supports it"),
         ('does_not_support', "Group does not support it"),
     ], compute='_compute_group_vote_result')
+    # The form shows the two phases apart: where each one is, and its progress as "x / y".
+    vote_phase_state = fields.Selection(string="Vote status", selection=[
+        ('open', "In progress"),
+        ('closed', "Closed"),
+        ('aborted', "Aborted"),
+    ], compute='_compute_phase_states')
+    join_phase_state = fields.Selection(string="Joining status", selection=[
+        ('waiting', "Not started: it opens if the group supports the proposal"),
+        ('open', "In progress"),
+        ('closed', "Closed"),
+        ('not_opened', "Not opened: the group does not support it"),
+        ('aborted', "Aborted"),
+    ], compute='_compute_phase_states')
+    vote_progress = fields.Char(string="Voted / may vote", compute='_compute_line_counts')
+    join_progress = fields.Char(string="Join / students", compute='_compute_line_counts')
+    join_answered_progress = fields.Char(string="Answered / students", compute='_compute_line_counts')
+    family_agrees_count = fields.Integer(string="Families that agree", compute='_compute_line_counts')
+    family_disagrees_count = fields.Integer(string="Families that do not agree", compute='_compute_line_counts')
+    family_pending_count = fields.Integer(string="Families that have not answered", compute='_compute_line_counts')
     line_ids = fields.One2many(string="Students", comodel_name='ems.student_walkout.line', inverse_name='walkout_id',
                                readonly=True)
     joining_student_ids = fields.Many2many(string="Students who join", comodel_name='res.partner',
@@ -164,7 +183,26 @@ class EmsStudentWalkout(models.Model):
             else:
                 walkout.group_vote_result = 'supports' if walkout.group_supports else 'does_not_support'
 
-    @api.depends('line_ids.joins', 'line_ids.voted', 'line_ids.has_portal', 'line_ids.join_answered')
+    @api.depends('state', 'rejected_from_state', 'group_yes_count', 'group_no_count')
+    def _compute_phase_states(self):
+        """Where each phase is: the vote and the joining that follows it when the group supports it."""
+        for walkout in self:
+            from_state = walkout.rejected_from_state if walkout.state == 'rejected' else False
+            if walkout.state == 'cancelled' or from_state == 'voting':
+                walkout.vote_phase_state = walkout.join_phase_state = 'aborted'
+                continue
+            walkout.vote_phase_state = 'open' if walkout.state == 'voting' else 'closed'
+            if walkout.state == 'voting':
+                walkout.join_phase_state = 'waiting'
+            elif not walkout.group_supports:
+                walkout.join_phase_state = 'not_opened'
+            elif walkout.state == 'joining':
+                walkout.join_phase_state = 'open'
+            else:
+                walkout.join_phase_state = 'aborted' if from_state == 'joining' else 'closed'
+
+    @api.depends('line_ids.joins', 'line_ids.voted', 'line_ids.has_portal', 'line_ids.join_answered',
+                 'line_ids.needs_ratification', 'line_ids.ratification')
     def _compute_line_counts(self):
         for walkout in self:
             joining = walkout.line_ids.filtered('joins')
@@ -173,6 +211,13 @@ class EmsStudentWalkout(models.Model):
             walkout.voter_count = len(walkout.line_ids.filtered('has_portal'))
             walkout.voted_count = len(walkout.line_ids.filtered('voted'))
             walkout.join_answered_count = len(walkout.line_ids.filtered('join_answered'))
+            walkout.vote_progress = f"{walkout.voted_count} / {walkout.voter_count}"
+            walkout.join_progress = f"{walkout.joining_count} / {len(walkout.line_ids)}"
+            walkout.join_answered_progress = f"{walkout.join_answered_count} / {len(walkout.line_ids)}"
+            minors = joining.filtered('needs_ratification')
+            walkout.family_agrees_count = len(minors.filtered(lambda line: line.ratification == 'ratified'))
+            walkout.family_disagrees_count = len(minors.filtered(lambda line: line.ratification == 'refused'))
+            walkout.family_pending_count = len(minors.filtered(lambda line: line.ratification == 'pending'))
 
     @api.depends('state', 'join_until')
     @api.depends_context('uid')

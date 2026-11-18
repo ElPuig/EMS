@@ -547,6 +547,29 @@ class TestStudentWalkout(TransactionCase):
         aborted.sudo().write({'state': 'rejected', 'rejected_from_state': 'voting'})
         self.assertFalse(aborted.group_vote_result, "Aborted before the vote ended: no result.")
 
+    def test_the_form_tells_the_two_phases_apart(self):
+        walkout = open_walkout(self)
+        self.assertEqual((walkout.vote_phase_state, walkout.join_phase_state), ('open', 'waiting'))
+        self._supported(walkout)
+        self.assertEqual((walkout.vote_phase_state, walkout.join_phase_state), ('closed', 'open'))
+        self._join(walkout, self.subdelegate)  # a minor: its family is asked
+        self.assertEqual((walkout.family_agrees_count, walkout.family_disagrees_count, walkout.family_pending_count),
+                         (0, 0, 1))
+        ratify(walkout, self.family, self.subdelegate)
+        self.assertEqual((walkout.family_agrees_count, walkout.family_pending_count), (1, 0))
+        self.assertEqual(walkout.join_progress, f"{walkout.joining_count} / {len(walkout.line_ids)}")
+        self.assertEqual(walkout.vote_progress, f"{walkout.voted_count} / {walkout.voter_count}")
+        end_phase(walkout)
+        self.assertEqual(walkout.join_phase_state, 'closed')
+        other = open_walkout(self, days=8)
+        self._vote(other, self.delegate, 'yes')
+        self._vote(other, self.subdelegate, 'no')
+        end_phase(other)
+        self.assertEqual((other.vote_phase_state, other.join_phase_state), ('closed', 'not_opened'))
+        aborted = open_walkout(self, days=9)
+        aborted.sudo().write({'state': 'rejected', 'rejected_from_state': 'joining', 'group_yes_count': 2})
+        self.assertEqual((aborted.vote_phase_state, aborted.join_phase_state), ('closed', 'aborted'))
+
     def test_students_may_answer_before_the_phase_starts(self):
         """The email may wait for the group's next class, but the portal lets them vote meanwhile
         (e.g. on the weekend)."""

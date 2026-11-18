@@ -31,7 +31,7 @@ Els correus t'arriben quan arriben al teu grup: de seguida si el centre compta l
 
 ## Consultar una proposta
 
-**Assistència dels estudiants > Inassistències col·lectives** mostra les propostes dels teus grups. El formulari mostra el calendari, el motiu, el document que la justifica, el recompte de vots i, a la pestanya **Alumnat**, qui ha votat (mai què), qui s'hi suma i la ratificació de la família dels alumnes menors d'edat.
+**Assistència dels estudiants > Inassistències col·lectives** mostra les propostes dels teus grups. El formulari mostra la proposta (calendari, motiu i document que la justifica) i, a continuació, les dues fases per separat. **Fase 1, votació del grup**: en quin punt és (en procés o tancada), les dates, el recompte de vots, quants han votat i el resultat, que continua pendent fins que acaba la votació. **Fase 2, adhesions individuals**: en quin punt és, les dates, quants s'hi sumen i quants han respost i, dels menors que s'hi sumen, quantes famílies hi estan d'acord, no hi estan d'acord o no han respost. Mentre el grup no dona suport a la proposta, aquesta fase surt com a no començada o no oberta. A la pestanya **Alumnat** veus qui ha votat (mai què), qui s'hi suma i la resposta de la família dels menors.
 
 A la família d'un alumne menor que s'hi suma se li demana al portal, mentre duren les adhesions, que n'acusi rebuda i que digui si hi està d'acord. La resposta només indica al centre que la família n'ha estat informada: és una decisió col·lectiva dels alumnes que ningú no pot revocar, tampoc la família.
 

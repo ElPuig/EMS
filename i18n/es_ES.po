@@ -5756,6 +5756,8 @@ msgstr "Importar alumnos desde Esfera"
 #: model:ir.model.fields.selection,name:ems.selection__ems_notice_line__display_status__started
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__in_progress
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__state__in_progress
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__vote_phase_state__open
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__join_phase_state__open
 msgid "In progress"
 msgstr "En proceso"
 
@@ -19967,8 +19969,10 @@ msgid "Close attendance"
 msgstr "Cerrar la asistencia"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence__state__closed model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
-#: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__state__closed model:ir.model.fields.selection,name:ems.selection__ems_quality_followup__state__closed
+#: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence__state__closed
+#: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__state__closed
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_followup__state__closed
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__state__closed
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__state__done
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__state__done
@@ -19976,6 +19980,8 @@ msgstr "Cerrar la asistencia"
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__rejected_from_state__closed
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__phase__done
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__vote_phase_state__closed
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__join_phase_state__closed
 msgid "Closed"
 msgstr "Cerrada"
 
@@ -34249,6 +34255,7 @@ msgstr "Se tramita con los Mossos d'Esquadra."
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__proposal_state
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__state__proposal
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
 msgid "Proposal"
 msgstr "Propuesta"
 
@@ -50173,7 +50180,6 @@ msgstr "Anula la propuesta"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
-#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__group_vote_result
 msgid "Group vote"
 msgstr "Votación del grupo"
 
@@ -50277,6 +50283,8 @@ msgstr "Abortar la propuesta de inasistencia colectiva"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__vote_phase_state__aborted
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__join_phase_state__aborted
 msgid "Aborted"
 msgstr "Abortada"
 
@@ -53606,3 +53614,73 @@ msgstr ""
 "                    </div>\n"
 "                \n"
 "            "
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__group_vote_result
+msgid "Vote result"
+msgstr "Resultado de la votación"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__family_agrees_count
+msgid "Families that agree"
+msgstr "Familias que están de acuerdo"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__family_disagrees_count
+msgid "Families that do not agree"
+msgstr "Familias que no están de acuerdo"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__family_pending_count
+msgid "Families that have not answered"
+msgstr "Familias que no han respondido"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__join_phase_state__waiting
+msgid "Not started: it opens if the group supports the proposal"
+msgstr "Aún no ha empezado: se abre si el grupo apoya la propuesta"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__join_phase_state__not_opened
+msgid "Not opened: the group does not support it"
+msgstr "No se ha abierto: el grupo no la apoya"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
+msgid "Phase 1: group vote"
+msgstr "Fase 1: votación del grupo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
+msgid "Phase 2: individual joining"
+msgstr "Fase 2: adhesiones individuales"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
+msgid "Closing and validation"
+msgstr "Cierre y validación"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__vote_phase_state
+msgid "Vote status"
+msgstr "Estado de la votación"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__join_phase_state
+msgid "Joining status"
+msgstr "Estado de las adhesiones"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__vote_progress
+msgid "Voted / may vote"
+msgstr "Han votado / pueden votar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__join_progress
+msgid "Join / students"
+msgstr "Se suman / alumnos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__join_answered_progress
+msgid "Answered / students"
+msgstr "Han respondido / alumnos"

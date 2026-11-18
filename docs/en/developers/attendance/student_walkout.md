@@ -202,6 +202,10 @@ erDiagram
 | `can_abort` / `can_reject` / `can_validate` | `Boolean` (computed per user) | Whether the user may abort it / not validate it / validate it (`_ems_user_may_abort` / `_ems_user_may_reject` / `_ems_user_may_validate`) |
 | `group_yes_count` / `group_no_count` / `group_abstain_count` | `Integer` | The anonymous group vote: only these counters, never who voted what |
 | `group_supports` | `Boolean` (computed) | More yes than no among the votes cast (a tie does not support it) |
+| `group_vote_result` | `Selection` (computed) | What the screens show of the vote: `pending` while it is open (`group_supports` alone is true with the first yes), then `supports` / `does_not_support`; empty when aborted or cancelled before it ended |
+| `vote_phase_state` / `join_phase_state` | `Selection` (computed) | Where each phase is (the form's "Phase 1" and "Phase 2" blocks): in progress, closed, aborted; the joining also `waiting` (the vote is open) or `not_opened` (the group does not support it) |
+| `vote_progress` / `join_progress` / `join_answered_progress` | `Char` (computed) | "x / y": voted of may vote; join of students; answered of students |
+| `family_agrees_count` / `family_disagrees_count` / `family_pending_count` | `Integer` (computed) | Of the minors who join, the families that agree, do not agree or have not answered |
 | `joining_student_ids` | `Many2many` (computed) | The students whose line says they join |
 | `pdf_attachment_id` | `Many2one → ir.attachment` | The minute, rendered on closing |
 

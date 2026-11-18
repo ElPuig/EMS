@@ -53656,3 +53656,9 @@ msgstr "Han respost / alumnes"
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__join_phase_state__open
 msgid "Ongoing"
 msgstr "En curs"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
+msgid "Change my answer"
+msgstr "Canvia la resposta"

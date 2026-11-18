@@ -121,13 +121,13 @@ class EmsStudentWalkout(models.Model):
     ], compute='_compute_group_vote_result')
     # The form shows the two phases apart: where each one is, and its progress as "x / y".
     vote_phase_state = fields.Selection(string="Vote status", selection=[
-        ('open', "In progress"),
+        ('open', "Ongoing"),
         ('closed', "Closed"),
         ('aborted', "Aborted"),
     ], compute='_compute_phase_states')
     join_phase_state = fields.Selection(string="Joining status", selection=[
         ('waiting', "Not started: it opens if the group supports the proposal"),
-        ('open', "In progress"),
+        ('open', "Ongoing"),
         ('closed', "Closed"),
         ('not_opened', "Not opened: the group does not support it"),
         ('aborted', "Aborted"),

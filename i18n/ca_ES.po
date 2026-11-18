@@ -5756,8 +5756,6 @@ msgstr "Importar alumnes des d'Esfera"
 #: model:ir.model.fields.selection,name:ems.selection__ems_notice_line__display_status__started
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__in_progress
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__state__in_progress
-#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__vote_phase_state__open
-#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__join_phase_state__open
 msgid "In progress"
 msgstr "En procés"
 
@@ -53652,3 +53650,9 @@ msgstr "Se sumen / alumnes"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__join_answered_progress
 msgid "Answered / students"
 msgstr "Han respost / alumnes"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__vote_phase_state__open
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__join_phase_state__open
+msgid "Ongoing"
+msgstr "En curs"

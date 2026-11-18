@@ -115,20 +115,9 @@ class TestScheduleDeclaration(TransactionCase):
 
         self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'t_fp': 1})
 
-    def test_tutoring_block_level_overrides_the_teacher_rule(self):
-        """Issue #846: a tutoring block (ATAL) that names its level goes to that level's row, even
-        when the teacher teaches more hours in another one."""
-        self.env.ref('ems.non_teaching_tt').declaration_code = 'tutoring'
-        _level, _study, bat_group = create_level_study_group(self, 'TSDC', level={'declaration_code': 'bat'})
-        self._apply(self.group, (bat_group, '1', 3), ('ems.non_teaching_tt', '2', 2))
-        self.calendar.attendance_ids.filtered('non_teaching').level_id = self.level
-
-        self.assertEqual(
-            self.calendar.get_schedule_declaration_summary()['lective'], {'eso': 1, 'bat': 3, 't_eso': 2})
-
     def test_tutoring_blocks_of_different_levels_split_their_hours(self):
-        """Issue #846: one teacher with ATAL in ESO and in Bachillerato; a block with no level
-        keeps the old rule (here the level with most classes)."""
+        """Issue #846: a block's own level overrides the teacher rule, so one teacher can have ATAL in
+        ESO and in Bachillerato (here BAT has most classes); a block with no level keeps the old rule."""
         self.env.ref('ems.non_teaching_tt').declaration_code = 'tutoring'
         bat_level, _study, bat_group = create_level_study_group(self, 'TSDD', level={'declaration_code': 'bat'})
         self._apply(self.group, (bat_group, '1', 3), ('ems.non_teaching_tt', '2', 2),

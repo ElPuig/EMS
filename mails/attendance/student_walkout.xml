@@ -222,12 +222,9 @@
                         <p>Hello <t t-out="object.student_id.name"/>,</p>
                         <p>
                             Your family has not ratified that you join the collective decision not to attend class of
-                            <strong t-out="format_date(object.walkout_id.walkout_date)"/>. This does not change your decision,
-                            which nobody can revoke, and the classes of that day do not count as absences.
-                        </p>
-                        <p>
-                            This email is for information only: the school will tell your family of each class you do not
-                            attend that day, also for information only.
+                            <strong t-out="format_date(object.walkout_id.walkout_date)"/>. You can still join it with no
+                            penalty for missed classes, but we will have to tell your family of each class you do not
+                            attend that day, so that it is aware.
                         </p>
                         <p>If you have any question, talk to your tutor.</p>
                         <p>

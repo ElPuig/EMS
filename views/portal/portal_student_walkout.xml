@@ -211,7 +211,7 @@
                 <div t-if="line and line.joins and line.needs_ratification"
                      t-attf-class="alert mb-4 o_ems_walkout_ratification alert-#{'success' if line.ratification == 'ratified' else 'info'}">
                     <t t-if="line.ratification == 'ratified'">Your family has ratified that you join: it is aware and agrees.</t>
-                    <t t-elif="line.ratification == 'refused'">Your family has not ratified that you join. This does not change your decision: the school will only tell your family, for information, of each class you do not attend that day.</t>
+                    <t t-elif="line.ratification == 'refused'">Your family has not ratified that you join the walkout. You can still join it with no penalty for missed classes, but we will have to tell your family that you did not attend, so that it is aware.</t>
                     <t t-else="">As you are a minor, your family will be asked to ratify that you join the walkout. It has a single purpose: for your family to confirm that it is aware and agrees. If your family does not ratify it, you still have the right to join the call with no penalty for missed classes, but we will have to tell your family that you did not attend, so that it is aware.</t>
                 </div>
                 <!-- Issue #830: without portal access at the proposal a student does not vote, but joins. -->

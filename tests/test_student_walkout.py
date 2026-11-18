@@ -816,7 +816,7 @@ class TestStudentWalkout(TransactionCase):
         told = (self._mails(walkout.line_ids) - before).filtered(
             lambda mail: self.subdelegate.student_email in mail.email_to)
         self.assertEqual(len(told), 1)
-        self.assertIn('for information only', told.body_html, "Its family will be told of its absence, nothing more.")
+        self.assertIn('so that it is aware', told.body_html, "Its family will be told of its absence, nothing more.")
         ratify(walkout, self.family, self.subdelegate)  # it can change its answer while joining lasts
         self.assertEqual(line.ratification, 'ratified')
 

@@ -396,6 +396,7 @@
                                 <field name="date_from"/>
                                 <field name="date_to"/>
                                 <field name="space_id"/>
+                                <field name="level_id"/>
                             </list>
                         </field>
                     </page>

@@ -143,6 +143,8 @@ The weekly grid splits into 5 day columns (Monday–Friday); within each day, in
 
 Cards within a day are always shown sorted by start time, then end time — two cards at the exact same time sort by their own start date instead.
 
+**Level of a tutoring card:** a card whose non-teaching reason is a tutoring one (*Tutorship Time*, *Student support*) also shows a **Level** dropdown. Pick the level whose students those hours are given to (ESO, Bachillerato...) so the [schedule declaration](#print-the-official-schedule-declaration) counts them in that level's tutoring row; a teacher with student support in two levels sets one level on each card. Leave it blank and the declaration decides, as explained there.
+
 **Changing a card's classroom (step 5) when the class is co-taught:** if the new room is free at that day/time, the change applies immediately for every teacher sharing that class — nothing else to do. If the new room is already taken by someone else at that exact time, the change is held back instead of failing outright: a yellow banner appears at the top of the teacher's own form, regardless of which tab is open ("A classroom change requested from this teacher's own schedule, but N teaching block(s) could not move to it automatically because of a room collision"), with a **Resolve pending classrooms** button. See "Resolving a Pending Classroom Conflict" in [Groups](groups.md) for how to resolve it from there — the same screen also opens from a group's own form when a group-wide classroom change hits the same kind of collision.
 
 > Leaving a manually-added card unassigned and saving simply drops it — only real assignments are kept. If you re-open **Edit** later, the framework's own cards reappear as gaps to fill in, but a discarded manual card does not.
@@ -287,7 +289,7 @@ Each page has the centre's code, name and municipality (from the company setting
 **Which row each hour goes to** is configuration, set up for you on installation and editable afterwards:
 
 - A class counts in the row of its group's **level**: the level's **Schedule declaration code** (**Educational Community → Configuration → Curriculum → Levels**). EMS sets it for the official levels (ESO, BTX, CFGB, CFGM, CFGS, EFPS, PFI), as the Departament defines it, so it can't be changed on the form. A split or optative group with no level of its own takes the level of its main groups. A level with no code (e.g. one created by the centre) goes to *Altres*.
-- A tutorship (a tutorship subject, or a non-teaching type coded as tutoring: *Tutorship Time* and *Student support* by default) counts in T-ESO, T-BAT or T-FP (or PFI) by the tutored group's level. A teacher who tutors no group: by the level where they teach the most hours.
+- A tutorship (a tutorship subject, or a non-teaching type coded as tutoring: *Tutorship Time* and *Student support* by default) counts in T-ESO, T-BAT or T-FP (or PFI) by the tutored group's level. A teacher who tutors no group: by the level where they teach the most hours. A tutoring block can also name its own **Level** on its card of the Schedule tab, and then counts in that level's row, whatever the teacher tutors or teaches.
 - Any other non-teaching hour counts in the row set in its type's **Schedule declaration code** (**Configuration → Teachers → Non-teaching types**); empty means not declared.
 - Teaching-hour reductions appear only as their hours, in "Si disposeu de reducció de jornada", and are added to the lective TOTAL.
 

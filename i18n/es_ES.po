@@ -6488,6 +6488,7 @@ msgstr "Texto legal (renderizado)"
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal__level_id
 #: model_terms:ir.ui.view,arch_db:ems.report_ex_officio_withdrawal_document
 #: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__level_id
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__level_id
 msgid "Level"
 msgstr "Nivel"
 
@@ -29378,6 +29379,7 @@ msgstr "Vuelve a intentarlo dentro de unos minutos."
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_level__declaration_code
 #: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__declaration_code
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__non_teaching_declaration_code
 msgid "Schedule declaration code"
 msgstr "Código en la declaración horaria"
 
@@ -53483,3 +53485,9 @@ msgstr "Ahora no puedes marcar la ratificación de %(student)s: solo pueden hace
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "%(user)s marked by hand the family's ratification that %(student)s joins the walkout."
 msgstr "%(user)s ha marcado a mano la ratificación de la familia de que %(student)s se adhiere a la huelga."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Level (optional)"
+msgstr "Nivel (opcional)"

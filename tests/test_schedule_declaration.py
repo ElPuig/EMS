@@ -115,6 +115,53 @@ class TestScheduleDeclaration(TransactionCase):
 
         self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'t_fp': 1})
 
+    def test_tutoring_block_level_overrides_the_teacher_rule(self):
+        """Issue #846: a tutoring block (ATAL) that names its level goes to that level's row, even
+        when the teacher teaches more hours in another one."""
+        self.env.ref('ems.non_teaching_tt').declaration_code = 'tutoring'
+        _level, _study, bat_group = create_level_study_group(self, 'TSDC', level={'declaration_code': 'bat'})
+        self._apply(self.group, (bat_group, '1', 3), ('ems.non_teaching_tt', '2', 2))
+        self.calendar.attendance_ids.filtered('non_teaching').level_id = self.level
+
+        self.assertEqual(
+            self.calendar.get_schedule_declaration_summary()['lective'], {'eso': 1, 'bat': 3, 't_eso': 2})
+
+    def test_tutoring_blocks_of_different_levels_split_their_hours(self):
+        """Issue #846: one teacher with ATAL in ESO and in Bachillerato; a block with no level
+        keeps the old rule (here the level with most classes)."""
+        self.env.ref('ems.non_teaching_tt').declaration_code = 'tutoring'
+        bat_level, _study, bat_group = create_level_study_group(self, 'TSDD', level={'declaration_code': 'bat'})
+        self._apply(self.group, (bat_group, '1', 3), ('ems.non_teaching_tt', '2', 2),
+                    ('ems.non_teaching_tt', '3', 1), ('ems.non_teaching_tt', '4', 1))
+        blocks = self.calendar.attendance_ids.filtered('non_teaching').sorted('dayofweek')
+        blocks[0].level_id = self.level
+        blocks[1].level_id = bat_level
+
+        self.assertEqual(
+            self.calendar.get_schedule_declaration_summary()['lective'],
+            {'eso': 1, 'bat': 3, 't_eso': 2, 't_bat': 2})
+
+    def test_tutoring_block_level_without_code_goes_to_the_default_row(self):
+        self.env.ref('ems.non_teaching_tt').declaration_code = 'tutoring'
+        self.level.declaration_code = False
+        self._apply('ems.non_teaching_tt')
+        self.calendar.attendance_ids.filtered('non_teaching').level_id = self.level
+
+        self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'t_fp': 1})
+
+    def test_block_level_is_kept_by_apply_schedule_changes_and_copies(self):
+        """The Schedule tab saves the whole week through apply_schedule_changes()."""
+        non_teaching = self.env.ref('ems.non_teaching_tt')
+        non_teaching.declaration_code = 'tutoring'
+        self.calendar.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 8, 'hour_to': 9, 'day_period': 'morning', 'name': 'TSDE',
+            'non_teaching': non_teaching.id, 'level_id': self.level.id,
+        }])
+
+        block = self.calendar.attendance_ids.filtered('non_teaching')
+        self.assertEqual(block.level_id, self.level)
+        self.assertEqual(block.copy().level_id, self.level)
+
     def test_tutorship_subject_goes_to_its_groups_tutoring_row(self):
         self.subject.is_tutorship = True
         self._apply(self.group)

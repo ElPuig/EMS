@@ -386,8 +386,9 @@ class ems_working_schedule(models.Model):
 		  split or optative, takes its main groups' level); no code: 'other' (Altres);
 		- tutoring goes to the row of the tutored level (T-ESO, T-BAT, PFI, else T-FP): a tutorship
 		  subject (is_tutorship), by its group's level; a non-teaching type coded 'tutoring' (TT,
-		  ATAL), by the level of the teacher's tutorship or, for a teacher who tutors no group, the
-		  level where they teach the most hours (developer, 2026-10-30);
+		  ATAL), by the block's own level (issue #846) or, when it names none, the level of the
+		  teacher's tutorship or, for a teacher who tutors no group, the level where they teach the
+		  most hours (developer, 2026-10-30);
 		- any other non-teaching block goes to its type's declaration_code; no code: left out;
 		- the teaching-hour reductions are only given as their total hours ('reduction'), and are
 		  counted in the lective total, as on the Schedule tab (developer, 2026-10-29)."""
@@ -396,7 +397,8 @@ class ems_working_schedule(models.Model):
 		tutored_level_code = employee.tutorship_ids.sorted('id')[:1].level_id.declaration_code
 		columns = {'lective': {}, 'fixed': {}}
 		class_hours_by_level = {}
-		tutoring_hours = {'lective': 0, 'fixed': 0}
+		# Tutoring hours by (column, the block's own level code, False when it names none).
+		tutoring_hours = {}
 		for attendance, duration, is_fixed in self._iter_summary_entries():
 			column_key = 'fixed' if is_fixed else 'lective'
 			if attendance.subject_id:
@@ -411,20 +413,19 @@ class ems_working_schedule(models.Model):
 			else:
 				code = attendance.non_teaching.declaration_code
 				if code == 'tutoring':
-					# Its row needs the whole week's classes when the teacher tutors no group: added below.
-					tutoring_hours[column_key] += duration
+					# A block without its own level needs the whole week's classes: resolved below.
+					key = (column_key, attendance.level_id.declaration_code if attendance.level_id else False)
+					tutoring_hours[key] = tutoring_hours.get(key, 0) + duration
 					continue
 				if not code:
 					continue
 			column = columns[column_key]
 			column[code] = column.get(code, 0) + duration
-		if any(tutoring_hours.values()):
-			level_code = tutored_level_code or max(
-				sorted(class_hours_by_level), key=class_hours_by_level.get, default=False)
-			code = self._declaration_tutoring_code(level_code)
-			for column_key, hours in tutoring_hours.items():
-				if hours:
-					columns[column_key][code] = columns[column_key].get(code, 0) + hours
+		fallback_level_code = tutored_level_code or max(
+			sorted(class_hours_by_level), key=class_hours_by_level.get, default=False)
+		for (column_key, block_level_code), hours in tutoring_hours.items():
+			code = self._declaration_tutoring_code(block_level_code or fallback_level_code)
+			columns[column_key][code] = columns[column_key].get(code, 0) + hours
 		reduction = sum(employee.teaching_reduction_ids.mapped('reduction_hours'))
 		return {
 			'lective': columns['lective'],
@@ -449,6 +450,10 @@ class ems_working_schedule_assignation(models.Model):
 	# 'resource.calendar.action_archive()'); any other change of 'active' clears it (write() below).
 	archived_with_calendar = fields.Boolean(string="Archived with its calendar", copy=False)
 	non_teaching = fields.Many2one(string="Non-teaching", comodel_name="ems.non_teaching_type")
+	# Issue #846: the level a tutoring block (ATAL, TT: declaration_code 'tutoring') is given to, so
+	# the schedule declaration puts its hours on that level's T- row. Optional: without it the
+	# declaration falls back to the teacher's tutored level or the level with most class hours.
+	level_id = fields.Many2one(string="Level", comodel_name="ems.level")
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
 	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group")
 	# NOTE: added for issue #428 - some subjects (e.g. FP Basica's MP 3161) are split into several
@@ -530,6 +535,9 @@ class ems_working_schedule_assignation(models.Model):
 	# (models/attendance/guard_duty_board.py's ems.course.get_guard_duty_board_lines()) single
 	# out a guard-duty row without a separate 'ems.non_teaching_type' fetch.
 	non_teaching_is_guard = fields.Boolean(related="non_teaching.is_guard", store=True)
+	# Issue #846: lets the attendance form show 'level_id' only on a tutoring block (not stored: read
+	# for display alone).
+	non_teaching_declaration_code = fields.Selection(related="non_teaching.declaration_code")
 
 	# NOTE: Phase 4 of the bottom-up sync redesign (2026-09-08, see EMS_SKIP_AUTO_SCHEDULE_SYNC's
 	# own docstring in ems.attendance_mixin) - only these fields can actually change what

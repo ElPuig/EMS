@@ -52590,6 +52590,7 @@ msgstr ""
 msgid "%(user)s marked by hand the family's ratification that %(student)s joins the walkout."
 msgstr "%(user)s ha marcado a mano la ratificación de la familia de que %(student)s se adhiere a la huelga."
 
+#. module: ems
 #. odoo-python
 #: code:addons/ems/models/quality/minute.py:0
 msgid "%(name)s (answers until %(date)s)"
@@ -52920,6 +52921,7 @@ msgstr ""
 "blanco. Todo queda escrito en el acta y se envía a todas las personas "
 "participantes en un solo correo."
 
+#. module: ems
 #. odoo-python
 #: code:addons/ems/models/certificates/certificate.py:0
 msgid "%(email)s sent to %(to)s."

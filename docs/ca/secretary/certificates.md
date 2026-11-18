@@ -66,7 +66,7 @@ Si falta alguna dada o algun document obligatori, EMS t'ho indica i no deixa exp
 
 ### Expedir-lo sense esperar els passos anteriors
 
-De vegades ja tens totes les dades i documents d'una sol·licitud que encara és en un pas anterior (per exemple, esperant que el coordinador de FP completi la formació en centres de treball). No cal que esperis:
+De vegades ja tens totes les dades i documents d'una sol·licitud que encara és en un pas anterior (per exemple, esperant que el coordinador d'FP completi la formació en centres de treball). No cal que esperis:
 
 1. Obre la sol·licitud. Encara no surt a **Pendents de mi**: treu aquest filtre per trobar-la.
 2. Completa el que falti a les pestanyes **Sol·licitant** i **Formació en centres de treball**, i adjunta els documents obligatoris a **Documentació**.

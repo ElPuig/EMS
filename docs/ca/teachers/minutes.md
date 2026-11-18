@@ -206,7 +206,7 @@ a la paperera de Drive.
 Quan un tema no necessita que tothom sigui a la mateixa sala, qualsevol acta de reunió es pot fer per
 correu: trieu **Per correu electrònic** com a **modalitat**. L'acta conserva el seu tipus (d'equip docent, de
 departament...), de manera que continua les actes anteriors del mateix àmbit com qualsevol altra. Els
-participants hi intervenen responent un correu, o des d'EMS.
+participants hi intervenen responent a un correu, o des d'EMS.
 
 1. Prepareu l'acta com sempre, amb la modalitat **Per correu electrònic**. En lloc d'hora, sala i quiosc, demana
    **Respostes fins al**, l'últim dia per participar-hi. Escriviu els **punts a tractar** i reviseu qui
@@ -216,7 +216,7 @@ participants hi intervenen responent un correu, o des d'EMS.
 
 2. **Accions → Obre el fil**. Totes les persones convocades reben un correu amb l'ordre del dia i la data
    límit, i totes comencen a **Persones que hi manquen**.
-3. Cada participant **respon aquest correu** des de la seva bústia. Tothom rep totes les respostes, com
+3. Cada participant **respon a aquest correu** des de la seva bústia. Tothom rep totes les respostes, com
    en una llista de correu, i en pocs minuts la resposta queda escrita a **Precs i preguntes**, amb
    l'autor i la data i sense el text que cita. Qui respon passa sol als **Assistents**. Un missatge
    escrit a l'historial de l'acta també hi compta.

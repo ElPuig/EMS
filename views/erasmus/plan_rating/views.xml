@@ -12,7 +12,7 @@
                     <field name="call_name" optional="show"/>
                     <!-- In "My plan ratings" the member is always oneself. -->
                     <field name="panel_member_id" optional="show" column_invisible="context.get('ems_my_ratings')"/>
-                    <field name="score" string="Score" widget="ems_score_out_of" options="{'max': 2}" invisible="rating_status != 'submitted'"/>
+                    <field name="score" string="Score" widget="ems_score_out_of" options="{'max': 3}" invisible="rating_status != 'submitted'"/>
                     <!-- In the group's row, one per applicant: how many rated and the plan's mean. -->
                     <field name="rated_count" invisible="1" column_invisible="context.get('ems_my_ratings')"
                            groups="ems.group_erasmus,ems.group_academic_admin"/>

@@ -315,7 +315,6 @@
                                             <tr><td>3. Centre projects</td><td class="text-end" t-out="line.score_projects" t-options="{'widget': 'float', 'precision': 2}"/></tr>
                                             <tr><td>4. Languages</td><td class="text-end" t-out="line.score_staff_language" t-options="{'widget': 'float', 'precision': 2}"/></tr>
                                             <tr><td>5. Seniority at the centre</td><td class="text-end" t-out="line.score_seniority" t-options="{'widget': 'float', 'precision': 2}"/></tr>
-                                            <tr><td>6. Internationalisation</td><td class="text-end" t-out="line.score_internationalisation" t-options="{'widget': 'float', 'precision': 2}"/></tr>
                                         </tbody>
                                     </table>
                                 </t>

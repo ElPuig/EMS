@@ -59,10 +59,9 @@ En la pestaña **Baremación** de la solicitud, EMS muestra lo que ha declarado 
 |---|---|---|---|
 | 1. Plan de movilidad | La media de la comisión | - | Hasta 3 (1 de ellos por un job shadowing o una docencia en la propuesta A) |
 | 2. Última movilidad de personal | **Última movilidad de personal declarada** (el curso del mes indicado) | **Corrección** | Nunca o hace más de dos cursos 1; hace dos cursos 0,5; el curso pasado o el actual 0 |
-| 3. Proyectos del centro | Los **Méritos** que registras: cada colaboración 0,5, cada coordinación 1 | - | Hasta 1 |
-| 4. Idiomas | **Certificado de idioma declarado** | **Corrección** | B2 1; C1 1,5; C2 2 |
+| 3. Proyectos del centro | Los **Méritos** que registras: cada colaboración 0,5, cada coordinación 1 | - | Hasta 1,5 |
+| 4. Idiomas | **Certificado de idioma declarado** | **Corrección** | B2 1,5; C1 2; C2 2,5 |
 | 5. Antigüedad | **Antigüedad declarada** (en la fecha de cierre) | **Corrección** | Menos de 1 año 0; de 1 a 2 años 1; de 2 a 5 años 1,5; 5 años o más 2 |
-| 6. Internacionalización | Los **Méritos** que registras: cada actividad 0,5 | - | Hasta 1 |
 
 Cada campo **Corrección** dice *Correcto, como ha declarado* mientras está vacío: déjalo así cuando lo que ha declarado la persona es correcto, y elige un valor solo cuando no lo es. Cada criterio muestra los puntos sobre el máximo (*1,5 / 2*). La tabla **Valoraciones de la comisión** muestra qué ha dado al plan cada miembro.
 
@@ -74,7 +73,7 @@ Una convocatoria del personal no tiene modalidades: el profesorado compite en un
 
 ![Las plazas por proyecto de una convocatoria del personal, con las movilidades asignadas a cada uno](../../assets/erasmus/convocatoria-personal-places-projecte.png)
 
-El personal se clasifica **en una sola lista** para toda la convocatoria (botón **Clasificación** de la convocatoria). Las columnas de los criterios llevan un nombre corto (*1. Plan*, *2. Última mov.*, *3. Proyectos*, *4. Idiomas*, *5. Antigüedad*, *6. Internac.*); al pasar el ratón ves el nombre completo. Las listas de las resoluciones del personal no tienen columna de modalidad. Los empates se deshacen por la puntuación del plan de movilidad, después por quien lleva más tiempo en el centro (el mes y el año de incorporación declarados en el formulario, no los puntos del criterio 5: quien se incorporó en 2000 va antes que quien se incorporó hace seis años, aunque ambos tengan 2 puntos) y, por último, por el sorteo que hace la coordinación Erasmus desde la convocatoria (**Sortear los empates**).
+El personal se clasifica **en una sola lista** para toda la convocatoria (botón **Clasificación** de la convocatoria). Las columnas de los criterios llevan un nombre corto (*1. Plan*, *2. Última mov.*, *3. Proyectos*, *4. Idiomas*, *5. Antigüedad*); al pasar el ratón ves el nombre completo. Las listas de las resoluciones del personal no tienen columna de modalidad. Los empates se deshacen por la puntuación del plan de movilidad, después por quien lleva más tiempo en el centro (el mes y el año de incorporación declarados en el formulario, no los puntos del criterio 5: quien se incorporó en 2000 va antes que quien se incorporó hace seis años, aunque ambos tengan 2 puntos) y, por último, por el sorteo que hace la coordinación Erasmus desde la convocatoria (**Sortear los empates**).
 
 Las resoluciones se publican como en la convocatoria del alumnado: las listas solo muestran cuatro cifras del documento de identidad, nunca nombres. Para el personal se toma de su **ficha de empleado** (DNI o NIE; si no, el pasaporte); si alguien no lo tiene, pide a secretaría que lo añada. EMS ya te lo avisa cuando admites su solicitud, y las listas no se pueden preparar hasta que esté. Si la puntuación de alguien no está completa cuando preparas una resolución, EMS dice qué falta a cada persona (por ejemplo, *Méritos revisados* o *Antigüedad en el centro*).
 

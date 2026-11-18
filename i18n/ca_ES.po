@@ -33115,14 +33115,6 @@ msgid "5. Seniority at the centre"
 msgstr "5. Antiguitat al centre"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_internationalisation
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_internationalisation
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
-msgid "6. Internationalisation"
-msgstr "6. Internacionalització"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
 msgid "A call with applications cannot change who it is for."
@@ -33279,11 +33271,6 @@ msgstr "Cada modalitat d'una convocatòria d'alumnat necessita els nivells de l'
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Host entity or course"
 msgstr "Entitat d'acollida o curs"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_merit__kind__internationalisation
-msgid "Internationalisation activity (0.5)"
-msgstr "Activitat d'internacionalització (0,5)"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__staff_activity__job_shadowing
@@ -33599,8 +33586,8 @@ msgstr "Fa dos cursos"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application_merit__description
-msgid "Which project, commission or activity, and in which course."
-msgstr "Quin projecte, comissió o activitat, i en quin curs."
+msgid "Which project or commission, and in which course."
+msgstr "Quin projecte o comissió, i en quin curs."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_evaluation__rectification_note
@@ -51598,11 +51585,6 @@ msgstr "2. Última mob."
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
 msgid "3. Projects"
 msgstr "3. Projectes"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_staff_ranking_list
-msgid "6. Internat."
-msgstr "6. Internac."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__todo_state__missing

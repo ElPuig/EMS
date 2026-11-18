@@ -9,17 +9,17 @@ from .test_erasmus import PDF
 
 # Per teacher: (panel rating concreteness/relevance/activity of proposal A, last staff mobility, merits,
 # declared language, centre start). Every panel member who rates gives the same rating. Totals (art. 11 of the staff
-# call): 1. plan + 2. last mobility + 3. projects + 4. languages + 5. seniority + 6. internationalisation.
+# call): 1. plan + 2. last mobility + 3. projects + 4. languages + 5. seniority.
 NEVER, OLDER, TWO_COURSES, RECENT = 'never', 'older', 'two_courses', 'recent'
 TEACHERS = {
-    'best': (('1', '1', '1'), NEVER, ('project_coordination', 'project_collaboration', 'internationalisation',
-                                      'internationalisation'), 'c1', 'y5_old'),  # 3 + 1 + 1 + 1.5 + 2 + 1 = 9.5
-    'chief': (('1', '0.5', '1'), OLDER, ('project_collaboration',), 'b2', 'y2'),  # 2.5 + 1 + 0.5 + 1 + 1.5 = 6.5
+    'best': (('1', '1', '1'), NEVER, ('project_coordination', 'project_collaboration', 'project_collaboration'),
+             'c1', 'y5_old'),                                                   # 3 + 1 + 1.5 + 2 + 2 = 9.5
+    'chief': (('1', '0.5', '1'), OLDER, ('project_collaboration',), 'b2', 'y2'),  # 2.5 + 1 + 0.5 + 1.5 + 1.5 = 7
     'senior_old': (('1', '0.5', '1'), TWO_COURSES, (), 'none', 'y5_old'),        # 2.5 + 0.5 + 2 = 5, since 2000
     'senior_new': (('1', '0.5', '1'), TWO_COURSES, (), 'none', 'y5_new'),        # the same, 6 years only
     'plan_hi': (('1', '1', '1'), RECENT, (), 'none', 'y2'),                      # 3 + 1.5 = 4.5
     'plan_lo': (('0.5', '0.5', '1'), RECENT, ('project_collaboration',), 'none', 'y5_new'),  # 2 + 0.5 + 2 = 4.5
-    'claim': (('1', '1', '0'), NEVER, (), 'none', 'y1'),     # a course: 2 + 1 + 1 = 4; C1 claimed: 5.5
+    'claim': (('1', '1', '0'), NEVER, (), 'none', 'y1'),     # a course: 2 + 1 + 1 = 4; B2 claimed: 5.5
     'draw_1': (('0.5', '0.5', '1'), RECENT, (), 'none', 'y1'),                   # 2 + 1 = 3
     'draw_2': (('0.5', '0.5', '1'), RECENT, (), 'none', 'y1'),                   # the same: drawn
     'fix': (('0.5', '0.5', '1'), RECENT, (), 'none', 'y0'),                      # 2, after correcting the CV
@@ -238,15 +238,15 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         self.assertEqual(apps['best'].plan_score, 3.0)
         self.assertTrue(apps['chief'].plan_complete, "Rated by the other three.")
 
-        # 6. The team's criteria: merits (3, 6) reviewed for everyone; criteria 2, 4, 5 as declared.
+        # 6. The team's criteria: merits (3) reviewed for everyone; criteria 2, 4, 5 as declared.
         for name, (_rating, _last, merits, *_rest) in TEACHERS.items():
             self._team(apps[name]).write({
                 'merit_ids': [(0, 0, {'kind': kind, 'description': 'E2E merit'}) for kind in merits],
                 'merits_checked': True})
-        expected = {'best': 9.5, 'chief': 6.5, 'senior_old': 5.0, 'senior_new': 5.0, 'plan_hi': 4.5, 'plan_lo': 4.5,
+        expected = {'best': 9.5, 'chief': 7.0, 'senior_old': 5.0, 'senior_new': 5.0, 'plan_hi': 4.5, 'plan_lo': 4.5,
                     'claim': 4.0, 'draw_1': 3.0, 'draw_2': 3.0, 'fix': 2.0}
         self.assertEqual({name: apps[name].score_total for name in expected}, expected)
-        self.assertEqual((apps['best'].score_projects, apps['best'].score_internationalisation), (1.0, 1.0))
+        self.assertEqual(apps['best'].score_projects, 1.5, "Three merits worth 2: up to 1.5.")
 
         # 7. One ranking: the plan breaks a tie, then the seniority (since 2000 before 6 years), then a draw.
         self.assertEqual([apps[name].rank for name in ('best', 'chief', 'senior_old', 'senior_new', 'plan_hi',
@@ -290,14 +290,14 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         with self.assertRaises(AccessError):
             apps['best'].with_user(self.hos).write({'merits_checked': False})
 
-        # 9. A claim (art. 13): claim's C1 certificate had been missed. The team records it and answers.
+        # 9. A claim (art. 13): claim's B2 certificate had been missed. The team records it and answers.
         claim = self.env['ems.erasmus.claim'].with_user(self.technician).create({
             'application_id': apps['claim'].id, 'resolution_id': provisional.id,
-            'description': 'My C1 certificate was not counted'})
+            'description': 'My B2 certificate was not counted'})
         with self.assertRaises(AccessError, msg="The Head of Studies does not answer claims."):
             claim.with_user(self.hos).action_resolve()
-        self._team(apps['claim']).language_level = 'c1'
-        claim.write({'response': 'Accepted: C1 certificate counted (criterion 4)', 'outcome': 'upheld'})
+        self._team(apps['claim']).language_level = 'b2'
+        claim.write({'response': 'Accepted: B2 certificate counted (criterion 4)', 'outcome': 'upheld'})
         claim.action_resolve()
         self.assertEqual((apps['claim'].score_total, apps['claim'].rank), (5.5, 3))
 

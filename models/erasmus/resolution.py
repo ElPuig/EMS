@@ -367,7 +367,6 @@ class EmsErasmusResolutionLine(models.Model):
     score_projects = fields.Float(string="3. Centre projects", digits=(4, 2))
     score_staff_language = fields.Float(string="4. Languages", digits=(4, 2))
     score_seniority = fields.Float(string="5. Seniority", digits=(4, 2))
-    score_internationalisation = fields.Float(string="6. Internationalisation", digits=(4, 2))
     exclusion_reason = fields.Text(string="Exclusion reason",
                                    help="Only for the applicant (email and portal), never in the published list.")
 

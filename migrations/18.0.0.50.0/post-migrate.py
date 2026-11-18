@@ -5,10 +5,11 @@ from odoo import SUPERUSER_ID, api
 _logger = logging.getLogger(__name__)
 
 # The staff criteria whose points changed on 2026-11-18 (adriamt: favour job shadowings and teaching
-# over courses): the mobility plan gained the activity of proposal A (max 3), and the last staff
-# mobility and the centre projects went down to max 1.
-STAFF_SCORE_FIELDS = ('score_plan', 'score_last_mobility', 'score_projects', 'score_total', 'score_complete',
-                      'is_eligible')
+# over courses): the mobility plan gained the activity of proposal A (max 3), the last staff mobility
+# went down to max 1, and the internationalisation criterion was dropped, its point split between the
+# centre projects (max 1.5) and the languages (B2 1.5, C1 2, C2 2.5).
+STAFF_SCORE_FIELDS = ('score_plan', 'score_last_mobility', 'score_projects', 'score_staff_language', 'score_total',
+                      'score_complete', 'is_eligible')
 
 
 def _drop_stale_plan_score_translations(cr):
@@ -23,6 +24,14 @@ def _drop_stale_plan_score_translations(cr):
     """)
     if cr.rowcount:
         _logger.info("Migration 18.0.0.50.0: reset the translations of the plan rating's score.")
+
+
+def _delete_internationalisation_merits(cr):
+    """The internationalisation criterion no longer exists: its merits count for nothing and their
+    kind is gone from the list."""
+    cr.execute("DELETE FROM ems_erasmus_application_merit WHERE kind = 'internationalisation'")
+    if cr.rowcount:
+        _logger.info("Migration 18.0.0.50.0: deleted %s internationalisation merits.", cr.rowcount)
 
 
 def _recompute_staff_scores(env):
@@ -41,4 +50,5 @@ def _recompute_staff_scores(env):
 def migrate(cr, _version):
     env = api.Environment(cr, SUPERUSER_ID, {})
     _drop_stale_plan_score_translations(cr)
+    _delete_internationalisation_merits(cr)
     _recompute_staff_scores(env)

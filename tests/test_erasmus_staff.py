@@ -401,16 +401,15 @@ class TestErasmusPlanRating(ErasmusStaffCase):
         first = self._sent_to_panel()[0]
         self._rate(first, '1', '1')
         self._complete(first, last='two_courses', language='b1', seniority='y2',
-                       merits=('project_coordination', 'project_coordination', 'internationalisation',
-                               'internationalisation', 'internationalisation'))
+                       merits=('project_coordination', 'project_coordination', 'project_collaboration'))
         self.assertEqual((first.score_plan, first.score_last_mobility, first.score_projects,
-                          first.score_staff_language, first.score_seniority, first.score_internationalisation),
-                         (3.0, 0.5, 1.0, 0.0, 1.5, 1.0))
-        self.assertEqual(first.score_total, 7.0)
+                          first.score_staff_language, first.score_seniority),
+                         (3.0, 0.5, 1.5, 0.0, 1.5))
+        self.assertEqual(first.score_total, 6.5)
         self._complete(first, last='never')
         self.assertEqual(first.score_last_mobility, 1.0)
-        first.language_level = 'c1'
-        self.assertEqual(first.score_staff_language, 1.5)
+        first.language_level = 'c2'
+        self.assertEqual(first.score_staff_language, 2.5)
         first.merits_checked = False
         self.assertFalse(first.score_complete)
 
@@ -431,9 +430,9 @@ class TestErasmusPlanRating(ErasmusStaffCase):
     def test_languages_score_the_declared_certificate_unless_the_team_corrects_it(self):
         first = self._sent_to_panel()[0]
         first.write({'declared_language_level': 'c1'})  # what the applicant declared on the portal
-        self.assertEqual(first.score_staff_language, 1.5)
+        self.assertEqual(first.score_staff_language, 2.0)
         first.language_level = 'b2'
-        self.assertEqual(first.score_staff_language, 1.0)
+        self.assertEqual(first.score_staff_language, 1.5)
         first.write({'language_level': False, 'declared_language_level': False})
         self._rate(first, '1', '1')
         first.write({'last_staff_mobility': 'never', 'seniority': 'y5', 'merits_checked': True})
@@ -446,7 +445,7 @@ class TestErasmusPlanRating(ErasmusStaffCase):
         self._rate(first, '1', '1')
         self._rate(second, '1', '1')
         self._rate(third, '1', '0.5')
-        self._complete(first, last='two_courses', seniority='y1', language='b2')
+        self._complete(first, last='recent', seniority='y1', language='b2')
         self._complete(second, last='two_courses', seniority='y2', merits=('project_collaboration',))
         self.assertFalse(first.rank)  # the third is not scored yet
         self._complete(third, last='older', seniority='y2', merits=('project_collaboration',))

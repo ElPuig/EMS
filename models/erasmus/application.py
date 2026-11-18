@@ -55,15 +55,17 @@ PORTAL_STATE_BADGES = {
 SCORE_FIELDS = ('score_a', 'score_b', 'score_c', 'score_d', 'score_e', 'score_f', 'score_total')
 # Issue #686: the staff call's criteria (art. 11), frozen too.
 STAFF_SCORE_FIELDS = ('score_plan', 'score_last_mobility', 'score_projects', 'score_staff_language',
-                      'score_seniority', 'score_internationalisation')
+                      'score_seniority')
 # Who is not in the Erasmus team (the Head of Studies, the Director) reads none of these on a staff
 # application until the panel has rated every plan of the call (decided with the coordinator
 # 2026-10-30): a panel member still to rate would otherwise see the others' mean.
 PANEL_PENDING_HIDDEN = ('plan_score', 'score_total') + STAFF_SCORE_FIELDS
-# Criterion 4 of the staff call: from B2, the highest certificate.
-STAFF_LANGUAGE_SCORES = {'b2': 1.0, 'c1': 1.5, 'c2': 2.0}
-# Criterion 2: the last staff mobility (max 1, and criterion 3 max 1, since 2026-11-18: the point
-# went to the activity of the mobility plan, criterion 1). Criterion 5: continuous seniority at the closing date.
+# The staff call's criteria since 2026-11-18 (adriamt): the mobility plan gained a point for the activity of
+# proposal A (criterion 1, max 3), the last staff mobility went down to max 1, and the internationalisation
+# criterion was dropped, its point split between the centre projects (max 1.5) and the languages (max 2.5).
+# Criterion 4: from B2, the highest certificate.
+STAFF_LANGUAGE_SCORES = {'b2': 1.5, 'c1': 2.0, 'c2': 2.5}
+# Criterion 2: the last staff mobility. Criterion 5: continuous seniority at the closing date.
 LAST_MOBILITY_SCORES = {'never': 1.0, 'older': 1.0, 'two_courses': 0.5, 'recent': 0.0}
 SENIORITY_SCORES = {'y0': 0.0, 'y1': 1.0, 'y2': 1.5, 'y5': 2.0}
 LAST_MOBILITY_BANDS = [('never', "Never"), ('older', "More than two courses ago"), ('two_courses', "Two courses ago"),
@@ -322,8 +324,6 @@ class EmsErasmusApplication(models.Model):
     score_projects = fields.Float(string="3. Centre projects", digits=(4, 2), aggregator=None, compute='_compute_scores', store=True)
     score_staff_language = fields.Float(string="4. Languages", digits=(4, 2), aggregator=None, compute='_compute_scores', store=True)
     score_seniority = fields.Float(string="5. Seniority", digits=(4, 2), aggregator=None, compute='_compute_scores', store=True)
-    score_internationalisation = fields.Float(string="6. Internationalisation", digits=(4, 2), aggregator=None,
-                                              compute='_compute_scores', store=True)
 
     @api.depends('partner_id.birth_date', 'audience')
     def _compute_is_minor(self):
@@ -406,18 +406,16 @@ class EmsErasmusApplication(models.Model):
                 application.score_total >= application.call_id.min_score
 
     def _ems_staff_scores(self):
-        """Art. 11 of the staff call: 1 + 2 + 3 + 4 + 5 + 6, max 10. Criteria 3 and 6 add up the
-        merits, up to their maximums."""
+        """Art. 11 of the staff call: 1 + 2 + 3 + 4 + 5, max 10. Criterion 3 adds up the merits, up
+        to 1.5."""
         merits = self.merit_ids
         self.update({
             'score_plan': self.plan_score,
             'score_last_mobility': LAST_MOBILITY_SCORES.get(self._ems_staff_last_mobility(), 0.0),
             'score_projects': min(sum(merits.filtered(lambda merit: merit.kind in PROJECT_MERITS).mapped('points')),
-                                  1.0),
+                                  1.5),
             'score_staff_language': STAFF_LANGUAGE_SCORES.get(self._ems_staff_language_level(), 0.0),
             'score_seniority': SENIORITY_SCORES.get(self._ems_staff_seniority(), 0.0),
-            'score_internationalisation': min(
-                sum(merits.filtered(lambda merit: merit.kind == 'internationalisation').mapped('points')), 1.0),
         })
         self.score_total = sum(self[name] for name in STAFF_SCORE_FIELDS)
         self.score_complete = self.plan_complete and self.merits_checked and bool(

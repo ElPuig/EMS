@@ -59,10 +59,9 @@ On the application's **Scoring** tab EMS shows what the applicant declared and t
 |---|---|---|---|
 | 1. Mobility plan | The panel's mean | - | Up to 3 (1 of them for a job shadowing or teaching in proposal A) |
 | 2. Last staff mobility | **Declared last staff mobility** (the course of the month they gave) | **Correction** | Never or more than two courses ago 1; two courses ago 0.5; last course or this one 0 |
-| 3. Centre projects | **Merits** you record: each collaboration 0.5, each coordination 1 | - | Up to 1 |
-| 4. Languages | **Declared language certificate** | **Correction** | B2 1; C1 1.5; C2 2 |
+| 3. Centre projects | **Merits** you record: each collaboration 0.5, each coordination 1 | - | Up to 1.5 |
+| 4. Languages | **Declared language certificate** | **Correction** | B2 1.5; C1 2; C2 2.5 |
 | 5. Seniority | **Declared seniority** (at the closing date) | **Correction** | Less than 1 year 0; 1 to 2 years 1; 2 to 5 years 1.5; 5 years or more 2 |
-| 6. Internationalisation | **Merits** you record: each activity 0.5 | - | Up to 1 |
 
 Each **Correction** field reads *Correct, as declared* while it is empty: leave it like that when what the person declared is right, and choose a value only when it is wrong. Every criterion shows its points over its maximum (*1.5 / 2*). The table **Commission's ratings** shows what each member gave the plan.
 
@@ -74,7 +73,7 @@ A staff call has no modalities: the staff compete in a single list and only ever
 
 ![The places per project of a staff call, with the mobilities assigned to each one](../../assets/erasmus/convocatoria-personal-places-projecte.png)
 
-The staff are ranked **in one list** for the whole call (**Ranking** button of the call). The criteria columns carry a short name (*1. Plan*, *2. Last mob.*, *3. Projects*, *4. Languages*, *5. Seniority*, *6. Internat.*); hover over one to see its full name. The staff resolution lists have no modality column. Ties are broken by the mobility plan score, then by who has been at the centre longer (the month and year of joining declared in the form, not the points of criterion 5: someone who joined in 2000 goes before someone who joined six years ago, although both get 2 points) and, last, by the draw the Erasmus coordinator runs from the call (**Draw the ties**).
+The staff are ranked **in one list** for the whole call (**Ranking** button of the call). The criteria columns carry a short name (*1. Plan*, *2. Last mob.*, *3. Projects*, *4. Languages*, *5. Seniority*); hover over one to see its full name. The staff resolution lists have no modality column. Ties are broken by the mobility plan score, then by who has been at the centre longer (the month and year of joining declared in the form, not the points of criterion 5: someone who joined in 2000 goes before someone who joined six years ago, although both get 2 points) and, last, by the draw the Erasmus coordinator runs from the call (**Draw the ties**).
 
 The resolutions are published as in the students' call: the lists show only four digits of the identity document, never names. For the staff it is taken from their **employee file** (DNI or NIE, otherwise the passport); if someone has none, ask the Secretariat to add it. EMS warns you already when you admit their application, and the lists cannot be prepared until it is there. If the score of someone is not complete when you prepare a resolution, EMS says what is missing for each person (for example *Merits reviewed* or *Seniority*).
 

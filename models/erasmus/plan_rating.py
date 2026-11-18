@@ -22,8 +22,8 @@ ACTIVITY_RUBRIC = [
     ('0', "0 points: Proposal A is a course."),
 ]
 PLAN_CRITERIA = ('concreteness', 'relevance', 'activity_kind')
-# Art. 11 of the staff call, criteria 3 and 6: points per merit and the criterion it counts for.
-MERIT_POINTS = {'project_collaboration': 0.5, 'project_coordination': 1.0, 'internationalisation': 0.5}
+# Art. 11 of the staff call, criterion 3: points per merit.
+MERIT_POINTS = {'project_collaboration': 0.5, 'project_coordination': 1.0}
 PROJECT_MERITS = ('project_collaboration', 'project_coordination')
 
 
@@ -150,8 +150,7 @@ class EmsErasmusPlanRating(models.Model):
 class EmsErasmusApplicationMerit(models.Model):
     """Issue #686 - a merit of a staff applicant, recorded by the Erasmus team with its
     justification (art. 11 of the staff call): a collaboration in a centre project (0.5) or its
-    coordination (1), criterion 3, max 1; an internationalisation activity (0.5), criterion 6,
-    max 1."""
+    coordination (1), criterion 3, max 1.5."""
     _name = 'ems.erasmus.application.merit'
     _description = 'Erasmus+ staff merit'
     _order = 'application_id, kind, id'
@@ -160,10 +159,9 @@ class EmsErasmusApplicationMerit(models.Model):
                                      ondelete='cascade', index=True)
     kind = fields.Selection(string="Kind", required=True, selection=[
         ('project_collaboration', "Collaboration in a centre project (0.5)"),
-        ('project_coordination', "Coordination of a centre project (1)"),
-        ('internationalisation', "Internationalisation activity (0.5)")])
+        ('project_coordination', "Coordination of a centre project (1)")])
     description = fields.Char(string="Justification", required=True,
-                              help="Which project, commission or activity, and in which course.")
+                              help="Which project or commission, and in which course.")
     points = fields.Float(string="Points", digits=(3, 1), compute='_compute_points')
 
     @api.depends('kind')

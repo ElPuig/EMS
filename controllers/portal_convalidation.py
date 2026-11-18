@@ -13,7 +13,7 @@ class EmsPortalConvalidationController(CustomerPortal):
     """Issues #276 and #529 - subject convalidation requests on the portal. An adult student
     files them himself, and so does his family when he authorized sharing with it; a minor's
     family files them for him, and the minor himself only reads them
-    (res.partner._ems_convalidation_can_request). Always about the student resolved by
+    (res.partner._ems_can_file_requests_for). Always about the student resolved by
     get_portal_student(): no student id travels in a form, so nobody can file or cancel a request
     for someone else. New requests only during the yearly request period set in the EMS settings;
     answering and cancelling are always possible. sudo because portal users have no ACL on
@@ -26,7 +26,7 @@ class EmsPortalConvalidationController(CustomerPortal):
         recordset."""
         partner = request.env.user.partner_id
         student = partner.get_portal_student()
-        return student if partner._ems_convalidation_can_request(student) else student.browse()
+        return student if partner._ems_can_file_requests_for(student) else student.browse()
 
     def _ems_convalidation_company(self):
         return request.env.company.sudo()

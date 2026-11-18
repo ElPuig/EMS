@@ -53,7 +53,7 @@ Every criterion starts empty. **An empty criterion is never zero:** the applicat
 
 Each evaluator scores the 7 criteria of the rubric (annex 4) from 0 to 5, with the descriptors written on the form, and submits. The interview score is the average of both evaluators. If only one evaluator could score it for a justified reason, write it in **Reason for a single evaluation**.
 
-On the call, the **Score correction deadline** sets until when the evaluators can reopen and change their own evaluation. After it, only the Erasmus team can reopen an interview, from the **Interviews** button of the call, writing a **Rectification note**.
+On the call, the **Interview/evaluation deadline** sets until when the evaluators can reopen and change their own evaluation. After it, only the Erasmus team can reopen an interview, from the **Interviews** button of the call, writing a **Rectification note**.
 
 If a student does not attend the interview, write the reason and click **Actions > Exclude**.
 

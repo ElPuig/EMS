@@ -134,9 +134,13 @@ their name (in the "Marking attendance" screenshot, *Laia Exemple*'s row):
   centre while the withdrawal is processed (see [A Student's Expected Withdrawal](../tutors/withdrawal-expected.md)).
 - **Not required to attend: convalidation in process**: they have asked to convalidate this subject
   and chose not to attend it while it is resolved.
+- **Not required to attend: student walkout**: they joined their group's student walkout of that day. If
+  they are a minor and their family has not said it agrees, the label says so: the family gets the notice
+  of this class, for information.
 
 They count neither as attendance nor as an absence either. If the student turns up anyway, click the
-restore icon and mark them like anyone else. If the expected withdrawal is reverted, or the subject
+restore icon and mark them like anyone else. If you restored them by mistake, remove them again: their
+reason comes back. If the expected withdrawal is reverted, or the subject
 is not convalidated, those sessions become absences. You get a notice of both in your
 [daily summary](daily-summary.md).
 

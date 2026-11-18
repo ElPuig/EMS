@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #835 - a certificate of the centre, generated after the last step of its circuit
+             (ems.certificate._ems_generate_pdf) in the centre language, with the agreement's pages
+             appended. Not bound to the Print menu: the certificate is the PDF kept on the request.
+             Under each signature, the stamp EMS puts (ems.report_validation_stamp): not a qualified
+             electronic signature, EMS's own record of who issued and approved it. -->
+        <record id="action_report_certificate" model="ir.actions.report">
+            <field name="name">Certificate</field>
+            <field name="model">ems.certificate</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_certificate</field>
+            <field name="report_file">ems.report_certificate</field>
+        </record>
+
+        <template id="report_certificate">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <!-- ISO 9001: the controlled document every certificate is printed on, in the
+                         layout's footer (ems.report_layout_footer_note). Kept verbatim, in Catalan, as in
+                         the centre's documentation (not a translatable term); a new revision of the
+                         model means editing it here. -->
+                    <t t-set="ems_footer_note" t-value="&quot;PC3.02.01 Model de certificat (EMS) – Revisió: 17/11/2026&quot;"/>
+                    <t t-call="web.external_layout">
+                        <t t-set="stamps" t-value="doc._ems_stamps_to_print()"/>
+                        <!-- The brand colour is the company's own, the one minutes use for their
+                             headings. -->
+                        <t t-set="brand" t-value="doc.env.company.primary_color or '#a51d2d'"/>
+                        <div class="page o_ems_certificate">
+                            <!-- One page, read on paper: the text gathered in the middle of the sheet
+                                 (wider side margins than the letterhead), the signatures at the foot
+                                 of the page, not wherever the text happens to end. The page's height is
+                                 fixed (the letterhead's header and footer around it), and the
+                                 signatures are placed at its bottom. -->
+                            <style>
+                                .o_report_layout_bubble > table.o_ignore_layout_styling { display: none; }
+                                .o_ems_certificate { position: relative; height: 238mm; padding: 0 16mm; font-size: 10.5pt; line-height: 1.6; }
+                                table.o_ems_certificate_header { width: 100%; border-collapse: collapse; margin: 0 0 24pt 0; }
+                                table.o_ems_certificate_header td { border: none !important; padding: 9pt 12pt !important; color: #fff; background-color: <t t-out="brand"/>; vertical-align: middle; }
+                                table.o_ems_certificate_header td.o_ems_certificate_title { font-size: 16pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2pt; }
+                                table.o_ems_certificate_header td.o_ems_certificate_number { text-align: right; font-size: 10pt; white-space: nowrap; }
+                                table.o_ems_certificate_header td.o_ems_certificate_number strong { font-size: 12pt; }
+                                .o_ems_certificate p { text-align: justify; margin: 0 0 10pt 0; }
+                                .o_ems_certificate .o_ems_certificate_place { margin-top: 18pt; }
+                                .o_ems_certificate_signatures_box { position: absolute; left: 16mm; right: 16mm; bottom: 0; }
+                                table.o_ems_certificate_signatures { width: 100%; border-collapse: collapse; }
+                                table.o_ems_certificate_signatures th,
+                                table.o_ems_certificate_signatures > tbody > tr > td { width: 50%; border: 1px solid #999 !important; padding: 6pt 10pt !important; text-align: left; vertical-align: top; }
+                                table.o_ems_certificate_signatures th { color: #fff; background-color: <t t-out="brand"/>; font-weight: normal; text-transform: uppercase; font-size: 9pt; }
+                                table.o_ems_certificate_signatures > tbody > tr > td { height: 34mm; }
+                                .o_ems_certificate_signer { margin-top: 2pt; font-weight: bold; }
+                            </style>
+
+                            <table class="o_ems_certificate_header o_ignore_layout_styling">
+                                <tr>
+                                    <td class="o_ems_certificate_title">Certificate</td>
+                                    <td class="o_ems_certificate_number">Certificate number: <strong t-esc="doc.name"/></td>
+                                </tr>
+                            </table>
+
+                            <t t-set="paragraphs" t-value="doc._ems_report_paragraphs()"/>
+                            <p t-foreach="paragraphs[:-1]" t-as="paragraph" t-out="paragraph"/>
+                            <p class="o_ems_certificate_place" t-out="paragraphs[-1]"/>
+
+                            <div class="o_ems_certificate_signatures_box">
+                                <table class="o_ems_certificate_signatures o_ignore_layout_styling">
+                                    <thead>
+                                        <tr>
+                                            <th t-foreach="stamps" t-as="stamp">
+                                                <t t-if="stamp.action == 'issue'">The secretary</t>
+                                                <t t-else="">Approved by the director</t>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td t-foreach="stamps" t-as="stamp">
+                                                <t t-if="stamp.action == 'issue'" t-call="ems.report_validation_stamp">
+                                                    <t t-set="stamp_title">Issued in EMS</t>
+                                                    <t t-set="stamp_by_label">Issued by:</t>
+                                                    <t t-set="stamp_by" t-value="stamp.user_id.name"/>
+                                                    <t t-set="stamp_date" t-value="stamp.date"/>
+                                                    <t t-set="stamp_reference" t-value="doc.name"/>
+                                                </t>
+                                                <t t-else="" t-call="ems.report_validation_stamp">
+                                                    <t t-set="stamp_title">Approved in EMS</t>
+                                                    <t t-set="stamp_by_label">Approved by:</t>
+                                                    <t t-set="stamp_by" t-value="stamp.user_id.name"/>
+                                                    <t t-set="stamp_date" t-value="stamp.date"/>
+                                                    <t t-set="stamp_reference" t-value="doc.name"/>
+                                                </t>
+                                                <div class="o_ems_certificate_signer" t-esc="stamp.user_id.name"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

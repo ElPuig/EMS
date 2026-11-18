@@ -155,9 +155,20 @@ class TestPortalErasmus(HttpCase):
         self._login(self.student_user)
         response = self.url_open(f'/my/erasmus/call/{self.call.id}/rules')
         self.assertEqual(response.content, b'%PDF-1.4')
+        self.assertTrue(response.headers.get('Content-Disposition', '').startswith('inline'))
         self._login(self.outsider_user)
         response = self.url_open(f'/my/erasmus/call/{self.call.id}/rules')
         self.assertNotEqual(response.content, b'%PDF-1.4')
+
+    def test_view_rules_button_opens_the_pdf_in_a_new_tab(self):
+        """The backend's "View the call rules" opens the file inline, never as a download."""
+        self.call.write({'rules_document': 'JVBERi0xLjQ=', 'rules_filename': 'call.pdf'})
+        action = self.call.action_view_rules()
+        self.assertEqual((action['type'], action['target']), ('ir.actions.act_url', 'new'))
+        self.authenticate('admin', 'admin')
+        response = self.url_open(action['url'])
+        self.assertEqual(response.content, b'%PDF-1.4')
+        self.assertTrue(response.headers.get('Content-Disposition', 'inline').startswith('inline'))
 
     def test_admitted_applicant_sees_the_interview_call(self):
         """Issue #684: once called, the portal shows the interview's date and place."""

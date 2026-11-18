@@ -18,10 +18,11 @@ Esta sección contiene los manuales para **familias y alumnos**.
 | [Subir documentos oficiales, IBAN y solicitudes de beneficios](manual-documentacio.md) | Cómo enviar documentos de DNI/tarjeta sanitaria, registrar tu IBAN y solicitar una bonificación o exención |
 | [Consultar el horario de clases](manual-horari.md) | Cómo ver el horario semanal del alumno en el portal y descargarlo en PDF |
 | [Solicitar convalidaciones](manual-convalidacions.md) | Cómo pedir la convalidación de módulos de formación profesional y seguir su resolución |
+| [Solicitar un certificado](manual-certificats.md) | Cómo pedir un certificado (por ejemplo, el de FCT), seguir su tramitación y descargarlo |
 | [Solicitar unas prácticas Erasmus+](manual-erasmus.md) | Cómo solicitar unas prácticas Erasmus+ en el extranjero, seguir la solicitud, ver los resultados y aceptar la plaza |
 | [Inscribirse en una movilidad de grupo Erasmus+](manual-erasmus-grup.md) | Cómo inscribirse desde el portal con un clic, ver el resultado y, si te seleccionan, entregar los documentos |
 | [Revisar los datos de contacto](manual-dades-contacte.md) | Cómo revisar y completar los datos de contacto del alumno y de la familia en el portal |
-| [Huelgas de estudiantes](manual-vagues.md) | Cómo un grupo propone y vota apoyar una huelga, cómo cada alumno se suma y cómo la familia de un alumno menor lo ratifica |
+| [Inasistencias colectivas](manual-vagues.md) | Cómo un grupo propone y vota una inasistencia colectiva, cómo cada alumno se suma y cómo la familia de un alumno menor acusa recibo |
 
 ---
 

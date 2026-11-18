@@ -3,9 +3,10 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
-# Annex 2 of the staff call (criterion 1, the mobility plan; changed 2026-11-13): two aspects, each
-# 1, 0.5 or 0 points. The panel picks a description, stored as its points, which its label shows
-# (the 2026-11-04 usage test).
+# Annex 2 of the staff call (criterion 1, the mobility plan; changed 2026-11-13 and 2026-11-18):
+# concreteness and relevance, 1, 0.5 or 0 points each, and the activity of proposal A, 0.5 or 0, so
+# that job shadowings and teaching assignments weigh more than courses (adriamt, 2026-11-18). The
+# panel picks a description, stored as its points, which its label shows (the 2026-11-04 usage test).
 CONCRETENESS_RUBRIC = [
     ('1', "1 point: The activity, the entity or course by name, the place and the dates."),
     ('0.5', "0.5 points: The entity or course, or the dates, are missing."),
@@ -16,9 +17,13 @@ RELEVANCE_RUBRIC = [
     ('0.5', "0.5 points: The objective is general."),
     ('0', "0 points: It doesn't say what they want to learn or the relation with the job."),
 ]
-PLAN_CRITERIA = ('concreteness', 'relevance')
-# Art. 11 of the staff call, criteria 3 and 6: points per merit and the criterion it counts for.
-MERIT_POINTS = {'project_collaboration': 0.5, 'project_coordination': 1.0, 'internationalisation': 0.5}
+ACTIVITY_RUBRIC = [
+    ('0.5', "0.5 points: Proposal A is a job shadowing or a teaching assignment."),
+    ('0', "0 points: Proposal A is a course."),
+]
+PLAN_CRITERIA = ('concreteness', 'relevance', 'activity_kind')
+# Art. 11 of the staff call, criterion 3: points per merit.
+MERIT_POINTS = {'project_collaboration': 0.5, 'project_coordination': 1.0}
 PROJECT_MERITS = ('project_collaboration', 'project_coordination')
 
 
@@ -66,7 +71,10 @@ class EmsErasmusPlanRating(models.Model):
                                     help="Annex 2 of the staff call: 1, 0.5 or 0 points.")
     relevance = fields.Selection(string="Relevance to the job", selection=RELEVANCE_RUBRIC, tracking=True,
                                  help="Annex 2 of the staff call: 1, 0.5 or 0 points.")
-    score = fields.Float(string="Score (max 2)", digits=(3, 1), compute='_compute_score', store=True, aggregator=None)
+    activity_kind = fields.Selection(string="Activity of proposal A", selection=ACTIVITY_RUBRIC, tracking=True,
+                                     help="Annex 2 of the staff call: 0.5 points for a job shadowing or a teaching "
+                                          "assignment, 0 for a course. Only proposal A counts.")
+    score = fields.Float(string="Score (max 2.5)", digits=(3, 1), compute='_compute_score', store=True, aggregator=None)
     # The issue-#682 review: an abstention is not a plan still to rate (it read "To score", 0.0).
     rating_status = fields.Selection(string="Status", compute='_compute_rating_status', store=True, selection=[
         ('draft', "To score"), ('submitted', "Submitted"), ('abstention', "Abstention")])
@@ -142,8 +150,7 @@ class EmsErasmusPlanRating(models.Model):
 class EmsErasmusApplicationMerit(models.Model):
     """Issue #686 - a merit of a staff applicant, recorded by the Erasmus team with its
     justification (art. 11 of the staff call): a collaboration in a centre project (0.5) or its
-    coordination (1), criterion 3, max 1.5; an internationalisation activity (0.5), criterion 6,
-    max 1."""
+    coordination (1), criterion 3, max 2."""
     _name = 'ems.erasmus.application.merit'
     _description = 'Erasmus+ staff merit'
     _order = 'application_id, kind, id'
@@ -152,10 +159,9 @@ class EmsErasmusApplicationMerit(models.Model):
                                      ondelete='cascade', index=True)
     kind = fields.Selection(string="Kind", required=True, selection=[
         ('project_collaboration', "Collaboration in a centre project (0.5)"),
-        ('project_coordination', "Coordination of a centre project (1)"),
-        ('internationalisation', "Internationalisation activity (0.5)")])
+        ('project_coordination', "Coordination of a centre project (1)")])
     description = fields.Char(string="Justification", required=True,
-                              help="Which project, commission or activity, and in which course.")
+                              help="Which project or commission, and in which course.")
     points = fields.Float(string="Points", digits=(3, 1), compute='_compute_points')
 
     @api.depends('kind')

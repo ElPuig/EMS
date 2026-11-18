@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #835: the certificate types and their approval circuits, configured by the
+             administrator. -->
+        <record id="view_certificate_type_list" model="ir.ui.view">
+            <field name="name">ems.certificate.type.list</field>
+            <field name="model">ems.certificate.type</field>
+            <field name="arch" type="xml">
+                <list string="Certificate types">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="kind"/>
+                    <field name="level_ids" widget="many2many_tags"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_certificate_type_form" model="ir.ui.view">
+            <field name="name">ems.certificate.type.form</field>
+            <field name="model">ems.certificate.type</field>
+            <field name="arch" type="xml">
+                <form string="Certificate type">
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <field name="active" invisible="1"/>
+                        <div class="oe_title">
+                            <h1><field name="name" placeholder="Name"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="kind"/>
+                                <field name="requires_documents"/>
+                            </group>
+                            <group>
+                                <field name="level_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                            </group>
+                        </group>
+                        <field name="description" placeholder="What the applicant reads on the request form..."/>
+                        <field name="circuit_role_ids" invisible="1"/>
+                        <div invisible="not requires_documents">
+                            <separator string="Required documents"/>
+                            <field name="document_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="applicant_uploads"/>
+                                    <field name="role_ids" widget="many2many_tags" options="{'no_create': True}"
+                                           domain="[('id', 'in', parent.circuit_role_ids)]"/>
+                                    <field name="append_to_certificate"/>
+                                </list>
+                            </field>
+                            <div class="text-muted mb-3">
+                                <i class="fa fa-info-circle me-1"/>Who attaches each document: the applicant and/or the
+                                positions ticked; with nobody ticked, anyone taking part. They are required before the
+                                certificate is issued. Any other document can always be attached as optional.
+                            </div>
+                        </div>
+                        <separator string="Approval circuit"/>
+                        <field name="step_ids">
+                            <list editable="bottom">
+                                <field name="sequence" widget="handle"/>
+                                <field name="name"/>
+                                <field name="role_id" options="{'no_create': True}"/>
+                                <field name="action"/>
+                            </list>
+                        </field>
+                        <div class="text-muted">
+                            <i class="fa fa-info-circle me-1"/>Each step is done by whoever holds its position, who
+                            gets it as a task; the administrator can do any step. One step issues the certificate (its
+                            number and the issuer's stamp); approvals go after it. The last step generates the PDF and
+                            sends it to the applicant.
+                        </div>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_certificate_type" model="ir.actions.act_window">
+            <field name="name">Certificate types</field>
+            <field name="res_model">ems.certificate.type</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <menuitem id="menu_ems_configuration_certificates"
+                  name="Certificates"
+                  parent="menu_ems_configuration"
+                  groups="ems.group_academic_admin"
+                  sequence="55"/>
+        <menuitem id="menu_ems_certificate_type"
+                  name="Certificate types"
+                  parent="menu_ems_configuration_certificates"
+                  action="action_certificate_type"
+                  sequence="10"/>
+    </data>
+</odoo>

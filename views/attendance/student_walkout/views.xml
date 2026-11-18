@@ -2,7 +2,7 @@
 <odoo>
     <data>
         <!-- Issue #800: student walkout calls, opened and voted from the portal; read here by the
-             tutors of the groups and the chain above them, and justified by the Head of Studies.
+             tutors of the groups and the chain above them, and validated by the Head of Studies.
              Never created nor edited by hand: create="0" edit="0". -->
         <record id="view_student_walkout_list" model="ir.ui.view">
             <field name="name">ems.student_walkout.list</field>
@@ -14,11 +14,13 @@
                     <field name="group_id"/>
                     <field name="opener_id"/>
                     <field name="join_until" options="{'show_seconds': False}"/>
-                    <field name="group_supports" widget="boolean" optional="show"/>
+                    <field name="group_vote_result" widget="badge" optional="show"
+                           decoration-info="group_vote_result == 'pending'" decoration-success="group_vote_result == 'supports'"
+                           decoration-danger="group_vote_result == 'does_not_support'"/>
                     <field name="joining_count" optional="show"/>
                     <field name="state" widget="badge"
                            decoration-info="state in ('voting', 'joining')" decoration-warning="state == 'closed'"
-                           decoration-success="state == 'justified'" decoration-danger="state == 'rejected'"/>
+                           decoration-success="state == 'validated'" decoration-danger="state == 'rejected'"/>
                 </list>
             </field>
         </record>
@@ -35,17 +37,15 @@
                                     confirm="Joining will last one phase more. Extend it?"/>
                             <button name="action_open_reject_wizard" type="object" string="Abort the proposal" icon="fa-ban"
                                     invisible="not can_abort"/>
-                            <button name="action_generate_justification" type="object" string="Validate and justify"
-                                    icon="fa-check" invisible="not can_generate_justification"/>
+                            <button name="action_validate" type="object" string="Validate"
+                                    icon="fa-check" invisible="not can_validate"/>
                             <button name="action_open_reject_wizard" type="object" string="Do not validate" icon="fa-times"
                                     invisible="not can_reject or state != 'closed'"/>
                             <button name="action_open_reject_wizard" type="object" string="Undo the validation" icon="fa-undo"
-                                    invisible="not can_reject or state != 'justified'"/>
-                            <button name="action_open_justification" type="object" string="Open the justification"
-                                    icon="fa-external-link" invisible="not justification_id"/>
+                                    invisible="not can_reject or state != 'validated'"/>
                         </div>
-                        <field name="state" widget="statusbar" statusbar_visible="voting,joining,closed,justified"/>
-                        <field name="can_generate_justification" invisible="1"/>
+                        <field name="state" widget="statusbar" statusbar_visible="voting,joining,closed,validated"/>
+                        <field name="can_validate" invisible="1"/>
                         <field name="can_extend" invisible="1"/>
                         <field name="can_abort" invisible="1"/>
                         <field name="can_reject" invisible="1"/>
@@ -55,7 +55,7 @@
                             <h1><field name="name"/></h1>
                         </div>
                         <div class="alert alert-info" role="alert" invisible="state not in ('voting', 'joining')">
-                            The group's tutor watches over the proposal: check the union's call and, only if it has a formal
+                            The group's tutor watches over the proposal: check the supporting document and, only if it has a formal
                             defect, abort it giving a reason. Once closed, the Head of Studies validates it or not.
                         </div>
                         <group invisible="state != 'rejected'">
@@ -63,30 +63,53 @@
                             <field name="rejected_from_state"/>
                             <field name="rejection_details" invisible="not rejection_details"/>
                         </group>
-                        <group>
+                        <group string="Proposal">
                             <group>
                                 <field name="group_ids" widget="many2many_tags"/>
                                 <field name="opener_id"/>
                                 <field name="walkout_date"/>
                                 <field name="walkout_start" options="{'show_seconds': False}"/>
-                                <field name="vote_start" options="{'show_seconds': False}"/>
-                                <field name="vote_until" options="{'show_seconds': False}"/>
-                                <field name="join_start" invisible="not join_start" options="{'show_seconds': False}"/>
-                                <field name="join_until" invisible="not join_until" options="{'show_seconds': False}"/>
-                                <field name="attachment_ids" widget="many2many_binary"/>
                             </group>
                             <group>
+                                <field name="attachment_ids" widget="many2many_binary"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Phase 1: group vote" name="vote_phase">
+                                <field name="vote_phase_state" widget="badge"
+                                       decoration-info="vote_phase_state == 'open'" decoration-success="vote_phase_state == 'closed'"
+                                       decoration-danger="vote_phase_state == 'aborted'"/>
+                                <field name="vote_start" options="{'show_seconds': False}"/>
+                                <field name="vote_until" options="{'show_seconds': False}"/>
                                 <field name="group_yes_count"/>
                                 <field name="group_no_count"/>
                                 <field name="group_abstain_count"/>
-                                <field name="group_supports"/>
-                                <field name="voted_count"/>
-                                <field name="joining_count"/>
+                                <field name="vote_progress"/>
+                                <field name="group_vote_result"/>
+                            </group>
+                            <group string="Phase 2: individual joining" name="join_phase">
+                                <field name="join_phase_state" widget="badge"
+                                       decoration-muted="join_phase_state in ('waiting', 'not_opened')"
+                                       decoration-info="join_phase_state == 'open'" decoration-success="join_phase_state == 'closed'"
+                                       decoration-danger="join_phase_state == 'aborted'"/>
+                                <field name="join_start" invisible="not join_start" options="{'show_seconds': False}"/>
+                                <field name="join_until" invisible="not join_until" options="{'show_seconds': False}"/>
+                                <field name="join_progress" invisible="join_phase_state in ('waiting', 'not_opened')"/>
+                                <field name="join_answered_progress" invisible="join_phase_state in ('waiting', 'not_opened')"/>
+                                <field name="family_agrees_count" invisible="family_agrees_count + family_disagrees_count + family_pending_count == 0"/>
+                                <field name="family_disagrees_count" invisible="family_agrees_count + family_disagrees_count + family_pending_count == 0"/>
+                                <field name="family_pending_count" invisible="family_agrees_count + family_disagrees_count + family_pending_count == 0"/>
+                            </group>
+                        </group>
+                        <group string="Closing and validation" name="closing"
+                               invisible="not (pdf_attachment_id or head_of_studies_id or rejected_by_id)">
+                            <group>
                                 <field name="pdf_attachment_id" invisible="not pdf_attachment_id"/>
                                 <field name="head_of_studies_id" invisible="not head_of_studies_id"/>
+                            </group>
+                            <group>
                                 <field name="rejected_by_id" invisible="not rejected_by_id"/>
                                 <field name="rejected_datetime" invisible="not rejected_datetime" options="{'show_seconds': False}"/>
-                                <field name="justification_id" invisible="not justification_id"/>
                             </group>
                         </group>
                         <field name="notes" invisible="not notes" nolabel="1"/>
@@ -103,10 +126,9 @@
                                         <field name="ratified_manually" optional="show"/>
                                         <field name="can_ratify_manually" column_invisible="1"/>
                                         <button name="action_ratify_manually" type="object" icon="fa-check"
-                                                string="Ratify by hand" title="Mark the family's ratification by hand"
+                                                string="Family agrees (by hand)" title="Mark by hand that the family acknowledges and agrees"
                                                 invisible="not can_ratify_manually"
-                                                confirm="Mark that the family of this student ratifies that they join the walkout? Do it only when the family has told the centre so."/>
-                                        <field name="justifiable" optional="show"/>
+                                                confirm="Mark that the family of this student has acknowledged receipt and agrees that they join the walkout? Do it only when the family has told the centre so."/>
                                         <field name="vote_date" optional="hide"/>
                                         <field name="join_date" optional="hide"/>
                                     </list>
@@ -126,7 +148,7 @@
                 <search>
                     <field name="group_id"/>
                     <field name="opener_id"/>
-                    <filter name="to_justify" string="To justify" domain="[('state', '=', 'closed'), ('justification_id', '=', False)]"/>
+                    <filter name="to_validate" string="To validate" domain="[('state', '=', 'closed')]"/>
                     <filter name="voting" string="Voting or joining" domain="[('state', 'in', ('voting', 'joining'))]"/>
                     <separator/>
                     <filter name="not_cancelled" string="Not cancelled" domain="[('state', '!=', 'cancelled')]"/>

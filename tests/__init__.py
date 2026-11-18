@@ -25,6 +25,9 @@ from . import test_level
 from . import test_level_tour
 from . import test_student_document
 from . import test_convalidation
+from . import test_certificate
+from . import test_portal_certificate
+from . import test_certificate_tour
 from . import test_convalidation_period
 from . import test_preenrollment_period
 from . import test_enrollment_head_of_studies
@@ -137,6 +140,8 @@ from . import test_working_schedule_split_period_tour
 from . import test_working_schedule_stale_breaks_tour
 from . import test_working_schedule_multi_group_tour
 from . import test_working_schedule_role_edit_tour
+from . import test_working_schedule_tutoring_level_tour
+from . import test_working_schedule_limited_role_tour
 from . import test_task_assignment
 from . import test_year_record
 from . import test_grade_review
@@ -285,6 +290,8 @@ from . import test_mail_reply_to
 from . import test_quality_minute
 from . import test_centre_language
 from . import test_quality_minute_start
+from . import test_quality_minute_thread
+from . import test_quality_minute_thread_tour
 from . import test_quality_minute_tour
 from . import test_quality_minute_rules
 from . import test_quality_minute_guest
@@ -292,6 +299,8 @@ from . import test_quality_daily_summary
 from . import test_title_registration
 from . import test_title_registration_tour
 from . import test_erasmus
+from . import test_erasmus_confidential_view
+from . import test_erasmus_file_viewer_tour
 from . import test_erasmus_scoring
 from . import test_erasmus_resolution
 from . import test_erasmus_student_call_e2e
@@ -324,6 +333,7 @@ from . import test_erasmus_satisfaction
 from . import test_erasmus_call_announce
 from . import test_erasmus_staff_backend
 from . import test_docs_screenshots_student_card
+from . import test_docs_screenshots_certificates
 from . import test_docs_screenshots_schedule_declaration
 from . import test_docs_screenshots_ex_officio_withdrawal
 from . import test_docs_screenshots_erasmus
@@ -335,6 +345,7 @@ from . import test_student_walkout
 from . import test_school_hours
 from . import test_portal_student_walkout
 from . import test_student_walkout_tour
+from . import test_student_walkout_attendance
 from . import test_erasmus_info_codeview_tour
 from . import test_erasmus_polish_bugs_tour
 from . import test_erasmus_polish_dates_numbers

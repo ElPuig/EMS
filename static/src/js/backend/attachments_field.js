@@ -13,12 +13,19 @@ import {
 // three matching actions on every file: preview in Odoo's own file viewer (the chatter's, only for
 // what it can show: PDF, images, text, video), download and delete. Removing a file deletes it on
 // save (ems.attachment_mixin.write()).
+// View only: a record whose own 'confidential' field is set (an Erasmus+ health card, the evidence
+// of fewer opportunities) offers no download, and its file viewer none either (see
+// file_viewer_view_only.js); the server refuses the download too (models/erasmus/binary.py).
 export class EmsAttachmentsField extends Many2ManyBinaryField {
     static template = "ems.AttachmentsField";
 
     setup() {
         super.setup();
         this.fileViewer = useFileViewer();
+    }
+
+    get viewOnly() {
+        return Boolean(this.props.record.data.confidential);
     }
 
     get files() {
@@ -28,6 +35,7 @@ export class EmsAttachmentsField extends Many2ManyBinaryField {
                 name: record.data.name,
                 mimetype: record.data.mimetype,
                 checksum: record.data.checksum,
+                emsViewOnly: this.viewOnly,
             })
         );
     }

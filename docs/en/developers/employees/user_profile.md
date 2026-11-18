@@ -168,6 +168,16 @@ as the teacher's own form does (see [Working schedule](working_schedule.md)) —
 list columns, same empty-state and edit-permission behaviour. The widget hardcodes
 `resource_calendar_id` and `can_edit_schedule` as the field names it reads off the record.
 
+The tab is limited to `ems.group_teacher` and `ems.group_secretary` (issue #846), the groups that
+can read what it loads (`ems.group`, `ems.subject`, `ems.space`, `ems.level`,
+`ems.non_teaching_type`); `base.group_system` implies the first. Its embedded list is read with the
+form, so loading it for anyone else makes the whole form fail with an access error. The employee form
+uses `groups` on the page. My Profile can't: `hr`'s `res.users.get_views()` builds this view as
+superuser, so `res.users.can_view_schedule` hides the tab and `schedule_attendance_ids` comes back
+empty for those roles. For the same reason the employee form and kanban limit `role_ids`, and the form
+its Tutorships and Subjects blocks, to those two groups: a Settings administrator can read employees
+but not those records.
+
 `res.users` already has its **own native** `resource_calendar_id` (from the `resource`
 module's `resource.mixin`, `related='resource_ids.calendar_id', readonly=False` —
 `hr/models/res_users.py`'s own `employee_resource_calendar_id` is a *different*, third field,

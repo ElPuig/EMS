@@ -521,12 +521,9 @@ class AttendanceSessionView extends Component {
         this.state.saving[lineId] = true;
         try {
             await this._writeSessionLine(lineId, { active });
-            const line = this.state.lines.find(l => l.id === lineId);
-            if (line) {
-                line.active = active;
-                if (active) line.not_expected_reason = false;
-            }
-            this.state.lines = this._sortedLines(this.state.lines);
+            // The server decides the reason: removed again, a reason that still applies comes back
+            // (issue #844, e.g. a student walkout), with its label. Reload the session's lines.
+            await this._loadLines(this._parseSelectedId());
         } finally {
             this.state.saving[lineId] = false;
         }

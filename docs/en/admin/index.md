@@ -16,6 +16,7 @@ This section contains the manuals for **administrators**.
 - [Current Course](course-settings.md) — Switching the academic year used for day-to-day operations.
 - [Installed EMS version](ems-version.md) — Which EMS version is running on this installation, and whether a newer one exists.
 - [Convalidations settings](convalidation-settings.md) — The yearly period to request convalidations from the portal and the texts of the official resolution.
+- [Certificate types and approval circuits](certificate-types.md) — Which certificates can be requested, which documentation they require, who may attach it and who does each step until they are issued.
 - [Centre Language](centre-language.md) — The language EMS writes in by itself and that new users get.
 - [Minutes folder in Drive](minutes-drive.md) — Keeping a copy of every minute's PDF in a shared drive folder.
 - [Workgroups](workgroups.md) — Free-form employee groupings (project teams, committees).

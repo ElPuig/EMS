@@ -5,6 +5,7 @@ ems.mail_activity_attendance_correction,Review attendance correction request,def
 ems.mail_activity_convalidation_review,Review convalidation request,default,ems.convalidation,fa-exchange,False
 ems.mail_activity_convalidation_registration,Register convalidation in Esfera,default,ems.convalidation,fa-pencil-square-o,False
 ems.mail_activity_convalidation_resolution,Resolve convalidation proposal,default,ems.convalidation,fa-gavel,False
+ems.mail_activity_certificate_step,Certificate request step,default,ems.certificate,fa-certificate,False
 ems.mail_activity_absence_document_upload,Attach the absence's supporting document,default,hr.leave,fa-paperclip,False
 ems.mail_activity_absence_document_validate,Validate the absence's supporting document,default,hr.leave,fa-check-square-o,False
 ems.mail_activity_absence_direction_review,Direction review of the absence,default,hr.leave,fa-gavel,False
@@ -23,4 +24,4 @@ ems.mail_activity_ex_officio_withdrawal_justification,Review justified absences 
 ems.mail_activity_quality_agreement,Carry out the agreement,default,ems.quality.action,fa-handshake-o,False
 ems.mail_activity_minute_approval,Approve the minute,default,ems.minute,fa-check-square-o,False
 ems.mail_activity_erasmus_transfer,Pay Erasmus+ pocket money,default,ems.erasmus.payment,fa-eur,False
-ems.mail_activity_student_walkout_justify,Justify the student walkout,default,ems.student_walkout,fa-hand-paper-o,False
+ems.mail_activity_student_walkout_validate,Validate the student walkout,default,ems.student_walkout,fa-hand-paper-o,False

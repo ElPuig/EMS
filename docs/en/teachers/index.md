@@ -17,6 +17,7 @@ This section contains the manuals for **teachers**.
 | [Signing in to EMS with Your Corporate Google Account](acces-ems-google.md) | Access EMS with the **Sign in with Google** button and your `@elpuig.xeill.net` account, without a separate password |
 | [Evaluation: Record grades by learning outcome](qualificacions.md) | Record the grades for each evaluation to prepare the evaluation board |
 | [Strikes: Flagging a Disciplinary Incident](strike.md) | Issue a strike from the roll-call view when a student's behaviour needs to be flagged |
+| [FCT certificates: completing the training (VET coordination)](certificates.md) | Complete the company, period, hours and agreement of FCT certificate requests and hand them over to the secretariat |
 | [Your Weekly Schedule](working-schedules.md) | View your subjects, groups, classrooms, breaks and meetings on your weekly timetable |
 | [Guard Duty Schedule](guard-duty-schedule.md) | See where every teacher is, and who is on guard duty, in each time block of the week |
 | [Students: Your Own Groups](student-list-my-groups.md) | Open the student list already filtered to the groups you teach or tutor, and widen it when you need everyone |

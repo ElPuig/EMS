@@ -6,7 +6,7 @@
 
 Gestiona l'horari setmanal de cada docent des de la seva pròpia fitxa d'empleat, i configura les plantilles d'horari ("marcs horaris") amb què comencen els docents nous.
 
-**Rol necessari:** Cap de departament o superior (Cap de departament, Cap d'estudis, Director, Administrador) pot editar horaris i utilitzar l'assistent d'importació; la resta de rols només poden veure el seu propi horari, en mode lectura, però tothom pot exportar un horari a PDF.
+**Rol necessari:** Cap de departament o superior (cap de departament, cap d'estudis, director, administrador) pot editar horaris i utilitzar l'assistent d'importació; la resta de rols només poden veure el seu propi horari, en mode lectura, però tothom pot exportar un horari a PDF. Qui només té els rols de Qualitat, Configuració o Erasmus+, o no té cap rol d'EMS, no té la pestanya **Horari**. Un administrador de Configuració sense cap altre rol veu els docents sense els seus rols, tutories ni matèries.
 
 ---
 
@@ -142,6 +142,8 @@ La graella setmanal es divideix en 5 columnes de dia (dilluns–divendres); dins
    ![Dues targetes el mateix dia de la setmana, cadascuna amb el seu propi interval de dates, hora, assignatura, grup i aula](../../assets/admin/working-schedules-edit-cards.png)
 
 Les targetes d'un mateix dia sempre es mostren ordenades per hora d'inici i després per hora de fi — dues targetes exactament a la mateixa hora s'ordenen per la seva pròpia data d'inici.
+
+**Nivell i tipus d'atenció d'una targeta de tutoria:** una targeta el tipus no lectiu de la qual té el codi de declaració *Tutoria* o *Nivell o tutoria* (per defecte, *Tutoria* i *Atenció a l'alumnat*) mostra també un desplegable **Nivell**: tria el nivell de l'alumnat a qui es dediquen aquelles hores (ESO, Batxillerat...). Una targeta d'un tipus *Nivell o tutoria* mostra, a més, un desplegable de **tipus d'atenció**: **Suport** (l'opció per defecte) compta les hores a la fila pròpia d'aquest nivell de la [declaració horària](#imprimir-la-declaracio-horaria-oficial) (ESO, BAT, CFGM...), i **Tutoria** les compta a la fila de tutoria d'aquest nivell (T-ESO, T-BAT, T-FP...). Un docent que fa atenció a l'alumnat a dos nivells indica un nivell a cada targeta. Si deixes el nivell en blanc, ho decideix la declaració, tal com s'hi explica. Si tornes a importar l'horari, un bloc amb el mateix dia, hores i tipus conserva tots dos valors.
 
 **Canviar l'aula d'una targeta (pas 5) quan la classe és de co-docència:** si l'aula nova està lliure en aquell dia i hora, el canvi s'aplica immediatament per a tots els docents que comparteixen aquella classe — no cal fer res més. Si l'aula nova ja l'ocupa algú altre exactament a la mateixa hora, el canvi es queda pendent en comptes de fallar del tot: apareix un avís groc a la part superior de la fitxa del docent, sigui quina sigui la pestanya oberta ("S'ha demanat un canvi d'aula des de l'horari d'aquest docent, però N bloc(s) de classe no s'han pogut traslladar automàticament per una col·lisió d'aula"), amb un botó **Resoldre aules pendents**. Vegeu "Resoldre un Conflicte d'Aula Pendent" a [Grups](groups.md) per saber com resoldre-ho des d'allà — la mateixa pantalla també s'obre des de la fitxa d'un grup quan un canvi d'aula de tot el grup topa amb el mateix tipus de col·lisió.
 
@@ -287,7 +289,8 @@ Cada pàgina té el codi, el nom i el municipi del centre (de la configuració d
 **La fila on va cada hora** és configuració, que la instal·lació deixa preparada i que pots canviar després:
 
 - Una classe compta a la fila del **nivell** del seu grup: el **Codi a la declaració horària** del nivell (**Comunitat Educativa → Configuració → Currículum → Nivells**). EMS el fixa per als nivells oficials (ESO, BTX, CFGB, CFGM, CFGS, EFPS, PFI), tal com el defineix el Departament, i per això no es pot canviar al formulari. Un desdoblament o una optativa sense nivell propi pren el nivell dels seus grups principals. Un nivell sense codi (per exemple, un de creat pel centre) va a *Altres*.
-- Una tutoria (una assignatura de tutoria, o un tipus no lectiu amb el codi de tutoria: per defecte *Tutoria* i *Atenció a l'alumnat*) compta a T-ESO, T-BAT o T-FP (o PFI) segons el nivell del grup tutoritzat. Si el docent no és tutor de cap grup, segons el nivell on fa més hores de classe.
+- Una tutoria (una assignatura de tutoria, o un tipus no lectiu amb el codi de tutoria: per defecte *Tutoria*) compta a T-ESO, T-BAT o T-FP (o PFI) segons el nivell del grup tutoritzat. Si el docent no és tutor de cap grup, segons el nivell on fa més hores de classe. Un bloc de tutoria també pot indicar el seu propi **Nivell** a la targeta de la pestanya Horari i aleshores compta a la fila d'aquest nivell, sigui quina sigui la tutoria o la docència del docent.
+- Un tipus no lectiu amb el codi **Nivell o tutoria** (per defecte *Atenció a l'alumnat*) troba el seu nivell de la mateixa manera, i el **tipus d'atenció** de cada bloc indica on compta: com a **Suport** (l'opció per defecte), a la fila pròpia d'aquest nivell (ESO, BAT, CFGM...) o a *Altres* si no es pot deduir cap nivell; com a **Tutoria**, a la fila de tutoria d'aquest nivell. No afegeix cap fila al quadre resum.
 - Qualsevol altra hora no lectiva compta a la fila triada al **Codi a la declaració horària** del seu tipus (**Configuració → Professorat → Tipus d'hora no lectiva**); buit vol dir que no es declara.
 - Les reduccions lectives només hi surten com a hores, a "Si disposeu de reducció de jornada", i se sumen al TOTAL de lectives.
 

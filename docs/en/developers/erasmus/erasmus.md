@@ -78,7 +78,7 @@ when none does: the students may still be choosing their destination, so it does
 
 The four deadlines after closing are filled in by EMS from `date_close` (`_ems_deadlines()`, the
 same for students' and staff calls): that many days after the closing day (`DEADLINE_DAYS`:
-corrections 7, score correction 14, claims 19, acceptance 25), at 14:00 in the centre
+corrections 7, interview/evaluation 14, claims 19, acceptance 25), at 14:00 in the centre
 (`DEADLINE_HOUR`), moved to the next school day when that day is a weekend, a public holiday or a
 school break (`resource.calendar.leaves._ems_nth_school_days()`, shared with the ex officio
 withdrawal circuit, which reads the holidays once for the four deadlines). `create()` fills the ones not given; `write()` and the onchange of
@@ -199,6 +199,30 @@ stateDiagram-v2
 Every upload adds an attachment to the document line; earlier files are never removed, so every
 version stays. A new upload puts the line back to *Pending review*. The team marks each line
 *Valid* or *Needs changes* (with a comment the applicant sees on the portal).
+
+### Viewing files, confidential ones view only (issue #845)
+
+Every file field of the Erasmus+ views uses the `ems_attachments` widget (eye: Odoo's file viewer;
+download; remove while editable). Odoo's stock `many2many_binary` is no longer used in
+`views/erasmus/`. The call's Bases PDF is a single `Binary` field with its own pencil, download and
+bin, not a many2many, and is left as it is.
+
+A document whose own `confidential` field is set (`ems.erasmus.application.document` and
+`ems.erasmus.project.document`; the view must carry that field, as `column_invisible`) is view only:
+- The widget hides the download link and marks its files `emsViewOnly`; `file_viewer_view_only.js`
+  then hides the viewer's Download and Print buttons and, in a PDF, the reader's own download,
+  print and open buttons.
+- `ir.binary._get_stream_from` (`models/erasmus/binary.py`) refuses the download of such a file when
+  `/web/content` or `/web/image` pass `download_attachments=True` (`?download=true`): the controllers
+  turn the `UserError` into a 404. Without `download` the file is served to whoever the record rules
+  let read it (the Erasmus team and the administration; the Head of Studies and the panel never
+  reach it) and an opening is added to the owner's chatter (the application, or the project):
+  author, file and time, once per person and file within ten minutes. `/web/content` runs on a
+  read-only cursor, so the note is written in a cursor of its own (a write on it would only fail and
+  make Odoo retry the request, with an ERROR in the log). The portal controllers don't set the context key, so an
+  applicant still downloads their own files, and the audit export (`include_confidential`, only the
+  coordinator) reads the files through the ORM, unchanged.
+- Not encrypted: the file is stored as any other, and a screenshot of the screen is still possible.
 
 ## Admission checks
 
@@ -584,7 +608,7 @@ stateDiagram-v2
   other evaluator's, nor anything else of the application. Being assigned adds them to
   `ems.group_erasmus_evaluator` (*Erasmus+ > My participation > Interviews to score*); losing every interview removes it.
   The panel's plan ratings use `ems.group_erasmus_panel` the same way (*Plans to rate*).
-- After the call's `interview_deadline` (label *Score correction deadline*, shared with the plan ratings) the evaluator can no longer change or reopen; the team
+- After the call's `interview_deadline` (label *Interview/evaluation deadline*, shared with the plan ratings) the evaluator can no longer change or reopen; the team
   can still reopen, writing a rectification note (`rectification_note`), posted in the chatter.
 - The application's interview score is the mean of the submitted interviews, complete when every
   assigned interview is submitted and there are two of them, or one with a recorded reason
@@ -845,14 +869,14 @@ what differs:
 | Modality | Computed from the level when applying; required to publish | Not needed to publish (the places may change), but publishing without places warns the team (`action_publish()` returns a notification); required before preparing the provisional resolution; the team assigns each selected person's project and period |
 | Documents | Configured per call; a new call brings the five of art. 8 (`_ems_student_documents`, on create) | Only the optional language certificates (`_ems_staff_documents`, on create and on the `audience` onchange); the plan is written in the form (`PLAN_FIELDS`) |
 | Admission checks | Requirements; a serious conduct record this course is pointed out, the team may exclude | Requirements only |
-| Scoring | Art. 12 (A-F), A and F frozen at closing | Art. 11 of the staff call (1-6): the panel, what the applicant declares (last mobility, seniority, language) and the merits the team records |
+| Scoring | Art. 12 (A-F), A and F frozen at closing | Art. 11 of the staff call (1-5): the panel, what the applicant declares (last mobility, seniority, language) and the merits the team records |
 | Ranking | Per modality | One list for the whole call |
 | Places | Per modality | Issue #772: `project_place_ids` (places per project, the team's planning), offered as one pool (`_ems_places()`, the sum); staff only see the total |
 | Modalities | Levels and places; the project from the levels | None. The team sets the mobility's `project_id` (domain `allowed_project_ids`: the projects of the call's table; `_check_project` refuses another), which brings the documents of its kind (`project_kind` = the project's kind; `write` re-syncs the requirements). `project_places` ("2026-VET: 1 of 2 places left") and `project_places_over` (a warning, not a block) on the mobility; `places_without_project` warns on the call (note 7.1) and the application list shows `project_id` from a staff call's button (`ems_staff_call` context) |
 | Dissemination | - | Not part of the plan nor of the rubric: the same obligation for everyone, a news item on the website and sharing it at a meeting if needed (two return steps of the checklist) |
 | Identity document of the lists | `res.partner.document_id` / `passport_id` | `hr.employee.identification_id` / `passport_id` (`_ems_identity_document`) |
 | Minimum score | 50 | 0 (set by `create()` and the onchange of `audience`; hidden in the form) |
-| Score correction deadline (`interview_deadline`) | From `date_close` (`_ems_deadlines()`), like every deadline | The same rule: it is the panel's deadline |
+| Interview/evaluation deadline (`interview_deadline`) | From `date_close` (`_ems_deadlines()`), like every deadline | The same rule: it is the panel's deadline |
 
 ```mermaid
 erDiagram
@@ -868,8 +892,8 @@ erDiagram
 | Model | Purpose |
 |---|---|
 | `ems.erasmus.call.panel` | A panel member of a staff call (user, post), copied when the call is duplicated. |
-| `ems.erasmus.plan_rating` | One panel member's rating of one application's mobility plan (annex 2, criterion 1 "Mobility plan" since 2026-11-13: `concreteness` and `relevance` (to the job), each up to 1 point; their selection labels are the annex's descriptions, their keys the points, 1 / 0.5 / 0). The old `transfer` aspect was removed with no migration: the selection keys are the same, and no staff call had reached the panel in production. Unique per (application, panel member). Inherits `ems.erasmus.evaluation`. |
-| `ems.erasmus.application.merit` | A merit of criteria 3 (centre project: collaboration 0.5, coordination 1) or 6 (internationalisation activity 0.5), with its justification. |
+| `ems.erasmus.plan_rating` | One panel member's rating of one application's mobility plan (annex 2, criterion 1 "Mobility plan": `concreteness` and `relevance` (to the job), each 1 / 0.5 / 0 points, and, since 2026-11-18, `activity_kind`, the activity of proposal A, 0.5 for a job shadowing or a teaching assignment and 0 for a course, so that the centre favours them over courses (adriamt); max 2.5. Their selection labels are the annex's descriptions, their keys the points). The panel reads it from proposal A's text: the application stores no activity type, which is only chosen on the mobility after accepting the place, and nothing checks it against that later choice (adriamt, 2026-11-18: only the application counts). The old `transfer` aspect was removed with no migration: the selection keys are the same, and no staff call had reached the panel in production. Unique per (application, panel member). Inherits `ems.erasmus.evaluation`. |
+| `ems.erasmus.application.merit` | A merit of criterion 3 (centre project: collaboration 0.5, coordination 1), with its justification. |
 
 ### Application form
 
@@ -948,12 +972,11 @@ read only); the rating shows those files (`plan_attachment_ids`). Nothing else o
 
 | | Criterion | Field(s) | Points |
 |---|---|---|---|
-| 1 | Mobility plan | `plan_score` → `score_plan` | max 2 |
-| 2 | Last staff mobility | `last_staff_mobility` (team correction) else `declared_last_staff_mobility` → `score_last_mobility` | never / older 1.5, two courses ago 0.5, recent 0 |
-| 3 | Centre projects | `merit_ids` (project kinds) → `score_projects` | sum, max 1.5 |
-| 4 | Languages | `language_level` (checked by the team) else `declared_language_level` (the applicant's) → `score_staff_language` | B2 1, C1 1.5, C2 2 (B1 0) |
+| 1 | Mobility plan | `plan_score` → `score_plan` | max 2.5 |
+| 2 | Last staff mobility | `last_staff_mobility` (team correction) else `declared_last_staff_mobility` → `score_last_mobility` | never / older 1, two courses ago 0.5, recent 0 |
+| 3 | Centre projects | `merit_ids` (project kinds) → `score_projects` | sum, max 2 |
+| 4 | Languages | `language_level` (checked by the team) else `declared_language_level` (the applicant's) → `score_staff_language` | B2 1.5, C1 2, C2 2.5 (B1 0) |
 | 5 | Seniority | `seniority` (team correction) else `declared_seniority` → `score_seniority` | < 1 year 0, 1-2 1, 2-5 1.5, ≥ 5 2 |
-| 6 | Internationalisation | `merit_ids` (internationalisation) → `score_internationalisation` | sum, max 1 |
 
 **Declared values** (`_compute_declared_staff_bands`): the applicant only ticks that they never had an
 Erasmus+ staff mobility at the Puig (`declared_never_staff_mobility` → band `never`); for everyone

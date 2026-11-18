@@ -14,7 +14,7 @@ from . import economy
 from . import pocket_money
 # document_review after group_mobility: it extends the documents of both kinds of mobility.
 from . import document_review
-from . import attachment
+from . import attachment, binary
 # electronic_signature after document_review: it signs the documents' signature lines through sign_oca.
 from . import electronic_signature
 from . import history, ir_http

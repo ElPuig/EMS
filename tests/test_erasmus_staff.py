@@ -90,11 +90,12 @@ class ErasmusStaffCase(TransactionCase):
         application.action_admit()
         return application
 
-    def _rate(self, application, concreteness, relevance):
-        """Every rating of `application` scored and submitted, but the abstentions."""
+    def _rate(self, application, concreteness, relevance, activity='0.5'):
+        """Every rating of `application` scored and submitted, but the abstentions. `activity` is
+        the annex 2 aspect of proposal A: '0.5' for a job shadowing or teaching, '0' for a course."""
         for rating in application.sudo().plan_rating_ids.filtered(
                 lambda rating: rating.state == 'draft' and not rating.abstention_reason):
-            rating.write({'concreteness': concreteness, 'relevance': relevance})
+            rating.write({'concreteness': concreteness, 'relevance': relevance, 'activity_kind': activity})
             rating.action_submit()
 
     def _complete(self, application, last='never', language='none', seniority='y5', merits=()):
@@ -319,7 +320,7 @@ class TestErasmusPlanRating(ErasmusStaffCase):
         self.assertFalse(rating.evaluator_id)
         self._rate(first, '1', '0.5')
         self.assertTrue(first.plan_complete)  # only the Head of Studies rates: the other two abstain
-        self.assertEqual(first.plan_score, 1.5)
+        self.assertEqual(first.plan_score, 2.0)
         self.assertEqual(rating.rating_status, 'abstention', "Shown as an abstention, not as a plan to rate.")
         rating.abstention_reason = False
         self.assertEqual(rating.evaluator_id, self.panel_teacher)
@@ -331,12 +332,12 @@ class TestErasmusPlanRating(ErasmusStaffCase):
         mine = self.env['ems.erasmus.plan_rating'].with_user(self.panel_teacher).search(
             [('evaluator_id', '=', self.panel_teacher.id)])
         self.assertGreater(len(mine), 1)
-        mine[0].write({'concreteness': '1', 'relevance': '1'})
+        mine[0].write({'concreteness': '1', 'relevance': '1', 'activity_kind': '0.5'})
         action = mine[0].action_submit_next()
         self.assertEqual(mine[0].state, 'submitted')
         self.assertEqual(action['res_id'], mine[1].id, "The next plan opens.")
         for rating in mine[1:]:
-            rating.write({'concreteness': '1', 'relevance': '1'})
+            rating.write({'concreteness': '1', 'relevance': '1', 'activity_kind': '0.5'})
         mine[1:-1].action_submit()
         action = mine[-1].action_submit_next()
         self.assertEqual(action['res_model'], 'ems.erasmus.plan_rating')
@@ -347,14 +348,14 @@ class TestErasmusPlanRating(ErasmusStaffCase):
         self._complete(first)
         ratings = first.sudo().plan_rating_ids
         mine = ratings.filtered(lambda rating: rating.evaluator_id == self.panel_teacher)
-        mine.with_user(self.panel_teacher).write({'concreteness': '1', 'relevance': '0.5'})
+        mine.with_user(self.panel_teacher).write({'concreteness': '1', 'relevance': '0.5', 'activity_kind': '0.5'})
         mine.with_user(self.panel_teacher).action_submit()
         self.assertFalse(first.plan_complete)
         self.assertFalse(first.score_complete)
-        self.assertEqual(first.plan_score, 1.5)
+        self.assertEqual(first.plan_score, 2.0)
         self._rate(first, '1', '1')
         self.assertTrue(first.plan_complete)
-        self.assertEqual(first.plan_score, 1.75)  # the candidate in the panel abstains
+        self.assertEqual(first.plan_score, 2.25)  # the candidate in the panel abstains
         self.assertTrue(first.score_complete)
 
     def test_panel_member_sees_only_their_ratings_and_the_mobility_plan(self):
@@ -372,7 +373,7 @@ class TestErasmusPlanRating(ErasmusStaffCase):
             first.with_user(self.panel_teacher).read(['partner_id'])
         with self.assertRaises(AccessError):
             rating.write({'abstention_reason': 'Not mine to write'})
-        rating.write({'concreteness': '1', 'relevance': '1'})
+        rating.write({'concreteness': '1', 'relevance': '1', 'activity_kind': '0.5'})
         rating.action_submit()
         rating.action_reopen()
 
@@ -385,7 +386,7 @@ class TestErasmusPlanRating(ErasmusStaffCase):
             self._complete(application)
         points = ['plan_score', 'score_plan', 'score_seniority', 'score_total']
         self._rate(applications[0], '1', '1')
-        self.assertEqual(applications[0].with_user(self.erasmus_user).read(points)[0]['plan_score'], 2.0)
+        self.assertEqual(applications[0].with_user(self.erasmus_user).read(points)[0]['plan_score'], 2.5)
         hidden = applications[0].with_user(self.hos_user).read(points)[0]
         self.assertEqual([hidden[name] for name in points], [0.0] * 4, "Two plans still to rate.")
         searched = self.env['ems.erasmus.application'].with_user(self.hos_user).search_read(
@@ -394,29 +395,44 @@ class TestErasmusPlanRating(ErasmusStaffCase):
         for application in applications[1:]:
             self._rate(application, '1', '0.5')
         shown = applications[0].with_user(self.hos_user).read(points)[0]
-        self.assertEqual([shown[name] for name in points], [2.0, 2.0, 2.0, 5.5])
+        self.assertEqual([shown[name] for name in points], [2.5, 2.5, 2.0, 5.5])
 
     def test_staff_criteria_and_their_maximums(self):
         first = self._sent_to_panel()[0]
         self._rate(first, '1', '1')
         self._complete(first, last='two_courses', language='b1', seniority='y2',
-                       merits=('project_coordination', 'project_coordination', 'internationalisation',
-                               'internationalisation', 'internationalisation'))
+                       merits=('project_coordination', 'project_coordination', 'project_collaboration'))
         self.assertEqual((first.score_plan, first.score_last_mobility, first.score_projects,
-                          first.score_staff_language, first.score_seniority, first.score_internationalisation),
-                         (2.0, 0.5, 1.5, 0.0, 1.5, 1.0))
+                          first.score_staff_language, first.score_seniority),
+                         (2.5, 0.5, 2.0, 0.0, 1.5))
         self.assertEqual(first.score_total, 6.5)
-        first.language_level = 'c1'
-        self.assertEqual(first.score_staff_language, 1.5)
+        self._complete(first, last='never')
+        self.assertEqual(first.score_last_mobility, 1.0)
+        first.language_level = 'c2'
+        self.assertEqual(first.score_staff_language, 2.5)
         first.merits_checked = False
         self.assertFalse(first.score_complete)
+
+    def test_job_shadowing_or_teaching_in_proposal_a_scores_half_a_point_more_than_a_course(self):
+        """Annex 2 (adriamt, 2026-11-18): the activity of proposal A is the plan's third aspect, 0.5
+        points for a job shadowing or a teaching assignment and 0 for a course, so the plan is out of
+        2.5 and the staff criteria still add up to 10."""
+        first, second = self._sent_to_panel()[:2]
+        self._rate(first, '1', '1', activity='0.5')
+        self._rate(second, '1', '1', activity='0')
+        self.assertEqual((first.plan_score, second.plan_score), (2.5, 2.0))
+        rating = second.sudo().plan_rating_ids.filtered(lambda rating: not rating.abstention_reason)[:1]
+        rating.action_reopen()
+        rating.activity_kind = False
+        with self.assertRaises(UserError, msg="The activity is required to submit, like the other aspects."):
+            rating.action_submit()
 
     def test_languages_score_the_declared_certificate_unless_the_team_corrects_it(self):
         first = self._sent_to_panel()[0]
         first.write({'declared_language_level': 'c1'})  # what the applicant declared on the portal
-        self.assertEqual(first.score_staff_language, 1.5)
+        self.assertEqual(first.score_staff_language, 2.0)
         first.language_level = 'b2'
-        self.assertEqual(first.score_staff_language, 1.0)
+        self.assertEqual(first.score_staff_language, 1.5)
         first.write({'language_level': False, 'declared_language_level': False})
         self._rate(first, '1', '1')
         first.write({'last_staff_mobility': 'never', 'seniority': 'y5', 'merits_checked': True})
@@ -424,16 +440,16 @@ class TestErasmusPlanRating(ErasmusStaffCase):
         self.assertEqual(first.score_staff_language, 0.0)
 
     def test_one_ranking_for_the_whole_call_with_the_staff_tie_breaks(self):
-        """All three total 4.5: a tie is broken by the mobility plan, then by seniority."""
+        """All three total 5: a tie is broken by the mobility plan, then by seniority."""
         first, second, third = self._sent_to_panel()
         self._rate(first, '1', '1')
         self._rate(second, '1', '1')
         self._rate(third, '1', '0.5')
-        self._complete(first, last='two_courses', seniority='y1', language='b2')
+        self._complete(first, last='recent', seniority='y1', language='b2')
         self._complete(second, last='two_courses', seniority='y2', merits=('project_collaboration',))
         self.assertFalse(first.rank)  # the third is not scored yet
-        self._complete(third, last='older', seniority='y2')
-        self.assertEqual({first.score_total, second.score_total, third.score_total}, {4.5})
+        self._complete(third, last='older', seniority='y2', merits=('project_collaboration',))
+        self.assertEqual({first.score_total, second.score_total, third.score_total}, {5.0})
         self.assertEqual((second.rank, first.rank, third.rank), (1, 2, 3))
         self.assertEqual([application._ems_ranking_result() for application in (second, first, third)],
                          ['selected', 'selected', 'reserve'])
@@ -460,7 +476,7 @@ class TestErasmusStaffResolution(ErasmusStaffCase):
         lines = {line.application_id: line for line in groups[0][1]}
         self.assertEqual(lines[first].public_id, '***1111**')
         self.assertEqual(lines[third].public_id, '****2222*')
-        self.assertEqual(lines[first].score_last_mobility, 1.5)
+        self.assertEqual(lines[first].score_last_mobility, 1.0)
         self.assertEqual((first.state, second.state, third.state), ('selected', 'selected', 'reserve'))
         self.assertFalse(first.offer_ids.modality_id)
         html = self.env['ir.actions.report']._render_qweb_html('ems.action_report_erasmus_resolution', resolution.ids)[0]

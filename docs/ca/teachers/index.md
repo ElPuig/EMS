@@ -17,6 +17,7 @@ Aquesta secció conté els manuals per als **professors**.
 | [Iniciar sessió a l'EMS amb el compte corporatiu de Google](acces-ems-google.md) | Accedir a l'EMS amb el botó **Inicia la sessió amb Google** i el teu compte `@elpuig.xeill.net`, sense contrasenya separada |
 | [Avaluació: Introduir qualificacions per RAs](qualificacions.md) | Introduir les qualificacions de cada avaluació per preparar la junta d'avaluació |
 | [Strikes: notificar una incidència disciplinària](strike.md) | Posar un strike des de la vista de passar llista quan cal deixar constància del comportament d'un alumne |
+| [Certificats de FCT: completar la formació (coordinació d'FP)](certificates.md) | Completar l'empresa, el període, les hores i el conveni de les sol·licituds de certificat de FCT i passar-les a secretaria |
 | [El teu horari setmanal](working-schedules.md) | Consultar les teves assignatures, grups, aules, patis i reunions al teu horari setmanal |
 | [Horari de guàrdies](guard-duty-schedule.md) | Consultar on és cada docent, i qui està de guàrdia, a cada franja horària de la setmana |
 | [Alumnat: els teus grups](student-list-my-groups.md) | Obrir la llista d'alumnat ja filtrada als grups on fas classe o ets tutor, i ampliar-la quan la necessitis sencera |

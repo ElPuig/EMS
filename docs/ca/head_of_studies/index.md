@@ -12,6 +12,7 @@ Aquesta secció conté els manuals per a **Cap d'Estudis, Cap d'Estudis Adjunt/a
 
 - [Històric acadèmic: consultes de cohort](academic-history.md)
 - [Convalidacions: revisar i resoldre les sol·licituds](convalidations.md) — Revisar cada mòdul i fer-ne la proposta (Cap d'Estudis), resoldre-la oficialment (Direcció) o tramitar-la amb el Ministeri.
+- [Certificats: donar el vistiplau](certificates.md) — Donar el vistiplau als certificats expedits per secretaria (Direcció); EMS genera el PDF i l'envia a la persona sol·licitant.
 - [Erasmus+: validar les activitats del personal](erasmus-staff-validation.md) — La direcció valida l'activitat, l'entitat, la destinació i les dates de cada persona seleccionada del personal.
 - [Erasmus+: respondre un recurs d'alçada contra una resolució](erasmus-appeals.md) — El cap d'estudis de la persona respon els recursos contra la llista definitiva d'una convocatòria Erasmus+.
 - [Assistència a reunions amb la targeta NFC](../secretary/meeting-attendance.md) — Confirmar l'assistència a un claustre o a una reunió amb el lector NFC de l'entrada (manual compartit amb secretaria).
@@ -26,6 +27,7 @@ Aquesta secció conté els manuals per a **Cap d'Estudis, Cap d'Estudis Adjunt/a
 - [Decidir sobre sol·licituds de correcció de fitxatges](attendance-corrections.md)
 - [Strikes: menú Convivència i correus d'escalat](strike.md)
 - [L'horari setmanal d'un grup](../admin/group-schedule.md)
+- [Horaris dels docents i marcs horaris](../admin/working-schedules.md)
 - [Informes d'assistència](attendance-reports.md)
 - [Gestionar les absències del personal](absences.md) — Aprovar les absències de la teva àrea, ajustar-ne el còmput, l'aprovació de Direcció i els dos informes.
 - [Crear i editar professorat](staff-management.md)
@@ -36,7 +38,7 @@ Aquesta secció conté els manuals per a **Cap d'Estudis, Cap d'Estudis Adjunt/a
 - [Organitzar les absències](../department_chiefs/absences.md) — Enviar guàrdies, reorganitzar les classes i avisar les famílies d'un canvi d'horari quan falta un docent.
 - [Notes públiques i notes privades de l'alumne](../teachers/student-notes.md) — On tot el professorat llegeix les notes públiques d'un alumne, i qui pot llegir i escriure les privades de tutoria.
 - [Erasmus+: consultar l'economia dels projectes](erasmus-economy.md) — La direcció consulta la subvenció, els compromisos, els pagaments, les despeses i el suport organitzatiu de cada projecte Erasmus+, i els exporta a Excel.
-- [Vagues d'estudiants: validar-les](student-walkout.md) — L'acta quan es tanca una proposta, i validar-la (justificar la falta dels qui s'hi sumen) o no.
+- [Inassistències col·lectives: validar-les](student-walkout.md) — L'acta quan es tanca una proposta, i validar-la o no.
 
 ---
 

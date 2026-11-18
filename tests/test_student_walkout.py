@@ -100,8 +100,8 @@ def open_walkout(cls, partner=None, days=7, files=None, **values):
     }, files if files is not None else [('union_call.pdf', PDF)])
 
 
-def reject_walkout(walkout, user, reason_xmlid='ems.student_walkout_rejection_no_call', details=False):
-    """`user` aborts `walkout` (voting, joining) or does not validate it (closed, justified), from
+def reject_walkout(walkout, user, reason_xmlid='ems.student_walkout_rejection_document', details=False):
+    """`user` aborts `walkout` (voting, joining) or does not validate it (closed, validated), from
     its wizard."""
     wizard = walkout.env['ems.student_walkout.reject.wizard'].with_user(user).with_context(
         active_id=walkout.id).create({'reason_id': walkout.env.ref(reason_xmlid).id, 'details': details})
@@ -306,9 +306,12 @@ class TestStudentWalkout(TransactionCase):
         with self.assertRaises(Exception):
             self.env.company.write({'walkout_phase_hours': 0})
 
-    def test_union_call_is_required(self):
+    def test_a_supporting_document_is_required(self):
+        """Issue #844: any document (a union's call, the group's assembly minute...), but always one."""
         with self.assertRaises(UserError):
             open_walkout(self, files=[])
+        walkout = open_walkout(self, files=[('assembly_minute.pdf', PDF)])
+        self.assertEqual(walkout.attachment_ids.mapped('name'), ['assembly_minute.pdf'])
 
     def test_reason_is_required(self):
         for empty in ('', '   ', False):
@@ -408,12 +411,10 @@ class TestStudentWalkout(TransactionCase):
         self._supported(closed)
         self._join(closed, self.delegate)
         end_phase(closed)
-        closed.with_user(admin).action_generate_justification()
-        self.assertEqual(closed.state, 'justified')
-        justification = closed.justification_id
-        reject_walkout(closed, admin, 'ems.student_walkout_rejection_no_call')  # undoes the validation
-        self.assertEqual(closed.state, 'rejected')
-        self.assertFalse(justification.exists())
+        closed.with_user(admin).action_validate()
+        self.assertEqual(closed.state, 'validated')
+        reject_walkout(closed, admin, 'ems.student_walkout_rejection_document')  # undoes the validation
+        self.assertEqual((closed.state, closed.rejected_from_state), ('rejected', 'validated'))
 
     def test_co_tutors_of_a_split_group(self):
         half = self.group.copy({'acronym': 'B'})
@@ -530,6 +531,45 @@ class TestStudentWalkout(TransactionCase):
         self.assertFalse(other.group_supports)
         self.assertTrue(other.pdf_attachment_id)
 
+    def test_the_group_vote_result_is_pending_until_the_vote_ends(self):
+        walkout = open_walkout(self)
+        self._vote(walkout, self.delegate, 'yes')
+        self.assertTrue(walkout.group_supports, "One yes against no one: the count alone says so already.")
+        self.assertEqual(walkout.group_vote_result, 'pending', "But the vote is still open.")
+        self._vote(walkout, self.subdelegate, 'yes')
+        self.assertEqual(walkout.group_vote_result, 'supports')
+        other = open_walkout(self, days=8)
+        self._vote(other, self.delegate, 'yes')
+        self._vote(other, self.subdelegate, 'no')
+        end_phase(other)
+        self.assertEqual(other.group_vote_result, 'does_not_support')
+        aborted = open_walkout(self, days=9)
+        aborted.sudo().write({'state': 'rejected', 'rejected_from_state': 'voting'})
+        self.assertFalse(aborted.group_vote_result, "Aborted before the vote ended: no result.")
+
+    def test_the_form_tells_the_two_phases_apart(self):
+        walkout = open_walkout(self)
+        self.assertEqual((walkout.vote_phase_state, walkout.join_phase_state), ('open', 'waiting'))
+        self._supported(walkout)
+        self.assertEqual((walkout.vote_phase_state, walkout.join_phase_state), ('closed', 'open'))
+        self._join(walkout, self.subdelegate)  # a minor: its family is asked
+        self.assertEqual((walkout.family_agrees_count, walkout.family_disagrees_count, walkout.family_pending_count),
+                         (0, 0, 1))
+        ratify(walkout, self.family, self.subdelegate)
+        self.assertEqual((walkout.family_agrees_count, walkout.family_pending_count), (1, 0))
+        self.assertEqual(walkout.join_progress, f"{walkout.joining_count} / {len(walkout.line_ids)}")
+        self.assertEqual(walkout.vote_progress, f"{walkout.voted_count} / {walkout.voter_count}")
+        end_phase(walkout)
+        self.assertEqual(walkout.join_phase_state, 'closed')
+        other = open_walkout(self, days=8)
+        self._vote(other, self.delegate, 'yes')
+        self._vote(other, self.subdelegate, 'no')
+        end_phase(other)
+        self.assertEqual((other.vote_phase_state, other.join_phase_state), ('closed', 'not_opened'))
+        aborted = open_walkout(self, days=9)
+        aborted.sudo().write({'state': 'rejected', 'rejected_from_state': 'joining', 'group_yes_count': 2})
+        self.assertEqual((aborted.vote_phase_state, aborted.join_phase_state), ('closed', 'aborted'))
+
     def test_students_may_answer_before_the_phase_starts(self):
         """The email may wait for the group's next class, but the portal lets them vote meanwhile
         (e.g. on the weekend)."""
@@ -538,7 +578,7 @@ class TestStudentWalkout(TransactionCase):
         self._vote(walkout, self.classmate, 'yes')
         self.assertEqual(walkout.group_yes_count, 1)
 
-    def test_a_group_that_does_not_support_it_closes_and_justifies_nobody(self):
+    def test_a_group_that_does_not_support_it_closes_with_nothing_to_validate(self):
         walkout = open_walkout(self)
         self._vote(walkout, self.delegate, 'yes')
         self._vote(walkout, self.subdelegate, 'no')
@@ -548,7 +588,7 @@ class TestStudentWalkout(TransactionCase):
         self.assertTrue(walkout.pdf_attachment_id, "The minute goes to the Head of Studies all the same.")
         self.assertFalse(walkout.activity_ids)
         with self.assertRaises(UserError):
-            walkout.with_user(self.head_of_studies).action_generate_justification()
+            walkout.with_user(self.head_of_studies).action_validate()
 
     # Joining
 
@@ -656,7 +696,7 @@ class TestStudentWalkout(TransactionCase):
         self.assertEqual(walkout.state, 'joining')
         self.assertGreater(walkout.join_until, fields.Datetime.now())
         self.assertFalse(first_minute.exists(), "The old minute is gone.")
-        self.assertFalse(walkout.activity_ids, "Nothing to justify until it closes again.")
+        self.assertFalse(walkout.activity_ids, "Nothing to validate until it closes again.")
         self.assertEqual(self._notices(walkout).user_id, self.head_of_studies,
                          "The Head of Studies is told in the daily summary that the minute is held back.")
         self._join(walkout, self.classmate)  # joining is open again
@@ -690,37 +730,29 @@ class TestStudentWalkout(TransactionCase):
         walkout._ems_portal_extend(self.delegate)
         self.assertEqual(len(self._mails(walkout.line_ids)), sent + 3, "Each student with portal access.")
 
-    def test_generate_the_justification(self):
+    def test_validate(self):
+        """Issue #844: validating justifies nothing (every student who joins is already off the roll-calls
+        of the day, see TestStudentWalkoutAttendance); it confirms the walkout and tells everybody."""
         walkout = open_walkout(self)
         self._supported(walkout)
         self._join(walkout, self.delegate)
         self._join(walkout, self.classmate)
+        self._join(walkout, self.subdelegate)  # its family never answers: told all the same
         ratify(walkout, self.family, self.classmate)
         end_phase(walkout)
-        # The classmate already has a justification that day: skipped, and said.
-        Justification = self.env['ems.attendance_justification']
-        Justification.create({
-            'teacher_id': self.group.tutor_id.id, 'student_ids': [(6, 0, self.classmate.ids)],
-            'reason_id': self.env.ref('ems.attendance_justification_reason_health').id,
-            **Justification._whole_day_vals(walkout.walkout_date),
-        })
         before = self._mails(walkout.line_ids)
         with self.assertRaises(UserError):
-            walkout.with_user(self.tutor).action_generate_justification()  # the Head of Studies validates
-        walkout.with_user(self.head_of_studies).action_generate_justification()
-        justification = walkout.justification_id
-        self.assertEqual(walkout.state, 'justified')
-        # Validated: each student with portal access is told, and the family of the joining minor
-        # (not the adult delegate's, nor the family of the minor who does not join).
+            walkout.with_user(self.tutor).action_validate()  # the Head of Studies validates
+        walkout.with_user(self.head_of_studies).action_validate()
+        self.assertEqual(walkout.state, 'validated')
+        # Validated: each student with portal access is told, and the family of each joining minor
+        # (not the adult delegate's, who does not share with a family).
         validated = self._mails(walkout.line_ids) - before
         self.assertEqual(len(validated.filtered(lambda mail: '@example.com' in mail.email_to
                                                 and self.family.email not in mail.email_to)), 3)
-        self.assertEqual(len(self._family_mails(walkout)), 2, "The request to ratify, then the validation.")
-        self.assertEqual(justification.reason_id, self.env.ref('ems.attendance_justification_reason_walkout'))
-        self.assertEqual(justification.day, walkout.walkout_date)
-        self.assertEqual(justification.student_ids, self.delegate)
+        self.assertEqual(len(validated.filtered(lambda mail: self.family.email in mail.email_to)), 2,
+                         "The families of both minors who join, ratified or not.")
         self.assertFalse(walkout.activity_ids, "The task is done.")
-        self.assertIn(self.classmate.name, walkout.message_ids.mapped('body')[0])
 
     # The families of minors ratify
 
@@ -736,7 +768,6 @@ class TestStudentWalkout(TransactionCase):
         self.assertEqual(len(self._family_mails(walkout)), 1, "The family is asked at once.")
         ratify(walkout, self.family, self.classmate)
         self.assertEqual((line.ratification, line.ratified_by_id), ('ratified', self.family))
-        self.assertEqual(walkout.justifiable_student_ids, self.delegate | self.classmate)
         # Withdrawing clears it; joining again asks the family again.
         self._join(walkout, self.classmate, False)
         self.assertFalse(line.needs_ratification or line.ratification)
@@ -767,7 +798,6 @@ class TestStudentWalkout(TransactionCase):
                          ('ratified', self.tutor.partner_id, True))
         self.assertTrue(line.ratification_date)
         self.assertIn(self.classmate.name, str(walkout.message_ids[:1].body))
-        self.assertEqual(walkout.justifiable_student_ids, self.delegate | self.classmate)
         self.assertFalse(line.with_user(self.tutor).can_ratify_manually, "Already ratified.")
         # A refusal of the family is theirs to change: the tutor does not override it.
         ratify(walkout, self.family, self.subdelegate, False)
@@ -786,9 +816,9 @@ class TestStudentWalkout(TransactionCase):
         self.assertEqual(walkout.state, 'closed')
         self.assertTrue(line.with_user(self.tutor).can_ratify_manually, "Joining is over, not yet validated.")
         line.with_user(self.tutor).action_ratify_manually()
-        self.assertTrue(line.justifiable)
-        walkout.with_user(self.head_of_studies).action_generate_justification()
-        self.assertEqual(walkout.state, 'justified')
+        self.assertEqual(line.ratification, 'ratified')
+        walkout.with_user(self.head_of_studies).action_validate()
+        self.assertEqual(walkout.state, 'validated')
         with self.assertRaises(UserError):
             line.with_user(self.tutor).action_ratify_manually()
         # Withdrawing, or being asked again, clears the manual mark.
@@ -822,10 +852,17 @@ class TestStudentWalkout(TransactionCase):
         ratify(walkout, self.family, self.subdelegate, False)
         line = walkout.line_ids.filtered(lambda line: line.student_id == self.subdelegate)
         self.assertEqual(line.ratification, 'refused')
-        self.assertIn(self.subdelegate.student_email, ' '.join((self._mails(walkout.line_ids) - before).mapped('email_to')))
-        self.assertFalse(walkout.justifiable_student_ids)
+        told = (self._mails(walkout.line_ids) - before).filtered(
+            lambda mail: self.subdelegate.student_email in mail.email_to)
+        self.assertEqual(len(told), 1)
+        self.assertIn('so that it is aware', told.body_html, "Its family will be told of its absence, nothing more.")
+        before = self._mails(walkout.line_ids)
         ratify(walkout, self.family, self.subdelegate)  # it can change its answer while joining lasts
         self.assertEqual(line.ratification, 'ratified')
+        told = (self._mails(walkout.line_ids) - before).filtered(
+            lambda mail: self.subdelegate.student_email in mail.email_to)
+        self.assertEqual(len(told), 1, "The student is told that their family now agrees.")
+        self.assertIn('We will not notify it of any absence', told.body_html)
 
     def test_only_a_family_with_portal_access_ratifies_while_joining_lasts(self):
         walkout = open_walkout(self)
@@ -867,26 +904,24 @@ class TestStudentWalkout(TransactionCase):
         self.assertIn('aborted', mail.body_html)
         self.assertNotIn('withdrawn the validation', mail.body_html)
 
-    def test_only_adults_and_ratified_minors_are_justified(self):
-        walkout = open_walkout(self)
-        self._supported(walkout)
-        for student in (self.delegate, self.subdelegate, self.classmate):
-            self._join(walkout, student)
-        ratify(walkout, self.family, self.subdelegate)  # the classmate's stays pending
-        end_phase(walkout)
-        self.assertEqual(walkout.joining_student_ids, self.delegate | self.subdelegate | self.classmate)
-        self.assertEqual(walkout.justifiable_student_ids, self.delegate | self.subdelegate)
-        walkout.with_user(self.head_of_studies).action_generate_justification()
-        self.assertEqual(walkout.justification_id.student_ids, self.delegate | self.subdelegate)
-
-    def test_only_unratified_minors_join_so_nothing_to_justify(self):
+    def test_an_unratified_minor_joining_is_validated_too(self):
+        """Issue #844: the family's ratification only says it knows and agrees; nobody can revoke the
+        decision, so a call only unratified minors join still goes to the Head of Studies."""
         walkout = open_walkout(self)
         self._supported(walkout)
         self._join(walkout, self.classmate)
         end_phase(walkout)
-        self.assertFalse(walkout.activity_ids, "No task: nobody can be justified.")
+        self.assertEqual(walkout.activity_ids.user_id, self.head_of_studies)
+        walkout.with_user(self.head_of_studies).action_validate()
+        self.assertEqual(walkout.state, 'validated')
+
+    def test_nobody_joins_so_nothing_to_validate(self):
+        walkout = open_walkout(self)
+        self._supported(walkout)
+        end_phase(walkout)
+        self.assertFalse(walkout.activity_ids, "No task: nobody joins.")
         with self.assertRaises(UserError):
-            walkout.with_user(self.head_of_studies).action_generate_justification()
+            walkout.with_user(self.head_of_studies).action_validate()
 
     # Aborted or not validated
 
@@ -904,19 +939,17 @@ class TestStudentWalkout(TransactionCase):
         with self.assertRaises(UserError):
             self._vote(walkout, self.subdelegate)
 
-    def test_rejected_after_justifying_undoes_the_justification(self):
+    def test_rejected_after_validating_tells_the_family(self):
         walkout = open_walkout(self)
         self._supported(walkout)
         self._join(walkout, self.delegate)
         self._join(walkout, self.subdelegate)
         ratify(walkout, self.family, self.subdelegate)
         end_phase(walkout)
-        walkout.with_user(self.head_of_studies).action_generate_justification()
-        justification = walkout.justification_id
+        walkout.with_user(self.head_of_studies).action_validate()
         before = self._mails(walkout.line_ids)
-        reject_walkout(walkout, self.head_of_studies, 'ems.student_walkout_rejection_no_call')
-        self.assertEqual((walkout.state, walkout.rejected_from_state), ('rejected', 'justified'))
-        self.assertFalse(justification.exists(), "The walkout day is no longer justified.")
+        reject_walkout(walkout, self.head_of_studies, 'ems.student_walkout_rejection_document')
+        self.assertEqual((walkout.state, walkout.rejected_from_state), ('rejected', 'validated'))
         self.assertFalse(self._notices(walkout), "Not an aborted call: no notice.")
         self.assertIn(self.family.email, ' '.join((self._mails(walkout.line_ids) - before).mapped('email_to')),
                       "The family told that their child joined is told it was rejected.")

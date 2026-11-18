@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.49.4',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.50.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -74,6 +74,7 @@
         'security/rules/student_data_reader.xml',
         'security/rules/task_assignment.xml',
         'security/rules/ex_officio_withdrawal.xml',
+        'security/rules/certificates.xml',
         'security/ir.model.access.csv',
 
 
@@ -82,9 +83,12 @@
         'reports/shared/report_validation_stamp.xml',
         'reports/shared/report_layout_footer_note.xml',
         'reports/minute_report.xml',
+        'views/minutes_agreements/minute/mail_parts.xml',
         'views/minutes_agreements/minute/call_email.xml',
         'views/minutes_agreements/minute/draft_email.xml',
+        'views/minutes_agreements/minute/thread_email.xml',
         'views/minutes_agreements/minute/submit_wizard.xml',
+        'views/minutes_agreements/minute/intervention_wizard.xml',
         'views/minutes_agreements/menu.xml',
             'views/minutes_agreements/minute/search.xml',
             'views/minutes_agreements/minute/list.xml',
@@ -143,6 +147,7 @@
             'views/community/contact/relation_wizard.xml',
             'views/community/contact/kanban.xml',
             'views/community/contact/menu.xml',
+            'views/community/contact/company.xml',
             'views/community/contact/import_wizard.xml',
             'views/community/contact/update_wizard.xml',            
             'views/community/contact/portal_access_wizard.xml',
@@ -372,6 +377,7 @@
             'reports/contacts/report_student_card.xml',
             'reports/facilities/report_space_schedule.xml',
             'reports/grades/report_convalidation_resolution.xml',
+            'reports/certificates/report_certificate.xml',
         'reports/enrollment/templates/report_enrollment_template.xml',
         'reports/enrollment/enrollment.xml',
             'views/academic_management/enrollment_configuration/enrollment_template_form.xml',
@@ -397,6 +403,9 @@
             'views/academic_management/convalidation_rejection_reason/list.xml',
             'views/academic_management/convalidation_rejection_reason/form.xml',
             'views/academic_management/convalidation_rejection_reason/menu.xml',
+            'views/academic_management/certificates/views.xml',
+            'views/academic_management/certificates/menu.xml',
+            'views/academic_management/certificate_type/views.xml',
 
         'views/erasmus/call/views.xml',
         'views/erasmus/application/views.xml',
@@ -437,6 +446,7 @@
             'views/portal/portal_contact_data.xml',
             'views/portal/portal_documentation.xml',
             'views/portal/portal_convalidations.xml',
+            'views/portal/portal_certificates.xml',
             'views/portal/portal_erasmus.xml',
             'views/portal/portal_erasmus_group.xml',
             'views/portal/portal_student_walkout.xml',
@@ -458,6 +468,7 @@
         'mails/enrollment/authorization_send.xml',
         'mails/grades/convalidation_resolved.xml',
         'mails/grades/convalidation_info_request.xml',
+        'mails/certificates/certificate.xml',
         'mails/erasmus/layout.xml',
         'mails/erasmus/application.xml',
         'mails/erasmus/call.xml',
@@ -542,6 +553,8 @@
         'data/cat/ems.content.csv',
         'data/cat/ems.outcome.csv',    
         'data/cat/ems.role.csv',
+        # After the levels and the positions its circuit refers to.
+        'data/main/ems.certificate.type.xml',
         'data/main/ems.workgroup.xml',
         'data/main/sync_quality_committee.xml',
         'data/cat/hr.job.csv',
@@ -675,6 +688,7 @@
             ('remove', 'sign_oca/static/src/tests/sign_tour.esm.js'),
             'ems/static/tests/tours/quality_tour.js',
             'ems/static/tests/tours/minute_tour.js',
+            'ems/static/tests/tours/minute_thread_tour.js',
             'ems/static/tests/tours/**/*',
         ],
     },

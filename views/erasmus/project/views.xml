@@ -95,7 +95,7 @@
                                         <field name="category"/>
                                         <field name="name"/>
                                         <field name="date"/>
-                                        <field name="attachment_ids" widget="many2many_binary"/>
+                                        <field name="attachment_ids" widget="ems_attachments"/>
                                         <field name="mobility_ids" widget="many2many_tags" optional="show"
                                                options="{'no_create': True}"
                                                groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>

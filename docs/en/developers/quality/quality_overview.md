@@ -97,9 +97,13 @@ access is unchanged: this is only about not presenting every field as editable b
 
 ### Minutes: read-only for whoever may only read them
 
+The minutes list (`action_minute`) opens on *Mine* or *Awaiting my approval* (same filter group, so ORed),
+*Meeting minutes* and *Current course*. *Mine* covers whoever writes the minute and whoever was convened to it,
+attendee or absentee: a meeting somebody missed, or one held by email they have not answered yet, is theirs too.
+
 `ems.minute` inherits `ems.quality.can.edit` too, without the "Edit" step: a minute is written live,
-so whoever may write it gets it editable straight away. Whoever may only read it (an attendee, a
-department colleague: see `rule_minute_teacher` vs `rule_minute_teacher_write` in
+so whoever may write it gets it editable straight away. Whoever may only read it (an attendee or an
+absentee, who were both convened and get its draft; a department colleague: see `rule_minute_teacher` vs `rule_minute_teacher_write` in
 `security/rules/quality.xml`) gets it read-only. The form's `js_class="ems_minute_form"`
 (`static/src/js/backend/minute_form.js`) adds an `onRootLoaded` hook that switches the record to
 `readonly` mode when `can_edit` is False, and back to `edit` when it is True, on every load (the pager
@@ -181,7 +185,7 @@ stateDiagram-v2
 | Back to preparing / to the meeting / to draft | `action_back_to_draft`, `action_back_to_meeting` | whoever can write it | back to preparing is refused once its NFC session has been opened |
 | Send for approval | `action_open_submit_dialog` → `ems.minute.submit.wizard.action_confirm` → `action_submit` (an evidence record calls `action_submit` straight away) | whoever can write it | NFC attendance copied into the lists; the development composed from the items; *Approve the minute* task for the approver |
 | (meeting or waiting for approval) Send the draft to the participants | `action_send_draft`, also from the submit dialog's *Also send the draft to the participants* | whoever can write it | emails everybody convened, whether they came or not: the attendees and absentees who have a `work_email` (one message, with a link to `/report/pdf/ems.report_minute/<id>`, the draft as it stands) and each guest with an email (a message of their own with the PDF attached, having no account); a note "Draft sent to N people" |
-| Approve | `action_approve` | **whoever gives the approval** (`can_approve`) | approval date set, PDF rendered and attached; approval task done; its agreements announced (tasks and notices) |
+| Approve | `action_approve` | **whoever gives the approval** (`can_approve`) | approval date set, PDF rendered and attached; approval task done; its agreements announced (tasks and notices); the approved minute emailed to everybody convened (`_ems_send_approved()`: the staff in one message with a link to the stored PDF, `/web/content/<pdf_attachment_id>`; each guest with an email, the PDF attached; a meeting held by email by its thread) and a note "Approved minute sent to N people" |
 | (approved) Undo the approval | `action_reopen` | whoever gives the approval, whoever answers for the scope (`_ems_approver_candidates`) and whoever wrote it with their chain of command (`redactor_scope_user_ids`): `can_reopen` / `_ems_user_may_reopen` | back to `to_approve` (written with sudo, since the record rules never let anybody write an approved minute); `approval_date` and `pdf_attachment_id` cleared, the previous PDF stays attached to the record; a note in its history; the approval task comes back. Approving again sets the new date and PDF and announces its agreements again: `_ems_sync_tasks` brings the tasks in line with what the minute now says, and `_ems_queue_notice(once=True)` skips a notice a user already had in the same words (compared as plain text), so only what changed is told |
 
 "Whoever can write it" is the write rule (`rule_minute_teacher_write`): the writer and their chain of
@@ -272,6 +276,72 @@ in the PDF. A file uploaded while the minute is still unsaved has no `res_id`, s
 `write()` of `annex_attachment_ids`) gives it the minute's `res_model`/`res_id`, so it follows the minute's
 own access (whoever reads the minute downloads it, whoever writes it removes it). It only takes over files
 the person saving uploaded (or any, under superuser). The list is read-only once approved.
+
+### Meetings held by email (issue #822)
+
+A meeting held by email is a **modality** of any meeting minute (`modality = 'email'`, "By email"), not a type
+of its own: the minute keeps its type, scope and numbering, so it follows on from the earlier minutes of the
+same scope (previous minute, carried agreements and pending topics) and shows in the default "Meeting minutes"
+filter. The minute's own chatter is the thread. It reuses the meeting's states; what changes is how it is held.
+Only a type with a section of kind `requests` (the centre's "Precs i preguntes", `__import__.minute_section_requests`)
+can be held by email (`_check_email_modality`): that is where the answers are written.
+
+```mermaid
+sequenceDiagram
+    participant W as Writer
+    participant M as Minute (chatter)
+    participant P as Participants
+    W->>M: Open the thread (action_start_meeting)
+    M->>P: Opening email (agenda, reply_deadline), Reply-To = catchall
+    P->>M: Answers by email (incoming mail server)
+    Note over M: _ems_file_intervention: under "Precs i preguntes", author to the attendees
+    P->>M: Intervention on an item (wizard in EMS)
+    Note over M: under the item's notes, posted to the thread
+    M->>P: Every message, to every follower
+    W->>M: Send for approval + draft (by the thread)
+    P->>M: Answers to the draft (stay in the chatter)
+```
+
+- **Preparing:** `reply_deadline` ("Answers until") replaces the time, duration, room and attendance mode
+  (always `manual`, never a kiosk: the modality onchange and `create()` force it). No call is sent
+  (`action_send_call` refuses it); `place_name` says "By email".
+- **Opening** (`action_start_meeting` → `_ems_open_thread()`): needs `reply_deadline` and somebody convened with an
+  email. Everybody convened (`attendee_ids | absentee_ids`, through `work_contact_id`) follows the minute with
+  the *Discussions* subtype only, `start_datetime` becomes now, and all of them move to `absentee_ids`; the opening
+  email (`ems.minute_thread_open_email`) is posted with `_ems_thread_post()`, a `message_post` of subtype
+  `mt_comment` flagged `ems_thread_own_post`, so its `Reply-To` is the catchall address and it is not an intervention.
+  It can no longer go back to being prepared (`action_back_to_draft`).
+- **Everybody gets every message by email:** `_notify_get_recipients()` turns `inbox` recipients into `email` for
+  the `mt_comment` messages of a minute held by email, so a user who reads notifications inside Odoo is not left
+  out of a mailing list. Tracking messages and notes are untouched. Whoever is taken off the lists of an open
+  thread is unsubscribed (`write()` → `_ems_thread_unsubscribe()`), unless they write or approve the minute.
+- **Answers:** `_message_post_after_hook()` → `_ems_file_intervention()` writes every `comment`/`email` message of
+  subtype `mt_comment` (an answer fetched from the mailbox, or a message written in the chatter) while the minute is
+  in `meeting`, through `_ems_add_intervention()`: appended to the `requests` section's content as "**author**
+  (date and time, in the centre's language and timezone)" followed by the body without the quoted text
+  (`_without_quoted_text()`: the nodes `odoo.tools.mail.tag_quote` marked `data-o-mail-quote`; an answer that only
+  quotes is skipped). The author is resolved to an employee by `work_contact_id` or user partner and moves from the
+  absentees to the attendees; an answer from an address EMS does not know is written under that address and names
+  nobody. The text is then plain minute content, which whoever writes the minute edits like the rest.
+- **Interventions from EMS:** `ems.minute.intervention.wizard` (Actions → Add interventions, offered while
+  `can_intervene`: the minute is held by email, in `meeting`, and the user's employee is convened, whether or not
+  they can write the minute). `default_get` lays out one `ems.minute.intervention.wizard.line` per agenda item, in
+  its order, plus one for the `requests` section; the lines left empty are skipped. Each written line goes into its
+  item's `notes` (or the `requests` section) with `_ems_add_intervention()` under `sudo`, and all of them are posted
+  on the thread as a single message from the user ("On item N: name" before each part), flagged
+  `ems_thread_own_post`: one email to everybody, and nothing written twice. On sending for approval, the items'
+  notes become the development of the session as in any meeting.
+- **Draft:** `action_send_draft` posts `ems.minute_thread_draft_email` on the thread (`_ems_send_draft_by_thread()`,
+  link to the PDF) instead of the per-recipient `mail.mail`. Whatever is answered to it (state `to_approve`) only
+  stays in the chatter for the writer to apply; nothing holds the approval.
+
+Filing runs with `sudo`, since the incoming email is processed by the mail gateway. Cost per message: one indexed
+employee lookup and one write of the section (or item), whatever the size of the thread; unsubscribing on a list
+change is one query on the minute's followers. The production circuit (catchall, incoming mail server) is the one
+described in [chatter_email_answers.md](../shared/chatter_email_answers.md); on a development machine nothing is
+fetched, so this is tested with `message_process()` (`tests/test_quality_minute_thread.py`,
+`tests/test_quality_minute_thread_tour.py`). The section kind `requests` was set on existing installations by
+`migrations/18.0.0.50.0/post-migrate.py`.
 
 ### Who can start each kind of minute
 

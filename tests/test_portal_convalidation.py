@@ -520,7 +520,7 @@ class TestPortalConvalidation(HttpCase):
             'student_id': next_student_id(), 'birth_date': '2020-01-01', 'main_group_id': self.group.id,
         })
         self.assertTrue(applicant._ems_portal_can_act_for(applicant))
-        self.assertFalse(applicant._ems_convalidation_can_request(applicant))
+        self.assertFalse(applicant._ems_can_file_requests_for(applicant))
         user = self.env['res.users'].with_context(no_reset_password=True).create({
             'name': applicant.name, 'login': 'test_portal_convalidation_gedac',
             'password': 'test_portal_convalidation_gedac', 'partner_id': applicant.id, 'lang': 'en_US',
@@ -535,7 +535,7 @@ class TestPortalConvalidation(HttpCase):
         self.minor.birth_date = '2000-01-01'
         self._login(self.family_user)
         self.assertTrue(self.url_open('/my/convalidaciones').url.endswith('/my/home'))
-        self.assertFalse(self.family._ems_convalidation_can_request(self.minor))
+        self.assertFalse(self.family._ems_can_file_requests_for(self.minor))
 
     def test_the_family_of_an_adult_student_files_with_his_authorization(self):
         """He authorized sharing with his family: the family files requests for him, although
@@ -551,4 +551,4 @@ class TestPortalConvalidation(HttpCase):
         request = self._requests(self.minor)
         self.assertEqual(request.requester_id, self.family)
         self.assertIn('Convalidation request submitted', self.url_open('/my/comunicaciones').text)
-        self.assertTrue(self.minor._ems_convalidation_can_request(self.minor))
+        self.assertTrue(self.minor._ems_can_file_requests_for(self.minor))

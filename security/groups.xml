@@ -92,6 +92,14 @@
              category_coexistence/category_tac: the guidance team (Orientació) is transversal to
              the teacher/tutor/HoS hierarchy - the post is held by teachers, but it doesn't sit
              anywhere on that chain, so it gets its own independent Manager/Administrator chain. -->
+        <record model="ir.module.category" id="category_vet">
+            <field name="name">Vocational training</field>
+            <field name="description">Educational Management System - Vocational training coordination</field>
+            <field name="parent_id" ref="ems.category_main"/>
+            <field name="sequence">7</field>
+            <field name="visible">True</field>
+        </record>
+
         <record model="ir.module.category" id="category_orientation">
             <field name="name">Guidance</field>
             <field name="description">Educational Management System - Guidance (Orientació)</field>
@@ -315,6 +323,16 @@
             <field name="category_id" ref="ems.category_tac"/>
             <field name="implied_ids" eval="[(4, ref('ems.group_tac'))]"/>
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+        <!-- Issue #835: given by the VET coordinator's position (role_vetcoord's group_id), always a
+             teacher. The Certificates menu and the collaborating companies, whose data the
+             coordinator completes in the FCT certificate's circuit. -->
+        <record model="res.groups" id="group_vet_coordinator">
+            <field name="name">Coordinator</field>
+            <field name="comment">Access rights for the VET coordinator: certificate requests and collaborating companies.</field>
+            <field name="category_id" ref="ems.category_vet"/>
+            <field name="implied_ids" eval="[(4, ref('ems.group_teacher'))]"/>
         </record>
 
         <!-- Implies group_teacher because the guidance post is always held by a teacher

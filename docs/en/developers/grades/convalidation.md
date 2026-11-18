@@ -219,7 +219,7 @@ and continuous assessment may be lost if the subject is refused).
 
 `controllers/portal_convalidation.py` (`/my/convalidaciones`) always acts on `get_portal_student()`: the student, or the child a family has selected. It uses `sudo()` because portal users have no ACL on these models.
 
-**Who files requests** has its own rule, `res.partner._ems_convalidation_can_request(student)` (`models/contacts/portal.py`), independent from the rest of the portal's `_ems_portal_can_act_for()`:
+**Who files requests** has its own rule, `res.partner._ems_can_file_requests_for(student)` (`models/contacts/portal.py`), independent from the rest of the portal's `_ems_portal_can_act_for()`:
 
 | Student | Who files and follows up (answers, cancels) | Who only reads |
 |---------|---------------------------------------------|----------------|

@@ -12,26 +12,29 @@ Como miembro de la comisión de la convocatoria Erasmus+ del personal, valoras e
 
 ## 1. Encontrar los planes
 
-Cuando el equipo Erasmus envía los planes a la comisión, recibes una tarea en EMS para cada uno, que vence el plazo para corregir puntuaciones de la convocatoria (dos semanas después del cierre). Sale en el resumen diario de tareas pendientes hasta que la hagas. En el menú **Erasmus+** tienes **Mi participación > Planes por valorar**: los planes que tienes asignados.
+Cuando el equipo Erasmus envía los planes a la comisión, recibes una tarea en EMS para cada uno, que vence el plazo de entrevistas/evaluación de la convocatoria (dos semanas después del cierre). Sale en el resumen diario de tareas pendientes hasta que la hagas. En el menú **Erasmus+** tienes **Mi participación > Planes por valorar**: los planes que tienes asignados.
 
 Cada valoración muestra en pantalla el **plan de movilidad** de la persona candidata, tal como lo escribió en el formulario de solicitud: la propuesta A (la principal) y la propuesta B (por si la A no se puede hacer), con sus palabras, cada una con la actividad, la entidad o el curso, dónde, cuándo y qué quiere aprender, bajo su título y a todo el ancho. Valora las dos propuestas juntas, con una sola puntuación. No ves nada más de la solicitud. La difusión no se valora: es la misma obligación para todo el mundo.
 
 ## 2. Valorar la rúbrica
 
-Para cada aspecto, elige la descripción que más se ajusta al plan: son las del anexo 2 de la convocatoria, y cada una empieza con los puntos que da (1, 0,5 o 0).
+Para cada aspecto, elige la descripción que más se ajusta al plan: son las del anexo 2 de la convocatoria, y cada una empieza con los puntos que da (1, 0,5 o 0; la actividad, 0,5 o 0). El plan es sobre 2,5.
 
-![La rúbrica del criterio 1: concreción y relevancia para el trabajo](../../assets/erasmus/valoracio-pla-rubrica.png)
+![La rúbrica del criterio 1: concreción, relevancia para el trabajo y actividad de la propuesta A](../../assets/erasmus/valoracio-pla-rubrica.png)
 
 | Aspecto | 1 punto | 0,5 puntos | 0 puntos |
 |---|---|---|---|
 | Concreción | La actividad, la entidad o el curso por su nombre, el lugar y las fechas | Falta la entidad o el curso, o las fechas | Actividad genérica, sin entidad o curso ni fechas |
 | Relevancia para el trabajo | Objetivo claro y relacionado con el trabajo, el departamento o los ciclos formativos | El objetivo es general | No se explica qué se quiere aprender ni la relación con el trabajo |
+| Actividad de la propuesta A | - | Un job shadowing o una estancia de docencia | Un curso |
+
+Para la actividad solo cuenta la propuesta A: el centro da a los job shadowing y a las estancias de docencia medio punto más que a los cursos.
 
 Puedes escribir tus notas en **Notas del evaluador**.
 
 ## 3. Enviarla
 
-Haz clic en **Acciones > Enviar**, o en **Acciones > Enviar y siguiente** para enviarla y abrir el siguiente plan que aún tienes que valorar. Hasta el **plazo para corregir puntuaciones** de la convocatoria puedes **Reabrirla** y cambiarla; después, si hay un error, avisa al equipo Erasmus.
+Haz clic en **Acciones > Enviar**, o en **Acciones > Enviar y siguiente** para enviarla y abrir el siguiente plan que aún tienes que valorar. Hasta el **plazo de entrevistas/evaluación** de la convocatoria puedes **Reabrirla** y cambiarla; después, si hay un error, avisa al equipo Erasmus.
 
 **Si te presentas a la convocatoria, o tienes un conflicto de intereses con una persona candidata**, no valoras: avisa al equipo Erasmus, que registrará la abstención: la valoración aparece como *Abstención*. La puntuación del plan es la media del resto de miembros.
 

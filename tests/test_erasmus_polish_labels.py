@@ -121,5 +121,4 @@ class TestErasmusLabels(TransactionCase):
         self.assertEqual(maximums['score_staff_language'], max(STAFF_LANGUAGE_SCORES.values()))
         self.assertEqual(maximums['score_seniority'], max(SENIORITY_SCORES.values()))
         self.assertEqual(sum(maximums[name] for name in (
-            'score_plan', 'score_last_mobility', 'score_projects', 'score_staff_language', 'score_seniority',
-            'score_internationalisation')), 10)
+            'score_plan', 'score_last_mobility', 'score_projects', 'score_staff_language', 'score_seniority')), 10)

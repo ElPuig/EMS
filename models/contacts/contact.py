@@ -162,6 +162,9 @@ class ResPartner(models.Model):
     # alumni, withdrawal and expelled automatically (no changes needed elsewhere).
     contact_type = fields.Selection(string='Contact Type', selection=[
         ('provider', 'Provider'),
+        # Issue #835: a company that takes students for their workplace training (FCT). Its own
+        # type, not a provider: the centre buys from providers, and the two lists never mix.
+        ('company', 'Collaborating company'),
         ('student', 'Student'),
         ('family', 'Family'),
         ('applicant', 'Applicant'),
@@ -1091,8 +1094,8 @@ class ResPartner(models.Model):
                 parent = self.env['res.partner'].browse(entry['parent_id'])
                 if parent.contact_type == 'student':
                     entry['contact_type'] = 'family'
-                elif parent.contact_type == 'provider':
-                    entry['contact_type'] = 'provider'
+                elif parent.contact_type in ('provider', 'company'):
+                    entry['contact_type'] = parent.contact_type
 
             # Checked after the parent_id block above: a contact added under a student arrives
             # with the Students action's default_contact_type='student' but becomes a family.
@@ -1600,6 +1603,7 @@ class ResPartner(models.Model):
             'student': student,
             'family': self.env.ref('ems.partner_category_family'),
             'provider': self.env.ref('ems.partner_category_provider'),
+            'company': self.env.ref('ems.partner_category_company'),
             'applicant': student | self.env.ref('ems.partner_category_applicant'),
             'alumni': student | self.env.ref('ems.partner_category_alumni'),
             'withdrawal': student | self.env.ref('ems.partner_category_withdrawal'),

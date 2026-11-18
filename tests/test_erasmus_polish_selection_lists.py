@@ -34,7 +34,7 @@ class TestErasmusSelectionLists(TransactionCase):
         None, not False: the client only leaves out of a group's order a field with no aggregator
         in fields_get(), and False would reach the server and fail."""
         application = self.env['ems.erasmus.application']
-        for name in ('rank', 'score_total', 'score_a', 'score_f', 'score_plan', 'score_internationalisation'):
+        for name in ('rank', 'score_total', 'score_a', 'score_f', 'score_plan', 'score_seniority'):
             self.assertIsNone(application._fields[name].aggregator, name)
 
     def test_resolutions_of_a_call_in_chronological_order(self):

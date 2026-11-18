@@ -4,7 +4,9 @@
          email_layout_xmlid: Odoo renders the template's own body and passes it here as
          message.body, together with the record and its company. Colours come from the
          company's email colours (Settings > General > Emails), so a change of house style
-         needs no code. The area, unit and button are set by each family's layout below. -->
+         needs no code. The area, unit and button are set by each family's layout below; a family
+         whose emails are meant to be answered sets `reply_note` instead of the "no need to reply"
+         line. Rendered by hand (not as a notification layout), the body comes as `body`. -->
     <template id="mail_layout_card">
         <t t-set="brand_color" t-value="company.email_primary_color or '#a51d2d'"/>
         <t t-set="stripe_color" t-value="company.email_secondary_color or '#e66100'"/>
@@ -24,7 +26,7 @@
                             </tr></table>
                         </td></tr>
                         <tr><td style="padding:27px 30px 8px 30px;font-size:14px;line-height:22px;color:#596679;">
-                            <t t-out="message.body"/>
+                            <t t-out="message.body if message else body"/>
                         </td></tr>
                         <tr t-if="button_url"><td align="center" style="padding:8px 30px 26px 30px;">
                             <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;"><tr>
@@ -37,7 +39,10 @@
                             <p style="margin:0 0 7px 0;font-size:12px;line-height:17px;font-weight:bold;color:#45566c;">
                                 <t t-out="company.name"/><t t-if="unit"> · <t t-out="unit"/></t>
                             </p>
-                            <p style="margin:0;font-size:11px;line-height:18px;color:#8894a3;">Automatic email sent from EMS · There is no need to reply to this message.</p>
+                            <p style="margin:0;font-size:11px;line-height:18px;color:#8894a3;">
+                                <t t-if="reply_note" t-out="reply_note"/>
+                                <t t-else="">Automatic email sent from EMS · There is no need to reply to this message.</t>
+                            </p>
                         </td></tr>
                     </table>
                 </td></tr>
@@ -53,6 +58,38 @@
             <t t-set="unit">School Secretariat</t>
             <t t-set="button_label">Open my email</t>
             <t t-set="button_url" t-value="'https://mail.google.com/a/%s/' % company.google_ws_domain if company.google_ws_domain else False"/>
+        </t>
+    </template>
+
+    <!-- Meetings and their minutes: the call, the draft for the participants and every message of
+         a meeting held by email (ems.minute). Whoever is on the staff gets a button to the minute
+         (`minute_url` when EMS renders it by hand, Odoo's own access link on the thread); a guest
+         from outside EMS gets none. These emails are meant to be answered. -->
+    <template id="mail_layout_minutes">
+        <t t-call="ems.mail_layout_card">
+            <t t-set="area">Meetings</t>
+            <t t-set="button_label">Open the minute in EMS</t>
+            <t t-set="button_url" t-value="minute_url or (has_button_access and button_access and button_access.get('url'))"/>
+            <t t-if="record and record._name == 'ems.minute' and record.modality == 'email'">
+                <t t-set="reply_note">Meeting held by email · Answer this message to take part: everybody taking part receives your answer.</t>
+            </t>
+            <t t-else="">
+                <t t-set="reply_note">Answering this message writes to whoever sent it.</t>
+            </t>
+        </t>
+    </template>
+
+    <!-- Certificate requests (issue #835): the button opens the request with its access token,
+         saying what the applicant has to do there. -->
+    <template id="mail_layout_certificate">
+        <t t-call="ems.mail_layout_card">
+            <t t-set="area">Certificates</t>
+            <t t-set="unit">School Secretariat</t>
+            <t t-set="button_url" t-value="record._ems_form_url() if record else False"/>
+            <t t-if="record.state == 'draft'" t-set="button_label">Fill in the request</t>
+            <t t-elif="record.state == 'documentation'" t-set="button_label">Answer the centre</t>
+            <t t-elif="record.state == 'issued'" t-set="button_label">Download the certificate</t>
+            <t t-else="" t-set="button_label">Open my request</t>
         </t>
     </template>
 </odoo>

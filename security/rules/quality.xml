@@ -17,7 +17,7 @@
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
-            <field name="domain_force">['|', '|', '|', '|', '|', '|', '|', '|', '|',
+            <field name="domain_force">['|', '|', '|', '|', '|', '|', '|', '|', '|', '|',
                 ('department_id.manager_id.tutor_scope_user_ids', '=', user.id),
                 ('department_id.seminar_chief_id.tutor_scope_user_ids', '=', user.id),
                 ('group_id.tutor_id.tutor_scope_user_ids', '=', user.id),
@@ -25,6 +25,7 @@
                 ('is_centre', '=', True),
                 ('redactor_scope_user_ids', '=', user.id),
                 ('attendee_ids.user_id', '=', user.id),
+                ('absentee_ids.user_id', '=', user.id),
                 ('department_id.member_ids.user_id', '=', user.id),
                 ('workgroup_id.employee_ids.user_id', '=', user.id),
                 ('approver_role_id.employee_ids.user_id', '=', user.id)]</field>

@@ -141,7 +141,7 @@
                     </p>
                 </t>
                 <p t-if="call.rules_document" class="small mb-2">
-                    <a t-attf-href="/my/erasmus/call/#{call.id}/rules"><i class="fa fa-file-pdf-o me-1"/>Read the call</a>
+                    <a t-attf-href="/my/erasmus/call/#{call.id}/rules" target="_blank"><i class="fa fa-file-pdf-o me-1"/>Read the call</a>
                 </p>
                 <t t-if="application">
                     <a t-attf-href="/my/erasmus/call/#{call.id}" class="btn btn-primary btn-sm o_ems_erasmus_open">
@@ -203,7 +203,7 @@
                 <div t-else="" class="mb-3"/>
                 <t t-if="progress" t-call="ems.portal_erasmus_progress"/>
                 <p t-if="call.rules_document" class="small mb-3 o_ems_erasmus_rules">
-                    <a t-attf-href="/my/erasmus/call/#{call.id}/rules"><i class="fa fa-file-pdf-o me-1"/>Read the call</a>
+                    <a t-attf-href="/my/erasmus/call/#{call.id}/rules" target="_blank"><i class="fa fa-file-pdf-o me-1"/>Read the call</a>
                 </p>
 
                 <div t-if="saved" class="alert alert-success mb-3 o_ems_erasmus_saved">
@@ -315,7 +315,6 @@
                                             <tr><td>3. Centre projects</td><td class="text-end" t-out="line.score_projects" t-options="{'widget': 'float', 'precision': 2}"/></tr>
                                             <tr><td>4. Languages</td><td class="text-end" t-out="line.score_staff_language" t-options="{'widget': 'float', 'precision': 2}"/></tr>
                                             <tr><td>5. Seniority at the centre</td><td class="text-end" t-out="line.score_seniority" t-options="{'widget': 'float', 'precision': 2}"/></tr>
-                                            <tr><td>6. Internationalisation</td><td class="text-end" t-out="line.score_internationalisation" t-options="{'widget': 'float', 'precision': 2}"/></tr>
                                         </tbody>
                                     </table>
                                 </t>
@@ -391,7 +390,7 @@
                                     <div class="mb-3">
                                         <label class="form-label" for="proposal_a">Proposal A</label>
                                         <textarea class="form-control" name="proposal_a" id="proposal_a" rows="3" maxlength="1500"
-                                                  placeholder="E.g. An English course at an academy in Bologna (Italy), in July, to improve my language skills."
+                                                  placeholder="E.g. Job shadowing at a VET school in Porto (Portugal), in June, to see how they organise dual training."
                                                   t-esc="application.proposal_a or ''"/>
                                         <div class="form-text float-end ms-2 o_ems_erasmus_char_count" data-for="proposal_a"/>
                                         <div class="clearfix"/>
@@ -399,7 +398,7 @@
                                     <div class="mb-0">
                                         <label class="form-label" for="proposal_b">Proposal B (backup)</label>
                                         <textarea class="form-control" name="proposal_b" id="proposal_b" rows="3" maxlength="1500"
-                                                  placeholder="E.g. Job shadowing at a VET school in Porto (Portugal), in June, to see how they organise dual training."
+                                                  placeholder="E.g. An English course at an academy in Bologna (Italy), in July, to improve my language skills."
                                                   t-esc="application.proposal_b or ''"/>
                                         <div class="form-text float-end ms-2 o_ems_erasmus_char_count" data-for="proposal_b"/>
                                         <div class="clearfix"/>

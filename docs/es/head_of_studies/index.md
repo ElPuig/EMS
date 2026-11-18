@@ -12,6 +12,7 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 
 - [Histórico académico: consultas de cohorte](academic-history.md)
 - [Convalidaciones: revisar y resolver las solicitudes](convalidations.md) — Revisar cada módulo y hacer la propuesta (Jefatura de Estudios), resolverla oficialmente (Dirección) o tramitarla con el Ministerio.
+- [Certificados: dar el visto bueno](certificates.md) — Dar el visto bueno a los certificados expedidos por secretaría (Dirección); EMS genera el PDF y lo envía a la persona solicitante.
 - [Erasmus+: validar las actividades del personal](erasmus-staff-validation.md) — La dirección valida la actividad, la entidad, el destino y las fechas de cada persona seleccionada del personal.
 - [Erasmus+: responder un recurso de alzada contra una resolución](erasmus-appeals.md) — El jefe de estudios de la persona responde los recursos contra la lista definitiva de una convocatoria Erasmus+.
 - [Asistencia a reuniones con la tarjeta NFC](../secretary/meeting-attendance.md) — Confirmar la asistencia a un claustro o a una reunión con el lector NFC de la entrada (manual compartido con secretaría).
@@ -26,6 +27,7 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 - [Decidir sobre solicitudes de corrección de fichajes](attendance-corrections.md)
 - [Strikes: menú Convivencia y correos de escalado](strike.md)
 - [El horario semanal de un grupo](../admin/group-schedule.md)
+- [Horarios de los docentes y marcos horarios](../admin/working-schedules.md)
 - [Informes de asistencia](attendance-reports.md)
 - [Gestionar las ausencias del personal](absences.md) — Aprobar las ausencias de tu área, ajustar su cómputo, la aprobación de Dirección y los dos informes.
 - [Crear y editar profesorado](staff-management.md)
@@ -36,7 +38,7 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 - [Organizar las ausencias](../department_chiefs/absences.md) — Enviar guardias, reorganizar las clases y avisar a las familias de un cambio de horario cuando falta un docente.
 - [Notas públicas y notas privadas del alumno](../teachers/student-notes.md) — Dónde todo el profesorado lee las notas públicas de un alumno, y quién puede leer y escribir las privadas de tutoría.
 - [Erasmus+: consultar la economía de los proyectos](erasmus-economy.md) — La dirección consulta la subvención, los compromisos, los pagos, los gastos y el apoyo organizativo de cada proyecto Erasmus+, y los exporta a Excel.
-- [Huelgas de estudiantes: validarlas](student-walkout.md) — El acta cuando se cierra una propuesta, y validarla (justificar la falta de quienes se suman) o no.
+- [Inasistencias colectivas: validarlas](student-walkout.md) — El acta cuando se cierra una propuesta, y validarla o no.
 
 ---
 

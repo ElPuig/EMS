@@ -16,7 +16,7 @@ Two rules, both in `models/contacts/portal.py`, deliberately kept apart:
 
 - `_ems_notification_recipients()`: who **acts** on the student's behalf. It is also used for
   authorizations, so it never includes a minor who has a family. Convalidations have their own
-  rules (`_ems_convalidation_can_request()`, `_ems_informed_recipients()`), see
+  rules (`_ems_can_file_requests_for()`, `_ems_informed_recipients()`), see
   [`convalidation.md`](../grades/convalidation.md#portal).
 - `_ems_portal_access_recipients()`: who gets a **portal account**, which is the above plus
   the student himself. A minor gets his own, view-only account (see below) next to his
@@ -88,7 +88,7 @@ from this wizard; nothing grants it automatically.
 Enforced server side in `controllers/portal_view_only.py`:
 - `@ems_portal_manage_required`, placed under `@http.route` on every enrollment,
   authorization and documentation route (GET and POST). The convalidation routes check
-  `_ems_convalidation_can_request()` / `_ems_convalidation_portal_visible()` instead.
+  `_ems_can_file_requests_for()` / `_ems_convalidation_portal_visible()` instead.
 - `_document_check_access()` refuses `sale.order`/`account.move`, and the quotation/order/
   invoice list domains are emptied, because a minor is the customer (`partner_id`) of his own
   enrollment, so the native portal rules would otherwise let him open, sign or decline it.

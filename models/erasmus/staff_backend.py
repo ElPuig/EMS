@@ -143,6 +143,11 @@ class EmsErasmusApplication(models.Model):
     rules_document = fields.Binary(string="Call rules (PDF)", related='call_id.rules_document')
     rules_filename = fields.Char(string="Call rules file name", related='call_id.rules_filename')
 
+    def action_view_rules(self):
+        """The call's rules in a new tab (the staff form shows them to the applicant, who can't open the call)."""
+        self.ensure_one()
+        return self.call_id.sudo().action_view_rules()
+
     @api.depends('state', 'offer_ids.state', 'mobility_ids', 'resolution_line_ids', *ANSWER_FIELDS['staff'])
     @api.depends_context('uid')
     def _compute_staff(self):

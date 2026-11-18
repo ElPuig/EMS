@@ -107,6 +107,8 @@
                 <field name="category_ids" position="attributes">
                     <attribute name="name">role_ids</attribute>
                     <attribute name="widget">role_color_tags</attribute>
+                    <!-- Issue #846: a role that can't read them could not open this view at all. -->
+                    <attribute name="groups">ems.group_teacher,ems.group_secretary</attribute>
                 </field>
             </field>		      
         </record>

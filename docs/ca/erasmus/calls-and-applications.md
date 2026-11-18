@@ -20,7 +20,7 @@ Ves a **Erasmus+ > Convocatòries > Convocatòries** i fes clic a **Nou**:
 |---|---|
 | Nom | Per exemple, *Pràctiques Erasmus+ 2026-27* |
 | Curs | El curs escolar de la convocatòria |
-| Convocatòria publicada | El PDF de la convocatòria, que l'alumnat pot descarregar des del portal |
+| Convocatòria publicada | El PDF de la convocatòria, que l'alumnat obre al portal (en una pestanya nova, sense descarregar-lo); a la convocatòria, **Veure les bases de la convocatòria** l'obre igual |
 | Obertura / Tancament de sol·licituds | Quan pot sol·licitar l'alumnat. Després de la data de tancament ningú no pot modificar la seva sol·licitud |
 
 La part de dalt de la convocatòria té dos blocs: **Ajustos** (per a qui és, el curs, la puntuació mínima i el PDF de la convocatòria) i **Calendari** (les dates, en l'ordre del procés). L'EMS omple els quatre terminis posteriors al tancament a partir de la data de tancament, a les 14:00, i els mostra plegats a **Terminis després del tancament**: fes-hi clic per veure'ls o canviar-los.
@@ -28,7 +28,7 @@ La part de dalt de la convocatòria té dos blocs: **Ajustos** (per a qui és, e
 | Termini | Quan el posa l'EMS | Convocatòria 2026-27 (tanca el divendres 20/11) |
 |---|---|---|
 | Termini d'esmena | 7 dies després del tancament | Divendres 27/11, 14:00 |
-| Termini per corregir puntuacions | 14 dies després del tancament | Divendres 04/12, 14:00 |
+| Termini d'entrevistes/avaluació | 14 dies després del tancament | Divendres 04/12, 14:00 |
 | Termini de reclamacions | 19 dies després del tancament | Dimecres 09/12, 14:00 |
 | Termini d'acceptació | 25 dies després del tancament | Dimarts 15/12, 14:00 |
 
@@ -51,7 +51,9 @@ Pestanya **Documents**: una línia per a cada document que demana la convocatòr
 
 **Es lliura com a**: *Fitxers* (qualsevol), *Només PDF* (el currículum: es rebutgen els altres fitxers) o *Un enllaç* (el vídeo de presentació: l'alumne enganxa l'enllaç de Google Drive en lloc de pujar-lo). Les **Instruccions** i l'**Enllaç de les instruccions** (per exemple, l'editor d'Europass) es mostren a l'alumne amb el document. Una convocatòria d'alumnat nova ja porta el currículum (PDF), el vídeo (enllaç), els certificats de llengües i l'acreditació de menys oportunitats, amb les instruccions. Per sol·licitar no es demana autorització familiar: el justificant de la sol·licitud d'un menor també arriba a la família, i la família accepta la carta de compromís quan s'accepta la plaça, i amb això n'autoritza la participació.
 
-Marca **Confidencial** per als documents que només pot veure l'equip Erasmus, com l'acreditació de menys oportunitats.
+Marca **Confidencial** per als documents que només pot veure l'equip Erasmus, com l'acreditació de menys oportunitats. Un fitxer confidencial només es **veu** (l'ull de la seva targeta l'obre en pantalla): no té botó de descàrrega, l'EMS tampoc el serveix com a descàrrega, i cada vegada que algú l'obre s'afegeix una línia (qui i quan) al xat de la sol·licitud, una vegada per persona i fitxer cada deu minuts. També el veu l'administració; la cap d'estudis i la comissió no. Com qualsevol pantalla, es pot fotografiar o capturar.
+
+Qualsevol altre fitxer d'una sol·licitud, mobilitat o projecte també s'obre en pantalla amb l'ull, i es descarrega o s'elimina des de la seva targeta.
 
 **Un sol fitxer** (marcat per defecte): només compta el fitxer més recent que puja l'alumne; els anteriors es conserven i es mostren com a *Versió anterior*, i el justificant només mostra el més recent. Desmarca-ho per a un document amb diversos fitxers, com els certificats de llengües (un per idioma). **Model per descarregar**: un fitxer que l'alumne (i la família d'un menor) descarrega des del portal, emplena i lliura, per exemple l'autorització familiar.
 

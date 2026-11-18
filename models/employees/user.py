@@ -10,6 +10,8 @@ from .employee import _UNSET, write_photo
 _logger = logging.getLogger(__name__)
 
 EMS_SYNC_CONTEXT_KEY = 'ems_syncing_groups'
+# Issue #846: the groups that can read what the Schedule tab loads (base.group_system implies the first).
+SCHEDULE_TAB_GROUPS = ('ems.group_teacher', 'ems.group_secretary')
 
 
 def _group_change_caller():
@@ -79,8 +81,22 @@ class ems_users(models.Model):
     # against every teacher in this dev DB. Only 'can_edit_schedule' and
     # 'schedule_attendance_ids' are genuinely new fields.
     can_edit_schedule = fields.Boolean(related="employee_id.can_edit_schedule")
+    # Issue #846: My Profile's view is built as superuser (hr's res.users.get_views()), so 'groups' on
+    # its Schedule tab has no effect. A role that can't read what the tab loads gets no blocks, or
+    # reading them would make the whole form fail, and the tab stays hidden.
+    can_view_schedule = fields.Boolean(
+        string="Can view schedule", compute="_compute_schedule_tab", compute_sudo=True)
     schedule_attendance_ids = fields.One2many(
-        string="Schedule", related="employee_id.schedule_attendance_ids")
+        string="Schedule", comodel_name="resource.calendar.attendance",
+        compute="_compute_schedule_tab", compute_sudo=True)
+
+    @api.depends('employee_id.schedule_attendance_ids')
+    @api.depends_context('uid')
+    def _compute_schedule_tab(self):
+        can_view = any(self.env.user.has_group(group) for group in SCHEDULE_TAB_GROUPS)
+        for user in self:
+            user.can_view_schedule = can_view
+            user.schedule_attendance_ids = user.employee_id.schedule_attendance_ids if can_view else False
 
     @property
     def SELF_WRITEABLE_FIELDS(self):
@@ -89,7 +105,7 @@ class ems_users(models.Model):
     @property
     def SELF_READABLE_FIELDS(self):
         return super().SELF_READABLE_FIELDS + [
-            'image_disabled', 'resource_calendar_id', 'can_edit_schedule',
+            'image_disabled', 'resource_calendar_id', 'can_edit_schedule', 'can_view_schedule',
             'schedule_attendance_ids',
         ]
 

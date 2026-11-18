@@ -134,7 +134,7 @@ nombre (en la captura de "Marcar la asistencia", la fila de *Laia Exemple*):
   tramita la baja (consulta [Baja prevista de un alumno](../tutors/withdrawal-expected.md)).
 - **No tiene que asistir: convalidación en trámite**: ha solicitado convalidar este módulo y ha
   elegido no asistir mientras se resuelve.
-- **No tiene que asistir: huelga**: se ha sumado a la huelga de estudiantes de su grupo de ese día. Si es
+- **No tiene que asistir: inasistencia colectiva**: se ha sumado a la inasistencia colectiva de su grupo de ese día. Si es
   menor de edad y su familia no lo ha ratificado, la etiqueta lo dice: la familia recibe el aviso de esta
   clase, a título informativo.
 

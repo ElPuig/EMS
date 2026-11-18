@@ -149,8 +149,7 @@
                         <p>Dear family,</p>
                         <p>
                             <strong t-out="object.student_id.name"/> has said that they join the collective decision not to
-                            attend class of <strong t-out="format_date(object.walkout_id.walkout_date)"/>, taken by their group,
-                            <t t-out="object.walkout_id.group_id.name"/>, after a call of a students' union.
+                            attend class of <strong t-out="format_date(object.walkout_id.walkout_date)"/>, taken by their group, <t t-out="object.walkout_id.group_id.name"/>, because of: «<t t-out="(object.walkout_id.notes or '').strip().rstrip('.')"/>».
                         </p>
                         <p>
                             The Head of Studies has validated it: the classes of that day do not count as absences. This
@@ -182,8 +181,7 @@
                         <p>Dear family,</p>
                         <p>
                             <strong t-out="object.student_id.name"/> has said that they join the collective decision not to
-                            attend class of <strong t-out="format_date(object.walkout_id.walkout_date)"/>, which their group,
-                            <t t-out="object.walkout_id.group_id.name"/>, has voted to support after a call of a students' union.
+                            attend class of <strong t-out="format_date(object.walkout_id.walkout_date)"/>, which their group, <t t-out="object.walkout_id.group_id.name"/>, has decided to take, because of: «<t t-out="(object.walkout_id.notes or '').strip().rstrip('.')"/>».
                         </p>
                         <p>
                             The school only informs you: it is a collective decision of the students that nobody can revoke,

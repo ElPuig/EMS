@@ -49448,8 +49448,6 @@ msgstr "% vaga"
 
 #. module: ems
 #: model:ems.attendance_justification_reason,name:ems.attendance_justification_reason_walkout
-#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
-#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__not_expected_reason__walkout
 msgid "Student walkout"
 msgstr "Vaga"
 
@@ -49491,7 +49489,7 @@ msgstr "El delegat o el sotsdelegat d'un grup la proposa des del portal, i el gr
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_student_walkout_line_student_unique
 msgid "A student appears only once in a walkout proposal."
-msgstr "Un alumne només pot aparèixer un cop en una proposta de suport a la vaga."
+msgstr "Un alumne només pot aparèixer un cop en una proposta d'inassistència col·lectiva."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -49518,17 +49516,17 @@ msgstr "No ha respost"
 #. module: ems
 #: model:mail.template,name:ems.email_template_student_walkout_family
 msgid "EMS: student walkout, family"
-msgstr "EMS: vaga d'estudiants, família"
+msgstr "EMS: inassistència col·lectiva, família"
 
 #. module: ems
 #: model:mail.template,name:ems.email_template_student_walkout_head
 msgid "EMS: student walkout, minute"
-msgstr "EMS: vaga d'estudiants, acta"
+msgstr "EMS: inassistència col·lectiva, acta"
 
 #. module: ems
 #: model:mail.template,name:ems.email_template_student_walkout_call
 msgid "EMS: student walkout, vote"
-msgstr "EMS: vaga d'estudiants, votació"
+msgstr "EMS: inassistència col·lectiva, votació"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_level__walkout_course_from
@@ -49574,7 +49572,7 @@ msgstr "S'hi suma"
 #. module: ems
 #: model:mail.activity.type,name:ems.mail_activity_student_walkout_justify
 msgid "Justify the student walkout"
-msgstr "Justificar la vaga d'estudiants"
+msgstr "Justificar la inassistència col·lectiva"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_level__walkout_course_to
@@ -49587,17 +49585,14 @@ msgid "Levels and courses"
 msgstr "Nivells i cursos"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_level_walkout_settings
-#: model:ir.model,name:ems.model_ems_walkout_levels_wizard
-#: model_terms:ir.ui.view,arch_db:ems.view_walkout_levels_wizard_form
+#: model:ir.actions.act_window,name:ems.action_level_walkout_settings model:ir.model,name:ems.model_ems_walkout_levels_wizard model_terms:ir.ui.view,arch_db:ems.view_walkout_levels_wizard_form
 msgid "Levels and courses that may propose supporting a student walkout"
-msgstr "Nivells i cursos que poden proposar donar suport a una vaga"
+msgstr "Nivells i cursos que poden proposar una inassistència col·lectiva"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_level__walkout_allowed
-#: model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__walkout_allowed
+#: model:ir.model.fields,field_description:ems.field_ems_level__walkout_allowed model:ir.model.fields,field_description:ems.field_ems_walkout_levels_wizard_line__walkout_allowed
 msgid "May propose supporting a student walkout"
-msgstr "Pot proposar donar suport a una vaga"
+msgstr "Pot proposar una inassistència col·lectiva"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__voter_count
@@ -49617,7 +49612,7 @@ msgstr "Sense accés al portal"
 #. module: ems
 #: model_terms:ir.actions.act_window,help:ems.action_student_walkout
 msgid "No student walkout proposal yet."
-msgstr "Encara no hi ha cap proposta de suport a una vaga."
+msgstr "Encara no hi ha cap proposta d'inassistència col·lectiva."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_search
@@ -49635,12 +49630,8 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid ""
-"Only the Head of Studies, the Deputy Head of Studies or the Director of "
-"these students, or an administrator, can justify a student walkout."
-msgstr ""
-"Només el cap d'estudis, el cap d'estudis adjunt o el director d'aquests "
-"alumnes, o un administrador, poden justificar una vaga."
+msgid "Only the Head of Studies, the Deputy Head of Studies or the Director of these students, or an administrator, can justify a student walkout."
+msgstr "Només el cap d'estudis, el cap d'estudis adjunt o el director d'aquests alumnes, o un administrador, poden justificar una inassistència col·lectiva."
 
 #. module: ems
 #. odoo-python
@@ -49674,12 +49665,12 @@ msgstr "Indica si el grup dona suport a la convocatòria de vaga."
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Student Walkout Settings"
-msgstr "Vagues d'alumnes"
+msgstr "Inassistències col·lectives"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_student_walkout_line
 msgid "Student of a student walkout proposal"
-msgstr "Alumne d'una proposta de suport a la vaga"
+msgstr "Alumne d'una proposta d'inassistència col·lectiva"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -49689,12 +49680,12 @@ msgstr "Inassistència col·lectiva -"
 #. module: ems
 #: model:ir.model,name:ems.model_ems_student_walkout
 msgid "Student walkout proposal"
-msgstr "Proposta de suport a la vaga"
+msgstr "Proposta d'inassistència col·lectiva"
 
 #. module: ems
 #: model:ir.actions.report,name:ems.action_report_student_walkout
 msgid "Student walkout minute"
-msgstr "Acta de vaga"
+msgstr "Acta d'inassistència col·lectiva"
 
 #. module: ems
 #: model:mail.template,subject:ems.email_template_student_walkout_result
@@ -49712,16 +49703,9 @@ msgid "Student walkout on {{ format_date(object.walkout_id.walkout_date) }}: {{ 
 msgstr "Inassistència col·lectiva del {{ format_date(object.walkout_id.walkout_date) }}: {{ object.student_id.name }}"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_student_walkout
-#: model:ir.ui.menu,name:ems.menu_student_walkout
-#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_list
-#: model:ir.ui.menu,name:ems.menu_attendance_config_walkouts
-#: model:ir.actions.act_window,name:ems.action_student_walkout
-#: model:ir.ui.menu,name:ems.menu_attendance_config_walkouts
-#: model:ir.ui.menu,name:ems.menu_student_walkout
-#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_list
+#: model:ir.actions.act_window,name:ems.action_student_walkout model:ir.ui.menu,name:ems.menu_student_walkout model_terms:ir.ui.view,arch_db:ems.view_student_walkout_list model:ir.ui.menu,name:ems.menu_attendance_config_walkouts model:ir.actions.act_window,name:ems.action_student_walkout model:ir.ui.menu,name:ems.menu_attendance_config_walkouts model:ir.ui.menu,name:ems.menu_student_walkout model_terms:ir.ui.view,arch_db:ems.view_student_walkout_list
 msgid "Student walkouts"
-msgstr "Vagues d'alumnes"
+msgstr "Inassistències col·lectives"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
@@ -49741,7 +49725,7 @@ msgstr "Alumnes sense accés al portal"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_level__walkout_allowed
 msgid "The delegate or sub-delegate of this level's groups may propose supporting a student walkout from the portal."
-msgstr "El delegat o el sotsdelegat dels grups d'aquest nivell pot proposar donar suport a una vaga des del portal."
+msgstr "El delegat o el sotsdelegat dels grups d'aquest nivell pot proposar una inassistència col·lectiva des del portal."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__group_supports
@@ -49751,7 +49735,7 @@ msgstr "El grup hi dona suport"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "The groups whose delegate or sub-delegate may propose supporting a student walkout. By law, from the 3rd year of ESO."
-msgstr "Els grups el delegat o sotsdelegat dels quals pot proposar donar suport a una vaga. Per llei, a partir de 3r d'ESO."
+msgstr "Els grups el delegat o sotsdelegat dels quals pot proposar una inassistència col·lectiva. Per llei, a partir de 3r d'ESO."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
@@ -49761,17 +49745,13 @@ msgstr "No hi ha cap proposta de suport a una convocatòria de vaga al teu grup.
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid ""
-"There is nobody to justify: the vote is not closed, the group did not "
-"support the walkout, nobody joined it or it is already justified."
-msgstr ""
-"No hi ha ningú a justificar: la votació no està tancada, el grup no ha donat"
-" suport a la vaga, no s'hi ha sumat ningú o ja està justificada."
+msgid "There is nobody to justify: the vote is not closed, the group did not support the walkout, nobody joined it or it is already justified."
+msgstr "No hi ha ningú a justificar: la votació no està tancada, el grup no ha decidit fer la inassistència col·lectiva, no s'hi ha sumat ningú o ja està justificada."
 
 #. module: ems
 #: model_terms:ir.actions.act_window,help:ems.action_level_walkout_settings
 msgid "Tick the levels whose groups may propose supporting a student walkout. Leave the courses empty for every course of the level."
-msgstr "Marca els nivells els grups dels quals poden proposar donar suport a una vaga. Deixa els cursos en blanc per a tots els cursos del nivell."
+msgstr "Marca els nivells els grups dels quals poden proposar una inassistència col·lectiva. Deixa els cursos en blanc per a tots els cursos del nivell."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_level__walkout_course_to
@@ -49805,19 +49785,17 @@ msgstr "En votació"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_level_count
 msgid "Walkout Level Count"
-msgstr "Nombre de nivells que poden proposar donar suport a una vaga"
+msgstr "Nombre de nivells que poden proposar una inassistència col·lectiva"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__walkout_id
-#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__walkout_id
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__walkout_id model:ir.model.fields,field_description:ems.field_ems_student_walkout_reject_wizard__walkout_id
 msgid "Walkout proposal"
-msgstr "Proposta de suport a la vaga"
+msgstr "Proposta d'inassistència col·lectiva"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__walkout_date
-#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__walkout_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__walkout_date model:ir.model.fields,field_description:ems.field_ems_student_walkout__walkout_date
 msgid "Walkout day"
-msgstr "Dia de la vaga"
+msgstr "Dia de la inassistència col·lectiva"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_student_walkout_line__has_portal
@@ -49868,12 +49846,12 @@ msgstr "sí,"
 #. odoo-python
 #: code:addons/ems/models/curriculum/level.py:0
 msgid "%(level)s: the first course that may propose supporting a student walkout cannot be after the last one."
-msgstr "%(level)s: el primer curs que pot proposar donar suport a una vaga no pot ser posterior a l'últim."
+msgstr "%(level)s: el primer curs que pot proposar una inassistència col·lectiva no pot ser posterior a l'últim."
 
 #. module: ems
 #: model:mail.template,name:ems.email_template_student_walkout_rejected
 msgid "EMS: student walkout, rejected"
-msgstr "EMS: vaga d'estudiants, rebutjada"
+msgstr "EMS: inassistència col·lectiva, rebutjada"
 
 #. module: ems
 #. odoo-python
@@ -49896,13 +49874,13 @@ msgstr ""
 #. module: ems
 #: model:ir.model,name:ems.model_ems_student_walkout_reject_wizard
 msgid "Reject a student walkout proposal"
-msgstr "Rebutjar una proposta de suport a la vaga"
+msgstr "Rebutjar una proposta d'inassistència col·lectiva"
 
 #. module: ems
 #. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
 msgid "Reject the student walkout proposal"
-msgstr "Rebutja la proposta de suport a la vaga"
+msgstr "Rebutja la proposta d'inassistència col·lectiva"
 
 #. module: ems
 #. odoo-python
@@ -49928,12 +49906,12 @@ msgstr "Inassistència col·lectiva del {{ format_date(object.walkout_id.walkout
 #. module: ems
 #: model:ir.model,name:ems.model_ems_student_walkout_rejection_reason
 msgid "Student walkout rejection reason"
-msgstr "Motiu de rebuig d'una proposta de suport a la vaga"
+msgstr "Motiu de rebuig d'una proposta d'inassistència col·lectiva"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_student_walkout_rejection_reason
 msgid "Student walkout rejection reasons"
-msgstr "Motius de rebuig de les propostes de suport a la vaga"
+msgstr "Motius de rebuig de les propostes d'inassistència col·lectiva"
 
 #. module: ems
 #: model:ems.student_walkout.rejection_reason,name:ems.student_walkout_rejection_level
@@ -49964,7 +49942,7 @@ msgstr "Pot rebutjar"
 #. module: ems
 #: model:mail.template,name:ems.email_template_student_walkout_family_rejected
 msgid "EMS: student walkout, rejected, family"
-msgstr "EMS: vaga d'estudiants, rebutjada, família"
+msgstr "EMS: inassistència col·lectiva, rebutjada, família"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__rejected_from_state
@@ -49994,17 +49972,17 @@ msgstr "Ha dit si s'hi suma"
 #. module: ems
 #: model:ir.actions.server,name:ems.ir_cron_student_walkout_deadlines_ir_actions_server
 msgid "EMS: Student walkout deadlines"
-msgstr "EMS: Terminis de les vagues d'estudiants"
+msgstr "EMS: Terminis de les inassistències col·lectives"
 
 #. module: ems
 #: model:mail.template,name:ems.email_template_student_walkout_join
 msgid "EMS: student walkout, joining"
-msgstr "EMS: vaga d'estudiants, adhesions"
+msgstr "EMS: inassistència col·lectiva, adhesions"
 
 #. module: ems
 #: model:mail.template,name:ems.email_template_student_walkout_result
 msgid "EMS: student walkout, not supported"
-msgstr "EMS: vaga d'estudiants, sense suport"
+msgstr "EMS: inassistència col·lectiva, sense suport"
 
 #. module: ems
 #. odoo-python
@@ -50198,7 +50176,7 @@ msgstr "En votació o adhesions"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__walkout_start
 msgid "Walkout starts"
-msgstr "Inici de la vaga"
+msgstr "Inici de la inassistència col·lectiva"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -50222,7 +50200,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/settings/company.py:0
 msgid "A student walkout phase lasts at least one hour, and its notice cannot be negative."
-msgstr "Una fase de la vaga dura com a mínim una hora, i el preavís no pot ser negatiu."
+msgstr "Una fase de la inassistència col·lectiva dura com a mínim una hora, i el preavís no pot ser negatiu."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
@@ -50250,7 +50228,7 @@ msgstr "Avorta la proposta"
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "Abort the student walkout proposal"
-msgstr "Avorta la proposta de suport a la vaga"
+msgstr "Avorta la proposta d'inassistència col·lectiva"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
@@ -50272,29 +50250,29 @@ msgstr "No la validis"
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "Do not validate the student walkout"
-msgstr "No validis la vaga"
+msgstr "No validis la inassistència col·lectiva"
 
 #. module: ems
 #: model:mail.template,name:ems.email_template_student_walkout_tutor
 msgid "EMS: student walkout, tutor"
-msgstr "EMS: vaga, tutor"
+msgstr "EMS: inassistència col·lectiva, tutor"
 
 #. module: ems
 #: model:mail.template,name:ems.email_template_student_walkout_validated
 msgid "EMS: student walkout, validated"
-msgstr "EMS: vaga, validada"
+msgstr "EMS: inassistència col·lectiva, validada"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "Only the Head of Studies, the Deputy Head of Studies or the Director of these students, or an administrator, can decide whether a student walkout is validated."
-msgstr "Només el cap d'estudis, el cap d'estudis adjunt o la direcció d'aquests alumnes, o un administrador, poden decidir si es valida una vaga."
+msgstr "Només el cap d'estudis, el cap d'estudis adjunt o la direcció d'aquests alumnes, o un administrador, poden decidir si es valida una inassistència col·lectiva."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "Only the tutor of the group, the chain above them (Department or Seminar Chief, Head or Deputy Head of Studies, Director) or an administrator can abort a student walkout proposal."
-msgstr "Només el tutor del grup, la cadena per sobre seu (cap de departament o de seminari, cap d'estudis o cap d'estudis adjunt, direcció) o un administrador poden avortar una proposta de suport a la vaga."
+msgstr "Només el tutor del grup, la cadena per sobre seu (cap de departament o de seminari, cap d'estudis o cap d'estudis adjunt, direcció) o un administrador poden avortar una proposta d'inassistència col·lectiva."
 
 #. module: ems
 #: model:mail.template,subject:ems.email_template_student_walkout_validated
@@ -50305,7 +50283,7 @@ msgstr "Inassistència col·lectiva del {{ format_date(object.walkout_id.walkout
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "Student walkout: %(name)s has aborted the proposal of %(group)s for a walkout on %(day)s. Reason: %(reason)s."
-msgstr "Vaga: %(name)s ha avortat la proposta de %(group)s per a una vaga el %(day)s. Motiu: %(reason)s."
+msgstr "Inassistència col·lectiva: %(name)s ha avortat la proposta de %(group)s per a una inassistència col·lectiva el %(day)s. Motiu: %(reason)s."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -50326,7 +50304,7 @@ msgstr "S'ha avortat aquesta proposta:"
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "This student walkout proposal can no longer be aborted nor rejected."
-msgstr "Aquesta proposta de suport a la vaga ja no es pot avortar ni rebutjar."
+msgstr "Aquesta proposta d'inassistència col·lectiva ja no es pot avortar ni rebutjar."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
@@ -50337,12 +50315,12 @@ msgstr "Desfés la validació"
 #. module: ems
 #: model:mail.template,name:ems.email_template_student_walkout_ratification_refused
 msgid "EMS: student walkout, family refused"
-msgstr "EMS: vaga d'estudiants, la família no ho ratifica"
+msgstr "EMS: inassistència col·lectiva, la família no ho ratifica"
 
 #. module: ems
 #: model:mail.template,name:ems.email_template_student_walkout_ratify
 msgid "EMS: student walkout, family to ratify"
-msgstr "EMS: vaga d'estudiants, ratificació de la família"
+msgstr "EMS: inassistència col·lectiva, ratificació de la família"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__ratification_date
@@ -50450,13 +50428,13 @@ msgstr "Validada"
 #. module: ems
 #: model:ir.model,name:ems.model_ems_walkout_levels_wizard_line
 msgid "Level that may propose supporting a student walkout"
-msgstr "Nivell que pot proposar donar suport a una vaga"
+msgstr "Nivell que pot proposar una inassistència col·lectiva"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/settings/walkout_levels_wizard.py:0
 msgid "Only an administrator can change which levels may propose supporting a student walkout."
-msgstr "Només un administrador pot canviar quins nivells poden proposar donar suport a una vaga."
+msgstr "Només un administrador pot canviar quins nivells poden proposar una inassistència col·lectiva."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
@@ -50473,7 +50451,7 @@ msgid ""
 "Tick the levels whose groups may propose supporting a student walkout. Leave the courses empty for every\n"
 "                        course of the level. By law, from the 3rd year of ESO."
 msgstr ""
-"Marca els nivells els grups dels quals poden proposar donar suport a una vaga. Deixa els cursos en blanc per a tots els\n"
+"Marca els nivells els grups dels quals poden proposar una inassistència col·lectiva. Deixa els cursos en blanc per a tots els\n"
 "                        cursos del nivell. Per llei, a partir de 3r d'ESO."
 
 #. module: ems
@@ -51939,13 +51917,13 @@ msgstr "Cada fase comença quan el seu correu arriba al grup: durant les classes
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "Example: a group with class from 8:00 to 15:00, Monday to Friday, proposes a walkout on %(moment)s, after its classes."
-msgstr "Exemple: un grup amb classe de 8:00 a 15:00, de dilluns a divendres, proposa una vaga el %(moment)s, després de les classes."
+msgstr "Exemple: un grup amb classe de 8:00 a 15:00, de dilluns a divendres, proposa una inassistència col·lectiva el %(moment)s, després de les classes."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "First possible walkout day: %(day)s"
-msgstr "Primer dia possible de la vaga: %(day)s"
+msgstr "Primer dia possible de la inassistència col·lectiva: %(day)s"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__count_from__proposal
@@ -52006,37 +51984,32 @@ msgstr "Hores lectives"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_calendar_example
 msgid "Student walkout calendar example"
-msgstr "Exemple del calendari de la vaga"
+msgstr "Exemple del calendari de la inassistència col·lectiva"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_company__walkout_count_from
-#: model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_count_from
+#: model:ir.model.fields,field_description:ems.field_res_company__walkout_count_from model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_count_from
 msgid "Student walkout count starts"
-msgstr "Inici del recompte de la vaga"
+msgstr "Inici del recompte de la inassistència col·lectiva"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_company__walkout_count_days_off
-#: model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_count_days_off
+#: model:ir.model.fields,field_description:ems.field_res_company__walkout_count_days_off model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_count_days_off
 msgid "Student walkout counts the days without class"
-msgstr "La vaga compta els dies sense classe"
+msgstr "La inassistència col·lectiva compta els dies sense classe"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_company__walkout_hours_kind
-#: model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_hours_kind
+#: model:ir.model.fields,field_description:ems.field_res_company__walkout_hours_kind model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_hours_kind
 msgid "Student walkout kind of hours"
-msgstr "Tipus d'hores de la vaga"
+msgstr "Tipus d'hores de la inassistència col·lectiva"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_company__walkout_notice_hours
-#: model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_notice_hours
+#: model:ir.model.fields,field_description:ems.field_res_company__walkout_notice_hours model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_notice_hours
 msgid "Student walkout notice (hours)"
-msgstr "Preavís de la vaga (hores)"
+msgstr "Preavís de la inassistència col·lectiva (hores)"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_company__walkout_phase_hours
-#: model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_phase_hours
+#: model:ir.model.fields,field_description:ems.field_res_company__walkout_phase_hours model:ir.model.fields,field_description:ems.field_res_config_settings__walkout_phase_hours
 msgid "Student walkout phase (hours)"
-msgstr "Fase de la vaga (hores)"
+msgstr "Fase de la inassistència col·lectiva (hores)"
 
 #. module: ems
 #. odoo-python
@@ -52053,7 +52026,7 @@ msgstr "La votació del grup acaba: %(moment)s"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "The group votes for one phase and, if it supports the walkout, each student says whether they join for another; the Head of Studies gets the minute at least the notice before the walkout. Each proposal keeps the values it was made with."
-msgstr "El grup vota durant una fase i, si dona suport a la vaga, cada alumne diu si s'hi suma durant una altra; el cap d'estudis rep l'acta com a mínim amb el preavís abans de la vaga. Cada proposta manté els valors amb què es va fer."
+msgstr "El grup vota durant una fase i, si decideix fer la inassistència col·lectiva, cada alumne diu si s'hi suma durant una altra; el cap d'estudis rep l'acta com a mínim amb el preavís abans de la inassistència col·lectiva. Cada proposta manté els valors amb què es va fer."
 
 #. module: ems
 #. odoo-python
@@ -52180,7 +52153,7 @@ msgstr "Pot ampliar"
 #. module: ems
 #: model:mail.template,name:ems.email_template_student_walkout_join_extended
 msgid "EMS: student walkout, joining extended"
-msgstr "EMS: vaga d'alumnes, adhesions ampliades"
+msgstr "EMS: inassistència col·lectiva, adhesions ampliades"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -52224,12 +52197,8 @@ msgstr "Inassistència col·lectiva del {{ format_date(object.walkout_id.walkout
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid ""
-"Student walkout: %(name)s has extended the joining of %(group)s for the "
-"walkout on %(day)s, so the minute is held back until it closes again."
-msgstr ""
-"Vaga d'alumnes: %(name)s ha ampliat les adhesions de %(group)s per a la vaga"
-" del %(day)s, de manera que l'acta s'endarrereix fins que es tanqui de nou."
+msgid "Student walkout: %(name)s has extended the joining of %(group)s for the walkout on %(day)s, so the minute is held back until it closes again."
+msgstr "Inassistència col·lectiva: %(name)s ha ampliat les adhesions de %(group)s per a la inassistència col·lectiva del %(day)s, de manera que l'acta s'endarrereix fins que es tanqui de nou."
 
 #. module: ems
 #. odoo-python
@@ -52257,23 +52226,13 @@ msgstr "(no inclòs), la fase d'adhesió serà més curta de"
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "Earliest walkout day, with a shorter joining: %(day)s"
-msgstr "Primer dia possible de vaga, amb una adhesió més curta: %(day)s"
+msgstr "Primer dia possible d'inassistència col·lectiva, amb una adhesió més curta: %(day)s"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
-msgid ""
-"It is too late to propose supporting a student walkout for %(day)s: the "
-"group vote takes %(phase)s hours, the joining can be shortened but needs at "
-"least %(minutes)s minutes, and the Head of Studies must get the minute "
-"%(notice)s hours before the walkout. %(count)s A proposal made now can be "
-"for %(first)s at the earliest."
-msgstr ""
-"És massa tard per proposar donar suport a una vaga per al %(day)s: la "
-"votació del grup dura %(phase)s hores, l'adhesió es pot escurçar, però "
-"necessita almenys %(minutes)s minuts, i el cap d'estudis ha de rebre l'acta "
-"%(notice)s hores abans de la vaga. %(count)s Una proposta feta ara pot ser "
-"com a molt aviat per al %(first)s."
+msgid "It is too late to propose supporting a student walkout for %(day)s: the group vote takes %(phase)s hours, the joining can be shortened but needs at least %(minutes)s minutes, and the Head of Studies must get the minute %(notice)s hours before the walkout. %(count)s A proposal made now can be for %(first)s at the earliest."
+msgstr "És massa tard per proposar una inassistència col·lectiva per al %(day)s: la votació del grup dura %(phase)s hores, l'adhesió es pot escurçar, però necessita almenys %(minutes)s minuts, i el cap d'estudis ha de rebre l'acta %(notice)s hores abans de la inassistència col·lectiva. %(count)s Una proposta feta ara pot ser com a molt aviat per al %(first)s."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -52344,19 +52303,19 @@ msgstr "Marca a mà la ratificació de la família"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
 msgid "Mark that the family of this student ratifies that they join the walkout? Do it only when the family has told the centre so."
-msgstr "Vols marcar que la família d'aquest alumne ratifica que s'adhereix a la vaga? Fes-ho només quan la família ho hagi comunicat al centre."
+msgstr "Vols marcar que la família d'aquest alumne ratifica que s'adhereix a la inassistència col·lectiva? Fes-ho només quan la família ho hagi comunicat al centre."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "The ratification of %(student)s cannot be marked by you now: only the tutor of the group, the chain above them or an administrator can, for a minor whose family has not answered, until the Head of Studies validates the walkout."
-msgstr "Ara no pots marcar la ratificació de %(student)s: només ho poden fer el tutor del grup, la cadena que té per damunt o un administrador, per a un menor la família del qual no ha respost, fins que la cap d'estudis validi la vaga."
+msgstr "Ara no pots marcar la ratificació de %(student)s: només ho poden fer el tutor del grup, la cadena que té per damunt o un administrador, per a un menor la família del qual no ha respost, fins que la cap d'estudis validi la inassistència col·lectiva."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "%(user)s marked by hand the family's ratification that %(student)s joins the walkout."
-msgstr "%(user)s ha marcat a mà la ratificació de la família que %(student)s s'adhereix a la vaga."
+msgstr "%(user)s ha marcat a mà la ratificació de la família que %(student)s s'adhereix a la inassistència col·lectiva."
 
 #. module: ems
 #. odoo-python
@@ -52454,8 +52413,7 @@ msgid ""
 "                        <p>Dear family,</p>\n"
 "                        <p>\n"
 "                            <strong t-out=\"object.student_id.name\"/> has said that they join the collective decision not to\n"
-"                            attend class of <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, taken by their group,\n"
-"                            <t t-out=\"object.walkout_id.group_id.name\"/>, after a call of a students' union.\n"
+"                            attend class of <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, taken by their group, <t t-out=\"object.walkout_id.group_id.name\"/>, because of: «<t t-out=\"(object.walkout_id.notes or '').strip().rstrip('.')\"/>».\n"
 "                        </p>\n"
 "                        <p>\n"
 "                            The Head of Studies has validated it: the classes of that day do not count as absences. This\n"
@@ -52474,7 +52432,7 @@ msgstr ""
 "                        <p>Benvolguda família,</p>\n"
 "                        <p>\n"
 "                            <strong t-out=\"object.student_id.name\"/> ha dit que se suma a la decisió col·lectiva d'inassistència a classe\n"
-"                            del <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, presa pel seu grup, <t t-out=\"object.walkout_id.group_id.name\"/>, arran de la convocatòria d'un sindicat d'estudiants.\n"
+"                            del <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, presa pel seu grup, <t t-out=\"object.walkout_id.group_id.name\"/>, arran de: «<t t-out=\"(object.walkout_id.notes or '').strip().rstrip('.')\"/>».\n"
 "                        </p>\n"
 "                        <p>\n"
 "                            El cap d'estudis l'ha validada: les classes d'aquell dia no compten com a faltes. Aquest correu és\n"
@@ -52496,8 +52454,7 @@ msgid ""
 "                        <p>Dear family,</p>\n"
 "                        <p>\n"
 "                            <strong t-out=\"object.student_id.name\"/> has said that they join the collective decision not to\n"
-"                            attend class of <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, which their group,\n"
-"                            <t t-out=\"object.walkout_id.group_id.name\"/>, has voted to support after a call of a students' union.\n"
+"                            attend class of <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, which their group, <t t-out=\"object.walkout_id.group_id.name\"/>, has decided to take, because of: «<t t-out=\"(object.walkout_id.notes or '').strip().rstrip('.')\"/>».\n"
 "                        </p>\n"
 "                        <p>\n"
 "                            The school only informs you: it is a collective decision of the students that nobody can revoke,\n"
@@ -52525,7 +52482,7 @@ msgstr ""
 "                        <p>\n"
 "                            <strong t-out=\"object.student_id.name\"/> ha dit que se suma a la decisió col·lectiva d'inassistència a classe\n"
 "                            del <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>,\n"
-"                            a la qual el seu grup, <t t-out=\"object.walkout_id.group_id.name\"/>, ha votat donar suport arran de la convocatòria d'un sindicat d'estudiants.\n"
+"                            que el seu grup, <t t-out=\"object.walkout_id.group_id.name\"/>, ha decidit prendre, arran de: «<t t-out=\"(object.walkout_id.notes or '').strip().rstrip('.')\"/>».\n"
 "                        </p>\n"
 "                        <p>\n"
 "                            El centre només us n'informa: és una decisió col·lectiva dels alumnes que ningú no pot revocar, i les classes d'aquell dia no compten com a faltes. Com que és menor d'edat, us demanem que la ratifiqueu\n"
@@ -52708,7 +52665,7 @@ msgstr ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <p>Hola,</p>\n"
 "                        <p>\n"
-"                            La votació de la vaga del <strong t-out=\"format_date(object.walkout_date)\"/> a\n"
+"                            La votació de la inassistència col·lectiva del <strong t-out=\"format_date(object.walkout_date)\"/> a\n"
 "                            <strong t-out=\"object.group_id.name\"/> s'ha tancat. Hi adjuntem l'acta.\n"
 "                        </p>\n"
 "                        <ul>\n"
@@ -52932,12 +52889,12 @@ msgstr "Sumar-te a la decisió col·lectiva d'inassistència a classe és una de
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "Only the Head of Studies, the Deputy Head of Studies or the Director of these students, or an administrator, can validate a student walkout."
-msgstr "Només el cap d'estudis, el cap d'estudis adjunt o el director d'aquests alumnes, o un administrador, poden validar una vaga."
+msgstr "Només el cap d'estudis, el cap d'estudis adjunt o el director d'aquests alumnes, o un administrador, poden validar una inassistència col·lectiva."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
 msgid "Student walkout, not ratified by the family (told for information)"
-msgstr "Vaga d'estudiants, sense ratificació de la família (se l'informa a títol informatiu)"
+msgstr "Inassistència col·lectiva, sense ratificació de la família (se l'informa a títol informatiu)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_saved_modal
@@ -52947,12 +52904,12 @@ msgstr "Gràcies: l'heu ratificada. No cal fer res més: la resta és automàtic
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
 msgid "The classes of the walkout day of the students who join it count as regular absences again. The students of the group, the families of those who join and the tutor are told, with the reason."
-msgstr "Les classes del dia de la vaga dels alumnes que s'hi sumen tornen a comptar com a faltes ordinàries. S'informa l'alumnat del grup, les famílies dels que s'hi sumen i el tutor, amb el motiu."
+msgstr "Les classes del dia de la inassistència col·lectiva dels alumnes que s'hi sumen tornen a comptar com a faltes ordinàries. S'informa l'alumnat del grup, les famílies dels que s'hi sumen i el tutor, amb el motiu."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
 msgid "The classes of the walkout day of the students who join it count as regular absences. The students of the group, its tutor and the families asked to ratify that a minor joins are told, with the reason."
-msgstr "Les classes del dia de la vaga dels alumnes que s'hi sumen compten com a faltes ordinàries. S'informa l'alumnat del grup, el seu tutor i les famílies a qui s'ha demanat que ratifiquin que un menor s'hi suma, amb el motiu."
+msgstr "Les classes del dia de la inassistència col·lectiva dels alumnes que s'hi sumen compten com a faltes ordinàries. S'informa l'alumnat del grup, el seu tutor i les famílies a qui s'ha demanat que ratifiquin que un menor s'hi suma, amb el motiu."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_saved_modal
@@ -52983,7 +52940,7 @@ msgstr "Per validar"
 #. module: ems
 #: model:mail.activity.type,name:ems.mail_activity_student_walkout_validate
 msgid "Validate the student walkout"
-msgstr "Validar la vaga d'estudiants"
+msgstr "Validar la inassistència col·lectiva"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -53256,7 +53213,7 @@ msgstr ""
 "                        <t t-if=\"event == 'call'\">\n"
 "                            <p>\n"
 "                                <t t-out=\"object.opener_id.name\"/>, delegat de <strong t-out=\"object.group_id.name\"/>,\n"
-"                                ha proposat que el grup faci vaga el <strong t-out=\"format_date(object.walkout_date)\"/>, arran de: «<t t-out=\"(object.notes or '').strip().rstrip('.')\"/>».\n"
+"                                ha proposat que el grup faci una inassistència col·lectiva el <strong t-out=\"format_date(object.walkout_date)\"/>, arran de: «<t t-out=\"(object.notes or '').strip().rstrip('.')\"/>».\n"
 "                                El grup vota fins al <strong t-out=\"object.format_local_datetime(object.vote_until)\"/>.\n"
 "                            </p>\n"
 "                            <p>\n"
@@ -53264,7 +53221,7 @@ msgstr ""
 "                            </p>\n"
 "                        </t>\n"
 "                        <p t-elif=\"event == 'join'\">\n"
-"                            <strong t-out=\"object.group_id.name\"/> dona suport a la vaga del\n"
+"                            <strong t-out=\"object.group_id.name\"/> decideix fer la inassistència col·lectiva del\n"
 "                            <strong t-out=\"format_date(object.walkout_date)\"/>\n"
 "                            (<t t-out=\"object.group_yes_count\"/> sí, <t t-out=\"object.group_no_count\"/> no,\n"
 "                            <t t-out=\"object.group_abstain_count\"/> abstencions). Cada alumne diu si s'hi suma\n"
@@ -53273,12 +53230,12 @@ msgstr ""
 "                        </p>\n"
 "                        <p t-elif=\"event == 'extended'\">\n"
 "                            S'ha ampliat fins al <strong t-out=\"object.format_local_datetime(object.join_until)\"/> el temps perquè els\n"
-"                            alumnes de <strong t-out=\"object.group_id.name\"/> diguin si se sumen a la vaga del\n"
+"                            alumnes de <strong t-out=\"object.group_id.name\"/> diguin si se sumen a la inassistència col·lectiva del\n"
 "                            <strong t-out=\"format_date(object.walkout_date)\"/>. Fins llavors encara pots avortar la\n"
 "                            proposta.\n"
 "                        </p>\n"
 "                        <p t-elif=\"event == 'closed'\">\n"
-"                            La proposta de suport a la vaga del <strong t-out=\"format_date(object.walkout_date)\"/> a\n"
+"                            La proposta d'inassistència col·lectiva del <strong t-out=\"format_date(object.walkout_date)\"/> a\n"
 "                            <strong t-out=\"object.group_id.name\"/> s'ha tancat:\n"
 "                            <t t-if=\"object.group_supports\">el grup hi dona suport i\n"
 "                                <t t-out=\"object.joining_count\"/> de <t t-out=\"len(object.line_ids)\"/> alumnes s'hi sumen.\n"
@@ -53286,7 +53243,7 @@ msgstr ""
 "                            <t t-else=\"\">el grup no hi dona suport, de manera que aquell dia s'espera tothom a classe.</t>\n"
 "                        </p>\n"
 "                        <p t-elif=\"event == 'validated'\">\n"
-"                            El cap d'estudis ha validat la vaga de <strong t-out=\"object.group_id.name\"/>\n"
+"                            El cap d'estudis ha validat la inassistència col·lectiva de <strong t-out=\"object.group_id.name\"/>\n"
 "                            del <strong t-out=\"format_date(object.walkout_date)\"/>: els\n"
 "                            <t t-out=\"object.joining_count\"/> alumnes que s'hi sumen no consten a la llista d'assistència d'aquell dia.\n"
 "                        </p>\n"
@@ -53296,7 +53253,7 @@ msgstr ""
 "                                <t t-if=\"object.rejected_from_state in ('voting', 'joining')\">ha avortat la proposta de</t>\n"
 "                                <t t-elif=\"object.rejected_from_state == 'validated'\">ha retirat la validació de</t>\n"
 "                                <t t-else=\"\">no ha validat</t>\n"
-"                                la vaga de <strong t-out=\"object.group_id.name\"/> del\n"
+"                                la inassistència col·lectiva de <strong t-out=\"object.group_id.name\"/> del\n"
 "                                <strong t-out=\"format_date(object.walkout_date)\"/>:\n"
 "                                <strong t-out=\"object.rejection_reason_id.name\"/>.\n"
 "                            </p>\n"
@@ -53440,7 +53397,7 @@ msgstr "se suma a la inassistència col·lectiva del"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
 msgid "the attached document does not support the proposal (it does not explain why the group walks out, or it is for another day);"
-msgstr "el document adjunt no justifica la proposta (no explica per què el grup fa vaga, o és d'un altre dia);"
+msgstr "el document adjunt no justifica la proposta (no explica per què el grup fa la inassistència col·lectiva, o és d'un altre dia);"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_reject_wizard_form
@@ -53467,3 +53424,9 @@ msgstr "El document adjunt no justifica la proposta"
 #: model:mail.template,subject:ems.email_template_student_walkout_tutor
 msgid "Student walkout on {{ format_date(object.walkout_date) }}: {{ object.group_id.name }}"
 msgstr "Inassistència col·lectiva del {{ format_date(object.walkout_date) }}: {{ object.group_id.name }}"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__not_expected_reason__walkout
+msgid "Student walkout"
+msgstr "Inassistència col·lectiva"

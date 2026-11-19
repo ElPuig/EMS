@@ -14,3 +14,7 @@
 ## Migration for the certificate types:
 
 - `migrations/18.0.0.51.0/post-migrate.py` writes the FCT type's text (en/ca/es; the type is noupdate) and gives every existing request the lines of its type's details. The old FCT columns are dropped by Odoo; their values are not moved, since no request had been processed in production yet (the feature hadn't been announced). The folder is named after the next feature version: rename or fold it when preparing the release.
+
+## Example certificate text on the type form:
+
+- Under the help of "Certificate text", the type form shows an example for a grades certificate (details school_year and average, the average as an optional part), translated to Catalan and Spanish.

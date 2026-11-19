@@ -81,6 +81,11 @@
                             value; a blank line starts a new paragraph. Details:
                             <field name="placeholder_help" class="d-inline"/>
                         </div>
+                        <div class="text-muted mb-3">
+                            <i class="fa fa-lightbulb-o me-1"/>Example, for a grades certificate whose details are the
+                            school year (key school_year) and the average grade (key average, not asked to the applicant):
+                            <div class="font-monospace border rounded p-2 mt-1">That {name}, with identity document {document}, a student of {study}, completed the school year {school_year}[ with an average grade of {average}].<br/><br/>Source: the student's academic record at the centre.</div>
+                        </div>
                         <separator string="Approval circuit"/>
                         <field name="step_ids">
                             <list editable="bottom">

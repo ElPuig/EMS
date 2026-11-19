@@ -55920,3 +55920,18 @@ msgstr ""
 #: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__field_type__boolean
 msgid "Yes/No"
 msgstr "Sí/No"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+msgid ""
+"<i class=\"fa fa-lightbulb-o me-1\"/>Example, for a grades certificate whose details are the\n"
+"                            school year (key school_year) and the average grade (key average, not asked to the applicant):"
+msgstr "<i class=\"fa fa-lightbulb-o me-1\"/>Exemple, per a un certificat de notes amb les dades curs escolar (clau school_year) i nota mitjana (clau average, que no es demana al sol·licitant):"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+msgid ""
+"That {name}, with identity document {document}, a student of {study}, "
+"completed the school year {school_year}[ with an average grade of "
+"{average}].<br/><br/>Source: the student's academic record at the centre."
+msgstr "Que {name}, amb document d'identitat {document}, estudiant de {study}, ha cursat el curs escolar {school_year}[ amb una nota mitjana de {average}].<br/><br/>Font: l'expedient acadèmic de l'alumne al centre."

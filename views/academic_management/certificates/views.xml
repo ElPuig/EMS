@@ -13,7 +13,6 @@
                     <field name="student_id" optional="hide"/>
                     <field name="type_id"/>
                     <field name="study_id" optional="show"/>
-                    <field name="training_company_id" optional="show"/>
                     <field name="submission_date"/>
                     <field name="origin" optional="hide"/>
                     <field name="step_role_id" optional="show"/>
@@ -31,7 +30,6 @@
             <field name="model">ems.certificate</field>
             <field name="arch" type="xml">
                 <form string="Certificate request">
-                    <field name="kind" invisible="1"/>
                     <field name="can_act" invisible="1"/>
                     <field name="can_manage" invisible="1"/>
                     <field name="step_action" invisible="1"/>
@@ -58,7 +56,7 @@
                             <button name="action_issue_now" type="object" string="Issue it now"
                                     invisible="not can_issue_now"
                                     confirm="Confirm you have every mandatory detail and document of the request. The steps before issuing are skipped (their pending tasks are closed) and the certificate gets its number and your stamp. If anything mandatory is missing, it is not issued and you are told what. Continue?"
-                                    help="Skip the steps before issuing (e.g. completing the workplace training) when you already have every detail and document."/>
+                                    help="Skip the steps before issuing (e.g. completing the certificate details) when you already have every detail and document."/>
                             <button name="action_open_wizard" type="object" string="Request documentation"
                                     invisible="not can_act" context="{'certificate_wizard_mode': 'info'}"/>
                             <button name="action_documentation_received" type="object" string="Documentation received"
@@ -134,33 +132,44 @@
                                         <field name="study_id" options="{'no_create': True}"
                                                domain="[('level_id', 'in', type_level_ids)] if type_level_ids else []"
                                                readonly="state not in ('draft', 'in_progress', 'documentation')"/>
-                                        <field name="fct_school_year" invisible="kind != 'fct'"
-                                               readonly="state not in ('draft', 'in_progress', 'documentation')"/>
                                     </group>
                                 </group>
                             </page>
-                            <page name="training" string="Workplace training" invisible="kind != 'fct'">
-                                <group>
-                                    <group>
-                                        <field name="training_company_id" context="{'default_contact_type': 'company', 'default_is_company': True}"
-                                               readonly="state not in ('draft', 'in_progress', 'documentation')"/>
-                                        <label for="company_name" invisible="not company_name"/>
-                                        <div invisible="not company_name">
-                                            <field name="company_name" readonly="1" class="d-inline"/>
-                                            <button name="action_create_company" type="object" string="Create company"
-                                                    class="btn-link" icon="fa-plus"
-                                                    invisible="training_company_id or state not in ('draft', 'in_progress', 'documentation')"
-                                                    help="Create the collaborating company with the name and VAT number the applicant wrote, and link it."/>
-                                        </div>
-                                        <field name="company_vat" readonly="1" invisible="not company_vat"/>
-                                        <field name="agreement_reference" readonly="state not in ('draft', 'in_progress', 'documentation')"/>
-                                    </group>
-                                    <group>
-                                        <field name="period_start" readonly="state not in ('draft', 'in_progress', 'documentation')"/>
-                                        <field name="period_end" readonly="state not in ('draft', 'in_progress', 'documentation')"/>
-                                        <field name="hours" readonly="state not in ('draft', 'in_progress', 'documentation')"/>
-                                    </group>
-                                </group>
+                            <page name="details" string="Certificate details" invisible="not value_ids">
+                                <field name="value_field_types" invisible="1"/>
+                                <!-- One line per detail of the type: only the column of its data type is
+                                     shown on each line, and only the columns some detail uses. -->
+                                <field name="value_ids" readonly="state not in ('draft', 'in_progress', 'documentation')">
+                                    <list editable="bottom" create="0" delete="0" decoration-warning="is_pending">
+                                        <field name="field_type" column_invisible="1"/>
+                                        <field name="is_pending" column_invisible="1"/>
+                                        <field name="name"/>
+                                        <field name="value_char" invisible="field_type not in ('char', 'school_year', 'company')"
+                                               readonly="field_type == 'company'"
+                                               column_invisible="not ('char' in parent.value_field_types or 'school_year' in parent.value_field_types or 'company' in parent.value_field_types)"/>
+                                        <field name="value_text" invisible="field_type != 'text'"
+                                               column_invisible="'text' not in parent.value_field_types"/>
+                                        <field name="value_integer" invisible="field_type != 'integer'"
+                                               column_invisible="'integer' not in parent.value_field_types"/>
+                                        <field name="value_date" invisible="field_type != 'date'"
+                                               column_invisible="'date' not in parent.value_field_types"/>
+                                        <field name="value_boolean" invisible="field_type != 'boolean'"
+                                               column_invisible="'boolean' not in parent.value_field_types"/>
+                                        <field name="value_company_id" invisible="field_type != 'company'"
+                                               context="{'default_contact_type': 'company', 'default_is_company': True}"
+                                               column_invisible="'company' not in parent.value_field_types"/>
+                                        <field name="value_vat" invisible="field_type != 'company'" readonly="1"
+                                               column_invisible="'company' not in parent.value_field_types"/>
+                                        <button name="action_create_company" type="object" string="Create company"
+                                                icon="fa-plus" invisible="field_type != 'company' or value_company_id or not value_char"
+                                                column_invisible="'company' not in parent.value_field_types"
+                                                help="Create the collaborating company with the name and VAT number the applicant wrote (or link the one with that VAT number)."/>
+                                    </list>
+                                </field>
+                                <div class="text-muted">
+                                    <i class="fa fa-info-circle me-1"/>Highlighted: required by now and still empty. A
+                                    company the applicant wrote counts once it is linked to its contact.
+                                </div>
                             </page>
                             <page name="documentation" string="Documentation">
                                 <field name="document_ids" invisible="not document_ids" readonly="state not in ('draft', 'in_progress', 'documentation')">
@@ -224,7 +233,8 @@
                     <field name="name"/>
                     <field name="student_id"
                            filter_domain="['|', '|', ('student_id', 'ilike', self), ('student_name', 'ilike', self), ('student_document', 'ilike', self)]"/>
-                    <field name="training_company_id"/>
+                    <field name="value_ids" string="Collaborating company"
+                           filter_domain="[('value_ids.value_company_id', 'ilike', self)]"/>
                     <field name="type_id"/>
                     <filter name="pending_for_me" string="Pending for me" domain="[('is_pending_for_me', '=', True)]"/>
                     <separator/>

@@ -50,21 +50,24 @@ class TestDocsScreenshotsCertificates(DocsScreenshotMixin, HttpCase):
         })
         Certificate = cls.env['ems.certificate'].with_context(lang='ca_ES')
         applicant = {'student_id': cls.student.id, 'student_name': cls.student.name, 'student_document': '12345678Z',
-                     'study_id': cls.study.id, 'fct_school_year': '2025-2026', 'origin': 'portal',
-                     'type_id': cls.certificate_type.id}
+                     'study_id': cls.study.id, 'origin': 'portal', 'type_id': cls.certificate_type.id}
+        year = {'school_year': '2025-2026'}
         # On the first step: as the student filed it, with the agreement attached.
-        cls.on_first_step = Certificate.create({**applicant, 'company_name': 'Empresa Exemple', 'applicant_form_open': True})
+        cls.on_first_step = Certificate.create({**applicant, 'applicant_form_open': True})
+        cls.on_first_step._ems_set_values({**year, 'company': {'value_char': 'Empresa Exemple'}})
         cls.on_first_step._ems_submit()
         cls._attach(cls.on_first_step, 'conveni-fct.pdf')
         # On the step that issues it: the training completed by the VET coordinator.
-        training = {'training_company_id': cls.company.id, 'period_start': '2026-03-02', 'period_end': '2026-06-12',
-                    'hours': 380, 'agreement_reference': '2026000001'}
-        cls.to_issue = Certificate.create({**applicant, **training})
+        training = {**year, 'company': cls.company.id, 'start': '2026-03-02', 'end': '2026-06-12', 'hours': 380,
+                    'agreement': '2026000001'}
+        cls.to_issue = Certificate.create(applicant)
+        cls.to_issue._ems_set_values(training)
         cls.to_issue._ems_submit()
         cls._attach(cls.to_issue, 'conveni-fct.pdf')
         cls.to_issue.sudo().write({'step_id': cls.steps[1].id})
         # On the Director's step.
-        cls.to_approve = Certificate.create({**applicant, **training})
+        cls.to_approve = Certificate.create(applicant)
+        cls.to_approve._ems_set_values(training)
         cls.to_approve._ems_submit()
         cls._attach(cls.to_approve, 'conveni-fct.pdf')
         cls.to_approve.sudo().write({'step_id': cls.steps[2].id, 'name': 'CERT-2026-27-0007'})
@@ -73,7 +76,8 @@ class TestDocsScreenshotsCertificates(DocsScreenshotMixin, HttpCase):
                                          'student_name': 'Joan Exemple Puig',
                                          'applicant_email': 'joan.exemple@example.com'})
         # One already issued (its PDF is not part of these shots).
-        cls.issued = Certificate.create({**applicant, **training})
+        cls.issued = Certificate.create(applicant)
+        cls.issued._ems_set_values(training)
         cls.issued.sudo().write({'state': 'issued', 'name': 'CERT-2026-27-0003', 'submission_date': '2026-10-05'})
         cls.action = cls.env['ir.actions.act_window'].create({
             'name': 'Certificats', 'res_model': 'ems.certificate', 'view_mode': 'list,form',
@@ -101,10 +105,10 @@ class TestDocsScreenshotsCertificates(DocsScreenshotMixin, HttpCase):
                       wait_for=ACTIONS_TOGGLE, click=ACTIONS_TOGGLE,
                       wait_after=".o_ems_actions_menu button[name='action_done_step']", max_height=420,
                       beyond_viewport=False)
-        # VET coordinator: the workplace training and the documentation of a request.
+        # VET coordinator: the certificate details and the documentation of a request.
         self._capture(self._form(self.on_first_step), '.o_notebook', 'certificats-04-formacio.png', login=admin,
-                      wait_for='.o_notebook', click=".o_notebook .nav-link[name='training']",
-                      wait_after=".o_field_widget[name='training_company_id']")
+                      wait_for='.o_notebook', click=".o_notebook .nav-link[name='details']",
+                      wait_after=".o_field_widget[name='value_ids'] .o_data_row")
         self._capture(self._form(self.on_first_step), '.o_notebook', 'certificats-05-documentacio.png', login=admin,
                       wait_for='.o_notebook', click=".o_notebook .nav-link[name='documentation']",
                       wait_after=".o_field_widget[name='document_ids'] .o_data_row")

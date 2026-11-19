@@ -4,8 +4,8 @@ import { registry } from "@web/core/registry";
 import { inputFiles } from "@web/../tests/utils";
 import { clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
-// Issue #835 - the VET coordinator completes a certificate request's workplace training and hands
-// it over to the next step. Runs against tests/test_certificate_tour.py's records, with
+// Issue #835 - the VET coordinator completes the details of a certificate request their step
+// requires (issue #851: one line per detail of the type) and hands it over to the next step. Runs against tests/test_certificate_tour.py's records, with
 // structural selectors only (field and button names), so the user's language does not matter.
 registry.category("web_tour.tours").add("ems_certificate_complete", {
     url: "/odoo/action-ems.action_certificate",
@@ -16,12 +16,18 @@ registry.category("web_tour.tours").add("ems_certificate_complete", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_notebook .nav-link[name='training']",
-            content: "Open the workplace training",
+            trigger: ".o_form_view .o_notebook .nav-link[name='details']",
+            content: "Open the certificate details",
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='training_company_id'] input",
+            // The details' names are the fixture's own text, not translatable labels.
+            trigger: ".o_field_widget[name='value_ids'] .o_data_row:contains('Company') td[name='value_company_id']",
+            content: "Edit the company detail",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='value_ids'] .o_selected_row .o_field_widget[name='value_company_id'] input",
             content: "Choose the collaborating company",
             run: "edit TCTR Company",
         },
@@ -31,7 +37,12 @@ registry.category("web_tour.tours").add("ems_certificate_complete", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='hours'] input",
+            trigger: ".o_field_widget[name='value_ids'] .o_data_row:contains('Hours') td[name='value_integer']",
+            content: "Edit the hours detail",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='value_ids'] .o_selected_row .o_field_widget[name='value_integer'] input",
             content: "Write the hours",
             run: "edit 400",
         },

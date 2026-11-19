@@ -3,74 +3,79 @@
     <!-- Issue #835 - certificate requests on the portal. See controllers/portal_certificate.py. -->
 
     <!-- The applicant's form, shared by a new request (/my/certificats) and the link sent to a
-         former student (/my/certificats/<id>): their details are mandatory, the company's optional. -->
+         former student (/my/certificats/<id>): the details every certificate has, mandatory, and
+         the ones its type asks for (type_fields, ems.certificate.type.field), each in an input
+         field_<id> (and field_<id>_vat for a company's VAT number). -->
     <template id="portal_certificate_fields" name="Certificate request fields">
         <h6 class="fw-bold mt-1">Your details</h6>
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label class="form-label" for="certificate_student_name">Full name <span class="text-danger">*</span></label>
-                <input id="certificate_student_name" type="text" name="student_name" class="form-control" required="required"
+                <label class="form-label" t-attf-for="certificate_student_name#{form_suffix or ''}">Full name <span class="text-danger">*</span></label>
+                <input t-attf-id="certificate_student_name#{form_suffix or ''}" type="text" name="student_name" class="form-control" required="required"
                        maxlength="200" t-att-value="defaults.get('student_name')"/>
             </div>
             <div class="col-md-6 mb-3">
-                <label class="form-label" for="certificate_student_document">Identity document (DNI, NIE or passport) <span class="text-danger">*</span></label>
-                <input id="certificate_student_document" type="text" name="student_document" class="form-control" required="required"
+                <label class="form-label" t-attf-for="certificate_student_document#{form_suffix or ''}">Identity document (DNI, NIE or passport) <span class="text-danger">*</span></label>
+                <input t-attf-id="certificate_student_document#{form_suffix or ''}" type="text" name="student_document" class="form-control" required="required"
                        maxlength="30" t-att-value="defaults.get('student_document')"/>
             </div>
             <div class="col-md-6 mb-3">
-                <label class="form-label" for="certificate_study_id">Study <span class="text-danger">*</span></label>
-                <select id="certificate_study_id" name="study_id" class="form-select" required="required">
+                <label class="form-label" t-attf-for="certificate_study_id#{form_suffix or ''}">Study <span class="text-danger">*</span></label>
+                <select t-attf-id="certificate_study_id#{form_suffix or ''}" name="study_id" class="form-select" required="required">
                     <option value="">-</option>
                     <t t-foreach="studies" t-as="study">
                         <option t-att-value="study.id" t-att-selected="study.id == defaults.get('study_id')" t-esc="study.name"/>
                     </t>
                 </select>
             </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label" for="certificate_fct_school_year">School year of the training <span class="text-danger">*</span></label>
-                <!-- One of the courses EMS has, or any other written by hand (an older year). -->
-                <input id="certificate_fct_school_year" type="text" name="fct_school_year" class="form-control" required="required"
-                       maxlength="20" placeholder="2024-2025" list="certificate_courses" autocomplete="off"
-                       t-att-value="defaults.get('fct_school_year')"/>
-                <datalist id="certificate_courses">
-                    <option t-foreach="courses or []" t-as="course_name" t-att-value="course_name"/>
-                </datalist>
-            </div>
         </div>
 
-        <h6 class="fw-bold mt-2">The company <span class="text-muted fw-normal">(fill in as much information as you can)</span></h6>
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label" for="certificate_company_name">Company</label>
-                <input id="certificate_company_name" type="text" name="company_name" class="form-control" maxlength="200"
-                       t-att-value="defaults.get('company_name')"/>
+        <t t-if="type_fields">
+            <h6 class="fw-bold mt-2">Certificate details</h6>
+            <div class="row">
+                <t t-foreach="type_fields" t-as="type_field">
+                    <t t-set="input_name" t-value="'field_%s' % type_field.id"/>
+                    <t t-set="input_required" t-value="type_field.applicant_input == 'required' and type_field.field_type != 'boolean'"/>
+                    <div t-attf-class="mb-3 o_ems_certificate_detail #{'col-12' if type_field.field_type == 'text' else 'col-md-6'}">
+                        <t t-if="type_field.field_type == 'boolean'">
+                            <div class="form-check mt-2">
+                                <input t-att-id="input_name" type="checkbox" t-att-name="input_name" class="form-check-input"
+                                       t-att-checked="defaults.get(input_name) or None"/>
+                                <label class="form-check-label" t-att-for="input_name" t-esc="type_field.name"/>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <label class="form-label" t-att-for="input_name"><t t-esc="type_field.name"/><span t-if="input_required" class="text-danger"> *</span></label>
+                            <textarea t-if="type_field.field_type == 'text'" t-att-id="input_name" t-att-name="input_name" rows="3"
+                                      class="form-control" maxlength="2000" t-att-required="input_required or None"
+                                      t-esc="defaults.get(input_name) or ''"/>
+                            <input t-elif="type_field.field_type == 'integer'" t-att-id="input_name" type="number" min="0"
+                                   t-att-name="input_name" class="form-control" t-att-required="input_required or None"
+                                   t-att-value="defaults.get(input_name) or ''"/>
+                            <input t-elif="type_field.field_type == 'date'" t-att-id="input_name" type="date"
+                                   t-att-name="input_name" class="form-control" t-att-required="input_required or None"
+                                   t-att-value="defaults.get(input_name) or ''"/>
+                            <!-- One of the courses EMS has, or any other written by hand (an older year). -->
+                            <input t-elif="type_field.field_type == 'school_year'" t-att-id="input_name" type="text"
+                                   t-att-name="input_name" class="form-control" maxlength="20" placeholder="2024-2025"
+                                   t-attf-list="certificate_courses#{form_suffix or ''}" autocomplete="off" t-att-required="input_required or None"
+                                   t-att-value="defaults.get(input_name)"/>
+                            <input t-else="" t-att-id="input_name" type="text" t-att-name="input_name" class="form-control"
+                                   maxlength="200" t-att-required="input_required or None" t-att-value="defaults.get(input_name)"/>
+                        </t>
+                        <div t-if="type_field.help" class="form-text" t-esc="type_field.help"/>
+                    </div>
+                    <div t-if="type_field.field_type == 'company'" class="col-md-6 mb-3 o_ems_certificate_detail">
+                        <label class="form-label" t-att-for="'%s_vat' % input_name">VAT number</label>
+                        <input t-att-id="'%s_vat' % input_name" type="text" t-att-name="'%s_vat' % input_name" class="form-control"
+                               maxlength="30" t-att-value="defaults.get('%s_vat' % input_name)"/>
+                    </div>
+                </t>
             </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label" for="certificate_company_vat">Company VAT number</label>
-                <input id="certificate_company_vat" type="text" name="company_vat" class="form-control" maxlength="30"
-                       t-att-value="defaults.get('company_vat')"/>
-            </div>
-            <div class="col-md-4 mb-3">
-                <label class="form-label" for="certificate_period_start">From</label>
-                <input id="certificate_period_start" type="date" name="period_start" class="form-control"
-                       t-att-value="defaults.get('period_start') or ''"/>
-            </div>
-            <div class="col-md-4 mb-3">
-                <label class="form-label" for="certificate_period_end">To</label>
-                <input id="certificate_period_end" type="date" name="period_end" class="form-control"
-                       t-att-value="defaults.get('period_end') or ''"/>
-            </div>
-            <div class="col-md-4 mb-3">
-                <label class="form-label" for="certificate_hours">Hours</label>
-                <input id="certificate_hours" type="number" min="0" name="hours" class="form-control"
-                       t-att-value="defaults.get('hours') or ''"/>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label" for="certificate_agreement_reference">Agreement registration number (sBID)</label>
-                <input id="certificate_agreement_reference" type="text" name="agreement_reference" class="form-control"
-                       maxlength="50" t-att-value="defaults.get('agreement_reference')"/>
-            </div>
-        </div>
+            <datalist t-attf-id="certificate_courses#{form_suffix or ''}">
+                <option t-foreach="courses or []" t-as="course_name" t-att-value="course_name"/>
+            </datalist>
+        </t>
 
         <t t-call="ems.portal_certificate_documents"/>
     </template>
@@ -90,8 +95,8 @@
                 <div class="form-text">A PDF or photos of its pages. If you do not have it, the centre attaches it.</div>
             </div>
             <div class="col-md-6 mb-3">
-                <label class="form-label" for="certificate_documents">Other documentation (optional)</label>
-                <input id="certificate_documents" type="file" name="documents" class="form-control" multiple="multiple"
+                <label class="form-label" t-attf-for="certificate_documents#{form_suffix or ''}">Other documentation (optional)</label>
+                <input t-attf-id="certificate_documents#{form_suffix or ''}" type="file" name="documents" class="form-control" multiple="multiple"
                        accept="application/pdf,image/jpeg,image/png"/>
             </div>
         </div>
@@ -126,40 +131,35 @@
                     <i class="fa fa-exclamation-triangle me-1"/> Fill in all your details: they are mandatory.
                 </div>
 
-                <!-- Folded by default, as convalidations: most visits check the requests already made,
-                     which an open form would push out of sight. Opened when asked for (?new=1) or
-                     when a submission came back with an error. -->
-                <t t-set="form_open" t-value="open_new or error == 'missing'"/>
-                <div t-if="can_request and types" class="card shadow-sm mb-4 o_ems_certificate_new">
-                    <button type="button"
-                            t-attf-class="card-header bg-ems-primary text-white border-0 w-100 text-start d-flex align-items-center o_ems_certificate_toggle #{'' if form_open else 'collapsed'}"
-                            data-bs-toggle="collapse" data-bs-target="#certificate_new_body"
-                            aria-controls="certificate_new_body" t-att-aria-expanded="'true' if form_open else 'false'">
-                        <i class="fa fa-plus me-2"/>New certificate request
-                    </button>
-                    <div id="certificate_new_body" t-attf-class="collapse #{'show' if form_open else ''}">
-                    <div class="card-body">
-                        <form action="/my/certificats/submit" method="post" enctype="multipart/form-data" class="ems-loading-form">
-                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                            <div class="mb-3" t-if="len(types) &gt; 1">
-                                <label class="form-label fw-bold" for="certificate_type_id">Certificate</label>
-                                <select id="certificate_type_id" name="type_id" class="form-select">
-                                    <t t-foreach="types" t-as="certificate_type">
-                                        <option t-att-value="certificate_type.id" t-esc="certificate_type.name"/>
-                                    </t>
-                                </select>
-                            </div>
-                            <t t-else="">
-                                <input type="hidden" name="type_id" t-att-value="types[:1].id"/>
-                                <p class="fw-bold mb-1" t-esc="types[:1].name"/>
-                            </t>
-                            <p t-if="types[:1].description" class="small text-muted" t-esc="types[:1].description"/>
-                            <t t-call="ems.portal_certificate_fields"/>
-                            <button type="submit" class="btn btn-primary">Submit request</button>
-                        </form>
+                <!-- One folded card per type, as convalidations: most visits check the requests already
+                     made, which an open form would push out of sight. A card opens when asked for
+                     (?new=1, the only type) or when its submission came back with an error. -->
+                <t t-if="can_request">
+                    <div t-foreach="forms" t-as="form" class="card shadow-sm mb-3 o_ems_certificate_new">
+                        <t t-set="certificate_type" t-value="form['type']"/>
+                        <t t-set="form_suffix" t-value="'_%s' % certificate_type.id"/>
+                        <button type="button"
+                                t-attf-class="card-header bg-ems-primary text-white border-0 w-100 text-start d-flex align-items-center o_ems_certificate_toggle #{'' if form['open'] else 'collapsed'}"
+                                data-bs-toggle="collapse" t-attf-data-bs-target="#certificate_new_body#{form_suffix}"
+                                t-attf-aria-controls="certificate_new_body#{form_suffix}" t-att-aria-expanded="'true' if form['open'] else 'false'">
+                            <i class="fa fa-plus me-2"/><span>New request</span><span class="mx-1">-</span><span t-esc="certificate_type.name"/>
+                        </button>
+                        <div t-attf-id="certificate_new_body#{form_suffix}" t-attf-class="collapse #{'show' if form['open'] else ''}">
+                        <div class="card-body">
+                            <form action="/my/certificats/submit" method="post" enctype="multipart/form-data" class="ems-loading-form">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="type_id" t-att-value="certificate_type.id"/>
+                                <p t-if="certificate_type.description" class="small text-muted" t-esc="certificate_type.description"/>
+                                <t t-set="studies" t-value="form['studies']"/>
+                                <t t-set="type_fields" t-value="form['type_fields']"/>
+                                <t t-set="portal_documents" t-value="form['portal_documents']"/>
+                                <t t-call="ems.portal_certificate_fields"/>
+                                <button type="submit" class="btn btn-primary">Submit request</button>
+                            </form>
+                        </div>
+                        </div>
                     </div>
-                    </div>
-                </div>
+                </t>
 
                 <h5 class="mt-4">Your requests</h5>
                 <p t-if="not certificates" class="text-muted">You have not requested any certificate yet.</p>
@@ -182,8 +182,8 @@
         </t>
     </template>
 
-    <!-- What the request holds, for the applicant to follow it: their details, the training as the
-         centre completed it, where it is and the documentation attached. Only what has a value. -->
+    <!-- What the request holds, for the applicant to follow it: their details, the certificate's
+         details as the centre completed them, where it is and the documentation attached. Only what has a value. -->
     <template id="portal_certificate_summary" name="Certificate request summary">
         <div class="card shadow-sm mb-4 o_ems_certificate_summary">
             <div class="card-body">
@@ -197,36 +197,23 @@
                             <dt class="col-5">Full name</dt><dd class="col-7" t-esc="certificate.student_name"/>
                             <dt class="col-5">Identity document</dt><dd class="col-7" t-esc="certificate.student_document"/>
                             <dt class="col-5">Study</dt><dd class="col-7" t-esc="certificate.study_id.name"/>
-                            <t t-if="certificate.kind == 'fct'">
-                                <dt class="col-5">School year of the training</dt><dd class="col-7" t-esc="certificate.fct_school_year"/>
-                            </t>
                             <t t-if="certificate.submission_date">
                                 <dt class="col-5">Request date</dt>
                                 <dd class="col-7"><t t-out="certificate.submission_date" t-options="{'widget': 'date'}"/></dd>
                             </t>
                         </dl>
                     </div>
-                    <div t-if="certificate.kind == 'fct'" class="col-md-6">
-                        <h6 class="fw-bold">Workplace training</h6>
-                        <t t-set="company_label" t-value="certificate.training_company_id.name or certificate.company_name"/>
-                        <t t-set="vat_label" t-value="certificate.training_company_id.vat or certificate.company_vat"/>
-                        <dl class="row small mb-3">
-                            <t t-if="company_label"><dt class="col-5">Company</dt><dd class="col-7" t-esc="company_label"/></t>
-                            <t t-if="vat_label"><dt class="col-5">VAT number</dt><dd class="col-7" t-esc="vat_label"/></t>
-                            <t t-if="certificate.period_start">
-                                <dt class="col-5">From</dt>
-                                <dd class="col-7"><t t-out="certificate.period_start" t-options="{'widget': 'date'}"/></dd>
-                            </t>
-                            <t t-if="certificate.period_end">
-                                <dt class="col-5">To</dt>
-                                <dd class="col-7"><t t-out="certificate.period_end" t-options="{'widget': 'date'}"/></dd>
-                            </t>
-                            <t t-if="certificate.hours"><dt class="col-5">Hours</dt><dd class="col-7" t-esc="certificate.hours"/></t>
-                            <t t-if="certificate.agreement_reference">
-                                <dt class="col-5">Agreement registration number</dt><dd class="col-7" t-esc="certificate.agreement_reference"/>
+                    <div t-if="certificate.value_ids" class="col-md-6 o_ems_certificate_summary_details">
+                        <h6 class="fw-bold">Certificate details</h6>
+                        <t t-set="filled_values" t-value="certificate.value_ids.filtered('display_value')"/>
+                        <dl t-if="filled_values" class="row small mb-3">
+                            <t t-foreach="filled_values" t-as="line">
+                                <dt class="col-5" t-esc="line.name"/><dd class="col-7" t-esc="line.display_value"/>
+                                <t t-set="vat" t-value="line.field_type == 'company' and (line.value_company_id.vat or line.value_vat)"/>
+                                <t t-if="vat"><dt class="col-5">VAT number</dt><dd class="col-7" t-esc="vat"/></t>
                             </t>
                         </dl>
-                        <p t-if="not (company_label or certificate.hours)" class="small text-muted">The centre completes these details.</p>
+                        <p t-else="" class="small text-muted">The centre completes these details.</p>
                     </div>
                 </div>
                 <t t-if="certificate.document_ids or certificate.other_attachment_ids">

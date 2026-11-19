@@ -6,7 +6,6 @@
     <data noupdate="1">
         <record id="certificate_type_fct" model="ems.certificate.type">
             <field name="name">FCT (Formació en Centres de Treball)</field>
-            <field name="kind">fct</field>
             <field name="description">Certifies the hours of workplace training (FCT) you did at a company. Fill in your details and as much information about the company and the training as you can; the centre completes the rest.</field>
             <field name="level_ids" eval="[(6, 0, [ref('ems.level_cfgm'), ref('ems.level_cfgs')])]"/>
         </record>
@@ -48,6 +47,69 @@
             <field name="name">Approve the certificate</field>
             <field name="role_id" ref="ems.role_director"/>
             <field name="action">approve</field>
+        </record>
+
+        <!-- Issue #851: what the FCT certificate needs besides the student's details, and its text.
+             The company, the period and the hours are required by the coordinator's step. -->
+        <record id="certificate_field_fct_school_year" model="ems.certificate.type.field">
+            <field name="type_id" ref="certificate_type_fct"/>
+            <field name="sequence">10</field>
+            <field name="name">School year of the training</field>
+            <field name="key">school_year</field>
+            <field name="field_type">school_year</field>
+            <field name="applicant_input">required</field>
+        </record>
+        <record id="certificate_field_fct_company" model="ems.certificate.type.field">
+            <field name="type_id" ref="certificate_type_fct"/>
+            <field name="sequence">20</field>
+            <field name="name">Collaborating company</field>
+            <field name="key">company</field>
+            <field name="field_type">company</field>
+            <field name="applicant_input">optional</field>
+            <field name="required_step_id" ref="certificate_step_fct_complete"/>
+        </record>
+        <record id="certificate_field_fct_start" model="ems.certificate.type.field">
+            <field name="type_id" ref="certificate_type_fct"/>
+            <field name="sequence">30</field>
+            <field name="name">Start date</field>
+            <field name="key">start</field>
+            <field name="field_type">date</field>
+            <field name="applicant_input">optional</field>
+            <field name="required_step_id" ref="certificate_step_fct_complete"/>
+        </record>
+        <record id="certificate_field_fct_end" model="ems.certificate.type.field">
+            <field name="type_id" ref="certificate_type_fct"/>
+            <field name="sequence">40</field>
+            <field name="name">End date</field>
+            <field name="key">end</field>
+            <field name="field_type">date</field>
+            <field name="applicant_input">optional</field>
+            <field name="required_step_id" ref="certificate_step_fct_complete"/>
+        </record>
+        <record id="certificate_field_fct_hours" model="ems.certificate.type.field">
+            <field name="type_id" ref="certificate_type_fct"/>
+            <field name="sequence">50</field>
+            <field name="name">Hours</field>
+            <field name="key">hours</field>
+            <field name="field_type">integer</field>
+            <field name="applicant_input">optional</field>
+            <field name="required_step_id" ref="certificate_step_fct_complete"/>
+        </record>
+        <record id="certificate_field_fct_agreement" model="ems.certificate.type.field">
+            <field name="type_id" ref="certificate_type_fct"/>
+            <field name="sequence">60</field>
+            <field name="name">Agreement registration number (sBID)</field>
+            <field name="key">agreement</field>
+            <field name="field_type">char</field>
+            <field name="applicant_input">optional</field>
+        </record>
+
+        <!-- Written once its details exist: the type refuses a text with keys it does not have
+             (_check_certificate_text). -->
+        <record id="certificate_type_fct" model="ems.certificate.type">
+            <field name="certificate_text">That {name}, with identity document {document}, a student of {study}, did {hours} hours of workplace training (FCT) in the school year {school_year} at the company {company}[, with VAT number {company_vat}], from {start} to {end}.
+
+Source: the training agreement[ registered in sBID with number {agreement}], a copy of which is attached.</field>
         </record>
     </data>
 </odoo>

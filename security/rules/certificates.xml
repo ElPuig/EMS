@@ -44,6 +44,19 @@
         <field name="domain_force">[('certificate_id.type_id.step_ids.role_id.employee_ids.user_id', '=', user.id)]</field>
     </record>
 
+    <record id="rule_certificate_value_all" model="ir.rule">
+        <field name="name">Certificate detail: administrator, secretariat and Director</field>
+        <field name="model_id" ref="ems.model_ems_certificate_value"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin')), (4, ref('ems.group_secretary')), (4, ref('ems.group_director'))]"/>
+        <field name="domain_force">[]</field>
+    </record>
+    <record id="rule_certificate_value_step" model="ir.rule">
+        <field name="name">Certificate detail: holders of a position of its circuit</field>
+        <field name="model_id" ref="ems.model_ems_certificate_value"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('certificate_id.type_id.step_ids.role_id.employee_ids.user_id', '=', user.id)]</field>
+    </record>
+
     <!-- The VET coordinator maintains the collaborating companies (and their contacts, such as the
          company tutor), whose details the FCT certificate needs. Teachers only read contacts. -->
     <record id="rule_contact_vet_coordinator_company" model="ir.rule">

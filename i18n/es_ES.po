@@ -2487,6 +2487,9 @@ msgstr "Cancelar"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__econ_state__cancelled
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__phase__cancelled
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate__state__cancelled
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
 msgid "Cancelled"
 msgstr "Cancelado"
 
@@ -2759,9 +2762,7 @@ msgstr "Compañías"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__company_id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__company_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__company_id
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
 #: model_terms:ir.ui.view,arch_db:ems.view_company_search
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Company"
 msgstr "Compañía"
 
@@ -3199,6 +3200,8 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_document__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -3372,6 +3375,8 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_document__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3506,6 +3511,8 @@ msgstr "Datos descargados"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 #: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report__date
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__value_date
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__field_type__date
 msgid "Date"
 msgstr "Fecha"
 
@@ -3868,6 +3875,8 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_document__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -4257,6 +4266,7 @@ msgstr "Tiempo final"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__end_date model:ir.model.fields,field_description:ems.field_ems_attendance_template__end_date
+#: model:ems.certificate.type.field,name:ems.certificate_field_fct_end
 msgid "End date"
 msgstr "Fecha de finalización"
 
@@ -4814,9 +4824,11 @@ msgid "From"
 msgstr "De"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_name model_terms:ir.ui.view,arch_db:ems.portal_documentation
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__student_name
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+#: code:addons/ems/models/certificates/certificate_type.py:0
 msgid "Full name"
 msgstr "Nombre completo"
 
@@ -5488,6 +5500,8 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_document__id
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__id
 msgid "ID"
 msgstr "ID"
 
@@ -6257,6 +6271,8 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_document__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -6430,6 +6446,8 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_document__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -7371,6 +7389,8 @@ msgstr "Notificaciones"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__value_integer
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__field_type__integer
 msgid "Number"
 msgstr "Número"
 
@@ -7899,6 +7919,9 @@ msgstr "Plan de pago"
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__group_vote_result__pending
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__step_role_id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__is_pending
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Pending"
 msgstr "Pendiente"
 
@@ -8377,6 +8400,9 @@ msgstr "Rechazar"
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__rejected
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate__state__rejected
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
 msgid "Rejected"
 msgstr "Rechazado"
 
@@ -9091,6 +9117,8 @@ msgstr "Enviado el"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_document__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__sequence
 msgid "Sequence"
 msgstr "Secuencia"
 
@@ -9317,6 +9345,7 @@ msgstr "Hora de inicio"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__start_date model:ir.model.fields,field_description:ems.field_ems_attendance_template__start_date
+#: model:ems.certificate.type.field,name:ems.certificate_field_fct_start
 msgid "Start date"
 msgstr "Fecha de inicio"
 
@@ -9665,6 +9694,7 @@ msgid "Studies for enrollment"
 msgstr "Estudios para matriculación"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__study_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__study_id model:ir.model.fields,field_description:ems.field_ems_attendance_template__study_id model:ir.model.fields,field_description:ems.field_ems_authorization__study_name model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__study_id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__study_id model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__study_id model:ir.model.fields,field_description:ems.field_ems_group__study_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__study_id model:ir.model.fields,field_description:ems.field_ems_planning__study_id model:ir.model.fields,field_description:ems.field_ems_student_year_record__study_id model:ir.model.fields,field_description:ems.field_ems_tracking__study_id model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate model_terms:ir.ui.view,arch_db:ems.view_applicant_search model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search model_terms:ir.ui.view,arch_db:ems.view_sale_order_template_search_inherit_ems model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor model_terms:ir.ui.view,arch_db:ems.view_year_record_search
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__study_id
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
@@ -9674,6 +9704,7 @@ msgstr "Estudios para matriculación"
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__study_id
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+#: code:addons/ems/models/certificates/certificate_type.py:0
 msgid "Study"
 msgstr "Estudio"
 
@@ -10801,6 +10832,7 @@ msgstr "Coordinador/a de FP"
 #. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_response__value model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
 #: code:addons/ems/models/erasmus/satisfaction.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__display_value
 msgid "Value"
 msgstr "Valor"
 
@@ -11417,6 +11449,8 @@ msgstr "Son empleados provisionales, creados ahora para que su horario y asignat
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/working_schedule.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__name
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__name
 msgid "Detail"
 msgstr "Detalle"
 
@@ -12393,6 +12427,7 @@ msgstr "openpyxl es necesario para importar ficheros xlsx."
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 #: code:addons/ems/models/certificates/certificate.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__applicant_uploads
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__applicant_input
 msgid "Applicant"
 msgstr "Solicitante"
 
@@ -12450,8 +12485,6 @@ msgstr "Esto expulsa inmediatamente a los estudiantes seleccionados. ¿Quieres c
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__kind
 #: code:addons/ems/models/erasmus/economy.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_economy_panel_search
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__kind
-#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__kind
 msgid "Kind"
 msgstr "Tipo"
 
@@ -13124,6 +13157,7 @@ msgstr "El archivo csv está vacío."
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__ems_ampa_member__yes
+#: code:addons/ems/models/certificates/certificate.py:0
 msgid "Yes"
 msgstr "Sí"
 
@@ -20447,6 +20481,7 @@ msgstr "Puede ver la identificación"
 #: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__student_document
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+#: code:addons/ems/models/certificates/certificate_type.py:0
 msgid "Identity document"
 msgstr "Documento de identidad"
 
@@ -22442,6 +22477,7 @@ msgstr "En proceso (implantación)"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_quality_process__kind__key
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__key
 msgid "Key"
 msgstr "Clave"
 
@@ -23299,9 +23335,7 @@ msgstr "%s se reconoció a partir de las optativas de un expediente anterior y n
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__hours
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__hours
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_grade__hours
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__hours
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+#: model:ems.certificate.type.field,name:ems.certificate_field_fct_hours
 msgid "Hours"
 msgstr "Horas"
 
@@ -25801,6 +25835,7 @@ msgstr "Incidencias"
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__ems_ampa_member__no
+#: code:addons/ems/models/certificates/certificate.py:0
 msgid "No"
 msgstr "No"
 
@@ -27108,6 +27143,7 @@ msgstr "Imprimir el DNI"
 #: code:addons/ems/models/erasmus/export.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_document_signature__is_required
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_document_card
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__applicant_input__required
 msgid "Required"
 msgstr "Obligatorio"
 
@@ -31511,6 +31547,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__file_state__optional
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__todo_state__optional
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_document_card
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__applicant_input__optional
 msgid "Optional"
 msgstr "Opcional"
 
@@ -37249,6 +37286,7 @@ msgstr "Autoevaluaciones respondidas"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_self_assessment_answer__kind__text
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__body
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__message
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__value_char
 msgid "Text"
 msgstr "Texto"
 
@@ -48447,9 +48485,6 @@ msgstr "Subvención"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_support_rate_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__period_start
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "From"
 msgstr "Desde"
 
@@ -48611,9 +48646,6 @@ msgstr "Equipo y participante"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__period_end
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "To"
 msgstr "Hasta"
 
@@ -53035,11 +53067,6 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificates
-msgid "<i class=\"fa fa-plus me-2\"/>New certificate request"
-msgstr "<i class=\"fa fa-plus me-2\"/>Nueva solicitud de certificado"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
 msgid "<i class=\"fa fa-user me-1\"/> Viewing certificates for:"
 msgstr "<i class=\"fa fa-user me-1\"/> Viendo los certificados de:"
 
@@ -53084,13 +53111,7 @@ msgid "Access warning"
 msgstr "Advertencia de acceso"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__agreement_reference
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
-msgid "Agreement registration number"
-msgstr "Número de registro del convenio"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+#: model:ems.certificate.type.field,name:ems.certificate_field_fct_agreement
 msgid "Agreement registration number (sBID)"
 msgstr "Número de registro del convenio (sBID)"
 
@@ -53177,7 +53198,6 @@ msgstr "Puede rechazarla o cancelarla"
 #: model:ir.actions.report,name:ems.action_report_certificate
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__certificate_pdf_link
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__certificate_id
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
 #: model_terms:ir.ui.view,arch_db:ems.report_certificate
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Certificate"
@@ -53207,6 +53227,7 @@ msgstr "Número de certificado:"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_document__certificate_id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__certificate_id
 msgid "Certificate request"
 msgstr "Solicitud de certificado"
 
@@ -53227,6 +53248,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__type_id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__type_id
 msgid "Certificate type"
 msgstr "Tipo de certificado"
 
@@ -53274,26 +53296,14 @@ msgid "Collaborating companies"
 msgstr "Empresas colaboradoras"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__training_company_id
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__company
 #: model:res.partner.category,name:ems.partner_category_company
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__value_company_id
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__field_type__company
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
+#: model:ems.certificate.type.field,name:ems.certificate_field_fct_company
 msgid "Collaborating company"
 msgstr "Empresa colaboradora"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__company_name
-msgid "Company (as written by the applicant)"
-msgstr "Empresa (según la persona solicitante)"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
-msgid "Company VAT number"
-msgstr "NIF de la empresa"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__company_vat
-msgid "Company VAT number (as written by the applicant)"
-msgstr "NIF de la empresa (según la persona solicitante)"
 
 #. module: ems
 #: model:ems.certificate.type.step,name:ems.certificate_step_fct_complete
@@ -53309,15 +53319,6 @@ msgstr "Contactos"
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Create company"
 msgstr "Crear empresa"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
-msgid ""
-"Create the collaborating company with the name and VAT number the applicant "
-"wrote, and link it."
-msgstr ""
-"Crea la empresa colaboradora con el nombre y el NIF que escribió la persona "
-"solicitante, y la vincula."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_certificate_type__level_ids
@@ -53360,11 +53361,6 @@ msgid "Done: send to the next step"
 msgstr "Hecho: enviar al paso siguiente"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_certificate__fct_school_year
-msgid "E.g. 2024-2025."
-msgstr "P. ej. 2024-2025."
-
-#. module: ems
 #: model:mail.template,name:ems.email_template_certificate_info_request
 msgid "EMS: Certificate, documentation requested"
 msgstr "EMS: Certificado, documentación pedida"
@@ -53405,12 +53401,6 @@ msgstr "Rellena primero los datos de la persona solicitante: %s."
 #: code:addons/ems/models/certificates/certificate.py:0
 msgid "Fill in the applicant's email first."
 msgstr "Rellena primero el correo de la persona solicitante."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/certificates/certificate.py:0
-msgid "Fill in the workplace training first: %s."
-msgstr "Rellena primero la formación en centros de trabajo: %s."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
@@ -53595,15 +53585,9 @@ msgid "Returned to \"%s\" by %s:"
 msgstr "Devuelta a \"%s\" por %s:"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__fct_school_year
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+#: model:ems.certificate.type.field,name:ems.certificate_field_fct_school_year
 msgid "School year of the training"
 msgstr "Curso de la formación"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
-msgid "School year of the training <span class=\"text-danger\">*</span>"
-msgstr "Curso de la formación <span class=\"text-danger\">*</span>"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__access_token
@@ -53619,22 +53603,6 @@ msgstr "Enviar formulario"
 #: model:ir.model.fields,help:ems.field_ems_certificate_type__description
 msgid "Shown to the applicant on the request form."
 msgstr "Se muestra a la persona solicitante en el formulario."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/certificates/certificate.py:0
-msgid ""
-"Source: the training agreement registered in sBID with number %(number)s, a "
-"copy of which is attached."
-msgstr ""
-"Fuente: el convenio de formación registrado en sBID con el número "
-"%(number)s, del que se adjunta una copia."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/certificates/certificate.py:0
-msgid "Source: the training agreement, a copy of which is attached."
-msgstr "Fuente: el convenio de formación, del que se adjunta una copia."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_certificate_stamp
@@ -53680,32 +53648,6 @@ msgstr "Estudio <span class=\"text-danger\">*</span>"
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificates
 msgid "Submit request"
 msgstr "Enviar solicitud"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/certificates/certificate.py:0
-msgid ""
-"That %(student)s, with identity document %(document)s, a student of "
-"%(study)s, did %(hours)s hours of workplace training (FCT) in the school "
-"year %(year)s at the company %(company)s, from %(start)s to %(end)s."
-msgstr ""
-"Que %(student)s, con documento de identidad %(document)s, estudiante de "
-"%(study)s, realizó %(hours)s horas de formación en centros de trabajo (FCT) "
-"en el curso %(year)s en la empresa %(company)s, del %(start)s al %(end)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/certificates/certificate.py:0
-msgid ""
-"That %(student)s, with identity document %(document)s, a student of "
-"%(study)s, did %(hours)s hours of workplace training (FCT) in the school "
-"year %(year)s at the company %(company)s, with VAT number %(vat)s, from "
-"%(start)s to %(end)s."
-msgstr ""
-"Que %(student)s, con documento de identidad %(document)s, estudiante de "
-"%(study)s, realizó %(hours)s horas de formación en centros de trabajo (FCT) "
-"en el curso %(year)s en la empresa %(company)s, con NIF %(vat)s, del "
-"%(start)s al %(end)s."
 
 #. module: ems
 #. odoo-python
@@ -53758,15 +53700,6 @@ msgstr ""
 "También se crean desde una solicitud de certificado."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
-msgid ""
-"The company <span class=\"text-muted fw-normal\">(fill in as much "
-"information as you can)</span>"
-msgstr ""
-"La empresa <span class=\"text-muted fw-normal\">(completa toda la información "
-"posible)</span>"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/certificates/certificate.py:0
 msgid "The current step of %(request)s is not yours: it is for %(position)s."
@@ -53780,17 +53713,6 @@ msgid ""
 msgstr ""
 "La documentación ha llegado por otra vía (en papel, por correo): la "
 "solicitud vuelve a su paso."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/certificates/certificate.py:0
-msgid "The hours cannot be negative."
-msgstr "Las horas no pueden ser negativas."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_certificate__agreement_reference
-msgid "The registration number of the agreement in sBID (or qBID)."
-msgstr "El número de registro del convenio en sBID (o qBID)."
 
 #. module: ems
 #. odoo-python
@@ -53817,14 +53739,9 @@ msgstr ""
 "El estado de una solicitud de certificado solo cambia con sus botones."
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/certificates/certificate.py:0
-msgid "The training cannot end before it starts."
-msgstr "La formación no puede terminar antes de empezar."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
 msgid "VAT number"
 msgstr "NIF"
 
@@ -53843,12 +53760,6 @@ msgstr "Esperando el formulario"
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
 msgid "What the applicant reads on the request form..."
 msgstr "Lo que lee la persona solicitante en el formulario..."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_certificate__kind
-#: model:ir.model.fields,help:ems.field_ems_certificate_type__kind
-msgid "What the certificate says, and so which data the request asks for."
-msgstr "Qué dice el certificado y, por tanto, qué datos pide la solicitud."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_certificate__applicant_email
@@ -53875,17 +53786,6 @@ msgstr ""
 #: model:ir.model.fields,help:ems.field_ems_certificate__return_reason
 msgid "Why the request was last sent back to the previous step."
 msgstr "Por qué se devolvió la solicitud al paso anterior la última vez."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
-msgid "Workplace training"
-msgstr "Formación en centros de trabajo"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type__kind__fct
-msgid "Workplace training (FCT)"
-msgstr "Formación en centros de trabajo (FCT)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_wizard_form
@@ -54389,16 +54289,6 @@ msgid ""
 msgstr ""
 "Solo quien expide %s puede expedirlo directamente, y solo antes del paso de "
 "expedición."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
-msgid ""
-"Skip the steps before issuing (e.g. completing the workplace training) when "
-"you already have every detail and document."
-msgstr ""
-"Salta los pasos anteriores a la expedición (por ejemplo, completar la "
-"formación en centros de trabajo) cuando ya tienes todos los datos y "
-"documentos."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_certificate__can_issue_now
@@ -55779,3 +55669,289 @@ msgstr "0,5 puntos: la propuesta A es un job shadowing o una estancia de docenci
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__activity_kind__0
 msgid "0 points: Proposal A is a course."
 msgstr "0 puntos: la propuesta A es un curso."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate_type.py:0
+msgid ""
+"%(key)s is a key of its own in every certificate: choose another one for "
+"%(detail)s."
+msgstr ""
+"%(key)s es una clave propia de todos los certificados: elige otra para "
+"%(detail)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate_type.py:0
+msgid "%s (VAT number)"
+msgstr "%s (NIF)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate_type.py:0
+msgid "%s must be required by a step of its own certificate type."
+msgstr "%s debe exigirlo un paso de su propio tipo de certificado."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>Every certificate also has the student's full name,\n"
+"                            identity document and study. Each detail says whether the request form asks the applicant\n"
+"                            for it, and the step of the circuit that cannot be done until it is filled in."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>Todos los certificados tienen, además, "
+"el nombre completo, el documento de identidad y el estudio del alumno. Cada "
+"dato indica si el formulario de solicitud lo pide a la persona solicitante y"
+" el paso del circuito que no se puede hacer hasta que esté rellenado."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>Highlighted: required by now and still empty. A\n"
+"                                    company the applicant wrote counts once it is linked to its contact."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>Resaltados: obligatorios a estas "
+"alturas y aún vacíos. Una empresa que ha escrito la persona solicitante "
+"cuenta cuando está vinculada a su contacto."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>Printed after \"CERTIFIES:\". Write a detail's key between\n"
+"                            braces; a part between square brackets is printed only when every detail inside it has a\n"
+"                            value; a blank line starts a new paragraph. Details:"
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>Se imprime después de \"CERTIFICA:\". "
+"Escribe la clave de un dato entre llaves; una parte entre corchetes solo se "
+"imprime cuando todos los datos que contiene tienen valor; una línea en "
+"blanco empieza un párrafo nuevo. Datos:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
+msgid ""
+"<i class=\"fa fa-plus me-2\"/><span>New request</span><span "
+"class=\"mx-1\">-</span>"
+msgstr ""
+"<i class=\"fa fa-plus me-2\"/><span>Nueva solicitud</span><span "
+"class=\"mx-1\">-</span>"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "A number of a certificate cannot be negative."
+msgstr "Un número de un certificado no puede ser negativo."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__value_ids
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__field_ids
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+msgid "Certificate details"
+msgstr "Datos del certificado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__certificate_text
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+msgid "Certificate text"
+msgstr "Texto del certificado"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"Create the collaborating company with the name and VAT number the applicant "
+"wrote (or link the one with that VAT number)."
+msgstr ""
+"Crea la empresa colaboradora con el nombre y el NIF que ha escrito la "
+"persona solicitante (o vincula la que tiene ese NIF)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__field_type
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__field_type
+msgid "Data type"
+msgstr "Tipo de dato"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__value_field_types
+msgid "Data types of its details"
+msgstr "Tipo de dato"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_certificate_type_field
+msgid "Detail a certificate type needs, and who fills it in."
+msgstr "Dato que necesita un tipo de certificado y quién lo rellena."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_certificate_value
+msgid "Detail of a certificate request, with its value."
+msgstr "Dato de una solicitud de certificado, con su valor."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__field_id
+msgid "Detail of the type"
+msgstr "Dato del tipo"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__placeholder_help
+msgid "Details the text can use"
+msgstr "Datos que puede usar el texto"
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_certificate_type_field_key_unique
+msgid "Each detail of a certificate type needs its own key."
+msgstr "Cada dato de un tipo de certificado necesita una clave propia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Fill in the certificate details first: %s."
+msgstr "Rellena primero los datos del certificado: %s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__help
+msgid "Hint"
+msgstr "Ayuda"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_field__key
+msgid ""
+"How the certificate text writes it, between braces: lowercase letters, "
+"digits and _."
+msgstr ""
+"Cómo lo escribe el texto del certificado, entre llaves: letras minúsculas, "
+"dígitos y _."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__value_text
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__field_type__text
+msgid "Long text"
+msgstr "Texto largo"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__applicant_input__none
+msgid "Not asked"
+msgstr "No se pide"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__required_step_id
+msgid "Required before"
+msgstr "Obligatorio antes de"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_value__is_pending
+msgid "Required by now and still empty."
+msgstr "Obligatorio a estas alturas y aún vacío."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__field_type__school_year
+msgid "School year"
+msgstr "Curso escolar"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__field_type__char
+msgid "Short text"
+msgstr "Texto corto"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_field__help
+msgid "Shown to the applicant under the detail."
+msgstr "Se muestra a la persona solicitante bajo el dato."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"Skip the steps before issuing (e.g. completing the certificate details) when"
+" you already have every detail and document."
+msgstr ""
+"Salta los pasos anteriores a la expedición (p. ej. completar los datos del "
+"certificado) cuando ya tienes todos los datos y los documentos."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+msgid ""
+"That {name}, with identity document {document}, a student of {study}, ..."
+msgstr ""
+"Que {name}, con documento de identidad {document}, estudiante de {study}, "
+"..."
+
+#. module: ems
+#: model:ems.certificate.type,certificate_text:ems.certificate_type_fct
+msgid ""
+"That {name}, with identity document {document}, a student of {study}, did {hours} hours of workplace training (FCT) in the school year {school_year} at the company {company}[, with VAT number {company_vat}], from {start} to {end}.\n"
+"\n"
+"Source: the training agreement[ registered in sBID with number {agreement}], a copy of which is attached."
+msgstr ""
+"Que {name}, con documento de identidad {document}, estudiante de {study}, realizó {hours} horas de formación en centros de trabajo (FCT) en el curso {school_year} en la empresa {company}[, con NIF {company_vat}], del {start} al {end}.\n"
+"\n"
+"Fuente: el convenio de formación[ registrado en sBID con el número {agreement}], del que se adjunta una copia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate_type.py:0
+msgid ""
+"The key of %s may only have lowercase letters, digits and _, starting with a"
+" letter."
+msgstr ""
+"La clave de %s solo puede tener letras minúsculas, dígitos y _, y debe "
+"empezar por una letra."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_field__required_step_id
+msgid ""
+"The step that cannot be done until it is filled in (nor any later one). "
+"Empty: the circuit never requires it. Save the circuit's steps first."
+msgstr ""
+"El paso que no se puede hacer hasta que esté rellenado (ni ninguno "
+"posterior). Vacío: el circuito nunca lo exige. Guarda primero los pasos del "
+"circuito."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate_type.py:0
+msgid ""
+"The text of %(type)s in %(language)s has a square bracket without its pair "
+"(or one inside another)."
+msgstr ""
+"El texto de %(type)s en %(language)s tiene un corchete sin pareja (o uno "
+"dentro de otro)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate_type.py:0
+msgid ""
+"The text of %(type)s in %(language)s uses details it does not have: "
+"%(keys)s."
+msgstr ""
+"El texto de %(type)s en %(language)s usa datos que no tiene: %(keys)s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__value_vat
+msgid "VAT number (as written by the applicant)"
+msgstr "NIF (tal como lo ha escrito la persona solicitante)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type__certificate_text
+msgid ""
+"What the certificate says after \"CERTIFIES:\". Write {key} where a detail "
+"goes; a part between square brackets is printed only when every detail "
+"inside it has a value; a blank line starts a new paragraph."
+msgstr ""
+"Lo que dice el certificado después de \"CERTIFICA:\". Escribe {key} donde va"
+" un dato; una parte entre corchetes solo se imprime cuando todos los datos "
+"que contiene tienen valor; una línea en blanco empieza un párrafo nuevo."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_field__applicant_input
+msgid ""
+"Whether the request form asks the applicant for it, and whether they must "
+"answer."
+msgstr ""
+"Si el formulario de solicitud lo pide a la persona solicitante, y si debe "
+"responderlo."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__value_boolean
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__field_type__boolean
+msgid "Yes/No"
+msgstr "Sí/No"

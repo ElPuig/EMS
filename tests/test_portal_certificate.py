@@ -4,7 +4,7 @@ from odoo.http import Request
 from odoo.tests.common import HttpCase, tagged
 
 from .common import create_level_study_group, mock_outgoing_email, next_student_id
-from .test_certificate import create_certificate_fixtures, one_page_pdf
+from .test_certificate import create_certificate_fixtures, create_other_type, one_page_pdf
 
 
 @tagged('post_install', '-at_install')
@@ -36,11 +36,28 @@ class TestPortalCertificate(HttpCase):
         })
 
     def _form(self, **extra):
-        return {
-            'csrf_token': Request.csrf_token(self),
-            'student_name': 'TPCR Student', 'student_document': '12345678Z', 'study_id': str(self.study.id),
-            'fct_school_year': '2025-2026', 'company_name': 'Some Company', **extra,
-        }
+        """The posted form: the common details, and the type's by key (input field_<id>)."""
+        details = {'school_year': '2025-2026', 'company': 'Some Company'}
+        values = {'csrf_token': Request.csrf_token(self), 'student_name': 'TPCR Student',
+                  'student_document': '12345678Z', 'study_id': str(self.study.id)}
+        for key, value in extra.items():
+            if key in self.type_fields:
+                details[key] = value
+            else:
+                values[key] = value
+        values.update({f'field_{self.type_fields[key].id}': value for key, value in details.items()})
+        return values
+
+    def _value(self, certificate, key):
+        return certificate.value_ids.filtered(lambda line: line.field_id.key == key)
+
+    def _create(self, details=None, **vals):
+        certificate = self.env['ems.certificate'].create({
+            'type_id': self.certificate_type.id, 'student_id': self.student.id, 'origin': 'portal',
+            'student_name': 'TPCR Student', 'student_document': '12345678Z', 'study_id': self.study.id, **vals,
+        })
+        certificate._ems_set_values({'school_year': '2025-2026', **(details or {})})
+        return certificate
 
     def _requests(self):
         return self.env['ems.certificate'].search([('student_id', '=', self.student.id)])
@@ -50,15 +67,18 @@ class TestPortalCertificate(HttpCase):
         response = self.url_open('/my/certificats')
         self.assertIn('o_ems_certificate_new', response.text)
         self.assertIn(self.study.name, response.text)
-        self.assertIn('id="certificate_new_body" class="collapse "', response.text, "The form starts folded.")
+        body = f'id="certificate_new_body_{self.certificate_type.id}"'
+        self.assertIn(f'{body} class="collapse "', response.text, "The form starts folded.")
+        for key in ('school_year', 'company', 'hours'):
+            self.assertIn(f'name="field_{self.type_fields[key].id}"', response.text, "The type's details are asked.")
+        self.assertIn(f'name="field_{self.type_fields["company"].id}_vat"', response.text)
         self.assertNotIn(self.other_study.name, response.text, "Only studies of the type's levels are offered.")
         self.assertIn(f'<option value="{self.env["ems.course"].search([], limit=1).name}"', response.text,
                       "The courses EMS has are suggested for the school year.")
 
         response = self.url_open('/my/certificats/submit', data=self._form(student_document=''))
         self.assertIn('error=missing', response.url)
-        self.assertIn('id="certificate_new_body" class="collapse show"', response.text,
-                      "Back with an error, the form is open.")
+        self.assertIn(f'{body} class="collapse show"', response.text, "Back with an error, its form is open.")
         self.assertFalse(self._requests())
 
         # The agreement (anyone attaches it) and an optional file; the training report is only the
@@ -73,11 +93,30 @@ class TestPortalCertificate(HttpCase):
         certificate = self._requests()
         self.assertEqual((certificate.state, certificate.origin, certificate.step_id),
                          ('in_progress', 'portal', self.steps[0]))
-        self.assertEqual((certificate.requester_id, certificate.company_name), (self.student, 'Some Company'))
+        self.assertEqual((certificate.requester_id, self._value(certificate, 'company').value_char),
+                         (self.student, 'Some Company'))
         agreement, report = certificate.document_ids.sorted('sequence')
         self.assertEqual(agreement.attachment_ids.mapped('name'), ['agreement.pdf'])
         self.assertFalse(report.attachment_ids)
         self.assertEqual(certificate.other_attachment_ids.mapped('name'), ['other.pdf'])
+
+    def test_one_form_per_type(self):
+        """Two types offered: a form each, each asking for its own details."""
+        other_type = create_other_type(self, 'TPCR Attendance', [
+            (0, 0, {'name': 'Reason', 'key': 'reason', 'field_type': 'text', 'applicant_input': 'required'})],
+            "That {name} needs it for {reason}.")
+        self.authenticate(self.student_user.login, self.student_user.login)
+        html = self.url_open('/my/certificats').text
+        for certificate_type in (self.certificate_type, other_type):
+            self.assertIn(f'id="certificate_new_body_{certificate_type.id}"', html)
+        self.assertIn(f'name="field_{other_type.field_ids.id}"', html)
+        response = self.url_open('/my/certificats/submit', data={
+            'csrf_token': Request.csrf_token(self), 'type_id': str(other_type.id), 'student_name': 'TPCR Student',
+            'student_document': '12345678Z', 'study_id': str(self.study.id),
+            f'field_{other_type.field_ids.id}': 'A scholarship'})
+        self.assertIn('submitted=1', response.url)
+        certificate = self._requests()
+        self.assertEqual((certificate.type_id, certificate.value_ids.value_text), (other_type, 'A scholarship'))
 
     def test_not_offered_to_other_levels(self):
         self.authenticate(self.other_user.login, self.other_user.login)
@@ -99,7 +138,7 @@ class TestPortalCertificate(HttpCase):
         response = self.url_open(f'/my/certificats/{certificate.id}/submit?access_token={token}',
                                  data=self._form(hours='300'))
         self.assertIn('submitted=1', response.url)
-        self.assertEqual((certificate.state, certificate.hours), ('in_progress', 300))
+        self.assertEqual((certificate.state, self._value(certificate, 'hours').value_integer), ('in_progress', 300))
 
         certificate._ems_request_documentation('Attach the agreement')
         response = self.url_open(f'/my/certificats/{certificate.id}/reply?access_token={token}',
@@ -114,13 +153,9 @@ class TestPortalCertificate(HttpCase):
 
     def test_request_summary(self):
         """The request's page shows the applicant what they wrote and what the centre added."""
-        certificate = self.env['ems.certificate'].create({
-            'type_id': self.certificate_type.id, 'student_id': self.student.id, 'origin': 'portal',
-            'student_name': 'TPCR Student', 'student_document': '12345678Z', 'study_id': self.study.id,
-            'fct_school_year': '2025-2026', 'company_name': 'As Written SL',
-        })
+        certificate = self._create({'company': {'value_char': 'As Written SL'}})
         certificate._ems_submit()
-        certificate.write({'training_company_id': self.company.id, 'hours': 380})
+        certificate._ems_set_values({'company': self.company.id, 'hours': 380})
         self.authenticate(None, None)
         html = self.url_open(certificate.get_portal_url()).text
         self.assertIn('o_ems_certificate_summary', html)
@@ -130,11 +165,7 @@ class TestPortalCertificate(HttpCase):
 
     def test_cancel_from_the_link(self):
         """The applicant cancels their own request from its page, until it is issued."""
-        certificate = self.env['ems.certificate'].create({
-            'type_id': self.certificate_type.id, 'student_id': self.student.id, 'origin': 'portal',
-            'student_name': 'TPCR Student', 'student_document': '12345678Z', 'study_id': self.study.id,
-            'fct_school_year': '2025-2026',
-        })
+        certificate = self._create()
         certificate._ems_submit()
         self.authenticate(None, None)
         token = certificate._portal_ensure_token()
@@ -147,12 +178,8 @@ class TestPortalCertificate(HttpCase):
         self.assertFalse(certificate.activity_ids)
 
     def test_download_the_issued_certificate(self):
-        certificate = self.env['ems.certificate'].create({
-            'type_id': self.certificate_type.id, 'student_id': self.student.id, 'origin': 'portal',
-            'student_name': 'TPCR Student', 'student_document': '12345678Z', 'study_id': self.study.id,
-            'fct_school_year': '2025-2026', 'training_company_id': self.company.id, 'hours': 300,
-            'period_start': '2026-03-01', 'period_end': '2026-06-01',
-        })
+        certificate = self._create({'company': self.company.id, 'hours': 300, 'start': '2026-03-01',
+                                    'end': '2026-06-01'})
         certificate._ems_submit()
         pdf_url = f'/my/certificats/{certificate.id}/pdf?access_token={certificate._portal_ensure_token()}'
         self.assertNotIn('%PDF', self.url_open(pdf_url).text, "Nothing to download before it is issued.")

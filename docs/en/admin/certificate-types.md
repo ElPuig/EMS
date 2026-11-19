@@ -22,9 +22,39 @@ EMS includes the **FCT (Formació en Centres de Treball)** type. Your changes to
 
 ## The type's fields
 
-- **Kind** — what it certifies, and so which details the request asks for and what the certificate says.
 - **Levels that may request it** — current students of these levels may request it from the portal, and the request only accepts studies of these levels. Left empty, the type is not offered on the portal and its requests are only registered by the secretariat.
 - **Description** — what the applicant reads above the form.
+
+---
+
+## Certificate details
+
+Every certificate already has the student's **full name**, **identity document** and **study**. Under **Certificate details**, add a line for each other detail the certificate needs:
+
+- **Detail** — its name, as the applicant and the staff read it (for example, *Hours*).
+- **Key** — how the certificate text writes it, between braces: lowercase letters, digits and `_` (for example, `hours`). It can't be `name`, `document` or `study`, which are already taken.
+- **Data type** — **Short text**, **Long text**, **Number**, **Date**, **Yes/No**, **School year** (the form suggests the courses EMS has) or **Collaborating company** (the applicant writes the name and VAT number, and the centre links the company).
+- **Applicant** — **Required**: the form asks for it and it must be filled in to submit the request; **Optional**: the form asks for it; **Not asked**: only the centre fills it in.
+- **Required before** — the step of the circuit that can't be done until it is filled in (nor any later one). Leave it empty if the circuit never requires it. To choose a step, save the circuit first.
+- **Hint** (optional column) — a short text the applicant reads under the detail.
+
+In a request, the staff fill in these details in the **Certificate details** tab. The ones still empty that the current step requires are highlighted.
+
+---
+
+## Certificate text
+
+**Certificate text** is what the certificate says after "CERTIFIES:". The heading with the secretary's name, the closing, the place, the date and the stamps are the same for every certificate.
+
+- Write a detail's key between braces where its value goes: `{hours}`. Under the text you can see every key you can use. A **Collaborating company** detail also has its VAT number, `{company_vat}` if its key is `company`.
+- A part between square brackets is only printed when every detail inside it has a value: `[, with VAT number {company_vat}]`.
+- A blank line starts a new paragraph.
+
+The text is translated like the other names: write it in each language with the language selector of the field. EMS doesn't let you save a text that uses a key the type doesn't have.
+
+FCT's text, for example:
+
+> That {name}, with identity document {document}, a student of {study}, did {hours} hours of workplace training (FCT) in the school year {school_year} at the company {company}[, with VAT number {company_vat}], from {start} to {end}.
 
 ---
 

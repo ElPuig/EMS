@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import re
+
+from markupsafe import Markup
+
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -12,10 +16,26 @@ STEP_ACTIONS = [
     ('approve', 'Approve'),
 ]
 
-# What a certificate says, and so which data it needs and which report body prints it.
-CERTIFICATE_KINDS = [
-    ('fct', 'Workplace training (FCT)'),
+# The kinds of data a certificate type may ask for, each stored in its own column of
+# ems.certificate.value (VALUE_COLUMNS). A 'company' datum is a collaborating company: the applicant
+# writes its name and VAT number, the centre links the contact.
+FIELD_TYPES = [
+    ('char', 'Short text'),
+    ('text', 'Long text'),
+    ('integer', 'Number'),
+    ('date', 'Date'),
+    ('boolean', 'Yes/No'),
+    ('school_year', 'School year'),
+    ('company', 'Collaborating company'),
 ]
+
+# The data every request has, whatever its type, and the key its text prints them with.
+COMMON_KEYS = ('name', 'document', 'study')
+
+# {key} in a certificate's text, and [...] around a part printed only when its data have a value.
+PLACEHOLDER = re.compile(r'\{([a-z][a-z0-9_]*)\}')
+OPTIONAL_PART = re.compile(r'\[([^\[\]]*)\]')
+KEY_FORMAT = re.compile(r'^[a-z][a-z0-9_]*$')
 
 
 class EmsCertificateType(models.Model):
@@ -33,8 +53,6 @@ class EmsCertificateType(models.Model):
     name = fields.Char(string="Name", required=True, translate=True)
     sequence = fields.Integer(string="Sequence", default=10)
     active = fields.Boolean(string="Active", default=True)
-    kind = fields.Selection(string="Kind", selection=CERTIFICATE_KINDS, required=True, default='fct',
-                            help="What the certificate says, and so which data the request asks for.")
     description = fields.Text(string="Description", translate=True,
                               help="Shown to the applicant on the request form.")
     level_ids = fields.Many2many(string="Levels that may request it", comodel_name='ems.level',
@@ -45,6 +63,16 @@ class EmsCertificateType(models.Model):
                                              "issued. Any other document can always be attached as optional.")
     document_ids = fields.One2many(string="Required documents", comodel_name='ems.certificate.type.document',
                                    inverse_name='type_id', copy=True)
+    # Copied by copy(), which points each detail at the copy's own step.
+    field_ids = fields.One2many(string="Certificate details", comodel_name='ems.certificate.type.field',
+                                inverse_name='type_id', copy=False)
+    certificate_text = fields.Text(
+        string="Certificate text", translate=True, copy=False,
+        help="What the certificate says after \"CERTIFIES:\". Write {key} where a detail goes; a part between "
+             "square brackets is printed only when every detail inside it has a value; a blank line starts a new "
+             "paragraph.")
+    placeholder_help = fields.Html(string="Details the text can use", compute='_compute_placeholder_help',
+                                   sanitize=False)
     step_ids = fields.One2many(string="Approval circuit", comodel_name='ems.certificate.type.step',
                                inverse_name='type_id', copy=True)
     circuit_role_ids = fields.Many2many(string="Positions of the circuit", comodel_name='ems.role',
@@ -55,12 +83,70 @@ class EmsCertificateType(models.Model):
         for certificate_type in self:
             certificate_type.circuit_role_ids = certificate_type.step_ids.role_id
 
+    @api.depends('field_ids.key', 'field_ids.name', 'field_ids.field_type')
+    def _compute_placeholder_help(self):
+        common = [('name', _("Full name")), ('document', _("Identity document")), ('study', _("Study"))]
+        for certificate_type in self:
+            keys = list(common)
+            for field in certificate_type.field_ids.sorted('sequence').filtered('key'):
+                keys.append((field.key, field.name))
+                if field.field_type == 'company':
+                    keys.append((f'{field.key}_vat', _("%s (VAT number)", field.name)))
+            certificate_type.placeholder_help = Markup(", ").join(
+                Markup("<code>{{{}}}</code> {}").format(key, label) for key, label in keys)
+
+    def _ems_text_keys(self):
+        """The keys the type's text may write between braces."""
+        self.ensure_one()
+        keys = set(COMMON_KEYS)
+        for field in self.field_ids:
+            keys.add(field.key)
+            if field.field_type == 'company':
+                keys.add(f'{field.key}_vat')
+        return keys
+
+    @api.constrains('certificate_text', 'field_ids')
+    def _check_certificate_text(self):
+        """Every language's text uses only the type's keys, and its brackets pair up."""
+        languages = self.env['res.lang'].get_installed()
+        for certificate_type in self:
+            keys = certificate_type._ems_text_keys()
+            for lang, language in languages:
+                text = certificate_type.with_context(lang=lang).certificate_text or ''
+                unknown = set(PLACEHOLDER.findall(text)) - keys
+                if unknown:
+                    raise ValidationError(_("The text of %(type)s in %(language)s uses details it does not have: "
+                                            "%(keys)s.", type=certificate_type.name, language=language,
+                                            keys=", ".join(f'{{{key}}}' for key in sorted(unknown))))
+                if set('[]') & set(OPTIONAL_PART.sub('', text)):
+                    raise ValidationError(_("The text of %(type)s in %(language)s has a square bracket without its "
+                                            "pair (or one inside another).", type=certificate_type.name,
+                                            language=language))
+
     @api.constrains('requires_documents', 'document_ids')
     def _check_documents(self):
         for certificate_type in self:
             if certificate_type.requires_documents and not certificate_type.document_ids:
                 raise ValidationError(_("List the documents %s requires, or untick Required attached documentation.",
                                         certificate_type.name))
+
+    def copy(self, default=None):
+        copies = super().copy(default)
+        for certificate_type, new_type in zip(self, copies):
+            steps = dict(zip(certificate_type.step_ids.sorted('sequence'), new_type.step_ids.sorted('sequence')))
+            for field in certificate_type.field_ids:
+                field.copy({'type_id': new_type.id,
+                            'required_step_id': steps.get(field.required_step_id, field.required_step_id.browse()).id})
+            # The text once its details exist (_check_certificate_text), in every language.
+            for lang, _name in self.env['res.lang'].get_installed():
+                new_type.with_context(lang=lang).certificate_text = \
+                    certificate_type.with_context(lang=lang).certificate_text
+        return copies
+
+    def _ems_applicant_fields(self):
+        """The details the request form asks the applicant for, in order."""
+        self.ensure_one()
+        return self.field_ids.filtered(lambda field: field.applicant_input != 'none').sorted('sequence')
 
     def _ems_required_documents(self):
         """The documents a request of this type must have before it is issued."""
@@ -95,6 +181,65 @@ class EmsCertificateTypeStep(models.Model):
                               help="Whoever holds this position gets the task and does the step. The "
                                    "administrator can always do it too.")
     action = fields.Selection(string="Action", selection=STEP_ACTIONS, required=True, default='complete')
+
+
+class EmsCertificateTypeField(models.Model):
+    """A detail a certificate type needs besides the common ones (the student's name, identity
+    document and study): who fills it in, and by when (issue #851)."""
+    _name = 'ems.certificate.type.field'
+    _description = "Detail a certificate type needs, and who fills it in."
+    _order = 'type_id, sequence, id'
+    _sql_constraints = [
+        ('key_unique', 'unique(type_id, key)', "Each detail of a certificate type needs its own key."),
+    ]
+
+    type_id = fields.Many2one(string="Certificate type", comodel_name='ems.certificate.type', required=True,
+                              ondelete='cascade', index=True)
+    sequence = fields.Integer(string="Sequence", default=10)
+    name = fields.Char(string="Detail", required=True, translate=True)
+    key = fields.Char(string="Key", required=True,
+                      help="How the certificate text writes it, between braces: lowercase letters, digits and _.")
+    field_type = fields.Selection(string="Data type", selection=FIELD_TYPES, required=True, default='char')
+    applicant_input = fields.Selection(string="Applicant", required=True, default='optional', selection=[
+        ('required', 'Required'),
+        ('optional', 'Optional'),
+        ('none', 'Not asked'),
+    ], help="Whether the request form asks the applicant for it, and whether they must answer.")
+    required_step_id = fields.Many2one(string="Required before", comodel_name='ems.certificate.type.step',
+                                       ondelete='restrict',
+                                       help="The step that cannot be done until it is filled in (nor any later one). "
+                                            "Empty: the circuit never requires it. Save the circuit's steps first.")
+    help = fields.Char(string="Hint", translate=True, help="Shown to the applicant under the detail.")
+
+    @api.constrains('key', 'field_type')
+    def _check_key(self):
+        for field in self:
+            if not KEY_FORMAT.match(field.key or ''):
+                raise ValidationError(_("The key of %s may only have lowercase letters, digits and _, starting with a "
+                                        "letter.", field.name))
+            if field.key in COMMON_KEYS or field.key.endswith('_vat'):
+                raise ValidationError(_("%(key)s is a key of its own in every certificate: choose another one for "
+                                        "%(detail)s.", key=field.key, detail=field.name))
+
+    @api.constrains('required_step_id', 'type_id')
+    def _check_required_step(self):
+        for field in self:
+            if field.required_step_id and field.required_step_id.type_id != field.type_id:
+                raise ValidationError(_("%s must be required by a step of its own certificate type.", field.name))
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        fields_created = super().create(vals_list)
+        # Requests still open get the new detail too, to fill it in.
+        self.env['ems.certificate'].sudo().search([
+            ('type_id', 'in', fields_created.type_id.ids), ('state', 'in', ('draft', 'in_progress', 'documentation')),
+        ])._ems_sync_values()
+        return fields_created
+
+    def _ems_is_required_by(self, step):
+        """Whether a request must have it filled in before `step` is done."""
+        self.ensure_one()
+        return bool(self.required_step_id) and bool(step) and self.required_step_id.sequence <= step.sequence
 
 
 class EmsCertificateTypeDocument(models.Model):

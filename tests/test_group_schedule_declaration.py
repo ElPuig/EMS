@@ -15,11 +15,11 @@ class TestGroupScheduleDeclaration(TransactionCase):
             cls, 'TGSC', level={'declaration_code': 'cfgs'})
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TGSD001', 'acronym': 'TGSD1', 'name': 'Test Subject One (Group Declaration)',
-            'internal_hours': 60, 'external_hours': 40, 'study_ids': [(6, 0, (cls.study | cls.cycle_study).ids)],
+            'study_ids': [(6, 0, (cls.study | cls.cycle_study).ids)],
         })
         cls.other_subject = cls.env['ems.subject'].create({
             'code': 'TGSD002', 'acronym': 'TGSD2', 'name': 'Test Subject Two (Group Declaration)',
-            'internal_hours': 30, 'external_hours': 0, 'study_ids': [(6, 0, cls.cycle_study.ids)],
+            'study_ids': [(6, 0, cls.cycle_study.ids)],
         })
         cls.teacher_one = cls._teacher('One')
         cls.teacher_two = cls._teacher('Two')
@@ -68,12 +68,20 @@ class TestGroupScheduleDeclaration(TransactionCase):
 
         self.assertEqual(self.group.get_schedule_declaration_data()['students'], 2)
 
-    def test_course_hours_add_the_distinct_modules_of_the_schedule(self):
-        # The same module twice (two days) counts once.
-        self._teach(self.teacher_one, (self.cycle_group, self.subject, 1, '0'))
-        self._teach(self.teacher_two, (self.cycle_group, self.subject, 1, '1'), (self.cycle_group, self.other_subject, 1, '2'))
+    def test_course_hours_are_the_studys_duration(self):
+        self.cycle_study.duration_hours = 2000
 
-        self.assertEqual(self.cycle_group.get_schedule_declaration_data()['course_hours'], 130)
+        self.assertEqual(self.cycle_group.get_schedule_declaration_data()['course_hours'], 2000)
+        self.assertEqual(self.group.get_schedule_declaration_data()['course_hours'], 0)
+
+    def test_catalog_durations(self):
+        # The official durations shipped in data/cat/ems.study.csv.
+        Study = self.env['ems.study']
+        durations = {study.code: study.duration_hours for study in Study.search([('code', 'in', [
+            'CFGM_IC10', 'CFGS_ICB0', 'CFGS_ICC0', 'CFGS_ICA0', 'CFGM_AG10', 'CFGS_AGB0', 'CFGS_AGA0', 'CFGB_AG10', 'EFPS_IC02'])])}
+        self.assertEqual(durations.get('CFGS_AGA0'), 2000)
+        self.assertEqual(durations.get('EFPS_IC02'), 600)
+        self.assertTrue(all(hours == 2000 for code, hours in durations.items() if code != 'EFPS_IC02'))
 
     def test_teacher_hours_show_only_when_a_module_is_shared(self):
         self._teach(self.teacher_one, (self.cycle_group, self.subject, 2, '0'), (self.cycle_group, self.other_subject, 1, '2'))

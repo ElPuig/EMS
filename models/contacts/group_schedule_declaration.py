@@ -3,10 +3,7 @@
 from odoo import _, api, models
 from odoo.exceptions import UserError
 
-# Issue #853: the cycles' page (6) of the official form is for these levels (ems.level.declaration_code),
-# with the degree it names; every other level uses the general one (page 5).
-VOCATIONAL_DEGREES = {'cfgb': 'Bàsic', 'cfgm': 'Mitjà', 'cfgs': 'Superior', 'cefp': "Curs d'especialització"}
-
+from ..employees.non_teaching_type import VOCATIONAL_DEGREES
 
 class EmsGroupScheduleDeclaration(models.Model):
     """The group pages of the Departament's "Annexos Dades anuals" (issue #853), the counterpart of
@@ -15,7 +12,7 @@ class EmsGroupScheduleDeclaration(models.Model):
 
     def get_schedule_declaration_data(self):
         """What the group's page adds to the weekly grid: which page of the form it takes, the cycle's
-        degree, how many students it has and the course's hours (the distinct modules of its schedule)."""
+        degree, how many students it has and its study's duration in hours."""
         self.ensure_one()
         code = self.level_id.declaration_code
         return {
@@ -23,7 +20,7 @@ class EmsGroupScheduleDeclaration(models.Model):
             'degree': VOCATIONAL_DEGREES.get(code, ''),
             'students': self.env['res.partner'].search_count(
                 [('main_group_id', '=', self.id), ('contact_type', '=', 'student')]),
-            'course_hours': sum(self.schedule_attendance_ids.mapped('subject_id.total_hours')),
+            'course_hours': self.study_id.duration_hours,
         }
 
     def action_print_schedule_declaration(self):

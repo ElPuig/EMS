@@ -27,6 +27,9 @@
                                 <field name="code" />
                             </group>
                             <group>
+                                <field name="duration_hours" readonly="1"/>
+                            </group>
+                            <group>
                                 <field name="date"/>                                
                             </group>                           
                             <group>

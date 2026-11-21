@@ -55752,3 +55752,8 @@ msgstr "0 punts: la proposta A és un curs."
 #: code:addons/ems/models/contacts/group_schedule_declaration.py:0
 msgid "Only the main groups have a schedule declaration."
 msgstr "Només els grups principals tenen declaració horària."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_study__duration_hours
+msgid "Duration (hours)"
+msgstr "Durada (hores)"

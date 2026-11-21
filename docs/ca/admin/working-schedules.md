@@ -286,6 +286,13 @@ L'EMS imprimeix la declaració horària del Departament d'Educació i FP ("Horar
 
 Cada pàgina té el codi, el nom i el municipi del centre (de la configuració de l'empresa), el nom, el NIF i els càrrecs del docent, el seu horari setmanal (sense aules, per estalviar espai) i el quadre resum d'hores. El que l'EMS no desa (lloc de treball/especialitat, situació administrativa, anys a l'ensenyament, acreditació de català, lloc, data i signatures) queda en blanc per omplir a mà.
 
+Les pàgines dels grups del mateix formulari ("Horari grup d'alumnes" per a ESO, Batxillerat, PFI..., i "Distribució horària dels Cicles Formatius" per als cicles formatius) s'imprimeixen igual, sempre en català, una pàgina per grup i per les mateixes persones:
+
+- Per a diversos grups: a **Comunitat Educativa → Grups**, passeu a la vista de llista, seleccioneu-los i trieu **Imprimeix → Declaració horària**.
+- Per a un grup: obriu-lo i trieu **Accions → Imprimeix la declaració horària**.
+
+Només els grups principals en tenen (els desdoblaments i les optatives ja surten dins del seu horari). La pàgina es tria pel nivell del grup (el seu **Codi de declaració horària**: CFGB, CFGM, CFGS i EFPS fan servir la pàgina dels cicles, qualsevol altre nivell la general). Hi surten les dades del centre, el nom i el tutor del grup, el seu horari setmanal sense aules i els docents de cada matèria; la pàgina dels cicles també té el grau, el nom i el codi de l'estudi, el nombre d'alumnes i les hores del curs (la suma de les hores dels mòduls del seu horari), i mostra les hores setmanals de cada docent quan en són diversos en un mòdul. El lloc, la data i la signatura de la direcció queden en blanc per omplir a mà. Un grup amb moltes classes en paral·lel (com les optatives de 4t d'ESO) pot ocupar més d'una pàgina.
+
 **La fila on va cada hora** és configuració, que la instal·lació deixa preparada i que pots canviar després:
 
 - Una classe compta a la fila del **nivell** del seu grup: el **Codi a la declaració horària** del nivell (**Comunitat Educativa → Configuració → Currículum → Nivells**). EMS el fixa per als nivells oficials (ESO, BTX, CFGB, CFGM, CFGS, EFPS, PFI), tal com el defineix el Departament, i per això no es pot canviar al formulari. Un desdoblament o una optativa sense nivell propi pren el nivell dels seus grups principals. Un nivell sense codi (per exemple, un de creat pel centre) va a *Altres*.

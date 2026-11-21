@@ -29491,18 +29491,18 @@ msgid "Tutoring (T-ESO, T-BAT, T-FP or PFI)"
 msgstr "Tutoría (T-ESO, T-BAT, T-FP o PFI)"
 
 #. module: ems
-#: model:ir.actions.report,name:ems.action_report_schedule_declaration
+#: model:ir.actions.report,name:ems.action_report_group_schedule_declaration model:ir.actions.report,name:ems.action_report_schedule_declaration
 msgid "Schedule declaration"
 msgstr "Declaración horaria"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form model_terms:ir.ui.view,arch_db:ems.view_group_form
 msgid "Print schedule declaration"
 msgstr "Imprimir la declaración horaria"
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/employees/employee.py:0
+#: code:addons/ems/models/shared/base.py:0
 msgid "Only the Heads and Deputy Heads of Studies, the Director and the administrators can print the schedule declaration."
 msgstr "Solo los jefes de estudios y los jefes de estudios adjuntos, la dirección y los administradores pueden imprimir la declaración horaria."
 
@@ -55779,3 +55779,9 @@ msgstr "0,5 puntos: la propuesta A es un job shadowing o una estancia de docenci
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__activity_kind__0
 msgid "0 points: Proposal A is a course."
 msgstr "0 puntos: la propuesta A es un curso."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group_schedule_declaration.py:0
+msgid "Only the main groups have a schedule declaration."
+msgstr "Solo los grupos principales tienen declaración horaria."

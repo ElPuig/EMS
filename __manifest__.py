@@ -373,6 +373,7 @@
             'reports/employees/report_schedule_declaration.xml',
             'reports/contacts/report_schedule_grid.xml',
             'reports/contacts/report_group_schedule.xml',
+            'reports/contacts/report_group_schedule_declaration.xml',
             'reports/contacts/report_student_schedule.xml',
             'reports/contacts/report_student_card.xml',
             'reports/facilities/report_space_schedule.xml',

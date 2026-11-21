@@ -104,6 +104,8 @@ Les hores d'un bloc d'*Atenció a l'alumnat* compten a la fila del seu nivell o 
 
 ![La fitxa d'un docent amb el desplegable Accions obert: Imprimeix la declaració horària](../../assets/head_of_studies/hos-declaracio-horaria-accions.png)
 
+La declaració dels grups funciona igual: a **Comunitat Educativa → Grups**, passeu a la vista de llista, seleccioneu els grups principals i trieu **Imprimeix → Declaració horària** (una pàgina cadascun), o obriu un grup i trieu **Accions → Imprimeix la declaració horària**. A [Imprimir la declaració horària oficial](../admin/working-schedules.md#imprimir-la-declaració-horària-oficial) teniu què contenen les pàgines.
+
 ## Què no podeu fer
 
 Hi ha dos límits deliberats, i l'Odoo rebutjarà l'operació si ho proveu:

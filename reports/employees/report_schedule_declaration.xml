@@ -19,6 +19,62 @@
             <field name="dpi">90</field>
         </record>
 
+        <!-- The official header (Departament's logo, course, Codi/Centre/Municipi) and legal footer, shared by
+             the teacher's page (#723) and the groups' pages (#853). Expect 'company' in the calling context. -->
+        <template id="schedule_declaration_styles">
+            <style>
+                .sd-header { width: 100%; margin-bottom: 8px; }
+                .sd-header td { vertical-align: top; }
+                .sd-header, .sd-header *, .sd-signatures, .sd-signatures * { border: none !important; }
+                .sd-entity img { height: 14mm; }
+                .sd-annual { text-align: right; font-size: 11px; }
+                .sd-box { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 6px; }
+                .sd-box td { border: 1px solid #000; padding: 2px 4px; height: 20px; vertical-align: middle; empty-cells: show; }
+                .sd-box td.sd-label { background: #dedede; }
+                .sd-box td.sd-none { border: none; }
+                .sd-title { font-size: 13px; font-weight: bold; margin: 4px 0 3px 0; }
+                .sd-summary { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 6px; }
+                .sd-summary td, .sd-summary th { border: 1px solid #000; padding: 1px 3px; height: 17px; vertical-align: middle; }
+                .sd-summary th { background: #dedede; font-weight: normal; text-align: center; }
+                .sd-summary td.sd-code, .sd-summary td.sd-hours { text-align: center; }
+                .sd-summary td.sd-na { background: #c4c4c4; }
+                .sd-signatures { width: 100%; margin-top: 4px; }
+                .sd-signatures td { width: 50%; vertical-align: top; padding: 0 20px 0 0; }
+                .sd-signatures td.sd-place { padding-bottom: 8px; }
+                .sd-blank { display: inline-block; border-bottom: 1px solid #000 !important; vertical-align: bottom; height: 12px; }
+            </style>
+        </template>
+
+        <template id="schedule_declaration_header">
+            <t t-call="ems.schedule_declaration_styles"/>
+            <table class="sd-header">
+                <tr>
+                    <!-- The Departament's logo, taken from the official form itself. -->
+                    <td class="sd-entity"><img src="/ems/static/src/img/departament_educacio_fp.png" alt="Generalitat de Catalunya - Departament d’Educació i Formació Professional"/></td>
+                    <td class="sd-annual">DADES ANUALS DEL CENTRE<br/>CURS <span t-esc="company.current_course_id.name"/></td>
+                </tr>
+            </table>
+
+            <table class="sd-box">
+                <colgroup><col style="width: 10%;"/><col style="width: 25%;"/><col style="width: 10%;"/><col style="width: 55%;"/></colgroup>
+                <tr>
+                    <td class="sd-label">Codi</td><td><t t-esc="company.center_code"/></td>
+                    <td class="sd-label">Centre</td><td><t t-esc="company.name"/></td>
+                </tr>
+                <tr>
+                    <td class="sd-label">Municipi</td><td colspan="3"><t t-esc="company.partner_id.city"/></td>
+                </tr>
+            </table>
+        </template>
+
+        <template id="schedule_declaration_footer">
+            <!-- Printed by wkhtmltopdf in the page's bottom margin (ir.actions.report moves every
+                 div.footer there), leaving the room above it for the signatures. -->
+            <div class="footer" style="font-family: Arial, Helvetica, sans-serif; font-size: 9px; color: #000;">
+                Aquestes declaracions horàries restaran arxivades al centre a disposició de la Inspecció d’Educació, preferentment compartides per mitjans telemàtics, amb les possibles modificacions que calgui fer al llarg del curs.
+            </div>
+        </template>
+
         <record id="action_report_schedule_declaration" model="ir.actions.report">
             <field name="name">Schedule declaration</field>
             <field name="model">hr.employee</field>
@@ -68,45 +124,9 @@
                         .sd-page .ws-cell-label-text { display: block; font-size: 9px; line-height: 12px; max-height: 24px; overflow: hidden; }
                         .sd-page .ws-table td { vertical-align: middle !important; }
                         .sd-page .ws-break-row .ws-cell-content { height: 14px; }
-                        .sd-header { width: 100%; margin-bottom: 8px; }
-                        .sd-header td { vertical-align: top; }
-                        .sd-header, .sd-header *, .sd-signatures, .sd-signatures * { border: none !important; }
-                        .sd-entity img { height: 14mm; }
-                        .sd-annual { text-align: right; font-size: 11px; }
-                        .sd-box { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 6px; }
-                        .sd-box td { border: 1px solid #000; padding: 2px 4px; height: 20px; vertical-align: middle; empty-cells: show; }
-                        .sd-box td.sd-label { background: #dedede; }
-                        .sd-box td.sd-none { border: none; }
-                        .sd-title { font-size: 13px; font-weight: bold; margin: 4px 0 3px 0; }
-                        .sd-summary { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 6px; }
-                        .sd-summary td, .sd-summary th { border: 1px solid #000; padding: 1px 3px; height: 17px; vertical-align: middle; }
-                        .sd-summary th { background: #dedede; font-weight: normal; text-align: center; }
-                        .sd-summary td.sd-code, .sd-summary td.sd-hours { text-align: center; }
-                        .sd-summary td.sd-na { background: #c4c4c4; }
-                        .sd-signatures { width: 100%; margin-top: 4px; }
-                        .sd-signatures td { width: 50%; vertical-align: top; padding: 0 20px 0 0; }
-                        .sd-signatures td.sd-place { padding-bottom: 8px; }
-                        .sd-blank { display: inline-block; border-bottom: 1px solid #000 !important; vertical-align: bottom; height: 12px; }
                     </style>
 
-                    <table class="sd-header">
-                        <tr>
-                            <!-- The Departament's logo, taken from the official form itself. -->
-                            <td class="sd-entity"><img src="/ems/static/src/img/departament_educacio_fp.png" alt="Generalitat de Catalunya - Departament d’Educació i Formació Professional"/></td>
-                            <td class="sd-annual">DADES ANUALS DEL CENTRE<br/>CURS <span t-esc="company.current_course_id.name"/></td>
-                        </tr>
-                    </table>
-
-                    <table class="sd-box">
-                        <colgroup><col style="width: 10%;"/><col style="width: 25%;"/><col style="width: 10%;"/><col style="width: 55%;"/></colgroup>
-                        <tr>
-                            <td class="sd-label">Codi</td><td><t t-esc="company.center_code"/></td>
-                            <td class="sd-label">Centre</td><td><t t-esc="company.name"/></td>
-                        </tr>
-                        <tr>
-                            <td class="sd-label">Municipi</td><td colspan="3"><t t-esc="company.partner_id.city"/></td>
-                        </tr>
-                    </table>
+                    <t t-call="ems.schedule_declaration_header"/>
 
                     <p class="sd-title">Horari professor/a</p>
 
@@ -200,11 +220,7 @@
                     </table>
 
                 </div>
-                <!-- Printed by wkhtmltopdf in the page's bottom margin (ir.actions.report moves every
-                     div.footer there), leaving the room above it for the signatures. -->
-                <div class="footer" style="font-family: Arial, Helvetica, sans-serif; font-size: 9px; color: #000;">
-                    Aquestes declaracions horàries restaran arxivades al centre a disposició de la Inspecció d’Educació, preferentment compartides per mitjans telemàtics, amb les possibles modificacions que calgui fer al llarg del curs.
-                </div>
+                <t t-call="ems.schedule_declaration_footer"/>
             </t>
         </template>
     </data>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #853: the groups' pages of the Departament d'Educació i FP's official form "Annexos Dades
+             anuals" (the teacher's page is ems.report_schedule_declaration, #723): page 5 "Horari grup
+             d'alumnes" (ESO, Batxillerat, PFI...) and page 6 "Distribució horària dels Cicles Formatius".
+             An official Catalan form: always printed in Catalan (t-lang below), so its own text is written
+             in Catalan, as on the form. Header, footer and styles are the teacher's (schedule_declaration_*). -->
+        <record id="action_report_group_schedule_declaration" model="ir.actions.report">
+            <field name="name">Schedule declaration</field>
+            <field name="model">ems.group</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_group_schedule_declaration</field>
+            <field name="report_file">ems.report_group_schedule_declaration</field>
+            <field name="print_report_name">'Declaracio horaria - %s - %s' % (object.name, object.env.company.current_course_id.name)</field>
+            <field name="binding_model_id" ref="model_ems_group"/>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="paperformat_schedule_declaration"/>
+            <!-- The form offers it from its Actions dropdown (action_print_schedule_declaration). -->
+            <field name="binding_view_types">list</field>
+            <!-- Same list as ems.base.SCHEDULE_DECLARATION_GROUPS, checked again by the report model. -->
+            <field name="groups_id" eval="[(6, 0, [ref('ems.group_head_of_studies'), ref('ems.group_academic_admin'), ref('base.group_system')])]"/>
+        </record>
+
+        <template id="report_group_schedule_declaration">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="group">
+                    <t t-call="ems.report_group_schedule_declaration_document" t-lang="'ca_ES'"/>
+                </t>
+            </t>
+        </template>
+
+        <template id="report_group_schedule_declaration_document">
+            <t t-set="group" t-value="group.with_context(lang='ca_ES')"/>
+            <t t-set="company" t-value="group.env.company"/>
+            <t t-set="data" t-value="group.get_schedule_declaration_data()"/>
+            <t t-set="vocational" t-value="data['page'] == 'vocational'"/>
+            <t t-call="web.basic_layout">
+                <div class="page sd-page">
+                    <style>
+                        .sd-page { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000; }
+                        .sd-page .gs-table { font-size: 9px; margin-bottom: 0; }
+                        .sd-page .gs-table th, .sd-page .gs-table td { padding: 2px 3px !important; border: 1px solid #000; }
+                        .sd-page .gs-table th { background: #dedede; }
+                        .sd-page .gs-summary-table { margin-top: 8px; font-size: 9px; }
+                        .sd-page .gs-summary-table th { padding: 2px 6px; background: #dedede; border: 1px solid #000; }
+                        .sd-page .gs-summary-table td { padding: 1px 6px; border: 1px solid #000; }
+                    </style>
+
+                    <t t-call="ems.schedule_declaration_header"/>
+
+                    <p class="sd-title" t-if="not vocational">Horari grup d’alumnes</p>
+                    <p class="sd-title" t-else="">Distribució horària dels Cicles Formatius</p>
+
+                    <table t-if="not vocational" class="sd-box">
+                        <colgroup><col style="width: 10%;"/><col style="width: 40%;"/><col style="width: 15%;"/><col style="width: 35%;"/></colgroup>
+                        <tr>
+                            <td class="sd-label">Grup</td><td><t t-esc="group.name"/></td>
+                            <td class="sd-label">Prof. tutor/a</td><td><t t-esc="group.tutor_id.name"/></td>
+                        </tr>
+                    </table>
+                    <table t-else="" class="sd-box">
+                        <colgroup>
+                            <col style="width: 10%;"/><col style="width: 40%;"/><col style="width: 7%;"/><col style="width: 11%;"/>
+                            <col style="width: 7%;"/><col style="width: 7%;"/><col style="width: 9%;"/><col style="width: 9%;"/>
+                        </colgroup>
+                        <tr>
+                            <td class="sd-label">CF de grau</td><td colspan="3"><t t-esc="data['degree']"/></td>
+                            <td class="sd-label">Curs</td><td><t t-esc="group.course"/></td>
+                            <td class="sd-label">Grup</td><td><t t-esc="group.acronym"/></td>
+                        </tr>
+                        <tr>
+                            <td class="sd-label">Nom</td><td><t t-esc="group.study_id.name"/></td>
+                            <td class="sd-label">Codi</td><td><t t-esc="group.study_id.code"/></td>
+                            <td class="sd-label" colspan="2">N. alumnes</td><td colspan="2"><t t-esc="data['students']"/></td>
+                        </tr>
+                        <tr>
+                            <td class="sd-label">Tutor/a</td><td colspan="3"><t t-esc="group.tutor_id.name"/></td>
+                            <td class="sd-label" colspan="3">Durada curs (hores)</td><td><t t-esc="data['course_hours'] or ''"/></td>
+                        </tr>
+                    </table>
+
+                    <t t-set="lines" t-value="group.get_schedule_report_lines()"/>
+                    <t t-if="lines" t-call="ems.schedule_report_grid">
+                        <t t-set="summary" t-value="group.get_subject_teachers_summary()"/>
+                        <t t-set="parallel" t-value="group.get_parallel_classes_detail()"/>
+                        <t t-set="hide_rooms" t-value="True"/>
+                        <t t-set="teachers_key" t-value="'teachers_hours' if vocational else 'teachers'"/>
+                    </t>
+
+                    <table class="sd-signatures">
+                        <tr>
+                            <td class="sd-place">Lloc*: <span class="sd-blank" style="width: 75mm;"/> Data*: <span class="sd-blank" style="width: 35mm;"/><br/>(*en cas de signatura manual)</td>
+                        </tr>
+                        <tr>
+                            <td><b>El/la director/a</b> (signar digitalment o signar a mà i posar segell)</td>
+                        </tr>
+                    </table>
+                </div>
+                <t t-call="ems.schedule_declaration_footer"/>
+            </t>
+        </template>
+    </data>
+</odoo>

@@ -4,7 +4,9 @@
         <!-- Weekly grid + "Subject -> Teacher(s)" table, shared by ems.report_group_schedule,
         ems.report_student_schedule and the student's portal page (ems.portal_schedule, issue #453)
         instead of a copy in each. Expects 'lines' (ems.schedule_report_mixin.get_schedule_report_lines())
-        and 'summary' (get_subject_teachers_summary()) in the calling context. -->
+        and 'summary' (get_subject_teachers_summary()) in the calling context. Optional: 'hide_rooms' (no
+        classrooms, the official declaration of a group, issue #853) and 'teachers_key' (the summary's
+        column to list: 'teachers', or 'teachers_hours' to add each one's hours in a shared module). -->
         <template id="schedule_report_grid">
             <style>
                 .gs-table { font-size: 10px; table-layout: fixed; }
@@ -49,7 +51,7 @@
                                               t-att-style="'background-color:' + block['color'] if block['color'] else ''">
                                             <span class="gs-cell-label" t-esc="block['entries'][:1].non_teaching.name or block['entries'][:1].get_subject_display_label()"/>
                                             <span t-if="block['subgroup']" class="gs-cell-room" t-esc="block['subgroup']"/>
-                                            <span t-if="block['detail']" class="gs-cell-room" t-esc="block['detail']"/>
+                                            <span t-if="block['detail'] and not hide_rooms" class="gs-cell-room" t-esc="block['detail']"/>
                                         </span>
                                     </t>
                                 </td>
@@ -67,7 +69,7 @@
                             <th>Subject</th>
                             <th>Group</th>
                             <th>Teacher(s)</th>
-                            <th>Classroom</th>
+                            <th t-if="not hide_rooms">Classroom</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -78,7 +80,7 @@
                                     <td t-esc="row['subject']"/>
                                     <td t-esc="row['subgroup']"/>
                                     <td t-esc="row['teachers']"/>
-                                    <td t-esc="row['room']"/>
+                                    <td t-if="not hide_rooms" t-esc="row['room']"/>
                                 </tr>
                             </t>
                         </t>
@@ -98,7 +100,7 @@
                         <t t-foreach="summary" t-as="row">
                             <tr>
                                 <td t-esc="row['subject']"/>
-                                <td t-esc="row['teachers']"/>
+                                <td t-esc="row[teachers_key or 'teachers']"/>
                             </tr>
                         </t>
                     </tbody>

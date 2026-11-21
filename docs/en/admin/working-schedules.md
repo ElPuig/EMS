@@ -286,6 +286,13 @@ The Departament d'Educació i FP's schedule declaration ("Horari professor/a", f
 
 Each page has the centre's code, name and municipality (from the company settings), the teacher's name, NIF and roles, their weekly schedule (without classrooms, to save space) and the summary table of hours. What EMS doesn't store (workplace/speciality, administrative situation, years of teaching, Catalan accreditation, place, date and signatures) is left blank, to be filled in by hand.
 
+The groups' pages of the same form ("Horari grup d'alumnes" for ESO, Batxillerat, PFI..., and "Distribució horària dels Cicles Formatius" for the vocational cycles) are printed the same way, always in Catalan, one page per group, by the same people:
+
+- For several groups: in **Educational Community → Groups**, switch to the list view, select them and choose **Print → Schedule declaration**.
+- For one group: open it and choose **Actions → Print schedule declaration**.
+
+Only main groups have one (their splits and optatives already appear in their schedule). The page is chosen by the group's level (its **Schedule declaration code**: CFGB, CFGM, CFGS and EFPS use the cycles' page, any other level the general one). It has the centre's data, the group's name and tutor, its weekly schedule without classrooms and the teachers of each subject; the cycles' page also has the degree, the study's name and code, the number of students and the course's hours (the sum of the hours of the modules in its schedule), and shows each teacher's weekly hours when several share a module. Place, date and the director's signature are left to fill in by hand. A group with many parallel classes (such as the optatives of 4th ESO) may take more than one page.
+
 **Which row each hour goes to** is configuration, set up for you on installation and editable afterwards:
 
 - A class counts in the row of its group's **level**: the level's **Schedule declaration code** (**Educational Community → Configuration → Curriculum → Levels**). EMS sets it for the official levels (ESO, BTX, CFGB, CFGM, CFGS, EFPS, PFI), as the Departament defines it, so it can't be changed on the form. A split or optative group with no level of its own takes the level of its main groups. A level with no code (e.g. one created by the centre) goes to *Altres*.

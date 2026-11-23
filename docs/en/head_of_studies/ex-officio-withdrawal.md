@@ -28,7 +28,7 @@ Go to: **Academic management → Ex officio withdrawals**. You see every case fi
 
 ## What the Head of Studies can do
 
-The Head of Studies and the Deputy Head of Studies can do what the tutor does in any case file: start or dismiss a proposal, do the tutor's step and review the roll-calls that say otherwise. However, they can only **open** a new case file (Request ex officio withdrawal) for the students of the tutors below them.
+Every Head of Studies and Deputy Head of Studies can read every case file. Only those above the student's tutor can do what the tutor does in it: start or dismiss a proposal, do the tutor's step and review the roll-calls that say otherwise. The same goes for opening a new case file (Request ex officio withdrawal): only for the students of the tutors below them.
 
 ---
 

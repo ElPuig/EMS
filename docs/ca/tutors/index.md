@@ -32,7 +32,7 @@ Aquesta secció conté els manuals per als **tutors de grup**.
 | [Baixa prevista d'un alumne](withdrawal-expected.md) | Treure dels passis de llista un alumne que deixarà el centre mentre se'n tramita la baixa, perquè no acumuli faltes, i desfer-ho si al final no marxa |
 | [Baixa d'ofici d'un alumne](ex-officio-withdrawal.md) | Què fer quan un alumne deixa de venir: la proposta, el teu pas (la trucada i el correu a la família) i què passa si els passis de llista diuen una altra cosa |
 | [L'horari setmanal d'un grup](../admin/group-schedule.md) | Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF |
-| [L'horari setmanal d'un alumne](../admin/student-schedule.md) | Consultar l'horari propi d'un dels teus tutorands (assignatures, docents, aules, patis), incloent-hi classes solapades, i exportar-lo a PDF |
+| [L'horari setmanal d'un alumne](../admin/student-schedule.md) | Consultar l'horari propi d'un dels teus tutoritzats (assignatures, docents, aules, patis), incloent-hi classes encavalcades, i exportar-lo a PDF |
 | [Notes públiques i notes privades de l'alumne](../teachers/student-notes.md) | On tot el professorat llegeix les notes públiques d'un alumne, i qui pot llegir i escriure les privades de tutoria |
 | [Inassistències col·lectives](student-walkout.md) | Vetllar per la proposta d'inassistència col·lectiva del teu grup: què et notifica, i avortar una proposta només per un defecte de forma |
 

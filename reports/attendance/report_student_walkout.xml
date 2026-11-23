@@ -35,32 +35,37 @@
 
                     <table class="table table-sm table-borderless">
                         <tbody>
-                            <tr><th class="w-25">Group</th><td t-out="', '.join(doc.group_ids.mapped('name'))"/></tr>
-                            <tr><th>Walkout day</th><td><span t-field="doc.walkout_date"/></td></tr>
-                            <tr><th>Opened by</th><td t-out="doc.opener_id.name"/></tr>
-                            <tr><th>Opened on</th><td><span t-field="doc.create_date" t-options="{'widget': 'date'}"/></td></tr>
+                            <tr><td class="fw-bold w-25">Group</td><td t-out="', '.join(doc.group_ids.mapped('name'))"/></tr>
+                            <tr><td class="fw-bold">Walkout day</td><td><span t-field="doc.walkout_date"/></td></tr>
+                            <tr><td class="fw-bold">Opened by</td><td t-out="doc.opener_id.name"/></tr>
+                            <tr><td class="fw-bold">Opened on</td><td><span t-field="doc.create_date" t-options="{'widget': 'date'}"/></td></tr>
                             <!-- Formatted in the centre's timezone: the minute is rendered by the cron too. -->
-                            <tr><th>Group vote</th><td><t t-esc="doc.format_local_datetime(doc.vote_start)"/> - <t t-esc="doc.format_local_datetime(doc.vote_until)"/></td></tr>
-                            <tr t-if="doc.join_start"><th>Joining</th><td><t t-esc="doc.format_local_datetime(doc.join_start)"/> - <t t-esc="doc.format_local_datetime(doc.join_until)"/></td></tr>
-                            <tr><th>Closed on</th><td><t t-esc="doc.format_local_datetime(doc.closed_datetime)"/></td></tr>
-                            <tr><th>Supporting document</th><td t-out="', '.join(doc.attachment_ids.mapped('name'))"/></tr>
-                            <tr t-if="doc.notes"><th>Reason</th><td t-out="doc.notes"/></tr>
+                            <tr><td class="fw-bold">Group vote</td><td><t t-esc="doc.format_local_datetime(doc.vote_start)"/> - <t t-esc="doc.format_local_datetime(doc.vote_until)"/></td></tr>
+                            <tr t-if="doc.join_start"><td class="fw-bold">Joining</td><td><t t-esc="doc.format_local_datetime(doc.join_start)"/> - <t t-esc="doc.format_local_datetime(doc.join_until)"/></td></tr>
+                            <tr><td class="fw-bold">Closed on</td><td><t t-esc="doc.format_local_datetime(doc.closed_datetime)"/></td></tr>
+                            <!-- Issue #837: each document links to its download (the minute reaches only staff, who log in). -->
+                            <tr><td class="fw-bold">Supporting document</td><td>
+                                <t t-foreach="doc.attachment_ids" t-as="attachment">
+                                    <a t-att-href="'%s/web/content/%s?download=true' % (doc.get_base_url(), attachment.id)" t-out="attachment.name"/><t t-if="not attachment_last">, </t>
+                                </t>
+                            </td></tr>
+                            <tr t-if="doc.notes"><td class="fw-bold">Reason</td><td t-out="doc.notes"/></tr>
                         </tbody>
                     </table>
 
                     <h3>Does the group walk out? (anonymous vote)</h3>
                     <table class="table table-sm table-bordered w-50">
                         <tbody>
-                            <tr><th>Yes</th><td t-out="doc.group_yes_count"/></tr>
-                            <tr><th>No</th><td t-out="doc.group_no_count"/></tr>
-                            <tr><th>Abstentions</th><td t-out="doc.group_abstain_count"/></tr>
-                            <tr><th>Students who did not vote</th><td t-out="doc.voter_count - doc.voted_count"/></tr>
-                            <tr><th>Students without access to the portal</th><td t-out="len(doc.line_ids) - doc.voter_count"/></tr>
+                            <tr><td class="fw-bold">Yes</td><td t-out="doc.group_yes_count"/></tr>
+                            <tr><td class="fw-bold">No</td><td t-out="doc.group_no_count"/></tr>
+                            <tr><td class="fw-bold">Abstentions</td><td t-out="doc.group_abstain_count"/></tr>
+                            <tr><td class="fw-bold">Students who did not vote</td><td t-out="doc.voter_count - doc.voted_count"/></tr>
+                            <tr><td class="fw-bold">Students without access to the portal</td><td t-out="len(doc.line_ids) - doc.voter_count"/></tr>
                         </tbody>
                     </table>
                     <p>
-                        <strong t-if="doc.group_supports">Result: the group has decided to walk out.</strong>
-                        <strong t-else="">Result: the group has decided not to walk out, so everybody is expected in class that day.</strong>
+                        <strong t-if="doc.group_supports">Result: the group has voted in favour of the walkout.</strong>
+                        <strong t-else="">Result: the group has not voted in favour of the walkout, so everybody is expected in class that day.</strong>
                     </p>
 
                     <h3 t-if="doc.group_supports">Who joins the walkout</h3>

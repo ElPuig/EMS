@@ -23,7 +23,7 @@ El títol es marca a l'històric acadèmic de l'alumne, a l'expedient del curs e
 | Situació | Què passa |
 |---|---|
 | Estudia al centre (té grup) | Només es marca el títol. |
-| Actiu però sense grup (ja no estudia aquí) | Surt del centre com a titulat: se li cancel·len les matrícules pendents, se li revoca l'accés al portal, es programa la suspensió del compte de Google i el contacte s'arxiva com a **Antic alumne**. |
+| Actiu, però sense grup (ja no estudia aquí) | Surt del centre com a titulat: se li cancel·len les matrícules pendents, se li revoca l'accés al portal, es programa la suspensió del compte de Google i el contacte s'arxiva com a **Antic alumne**. |
 | Donat de baixa | Passa a **Antic alumne**. Es conserven les dades de la baixa (data i curs). |
 
 L'expedient d'aquest curs ha d'existir ja a l'històric.

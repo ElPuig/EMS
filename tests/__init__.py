@@ -132,6 +132,7 @@ from . import test_strike_tour
 from . import test_strike_issue_standalone_tour
 from . import test_working_schedule
 from . import test_schedule_declaration
+from . import test_group_schedule_declaration
 from . import test_ems_teaching_sync
 from . import test_employee_schedule_lifecycle
 from . import test_working_schedules_import_wizard
@@ -383,3 +384,4 @@ from . import test_erasmus_polish_economy_services
 from . import test_erasmus_polish_actions_tour
 from . import test_erasmus_polish_quality_dashboard
 from . import test_portal_shared_email
+from . import test_file_compression

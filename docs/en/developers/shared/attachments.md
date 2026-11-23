@@ -80,3 +80,58 @@ added to the stock widget's `relatedFields`). The upload button and the delete i
 field's `readonly`: a user who cannot write the model gets a read-only form from Odoo itself
 (`ir.ui.view` sets `edit="False"`), and the justification form also makes the field read-only for
 anyone but the student's tutor or an admin.
+
+---
+
+## Compression of uploaded files (issue #799)
+
+Every PDF and JPEG/PNG stored as an `ir.attachment` (widget uploads, `Binary(attachment=True)`
+fields, portal and wizards alike) is shrunk in the background. `models/shared/attachment.py`
+overrides `create()` and `write()` (when `raw`/`datas` change): the file is stored exactly as
+uploaded, and a `queue_job` job (`_ems_compress`, one waiting job per file) replaces it later, so a
+scan that takes seconds to process never delays the user's request.
+
+```mermaid
+flowchart LR
+    U([Upload]) --> C["ir.attachment create()/write()"]
+    C -->|"stored as uploaded"| F[(filestore)]
+    C -->|"candidate? PDF/JPEG/PNG, over ems.compress_min_kb, not excluded"| J[["queue_job: _ems_compress"]]
+    J --> E["ems.file_compression.compress()"]
+    E -->|"saves at least 10 %"| W["write(raw), ems_no_compress"]
+    E -->|"otherwise"| K["original kept"]
+```
+
+| Piece | Rule |
+|-------|------|
+| Candidates | `type='binary'`, PDF/JPEG/PNG, larger than `ems.compress_min_kb` (default 300 KB). PDFs only when `gs` is installed |
+| Never compressed | files loaded from `data/` (`install_mode`: the official curricula, which every upgrade loads again from the CSV, so a compressed copy would be undone and queued again each time), `ir.ui.view`, `ir.actions.report`, `mail.mail`, `mail.compose.message` and `ems.signed.record` attachments, `ems.erasmus.call.template_file`, and `image.mixin`'s image fields (`image_1920`... `image_128`) |
+| PDF engine | Ghostscript (`apt-requirements.txt`), `/ebook` profile (150 dpi), 120 s timeout, files on disk (never the whole PDF twice in memory). Not touched: a PDF with a digital signature (`/ByteRange`, the signature covers the exact bytes) or encrypted |
+| Image engine | Odoo's `ImageProcess`: upright, long side at most 1920 px, JPEG quality 85, no EXIF (a phone photo carries the GPS position). A PNG without transparency is stored as JPEG (the name becomes `.jpg`); one with transparency stays PNG |
+| Acceptance | The result replaces the file only if it is at most 90 % of the original and a PDF keeps its number of pages. The original is not kept |
+| Failure | A broken PDF, a timeout or a missing `gs` is logged as a WARNING and the file stays as uploaded |
+
+**Why not Odoo's own image handling alone:** `ir.attachment._postprocess_contents()` already
+resizes an image above `base.image_autoresize_max_px` (1920x1920) when it is stored, but it neither
+re-encodes an image that already fits, nor converts a large PNG to JPEG, nor drops the EXIF
+metadata, and it never touches a PDF. `ems.file_compression` covers exactly that remainder, with
+the same 1920 px limit.
+
+**Cost** (measured on 2026-11-23 over a copy of production taken on 2026-11-19, 719 candidate files,
+3 processes in parallel): 827 MB become 343 MB (58 % less). PDF: 317 files, 601 MB -> 167 MB (252
+shrink, the rest saved under 10 %), 0.71 s per file on average, 8.5 s the slowest; JPEG: 361 files,
+166 MB -> 149 MB (only 45 gain 10 %, they are already compressed photos); PNG: 41 files, 61 MB -> 28 MB.
+Peak memory per process about 110 MB. Total CPU 237 s for the whole backlog, so the migration's jobs
+finish in a few minutes. In daily use the cost is one file per upload, linear in its pages
+(about 0.13 s per page). The page count is read with poppler's `pdfinfo` (already a dependency):
+PyPDF2 refused 21 of those 317 PDF files (damaged xref table) that `gs` and `pdfinfo` read fine.
+
+**Files stored before the feature.** `migrations/18.0.0.51.0/post-migrate.py` calls
+`ir.attachment._ems_queue_existing_compression()`, which only *queues* the jobs (a `search()` on the
+same domain as a new upload, minus the files with an external id, at priority 20 so emails and
+notices go first): the upgrade takes about a second whatever the number of files, and the jobs run
+afterwards, one at a time, on the queue. A clean install has no files, so there is no
+`post_init_hook` equivalent. Running it twice queues nothing new (`identity_key`).
+
+**Photos of families' data requests.** `contact_data_request._ems_photo_from_upload()` keeps its own
+checks (JPEG/PNG only, 10 MB limit, user-facing messages) and uses `ems.file_compression.to_jpeg()`
+for the processing, the same step as any other image (upright, 1920 px, JPEG quality 85, no EXIF).

@@ -9,7 +9,7 @@ automàticament a partir dels horaris ja configurats per a cada professor, des d
 fitxa del grup.
 
 **Rol necessari:** qualsevol rol amb accés a Grups (Administració, Secretaria, Professorat,
-Tutoria de grup, Cap d'Estudis...) — tothom qui pot obrir un grup en pot veure l'horari.
+Tutoria de grup, cap d'estudis...) — tothom qui pot obrir un grup en pot veure l'horari.
 
 ---
 
@@ -63,7 +63,7 @@ Perquè les classes d'un subgrup apareguin aquí, el subgrup ha de tenir aquest 
 
 ## Editar el tema o l'aula d'un bloc
 
-**Rol necessari:** Cap de Departament o superior (Cap d'Estudis, Sotscap d'Estudis, Director/a,
+**Rol necessari:** cap de Departament o superior (cap d'estudis, sotscap d'estudis, director/a,
 Administrador/a Acadèmic/a).
 
 En lloc d'anar professor per professor, pots corregir el **tema** o l'**aula** d'una

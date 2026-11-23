@@ -6,6 +6,8 @@
 
 Tu grupo puede decidir en el portal si hace una inasistencia colectiva un día concreto (por ejemplo, a raíz de una convocatoria de huelga de un sindicato de estudiantes), y cada alumno dice si se suma. Los alumnos que se suman no constan en el pase de lista de ese día: ni faltan ni asisten.
 
+**Son dos fases separadas.** Que el grupo vote a favor es solo el primer paso: no quiere decir que participes. Después, cada alumno dice personalmente si se suma, y quien no responde no se suma: ese día tiene que ir a clase, y las faltas cuentan con normalidad.
+
 Es una decisión colectiva de inasistencia a clase del alumnado a partir de 3.º de ESO, comunicada previamente a la dirección del centro. Nadie puede revocarla, tampoco la familia: el centro solo informa. Se pide a la familia de un alumno menor de edad que acuse recibo en el portal y que diga si está de acuerdo.
 
 ---
@@ -55,7 +57,7 @@ Los dos son obligatorios: sin un motivo y un documento no puedes proponer la vot
 
 Tu grupo recibe enseguida un correo para votar. Solo puede haber una propuesta por grupo y día.
 
-Mientras la propuesta está en votación o en adhesiones, su página te muestra cuántos alumnos han respondido, y **Anula la propuesta** la anula. Una propuesta anulada desaparece para el grupo.
+Mientras la propuesta está en votación o en adhesiones, su página te muestra cuántos alumnos han respondido, y **Anula la propuesta** la anula. Una propuesta anulada desaparece para el grupo: solo la siguen viendo el delegado y el subdelegado, sea cual sea de los dos quien la haya anulado.
 
 ---
 
@@ -67,22 +69,24 @@ La página de inicio del portal te avisa cuando tu grupo está votando. Abre la 
 
 - La votación es **anónima**: solo se guarda el recuento, nunca quién ha votado qué.
 - Votas **una sola vez**: después no se puede cambiar.
-- El grupo decide hacer la inasistencia colectiva cuando hay más votos a favor que en contra entre los votos emitidos (un empate no lo decide).
+- El grupo la apoya cuando hay más votos a favor que en contra entre los votos emitidos (un empate no lo decide).
+- **Votar a favor no quiere decir sumarse**: si el grupo vota a favor, después cada alumno dice personalmente si se suma.
 
-Si el grupo decide no hacerla, la propuesta se cierra y ese día se espera a todo el mundo en clase.
+Si el grupo no vota a favor, la propuesta se cierra y ese día se espera a todo el mundo en clase.
 
-Un alumno que no tenía acceso al portal cuando se hizo la propuesta sale en el acta y no vota, pero, si el grupo decide hacerla y obtiene el acceso mientras la adhesión está abierta, puede decir si se suma: recibe el correo en ese momento.
+Un alumno que no tenía acceso al portal cuando se hizo la propuesta sale en el acta y no vota, pero, si el grupo vota a favor y obtiene el acceso mientras la adhesión está abierta, puede decir si se suma: recibe el correo en ese momento.
 
 ---
 
 ## Sumarse (todo el alumnado)
 
-Si el grupo decide hacerla, recibes un correo y la propuesta te pregunta **¿Te sumas a la inasistencia colectiva?** Responde **Sí, me sumo** o **No** y haz clic en **Enviar**. Una ventana te confirma la respuesta, y el formulario se cierra y la muestra. Puedes cambiarla hasta que acaben las adhesiones con **Cambiar mi respuesta**.
+Si el grupo vota a favor, empieza la segunda fase, personal: recibes un correo que te explica qué tienes que hacer y qué pasa según tu respuesta, y la propuesta te pregunta **¿Te sumas a la inasistencia colectiva?** Responde **Sí, me sumo** o **No** y haz clic en **Enviar**. Una ventana te confirma la respuesta, y el formulario se cierra y la muestra. Puedes cambiarla hasta que acaben las adhesiones con **Cambiar mi respuesta**.
 
 ![Adhesión a la inasistencia colectiva, con el aviso para un alumno menor de edad](../../assets/families/walkout-portal-join.png)
 
-- Tu nombre sale en el acta que recibe la jefatura de estudios.
+- **Si te sumas**, tu nombre sale en el acta que recibe la jefatura de estudios.
 - Las clases de ese día no te cuentan como faltas: no constan en el pase de lista. Si la inasistencia colectiva no se valida, sí cuentan.
+- **Si no te sumas, o no respondes** antes de que acaben las adhesiones, ese día tienes que ir a clase, y si no vas las faltas cuentan con normalidad.
 - **Si eres menor de edad**, se pide a tu familia que acuse recibo en el portal y diga si está de acuerdo en que te sumes, mientras duren las adhesiones. Nadie puede revocar tu decisión. Si no dice que está de acuerdo, se le informa de cada clase a la que no asistas ese día, a título informativo. La página te dice qué ha respondido tu familia.
 
 ---
@@ -130,12 +134,12 @@ El acta (PDF) está en la página de la propuesta una vez cerrada.
 | Estado | Significado |
 |--------|-------------|
 | **En votación** | El grupo vota si hace la inasistencia colectiva |
-| **Adhesiones** | El grupo la hace: cada alumno dice si se suma |
+| **Adhesiones** | El grupo ha votado a favor: ahora cada alumno dice si se suma (quien no responde, no se suma) |
 | **Cerrada** | La jefatura de estudios tiene el acta y decide |
 | **Validada** | Quienes se suman no constan en el pase de lista de ese día |
 | **Abortada** | El tutor ha detenido la propuesta, con un motivo |
 | **No validada** | La jefatura de estudios no la ha validado, con un motivo |
-| **Anulada** | El delegado la ha anulado |
+| **Anulada** | El delegado o el subdelegado la ha anulado |
 
 ---
 

@@ -35,7 +35,7 @@ A partir del Pas 3 el circuit és el mateix per a tots dos.
 
 ## Pas 1 — Importar els aspirants des de GEDAC
 
-A la vista **Pre-inscripció** (menú **Matrícula → Pre-inscripció**), obriu el menú d'accions (la icona de l'engranatge ⚙️ al costat del títol) i trieu **Importar des de GEDAC (1)**.
+A la vista **Preinscripció** (menú **Matrícula → Preinscripció**), obriu el menú d'accions (la icona de l'engranatge ⚙️ al costat del títol) i trieu **Importar des de GEDAC (1)**.
 
 ![Menú d'accions de Pre-inscripció amb l'opció Importar des de GEDAC](../../assets/secretary/preinscrpcio-Secretaria-01.png)
 
@@ -64,7 +64,7 @@ Si el correu d'un aspirant al fitxer pertany al domini del centre (un compte cor
 
 ## Pas 2 (alumnes nous) — Revisar els aspirants de preinscripció
 
-Els aspirants nous apareixen a la vista **Pre-inscripció**. Per revisar-los còmodament:
+Els aspirants nous apareixen a la vista **Preinscripció**. Per revisar-los còmodament:
 
 * Feu servir el **panell d'estudis** de l'esquerra **(1)** per filtrar l'alumnat per estudi (SMX, ASIX, GA...). Al costat de cada estudi hi ha el nombre d'aspirants.
 * La llista ve **agrupada automàticament per torn** (*Tarda* / *Matí*) **(2)** i, dins de cada torn, **per curs** (1r, 2n) **(3)**. Aquesta agrupació permet aplicar la **plantilla de matrícula** de manera més senzilla: cada combinació d'**estudi, torn i curs** té assignada una plantilla i un grup destí per defecte.
@@ -79,7 +79,7 @@ Seleccioneu els aspirants (casella de la capçalera per als de la pàgina, o **S
 
 ## Pas 2 (alumnes del centre) — Localitzar els continuadors
 
-Els alumnes que ja són del centre **no surten a Pre-inscripció**: continuen sent alumnes. Els trobareu a **Matrícula → Propostes de matrícula**, amb el filtre **Amb assignació GEDAC (1)**, que mostra només els que tenen un destí assignat i **encara no estan matriculats**.
+Els alumnes que ja són del centre **no surten a Preinscripció**: continuen sent alumnes. Els trobareu a **Matrícula → Propostes de matrícula**, amb el filtre **Amb assignació GEDAC (1)**, que mostra només els que tenen un destí assignat i **encara no estan matriculats**.
 
 ![Propostes de matrícula amb el filtre Amb assignació GEDAC](../../assets/secretary/preinscrpcio-Secretaria-04b.png)
 
@@ -117,7 +117,7 @@ Reviseu que tot sigui correcte i premeu **Crear matrícules (1)**.
 
 ## Pas 4 — Donar accés al portal a l'alumnat i les famílies
 
-Perquè les famílies puguin confirmar la matrícula més endavant, cal que tinguin **accés al portal**. Des de la vista **Pre-inscripció**, amb els aspirants seleccionats, obriu el menú **Accions** i trieu **Accés al portal (alumnes/famílies) (1)**.
+Perquè les famílies puguin confirmar la matrícula més endavant, cal que tinguin **accés al portal**. Des de la vista **Preinscripció**, amb els aspirants seleccionats, obriu el menú **Accions** i trieu **Accés al portal (alumnes/famílies) (1)**.
 
 ![Menú Accions amb l'opció d'accés al portal](../../assets/secretary/preinscrpcio-Secretaria-07.png)
 
@@ -168,7 +168,7 @@ Quan s'acaba el període de matrícula, les matrícules que encara són en esbor
 | Acció | A qui | Què passa |
 |---|---|---|
 | **Eliminar la persona** | Sol·licitants que no han estat mai alumnes del centre | S'elimina la persona, amb el seu usuari del portal, les matrícules, les autoritzacions i els documents pujats. |
-| **Arxivar** | Sol·licitants que no han estat mai alumnes però ja tenen compte corporatiu o una convalidació | Es cancel·la la matrícula, es revoca l'accés al portal i s'arxiva el contacte. |
+| **Arxivar** | Sol·licitants que no han estat mai alumnes, però ja tenen compte corporatiu o una convalidació | Es cancel·la la matrícula, es revoca l'accés al portal i s'arxiva el contacte. |
 | **Tornar a graduat/da o baixa** | Sol·licitants que ja havien estudiat al centre | Es cancel·la la matrícula i tornen a graduat/da (si van obtenir el títol) o a baixa, amb les seves dades de sortida anteriors. Reben l'avís habitual que el compte corporatiu se suspendrà en acabar el període de gràcia. |
 | **Donar de baixa** | Alumnat sense grup | El mateix que l'assistent de baixa, amb la **Data de sortida** i el **Motiu de sortida** que es mostren a dalt de l'assistent. |
 | **Només cancel·lar la matrícula** | Alumnat amb grup o amb la matrícula d'aquest curs confirmada, graduats, baixes i expulsats | Només es cancel·la la matrícula. |
@@ -180,7 +180,7 @@ En acabar, l'assistent mostra quantes persones han rebut cada acció i les incid
 
 ### Sol·licitants que no han tingut mai matrícula
 
-A **Pre-inscripció**, el filtre **Sense matrícula** mostra els sol·licitants que no han rebut mai una proposta de matrícula (per exemple, els importats de GEDAC que no s'han presentat). Seleccioneu-los, obriu el desplegable **Accions** i trieu **Tancar matrícules no confirmades**: s'obre el mateix assistent i s'eliminen (o s'arxiven, si tenen compte corporatiu o una convalidació).
+A **Preinscripció**, el filtre **Sense matrícula** mostra els sol·licitants que no han rebut mai una proposta de matrícula (per exemple, els importats de GEDAC que no s'han presentat). Seleccioneu-los, obriu el desplegable **Accions** i trieu **Tancar matrícules no confirmades**: s'obre el mateix assistent i s'eliminen (o s'arxiven, si tenen compte corporatiu o una convalidació).
 
 ---
 
@@ -198,7 +198,7 @@ La casella només la veuen **secretaria** i **administració acadèmica**. Els t
 
 Quan s'aprova un document de **bonificació o exempció** de taxes d'un alumne, el descompte s'aplica automàticament **només a les matrícules encara en esborrany**. Les matrícules **ja confirmades** queden congelades: ni les línies ni el total no canvien, perquè la factura ja s'ha emès amb els imports originals. Així, el que veu l'alumne al portal coincideix sempre amb la factura.
 
-Si l'alumne tenia dret al benefici però l'ha pujat i s'ha aprovat **després** de confirmar la matrícula, cal aplicar-lo explícitament:
+Si l'alumne tenia dret al benefici, però l'ha pujat i s'ha aprovat **després** de confirmar la matrícula, cal aplicar-lo explícitament:
 
 1. Obriu la matrícula confirmada de l'alumne.
 2. Premeu el botó **Reaplicar beneficis** **(1)** de la capçalera.
@@ -239,7 +239,7 @@ O bé encara no heu fet la importació de GEDAC d'aquest any, o bé ja els heu m
 Canvieu-los a l'auxiliar abans de crear les matrícules. La proposta és un punt de partida, no una imposició.
 
 **M'he equivocat de plantilla i ja he creat les matrícules.**
-Obriu cada pre-matrícula i canvieu-hi els estudis, o cancel·leu-la i torneu a començar. Mentre la matrícula estigui cancel·lada, l'alumne torna a aparèixer al filtre.
+Obriu cada prematrícula i canvieu-hi els estudis, o cancel·leu-la i torneu a començar. Mentre la matrícula estigui cancel·lada, l'alumne torna a aparèixer al filtre.
 
 **L'alumne continua sortint al seu grup antic.**
 És correcte. No canvia de grup fins que la matrícula es confirma i es fa la transició de curs. El **Grup destí** que heu triat queda guardat a la matrícula.

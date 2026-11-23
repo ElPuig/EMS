@@ -2,7 +2,7 @@
 
 ---
 
-# El punt de presència a la pantalla de Professors
+# El punt de presència a la pantalla de professors
 
 Aquesta guia explica què vol dir el punt de color que hi ha al costat del nom de cada persona a les pantalles **Professors** i **ASP**.
 
@@ -46,4 +46,4 @@ Només compten dues coses: el **fitxatge d'entrada i sortida** i l'**horari setm
 
 ---
 
-[← Tornar a l'índex de Professors](index.md)
+[← Tornar a l'índex de professors](index.md)

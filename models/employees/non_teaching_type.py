@@ -37,6 +37,11 @@ LEVEL_DECLARATION_CODES = [
     code for code in DECLARATION_CODES
     if code[0] in ('eso', 'bat', 'cfgb', 'cfgm', 'cfgs', 'pfi', 'cam', 'cpigs', 'ppas', 'ioc', 'cefp', 'siei')
 ]
+# Issue #853: the levels of the vocational cycles, with the degree the groups' declaration names (page 6 of the
+# form); every other level uses its general page (5). Their studies last 2000 hours (ems.study.duration_hours).
+VOCATIONAL_DEGREES = {'cfgb': 'Bàsic', 'cfgm': 'Mitjà', 'cfgs': 'Superior', 'cefp': "Curs d'especialització"}
+# How the general page (5) names the level of its groups (developer, 2026-11-23); any other level shows its own name.
+GENERAL_LEVELS = {'eso': 'ESO', 'bat': 'Batxillerat'}
 # Tutoring is declared on the row of the tutored group's level (developer, 2026-10-29).
 TUTORING_CODE_BY_LEVEL_CODE = {'eso': 't_eso', 'bat': 't_bat', 'pfi': 'pfi'}
 TUTORING_DEFAULT_CODE = 't_fp'

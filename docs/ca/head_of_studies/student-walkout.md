@@ -4,7 +4,7 @@
 
 # Inassistències col·lectives: validar-les
 
-El delegat d'un grup proposa al portal que el grup faci una inassistència col·lectiva un dia concret (n'indica el motiu i hi adjunta un document que la justifica, com ara la convocatòria d'un sindicat d'estudiants), el grup hi vota, i el tutor del grup vetlla per la proposta. Tu reps l'acta quan es tanca i decideixes si la valides. Els alumnes que s'hi sumen no consten al passi de llista d'aquell dia (no hi falten ni hi assisteixen), i no es justifica res. Com hi participen l'alumnat i les famílies es pot llegir al [manual de famílies](../families/manual-inassistències col·lectives.md), i la part del tutor al [manual de tutors](../tutors/student-walkout.md).
+El delegat d'un grup proposa al portal que el grup faci una inassistència col·lectiva un dia concret (n'indica el motiu i hi adjunta un document que la justifica, com ara la convocatòria d'un sindicat d'estudiants), el grup hi vota, i el tutor del grup vetlla per la proposta. Tu reps l'acta quan es tanca i decideixes si la valides. Els alumnes que s'hi sumen no consten al passi de llista d'aquell dia (no hi falten ni hi assisteixen), i no es justifica res. Com hi participen l'alumnat i les famílies es pot llegir al [manual de famílies](../families/manual-vagues.md), i la part del tutor al [manual de tutors](../tutors/student-walkout.md).
 
 No s'ha de confondre amb els **Strikes** (Convivència), el registre disciplinari, ni amb l'informe de vaga del personal.
 
@@ -14,7 +14,7 @@ No s'ha de confondre amb els **Strikes** (Convivència), el registre disciplinar
 
 - **Res quan es fa una proposta**: hi vetlla el tutor.
 - **Un avís al teu resum diari** quan un tutor (o algú per sobre seu) avorta una proposta, amb el motiu.
-- **L'acta, per correu**, quan la proposta es tanca: com a mínim 48 hores abans de la inassistència col·lectiva (per defecte), amb el recompte de vots i els alumnes que s'hi sumen. Si algú s'hi suma, també reps la tasca **Validar la inassistència col·lectiva**.
+- **L'acta, per correu**, quan la proposta es tanca: com a mínim 48 hores abans de la inassistència col·lectiva (per defecte), amb el recompte de vots, els alumnes que s'hi sumen i un enllaç per baixar el document que la justifica (si t'ho demana, inicia la sessió a l'EMS). Si algú s'hi suma, també reps la tasca **Validar la inassistència col·lectiva**.
 - **Un avís al teu resum diari** quan es torna a obrir una proposta tancada perquè se n'han ampliat les adhesions: l'acta que tenies es retira i en rep una de nova quan es tanqui de nou.
 
 L'acta arriba al cap d'estudis o al cap d'estudis adjunt per sobre del tutor del grup; d'un grup sense tutor, a tots els caps d'estudis i caps d'estudis adjunts.

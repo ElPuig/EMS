@@ -26,8 +26,9 @@
                             you will find the document that supports it and you can vote whether the group walks out (an
                             anonymous vote), until
                             <strong t-out="object.walkout_id.format_local_datetime(object.walkout_id.vote_until)"/>.
-                            The vote ends earlier if the votes still to come can no longer change the result. If the
-                            group decides to walk out, you will then be asked whether you join it.
+                            The vote ends earlier if the votes still to come can no longer change the result. Voting yes
+                            does not mean that you join it: if the group votes in favour, a second phase follows in which
+                            each student says personally whether they join it.
                         </p>
                         <p>
                             Kind regards,<br/>
@@ -72,11 +73,12 @@
         </record>
 
         <!-- To every student of the group with portal access, when the group vote ends supporting
-             the walkout (during the group's school hours): the result, and joining is open. -->
+             the walkout (during the group's school hours): the result, and joining is open. Issue #852: it
+             names both phases, since some students took the group's support for their own joining. -->
         <record id="email_template_student_walkout_join" model="mail.template">
             <field name="name">EMS: student walkout, joining</field>
             <field name="model_id" ref="ems.model_ems_student_walkout_line"/>
-            <field name="subject">Student walkout on {{ format_date(object.walkout_id.walkout_date) }}: do you join it?</field>
+            <field name="subject">Student walkout on {{ format_date(object.walkout_id.walkout_date) }}: now you have to say whether you join it</field>
             <field name="email_from">{{ object.walkout_id.company_id.name }} &lt;{{ object.walkout_id.company_id.email }}&gt;</field>
             <field name="lang">{{ object.student_id.lang }}</field>
             <field name="auto_delete" eval="True"/>
@@ -85,17 +87,29 @@
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Hello <t t-out="object.student_id.name"/>,</p>
                         <p>
-                            Your group has decided to walk out on <strong t-out="format_date(object.walkout_id.walkout_date)"/>
+                            Your group has voted in favour of a student walkout on <strong t-out="format_date(object.walkout_id.walkout_date)"/>
                             (<t t-out="object.walkout_id.group_yes_count"/> yes, <t t-out="object.walkout_id.group_no_count"/> no,
                             <t t-out="object.walkout_id.group_abstain_count"/> abstentions).
                         </p>
                         <p>
-                            Now each student says whether they join it, on the school portal
-                            (<a t-attf-href="{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}">student walkouts</a>),
-                            until <strong t-out="object.walkout_id.format_local_datetime(object.walkout_id.join_until)"/>. The classes
-                            of that day of the students who join the collective decision not to attend class do not count as
-                            absences, and their names appear in the minute. Nobody can revoke your decision: if you are a
-                            minor, your family is asked to acknowledge receipt and say whether it agrees, for merely informative purposes.
+                            <strong>But this is only the first step.</strong> The group supporting it does not mean that you
+                            take part: now the second phase starts, a personal one, in which each student says whether they
+                            join it or not.
+                        </p>
+                        <p>
+                            <strong>What you have to do:</strong> go to the school portal
+                            (<a t-attf-href="{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}">student walkouts</a>)
+                            before <strong t-out="object.walkout_id.format_local_datetime(object.walkout_id.join_until)"/> and answer
+                            whether you join it or not. You can change your answer until then.
+                        </p>
+                        <p><strong>What happens depending on your answer:</strong></p>
+                        <ul>
+                            <li><strong>If you join it:</strong> the classes of that day do not count as absences, and your name appears in the minute.</li>
+                            <li><strong>If you do not join it, or do not answer:</strong> you must go to class that day, and if you do not, the absences count as usual.</li>
+                        </ul>
+                        <p>
+                            If you are a minor, we will ask your family to acknowledge receipt and say whether it agrees, for
+                            information only: its answer does not change your decision.
                         </p>
                         <p>
                             Kind regards,<br/>
@@ -124,6 +138,11 @@
                             your answer, on the school portal
                             (<a t-attf-href="{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}">student walkouts</a>),
                             until <strong t-out="object.walkout_id.format_local_datetime(object.walkout_id.join_until)"/>.
+                        </p>
+                        <p>
+                            If you have already answered, you do not need to do anything: your answer stays as it is. If you
+                            have not, remember that not answering means not joining it: you must go to class that day, and
+                            if you do not, the absences count as usual.
                         </p>
                         <p>
                             Kind regards,<br/>

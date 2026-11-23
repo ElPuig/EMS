@@ -15,7 +15,7 @@ Aquesta secció conté els manuals per al **personal de secretaria**.
 - [Matriculació per l'alumnat de preinscripció](manual-matriculacio-preinscripcio.md) — Com importar els aspirants de GEDAC, crear les propostes de matrícula (tant dels alumnes nous com dels del centre que canvien d'estudis), donar accés al portal i enviar la proposta.
 - [Alta d'un professor i creació del compte de correu corporatiu (Google Workspace)](../admin/alta-professor-compte-google.md) — Com donar d'alta un professor o membre del PAS i com es genera el seu compte corporatiu.
 - [L'horari setmanal d'un grup](../admin/group-schedule.md) — Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF.
-- [L'horari setmanal d'un alumne](../admin/student-schedule.md) — Consultar l'horari propi d'un alumne (assignatures, docents, aules, patis), incloent-hi classes solapades, i exportar-lo a PDF.
+- [L'horari setmanal d'un alumne](../admin/student-schedule.md) — Consultar l'horari propi d'un alumne (assignatures, docents, aules, patis), incloent-hi classes encavalcades, i exportar-lo a PDF.
 - [Informes d'assistència](attendance-reports.md) — Imprimir els 3 informes PDF d'assistència (per grup/alumne/assignatura) i explorar les dades amb la pantalla d'Anàlisi d'assistència.
 - [Gestió de contactes d'alumnat i família](student-contacts.md) — Tipus de contacte i com canvien, afegir un contacte familiar a un alumne, i registrar bonificacions i exempcions.
 - [Socis de l'AMPA](../tutors/ampa.md) — Veure quins alumnes del centre són socis de l'AMPA i fer-ne la llista (manual compartit amb els tutors).

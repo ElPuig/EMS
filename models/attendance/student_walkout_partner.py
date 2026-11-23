@@ -35,9 +35,11 @@ class ResPartner(models.Model):
     def _ems_walkout_calls(self):
         """The calls this student sees, newest first."""
         self.ensure_one()
-        # A call its delegate cancelled stays theirs alone.
+        # A cancelled call stays with whoever manages it (EmsStudentWalkout._ems_is_manager): its opener
+        # and the group's delegate and sub-delegate (issue #827), never the rest of the group.
         return self.env['ems.student_walkout'].sudo().search([
-            '|', ('opener_id', '=', self.id),
+            '|', '|', '|', ('opener_id', '=', self.id),
+            ('group_ids.delegate_id', '=', self.id), ('group_ids.subdelegate_id', '=', self.id),
             '&', ('line_ids.student_id', '=', self.id), ('state', 'in', VISIBLE_STATES)])
 
     def _ems_walkout_portal_visible(self):

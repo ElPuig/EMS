@@ -53,7 +53,10 @@ ACCESS_MATRIX = {
     'ems.certificate.type': {'teacher': 'r', 'vet_coordinator': 'r', 'secretary': 'r', 'director': 'r', 'academic_admin': 'rwcu'},
     'ems.certificate.type.step': {'teacher': 'r', 'vet_coordinator': 'r', 'secretary': 'r', 'director': 'r', 'academic_admin': 'rwcu'},
     'ems.certificate.type.document': {'teacher': 'r', 'vet_coordinator': 'r', 'secretary': 'r', 'director': 'r', 'academic_admin': 'rwcu'},
-    # Lines created by the request itself; whoever may attach a file writes them (can_upload).
+    'ems.certificate.type.field': {'teacher': 'r', 'vet_coordinator': 'r', 'secretary': 'r', 'director': 'r', 'academic_admin': 'rwcu'},
+    # Lines created by the request itself: its details, written by whoever may write the request,
+    # and its documents, by whoever may attach a file (can_upload).
+    'ems.certificate.value': {'teacher': 'rw', 'vet_coordinator': 'rw', 'secretary': 'rw', 'director': 'rw', 'academic_admin': 'rwcu'},
     'ems.certificate.document': {'teacher': 'rw', 'vet_coordinator': 'rw', 'secretary': 'rw', 'director': 'rw', 'academic_admin': 'rwcu'},
     'ems.certificate.wizard': {'teacher': 'rwc', 'vet_coordinator': 'rwc', 'secretary': 'rwc', 'academic_admin': 'rwcu'},
     'ems.course': {'teacher': 'r', 'secretary': 'r', 'erasmus': 'r'},
@@ -166,7 +169,8 @@ ACCESS_MATRIX = {
     'ems.erasmus.mobility.task': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.self_assessment': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.self_assessment.answer': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
-    'ems.group': {'teacher': 'r', 'secretary': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu'},
+    # The administrator reads them too: they are above Direction (issue #853).
+    'ems.group': {'teacher': 'r', 'secretary': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu', 'settings_admin': 'r'},
     'ems.level': {'teacher': 'r', 'secretary': 'r', 'erasmus': 'r'},
     # The administrator configures them too: they are above Direction (issue #723).
     'ems.non_teaching_type': {'teacher': 'r', 'department_chief': 'rwcu', 'settings_admin': 'rwcu'},

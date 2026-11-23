@@ -12,7 +12,7 @@
 
 ## Explorar els informes d'assistència
 
-1. Vés a **Assistència → Informes**. S'obre directament amb una **taula dinàmica** amb el filtre **Les meves assignatures** activat, que mostra només les assignatures que imparteixes. Treu aquest filtre (la **×** de la barra de cerca) per veure **tots els teus tutoritzats en totes les assignatures**, les imparteixi qui les imparteixi, juntament amb els teus alumnes.
+1. Ves a **Assistència → Informes**. S'obre directament amb una **taula dinàmica** amb el filtre **Les meves assignatures** activat, que mostra només les assignatures que imparteixes. Treu aquest filtre (la **×** de la barra de cerca) per veure **tots els teus tutoritzats en totes les assignatures**, les imparteixi qui les imparteixi, juntament amb els teus alumnes.
 2. La taula agrupa per **assignatura i després per alumne**. Fes clic a la icona **Expandeix-ho tot** (a dalt a la dreta, al costat de Capgirar eixos) dues vegades: un cop per desplegar les assignatures i un altre per desplegar els alumnes de cada assignatura. El número principal és el **% de faltes per alumne** — el **Compte** (nombre de sessions comptabilitzades) i el **Recompte de strikes** es mostren al costat, així pots saber si un 33% surt de 3 sessions o de 30, i si ve acompanyat de strikes disciplinaris. Una assignatura que l'horari divideix en parts impartides per separat (el seu **tema**, per exemple l'Educació física d'un mòdul de CFGB) apareix com una assignatura pròpia, «Assignatura - Tema».
 
    ![Taula dinàmica dels informes d'assistència, desplegada per assignatura i alumne](../../assets/teachers/informes-01-taula-dinamica.png)
@@ -48,7 +48,7 @@ A la pantalla d'**Informes d'assistència**, fes clic al botó de la **impressor
 
    ![Formulari per imprimir l'informe d'assistència per alumne, amb un alumne tutorat seleccionat i el tutor i les dates emplenats](../../assets/tutors/tutor-informes-01-per-estudiant.png)
 
-El Cap de departament o de seminari, el Cap d'estudis que tens per sobre i el Director veuen el mateix que tu: els teus tutoritzats a la pantalla d'**Informes** i els informes PDF complets dels teus tutoritzats i dels grups que tutories. El Cap de departament o de seminari del departament que gestiona l'estudi del teu grup, i el Cap d'estudis de la seva àrea, veuen a més tot l'alumnat d'aquest estudi.
+El cap de departament o de seminari, el cap d'estudis que tens per sobre i el director veuen el mateix que tu: els teus tutoritzats a la pantalla d'**Informes** i els informes PDF complets dels teus tutoritzats i dels grups que tutories. El cap de departament o de seminari del departament que gestiona l'estudi del teu grup, i el cap d'estudis de la seva àrea, veuen a més tot l'alumnat d'aquest estudi.
 
 **Informe d'assistència (per assignatura):**
 1. Selecciona una **Assignatura** — el desplegable mostra les assignatures que imparteixes i totes les dels teus tutoritzats, cada tema com una assignatura pròpia.

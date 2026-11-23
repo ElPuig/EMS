@@ -23,17 +23,17 @@ Mentre no facis cap canvi, l'alumne encara pot completar o corregir les seves da
 ## Completar la formació
 
 1. Obre la sol·licitud.
-2. A la pestanya **Formació en centres de treball**:
-   - A **Empresa col·laboradora**, tria l'empresa. Si no existeix i l'alumne en va escriure el nom, fes clic a **Crear empresa**: es crea amb el nom i el NIF que va escriure (si ja n'hi ha una amb el mateix NIF, es vincula aquesta).
-   - Omple **Des de**, **Fins a**, **Hores** i el **Número de registre del conveni** (sBID).
+2. A la pestanya **Dades del certificat**, cada línia és una dada del certificat. Fes clic al valor d'una línia per emplenar-lo:
+   - A **Empresa col·laboradora**, tria l'empresa. Si no existeix i l'alumne en va escriure el nom, fes clic a **Crear empresa** a la mateixa línia: es crea amb el nom i el NIF que va escriure (si ja n'hi ha una amb el mateix NIF, es vincula aquesta).
+   - Omple **Data d'inici**, **Data de finalització**, **Hores** i el **Número de registre del conveni (sBID)**.
 3. A la pestanya **Documentació**, comprova el **Conveni de FCT**. Si no hi és, obre la línia, adjunta'l (PDF o fotos de les pàgines) i desa.
 4. Obre **Accions → Fet: enviar al pas següent**. La sol·licitud passa a secretaria.
 
-![La formació en centres de treball d'una sol·licitud](../../assets/teachers/certificats-04-formacio.png)
+![Les dades del certificat d'una sol·licitud](../../assets/teachers/certificats-04-formacio.png)
 
 ![La documentació d'una sol·licitud](../../assets/teachers/certificats-05-documentacio.png)
 
-Sense l'empresa, el període i les hores, EMS no deixa passar la sol·licitud al pas següent.
+Sense l'empresa, les dates i les hores, EMS no deixa passar la sol·licitud al pas següent: les línies que hi falten surten ressaltades.
 
 ---
 

@@ -4,7 +4,7 @@
 
 # Canviar el grup d'un alumne
 
-De vegades un alumne ha de canviar de grup (per exemple, del grup A al grup B) dins del mateix estudi. Com a tutor/a, pots fer-ho tu mateix/a des de la pròpia fitxa de l'alumne.
+De vegades un alumne ha de canviar de grup (per exemple, del grup A al grup B) dins del mateix estudi. Com a tutor/a, pots fer-ho tu mateix/a des de la fitxa de l'alumne.
 
 **Rol necessari:** Tutor
 

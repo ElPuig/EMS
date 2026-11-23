@@ -224,7 +224,7 @@ msgstr "<b>Tu mensaje ha sido enviado a secretaría:</b>"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "<code>{{academic_year}}</code> — Academic year (e.g. 2025-2026)"
-msgstr "<code>{{academic_year}}</code> — Año académico (p.ej. 2025-2026)"
+msgstr "<code>{{academic_year}}</code> — Año académico (p. ej. 2025-2026)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
@@ -234,7 +234,7 @@ msgstr "<code>{{student_name}}</code> — Nombre completo del alumno/a"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "<code>{{study_name}}</code> — Study name (e.g. DAM)"
-msgstr "<code>{{study_name}}</code> — Nombre de los estudios (p.ej. DAM)"
+msgstr "<code>{{study_name}}</code> — Nombre de los estudios (p. ej. DAM)"
 
 #. module: ems
 #: model:mail.template,body_html:ems.email_template_enrollment_send
@@ -296,7 +296,7 @@ msgstr ""
 "                            <li>Discapacidad &gt; 33%</li>\n"
 "                            <li>Otros (matrícula honor Batx, violencia de género, renta mínima, premio Batx, premio FP,...)</li>\n"
 "                        </ul>\n"
-"                        <p><em>Nota: Si detecta alguna incidencia o tiene alguna duda con los conceptes, puede enviar un comentario a Secretaría desde el mismo portal, antes de confirmar el trámite.</em></p>\n"
+"                        <p><em>Nota: Si detecta alguna incidencia o tiene alguna duda con los conceptos, puede enviar un comentario a Secretaría desde el mismo portal, antes de confirmar el trámite.</em></p>\n"
 "                        <p>\n"
 "                            Atentamente,<br/>\n"
 "                            <t t-out=\"object.company_id.name\"/>\n"
@@ -341,7 +341,7 @@ msgstr ""
 "                            Estimada familia,\n"
 "                        </p>\n"
 "                        <p>\n"
-"                            Les pedimos disculpas, pues recientmente han recibido un correo electrónico que contenía datos incorrectos sobre el estado de una asistencia.\n"
+"                            Les pedimos disculpas, pues recientemente han recibido un correo electrónico que contenía datos incorrectos sobre el estado de una asistencia.\n"
 "                        </p>\n"
 "                        <p>\n"
 "                            De nuevo, nuestras disculpas; esta es la información correcta de la asistencia:\n"
@@ -1190,7 +1190,7 @@ msgstr "Acción"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__message_needaction
 msgid "Action Needed"
-msgstr "Acción Necesária"
+msgstr "Acción necesaria"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__active model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__active model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__active model:ir.model.fields,field_description:ems.field_ems_attendance_justification__active model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__active model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__active model:ir.model.fields,field_description:ems.field_ems_attendance_template__active model:ir.model.fields,field_description:ems.field_ems_base__active model:ir.model.fields,field_description:ems.field_ems_enrollment__active model:ir.model.fields,field_description:ems.field_ems_grade_session__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__active model:ir.model.fields,field_description:ems.field_ems_notice__active model:ir.model.fields,field_description:ems.field_ems_notice_line__active model:ir.model.fields,field_description:ems.field_ems_strike__active model:ir.model.fields,field_description:ems.field_ems_strike_reason__active model:ir.model.fields,field_description:ems.field_ems_teaching__active model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__active model:ir.model.fields,field_description:ems.field_ems_attendance_status__active model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__active model:ir.model.fields,field_description:ems.field_ems_group__active model:ir.model.fields.selection,name:ems.selection__ems_study__transition_state__active
@@ -1232,7 +1232,7 @@ msgstr "Activo"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_group__active
 msgid "A group that won't be used this course but may come back in a future one (e.g. a cycle not running this year) should be archived instead of deleted, so it can be reactivated later instead of being recreated as a duplicate."
-msgstr "Un grupo que no se utilizará este curso pero que podría volver en un curso futuro (p. ej., un ciclo que se salta un año) debería archivarse en lugar de eliminarlo, para poder reactivarlo más adelante en lugar de volver a crearlo como un duplicado."
+msgstr "Un grupo que no se utilizará este curso, pero que podría volver en un curso futuro (p. ej., un ciclo que se salta un año) debería archivarse en lugar de eliminarlo, para poder reactivarlo más adelante en lugar de volver a crearlo como un duplicado."
 
 #. module: ems
 #. odoo-python
@@ -1483,7 +1483,7 @@ msgstr "Administración"
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_asp_kanban
 msgid "Administration and Services Personnel"
-msgstr "Personal de Sdministración y Servicios"
+msgstr "Personal de Administración y Servicios"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_role__employee_type__asp model:ir.model.fields.selection,name:ems.selection__hr_employee__employee_type__asp model:ir.model.fields.selection,name:ems.selection__hr_job__employee_type__asp
@@ -2487,6 +2487,9 @@ msgstr "Cancelar"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__econ_state__cancelled
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__phase__cancelled
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate__state__cancelled
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
 msgid "Cancelled"
 msgstr "Cancelado"
 
@@ -2536,7 +2539,7 @@ msgstr "Coordinador/a de CatSkils"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_hr_employee__employee_type
 msgid "Categorize your Employees by type. This field also has an impact on contracts. Only Employees, Students and Trainee will have contract history."
-msgstr "Categorice sus empleados por tipo. Este campo también afectará a sus contactos, solo los Empleados, Estudiantes y Aprendices tendrán historial de contracto."
+msgstr "Categorice sus empleados por tipo. Este campo también afectará a sus contactos, solo los Empleados, Estudiantes y Aprendices tendrán historial de contrato."
 
 #. module: ems
 #. odoo-python
@@ -2591,7 +2594,7 @@ msgstr "Marca esta casilla si este es el curso por defecto para las nuevas matr�
 #. module: ems
 #: model:ir.model.fields,help:ems.field_product_product__ems_is_enrollment_fee model:ir.model.fields,help:ems.field_product_template__ems_is_enrollment_fee
 msgid "Check this if this product represents a calculated fee (e.g. Matricula). It triggers automatic price calculation logic."
-msgstr "Marca esto si este producto representa una tarifa calculada (p.ej. Matrícula). Activa la lógica de cálculo automático de precios."
+msgstr "Marca esto si este producto representa una tarifa calculada (p. ej. Matrícula). Activa la lógica de cálculo automático de precios."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
@@ -2759,9 +2762,7 @@ msgstr "Compañías"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__company_id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__company_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__company_id
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
 #: model_terms:ir.ui.view,arch_db:ems.view_company_search
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Company"
 msgstr "Compañía"
 
@@ -3199,6 +3200,8 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_document__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -3372,6 +3375,8 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_document__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3506,6 +3511,8 @@ msgstr "Datos descargados"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 #: model:ir.model.fields,field_description:ems.field_ems_staff_walkout_report__date
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__value_date
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__field_type__date
 msgid "Date"
 msgstr "Fecha"
 
@@ -3868,6 +3875,8 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_document__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -4070,7 +4079,7 @@ msgstr "Elemento duplicado"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_authorization_template__name
 msgid "E.g., Image and Sound Use Authorization"
-msgstr "P.ej., Autorización de uso de imagen y sonido"
+msgstr "P. ej., Autorización de uso de imagen y sonido"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_subject__ects
@@ -4186,7 +4195,7 @@ msgstr "Email de notificación para los estudiantes: asistencia del estudiante"
 #. module: ems
 #: model:mail.template,name:ems.mail_attendance_issue_rectification
 msgid "Email notification for families: student attendance status (rectification)"
-msgstr "Email de notificación pera las familias: asistencia del alumnado (rectificació)"
+msgstr "Email de notificación para las familias: asistencia del alumnado (rectificación)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
@@ -4257,6 +4266,7 @@ msgstr "Tiempo final"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__end_date model:ir.model.fields,field_description:ems.field_ems_attendance_template__end_date
+#: model:ems.certificate.type.field,name:ems.certificate_field_fct_end
 msgid "End date"
 msgstr "Fecha de finalización"
 
@@ -4433,7 +4443,7 @@ msgstr "Detalles del error"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_group__external_id
 msgid "Esfera (SAGA) group code, e.g. 'ESO LOEM101'."
-msgstr "Código de grupo Esfera (SAGA), p.ej. 'ESO LOEM101'."
+msgstr "Código de grupo Esfera (SAGA), p. ej. 'ESO LOEM101'."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__file model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__file
@@ -4814,9 +4824,11 @@ msgid "From"
 msgstr "De"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_name model_terms:ir.ui.view,arch_db:ems.portal_documentation
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__student_name
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+#: code:addons/ems/models/certificates/certificate_type.py:0
 msgid "Full name"
 msgstr "Nombre completo"
 
@@ -5488,6 +5500,8 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_document__id
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__id
 msgid "ID"
 msgstr "ID"
 
@@ -5678,7 +5692,7 @@ msgstr "Si está marcado, algunos mensajes tienen un error de entrega.Si está m
 #. module: ems
 #: model:ir.model.fields,help:ems.field_product_product__is_generic model:ir.model.fields,help:ems.field_product_template__is_generic
 msgid "If checked, this product will appear in enrollments for ALL studies (e.g. Fees, Insurance)."
-msgstr "Si está marcado, este producto aparecerá en las matrículas de TODOS los estudios (p.ej. Tasas, Seguro)."
+msgstr "Si está marcado, este producto aparecerá en las matrículas de TODOS los estudios (p. ej. Tasas, Seguro)."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -6257,6 +6271,8 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_document__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -6430,6 +6446,8 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_document__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -6498,7 +6516,7 @@ msgstr "Niveles"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_product_product__ems_level_ids model:ir.model.fields,help:ems.field_product_template__ems_level_ids
 msgid "Levels where this generic product is available (e.g. VET, Bachelor)."
-msgstr "Niveles en los que este producto genérico está disponible (p. ej. FP, Bachillerato).Niveles donde este producto genérico está disponible (p. ej. CFGS, Bachillerato).Niveles en los que este producto genérico está disponible (p.ej. FP, Bachillerato)."
+msgstr "Niveles en los que este producto genérico está disponible (p. ej. FP, Bachillerato).Niveles donde este producto genérico está disponible (p. ej. CFGS, Bachillerato).Niveles en los que este producto genérico está disponible (p. ej. FP, Bachillerato)."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
@@ -6528,7 +6546,7 @@ msgstr "Encabezado de LimeSurvey: contiene el encabezado de la encuesta y su con
 #. module: ems
 #: model:ir.model,name:ems.model_ems_limesurvey_recipient
 msgid "LimeSurvey recipient: contains the relation between a recipient and its survey."
-msgstr "LimeSurvey recipiente: contiene la relación entre destinatarios y susencuestas."
+msgstr "LimeSurvey recipiente: contiene la relación entre destinatarios y sus encuestas."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -7185,7 +7203,7 @@ msgstr "No se ha encontrado ninguna matrícula."
 #. odoo-python
 #: code:addons/ems/models/contacts/enrollment_proposal_wizard.py:0
 msgid "No enrollment templates available for the selected students' study."
-msgstr "No hay plantillas de matrícula disponibles para los estudis de los estudiantes seleccionados.No hay plantillas de matrícula disponibles para los estudios de los alumnos seleccionados."
+msgstr "No hay plantillas de matrícula disponibles para los estudios de los estudiantes seleccionados.No hay plantillas de matrícula disponibles para los estudios de los alumnos seleccionados."
 
 #. module: ems
 #. odoo-python
@@ -7371,6 +7389,8 @@ msgstr "Notificaciones"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__value_number
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__field_type__number
 msgid "Number"
 msgstr "Número"
 
@@ -7643,7 +7663,7 @@ msgstr "Abrir detalles del error"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
 msgid "Open error details."
-msgstr "Obrir detalles del error."
+msgstr "Abrir detalles del error."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form model_terms:ir.ui.view,arch_db:ems.view_notice_form
@@ -7895,10 +7915,10 @@ msgstr "Plan de pago"
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_review__state__pending
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout_line__ratification__pending
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__step_role_id
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
-
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__group_vote_result__pending
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__step_role_ids
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__is_pending
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Pending"
 msgstr "Pendiente"
 
@@ -8358,7 +8378,7 @@ msgstr "Rectificación"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__rectified_by
 msgid "Rectified by"
-msgstr "Rectificado per"
+msgstr "Rectificado por"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_student_document_form model_terms:ir.ui.view,arch_db:ems.view_student_document_list
@@ -8377,6 +8397,9 @@ msgstr "Rechazar"
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__rejected
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate__state__rejected
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
 msgid "Rejected"
 msgstr "Rechazado"
 
@@ -8466,7 +8489,7 @@ msgstr "Borrando encuestas"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
 msgid "Removing the recipient will also, if necessary, remove it from its current survey. This action cannot be undonde, do you wish to continue?"
-msgstr "Borrar los destinatarios, los eliminará tambińe (de ser necesario) de las encuestas en las que se encuentran. Esta acción no se puede deshacer, desea continuar?"
+msgstr "Borrar los destinatarios, los eliminará también (de ser necesario) de las encuestas en las que se encuentran. Esta acción no se puede deshacer, desea continuar?"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
@@ -9091,6 +9114,8 @@ msgstr "Enviado el"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_document__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__sequence
 msgid "Sequence"
 msgstr "Secuencia"
 
@@ -9172,7 +9197,7 @@ msgstr "Familia monoparental (Especial)"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Some attendance statuses (like miss or issue) will be notified (if not adult or authorized) to their families almost inmediatly. This setting setups how many delay is wanted between the assistance creation and its notification."
-msgstr "Algunos estados de asistencia (como falta o incidencia) serán notificados (si el alumno no es adulto o lo ha autorizado) a las familias de forma casi inmediata. Esta configuración establece que retraso o decalaje de tiempo se quiere entre la cración de la asistencia y su notificación."
+msgstr "Algunos estados de asistencia (como falta o incidencia) serán notificados (si el alumno no es adulto o lo ha autorizado) a las familias de forma casi inmediata. Esta configuración establece que retraso o decalaje de tiempo se quiere entre la creación de la asistencia y su notificación."
 
 #. module: ems
 #. odoo-python
@@ -9317,6 +9342,7 @@ msgstr "Hora de inicio"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__start_date model:ir.model.fields,field_description:ems.field_ems_attendance_template__start_date
+#: model:ems.certificate.type.field,name:ems.certificate_field_fct_start
 msgid "Start date"
 msgstr "Fecha de inicio"
 
@@ -9665,6 +9691,7 @@ msgid "Studies for enrollment"
 msgstr "Estudios para matriculación"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__study_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__study_id model:ir.model.fields,field_description:ems.field_ems_attendance_template__study_id model:ir.model.fields,field_description:ems.field_ems_authorization__study_name model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__study_id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__study_id model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__study_id model:ir.model.fields,field_description:ems.field_ems_group__study_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__study_id model:ir.model.fields,field_description:ems.field_ems_planning__study_id model:ir.model.fields,field_description:ems.field_ems_student_year_record__study_id model:ir.model.fields,field_description:ems.field_ems_tracking__study_id model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate model_terms:ir.ui.view,arch_db:ems.view_applicant_search model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search model_terms:ir.ui.view,arch_db:ems.view_sale_order_template_search_inherit_ems model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor model_terms:ir.ui.view,arch_db:ems.view_year_record_search
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__study_id
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
@@ -9674,6 +9701,7 @@ msgstr "Estudios para matriculación"
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__study_id
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+#: code:addons/ems/models/certificates/certificate_type.py:0
 msgid "Study"
 msgstr "Estudio"
 
@@ -10003,7 +10031,7 @@ msgstr "El JSON de la cuenta de servicio de Google Workspace no es válido."
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "The LimeSurvey API does not allow to create survey groups so, in order to operate properly, a group must be created and its ID provided."
-msgstr "La API de LimeSurvey no permite crear grupos de encuestas y, para ellode operar correctamente, un grupo debe crearse primero a mano y debe indicarse el ID."
+msgstr "La API de LimeSurvey no permite crear grupos de encuestas y, para que opere correctamente, un grupo debe crearse primero a mano y debe indicarse el ID."
 
 #. module: ems
 #. odoo-python
@@ -10227,7 +10255,7 @@ msgstr "Ya existe otra entrada activa para la misma terna 'profesor / grupo / as
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
 msgid "This action will clean and recreate the recipients, removing all custom changes and saving the data immediately. It cannot be undone. Do you wish to continue?"
-msgstr "Esta acción vaciará y recreará los destinatarios, borrando cualquier cambio manualy guardando los datos al momento. Esta acción no se puede deshacer. Todavía quieres continuar?"
+msgstr "Esta acción vaciará y recreará los destinatarios, borrando cualquier cambio manual y guardando los datos al momento. Esta acción no se puede deshacer. Todavía quieres continuar?"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
@@ -10322,12 +10350,12 @@ msgstr "Jueves"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__time_range
 msgid "Time Range"
-msgstr "Franja Horària"
+msgstr "Franja horaria"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__time_range model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__time_range
 msgid "Time range"
-msgstr "Franja horària"
+msgstr "Franja horaria"
 
 #. module: ems
 #. odoo-python
@@ -10401,7 +10429,7 @@ msgstr "Seguimiento: Los tutores y profesores pueden añadir información sobre 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_enrollment_view
 msgid "Transitient model for displaying enrollment data within groups but filtered (allows ems.group.enrollment_view_ids to work: contains the same data as enrolled_student_ids but filtered for the current group because it cannot be filtered on view...)."
-msgstr "Modelo transitorio para mostrar datos de matrícula dentro de grupos pero filtrados (permite que funcione ems.group.enrollment_view_ids: contiene los mismos datos que enrolled_student_ids pero filtrados para el grupo actual porque no se puede filtrar en la vista...)."
+msgstr "Modelo transitorio para mostrar datos de matrícula dentro de grupos, pero filtrados (permite que funcione ems.group.enrollment_view_ids: contiene los mismos datos que enrolled_student_ids, pero filtrados para el grupo actual porque no se puede filtrar en la vista...)."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_res_partner__google_ws_suspended model:ir.model.fields,help:ems.field_res_users__google_ws_suspended
@@ -10801,6 +10829,7 @@ msgstr "Coordinador/a de FP"
 #. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_response__value model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
 #: code:addons/ems/models/erasmus/satisfaction.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__display_value
 msgid "Value"
 msgstr "Valor"
 
@@ -10899,7 +10928,7 @@ msgstr "Mensajes del sitio web"
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_certificate__website_message_ids
 msgid "Website communication history"
-msgstr "Historial de comunicaciones del sistio web"
+msgstr "Historial de comunicaciones del sitio web"
 
 #. module: ems
 #. odoo-javascript
@@ -11237,7 +11266,7 @@ msgstr "Aula derecha"
 #: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
 #, python-format
 msgid "Co-teaching"
-msgstr "Co-docencia"
+msgstr "Codocencia"
 
 #. module: ems
 #. odoo-javascript
@@ -11417,6 +11446,8 @@ msgstr "Son empleados provisionales, creados ahora para que su horario y asignat
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/working_schedule.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__name
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__name
 msgid "Detail"
 msgstr "Detalle"
 
@@ -11506,7 +11537,7 @@ msgstr "¡Curso duplicado!"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "e.g. Image and Sound Use Authorization"
-msgstr "P.ej., Autorización de uso de imagen y sonido"
+msgstr "P. ej., Autorización de uso de imagen y sonido"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -12393,6 +12424,7 @@ msgstr "openpyxl es necesario para importar ficheros xlsx."
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 #: code:addons/ems/models/certificates/certificate.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__applicant_uploads
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__applicant_input
 msgid "Applicant"
 msgstr "Solicitante"
 
@@ -12450,8 +12482,6 @@ msgstr "Esto expulsa inmediatamente a los estudiantes seleccionados. ¿Quieres c
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_review__kind
 #: code:addons/ems/models/erasmus/economy.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_economy_panel_search
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__kind
-#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__kind
 msgid "Kind"
 msgstr "Tipo"
 
@@ -12776,7 +12806,7 @@ msgstr "Datos del solicitante"
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_ems_applicants model:ir.ui.menu,name:ems.menu_ems_applicants model_terms:ir.ui.view,arch_db:ems.view_applicant_list model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Preinscription"
-msgstr "Pre-inscripción"
+msgstr "Preinscripción"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__sale_order__ems_enrollment_status_label__draft
@@ -13124,6 +13154,7 @@ msgstr "El archivo csv está vacío."
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__ems_ampa_member__yes
+#: code:addons/ems/models/certificates/certificate.py:0
 msgid "Yes"
 msgstr "Sí"
 
@@ -14697,12 +14728,12 @@ msgstr "Plantillas de asistencia a archivar"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__declined_applicant_count
 msgid "Applicants without enrollment"
-msgstr "Pre-inscripciones sin matrícula"
+msgstr "Preinscripciones sin matrícula"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__archive_declined_applicants
 msgid "Archive applicants without a confirmed enrollment"
-msgstr "Archivar pre-inscripciones sin matrícula confirmada"
+msgstr "Archivar preinscripciones sin matrícula confirmada"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__backup_done
@@ -14728,7 +14759,7 @@ msgstr "sí"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_course_transition_wizard__archive_declined_applicants
 msgid "Summer withdrawals: applicants who never confirmed their enrollment for the incoming course."
-msgstr "Renuncias de verano: pre-inscripciones que nunca llegaron a confirmar la matrícula del curso entrante."
+msgstr "Renuncias de verano: preinscripciones que nunca llegaron a confirmar la matrícula del curso entrante."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_course_transition_wizard__backup_done
@@ -15330,7 +15361,7 @@ msgstr "Un departamento top-level no puede tener un departamento padre."
 #. module: ems
 #: model:ir.model.fields,help:ems.field_hr_department__is_top_level
 msgid "A top-level department has no parent department and no Seminar Chief. Its Manager is labelled 'Area Manager' and automatically holds the role selected below (Head of Studies, Deputy Head of Studies or Secretary) instead of Department Chief."
-msgstr "Un departamento top-level no tiene departamento padre ni Jefe de seminario. Su Responsable se llama 'Responsable de área' y tiene automáticamente el rol seleccionado debajo (Jefe de estudios, Jefe de estudios adjunto o Secretario/a) en lugar de Jefe de departamento."
+msgstr "Un departamento top-level no tiene departamento padre ni Jefe de seminario. Su Responsable se llama 'Responsable de área' y tiene automáticamente el rol seleccionado debajo (Jefe de estudios, Jefe de estudios adjunto o secretario/a) en lugar de Jefe de departamento."
 
 #. module: ems
 #. odoo-python
@@ -15364,18 +15395,18 @@ msgstr "Departamento top-level"
 #. odoo-python
 #: code:addons/ems/models/employees/employee.py:0
 msgid "The Director role cannot be assigned or removed manually, it is set automatically from Settings."
-msgstr "El rol de Director no se puede asignar ni quitar manualmente, se gestiona automáticamente desde Ajustes."
+msgstr "El rol de director no se puede asignar ni quitar manualmente, se gestiona automáticamente desde Ajustes."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_res_company__director_id model:ir.model.fields,help:ems.field_res_config_settings__director_id model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "The person acting as the center's Director. Every top-level department's Manager (Head of Studies/Deputy) will have their own Manager set to this employee automatically."
-msgstr "La persona que ejerce de Director/a del centro. El Responsable de cualquier departamento top-level (Jefe de estudios/adjunto) se establecerá automáticamente a este empleado."
+msgstr "La persona que ejerce de director/a del centro. El Responsable de cualquier departamento top-level (Jefe de estudios/adjunto) se establecerá automáticamente a este empleado."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/employee.py:0
 msgid "The Secretary role cannot be assigned or removed manually, it is set automatically from the top-level department's own form."
-msgstr "El rol de Secretario/a no se puede asignar ni quitar manualmente, se gestiona automáticamente desde el formulario del departamento top-level."
+msgstr "El rol de secretario/a no se puede asignar ni quitar manualmente, se gestiona automáticamente desde el formulario del departamento top-level."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_department__top_level_area
@@ -15385,7 +15416,7 @@ msgstr "Área"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_hr_department__top_level_area
 msgid "Only applies when this is a Top-level Department: which staff population this area covers - determines which Role is valid below (Academic -> Head of Studies/Deputy; ASP -> Secretary)."
-msgstr "Solo aplica cuando se trata de un Departamento top-level: qué población de personal cubre esta área - determina qué Rol es válido debajo (Académica -> Jefe de estudios/adjunto; ASP -> Secretario/a)."
+msgstr "Solo aplica cuando se trata de un Departamento top-level: qué población de personal cubre esta área - determina qué Rol es válido debajo (Académica -> Jefe de estudios/adjunto; ASP -> secretario/a)."
 
 #. module: ems
 #: model:ir.module.category,name:ems.category_roles model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_area__academic
@@ -15521,13 +15552,13 @@ msgstr "Este rol se asigna automáticamente desde el propio formulario del depar
 #. odoo-python
 #: code:addons/ems/models/employees/role.py:0
 msgid "This role is assigned automatically from the top-level department's own form (Area Manager, with Role set to Secretary)."
-msgstr "Este rol se asigna automáticamente desde el propio formulario del departamento top-level (Responsable de área, con el Rol establecido en Secretario/a)."
+msgstr "Este rol se asigna automáticamente desde el propio formulario del departamento top-level (Responsable de área, con el Rol establecido en secretario/a)."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/role.py:0
 msgid "This role is assigned automatically from Settings (EMS Management, Director field)."
-msgstr "Este rol se asigna automáticamente desde Ajustes (EMS Management, campo Director)."
+msgstr "Este rol se asigna automáticamente desde Ajustes (EMS Management, campo director)."
 
 #. module: ems
 #. odoo-python
@@ -15695,7 +15726,7 @@ msgstr "Matrículas creadas"
 msgid ""
 "%s is graded in '%s' with group %s but is enrolled in group %s: enrollment "
 "left untouched."
-msgstr "%s tiene nota en '%s' con el grupo %s pero está matriculado en el grupo %s: la matrícula no se ha modificado."
+msgstr "%s tiene nota en '%s' con el grupo %s, pero está matriculado en el grupo %s: la matrícula no se ha modificado."
 
 #. module: ems
 #. odoo-python
@@ -19730,7 +19761,7 @@ msgid ""
 "The request is answered from the portal: recipients with an email but no "
 "portal access get their portal invitation too."
 msgstr ""
-"La solicitud se responde desde el portal: los destinatarios con correo pero "
+"La solicitud se responde desde el portal: los destinatarios con correo, pero "
 "sin acceso al portal también reciben la invitación al portal."
 
 #. module: ems
@@ -20447,6 +20478,7 @@ msgstr "Puede ver la identificación"
 #: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__student_document
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+#: code:addons/ems/models/certificates/certificate_type.py:0
 msgid "Identity document"
 msgstr "Documento de identidad"
 
@@ -22442,6 +22474,7 @@ msgstr "En proceso (implantación)"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_quality_process__kind__key
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__key
 msgid "Key"
 msgstr "Clave"
 
@@ -23299,9 +23332,7 @@ msgstr "%s se reconoció a partir de las optativas de un expediente anterior y n
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__hours
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__hours
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_grade__hours
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__hours
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+#: model:ems.certificate.type.field,name:ems.certificate_field_fct_hours
 msgid "Hours"
 msgstr "Horas"
 
@@ -25801,6 +25832,7 @@ msgstr "Incidencias"
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__ems_ampa_member__no
+#: code:addons/ems/models/certificates/certificate.py:0
 msgid "No"
 msgstr "No"
 
@@ -26086,7 +26118,7 @@ msgstr "se quedan como están: solo se cancela la matrícula."
 #. odoo-python
 #: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
 msgid "they were never students but have a corporate account or a convalidation: the enrollment is cancelled, the portal revoked and the contact archived."
-msgstr "nunca han sido alumnos pero tienen cuenta corporativa o una convalidación: se cancela la matrícula, se revoca el portal y se archiva el contacto."
+msgstr "nunca han sido alumnos, pero tienen cuenta corporativa o una convalidación: se cancela la matrícula, se revoca el portal y se archiva el contacto."
 
 #. module: ems
 #. odoo-python
@@ -27108,6 +27140,7 @@ msgstr "Imprimir el DNI"
 #: code:addons/ems/models/erasmus/export.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_document_signature__is_required
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_document_card
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__applicant_input__required
 msgid "Required"
 msgstr "Obligatorio"
 
@@ -27720,7 +27753,6 @@ msgstr "Cuándo, con palabras"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_panel__post
-#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__role_id
 msgid "Post"
 msgstr "Cargo"
 
@@ -29491,18 +29523,18 @@ msgid "Tutoring (T-ESO, T-BAT, T-FP or PFI)"
 msgstr "Tutoría (T-ESO, T-BAT, T-FP o PFI)"
 
 #. module: ems
-#: model:ir.actions.report,name:ems.action_report_schedule_declaration
+#: model:ir.actions.report,name:ems.action_report_group_schedule_declaration model:ir.actions.report,name:ems.action_report_schedule_declaration
 msgid "Schedule declaration"
 msgstr "Declaración horaria"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form model_terms:ir.ui.view,arch_db:ems.view_group_form
 msgid "Print schedule declaration"
 msgstr "Imprimir la declaración horaria"
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/employees/employee.py:0
+#: code:addons/ems/models/shared/base.py:0
 msgid "Only the Heads and Deputy Heads of Studies, the Director and the administrators can print the schedule declaration."
 msgstr "Solo los jefes de estudios y los jefes de estudios adjuntos, la dirección y los administradores pueden imprimir la declaración horaria."
 
@@ -31511,6 +31543,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__file_state__optional
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__todo_state__optional
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_document_card
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__applicant_input__optional
 msgid "Optional"
 msgstr "Opcional"
 
@@ -37249,6 +37282,7 @@ msgstr "Autoevaluaciones respondidas"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_self_assessment_answer__kind__text
 #: model:ir.model.fields,field_description:ems.field_ems_ex_officio_withdrawal_contact_wizard__body
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_wizard__message
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__value_char
 msgid "Text"
 msgstr "Texto"
 
@@ -44759,8 +44793,8 @@ msgstr "Solo se puede iniciar o descartar una propuesta."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
-msgid "Only the student's tutor, the people above them and the Head of Studies can decide this proposal."
-msgstr "Solo el tutor del alumno, sus superiores y el jefe de estudios pueden decidir esta propuesta."
+msgid "Only the student's tutor and the people above them can decide this proposal."
+msgstr "Solo el tutor del alumno y sus superiores pueden decidir esta propuesta."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__origin__manual
@@ -46018,10 +46052,10 @@ msgstr "Faltas justificadas por revisar"
 #. odoo-python
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid ""
-"Only the student's tutor, the people above them and the Head of Studies can "
+"Only the student's tutor and the people above them can "
 "review the roll-calls of this case file."
 msgstr ""
-"Solo el tutor del alumno, sus superiores y el jefe de estudios pueden "
+"Solo el tutor del alumno y sus superiores pueden "
 "revisar los pases de lista de este expediente."
 
 #. module: ems
@@ -48447,9 +48481,6 @@ msgstr "Subvención"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_support_rate_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__period_start
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "From"
 msgstr "Desde"
 
@@ -48611,9 +48642,6 @@ msgstr "Equipo y participante"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_to_validate_list
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__period_end
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "To"
 msgstr "Hasta"
 
@@ -49874,7 +49902,7 @@ msgstr "Solo el jefe de estudios, el jefe de estudios adjunto o el director de e
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "Only the delegate or the sub-delegate of a group that may propose supporting a student walkout can propose it."
-msgstr "Solo el delegado o el subdelegado de un grupo que puede proponer apoyar una convocatoria de huelga lo puede proponer."
+msgstr "Solo el delegado o el subdelegado de un grupo que puede proponer una inasistencia colectiva la puede proponer."
 
 #. module: ems
 #. odoo-python
@@ -49897,7 +49925,7 @@ msgstr "Propuesta por %(name)s desde el portal."
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "Say whether the group supports the walkout."
-msgstr "Indica si el grupo apoya la convocatoria de huelga."
+msgstr "Indica si el grupo apoya la propuesta de inasistencia colectiva."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -49940,7 +49968,7 @@ msgid "Student walkout on {{ format_date(object.walkout_id.walkout_date) }}: {{ 
 msgstr "Inasistencia colectiva del {{ format_date(object.walkout_id.walkout_date) }}: {{ object.student_id.name }}"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_student_walkout model:ir.ui.menu,name:ems.menu_student_walkout model_terms:ir.ui.view,arch_db:ems.view_student_walkout_list model:ir.ui.menu,name:ems.menu_attendance_config_walkouts model:ir.actions.act_window,name:ems.action_student_walkout model:ir.ui.menu,name:ems.menu_attendance_config_walkouts model:ir.ui.menu,name:ems.menu_student_walkout model_terms:ir.ui.view,arch_db:ems.view_student_walkout_list
+#: model:ir.actions.act_window,name:ems.action_student_walkout model:ir.ui.menu,name:ems.menu_student_walkout model:ir.ui.menu,name:ems.menu_attendance_config_walkouts model_terms:ir.ui.view,arch_db:ems.view_student_walkout_list model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
 msgid "Student walkouts"
 msgstr "Inasistencias colectivas"
 
@@ -49977,7 +50005,7 @@ msgstr "Los grupos cuyo delegado o subdelegado puede proponer una inasistencia c
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
 msgid "There are no student walkout proposals in your group."
-msgstr "No hay ninguna propuesta de apoyo a una convocatoria de huelga en tu grupo."
+msgstr "No hay ninguna propuesta de inasistencia colectiva en tu grupo."
 
 #. module: ems
 #. odoo-python
@@ -50030,7 +50058,7 @@ msgid "Walkout proposal"
 msgstr "Propuesta de inasistencia colectiva"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__walkout_date model:ir.model.fields,field_description:ems.field_ems_student_walkout__walkout_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__walkout_date model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
 msgid "Walkout day"
 msgstr "Día de la inasistencia colectiva"
 
@@ -50057,7 +50085,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "Your group already has a student walkout proposal for %(date)s."
-msgstr "Tu grupo ya tiene una propuesta de apoyo a una convocatoria de huelga para el %(date)s."
+msgstr "Tu grupo ya tiene una propuesta de inasistencia colectiva para el %(date)s."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -50263,15 +50291,10 @@ msgid "Say whether you join"
 msgstr "Di si te sumas"
 
 #. module: ems
-#: model:mail.template,subject:ems.email_template_student_walkout_join
-msgid "Student walkout on {{ format_date(object.walkout_id.walkout_date) }}: do you join it?"
-msgstr "Inasistencia colectiva del {{ format_date(object.walkout_id.walkout_date) }}: ¿te sumas?"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "The group vote of this student walkout is closed."
-msgstr "La votación del grupo de esta convocatoria de huelga está cerrada."
+msgstr "La votación del grupo de esta inasistencia colectiva está cerrada."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__vote_date
@@ -50288,11 +50311,6 @@ msgstr "Quién se suma a la decisión colectiva de inasistencia a clase"
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "You have already voted: the group vote cannot be changed."
 msgstr "Ya has votado: el voto del grupo no se puede cambiar."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "abstentions)."
-msgstr "abstenciones)."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -50331,7 +50349,7 @@ msgstr "<span class=\"o_form_label me-2\">Preaviso</span>"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
 msgid "<span id=\"ems_walkout_confirm_cancel\" class=\"d-none\">Cancel this student walkout proposal?</span>"
-msgstr "<span id=\"ems_walkout_confirm_cancel\" class=\"d-none\">¿Quieres anular esta propuesta de apoyo a la convocatoria de huelga?</span>"
+msgstr "<span id=\"ems_walkout_confirm_cancel\" class=\"d-none\">¿Quieres anular esta propuesta de inasistencia colectiva?</span>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -52352,42 +52370,6 @@ msgid ". Students will be told."
 msgstr ". Se avisará a los alumnos."
 
 #. module: ems
-#: model:mail.template,body_html:ems.email_template_student_walkout_join_extended
-msgid ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hello <t t-out=\"object.student_id.name\"/>,</p>\n"
-"                        <p>\n"
-"                            The time to say whether you join the student walkout of\n"
-"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/> has been extended: you can answer, or change\n"
-"                            your answer, on the school portal\n"
-"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">student walkouts</a>),\n"
-"                            until <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/>.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Kind regards,<br/>\n"
-"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-msgstr ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hola, <t t-out=\"object.student_id.name\"/>:</p>\n"
-"                        <p>\n"
-"                            Se ha ampliado el tiempo para decir si te sumas a la decisión colectiva de inasistencia a clase del\n"
-"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>: puedes responder, o cambiar tu respuesta, en el portal del centro\n"
-"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">inasistencias colectivas</a>),\n"
-"                            hasta el <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/>.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Un cordial saludo,<br/>\n"
-"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
 msgid ""
 "<span id=\"ems_walkout_confirm_extend\" class=\"d-none\">Extend the joining?"
@@ -52996,12 +52978,12 @@ msgstr ""
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
 msgid ""
-"<i class=\"fa fa-info-circle me-1\"/>Each step is done by whoever holds its position, who\n"
+"<i class=\"fa fa-info-circle me-1\"/>Each step is done by whoever holds one of its positions, who\n"
 "                            gets it as a task; the administrator can do any step. One step issues the certificate (its\n"
 "                            number and the issuer's stamp); approvals go after it. The last step generates the PDF and\n"
 "                            sends it to the applicant."
 msgstr ""
-"<i class=\"fa fa-info-circle me-1\"/>Cada paso lo hace quien ocupa su cargo,"
+"<i class=\"fa fa-info-circle me-1\"/>Cada paso lo hace quien ocupa alguno de sus cargos,"
 " que lo recibe como tarea; el administrador puede hacer cualquier paso. Un "
 "paso expide el certificado (su número y el sello de quien lo expide); los "
 "vistos buenos van después. El último paso genera el PDF y lo envía a la "
@@ -53032,11 +53014,6 @@ msgid ""
 msgstr ""
 "<i class=\"fa fa-info-circle me-1\"/>Quien hizo el paso anterior la recibe "
 "de vuelta con este texto."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
-msgid "<i class=\"fa fa-plus me-2\"/>New certificate request"
-msgstr "<i class=\"fa fa-plus me-2\"/>Nueva solicitud de certificado"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificates
@@ -53084,13 +53061,7 @@ msgid "Access warning"
 msgstr "Advertencia de acceso"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__agreement_reference
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
-msgid "Agreement registration number"
-msgstr "Número de registro del convenio"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+#: model:ems.certificate.type.field,name:ems.certificate_field_fct_agreement
 msgid "Agreement registration number (sBID)"
 msgstr "Número de registro del convenio (sBID)"
 
@@ -53177,7 +53148,6 @@ msgstr "Puede rechazarla o cancelarla"
 #: model:ir.actions.report,name:ems.action_report_certificate
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__certificate_pdf_link
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__certificate_id
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
 #: model_terms:ir.ui.view,arch_db:ems.report_certificate
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Certificate"
@@ -53207,6 +53177,7 @@ msgstr "Número de certificado:"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_document__certificate_id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__certificate_id
 msgid "Certificate request"
 msgstr "Solicitud de certificado"
 
@@ -53227,6 +53198,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_document__type_id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__type_id
 msgid "Certificate type"
 msgstr "Tipo de certificado"
 
@@ -53274,26 +53246,14 @@ msgid "Collaborating companies"
 msgstr "Empresas colaboradoras"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__training_company_id
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__company
 #: model:res.partner.category,name:ems.partner_category_company
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__value_company_id
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__field_type__company
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_search
+#: model:ems.certificate.type.field,name:ems.certificate_field_fct_company
 msgid "Collaborating company"
 msgstr "Empresa colaboradora"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__company_name
-msgid "Company (as written by the applicant)"
-msgstr "Empresa (según la persona solicitante)"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
-msgid "Company VAT number"
-msgstr "NIF de la empresa"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__company_vat
-msgid "Company VAT number (as written by the applicant)"
-msgstr "NIF de la empresa (según la persona solicitante)"
 
 #. module: ems
 #: model:ems.certificate.type.step,name:ems.certificate_step_fct_complete
@@ -53309,15 +53269,6 @@ msgstr "Contactos"
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Create company"
 msgstr "Crear empresa"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
-msgid ""
-"Create the collaborating company with the name and VAT number the applicant "
-"wrote, and link it."
-msgstr ""
-"Crea la empresa colaboradora con el nombre y el NIF que escribió la persona "
-"solicitante, y la vincula."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_certificate_type__level_ids
@@ -53360,11 +53311,6 @@ msgid "Done: send to the next step"
 msgstr "Hecho: enviar al paso siguiente"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_certificate__fct_school_year
-msgid "E.g. 2024-2025."
-msgstr "P. ej. 2024-2025."
-
-#. module: ems
 #: model:mail.template,name:ems.email_template_certificate_info_request
 msgid "EMS: Certificate, documentation requested"
 msgstr "EMS: Certificado, documentación pedida"
@@ -53405,12 +53351,6 @@ msgstr "Rellena primero los datos de la persona solicitante: %s."
 #: code:addons/ems/models/certificates/certificate.py:0
 msgid "Fill in the applicant's email first."
 msgstr "Rellena primero el correo de la persona solicitante."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/certificates/certificate.py:0
-msgid "Fill in the workplace training first: %s."
-msgstr "Rellena primero la formación en centros de trabajo: %s."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
@@ -53595,15 +53535,9 @@ msgid "Returned to \"%s\" by %s:"
 msgstr "Devuelta a \"%s\" por %s:"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__fct_school_year
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+#: model:ems.certificate.type.field,name:ems.certificate_field_fct_school_year
 msgid "School year of the training"
 msgstr "Curso de la formación"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
-msgid "School year of the training <span class=\"text-danger\">*</span>"
-msgstr "Curso de la formación <span class=\"text-danger\">*</span>"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__access_token
@@ -53619,22 +53553,6 @@ msgstr "Enviar formulario"
 #: model:ir.model.fields,help:ems.field_ems_certificate_type__description
 msgid "Shown to the applicant on the request form."
 msgstr "Se muestra a la persona solicitante en el formulario."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/certificates/certificate.py:0
-msgid ""
-"Source: the training agreement registered in sBID with number %(number)s, a "
-"copy of which is attached."
-msgstr ""
-"Fuente: el convenio de formación registrado en sBID con el número "
-"%(number)s, del que se adjunta una copia."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/certificates/certificate.py:0
-msgid "Source: the training agreement, a copy of which is attached."
-msgstr "Fuente: el convenio de formación, del que se adjunta una copia."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_certificate_stamp
@@ -53680,32 +53598,6 @@ msgstr "Estudio <span class=\"text-danger\">*</span>"
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificates
 msgid "Submit request"
 msgstr "Enviar solicitud"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/certificates/certificate.py:0
-msgid ""
-"That %(student)s, with identity document %(document)s, a student of "
-"%(study)s, did %(hours)s hours of workplace training (FCT) in the school "
-"year %(year)s at the company %(company)s, from %(start)s to %(end)s."
-msgstr ""
-"Que %(student)s, con documento de identidad %(document)s, estudiante de "
-"%(study)s, realizó %(hours)s horas de formación en centros de trabajo (FCT) "
-"en el curso %(year)s en la empresa %(company)s, del %(start)s al %(end)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/certificates/certificate.py:0
-msgid ""
-"That %(student)s, with identity document %(document)s, a student of "
-"%(study)s, did %(hours)s hours of workplace training (FCT) in the school "
-"year %(year)s at the company %(company)s, with VAT number %(vat)s, from "
-"%(start)s to %(end)s."
-msgstr ""
-"Que %(student)s, con documento de identidad %(document)s, estudiante de "
-"%(study)s, realizó %(hours)s horas de formación en centros de trabajo (FCT) "
-"en el curso %(year)s en la empresa %(company)s, con NIF %(vat)s, del "
-"%(start)s al %(end)s."
 
 #. module: ems
 #. odoo-python
@@ -53758,15 +53650,6 @@ msgstr ""
 "También se crean desde una solicitud de certificado."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
-msgid ""
-"The company <span class=\"text-muted fw-normal\">(fill in as much "
-"information as you can)</span>"
-msgstr ""
-"La empresa <span class=\"text-muted fw-normal\">(completa toda la información "
-"posible)</span>"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/certificates/certificate.py:0
 msgid "The current step of %(request)s is not yours: it is for %(position)s."
@@ -53780,17 +53663,6 @@ msgid ""
 msgstr ""
 "La documentación ha llegado por otra vía (en papel, por correo): la "
 "solicitud vuelve a su paso."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/certificates/certificate.py:0
-msgid "The hours cannot be negative."
-msgstr "Las horas no pueden ser negativas."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_certificate__agreement_reference
-msgid "The registration number of the agreement in sBID (or qBID)."
-msgstr "El número de registro del convenio en sBID (o qBID)."
 
 #. module: ems
 #. odoo-python
@@ -53817,14 +53689,9 @@ msgstr ""
 "El estado de una solicitud de certificado solo cambia con sus botones."
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/certificates/certificate.py:0
-msgid "The training cannot end before it starts."
-msgstr "La formación no puede terminar antes de empezar."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
 msgid "VAT number"
 msgstr "NIF"
 
@@ -53845,12 +53712,6 @@ msgid "What the applicant reads on the request form..."
 msgstr "Lo que lee la persona solicitante en el formulario..."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_certificate__kind
-#: model:ir.model.fields,help:ems.field_ems_certificate_type__kind
-msgid "What the certificate says, and so which data the request asks for."
-msgstr "Qué dice el certificado y, por tanto, qué datos pide la solicitud."
-
-#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_certificate__applicant_email
 msgid ""
 "Where the form, the requests for documentation and the certificate are sent "
@@ -53862,30 +53723,17 @@ msgstr ""
 "tiene portal)."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_certificate__step_role_id
-#: model:ir.model.fields,help:ems.field_ems_certificate_type_step__role_id
+#: model:ir.model.fields,help:ems.field_ems_certificate__step_role_ids
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_step__role_ids
 msgid ""
-"Whoever holds this position gets the task and does the step. The "
+"Whoever holds any of these positions gets the task and may do the step. The "
 "administrator can always do it too."
-msgstr ""
-"Quien ocupa este cargo recibe la tarea y hace el paso. El administrador "
-"también puede hacerlo siempre."
+msgstr "Quien ocupa alguno de estos cargos recibe la tarea y puede hacer el paso. El administrador también puede hacerlo siempre."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_certificate__return_reason
 msgid "Why the request was last sent back to the previous step."
 msgstr "Por qué se devolvió la solicitud al paso anterior la última vez."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
-msgid "Workplace training"
-msgstr "Formación en centros de trabajo"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type__kind__fct
-msgid "Workplace training (FCT)"
-msgstr "Formación en centros de trabajo (FCT)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_wizard_form
@@ -54389,16 +54237,6 @@ msgid ""
 msgstr ""
 "Solo quien expide %s puede expedirlo directamente, y solo antes del paso de "
 "expedición."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
-msgid ""
-"Skip the steps before issuing (e.g. completing the workplace training) when "
-"you already have every detail and document."
-msgstr ""
-"Salta los pasos anteriores a la expedición (por ejemplo, completar la "
-"formación en centros de trabajo) cuando ya tienes todos los datos y "
-"documentos."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_certificate__can_issue_now
@@ -54996,21 +54834,6 @@ msgstr ""
 "de acuerdo es informada de cada clase, a título informativo."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid ""
-"Joining the collective decision not to attend class is your own decision and"
-" nobody can revoke it: the classes of that day do not count as absences, and"
-" your name appears in the minute. If you are a minor, your family is asked "
-"to acknowledge receipt and say whether it agrees, for merely informative "
-"purposes. You can change your answer until"
-msgstr ""
-"Sumarte a la decisión colectiva de inasistencia a clase es una decisión tuya"
-" y nadie puede revocarla: las clases de ese día no cuentan como faltas, y tu"
-" nombre aparece en el acta. Si eres menor de edad, se pide a tu familia que "
-"acuse recibo y diga si está de acuerdo, a efectos meramente informativos. "
-"Puedes cambiar tu respuesta hasta el"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "Only the Head of Studies, the Deputy Head of Studies or the Director of these students, or an administrator, can validate a student walkout."
@@ -55162,55 +54985,6 @@ msgid ", because of: «"
 msgstr ", a raíz de: «"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "; if the group decides to walk out, each student will then say whether they join."
-msgstr "; si el grupo decide hacerla, después cada alumno dirá si se suma."
-
-#. module: ems
-#: model:mail.template,body_html:ems.email_template_student_walkout_call
-msgid ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hello <t t-out=\"object.student_id.name\"/>,</p>\n"
-"                        <p>\n"
-"                            <t t-out=\"object.walkout_id.opener_id.name\"/>, the delegate of your group, has proposed that your group walks out\n"
-"                            on <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, because of: «<t t-out=\"(object.walkout_id.notes or '').strip().rstrip('.')\"/>».\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            On the school portal (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">student walkouts</a>)\n"
-"                            you will find the document that supports it and you can vote whether the group walks out (an\n"
-"                            anonymous vote), until\n"
-"                            <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.vote_until)\"/>.\n"
-"                            The vote ends earlier if the votes still to come can no longer change the result. If the\n"
-"                            group decides to walk out, you will then be asked whether you join it.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Kind regards,<br/>\n"
-"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-msgstr ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hola, <t t-out=\"object.student_id.name\"/>:</p>\n"
-"                        <p>\n"
-"                            <t t-out=\"object.walkout_id.opener_id.name\"/>, el delegado de tu grupo, ha propuesto que tu grupo haga una inasistencia colectiva el <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, a raíz de: «<t t-out=\"(object.walkout_id.notes or '').strip().rstrip('.')\"/>».\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            En el portal del centro (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">inasistencias colectivas</a>)\n"
-"                            encontrarás el documento que la justifica y podrás votar si el grupo la hace (un voto anónimo), hasta el\n"
-"                            <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.vote_until)\"/>.\n"
-"                            La votación acaba antes si los votos que faltan ya no pueden cambiar el resultado. Si el grupo decide hacerla, después te preguntaremos si te sumas.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Un cordial saludo,<br/>\n"
-"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-
-#. module: ems
 #: model:mail.template,body_html:ems.email_template_student_walkout_result
 msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
@@ -55244,53 +55018,6 @@ msgstr ""
 "                        </p>\n"
 "                        <p>\n"
 "                            El acta está en el portal del centro (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">inasistencias colectivas</a>).\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Un cordial saludo,<br/>\n"
-"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-
-#. module: ems
-#: model:mail.template,body_html:ems.email_template_student_walkout_join
-msgid ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hello <t t-out=\"object.student_id.name\"/>,</p>\n"
-"                        <p>\n"
-"                            Your group has decided to walk out on <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>\n"
-"                            (<t t-out=\"object.walkout_id.group_yes_count\"/> yes, <t t-out=\"object.walkout_id.group_no_count\"/> no,\n"
-"                            <t t-out=\"object.walkout_id.group_abstain_count\"/> abstentions).\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Now each student says whether they join it, on the school portal\n"
-"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">student walkouts</a>),\n"
-"                            until <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/>. The classes\n"
-"                            of that day of the students who join the collective decision not to attend class do not count as\n"
-"                            absences, and their names appear in the minute. Nobody can revoke your decision: if you are a\n"
-"                            minor, your family is asked to acknowledge receipt and say whether it agrees, for merely informative purposes.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Kind regards,<br/>\n"
-"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-msgstr ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hola, <t t-out=\"object.student_id.name\"/>:</p>\n"
-"                        <p>\n"
-"                            Tu grupo ha decidido hacer una inasistencia colectiva el <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>\n"
-"                            (<t t-out=\"object.walkout_id.group_yes_count\"/> sí, <t t-out=\"object.walkout_id.group_no_count\"/> no,\n"
-"                            <t t-out=\"object.walkout_id.group_abstain_count\"/> abstenciones).\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Ahora cada alumno dice si se suma, en el portal del centro\n"
-"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">inasistencias colectivas</a>),\n"
-"                            hasta el <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/>. Las clases\n"
-"                            de ese día de los alumnos que se suman a la decisión colectiva de inasistencia a clase no cuentan como faltas, y sus nombres aparecen en el acta. Nadie puede revocar tu decisión: si eres menor de edad, se pide a tu familia que acuse recibo y diga si está de acuerdo, a efectos meramente informativos.\n"
 "                        </p>\n"
 "                        <p>\n"
 "                            Un cordial saludo,<br/>\n"
@@ -55475,13 +55202,13 @@ msgstr "Propón una inasistencia colectiva o vota una de tu grupo"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
-msgid "Result: the group has decided not to walk out, so everybody is expected in class that day."
-msgstr "Resultado: el grupo ha decidido no hacer la inasistencia colectiva, así que ese día se espera a todo el mundo en clase."
+msgid "Result: the group has not voted in favour of the walkout, so everybody is expected in class that day."
+msgstr "Resultado: el grupo no ha votado a favor de la inasistencia colectiva, así que ese día se espera a todo el mundo en clase."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
-msgid "Result: the group has decided to walk out."
-msgstr "Resultado: el grupo ha decidido hacer la inasistencia colectiva."
+msgid "Result: the group has voted in favour of the walkout."
+msgstr "Resultado: el grupo ha votado a favor de la inasistencia colectiva."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__attachment_ids model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
@@ -55492,21 +55219,6 @@ msgstr "Documento que la justifica"
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
 msgid "The call of a students' union, the minute of the group's assembly or any document that explains the decision."
 msgstr "La convocatoria de un sindicato de estudiantes, el acta de la asamblea del grupo o cualquier documento que explique la decisión."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "The group has decided not to walk out: everybody is expected in class that day."
-msgstr "El grupo ha decidido no hacer la inasistencia colectiva: ese día se espera a todo el mundo en clase."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "The group has decided to walk out ("
-msgstr "El grupo ha decidido hacer la inasistencia colectiva ("
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "The group has decided to walk out."
-msgstr "El grupo ha decidido hacer la inasistencia colectiva."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_walkout_form
@@ -55521,16 +55233,6 @@ msgid "Why the group does not want to attend class that day, for instance: For a
 msgstr "Por qué el grupo no quiere asistir a clase ese día, por ejemplo: Por una educación pública accesible y de calidad para toda la ciudadanía."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
-msgid "You had no access to the portal when the walkout was proposed, so you cannot vote. If the group decides to walk out, you will be able to say whether you join."
-msgstr "No tenías acceso al portal cuando se hizo la propuesta, así que no puedes votar. Si el grupo decide hacer la inasistencia colectiva, podrás decir si te sumas."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
-msgid "Your group has decided to walk out on"
-msgstr "Tu grupo ha decidido hacer una inasistencia colectiva el"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new
 msgid "Your group votes whether it walks out from"
 msgstr "Tu grupo vota si hace la inasistencia colectiva desde el"
@@ -55539,11 +55241,6 @@ msgstr "Tu grupo vota si hace la inasistencia colectiva desde el"
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "Your group votes whether it walks out on"
 msgstr "Tu grupo vota si hace una inasistencia colectiva el"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_saved_modal
-msgid "Your vote is saved. It is anonymous and cannot be changed. If the group decides to walk out, you will get an email to say whether you join it."
-msgstr "Se ha guardado tu voto. Es anónimo y no se puede cambiar. Si el grupo decide hacer la inasistencia colectiva, recibirás un correo para decir si te sumas."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
@@ -55559,11 +55256,6 @@ msgstr "el documento adjunto no justifica la propuesta: no explica por qué el g
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "». Please acknowledge receipt and say whether you agree."
 msgstr "». Acusad recibo y decid si estáis de acuerdo."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
-msgid "». Say whether you join it."
-msgstr "». Di si te sumas."
 
 #. module: ems
 #: model:ems.student_walkout.rejection_reason,name:ems.student_walkout_rejection_document
@@ -55779,3 +55471,609 @@ msgstr "0,5 puntos: la propuesta A es un job shadowing o una estancia de docenci
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__activity_kind__0
 msgid "0 points: Proposal A is a course."
 msgstr "0 puntos: la propuesta A es un curso."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_ex_officio_withdrawal__tutor_id
+msgid ""
+"The student's tutor while they have a group; once they leave, the tutor they "
+"had at that moment."
+msgstr ""
+"El tutor/a del alumno mientras tiene grupo; cuando se va, el tutor/a que "
+"tenía en ese momento."
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_absence_warning_ir_actions_server
+msgid "EMS: Absence warning to the chiefs"
+msgstr "EMS: Aviso de ausencia a los jefes"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_absence_warning_hours
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_absence_warning_hours
+msgid "Absence warning (hours)"
+msgstr "Aviso de ausencia (horas)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_warning_sent
+msgid "Chiefs warned before it starts"
+msgstr "Jefes avisados antes de que empiece"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_warning_sent
+msgid "Set once the Department Chief and the Seminar Chief have been warned that this absence is about to start. Cleared when its dates or type change."
+msgstr "Se activa cuando el jefe de departamento y el jefe de seminario ya han recibido el aviso de que esta ausencia está a punto de empezar. Se desactiva si cambian las fechas o el tipo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Absence warning"
+msgstr "Aviso de ausencia"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "This long before an absence starts, the Department Chief and the Seminar Chief of the employee's department receive an email, so they can arrange the cover. Set it to 0 to switch the warning off."
+msgstr "Con esta antelación antes de que empiece una ausencia, el jefe de departamento y el jefe de seminario del departamento de la persona reciben un correo, para que puedan organizar la sustitución. Con 0, el aviso queda desactivado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "This absence starts soon."
+msgstr "Esta ausencia empieza pronto."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate_type.py:0
+msgid ""
+"%(key)s is a key of its own in every certificate: choose another one for "
+"%(detail)s."
+msgstr ""
+"%(key)s es una clave propia de todos los certificados: elige otra para "
+"%(detail)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate_type.py:0
+msgid "%s (VAT number)"
+msgstr "%s (NIF)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate_type.py:0
+msgid "%s must be required by a step of its own certificate type."
+msgstr "%s debe exigirlo un paso de su propio tipo de certificado."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>Every certificate also has the student's full name,\n"
+"                            identity document and study. Each detail says whether the request form asks the applicant\n"
+"                            for it, and the step of the circuit that cannot be done until it is filled in."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>Todos los certificados tienen, además, "
+"el nombre completo, el documento de identidad y el estudio del alumno. Cada "
+"dato indica si el formulario de solicitud lo pide a la persona solicitante y"
+" el paso del circuito que no se puede hacer hasta que esté rellenado."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>Highlighted: required by now and still empty. A\n"
+"                                    company the applicant wrote counts once it is linked to its contact."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>Resaltados: obligatorios a estas "
+"alturas y aún vacíos. Una empresa que ha escrito la persona solicitante "
+"cuenta cuando está vinculada a su contacto."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>Printed after \"CERTIFIES:\". Write a detail's key between\n"
+"                            braces; a part between square brackets is printed only when every detail inside it has a\n"
+"                            value; a blank line starts a new paragraph. Details:"
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>Se imprime después de \"CERTIFICA:\". "
+"Escribe la clave de un dato entre llaves; una parte entre corchetes solo se "
+"imprime cuando todos los datos que contiene tienen valor; una línea en "
+"blanco empieza un párrafo nuevo. Datos:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
+msgid ""
+"<i class=\"fa fa-plus me-2\"/><span>New request</span><span "
+"class=\"mx-1\">-</span>"
+msgstr ""
+"<i class=\"fa fa-plus me-2\"/><span>Nueva solicitud</span><span "
+"class=\"mx-1\">-</span>"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "A number of a certificate cannot be negative."
+msgstr "Un número de un certificado no puede ser negativo."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__value_ids
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__field_ids
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_fields
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+msgid "Certificate details"
+msgstr "Datos del certificado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__certificate_text
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+msgid "Certificate text"
+msgstr "Texto del certificado"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"Create the collaborating company with the name and VAT number the applicant "
+"wrote (or link the one with that VAT number)."
+msgstr ""
+"Crea la empresa colaboradora con el nombre y el NIF que ha escrito la "
+"persona solicitante (o vincula la que tiene ese NIF)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__field_type
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__field_type
+msgid "Data type"
+msgstr "Tipo de dato"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__value_field_types
+msgid "Data types of its details"
+msgstr "Tipo de dato"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_certificate_type_field
+msgid "Detail a certificate type needs, and who fills it in."
+msgstr "Dato que necesita un tipo de certificado y quién lo rellena."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_certificate_value
+msgid "Detail of a certificate request, with its value."
+msgstr "Dato de una solicitud de certificado, con su valor."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__field_id
+msgid "Detail of the type"
+msgstr "Dato del tipo"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type__placeholder_help
+msgid "Details the text can use"
+msgstr "Datos que puede usar el texto"
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_certificate_type_field_key_unique
+msgid "Each detail of a certificate type needs its own key."
+msgstr "Cada dato de un tipo de certificado necesita una clave propia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Fill in the certificate details first: %s."
+msgstr "Rellena primero los datos del certificado: %s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__help
+msgid "Hint"
+msgstr "Ayuda"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_field__key
+msgid ""
+"How the certificate text writes it, between braces: lowercase letters, "
+"digits and _."
+msgstr ""
+"Cómo lo escribe el texto del certificado, entre llaves: letras minúsculas, "
+"dígitos y _."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__value_text
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__field_type__text
+msgid "Long text"
+msgstr "Texto largo"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__applicant_input__none
+msgid "Not asked"
+msgstr "No se pide"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__required_step_id
+msgid "Required before"
+msgstr "Obligatorio antes de"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_value__is_pending
+msgid "Required by now and still empty."
+msgstr "Obligatorio a estas alturas y aún vacío."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__field_type__school_year
+msgid "School year"
+msgstr "Curso escolar"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__field_type__char
+msgid "Short text"
+msgstr "Texto corto"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_field__help
+msgid "Shown to the applicant under the detail."
+msgstr "Se muestra a la persona solicitante bajo el dato."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid ""
+"Skip the steps before issuing (e.g. completing the certificate details) when"
+" you already have every detail and document."
+msgstr ""
+"Salta los pasos anteriores a la expedición (p. ej. completar los datos del "
+"certificado) cuando ya tienes todos los datos y los documentos."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+msgid ""
+"That {name}, with identity document {document}, a student of {study}, ..."
+msgstr ""
+"Que {name}, con documento de identidad {document}, estudiante de {study}, "
+"..."
+
+#. module: ems
+#: model:ems.certificate.type,certificate_text:ems.certificate_type_fct
+msgid ""
+"That {name}, with identity document {document}, a student of {study}, did {hours} hours of workplace training (FCT) in the school year {school_year} at the company {company}[, with VAT number {company_vat}], from {start} to {end}.\n"
+"\n"
+"Source: the training agreement[ registered in sBID with number {agreement}], a copy of which is attached."
+msgstr ""
+"Que {name}, con documento de identidad {document}, estudiante de {study}, realizó {hours} horas de formación en centros de trabajo (FCT) en el curso {school_year} en la empresa {company}[, con NIF {company_vat}], del {start} al {end}.\n"
+"\n"
+"Fuente: el convenio de formación[ registrado en sBID con el número {agreement}], del que se adjunta una copia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate_type.py:0
+msgid ""
+"The key of %s may only have lowercase letters, digits and _, starting with a"
+" letter."
+msgstr ""
+"La clave de %s solo puede tener letras minúsculas, dígitos y _, y debe "
+"empezar por una letra."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_field__required_step_id
+msgid ""
+"The step that cannot be done until it is filled in (nor any later one). "
+"Empty: the circuit never requires it. Save the circuit's steps first."
+msgstr ""
+"El paso que no se puede hacer hasta que esté rellenado (ni ninguno "
+"posterior). Vacío: el circuito nunca lo exige. Guarda primero los pasos del "
+"circuito."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate_type.py:0
+msgid ""
+"The text of %(type)s in %(language)s has a square bracket without its pair "
+"(or one inside another)."
+msgstr ""
+"El texto de %(type)s en %(language)s tiene un corchete sin pareja (o uno "
+"dentro de otro)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate_type.py:0
+msgid ""
+"The text of %(type)s in %(language)s uses details it does not have: "
+"%(keys)s."
+msgstr ""
+"El texto de %(type)s en %(language)s usa datos que no tiene: %(keys)s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__value_vat
+msgid "VAT number (as written by the applicant)"
+msgstr "NIF (tal como lo ha escrito la persona solicitante)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type__certificate_text
+msgid ""
+"What the certificate says after \"CERTIFIES:\". Write {key} where a detail "
+"goes; a part between square brackets is printed only when every detail "
+"inside it has a value; a blank line starts a new paragraph."
+msgstr ""
+"Lo que dice el certificado después de \"CERTIFICA:\". Escribe {key} donde va"
+" un dato; una parte entre corchetes solo se imprime cuando todos los datos "
+"que contiene tienen valor; una línea en blanco empieza un párrafo nuevo."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_field__applicant_input
+msgid ""
+"Whether the request form asks the applicant for it, and whether they must "
+"answer."
+msgstr ""
+"Si el formulario de solicitud lo pide a la persona solicitante, y si debe "
+"responderlo."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__value_boolean
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__field_type__boolean
+msgid "Yes/No"
+msgstr "Sí/No"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+msgid ""
+"<i class=\"fa fa-lightbulb-o me-1\"/>Example, for a grades certificate whose details are the\n"
+"                            school year (key school_year) and the average grade (key average, not asked to the applicant):"
+msgstr "<i class=\"fa fa-lightbulb-o me-1\"/>Ejemplo, para un certificado de notas con los datos curso escolar (clave school_year) y nota media (clave average, que no se pide al solicitante):"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
+msgid ""
+"That {name}, with identity document {document}, a student of {study}, "
+"completed the school year {school_year}[ with an average grade of "
+"{average}].<br/><br/>Source: the student's academic record at the centre."
+msgstr "Que {name}, con documento de identidad {document}, estudiante de {study}, ha cursado el curso escolar {school_year}[ con una nota media de {average}].<br/><br/>Fuente: el expediente académico del alumno en el centro."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__role_ids
+msgid "Posts"
+msgstr "Cargos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate_type.py:0
+msgid "Every step of the approval circuit needs at least one position."
+msgstr "Cada paso del circuito de aprobación necesita al menos un cargo."
+
+#. module: ems
+#: model:ems.role,name:ems.role_secretary_technician
+msgid "Secretary technician"
+msgstr "Técnico/a de secretaría"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid ". Voting yes does not mean that you join it: if the group votes in favour, each student will then say personally whether they join it."
+msgstr ". Votar a favor no quiere decir que te sumes: si el grupo vota a favor, después cada alumno dirá personalmente si se suma."
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_student_walkout_call
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello <t t-out=\"object.student_id.name\"/>,</p>\n"
+"                        <p>\n"
+"                            <t t-out=\"object.walkout_id.opener_id.name\"/>, the delegate of your group, has proposed that your group walks out\n"
+"                            on <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, because of: «<t t-out=\"(object.walkout_id.notes or '').strip().rstrip('.')\"/>».\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            On the school portal (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">student walkouts</a>)\n"
+"                            you will find the document that supports it and you can vote whether the group walks out (an\n"
+"                            anonymous vote), until\n"
+"                            <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.vote_until)\"/>.\n"
+"                            The vote ends earlier if the votes still to come can no longer change the result. Voting yes\n"
+"                            does not mean that you join it: if the group votes in favour, a second phase follows in which\n"
+"                            each student says personally whether they join it.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola, <t t-out=\"object.student_id.name\"/>:</p>\n"
+"                        <p>\n"
+"                            <t t-out=\"object.walkout_id.opener_id.name\"/>, el delegado de tu grupo, ha propuesto que tu grupo haga una inasistencia colectiva el <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>, a raíz de: «<t t-out=\"(object.walkout_id.notes or '').strip().rstrip('.')\"/>».\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            En el portal del centro (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">inasistencias colectivas</a>)\n"
+"                            encontrarás el documento que la justifica y podrás votar si el grupo la hace (un voto anónimo), hasta el\n"
+"                            <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.vote_until)\"/>.\n"
+"                            La votación acaba antes si los votos que faltan ya no pueden cambiar el resultado. Votar a favor no quiere decir que te sumes: si el grupo vota a favor, después viene una segunda fase en la que cada alumno dice personalmente si se suma.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Un cordial saludo,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_student_walkout_join_extended
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello <t t-out=\"object.student_id.name\"/>,</p>\n"
+"                        <p>\n"
+"                            The time to say whether you join the student walkout of\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/> has been extended: you can answer, or change\n"
+"                            your answer, on the school portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">student walkouts</a>),\n"
+"                            until <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/>.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            If you have already answered, you do not need to do anything: your answer stays as it is. If you\n"
+"                            have not, remember that not answering means not joining it: you must go to class that day, and\n"
+"                            if you do not, the absences count as usual.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola, <t t-out=\"object.student_id.name\"/>:</p>\n"
+"                        <p>\n"
+"                            Se ha ampliado el tiempo para decir si te sumas a la decisión colectiva de inasistencia a clase del\n"
+"                            <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>: puedes responder, o cambiar tu respuesta, en el portal del centro\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">inasistencias colectivas</a>),\n"
+"                            hasta el <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/>.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Si ya has respondido, no tienes que hacer nada: tu respuesta se mantiene. Si todavía no lo has hecho, recuerda que no responder significa no sumarse: ese día tienes que ir a clase, y si no vas las faltas cuentan con normalidad.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Un cordial saludo,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_student_walkout_join
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello <t t-out=\"object.student_id.name\"/>,</p>\n"
+"                        <p>\n"
+"                            Your group has voted in favour of a student walkout on <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>\n"
+"                            (<t t-out=\"object.walkout_id.group_yes_count\"/> yes, <t t-out=\"object.walkout_id.group_no_count\"/> no,\n"
+"                            <t t-out=\"object.walkout_id.group_abstain_count\"/> abstentions).\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            <strong>But this is only the first step.</strong> The group supporting it does not mean that you\n"
+"                            take part: now the second phase starts, a personal one, in which each student says whether they\n"
+"                            join it or not.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            <strong>What you have to do:</strong> go to the school portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">student walkouts</a>)\n"
+"                            before <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/> and answer\n"
+"                            whether you join it or not. You can change your answer until then.\n"
+"                        </p>\n"
+"                        <p><strong>What happens depending on your answer:</strong></p>\n"
+"                        <ul>\n"
+"                            <li><strong>If you join it:</strong> the classes of that day do not count as absences, and your name appears in the minute.</li>\n"
+"                            <li><strong>If you do not join it, or do not answer:</strong> you must go to class that day, and if you do not, the absences count as usual.</li>\n"
+"                        </ul>\n"
+"                        <p>\n"
+"                            If you are a minor, we will ask your family to acknowledge receipt and say whether it agrees, for\n"
+"                            information only: its answer does not change your decision.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola, <t t-out=\"object.student_id.name\"/>:</p>\n"
+"                        <p>\n"
+"                            Tu grupo ha votado a favor de hacer una inasistencia colectiva el <strong t-out=\"format_date(object.walkout_id.walkout_date)\"/>\n"
+"                            (<t t-out=\"object.walkout_id.group_yes_count\"/> sí, <t t-out=\"object.walkout_id.group_no_count\"/> no,\n"
+"                            <t t-out=\"object.walkout_id.group_abstain_count\"/> abstenciones).\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            <strong>Pero esto solo es el primer paso.</strong> Que el grupo la apoye no quiere decir que vayas tú: ahora empieza la segunda fase, personal, en la que cada alumno dice si se suma o no.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            <strong>Qué tienes que hacer:</strong> entra en el portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/vagues/{{ object.walkout_id.id }}\">inasistencias colectivas</a>)\n"
+"                            antes del <strong t-out=\"object.walkout_id.format_local_datetime(object.walkout_id.join_until)\"/> y responde si te sumas o no. Puedes cambiar tu respuesta hasta ese momento.\n"
+"                        </p>\n"
+"                        <p><strong>Qué pasa según tu respuesta:</strong></p>\n"
+"                        <ul>\n"
+"                            <li><strong>Si te sumas:</strong> las clases de ese día no te contarán como faltas y tu nombre saldrá en el acta.</li>\n"
+"                            <li><strong>Si no te sumas, o no respondes:</strong> ese día tienes que ir a clase, y si no vas las faltas cuentan con normalidad.</li>\n"
+"                        </ul>\n"
+"                        <p>\n"
+"                            Si eres menor de edad, pediremos a tu familia que acuse recibo y diga si está de acuerdo, solo a título informativo: su respuesta no cambia tu decisión.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Un cordial saludo,<br/>\n"
+"                            <t t-out=\"object.walkout_id.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "<strong>If you do not join it, or do not answer:</strong> you must go to class that day, and if you do not, the absences count as usual."
+msgstr "<strong>Si no te sumas, o no respondes:</strong> ese día tienes que ir a clase, y si no vas las faltas cuentan con normalidad."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "<strong>If you join it:</strong> the classes of that day do not count as absences, and your name appears in the minute."
+msgstr "<strong>Si te sumas:</strong> las clases de ese día no te cuentan como faltas y tu nombre sale en el acta."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "If you are a minor, your family is asked to acknowledge receipt and say whether it agrees, for information only: its answer does not change yours. You can change your answer until"
+msgstr "Si eres menor de edad, se pide a tu familia que acuse recibo y diga si está de acuerdo, solo a título informativo: su respuesta no cambia la tuya. Puedes cambiar tu respuesta hasta el"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_student_walkout_join
+msgid "Student walkout on {{ format_date(object.walkout_id.walkout_date) }}: now you have to say whether you join it"
+msgstr "Inasistencia colectiva del {{ format_date(object.walkout_id.walkout_date) }}: ahora tienes que decir si te sumas"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "The group did not vote in favour of the walkout: everybody is expected in class that day."
+msgstr "El grupo no ha votado a favor de la inasistencia colectiva: ese día se espera a todo el mundo en clase."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "The group has voted in favour of the walkout ("
+msgstr "El grupo ha votado a favor de la inasistencia colectiva ("
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "The group voted in favour of the walkout."
+msgstr "El grupo ha votado a favor de la inasistencia colectiva."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "You did not answer, so you do not join it: you are expected in class that day."
+msgstr "No has respondido, así que no te sumas: ese día te esperamos en clase."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid "You had no access to the portal when the walkout was proposed, so you cannot vote. If the group votes in favour, you will be able to say whether you join it."
+msgstr "No tenías acceso al portal cuando se hizo la propuesta, así que no puedes votar. Si el grupo vota a favor, podrás decir si te sumas."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+msgid "Your group has voted in favour of a walkout on"
+msgstr "Tu grupo ha votado a favor de hacer una inasistencia colectiva el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_saved_modal
+msgid "Your vote is saved. It is anonymous and cannot be changed. Voting yes does not mean that you join it: if the group votes in favour, you will get an email to say personally whether you join it."
+msgstr "Se ha guardado tu voto. Es anónimo y no se puede cambiar. Votar a favor no quiere decir que te sumes: si el grupo vota a favor, recibirás un correo para decir personalmente si te sumas."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
+msgid ""
+"abstentions).\n"
+"                            That was only the first step: now each student says personally whether they join it."
+msgstr ""
+"abstenciones).\n"
+"                            Eso solo era el primer paso: ahora cada alumno dice personalmente si se suma."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+msgid "». Now say whether you join it: if you do not answer, you do not join it."
+msgstr "». Ahora di si te sumas: si no respondes, no te sumas."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group_schedule_declaration.py:0
+msgid "Only the main groups have a schedule declaration."
+msgstr "Solo los grupos principales tienen declaración horaria."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_study__duration_hours
+msgid "Duration (hours)"
+msgstr "Duración (horas)"

@@ -11,7 +11,7 @@ Un grupo es la clase a la que pertenece un alumno. Hay dos tipos:
 
 Para el horario semanal del grupo (agregado a partir de los horarios de los profesores) y su exportación a PDF, consulta [El horario semanal de un grupo](group-schedule.md) — esta página cubre la creación y gestión del grupo en sí.
 
-**Rol requerido:** Jefe de departamento (o superior — Jefe de estudios/Adjunto/Director/Administrador ya tienen este acceso por escalado de roles)
+**Rol requerido:** jefe de departamento (o superior — jefe de estudios/Adjunto/Director/Administrador ya tienen este acceso por escalado de roles)
 
 ---
 
@@ -88,7 +88,7 @@ Haz clic en **Resolver aulas pendientes** en cualquiera de los dos avisos para a
 
 Haz clic en **Confirmar** cuando cada fila tenga una resolución válida. El aviso desaparece cuando no queda nada pendiente.
 
-Para una clase de co-docencia, la misma colisión aparece a la vez en la ficha de cada docente (y en la ficha del grupo), ya que es realmente el mismo conflicto visto desde cada lado. Resolverlo desde cualquiera de esas pantallas lo limpia en todas — no hace falta repetir la resolución en el horario del otro docente ni en la ficha del grupo.
+Para una clase de codocencia, la misma colisión aparece a la vez en la ficha de cada docente (y en la ficha del grupo), ya que es realmente el mismo conflicto visto desde cada lado. Resolverlo desde cualquiera de esas pantallas lo limpia en todas — no hace falta repetir la resolución en el horario del otro docente ni en la ficha del grupo.
 
 ---
 
@@ -100,7 +100,7 @@ Selecciónalo en la lista y usa el menú **Acción** (⚙) → **Eliminar**. Se 
 
 ## Archivar un grupo (en lugar de eliminarlo)
 
-Si un grupo simplemente no funciona este curso pero podría volver en un curso futuro (un ciclo
+Si un grupo simplemente no funciona este curso, pero podría volver en un curso futuro (un ciclo
 que se salta un año, un turno que se suspende temporalmente...), **archívalo** en lugar de
 eliminarlo — archivarlo conserva su historial (tutor, aula, alumnos/horario anteriores) para
 poder recuperarlo exactamente como estaba, en lugar de tener que recrearlo desde cero más

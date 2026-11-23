@@ -4,7 +4,7 @@
 
 # Comunicats: enviar correus massius a alumnes i famílies
 
-**Rol necessari:** Administrador (o Director, que té la mateixa visibilitat completa — vegeu més avall)
+**Rol necessari:** Administrador (o director, que té la mateixa visibilitat completa — vegeu més avall)
 
 ---
 
@@ -83,7 +83,7 @@ anterior), que també podeu sobreescriure individualment sense tocar la del cent
 
 ## Qui veu quins comunicats
 
-Tothom amb accés a Comunicats — administradors, Director, Cap d'estudis, Cap d'estudis adjunt
+Tothom amb accés a Comunicats — administradors, director, cap d'estudis, cap d'estudis adjunt
 i coordinador de qualitat per igual — veu tots els comunicats de tot el centre, però la llista
 sempre s'obre filtrada amb **"Mostra només els meus"** per defecte, de manera que dia a dia
 tothom treballa còmodament només amb els seus propis. Si traieu aquest filtre (a la barra de
@@ -95,7 +95,7 @@ supervisar.
 - El **Cap d'estudis, el Cap d'estudis adjunt** i el **coordinador de qualitat** només poden
   editar o eliminar els comunicats que ells mateixos han creat — el comunicat d'una altra
   persona s'obre en mode només lectura fins i tot amb el filtre tret. Vegeu el
-  [manual de Cap d'estudis](../head_of_studies/notice.md) per a la seva perspectiva.
+  [manual de cap d'estudis](../head_of_studies/notice.md) per a la seva perspectiva.
 
 Si el vostre compte no està vinculat a cap docent (un cas poc habitual — la majoria de comptes
 d'Administrador/Director corresponen a un docent real) i preferiu no veure mai marcat "Mostra

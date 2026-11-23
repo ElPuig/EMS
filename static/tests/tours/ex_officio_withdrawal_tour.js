@@ -299,3 +299,38 @@ registry.category("web_tour.tours").add("ems_ex_officio_withdrawal_attendance_ch
         },
     ],
 });
+
+// Issue #817: the withdrawal has detached the student from their group, and their tutor still finds
+// the closed case file in the list and opens it with its history (fixtures in
+// tests/test_ex_officio_withdrawal_tour.py).
+registry.category("web_tour.tours").add("ems_ex_officio_withdrawal_closed_tutor", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_searchview .o_facet_remove",
+            content: "Drop the default 'Open' filter: a closed case file is not an open one",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('EOW Tour Student')",
+            content: "The closed case file is still in the tutor's list",
+        },
+        {
+            trigger: ".o_list_view .o_data_row .o_data_cell[name='name']",
+            content: "Open it",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_statusbar_status",
+            content: "It opens as a form, with its state",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='tutor_id']:contains('EOW Tour Tutor')",
+            content: "It still names the tutor the student had",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='history_html']",
+            content: "And shows its history of steps",
+        },
+    ],
+});

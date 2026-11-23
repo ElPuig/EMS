@@ -28,7 +28,7 @@ Navega a: **Gestión académica → Bajas de oficio**. Ves todos los expedientes
 
 ## Qué puede hacer la jefatura de estudios
 
-El jefe de estudios y el jefe de estudios adjunto pueden hacer lo que hace el tutor en cualquier expediente: iniciar o descartar una propuesta, hacer el paso del tutor y revisar los pases de lista que dicen otra cosa. En cambio, solo pueden **abrir** un expediente nuevo (Solicitar la baja de oficio) para el alumnado de los tutores que tienen por debajo.
+Todos los jefes de estudios y jefes de estudios adjuntos pueden leer cualquier expediente. Solo quienes están por encima del tutor del alumno pueden hacer en él lo que hace el tutor: iniciar o descartar una propuesta, hacer el paso del tutor y revisar los pases de lista que dicen otra cosa. Lo mismo vale para **abrir** un expediente nuevo (Solicitar la baja de oficio): solo para el alumnado de los tutores que tienen por debajo.
 
 ---
 

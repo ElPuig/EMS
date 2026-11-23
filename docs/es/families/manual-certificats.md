@@ -13,9 +13,9 @@ En el portal, los certificados de FCT los puede pedir el alumnado de ciclos form
 ## Pedir un certificado desde el portal
 
 1. Entra en el portal y haz clic en la tarjeta **Certificados**.
-2. Haz clic en **Nueva solicitud de certificado** para desplegar el formulario.
-3. Comprueba **Tus datos** y escribe el **Curso de la formación** (puedes elegir uno de la lista o escribir otro).
-4. En **La empresa**, completa toda la información que tengas: el nombre, el NIF, las fechas, las horas y el número de registro del convenio.
+2. Haz clic en **Nueva solicitud** seguido del certificado que necesitas (por ejemplo, **Nueva solicitud - FCT (Formació en Centres de Treball)**) para desplegar su formulario. Cada certificado tiene su formulario.
+3. Comprueba **Tus datos**.
+4. En **Datos del certificado**, rellena lo que pide el certificado. Los que tienen asterisco son obligatorios; el resto, rellénalos tanto como puedas y el centro los completa. Para la FCT: el **Curso de la formación** (puedes elegir uno de la lista o escribir otro) y, si los tienes, la empresa y su NIF, las fechas, las horas y el número de registro del convenio.
 5. En **Documentación**, adjunta el **Convenio de FCT** si tienes una copia (un PDF o fotos de las páginas). Si no lo tienes, lo adjunta el centro. También puedes añadir **Otra documentación**.
 6. Haz clic en **Enviar solicitud**.
 
@@ -30,7 +30,7 @@ En el portal, los certificados de FCT los puede pedir el alumnado de ciclos form
 En **Tus solicitudes**, haz clic en **Ver la solicitud** para consultar:
 
 - el estado y el **Paso actual**;
-- tus datos y los de la formación, incluidos los que añade el centro;
+- tus datos y los del certificado, incluidos los que añade el centro;
 - la documentación adjunta.
 
 Hasta que el centro empiece a trabajar en la solicitud, aún puedes completar o corregir tus datos y documentos desde esta misma página, con **Guardar cambios**.

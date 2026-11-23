@@ -6,7 +6,7 @@
 
 La prefectura d'estudis, la prefectura d'estudis adjunta i la coordinació TAC poden crear fitxes noves de professorat i editar les existents, sense haver de passar per una persona administradora. Gestionen la fitxa del professorat sencera, incloses les pestanyes **Informació privada** i **Recursos Humans**.
 
-**Càrrec necessari:** Cap d'estudis, Cap d'estudis adjunt, Director/a o Coordinador/a TAC
+**Càrrec necessari:** cap d'estudis, cap d'estudis adjunt, director/a o coordinador/a TAC
 
 ---
 
@@ -68,7 +68,7 @@ Si la persona ja té un compte corporatiu (per exemple, en una altra fitxa), mar
 
 ## Document d'identitat i número de la Seguretat Social
 
-La pestanya **Informació privada** de la fitxa d'un docent comença amb un grup **Identificació** amb el **Document d'identitat** (DNI/NIE) i el **Núm. de la Seguretat Social**. Vosaltres, l'adjunt/a, el Director i el coordinador TAC els podeu editar a les fitxes del professorat; la Secretaria els manté al dia per a tot el personal, PAS inclòs.
+La pestanya **Informació privada** de la fitxa d'un docent comença amb un grup **Identificació** amb el **Document d'identitat** (DNI/NIE) i el **Núm. de la Seguretat Social**. Vosaltres, l'adjunt/a, el director i el coordinador TAC els podeu editar a les fitxes del professorat; la Secretaria els manté al dia per a tot el personal, PAS inclòs.
 
 El Cap de departament i el Cap de seminari d'un docent també poden veure aquests dos camps, només de lectura, a les fitxes del personal del seu propi departament (només la seva pròpia cadena de comandament, no la d'altres departaments). Per a ells la pestanya només mostra el grup **Identificació**: la resta de la informació privada queda amagada.
 
@@ -103,6 +103,8 @@ Les hores d'un bloc d'*Atenció a l'alumnat* compten a la fila del seu nivell o 
 ![El menú Imprimeix de la llista de professors, amb dos docents seleccionats i Declaració horària](../../assets/head_of_studies/hos-declaracio-horaria-llista.png)
 
 ![La fitxa d'un docent amb el desplegable Accions obert: Imprimeix la declaració horària](../../assets/head_of_studies/hos-declaracio-horaria-accions.png)
+
+La declaració dels grups funciona igual: a **Comunitat Educativa → Grups**, passeu a la vista de llista, seleccioneu els grups principals i trieu **Imprimeix → Declaració horària** (una pàgina cadascun), o obriu un grup i trieu **Accions → Imprimeix la declaració horària**. A [Imprimir la declaració horària oficial](../admin/working-schedules.md#imprimir-la-declaració-horària-oficial) teniu què contenen les pàgines.
 
 ## Què no podeu fer
 

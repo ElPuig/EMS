@@ -14,7 +14,7 @@ Crea i publica una convocatòria Erasmus+, revisa les sol·licituds que l'alumna
 
 Ves a **Erasmus+ > Convocatòries > Convocatòries** i fes clic a **Nou**:
 
-> **Dates i hores:** les llistes i les dates que no es poden editar mostren només el dia. Un termini que pots editar conserva l'hora, perquè és l'hora el que decideix quan s'acaba: *20/11/2026 23:59* tanca al final d'aquell dia. També la conserven la data d'una entrevista, el torn per escollir destinació i el termini per respondre una oferta.
+> **Dates i hores:** les llistes i les dates que no es poden editar mostren només el dia. Un termini que pots editar conserva l'hora, perquè és l'hora el que decideix quan s'acaba: *20/11/2026 23:59* tanca al final d'aquell dia. També la conserven la data d'una entrevista, el torn per escollir destinació i el termini per respondre a una oferta.
 
 | Camp | Què cal posar-hi |
 |---|---|

@@ -39,7 +39,7 @@ En acabar obtindràs un resum del que s'ha aplicat i un **registre CSV** que pot
 
 ## Crear les matrícules que faltin
 
-Esfera llista **tots els mòduls del cicle** al butlletí de cada alumne, mentre que l'EMS només té matrícula dels mòduls que l'alumne cursa realment. Quan tots dos no coincideixen —l'alumne té nota a Esfera però no té matrícula a l'EMS— aquella nota no té on anar i es descarta, amb una nota de "no matriculat" al registre.
+Esfera llista **tots els mòduls del cicle** al butlletí de cada alumne, mentre que l'EMS només té matrícula dels mòduls que l'alumne cursa realment. Quan tots dos no coincideixen —l'alumne té nota a Esfera, però no té matrícula a l'EMS— aquella nota no té on anar i es descarta, amb una nota de "no matriculat" al registre.
 
 Marcar aquesta casella permet que la importació ho resolgui matriculant l'alumne. Està **desactivada per defecte** i només actua allà on el buit és gairebé segur que és un error real:
 

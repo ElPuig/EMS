@@ -111,3 +111,16 @@ registry.category("web_tour.tours").add("ems_actions_dropdown_employee", {
         closeActions(),
     ],
 });
+
+// The group form (views/community/group/form.xml), as a Head of Studies on a main group (issue
+// #853): the official schedule declaration is offered from the Actions dropdown, never loose in the
+// header.
+registry.category("web_tour.tours").add("ems_actions_dropdown_group", {
+    test: true,
+    steps: () => [
+        ...checkActions(
+            { offered: ["action_print_schedule_declaration"] },
+            "The Head of Studies is offered the group's schedule declaration",
+        ),
+    ],
+});

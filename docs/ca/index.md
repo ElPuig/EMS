@@ -19,7 +19,7 @@ Seleccioneu el vostre perfil per accedir als manuals corresponents:
 | [Caps de departament i de seminari](department_chiefs/index.md) | Organitzar les absències dels docents del teu departament i escriure als seus grups |
 | [Tutors](tutors/index.md) | Gestió de propostes de matrícula i seguiment dels alumnes del grup |
 | [Secretaria](secretary/index.md) | Gestió de matrícules, documents, pagaments i bonificacions |
-| [Cap d'Estudis](head_of_studies/index.md) | Decidir sobre sol·licituds de correcció de fitxatges |
+| [Cap d'estudis](head_of_studies/index.md) | Decidir sobre sol·licituds de correcció de fitxatges |
 | [Equip Erasmus+](erasmus/index.md) | Convocatòries i sol·licituds Erasmus+ |
 | [Administrador](admin/index.md) | Configuració curricular, gestió de professors i comptes de Google Workspace |
 | [Coordinació de Qualitat](quality/index.md) | Sistema de gestió de la qualitat: processos, documentació i acords |

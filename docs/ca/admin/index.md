@@ -19,20 +19,21 @@ Aquesta secció conté els manuals per a **administradors**.
 - [Tipus de certificat i circuits d'aprovació](certificate-types.md) — Quins certificats es poden demanar, quina documentació exigeixen, qui la pot adjuntar i qui fa cada pas fins que s'expedeixen.
 - [Idioma del centre](centre-language.md) — L'idioma en què EMS escriu pel seu compte i que reben els usuaris nous.
 - [Carpeta de les actes a Drive](minutes-drive.md) — Guardar una còpia del PDF de cada acta en una carpeta d'una unitat compartida.
+- [Compressió dels fitxers pujats](uploaded-files-compression.md) — Els PDF i les imatges es fan més lleugers automàticament després de pujar-los.
 - [Grups de treball](workgroups.md) — Agrupacions lliures d'empleats (equips de projecte, comissions).
 - [Espais i tipus d'espai](facilities.md) — Aules físiques i els seus tipus, usats en sessions/grups/actes/horaris.
-- [Rols de professorat i nivells de permisos](teacher-roles.md) — Com assignar rols (Tutor, Cap de departament, Cap d'estudis, Director...) per concedir nivells de permisos.
+- [Rols de professorat i nivells de permisos](teacher-roles.md) — Com assignar rols (Tutor, cap de departament, cap d'estudis, director...) per concedir nivells de permisos.
 - [Alta d'un professor i creació del compte de correu corporatiu (Google Workspace)](alta-professor-compte-google.md) — Com donar d'alta un professor o membre del PAS i com es genera el seu compte corporatiu.
 - [Gestionar el compte de Google d'un alumne](student-google-account.md) — Crear, suspendre o restablir la contrasenya del compte de Google d'un alumne i descarregar-ne les credencials (administració i coordinació TAC).
 - [Configurar el carnet d'estudiant](student-card-settings.md) — Pujar el segell del centre i canviar el color de cada nivell al carnet.
 - [Strikes: gestionar motius i llindar d'escalat](strike.md) — Configurar la llista de motius de strike i el llindar d'escalat de convivència.
-- [Estats d'assistència: gestionar les opcions del passar llista](attendance-status.md) — Afegir, reordenar o retirar els estats que els professors poden triar a la vista de passar llista.
+- [Estats d'assistència: gestionar les opcions de passar llista](attendance-status.md) — Afegir, reordenar o retirar els estats que els professors poden triar a la vista de passar llista.
 - [Motius de justificació](attendance-justification-reasons.md) — Els motius que trien els tutors en justificar faltes: ordre, motiu per defecte, detalls i motius de dia complet.
 - [Horaris dels docents i marcs horaris](working-schedules.md) — Configurar les plantilles d'horari, el marc predeterminat, i editar/importar l'horari setmanal d'un docent.
 - [Assignació de tasques: qui gestiona les tasques que crea l'EMS](task-assignment.md) — Triar qui revisa els documents que pugen els alumnes i els comentaris de les famílies, amb independència dels rols i els permisos.
 - [Grups](groups.md) — Crear i gestionar grups Principals/de Reforç, tutors, delegats i canvi de tipus de grup.
 - [L'horari setmanal d'un grup](group-schedule.md) — Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF.
-- [L'horari setmanal d'un alumne](student-schedule.md) — Consultar l'horari propi d'un alumne (assignatures, docents, aules, patis), incloent-hi classes solapades, i exportar-lo a PDF.
+- [L'horari setmanal d'un alumne](student-schedule.md) — Consultar l'horari propi d'un alumne (assignatures, docents, aules, patis), incloent-hi classes encavalcades, i exportar-lo a PDF.
 - [L'horari d'ocupació d'una aula](space-schedule.md) — Consultar quines classes acull una aula cada setmana (assignatures, docents) i exportar-lo a PDF.
 - [Preparar el curs següent](course-transition.md) — Tancar el curs: arxivar l'historial acadèmic, graduar i arxivar els exalumnes, col·locar tothom al grup nou i canviar el curs actual.
 - [Importar les notes des d'Esfera](grade-import.md) — Carregar a l'EMS les notes oficials de cada avaluació i, opcionalment, crear les matrícules que faltin.

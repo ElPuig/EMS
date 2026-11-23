@@ -6,6 +6,8 @@
 
 Your group can decide on the portal whether it walks out on a given day (for instance, after a students' union calls a walkout), and each student says whether they join it. The students who join it are off the roll-calls of that day: neither absent nor present.
 
+**These are two separate phases.** The group voting in favour is only the first step: it does not mean that you take part. Then each student says personally whether they join it, and a student who does not answer does not join it: they must go to class that day, and absences count as usual.
+
 It is a collective decision not to attend class, of students from the 3rd year of ESO onwards, told to the school's management beforehand. Nobody can revoke it, the family included: the school only informs. The family of a minor is asked on the portal to acknowledge receipt and to say whether it agrees.
 
 ---
@@ -55,7 +57,7 @@ Both are required: without a reason and a document you cannot propose the vote.
 
 Your group gets an email at once to vote. Only one proposal per group and day is possible.
 
-While the proposal is being voted or joined, its page shows you how many students have answered, and **Cancel the proposal** cancels it. A cancelled proposal disappears for the group.
+While the proposal is being voted or joined, its page shows you how many students have answered, and **Cancel the proposal** cancels it. A cancelled proposal disappears for the group: only the delegate and the sub-delegate keep seeing it, whichever of the two cancelled it.
 
 ---
 
@@ -67,22 +69,24 @@ The home page of the portal warns you when your group is voting. Open the propos
 
 - The vote is **anonymous**: only the count is kept, never who voted what.
 - You vote **once**: it cannot be changed afterwards.
-- The group decides to walk out when there are more yes than no among the votes cast (a tie does not decide it).
+- The group supports the walkout when there are more yes than no among the votes cast (a tie does not decide it).
+- **Voting yes does not mean joining it**: if the group votes in favour, each student then says personally whether they join it.
 
-If the group decides not to walk out, the proposal closes and everybody is expected in class that day.
+If the group does not vote in favour, the proposal closes and everybody is expected in class that day.
 
-A student who had no access to the portal when the walkout was proposed appears in the minute and does not vote, but if the group decides to walk out and they get access while joining is open, they can say whether they join: they are sent the email at that moment.
+A student who had no access to the portal when the walkout was proposed appears in the minute and does not vote, but if the group votes in favour and they get access while joining is open, they can say whether they join: they are sent the email at that moment.
 
 ---
 
 ## Joining (every student)
 
-If the group decides to walk out, you get an email and the proposal asks you **Do you join the walkout?** Answer **Yes, I join it** or **No** and click **Send**. A pop-up confirms your answer, and the form closes and shows it. You can change it with **Change my answer** until joining ends.
+If the group votes in favour, the second phase starts, a personal one: you get an email explaining what you have to do and what happens depending on your answer, and the proposal asks you **Do you join the walkout?** Answer **Yes, I join it** or **No** and click **Send**. A pop-up confirms your answer, and the form closes and shows it. You can change it with **Change my answer** until joining ends.
 
 ![Joining the walkout, with the warning for a minor](../../assets/families/walkout-portal-join.png)
 
-- Your name appears in the minute the Head of Studies gets.
+- **If you join it**, your name appears in the minute the Head of Studies gets.
 - The classes of that day do not count as absences for you: you are off the roll-calls. If the walkout is not validated, they do count.
+- **If you do not join it, or do not answer** before joining ends, you must go to class that day, and if you do not, the absences count as usual.
 - **If you are a minor**, your family is asked on the portal, while joining lasts, to acknowledge receipt and say whether it agrees that you join. Nobody can revoke your decision. If it does not say that it agrees, it is told of each class you do not attend that day, for information. The page tells you what your family has answered.
 
 ---
@@ -130,12 +134,12 @@ The minute (PDF) is on the proposal's page once it closes.
 | State | Meaning |
 |-------|---------|
 | **Voting** | The group is voting whether it walks out |
-| **Joining** | The group walks out: each student says whether they join it |
+| **Joining** | The group voted in favour: now each student says whether they join it (not answering means not joining) |
 | **Closed** | The Head of Studies has the minute and decides |
 | **Validated** | Those who join it are off the roll-calls of that day |
 | **Aborted** | The tutor stopped the proposal, with a reason |
 | **Not validated** | The Head of Studies did not validate it, with a reason |
-| **Cancelled** | The delegate cancelled it |
+| **Cancelled** | The delegate or the sub-delegate cancelled it |
 
 ---
 

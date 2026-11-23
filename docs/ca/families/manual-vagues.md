@@ -6,6 +6,8 @@
 
 El teu grup pot decidir al portal si fa una inassistència col·lectiva un dia concret (per exemple, arran d'una convocatòria de vaga d'un sindicat d'estudiants), i cada alumne diu si s'hi suma. Els alumnes que s'hi sumen no consten al passi de llista d'aquell dia: no hi falten ni hi assisteixen.
 
+**Són dues fases separades.** Que el grup hi voti a favor és només el primer pas: no vol dir que hi participis. Després, cada alumne diu personalment si s'hi suma, i qui no respon no s'hi suma: aquell dia ha d'anar a classe, i les faltes compten amb normalitat.
+
 És una decisió col·lectiva d'inassistència a classe de l'alumnat a partir de 3r d'ESO, comunicada prèviament a la direcció del centre. Ningú no la pot revocar, tampoc la família: el centre només n'informa. Es demana a la família d'un alumne menor d'edat que n'acusi rebuda al portal i que digui si hi està d'acord.
 
 ---
@@ -55,7 +57,7 @@ Tots dos són obligatoris: sense un motiu i un document no pots proposar la vota
 
 El teu grup rep de seguida un correu per votar. Només hi pot haver una proposta per grup i dia.
 
-Mentre la proposta està en votació o en adhesions, la seva pàgina et mostra quants alumnes han respost, i **Anul·la la proposta** l'anul·la. Una proposta anul·lada desapareix per al grup.
+Mentre la proposta està en votació o en adhesions, la seva pàgina et mostra quants alumnes han respost, i **Anul·la la proposta** l'anul·la. Una proposta anul·lada desapareix per al grup: només la continuen veient el delegat i el subdelegat, sigui quin sigui dels dos qui l'ha anul·lat.
 
 ---
 
@@ -67,22 +69,24 @@ La pàgina d'inici del portal t'avisa quan el teu grup està votant. Obre la pro
 
 - La votació és **anònima**: només es guarda el recompte, mai qui ha votat què.
 - Votes **una sola vegada**: després no es pot canviar.
-- El grup decideix fer la inassistència col·lectiva quan hi ha més vots a favor que en contra entre els vots emesos (un empat no ho decideix).
+- El grup hi dona suport quan hi ha més vots a favor que en contra entre els vots emesos (un empat no ho decideix).
+- **Votar a favor no vol dir sumar-s'hi**: si el grup hi vota a favor, després cada alumne diu personalment si s'hi suma.
 
-Si el grup decideix no fer-la, la proposta es tanca i aquell dia s'espera tothom a classe.
+Si el grup no hi vota a favor, la proposta es tanca i aquell dia s'espera tothom a classe.
 
-Un alumne que no tenia accés al portal quan es va fer la proposta surt a l'acta i no vota, però, si el grup decideix fer-la i obté l'accés mentre l'adhesió és oberta, pot dir si s'hi suma: rep el correu en aquell moment.
+Un alumne que no tenia accés al portal quan es va fer la proposta surt a l'acta i no vota, però, si el grup hi vota a favor i obté l'accés mentre l'adhesió és oberta, pot dir si s'hi suma: rep el correu en aquell moment.
 
 ---
 
 ## Sumar-s'hi (tot l'alumnat)
 
-Si el grup decideix fer-la, reps un correu i la proposta et pregunta **Et sumes a la inassistència col·lectiva?** Respon **Sí, m'hi sumo** o **No** i fes clic a **Enviar**. Una finestra et confirma la resposta, i el formulari es tanca i la mostra. Pots canviar-la fins que acabin les adhesions amb **Canvia la resposta**.
+Si el grup hi vota a favor, comença la segona fase, personal: reps un correu que t'explica què has de fer i què passa segons la teva resposta, i la proposta et pregunta **Et sumes a la inassistència col·lectiva?** Respon **Sí, m'hi sumo** o **No** i fes clic a **Enviar**. Una finestra et confirma la resposta, i el formulari es tanca i la mostra. Pots canviar-la fins que acabin les adhesions amb **Canvia la resposta**.
 
 ![Adhesió a la inassistència col·lectiva, amb l'avís per a un alumne menor d'edat](../../assets/families/walkout-portal-join.png)
 
-- El teu nom surt a l'acta que rep el cap d'estudis.
+- **Si t'hi sumes**, el teu nom surt a l'acta que rep el cap d'estudis.
 - Les classes d'aquell dia no et compten com a faltes: no consten al passi de llista. Si la inassistència col·lectiva no es valida, sí que hi compten.
+- **Si no t'hi sumes, o no respons** abans que acabin les adhesions, aquell dia has d'anar a classe, i si no hi vas les faltes compten amb normalitat.
 - **Si ets menor d'edat**, es demana a la teva família que acusi rebuda al portal i digui si està d'acord que t'hi sumes, mentre durin les adhesions. Ningú no pot revocar la teva decisió. Si no diu que hi està d'acord, se l'informa de cada classe a què no assisteixis aquell dia, a títol informatiu. La pàgina et diu què ha respost la teva família.
 
 ---
@@ -130,12 +134,12 @@ L'acta (PDF) és a la pàgina de la proposta un cop tancada.
 | Estat | Significat |
 |-------|-----------|
 | **En votació** | El grup vota si fa la inassistència col·lectiva |
-| **Adhesions** | El grup la fa: cada alumne diu si s'hi suma |
+| **Adhesions** | El grup hi ha votat a favor: ara cada alumne diu si s'hi suma (qui no respon, no s'hi suma) |
 | **Tancada** | El cap d'estudis té l'acta i decideix |
 | **Validada** | Els qui s'hi sumen no consten al passi de llista d'aquell dia |
 | **Avortada** | El tutor ha aturat la proposta, amb un motiu |
 | **No validada** | El cap d'estudis no l'ha validat, amb un motiu |
-| **Anul·lada** | El delegat l'ha anul·lat |
+| **Anul·lada** | El delegat o el subdelegat l'ha anul·lat |
 
 ---
 

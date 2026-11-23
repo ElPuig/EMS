@@ -1,9 +1,15 @@
 import hashlib, logging, re, traceback
 from lxml import etree
 from markupsafe import Markup
-from odoo import SUPERUSER_ID, models, fields, _
+from odoo import SUPERUSER_ID, api, models, fields, _
+from odoo.exceptions import AccessError
 
 _logger = logging.getLogger(__name__)
+
+# Issues #723 and #853: who prints the official schedule declarations, of teachers and of groups
+# (Heads and Deputy Heads of Studies, the Director, who implies it, and the administrators;
+# developer, 2026-10-29).
+SCHEDULE_DECLARATION_GROUPS = ('ems.group_head_of_studies', 'ems.group_academic_admin', 'base.group_system')
 
 class EmsBase(models.AbstractModel):
     _name = 'ems.base'
@@ -19,6 +25,14 @@ class EmsBase(models.AbstractModel):
     def action_archive(self):
         for record in self:
             record.active = False
+
+    @api.model
+    def check_can_print_schedule_declaration(self):
+        """Heads and Deputy Heads of Studies, the Director and the administrators only, checked by the
+        buttons of the teacher and group forms and by their report models: /report/pdf renders without
+        looking at the report's groups."""
+        if not any(self.env.user.has_group(group) for group in SCHEDULE_DECLARATION_GROUPS):
+            raise AccessError(_("Only the Heads and Deputy Heads of Studies, the Director and the administrators can print the schedule declaration."))
 
     def next_course_number(self, key, label, prefix, course):
         """Next registry entry of `course` for one kind of record: <prefix>-<start>-<end, two

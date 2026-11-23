@@ -19,9 +19,10 @@ Esta sección contiene los manuales para **administradores**.
 - [Tipos de certificado y circuitos de aprobación](certificate-types.md) — Qué certificados se pueden pedir, qué documentación exigen, quién puede adjuntarla y quién hace cada paso hasta que se expiden.
 - [Idioma del centro](centre-language.md) — El idioma en el que EMS escribe por su cuenta y que reciben los usuarios nuevos.
 - [Carpeta de las actas en Drive](minutes-drive.md) — Guardar una copia del PDF de cada acta en una carpeta de una unidad compartida.
+- [Compresión de los ficheros subidos](uploaded-files-compression.md) — Los PDF y las imágenes se hacen más ligeros automáticamente tras subirlos.
 - [Grupos de trabajo](workgroups.md) — Agrupaciones libres de empleados (equipos de proyecto, comisiones).
 - [Espacios y tipos de espacio](facilities.md) — Aulas físicas y sus tipos, usados en sesiones/grupos/actas/horarios.
-- [Roles de profesorado y niveles de permisos](teacher-roles.md) — Cómo asignar roles (Tutor, Jefe de departamento, Jefe de estudios, Director...) para conceder niveles de permisos.
+- [Roles de profesorado y niveles de permisos](teacher-roles.md) — Cómo asignar roles (Tutor, jefe de departamento, jefe de estudios, director...) para conceder niveles de permisos.
 - [Alta de un profesor y creación de la cuenta de correo corporativo (Google Workspace)](alta-professor-compte-google.md) — Cómo dar de alta a un profesor o miembro del PAS y cómo se genera su cuenta corporativa.
 - [Gestionar la cuenta de Google de un alumno](student-google-account.md) — Crear, suspender o restablecer la contraseña de la cuenta de Google de un alumno y descargar sus credenciales (administración y coordinación TAC).
 - [Configurar el carné de estudiante](student-card-settings.md) — Subir el sello del centro y cambiar el color de cada nivel en el carné.

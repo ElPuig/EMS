@@ -39,22 +39,22 @@ En la pantalla de **Informes de asistencia**, haz clic en el botón de la **impr
 **Informe de asistencia (por grupo):**
 1. Selecciona un **Grupo** — el desplegable muestra los grupos de tus alumnos y de tus tutorizados.
 2. El **Tutor/a** y las fechas **Desde**/**Hasta** se rellenan automáticamente a partir del grupo y su rango de sesiones.
-3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo. Para un grupo que tutorizas incluye **todas las asignaturas**, sea quien sea el docente de la sesión; para el resto de grupos, solo las asignaturas que impartes. Incluye al alumnado del grupo, según el grupo de cada alumno en la fecha de cada sesión.
+3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/ausencia, un recuento por estado y las notas de sesión registradas durante el periodo. Para un grupo que tutorizas incluye **todas las asignaturas**, sea quien sea el docente de la sesión; para el resto de grupos, solo las asignaturas que impartes. Incluye al alumnado del grupo, según el grupo de cada alumno en la fecha de cada sesión.
 
 **Informe de asistencia (por alumno):**
 1. Selecciona un **Alumno** — el desplegable muestra los alumnos a los que has pasado lista en **tus asignaturas** y **todos tus tutorizados**, aunque no les impartas ninguna asignatura.
 2. El **Tutor/a** y las fechas **Desde**/**Hasta** se rellenan automáticamente a partir del alumno y su rango de sesiones.
-3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo. Para tus tutorizados incluye **todas las asignaturas**, sea quien sea el docente de la sesión; para el resto de alumnos, solo las asignaturas que impartes.
+3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/ausencia, un recuento por estado y las notas de sesión registradas durante el periodo. Para tus tutorizados incluye **todas las asignaturas**, sea quien sea el docente de la sesión; para el resto de alumnos, solo las asignaturas que impartes.
 
    ![Formulario para imprimir el informe de asistencia por alumno, con un alumno tutorado seleccionado y el tutor y las fechas rellenados](../../assets/tutors/tutor-informes-01-per-estudiant.png)
 
-El Jefe de departamento o de seminario, el Jefe de estudios que tienes por encima y el Director ven lo mismo que tú: tus tutorizados en la pantalla de **Informes** y los informes PDF completos de tus tutorizados y de los grupos que tutorizas. El Jefe de departamento o de seminario del departamento que gestiona el estudio de tu grupo, y la Jefatura de Estudios de su área, ven además a todo el alumnado de ese estudio.
+El jefe de departamento o de seminario, el jefe de estudios que tienes por encima y el director ven lo mismo que tú: tus tutorizados en la pantalla de **Informes** y los informes PDF completos de tus tutorizados y de los grupos que tutorizas. El jefe de departamento o de seminario del departamento que gestiona el estudio de tu grupo, y la Jefatura de Estudios de su área, ven además a todo el alumnado de ese estudio.
 
 **Informe de asistencia (por asignatura):**
 1. Selecciona una **Asignatura** — el desplegable muestra las asignaturas que impartes y todas las de tus tutorizados, cada tema como una asignatura propia.
 2. El campo **Grupos** se rellena automáticamente con todos los grupos de los alumnos que ves con esa asignatura, y **Tutores** muestra sus tutores como referencia (aquí es donde realmente puedes ver quién tutoriza cada grupo — sin tener que elegir tú primero el grupo). Si solo quieres algunos de esos grupos en el informe, quita el resto del campo **Grupos** — se queda editable.
 3. Las fechas **Desde**/**Hasta** se rellenan automáticamente para cubrir todo el rango de sesiones de tu selección.
-4. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo. Para tus tutorizados incluye todas las sesiones de la asignatura, las haya impartido quien las haya impartido.
+4. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/ausencia, un recuento por estado y las notas de sesión registradas durante el periodo. Para tus tutorizados incluye todas las sesiones de la asignatura, las haya impartido quien las haya impartido.
 
 **Para cualquier tipo de informe**, dos controles gobiernan el detalle por línea en el PDF:
 - **Estados de detalle** — qué estados aparecen en las tablas "Detalles". Por defecto solo incluye estados

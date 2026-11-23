@@ -6,7 +6,7 @@
 
 Consulta dónde está cada docente, y quién está de guardia, en cada franja horaria de la semana — no solo tu propio horario.
 
-**Rol necesario:** Docente (solo lectura; los horarios los configura un Jefe de departamento o superior desde el horario semanal propio del docente correspondiente). Organizar una ausencia desde la Tabla de ausencias corresponde al Jefe de departamento o de seminario del docente ausente y a quienes están por encima (ver [Organizar una ausencia](#organizar-una-ausencia)), que también pueden introducir una ausencia detectada para un docente de su departamento; un docente de guardia también puede cogerse él mismo una clase sin docente (ver [Cubrir tú mismo una clase](#cubrir-tu-mismo-una-clase)). Cuando los estudios del grupo tienen un departamento que los gestiona, los jefes de ese departamento también pueden organizarla.
+**Rol necesario:** Docente (solo lectura; los horarios los configura un jefe de departamento o superior desde el horario semanal propio del docente correspondiente). Organizar una ausencia desde la Tabla de ausencias corresponde al jefe de departamento o de seminario del docente ausente y a quienes están por encima (ver [Organizar una ausencia](#organizar-una-ausencia)), que también pueden introducir una ausencia detectada para un docente de su departamento; un docente de guardia también puede cogerse él mismo una clase sin docente (ver [Cubrir tú mismo una clase](#cubrir-tu-mismo-una-clase)). Cuando los estudios del grupo tienen un departamento que los gestiona, los jefes de ese departamento también pueden organizarla.
 
 ---
 

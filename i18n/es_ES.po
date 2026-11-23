@@ -224,7 +224,7 @@ msgstr "<b>Tu mensaje ha sido enviado a secretaría:</b>"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "<code>{{academic_year}}</code> — Academic year (e.g. 2025-2026)"
-msgstr "<code>{{academic_year}}</code> — Año académico (p.ej. 2025-2026)"
+msgstr "<code>{{academic_year}}</code> — Año académico (p. ej. 2025-2026)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
@@ -234,7 +234,7 @@ msgstr "<code>{{student_name}}</code> — Nombre completo del alumno/a"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "<code>{{study_name}}</code> — Study name (e.g. DAM)"
-msgstr "<code>{{study_name}}</code> — Nombre de los estudios (p.ej. DAM)"
+msgstr "<code>{{study_name}}</code> — Nombre de los estudios (p. ej. DAM)"
 
 #. module: ems
 #: model:mail.template,body_html:ems.email_template_enrollment_send
@@ -296,7 +296,7 @@ msgstr ""
 "                            <li>Discapacidad &gt; 33%</li>\n"
 "                            <li>Otros (matrícula honor Batx, violencia de género, renta mínima, premio Batx, premio FP,...)</li>\n"
 "                        </ul>\n"
-"                        <p><em>Nota: Si detecta alguna incidencia o tiene alguna duda con los conceptes, puede enviar un comentario a Secretaría desde el mismo portal, antes de confirmar el trámite.</em></p>\n"
+"                        <p><em>Nota: Si detecta alguna incidencia o tiene alguna duda con los conceptos, puede enviar un comentario a Secretaría desde el mismo portal, antes de confirmar el trámite.</em></p>\n"
 "                        <p>\n"
 "                            Atentamente,<br/>\n"
 "                            <t t-out=\"object.company_id.name\"/>\n"
@@ -341,7 +341,7 @@ msgstr ""
 "                            Estimada familia,\n"
 "                        </p>\n"
 "                        <p>\n"
-"                            Les pedimos disculpas, pues recientmente han recibido un correo electrónico que contenía datos incorrectos sobre el estado de una asistencia.\n"
+"                            Les pedimos disculpas, pues recientemente han recibido un correo electrónico que contenía datos incorrectos sobre el estado de una asistencia.\n"
 "                        </p>\n"
 "                        <p>\n"
 "                            De nuevo, nuestras disculpas; esta es la información correcta de la asistencia:\n"
@@ -1190,7 +1190,7 @@ msgstr "Acción"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__message_needaction
 msgid "Action Needed"
-msgstr "Acción Necesária"
+msgstr "Acción necesaria"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__active model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__active model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__active model:ir.model.fields,field_description:ems.field_ems_attendance_justification__active model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__active model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__active model:ir.model.fields,field_description:ems.field_ems_attendance_template__active model:ir.model.fields,field_description:ems.field_ems_base__active model:ir.model.fields,field_description:ems.field_ems_enrollment__active model:ir.model.fields,field_description:ems.field_ems_grade_session__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__active model:ir.model.fields,field_description:ems.field_ems_notice__active model:ir.model.fields,field_description:ems.field_ems_notice_line__active model:ir.model.fields,field_description:ems.field_ems_strike__active model:ir.model.fields,field_description:ems.field_ems_strike_reason__active model:ir.model.fields,field_description:ems.field_ems_teaching__active model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__active model:ir.model.fields,field_description:ems.field_ems_attendance_status__active model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__active model:ir.model.fields,field_description:ems.field_ems_group__active model:ir.model.fields.selection,name:ems.selection__ems_study__transition_state__active
@@ -1232,7 +1232,7 @@ msgstr "Activo"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_group__active
 msgid "A group that won't be used this course but may come back in a future one (e.g. a cycle not running this year) should be archived instead of deleted, so it can be reactivated later instead of being recreated as a duplicate."
-msgstr "Un grupo que no se utilizará este curso pero que podría volver en un curso futuro (p. ej., un ciclo que se salta un año) debería archivarse en lugar de eliminarlo, para poder reactivarlo más adelante en lugar de volver a crearlo como un duplicado."
+msgstr "Un grupo que no se utilizará este curso, pero que podría volver en un curso futuro (p. ej., un ciclo que se salta un año) debería archivarse en lugar de eliminarlo, para poder reactivarlo más adelante en lugar de volver a crearlo como un duplicado."
 
 #. module: ems
 #. odoo-python
@@ -1483,7 +1483,7 @@ msgstr "Administración"
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_asp_kanban
 msgid "Administration and Services Personnel"
-msgstr "Personal de Sdministración y Servicios"
+msgstr "Personal de Administración y Servicios"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_role__employee_type__asp model:ir.model.fields.selection,name:ems.selection__hr_employee__employee_type__asp model:ir.model.fields.selection,name:ems.selection__hr_job__employee_type__asp
@@ -2536,7 +2536,7 @@ msgstr "Coordinador/a de CatSkils"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_hr_employee__employee_type
 msgid "Categorize your Employees by type. This field also has an impact on contracts. Only Employees, Students and Trainee will have contract history."
-msgstr "Categorice sus empleados por tipo. Este campo también afectará a sus contactos, solo los Empleados, Estudiantes y Aprendices tendrán historial de contracto."
+msgstr "Categorice sus empleados por tipo. Este campo también afectará a sus contactos, solo los Empleados, Estudiantes y Aprendices tendrán historial de contrato."
 
 #. module: ems
 #. odoo-python
@@ -2591,7 +2591,7 @@ msgstr "Marca esta casilla si este es el curso por defecto para las nuevas matr�
 #. module: ems
 #: model:ir.model.fields,help:ems.field_product_product__ems_is_enrollment_fee model:ir.model.fields,help:ems.field_product_template__ems_is_enrollment_fee
 msgid "Check this if this product represents a calculated fee (e.g. Matricula). It triggers automatic price calculation logic."
-msgstr "Marca esto si este producto representa una tarifa calculada (p.ej. Matrícula). Activa la lógica de cálculo automático de precios."
+msgstr "Marca esto si este producto representa una tarifa calculada (p. ej. Matrícula). Activa la lógica de cálculo automático de precios."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
@@ -4070,7 +4070,7 @@ msgstr "Elemento duplicado"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_authorization_template__name
 msgid "E.g., Image and Sound Use Authorization"
-msgstr "P.ej., Autorización de uso de imagen y sonido"
+msgstr "P. ej., Autorización de uso de imagen y sonido"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_subject__ects
@@ -4186,7 +4186,7 @@ msgstr "Email de notificación para los estudiantes: asistencia del estudiante"
 #. module: ems
 #: model:mail.template,name:ems.mail_attendance_issue_rectification
 msgid "Email notification for families: student attendance status (rectification)"
-msgstr "Email de notificación pera las familias: asistencia del alumnado (rectificació)"
+msgstr "Email de notificación para las familias: asistencia del alumnado (rectificación)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
@@ -4433,7 +4433,7 @@ msgstr "Detalles del error"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_group__external_id
 msgid "Esfera (SAGA) group code, e.g. 'ESO LOEM101'."
-msgstr "Código de grupo Esfera (SAGA), p.ej. 'ESO LOEM101'."
+msgstr "Código de grupo Esfera (SAGA), p. ej. 'ESO LOEM101'."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__file model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__file
@@ -5678,7 +5678,7 @@ msgstr "Si está marcado, algunos mensajes tienen un error de entrega.Si está m
 #. module: ems
 #: model:ir.model.fields,help:ems.field_product_product__is_generic model:ir.model.fields,help:ems.field_product_template__is_generic
 msgid "If checked, this product will appear in enrollments for ALL studies (e.g. Fees, Insurance)."
-msgstr "Si está marcado, este producto aparecerá en las matrículas de TODOS los estudios (p.ej. Tasas, Seguro)."
+msgstr "Si está marcado, este producto aparecerá en las matrículas de TODOS los estudios (p. ej. Tasas, Seguro)."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -6498,7 +6498,7 @@ msgstr "Niveles"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_product_product__ems_level_ids model:ir.model.fields,help:ems.field_product_template__ems_level_ids
 msgid "Levels where this generic product is available (e.g. VET, Bachelor)."
-msgstr "Niveles en los que este producto genérico está disponible (p. ej. FP, Bachillerato).Niveles donde este producto genérico está disponible (p. ej. CFGS, Bachillerato).Niveles en los que este producto genérico está disponible (p.ej. FP, Bachillerato)."
+msgstr "Niveles en los que este producto genérico está disponible (p. ej. FP, Bachillerato).Niveles donde este producto genérico está disponible (p. ej. CFGS, Bachillerato).Niveles en los que este producto genérico está disponible (p. ej. FP, Bachillerato)."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
@@ -6528,7 +6528,7 @@ msgstr "Encabezado de LimeSurvey: contiene el encabezado de la encuesta y su con
 #. module: ems
 #: model:ir.model,name:ems.model_ems_limesurvey_recipient
 msgid "LimeSurvey recipient: contains the relation between a recipient and its survey."
-msgstr "LimeSurvey recipiente: contiene la relación entre destinatarios y susencuestas."
+msgstr "LimeSurvey recipiente: contiene la relación entre destinatarios y sus encuestas."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -7185,7 +7185,7 @@ msgstr "No se ha encontrado ninguna matrícula."
 #. odoo-python
 #: code:addons/ems/models/contacts/enrollment_proposal_wizard.py:0
 msgid "No enrollment templates available for the selected students' study."
-msgstr "No hay plantillas de matrícula disponibles para los estudis de los estudiantes seleccionados.No hay plantillas de matrícula disponibles para los estudios de los alumnos seleccionados."
+msgstr "No hay plantillas de matrícula disponibles para los estudios de los estudiantes seleccionados.No hay plantillas de matrícula disponibles para los estudios de los alumnos seleccionados."
 
 #. module: ems
 #. odoo-python
@@ -7643,7 +7643,7 @@ msgstr "Abrir detalles del error"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
 msgid "Open error details."
-msgstr "Obrir detalles del error."
+msgstr "Abrir detalles del error."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form model_terms:ir.ui.view,arch_db:ems.view_notice_form
@@ -8358,7 +8358,7 @@ msgstr "Rectificación"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__rectified_by
 msgid "Rectified by"
-msgstr "Rectificado per"
+msgstr "Rectificado por"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_student_document_form model_terms:ir.ui.view,arch_db:ems.view_student_document_list
@@ -8466,7 +8466,7 @@ msgstr "Borrando encuestas"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
 msgid "Removing the recipient will also, if necessary, remove it from its current survey. This action cannot be undonde, do you wish to continue?"
-msgstr "Borrar los destinatarios, los eliminará tambińe (de ser necesario) de las encuestas en las que se encuentran. Esta acción no se puede deshacer, desea continuar?"
+msgstr "Borrar los destinatarios, los eliminará también (de ser necesario) de las encuestas en las que se encuentran. Esta acción no se puede deshacer, desea continuar?"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
@@ -9172,7 +9172,7 @@ msgstr "Familia monoparental (Especial)"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Some attendance statuses (like miss or issue) will be notified (if not adult or authorized) to their families almost inmediatly. This setting setups how many delay is wanted between the assistance creation and its notification."
-msgstr "Algunos estados de asistencia (como falta o incidencia) serán notificados (si el alumno no es adulto o lo ha autorizado) a las familias de forma casi inmediata. Esta configuración establece que retraso o decalaje de tiempo se quiere entre la cración de la asistencia y su notificación."
+msgstr "Algunos estados de asistencia (como falta o incidencia) serán notificados (si el alumno no es adulto o lo ha autorizado) a las familias de forma casi inmediata. Esta configuración establece que retraso o decalaje de tiempo se quiere entre la creación de la asistencia y su notificación."
 
 #. module: ems
 #. odoo-python
@@ -10003,7 +10003,7 @@ msgstr "El JSON de la cuenta de servicio de Google Workspace no es válido."
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "The LimeSurvey API does not allow to create survey groups so, in order to operate properly, a group must be created and its ID provided."
-msgstr "La API de LimeSurvey no permite crear grupos de encuestas y, para ellode operar correctamente, un grupo debe crearse primero a mano y debe indicarse el ID."
+msgstr "La API de LimeSurvey no permite crear grupos de encuestas y, para que opere correctamente, un grupo debe crearse primero a mano y debe indicarse el ID."
 
 #. module: ems
 #. odoo-python
@@ -10227,7 +10227,7 @@ msgstr "Ya existe otra entrada activa para la misma terna 'profesor / grupo / as
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
 msgid "This action will clean and recreate the recipients, removing all custom changes and saving the data immediately. It cannot be undone. Do you wish to continue?"
-msgstr "Esta acción vaciará y recreará los destinatarios, borrando cualquier cambio manualy guardando los datos al momento. Esta acción no se puede deshacer. Todavía quieres continuar?"
+msgstr "Esta acción vaciará y recreará los destinatarios, borrando cualquier cambio manual y guardando los datos al momento. Esta acción no se puede deshacer. Todavía quieres continuar?"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
@@ -10322,12 +10322,12 @@ msgstr "Jueves"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__time_range
 msgid "Time Range"
-msgstr "Franja Horària"
+msgstr "Franja horaria"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__time_range model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__time_range
 msgid "Time range"
-msgstr "Franja horària"
+msgstr "Franja horaria"
 
 #. module: ems
 #. odoo-python
@@ -10401,7 +10401,7 @@ msgstr "Seguimiento: Los tutores y profesores pueden añadir información sobre 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_enrollment_view
 msgid "Transitient model for displaying enrollment data within groups but filtered (allows ems.group.enrollment_view_ids to work: contains the same data as enrolled_student_ids but filtered for the current group because it cannot be filtered on view...)."
-msgstr "Modelo transitorio para mostrar datos de matrícula dentro de grupos pero filtrados (permite que funcione ems.group.enrollment_view_ids: contiene los mismos datos que enrolled_student_ids pero filtrados para el grupo actual porque no se puede filtrar en la vista...)."
+msgstr "Modelo transitorio para mostrar datos de matrícula dentro de grupos, pero filtrados (permite que funcione ems.group.enrollment_view_ids: contiene los mismos datos que enrolled_student_ids, pero filtrados para el grupo actual porque no se puede filtrar en la vista...)."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_res_partner__google_ws_suspended model:ir.model.fields,help:ems.field_res_users__google_ws_suspended
@@ -10899,7 +10899,7 @@ msgstr "Mensajes del sitio web"
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_certificate__website_message_ids
 msgid "Website communication history"
-msgstr "Historial de comunicaciones del sistio web"
+msgstr "Historial de comunicaciones del sitio web"
 
 #. module: ems
 #. odoo-javascript
@@ -11237,7 +11237,7 @@ msgstr "Aula derecha"
 #: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
 #, python-format
 msgid "Co-teaching"
-msgstr "Co-docencia"
+msgstr "Codocencia"
 
 #. module: ems
 #. odoo-javascript
@@ -11506,7 +11506,7 @@ msgstr "¡Curso duplicado!"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "e.g. Image and Sound Use Authorization"
-msgstr "P.ej., Autorización de uso de imagen y sonido"
+msgstr "P. ej., Autorización de uso de imagen y sonido"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -12776,7 +12776,7 @@ msgstr "Datos del solicitante"
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_ems_applicants model:ir.ui.menu,name:ems.menu_ems_applicants model_terms:ir.ui.view,arch_db:ems.view_applicant_list model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Preinscription"
-msgstr "Pre-inscripción"
+msgstr "Preinscripción"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__sale_order__ems_enrollment_status_label__draft
@@ -14697,12 +14697,12 @@ msgstr "Plantillas de asistencia a archivar"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__declined_applicant_count
 msgid "Applicants without enrollment"
-msgstr "Pre-inscripciones sin matrícula"
+msgstr "Preinscripciones sin matrícula"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__archive_declined_applicants
 msgid "Archive applicants without a confirmed enrollment"
-msgstr "Archivar pre-inscripciones sin matrícula confirmada"
+msgstr "Archivar preinscripciones sin matrícula confirmada"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__backup_done
@@ -14728,7 +14728,7 @@ msgstr "sí"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_course_transition_wizard__archive_declined_applicants
 msgid "Summer withdrawals: applicants who never confirmed their enrollment for the incoming course."
-msgstr "Renuncias de verano: pre-inscripciones que nunca llegaron a confirmar la matrícula del curso entrante."
+msgstr "Renuncias de verano: preinscripciones que nunca llegaron a confirmar la matrícula del curso entrante."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_course_transition_wizard__backup_done
@@ -15330,7 +15330,7 @@ msgstr "Un departamento top-level no puede tener un departamento padre."
 #. module: ems
 #: model:ir.model.fields,help:ems.field_hr_department__is_top_level
 msgid "A top-level department has no parent department and no Seminar Chief. Its Manager is labelled 'Area Manager' and automatically holds the role selected below (Head of Studies, Deputy Head of Studies or Secretary) instead of Department Chief."
-msgstr "Un departamento top-level no tiene departamento padre ni Jefe de seminario. Su Responsable se llama 'Responsable de área' y tiene automáticamente el rol seleccionado debajo (Jefe de estudios, Jefe de estudios adjunto o Secretario/a) en lugar de Jefe de departamento."
+msgstr "Un departamento top-level no tiene departamento padre ni Jefe de seminario. Su Responsable se llama 'Responsable de área' y tiene automáticamente el rol seleccionado debajo (Jefe de estudios, Jefe de estudios adjunto o secretario/a) en lugar de Jefe de departamento."
 
 #. module: ems
 #. odoo-python
@@ -15364,18 +15364,18 @@ msgstr "Departamento top-level"
 #. odoo-python
 #: code:addons/ems/models/employees/employee.py:0
 msgid "The Director role cannot be assigned or removed manually, it is set automatically from Settings."
-msgstr "El rol de Director no se puede asignar ni quitar manualmente, se gestiona automáticamente desde Ajustes."
+msgstr "El rol de director no se puede asignar ni quitar manualmente, se gestiona automáticamente desde Ajustes."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_res_company__director_id model:ir.model.fields,help:ems.field_res_config_settings__director_id model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "The person acting as the center's Director. Every top-level department's Manager (Head of Studies/Deputy) will have their own Manager set to this employee automatically."
-msgstr "La persona que ejerce de Director/a del centro. El Responsable de cualquier departamento top-level (Jefe de estudios/adjunto) se establecerá automáticamente a este empleado."
+msgstr "La persona que ejerce de director/a del centro. El Responsable de cualquier departamento top-level (Jefe de estudios/adjunto) se establecerá automáticamente a este empleado."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/employee.py:0
 msgid "The Secretary role cannot be assigned or removed manually, it is set automatically from the top-level department's own form."
-msgstr "El rol de Secretario/a no se puede asignar ni quitar manualmente, se gestiona automáticamente desde el formulario del departamento top-level."
+msgstr "El rol de secretario/a no se puede asignar ni quitar manualmente, se gestiona automáticamente desde el formulario del departamento top-level."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_department__top_level_area
@@ -15385,7 +15385,7 @@ msgstr "Área"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_hr_department__top_level_area
 msgid "Only applies when this is a Top-level Department: which staff population this area covers - determines which Role is valid below (Academic -> Head of Studies/Deputy; ASP -> Secretary)."
-msgstr "Solo aplica cuando se trata de un Departamento top-level: qué población de personal cubre esta área - determina qué Rol es válido debajo (Académica -> Jefe de estudios/adjunto; ASP -> Secretario/a)."
+msgstr "Solo aplica cuando se trata de un Departamento top-level: qué población de personal cubre esta área - determina qué Rol es válido debajo (Académica -> Jefe de estudios/adjunto; ASP -> secretario/a)."
 
 #. module: ems
 #: model:ir.module.category,name:ems.category_roles model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_area__academic
@@ -15521,13 +15521,13 @@ msgstr "Este rol se asigna automáticamente desde el propio formulario del depar
 #. odoo-python
 #: code:addons/ems/models/employees/role.py:0
 msgid "This role is assigned automatically from the top-level department's own form (Area Manager, with Role set to Secretary)."
-msgstr "Este rol se asigna automáticamente desde el propio formulario del departamento top-level (Responsable de área, con el Rol establecido en Secretario/a)."
+msgstr "Este rol se asigna automáticamente desde el propio formulario del departamento top-level (Responsable de área, con el Rol establecido en secretario/a)."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/role.py:0
 msgid "This role is assigned automatically from Settings (EMS Management, Director field)."
-msgstr "Este rol se asigna automáticamente desde Ajustes (EMS Management, campo Director)."
+msgstr "Este rol se asigna automáticamente desde Ajustes (EMS Management, campo director)."
 
 #. module: ems
 #. odoo-python
@@ -15695,7 +15695,7 @@ msgstr "Matrículas creadas"
 msgid ""
 "%s is graded in '%s' with group %s but is enrolled in group %s: enrollment "
 "left untouched."
-msgstr "%s tiene nota en '%s' con el grupo %s pero está matriculado en el grupo %s: la matrícula no se ha modificado."
+msgstr "%s tiene nota en '%s' con el grupo %s, pero está matriculado en el grupo %s: la matrícula no se ha modificado."
 
 #. module: ems
 #. odoo-python
@@ -19730,7 +19730,7 @@ msgid ""
 "The request is answered from the portal: recipients with an email but no "
 "portal access get their portal invitation too."
 msgstr ""
-"La solicitud se responde desde el portal: los destinatarios con correo pero "
+"La solicitud se responde desde el portal: los destinatarios con correo, pero "
 "sin acceso al portal también reciben la invitación al portal."
 
 #. module: ems
@@ -26086,7 +26086,7 @@ msgstr "se quedan como están: solo se cancela la matrícula."
 #. odoo-python
 #: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
 msgid "they were never students but have a corporate account or a convalidation: the enrollment is cancelled, the portal revoked and the contact archived."
-msgstr "nunca han sido alumnos pero tienen cuenta corporativa o una convalidación: se cancela la matrícula, se revoca el portal y se archiva el contacto."
+msgstr "nunca han sido alumnos, pero tienen cuenta corporativa o una convalidación: se cancela la matrícula, se revoca el portal y se archiva el contacto."
 
 #. module: ems
 #. odoo-python

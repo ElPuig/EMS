@@ -81,7 +81,7 @@ Las notas son números enteros del **0 al 10**.
 
 Si un alumno **ya aprobó un RA en una evaluación anterior** (nota igual o superior a 5), ese RA no se puede volver a evaluar. La celda aparece en **verde con un candado** y muestra la nota que ya tenía; no se puede editar, borrar ni pegar encima.
 
-Los RA que en una evaluación anterior quedaron **suspensos** (nota inferior a 5) sí se pueden volver a evaluar: la celda parte de la nota anterior pero la puedes modificar.
+Los RA que en una evaluación anterior quedaron **suspensos** (nota inferior a 5) sí se pueden volver a evaluar: la celda parte de la nota anterior, pero la puedes modificar.
 
 ![RA bloqueado con el candado de aprobado en una evaluación anterior](../../assets/teachers/teachers-04-ra-bloquejat.png)
 
@@ -133,7 +133,7 @@ Cada sesión de evaluación tiene un **estado** que determina quién la puede ed
 | **Junta de evaluación** | Solo el **tutor del grupo** (y la administración) puede editar; el profesorado solo consulta. |
 | **Finalizada** | Solo la **administración**. |
 
-El estado lo cambia la administración. Si la sesión está en junta o finalizada y no tienes permiso, verás las notas pero no las podrás modificar.
+El estado lo cambia la administración. Si la sesión está en junta o finalizada y no tienes permiso, verás las notas, pero no las podrás modificar.
 
 ![Estado de la sesión de evaluación en la cabecera](../../assets/teachers/teachers-07-estat.png)
 

@@ -6,7 +6,7 @@
 
 Des de la fitxa de l'alumne pots crear el seu compte de Google Workspace, suspendre'l o assignar-li una contrasenya nova.
 
-**Rol necessari:** Administrador o Coordinador/a TAC. Secretaria també pot crear i suspendre comptes.
+**Rol necessari:** Administrador o coordinador/a TAC. Secretaria també pot crear i suspendre comptes.
 
 Totes les accions són al menú **Accions** de la capçalera de la fitxa de l'alumne (**Comunitat Educativa → Estudiants**). Cada opció només apareix quan l'acció és possible.
 

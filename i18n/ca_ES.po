@@ -224,7 +224,7 @@ msgstr "<b>El teu missatge ha estat enviat a la secretaria:</b>"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "<code>{{academic_year}}</code> — Academic year (e.g. 2025-2026)"
-msgstr "<code>{{academic_year}}</code> — Any acadèmic (p.ex. 2025-2026)"
+msgstr "<code>{{academic_year}}</code> — Any acadèmic (p. ex. 2025-2026)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
@@ -234,7 +234,7 @@ msgstr "<code>{{student_name}}</code> — Nom complet de l'alumne/a"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "<code>{{study_name}}</code> — Study name (e.g. DAM)"
-msgstr "<code>{{study_name}}</code> — Nom dels estudis (p.ex. DAM)"
+msgstr "<code>{{study_name}}</code> — Nom dels estudis (p. ex. DAM)"
 
 #. module: ems
 #: model:mail.template,body_html:ems.email_template_enrollment_send
@@ -294,7 +294,7 @@ msgstr ""
 "                            <li>Família monoparental</li>\n"
 "                            <li>Beca MEC</li>\n"
 "                            <li>Discapacitat &gt; 33%</li>\n"
-"                            <li>Altres (matricula honor Batx, violencia genere, renda minima, premi Batx, premi FP,...)</li>\n"
+"                            <li>Altres (matrícula d'honor Batx, violència de gènere, renda mínima, premi Batx, premi FP,...)</li>\n"
 "                        </ul>\n"
 "                        <p><em>Nota: Si detecta alguna incidència o té algun dubte amb els conceptes, pot enviar un comentari a Secretaria des del mateix portal, abans de confirmar el tràmit.</em></p>\n"
 "                        <p>\n"
@@ -714,7 +714,7 @@ msgid ""
 "                                <span class=\"badge text-bg-info\" invisible=\"benefit_status != 'bonification'\">Bonification</span>\n"
 "                                <span class=\"badge text-bg-secondary\" invisible=\"benefit_status != 'none'\">None</span>"
 msgstr ""
-"<span class=\"badge text-bg-success\" invisible=\"benefit_status != 'exemption'\">Exempcíó</span>\n"
+"<span class=\"badge text-bg-success\" invisible=\"benefit_status != 'exemption'\">Exempció</span>\n"
 "                                     <span class=\"badge text-bg-info\" invisible=\"benefit_status != 'bonification'\">Bonificació</span>\n"
 "                                     <span class=\"badge text-bg-secondary\" invisible=\"benefit_status != 'none'\">Cap</span>"
 
@@ -1232,7 +1232,7 @@ msgstr "Actiu"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_group__active
 msgid "A group that won't be used this course but may come back in a future one (e.g. a cycle not running this year) should be archived instead of deleted, so it can be reactivated later instead of being recreated as a duplicate."
-msgstr "Un grup que no s'utilitzarà aquest curs però que podria tornar en un curs futur (p. ex., un cicle que es salta un any) s'hauria d'arxivar en lloc d'eliminar-lo, perquè es pugui reactivar més endavant en lloc de tornar-lo a crear com un duplicat."
+msgstr "Un grup que no s'utilitzarà aquest curs, però que podria tornar en un curs futur (p. ex., un cicle que es salta un any) s'hauria d'arxivar en lloc d'eliminar-lo, perquè es pugui reactivar més endavant en lloc de tornar-lo a crear com un duplicat."
 
 #. module: ems
 #. odoo-python
@@ -1369,7 +1369,7 @@ msgstr "Activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_exception_decoration
 msgid "Activity Exception Decoration"
-msgstr "Decorador de la excepció a una activitad"
+msgstr "Decorador de l'excepció a una activitat"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_state model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__activity_state model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__activity_state model:ir.model.fields,field_description:ems.field_ems_attendance_justification__activity_state model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__activity_state model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__activity_state model:ir.model.fields,field_description:ems.field_ems_attendance_template__activity_state model:ir.model.fields,field_description:ems.field_ems_base__activity_state model:ir.model.fields,field_description:ems.field_ems_enrollment__activity_state model:ir.model.fields,field_description:ems.field_ems_grade_session__activity_state model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__activity_state model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__activity_state model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__activity_state model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__activity_state model:ir.model.fields,field_description:ems.field_ems_notice__activity_state model:ir.model.fields,field_description:ems.field_ems_notice_line__activity_state model:ir.model.fields,field_description:ems.field_ems_student_document__activity_state model:ir.model.fields,field_description:ems.field_ems_teaching__activity_state model:ir.model.fields,field_description:ems.field_hr_employee__activity_state
@@ -2591,7 +2591,7 @@ msgstr "Marca aquesta casella si aquest és el curs per defecte per a les noves 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_product_product__ems_is_enrollment_fee model:ir.model.fields,help:ems.field_product_template__ems_is_enrollment_fee
 msgid "Check this if this product represents a calculated fee (e.g. Matricula). It triggers automatic price calculation logic."
-msgstr "Marca això si aquest producte representa una tarifa calculada (p.ex. Matrícula). Activa la lògica de càlcul automàtic de preus."
+msgstr "Marca això si aquest producte representa una tarifa calculada (p. ex. Matrícula). Activa la lògica de càlcul automàtic de preus."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
@@ -2793,7 +2793,7 @@ msgstr "Conserge"
 #. module: ems
 #: model:ems.role,name:ems.role_cchieff
 msgid "Concierje chieff"
-msgstr "Cap de conserjes"
+msgstr "Cap de conserges"
 
 #. module: ems
 #: model:ir.model,name:ems.model_res_config_settings
@@ -4070,7 +4070,7 @@ msgstr "Element duplicat"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_authorization_template__name
 msgid "E.g., Image and Sound Use Authorization"
-msgstr "P.ex., Autorització d'ús d'imatge i so"
+msgstr "P. ex., Autorització d'ús d'imatge i so"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_subject__ects
@@ -4433,7 +4433,7 @@ msgstr "Detalls de l'error"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_group__external_id
 msgid "Esfera (SAGA) group code, e.g. 'ESO LOEM101'."
-msgstr "Codi de grup Esfera (SAGA), p.ex. 'ESO LOEM101'."
+msgstr "Codi de grup Esfera (SAGA), p. ex. 'ESO LOEM101'."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__file model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__file
@@ -4562,7 +4562,7 @@ msgstr "Famílies"
 #: code:addons/ems/models/erasmus/export.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_form
 msgid "Family"
-msgstr "Familia"
+msgstr "Família"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__family_relation model:ir.model.fields,field_description:ems.field_res_users__family_relation
@@ -4981,7 +4981,7 @@ msgstr "Font única de veritat per als botons de la capçalera: quina acció de 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_grade_outcome
 msgid "Grade (outcome): ternary relation between student-teacher-outcome."
-msgstr "Qualificació (resultat): relació ternaria entre estudiant-professor-resultat.Qualificació (resultat): relació ternària alumne-professor-resultat.Qualificació (resultat d'aprenentatge): relació ternària entre estudiant-professor-resultat."
+msgstr "Qualificació (resultat): relació ternària entre estudiant-professor-resultat.Qualificació (resultat): relació ternària alumne-professor-resultat.Qualificació (resultat d'aprenentatge): relació ternària entre estudiant-professor-resultat."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_grade_outcome_line
@@ -5678,7 +5678,7 @@ msgstr "Si està marcat, alguns missatges han fallat en intentar ser lliurats."
 #. module: ems
 #: model:ir.model.fields,help:ems.field_product_product__is_generic model:ir.model.fields,help:ems.field_product_template__is_generic
 msgid "If checked, this product will appear in enrollments for ALL studies (e.g. Fees, Insurance)."
-msgstr "Si està marcat, aquest producte apareixerà a les matrícules de TOTS els estudis (p.ex. Taxes, Assegurança)."
+msgstr "Si està marcat, aquest producte apareixerà a les matrícules de TOTS els estudis (p. ex. Taxes, Assegurança)."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -5903,7 +5903,7 @@ msgstr "Nota del centre informada"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__inuse_group_ids
 msgid "Inuse Group"
-msgstr "Grup d'inús"
+msgstr "Grup en ús"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__inuse_student_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__inuse_student_ids
@@ -6498,7 +6498,7 @@ msgstr "Nivells"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_product_product__ems_level_ids model:ir.model.fields,help:ems.field_product_template__ems_level_ids
 msgid "Levels where this generic product is available (e.g. VET, Bachelor)."
-msgstr "Nivells on aquest producte genèric està disponible (p. ex. FP, Batxillerat).Nivells on aquest producte genèric és disponible (p. ex. CFGS, Batxillerat).Nivells on aquest producte genèric està disponible (p.ex. FP, Batxillerat)."
+msgstr "Nivells on aquest producte genèric està disponible (p. ex. FP, Batxillerat).Nivells on aquest producte genèric és disponible (p. ex. CFGS, Batxillerat).Nivells on aquest producte genèric està disponible (p. ex. FP, Batxillerat)."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
@@ -6518,7 +6518,7 @@ msgstr "LimeSurvey block: conté les dades principals sobre un bloc d'una enques
 #. module: ems
 #: model:ir.model,name:ems.model_ems_limesurvey_enrollment
 msgid "LimeSurvey enrollment: contains a copy of the enrollment model for the related student, in order to allow changes on the fly when preparing the surveys (only secretarial staff should be allowed to modify the real enrollments)."
-msgstr "LimeSurvey enrollment: conté una còpia del model de matriculació per a l'alumne en qüestió, per a permetre canvis al vol quan es preparen lesenquestes (només el personal de secretària hauria de poder modificar les dades realsde matriculació)."
+msgstr "LimeSurvey enrollment: conté una còpia del model de matriculació per a l'alumne en qüestió, per a permetre canvis al vol quan es preparen les enquestes (només el personal de secretària hauria de poder modificar les dades reals de matriculació)."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_limesurvey_header
@@ -8416,7 +8416,7 @@ msgstr "Data de llançament"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
 msgid "Reload recipients"
-msgstr "Recargar destinatarios"
+msgstr "Recarregar destinataris"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
@@ -8956,7 +8956,7 @@ msgstr "Seleccioneu el tipus específic per actualitzar automàticament l'expedi
 #. odoo-python
 #: code:addons/ems/models/communications/limesurvey.py:0 model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_add_student_popup
 msgid "Select the student to add"
-msgstr "Sel·leccioni l'alumne a afegir"
+msgstr "Seleccioni l'alumne a afegir"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
@@ -9135,7 +9135,7 @@ msgstr "Compartir amb la família"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__auth_share model:ir.model.fields,field_description:ems.field_res_users__auth_share
 msgid "Share with family"
-msgstr "Compartir amb la familia"
+msgstr "Compartir amb la família"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__shift model:ir.model.fields,field_description:ems.field_sale_order__shift model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment model:ir.model.fields,field_description:ems.field_ems_student_year_record__shift model_terms:ir.ui.view,arch_db:ems.view_applicant_search model:ir.model.fields,field_description:ems.field_res_partner__shift
@@ -9172,7 +9172,7 @@ msgstr "Família monoparental (Especial)"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Some attendance statuses (like miss or issue) will be notified (if not adult or authorized) to their families almost inmediatly. This setting setups how many delay is wanted between the assistance creation and its notification."
-msgstr "Alguns estats d'assistència (com falta o incidència) seran notificats (si l'alumne no és adult o ho ha autoritzat) a les families de forma gairebé inmediata. Aquesta configuració estableix quin retard o decalatge de temps es vol entre la cració de la assistència i la seva notificació."
+msgstr "Alguns estats d'assistència (com falta o incidència) seran notificats (si l'alumne no és adult o ho ha autoritzat) a les famílies de forma gairebé immediata. Aquesta configuració estableix quin retard o decalatge de temps es vol entre la creació de l'assistència i la seva notificació."
 
 #. module: ems
 #. odoo-python
@@ -10322,12 +10322,12 @@ msgstr "Dijous"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__time_range
 msgid "Time Range"
-msgstr "Franja Horaria"
+msgstr "Franja horària"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__time_range model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__time_range
 msgid "Time range"
-msgstr "Franja horaria"
+msgstr "Franja horària"
 
 #. module: ems
 #. odoo-python
@@ -10401,7 +10401,7 @@ msgstr "Seguiment: Els tutors i professors poden afegir informació sobre l'evol
 #. module: ems
 #: model:ir.model,name:ems.model_ems_enrollment_view
 msgid "Transitient model for displaying enrollment data within groups but filtered (allows ems.group.enrollment_view_ids to work: contains the same data as enrolled_student_ids but filtered for the current group because it cannot be filtered on view...)."
-msgstr "Model transitori per mostrar les dades de matrícula dins dels grups però filtrades (permet que ems.group.enrollment_view_ids funcioni: conté les mateixes dades que enrolled_student_ids però filtrades per al grup actual perquè no es poden filtrar a la vista...)."
+msgstr "Model transitori per mostrar les dades de matrícula dins dels grups, però filtrades (permet que ems.group.enrollment_view_ids funcioni: conté les mateixes dades que enrolled_student_ids, però filtrades per al grup actual perquè no es poden filtrar a la vista...)."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_res_partner__google_ws_suspended model:ir.model.fields,help:ems.field_res_users__google_ws_suspended
@@ -10438,12 +10438,12 @@ msgstr "Cap de Departament"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__tutor_id
 msgid "Tutor (sent to)"
-msgstr "Tutor (enviado a)"
+msgstr "Tutor (enviat a)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__attendance_issue_tutor_id
 msgid "Tutor notification data"
-msgstr "Información de la notificació al tutor"
+msgstr "Informació de la notificació al tutor"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -10593,7 +10593,7 @@ msgstr "No es poden convidar alguns participants"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
 msgid "Unable to load the current session, maybe none (or more than one) has been scheduled for the current date and time?. Please, choose one manually or activate the \"guard mode\" if needed."
-msgstr "No s'ha pogut carregar la sesió actual, ¿és possible que no hi hagi cap (o hi hagi más d'una) programada per a aquesta data i hora? Si su plau, seleccioni una manualment o activi el \"mode guàrdia\" si fos necessari."
+msgstr "No s'ha pogut carregar la sessió actual, és possible que no hi hagi cap (o hi hagi més d'una) programada per a aquesta data i hora? Si us plau, seleccioni una manualment o activi el \"mode guàrdia\" si fos necessari."
 
 #. module: ems
 #. odoo-python
@@ -10632,7 +10632,7 @@ msgstr "Unipersonal"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_product_product__ems_subject_unit_cost model:ir.model.fields,help:ems.field_product_template__ems_subject_unit_cost
 msgid "Unit cost per subject (e.g. 65.00) used for fee calculation."
-msgstr "Cost unitari per assignatura (p. ex. 65,00) utilitzat per al càlcul de taxes.Cost unitari per matèria (p. ex. 65,00) per al càlcul de taxes.Cost unitari per assignatura (p.ex. 65,00) usat per al càlcul de taxes."
+msgstr "Cost unitari per assignatura (p. ex. 65,00) utilitzat per al càlcul de taxes.Cost unitari per matèria (p. ex. 65,00) per al càlcul de taxes.Cost unitari per assignatura (p. ex. 65,00) usat per al càlcul de taxes."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_update_wizard_form
@@ -11237,7 +11237,7 @@ msgstr "Aula dreta"
 #: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
 #, python-format
 msgid "Co-teaching"
-msgstr "Co-docència"
+msgstr "codocència"
 
 #. module: ems
 #. odoo-javascript
@@ -11506,7 +11506,7 @@ msgstr "curs duplicat!"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "e.g. Image and Sound Use Authorization"
-msgstr "P.ex., Autorització d'ús d'imatge i so"
+msgstr "P. ex., Autorització d'ús d'imatge i so"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -11747,7 +11747,7 @@ msgstr "Hora actual"
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 msgid "Manual selection"
-msgstr "Sel·lecció manual"
+msgstr "Selecció manual"
 
 #. module: ems
 #. odoo-javascript
@@ -11970,7 +11970,7 @@ msgstr "Correcció de fitxatge: sol·licitud d'un professor per esmenar una entr
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_correction.py:0
 msgid "No Head of Studies could be found in %(employee)s's management chain; an Academic Administrator must fix the org chart."
-msgstr "No s'ha trobat cap Cap d'Estudis a la cadena de comandament de %(employee)s; un Administrador acadèmic ha de corregir l'organigrama."
+msgstr "No s'ha trobat cap cap d'estudis a la cadena de comandament de %(employee)s; un Administrador acadèmic ha de corregir l'organigrama."
 
 #. module: ems
 #. odoo-python
@@ -12776,7 +12776,7 @@ msgstr "Dades del sol·licitant"
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_ems_applicants model:ir.ui.menu,name:ems.menu_ems_applicants model_terms:ir.ui.view,arch_db:ems.view_applicant_list model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Preinscription"
-msgstr "Pre-inscripció"
+msgstr "Preinscripció"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__sale_order__ems_enrollment_status_label__draft
@@ -14697,12 +14697,12 @@ msgstr "Plantilles d'assistència a arxivar"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__declined_applicant_count
 msgid "Applicants without enrollment"
-msgstr "Pre-inscripcions sense matrícula"
+msgstr "Preinscripcions sense matrícula"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__archive_declined_applicants
 msgid "Archive applicants without a confirmed enrollment"
-msgstr "Arxivar pre-inscripcions sense matrícula confirmada"
+msgstr "Arxivar preinscripcions sense matrícula confirmada"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__backup_done
@@ -14728,7 +14728,7 @@ msgstr "sí"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_course_transition_wizard__archive_declined_applicants
 msgid "Summer withdrawals: applicants who never confirmed their enrollment for the incoming course."
-msgstr "Renúncies d'estiu: pre-inscripcions que mai van arribar a confirmar la matrícula del curs entrant."
+msgstr "Renúncies d'estiu: preinscripcions que mai van arribar a confirmar la matrícula del curs entrant."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_course_transition_wizard__backup_done
@@ -15286,7 +15286,7 @@ msgstr "Departaments dirigits"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_hr_department__seminar_chief_id
 msgid "Every other member of this department (the Department Chief excluded) will have their Manager set to this employee; the Seminar Chief's own Manager is set to the Department Chief."
-msgstr "La resta de membres d'aquest departament (excloent el Cap de departament) tindran com a Responsable aquest empleat; el Responsable del propi Cap de seminari serà el Cap de departament."
+msgstr "La resta de membres d'aquest departament (excloent el Cap de departament) tindran com a Responsable aquest empleat; el Responsable del Cap de seminari serà el Cap de departament."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_department__seminar_chief_id
@@ -15330,7 +15330,7 @@ msgstr "Un departament top-level no pot tenir un departament pare."
 #. module: ems
 #: model:ir.model.fields,help:ems.field_hr_department__is_top_level
 msgid "A top-level department has no parent department and no Seminar Chief. Its Manager is labelled 'Area Manager' and automatically holds the role selected below (Head of Studies, Deputy Head of Studies or Secretary) instead of Department Chief."
-msgstr "Un departament top-level no té departament pare ni Cap de seminari. El seu Responsable es diu 'Responsable d'àrea' i té automàticament el rol seleccionat a sota (Cap d'estudis, Cap d'estudis adjunt o Secretari/ària) en lloc de Cap de departament."
+msgstr "Un departament top-level no té departament pare ni cap de seminari. El seu Responsable es diu 'Responsable d'àrea' i té automàticament el rol seleccionat a sota (cap d'estudis, cap d'estudis adjunt o secretari/ària) en lloc de cap de departament."
 
 #. module: ems
 #. odoo-python
@@ -15341,19 +15341,19 @@ msgstr "Només un departament top-level pot tenir un Rol seleccionat."
 #. module: ems
 #: model:ir.model.fields,help:ems.field_hr_department__top_level_role
 msgid "Only applies when this is a Top-level Department: which of the two Head of Studies positions its Manager holds."
-msgstr "Només s'aplica quan es tracta d'un Departament top-level: quin dels dos càrrecs de Cap d'estudis ocupa el seu Responsable."
+msgstr "Només s'aplica quan es tracta d'un Departament top-level: quin dels dos càrrecs de cap d'estudis ocupa el seu Responsable."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/employee.py:0
 msgid "The Deputy Head of Studies role cannot be assigned or removed manually, it is set automatically from the top-level department's own form."
-msgstr "El rol de Cap d'estudis adjunt no es pot assignar ni treure manualment, es gestiona automàticament des del formulari del departament top-level."
+msgstr "El rol de cap d'estudis adjunt no es pot assignar ni treure manualment, es gestiona automàticament des del formulari del departament top-level."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/employee.py:0
 msgid "The Head of Studies role cannot be assigned or removed manually, it is set automatically from the top-level department's own form."
-msgstr "El rol de Cap d'estudis no es pot assignar ni treure manualment, es gestiona automàticament des del formulari del departament top-level."
+msgstr "El rol de cap d'estudis no es pot assignar ni treure manualment, es gestiona automàticament des del formulari del departament top-level."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_department__is_top_level
@@ -15364,18 +15364,18 @@ msgstr "Departament top-level"
 #. odoo-python
 #: code:addons/ems/models/employees/employee.py:0
 msgid "The Director role cannot be assigned or removed manually, it is set automatically from Settings."
-msgstr "El rol de Director no es pot assignar ni treure manualment, es gestiona automàticament des d'Ajustes."
+msgstr "El rol de director no es pot assignar ni treure manualment, es gestiona automàticament des d'Ajustes."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_res_company__director_id model:ir.model.fields,help:ems.field_res_config_settings__director_id model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "The person acting as the center's Director. Every top-level department's Manager (Head of Studies/Deputy) will have their own Manager set to this employee automatically."
-msgstr "La persona que exerceix de Director/a del centre. El Responsable de qualsevol departament top-level (Cap d'estudis/adjunt) s'establirà automàticament a aquest empleat."
+msgstr "La persona que exerceix de director/a del centre. El Responsable de qualsevol departament top-level (cap d'estudis/adjunt) s'establirà automàticament a aquest empleat."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/employee.py:0
 msgid "The Secretary role cannot be assigned or removed manually, it is set automatically from the top-level department's own form."
-msgstr "El rol de Secretari/ària no es pot assignar ni treure manualment, es gestiona automàticament des del formulari del departament top-level."
+msgstr "El rol de secretari/ària no es pot assignar ni treure manualment, es gestiona automàticament des del formulari del departament top-level."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_department__top_level_area
@@ -15385,7 +15385,7 @@ msgstr "Àrea"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_hr_department__top_level_area
 msgid "Only applies when this is a Top-level Department: which staff population this area covers - determines which Role is valid below (Academic -> Head of Studies/Deputy; ASP -> Secretary)."
-msgstr "Només aplica quan es tracta d'un Departament top-level: quina població de personal cobreix aquesta àrea - determina quin Rol és vàlid a sota (Acadèmica -> Cap d'estudis/adjunt; PAS -> Secretari/ària)."
+msgstr "Només aplica quan es tracta d'un Departament top-level: quina població de personal cobreix aquesta àrea - determina quin Rol és vàlid a sota (Acadèmica -> cap d'estudis/adjunt; PAS -> secretari/ària)."
 
 #. module: ems
 #: model:ir.module.category,name:ems.category_roles model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_area__academic
@@ -15412,7 +15412,7 @@ msgstr "Un departament top-level no pot compartir el seu Responsable amb un depa
 #. odoo-python
 #: code:addons/ems/models/employees/department.py:0
 msgid "Head of Studies / Deputy Head of Studies can only be selected for an Academic top-level department."
-msgstr "Cap d'estudis / Cap d'estudis adjunt només es pot seleccionar per a un departament top-level Acadèmic."
+msgstr "cap d'estudis / cap d'estudis adjunt només es pot seleccionar per a un departament top-level Acadèmic."
 
 #. module: ems
 #. odoo-python
@@ -15480,7 +15480,7 @@ msgstr "Gestionat per jerarquia"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_role__is_hierarchy_managed
 msgid "Assigned automatically from the department, company or group form - cannot be edited from this role's own record."
-msgstr "S'assigna automàticament des del formulari del departament, l'empresa o el grup — no es pot editar des de la pròpia fitxa del rol."
+msgstr "S'assigna automàticament des del formulari del departament, l'empresa o el grup — no es pot editar des de la fitxa del rol."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__hierarchy_managed_message
@@ -15491,43 +15491,43 @@ msgstr "Missatge de gestió per jerarquia"
 #. odoo-python
 #: code:addons/ems/models/employees/role.py:0
 msgid "This role is assigned automatically when a teacher is set as a group's Tutor (the group's own form)."
-msgstr "Aquest rol s'assigna automàticament quan un professor s'estableix com a Tutor d'un grup (des del propi formulari del grup)."
+msgstr "Aquest rol s'assigna automàticament quan un professor s'estableix com a Tutor d'un grup (des del formulari del grup)."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/role.py:0
 msgid "This role is assigned automatically from the department's own form (Manager field)."
-msgstr "Aquest rol s'assigna automàticament des del propi formulari del departament (camp Responsable)."
+msgstr "Aquest rol s'assigna automàticament des del formulari del departament (camp Responsable)."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/role.py:0
 msgid "This role is assigned automatically from the department's own form (Seminar Chief field)."
-msgstr "Aquest rol s'assigna automàticament des del propi formulari del departament (camp Cap de seminari)."
+msgstr "Aquest rol s'assigna automàticament des del formulari del departament (camp Cap de seminari)."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/role.py:0
 msgid "This role is assigned automatically from the top-level department's own form (Area Manager, with Role set to Head of Studies)."
-msgstr "Aquest rol s'assigna automàticament des del propi formulari del departament top-level (Responsable d'àrea, amb el Rol establert a Cap d'estudis)."
+msgstr "Aquest rol s'assigna automàticament des del formulari del departament top-level (Responsable d'àrea, amb el Rol establert a cap d'estudis)."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/role.py:0
 msgid "This role is assigned automatically from the top-level department's own form (Area Manager, with Role set to Deputy Head of Studies)."
-msgstr "Aquest rol s'assigna automàticament des del propi formulari del departament top-level (Responsable d'àrea, amb el Rol establert a Cap d'estudis adjunt)."
+msgstr "Aquest rol s'assigna automàticament des del formulari del departament top-level (Responsable d'àrea, amb el Rol establert a cap d'estudis adjunt)."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/role.py:0
 msgid "This role is assigned automatically from the top-level department's own form (Area Manager, with Role set to Secretary)."
-msgstr "Aquest rol s'assigna automàticament des del propi formulari del departament top-level (Responsable d'àrea, amb el Rol establert a Secretari/ària)."
+msgstr "Aquest rol s'assigna automàticament des del formulari del departament top-level (Responsable d'àrea, amb el Rol establert a secretari/ària)."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/role.py:0
 msgid "This role is assigned automatically from Settings (EMS Management, Director field)."
-msgstr "Aquest rol s'assigna automàticament des d'Ajustes (EMS Management, camp Director)."
+msgstr "Aquest rol s'assigna automàticament des d'Ajustes (EMS Management, camp director)."
 
 #. module: ems
 #. odoo-python
@@ -15647,7 +15647,7 @@ msgstr "Conflicte d'aula: aquesta importació vol el mateix espai i horari que %
 #. odoo-python
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "Schedule conflict: this teacher already has an overlapping session, %s."
-msgstr "Conflicte d'horari: aquest professor ja té una sessió solapada, %s."
+msgstr "Conflicte d'horari: aquest professor ja té una sessió encavalcada, %s."
 
 #. module: ems
 #. odoo-python
@@ -15656,7 +15656,7 @@ msgid ""
 "This teacher already has an overlapping session for a different subject/"
 "group - fix the schedule conflict and try again: %s"
 msgstr ""
-"Aquest professor ja té una sessió solapada per a una assignatura/grup "
+"Aquest professor ja té una sessió encavalcada per a una assignatura/grup "
 "diferent - corregeix el conflicte d'horari i torna-ho a provar: %s"
 
 #. module: ems
@@ -15695,7 +15695,7 @@ msgstr "Matrícules creades"
 msgid ""
 "%s is graded in '%s' with group %s but is enrolled in group %s: enrollment "
 "left untouched."
-msgstr "%s té nota a '%s' amb el grup %s però està matriculat al grup %s: la matrícula no s'ha modificat."
+msgstr "%s té nota a '%s' amb el grup %s, però està matriculat al grup %s: la matrícula no s'ha modificat."
 
 #. module: ems
 #. odoo-python
@@ -15934,7 +15934,7 @@ msgstr "Encàrrec de serveis: sortides, viatges, ..."
 #. module: ems
 #: model:hr.leave.type,name:ems.leave_type_atri
 msgid "ATRI: request managed through the ATRI portal"
-msgstr "ATRI: Sol·licitut gestionada pel portal Atri"
+msgstr "ATRI: Sol·licitud gestionada pel portal Atri"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
@@ -16937,7 +16937,7 @@ msgstr "%s autoritzacions enviades"
 #: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
 #: code:addons/ems/models/contacts/contact_data_request_send_wizard.py:0
 msgid "%s email(s) queued"
-msgstr "%s correus encuats"
+msgstr "%s correus en cua"
 
 #. module: ems
 #. odoo-python
@@ -17085,7 +17085,7 @@ msgstr "Notificat a"
 msgid ""
 "One email per student listing every authorization sent in this batch. A "
 "minor's family is emailed instead of the student."
-msgstr "Un correu per alumne amb la llista de totes les autoritzacions enviades en aquest enviament. Si l'alumne és menor, el correu s'envia a la família en lloc de a ell."
+msgstr "Un correu per alumne amb la llista de totes les autoritzacions enviades en aquest enviament. Si l'alumne és menor, el correu s'envia a la família en lloc d'ell."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_form
@@ -18332,7 +18332,7 @@ msgid ""
 "request. The secretariat is now registering it; the grades will be published"
 " once it is completed."
 msgstr ""
-"<i class=\"fa fa-clock-o me-1\"/> El Cap d'Estudis ha aprovat la "
+"<i class=\"fa fa-clock-o me-1\"/> El cap d'estudis ha aprovat la "
 "sol·licitud. Ara la registra secretaria; les notes es publicaran quan "
 "estigui completada."
 
@@ -18525,7 +18525,7 @@ msgstr "S'ha adjuntat documentació nova."
 #. odoo-python
 #: code:addons/ems/models/grades/convalidation.py:0
 msgid "Only the Head of Studies can validate convalidations."
-msgstr "Només el Cap d'Estudis pot validar convalidacions."
+msgstr "Només el cap d'estudis pot validar convalidacions."
 
 #. module: ems
 #. odoo-python
@@ -18536,7 +18536,7 @@ msgstr "Només secretaria pot completar una convalidació validada."
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 msgid "Pending the Head of Studies"
-msgstr "Pendents del Cap d'Estudis"
+msgstr "Pendents del cap d'estudis"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
@@ -18613,7 +18613,7 @@ msgid ""
 "The Head of Studies has validated the request. The secretariat will now "
 "register it, and the grades will be published once it is completed."
 msgstr ""
-"El Cap d'Estudis ha validat la sol·licitud. Ara la registrarà secretaria, i "
+"El cap d'estudis ha validat la sol·licitud. Ara la registrarà secretaria, i "
 "les notes es publicaran quan estigui completada."
 
 #. module: ems
@@ -19138,7 +19138,7 @@ msgstr "%s invitacions al portal enviades"
 #. odoo-python
 #: code:addons/ems/models/contacts/contact_data_request.py:0
 msgid "%s reminder email(s) queued."
-msgstr "%s correus de recordatori encuats."
+msgstr "%s correus de recordatori en cua."
 
 #. module: ems
 #. odoo-python
@@ -22178,7 +22178,7 @@ msgstr "Aquest grup té %d alumne(s) matriculat(s) com a grup principal. Reassig
 #: code:addons/ems/models/attendance/attendance_schedule.py:0
 #, python-format
 msgid "This session (%(this)s — %(this_teacher)s, %(this_space)s, %(this_time)s) overlaps with another one (%(other)s — %(other_teacher)s, %(other_space)s, %(other_time)s): both fall on %(weekday)s with overlapping times for %(reason)s."
-msgstr "Aquesta sessió (%(this)s — %(this_teacher)s, %(this_space)s, %(this_time)s) se solapa amb una altra (%(other)s — %(other_teacher)s, %(other_space)s, %(other_time)s): totes dues cauen en %(weekday)s amb horaris que se solapen per a %(reason)s."
+msgstr "Aquesta sessió (%(this)s — %(this_teacher)s, %(this_space)s, %(this_time)s) s'encavalca amb una altra (%(other)s — %(other_teacher)s, %(other_space)s, %(other_time)s): totes dues cauen en %(weekday)s amb horaris que s'encavalquen per a %(reason)s."
 
 #. module: ems
 #. odoo-python
@@ -24377,7 +24377,7 @@ msgstr "Mostra la icona de recursos humans"
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_correction.py:0
 msgid "Only a Head of Studies of the employee's own branch or an Academic Administrator can decide on this request."
-msgstr "Només un Cap d'estudis de la branca de l'empleat o un Administrador acadèmic pot decidir sobre aquesta sol·licitud."
+msgstr "Només un cap d'estudis de la branca de l'empleat o un Administrador acadèmic pot decidir sobre aquesta sol·licitud."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__ems_hos_all_attendances
@@ -24393,17 +24393,17 @@ msgstr "Els caps d'estudis veuen els fitxatges de tothom (EMS)"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
 msgid "Off: a Head or Deputy Head of Studies only sees the attendance of the employees of their own branch (their chain of command and the area they manage). On: they can also consult everybody's, to know at any time who is in the centre. Either way, they only correct the attendance of their own branch and decide its correction requests."
-msgstr "Desactivat: un Cap d'estudis o Cap d'estudis adjunt només veu els fitxatges dels empleats de la seva branca (la seva cadena jeràrquica i l'àrea que gestiona). Activat: també pot consultar els de tothom, per saber en tot moment qui és al centre. En tots dos casos, només corregeix els fitxatges de la seva branca i en decideix les sol·licituds de correcció."
+msgstr "Desactivat: un cap d'estudis o cap d'estudis adjunt només veu els fitxatges dels empleats de la seva branca (la seva cadena jeràrquica i l'àrea que gestiona). Activat: també pot consultar els de tothom, per saber en tot moment qui és al centre. En tots dos casos, només corregeix els fitxatges de la seva branca i en decideix les sol·licituds de correcció."
 
 #. module: ems
 #: model:res.groups,comment:ems.group_head_of_studies
 msgid "Access rights for Head of Studies / Deputy Head of Studies. Grants read/write access to the attendance records of the employees in their own branch of the hierarchy or area, the right to create and edit teachers, and full read/write access to every student's data centre-wide."
-msgstr "Drets d'accés de Cap d'estudis i Cap d'estudis adjunt. Concedeix accés de lectura i escriptura als fitxatges dels empleats de la seva branca de la jerarquia o àrea, el dret a crear i editar professorat, i accés complet de lectura i escriptura a les dades de tot l'alumnat del centre."
+msgstr "Drets d'accés de cap d'estudis i cap d'estudis adjunt. Concedeix accés de lectura i escriptura als fitxatges dels empleats de la seva branca de la jerarquia o àrea, el dret a crear i editar professorat, i accés complet de lectura i escriptura a les dades de tot l'alumnat del centre."
 
 #. module: ems
 #: model:res.groups,comment:ems.group_director
 msgid "Access rights for the Director: those of the Head of Studies, plus every employee's attendance records centre-wide."
-msgstr "Drets d'accés de Direcció: els de Cap d'estudis, més els fitxatges de tots els empleats del centre."
+msgstr "Drets d'accés de Direcció: els de cap d'estudis, més els fitxatges de tots els empleats del centre."
 
 #. module: ems
 #. odoo-javascript
@@ -26081,7 +26081,7 @@ msgstr "es queden com estan: només es cancel·la la matrícula."
 #. odoo-python
 #: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
 msgid "they were never students but have a corporate account or a convalidation: the enrollment is cancelled, the portal revoked and the contact archived."
-msgstr "no han estat mai alumnes però tenen compte corporatiu o una convalidació: es cancel·la la matrícula, es revoca el portal i s'arxiva el contacte."
+msgstr "no han estat mai alumnes, però tenen compte corporatiu o una convalidació: es cancel·la la matrícula, es revoca el portal i s'arxiva el contacte."
 
 #. module: ems
 #. odoo-python
@@ -28020,7 +28020,7 @@ msgstr "Cerca no admesa sobre redactor_scope_user_ids"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_minute_guest__attended
 msgid "Untick it for somebody who was invited but did not come."
-msgstr "Desmarqueu-ho per a qui va ser convidat però no hi va venir."
+msgstr "Desmarqueu-ho per a qui va ser convidat, però no hi va venir."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_minute_guest__organisation
@@ -32740,7 +32740,7 @@ msgstr "Document d'identitat (publicat)"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "If you disagree, you can claim by replying to the result email."
 msgstr ""
-"Si no hi estàs d'acord, pots reclamar responent el correu del resultat."
+"Si no hi estàs d'acord, pots reclamar responent al correu del resultat."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__line_ids
@@ -32770,7 +32770,7 @@ msgstr "Sense resposta"
 #. odoo-python
 #: code:addons/ems/models/erasmus/offer.py:0
 msgid "No answer to the place offer by the deadline: renounced."
-msgstr "No s'ha respost l'oferta de plaça dins del termini: renúncia."
+msgstr "No s'ha respost a l'oferta de plaça dins del termini: renúncia."
 
 #. module: ems
 #. odoo-python
@@ -33039,7 +33039,7 @@ msgstr "El termini ha de ser futur."
 #. odoo-python
 #: code:addons/ems/models/erasmus/offer.py:0
 msgid "The deadline to answer this offer has passed."
-msgstr "Ha passat el termini per respondre aquesta oferta."
+msgstr "Ha passat el termini per respondre a aquesta oferta."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_form
@@ -40625,7 +40625,7 @@ msgstr "Acord d'aprenentatge del grup (previst)"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
 msgid "If you disagree, you can claim by replying to the result email until"
 msgstr ""
-"Si no hi estàs d'acord, pots reclamar responent el correu del resultat fins "
+"Si no hi estàs d'acord, pots reclamar responent al correu del resultat fins "
 "al"
 
 #. module: ems
@@ -46196,7 +46196,7 @@ msgstr "Us fem arribar l'esborrany de l'acta de la reunió perquè el pugueu rev
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
 msgid "If anything needs correcting, please reply to this email."
-msgstr "Si cal corregir-hi alguna cosa, us preguem que respongueu aquest correu."
+msgstr "Si cal corregir-hi alguna cosa, us preguem que respongueu a aquest correu."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_submit_wizard_form
@@ -46682,7 +46682,7 @@ msgid ""
 "The coordinator's tasks to answer this exception request, open until the "
 "coordinator sets the exception or approves the selection."
 msgstr ""
-"Les tasques de la coordinació per respondre aquesta petició d'excepció, "
+"Les tasques de la coordinació per respondre a aquesta petició d'excepció, "
 "obertes fins que la coordinació posa l'excepció o aprova la selecció."
 
 #. module: ems
@@ -52600,7 +52600,7 @@ msgstr ""
 msgid ""
 "Hello! This meeting is held by email: to take part, reply to this email."
 msgstr ""
-"Hola! Aquesta reunió es fa per correu: per participar-hi, respongueu aquest "
+"Hola! Aquesta reunió es fa per correu: per participar-hi, respongueu a aquest "
 "correu."
 
 #. module: ems
@@ -52609,7 +52609,7 @@ msgid ""
 "If anything needs correcting, reply to this email: your answer is recorded "
 "as an amendment. If everything is right, there is no need to reply."
 msgstr ""
-"Si cal corregir-hi alguna cosa, respongueu aquest correu: la resposta queda "
+"Si cal corregir-hi alguna cosa, respongueu a aquest correu: la resposta queda "
 "registrada com una esmena. Si tot és correcte, no cal respondre."
 
 #. module: ems
@@ -52692,7 +52692,7 @@ msgstr "Remitent desconegut"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.mail_layout_minutes
 msgid "Answering this message writes to whoever sent it."
-msgstr "Si respons aquest missatge, escriuràs a qui te l'ha enviat."
+msgstr "Si respons a aquest missatge, escriuràs a qui te l'ha enviat."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
@@ -52731,7 +52731,7 @@ msgid ""
 "Meeting held by email · Answer this message to take part: everybody taking "
 "part receives your answer."
 msgstr ""
-"Reunió per correu · Respon aquest missatge per participar-hi: tothom qui hi "
+"Reunió per correu · Respon a aquest missatge per participar-hi: tothom qui hi "
 "participa rebrà la teva resposta."
 
 #. module: ems

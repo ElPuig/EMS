@@ -18,7 +18,7 @@ Hay cinco cosas que deben estar resueltas. El asistente comprueba las cuatro pri
 
 1. **El curso entrante existe** y es distinto del actual.
 2. **Las evaluaciones están cerradas.** La última convocatoria de cada grupo del alcance debe estar en estado *Finalizada*. Si quedan abiertas, el asistente te las lista; ciérralas desde **Notas → Cambiar estado de sesión de evaluación**. Esto vale también para los **estudios de procedencia**: si esta ejecución va a colocar alumnos que vienen de un estudio que no estás transicionando y ese estudio aún tiene evaluaciones abiertas, el asistente se niega a ejecutarse, porque al salir del grupo se les congela el expediente y quedaría a medias.
-3. **Ninguna matrícula confirmada sin grupo destino.** Si una matrícula está confirmada pero nadie eligió el grupo, el asistente se niega a ejecutarse y te las lista. Pásales la acción **Sugerir grupo destino** del informe *Alumnos sin destino*: propone el grupo del mismo acrónimo y turno en el curso destino, y también resuelve a los repetidores, cuyo curso deduce de la tutoría que llevan matriculada.
+3. **Ninguna matrícula confirmada sin grupo destino.** Si una matrícula está confirmada, pero nadie eligió el grupo, el asistente se niega a ejecutarse y te las lista. Pásales la acción **Sugerir grupo destino** del informe *Alumnos sin destino*: propone el grupo del mismo acrónimo y turno en el curso destino, y también resuelve a los repetidores, cuyo curso deduce de la tutoría que llevan matriculada.
 
    Si aun así quedan algunas, casi siempre es porque **el grupo destino todavía no existe**: un grupo de tarde que promociona a un curso donde solo hay grupo de mañana, o un estudio sin ningún grupo del curso siguiente. Créalos antes de continuar, o decide a qué grupo existente van esos alumnos y asígnaselo a mano en su matrícula. Ninguna sugerencia automática puede colocar a nadie en un grupo que no está creado.
 
@@ -63,13 +63,13 @@ Obtendrás un recuadro rojo si algo bloquea la ejecución, uno azul con todo lo 
 | **Se gradúa, pendiente de confirmar** | Marcado como graduado y con matrícula **sin confirmar**: pasa a solicitante, **conserva el acceso al portal** y no se archiva, para que pueda confirmarla en septiembre |
 | **Se incorpora a su grupo del curso siguiente** | Matrícula **confirmada** con grupo: entra en ese grupo y se le crean las inscripciones a sus asignaturas |
 | **Se incorpora cuando se transicione su estudio** | Matrícula confirmada, pero hacia un estudio que no estás transicionando ahora: aquí no se coloca. Lo hará la ejecución de ese estudio |
-| **Matrícula pendiente de confirmar** | La matrícula existe pero nadie la ha confirmado: no se incorpora todavía. Lo hará solo el día que se confirme |
+| **Matrícula pendiente de confirmar** | La matrícula existe, pero nadie la ha confirmado: no se incorpora todavía. Lo hará solo el día que se confirme |
 | **Matrícula sin grupo destino** | Matrícula confirmada sin grupo: **bloquea la ejecución** |
 | **Sin matrícula para el curso siguiente** | No tiene ninguna matrícula |
 
 Dos de ellas merecen tu atención:
 
-- **Matrícula sin grupo destino** — la matrícula está confirmada pero nadie eligió el grupo, así que la ejecución queda bloqueada hasta que lo asignes: dejarlo sin grupo no tendría arreglo después. Usa la acción *Sugerir grupo destino* y vuelve a previsualizar.
+- **Matrícula sin grupo destino** — la matrícula está confirmada, pero nadie eligió el grupo, así que la ejecución queda bloqueada hasta que lo asignes: dejarlo sin grupo no tendría arreglo después. Usa la acción *Sugerir grupo destino* y vuelve a previsualizar.
 - **Alumnos sin ningún grupo** — si aparece este aviso, son fichas de alumno activas que no están en ningún grupo, así que **ninguna ejecución las ve**: no se les congela el expediente ni se les limpian los datos. Asígnales grupo o regístrales la baja antes de aplicar; después quedarán mezcladas con los cientos de alumnos que la transición deja sin grupo legítimamente y ya no se distinguen.
 - **Sin matrícula para el curso siguiente** — el alumno no se ha matriculado. **No** se le da de baja: simplemente se queda sin grupo. Es deliberado, porque en julio no hay forma de distinguir a quien se va a otro instituto de quien se matricula tarde. Guarda esta lista: es la que revisarás después para decidir quién se ha ido de verdad.
 

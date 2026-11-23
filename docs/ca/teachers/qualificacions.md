@@ -81,7 +81,7 @@ Les notes són nombres enters del **0 al 10**.
 
 Si un alumne **ja va aprovar un RA en una avaluació anterior** (nota igual o superior a 5), aquell RA no es pot tornar a avaluar. La cel·la apareix en **verd amb un cadenat** i mostra la nota que ja tenia; no es pot editar, esborrar ni enganxar-hi a sobre.
 
-Els RA que en una avaluació anterior van quedar **suspesos** (nota inferior a 5) sí que es poden tornar a avaluar: la cel·la parteix de la nota anterior però la pots modificar.
+Els RA que en una avaluació anterior van quedar **suspesos** (nota inferior a 5) sí que es poden tornar a avaluar: la cel·la parteix de la nota anterior, però la pots modificar.
 
 ![RA bloquejat amb el cadenat de aprovat en una avaluació anterior](../../assets/teachers/teachers-04-ra-bloquejat.png)
 
@@ -133,7 +133,7 @@ Cada sessió d'avaluació té un **estat** que determina qui la pot editar:
 | **Junta d'avaluació** | Només el **tutor del grup** (i l'administració) pot editar; el professorat només consulta. |
 | **Finalitzada** | Només l'**administració**. |
 
-L'estat el canvia l'administració. Si la sessió està en junta o finalitzada i no hi tens permís, veuràs les notes però no les podràs modificar.
+L'estat el canvia l'administració. Si la sessió està en junta o finalitzada i no hi tens permís, veuràs les notes, però no les podràs modificar.
 
 ![Estat de la sessió d'avaluació a la capçalera](../../assets/teachers/teachers-07-estat.png)
 

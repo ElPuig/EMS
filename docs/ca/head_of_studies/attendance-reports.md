@@ -6,13 +6,13 @@
 
 **Assistència → Informes** obre la pantalla d'**Informes d'assistència**: una taula dinàmica que pots explorar i exportar tu mateix, més 3 informes PDF imprimibles (per grup, per alumne, per assignatura) accessibles des de la seva capçalera.
 
-**Rol necessari:** Cap d'Estudis / Cap d'Estudis Adjunt/a / Direcció
+**Rol necessari:** cap d'estudis / cap d'estudis adjunt/a / Direcció
 
 ---
 
 ## Explorar els informes d'assistència
 
-1. Vés a **Assistència → Informes**. S'obre directament amb una **taula dinàmica**. Com a Cap d'estudis o Cap d'estudis adjunt/a veus l'alumnat de **la teva àrea**: el dels estudis que gestionen els departaments de la teva àrea (el camp **Gestionat pel departament** de cada estudi), més el dels tutors que depenen de tu. La Direcció veu **tot el centre**. Com qualsevol docent, també veus les teves assignatures.
+1. Ves a **Assistència → Informes**. S'obre directament amb una **taula dinàmica**. Com a cap d'estudis o cap d'estudis adjunt/a veus l'alumnat de **la teva àrea**: el dels estudis que gestionen els departaments de la teva àrea (el camp **Gestionat pel departament** de cada estudi), més el dels tutors que depenen de tu. La Direcció veu **tot el centre**. Com qualsevol docent, també veus les teves assignatures.
 2. La taula agrupa per **assignatura i després per alumne**. Fes clic a la icona **Expandeix-ho tot** (a dalt a la dreta, al costat de Capgirar eixos) dues vegades: un cop per desplegar les assignatures i un altre per desplegar els alumnes de cada assignatura. El número principal és el **% de faltes per alumne** — el **Compte** (nombre de sessions comptabilitzades) i el **Recompte de strikes** es mostren al costat, així pots saber si un 33% surt de 3 sessions o de 30, i si ve acompanyat de strikes disciplinaris. Una assignatura que l'horari divideix en parts impartides per separat (el seu **tema**, per exemple l'Educació física d'un mòdul de CFGB) apareix com una assignatura pròpia, «Assignatura - Tema».
 3. Fes servir la barra de cerca per filtrar més (per alumne, grup, assignatura o estat), i **Agrupa per** per canviar com es plega la taula — per exemple, per grup per comparar les taxes d'assistència entre grups del centre. El grup és el de l'alumne en la data de cada sessió: una sessió compartida per diversos grups compta cada alumne només al seu grup.
 
@@ -63,4 +63,4 @@ El PDF descarregat porta el nom de l'informe i de l'alumne, grup o assignatura s
 
 ---
 
-[← Tornar als manuals de Cap d'Estudis](index.md)
+[← Tornar als manuals de cap d'estudis](index.md)

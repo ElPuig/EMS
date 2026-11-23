@@ -69,7 +69,7 @@ veieu (la d'una reunió a la qual se us va convocar, la del vostre departament) 
 
    Si a la reunió hi ve algú de fora de l'EMS (la família d'un alumne, un professor d'un altre institut...),
    activeu **Afegeix persones externes** i afegiu-lo a la taula que apareix: nom, cognoms, correu i, si cal, l'entitat o la relació.
-   Desmarqueu **Present** si estava convidat però no hi va venir. Surt a l'acta amb el nom i l'entitat;
+   Desmarqueu **Present** si estava convidat, però no hi va venir. Surt a l'acta amb el nom i l'entitat;
    el correu no s'imprimeix. Marqueu **Envia-li la convocatòria** si voleu que la rebi: li arriba en un
    correu només per a ella, mai juntament amb el del professorat.
 

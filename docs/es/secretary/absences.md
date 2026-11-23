@@ -30,7 +30,7 @@ Tienes acceso al motivo escrito y al justificante de tu gente, y puedes ajustar 
 
 **Rechazar pide antes el motivo** (opcional, y se envía solo a la persona). Una decisión tomada por error, también un rechazo, se deshace con **Deshacer la última decisión**, desde la fila del listado o desde arriba del formulario (ver [Deshacer una decisión](../head_of_studies/absences.md#deshacer-una-decisión)); una solicitud aprobada también hay que deshacerla antes de poder corregirla. El justificante se puede adjuntar en cualquier momento, también en una solicitud ya recibida.
 
-Una vez la validas, Dirección revisa cada ausencia en último lugar, en la columna **Estado Dirección**, que ves pero no puedes modificar. La columna **Estado** muestra en qué punto está la solicitud.
+Una vez la validas, Dirección revisa cada ausencia en último lugar, en la columna **Estado Dirección**, que ves, pero no puedes modificar. La columna **Estado** muestra en qué punto está la solicitud.
 
 El detalle de los pasos, de estos campos y de los dos informes está en el manual de [Jefatura de Estudios](../head_of_studies/absences.md), y se aplica igual a tu área.
 

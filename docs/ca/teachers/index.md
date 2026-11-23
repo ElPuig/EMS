@@ -25,7 +25,7 @@ Aquesta secció conté els manuals per als **professors**.
 | [Resum diari](daily-summary.md) | El missatge diari amb les teves tasques pendents, les incidències dels teus alumnes (tutors) i els avisos per a la teva informació, i com triar quan i com el reps |
 | [Informes d'assistència](attendance-reports.md) | Imprimir els 3 informes PDF d'assistència (per grup/alumne/assignatura) i explorar les dades tu mateix amb la pantalla d'Anàlisi d'assistència |
 | [L'horari setmanal d'un grup](../admin/group-schedule.md) | Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF |
-| [L'horari setmanal d'un alumne](../admin/student-schedule.md) | Consultar l'horari propi d'un alumne (assignatures, docents, aules, patis), incloent-hi classes solapades, i exportar-lo a PDF |
+| [L'horari setmanal d'un alumne](../admin/student-schedule.md) | Consultar l'horari propi d'un alumne (assignatures, docents, aules, patis), incloent-hi classes encavalcades, i exportar-lo a PDF |
 | [Consultar les dades acadèmiques d'un alumne](student-academic-data.md) | On consultar l'historial acadèmic de qualsevol alumne, i quines dades poden llegir els rols d'Orientació i Convivència |
 | [Comprovar un carnet d'estudiant](student-card-check.md) | Escanejar el QR del revers d'un carnet per comprovar que és autèntic i si l'alumne pot sortir del centre |
 | [Sol·licitar una absència](absences.md) | Demanar una absència: triar-ne el tipus, dia sencer o unes hores, la declaració responsable, el justificant i enviar-la |

@@ -82,7 +82,7 @@ La graella funciona com un full de càlcul, igual que la vista de professors:
 
 A la imatge, **(1)** mostra una cel·la seleccionada per editar.
 
-> **Qui pot editar durant la junta:** quan l'avaluació està en estat **Junta d'avaluació**, **només el tutor del grup** (i l'administració) pot modificar les notes; el professorat només consulta. És el moment de revisar i tancar la qualificació de cada alumne assignatura per assignatura. Si l'avaluació ja està **finalitzada**, veuràs les notes però no les podràs modificar.
+> **Qui pot editar durant la junta:** quan l'avaluació està en estat **Junta d'avaluació**, **només el tutor del grup** (i l'administració) pot modificar les notes; el professorat només consulta. És el moment de revisar i tancar la qualificació de cada alumne assignatura per assignatura. Si l'avaluació ja està **finalitzada**, veuràs les notes, però no les podràs modificar.
 
 ---
 

@@ -64,7 +64,7 @@ Al terminar, se mostrará un mensaje resumen con el número de accesos otorgados
 
 - **Otorgar acceso** — Crea el usuario del portal (si todavía no existe) y envía el correo de invitación para establecer la contraseña. Los que ya tienen acceso se omiten.
 - **Revocar acceso** — Retira el acceso al portal a los destinatarios que lo tenían.
-- **Reenviar invitación de acceso al portal (usuarios que nunca han entrado)** — Vuelve a enviar el correo de invitación, con un enlace nuevo, **solo** a los destinatarios que tienen el acceso concedido pero que **nunca se han conectado** (porque no utilizaron la invitación a tiempo y les ha caducado). Al seleccionar esta acción, la lista de destinatarios se filtra automáticamente y solo quedan estos casos.
+- **Reenviar invitación de acceso al portal (usuarios que nunca han entrado)** — Vuelve a enviar el correo de invitación, con un enlace nuevo, **solo** a los destinatarios que tienen el acceso concedido, pero que **nunca se han conectado** (porque no utilizaron la invitación a tiempo y les ha caducado). Al seleccionar esta acción, la lista de destinatarios se filtra automáticamente y solo quedan estos casos.
 
 ---
 
@@ -81,7 +81,7 @@ La tabla de **Destinatarios (previsualización)** muestra, para cada alumno, qui
 | **Conectado** | Indica si el destinatario **ya se ha conectado** alguna vez al portal. |
 | **Nota** | Avisos, por ejemplo si falta el correo electrónico o no se ha encontrado ningún familiar. |
 
-> **Consejo:** las columnas **Acceso actual** y **Conectado** te permiten saber de un vistazo quién tiene el acceso pero todavía no lo ha activado (acceso ✔, conectado ✘): son justamente los candidatos a una reinvitación.
+> **Consejo:** las columnas **Acceso actual** y **Conectado** te permiten saber de un vistazo quién tiene el acceso, pero todavía no lo ha activado (acceso ✔, conectado ✘): son justamente los candidatos a una reinvitación.
 
 ---
 

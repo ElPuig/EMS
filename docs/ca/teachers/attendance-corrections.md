@@ -12,14 +12,14 @@ Cada entrada i sortida que fas queda registrada automàticament. Aquesta pàgina
 
 ## Revisar els teus fitxatges
 
-1. Vés a **Fitxatges dels empleats → Assistència → Vista general**.
+1. Ves a **Fitxatges dels empleats → Assistència → Vista general**.
 2. La llista mostra els teus fitxatges d'entrada/sortida del curs actual, els més recents primer, com una llista simple: cada registre és a un clic.
 
    ![Llista dels teus propis fitxatges](../../assets/teachers/assistencia-01-llistat.png)
 
 3. Fes clic a qualsevol registre per veure'n els detalls: hora d'entrada, hora de sortida i com es va registrar (quiosc, manual, etc.).
 
-> Aquí només veus els teus propis fitxatges. A més de tu, els poden veure els qui són per sobre teu a la jerarquia — el teu Cap de departament o de seminari (només lectura) i el teu Cap d'Estudis o Adjunt/a —, Direcció i l'Administrador. Un centre també pot permetre que tots els caps d'estudis consultin els fitxatges de tothom.
+> Aquí només veus els teus propis fitxatges. A més de tu, els poden veure els qui són per sobre teu a la jerarquia — el teu cap de departament o de seminari (només lectura) i el teu cap d'estudis o adjunt/a —, Direcció i l'Administrador. Un centre també pot permetre que tots els caps d'estudis consultin els fitxatges de tothom.
 
 **Cursos anteriors.** Quan el centre passa a un curs nou, els fitxatges de l'anterior s'arxiven: no s'esborren, però ja no surten a la llista. Per veure'ls, obre el menú **Filtres** de la barra de cerca i marca **Arxivat**.
 
@@ -49,7 +49,7 @@ Si una entrada o sortida s'ha registrat amb una hora incorrecta (has oblidat fit
 
 ## Què passa després
 
-La teva sol·licitud s'envia automàticament a qui la pot validar — normalment el teu Cap d'Estudis o Cap d'Estudis Adjunt/a (es troba pujant per la cadena de comandament des del teu propi responsable; si no n'hi ha cap de configurat, s'avisa un Administrador perquè ho corregeixi).
+La teva sol·licitud s'envia automàticament a qui la pot validar — normalment el teu cap d'estudis o cap d'estudis adjunt/a (es troba pujant per la cadena de comandament des del teu propi responsable; si no n'hi ha cap de configurat, s'avisa un Administrador perquè ho corregeixi).
 
 - Revisa l'hora original davant de la que has sol·licitat, i el teu motiu.
 - **Accepta**: el teu fitxatge es corregeix amb l'hora sol·licitada.
@@ -68,8 +68,8 @@ La teva sol·licitud s'envia automàticament a qui la pot validar — normalment
 
 > Per defecte, la llista només mostra les sol·licituds **Pendents**. Treu el filtre **Pendent** de la barra de cerca (o canvia al filtre **Acceptada**/**Rebutjada**) per veure les sol·licituds que ja tenen una decisió.
 
-> Si també ets Cap d'Estudis, Cap d'Estudis Adjunt/a o Direcció, consulta el [manual de Cap d'Estudis](../head_of_studies/attendance-corrections.md) per saber com decidir sobre les sol·licituds que t'arriben.
+> Si també ets cap d'estudis, cap d'estudis adjunt/a o Direcció, consulta el [manual de cap d'estudis](../head_of_studies/attendance-corrections.md) per saber com decidir sobre les sol·licituds que t'arriben.
 
 ---
 
-[← Tornar als manuals de Professors](index.md)
+[← Tornar als manuals de professors](index.md)

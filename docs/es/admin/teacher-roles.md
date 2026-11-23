@@ -28,9 +28,9 @@ Los niveles de permisos forman una jerarquía — cada nivel incluye todos los p
 | Coordinador/a TAC | *(bloque TAC — ved la nota de abajo)* | Manual — se añade al campo **Cargos** de la ficha del profesor |
 | Coordinador/a de orientación | *(bloque Orientación — ved la nota de abajo)* | Manual — se añade al campo **Cargos** de la ficha del profesor |
 
-> El Jefe de departamento tiene actualmente los mismos permisos que el Tutor, además de poder crear, editar y eliminar Grupos de alumnos (Contactos → Grupos). Existe como nivel propio para poder ampliarse de forma independiente en el futuro. El Jefe de seminario tiene el mismo nivel de permisos. Ambos pueden ver también, solo de lectura, el documento de identidad y el número de la Seguridad Social del personal de su propia cadena de mando (pestaña **Información privada**, grupo **Identificación**).
+> El jefe de departamento tiene actualmente los mismos permisos que el Tutor, además de poder crear, editar y eliminar Grupos de alumnos (Contactos → Grupos). Existe como nivel propio para poder ampliarse de forma independiente en el futuro. El jefe de seminario tiene el mismo nivel de permisos. Ambos pueden ver también, solo de lectura, el documento de identidad y el número de la Seguridad Social del personal de su propia cadena de mando (pestaña **Información privada**, grupo **Identificación**).
 >
-> **El rol de Secretario/a no forma parte de esta jerarquía.** Concede acceso a un bloque de permisos completamente separado (Secretaría: Manager/Administrador), sin relación con la cadena Profesor→...→Director de arriba — aunque se configura de la misma manera (como "Responsable de área" en un departamento top-level), no ocupa ningún peldaño de esta escala. La Secretaría también tiene los permisos de Recursos Humanos de Odoo: puede crear y editar la ficha de todo el personal, PAS y profesorado, información privada incluida, pero no eliminarla.
+> **El rol de Secretario/a no forma parte de esta jerarquía.** Concede acceso a un bloque de permisos completamente separado (Secretaría: Manager/Administrador), sin relación con la cadena Profesor→...→director de arriba — aunque se configura de la misma manera (como "Responsable de área" en un departamento top-level), no ocupa ningún peldaño de esta escala. La Secretaría también tiene los permisos de Recursos Humanos de Odoo: puede crear y editar la ficha de todo el personal, PAS y profesorado, información privada incluida, pero no eliminarla.
 >
 > **El cargo de Coordinador/a de orientación tampoco forma parte de esta jerarquía.** Concede un bloque de permisos propio y separado (Orientación: Manager/Administrador) y, como el de TAC, se asigna a mano desde el campo **Cargos** de la ficha del profesor. No es unipersonal: normalmente lo ocupa un equipo. Concede acceso de solo lectura a los datos de todo el alumnado del centro - notas, historial académico, asistencia diaria y sus incidencias, faltas de convivencia, contactos, matrículas y autorizaciones - y, como único permiso de escritura, indicar las necesidades educativas especiales (NEE) de cualquier alumno o solicitante. No da acceso a facturas ni a pagos. **El cargo de Coordinador/a de convivencia concede el mismo acceso de lectura**, sin las NEE, más todas las faltas de convivencia del centro. El historial académico no necesita ningún cargo: lo puede leer cualquier profesor. Ved [Consultar los datos académicos de un alumno](../teachers/student-academic-data.md).
 >
@@ -70,7 +70,7 @@ La insignia muestra automáticamente el color elegido con un texto legible, sea 
 
 La cuenta de usuario del profesor se actualiza de inmediato: se concede el grupo de seguridad vinculado al rol, junto con todo lo que implica (p. ej. asignar **Jefe de departamento** también concede el acceso de Tutor y de Profesor).
 
-> Los roles **Tutor**, **Jefe de departamento**, **Jefe de seminario**, **Jefe de estudios**, **Jefe de estudios adjunto**, **Secretario/a** y **Director** no se pueden añadir ni quitar manualmente — ni desde aquí, ni desde la lista **Asignado a** del propio rol (**Comunidad Educativa → Configuración → Profesorado/PAS → Roles**), ni mediante importación o edición masiva. Intentarlo muestra un mensaje que indica exactamente dónde hay que hacer el cambio en realidad. El Tutor se gestiona automáticamente según si el profesor es tutor de algún Grupo; los cinco siguientes se gestionan automáticamente desde el formulario de un departamento; el Director se gestiona automáticamente desde Ajustes (ver más abajo).
+> Los roles **Tutor**, **Jefe de departamento**, **Jefe de seminario**, **Jefe de estudios**, **Jefe de estudios adjunto**, **Secretario/a** y **Director** no se pueden añadir ni quitar manualmente — ni desde aquí, ni desde la lista **Asignado a** del propio rol (**Comunidad Educativa → Configuración → Profesorado/PAS → Roles**), ni mediante importación o edición masiva. Intentarlo muestra un mensaje que indica exactamente dónde hay que hacer el cambio en realidad. El Tutor se gestiona automáticamente según si el profesor es tutor de algún Grupo; los cinco siguientes se gestionan automáticamente desde el formulario de un departamento; el director se gestiona automáticamente desde Ajustes (ver más abajo).
 
 ---
 
@@ -86,7 +86,7 @@ Se revoca el grupo de seguridad correspondiente (y cualquier acceso que solo ese
 
 ---
 
-## Asignar un Jefe de departamento / Jefe de seminario
+## Asignar un jefe de departamento / jefe de seminario
 
 A diferencia de los demás roles, **Jefe de departamento** y **Jefe de seminario** no se establecen desde la ficha del profesor — se establecen desde el departamento:
 
@@ -94,17 +94,17 @@ A diferencia de los demás roles, **Jefe de departamento** y **Jefe de seminario
 2. Establecer el **Jefe de departamento** (el campo `Manager` del departamento) y, opcionalmente, el **Jefe de seminario**. Este campo solo muestra docentes y personal PAS — una cuenta técnica o del sistema nunca es una opción válida.
 3. Hacer clic en **Guardar**.
 
-![Ficha de un departamento con su Jefe de departamento y Jefe de seminario](../../assets/admin/admin-teacher-roles-department.png)
+![Ficha de un departamento con su jefe de departamento y jefe de seminario](../../assets/admin/admin-teacher-roles-department.png)
 
 Esto tiene un efecto inmediato y automático sobre todos los profesores de ese departamento:
 
 - Todos los profesores del departamento, **excepto el Jefe de departamento**, tienen su **Responsable** establecido al **Jefe de seminario**.
-- El **Responsable** del propio Jefe de seminario se establece al **Jefe de departamento**.
-- Si no hay ningún **Jefe de seminario** establecido, todos los profesores del departamento (excepto el Jefe de departamento) tienen su **Responsable** establecido directamente al **Jefe de departamento** — se salta el nivel de Jefe de seminario.
+- El **Responsable** del propio jefe de seminario se establece al **Jefe de departamento**.
+- Si no hay ningún **Jefe de seminario** establecido, todos los profesores del departamento (excepto el jefe de departamento) tienen su **Responsable** establecido directamente al **Jefe de departamento** — se salta el nivel de jefe de seminario.
 - El campo **Responsable** de la ficha de un profesor es de solo lectura — solo se puede cambiar editando el departamento, nunca directamente desde la ficha del profesor.
 - Reasignar cualquiera de los dos roles a otro profesor lo revoca automáticamente a quien lo ocupaba antes (dentro de ese departamento).
 
-> **Nota para departamentos existentes:** un departamento creado antes de activar esta funcionalidad puede no tener Jefe de departamento ni Jefe de seminario hasta que un administrador lo abra y los establezca — no se rellena nada automáticamente. Un departamento también puede quedarse **sin Jefe de departamento** (por ejemplo, durante una transición de curso, tras quitar al jefe saliente y antes de asignar uno nuevo) — no es obligatorio para guardar el formulario.
+> **Nota para departamentos existentes:** un departamento creado antes de activar esta funcionalidad puede no tener jefe de departamento ni jefe de seminario hasta que un administrador lo abra y los establezca — no se rellena nada automáticamente. Un departamento también puede quedarse **sin Jefe de departamento** (por ejemplo, durante una transición de curso, tras quitar al jefe saliente y antes de asignar uno nuevo) — no es obligatorio para guardar el formulario.
 
 ---
 
@@ -120,38 +120,38 @@ Cada departamento también tiene su propio color, que se muestra como un cuadrad
 
 ## Un departamento sin Jefe propio (Comparte Responsable con el padre)
 
-No todos los departamentos necesitan su propio Jefe de departamento. Si un departamento es lo bastante pequeño como para que lo gestione directamente el Jefe/Responsable de área de su departamento padre, marcar **Comparte Responsable con el padre** en lugar de establecer un Jefe de departamento:
+No todos los departamentos necesitan su propio jefe de departamento. Si un departamento es lo bastante pequeño como para que lo gestione directamente el Jefe/Responsable de área de su departamento padre, marcar **Comparte Responsable con el padre** en lugar de establecer un jefe de departamento:
 
 1. Navegar a **Empleados → Departamentos** y abrir el departamento. Debe tener ya un departamento padre.
 2. Marcar **Comparte Responsable con el padre** — esto vacía el campo **Responsable** y lo oculta, ya que el departamento deja de tener uno propio.
 3. Hacer clic en **Guardar**.
 
-Todos los profesores de ese departamento (y, si a su vez tiene subdepartamentos, su propio Jefe de departamento también) tienen su **Responsable** establecido al Jefe/Responsable de área del antepasado más cercano — subiendo por la jerarquía tantos niveles como haga falta hasta encontrar uno. Un departamento no puede tener a la vez Responsable propio y esta casilla marcada.
+Todos los profesores de ese departamento (y, si a su vez tiene subdepartamentos, su propio jefe de departamento también) tienen su **Responsable** establecido al Jefe/Responsable de área del antepasado más cercano — subiendo por la jerarquía tantos niveles como haga falta hasta encontrar uno. Un departamento no puede tener a la vez Responsable propio y esta casilla marcada.
 
 ---
 
-## Asignar un Responsable de área (Jefe de estudios / adjunto / Secretario)
+## Asignar un Responsable de área (jefe de estudios / adjunto / secretario)
 
 Algunos departamentos (actualmente **VET**, **ESO/BTX** y **ASP**) son **departamentos top-level** — esto cambia su formulario:
 
 1. Navegar a **Empleados → Departamentos** y abrir el departamento. La casilla **Departamento top-level** ya está marcada para VET, ESO/BTX y ASP.
-2. El departamento ya no puede tener un departamento padre, y no tiene Jefe de seminario — en lugar de "Jefe de departamento", el campo Responsable se llama **Responsable de área**.
+2. El departamento ya no puede tener un departamento padre, y no tiene jefe de seminario — en lugar de "jefe de departamento", el campo Responsable se llama **Responsable de área**.
 3. Elegir el **Área** (obligatoria): **Académica** (VET, ESO/BTX) o **ASP**. De esto depende qué **Rol** se podrá elegir a continuación.
 4. Establecer el **Responsable de área** (obligatorio) y elegir su **Rol**: **Jefe de estudios** o **Jefe de estudios adjunto** para un área Académica, **Secretario/a** para un área ASP — elegir un Rol que no coincida con el Área se rechaza.
 5. Hacer clic en **Guardar**.
 
-Qué **Área**/**Rol** elegir depende del departamento: VET y ESO/BTX son áreas Académicas, así que su Responsable de área normalmente es Jefe de estudios o adjunto; **ASP es diferente** — su Área es ASP, su Responsable de área es un profesor que coordina al personal administrativo/de secretaría, así que su Rol debería ser **Secretario/a** (esto concede el bloque de permisos de Secretaría, no uno académico — ver la nota bajo la tabla de permisos de arriba).
+Qué **Área**/**Rol** elegir depende del departamento: VET y ESO/BTX son áreas Académicas, así que su Responsable de área normalmente es jefe de estudios o adjunto; **ASP es diferente** — su Área es ASP, su Responsable de área es un profesor que coordina al personal administrativo/de secretaría, así que su Rol debería ser **Secretario/a** (esto concede el bloque de permisos de Secretaría, no uno académico — ver la nota bajo la tabla de permisos de arriba).
 
 Esto tiene un efecto más allá del propio departamento:
 
-- Cualquier otro departamento colocado *bajo* un departamento top-level (p. ej. "Computer Science" bajo VET, o "Secretariado"/"Conserjería" bajo ASP) tiene su propio **Jefe de departamento** con el **Responsable** establecido automáticamente al **Responsable de área** del departamento top-level. El resto no cambia — sus propios profesores y su Jefe de seminario siguen funcionando exactamente igual, solo cambia el Responsable del propio Jefe de departamento.
+- Cualquier otro departamento colocado *bajo* un departamento top-level (p. ej. "Computer Science" bajo VET, o "Secretariado"/"Conserjería" bajo ASP) tiene su propio **Jefe de departamento** con el **Responsable** establecido automáticamente al **Responsable de área** del departamento top-level. El resto no cambia — sus propios profesores y su jefe de seminario siguen funcionando exactamente igual, solo cambia el Responsable del propio jefe de departamento.
 - Como **Jefe de estudios**, **Jefe de estudios adjunto** y **Secretario/a** solo pueden estar ocupados por una persona en todo el centro, intentar establecer el mismo en dos departamentos con dos personas distintas se rechaza — hay que quitar primero la otra asignación si se quiere reasignar.
 
 > **Nota para departamentos existentes:** VET, ESO/BTX y ASP ya están marcados como top-level, pero sin ningún Responsable de área establecido todavía — un administrador debe abrir cada uno y establecerlo manualmente; no se rellena nada automáticamente.
 
 ---
 
-## Asignar el Director
+## Asignar el director
 
 A diferencia de todos los demás roles, el **Director** no se establece desde ninguna ficha de profesor ni ningún formulario de departamento — se configura de forma centralizada desde Ajustes:
 
@@ -162,12 +162,12 @@ A diferencia de todos los demás roles, el **Director** no se establece desde ni
 Esto tiene un efecto más allá del propio ajuste:
 
 - El **Responsable** de quien ejerza de Responsable de área en cualquier departamento top-level (p. ej. de VET, de ESO/BTX, de ASP) se establece automáticamente al **Director**.
-- El propio **Responsable** del Director siempre queda vacío — nadie puede quedar nunca por encima del Director, sea cual sea el departamento al que pertenezca nominalmente, tanto si lo encabeza como si es solo un miembro normal cuyo jefe es otra persona.
-- Reasignar el Director a otra persona revoca automáticamente el rol a quien lo ocupaba antes.
+- El propio **Responsable** del director siempre queda vacío — nadie puede quedar nunca por encima del director, sea cual sea el departamento al que pertenezca nominalmente, tanto si lo encabeza como si es solo un miembro normal cuyo jefe es otra persona.
+- Reasignar el director a otra persona revoca automáticamente el rol a quien lo ocupaba antes.
 
 > **Nota sobre el acceso:** la pantalla de Ajustes requiere el acceso de Ajustes de Odoo (concedido a través del grupo "Administrador de Ajustes" o root/admin) — es un permiso *distinto* del que controla los formularios de departamento anteriores. Alguien con acceso académico completo no tiene garantizado poder entrar en Ajustes.
 
-> **Nota para instalaciones existentes:** no hay ningún Director establecido por defecto — un administrador debe configurar uno manualmente; no se rellena nada automáticamente.
+> **Nota para instalaciones existentes:** no hay ningún director establecido por defecto — un administrador debe configurar uno manualmente; no se rellena nada automáticamente.
 
 ---
 

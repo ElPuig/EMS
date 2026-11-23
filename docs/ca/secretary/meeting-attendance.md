@@ -6,7 +6,7 @@
 
 Confirma qui assisteix a una reunió (claustre, reunió de departament, formació) amb un lector NFC a l'entrada: cada persona passa la mateixa targeta que fa servir per fitxar.
 
-**Rol necessari:** Secretaria, Cap d'Estudis, Direcció o administració acadèmica.
+**Rol necessari:** Secretaria, cap d'estudis, Direcció o administració acadèmica.
 
 ---
 
@@ -104,7 +104,7 @@ Qui té una absència o una sol·licitud d'absència (aprovada o pendent d'aprov
 
 A la pestanya **Persones**, canvia la columna **Estat** de la fila:
 
-- **Present**: per a qui assisteix però no porta la targeta.
+- **Present**: per a qui assisteix, però no porta la targeta.
 - **Justificat**: per a qui ha avisat que no assistirà. Escriu el motiu a **Notes**.
 - **Pendent**: per desfer una marca errònia.
 

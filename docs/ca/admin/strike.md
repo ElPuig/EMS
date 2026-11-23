@@ -40,7 +40,7 @@ El mateix bloc "Strikes Settings" també té l'opció **Avís de possible duplic
 
 ## Assignar el rol de Convivència
 
-Els coordinadors de convivència s'assignen com qualsevol altre rol, a **Comunitat → Configuració → Professorat → Rols**, afegint un empleat al rol "Coexistence coordinator". A diferència de la majoria de rols de coordinació, aquest no es limita a una sola persona — assigna'n un per cada branca de Cap d'Estudis / Cap d'Estudis Adjunt/a segons calgui, ja que els correus d'escalat s'envien al coordinador que comparteixi la branca del professor que ha posat el strike. Consulta el manual [Rols de professorat i nivells de permisos](teacher-roles.md) per al flux general d'assignació de rols.
+Els coordinadors de convivència s'assignen com qualsevol altre rol, a **Comunitat → Configuració → Professorat → Rols**, afegint un empleat al rol "Coexistence coordinator". A diferència de la majoria de rols de coordinació, aquest no es limita a una sola persona — assigna'n un per cada branca de cap d'estudis / cap d'estudis adjunt/a segons calgui, ja que els correus d'escalat s'envien al coordinador que comparteixi la branca del professor que ha posat el strike. Consulta el manual [Rols de professorat i nivells de permisos](teacher-roles.md) per al flux general d'assignació de rols.
 
 ---
 

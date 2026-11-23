@@ -23,7 +23,7 @@ El título se marca en el histórico académico del alumno, en el expediente del
 | Situación | Qué pasa |
 |---|---|
 | Estudia en el centro (tiene grupo) | Solo se marca el título. |
-| Activo pero sin grupo (ya no estudia aquí) | Sale del centro como titulado: se le cancelan las matrículas pendientes, se le revoca el acceso al portal, se programa la suspensión de la cuenta de Google y el contacto se archiva como **Antiguo alumno**. |
+| Activo, pero sin grupo (ya no estudia aquí) | Sale del centro como titulado: se le cancelan las matrículas pendientes, se le revoca el acceso al portal, se programa la suspensión de la cuenta de Google y el contacto se archiva como **Antiguo alumno**. |
 | Dado de baja | Pasa a **Antiguo alumno**. Se conservan los datos de la baja (fecha y curso). |
 
 El expediente de ese curso debe existir ya en el histórico.

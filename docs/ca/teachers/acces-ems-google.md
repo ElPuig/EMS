@@ -45,7 +45,7 @@ I ja està: entraràs a la pàgina d'inici de l'EMS amb els teus permisos de pro
 
 - **"Accés denegat" després de triar el compte de Google:** probablement has triat un compte personal. Torna-ho a provar i selecciona el compte `@elpuig.xeill.net`.
 - **No has rebut mai el correu de benvinguda:** comprova amb la secretaria del centre que la teva adreça personal està ben registrada a la teva fitxa.
-- **El compte de Google funciona per al correu però no per a l'EMS:** contacta amb l'equip d'administració perquè revisin l'enllaç del teu usuari de l'EMS.
+- **El compte de Google funciona per al correu, però no per a l'EMS:** contacta amb l'equip d'administració perquè revisin l'enllaç del teu usuari de l'EMS.
 
 ---
 

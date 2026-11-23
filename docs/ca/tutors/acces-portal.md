@@ -64,7 +64,7 @@ En acabar, es mostrarà un missatge resum amb el nombre d'accessos atorgats, rev
 
 - **Atorgar accés** — Crea l'usuari del portal (si encara no existeix) i envia el correu d'invitació per establir la contrasenya. Els qui ja tenen accés s'ometen.
 - **Revocar accés** — Retira l'accés al portal als destinataris que el tenien.
-- **Reenviar invitació d'accés al portal (usuaris que no han entrat mai)** — Torna a enviar el correu d'invitació, amb un enllaç nou, **només** als destinataris que tenen l'accés concedit però que **mai s'han connectat** (perquè no van utilitzar la invitació a temps i els ha caducat). En seleccionar aquesta acció, la llista de destinataris es filtra automàticament i només hi queden aquests casos.
+- **Reenviar invitació d'accés al portal (usuaris que no han entrat mai)** — Torna a enviar el correu d'invitació, amb un enllaç nou, **només** als destinataris que tenen l'accés concedit, però que **mai s'han connectat** (perquè no van utilitzar la invitació a temps i els ha caducat). En seleccionar aquesta acció, la llista de destinataris es filtra automàticament i només hi queden aquests casos.
 
 ---
 
@@ -81,7 +81,7 @@ La taula de **Destinataris (previsualització)** mostra, per a cada alumne, qui 
 | **Connectat** | Indica si el destinatari **ja s'ha connectat** alguna vegada al portal. |
 | **Nota** | Avisos, per exemple si falta el correu electrònic o no s'ha trobat cap familiar. |
 
-> **Consell:** les columnes **Accés actual** i **Connectat** et permeten saber d'un cop d'ull qui té l'accés però encara no l'ha activat (accés ✔, connectat ✘): són justament els candidats a una reinvitació.
+> **Consell:** les columnes **Accés actual** i **Connectat** et permeten saber d'un cop d'ull qui té l'accés, però encara no l'ha activat (accés ✔, connectat ✘): són justament els candidats a una reinvitació.
 
 ---
 

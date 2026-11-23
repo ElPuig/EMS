@@ -56,7 +56,7 @@ Unas prácticas suspendidas nunca suspenden el módulo. El módulo sigue **super
 
 ## Para secretaría: cerrar las finales pendientes de cursos anteriores
 
-La secretaría y la administración usan esta misma pantalla, sin restricción de grupo. Es la vía para cerrar las notas finales que aún quedan pendientes de cursos anteriores — un estudiante que superó todos los RA de un módulo pero cuya nota final no se pudo calcular porque aún no había hecho las prácticas.
+La secretaría y la administración usan esta misma pantalla, sin restricción de grupo. Es la vía para cerrar las notas finales que aún quedan pendientes de cursos anteriores — un estudiante que superó todos los RA de un módulo, pero cuya nota final no se pudo calcular porque aún no había hecho las prácticas.
 
 Para localizarlas: **Planificación y calificaciones → Calificaciones → Histórico académico**, filtro **Finales pendientes de prácticas**. Cada línea es un módulo de un curso pasado que espera la nota de prácticas — exactamente las casillas que la matriz ofrece bajo una cabecera de **Curso anterior**, y completa su nota final con los pesos congelados en el registro del histórico.
 

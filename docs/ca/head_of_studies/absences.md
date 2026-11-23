@@ -4,7 +4,7 @@
 
 # Gestionar les absències del personal
 
-**Rol necessari:** Cap d'Estudis, Cap d'Estudis Adjunt/a o Direcció
+**Rol necessari:** cap d'estudis, cap d'estudis adjunt/a o Direcció
 
 ---
 
@@ -26,8 +26,8 @@
 
 | Àrea | Aprova |
 |---|---|
-| VET | Cap d'Estudis Adjunt/a d'FP |
-| ESO / BTX | Cap d'Estudis |
+| VET | Cap d'estudis adjunt/a d'FP |
+| ESO / BTX | Cap d'estudis |
 | ASP | Secretari/ària |
 
 L'aprovador de cada persona és el responsable del seu departament de nivell superior. Es defineix al formulari del departament, camp **Responsable d'àrea**, i s'actualitza sol si canvia el càrrec.
@@ -153,7 +153,7 @@ Qui pot desfer què:
 
 | Qui | Desfà |
 |---|---|
-| El cap (Cap d'Estudis, Cap d'Estudis adjunt, Secretaria) | Les decisions de la part del cap, a les sol·licituds de la seva àrea |
+| El cap (cap d'estudis, cap d'estudis adjunt, Secretaria) | Les decisions de la part del cap, a les sol·licituds de la seva àrea |
 | Direcció | Les del cap i les seves |
 | Administrador | Qualsevol |
 

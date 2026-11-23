@@ -41,18 +41,18 @@ En la pantalla de **Informes de asistencia**, haz clic en el botón de la **impr
 **Informe de asistencia (por grupo):**
 1. Selecciona un **Grupo** — el desplegable muestra los grupos de los alumnos a los que has pasado lista en tus asignaturas. Una lista pasada de guardia es del profesor/a de la asignatura, no tuya.
 2. El **Tutor/a** y las fechas **Desde**/**Hasta** se rellenan automáticamente a partir del grupo y su rango de sesiones.
-3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo. Incluye al alumnado del grupo, según el grupo de cada alumno en la fecha de cada sesión.
+3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/ausencia, un recuento por estado y las notas de sesión registradas durante el periodo. Incluye al alumnado del grupo, según el grupo de cada alumno en la fecha de cada sesión.
 
 **Informe de asistencia (por alumno):**
 1. Selecciona un **Alumno** — el desplegable muestra los alumnos a los que has pasado lista en tus asignaturas.
 2. El **Tutor/a** y las fechas **Desde**/**Hasta** se rellenan automáticamente a partir del alumno y su rango de sesiones.
-3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo. Solo incluye **las asignaturas que impartes** a ese alumno, también una lista que un compañero/a haya pasado de guardia en tu asignatura (una que pases tú de guardia en la asignatura de otra persona es suya). Si eres su tutor/a, incluye todas sus asignaturas (consulta el manual de tutores).
+3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/ausencia, un recuento por estado y las notas de sesión registradas durante el periodo. Solo incluye **las asignaturas que impartes** a ese alumno, también una lista que un compañero/a haya pasado de guardia en tu asignatura (una que pases tú de guardia en la asignatura de otra persona es suya). Si eres su tutor/a, incluye todas sus asignaturas (consulta el manual de tutores).
 
 **Informe de asistencia (por asignatura):**
 1. Selecciona una **Asignatura** — el desplegable muestra las asignaturas que impartes, cada tema como una asignatura propia.
 2. El campo **Grupos** se rellena automáticamente con todos los grupos cuyos alumnos tienen esa asignatura, y **Tutores** muestra sus tutores como referencia. Si solo quieres algunos de esos grupos en el informe, quita el resto del campo **Grupos** — se queda editable.
 3. Las fechas **Desde**/**Hasta** se rellenan automáticamente para cubrir todo el rango de sesiones de tu selección.
-4. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo.
+4. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/ausencia, un recuento por estado y las notas de sesión registradas durante el periodo.
 
 **Para cualquier tipo de informe**, dos controles gobiernan el detalle por línea en el PDF:
 - **Estados de detalle** — qué estados aparecen en las tablas "Detalles". Por defecto solo incluye estados

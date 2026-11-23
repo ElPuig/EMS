@@ -45,7 +45,7 @@ Y ya está: entrarás en la página de inicio del EMS con tus permisos de profes
 
 - **"Acceso denegado" después de elegir la cuenta de Google:** probablemente has elegido una cuenta personal. Vuelve a intentarlo y selecciona la cuenta `@elpuig.xeill.net`.
 - **No has recibido nunca el correo de bienvenida:** comprueba con la secretaría del centro que tu dirección personal está bien registrada en tu ficha.
-- **La cuenta de Google funciona para el correo pero no para el EMS:** contacta con el equipo de administración para que revisen el enlace de tu usuario del EMS.
+- **La cuenta de Google funciona para el correo, pero no para el EMS:** contacta con el equipo de administración para que revisen el enlace de tu usuario del EMS.
 
 ---
 

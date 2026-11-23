@@ -18,7 +18,7 @@ Hi ha cinc coses que han d'estar resoltes. L'auxiliar comprova les quatre primer
 
 1. **El curs entrant existeix** i és diferent de l'actual.
 2. **Les avaluacions estan tancades.** L'última convocatòria de cada grup de l'abast ha d'estar en estat *Finalitzada*. Si n'hi ha d'obertes, l'auxiliar te les llista; tanca-les des de **Notes → Canviar estat de sessió d'avaluació**. Això val també per als **estudis de procedència**: si aquesta execució ha de col·locar alumnes que vénen d'un estudi que no estàs transicionant i aquell estudi encara té avaluacions obertes, l'auxiliar es nega a executar-se, perquè en sortir del grup se'ls congela l'expedient i quedaria a mitges.
-3. **Cap matrícula confirmada sense grup destí.** Si una matrícula està confirmada però ningú no n'ha triat el grup, l'auxiliar es nega a executar-se i te les llista. Passa'ls l'acció **Suggerir grup destí** de l'informe *Alumnes sense destí*: proposa el grup del mateix acrònim i torn al curs destí, i també resol els repetidors, el curs dels quals dedueix de la tutoria que tenen matriculada.
+3. **Cap matrícula confirmada sense grup destí.** Si una matrícula està confirmada, però ningú no n'ha triat el grup, l'auxiliar es nega a executar-se i te les llista. Passa'ls l'acció **Suggerir grup destí** de l'informe *Alumnes sense destí*: proposa el grup del mateix acrònim i torn al curs destí, i també resol els repetidors, el curs dels quals dedueix de la tutoria que tenen matriculada.
 
    Si tot i així en queden algunes, gairebé sempre és perquè **el grup destí encara no existeix**: un grup de tarda que promociona a un curs on només hi ha grup de matí, o un estudi sense cap grup del curs següent. Crea'ls abans de continuar, o decideix a quin grup existent van aquests alumnes i assigna'ls-el a mà a la seva matrícula. Cap suggeriment automàtic pot col·locar ningú en un grup que no està creat.
 
@@ -63,13 +63,13 @@ Obtindràs un quadre vermell si alguna cosa bloqueja l'execució, un quadre blau
 | **Es gradua, pendent de confirmar** | Marcat com a graduat i amb matrícula **sense confirmar**: passa a sol·licitant, **conserva l'accés al portal** i no s'arxiva, perquè pugui confirmar-la al setembre |
 | **S'incorpora al seu grup del curs vinent** | Matrícula **confirmada** amb grup: entra en aquell grup i se li creen les inscripcions a les assignatures |
 | **S'incorpora quan es transicioni el seu estudi** | Matrícula confirmada, però cap a un estudi que ara no estàs transicionant: aquí no s'hi col·loca. Ho farà l'execució d'aquell estudi |
-| **Matrícula pendent de confirmar** | La matrícula existeix però ningú no l'ha confirmada: encara no s'hi incorpora. Ho farà sol el dia que es confirmi |
+| **Matrícula pendent de confirmar** | La matrícula existeix, però ningú no l'ha confirmada: encara no s'hi incorpora. Ho farà sol el dia que es confirmi |
 | **Matrícula sense grup destí** | Matrícula confirmada sense grup: **bloqueja l'execució** |
 | **Sense matrícula per al curs vinent** | No té cap matrícula |
 
 Dues d'aquestes mereixen la teva atenció:
 
-- **Matrícula sense grup destí** — la matrícula està confirmada però ningú n'ha triat el grup, així que l'execució queda bloquejada fins que l'assignis: deixar-lo sense grup no tindria arranjament després. Fes servir l'acció *Suggerir grup destí* i torna a previsualitzar.
+- **Matrícula sense grup destí** — la matrícula està confirmada, però ningú n'ha triat el grup, així que l'execució queda bloquejada fins que l'assignis: deixar-lo sense grup no tindria arranjament després. Fes servir l'acció *Suggerir grup destí* i torna a previsualitzar.
 - **Alumnes sense cap grup** — si surt aquest avís, són fitxes d'alumne actives que no són a cap grup, de manera que **cap execució les veu**: no se'ls congela l'expedient ni se'ls netegen les dades. Assigna'ls grup o registra'ls la baixa abans d'aplicar; després quedaran barrejades amb els centenars d'alumnes que la transició deixa sense grup legítimament i ja no es distingeixen.
 - **Sense matrícula per al curs vinent** — l'alumne no s'ha matriculat. **No** se'l dona de baixa: simplement es queda sense grup. És deliberat, perquè al juliol no hi ha manera de distingir qui se'n va a un altre institut de qui es matricula tard. Guarda aquesta llista: és la que revisaràs després per decidir qui ha marxat de debò.
 

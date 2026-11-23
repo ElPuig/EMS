@@ -4,12 +4,12 @@
 
 # Comunicados: enviar tus propios correos masivos
 
-Esta página cubre **Comunicaciones → Comunicados** para el Jefe de estudios, el Jefe de
+Esta página cubre **Comunicaciones → Comunicados** para el jefe de estudios, el Jefe de
 estudios adjunto y el coordinador de calidad. La pantalla y el flujo de crear/enviar es
 exactamente el mismo que se describe en el [manual de Administrador](../admin/notice.md) —
 esta página solo cubre qué es diferente sobre quién ve qué.
 
-**Rol necesario:** Jefe de estudios / Jefe de estudios adjunto / Director / Coordinador de calidad
+**Rol necesario:** jefe de estudios / jefe de estudios adjunto / director / Coordinador de calidad
 
 ---
 
@@ -31,7 +31,7 @@ cadena de mando (ver más abajo); cualquier otro comunicado se abre en modo solo
 ningún botón de acción.
 
 El **Director** tiene exactamente el mismo filtro por defecto (igual que un Administrador) —
-la diferencia está solo en lo que le permite hacer al quitarlo, no en quién lo ve: un Director
+la diferencia está solo en lo que le permite hacer al quitarlo, no en quién lo ve: un director
 puede editar cualquier comunicado una vez quitado el filtro, mientras que tú solo puedes editar
 o eliminar los tuyos y los de tu rama independientemente del filtro. Vea el
 [manual de Administrador](../admin/notice.md#quién-ve-qué-comunicados).
@@ -61,4 +61,4 @@ directamente a usted, no a una dirección técnica compartida.
 
 ---
 
-[← Volver a los manuales de Jefe de estudios](index.md)
+[← Volver a los manuales de jefe de estudios](index.md)

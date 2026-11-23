@@ -49,7 +49,7 @@ La configuració no accepta un dia que no existeixi en el seu mes (tampoc el 29 
 | Qui | Durant el període | Fora del període |
 |-----|-------------------|------------------|
 | Alumnat i famílies, al portal | Presentar sol·licituds noves, consultar les seves, respondre al centre, anul·lar les pendents | Tot excepte presentar sol·licituds noves. El portal indica quan s'obrirà el període |
-| Cap d'Estudis, Direcció, secretaria | Tot | Tot: poden registrar sol·licituds rebudes en paper i tramitar qualsevol sol·licitud en qualsevol moment |
+| Cap d'estudis, Direcció, secretaria | Tot | Tot: poden registrar sol·licituds rebudes en paper i tramitar qualsevol sol·licitud en qualsevol moment |
 
 ---
 
@@ -84,7 +84,7 @@ Els canvis s'apliquen a les resolucions que s'emetin a partir d'aquell moment.
 
 ## Motius de petició de documentació
 
-Quan Cap d'Estudis demana més documentació a un sol·licitant, tria un motiu d'una llista. Tu mantens aquesta llista.
+Quan cap d'estudis demana més documentació a un sol·licitant, tria un motiu d'una llista. Tu mantens aquesta llista.
 
 **Rol necessari:** administrador de l'EMS, o cap d'estudis, cap d'estudis adjunt o direcció (poden crear, editar i arxivar motius, no esborrar-los)
 
@@ -98,7 +98,7 @@ Navega a: **Gestió acadèmica → Configuració → Convalidacions → Motius d
 
 ## Motius de denegació per mòdul
 
-Quan Cap d'Estudis denega la convalidació d'un mòdul, tria el motiu d'una llista. Tu mantens aquesta llista.
+Quan cap d'estudis denega la convalidació d'un mòdul, tria el motiu d'una llista. Tu mantens aquesta llista.
 
 **Rol necessari:** administrador de l'EMS, o cap d'estudis, cap d'estudis adjunt o direcció (poden crear, editar i arxivar motius, no esborrar-los)
 

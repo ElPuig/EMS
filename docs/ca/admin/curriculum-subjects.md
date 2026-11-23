@@ -52,17 +52,17 @@ Els resultats d'aprenentatge només existeixen dins d'una assignatura — no hi 
 
 ### Afegir criteris d'avaluació
 
-Els criteris d'avaluació només existeixen dins d'un resultat d'aprenentatge — un nivell més profund que els propis resultats.
+Els criteris d'avaluació només existeixen dins d'un resultat d'aprenentatge — un nivell més profund que els resultats.
 
 1. Obre una assignatura, ves a **Resultat d'aprenentatge** i obre el formulari propi d'un resultat (icona de llapis).
 2. Al popup del resultat, ves a la pestanya **Criteris d'avaluació** i fes clic a **Afegeix una línia**.
-   - **Codi**: ha de començar amb el codi del propi resultat, la mateixa regla que resultats-dins-d'assignatures.
+   - **Codi**: ha de començar amb el codi del resultat, la mateixa regla que resultats-dins-d'assignatures.
 3. Fes clic a la icona de llapis d'una fila de criteri per obrir el seu propi formulari i afegir notes.
 4. Desa el popup del resultat i després el formulari de l'assignatura.
 
 ### Afegir continguts
 
-Els continguts viuen a la pestanya **Contingut**, separada de Resultat d'aprenentatge, i es poden anidar (un contingut pot tenir sub-elements "Composició").
+Els continguts viuen a la pestanya **Contingut**, separada de Resultat d'aprenentatge, i es poden imbricar (un contingut pot tenir subelements "Composició").
 
 1. Obre una assignatura i ves a la pestanya **Contingut**. Fes clic a **Afegeix una línia** per crear un contingut de nivell superior (codi, acrònim, nom).
 2. Per afegir un sub-element sota un contingut existent: fes clic a la seva icona de llapis (**Edita**) per obrir el seu propi formulari, ves a la pestanya **Composició**, i fes clic a **Afegeix una línia** allà.

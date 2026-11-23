@@ -82,7 +82,7 @@ La cuadrícula funciona como una hoja de cálculo, igual que la vista de profeso
 
 En la imagen, **(1)** muestra una celda seleccionada para editar.
 
-> **Quién puede editar durante la junta:** cuando la evaluación está en estado **Junta de evaluación**, **solo el tutor del grupo** (y la administración) puede modificar las notas; el profesorado solo consulta. Es el momento de revisar y cerrar la calificación de cada alumno asignatura por asignatura. Si la evaluación ya está **finalizada**, verás las notas pero no las podrás modificar.
+> **Quién puede editar durante la junta:** cuando la evaluación está en estado **Junta de evaluación**, **solo el tutor del grupo** (y la administración) puede modificar las notas; el profesorado solo consulta. Es el momento de revisar y cerrar la calificación de cada alumno asignatura por asignatura. Si la evaluación ya está **finalizada**, verás las notas, pero no las podrás modificar.
 
 ---
 

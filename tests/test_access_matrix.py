@@ -166,7 +166,8 @@ ACCESS_MATRIX = {
     'ems.erasmus.mobility.task': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.self_assessment': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.self_assessment.answer': {'teacher': 'r', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
-    'ems.group': {'teacher': 'r', 'secretary': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu'},
+    # The administrator reads them too: they are above Direction (issue #853).
+    'ems.group': {'teacher': 'r', 'secretary': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu', 'settings_admin': 'r'},
     'ems.level': {'teacher': 'r', 'secretary': 'r', 'erasmus': 'r'},
     # The administrator configures them too: they are above Direction (issue #723).
     'ems.non_teaching_type': {'teacher': 'r', 'department_chief': 'rwcu', 'settings_admin': 'rwcu'},

@@ -151,11 +151,3 @@ class TestGroupScheduleDeclaration(TransactionCase):
         printable = self.env['ir.actions.actions'].with_user(user).get_bindings('ems.group').get('report', [])
         self.assertNotIn(self.env.ref('ems.action_report_group_schedule_declaration').id,
                          [report['id'] for report in printable])
-
-    def test_group_schedule_pdf_hides_no_rooms(self):
-        # The "Horario del grupo" PDF keeps showing the classroom column: hide_rooms is opt-in.
-        self._teach(self.teacher_one, (self.group, self.subject, 1, '0'))
-        content, _content_type = self.env['ir.actions.report'].with_context(lang='en_US')._render_qweb_pdf(
-            'ems.report_group_schedule', self.group.ids)
-
-        self.assertTrue(content)

@@ -18,6 +18,7 @@
 | Health absence allowance | 15:00 | Hours of self-declared health absence each person may use per course |
 | Absence reminder | 1 day | Once an absence is over and still waits for the employee (its supporting document, or requesting a detected absence their Head of Studies asked them to justify), they are reminded every this many days |
 | Absence report | 3 days | What is still missing is also reported this many days after the absence (a supporting document, to the Head who approves the absence) or after the Head of Studies asked for a justification (a detected absence not requested yet, to the teacher's Head of Studies) |
+| Absence warning | 2 hours | This long before an absence starts, the Department Chief and the Seminar Chief of the employee's department receive an email, so they can arrange the cover. Each absence warns once; if its dates change, it warns again. With 0 the warning is switched off |
 | Detected absences | (empty) | The areas whose teachers go through the detected absences circuit: a day a teacher did not check in (or checked in after their first lesson) becomes a detected absence, and the teacher's Head of Studies reviews every detected absence before the teacher is reminded of it. Empty, the circuit is off. To start with, choose only the VET area |
 
 The allowance **warns, it does not block**: someone going over it is warned and the request is flagged for the Head of Studies, but it goes through.

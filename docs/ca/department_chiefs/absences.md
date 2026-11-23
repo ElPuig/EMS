@@ -183,6 +183,12 @@ Sigui quina sigui l'opció, les famílies i l'alumnat del grup reben **un sol co
 
 ![Diàleg Canviar la proposta: el que es va comunicar, els altres canvis possibles i dues reorganitzacions, cadascuna amb el seu pas de rectificació](../../assets/teachers/guard-duty-09-canviar-proposta.png)
 
+### L'avís abans que comenci una absència
+
+Poc abans que comenci l'absència d'un docent del teu departament, reps un correu que diu que comença aviat, amb qui, el tipus, les dates i la durada (no el motiu). És un recordatori perquè tinguis la cobertura organitzada. Arriba una sola vegada per absència, i de nou si en canvien les dates. L'antelació la fixa l'administrador (2 hores per defecte; amb 0 l'avís queda desactivat).
+
+---
+
 ### Quan l'absència canvia després
 
 Si una absència es rebutja, s'anul·la o s'escurça, o resulta que un altre docent sí que hi és, el que s'havia organitzat pot deixar de caldre. Res no es desfà automàticament: els quadres de damunt la taula t'ho indiquen, i tu decideixes.

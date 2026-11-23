@@ -100,6 +100,10 @@ class ems_company(models.Model):
         string="Absence reminder (days)", default=1)
     ems_absence_document_escalation_days = fields.Integer(
         string="Absence report (days)", default=3)
+    # Issue #819: how long before an absence starts the Department Chief and the Seminar Chief of
+    # the employee's department are warned. Zero switches the warning off.
+    ems_absence_warning_hours = fields.Float(
+        string="Absence warning (hours)", default=2.0)
     # Issue #696: the areas (top-level departments) whose teachers go through the detected
     # absences circuit: missing check-ins become detected absences, and every detected absence
     # (also the ones entered by hand) reminds the teacher to request it. Empty, the circuit is off.
@@ -581,6 +585,11 @@ class ems_company(models.Model):
         Same fallback rationale as above."""
         return (self.ems_absence_document_escalation_days
                 or self._fields['ems_absence_document_escalation_days'].default(self))
+
+    def _ems_absence_warning_hours(self):
+        """Hours before an absence starts at which the chiefs of the employee's department are
+        warned (issue #819). Unlike the other intervals, zero is meaningful here: no warning."""
+        return max(self.ems_absence_warning_hours, 0.0)
 
     def _ems_absence_circuit_domain(self):
         """Domain on hr.employee of the teachers in the detected absences circuit (issue #696):

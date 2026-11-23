@@ -2838,3 +2838,63 @@ class TestAbsenceRequest(TransactionCase):
         self.assertEqual(leave.ems_status, 'pending_direction')
         self.assertEqual(leave.ems_atri_state, 'requested')
         self.assertFalse(leave.ems_atri_return_reason)
+
+    # --- Warning the chiefs before an absence starts (issue #819) ---------------------------
+
+    def _warned_leave(self, label='Warned'):
+        """A partial absence with its department's chiefs, and the instant 'hours' before it."""
+        department = self._chiefed_department(label, seminar=True)
+        leave = self._create_leave(self.type_training, self._monday(), hour_from=10.0, hour_to=12.0)
+        chiefs = (department.manager_id | department.seminar_chief_id).user_id.partner_id
+        return leave, chiefs
+
+    def _warnings(self, leave):
+        return leave.message_ids.filtered(lambda message: 'starts soon' in (message.body or ''))
+
+    def _run_warning_at(self, moment):
+        with patch.object(fields.Datetime, 'now', return_value=moment):
+            self.env['hr.leave']._cron_ems_absence_warning()
+
+    def test_the_chiefs_are_warned_once_inside_the_window(self):
+        leave, chiefs = self._warned_leave()
+        hours = self.env.company._ems_absence_warning_hours()
+        self.assertEqual(hours, 2.0, 'the default comes from the company setting')
+
+        self._run_warning_at(leave.date_from - timedelta(hours=hours + 1))
+        self.assertFalse(self._warnings(leave), 'too early')
+
+        self._run_warning_at(leave.date_from - timedelta(minutes=90))
+        warning = self._warnings(leave)
+        self.assertEqual(len(warning), 1)
+        self.assertEqual(warning.partner_ids, chiefs)
+        self.assertTrue(leave.ems_warning_sent)
+
+        self._run_warning_at(leave.date_from - timedelta(minutes=30))
+        self.assertEqual(len(self._warnings(leave)), 1, 'each absence warns once')
+
+    def test_the_window_comes_from_the_company_setting(self):
+        leave, chiefs = self._warned_leave('Window')
+        self.env.company.ems_absence_warning_hours = 4.0
+        self._run_warning_at(leave.date_from - timedelta(hours=3))
+        self.assertEqual(len(self._warnings(leave)), 1)
+
+    def test_zero_hours_switches_the_warning_off(self):
+        leave, chiefs = self._warned_leave('Off')
+        self.env.company.ems_absence_warning_hours = 0.0
+        self._run_warning_at(leave.date_from - timedelta(minutes=30))
+        self.assertFalse(self._warnings(leave))
+
+    def test_a_refused_or_started_absence_is_not_warned(self):
+        leave, chiefs = self._warned_leave('Closed')
+        self._run_warning_at(leave.date_from + timedelta(minutes=5))
+        self.assertFalse(self._warnings(leave), 'already started')
+        leave.action_refuse()
+        self._run_warning_at(leave.date_from - timedelta(minutes=30))
+        self.assertFalse(self._warnings(leave), 'refused')
+
+    def test_moving_the_absence_warns_again(self):
+        leave, chiefs = self._warned_leave('Moved')
+        self._run_warning_at(leave.date_from - timedelta(minutes=30))
+        self.assertTrue(leave.ems_warning_sent)
+        leave.write({'request_hour_from': 13.0, 'request_hour_to': 14.0})
+        self.assertFalse(leave.ems_warning_sent, 'the warning of the old time no longer counts')

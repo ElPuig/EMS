@@ -263,6 +263,10 @@ class EmsAbsenceLeave(models.Model):
     ems_document_reminder_date = fields.Date(
         string="Last document reminder", copy=False, readonly=True,
         help="The last day the employee was reminded that the supporting document is missing.")
+    ems_warning_sent = fields.Boolean(
+        string="Chiefs warned before it starts", copy=False, readonly=True, index=True,
+        help="Set once the Department Chief and the Seminar Chief have been warned that this "
+             "absence is about to start. Cleared when its dates or type change.")
     ems_document_escalated = fields.Boolean(
         string="Missing document reported to the Head", copy=False, readonly=True)
     ems_document_return_reason = fields.Text(
@@ -785,6 +789,9 @@ class EmsAbsenceLeave(models.Model):
             # Only ever moved by the Head's validation, the employee's own statement and
             # Direction sending it back, each with its own check.
             raise AccessError(_("The ATRI confirmation of an absence cannot be changed by hand."))
+        if vals.keys() & set(REQUEST_FIELDS):
+            # Moved or retyped: the warning of the old dates no longer counts.
+            vals = dict(vals, ems_warning_sent=False)
         self._ems_check_own_approved_write(vals)
         self._ems_keep_decision_before(vals)
         corrected = self._ems_keep_original_request(vals)
@@ -1505,6 +1512,28 @@ class EmsAbsenceLeave(models.Model):
                     leave._ems_stage_users(),
                     lambda user, leave=leave: leave.with_context(lang=user.lang)._ems_reminder_messages()[1],
                     overdue_xmlid, today, now, started, escalated_field)
+
+    @api.model
+    def _cron_ems_absence_warning(self):
+        """Warns the Department Chief and the Seminar Chief of the employee's department by
+        email shortly before an absence starts (issue #819), as long before as the company
+        setting says. Each absence warns once. Immediate on purpose, unlike the daily summary:
+        it is only useful while there is still time to arrange the cover."""
+        hours = self.env.company._ems_absence_warning_hours()
+        if not hours:
+            return
+        now = fields.Datetime.now()
+        leaves = self.search([
+            ('state', 'in', ('confirm', 'validate1', 'validate')),
+            ('ems_warning_sent', '=', False),
+            ('date_from', '>', now),
+            ('date_from', '<=', now + timedelta(hours=hours)),
+        ])
+        for leave in leaves:
+            partners = leave._ems_notify_partners()
+            leave._ems_notify(partners, Markup("<p>%s</p>%s") % (
+                _("This absence starts soon."), leave._ems_summary()))
+            leave.ems_warning_sent = True
 
     def _ems_reminder_messages(self):
         """(reminder for the employee, report for their Head) of the step the request waits on."""

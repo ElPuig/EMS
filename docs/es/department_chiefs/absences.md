@@ -183,6 +183,12 @@ Sea cual sea la opción, las familias y el alumnado del grupo reciben **un solo 
 
 ![Diálogo Cambiar la propuesta: lo que se comunicó, los otros cambios posibles y dos reorganizaciones, cada una con su paso de rectificación](../../assets/teachers/guard-duty-09-canviar-proposta.png)
 
+### El aviso antes de que empiece una ausencia
+
+Poco antes de que empiece la ausencia de un docente de tu departamento, recibes un correo que dice que empieza pronto, con quién, el tipo, las fechas y la duración (no el motivo). Es un recordatorio para que tengas la cobertura organizada. Llega una sola vez por ausencia, y de nuevo si cambian sus fechas. La antelación la fija el administrador (2 horas por defecto; con 0 el aviso queda desactivado).
+
+---
+
 ### Cuando la ausencia cambia después
 
 Si una ausencia se rechaza, se anula o se acorta, o resulta que otro docente sí está, lo que se había organizado puede dejar de hacer falta. Nada se deshace automáticamente: los recuadros de encima de la tabla te lo indican, y tú decides.

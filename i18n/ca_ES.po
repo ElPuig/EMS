@@ -55746,3 +55746,40 @@ msgstr "0,5 punts: la proposta A és un job shadowing o una estada de docència.
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__activity_kind__0
 msgid "0 points: Proposal A is a course."
 msgstr "0 punts: la proposta A és un curs."
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_absence_warning_ir_actions_server
+msgid "EMS: Absence warning to the chiefs"
+msgstr "EMS: Avís d'absència als caps"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_absence_warning_hours
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_absence_warning_hours
+msgid "Absence warning (hours)"
+msgstr "Avís d'absència (hores)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_warning_sent
+msgid "Chiefs warned before it starts"
+msgstr "Caps avisats abans que comenci"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_warning_sent
+msgid "Set once the Department Chief and the Seminar Chief have been warned that this absence is about to start. Cleared when its dates or type change."
+msgstr "S'activa quan el cap de departament i el cap de seminari ja han rebut l'avís que aquesta absència està a punt de començar. Es desactiva si canvien les dates o el tipus."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Absence warning"
+msgstr "Avís d'absència"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "This long before an absence starts, the Department Chief and the Seminar Chief of the employee's department receive an email, so they can arrange the cover. Set it to 0 to switch the warning off."
+msgstr "Amb aquesta antelació abans que comenci una absència, el cap de departament i el cap de seminari del departament de la persona reben un correu, perquè puguin organitzar la substitució. Amb 0, l'avís queda desactivat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "This absence starts soon."
+msgstr "Aquesta absència comença aviat."

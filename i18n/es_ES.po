@@ -55779,3 +55779,40 @@ msgstr "0,5 puntos: la propuesta A es un job shadowing o una estancia de docenci
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__activity_kind__0
 msgid "0 points: Proposal A is a course."
 msgstr "0 puntos: la propuesta A es un curso."
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_absence_warning_ir_actions_server
+msgid "EMS: Absence warning to the chiefs"
+msgstr "EMS: Aviso de ausencia a los jefes"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_absence_warning_hours
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_absence_warning_hours
+msgid "Absence warning (hours)"
+msgstr "Aviso de ausencia (horas)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_warning_sent
+msgid "Chiefs warned before it starts"
+msgstr "Jefes avisados antes de que empiece"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_warning_sent
+msgid "Set once the Department Chief and the Seminar Chief have been warned that this absence is about to start. Cleared when its dates or type change."
+msgstr "Se activa cuando el jefe de departamento y el jefe de seminario ya han recibido el aviso de que esta ausencia está a punto de empezar. Se desactiva si cambian las fechas o el tipo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Absence warning"
+msgstr "Aviso de ausencia"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "This long before an absence starts, the Department Chief and the Seminar Chief of the employee's department receive an email, so they can arrange the cover. Set it to 0 to switch the warning off."
+msgstr "Con esta antelación antes de que empiece una ausencia, el jefe de departamento y el jefe de seminario del departamento de la persona reciben un correo, para que puedan organizar la sustitución. Con 0, el aviso queda desactivado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "This absence starts soon."
+msgstr "Esta ausencia empieza pronto."

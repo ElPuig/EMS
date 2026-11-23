@@ -126,6 +126,10 @@ class TestPortalStudentWalkout(HttpCase):
         self.assertIn('o_ems_walkout_manage', page)
         self._post(f'/my/vagues/{walkout.id}/anulla')
         self.assertEqual(walkout.state, 'cancelled')
+        # Issue #827: the sub-delegate who cancelled the delegate's call still finds it, with nothing to manage.
+        response = self.url_open(f'/my/vagues/{walkout.id}')
+        self.assertTrue(response.url.endswith(f'/my/vagues/{walkout.id}'), "Not sent back to the list.")
+        self.assertNotIn('o_ems_walkout_manage', response.text)
 
     def test_the_group_sees_why_a_call_was_rejected(self):
         walkout = open_walkout(self)

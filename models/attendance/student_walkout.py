@@ -1,13 +1,18 @@
 # -*- coding: utf-8 -*-
 
+import logging
 from datetime import timedelta
 
 from dateutil.relativedelta import relativedelta
 from markupsafe import Markup
+from psycopg2 import IntegrityError
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import format_date, format_datetime
+from odoo.tools.sql import index_exists
+
+_logger = logging.getLogger(__name__)
 
 GROUP_VOTES = ('yes', 'no', 'abstain')
 VALIDATE_TASK = 'ems.mail_activity_student_walkout_validate'
@@ -23,6 +28,23 @@ VALIDATION_STATES = ('closed', 'validated')
 SAMPLE_CLASS_FROM = 8.0
 SAMPLE_CLASS_TO = 15.0
 SAMPLE_PROPOSAL_HOUR = 17.0
+# Issue #827: one live proposal per group and day, kept by the database (see EmsStudentWalkout.init).
+# A cancelled or rejected one frees the day, as the check in _ems_portal_open does.
+ONE_PER_DAY_INDEX = 'ems_student_walkout_one_per_group_day'
+ONE_PER_DAY_WHERE = "state NOT IN ('cancelled', 'rejected')"
+
+
+def live_duplicates(cr):
+    """The (group id, day, proposal ids) with more than one live proposal: what stops the unique
+    index from being built. Shared with the 18.0.0.50.1 pre-migration, which reports them."""
+    cr.execute(f"""
+        SELECT group_id, walkout_date, array_agg(id ORDER BY id)
+          FROM ems_student_walkout
+         WHERE {ONE_PER_DAY_WHERE}
+         GROUP BY group_id, walkout_date
+        HAVING count(*) > 1
+    """)
+    return cr.fetchall()
 
 
 def _sample_school_days(date_from, date_to):
@@ -233,6 +255,23 @@ class EmsStudentWalkout(models.Model):
         for walkout in self:
             walkout.can_validate = walkout._ems_has_something_to_validate() and walkout._ems_user_may_validate()
 
+    def init(self):
+        """Issue #827: the check in _ems_portal_open cannot see a proposal made at the same moment in
+        another transaction (the delegate and the sub-delegate proposing the same day at once), so the
+        database keeps one live proposal per group and day. Partial, so it cannot be a _sql_constraints
+        entry. The main group is enough: a split group's halves always share the proposal's main group.
+        Not built while duplicates exist (the pre-migration lists them): the upgrade goes on, and the
+        next one builds it once they are cancelled."""
+        cr = self.env.cr
+        if index_exists(cr, ONE_PER_DAY_INDEX):
+            return
+        if live_duplicates(cr):
+            _logger.warning("%s not created: some group has more than one live student walkout proposal "
+                            "for the same day (see the 18.0.0.50.1 pre-migration's log).", ONE_PER_DAY_INDEX)
+            return
+        cr.execute(f"CREATE UNIQUE INDEX {ONE_PER_DAY_INDEX} ON {self._table} (group_id, walkout_date) "
+                   f"WHERE {ONE_PER_DAY_WHERE}")
+
     # Portal: the controller passes the logged-in student; everything is checked here.
 
     @api.model
@@ -255,28 +294,35 @@ class EmsStudentWalkout(models.Model):
         if not files:
             raise UserError(_("Attach the document that supports the walkout: the call of a students' union, the minute "
                               "of the group's assembly or any document that explains the decision."))
+        already = UserError(_("Your group already has a student walkout proposal for %(date)s.",
+                              date=format_date(self.env, walkout_date)))
         if self.search_count([('group_ids', 'in', groups.ids), ('walkout_date', '=', walkout_date),
                               ('state', 'not in', ('cancelled', 'rejected'))]):
-            raise UserError(_("Your group already has a student walkout proposal for %(date)s.",
-                              date=format_date(self.env, walkout_date)))
+            raise already
         students = self.env['res.partner'].search([('contact_type', '=', 'student'),
                                                    ('main_group_id', 'in', groups.ids)])
         with_portal = set(self._ems_with_portal(students).ids)
-        walkout = self.create({
-            'group_id': group.id,
-            'group_ids': [(6, 0, groups.ids)],
-            'opener_id': partner.id,
-            'course_id': self.env.company.current_course_id.id,
-            'walkout_date': walkout_date,
-            'phase_hours': calendar['phase_hours'],
-            'notice_hours': calendar['notice_hours'],
-            **calendar['plan']['rule'],
-            'vote_start': calendar['vote_start'],
-            'vote_until': calendar['vote_until'],
-            'notes': notes[:2000],
-            'line_ids': [(0, 0, {'student_id': student.id, 'has_portal': student.id in with_portal})
-                         for student in students],
-        })
+        try:
+            walkout = self.create({
+                'group_id': group.id,
+                'group_ids': [(6, 0, groups.ids)],
+                'opener_id': partner.id,
+                'course_id': self.env.company.current_course_id.id,
+                'walkout_date': walkout_date,
+                'phase_hours': calendar['phase_hours'],
+                'notice_hours': calendar['notice_hours'],
+                **calendar['plan']['rule'],
+                'vote_start': calendar['vote_start'],
+                'vote_until': calendar['vote_until'],
+                'notes': notes[:2000],
+                'line_ids': [(0, 0, {'student_id': student.id, 'has_portal': student.id in with_portal})
+                             for student in students],
+            })
+        except IntegrityError as error:
+            # The same day proposed at the same moment by the other manager (issue #827).
+            if ONE_PER_DAY_INDEX not in str(error):
+                raise
+            raise already from error
         walkout.attachment_ids = self.env['ir.attachment'].create([{
             'name': name, 'raw': content, 'res_model': self._name, 'res_id': walkout.id,
         } for name, content in files])

@@ -192,7 +192,7 @@ erDiagram
 | `vote_start` / `vote_until` / `join_start` / `join_until` | `Datetime` | The calendar above; the joining ones once it starts |
 | `notes` | `Text` | The reason the delegate gives (why the walkout is called), labelled "Reason"; required to propose it |
 | `attachment_ids` | `Many2many → ir.attachment` | The supporting document (a union's call, the group's assembly minute...): at least one file |
-| `state` | `Selection` | `voting` → `joining` → `closed` → `validated`; or `rejected`, `cancelled` (by the delegate). A group vote that does not support it goes from `voting` to `closed` |
+| `state` | `Selection` | `voting` → `joining` → `closed` → `validated`; or `rejected`, `cancelled` (by the delegate or the sub-delegate). A group vote that does not support it goes from `voting` to `closed` |
 | `head_of_studies_id` | `Many2one → hr.employee` | Who gets the minute |
 | `rejected_by_id` / `rejected_datetime` | `Many2one → res.users` / `Datetime` | Who aborted it or did not validate it, and when |
 | `rejection_reason_id` / `rejection_details` | `Many2one → ems.student_walkout.rejection_reason` / `Text` | Why; details are required for a reason with `requires_details` ("Other reasons") |
@@ -294,6 +294,14 @@ flowchart TD
   access who is the delegate or sub-delegate of their main group, and that group must be allowed.
   Lines for every active student of `group_ids`. The vote starts at once (`_ems_start_voting`):
   each student with portal access gets `email_template_student_walkout_call`, and the tutor a copy.
+  **One live proposal per group and day** (not cancelled nor rejected): checked with a search first
+  and kept by the database with the partial unique index `ems_student_walkout_one_per_group_day` on
+  `(group_id, walkout_date)` (built in `init()`, issue #827), since the delegate and the sub-delegate
+  proposing the same day at the same moment both pass the search (each transaction's snapshot misses
+  the other's proposal). The violation is turned into the same message as the search. The main group
+  is enough: a split group's halves always share the proposal's main group. While an installation
+  holds duplicates the index is not built: the 18.0.0.50.1 pre-migration lists them in the log and
+  `init()` builds it on the first upgrade after they are cancelled.
 - **Tutor's copy** (`_ems_mail_tutors(event)`): `email_template_student_walkout_tutor`, one template
   whose text depends on `ctx['walkout_event']` (`call`, `join`, `closed`, `validated`, `rejected`),
   scheduled for when the group's email reaches it (at once when counting from the proposal). To the users of `group_ids.tutor_id` (co-tutors
@@ -379,7 +387,9 @@ flowchart TD
   `res.partner._ems_restore_not_expected_lines`, without telling the families of past days), and the
   validate task is removed.
 - **Cancel** (`_ems_portal_cancel(partner)`): the opener or the group's delegates, while voting or
-  joining; the group no longer sees it. Nobody closes a phase by hand.
+  joining. Only its managers keep seeing it (`res.partner._ems_walkout_calls`: the opener and the
+  group's current delegate and sub-delegate, the same people as `_ems_is_manager`); the rest of the
+  group no longer does. Nobody closes a phase by hand.
 - **Validate** (`action_validate()`): Head of Studies / Deputy / Director in the tutor scope of every
   joining student (`_ems_user_may_validate`, the same rule as justifying them), or an administrator.
   Justifies nothing: it marks the task as done and moves the proposal to `validated`. The task only

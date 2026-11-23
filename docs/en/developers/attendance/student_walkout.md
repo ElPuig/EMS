@@ -13,7 +13,8 @@ record this model holds, which the group votes on, is the **proposal**:
    supports the walkout (anonymous: only the counts are kept);
 2. if it does, each student says whether they join it (by name, changeable until the phase ends),
    also one who got portal access after the proposal;
-3. the minute (a PDF in the centre language) goes to the group's Head of Studies / Deputy Head of
+3. the minute (a PDF in the centre language, linking each supporting document to its download, which
+   needs a staff session) goes to the group's Head of Studies / Deputy Head of
    Studies at least the notice before the walkout, and they **validate** it or **do not validate** it.
 
 **Every student who joins is off the roll-calls of the walkout day** (issue #844): from the moment joining

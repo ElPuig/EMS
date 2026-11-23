@@ -14,7 +14,7 @@ No hay que confundirla con los **Strikes** (Convivencia), el registro disciplina
 
 - **Nada cuando se hace una propuesta**: vela por ella el tutor.
 - **Un aviso en tu resumen diario** cuando un tutor (o alguien por encima de él) aborta una propuesta, con el motivo.
-- **El acta, por correo**, cuando la propuesta se cierra: como mínimo 48 horas antes de la inasistencia colectiva (por defecto), con el recuento de votos y los alumnos que se suman. Si alguien se suma, también recibes la tarea **Validar la inasistencia colectiva**.
+- **El acta, por correo**, cuando la propuesta se cierra: como mínimo 48 horas antes de la inasistencia colectiva (por defecto), con el recuento de votos, los alumnos que se suman y un enlace para descargar el documento que la justifica (si te lo pide, inicia sesión en EMS). Si alguien se suma, también recibes la tarea **Validar la inasistencia colectiva**.
 - **Un aviso en tu resumen diario** cuando se vuelve a abrir una propuesta cerrada porque se han ampliado sus adhesiones: el acta que tenías se retira y recibes una nueva cuando se cierre de nuevo.
 
 El acta llega al jefe de estudios o al jefe de estudios adjunto por encima del tutor del grupo; la de un grupo sin tutor, a todos los jefes de estudios y jefes de estudios adjuntos.

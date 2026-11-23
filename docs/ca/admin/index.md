@@ -19,6 +19,7 @@ Aquesta secció conté els manuals per a **administradors**.
 - [Tipus de certificat i circuits d'aprovació](certificate-types.md) — Quins certificats es poden demanar, quina documentació exigeixen, qui la pot adjuntar i qui fa cada pas fins que s'expedeixen.
 - [Idioma del centre](centre-language.md) — L'idioma en què EMS escriu pel seu compte i que reben els usuaris nous.
 - [Carpeta de les actes a Drive](minutes-drive.md) — Guardar una còpia del PDF de cada acta en una carpeta d'una unitat compartida.
+- [Compressió dels fitxers pujats](uploaded-files-compression.md) — Els PDF i les imatges es fan més lleugers automàticament després de pujar-los.
 - [Grups de treball](workgroups.md) — Agrupacions lliures d'empleats (equips de projecte, comissions).
 - [Espais i tipus d'espai](facilities.md) — Aules físiques i els seus tipus, usats en sessions/grups/actes/horaris.
 - [Rols de professorat i nivells de permisos](teacher-roles.md) — Com assignar rols (Tutor, Cap de departament, Cap d'estudis, Director...) per concedir nivells de permisos.

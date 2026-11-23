@@ -1,9 +1,74 @@
 # -*- coding: utf-8 -*-
 
+import os
+
 from odoo import api, models
+from odoo.tools.mimetypes import guess_mimetype
+
+# Files that are never compressed: what the system itself generates or ships (views, reports, the
+# email being sent) and what the centre downloads as a template. image.mixin's resized copies
+# (res_field 'image_*') are skipped too: Odoo already resizes them, and compressing each one would
+# make the others recompute.
+COMPRESSION_EXCLUDED_MODELS = ('ir.ui.view', 'ir.actions.report', 'mail.mail', 'mail.compose.message', 'ems.signed.record')
+COMPRESSION_EXCLUDED_FIELDS = (('ems.erasmus.call', 'template_file'),)
+COMPRESSION_MIN_KB_PARAM = 'ems.compress_min_kb'
+COMPRESSION_MIN_KB_DEFAULT = 300
+
 
 class ems_attachment(models.Model):
 	_inherit = 'ir.attachment'
+
+	@api.model_create_multi
+	def create(self, vals_list):
+		attachments = super().create(vals_list)
+		attachments._ems_queue_compression()
+		return attachments
+
+	def write(self, vals):
+		res = super().write(vals)
+		if vals.keys() & {'raw', 'datas'}:
+			self._ems_queue_compression()
+		return res
+
+	def _ems_compression_candidates(self):
+		"""The files of `self` worth compressing: a stored PDF or JPEG/PNG over the size threshold
+		that nothing excludes. Cheap checks only, on the row: nothing is read from the filestore."""
+		if self.env.context.get('ems_no_compress'):
+			return self.browse()
+		minimum = int(self.env['ir.config_parameter'].sudo().get_param(
+			COMPRESSION_MIN_KB_PARAM, COMPRESSION_MIN_KB_DEFAULT)) * 1024
+		compression = self.env['ems.file_compression']
+		return self.filtered(lambda attachment:
+			attachment.type == 'binary' and attachment.file_size > minimum
+			and compression.can_compress(attachment.mimetype)
+			and attachment.res_model not in COMPRESSION_EXCLUDED_MODELS
+			and (attachment.res_model, attachment.res_field) not in COMPRESSION_EXCLUDED_FIELDS
+			and not (attachment.res_field or '').startswith('image_'))
+
+	def _ems_queue_compression(self):
+		"""Compressing a scan takes seconds: it never runs inside the user's request, the file is
+		stored as uploaded and a background job (queue_job) replaces it when it is done."""
+		for attachment in self._ems_compression_candidates():
+			attachment.with_delay(identity_key=f"ems_compress_{attachment.id}",
+				description=f"Compress file: {attachment.name}")._ems_compress()
+
+	def _ems_compress(self):
+		"""Replaces the file by its compressed version when that saves enough (see
+		ems.file_compression). The original is not kept."""
+		self.ensure_one()
+		if not self._ems_compression_candidates():
+			return False
+		raw = self.raw
+		result = self.env['ems.file_compression'].compress(raw, self.mimetype)
+		if not result:
+			return False
+		vals = {'raw': result}
+		mimetype = guess_mimetype(result)
+		if mimetype != self.mimetype:
+			# A PNG stored as JPEG: its name and type follow.
+			vals.update(mimetype=mimetype, name=f"{os.path.splitext(self.name)[0]}.jpg")
+		self.sudo().with_context(ems_no_compress=True).write(vals)
+		return True
 
 	def _ems_link_to(self, record):
 		"""Ties the still unlinked attachments (res_id 0, as a form's many2many list or binary

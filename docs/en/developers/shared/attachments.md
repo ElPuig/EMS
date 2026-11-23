@@ -80,3 +80,45 @@ added to the stock widget's `relatedFields`). The upload button and the delete i
 field's `readonly`: a user who cannot write the model gets a read-only form from Odoo itself
 (`ir.ui.view` sets `edit="False"`), and the justification form also makes the field read-only for
 anyone but the student's tutor or an admin.
+
+---
+
+## Compression of uploaded files (issue #799)
+
+Every PDF and JPEG/PNG stored as an `ir.attachment` (widget uploads, `Binary(attachment=True)`
+fields, portal and wizards alike) is shrunk in the background. `models/shared/attachment.py`
+overrides `create()` and `write()` (when `raw`/`datas` change): the file is stored exactly as
+uploaded, and a `queue_job` job (`_ems_compress`, one waiting job per file) replaces it later, so a
+scan that takes seconds to process never delays the user's request.
+
+```mermaid
+flowchart LR
+    U([Upload]) --> C["ir.attachment create()/write()"]
+    C -->|"stored as uploaded"| F[(filestore)]
+    C -->|"candidate? PDF/JPEG/PNG, over ems.compress_min_kb, not excluded"| J[["queue_job: _ems_compress"]]
+    J --> E["ems.file_compression.compress()"]
+    E -->|"saves at least 10 %"| W["write(raw), ems_no_compress"]
+    E -->|"otherwise"| K["original kept"]
+```
+
+| Piece | Rule |
+|-------|------|
+| Candidates | `type='binary'`, PDF/JPEG/PNG, larger than `ems.compress_min_kb` (default 300 KB). PDFs only when `gs` is installed |
+| Never compressed | `ir.ui.view`, `ir.actions.report`, `mail.mail`, `mail.compose.message` and `ems.signed.record` attachments, `ems.erasmus.call.template_file`, and `image.mixin`'s resized copies (`res_field` `image_*`) |
+| PDF engine | Ghostscript (`apt-requirements.txt`), `/ebook` profile (150 dpi), 120 s timeout, files on disk (never the whole PDF twice in memory). Not touched: a PDF with a digital signature (`/ByteRange`, the signature covers the exact bytes) or encrypted |
+| Image engine | Odoo's `ImageProcess`: upright, long side at most 1920 px, JPEG quality 85, no EXIF (a phone photo carries the GPS position). A PNG without transparency is stored as JPEG (the name becomes `.jpg`); one with transparency stays PNG |
+| Acceptance | The result replaces the file only if it is at most 90 % of the original and a PDF keeps its number of pages. The original is not kept |
+| Failure | A broken PDF, a timeout or a missing `gs` is logged as a WARNING and the file stays as uploaded |
+
+**Why not Odoo's own image handling alone:** `ir.attachment._postprocess_contents()` already
+resizes an image above `base.image_autoresize_max_px` (1920x1920) when it is stored, but it neither
+re-encodes an image that already fits, nor converts a large PNG to JPEG, nor drops the EXIF
+metadata, and it never touches a PDF. `ems.file_compression` covers exactly that remainder, with
+the same 1920 px limit.
+
+**Cost** (synthetic scans, this box, `odoo shell`): a lossless A4 scan of 9.7 MB becomes 1.1 MB
+(about 88 % less) in 0.2 s for one page and 1.9 s for fifteen (roughly 0.13 s per page); a 1900x1200
+PNG of 6.9 MB becomes 1.5 MB in 0.07 s; peak memory of the process stays under 400 MB. The
+filestore of this development database holds no file contents, so a sample of real documents could
+not be measured. The job processes one file at a time on the queue: the cost grows linearly with
+the pages uploaded.

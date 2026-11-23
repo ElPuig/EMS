@@ -36,7 +36,7 @@ ONE_PER_DAY_WHERE = "state NOT IN ('cancelled', 'rejected')"
 
 def live_duplicates(cr):
     """The (group id, day, proposal ids) with more than one live proposal: what stops the unique
-    index from being built. Shared with the 18.0.0.50.1 pre-migration, which reports them."""
+    index from being built. Shared with the 18.0.0.51.0 pre-migration, which reports them."""
     cr.execute(f"""
         SELECT group_id, walkout_date, array_agg(id ORDER BY id)
           FROM ems_student_walkout
@@ -267,7 +267,7 @@ class EmsStudentWalkout(models.Model):
             return
         if live_duplicates(cr):
             _logger.warning("%s not created: some group has more than one live student walkout proposal "
-                            "for the same day (see the 18.0.0.50.1 pre-migration's log).", ONE_PER_DAY_INDEX)
+                            "for the same day (see the 18.0.0.51.0 pre-migration's log).", ONE_PER_DAY_INDEX)
             return
         cr.execute(f"CREATE UNIQUE INDEX {ONE_PER_DAY_INDEX} ON {self._table} (group_id, walkout_date) "
                    f"WHERE {ONE_PER_DAY_WHERE}")

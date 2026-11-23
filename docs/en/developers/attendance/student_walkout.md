@@ -301,7 +301,7 @@ flowchart TD
   proposing the same day at the same moment both pass the search (each transaction's snapshot misses
   the other's proposal). The violation is turned into the same message as the search. The main group
   is enough: a split group's halves always share the proposal's main group. While an installation
-  holds duplicates the index is not built: the 18.0.0.50.1 pre-migration lists them in the log and
+  holds duplicates the index is not built: the 18.0.0.51.0 pre-migration lists them in the log and
   `init()` builds it on the first upgrade after they are cancelled.
 - **Tutor's copy** (`_ems_mail_tutors(event)`): `email_template_student_walkout_tutor`, one template
   whose text depends on `ctx['walkout_event']` (`call`, `join`, `closed`, `validated`, `rejected`),

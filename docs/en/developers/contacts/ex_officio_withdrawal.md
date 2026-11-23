@@ -295,7 +295,7 @@ last one once the student has none. The tutor-scope rules of the case file and o
 and checks match on that field, and on the student still having a group or the case file's course
 being the current one, so a closed case file stays open to the tutor and the chain above them only
 for the course of the withdrawal; the Python checks (`_ems_user_acts_as('tutor')`,
-`_ems_responsible_users()`) read it too. Migration `18.0.0.50.1` restores it on case files already
+`_ems_responsible_users()`) read it too. Migration `18.0.0.51.0` restores it on case files already
 closed from the student's academic history of that course (`ems.student.year_record.tutor_id`).
 Other records reached through `student_id.tutor_id` (enrolments, attendance lines, strikes, student
 benefits, data requests) are left as they were: the exit deletes the operational ones (enrolments,

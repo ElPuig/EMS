@@ -746,8 +746,8 @@ class TestExOfficioWithdrawal(TransactionCase):
     def test_migration_restores_the_tutor_of_a_closed_case_file_from_the_history(self):
         """Issue #817: a case file closed before the tutor was stored takes it from the student's
         academic history of the same course."""
-        path = os.path.join(os.path.dirname(__file__), '..', 'migrations', '18.0.0.50.1', 'post-migrate.py')
-        spec = importlib.util.spec_from_file_location('ems_post_migrate_18_0_0_50_1', path)
+        path = os.path.join(os.path.dirname(__file__), '..', 'migrations', '18.0.0.51.0', 'post-migrate.py')
+        spec = importlib.util.spec_from_file_location('ems_post_migrate_18_0_0_51_0', path)
         migration = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(migration)
         case_file = self._processed_case_file()

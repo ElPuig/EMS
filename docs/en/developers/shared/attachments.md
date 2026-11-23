@@ -116,12 +116,14 @@ re-encodes an image that already fits, nor converts a large PNG to JPEG, nor dro
 metadata, and it never touches a PDF. `ems.file_compression` covers exactly that remainder, with
 the same 1920 px limit.
 
-**Cost** (synthetic scans, this box, `odoo shell`): a lossless A4 scan of 9.7 MB becomes 1.1 MB
-(about 88 % less) in 0.2 s for one page and 1.9 s for fifteen (roughly 0.13 s per page); a 1900x1200
-PNG of 6.9 MB becomes 1.5 MB in 0.07 s; peak memory of the process stays under 400 MB. The
-filestore of this development database holds no file contents, so a sample of real documents could
-not be measured. The job processes one file at a time on the queue: the cost grows linearly with
-the pages uploaded.
+**Cost** (measured on 2026-11-23 over a copy of production taken on 2026-11-19, 719 candidate files,
+3 processes in parallel): 827 MB become 343 MB (58 % less). PDF: 317 files, 601 MB -> 167 MB (252
+shrink, the rest saved under 10 %), 0.71 s per file on average, 8.5 s the slowest; JPEG: 361 files,
+166 MB -> 149 MB (only 45 gain 10 %, they are already compressed photos); PNG: 41 files, 61 MB -> 28 MB.
+Peak memory per process about 110 MB. Total CPU 237 s for the whole backlog, so the migration's jobs
+finish in a few minutes. In daily use the cost is one file per upload, linear in its pages
+(about 0.13 s per page). The page count is read with poppler's `pdfinfo` (already a dependency):
+PyPDF2 refused 21 of those 317 PDF files (damaged xref table) that `gs` and `pdfinfo` read fine.
 
 **Files stored before the feature.** `migrations/18.0.0.51.0/post-migrate.py` calls
 `ir.attachment._ems_queue_existing_compression()`, which only *queues* the jobs (a `search()` on the

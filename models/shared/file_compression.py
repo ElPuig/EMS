@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import io
 import logging
 import os
 import shutil
@@ -8,7 +7,6 @@ import tempfile
 
 from odoo import api, models
 from odoo.tools.image import ImageProcess
-from odoo.tools.pdf import PdfReader
 
 _logger = logging.getLogger(__name__)
 
@@ -59,7 +57,6 @@ class EmsFileCompression(models.AbstractModel):
         if not gs:
             return False
         try:
-            pages = len(PdfReader(io.BytesIO(raw)).pages)
             with tempfile.TemporaryDirectory(prefix='ems_compress_') as folder:
                 source, target = os.path.join(folder, 'in.pdf'), os.path.join(folder, 'out.pdf')
                 with open(source, 'wb') as file:
@@ -68,12 +65,20 @@ class EmsFileCompression(models.AbstractModel):
                                check=True, capture_output=True, timeout=GHOSTSCRIPT_TIMEOUT)
                 with open(target, 'rb') as file:
                     result = file.read()
-            if len(PdfReader(io.BytesIO(result)).pages) != pages:
-                return False
+                pages = self._pdf_pages(source)
+                if not pages or pages != self._pdf_pages(target):
+                    return False
             return result
         except Exception as error:  # a broken PDF, a timeout, gs failing: the original stays
             _logger.warning("PDF not compressed: %s", error)
             return False
+
+    @api.model
+    def _pdf_pages(self, path):
+        """Number of pages, read by poppler's pdfinfo (already a dependency, issue #585), which also
+        reads the PDF files with a damaged xref table that PyPDF2 refuses (6 % of the centre's)."""
+        output = subprocess.run(['pdfinfo', path], capture_output=True, text=True, timeout=30).stdout
+        return int(next((line.split()[1] for line in output.splitlines() if line.startswith('Pages:')), 0))
 
     @api.model
     def to_jpeg(self, image):

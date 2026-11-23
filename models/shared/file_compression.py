@@ -45,8 +45,9 @@ class EmsFileCompression(models.AbstractModel):
         return result if result and len(result) <= len(raw) * MAX_RESULT_RATIO else False
 
     @api.model
-    def can_compress(self, mimetype):
-        return mimetype in IMAGE_MIMETYPES or (mimetype == PDF_MIMETYPE and bool(shutil.which('gs')))
+    def compressible_mimetypes(self):
+        """The types this installation can compress: PDF only when Ghostscript is installed."""
+        return list(IMAGE_MIMETYPES) + ([PDF_MIMETYPE] if shutil.which('gs') else [])
 
     @api.model
     def _compress_pdf(self, raw):
@@ -75,19 +76,23 @@ class EmsFileCompression(models.AbstractModel):
             return False
 
     @api.model
+    def to_jpeg(self, image):
+        """The upright, resized JPEG of an ImageProcess (what a photo or a scan is stored as).
+        Re-encoding drops the EXIF metadata, which in a phone photo carries the GPS position."""
+        image.resize(IMAGE_MAX_SIDE, IMAGE_MAX_SIDE)
+        return image.image_quality(quality=IMAGE_QUALITY, output_format='JPEG')
+
+    @api.model
     def _compress_image(self, raw):
         try:
             image = ImageProcess(raw)
             if not image.image:
                 return False
-            has_alpha = 'A' in image.image.getbands() or 'transparency' in image.image.info
-            image.resize(IMAGE_MAX_SIDE, IMAGE_MAX_SIDE)
-            # A PNG with transparency stays PNG (resized only); anything else is a photo or a
-            # scan, which JPEG stores much smaller. Re-encoding drops the EXIF metadata, which in
-            # a phone photo carries the GPS position.
-            if has_alpha:
+            # A PNG with transparency stays PNG (resized only); anything else is a photo or a scan.
+            if 'A' in image.image.getbands() or 'transparency' in image.image.info:
+                image.resize(IMAGE_MAX_SIDE, IMAGE_MAX_SIDE)
                 return image.image_quality(quality=0, output_format='PNG')
-            return image.image_quality(quality=IMAGE_QUALITY, output_format='JPEG')
+            return self.to_jpeg(image)
         except Exception as error:
             _logger.warning("Image not compressed: %s", error)
             return False

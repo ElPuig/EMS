@@ -7,10 +7,11 @@ from odoo.tools.mimetypes import guess_mimetype
 
 # Files that are never compressed: what the system itself generates or ships (views, reports, the
 # email being sent) and what the centre downloads as a template. image.mixin's resized copies
-# (res_field 'image_*') are skipped too: Odoo already resizes them, and compressing each one would
+# (the image_* fields) are skipped too: Odoo already resizes them, and compressing each one would
 # make the others recompute.
 COMPRESSION_EXCLUDED_MODELS = ('ir.ui.view', 'ir.actions.report', 'mail.mail', 'mail.compose.message', 'ems.signed.record')
 COMPRESSION_EXCLUDED_FIELDS = (('ems.erasmus.call', 'template_file'),)
+COMPRESSION_IMAGE_FIELDS = ('image_1920', 'image_1024', 'image_512', 'image_256', 'image_128')
 COMPRESSION_MIN_KB_PARAM = 'ems.compress_min_kb'
 COMPRESSION_MIN_KB_DEFAULT = 300
 
@@ -30,27 +31,45 @@ class ems_attachment(models.Model):
 			self._ems_queue_compression()
 		return res
 
-	def _ems_compression_candidates(self):
-		"""The files of `self` worth compressing: a stored PDF or JPEG/PNG over the size threshold
-		that nothing excludes. Cheap checks only, on the row: nothing is read from the filestore."""
-		if self.env.context.get('ems_no_compress'):
-			return self.browse()
+	@api.model
+	def _ems_compression_domain(self):
+		"""What is worth compressing: a stored PDF or JPEG/PNG over the size threshold that nothing
+		excludes. Row data only: nothing is read from the filestore. One definition for a new
+		upload (filtered_domain) and for the files already stored (search)."""
 		minimum = int(self.env['ir.config_parameter'].sudo().get_param(
 			COMPRESSION_MIN_KB_PARAM, COMPRESSION_MIN_KB_DEFAULT)) * 1024
-		compression = self.env['ems.file_compression']
-		return self.filtered(lambda attachment:
-			attachment.type == 'binary' and attachment.file_size > minimum
-			and compression.can_compress(attachment.mimetype)
-			and attachment.res_model not in COMPRESSION_EXCLUDED_MODELS
-			and (attachment.res_model, attachment.res_field) not in COMPRESSION_EXCLUDED_FIELDS
-			and not (attachment.res_field or '').startswith('image_'))
+		domain = [('type', '=', 'binary'), ('file_size', '>', minimum),
+			('mimetype', 'in', self.env['ems.file_compression'].compressible_mimetypes()),
+			('res_model', 'not in', COMPRESSION_EXCLUDED_MODELS), ('res_field', 'not in', COMPRESSION_IMAGE_FIELDS)]
+		for model, field in COMPRESSION_EXCLUDED_FIELDS:
+			domain += ['!', '&', ('res_model', '=', model), ('res_field', '=', field)]
+		return domain
 
-	def _ems_queue_compression(self):
+	def _ems_compression_candidates(self):
+		# ems_no_compress: the job's own write. install_mode: the files of data/ (the official
+		# curricula), which every upgrade loads again from the CSV: compressing them would be
+		# undone by the next upgrade, over and over.
+		if self.env.context.get('ems_no_compress') or self.env.context.get('install_mode'):
+			return self.browse()
+		return self.filtered_domain(self._ems_compression_domain())
+
+	def _ems_queue_compression(self, priority=10):
 		"""Compressing a scan takes seconds: it never runs inside the user's request, the file is
 		stored as uploaded and a background job (queue_job) replaces it when it is done."""
 		for attachment in self._ems_compression_candidates():
-			attachment.with_delay(identity_key=f"ems_compress_{attachment.id}",
+			attachment.with_delay(priority=priority, identity_key=f"ems_compress_{attachment.id}",
 				description=f"Compress file: {attachment.name}")._ems_compress()
+
+	@api.model
+	def _ems_queue_existing_compression(self):
+		"""Queues the files stored before the compression existed (migration 18.0.0.51.0), after
+		everything else: priority 20 keeps emails and notices from waiting behind them. The files shipped
+		in data/ (they have an external id) are left out, see _ems_compression_candidates(). Returns the
+		number of files queued; running it twice queues nothing new (identity_key)."""
+		shipped = self.env['ir.model.data'].search([('model', '=', 'ir.attachment')]).mapped('res_id')
+		attachments = self.search(self._ems_compression_domain() + [('id', 'not in', shipped)])
+		attachments._ems_queue_compression(priority=20)
+		return len(attachments)
 
 	def _ems_compress(self):
 		"""Replaces the file by its compressed version when that saves enough (see

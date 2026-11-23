@@ -104,7 +104,7 @@ flowchart LR
 | Piece | Rule |
 |-------|------|
 | Candidates | `type='binary'`, PDF/JPEG/PNG, larger than `ems.compress_min_kb` (default 300 KB). PDFs only when `gs` is installed |
-| Never compressed | `ir.ui.view`, `ir.actions.report`, `mail.mail`, `mail.compose.message` and `ems.signed.record` attachments, `ems.erasmus.call.template_file`, and `image.mixin`'s resized copies (`res_field` `image_*`) |
+| Never compressed | files loaded from `data/` (`install_mode`: the official curricula, which every upgrade loads again from the CSV, so a compressed copy would be undone and queued again each time), `ir.ui.view`, `ir.actions.report`, `mail.mail`, `mail.compose.message` and `ems.signed.record` attachments, `ems.erasmus.call.template_file`, and `image.mixin`'s image fields (`image_1920`... `image_128`) |
 | PDF engine | Ghostscript (`apt-requirements.txt`), `/ebook` profile (150 dpi), 120 s timeout, files on disk (never the whole PDF twice in memory). Not touched: a PDF with a digital signature (`/ByteRange`, the signature covers the exact bytes) or encrypted |
 | Image engine | Odoo's `ImageProcess`: upright, long side at most 1920 px, JPEG quality 85, no EXIF (a phone photo carries the GPS position). A PNG without transparency is stored as JPEG (the name becomes `.jpg`); one with transparency stays PNG |
 | Acceptance | The result replaces the file only if it is at most 90 % of the original and a PDF keeps its number of pages. The original is not kept |
@@ -122,3 +122,14 @@ PNG of 6.9 MB becomes 1.5 MB in 0.07 s; peak memory of the process stays under 4
 filestore of this development database holds no file contents, so a sample of real documents could
 not be measured. The job processes one file at a time on the queue: the cost grows linearly with
 the pages uploaded.
+
+**Files stored before the feature.** `migrations/18.0.0.51.0/post-migrate.py` calls
+`ir.attachment._ems_queue_existing_compression()`, which only *queues* the jobs (a `search()` on the
+same domain as a new upload, minus the files with an external id, at priority 20 so emails and
+notices go first): the upgrade takes about a second whatever the number of files, and the jobs run
+afterwards, one at a time, on the queue. A clean install has no files, so there is no
+`post_init_hook` equivalent. Running it twice queues nothing new (`identity_key`).
+
+**Photos of families' data requests.** `contact_data_request._ems_photo_from_upload()` keeps its own
+checks (JPEG/PNG only, 10 MB limit, user-facing messages) and uses `ems.file_compression.to_jpeg()`
+for the processing, the same step as any other image (upright, 1920 px, JPEG quality 85, no EXIF).

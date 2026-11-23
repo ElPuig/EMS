@@ -74,8 +74,7 @@ class TestFileCompression(TransactionCase):
     def test_missing_ghostscript_is_not_an_error(self):
         with patch('odoo.addons.ems.models.shared.file_compression.shutil.which', return_value=None):
             self.assertFalse(self.compression.compress(self.scan, 'application/pdf'))
-            self.assertFalse(self.compression.can_compress('application/pdf'))
-            self.assertTrue(self.compression.can_compress('image/jpeg'))
+            self.assertEqual(self.compression.compressible_mimetypes(), ['image/jpeg', 'image/png'])
 
     def test_big_jpeg_is_resized_upright_and_loses_its_metadata(self):
         exif = Image.Exif()
@@ -155,3 +154,25 @@ class TestFileCompression(TransactionCase):
         self.assertTrue(attachment._ems_compression_candidates())
         self.env['ir.config_parameter'].sudo().set_param('ems.compress_min_kb', str(attachment.file_size // 1024 + 100))
         self.assertFalse(attachment._ems_compression_candidates())
+
+    def test_files_stored_before_are_queued_once_and_only_when_worth_it(self):
+        big, small = _photo(1900, 1200, 'PNG'), _photo(100, 100, 'PNG')
+        worth = self._attachment(big, 'image/png', 'old.png')
+        template = self._attachment(big, 'image/png', 'tpl.png', res_model='ems.erasmus.call', res_field='template_file', res_id=1)
+        tiny = self._attachment(small, 'image/png', 'tiny.png')
+        queued = self.env['ir.attachment']._ems_queue_existing_compression()
+        self.assertGreaterEqual(queued, 1)
+        self.assertEqual(len(self._jobs(worth)), 1)
+        self.assertFalse(self._jobs(template) | self._jobs(tiny))
+        self.assertEqual(self._jobs(worth).priority, 20)
+        self.env['ir.attachment']._ems_queue_existing_compression()
+        self.assertEqual(len(self._jobs(worth)), 1)  # not queued twice
+
+    def test_files_loaded_from_data_are_never_queued(self):
+        """The official curricula come back from the CSV on every upgrade (install_mode)."""
+        loaded = self.env['ir.attachment'].with_context(install_mode=True).create(
+            {'name': 'curriculum.png', 'raw': _photo(1900, 1200, 'PNG'), 'mimetype': 'image/png'})
+        self.assertFalse(self._jobs(loaded))
+        self.env['ir.model.data'].create({'module': 'ems', 'name': 'test_shipped_attachment', 'model': 'ir.attachment', 'res_id': loaded.id})
+        self.env['ir.attachment']._ems_queue_existing_compression()
+        self.assertFalse(self._jobs(loaded))

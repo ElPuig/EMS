@@ -22,7 +22,7 @@ EMS shrinks the PDF files and the images (JPG, PNG) that are uploaded to it, so 
 - Files smaller than 300 kB, and any file whose compressed version is not at least 10 % smaller.
 - The documents EMS generates itself (approved quality records, reports) and the Erasmus+ templates.
 
-> The compression was introduced in version 18.0.0.51.0. Files uploaded before it are not changed.
+> The compression was introduced in version 18.0.0.51.0. The files uploaded before it are compressed too, in the background and little by little, after that update: it can take a few hours.
 
 ## Setting
 

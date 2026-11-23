@@ -22,7 +22,7 @@ EMS redueix el pes dels PDF i de les imatges (JPG, PNG) que es pugen, perquè el
 - Els fitxers de menys de 300 kB i qualsevol fitxer la versió comprimida del qual no sigui almenys un 10 % més petita.
 - Els documents que genera EMS (registres de qualitat aprovats, informes) i les plantilles d'Erasmus+.
 
-> La compressió es va introduir a la versió 18.0.0.51.0. Els fitxers pujats abans no es modifiquen.
+> La compressió es va introduir a la versió 18.0.0.51.0. Els fitxers pujats abans també es comprimeixen, en segon pla i a poc a poc, després d'aquesta actualització: pot trigar unes hores.
 
 ## Ajust
 

@@ -22,7 +22,7 @@ EMS reduce el peso de los PDF y de las imágenes (JPG, PNG) que se suben, para q
 - Los ficheros de menos de 300 kB y cualquier fichero cuya versión comprimida no sea al menos un 10 % más pequeña.
 - Los documentos que genera EMS (registros de calidad aprobados, informes) y las plantillas de Erasmus+.
 
-> La compresión se introdujo en la versión 18.0.0.51.0. Los ficheros subidos antes no se modifican.
+> La compresión se introdujo en la versión 18.0.0.51.0. Los ficheros subidos antes también se comprimen, en segundo plano y poco a poco, tras esa actualización: puede tardar unas horas.
 
 ## Ajuste
 

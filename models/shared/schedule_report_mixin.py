@@ -206,16 +206,15 @@ class EmsScheduleReportMixin(models.AbstractModel):
             first_entry.setdefault(key, attendance)
             index[key][attendance.employee_id.display_name] += attendance.hour_to - attendance.hour_from
         rows = []
-        for subject in teaching_entries.mapped('subject_id').sorted('name'):
-            for key in sorted((key for key in index if key[0] == subject), key=lambda key: key[1] or ""):
-                hours_by_teacher = index[key]
-                teachers = sorted(hours_by_teacher)
-                # The hours of each one only when the subject is shared (the cycles' declaration, issue #853).
-                with_hours = ", ".join(f"{teacher} ({self._format_report_hours(hours_by_teacher[teacher])} h)" for teacher in teachers)
-                rows.append({
-                    'subject': first_entry[key].get_subject_display_label(), 'teachers': ", ".join(teachers),
-                    'teachers_hours': with_hours if len(teachers) > 1 else ", ".join(teachers),
-                })
+        for key in sorted(index, key=lambda key: (key[0].name or "", key[0].id, key[1] or "")):
+            hours_by_teacher = index[key]
+            teachers = sorted(hours_by_teacher)
+            # The hours of each one only when the subject is shared (the cycles' declaration, issue #853).
+            with_hours = ", ".join(f"{teacher} ({self._format_report_hours(hours_by_teacher[teacher])} h)" for teacher in teachers)
+            rows.append({
+                'subject': first_entry[key].get_subject_display_label(), 'teachers': ", ".join(teachers),
+                'teachers_hours': with_hours if len(teachers) > 1 else ", ".join(teachers),
+            })
         return rows
 
     @staticmethod

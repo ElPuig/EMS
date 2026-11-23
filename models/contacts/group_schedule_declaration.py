@@ -30,10 +30,16 @@ class EmsGroupScheduleDeclaration(models.Model):
         and from the list's own selection. Only the main groups have one: their splits and optatives
         are already in the schedule of their main group (#611)."""
         self.env['ems.base'].check_can_print_schedule_declaration()
+        return self.env.ref('ems.action_report_group_schedule_declaration').report_action(
+            self._schedule_declaration_groups())
+
+    def _schedule_declaration_groups(self):
+        """The main groups of these, the only ones with a declaration; none at all is an error. Shared by
+        the button and the report model (the report URL skips the button)."""
         groups = self.filtered(lambda group: group.group_type == 'main')
         if not groups:
             raise UserError(_("Only the main groups have a schedule declaration."))
-        return self.env.ref('ems.action_report_group_schedule_declaration').report_action(groups)
+        return groups
 
 
 class ReportGroupScheduleDeclaration(models.AbstractModel):
@@ -45,7 +51,5 @@ class ReportGroupScheduleDeclaration(models.AbstractModel):
     @api.model
     def _get_report_values(self, docids, data=None):
         self.env['ems.base'].check_can_print_schedule_declaration()
-        groups = self.env['ems.group'].sudo().browse(docids).filtered(lambda group: group.group_type == 'main')
-        if not groups:
-            raise UserError(_("Only the main groups have a schedule declaration."))
+        groups = self.env['ems.group'].sudo().browse(docids)._schedule_declaration_groups()
         return {'doc_ids': groups.ids, 'doc_model': 'ems.group', 'docs': groups}

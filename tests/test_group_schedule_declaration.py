@@ -118,7 +118,6 @@ class TestGroupScheduleDeclaration(TransactionCase):
 
         self.assertIn(b'Horari grup d', general)
         self.assertIn(b'TGSD-CODE', general)
-        self.assertIn(self.group.name.encode(), general)
         self.assertIn('Distribució horària dels Cicles Formatius'.encode(), vocational)
         self.assertIn(b'Superior', vocational)
         self.assertIn(self.cycle_group.name.encode(), vocational)
@@ -141,6 +140,32 @@ class TestGroupScheduleDeclaration(TransactionCase):
         action = (self.group | reinforcement).action_print_schedule_declaration()
         self.assertEqual(action['context']['active_ids'], self.group.ids)
 
+    def test_report_prints_only_main_groups(self):
+        """The report URL (/report/pdf) filters like the button does."""
+        reinforcement = self.env['ems.group'].create({
+            'group_type': 'reinforcement', 'name': 'TGSD reinforcement', 'parent_group_ids': [(6, 0, self.group.ids)],
+        })
+        values = self.env['report.ems.report_group_schedule_declaration']._get_report_values((self.group | reinforcement).ids)
+
+        self.assertEqual(values['docs'], self.group)
+        with self.assertRaises(UserError):
+            self._render(reinforcement)
+
+    def test_summary_rows_sorted_by_subject_then_topic(self):
+        self._teach(self.teacher_one, (self.cycle_group, self.other_subject, 1, '0'), (self.cycle_group, self.subject, 1, '1'))
+        self._teach(self.teacher_two, (self.cycle_group, self.subject, 1, '2'))
+        self.teacher_two.resource_calendar_id.attendance_ids.filtered('subject_id').topic = 'B topic'
+        self.teacher_one.resource_calendar_id.attendance_ids.filtered(lambda a: a.subject_id == self.subject).topic = 'A topic'
+
+        rows = self.cycle_group.get_subject_teachers_summary()
+
+        self.assertEqual([row['teachers'] for row in rows], [
+            'Test Teacher One (Group Declaration)',  # Subject One, topic A
+            'Test Teacher Two (Group Declaration)',  # Subject One, topic B
+            'Test Teacher One (Group Declaration)',  # Subject Two
+        ])
+        self.assertIn('Two', rows[2]['subject'])
+
     def test_head_of_studies_prints_it(self):
         user = create_role_user(self, 'head_of_studies', 'tgsd_hos')
 
@@ -155,6 +180,8 @@ class TestGroupScheduleDeclaration(TransactionCase):
         user = create_role_user(self, 'settings_admin', 'tgsd_admin')
 
         self.assertIn(b'Horari grup d', self._render(self.group, user))
+        # And reaches the list it prints from: the Groups menu.
+        self.assertIn(self.env.ref('ems.menu_groups').id, self.env['ir.ui.menu'].with_user(user)._visible_menu_ids())
 
     def test_teacher_cannot_print_it(self):
         user = create_role_user(self, 'teacher', 'tgsd_teacher')

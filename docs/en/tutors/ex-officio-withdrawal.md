@@ -87,3 +87,5 @@ While the case file is open (a proposal too), EMS reviews the roll-calls of the 
 When you accept your step, the case file goes to the next responsible (Coexistence, the Secretariat or Direction), who gets their task on its day. You can still see the case file and its **History**, with every step done, who did it and when.
 
 If the student asks for a voluntary withdrawal or is expelled, the case file closes on its own.
+
+Once the Secretariat has processed the withdrawal the student has no group any more, but the case file stays yours (and the Department or Seminar Chief's, the Head of Studies' and Direction's above you) for the rest of that course: it keeps the tutor the student had when they left. The list shows only open case files at first, so remove the **Open** filter to see a closed one. From the next course on, only the Secretariat, Coexistence, Guidance, Direction, the Head of Studies and the administrators see it.

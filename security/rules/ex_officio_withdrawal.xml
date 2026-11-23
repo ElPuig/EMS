@@ -3,12 +3,15 @@
     <data>
         <!-- Issue #726: a tutor (and the chain above them, tutor scope) sees and opens the case
              files of their own students. Group rules add up: the rules below give the transversal
-             roles every case file. -->
+             roles every case file. Issue #817: the case file keeps its own tutor (tutor_id, stored),
+             so a closed one stays open to them after the student has left their group, but only
+             during the course of the withdrawal (course_id.is_current). The step, review and check
+             rules follow their case file. -->
         <record id="rule_ex_officio_withdrawal_tutor" model="ir.rule">
             <field name="name">Ex officio withdrawal: tutor scope</field>
             <field name="model_id" ref="ems.model_ems_ex_officio_withdrawal"/>
             <field name="groups" eval="[(4, ref('ems.group_tutor'))]"/>
-            <field name="domain_force">[('student_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
+            <field name="domain_force">[('tutor_id.tutor_scope_user_ids', '=', user.id), '|', ('student_id.main_group_id', '!=', False), ('course_id.is_current', '=', True)]</field>
             <field name="perm_unlink" eval="False"/>
         </record>
 
@@ -35,7 +38,7 @@
             <field name="name">Ex officio withdrawal step: tutor scope</field>
             <field name="model_id" ref="ems.model_ems_ex_officio_withdrawal_step"/>
             <field name="groups" eval="[(4, ref('ems.group_tutor'))]"/>
-            <field name="domain_force">[('withdrawal_id.student_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
+            <field name="domain_force">[('withdrawal_id.tutor_id.tutor_scope_user_ids', '=', user.id), '|', ('withdrawal_id.student_id.main_group_id', '!=', False), ('withdrawal_id.course_id.is_current', '=', True)]</field>
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
         </record>
@@ -59,7 +62,7 @@
             <field name="name">Ex officio withdrawal review: tutor scope</field>
             <field name="model_id" ref="ems.model_ems_ex_officio_withdrawal_review"/>
             <field name="groups" eval="[(4, ref('ems.group_tutor'))]"/>
-            <field name="domain_force">[('withdrawal_id.student_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
+            <field name="domain_force">[('withdrawal_id.tutor_id.tutor_scope_user_ids', '=', user.id), '|', ('withdrawal_id.student_id.main_group_id', '!=', False), ('withdrawal_id.course_id.is_current', '=', True)]</field>
         </record>
 
         <record id="rule_ex_officio_withdrawal_review_reader" model="ir.rule">
@@ -80,7 +83,7 @@
             <field name="name">Ex officio withdrawal check: tutor scope</field>
             <field name="model_id" ref="ems.model_ems_ex_officio_withdrawal_check"/>
             <field name="groups" eval="[(4, ref('ems.group_tutor'))]"/>
-            <field name="domain_force">[('withdrawal_id.student_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
+            <field name="domain_force">[('withdrawal_id.tutor_id.tutor_scope_user_ids', '=', user.id), '|', ('withdrawal_id.student_id.main_group_id', '!=', False), ('withdrawal_id.course_id.is_current', '=', True)]</field>
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
         </record>

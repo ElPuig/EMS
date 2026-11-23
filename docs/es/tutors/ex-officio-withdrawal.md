@@ -87,3 +87,5 @@ Mientras el expediente está abierto (también si aún es una propuesta), EMS re
 Cuando aceptas tu paso, el expediente pasa al responsable siguiente (Convivencia, Secretaría o Dirección), que recibe su tarea el día que toca. Tú sigues viendo el expediente y su **Histórico**, con cada paso hecho, quién lo hizo y cuándo.
 
 Si el alumno pide la baja voluntaria o es expulsado, el expediente se cierra solo.
+
+Cuando Secretaría ha tramitado la baja, el alumno ya no tiene grupo, pero el expediente sigue siendo tuyo (y del jefe de departamento o de seminario, del jefe de estudios y de la dirección que tienes por encima) el resto de ese curso: conserva el tutor que el alumno tenía al marcharse. La lista solo muestra al principio los expedientes abiertos; quita el filtro **Abierta** para ver uno cerrado. A partir del curso siguiente solo lo ven Secretaría, Convivencia, Orientación, la dirección, el jefe de estudios y los administradores.

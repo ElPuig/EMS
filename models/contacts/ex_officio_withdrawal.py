@@ -200,7 +200,12 @@ class EmsExOfficioWithdrawal(models.Model):
     group_id = fields.Many2one(string="Group", comodel_name='ems.group', readonly=True, ondelete='set null')
     level_id = fields.Many2one(string="Level", comodel_name='ems.level', readonly=True, ondelete='restrict')
     circuit = fields.Selection(string="Circuit", selection=CIRCUITS, readonly=True)
-    tutor_id = fields.Many2one(string="Tutor", related='student_id.tutor_id')
+    # Stored (issue #817): the withdrawal detaches the student from their group, so a related field
+    # would go empty exactly when the closed case file still has to be opened by their tutor.
+    tutor_id = fields.Many2one(string="Tutor", comodel_name='hr.employee', compute='_compute_tutor_id',
+                               store=True, readonly=True, index=True, ondelete='restrict',
+                               help="The student's tutor while they have a group; once they leave, the tutor "
+                                    "they had at that moment.")
     first_absence_date = fields.Date(string="First day of absence", required=True, tracking=True,
                                      help="The deadlines of every step count from this day.")
     origin = fields.Selection(string="Origin", readonly=True, default='manual', selection=[
@@ -291,6 +296,12 @@ class EmsExOfficioWithdrawal(models.Model):
         for withdrawal in self:
             step = withdrawal.step_ids.filtered(lambda pending: not pending.done_date)[:1]
             withdrawal.current_step_id = step
+
+    @api.depends('student_id.main_group_id.tutor_id')
+    def _compute_tutor_id(self):
+        """Follows the student's group tutor, and freezes when the student has none any more."""
+        for withdrawal in self:
+            withdrawal.tutor_id = withdrawal.student_id.main_group_id.tutor_id or withdrawal.tutor_id
 
     @api.depends('student_id', 'state')
     @api.depends_context('uid')
@@ -888,7 +899,7 @@ class EmsExOfficioWithdrawal(models.Model):
         is); the whole secretariat; the Director."""
         self.ensure_one()
         base = self.env['ems.base']
-        tutor = self.student_id.sudo().tutor_id
+        tutor = self.sudo().tutor_id
         if responsible == 'tutor':
             return base.task_users(tutor.user_id, f"{self.name} (tutor)")
         if responsible == 'coexistence':
@@ -910,7 +921,7 @@ class EmsExOfficioWithdrawal(models.Model):
         if self._ems_user_is_admin():
             return True
         if responsible == 'tutor':
-            return self._ems_user_manages() or self.env['ems.base'].user_acts_as_tutor(self.student_id.sudo().tutor_id)
+            return self._ems_user_manages() or self.env['ems.base'].user_acts_as_tutor(self.sudo().tutor_id)
         if responsible == 'coexistence':
             return self._ems_user_manages() or user in self._ems_responsible_users('coexistence')
         if responsible == 'secretariat':

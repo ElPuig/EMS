@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import importlib.util
+import os
 from contextlib import ExitStack
 from datetime import date, datetime, timedelta
 from unittest.mock import patch
@@ -686,6 +688,69 @@ class TestExOfficioWithdrawal(TransactionCase):
         student = self.post_student.with_context(active_test=False)
         self.assertEqual((student.exit_type, student.withdrawal_mode), ('withdrawal', 'ex_officio'))
         self.assertFalse(student.withdrawal_expected, "The withdrawal is registered: the mark has done its job")
+
+    def _processed_case_file(self):
+        """The post-compulsory case file, closed by the Secretariat's withdrawal: the student has
+        left their group, so they no longer have a tutor of their own."""
+        case_file = self._post_case_at_withdrawal()
+        secretary_view = case_file.with_user(self.secretary_user)
+        with self._on(date(2042, 1, 22)):
+            case_file.current_check_ids.filtered(lambda check: not check.by_button).with_user(
+                self.secretary_user).write({'done': True, 'date': date(2042, 1, 22)})
+            self._contact(case_file, self.secretary_user, date(2042, 1, 22)).action_confirm()
+            secretary_view.invalidate_recordset()
+            action = secretary_view.action_open_withdrawal_wizard()
+            self._withdrawal_wizard(self.secretary_user, action['context']).action_apply()
+        return case_file
+
+    def test_the_tutor_keeps_the_closed_case_file_during_the_course(self):
+        """Issue #817: the withdrawal detaches the student from their group, but the tutor (and
+        the chain above them) still open the case file and its history, for the course of the
+        withdrawal; another tutor never does."""
+        case_file = self._processed_case_file()
+        self.assertFalse(self.post_student.tutor_id, "The student has left the group")
+        self.assertEqual(case_file.tutor_id, self.tutor, "The case file keeps who the tutor was")
+        children = (case_file.step_ids, case_file.step_ids.check_ids, case_file.review_ids)
+        for user in (self.tutor_user, self.department_chief, self.head_of_studies):
+            as_user = case_file.with_user(user)
+            self.assertEqual(self.Withdrawal.with_user(user).search([('id', '=', case_file.id)]), case_file,
+                             user.login)
+            self.assertTrue(as_user.has_access('read'), user.login)
+            self.assertEqual(as_user.step_ids, case_file.step_ids, user.login)
+            for child in children:
+                self.assertEqual(child.with_user(user).search([('id', 'in', child.ids)]), child, user.login)
+        for user in (self.other_tutor_user, self.other_department_chief):
+            self.assertFalse(self.Withdrawal.with_user(user).search([('id', '=', case_file.id)]), user.login)
+        # The next course the tutor no longer reaches it (the history stays in the academic record).
+        case_file.course_id = self.env['ems.course'].create({'start': 2096, 'end': 2097})
+        self.assertFalse(self.Withdrawal.with_user(self.tutor_user).search([('id', '=', case_file.id)]))
+        self.assertEqual(self.Withdrawal.with_user(self.secretary_user).search([('id', '=', case_file.id)]),
+                         case_file)
+
+    def test_migration_restores_the_tutor_of_a_closed_case_file_from_the_history(self):
+        """Issue #817: a case file closed before the tutor was stored takes it from the student's
+        academic history of the same course."""
+        path = os.path.join(os.path.dirname(__file__), '..', 'migrations', '18.0.0.50.1', 'post-migrate.py')
+        spec = importlib.util.spec_from_file_location('ems_post_migrate_18_0_0_50_1', path)
+        migration = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(migration)
+        case_file = self._processed_case_file()
+        record = self.env['ems.student.year_record'].search([
+            ('student_id', '=', self.post_student.id), ('course_id', '=', case_file.course_id.id)])
+        self.assertEqual(record.tutor_id, self.tutor, "The exit freezes the history, tutor included")
+        self.env.cr.execute("UPDATE ems_ex_officio_withdrawal SET tutor_id = NULL WHERE id = %s", (case_file.id,))
+        case_file.invalidate_recordset(['tutor_id'])
+        self.assertFalse(case_file.tutor_id)
+        migration._fill_closed_case_file_tutor(self.env.cr)
+        case_file.invalidate_recordset(['tutor_id'])
+        self.assertEqual(case_file.tutor_id, self.tutor)
+
+    def test_the_case_file_follows_the_tutor_while_the_student_has_a_group(self):
+        case_file = self._open(self.post_student, date(2041, 12, 17))
+        self.assertEqual(case_file.tutor_id, self.tutor)
+        new_tutor = create_role_employee(self, create_role_user(self, 'tutor', 'test_eow_new_tutor'))
+        self.post_group.tutor_id = new_tutor
+        self.assertEqual(case_file.tutor_id, new_tutor, "A group's new tutor takes over its open case files")
 
     def test_an_ex_officio_withdrawal_only_comes_from_its_case_file(self):
         self._open(self.post_student, date(2041, 12, 17)).action_start()

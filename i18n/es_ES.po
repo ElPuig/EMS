@@ -55779,3 +55779,12 @@ msgstr "0,5 puntos: la propuesta A es un job shadowing o una estancia de docenci
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__activity_kind__0
 msgid "0 points: Proposal A is a course."
 msgstr "0 puntos: la propuesta A es un curso."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_ex_officio_withdrawal__tutor_id
+msgid ""
+"The student's tutor while they have a group; once they leave, the tutor they "
+"had at that moment."
+msgstr ""
+"El tutor/a del alumno mientras tiene grupo; cuando se va, el tutor/a que "
+"tenía en ese momento."

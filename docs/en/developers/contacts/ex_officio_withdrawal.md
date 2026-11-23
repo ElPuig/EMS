@@ -272,7 +272,7 @@ Measured on the dev database (11 open case files, 2026-11-04): 37 ms cold.
 
 | Role | Sees | Does |
 |---|---|---|
-| Tutor (and the chain above them: `tutor_scope_user_ids`) | Their students' case files | Opens one for their students, starts or dismisses it, their steps, reviews the roll-calls |
+| Tutor (and the chain above them: `tutor_scope_user_ids`) | Their students' case files; a closed one too, during the course of the withdrawal | Opens one for their students, starts or dismisses it, their steps, reviews the roll-calls |
 | Coexistence (COCOBE), Guidance | All | Read; the Coexistence coordinator does its steps |
 | Head of Studies / Deputy, Director | All | Open one only within their own chain (tutor scope); start, dismiss, review the roll-calls and do the tutor's and Coexistence's steps of any case file; the Director, Direction's |
 | Secretariat | All | Its steps; processes the withdrawal |
@@ -285,7 +285,22 @@ everything for `ems.group_academic_admin` and `base.group_system`). Who may open
 `_ems_user_may_open_for()` (the request button, the new-file picker); who may start or dismiss a
 proposal or review its roll-calls: `can_decide_proposal`, `can_review` (non-stored,
 `depends_context('uid')`, `_ems_user_acts_as('tutor')`), checked again on the server. The
-administrators: `_ems_user_is_admin()`. Audited 2026-11-04 with one user per role of
+administrators: `_ems_user_is_admin()`.
+
+**The tutor stays after the exit (issue #817).** The withdrawal detaches the student from their group
+(`_ems_convert_to_ex_student()`), so the student's own tutor (`main_group_id.tutor_id`) goes empty.
+The case file therefore stores its tutor (`tutor_id`, stored compute, index): it follows the group's
+tutor while the student has one (so a group's new tutor takes over the open case files) and keeps the
+last one once the student has none. The tutor-scope rules of the case file and of its steps, reviews
+and checks match on that field, and on the student still having a group or the case file's course
+being the current one, so a closed case file stays open to the tutor and the chain above them only
+for the course of the withdrawal; the Python checks (`_ems_user_acts_as('tutor')`,
+`_ems_responsible_users()`) read it too. Migration `18.0.0.50.1` restores it on case files already
+closed from the student's academic history of that course (`ems.student.year_record.tutor_id`).
+Other records reached through `student_id.tutor_id` (enrolments, attendance lines, strikes, student
+benefits, data requests) are left as they were: the exit deletes the operational ones (enrolments,
+attendance and grade lines) and the rest are the student's own data, which no tutor needs once the
+student has left. Audited 2026-11-04 with one user per role of
 `tests/common.py` against every button the case file offers: 0 mismatches.
 
 ## Screens

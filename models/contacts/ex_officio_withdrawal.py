@@ -306,8 +306,8 @@ class EmsExOfficioWithdrawal(models.Model):
     @api.depends('student_id', 'state')
     @api.depends_context('uid')
     def _compute_can_decide_proposal(self):
-        """The student's tutor and the chain above them (tutor scope), the Head of Studies (and
-        the Director, who implies it), and the administrators, always on top."""
+        """The student's tutor and the chain above them (tutor scope, the Head of Studies and the
+        Director included), and the administrators, always on top."""
         for withdrawal in self:
             withdrawal.can_decide_proposal = withdrawal.state == 'proposal' and withdrawal._ems_user_acts_as('tutor')
 
@@ -511,7 +511,7 @@ class EmsExOfficioWithdrawal(models.Model):
     @api.depends('state')
     @api.depends_context('uid')
     def _compute_can_review(self):
-        """Whoever may do the tutor's step: the tutor scope, the Head of Studies, the administrators."""
+        """Whoever may do the tutor's step: the tutor scope and the administrators."""
         for withdrawal in self:
             withdrawal.can_review = withdrawal.state in OPEN_STATES and withdrawal._ems_user_acts_as('tutor')
 
@@ -851,7 +851,7 @@ class EmsExOfficioWithdrawal(models.Model):
     def _ems_check_can_review(self):
         for withdrawal in self:
             if not withdrawal.can_review:
-                raise UserError(_("Only the student's tutor, the people above them and the Head of Studies can "
+                raise UserError(_("Only the student's tutor and the people above them can "
                                   "review the roll-calls of this case file."))
 
     def _ems_check_no_attendance_pending(self):
@@ -913,20 +913,24 @@ class EmsExOfficioWithdrawal(models.Model):
 
     def _ems_user_acts_as(self, responsible):
         """Whether the current user may do a step of `responsible`: whoever gets its task, the
-        Head of Studies for the tutor's and Coexistence's steps (they manage both), the Director
-        group for Direction's, the secretariat group for the Secretariat's, and the
-        administrators always on top."""
+        Head of Studies above the tutor, through the tutor scope, for the tutor's and Coexistence's
+        steps (any other Head of Studies only reads the case file; developer, 2026-11-23), the
+        Director group (above every chain) for those two and for Direction's, the secretariat
+        group for the Secretariat's, and the administrators always on top."""
         self.ensure_one()
         user = self.env.user
         if self._ems_user_is_admin():
             return True
+        is_director = user.has_group('ems.group_director')
         if responsible == 'tutor':
-            return self._ems_user_manages() or self.env['ems.base'].user_acts_as_tutor(self.sudo().tutor_id)
+            return is_director or self.env['ems.base'].user_acts_as_tutor(self.sudo().tutor_id)
         if responsible == 'coexistence':
-            return self._ems_user_manages() or user in self._ems_responsible_users('coexistence')
+            return is_director or user in self._ems_responsible_users('coexistence') or (
+                user.has_group('ems.group_head_of_studies')
+                and self.env['ems.base'].user_acts_as_tutor(self.sudo().tutor_id))
         if responsible == 'secretariat':
             return user.has_group('ems.group_secretary')
-        return user.has_group('ems.group_director')
+        return is_director
 
     def _ems_schedule_task(self, xmlid, users, deadline, step=None, kind=None):
         """A task in each user's to-do list, its summary in their language: the step's (or the
@@ -969,11 +973,6 @@ class EmsExOfficioWithdrawal(models.Model):
         within their own chain)."""
         return self._ems_user_is_admin() or self.env['ems.base'].user_acts_as_tutor(student.sudo().tutor_id)
 
-    def _ems_user_manages(self):
-        """Whoever may act on every case file: the Head of Studies (the Director implies it) and
-        the administrators."""
-        return self._ems_user_is_admin() or self.env.user.has_group('ems.group_head_of_studies')
-
     def _ems_user_is_admin(self):
         """The administrators, on top of every rule: the academic one and the Settings one
         (base.group_system)."""
@@ -985,7 +984,7 @@ class EmsExOfficioWithdrawal(models.Model):
             if withdrawal.state != 'proposal':
                 raise UserError(_("Only a proposal can be started or dismissed."))
             if not withdrawal.can_decide_proposal:
-                raise UserError(_("Only the student's tutor, the people above them and the Head of Studies "
+                raise UserError(_("Only the student's tutor and the people above them "
                                   "can decide this proposal."))
 
     def action_open_contact(self):

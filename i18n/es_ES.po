@@ -44759,8 +44759,8 @@ msgstr "Solo se puede iniciar o descartar una propuesta."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
-msgid "Only the student's tutor, the people above them and the Head of Studies can decide this proposal."
-msgstr "Solo el tutor del alumno, sus superiores y el jefe de estudios pueden decidir esta propuesta."
+msgid "Only the student's tutor and the people above them can decide this proposal."
+msgstr "Solo el tutor del alumno y sus superiores pueden decidir esta propuesta."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__origin__manual
@@ -46018,10 +46018,10 @@ msgstr "Faltas justificadas por revisar"
 #. odoo-python
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid ""
-"Only the student's tutor, the people above them and the Head of Studies can "
+"Only the student's tutor and the people above them can "
 "review the roll-calls of this case file."
 msgstr ""
-"Solo el tutor del alumno, sus superiores y el jefe de estudios pueden "
+"Solo el tutor del alumno y sus superiores pueden "
 "revisar los pases de lista de este expediente."
 
 #. module: ems

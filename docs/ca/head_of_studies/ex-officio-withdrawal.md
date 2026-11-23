@@ -28,7 +28,7 @@ Navega a: **Gestió acadèmica → Baixes d'ofici**. Hi veus tots els expedients
 
 ## Què pot fer la prefectura d'estudis
 
-El cap d'estudis i el cap d'estudis adjunt poden fer el que fa el tutor en qualsevol expedient: iniciar o descartar una proposta, fer el pas del tutor i revisar els passis de llista que diuen una altra cosa. En canvi, només poden **obrir** un expedient nou (Sol·licita la baixa d'ofici) per a l'alumnat dels tutors que tenen per sota.
+Tots els caps d'estudis i caps d'estudis adjunts poden llegir qualsevol expedient. Només els qui són per sobre del tutor de l'alumne poden fer-hi el que fa el tutor: iniciar o descartar una proposta, fer el pas del tutor i revisar els passis de llista que diuen una altra cosa. El mateix val per **obrir** un expedient nou (Sol·licita la baixa d'ofici): només per a l'alumnat dels tutors que tenen per sota.
 
 ---
 

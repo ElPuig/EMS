@@ -169,8 +169,8 @@ it is Direction's green light, `secretariat` while it is the withdrawal, `in_pro
 
 - **Who may do each step** (`can_accept_step`, non-stored, `depends_context('uid')`, checked again
   on the server by `_ems_user_acts_as()`): the administrators always; the tutor's steps, the tutor
-  scope and the Head of Studies (the Director included); Coexistence's steps, the coordinators
-  who get the task and the Head of Studies; the Secretariat's, `ems.group_secretary`;
+  scope (the Head of Studies above the tutor and the Director included, never another one); Coexistence's steps, the coordinators
+  who get the task and the Head of Studies above the tutor; the Secretariat's, `ems.group_secretary`;
   Direction's, `ems.group_director`.
 
 ## Detection in the roll-calls (phase 5)
@@ -219,7 +219,7 @@ corrected the roll-call, or the first day of absence moved past it) is removed.
 
 Applies to proposals too, so a case file opened by hand with attendances after its first day of
 absence can't start until they are checked (or the first day moves past them). Who reviews:
-`can_review` = `_ems_user_acts_as('tutor')` (the tutor scope, the Head of Studies, the
+`can_review` = `_ems_user_acts_as('tutor')` (the tutor scope and the
 administrators), checked again on the server; everybody else sees a one-line notice while an
 attendance is pending. `_ems_sync_review_tasks()` keeps one task per kind while any is pending and
 removes it once none is. A correction to a miss goes through the line's own `write()`, so the
@@ -274,7 +274,7 @@ Measured on the dev database (11 open case files, 2026-11-04): 37 ms cold.
 |---|---|---|
 | Tutor (and the chain above them: `tutor_scope_user_ids`) | Their students' case files; a closed one too, during the course of the withdrawal | Opens one for their students, starts or dismisses it, their steps, reviews the roll-calls |
 | Coexistence (COCOBE), Guidance | All | Read; the Coexistence coordinator does its steps |
-| Head of Studies / Deputy, Director | All | Open one only within their own chain (tutor scope); start, dismiss, review the roll-calls and do the tutor's and Coexistence's steps of any case file; the Director, Direction's |
+| Head of Studies / Deputy, Director | All | Read every case file. Open one, start, dismiss, review the roll-calls and do the tutor's and Coexistence's steps only within their own chain (tutor scope); the Director, Direction's |
 | Secretariat | All | Its steps; processes the withdrawal |
 | Academic administrator, Settings administrator (`base.group_system`) | All | Everything, deletion included; processing the withdrawal needs the withdrawal wizard (academic administrator) |
 | Other teachers | None | - |

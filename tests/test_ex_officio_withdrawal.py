@@ -201,6 +201,22 @@ class TestExOfficioWithdrawal(TransactionCase):
         self._open(self.post_student, date(2041, 12, 17), user=self.department_chief)
         self._open(self.comp_student, date(2041, 12, 17), user=self.settings_admin_user)
 
+    def test_a_head_of_studies_outside_the_chain_reads_but_does_not_decide(self):
+        """Developer, 2026-11-23: every Head of Studies reads every case file, only the one above
+        the tutor acts on it (the proposal, the roll-call reviews, the tutor's and Coexistence's steps)."""
+        case_file = self._open(self.post_student, date(2041, 12, 17))
+        outsider = case_file.with_user(self.other_head_of_studies)
+        self.assertEqual(self.Withdrawal.with_user(self.other_head_of_studies).search([('id', '=', case_file.id)]),
+                         case_file)
+        self.assertFalse(outsider.can_decide_proposal)
+        with self.assertRaises(UserError):
+            outsider.action_start()
+        case_file.with_user(self.tutor_user).action_start()
+        self.assertFalse(outsider.can_accept_step)
+        self.assertFalse(outsider.can_review)
+        self.assertFalse(outsider._ems_user_acts_as('coexistence'))
+        self.assertTrue(case_file.with_user(self.head_of_studies)._ems_user_acts_as('coexistence'))
+
     def test_who_decides_the_proposal(self):
         case_file = self._open(self.post_student, date(2041, 12, 17))
         for user in (self.tutor_user, self.department_chief, self.head_of_studies, self.admin_user,

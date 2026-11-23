@@ -33,7 +33,7 @@ Tots els certificats ja tenen el **nom complet**, el **document d'identitat** i 
 
 - **Detall** — el nom de la dada, tal com el llegeixen la persona sol·licitant i el personal (per exemple, *Hores*).
 - **Clau** — com l'escriu el text del certificat, entre claus: lletres minúscules, dígits i `_` (per exemple, `hores`). No pot ser `name`, `document` ni `study`, que ja estan agafades. Si la canvieu, el text s'actualitza en tots els idiomes.
-- **Tipus de dada** — **Text curt**, **Text llarg**, **Número**, **Data**, **Sí/No**, **Curs escolar** (el formulari suggereix els cursos que té EMS) o **Empresa col·laboradora** (la persona sol·licitant n'escriu el nom i el NIF, i el centre vincula l'empresa).
+- **Tipus de dada** — **Text curt**, **Text llarg**, **Número** (pot tenir decimals, com una nota mitjana de 7,45), **Data**, **Sí/No**, **Curs escolar** (el formulari suggereix els cursos que té EMS) o **Empresa col·laboradora** (la persona sol·licitant n'escriu el nom i el NIF, i el centre vincula l'empresa).
 - **Sol·licitant** — **Obligatori**: el formulari la demana i cal emplenar-la per enviar la sol·licitud; **Opcional**: el formulari la demana; **No es demana**: només l'emplena el centre.
 - **Obligatòria abans de** — el pas del circuit que no es pot fer fins que no estigui emplenada (ni cap de posterior). Deixa-ho buit si el circuit no l'exigeix mai. Per triar un pas, desa primer el circuit.
 - **Ajuda** (columna opcional) — un text breu que la persona sol·licitant llegeix sota la dada.

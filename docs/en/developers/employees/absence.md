@@ -1382,6 +1382,22 @@ Mail leaves through the company's configured server, which is the other half of 
 replaces: the Apps Script sent from the personal Google account of whoever last ran its
 "Identificar-me com a remitent d'emails" menu entry, and stopped working when that person left.
 
+## Warning the chiefs before an absence starts (issue #819)
+
+`hr.leave._cron_ems_absence_warning()` (`ems.ir_cron_absence_warning`, every 15 minutes) posts a
+note addressed to `_ems_notify_partners()` (the Department Chief and the Seminar Chief, the email
+being the note's notification) for every request in `confirm`/`validate1`/`validate` whose
+`date_from` falls within the next `res.company.ems_absence_warning_hours` hours (Settings, Staff
+Absence Settings; default 2, 0 switches it off) and whose `ems_warning_sent` is not set. The flag
+is set after posting, so each absence warns once, and `write()` clears it when any `REQUEST_FIELDS`
+change (dates, hours, type), so a moved absence warns again.
+
+It is immediate on purpose, not part of the daily summary: it is only useful while there is time
+to arrange the cover. Cost: one indexed-range search on `date_from` per run, plus one note per
+absence due; the domain does the filtering, nothing is loaded outside the window.
+
+---
+
 ## ATRI absences wait for the employee's confirmation
 
 An ATRI absence is recorded in EMS but granted on the Generalitat's ATRI portal, and Direction,

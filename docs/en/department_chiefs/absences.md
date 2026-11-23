@@ -183,6 +183,12 @@ Whichever you choose, the group's students and families get **one correction not
 
 ![Change proposal dialog: what was told, the other possible changes and two arrangements, each with its correction step](../../assets/teachers/guard-duty-09-canviar-proposta.png)
 
+### The warning before an absence starts
+
+Shortly before an absence of a teacher of your department starts, you receive an email saying that it starts soon, with who, the type, the dates and the duration (not the reason). It is a reminder to have the cover arranged. It arrives once per absence, and again if its dates change. How long before it starts is set by the administrator (2 hours by default; with 0 the warning is off).
+
+---
+
 ### When the absence changes afterwards
 
 If an absence is refused, cancelled or shortened, or a co-teacher turns out to be in, what was organised may no longer be needed. Nothing is undone automatically: the boxes above the table tell you, and you decide.

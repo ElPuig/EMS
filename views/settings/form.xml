@@ -129,6 +129,10 @@
                                 <span class="ms-2">days</span>
                             </setting>
 
+                            <setting string="Absence warning" help="This long before an absence starts, the Department Chief and the Seminar Chief of the employee's department receive an email, so they can arrange the cover. Set it to 0 to switch the warning off." id="ems_absence_warning_hours">
+                                <field name="ems_absence_warning_hours" widget="float_time"/>
+                            </setting>
+
                             <setting string="Detected absences" help="Areas whose teachers go through the detected absences circuit: a day a teacher has not checked in (or arrived after their first lesson) becomes a detected absence, and every detected absence reminds the teacher to request it. Leave it empty to switch the circuit off." id="ems_absence_circuit_area_ids">
                                 <field name="ems_absence_circuit_area_ids" widget="many2many_tags" options="{'no_create': True}"/>
                             </setting>

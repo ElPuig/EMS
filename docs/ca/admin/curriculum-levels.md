@@ -4,7 +4,7 @@
 
 # Nivells
 
-Els nivells representen les **etapes educatives** o **cicles d'estudi** de la institució (p. ex., Educació Secundària Obligatoria, Formació Professional, Batxillerat). Formen la part superior de la jerarquia curricular: cada nivell agrupa estudis relacionats, que al seu torn agrupen grups classe.
+Els nivells representen les **etapes educatives** o **cicles d'estudi** de la institució (p. ex., Educació Secundària Obligatòria, Formació Professional, Batxillerat). Formen la part superior de la jerarquia curricular: cada nivell agrupa estudis relacionats, que al seu torn agrupen grups classe.
 
 **Rol necessari:** Administrador
 

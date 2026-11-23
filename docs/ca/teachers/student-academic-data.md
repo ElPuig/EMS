@@ -28,7 +28,7 @@ Si l'alumne participa, o ha participat, en una mobilitat Erasmus+ gestionada amb
 
 ## Consultar les dades de qualsevol alumne (Orientació i Convivència)
 
-Amb el rol de **Coordinador/a d'orientació** o de **Coordinador/a de convivència**, consultes les dades de tot l'alumnat del centre, no només les dels teus tutorands:
+Amb el rol de **Coordinador/a d'orientació** o de **Coordinador/a de convivència**, consultes les dades de tot l'alumnat del centre, no només les dels teus tutoritzats:
 
 - **Notes** — Planificació i Qualificació → Notes → Avaluació per grup i matèria.
 - **Historial acadèmic** — tal com s'ha descrit més amunt.

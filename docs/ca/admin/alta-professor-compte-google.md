@@ -57,7 +57,7 @@ Ompliu el camp **Correu electrònic privat (1)**, a la columna dreta de la panta
 
 > **Important:** aquest camp de **Correu electrònic privat** és **obligatori** perquè es creï el compte de Google — el formulari no permet desar una fitxa **nova** de professor/PAS sense ell. A les fitxes creades abans d'aquesta regla pot faltar encara: en aquest cas no es crea cap compte automàticament i queda constància del motiu a l'historial de missatges de la fitxa.
 
-> **Altres dades:** És important **emplenar la major quantitat de dades possibles** com el contacte d'emergència, telèfon personal, matricula del cotxe ...
+> **Altres dades:** És important **emplenar la major quantitat de dades possibles** com el contacte d'emergència, telèfon personal, matrícula del cotxe ...
 
 Un cop omplertes les dades, deseu la fitxa (Odoo la desa automàticament en canviar de pàgina, o feu clic al núvol de desar).
 

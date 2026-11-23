@@ -210,7 +210,7 @@ en determina el contingut és pura configuració, coberta als manuals de l'Admin
 
 - [Horaris dels docents i marcs horaris](../admin/working-schedules.md) configura els horaris que
   generen les franges previstes i les sessions que es mostren aquí.
-- [Estats d'assistència: gestionar les opcions del passar llista](../admin/attendance-status.md)
+- [Estats d'assistència: gestionar les opcions de passar llista](../admin/attendance-status.md)
   configura els mateixos botons d'estat (quins existeixen, el seu ordre i colors).
 
 ---

@@ -294,7 +294,7 @@ msgstr ""
 "                            <li>Família monoparental</li>\n"
 "                            <li>Beca MEC</li>\n"
 "                            <li>Discapacitat &gt; 33%</li>\n"
-"                            <li>Altres (matricula honor Batx, violencia genere, renda minima, premi Batx, premi FP,...)</li>\n"
+"                            <li>Altres (matrícula d'honor Batx, violència de gènere, renda mínima, premi Batx, premi FP,...)</li>\n"
 "                        </ul>\n"
 "                        <p><em>Nota: Si detecta alguna incidència o té algun dubte amb els conceptes, pot enviar un comentari a Secretaria des del mateix portal, abans de confirmar el tràmit.</em></p>\n"
 "                        <p>\n"
@@ -714,7 +714,7 @@ msgid ""
 "                                <span class=\"badge text-bg-info\" invisible=\"benefit_status != 'bonification'\">Bonification</span>\n"
 "                                <span class=\"badge text-bg-secondary\" invisible=\"benefit_status != 'none'\">None</span>"
 msgstr ""
-"<span class=\"badge text-bg-success\" invisible=\"benefit_status != 'exemption'\">Exempcíó</span>\n"
+"<span class=\"badge text-bg-success\" invisible=\"benefit_status != 'exemption'\">Exempció</span>\n"
 "                                     <span class=\"badge text-bg-info\" invisible=\"benefit_status != 'bonification'\">Bonificació</span>\n"
 "                                     <span class=\"badge text-bg-secondary\" invisible=\"benefit_status != 'none'\">Cap</span>"
 
@@ -1369,7 +1369,7 @@ msgstr "Activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__activity_exception_decoration
 msgid "Activity Exception Decoration"
-msgstr "Decorador de la excepció a una activitad"
+msgstr "Decorador de l'excepció a una activitat"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_state model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__activity_state model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__activity_state model:ir.model.fields,field_description:ems.field_ems_attendance_justification__activity_state model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__activity_state model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__activity_state model:ir.model.fields,field_description:ems.field_ems_attendance_template__activity_state model:ir.model.fields,field_description:ems.field_ems_base__activity_state model:ir.model.fields,field_description:ems.field_ems_enrollment__activity_state model:ir.model.fields,field_description:ems.field_ems_grade_session__activity_state model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__activity_state model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__activity_state model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__activity_state model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__activity_state model:ir.model.fields,field_description:ems.field_ems_notice__activity_state model:ir.model.fields,field_description:ems.field_ems_notice_line__activity_state model:ir.model.fields,field_description:ems.field_ems_student_document__activity_state model:ir.model.fields,field_description:ems.field_ems_teaching__activity_state model:ir.model.fields,field_description:ems.field_hr_employee__activity_state
@@ -2793,7 +2793,7 @@ msgstr "Conserge"
 #. module: ems
 #: model:ems.role,name:ems.role_cchieff
 msgid "Concierje chieff"
-msgstr "Cap de conserjes"
+msgstr "Cap de conserges"
 
 #. module: ems
 #: model:ir.model,name:ems.model_res_config_settings
@@ -4562,7 +4562,7 @@ msgstr "Famílies"
 #: code:addons/ems/models/erasmus/export.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_form
 msgid "Family"
-msgstr "Familia"
+msgstr "Família"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__family_relation model:ir.model.fields,field_description:ems.field_res_users__family_relation
@@ -4981,7 +4981,7 @@ msgstr "Font única de veritat per als botons de la capçalera: quina acció de 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_grade_outcome
 msgid "Grade (outcome): ternary relation between student-teacher-outcome."
-msgstr "Qualificació (resultat): relació ternaria entre estudiant-professor-resultat.Qualificació (resultat): relació ternària alumne-professor-resultat.Qualificació (resultat d'aprenentatge): relació ternària entre estudiant-professor-resultat."
+msgstr "Qualificació (resultat): relació ternària entre estudiant-professor-resultat.Qualificació (resultat): relació ternària alumne-professor-resultat.Qualificació (resultat d'aprenentatge): relació ternària entre estudiant-professor-resultat."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_grade_outcome_line
@@ -5903,7 +5903,7 @@ msgstr "Nota del centre informada"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__inuse_group_ids
 msgid "Inuse Group"
-msgstr "Grup d'inús"
+msgstr "Grup en ús"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__inuse_student_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__inuse_student_ids
@@ -6518,7 +6518,7 @@ msgstr "LimeSurvey block: conté les dades principals sobre un bloc d'una enques
 #. module: ems
 #: model:ir.model,name:ems.model_ems_limesurvey_enrollment
 msgid "LimeSurvey enrollment: contains a copy of the enrollment model for the related student, in order to allow changes on the fly when preparing the surveys (only secretarial staff should be allowed to modify the real enrollments)."
-msgstr "LimeSurvey enrollment: conté una còpia del model de matriculació per a l'alumne en qüestió, per a permetre canvis al vol quan es preparen lesenquestes (només el personal de secretària hauria de poder modificar les dades realsde matriculació)."
+msgstr "LimeSurvey enrollment: conté una còpia del model de matriculació per a l'alumne en qüestió, per a permetre canvis al vol quan es preparen les enquestes (només el personal de secretària hauria de poder modificar les dades reals de matriculació)."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_limesurvey_header
@@ -8416,7 +8416,7 @@ msgstr "Data de llançament"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
 msgid "Reload recipients"
-msgstr "Recargar destinatarios"
+msgstr "Recarregar destinataris"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
@@ -8956,7 +8956,7 @@ msgstr "Seleccioneu el tipus específic per actualitzar automàticament l'expedi
 #. odoo-python
 #: code:addons/ems/models/communications/limesurvey.py:0 model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_add_student_popup
 msgid "Select the student to add"
-msgstr "Sel·leccioni l'alumne a afegir"
+msgstr "Seleccioni l'alumne a afegir"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
@@ -9135,7 +9135,7 @@ msgstr "Compartir amb la família"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__auth_share model:ir.model.fields,field_description:ems.field_res_users__auth_share
 msgid "Share with family"
-msgstr "Compartir amb la familia"
+msgstr "Compartir amb la família"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__shift model:ir.model.fields,field_description:ems.field_sale_order__shift model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment model:ir.model.fields,field_description:ems.field_ems_student_year_record__shift model_terms:ir.ui.view,arch_db:ems.view_applicant_search model:ir.model.fields,field_description:ems.field_res_partner__shift
@@ -9172,7 +9172,7 @@ msgstr "Família monoparental (Especial)"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Some attendance statuses (like miss or issue) will be notified (if not adult or authorized) to their families almost inmediatly. This setting setups how many delay is wanted between the assistance creation and its notification."
-msgstr "Alguns estats d'assistència (com falta o incidència) seran notificats (si l'alumne no és adult o ho ha autoritzat) a les families de forma gairebé inmediata. Aquesta configuració estableix quin retard o decalatge de temps es vol entre la cració de la assistència i la seva notificació."
+msgstr "Alguns estats d'assistència (com falta o incidència) seran notificats (si l'alumne no és adult o ho ha autoritzat) a les famílies de forma gairebé immediata. Aquesta configuració estableix quin retard o decalatge de temps es vol entre la creació de l'assistència i la seva notificació."
 
 #. module: ems
 #. odoo-python
@@ -10322,12 +10322,12 @@ msgstr "Dijous"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__time_range
 msgid "Time Range"
-msgstr "Franja Horaria"
+msgstr "Franja horària"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__time_range model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__time_range
 msgid "Time range"
-msgstr "Franja horaria"
+msgstr "Franja horària"
 
 #. module: ems
 #. odoo-python
@@ -10438,12 +10438,12 @@ msgstr "Cap de Departament"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__tutor_id
 msgid "Tutor (sent to)"
-msgstr "Tutor (enviado a)"
+msgstr "Tutor (enviat a)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__attendance_issue_tutor_id
 msgid "Tutor notification data"
-msgstr "Información de la notificació al tutor"
+msgstr "Informació de la notificació al tutor"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -10593,7 +10593,7 @@ msgstr "No es poden convidar alguns participants"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
 msgid "Unable to load the current session, maybe none (or more than one) has been scheduled for the current date and time?. Please, choose one manually or activate the \"guard mode\" if needed."
-msgstr "No s'ha pogut carregar la sesió actual, ¿és possible que no hi hagi cap (o hi hagi más d'una) programada per a aquesta data i hora? Si su plau, seleccioni una manualment o activi el \"mode guàrdia\" si fos necessari."
+msgstr "No s'ha pogut carregar la sessió actual, és possible que no hi hagi cap (o hi hagi més d'una) programada per a aquesta data i hora? Si us plau, seleccioni una manualment o activi el \"mode guàrdia\" si fos necessari."
 
 #. module: ems
 #. odoo-python
@@ -11747,7 +11747,7 @@ msgstr "Hora actual"
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 msgid "Manual selection"
-msgstr "Sel·lecció manual"
+msgstr "Selecció manual"
 
 #. module: ems
 #. odoo-javascript
@@ -15934,7 +15934,7 @@ msgstr "Encàrrec de serveis: sortides, viatges, ..."
 #. module: ems
 #: model:hr.leave.type,name:ems.leave_type_atri
 msgid "ATRI: request managed through the ATRI portal"
-msgstr "ATRI: Sol·licitut gestionada pel portal Atri"
+msgstr "ATRI: Sol·licitud gestionada pel portal Atri"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
@@ -16937,7 +16937,7 @@ msgstr "%s autoritzacions enviades"
 #: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
 #: code:addons/ems/models/contacts/contact_data_request_send_wizard.py:0
 msgid "%s email(s) queued"
-msgstr "%s correus encuats"
+msgstr "%s correus en cua"
 
 #. module: ems
 #. odoo-python
@@ -19138,7 +19138,7 @@ msgstr "%s invitacions al portal enviades"
 #. odoo-python
 #: code:addons/ems/models/contacts/contact_data_request.py:0
 msgid "%s reminder email(s) queued."
-msgstr "%s correus de recordatori encuats."
+msgstr "%s correus de recordatori en cua."
 
 #. module: ems
 #. odoo-python

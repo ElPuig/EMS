@@ -66,7 +66,7 @@
                         </colgroup>
                         <tr>
                             <td class="sd-label">CF de grau</td><td><t t-esc="data['degree']"/></td>
-                            <td colspan="2"><t t-esc="group.name"/></td>
+                            <td class="sd-label">Acrònim</td><td><t t-esc="group.name"/></td>
                             <td class="sd-label">Curs</td><td><t t-esc="group.course"/></td>
                             <td class="sd-label">Grup</td><td><t t-esc="group.acronym"/></td>
                         </tr>

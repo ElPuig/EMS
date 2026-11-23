@@ -17,7 +17,7 @@ Aquesta guia explica com gestionar els contactes de tipus **alumne, família, as
 5. [Bonificacions i exempcions](#bonificacions-i-exempcions)
 6. [Filtres aplicats en obrir la llista d'alumnat](#filtres-aplicats-en-obrir-la-llista-dalumnat)
 7. [Columnes que es mostren a la vista de llista d'alumnat](#columnes-que-es-mostren-a-la-vista-de-llista-dalumnat)
-8. [Camps que només veuen admin/secretaria/Cap d'Estudis/tutors](#camps-que-només-veuen-adminsecretariacap-destudistutors)
+8. [Camps que només veuen admin/secretaria/cap d'estudis/tutors](#camps-que-només-veuen-adminsecretariacap-destudistutors)
 
 ---
 
@@ -79,7 +79,7 @@ Eliminar una línia d'assignatura queda bloquejat un cop l'alumne ja té notes r
 
 **Només Secretaria i Administració poden afegir, treure o canviar les matrícules** (l'assignatura o el grup). Per indicar a quines sessions assisteix l'alumne (repartir una assignatura entre grups, o marcar-la com a no presencial), feu servir l'horari personalitzat, que també poden fer el tutor/a i els càrrecs per sobre: vegeu [Horari personalitzat d'un alumne](../tutors/custom-schedule.md).
 
-> **Nota:** des de la versió 18.0.0.33.0, el Cap d'Estudis i el tutorat ja no poden afegir ni treure matrícules.
+> **Nota:** des de la versió 18.0.0.33.0, el cap d'estudis i el tutorat ja no poden afegir ni treure matrícules.
 
 **Canviar el grup principal d'un alumne també mou les seves matrícules per assignatura.** Si canvies el camp **Grup principal** (pestanya Estudis), qualsevol matrícula que estigués al grup antic passa automàticament al grup nou — una assignatura ja matriculada a través d'un grup diferent (per exemple, un grup de reforç) es manté igual. Això es rebutja, pel mateix motiu que a dalt, si alguna assignatura del grup antic ja té notes registrades. El tutor/a del grup (i els càrrecs per sobre) també ho pot fer per als seus alumnes, però només a un grup equivalent: mateix estudi, curs i torn — vegeu [Canviar el grup d'un alumne](../tutors/change-student-group.md).
 
@@ -109,9 +109,9 @@ La barra de cerca s'obre amb dos filtres ja aplicats: **Alumnat**, que amaga l'a
 
 Canviar la pantalla d'Alumnat de vista Kanban a vista de Llista mostra, per defecte, la majoria de camps ja utilitzats a l'exportació oficial de dades d'alumnat del centre (document d'identitat/DNI-NIE, data de naixement, si l'alumne és major d'edat, número de la seguretat social, nacionalitat, adreça i codi postal), més els cinc distintius d'autorització (drets d'imatge, sortides escolars, dades de salut, compartir amb la família, sortir del centre). Qualsevol columna es pot amagar — fes clic a la icona de la dreta de les capçaleres de columna i desmarca les que no necessitis; l'elecció es recorda per a la pròxima vegada.
 
-## Camps que només veuen admin/secretaria/Cap d'Estudis/tutors
+## Camps que només veuen admin/secretaria/cap d'estudis/tutors
 
-Les dades personals (adreça i telèfons de l'alumne, documents, data de naixement, informació mèdica, necessitats educatives especials) queden ocultes per a qualsevol persona que no sigui admin, secretaria, Cap d'Estudis/Cap d'Estudis Adjunt/a/Direcció, ni el tutor propi de l'alumne. La resta del professorat veu, només de lectura, els dos correus, l'identificador d'estudiant, si és major d'edat, el distintiu de beneficis i el resum d'autoritzacions; per trucar a casa té els telèfons dels familiars a la pestanya **Contactes i adreces**. Cap d'Estudis/Cap d'Estudis Adjunt/a/Direcció tenen el mateix accés complet que secretaria aquí, per a **qualsevol** alumne de tot el centre, no només els seus propis tutoritzats. Un tutor també pot editar la fitxa d'un alumne que tutoritza i la dels seus familiars, però veu un conjunt de camps editables més reduït que secretaria/admin/Cap d'Estudis. També pot afegir i treure els contactes familiars dels alumnes que tutoritza. Orientació veu i edita les necessitats educatives especials de qualsevol alumne.
+Les dades personals (adreça i telèfons de l'alumne, documents, data de naixement, informació mèdica, necessitats educatives especials) queden ocultes per a qualsevol persona que no sigui admin, secretaria, cap d'estudis/cap d'estudis adjunt/a/Direcció, ni el tutor propi de l'alumne. La resta del professorat veu, només de lectura, els dos correus, l'identificador d'estudiant, si és major d'edat, el distintiu de beneficis i el resum d'autoritzacions; per trucar a casa té els telèfons dels familiars a la pestanya **Contactes i adreces**. Cap d'estudis/cap d'estudis adjunt/a/Direcció tenen el mateix accés complet que secretaria aquí, per a **qualsevol** alumne de tot el centre, no només els seus propis tutoritzats. Un tutor també pot editar la fitxa d'un alumne que tutoritza i la dels seus familiars, però veu un conjunt de camps editables més reduït que secretaria/admin/cap d'estudis. També pot afegir i treure els contactes familiars dels alumnes que tutoritza. Orientació veu i edita les necessitats educatives especials de qualsevol alumne.
 
 ---
 

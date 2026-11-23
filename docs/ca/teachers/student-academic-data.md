@@ -4,7 +4,7 @@
 
 # Consultar les dades acadèmiques d'un alumne
 
-**Rol necessari:** Professor (historial acadèmic) · Orientació o Coordinador/a de convivència (la resta de dades)
+**Rol necessari:** professor (historial acadèmic) · Orientació o coordinador/a de convivència (la resta de dades)
 
 ---
 

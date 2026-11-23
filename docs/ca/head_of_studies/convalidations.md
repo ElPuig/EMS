@@ -4,9 +4,9 @@
 
 # Convalidacions: revisar i resoldre les sol·licituds
 
-Revisa les convalidacions de mòduls que es sol·liciten des del portal, decideix cada mòdul i fes-ne la proposta de resolució (Cap d'Estudis Adjunt/a), o bé resol-la oficialment (Direcció).
+Revisa les convalidacions de mòduls que es sol·liciten des del portal, decideix cada mòdul i fes-ne la proposta de resolució (cap d'estudis adjunt/a), o bé resol-la oficialment (Direcció).
 
-**Rol necessari:** Cap d'Estudis Adjunt/a o Cap d'Estudis per revisar; Direcció per resoldre.
+**Rol necessari:** cap d'estudis adjunt/a o cap d'estudis per revisar; Direcció per resoldre.
 
 ---
 
@@ -14,15 +14,15 @@ Revisa les convalidacions de mòduls que es sol·liciten des del portal, decidei
 
 Cada sol·licitud es resol d'una d'aquestes dues maneres:
 
-- **Pel centre:** Cap d'Estudis en fa la proposta i Direcció la resol. En resoldre-la es genera la resolució oficial en PDF.
-- **Pel Ministeri:** Cap d'Estudis la tramita amb el Ministeri i, quan arriba la resposta, n'hi registra el resultat. No passa per Direcció.
+- **Pel centre:** cap d'estudis en fa la proposta i Direcció la resol. En resoldre-la es genera la resolució oficial en PDF.
+- **Pel Ministeri:** cap d'estudis la tramita amb el Ministeri i, quan arriba la resposta, n'hi registra el resultat. No passa per Direcció.
 
 En tots dos casos, secretaria registra després la resolució a l'Esfera i tanca la sol·licitud.
 
 | Estat | Qui hi actua |
 |-------|--------------|
-| **Pendent** | Cap d'Estudis la revisa. Hi continua fins que es resol. |
-| **En procés Ministeri** | Cap d'Estudis l'ha tramitada amb el Ministeri i n'espera la resposta. |
+| **Pendent** | Cap d'estudis la revisa. Hi continua fins que es resol. |
+| **En procés Ministeri** | Cap d'estudis l'ha tramitada amb el Ministeri i n'espera la resposta. |
 | **Pendent de documentació** | S'ha demanat documentació al sol·licitant. Torna a **Pendent** (o a **En procés Ministeri**) quan arriba. |
 | **Pendent de direcció** | Direcció ha de resoldre la proposta o retornar-la. |
 | **Pendent de secretaria** | Ja està resolta; secretaria l'ha de registrar a l'Esfera. |
@@ -42,7 +42,7 @@ La llista s'obre amb el filtre **Pendents de mi** activat, que mostra les sol·l
 
 | Qui obre la llista | Sol·licituds que es mostren |
 |---|---|
-| Cap d'estudis o Cap d'estudis adjunt | **Pendents del Cap d'Estudis** i **En procés Ministeri** |
+| Cap d'estudis o cap d'estudis adjunt | **Pendents del Cap d'estudis** i **En procés Ministeri** |
 | Direcció | **Pendent de direcció** |
 | Secretaria | **Pendent de secretaria** |
 | Administrador, o qui té més d'un d'aquests rols | Les de tots els rols que té |
@@ -57,14 +57,14 @@ Per veure les sol·licituds d'un alumne, obre la seva fitxa i fes clic al botó 
 
 Cada pas genera una tasca a la safata d'activitats (🕒) de qui l'ha de fer:
 
-- Cada sol·licitud nova, o retornada per Direcció, a qui ocupa el càrrec de **Cap d'Estudis Adjunt/a**. Mentre una sol·licitud espera la documentació del sol·licitant, la tasca surt de la safata, i hi torna quan arriba la documentació.
+- Cada sol·licitud nova, o retornada per Direcció, a qui ocupa el càrrec de **Cap d'estudis adjunt/a**. Mentre una sol·licitud espera la documentació del sol·licitant, la tasca surt de la safata, i hi torna quan arriba la documentació.
 - Cada proposta, a qui ocupa el càrrec de **Director/a**.
 
 Crear una tasca no envia cap correu: la trobaràs al teu resum diari, amb tot el que tens pendent a la safata (vegeu [Resum diari](../teachers/daily-summary.md)).
 
 ---
 
-## Revisar una sol·licitud (Cap d'Estudis)
+## Revisar una sol·licitud (cap d'estudis)
 
 Obre la sol·licitud des de la llista. El formulari mostra:
 
@@ -135,7 +135,7 @@ Les dues opcions són al menú **Accions** del formulari.
 ![Proposta pendent de direcció](../../assets/head_of_studies/convalidations-director.png)
 
 - **Resoldre:** emet la resolució oficial tal com s'ha proposat. Es genera el PDF de la resolució i la sol·licitud passa a **Pendent de secretaria**. El PDF apareix al camp **Resolució** de la pestanya **Resolució**: fes clic al nom del fitxer per obrir-lo. Si vols afegir observacions per a l'alumne, escriu-les en aquella pestanya abans de resoldre: s'imprimeixen al PDF i després ja no es poden modificar.
-- **Retornar al cap d'estudis:** escriu-hi el motiu i fes clic a **Retorna**. La sol·licitud torna a **Pendent**, amb el motiu en un avís groc a dalt del formulari, i Cap d'Estudis en rep de nou la tasca. L'alumne no veu el motiu. Quan Cap d'Estudis envia la proposta de nou, l'avís desapareix.
+- **Retornar al Cap d'estudis:** escriu-hi el motiu i fes clic a **Retorna**. La sol·licitud torna a **Pendent**, amb el motiu en un avís groc a dalt del formulari, i cap d'estudis en rep de nou la tasca. L'alumne no veu el motiu. Quan cap d'estudis envia la proposta de nou, l'avís desapareix.
 
 ### La resolució en PDF
 

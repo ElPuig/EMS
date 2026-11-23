@@ -32,7 +32,7 @@ Gestiona l'horari setmanal de cada docent des de la seva pròpia fitxa d'empleat
 
 ## Configurar un marc horari
 
-1. Vés a **Configuració → Professorat → Marcs horaris** i crea'n un de nou (o obre'n un existent).
+1. Ves a **Configuració → Professorat → Marcs horaris** i crea'n un de nou (o obre'n un existent).
 2. Estableix el seu **Nom** i, si és específic d'un nivell d'estudis, el seu **Nivell**.
 3. Afegeix les seves franges setmanals a les línies d'assistència de sota: dia, hora d'inici/fi i, opcionalment, un nom. Fes servir hores exactes — les franges no cal que estiguin alineades a l'hora en punt (p. ex. `10:25–11:25`).
 4. Per als patis i les reunions de coordinació, fes servir el camp **no lectiva** d'aquesta línia (p. ex. "Pati", "Reunió de coordinació") en lloc de deixar-la en blanc — són compromisos reals que heretarà qualsevol docent que segueixi aquest marc.
@@ -41,7 +41,7 @@ Gestiona l'horari setmanal de cada docent des de la seva pròpia fitxa d'empleat
 
 ---
 
-## Co-docència
+## codocència
 
 Si dos docents imparteixen realment la mateixa classe junts (mateixa assignatura, mateix grup, mateixa aula, mateixa hora), EMS ho tracta com una **única** classe compartida en lloc de dues d'independents: tots dos docents apareixen com a titulars d'aquesta franja, i només hi ha **una** sessió d'assistència per a ella — qualsevol dels dos la pot marcar, i tots dos veuen el mateix resultat.
 
@@ -55,7 +55,7 @@ Una franja compartida no es veu diferent per la resta: simplement apareix, de ma
 
 ## Establir el marc horari predeterminat
 
-1. Vés a **Configuració → Empleats**.
+1. Ves a **Configuració → Empleats**.
 2. A **Marc horari predeterminat**, tria el marc amb què hauria de començar qualsevol docent *nou*.
 3. Desa.
 
@@ -67,7 +67,7 @@ Aquest camp és obligatori — el mòdul ja porta un marc predeterminat genèric
 
 La llista de motius no lectius (Pati, Guàrdia, Reunió de coordinació...) que es mostra allà on una franja no és una assignatura és configurable, així que pots afegir-ne un de nou tu mateix si el planificador extern del teu centre comença a enviar un codi que l'EMS encara no coneix — sense necessitat de cap desenvolupador.
 
-1. Vés a **Configuració → Professorat → Tipus d'hora no lectiva**.
+1. Ves a **Configuració → Professorat → Tipus d'hora no lectiva**.
 2. Fes clic a **Nou**, estableix un **Codi** curt (ha de coincidir exactament amb el que utilitza el planificador extern per a aquesta activitat) i un **Nom** (el que veuran els docents i els informes).
 3. Opcionalment, marca'l com **És un pati** (es descarta completament del resum d'hores setmanals, igual que el pati) o **Sempre és un compromís d'horari fix** (sempre es compta a la columna "Altres hores en horari fix", com una guàrdia).
    Si és una guàrdia, marca **És una guàrdia** (apareix al quadrant de guàrdies) i, si qui la fa pot anar a cobrir classes i altres guàrdies, també **Guàrdia ordinària**. Deixa-la desmarcada en una guàrdia que és un lloc fix, com la de WC o la de pati: qui la fa no s'envia a cobrir res, i quan falta, la seva guàrdia és la que s'ha de cobrir.
@@ -81,13 +81,13 @@ La llista de motius no lectius (Pati, Guàrdia, Reunió de coordinació...) que 
 
 Una reducció d'hores lectives és un dret (p. ex. una reducció per edat) que afegeix hores extra al total d'hores lectives setmanals d'un docent — a diferència d'un tipus no lectiu, mai es programa com un bloc real a la graella de l'horari.
 
-1. Vés a **Configuració → Horaris → Tipus de reducció lectiva**.
+1. Ves a **Configuració → Horaris → Tipus de reducció lectiva**.
 2. Fes clic a **Nou**, estableix un **Codi**, un **Nom** i el nombre d'**Hores de reducció** que atorga.
 3. Desa.
 
 Per concedir una reducció a un docent:
 
-1. Obre la fitxa d'empleat del docent i vés a la pestanya **Recursos Humans**.
+1. Obre la fitxa d'empleat del docent i ves a la pestanya **Recursos Humans**.
 2. A **Reduccions d'hores lectives**, afegeix un o diversos tipus — un docent pot tenir-ne diversos alhora.
 3. Desa. La reducció apareix com una fila extra (amb les seves pròpies hores) a la columna "Hores lectives setmanals" de la pestanya **Horari** d'aquest docent, sumada a les seves hores lectives reals (vegeu "Veure l'horari d'un docent" més avall).
 
@@ -108,7 +108,7 @@ Encara no cal assignar res — obre la seva pestanya **Horari** i fes servir **E
 ## Veure l'horari d'un docent
 
 1. Obre la fitxa de l'empleat del docent.
-2. Vés a la pestanya **Horari**.
+2. Ves a la pestanya **Horari**.
 
 Cada bloc mostra la seva hora exacta d'inici i fi, l'assignatura/grup o el motiu no lectiu, i l'aula (segons l'aula per defecte del grup). Les franges encara sense assignar simplement no mostren cap bloc — l'estructura del marc (patis, reunions) ja indica que s'hi espera alguna cosa.
 
@@ -118,7 +118,7 @@ Sota la graella, una petita taula resum mostra el total d'hores setmanals del do
 - **Hores lectives setmanals**: una fila per nivell d'estudis (p. ex. CFGS, CFGM, ESO), una fila per cada grup de reforç impartit (aquests no pertanyen a un únic nivell), més qualsevol activitat no lectiva que no aparegui a l'altra columna, més una fila per cada tipus de reducció lectiva assignat al docent (vegeu "Gestionar els tipus de reducció lectiva" més amunt) — se suma a les hores lectives reals.
 - **Altres hores en horari fix**: guàrdies (qualsevol dia) i reunions de coordinació específicament els dimecres.
 
-El pati mai es compta a cap de les dues columnes. Una franja que només se solapa parcialment amb una hora igualment compta com una hora completa. Cada columna mostra el seu propi total, seguit del total general (24 hores per a un docent a temps complet sense cap reducció assignada). Aquest resum sempre reflecteix l'horari desat, per la qual cosa desapareix mentre l'estàs editant i torna a aparèixer (actualitzat) un cop el desis.
+El pati mai es compta a cap de les dues columnes. Una franja que només se encavalca parcialment amb una hora igualment compta com una hora completa. Cada columna mostra el seu propi total, seguit del total general (24 hores per a un docent a temps complet sense cap reducció assignada). Aquest resum sempre reflecteix l'horari desat, per la qual cosa desapareix mentre l'estàs editant i torna a aparèixer (actualitzat) un cop el desis.
 
 Un bloc de pati que el docent encara no ha configurat explícitament pot igualment aparèixer, omplert automàticament a partir dels marcs horaris del(s) nivell(s) que aquest docent realment imparteix — és només una ajuda visual, no es desa res de debò fins que s'afegeix com a targeta real en mode Edició (vegeu més avall).
 
@@ -145,7 +145,7 @@ Les targetes d'un mateix dia sempre es mostren ordenades per hora d'inici i desp
 
 **Nivell i tipus d'atenció d'una targeta de tutoria:** una targeta el tipus no lectiu de la qual té el codi de declaració *Tutoria* o *Nivell o tutoria* (per defecte, *Tutoria* i *Atenció a l'alumnat*) mostra també un desplegable **Nivell**: tria el nivell de l'alumnat a qui es dediquen aquelles hores (ESO, Batxillerat...). Una targeta d'un tipus *Nivell o tutoria* mostra, a més, un desplegable de **tipus d'atenció**: **Suport** (l'opció per defecte) compta les hores a la fila pròpia d'aquest nivell de la [declaració horària](#imprimir-la-declaracio-horaria-oficial) (ESO, BAT, CFGM...), i **Tutoria** les compta a la fila de tutoria d'aquest nivell (T-ESO, T-BAT, T-FP...). Un docent que fa atenció a l'alumnat a dos nivells indica un nivell a cada targeta. Si deixes el nivell en blanc, ho decideix la declaració, tal com s'hi explica. Si tornes a importar l'horari, un bloc amb el mateix dia, hores i tipus conserva tots dos valors.
 
-**Canviar l'aula d'una targeta (pas 5) quan la classe és de co-docència:** si l'aula nova està lliure en aquell dia i hora, el canvi s'aplica immediatament per a tots els docents que comparteixen aquella classe — no cal fer res més. Si l'aula nova ja l'ocupa algú altre exactament a la mateixa hora, el canvi es queda pendent en comptes de fallar del tot: apareix un avís groc a la part superior de la fitxa del docent, sigui quina sigui la pestanya oberta ("S'ha demanat un canvi d'aula des de l'horari d'aquest docent, però N bloc(s) de classe no s'han pogut traslladar automàticament per una col·lisió d'aula"), amb un botó **Resoldre aules pendents**. Vegeu "Resoldre un Conflicte d'Aula Pendent" a [Grups](groups.md) per saber com resoldre-ho des d'allà — la mateixa pantalla també s'obre des de la fitxa d'un grup quan un canvi d'aula de tot el grup topa amb el mateix tipus de col·lisió.
+**Canviar l'aula d'una targeta (pas 5) quan la classe és de codocència:** si l'aula nova està lliure en aquell dia i hora, el canvi s'aplica immediatament per a tots els docents que comparteixen aquella classe — no cal fer res més. Si l'aula nova ja l'ocupa algú altre exactament a la mateixa hora, el canvi es queda pendent en comptes de fallar del tot: apareix un avís groc a la part superior de la fitxa del docent, sigui quina sigui la pestanya oberta ("S'ha demanat un canvi d'aula des de l'horari d'aquest docent, però N bloc(s) de classe no s'han pogut traslladar automàticament per una col·lisió d'aula"), amb un botó **Resoldre aules pendents**. Vegeu "Resoldre un Conflicte d'Aula Pendent" a [Grups](groups.md) per saber com resoldre-ho des d'allà — la mateixa pantalla també s'obre des de la fitxa d'un grup quan un canvi d'aula de tot el grup topa amb el mateix tipus de col·lisió.
 
 > Si deixes sense assignar una targeta afegida a mà i desa, simplement es descarta — només es conserven les assignacions reals. Si tornes a obrir **Edita** més endavant, les targetes pròpies del marc reapareixen com a forats per omplir, però una targeta manual descartada no.
 
@@ -176,7 +176,7 @@ Si el teu centre ja exporta horaris des d'una eina externa de planificació (XML
 
 L'assistent et guia per diverses pantalles, cadascuna amb la seva pròpia explicació breu del que comprova i què fer-hi — els passos numerats de sota són una referència detallada, no l'únic lloc on trobar què està passant.
 
-1. Vés a **Configuració → Professorat → Horaris de treball**.
+1. Ves a **Configuració → Professorat → Horaris de treball**.
 2. Obre el menú ⚙️ (engranatge) de sobre la llista i tria **Importar dades del planificador (XML)**.
 3. A la pantalla de **Benvinguda**, adjunta un o més fitxers XML i tria com aquesta importació ha de tractar l'horari existent de cada docent:
    - **Combinar amb l'horari existent de cada docent** (per defecte) — no es perd res del que ja tenia un docent, tret que aquests fitxers també ho descriguin. Fes-ho servir per a un docent compartit entre departaments els fitxers dels quals s'importen en moments diferents (per exemple, un docent de reforç, un fitxer per departament).
@@ -191,16 +191,16 @@ L'assistent et guia per diverses pantalles, cadascuna amb la seva pròpia explic
 
    ![Pantalla de Resoldre grups amb un nom de grup del fitxer sense resoldre](../../assets/admin/working-schedules-import-02-resolve-groups.png)
 
-   Aquesta mateixa pantalla també comprova que tots els grups referenciats ja tinguin una aula assignada - un grup el nom del qual s'ha resolt correctament però que no té aula pròpia apareix en una segona llista, just a sota de la primera. Tria una aula per a cadascun i fes clic a **Continua**; l'aula que triïs es desa al mateix grup, no només per a aquesta importació, així que no se't tornarà a demanar per a aquell grup. Si no en falta cap, no veuràs aquesta segona llista.
+   Aquesta mateixa pantalla també comprova que tots els grups referenciats ja tinguin una aula assignada - un grup el nom del qual s'ha resolt correctament, però que no té aula pròpia apareix en una segona llista, just a sota de la primera. Tria una aula per a cadascun i fes clic a **Continua**; l'aula que triïs es desa al mateix grup, no només per a aquesta importació, així que no se't tornarà a demanar per a aquell grup. Si no en falta cap, no veuràs aquesta segona llista.
 
    ![Pantalla de Resoldre grups amb un grup ja resolt però encara sense aula assignada](../../assets/admin/working-schedules-import-02b-resolve-groups-classroom.png)
-5. Si un fitxer indica una assignatura que en realitat no s'imparteix als estudis del grup (un codi d'assignatura equivocat, o un grup assignat a l'assignatura incorrecta), una pantalla de **Resoldre assignatures** en llista cada discrepància, deixant-te corregir **qualsevol dels dos costats** — el que realment estigués malament: el camp **Grup(s)** comença amb el grup (o grups) del fitxer però es pot canviar (treu l'incorrecte, afegeix el correcte, igual que en qualsevol altre camp de grups amb etiquetes); el desplegable d'**Assignatura** comença amb l'assignatura del fitxer i només et deixa triar-ne una que realment s'imparteixi als estudis del grup (ja corregit, si l'has canviat). Sovint n'hi ha prou amb corregir el grup, si l'assignatura del fitxer ja era correcta des del principi. Si totes les assignatures coincidien correctament, veuràs un missatge de confirmació. El botó **Continua** apareix atenuat fins que totes les files tenen una combinació vàlida.
+5. Si un fitxer indica una assignatura que en realitat no s'imparteix als estudis del grup (un codi d'assignatura equivocat, o un grup assignat a l'assignatura incorrecta), una pantalla de **Resoldre assignatures** en llista cada discrepància, deixant-te corregir **qualsevol dels dos costats** — el que realment estigués malament: el camp **Grup(s)** comença amb el grup (o grups) del fitxer, però es pot canviar (treu l'incorrecte, afegeix el correcte, igual que en qualsevol altre camp de grups amb etiquetes); el desplegable d'**Assignatura** comença amb l'assignatura del fitxer i només et deixa triar-ne una que realment s'imparteixi als estudis del grup (ja corregit, si l'has canviat). Sovint n'hi ha prou amb corregir el grup, si l'assignatura del fitxer ja era correcta des del principi. Si totes les assignatures coincidien correctament, veuràs un missatge de confirmació. El botó **Continua** apareix atenuat fins que totes les files tenen una combinació vàlida.
 
    ![Pantalla de Resoldre assignatures amb un desajust entre assignatura i grup](../../assets/admin/working-schedules-import-03-resolve-subjects.png)
 6. Si els fitxers esmenten un correu de docent o un codi de lloc encara no cobert (`X1`, `X2`...) que EMS no ha pogut aparellar amb cap docent existent, una pantalla de **Resoldre professors** en llista cadascun, amb **Nou** marcat per defecte (assumint un docent genuïnament mai contractat) - deixa-ho marcat per crear un nou docent pendent d'identificació per a aquest cas al pas final d'Importar (vegeu "Docents encara no contractats" més avall); per a una fila amb correu, a més es conserva el correu del fitxer, precarregat com a **Correu de treball** editable a mà (**Assignar correu corporatiu manualment** marcat) en lloc de generar-se automàticament, ja que encara no s'ha confirmat. Si en realitat és un error/desajust d'un docent ja existent — o un codi/correu que reconeixes com la MATEIXA persona real ja llistada en una altra fila d'aquesta mateixa pantalla — desmarca **Nou** i tria el docent real al desplegable (desmarcar-lo és el que el desbloqueja); triar el mateix docent per a dues files diferents les aparella totes dues amb aquella mateixa persona, sense crear-ne cap duplicat. Si tots els correus/codis s'han reconegut, veuràs un missatge de confirmació. El botó **Continua** també apareix atenuat aquí fins que totes les files tenen un docent triat o **Nou** marcat.
 
    ![Pantalla de Resoldre professors amb la casella Nou abans del desplegable Professor/a](../../assets/admin/working-schedules-import-04-resolve-teachers.png)
-7. Si dos docents diferents del mateix lot acaben programats a la mateixa aula i la mateixa hora — o si el mateix docent real (per exemple, dos identificadors que has resolt cap a la mateixa persona a la pantalla anterior) acaba amb una doble reserva a la mateixa hora en dues aules diferents — una pantalla de **Conflictes del fitxer** en llista cada parella, agrupada en una targeta per tipus de conflicte ("Co-docència", "Sessió conjunta" - el mateix docent i assignatura amb dos grups diferents alhora, per exemple dos grups petits units en una sola classe -, "Conflicte d'aula", "Mateix docent, aula diferent"), i dins de cada targeta, un bloc per cada combinació de docent+assignatura (independentment de a quin grup/dia/hora concrets caigui cada parella), que agrupa totes les parelles que la comparteixen. Cada bloc té el seu propi desplegable a dalt ("— aplicar a tots —") — tria una resolució allà i s'aplica a totes les files de sota alhora (pots canviar qualsevol fila individual a mà després). Cada fila descriu totes dues entrades en conflicte, unides per **"vs."** — llegir d'esquerra a dreta és el que volen dir "Esquerra"/"Dreta" a les opcions de resolució de sota. Les opcions de resolució en si: **"Confirmar"** si realment comparteixen aquella classe (només s'ofereix per a files de "Co-docència" i "Sessió conjunta"); **"Reassignar aules"** per a un xoc real d'aula - tria l'aula real per a cada costat, ja que totes dues comencen amb la mateixa aula que provoca el conflicte; o **"Preval l'esquerra"/"Preval la dreta"** per mantenir simplement un costat (el d'abans/després del "vs." d'aquella fila) i descartar l'altre. Una fila de "Mateix docent, aula diferent" només ofereix "Preval l'esquerra"/"Preval la dreta" - reassignar una aula no soluciona res quan el problema real és que un docent hagi d'estar en dos llocs alhora. Si no hi ha res a resoldre, veuràs un missatge de confirmació. El botó **Continua** apareix atenuat fins que totes les files tenen una resolució real (per a "Reassignar aules", això vol dir que les dues aules han de ser realment diferents).
+7. Si dos docents diferents del mateix lot acaben programats a la mateixa aula i la mateixa hora — o si el mateix docent real (per exemple, dos identificadors que has resolt cap a la mateixa persona a la pantalla anterior) acaba amb una doble reserva a la mateixa hora en dues aules diferents — una pantalla de **Conflictes del fitxer** en llista cada parella, agrupada en una targeta per tipus de conflicte ("codocència", "Sessió conjunta" - el mateix docent i assignatura amb dos grups diferents alhora, per exemple dos grups petits units en una sola classe -, "Conflicte d'aula", "Mateix docent, aula diferent"), i dins de cada targeta, un bloc per cada combinació de docent+assignatura (independentment de a quin grup/dia/hora concrets caigui cada parella), que agrupa totes les parelles que la comparteixen. Cada bloc té el seu propi desplegable a dalt ("— aplicar a tots —") — tria una resolució allà i s'aplica a totes les files de sota alhora (pots canviar qualsevol fila individual a mà després). Cada fila descriu totes dues entrades en conflicte, unides per **"vs."** — llegir d'esquerra a dreta és el que volen dir "Esquerra"/"Dreta" a les opcions de resolució de sota. Les opcions de resolució en si: **"Confirmar"** si realment comparteixen aquella classe (només s'ofereix per a files de "codocència" i "Sessió conjunta"); **"Reassignar aules"** per a un xoc real d'aula - tria l'aula real per a cada costat, ja que totes dues comencen amb la mateixa aula que provoca el conflicte; o **"Preval l'esquerra"/"Preval la dreta"** per mantenir simplement un costat (el d'abans/després del "vs." d'aquella fila) i descartar l'altre. Una fila de "Mateix docent, aula diferent" només ofereix "Preval l'esquerra"/"Preval la dreta" - reassignar una aula no soluciona res quan el problema real és que un docent hagi d'estar en dos llocs alhora. Si no hi ha res a resoldre, veuràs un missatge de confirmació. El botó **Continua** apareix atenuat fins que totes les files tenen una resolució real (per a "Reassignar aules", això vol dir que les dues aules han de ser realment diferents).
 
    ![Pantalla de Conflictes del fitxer agrupada en targetes, una per tipus de conflicte](../../assets/admin/working-schedules-import-05-file-conflicts.png)
 8. Si alguna entrada del fitxer coincideix amb una aula+hora ja utilitzada activament per l'horari existent d'algú altre, una pantalla de **Conflictes amb horaris existents** en llista cadascuna del mateix mode agrupat en targetes - aquí cada fila indica els seus dos costats amb **"Nou: ..."** (l'entrada del fitxer) i **"Antic: ..."** (la sessió ja existent), units per una fletxa en lloc de "vs.", i les columnes d'aula són **Aula nova**/**Aula antiga**. Les opcions de resolució segueixen els mateixos noms: triar **"Preval el nou"** arxiva la sessió existent (alliberant l'espai per a la nova); triar **"Preval l'antic"** descarta la nova entrada en lloc d'això, deixant la sessió existent intacta; **"Reassignar aules"** funciona com a "Conflictes del fitxer" més amunt. La sessió existent només s'arxiva o canvia d'aula en fer clic a **Importa**: fins llavors, **Cancel·la** ho desfà tot. Si no hi ha res a resoldre, veuràs un missatge de confirmació.
@@ -265,7 +265,7 @@ Fes servir això per reiniciar un docent amb un marc diferent (p. ex. ara impart
 
 Un grup de reforç és un **grup** d'alumnes (el mateix registre de "Grups" que un grup habitual) utilitzat per a una classe de reforç/suport que barreja alumnes de diferents grups habituals, i fins i tot de diferents estudis — p. ex. un petit grup de reforç de matemàtiques amb alumnes de tres grups de primer curs diferents.
 
-1. Vés a **Configuració → Alumnat → Grups** i crea'n un de nou.
+1. Ves a **Configuració → Alumnat → Grups** i crea'n un de nou.
 2. Estableix el seu **Tipus de grup** com a **Reforç**. Això amaga els camps Nivell/Estudi/Curs/Acrònim/Tutor/Delegat/Sotsdelegat (un grup de reforç no en té cap) i et permet escriure directament el **Nom** del grup — fes que coincideixi exactament amb el que exporta el teu planificador extern per a aquest grup, ja que l'importador d'horaris el localitza per nom exacte.
 3. Estableix la seva **Aula**, igual que qualsevol altre grup — encara és necessària perquè l'horari s'importi correctament.
 4. A la pestanya **Alumnes**, afegeix els alumnes que assisteixen a aquesta classe de reforç, independentment del grup habitual o l'estudi al qual pertanyin. Això **no** canvia el grup principal de cap alumne.

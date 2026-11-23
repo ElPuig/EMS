@@ -9,7 +9,7 @@ generat automàticament a partir dels horaris ja configurats per a cadascun dels
 professors, des de la mateixa fitxa de l'alumne.
 
 **Rol necessari:** qualsevol rol amb accés a Alumnat (Administració, Secretaria,
-Professorat, Tutoria de grup, Cap d'Estudis...) — tothom qui pot obrir la fitxa d'un alumne
+Professorat, Tutoria de grup, cap d'estudis...) — tothom qui pot obrir la fitxa d'un alumne
 en pot veure l'horari.
 
 ---
@@ -36,8 +36,8 @@ la pestanya **Empleats → [professor] → Horari** del professor corresponent. 
   l'horari.
 
 **A diferència de l'horari d'un grup, el d'un alumne pot mostrar classes realment
-solapades** — per exemple, una classe del seu grup principal i una optativa cursada a través
-d'un altre grup, programades en hores que se solapen. Quan això passa, la graella mostra tots
+encavalcades** — per exemple, una classe del seu grup principal i una optativa cursada a través
+d'un altre grup, programades en hores que se encavalquen. Quan això passa, la graella mostra tots
 dos blocs un al costat de l'altre en lloc d'amagar-ne un darrere l'altre, de manera que no es
 perd cap informació encara que els horaris subjacents coincideixin.
 

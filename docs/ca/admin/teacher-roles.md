@@ -22,7 +22,7 @@ Els nivells de permisos formen una jerarquia — cada nivell inclou tots els per
 | Tutor | Tutor | Automàtic — s'estableix quan el professor s'assigna com a tutor d'un Grup |
 | Cap de departament | Cap de departament | Automàtic — s'estableix com a **Cap de departament** al formulari del departament |
 | Cap de seminari | Cap de departament | Automàtic — s'estableix com a **Cap de seminari** al formulari del departament |
-| Cap d'estudis / Cap d'estudis adjunt | Cap d'estudis | Automàtic — s'estableix com a **Responsable d'àrea** al formulari d'un departament top-level (Rol = Cap d'estudis/adjunt) |
+| Cap d'estudis / cap d'estudis adjunt | Cap d'estudis | Automàtic — s'estableix com a **Responsable d'àrea** al formulari d'un departament top-level (Rol = cap d'estudis/adjunt) |
 | Secretari/ària | *(bloc de Secretaria — vegeu la nota)* | Automàtic — s'estableix com a **Responsable d'àrea** al formulari del departament `ASP` (Rol = Secretari/ària) |
 | Director | Director | Automàtic — s'estableix com a **Director** a Ajustes > EMS Management |
 | Coordinador/a TAC | *(bloc TAC — vegeu la nota de sota)* | Manual — s'afegeix al camp **Càrrecs** de la fitxa del professor |
@@ -30,7 +30,7 @@ Els nivells de permisos formen una jerarquia — cada nivell inclou tots els per
 
 > El Cap de departament té actualment els mateixos permisos que el Tutor, a més de poder crear, editar i eliminar Grups d'alumnes (Contactes → Grups). Existeix com a nivell propi perquè es pugui ampliar de manera independent en el futur. El Cap de seminari té el mateix nivell de permisos. Tots dos poden veure també, només de lectura, el document d'identitat i el número de la Seguretat Social del personal de la seva pròpia cadena de comandament (pestanya **Informació privada**, grup **Identificació**).
 >
-> **El rol de Secretari/ària no forma part d'aquesta jerarquia.** Concedeix accés a un bloc de permisos completament separat (Secretaria: Manager/Administrador), sense relació amb la cadena Professor→...→Director de dalt — encara que es configura de la mateixa manera (com a "Responsable d'àrea" en un departament top-level), no ocupa cap esglaó d'aquesta escala. La Secretaria també té els permisos de Recursos Humans de l'Odoo: pot crear i editar la fitxa de tot el personal, PAS i professorat, informació privada inclosa, però no eliminar-la.
+> **El rol de Secretari/ària no forma part d'aquesta jerarquia.** Concedeix accés a un bloc de permisos completament separat (Secretaria: Manager/Administrador), sense relació amb la cadena professor→...→director de dalt — encara que es configura de la mateixa manera (com a "Responsable d'àrea" en un departament top-level), no ocupa cap esglaó d'aquesta escala. La Secretaria també té els permisos de Recursos Humans de l'Odoo: pot crear i editar la fitxa de tot el personal, PAS i professorat, informació privada inclosa, però no eliminar-la.
 >
 > **El càrrec de Coordinador/a d'orientació tampoc no forma part d'aquesta jerarquia.** Concedeix un bloc de permisos propi i separat (Orientació: Manager/Administrador) i, com el de TAC, s'assigna a mà des del camp **Càrrecs** de la fitxa del professor. No és unipersonal: normalment l'ocupa un equip. Concedeix accés de només lectura a les dades de tot l'alumnat del centre - notes, historial acadèmic, assistència diària i les seves incidències, faltes de convivència, contactes, matrícules i autoritzacions - i, com a únic permís d'escriptura, indicar les necessitats educatives especials (NEE) de qualsevol alumne o sol·licitant. No dona accés a factures ni a pagaments. **El càrrec de Coordinador/a de convivència concedeix el mateix accés de lectura**, sense les NEE, més totes les faltes de convivència del centre. L'historial acadèmic no necessita cap càrrec: el pot llegir qualsevol professor. Vegeu [Consultar les dades acadèmiques d'un alumne](../teachers/student-academic-data.md).
 >
@@ -68,9 +68,9 @@ La insígnia mostra automàticament el color triat amb un text llegible, sigui q
 
 ![Camp Rols a la fitxa d'un docent, amb dos rols assignats en forma d'etiquetes de colors](../../assets/admin/admin-teacher-roles-employee.png)
 
-El compte d'usuari del professor s'actualitza immediatament: es concedeix el grup de seguretat vinculat al rol, juntament amb tot allò que implica (p. ex. assignar **Cap de departament** també concedeix l'accés de Tutor i de Professor).
+El compte d'usuari del professor s'actualitza immediatament: es concedeix el grup de seguretat vinculat al rol, juntament amb tot allò que implica (p. ex. assignar **Cap de departament** també concedeix l'accés de Tutor i de professor).
 
-> Els rols **Tutor**, **Cap de departament**, **Cap de seminari**, **Cap d'estudis**, **Cap d'estudis adjunt**, **Secretari/ària** i **Director** no es poden afegir ni treure manualment — ni des d'aquí, ni des de la llista **Assignat a** del propi rol (**Comunitat Educativa → Configuració → Professorat/PAS → Rols**), ni per importació o edició massiva. Intentar-ho mostra un missatge que indica exactament on s'ha de fer el canvi en realitat. El Tutor es gestiona automàticament segons si el professor és tutor d'algun Grup; els cinc següents es gestionen automàticament des del formulari d'un departament; el Director es gestiona automàticament des d'Ajustes (vegeu més avall).
+> Els rols **Tutor**, **Cap de departament**, **Cap de seminari**, **Cap d'estudis**, **Cap d'estudis adjunt**, **Secretari/ària** i **Director** no es poden afegir ni treure manualment — ni des d'aquí, ni des de la llista **Assignat a** del propi rol (**Comunitat Educativa → Configuració → Professorat/PAS → Rols**), ni per importació o edició massiva. Intentar-ho mostra un missatge que indica exactament on s'ha de fer el canvi en realitat. El Tutor es gestiona automàticament segons si el professor és tutor d'algun Grup; els cinc següents es gestionen automàticament des del formulari d'un departament; el director es gestiona automàticament des d'Ajustes (vegeu més avall).
 
 ---
 
@@ -126,11 +126,11 @@ No tots els departaments necessiten el seu propi Cap de departament. Si un depar
 2. Marqueu **Comparteix Responsable amb el pare** — això buida el camp **Responsable** i l'amaga, ja que el departament deixa de tenir-ne un de propi.
 3. Feu clic a **Desar**.
 
-Tots els professors d'aquell departament (i, si al seu torn té sub-departaments, el seu propi Cap de departament també) tenen el seu **Responsable** establert al Cap/Responsable d'àrea de l'avantpassat més proper — pujant per la jerarquia tants nivells com calgui fins a trobar-ne un. Un departament no pot tenir alhora Responsable propi i aquesta casella marcada.
+Tots els professors d'aquell departament (i, si al seu torn té subdepartaments, el seu propi Cap de departament també) tenen el seu **Responsable** establert al Cap/Responsable d'àrea de l'avantpassat més proper — pujant per la jerarquia tants nivells com calgui fins a trobar-ne un. Un departament no pot tenir alhora Responsable propi i aquesta casella marcada.
 
 ---
 
-## Assignar un Responsable d'àrea (Cap d'estudis / adjunt / Secretari)
+## Assignar un Responsable d'àrea (cap d'estudis / adjunt / secretari)
 
 Alguns departaments (actualment **VET**, **ESO/BTX** i **ASP**) són **departaments top-level** — això canvia el seu formulari:
 
@@ -140,7 +140,7 @@ Alguns departaments (actualment **VET**, **ESO/BTX** i **ASP**) són **departame
 4. Establiu el **Responsable d'àrea** (obligatori) i trieu el seu **Rol**: **Cap d'estudis** o **Cap d'estudis adjunt** per a una àrea Acadèmica, **Secretari/ària** per a una àrea ASP — triar un Rol que no coincideixi amb l'Àrea es rebutja.
 5. Feu clic a **Desar**.
 
-Quina **Àrea**/**Rol** triar depèn del departament: VET i ESO/BTX són àrees Acadèmiques, així que el seu Responsable d'àrea normalment és Cap d'estudis o adjunt; **ASP és diferent** — la seva Àrea és ASP, el seu Responsable d'àrea és un professor que coordina el personal administratiu/de secretaria, així que el seu Rol hauria de ser **Secretari/ària** (això concedeix el bloc de permisos de Secretaria, no un d'acadèmic — vegeu la nota sota la taula de permisos de dalt).
+Quina **Àrea**/**Rol** triar depèn del departament: VET i ESO/BTX són àrees Acadèmiques, així que el seu Responsable d'àrea normalment és cap d'estudis o adjunt; **ASP és diferent** — la seva Àrea és ASP, el seu Responsable d'àrea és un professor que coordina el personal administratiu/de secretaria, així que el seu Rol hauria de ser **Secretari/ària** (això concedeix el bloc de permisos de Secretaria, no un d'acadèmic — vegeu la nota sota la taula de permisos de dalt).
 
 Això té un efecte més enllà del propi departament:
 
@@ -151,7 +151,7 @@ Això té un efecte més enllà del propi departament:
 
 ---
 
-## Assignar el Director
+## Assignar el director
 
 A diferència de tots els altres rols, el **Director** no s'estableix des de cap fitxa de professor ni cap formulari de departament — es configura de forma centralitzada des d'Ajustes:
 
@@ -162,12 +162,12 @@ A diferència de tots els altres rols, el **Director** no s'estableix des de cap
 Això té un efecte més enllà del propi ajust:
 
 - El **Responsable** de qui exerceixi de Responsable d'àrea en qualsevol departament top-level (p. ex. de VET, d'ESO/BTX, d'ASP) s'estableix automàticament al **Director**.
-- El propi **Responsable** del Director sempre queda buit — ningú no pot estar mai per sobre del Director, sigui quin sigui el departament al qual pertanyi nominalment, tant si n'és el cap com si només n'és un membre normal el cap del qual és una altra persona.
-- Reassignar el Director a una altra persona revoca automàticament el rol a qui l'ocupava abans.
+- El propi **Responsable** del director sempre queda buit — ningú no pot estar mai per sobre del director, sigui quin sigui el departament al qual pertanyi nominalment, tant si n'és el cap com si només n'és un membre normal el cap del qual és una altra persona.
+- Reassignar el director a una altra persona revoca automàticament el rol a qui l'ocupava abans.
 
 > **Nota sobre l'accés:** la pantalla d'Ajustes requereix l'accés d'Ajustes d'Odoo (concedit a través del grup "Administrador d'Ajustes" o root/admin) — és un permís *diferent* del que controla els formularis de departament anteriors. Algú amb accés acadèmic complet no té garantit poder entrar a Ajustes.
 
-> **Nota per a instal·lacions existents:** no hi ha cap Director establert per defecte — un administrador n'ha de configurar un manualment; no s'omple res automàticament.
+> **Nota per a instal·lacions existents:** no hi ha cap director establert per defecte — un administrador n'ha de configurar un manualment; no s'omple res automàticament.
 
 ---
 

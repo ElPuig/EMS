@@ -2,16 +2,16 @@
 
 ---
 
-# Cap d'Estudis — Manuals d'usuari
+# Cap d'estudis — Manuals d'usuari
 
-Aquesta secció conté els manuals per a **Cap d'Estudis, Cap d'Estudis Adjunt/a i Direcció**.
+Aquesta secció conté els manuals per a **Cap d'estudis, Cap d'estudis adjunt/a i Direcció**.
 
 ---
 
 ## Manuals disponibles
 
 - [Històric acadèmic: consultes de cohort](academic-history.md)
-- [Convalidacions: revisar i resoldre les sol·licituds](convalidations.md) — Revisar cada mòdul i fer-ne la proposta (Cap d'Estudis), resoldre-la oficialment (Direcció) o tramitar-la amb el Ministeri.
+- [Convalidacions: revisar i resoldre les sol·licituds](convalidations.md) — Revisar cada mòdul i fer-ne la proposta (cap d'estudis), resoldre-la oficialment (Direcció) o tramitar-la amb el Ministeri.
 - [Certificats: donar el vistiplau](certificates.md) — Donar el vistiplau als certificats expedits per secretaria (Direcció); EMS genera el PDF i l'envia a la persona sol·licitant.
 - [Erasmus+: validar les activitats del personal](erasmus-staff-validation.md) — La direcció valida l'activitat, l'entitat, la destinació i les dates de cada persona seleccionada del personal.
 - [Erasmus+: respondre un recurs d'alçada contra una resolució](erasmus-appeals.md) — El cap d'estudis de la persona respon els recursos contra la llista definitiva d'una convocatòria Erasmus+.

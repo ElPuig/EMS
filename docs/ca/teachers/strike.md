@@ -71,8 +71,8 @@ Mentre s'envia un strike, el seu botó **Enviar** queda desactivat, de manera qu
 - A la fitxa del propi alumne, apareix un botó de **Strikes** a la capçalera que mostra el recompte acumulat (0 si encara no en té cap) — clica'l per veure l'historial complet d'aquell alumne i, des d'allà, posar-li'n un de nou amb **Nou strike**.
 - Des de **Assistència → Historial**, en obrir una de les teves sessions anteriors ara també es mostra, per cada fila d'alumne, quants strikes es van posar durant aquella sessió concreta, amb un botó per veure'n el detall complet.
 
-> Si també ets tutor/a, Cap d'Estudis, Cap d'Estudis Adjunt/a, Direcció o coordinador/a de convivència, consulta el manual corresponent per saber com pots consultar un conjunt més ampli de strikes.
+> Si també ets tutor/a, cap d'estudis, cap d'estudis adjunt/a, Direcció o coordinador/a de convivència, consulta el manual corresponent per saber com pots consultar un conjunt més ampli de strikes.
 
 ---
 
-[← Tornar als manuals de Professors](index.md)
+[← Tornar als manuals de professors](index.md)

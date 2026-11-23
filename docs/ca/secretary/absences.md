@@ -30,9 +30,9 @@ Tens accés al motiu escrit i al justificant de la teva gent, i pots ajustar els
 
 **Rebutjar demana abans el motiu** (opcional, i s'envia només a la persona). Una decisió presa per error, també un rebuig, es desfà amb **Desfés l'última decisió**, des de la fila del llistat o des de dalt del formulari (vegeu [Desfer una decisió](../head_of_studies/absences.md#desfer-una-decisió)); una sol·licitud aprovada també cal desfer-la abans de poder corregir-la. El justificant es pot adjuntar en qualsevol moment, també en una sol·licitud ja rebuda.
 
-Un cop la valides, Direcció revisa cada absència en últim lloc, a la columna **Estat Direcció**, que veus però no pots modificar. La columna **Estat** mostra en quin punt és la sol·licitud.
+Un cop la valides, Direcció revisa cada absència en últim lloc, a la columna **Estat Direcció**, que veus, però no pots modificar. La columna **Estat** mostra en quin punt és la sol·licitud.
 
-El detall dels passos, d'aquests camps i dels dos informes és al manual de [Cap d'Estudis](../head_of_studies/absences.md), i s'aplica igual a la teva àrea.
+El detall dels passos, d'aquests camps i dels dos informes és al manual de [cap d'estudis](../head_of_studies/absences.md), i s'aplica igual a la teva àrea.
 
 ---
 

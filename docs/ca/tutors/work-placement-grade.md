@@ -56,7 +56,7 @@ Una estada suspesa no suspèn mai el mòdul. El mòdul continua **superat** (aix
 
 ## Per a secretaria: tancar les finals pendents de cursos anteriors
 
-La secretaria i l'administració fan servir aquesta mateixa pantalla, sense restricció de grup. És la via per tancar les notes finals que encara queden pendents de cursos anteriors — un estudiant que va superar tots els RA d'un mòdul però la nota final del qual no es va poder calcular perquè encara no havia fet l'estada.
+La secretaria i l'administració fan servir aquesta mateixa pantalla, sense restricció de grup. És la via per tancar les notes finals que encara queden pendents de cursos anteriors — un estudiant que va superar tots els RA d'un mòdul, però la nota final del qual no es va poder calcular perquè encara no havia fet l'estada.
 
 Per localitzar-les: **Planificació i qualificacions → Qualificacions → Històric acadèmic**, filtre **Finals pendents d'estada**. Cada línia és un mòdul d'un curs passat que espera la nota d'estada — exactament les caselles que la matriu ofereix sota una capçalera de **Curs anterior**, i en completa la nota final amb els pesos congelats al registre de l'històric.
 

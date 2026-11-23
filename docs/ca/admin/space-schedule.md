@@ -48,7 +48,7 @@ d'aplicar-se a tot el grup.
 ## Exportar l'Horari a PDF
 
 Fes clic a **PDF** a la barra d'eines de la pestanya Horari per descarregar una versió
-imprimible de l'ocupació setmanal de l'aula, incloent la taula Assignatura → Professor(s).
+imprimible de l'ocupació setmanal de l'aula, incloent la taula Assignatura → professor(s).
 
 ---
 

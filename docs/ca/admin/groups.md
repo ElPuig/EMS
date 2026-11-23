@@ -11,7 +11,7 @@ Un grup és la classe a la qual pertany un alumne. Hi ha dos tipus:
 
 Per a l'horari setmanal del grup (agregat a partir dels horaris dels professors) i la seva exportació a PDF, consulta [L'horari setmanal d'un grup](group-schedule.md) — aquesta pàgina cobreix la creació i gestió del grup en si.
 
-**Rol necessari:** Cap de departament (o superior — Cap d'estudis/Adjunt/Director/Administrador ja tenen aquest accés per escalat de rols)
+**Rol necessari:** cap de departament (o superior — cap d'estudis/Adjunt/Director/Administrador ja tenen aquest accés per escalat de rols)
 
 ---
 
@@ -88,7 +88,7 @@ Fes clic a **Resoldre aules pendents** a qualsevol dels dos avisos per obrir la 
 
 Fes clic a **Confirmar** un cop cada fila tingui una resolució vàlida. L'avís desapareix quan no queda res pendent.
 
-Per a una classe de co-docència, la mateixa col·lisió apareix alhora a la fitxa de cada docent (i a la fitxa del grup), ja que és realment el mateix conflicte vist des de cada costat. Resoldre'l des de qualsevol d'aquestes pantalles el neteja a totes — no cal repetir la resolució a l'horari de l'altre docent ni a la fitxa del grup.
+Per a una classe de codocència, la mateixa col·lisió apareix alhora a la fitxa de cada docent (i a la fitxa del grup), ja que és realment el mateix conflicte vist des de cada costat. Resoldre'l des de qualsevol d'aquestes pantalles el neteja a totes — no cal repetir la resolució a l'horari de l'altre docent ni a la fitxa del grup.
 
 ---
 
@@ -100,7 +100,7 @@ Selecciona'l a la llista i usa el menú **Acció** (⚙) → **Suprimeix**. Es b
 
 ## Arxivar un grup (en lloc d'eliminar-lo)
 
-Si un grup simplement no funciona aquest curs però podria tornar en un curs futur (un cicle que
+Si un grup simplement no funciona aquest curs, però podria tornar en un curs futur (un cicle que
 es salta un any, un torn que se suspèn temporalment...), **arxiva'l** en lloc d'eliminar-lo —
 arxivar-lo conserva el seu historial (tutor, aula, alumnes/horari anteriors) perquè puguis
 recuperar-lo exactament com era, en lloc d'haver-lo de recrear des de zero més endavant.

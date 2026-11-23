@@ -15,7 +15,7 @@ Registra a l'Esfera les convalidacions ja resoltes i tanca-les a l'EMS, perquè 
 Una sol·licitud arriba a secretaria quan ja està resolta i passa a l'estat **Pendent de secretaria**. Hi pot arribar per dos camins:
 
 - **Resolta pel centre:** Direcció n'ha emès la resolució oficial. El PDF de la resolució és al camp **Resolució** de la pestanya **Resolució** del formulari.
-- **Resolta pel Ministeri:** Cap d'Estudis hi ha registrat el resultat del Ministeri. Si l'ha pujat, la resolució del Ministeri també és al camp **Resolució**.
+- **Resolta pel Ministeri:** cap d'estudis hi ha registrat el resultat del Ministeri. Si l'ha pujat, la resolució del Ministeri també és al camp **Resolució**.
 
 Cada sol·licitud resolta apareix a la safata d'activitats (🕒) de tot el personal de secretaria. Quan algú la registra, la tasca desapareix de la safata de tothom.
 
@@ -61,7 +61,7 @@ En registrar-la:
 4. A la pestanya **Documentació justificativa**, puja els documents.
 5. Fes clic a **Desa**.
 
-La sol·licitud queda **Pendent**, a l'espera que la revisi Cap d'Estudis. Un cop desada, l'alumne, l'estudi, el curs, el motiu i les observacions ja no es poden canviar.
+La sol·licitud queda **Pendent**, a l'espera que la revisi cap d'estudis. Un cop desada, l'alumne, l'estudi, el curs, el motiu i les observacions ja no es poden canviar.
 
 Pots registrar una sol·licitud, i tramitar-ne qualsevol, en qualsevol moment: el període de sol·licitud del portal (vegeu [Configuració de convalidacions](../admin/convalidation-settings.md)) només limita les sol·licituds noves de l'alumnat i les famílies.
 

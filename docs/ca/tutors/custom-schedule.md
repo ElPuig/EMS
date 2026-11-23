@@ -4,7 +4,7 @@
 
 # Horari personalitzat d'un alumne
 
-De vegades un alumne no fa totes les sessions d'una assignatura amb el seu grup: repeteix part del mòdul, treballa i se li solapa alguna hora, o el recupera amb un altre grup (fins i tot d'un altre estudi del mateix nivell). L'**horari personalitzat** permet indicar exactament a quines sessions assisteix, assignatura per assignatura. Les llistes de passar llista, l'horari de l'alumne i els informes d'assistència en fan cas automàticament.
+De vegades un alumne no fa totes les sessions d'una assignatura amb el seu grup: repeteix part del mòdul, treballa i se li encavalca alguna hora, o el recupera amb un altre grup (fins i tot d'un altre estudi del mateix nivell). L'**horari personalitzat** permet indicar exactament a quines sessions assisteix, assignatura per assignatura. Les llistes de passar llista, l'horari de l'alumne i els informes d'assistència en fan cas automàticament.
 
 **Rol necessari:** Tutor (també els caps per sobre del tutor, Secretaria i Administració)
 

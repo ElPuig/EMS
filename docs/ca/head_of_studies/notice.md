@@ -4,12 +4,12 @@
 
 # Comunicats: enviar els vostres propis correus massius
 
-Aquesta pàgina cobreix **Comunicacions → Comunicats** per al Cap d'estudis, el Cap d'estudis
+Aquesta pàgina cobreix **Comunicacions → Comunicats** per al cap d'estudis, el cap d'estudis
 adjunt i el coordinador de qualitat. La pantalla i el flux de crear/enviar és exactament el
 mateix que es descriu al [manual d'Administrador](../admin/notice.md) — aquesta pàgina només
 cobreix què és diferent sobre qui veu què.
 
-**Rol necessari:** Cap d'estudis / Cap d'estudis adjunt / Director / Coordinador de qualitat
+**Rol necessari:** cap d'estudis / cap d'estudis adjunt / director / coordinador de qualitat
 
 ---
 
@@ -31,7 +31,7 @@ comandament (vegeu més avall); qualsevol altre comunicat s'obre en mode només 
 botó d'acció.
 
 El **Director** té exactament el mateix filtre per defecte (igual que un Administrador) — la
-diferència és només en què li permet fer treure'l, no en qui el veu: un Director pot editar
+diferència és només en què li permet fer treure'l, no en qui el veu: un director pot editar
 qualsevol comunicat un cop tret el filtre, mentre que vosaltres només podeu editar o eliminar
 els vostres i els de la vostra branca independentment del filtre. Vegeu el
 [manual d'Administrador](../admin/notice.md#qui-veu-quins-comunicats).
@@ -61,4 +61,4 @@ arriba directament a vosaltres, no a una adreça tècnica compartida.
 
 ---
 
-[← Tornar als manuals de Cap d'estudis](index.md)
+[← Tornar als manuals de cap d'estudis](index.md)

@@ -37,7 +37,7 @@ la pestanya **Empleats → [professor] → Horari** del professor corresponent. 
 
 **A diferència de l'horari d'un grup, el d'un alumne pot mostrar classes realment
 encavalcades** — per exemple, una classe del seu grup principal i una optativa cursada a través
-d'un altre grup, programades en hores que se encavalquen. Quan això passa, la graella mostra tots
+d'un altre grup, programades en hores que s'encavalquen. Quan això passa, la graella mostra tots
 dos blocs un al costat de l'altre en lloc d'amagar-ne un darrere l'altre, de manera que no es
 perd cap informació encara que els horaris subjacents coincideixin.
 

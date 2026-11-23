@@ -21,7 +21,8 @@
                 .gs-cell-label { display: block; font-weight: 600; }
                 .gs-cell-room { display: block; font-size: 9px; color: #fff; }
                 .gs-cell-content.gs-parallel { background-color: #6c757d; }
-                .gs-parallel-slot { font-weight: bold; white-space: nowrap; vertical-align: top; }
+                .gs-parallel-slot { font-weight: bold; white-space: nowrap; vertical-align: top; background: #f1f1f1; border-right: 1px solid #ccc; }
+                .gs-summary-table tr.gs-parallel-first td { border-top: 2px solid #555; }
                 .gs-summary-table { width: 100%; margin-top: 16px; font-size: 10px; border-collapse: collapse; }
                 .gs-summary-table th { text-align: left; padding: 6px 10px; }
                 .gs-summary-table td { padding: 3px 10px; border-bottom: 1px solid #eee; }
@@ -75,8 +76,10 @@
                     <tbody>
                         <t t-foreach="parallel" t-as="slot">
                             <t t-foreach="slot['classes']" t-as="row">
-                                <tr>
-                                    <td class="gs-parallel-slot"><t t-if="row_first" t-esc="slot['slot']"/></td>
+                                <!-- One merged cell for the whole slot, and a heavier line above its first class, so the
+                                     classes given at the same time read as one block (issue #853). -->
+                                <tr t-att-class="'gs-parallel-first' if row_first else ''">
+                                    <td t-if="row_first" class="gs-parallel-slot" t-att-rowspan="len(slot['classes'])" t-esc="slot['slot']"/>
                                     <td t-esc="row['subject']"/>
                                     <td t-esc="row['subgroup']"/>
                                     <td t-esc="row['teachers']"/>

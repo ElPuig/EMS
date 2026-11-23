@@ -32,7 +32,7 @@ EMS ya incluye el tipo **FCT (Formació en Centres de Treball)**. Los cambios qu
 Todos los certificados ya tienen el **nombre completo**, el **documento de identidad** y el **estudio** del alumno. En **Datos del certificado**, añade una línea por cada otro dato que necesite el certificado:
 
 - **Detalle** — el nombre del dato, tal como lo leen la persona solicitante y el personal (por ejemplo, *Horas*).
-- **Clave** — cómo lo escribe el texto del certificado, entre llaves: letras minúsculas, dígitos y `_` (por ejemplo, `horas`). No puede ser `name`, `document` ni `study`, que ya están cogidas.
+- **Clave** — cómo lo escribe el texto del certificado, entre llaves: letras minúsculas, dígitos y `_` (por ejemplo, `horas`). No puede ser `name`, `document` ni `study`, que ya están cogidas. Si la cambia, el texto se actualiza en todos los idiomas.
 - **Tipo de dato** — **Texto corto**, **Texto largo**, **Número**, **Fecha**, **Sí/No**, **Curso escolar** (el formulario sugiere los cursos que tiene EMS) o **Empresa colaboradora** (la persona solicitante escribe su nombre y su NIF, y el centro vincula la empresa).
 - **Solicitante** — **Obligatorio**: el formulario lo pide y hay que rellenarlo para enviar la solicitud; **Opcional**: el formulario lo pide; **No se pide**: solo lo rellena el centro.
 - **Obligatorio antes de** — el paso del circuito que no se puede hacer hasta que esté rellenado (ni ninguno posterior). Déjalo vacío si el circuito nunca lo exige. Para elegir un paso, guarda primero el circuito.

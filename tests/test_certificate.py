@@ -571,6 +571,21 @@ class TestCertificate(TransactionCase):
             with self.subTest(key=key), self.assertRaises(Exception), self.env.cr.savepoint():
                 Field.create({'type_id': self.certificate_type.id, 'name': 'X', 'key': key})
 
+    def test_renamed_key_follows_in_every_language(self):
+        """Renaming a key from the form in one language rewrites it in the text of every language
+        (the company's _vat key included), so the save is not refused for the others."""
+        certificate_type = self.certificate_type
+        certificate_type.certificate_text = "In {company}[, VAT {company_vat}], {hours} hours."
+        certificate_type.with_context(lang='ca_ES').certificate_text = "A {company}[, NIF {company_vat}], {hours} hores."
+        certificate_type.with_context(lang='ca_ES').write({'field_ids': [
+            (1, self.type_fields['company'].id, {'key': 'empresa'}),
+            (1, self.type_fields['hours'].id, {'key': 'hores'}),
+        ]})
+        self.assertEqual(certificate_type.with_context(lang='en_US').certificate_text,
+                         "In {empresa}[, VAT {empresa_vat}], {hores} hours.")
+        self.assertEqual(certificate_type.with_context(lang='ca_ES').certificate_text,
+                         "A {empresa}[, NIF {empresa_vat}], {hores} hores.")
+
     def test_new_detail_reaches_open_requests(self):
         """A detail added to a type appears on its open requests, not on the closed ones."""
         open_request = self._submitted()

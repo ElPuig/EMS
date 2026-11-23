@@ -129,7 +129,7 @@ from the UI and no upgrade reverts it.
 | Field | Type | Notes |
 |-------|------|-------|
 | `sequence`, `name`, `help` | Integer, Char (translatable), Char (translatable) | Order, label and the hint the applicant reads under it. |
-| `key` | Char | What the text writes between braces: lowercase letters, digits and `_`, unique in the type (`_sql_constraints`), never one of the common ones (`name`, `document`, `study`) nor ending in `_vat`. |
+| `key` | Char | What the text writes between braces: lowercase letters, digits and `_`, unique in the type (`_sql_constraints`), never one of the common ones (`name`, `document`, `study`) nor ending in `_vat`. Renaming it rewrites `{old}` (and `{old_vat}` for a company) in the type's text in every language at once (`write()` → `_ems_rename_text_key`, through `update_field_translations`), so the text check, which reads every language, does not refuse a key renamed from a form in another language. |
 | `field_type` | Selection | `char` (short text), `text` (long text), `integer` (number, never negative), `date`, `boolean` (yes/no), `school_year` (short text; the portal suggests the courses EMS has) and `company` (a collaborating company: the applicant writes its name and VAT number as text, the centre links the contact; the text prints `{key}` and `{key_vat}`). |
 | `applicant_input` | Selection | `required`, `optional` or `none` (only the centre fills it in). |
 | `required_step_id` | M2o `ems.certificate.type.step` (restrict) | The step that must have it filled in before it is done (and so every later step, and *Issue it now*). Empty: never required by the circuit. A `company` datum required by a step needs the contact linked, not just the text written. |

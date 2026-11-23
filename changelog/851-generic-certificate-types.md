@@ -30,3 +30,8 @@
 - A step of a certificate's approval circuit now takes one or more positions (`ems.certificate.type.step.role_ids`, at least one): the holders of any of them get its task (daily summary) and may do it, and the first to do it closes everybody's task. Juan's request after testing: the secretariat's administrative staff hold no position, so they got no task and could not do the "complete the data" step.
 - New catalog position "Secretary technician" (`ems.role_secretary_technician`, ASP, several holders, brings `ems.group_secretary`), to assign to the secretariat's staff. FCT's completing step comes with the VET coordinator and this position.
 - Migration (18.0.0.51.0 post-migrate): each step's former position is copied into the new list before Odoo drops the old column, and FCT's completing step gets the new position.
+
+## Renaming a detail's key updates the text in every language:
+
+- Changing a detail's key (e.g. `average` to `mitja`) from the type form in Catalan was refused: the English text still used `{average}`, and the text check reads every language. The key is now rewritten in the text of every language at once (`{key}`, and `{key_vat}` for a company).
+- Screenshot 07 (certificate types) regenerated with the circuit's new Posts column.

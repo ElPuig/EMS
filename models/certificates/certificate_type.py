@@ -123,6 +123,22 @@ class EmsCertificateType(models.Model):
                                             "pair (or one inside another).", type=certificate_type.name,
                                             language=language))
 
+    def _ems_rename_text_key(self, old_key, new_key, with_vat):
+        """A detail's key changed: its text follows in every language at once. Language by language
+        through write() would leave the others with the old key in between, and the text check
+        would refuse the save (a key renamed from the Catalan form kept {old} in English)."""
+        self.ensure_one()
+        self.flush_recordset(['certificate_text'])
+        self.env.cr.execute("SELECT certificate_text FROM ems_certificate_type WHERE id = %s", [self.id])
+        texts = self.env.cr.fetchone()[0] or {}
+        suffix = '(_vat)?' if with_vat else '()'
+        pattern = re.compile(r'\{' + re.escape(old_key) + suffix + r'\}')
+        renamed = {lang: pattern.sub(lambda match: '{' + new_key + (match.group(1) or '') + '}', text)
+                   for lang, text in texts.items() if text}
+        changed = {lang: text for lang, text in renamed.items() if text != texts[lang]}
+        if changed:
+            self.update_field_translations('certificate_text', changed)
+
     @api.constrains('requires_documents', 'document_ids')
     def _check_documents(self):
         for certificate_type in self:
@@ -252,6 +268,14 @@ class EmsCertificateTypeField(models.Model):
             ('type_id', 'in', fields_created.type_id.ids), ('state', 'in', ('draft', 'in_progress', 'documentation')),
         ])._ems_sync_values()
         return fields_created
+
+    def write(self, vals):
+        renamed = [(field.type_id, field.key, field.field_type == 'company') for field in self
+                   if 'key' in vals and field.key != vals['key']]
+        result = super().write(vals)
+        for certificate_type, old_key, was_company in renamed:
+            certificate_type._ems_rename_text_key(old_key, vals['key'], was_company)
+        return result
 
     def _ems_is_required_by(self, step):
         """Whether a request must have it filled in before `step` is done."""

@@ -73,7 +73,7 @@ def create_certificate_fixtures(cls, prefix='TCRT'):
                     'required_step_id': complete}),
             (0, 0, {'sequence': 30, 'name': 'From', 'key': 'start', 'field_type': 'date', 'required_step_id': complete}),
             (0, 0, {'sequence': 40, 'name': 'To', 'key': 'end', 'field_type': 'date', 'required_step_id': complete}),
-            (0, 0, {'sequence': 50, 'name': 'Hours', 'key': 'hours', 'field_type': 'integer',
+            (0, 0, {'sequence': 50, 'name': 'Hours', 'key': 'hours', 'field_type': 'number',
                     'required_step_id': complete}),
             (0, 0, {'sequence': 60, 'name': 'Agreement number', 'key': 'agreement', 'field_type': 'char'}),
         ],
@@ -137,7 +137,7 @@ class TestCertificate(TransactionCase):
     def _complete_training(self, certificate, user=None):
         """The details the first step requires, written by its holder."""
         for key, vals in (('company', {'value_company_id': self.company.id}), ('start', {'value_date': '2026-03-01'}),
-                          ('end', {'value_date': '2026-06-15'}), ('hours', {'value_integer': 400}),
+                          ('end', {'value_date': '2026-06-15'}), ('hours', {'value_number': 400}),
                           ('agreement', {'value_char': '2026178505'})):
             self._value(certificate, key).with_user(user or self.coordinator).write(vals)
 
@@ -347,7 +347,7 @@ class TestCertificate(TransactionCase):
         self.assertEqual(certificate.state, 'rejected')
         self.assertIn(('ems.email_template_certificate_rejected', certificate.id, None), sent())
         with self.assertRaises(UserError):
-            self._value(certificate, 'hours').with_user(self.secretary).write({'value_integer': 10})
+            self._value(certificate, 'hours').with_user(self.secretary).write({'value_number': 10})
 
         # Cancellable until issued: afterwards it has a number of the registry.
         other = self._submitted()
@@ -391,7 +391,7 @@ class TestCertificate(TransactionCase):
         values, details, missing = certificate._ems_parse_portal_form(self._form(
             school_year='2019-2020', hours='many', start='not a date', company='Written SL', company_vat='B1'))
         self.assertFalse(missing)
-        self.assertEqual((details['hours'], details['start']), ({'value_integer': 0}, {'value_date': False}))
+        self.assertEqual((details['hours'], details['start']), ({'value_number': 0}, {'value_date': False}))
         self.assertEqual(details['company'], {'value_char': 'Written SL', 'value_vat': 'B1'})
         certificate.sudo()._ems_portal_fill(values, details, {})
         self.assertEqual((certificate.state, certificate.step_id), ('in_progress', self.steps[0]))
@@ -445,7 +445,7 @@ class TestCertificate(TransactionCase):
             student_name='Complete Former', student_document='Z1234567R', school_year='2020-2021', hours='350',
             company='Written SL'))
         certificate.sudo()._ems_portal_fill(values, details, {})
-        self.assertEqual((certificate.state, certificate.step_id, self._value(certificate, 'hours').value_integer),
+        self.assertEqual((certificate.state, certificate.step_id, self._value(certificate, 'hours').value_number),
                          ('in_progress', self.steps[0], 350))
         self.assertTrue(certificate._ems_portal_can_edit())
 
@@ -635,7 +635,7 @@ class TestCertificate(TransactionCase):
             self._form(hours='forty', start='31/02/2026', end='2026-06-15', company='ACME', company_vat='B1'),
             self.certificate_type)
         self.assertEqual((details['hours'], details['start'], details['end']),
-                         ({'value_integer': 0}, {'value_date': False}, {'value_date': fields.Date.to_date('2026-06-15')}))
+                         ({'value_number': 0}, {'value_date': False}, {'value_date': fields.Date.to_date('2026-06-15')}))
         self.assertEqual(details['company'], {'value_char': 'ACME', 'value_vat': 'B1'})
         self.assertIn('School year', missing)
         certificate = self._submitted()
@@ -646,9 +646,18 @@ class TestCertificate(TransactionCase):
         self.assertFalse((hours | start | company).filtered('is_pending'))
         self.assertEqual((hours.with_context(lang='en_US').display_value, start.with_context(lang='en_US').display_value,
                           company.display_value), ('400', '03/01/2026', self.company.name))
+        # Numbers take decimals: written with a comma or a point, shown with the language's separator.
+        detail = self.type_fields['hours']
+        for raw, expected in (('7,45', 7.45), ('7.5', 7.5), ('-3', 0), ('nan', 0), ('inf', 0)):
+            with self.subTest(raw=raw):
+                self.assertEqual(self.env['ems.certificate.value']._ems_parse_input(detail, {f'field_{detail.id}': raw}),
+                                 {'value_number': expected})
+        hours.value_number = 7.45
+        self.assertEqual((hours.with_context(lang='ca_ES').display_value, hours.with_context(lang='en_US').display_value),
+                         ('7,45', '7.45'))
         certificate.sudo()._ems_cancel()
         with self.assertRaises(UserError):
-            hours.with_user(self.coordinator).write({'value_integer': 1})
+            hours.with_user(self.coordinator).write({'value_number': 1})
 
     def test_copy_keeps_its_details_on_its_own_steps(self):
         copy = self.certificate_type.copy({'name': 'TCRT Copy'})

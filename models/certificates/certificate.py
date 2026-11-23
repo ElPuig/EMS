@@ -26,7 +26,7 @@ VALUE_COLUMNS = {
     'char': 'value_char',
     'school_year': 'value_char',
     'text': 'value_text',
-    'integer': 'value_integer',
+    'number': 'value_number',
     'date': 'value_date',
     'boolean': 'value_boolean',
     'company': 'value_company_id',
@@ -882,7 +882,7 @@ class EmsCertificateValue(models.Model):
     field_type = fields.Selection(related='field_id.field_type')
     value_char = fields.Char(string="Text")
     value_text = fields.Text(string="Long text")
-    value_integer = fields.Integer(string="Number")
+    value_number = fields.Float(string="Number")
     value_date = fields.Date(string="Date")
     value_boolean = fields.Boolean(string="Yes/No")
     value_company_id = fields.Many2one(string="Collaborating company", comodel_name='res.partner',
@@ -893,7 +893,7 @@ class EmsCertificateValue(models.Model):
     is_pending = fields.Boolean(string="Pending", compute='_compute_is_pending',
                                 help="Required by now and still empty.")
 
-    @api.depends('field_type', 'value_char', 'value_text', 'value_integer', 'value_date', 'value_boolean',
+    @api.depends('field_type', 'value_char', 'value_text', 'value_number', 'value_date', 'value_boolean',
                  'value_company_id')
     @api.depends_context('lang')
     def _compute_display_value(self):
@@ -904,13 +904,13 @@ class EmsCertificateValue(models.Model):
                 line.display_value = format_date(self.env, line.value_date) if line.value_date else False
             elif line.field_type == 'boolean':
                 line.display_value = _("Yes") if line.value_boolean else _("No")
-            elif line.field_type == 'integer':
-                line.display_value = str(line.value_integer) if line.value_integer else False
+            elif line.field_type == 'number':
+                line.display_value = line._ems_format_number() if line.value_number else False
             else:
                 line.display_value = line[line._ems_column()] or False
 
     @api.depends('certificate_id.state', 'certificate_id.step_id', 'field_id', 'value_char', 'value_text',
-                 'value_integer', 'value_date', 'value_company_id')
+                 'value_number', 'value_date', 'value_company_id')
     def _compute_is_pending(self):
         for line in self:
             certificate = line.certificate_id
@@ -918,9 +918,15 @@ class EmsCertificateValue(models.Model):
             required = by_step or line.field_id.applicant_input == 'required'
             line.is_pending = required and not line._ems_has_value(linked=by_step)
 
-    @api.constrains('value_integer')
-    def _check_value_integer(self):
-        if any(line.value_integer < 0 for line in self):
+    def _ems_format_number(self):
+        """400 as "400", 7.45 as "7,45" in Catalan: up to two decimals, no trailing zeros, the
+        decimal separator of the language."""
+        text = f'{self.value_number:.2f}'.rstrip('0').rstrip('.')
+        return text.replace('.', self.env['res.lang']._lang_get(self.env.lang or 'en_US').decimal_point)
+
+    @api.constrains('value_number')
+    def _check_value_number(self):
+        if any(line.value_number < 0 for line in self):
             raise ValidationError(_("A number of a certificate cannot be negative."))
 
     def write(self, vals):
@@ -958,8 +964,12 @@ class EmsCertificateValue(models.Model):
         raw = (post.get(name) or '').strip()
         if field.field_type == 'company':
             return {'value_char': raw[:200] or False, 'value_vat': (post.get(f'{name}_vat') or '').strip()[:30] or False}
-        if field.field_type == 'integer':
-            return {'value_integer': int(raw) if raw.isdigit() else 0}
+        if field.field_type == 'number':
+            try:
+                number = float(raw.replace(',', '.'))
+            except ValueError:
+                number = 0
+            return {'value_number': number if 0 < number < float('inf') else 0}
         if field.field_type == 'date':
             try:
                 return {'value_date': fields.Date.to_date(raw) if raw else False}

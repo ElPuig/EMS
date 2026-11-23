@@ -29,7 +29,7 @@ class TestCertificateTour(HttpCase):
         self.start_tour("/odoo", 'ems_certificate_complete', login=self.coordinator.login)
         self.assertEqual(self.certificate.step_id, self.steps[1])
         values = {line.field_id.key: line for line in self.certificate.value_ids}
-        self.assertEqual((values['company'].value_company_id, values['hours'].value_integer), (self.company, 400))
+        self.assertEqual((values['company'].value_company_id, values['hours'].value_number), (self.company, 400))
         report = self.certificate.document_ids.filtered(lambda line: line.type_document_id == self.report_document)
         self.assertEqual(report.attachment_ids.mapped('name'), ['Report.pdf'])
         self.assertEqual(report.attachment_ids.res_id, report.id, "The file follows the request's access rights.")

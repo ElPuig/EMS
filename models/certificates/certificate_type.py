@@ -22,7 +22,7 @@ STEP_ACTIONS = [
 FIELD_TYPES = [
     ('char', 'Short text'),
     ('text', 'Long text'),
-    ('integer', 'Number'),
+    ('number', 'Number'),
     ('date', 'Date'),
     ('boolean', 'Yes/No'),
     ('school_year', 'School year'),

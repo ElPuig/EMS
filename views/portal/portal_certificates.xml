@@ -49,7 +49,7 @@
                             <textarea t-if="type_field.field_type == 'text'" t-att-id="input_name" t-att-name="input_name" rows="3"
                                       class="form-control" maxlength="2000" t-att-required="input_required or None"
                                       t-esc="defaults.get(input_name) or ''"/>
-                            <input t-elif="type_field.field_type == 'integer'" t-att-id="input_name" type="number" min="0"
+                            <input t-elif="type_field.field_type == 'number'" t-att-id="input_name" type="number" min="0" step="any"
                                    t-att-name="input_name" class="form-control" t-att-required="input_required or None"
                                    t-att-value="defaults.get(input_name) or ''"/>
                             <input t-elif="type_field.field_type == 'date'" t-att-id="input_name" type="date"

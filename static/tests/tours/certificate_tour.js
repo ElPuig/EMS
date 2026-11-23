@@ -37,12 +37,12 @@ registry.category("web_tour.tours").add("ems_certificate_complete", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='value_ids'] .o_data_row:contains('Hours') td[name='value_integer']",
+            trigger: ".o_field_widget[name='value_ids'] .o_data_row:contains('Hours') td[name='value_number']",
             content: "Edit the hours detail",
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='value_ids'] .o_selected_row .o_field_widget[name='value_integer'] input",
+            trigger: ".o_field_widget[name='value_ids'] .o_selected_row .o_field_widget[name='value_number'] input",
             content: "Write the hours",
             run: "edit 400",
         },

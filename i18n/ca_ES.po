@@ -7389,8 +7389,8 @@ msgstr "Notificacions"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
-#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__value_integer
-#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__field_type__integer
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__value_number
+#: model:ir.model.fields.selection,name:ems.selection__ems_certificate_type_field__field_type__number
 msgid "Number"
 msgstr "Número"
 

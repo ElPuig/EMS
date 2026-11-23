@@ -35,3 +35,7 @@
 
 - Changing a detail's key (e.g. `average` to `mitja`) from the type form in Catalan was refused: the English text still used `{average}`, and the text check reads every language. The key is now rewritten in the text of every language at once (`{key}`, and `{key_vat}` for a company).
 - Screenshot 07 (certificate types) regenerated with the circuit's new Posts column.
+
+## Certificate numbers with decimals:
+
+- A certificate detail of type Number now takes decimals (`value_number`, a float; the type's key is `number`), for an average grade such as 7.45: the portal accepts a comma or a point, and the text and the PDF print it with up to two decimals, no trailing zeros, and the language's decimal separator ("7,45" in Catalan, "400" for whole hours). Still never negative. One field for every number, as Juan asked, not a separate decimal type. No migration: the detail and value tables are new in this release.

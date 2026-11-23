@@ -33,7 +33,7 @@ Every certificate already has the student's **full name**, **identity document**
 
 - **Detail** — its name, as the applicant and the staff read it (for example, *Hours*).
 - **Key** — how the certificate text writes it, between braces: lowercase letters, digits and `_` (for example, `hours`). It can't be `name`, `document` or `study`, which are already taken. If you change it, the text is updated in every language.
-- **Data type** — **Short text**, **Long text**, **Number**, **Date**, **Yes/No**, **School year** (the form suggests the courses EMS has) or **Collaborating company** (the applicant writes the name and VAT number, and the centre links the company).
+- **Data type** — **Short text**, **Long text**, **Number** (it may have decimals, such as an average grade of 7.45), **Date**, **Yes/No**, **School year** (the form suggests the courses EMS has) or **Collaborating company** (the applicant writes the name and VAT number, and the centre links the company).
 - **Applicant** — **Required**: the form asks for it and it must be filled in to submit the request; **Optional**: the form asks for it; **Not asked**: only the centre fills it in.
 - **Required before** — the step of the circuit that can't be done until it is filled in (nor any later one). Leave it empty if the circuit never requires it. To choose a step, save the circuit first.
 - **Hint** (optional column) — a short text the applicant reads under the detail.

@@ -91,7 +91,7 @@
             <field name="sequence">50</field>
             <field name="name">Hours</field>
             <field name="key">hours</field>
-            <field name="field_type">integer</field>
+            <field name="field_type">number</field>
             <field name="applicant_input">optional</field>
             <field name="required_step_id" ref="certificate_step_fct_complete"/>
         </record>

@@ -138,7 +138,7 @@ class TestPortalCertificate(HttpCase):
         response = self.url_open(f'/my/certificats/{certificate.id}/submit?access_token={token}',
                                  data=self._form(hours='300'))
         self.assertIn('submitted=1', response.url)
-        self.assertEqual((certificate.state, self._value(certificate, 'hours').value_integer), ('in_progress', 300))
+        self.assertEqual((certificate.state, self._value(certificate, 'hours').value_number), ('in_progress', 300))
 
         certificate._ems_request_documentation('Attach the agreement')
         response = self.url_open(f'/my/certificats/{certificate.id}/reply?access_token={token}',

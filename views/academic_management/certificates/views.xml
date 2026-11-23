@@ -149,8 +149,8 @@
                                                column_invisible="not ('char' in parent.value_field_types or 'school_year' in parent.value_field_types or 'company' in parent.value_field_types)"/>
                                         <field name="value_text" invisible="field_type != 'text'"
                                                column_invisible="'text' not in parent.value_field_types"/>
-                                        <field name="value_integer" invisible="field_type != 'integer'"
-                                               column_invisible="'integer' not in parent.value_field_types"/>
+                                        <field name="value_number" invisible="field_type != 'number'"
+                                               column_invisible="'number' not in parent.value_field_types"/>
                                         <field name="value_date" invisible="field_type != 'date'"
                                                column_invisible="'date' not in parent.value_field_types"/>
                                         <field name="value_boolean" invisible="field_type != 'boolean'"

@@ -106,6 +106,7 @@ class TestGroupScheduleDeclaration(TransactionCase):
         self.assertIn(self.group.name.encode(), general)
         self.assertIn('Distribució horària dels Cicles Formatius'.encode(), vocational)
         self.assertIn(b'Superior', vocational)
+        self.assertIn(self.cycle_group.name.encode(), vocational)
         self.assertNotIn(b'Horari grup d', vocational)
 
     def test_one_page_per_group(self):

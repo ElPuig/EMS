@@ -4,7 +4,7 @@
 
 # Cap d'estudis — Manuals d'usuari
 
-Aquesta secció conté els manuals per a **Cap d'estudis, Cap d'estudis adjunt/a i Direcció**.
+Aquesta secció conté els manuals per a **cap d'estudis, cap d'estudis adjunt/a i direcció**.
 
 ---
 

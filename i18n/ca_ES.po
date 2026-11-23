@@ -22178,7 +22178,7 @@ msgstr "Aquest grup té %d alumne(s) matriculat(s) com a grup principal. Reassig
 #: code:addons/ems/models/attendance/attendance_schedule.py:0
 #, python-format
 msgid "This session (%(this)s — %(this_teacher)s, %(this_space)s, %(this_time)s) overlaps with another one (%(other)s — %(other_teacher)s, %(other_space)s, %(other_time)s): both fall on %(weekday)s with overlapping times for %(reason)s."
-msgstr "Aquesta sessió (%(this)s — %(this_teacher)s, %(this_space)s, %(this_time)s) se encavalca amb una altra (%(other)s — %(other_teacher)s, %(other_space)s, %(other_time)s): totes dues cauen en %(weekday)s amb horaris que se encavalquen per a %(reason)s."
+msgstr "Aquesta sessió (%(this)s — %(this_teacher)s, %(this_space)s, %(this_time)s) s'encavalca amb una altra (%(other)s — %(other_teacher)s, %(other_space)s, %(other_time)s): totes dues cauen en %(weekday)s amb horaris que s'encavalquen per a %(reason)s."
 
 #. module: ems
 #. odoo-python

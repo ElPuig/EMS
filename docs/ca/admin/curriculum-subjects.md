@@ -62,7 +62,7 @@ Els criteris d'avaluaci贸 nom茅s existeixen dins d'un resultat d'aprenentatge 鈥
 
 ### Afegir continguts
 
-Els continguts viuen a la pestanya **Contingut**, separada de Resultat d'aprenentatge, i es poden imbricar (un contingut pot tenir sub-elements "Composici贸").
+Els continguts viuen a la pestanya **Contingut**, separada de Resultat d'aprenentatge, i es poden imbricar (un contingut pot tenir subelements "Composici贸").
 
 1. Obre una assignatura i ves a la pestanya **Contingut**. Fes clic a **Afegeix una l铆nia** per crear un contingut de nivell superior (codi, acr貌nim, nom).
 2. Per afegir un sub-element sota un contingut existent: fes clic a la seva icona de llapis (**Edita**) per obrir el seu propi formulari, ves a la pestanya **Composici贸**, i fes clic a **Afegeix una l铆nia** all脿.

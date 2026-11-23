@@ -57,7 +57,7 @@ Per veure les sol·licituds d'un alumne, obre la seva fitxa i fes clic al botó 
 
 Cada pas genera una tasca a la safata d'activitats (🕒) de qui l'ha de fer:
 
-- Cada sol·licitud nova, o retornada per Direcció, a qui ocupa el càrrec de **Cap d'estudis adjunt/a**. Mentre una sol·licitud espera la documentació del sol·licitant, la tasca surt de la safata, i hi torna quan arriba la documentació.
+- Cada sol·licitud nova, o retornada per Direcció, a qui ocupa el càrrec de **cap d'estudis adjunt/a**. Mentre una sol·licitud espera la documentació del sol·licitant, la tasca surt de la safata, i hi torna quan arriba la documentació.
 - Cada proposta, a qui ocupa el càrrec de **Director/a**.
 
 Crear una tasca no envia cap correu: la trobaràs al teu resum diari, amb tot el que tens pendent a la safata (vegeu [Resum diari](../teachers/daily-summary.md)).
@@ -135,7 +135,7 @@ Les dues opcions són al menú **Accions** del formulari.
 ![Proposta pendent de direcció](../../assets/head_of_studies/convalidations-director.png)
 
 - **Resoldre:** emet la resolució oficial tal com s'ha proposat. Es genera el PDF de la resolució i la sol·licitud passa a **Pendent de secretaria**. El PDF apareix al camp **Resolució** de la pestanya **Resolució**: fes clic al nom del fitxer per obrir-lo. Si vols afegir observacions per a l'alumne, escriu-les en aquella pestanya abans de resoldre: s'imprimeixen al PDF i després ja no es poden modificar.
-- **Retornar al Cap d'estudis:** escriu-hi el motiu i fes clic a **Retorna**. La sol·licitud torna a **Pendent**, amb el motiu en un avís groc a dalt del formulari, i cap d'estudis en rep de nou la tasca. L'alumne no veu el motiu. Quan cap d'estudis envia la proposta de nou, l'avís desapareix.
+- **Retornar al cap d'estudis:** escriu-hi el motiu i fes clic a **Retorna**. La sol·licitud torna a **Pendent**, amb el motiu en un avís groc a dalt del formulari, i cap d'estudis en rep de nou la tasca. L'alumne no veu el motiu. Quan cap d'estudis envia la proposta de nou, l'avís desapareix.
 
 ### La resolució en PDF
 

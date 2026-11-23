@@ -7,9 +7,10 @@ from markupsafe import Markup
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import email_normalize
-from odoo.tools.image import ImageProcess, image_apply_opt
+from odoo.tools.image import ImageProcess
 
 from ..shared import base
+from ..shared.file_compression import IMAGE_MAX_SIDE
 
 # Fields a student or family may review from the portal (issue #507). Name and birth date are
 # official data and stay read-only there: their correction keeps going through the secretariat.
@@ -24,7 +25,7 @@ DNI_LETTERS = 'TRWAGMYFPDXBNJZSQVHLCKE'
 PHOTO_FIELD = 'image_1920'
 PHOTO_FORMATS = ('JPEG', 'PNG')
 PHOTO_MAX_BYTES = 10 * 1024 * 1024
-PHOTO_MAX_SIZE = 1920
+PHOTO_MAX_SIZE = IMAGE_MAX_SIDE
 REQUEST_GROUPS = 'ems.group_tutor,ems.group_secretary,ems.group_head_of_studies,ems.group_academic_admin'
 
 
@@ -264,8 +265,7 @@ class EmsContactDataRequest(models.Model):
             photo = None
         if not photo or not photo.image or photo.original_format not in PHOTO_FORMATS:
             return False, _("The photo must be a JPG or PNG image.")
-        photo.resize(PHOTO_MAX_SIZE, PHOTO_MAX_SIZE)
-        return base64.b64encode(image_apply_opt(photo.image, 'JPEG', quality=90)).decode(), False
+        return base64.b64encode(self.env['ems.file_compression'].to_jpeg(photo)).decode(), False
 
     @api.model
     def _ems_format_problems(self, prefix, values, fields_list):

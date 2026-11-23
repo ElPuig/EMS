@@ -19,6 +19,7 @@ Esta sección contiene los manuales para **administradores**.
 - [Tipos de certificado y circuitos de aprobación](certificate-types.md) — Qué certificados se pueden pedir, qué documentación exigen, quién puede adjuntarla y quién hace cada paso hasta que se expiden.
 - [Idioma del centro](centre-language.md) — El idioma en el que EMS escribe por su cuenta y que reciben los usuarios nuevos.
 - [Carpeta de las actas en Drive](minutes-drive.md) — Guardar una copia del PDF de cada acta en una carpeta de una unidad compartida.
+- [Compresión de los ficheros subidos](uploaded-files-compression.md) — Los PDF y las imágenes se hacen más ligeros automáticamente tras subirlos.
 - [Grupos de trabajo](workgroups.md) — Agrupaciones libres de empleados (equipos de proyecto, comisiones).
 - [Espacios y tipos de espacio](facilities.md) — Aulas físicas y sus tipos, usados en sesiones/grupos/actas/horarios.
 - [Roles de profesorado y niveles de permisos](teacher-roles.md) — Cómo asignar roles (Tutor, jefe de departamento, jefe de estudios, director...) para conceder niveles de permisos.

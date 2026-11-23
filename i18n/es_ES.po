@@ -49874,7 +49874,7 @@ msgstr "Solo el jefe de estudios, el jefe de estudios adjunto o el director de e
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "Only the delegate or the sub-delegate of a group that may propose supporting a student walkout can propose it."
-msgstr "Solo el delegado o el subdelegado de un grupo que puede proponer apoyar una convocatoria de huelga lo puede proponer."
+msgstr "Solo el delegado o el subdelegado de un grupo que puede proponer una inasistencia colectiva la puede proponer."
 
 #. module: ems
 #. odoo-python
@@ -49897,7 +49897,7 @@ msgstr "Propuesta por %(name)s desde el portal."
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "Say whether the group supports the walkout."
-msgstr "Indica si el grupo apoya la convocatoria de huelga."
+msgstr "Indica si el grupo apoya la propuesta de inasistencia colectiva."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -49940,7 +49940,7 @@ msgid "Student walkout on {{ format_date(object.walkout_id.walkout_date) }}: {{ 
 msgstr "Inasistencia colectiva del {{ format_date(object.walkout_id.walkout_date) }}: {{ object.student_id.name }}"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_student_walkout model:ir.ui.menu,name:ems.menu_student_walkout model_terms:ir.ui.view,arch_db:ems.view_student_walkout_list model:ir.ui.menu,name:ems.menu_attendance_config_walkouts model:ir.actions.act_window,name:ems.action_student_walkout model:ir.ui.menu,name:ems.menu_attendance_config_walkouts model:ir.ui.menu,name:ems.menu_student_walkout model_terms:ir.ui.view,arch_db:ems.view_student_walkout_list
+#: model:ir.actions.act_window,name:ems.action_student_walkout model:ir.ui.menu,name:ems.menu_student_walkout model:ir.ui.menu,name:ems.menu_attendance_config_walkouts model_terms:ir.ui.view,arch_db:ems.view_student_walkout_list model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_family
 msgid "Student walkouts"
 msgstr "Inasistencias colectivas"
 
@@ -49977,7 +49977,7 @@ msgstr "Los grupos cuyo delegado o subdelegado puede proponer una inasistencia c
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkouts
 msgid "There are no student walkout proposals in your group."
-msgstr "No hay ninguna propuesta de apoyo a una convocatoria de huelga en tu grupo."
+msgstr "No hay ninguna propuesta de inasistencia colectiva en tu grupo."
 
 #. module: ems
 #. odoo-python
@@ -50030,7 +50030,7 @@ msgid "Walkout proposal"
 msgstr "Propuesta de inasistencia colectiva"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__walkout_date model:ir.model.fields,field_description:ems.field_ems_student_walkout__walkout_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_walkout__walkout_date model_terms:ir.ui.view,arch_db:ems.portal_student_walkout_new model_terms:ir.ui.view,arch_db:ems.report_student_walkout_document
 msgid "Walkout day"
 msgstr "Día de la inasistencia colectiva"
 
@@ -50057,7 +50057,7 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "Your group already has a student walkout proposal for %(date)s."
-msgstr "Tu grupo ya tiene una propuesta de apoyo a una convocatoria de huelga para el %(date)s."
+msgstr "Tu grupo ya tiene una propuesta de inasistencia colectiva para el %(date)s."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
@@ -50271,7 +50271,7 @@ msgstr "Inasistencia colectiva del {{ format_date(object.walkout_id.walkout_date
 #. odoo-python
 #: code:addons/ems/models/attendance/student_walkout.py:0
 msgid "The group vote of this student walkout is closed."
-msgstr "La votación del grupo de esta convocatoria de huelga está cerrada."
+msgstr "La votación del grupo de esta inasistencia colectiva está cerrada."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout_line__vote_date
@@ -50331,7 +50331,7 @@ msgstr "<span class=\"o_form_label me-2\">Preaviso</span>"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout
 msgid "<span id=\"ems_walkout_confirm_cancel\" class=\"d-none\">Cancel this student walkout proposal?</span>"
-msgstr "<span id=\"ems_walkout_confirm_cancel\" class=\"d-none\">¿Quieres anular esta propuesta de apoyo a la convocatoria de huelga?</span>"
+msgstr "<span id=\"ems_walkout_confirm_cancel\" class=\"d-none\">¿Quieres anular esta propuesta de inasistencia colectiva?</span>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_student_walkout

@@ -10,6 +10,9 @@ class TestGroupScheduleDeclaration(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # A fresh install has no document layout, so Odoo answers an admin's report_action() with its
+        # "configure your layout" wizard (no active_ids); the same fix as tests/test_attendance_reports.py.
+        cls.env.company.external_report_layout_id = cls.env.ref('web.external_layout_standard')
         cls.level, cls.study, cls.group = create_level_study_group(cls, 'TGSD', level={'declaration_code': 'eso'})
         cls.cycle_level, cls.cycle_study, cls.cycle_group = create_level_study_group(
             cls, 'TGSC', level={'declaration_code': 'cfgs'})

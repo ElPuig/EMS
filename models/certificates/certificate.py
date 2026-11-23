@@ -297,29 +297,29 @@ class EmsCertificate(models.Model):
             certificate.other_attachment_ids._ems_link_to(certificate)
 
     def _ems_sync_documents(self):
-        """One line per document the type requires, to attach it to. A request whose type changes
-        (only possible before it is submitted) gets the new type's lines."""
-        for certificate in self:
-            required = certificate.type_id._ems_required_documents()
-            stale = certificate.document_ids.filtered(lambda line: line.type_document_id not in required)
-            kept = certificate.document_ids - stale
-            stale.sudo().unlink()
-            missing = required - kept.type_document_id
-            self.env['ems.certificate.document'].sudo().create([{
-                'certificate_id': certificate.id, 'type_document_id': document.id,
-            } for document in missing])
+        """One line per document the type requires, to attach it to."""
+        self._ems_sync_lines('document_ids', 'type_document_id',
+                             lambda certificate: certificate.type_id._ems_required_documents())
 
     def _ems_sync_values(self):
-        """One value line per detail of the type. A request whose type changes (only possible before
-        it is submitted) gets the new type's details."""
-        Value = self.env['ems.certificate.value'].sudo()
+        """One value line per detail of the type."""
+        self._ems_sync_lines('value_ids', 'field_id', lambda certificate: certificate.type_id.field_ids)
+
+    def _ems_sync_lines(self, lines_field, link_field, needed_by):
+        """Keep one line of `lines_field` per record `needed_by(certificate)` returns, linked by
+        `link_field`. A request whose type changes (only possible before it is submitted) loses the
+        previous type's lines and gets the new type's."""
+        lines = self[lines_field]
+        to_create = []
+        stale = lines.browse()
         for certificate in self:
-            fields_needed = certificate.type_id.field_ids
-            stale = certificate.value_ids.filtered(lambda line: line.field_id not in fields_needed)
-            kept = certificate.value_ids - stale
-            stale.sudo().unlink()
-            missing = fields_needed - kept.field_id
-            Value.create([{'certificate_id': certificate.id, 'field_id': field.id} for field in missing])
+            needed = needed_by(certificate)
+            current = certificate[lines_field]
+            stale |= current.filtered(lambda line: line[link_field] not in needed)
+            to_create += [{'certificate_id': certificate.id, link_field: record.id}
+                          for record in needed - current[link_field]]
+        stale.sudo().unlink()
+        lines.sudo().create(to_create)
 
     def _ems_set_values(self, values_by_key):
         """Write details by their key: {key: value}, the value in its type's column; a company's

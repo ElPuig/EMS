@@ -18,3 +18,9 @@
 ## Example certificate text on the type form:
 
 - Under the help of "Certificate text", the type form shows an example for a grades certificate (details school_year and average, the average as an optional part), translated to Catalan and Spanish.
+
+## Close audit of the certificate types:
+
+- New test for the details' values: a wrong number or date from the portal form is left out, each data type is displayed as such, what the current step requires is highlighted until filled in, and a closed request's details can't be changed.
+- The request's document lines and detail lines are kept in step with its type by one shared helper (they were two copies of the same code), creating the missing lines in one batch.
+- The manual screenshots of the certificate list, the certificate details, the type form and the three portal screens were regenerated; their test now pins the FCT type as seeded, whatever other types the database has.

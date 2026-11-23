@@ -29,6 +29,10 @@ class TestDocsScreenshotsCertificates(DocsScreenshotMixin, HttpCase):
         cls.secretary = create_role_user(cls, 'secretary', 'doc_shot_cert_secretary', lang='ca_ES',
                                          name='Secretaria Exemple')
         cls.certificate_type = cls.env.ref('ems.certificate_type_fct')
+        # Only FCT is offered, whatever other types the database has.
+        cls.env['ems.certificate.type'].search([('id', '!=', cls.certificate_type.id)]).active = False
+        # As seeded (noupdate, so a database may have changed it): the agreement is required.
+        cls.certificate_type.requires_documents = True
         cls.steps = cls.certificate_type.step_ids.sorted('sequence')
         cls.agreement_document = cls.certificate_type._ems_required_documents()[:1]
         cfgs = cls.env.ref('ems.level_cfgs')
@@ -126,6 +130,6 @@ class TestDocsScreenshotsCertificates(DocsScreenshotMixin, HttpCase):
         self._capture('/my/certificats', '.o_ems_portal_certificates', 'certificats-08-portal.png', login=student,
                       wait_for='.o_ems_certificate_request')
         self._capture('/my/certificats?new=1', '.o_ems_certificate_new', 'certificats-09-sollicitud.png',
-                      login=student, wait_for='#certificate_new_body.show')
+                      login=student, wait_for='.o_ems_certificate_new .collapse.show')
         self._capture(self.on_first_step.get_portal_url(), '.o_ems_portal_certificate', 'certificats-10-resum.png',
                       login=student, wait_for='.o_ems_certificate_summary', max_height=900)

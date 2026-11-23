@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from PIL import Image
 
+from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase, tagged
 from odoo.tools.pdf import PdfFileReader
@@ -586,6 +587,28 @@ class TestCertificate(TransactionCase):
         certificate.type_id = other
         self.assertEqual(certificate.value_ids.field_id, other.field_ids)
         self.assertFalse(certificate.document_ids, "Nor any document of the previous type.")
+
+    def test_detail_values_input_display_and_pending(self):
+        """A wrong number or date from the form is left out; each data type is displayed as such;
+        what the current step requires is pending until filled in; a closed request is read-only."""
+        values, details, missing = self.env['ems.certificate']._ems_parse_portal_form(
+            self._form(hours='forty', start='31/02/2026', end='2026-06-15', company='ACME', company_vat='B1'),
+            self.certificate_type)
+        self.assertEqual((details['hours'], details['start'], details['end']),
+                         ({'value_integer': 0}, {'value_date': False}, {'value_date': fields.Date.to_date('2026-06-15')}))
+        self.assertEqual(details['company'], {'value_char': 'ACME', 'value_vat': 'B1'})
+        self.assertIn('School year', missing)
+        certificate = self._submitted()
+        hours, start, company = (self._value(certificate, key) for key in ('hours', 'start', 'company'))
+        self.assertTrue(hours.is_pending and start.is_pending and company.is_pending)
+        self.assertFalse(self._value(certificate, 'agreement').is_pending, "Required by no step.")
+        self._complete_training(certificate)
+        self.assertFalse((hours | start | company).filtered('is_pending'))
+        self.assertEqual((hours.with_context(lang='en_US').display_value, start.with_context(lang='en_US').display_value,
+                          company.display_value), ('400', '03/01/2026', self.company.name))
+        certificate.sudo()._ems_cancel()
+        with self.assertRaises(UserError):
+            hours.with_user(self.coordinator).write({'value_integer': 1})
 
     def test_copy_keeps_its_details_on_its_own_steps(self):
         copy = self.certificate_type.copy({'name': 'TCRT Copy'})

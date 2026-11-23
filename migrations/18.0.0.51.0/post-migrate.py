@@ -24,7 +24,6 @@ FCT_TEXT = {
 }
 
 
-
 def migrate(cr, version):
     env = api.Environment(cr, SUPERUSER_ID, {})
     _generic_certificate_types(env)

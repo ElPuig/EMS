@@ -237,3 +237,22 @@ class TestStudentWalkoutAttendance(TransactionCase):
         end_phase(walkout)
         self.assertTrue(self._line(session, self.delegate).active)
         self.assertFalse(self._line(session, self.subdelegate).active)
+
+    def test_a_student_who_does_not_answer_does_not_join(self):
+        """Issue #852: the joining email says that not answering is not joining. A student with portal
+        access who never answers is not in the minute and stays on the roll-call: absences count as usual."""
+        walkout = open_walkout(self)
+        walkout._ems_portal_vote(self.delegate, 'yes')
+        walkout._ems_portal_vote(self.subdelegate, 'yes')
+        walkout._ems_portal_join(self.delegate, True)
+        end_phase(walkout)
+        self.assertEqual(walkout.state, 'closed')
+        line = walkout.line_ids.filtered(lambda walkout_line: walkout_line.student_id == self.classmate)
+        self.assertTrue(line.has_portal)
+        self.assertFalse(line.join_answered)
+        self.assertFalse(line.joins)
+        self.assertNotIn(self.classmate, walkout.joining_student_ids)
+        session_line = self._line(self._session(walkout.walkout_date), self.classmate)
+        self.assertTrue(session_line.active, "Expected in class.")
+        self.assertFalse(session_line.not_expected_reason)
+        self.assertFalse(self._line(self._session(walkout.walkout_date, 12.0, 13.0), self.delegate).active)

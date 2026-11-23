@@ -59,8 +59,8 @@
                         </tbody>
                     </table>
                     <p>
-                        <strong t-if="doc.group_supports">Result: the group has decided to walk out.</strong>
-                        <strong t-else="">Result: the group has decided not to walk out, so everybody is expected in class that day.</strong>
+                        <strong t-if="doc.group_supports">Result: the group has voted in favour of the walkout.</strong>
+                        <strong t-else="">Result: the group has not voted in favour of the walkout, so everybody is expected in class that day.</strong>
                     </p>
 
                     <h3 t-if="doc.group_supports">Who joins the walkout</h3>

@@ -104,6 +104,8 @@ Las horas de un bloque de *Atención al alumnado* cuentan en la fila de su nivel
 
 ![La ficha de un docente con el desplegable Acciones abierto: Imprimir la declaración horaria](../../assets/head_of_studies/hos-declaracio-horaria-accions.png)
 
+La declaración de los grupos funciona igual: en **Comunidad Educativa → Grupos**, pasad a la vista de lista, seleccionad los grupos principales y elegid **Imprimir → Declaración horaria** (una página cada uno), o abrid un grupo y elegid **Acciones → Imprimir la declaración horaria**. En [Imprimir la declaración horaria oficial](../admin/working-schedules.md#imprimir-la-declaración-horaria-oficial) tenéis qué contienen las páginas.
+
 ## Qué no podéis hacer
 
 Hay dos límites deliberados, y Odoo rechazará la operación si lo intentáis:

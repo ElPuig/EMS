@@ -104,6 +104,8 @@ The hours of a *Student support* block count in its level's row or in that level
 
 ![A teacher's form with its Actions dropdown open: Print schedule declaration](../../assets/head_of_studies/hos-declaracio-horaria-accions.png)
 
+The groups' declaration works the same way: in **Educational Community → Groups**, switch to the list view, select the main groups and choose **Print → Schedule declaration** (one page each), or open one group and choose **Actions → Print schedule declaration**. See [Print the Official Schedule Declaration](../admin/working-schedules.md#print-the-official-schedule-declaration) for what the pages contain.
+
 ## What you cannot do
 
 Two limits are deliberate, and Odoo will refuse the operation if you try:

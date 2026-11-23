@@ -286,6 +286,13 @@ EMS imprime la declaración horaria del Departament d'Educació i FP ("Horari pr
 
 Cada página tiene el código, el nombre y el municipio del centro (de la configuración de la empresa), el nombre, el NIF y los cargos del docente, su horario semanal (sin aulas, para ahorrar espacio) y el cuadro resumen de horas. Lo que EMS no guarda (lugar de trabajo/especialidad, situación administrativa, años en la enseñanza, acreditación de catalán, lugar, fecha y firmas) queda en blanco para rellenar a mano.
 
+Las páginas de los grupos del mismo formulario ("Horari grup d'alumnes" para ESO, Bachillerato, PFI..., y "Distribució horària dels Cicles Formatius" para los ciclos formativos) se imprimen igual, siempre en catalán, una página por grupo y por las mismas personas:
+
+- Para varios grupos: en **Comunidad Educativa → Grupos**, pasad a la vista de lista, seleccionadlos y elegid **Imprimir → Declaración horaria**.
+- Para un grupo: abridlo y elegid **Acciones → Imprimir la declaración horaria**.
+
+Solo los grupos principales tienen una (sus desdobles y optativas ya salen dentro de su horario). La página se elige por el nivel del grupo (su **Código de declaración horaria**: CFGB, CFGM, CFGS y EFPS usan la página de los ciclos, cualquier otro nivel la general). Lleva los datos del centro; el nivel (ESO, Bachillerato...), el acrónimo (como ESO1A), el curso, la letra y el tutor del grupo; su horario semanal sin aulas y los docentes de cada materia; la página de los ciclos también lleva el grado, el nombre y el código del estudio, el número de alumnos y la duración del curso (la **Duración (horas)** oficial del estudio, 2000 para los ciclos formativos y 600 para el curso de especialización, según el currículo del Departament; solo se puede consultar en la ficha del estudio), y muestra las horas semanales de cada docente cuando varios comparten un módulo. El lugar, la fecha y la firma de la dirección quedan en blanco para rellenar a mano. Un grupo con muchas clases en paralelo (como las optativas de 4.º de ESO) puede ocupar más de una página.
+
 **La fila a la que va cada hora** es configuración, que la instalación deja preparada y que puedes cambiar después:
 
 - Una clase cuenta en la fila del **nivel** de su grupo: el **Código en la declaración horaria** del nivel (**Comunidad Educativa → Configuración → Currículum → Niveles**). EMS lo fija para los niveles oficiales (ESO, BTX, CFGB, CFGM, CFGS, EFPS, PFI), tal como lo define el Departament, y por eso no se puede cambiar en el formulario. Un desdoble o una optativa sin nivel propio toma el nivel de sus grupos principales. Un nivel sin código (por ejemplo, uno creado por el centro) va a *Altres*.

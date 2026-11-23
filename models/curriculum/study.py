@@ -18,6 +18,10 @@ class EmsStudy(models.Model):
     date = fields.Date(string="Release Date", required=True)
     deprecated = fields.Boolean(string="Deprecated", required=True, default=False)
     notes = fields.Text(string="Notes")
+    # Issue #853: the official duration of the whole study, from the Departament's curriculum (2000 hours for the
+    # cycles, 600 for the specialisation course): part of EMS's catalog (data/cat/ems.study.csv), so read-only on the
+    # form. Printed as "Durada curs (hores)" in the schedule declaration of its groups. Empty for ESO, Batxillerat and PFI.
+    duration_hours = fields.Integer(string="Duration (hours)")
     # Where this study stands in the end-of-year transition. Studies do not finish at the
     # same time (a CFGS may close in June while an ESO level is still evaluating), so the
     # transition wizard runs per study and marks the ones it processed; the global course

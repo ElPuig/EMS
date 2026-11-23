@@ -1,0 +1,195 @@
+from odoo.exceptions import AccessError, UserError
+from odoo.tests.common import TransactionCase
+
+from .common import create_level_study_group, create_role_user, next_student_id
+
+
+class TestGroupScheduleDeclaration(TransactionCase):
+    """Issue #853: the group pages (5 and 6) of the Departament's "Annexos Dades anuals"."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.level, cls.study, cls.group = create_level_study_group(cls, 'TGSD', level={'declaration_code': 'eso'})
+        cls.cycle_level, cls.cycle_study, cls.cycle_group = create_level_study_group(
+            cls, 'TGSC', level={'declaration_code': 'cfgs'})
+        cls.subject = cls.env['ems.subject'].create({
+            'code': 'TGSD001', 'acronym': 'TGSD1', 'name': 'Test Subject One (Group Declaration)',
+            'study_ids': [(6, 0, (cls.study | cls.cycle_study).ids)],
+        })
+        cls.other_subject = cls.env['ems.subject'].create({
+            'code': 'TGSD002', 'acronym': 'TGSD2', 'name': 'Test Subject Two (Group Declaration)',
+            'study_ids': [(6, 0, cls.cycle_study.ids)],
+        })
+        cls.teacher_one = cls._teacher('One')
+        cls.teacher_two = cls._teacher('Two')
+
+    @classmethod
+    def _teacher(cls, name):
+        teacher = cls.env['hr.employee'].create({'name': f'Test Teacher {name} (Group Declaration)', 'employee_type': 'teacher'})
+        teacher.resource_calendar_id = cls.env['resource.calendar'].create({
+            'name': f'Test Calendar {name} (Group Declaration)', 'employee_id': teacher.id, 'attendance_ids': [(5, 0, 0)],
+        })
+        return teacher
+
+    def _teach(self, teacher, *classes):
+        """Saves 'classes' as the teacher's whole schedule (apply_schedule_changes replaces it): each a
+        (group, subject, hours, dayofweek) tuple, on its own hour of the day."""
+        entries = [{'dayofweek': dayofweek, 'hour_from': 8 + index, 'hour_to': 8 + index + hours, 'day_period': 'morning',
+                    'name': 'TGSD', 'subject_id': subject.id, 'group_ids': [group.id]}
+                   for index, (group, subject, hours, dayofweek) in enumerate(classes)]
+        teacher.resource_calendar_id.apply_schedule_changes(entries)
+
+    def _student(self, name, group, **vals):
+        return self.env['res.partner'].create({
+            'name': name, 'contact_type': 'student', 'main_group_id': group.id, 'student_id': next_student_id(), **vals})
+
+    def _render(self, groups, user=None):
+        reports = self.env['ir.actions.report'].with_user(user) if user else self.env['ir.actions.report']
+        content, _content_type = reports._render_qweb_pdf('ems.report_group_schedule_declaration', groups.ids)
+        return content
+
+    def test_page_follows_the_levels_code(self):
+        self.assertEqual(self.group.get_schedule_declaration_data()['page'], 'general')
+        self.assertEqual(self.cycle_group.get_schedule_declaration_data()['page'], 'vocational')
+        self.level.declaration_code = False
+        self.assertEqual(self.group.get_schedule_declaration_data()['page'], 'general')
+
+    def test_level_of_a_general_group(self):
+        """Page 5 names the level the way the centre says it (ESO, Batxillerat), like page 6 names the
+        cycle's degree; a level without one of those codes falls back to its own name."""
+        self.assertEqual(self.group.get_schedule_declaration_data()['level'], 'ESO')
+        self.level.declaration_code = 'bat'
+        self.assertEqual(self.group.get_schedule_declaration_data()['level'], 'Batxillerat')
+        self.level.declaration_code = False
+        self.assertEqual(self.group.get_schedule_declaration_data()['level'], self.level.name)
+
+    def test_general_page_shows_level_course_and_group_letter(self):
+        self.group.write({'course': 3, 'acronym': 'C'})
+        general = self._render(self.group)
+        for text in ('Nivell', 'ESO', 'Acrònim', self.group.name, 'Curs', '>3<', '>C<', 'Prof. tutor/a'):
+            self.assertIn(text.encode(), general, text)
+
+    def test_degree_of_a_cycle(self):
+        self.assertEqual(self.cycle_group.get_schedule_declaration_data()['degree'], 'Superior')
+        self.cycle_level.declaration_code = 'cfgm'
+        self.assertEqual(self.cycle_group.get_schedule_declaration_data()['degree'], 'Mitjà')
+
+    def test_students_counts_only_active_ones_of_the_main_group(self):
+        for index in range(2):
+            self._student(f'TGSD active {index}', self.group)
+        self._student('TGSD archived', self.group, active=False)
+        self._student('TGSD elsewhere', self.cycle_group)
+
+        self.assertEqual(self.group.get_schedule_declaration_data()['students'], 2)
+
+    def test_course_hours_are_the_studys_duration(self):
+        self.cycle_study.duration_hours = 2000
+
+        self.assertEqual(self.cycle_group.get_schedule_declaration_data()['course_hours'], 2000)
+        self.assertEqual(self.group.get_schedule_declaration_data()['course_hours'], 0)
+
+    def test_catalog_durations(self):
+        # The official durations shipped in data/cat/ems.study.csv.
+        Study = self.env['ems.study']
+        durations = {study.code: study.duration_hours for study in Study.search([('code', 'in', [
+            'CFGM_IC10', 'CFGS_ICB0', 'CFGS_ICC0', 'CFGS_ICA0', 'CFGM_AG10', 'CFGS_AGB0', 'CFGS_AGA0', 'CFGB_AG10', 'EFPS_IC02'])])}
+        self.assertEqual(durations.get('CFGS_AGA0'), 2000)
+        self.assertEqual(durations.get('EFPS_IC02'), 600)
+        self.assertTrue(all(hours == 2000 for code, hours in durations.items() if code != 'EFPS_IC02'))
+
+    def test_teacher_hours_show_only_when_a_module_is_shared(self):
+        self._teach(self.teacher_one, (self.cycle_group, self.subject, 2, '0'), (self.cycle_group, self.other_subject, 1, '2'))
+        self._teach(self.teacher_two, (self.cycle_group, self.subject, 1, '1'))
+
+        shared, alone = sorted(self.cycle_group.get_subject_teachers_summary(), key=lambda row: -len(row['teachers']))
+
+        self.assertEqual(shared['teachers_hours'],
+                         'Test Teacher One (Group Declaration) (2 h), Test Teacher Two (Group Declaration) (1 h)')
+        self.assertEqual(alone['teachers_hours'], alone['teachers'])
+
+    def test_rendering_in_catalan_with_the_header_data(self):
+        self.env.company.center_code = 'TGSD-CODE'
+        self._teach(self.teacher_one, (self.group, self.subject, 1, '0'))
+        self._student('TGSD student', self.cycle_group)
+
+        general = self._render(self.group)
+        vocational = self._render(self.cycle_group)
+
+        self.assertIn(b'Horari grup d', general)
+        self.assertIn(b'TGSD-CODE', general)
+        self.assertIn('Distribució horària dels Cicles Formatius'.encode(), vocational)
+        self.assertIn(b'Superior', vocational)
+        self.assertIn(self.cycle_group.name.encode(), vocational)
+        self.assertNotIn(b'Horari grup d', vocational)
+
+    def test_one_page_per_group(self):
+        content = self._render(self.group | self.cycle_group)
+
+        self.assertIn(b'Horari grup d', content)
+        self.assertIn('Distribució horària dels Cicles Formatius'.encode(), content)
+
+    def test_reinforcement_group_cannot_be_printed(self):
+        reinforcement = self.env['ems.group'].create({
+            'group_type': 'reinforcement', 'name': 'TGSD reinforcement', 'parent_group_ids': [(6, 0, self.group.ids)],
+        })
+
+        with self.assertRaises(UserError):
+            reinforcement.action_print_schedule_declaration()
+        # Mixed with a main group: only the main one is printed.
+        action = (self.group | reinforcement).action_print_schedule_declaration()
+        self.assertEqual(action['context']['active_ids'], self.group.ids)
+
+    def test_report_prints_only_main_groups(self):
+        """The report URL (/report/pdf) filters like the button does."""
+        reinforcement = self.env['ems.group'].create({
+            'group_type': 'reinforcement', 'name': 'TGSD reinforcement', 'parent_group_ids': [(6, 0, self.group.ids)],
+        })
+        values = self.env['report.ems.report_group_schedule_declaration']._get_report_values((self.group | reinforcement).ids)
+
+        self.assertEqual(values['docs'], self.group)
+        with self.assertRaises(UserError):
+            self._render(reinforcement)
+
+    def test_summary_rows_sorted_by_subject_then_topic(self):
+        self._teach(self.teacher_one, (self.cycle_group, self.other_subject, 1, '0'), (self.cycle_group, self.subject, 1, '1'))
+        self._teach(self.teacher_two, (self.cycle_group, self.subject, 1, '2'))
+        self.teacher_two.resource_calendar_id.attendance_ids.filtered('subject_id').topic = 'B topic'
+        self.teacher_one.resource_calendar_id.attendance_ids.filtered(lambda a: a.subject_id == self.subject).topic = 'A topic'
+
+        rows = self.cycle_group.get_subject_teachers_summary()
+
+        self.assertEqual([row['teachers'] for row in rows], [
+            'Test Teacher One (Group Declaration)',  # Subject One, topic A
+            'Test Teacher Two (Group Declaration)',  # Subject One, topic B
+            'Test Teacher One (Group Declaration)',  # Subject Two
+        ])
+        self.assertIn('Two', rows[2]['subject'])
+
+    def test_head_of_studies_prints_it(self):
+        user = create_role_user(self, 'head_of_studies', 'tgsd_hos')
+
+        action = self.group.with_user(user).action_print_schedule_declaration()
+        content = self._render(self.group, user)
+
+        self.assertEqual(action['report_name'], 'ems.report_group_schedule_declaration')
+        self.assertEqual(action['context']['active_ids'], self.group.ids)
+        self.assertIn(b'Horari grup d', content)
+
+    def test_administrator_prints_it(self):
+        user = create_role_user(self, 'settings_admin', 'tgsd_admin')
+
+        self.assertIn(b'Horari grup d', self._render(self.group, user))
+        # And reaches the list it prints from: the Groups menu.
+        self.assertIn(self.env.ref('ems.menu_groups').id, self.env['ir.ui.menu'].with_user(user)._visible_menu_ids())
+
+    def test_teacher_cannot_print_it(self):
+        user = create_role_user(self, 'teacher', 'tgsd_teacher')
+
+        with self.assertRaises(AccessError):
+            self.group.with_user(user).action_print_schedule_declaration()
+        with self.assertRaises(AccessError):
+            self._render(self.group, user)
+        printable = self.env['ir.actions.actions'].with_user(user).get_bindings('ems.group').get('report', [])
+        self.assertNotIn(self.env.ref('ems.action_report_group_schedule_declaration').id,
+                         [report['id'] for report in printable])

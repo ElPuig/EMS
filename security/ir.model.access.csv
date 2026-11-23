@@ -48,6 +48,7 @@ ems.access_ems_role_secretary,ems.access_ems_role_secretary,ems.model_ems_role,e
 ems.access_ems_group_department_chief,ems.access_ems_group_department_chief,ems.model_ems_group,ems.group_department_chief,1,1,1,1
 ems.access_ems_group_teacher,ems.access_ems_group_teacher,ems.model_ems_group,ems.group_teacher,1,0,0,0
 ems.access_ems_group_secretary,ems.access_ems_group_secretary,ems.model_ems_group,ems.group_secretary,1,0,0,0
+ems.access_ems_group_system,ems.access_ems_group_system,ems.model_ems_group,base.group_system,1,0,0,0
 
 ems.access_ems_group_classroom_change_wizard_admin,ems.access_ems_group_classroom_change_wizard_admin,ems.model_ems_group_classroom_change_wizard,ems.group_department_chief,1,1,1,1
 ems.access_ems_group_classroom_change_wizard_conflict_line_admin,ems.access_ems_group_classroom_change_wizard_conflict_line_admin,ems.model_ems_group_classroom_change_wizard_conflict_line,ems.group_department_chief,1,1,1,1

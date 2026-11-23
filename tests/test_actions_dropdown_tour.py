@@ -55,6 +55,12 @@ class TestActionsDropdownTour(HttpCase):
         })
         self.start_tour(f"/odoo/hr.employee/{employee.id}", "ems_actions_dropdown_employee", login="admin")
 
+    def test_group_schedule_declaration_action_tour(self):
+        head_of_studies = create_role_user(self, 'head_of_studies', 'test_hos_actions_dropdown_tour',
+                                           name='Head Of Studies Actions Dropdown Tour')
+        self.start_tour(f"/odoo/ems.group/{self.group.id}", "ems_actions_dropdown_group",
+                        login=head_of_studies.login)
+
     def test_employee_no_archive_for_tutor_tour(self):
         colleague = self.env['hr.employee'].create({
             'name': '0000 Actions Dropdown Colleague', 'employee_type': 'teacher',

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from collections import defaultdict
+
 from odoo import models
 
 # Two hour_from/hour_to values meant to represent the exact same moment can differ by a tiny
@@ -196,11 +198,26 @@ class EmsScheduleReportMixin(models.AbstractModel):
         one single 'subject' row."""
         self.ensure_one()
         teaching_entries = self.schedule_attendance_ids.filtered('subject_id')
+        # One pass over the entries, indexed by (subject, topic): their teachers and each one's weekly hours.
+        index = defaultdict(lambda: defaultdict(float))
+        first_entry = {}
+        for attendance in teaching_entries:
+            key = (attendance.subject_id, attendance.topic or False)
+            first_entry.setdefault(key, attendance)
+            index[key][attendance.employee_id.display_name] += attendance.hour_to - attendance.hour_from
         rows = []
-        for subject in teaching_entries.mapped('subject_id').sorted('name'):
-            subject_entries = teaching_entries.filtered(lambda attendance, subject=subject: attendance.subject_id == subject)
-            for topic in sorted(set(subject_entries.mapped(lambda attendance: attendance.topic or False)), key=lambda topic: topic or ""):
-                entries = subject_entries.filtered(lambda attendance, topic=topic: (attendance.topic or False) == topic)
-                teachers = sorted(set(entries.mapped('employee_id.display_name')))
-                rows.append({'subject': entries[:1].get_subject_display_label(), 'teachers': ", ".join(teachers)})
+        for key in sorted(index, key=lambda key: (key[0].name or "", key[0].id, key[1] or "")):
+            hours_by_teacher = index[key]
+            teachers = sorted(hours_by_teacher)
+            # The hours of each one only when the subject is shared (the cycles' declaration, issue #853).
+            with_hours = ", ".join(f"{teacher} ({self._format_report_hours(hours_by_teacher[teacher])} h)" for teacher in teachers)
+            rows.append({
+                'subject': first_entry[key].get_subject_display_label(), 'teachers': ", ".join(teachers),
+                'teachers_hours': with_hours if len(teachers) > 1 else ", ".join(teachers),
+            })
         return rows
+
+    @staticmethod
+    def _format_report_hours(hours):
+        """3 -> '3', 1.5 -> '1,5': the Catalan declaration is the only one that shows them."""
+        return f"{round(hours, 2):g}".replace('.', ',')

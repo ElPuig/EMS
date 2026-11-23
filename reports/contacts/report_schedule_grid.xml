@@ -4,7 +4,9 @@
         <!-- Weekly grid + "Subject -> Teacher(s)" table, shared by ems.report_group_schedule,
         ems.report_student_schedule and the student's portal page (ems.portal_schedule, issue #453)
         instead of a copy in each. Expects 'lines' (ems.schedule_report_mixin.get_schedule_report_lines())
-        and 'summary' (get_subject_teachers_summary()) in the calling context. -->
+        and 'summary' (get_subject_teachers_summary()) in the calling context. Optional: 'hide_rooms' (no
+        classrooms, the official declaration of a group, issue #853) and 'teachers_key' (the summary's
+        column to list: 'teachers', or 'teachers_hours' to add each one's hours in a shared module). -->
         <template id="schedule_report_grid">
             <style>
                 .gs-table { font-size: 10px; table-layout: fixed; }
@@ -19,7 +21,8 @@
                 .gs-cell-label { display: block; font-weight: 600; }
                 .gs-cell-room { display: block; font-size: 9px; color: #fff; }
                 .gs-cell-content.gs-parallel { background-color: #6c757d; }
-                .gs-parallel-slot { font-weight: bold; white-space: nowrap; vertical-align: top; }
+                .gs-parallel-slot { font-weight: bold; white-space: nowrap; vertical-align: top; background: #f1f1f1; border-right: 1px solid #ccc; }
+                .gs-summary-table tr.gs-parallel-first td { border-top: 2px solid #555; }
                 .gs-summary-table { width: 100%; margin-top: 16px; font-size: 10px; border-collapse: collapse; }
                 .gs-summary-table th { text-align: left; padding: 6px 10px; }
                 .gs-summary-table td { padding: 3px 10px; border-bottom: 1px solid #eee; }
@@ -49,7 +52,7 @@
                                               t-att-style="'background-color:' + block['color'] if block['color'] else ''">
                                             <span class="gs-cell-label" t-esc="block['entries'][:1].non_teaching.name or block['entries'][:1].get_subject_display_label()"/>
                                             <span t-if="block['subgroup']" class="gs-cell-room" t-esc="block['subgroup']"/>
-                                            <span t-if="block['detail']" class="gs-cell-room" t-esc="block['detail']"/>
+                                            <span t-if="block['detail'] and not hide_rooms" class="gs-cell-room" t-esc="block['detail']"/>
                                         </span>
                                     </t>
                                 </td>
@@ -67,18 +70,20 @@
                             <th>Subject</th>
                             <th>Group</th>
                             <th>Teacher(s)</th>
-                            <th>Classroom</th>
+                            <th t-if="not hide_rooms">Classroom</th>
                         </tr>
                     </thead>
                     <tbody>
                         <t t-foreach="parallel" t-as="slot">
                             <t t-foreach="slot['classes']" t-as="row">
-                                <tr>
-                                    <td class="gs-parallel-slot"><t t-if="row_first" t-esc="slot['slot']"/></td>
+                                <!-- One merged cell for the whole slot, and a heavier line above its first class, so the
+                                     classes given at the same time read as one block (issue #853). -->
+                                <tr t-att-class="'gs-parallel-first' if row_first else ''">
+                                    <td t-if="row_first" class="gs-parallel-slot" t-att-rowspan="len(slot['classes'])" t-esc="slot['slot']"/>
                                     <td t-esc="row['subject']"/>
                                     <td t-esc="row['subgroup']"/>
                                     <td t-esc="row['teachers']"/>
-                                    <td t-esc="row['room']"/>
+                                    <td t-if="not hide_rooms" t-esc="row['room']"/>
                                 </tr>
                             </t>
                         </t>
@@ -98,7 +103,7 @@
                         <t t-foreach="summary" t-as="row">
                             <tr>
                                 <td t-esc="row['subject']"/>
-                                <td t-esc="row['teachers']"/>
+                                <td t-esc="row[teachers_key or 'teachers']"/>
                             </tr>
                         </t>
                     </tbody>

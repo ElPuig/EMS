@@ -29,6 +29,10 @@
                             <button name="action_print_student_cards" type="object" string="Print student cards"
                                     invisible="not can_print_student_cards"
                                     groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies,ems.group_tutor"/>
+                            <!-- Issue #853: the Departament's official schedule declaration of the group. -->
+                            <button name="action_print_schedule_declaration" type="object" string="Print schedule declaration"
+                                    invisible="group_type != 'main'"
+                                    groups="ems.group_head_of_studies,ems.group_academic_admin,base.group_system"/>
                         </div>
                     </header>
                     <!-- Outside <sheet> (above the white card), matching the equivalent banner on

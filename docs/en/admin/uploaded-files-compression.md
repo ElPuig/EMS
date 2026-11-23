@@ -19,13 +19,13 @@ EMS shrinks the PDF files and the images (JPG, PNG) that are uploaded to it, so 
 ## What is never changed
 
 - PDF files with a **digital signature**, and protected (encrypted) PDF files: changing them would invalidate the signature.
-- Files smaller than 300 KB, and any file whose compressed version is not at least 10 % smaller.
+- Files smaller than 300 kB, and any file whose compressed version is not at least 10 % smaller.
 - The documents EMS generates itself (approved quality records, reports) and the Erasmus+ templates.
 
 > The compression was introduced in version 18.0.0.51.0. Files uploaded before it are not changed.
 
 ## Setting
 
-In **Settings → Technical → System Parameters**, the parameter `ems.compress_min_kb` (default `300`) is the minimum size in KB for a file to be compressed.
+In **Settings → Technical → System Parameters**, the parameter `ems.compress_min_kb` (default `300`) is the minimum size in kB for a file to be compressed.
 
 If the server has no Ghostscript installed, PDF files are left as uploaded and only the images are compressed.

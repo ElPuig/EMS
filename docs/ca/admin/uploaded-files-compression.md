@@ -19,13 +19,13 @@ EMS redueix el pes dels PDF i de les imatges (JPG, PNG) que es pugen, perquè el
 ## Què no es canvia mai
 
 - Els PDF amb **signatura digital** i els PDF protegits (xifrats): modificar-los invalidaria la signatura.
-- Els fitxers de menys de 300 KB i qualsevol fitxer la versió comprimida del qual no sigui almenys un 10 % més petita.
+- Els fitxers de menys de 300 kB i qualsevol fitxer la versió comprimida del qual no sigui almenys un 10 % més petita.
 - Els documents que genera EMS (registres de qualitat aprovats, informes) i les plantilles d'Erasmus+.
 
 > La compressió es va introduir a la versió 18.0.0.51.0. Els fitxers pujats abans no es modifiquen.
 
 ## Ajust
 
-A **Configuració → Tècnic → Paràmetres del sistema**, el paràmetre `ems.compress_min_kb` (per defecte `300`) és la mida mínima en KB a partir de la qual es comprimeix un fitxer.
+A **Configuració → Tècnic → Paràmetres del sistema**, el paràmetre `ems.compress_min_kb` (per defecte `300`) és la mida mínima en kB a partir de la qual es comprimeix un fitxer.
 
 Si el servidor no té Ghostscript instal·lat, els PDF es deixen tal com es van pujar i només es comprimeixen les imatges.

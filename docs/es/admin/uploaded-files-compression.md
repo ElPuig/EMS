@@ -19,13 +19,13 @@ EMS reduce el peso de los PDF y de las imágenes (JPG, PNG) que se suben, para q
 ## Qué no se cambia nunca
 
 - Los PDF con **firma digital** y los PDF protegidos (cifrados): modificarlos invalidaría la firma.
-- Los ficheros de menos de 300 KB y cualquier fichero cuya versión comprimida no sea al menos un 10 % más pequeña.
+- Los ficheros de menos de 300 kB y cualquier fichero cuya versión comprimida no sea al menos un 10 % más pequeña.
 - Los documentos que genera EMS (registros de calidad aprobados, informes) y las plantillas de Erasmus+.
 
 > La compresión se introdujo en la versión 18.0.0.51.0. Los ficheros subidos antes no se modifican.
 
 ## Ajuste
 
-En **Ajustes → Técnico → Parámetros del sistema**, el parámetro `ems.compress_min_kb` (por defecto `300`) es el tamaño mínimo en KB a partir del cual se comprime un fichero.
+En **Ajustes → Técnico → Parámetros del sistema**, el parámetro `ems.compress_min_kb` (por defecto `300`) es el tamaño mínimo en kB a partir del cual se comprime un fichero.
 
 Si el servidor no tiene Ghostscript instalado, los PDF se dejan como se subieron y solo se comprimen las imágenes.

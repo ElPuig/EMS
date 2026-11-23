@@ -2,6 +2,7 @@ from datetime import timedelta
 from unittest.mock import patch
 
 from dateutil.relativedelta import relativedelta
+from lxml import etree
 from markupsafe import escape
 
 from odoo import fields
@@ -623,6 +624,19 @@ class TestStudentWalkout(TransactionCase):
         self.assertEqual(len(self._family_mails(walkout)), 1,
                          "Only the request to ratify that the minor joins: the result waits for the validation.")
         self.assertIn(self.tutor.email, ' '.join(self._mails(walkout).mapped('email_to')), "The tutor is told.")
+
+    def test_the_minute_links_the_supporting_document(self):
+        """Issue #837: the minute links each supporting document for download, and its labels are
+        plain cells, so the company's rounded table layout draws one box instead of a curve per row."""
+        walkout = open_walkout(self)
+        html = self.env['ir.actions.report']._render_qweb_html(
+            'ems.action_report_student_walkout', walkout.ids)[0].decode()
+        attachment = walkout.attachment_ids
+        self.assertIn(f'href="{walkout.get_base_url()}/web/content/{attachment.id}?download=true"', html)
+        self.assertIn(attachment.name, html)
+        page = etree.fromstring(html, etree.HTMLParser())
+        self.assertFalse(page.xpath("//div[contains(@class, 'o_ems_student_walkout_report')]//tbody//th"),
+                         "Row labels are cells: a <th> in a body row gets its own rounded corner.")
 
     # Extending the joining (issue #838)
 

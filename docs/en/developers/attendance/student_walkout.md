@@ -12,7 +12,7 @@ record this model holds, which the group votes on, is the **proposal**:
 1. every student of the group with portal access when the proposal is made votes whether the group
    supports the walkout (anonymous: only the counts are kept);
 2. if it does, each student says whether they join it (by name, changeable until the phase ends),
-   also one who got portal access after the proposal;
+   also one who got portal access after the proposal; a student who does not answer does not join;
 3. the minute (a PDF in the centre language, linking each supporting document to its download, which
    needs a staff session) goes to the group's Head of Studies / Deputy Head of
    Studies at least the notice before the walkout, and they **validate** it or **do not validate** it.
@@ -311,7 +311,14 @@ flowchart TD
 - **Group vote** (`_ems_portal_vote(partner, group_vote)`): once per student, yes/no/abstain. When
   it ends (`_ems_end_group_vote`): if the group supports it, `joining` (its own phase from when the
   email reaches the group), and each student gets
-  `email_template_student_walkout_join` (the result and that they can join until `join_until`);
+  `email_template_student_walkout_join`. Issue #852: some students took the group's support for their
+  own joining, so this email names both phases ("only the first step"), says what to do before
+  `join_until` and what each answer means: joining, the day's classes are off the roll-calls and the
+  name is in the minute; not joining **or not answering** (`joins` is only true after an explicit yes,
+  `join_answered` stays false), the student is expected in class and absences count as usual. The vote
+  email, the "joining extended" email (it also reaches who already answered: they need do nothing),
+  the portal's vote and join cards, home banner and result, and the minute say "voted in favour" for
+  the group vote, never "decided";
   otherwise the proposal closes and each student gets `email_template_student_walkout_result`.
   The joining email goes to every student of the call with portal access at that moment
   (`_ems_joining_lines`), not only to the vote's electorate.

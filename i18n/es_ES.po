@@ -296,7 +296,7 @@ msgstr ""
 "                            <li>Discapacidad &gt; 33%</li>\n"
 "                            <li>Otros (matrícula honor Batx, violencia de género, renta mínima, premio Batx, premio FP,...)</li>\n"
 "                        </ul>\n"
-"                        <p><em>Nota: Si detecta alguna incidencia o tiene alguna duda con los conceptes, puede enviar un comentario a Secretaría desde el mismo portal, antes de confirmar el trámite.</em></p>\n"
+"                        <p><em>Nota: Si detecta alguna incidencia o tiene alguna duda con los conceptos, puede enviar un comentario a Secretaría desde el mismo portal, antes de confirmar el trámite.</em></p>\n"
 "                        <p>\n"
 "                            Atentamente,<br/>\n"
 "                            <t t-out=\"object.company_id.name\"/>\n"
@@ -341,7 +341,7 @@ msgstr ""
 "                            Estimada familia,\n"
 "                        </p>\n"
 "                        <p>\n"
-"                            Les pedimos disculpas, pues recientmente han recibido un correo electrónico que contenía datos incorrectos sobre el estado de una asistencia.\n"
+"                            Les pedimos disculpas, pues recientemente han recibido un correo electrónico que contenía datos incorrectos sobre el estado de una asistencia.\n"
 "                        </p>\n"
 "                        <p>\n"
 "                            De nuevo, nuestras disculpas; esta es la información correcta de la asistencia:\n"
@@ -1190,7 +1190,7 @@ msgstr "Acción"
 #: model:ir.model.fields,field_description:ems.field_ems_student_walkout__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__message_needaction
 msgid "Action Needed"
-msgstr "Acción Necesária"
+msgstr "Acción necesaria"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__active model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__active model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__active model:ir.model.fields,field_description:ems.field_ems_attendance_justification__active model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__active model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__active model:ir.model.fields,field_description:ems.field_ems_attendance_template__active model:ir.model.fields,field_description:ems.field_ems_base__active model:ir.model.fields,field_description:ems.field_ems_enrollment__active model:ir.model.fields,field_description:ems.field_ems_grade_session__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__active model:ir.model.fields,field_description:ems.field_ems_notice__active model:ir.model.fields,field_description:ems.field_ems_notice_line__active model:ir.model.fields,field_description:ems.field_ems_strike__active model:ir.model.fields,field_description:ems.field_ems_strike_reason__active model:ir.model.fields,field_description:ems.field_ems_teaching__active model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__active model:ir.model.fields,field_description:ems.field_ems_attendance_status__active model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__active model:ir.model.fields,field_description:ems.field_ems_group__active model:ir.model.fields.selection,name:ems.selection__ems_study__transition_state__active
@@ -1483,7 +1483,7 @@ msgstr "Administración"
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_asp_kanban
 msgid "Administration and Services Personnel"
-msgstr "Personal de Sdministración y Servicios"
+msgstr "Personal de Administración y Servicios"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_role__employee_type__asp model:ir.model.fields.selection,name:ems.selection__hr_employee__employee_type__asp model:ir.model.fields.selection,name:ems.selection__hr_job__employee_type__asp
@@ -2536,7 +2536,7 @@ msgstr "Coordinador/a de CatSkils"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_hr_employee__employee_type
 msgid "Categorize your Employees by type. This field also has an impact on contracts. Only Employees, Students and Trainee will have contract history."
-msgstr "Categorice sus empleados por tipo. Este campo también afectará a sus contactos, solo los Empleados, Estudiantes y Aprendices tendrán historial de contracto."
+msgstr "Categorice sus empleados por tipo. Este campo también afectará a sus contactos, solo los Empleados, Estudiantes y Aprendices tendrán historial de contrato."
 
 #. module: ems
 #. odoo-python
@@ -4186,7 +4186,7 @@ msgstr "Email de notificación para los estudiantes: asistencia del estudiante"
 #. module: ems
 #: model:mail.template,name:ems.mail_attendance_issue_rectification
 msgid "Email notification for families: student attendance status (rectification)"
-msgstr "Email de notificación pera las familias: asistencia del alumnado (rectificació)"
+msgstr "Email de notificación para las familias: asistencia del alumnado (rectificación)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
@@ -6528,7 +6528,7 @@ msgstr "Encabezado de LimeSurvey: contiene el encabezado de la encuesta y su con
 #. module: ems
 #: model:ir.model,name:ems.model_ems_limesurvey_recipient
 msgid "LimeSurvey recipient: contains the relation between a recipient and its survey."
-msgstr "LimeSurvey recipiente: contiene la relación entre destinatarios y susencuestas."
+msgstr "LimeSurvey recipiente: contiene la relación entre destinatarios y sus encuestas."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -7185,7 +7185,7 @@ msgstr "No se ha encontrado ninguna matrícula."
 #. odoo-python
 #: code:addons/ems/models/contacts/enrollment_proposal_wizard.py:0
 msgid "No enrollment templates available for the selected students' study."
-msgstr "No hay plantillas de matrícula disponibles para los estudis de los estudiantes seleccionados.No hay plantillas de matrícula disponibles para los estudios de los alumnos seleccionados."
+msgstr "No hay plantillas de matrícula disponibles para los estudios de los estudiantes seleccionados.No hay plantillas de matrícula disponibles para los estudios de los alumnos seleccionados."
 
 #. module: ems
 #. odoo-python
@@ -7643,7 +7643,7 @@ msgstr "Abrir detalles del error"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
 msgid "Open error details."
-msgstr "Obrir detalles del error."
+msgstr "Abrir detalles del error."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form model_terms:ir.ui.view,arch_db:ems.view_notice_form
@@ -8466,7 +8466,7 @@ msgstr "Borrando encuestas"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
 msgid "Removing the recipient will also, if necessary, remove it from its current survey. This action cannot be undonde, do you wish to continue?"
-msgstr "Borrar los destinatarios, los eliminará tambińe (de ser necesario) de las encuestas en las que se encuentran. Esta acción no se puede deshacer, desea continuar?"
+msgstr "Borrar los destinatarios, los eliminará también (de ser necesario) de las encuestas en las que se encuentran. Esta acción no se puede deshacer, desea continuar?"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
@@ -9172,7 +9172,7 @@ msgstr "Familia monoparental (Especial)"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Some attendance statuses (like miss or issue) will be notified (if not adult or authorized) to their families almost inmediatly. This setting setups how many delay is wanted between the assistance creation and its notification."
-msgstr "Algunos estados de asistencia (como falta o incidencia) serán notificados (si el alumno no es adulto o lo ha autorizado) a las familias de forma casi inmediata. Esta configuración establece que retraso o decalaje de tiempo se quiere entre la cración de la asistencia y su notificación."
+msgstr "Algunos estados de asistencia (como falta o incidencia) serán notificados (si el alumno no es adulto o lo ha autorizado) a las familias de forma casi inmediata. Esta configuración establece que retraso o decalaje de tiempo se quiere entre la creación de la asistencia y su notificación."
 
 #. module: ems
 #. odoo-python
@@ -10003,7 +10003,7 @@ msgstr "El JSON de la cuenta de servicio de Google Workspace no es válido."
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "The LimeSurvey API does not allow to create survey groups so, in order to operate properly, a group must be created and its ID provided."
-msgstr "La API de LimeSurvey no permite crear grupos de encuestas y, para ellode operar correctamente, un grupo debe crearse primero a mano y debe indicarse el ID."
+msgstr "La API de LimeSurvey no permite crear grupos de encuestas y, para que opere correctamente, un grupo debe crearse primero a mano y debe indicarse el ID."
 
 #. module: ems
 #. odoo-python
@@ -10227,7 +10227,7 @@ msgstr "Ya existe otra entrada activa para la misma terna 'profesor / grupo / as
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form
 msgid "This action will clean and recreate the recipients, removing all custom changes and saving the data immediately. It cannot be undone. Do you wish to continue?"
-msgstr "Esta acción vaciará y recreará los destinatarios, borrando cualquier cambio manualy guardando los datos al momento. Esta acción no se puede deshacer. Todavía quieres continuar?"
+msgstr "Esta acción vaciará y recreará los destinatarios, borrando cualquier cambio manual y guardando los datos al momento. Esta acción no se puede deshacer. Todavía quieres continuar?"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
@@ -10322,12 +10322,12 @@ msgstr "Jueves"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__time_range
 msgid "Time Range"
-msgstr "Franja Horària"
+msgstr "Franja horaria"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__time_range model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__time_range
 msgid "Time range"
-msgstr "Franja horària"
+msgstr "Franja horaria"
 
 #. module: ems
 #. odoo-python
@@ -10899,7 +10899,7 @@ msgstr "Mensajes del sitio web"
 #: model:ir.model.fields,help:ems.field_ems_student_walkout__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_certificate__website_message_ids
 msgid "Website communication history"
-msgstr "Historial de comunicaciones del sistio web"
+msgstr "Historial de comunicaciones del sitio web"
 
 #. module: ems
 #. odoo-javascript

@@ -19,7 +19,7 @@ Once the secretariat issues a certificate, the circuit's last step is yours: you
 ## Approving
 
 1. Open the request.
-2. Check the details in the **Applicant**, **Workplace training** and **Documentation** tabs.
+2. Check the details in the **Applicant**, **Certificate details** and **Documentation** tabs.
 3. Open **Actions → Approve** and confirm.
 
 ![Actions of a request awaiting approval](../../assets/head_of_studies/certificats-06-aprovar.png)

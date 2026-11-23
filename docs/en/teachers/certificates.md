@@ -23,17 +23,17 @@ As long as you change nothing, the student may still complete or correct their d
 ## Completing the training
 
 1. Open the request.
-2. In the **Workplace training** tab:
-   - In **Collaborating company**, choose the company. If it does not exist and the student wrote its name, click **Create company**: it is created with the name and VAT number they wrote (if there is already one with that VAT number, that one is linked).
-   - Fill in **From**, **To**, **Hours** and the **Agreement registration number** (sBID).
+2. In the **Certificate details** tab, each line is a detail of the certificate. Click a line's value to fill it in:
+   - In **Collaborating company**, choose the company. If it does not exist and the student wrote its name, click **Create company** on that line: it is created with the name and VAT number they wrote (if there is already one with that VAT number, that one is linked).
+   - Fill in **Start date**, **End date**, **Hours** and the **Agreement registration number (sBID)**.
 3. In the **Documentation** tab, check the **FCT agreement**. If it is missing, open the line, attach it (a PDF or photos of its pages) and save.
 4. Open **Actions → Done: send to the next step**. The request moves on to the secretariat.
 
-![A request's workplace training](../../assets/teachers/certificats-04-formacio.png)
+![A request's certificate details](../../assets/teachers/certificats-04-formacio.png)
 
 ![A request's documentation](../../assets/teachers/certificats-05-documentacio.png)
 
-Without the company, the period and the hours, EMS does not let the request move on.
+Without the company, the dates and the hours, EMS does not let the request move on: the lines still missing are highlighted.
 
 ---
 

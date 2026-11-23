@@ -14,11 +14,11 @@ Registra las solicitudes de certificado que llegan a secretaría (por ejemplo, d
 
 Cada certificado es de un **tipo** (por ejemplo, *FCT (Formació en Centres de Treball)*), y cada tipo tiene su **circuito de aprobación**: los pasos que hace cada cargo, por orden. El del certificado de FCT es:
 
-1. **Completar los datos** — el coordinador o coordinadora de FP completa la empresa, el periodo, las horas y el convenio.
+1. **Completar los datos** — el coordinador o coordinadora de FP o el personal de secretaría (cargo Técnico/a de secretaría) completan los datos del certificado: la empresa, las fechas, las horas y el convenio.
 2. **Expedir el certificado** — secretaría lo expide: recibe el número (por ejemplo `CERT-2026-27-0001`) y el sello de EMS.
 3. **Dar el visto bueno** — el director o directora da el visto bueno. Se genera el PDF y se envía por correo a la persona solicitante.
 
-Cada paso es una tarea para quien ocupa el cargo, que la encuentra en su resumen diario y en el filtro **Pendientes de mí**.
+Cada paso es una tarea para quien ocupa alguno de sus cargos, que la encuentra en su resumen diario y en el filtro **Pendientes de mí**.
 
 Una solicitud puede llegar de dos maneras:
 
@@ -45,7 +45,7 @@ Navega a: **Gestión académica → Certificados**. La lista se abre con el filt
 
 ![Solicitud de un exalumno que no está en EMS](../../assets/secretary/certificats-02-exalumne.png)
 
-Si ya tienes todos los datos obligatorios (pestaña **Solicitante**: documento de identidad, estudio y curso de la formación), **Enviar formulario** también pasa la solicitud al primer paso. El exalumno aún puede completar o corregir sus datos desde el enlace hasta que alguien del centro cambie la solicitud o haga alguna acción.
+Si ya tienes todos los datos obligatorios (documento de identidad y estudio en la pestaña **Solicitante**, y los obligatorios de la pestaña **Datos del certificado**, como el curso de la formación para la FCT), **Enviar formulario** también pasa la solicitud al primer paso. El exalumno aún puede completar o corregir sus datos desde el enlace hasta que alguien del centro cambie la solicitud o haga alguna acción.
 
 Si la solicitud te llega en papel y no hace falta enviar nada, rellena todos los datos y haz clic en **Acciones → Iniciar la solicitud**.
 
@@ -56,7 +56,7 @@ El estudio tiene que ser de uno de los niveles del tipo de certificado (para el 
 ## Expedir un certificado
 
 1. Abre la solicitud desde el filtro **Pendientes de mí**.
-2. Comprueba los datos de las pestañas **Solicitante** y **Formación en centros de trabajo**.
+2. Comprueba los datos de las pestañas **Solicitante** y **Datos del certificado**.
 3. En la pestaña **Documentación**, comprueba que todos los documentos obligatorios (en verde) tienen ficheros.
 4. Abre **Acciones → Expedir el certificado** y confirma.
 
@@ -66,10 +66,10 @@ Si falta algún dato o algún documento obligatorio, EMS te lo indica y no deja 
 
 ### Expedirlo sin esperar a los pasos anteriores
 
-A veces ya tienes todos los datos y documentos de una solicitud que aún está en un paso anterior (por ejemplo, esperando a que el coordinador de FP complete la formación en centros de trabajo). No hace falta que esperes:
+A veces ya tienes todos los datos y documentos de una solicitud que aún está en un paso anterior (por ejemplo, esperando a que el coordinador de FP complete los datos del certificado). No hace falta que esperes:
 
 1. Abre la solicitud. Aún no aparece en **Pendientes de mí**: quita ese filtro para encontrarla.
-2. Completa lo que falte en las pestañas **Solicitante** y **Formación en centros de trabajo**, y adjunta los documentos obligatorios en **Documentación**.
+2. Completa lo que falte en las pestañas **Solicitante** y **Datos del certificado**, y adjunta los documentos obligatorios en **Documentación**.
 3. Abre **Acciones → Expedir ahora** y confirma que tienes todos los datos y documentos obligatorios.
 
 Los pasos anteriores se saltan y sus tareas pendientes se cierran, y el historial de la solicitud registra quién los ha saltado. El certificado recibe su número y tu sello, y pasa a la aprobación de la dirección como siempre. Se hacen las mismas comprobaciones que al expedirlo en su paso: si falta algo obligatorio, EMS te indica qué y no lo expide. El botón también está disponible en una solicitud que acabas de registrar, antes de enviar el formulario o de iniciarla.
@@ -103,4 +103,4 @@ El PDF del certificado incluye al final las páginas de los documentos obligator
 
 ## Empresas colaboradoras
 
-Las empresas donde el alumnado hace la formación están en **Comunidad educativa → Empresas colaboradoras**. Desde la pestaña **Formación en centros de trabajo** de una solicitud se puede elegir una o crearla con el botón **Crear empresa**, a partir del nombre y el NIF que escribió el alumno.
+Las empresas donde el alumnado hace la formación están en **Comunidad educativa → Empresas colaboradoras**. Desde la pestaña **Datos del certificado** de una solicitud se puede elegir una o crearla con el botón **Crear empresa**, a partir del nombre y el NIF que escribió el alumno.

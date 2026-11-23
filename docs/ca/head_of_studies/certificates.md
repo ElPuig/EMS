@@ -19,7 +19,7 @@ Després que secretaria expedeix un certificat, l'últim pas del circuit és el 
 ## Donar el vistiplau
 
 1. Obre la sol·licitud.
-2. Comprova les dades de les pestanyes **Sol·licitant**, **Formació en centres de treball** i **Documentació**.
+2. Comprova les dades de les pestanyes **Sol·licitant**, **Dades del certificat** i **Documentació**.
 3. Obre **Accions → Aprovar** i confirma.
 
 ![Accions d'una sol·licitud pendent del vistiplau](../../assets/head_of_studies/certificats-06-aprovar.png)

@@ -14,11 +14,11 @@ Registra les sol·licituds de certificat que arriben a secretaria (per exemple, 
 
 Cada certificat és d'un **tipus** (per exemple, *FCT (Formació en Centres de Treball)*), i cada tipus té el seu **circuit d'aprovació**: els passos que fa cada càrrec, per ordre. El del certificat de FCT és:
 
-1. **Completar les dades** — el coordinador o coordinadora d'FP completa l'empresa, el període, les hores i el conveni.
+1. **Completar les dades** — el coordinador o coordinadora d'FP o el personal de secretaria (càrrec Tècnic/a de secretaria) completen les dades del certificat: l'empresa, les dates, les hores i el conveni.
 2. **Expedir el certificat** — secretaria l'expedeix: rep el número (per exemple `CERT-2026-27-0001`) i el segell d'EMS.
 3. **Donar el vistiplau** — el director o directora hi dona el vistiplau. Es genera el PDF i s'envia per correu a la persona sol·licitant.
 
-Cada pas és una tasca per a qui ocupa el càrrec, que la troba al seu resum diari i al filtre **Pendents de mi**.
+Cada pas és una tasca per a qui ocupa algun dels seus càrrecs, que la troba al seu resum diari i al filtre **Pendents de mi**.
 
 Una sol·licitud pot arribar de dues maneres:
 
@@ -45,7 +45,7 @@ Navega a: **Gestió acadèmica → Certificats**. La llista s'obre amb el filtre
 
 ![Sol·licitud d'un exalumne que no és a EMS](../../assets/secretary/certificats-02-exalumne.png)
 
-Si ja tens totes les dades obligatòries (pestanya **Sol·licitant**: document d'identitat, estudi i curs de la formació), **Enviar formulari** també passa la sol·licitud al primer pas. L'exalumne encara pot completar o corregir les seves dades des de l'enllaç fins que algú del centre canviï la sol·licitud o hi faci alguna acció.
+Si ja tens totes les dades obligatòries (document d'identitat i estudi a la pestanya **Sol·licitant**, i les obligatòries de la pestanya **Dades del certificat**, com el curs de la formació per a la FCT), **Enviar formulari** també passa la sol·licitud al primer pas. L'exalumne encara pot completar o corregir les seves dades des de l'enllaç fins que algú del centre canviï la sol·licitud o hi faci alguna acció.
 
 Si la sol·licitud t'arriba en paper i no cal enviar res, omple totes les dades i fes clic a **Accions → Iniciar la sol·licitud**.
 
@@ -56,7 +56,7 @@ L'estudi ha de ser d'un dels nivells del tipus de certificat (per al de FCT, CFG
 ## Expedir un certificat
 
 1. Obre la sol·licitud des del filtre **Pendents de mi**.
-2. Comprova les dades de les pestanyes **Sol·licitant** i **Formació en centres de treball**.
+2. Comprova les dades de les pestanyes **Sol·licitant** i **Dades del certificat**.
 3. A la pestanya **Documentació**, comprova que tots els documents obligatoris (en verd) tenen fitxers.
 4. Obre **Accions → Expedir el certificat** i confirma.
 
@@ -66,10 +66,10 @@ Si falta alguna dada o algun document obligatori, EMS t'ho indica i no deixa exp
 
 ### Expedir-lo sense esperar els passos anteriors
 
-De vegades ja tens totes les dades i documents d'una sol·licitud que encara és en un pas anterior (per exemple, esperant que el coordinador d'FP completi la formació en centres de treball). No cal que esperis:
+De vegades ja tens totes les dades i documents d'una sol·licitud que encara és en un pas anterior (per exemple, esperant que el coordinador d'FP completi les dades del certificat). No cal que esperis:
 
 1. Obre la sol·licitud. Encara no surt a **Pendents de mi**: treu aquest filtre per trobar-la.
-2. Completa el que falti a les pestanyes **Sol·licitant** i **Formació en centres de treball**, i adjunta els documents obligatoris a **Documentació**.
+2. Completa el que falti a les pestanyes **Sol·licitant** i **Dades del certificat**, i adjunta els documents obligatoris a **Documentació**.
 3. Obre **Accions → Expedir ara** i confirma que tens totes les dades i documents obligatoris.
 
 Els passos anteriors se salten i les seves tasques pendents es tanquen, i l'historial de la sol·licitud registra qui els ha saltat. El certificat rep el número i el teu segell, i passa a l'aprovació de la direcció com sempre. Es fan les mateixes comprovacions que quan l'expedeixes al seu pas: si falta alguna cosa obligatòria, EMS t'indica què i no l'expedeix. El botó també és disponible en una sol·licitud que acabes de registrar, abans d'enviar el formulari o d'iniciar-la.
@@ -103,4 +103,4 @@ El PDF del certificat inclou al final les pàgines dels documents obligatoris ma
 
 ## Empreses col·laboradores
 
-Les empreses on l'alumnat fa la formació són a **Comunitat Educativa → Empreses col·laboradores**. Des de la pestanya **Formació en centres de treball** d'una sol·licitud se'n pot triar una o crear-la amb el botó **Crear empresa**, a partir del nom i el NIF que va escriure l'alumne.
+Les empreses on l'alumnat fa la formació són a **Comunitat Educativa → Empreses col·laboradores**. Des de la pestanya **Dades del certificat** d'una sol·licitud se'n pot triar una o crear-la amb el botó **Crear empresa**, a partir del nom i el NIF que va escriure l'alumne.

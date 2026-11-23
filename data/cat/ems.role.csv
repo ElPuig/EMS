@@ -18,3 +18,4 @@ id,name,color,employee_type,unipersonal,group_id/id
 "ems.role_secretary_admin","Secretary Administrator",#C62F67,asp,true,ems.group_secretary_admin
 "ems.role_orientation","Guidance coordinator",#2FC6A0,teacher,false,ems.group_orientation
 "ems.role_erasmus_technician","Erasmus mobility technician",#8E2FC6,teacher,false,ems.group_erasmus
+"ems.role_secretary_technician","Secretary technician",#2F8FC6,asp,false,ems.group_secretary

@@ -4,13 +4,16 @@
 
 A **certificate request** is a student (or former student) asking the centre to certify something
 about them. The centre issues it as a numbered PDF, stamped in EMS by whoever issued and approved
-it. Each request belongs to a **certificate type** (`ems.certificate.type`), which defines what the
-certificate says and the **approval circuit**: an ordered list of steps, each one done by whoever
-holds a position of the centre (`ems.role`). The administrator configures the types and their
+it. Each request belongs to a **certificate type** (`ems.certificate.type`), which defines the
+**data** the certificate needs (`field_ids`), the **text** it prints (`certificate_text`) and the
+**approval circuit**: an ordered list of steps, each one done by whoever
+holds one of its positions of the centre (`ems.role`; one or more per step). The administrator configures the types and their
 circuits from Academic management > Configuration > Certificates > Certificate types.
 
-EMS ships one type, **FCT** (Formació en Centres de Treball): it certifies that the student completed
-a number of hours of workplace training at a collaborating company. Its circuit:
+Nothing in the code is specific to one kind of certificate: a new type is configured entirely from
+the UI (its data, its text, its documents and its circuit). EMS ships one type, **FCT** (Formació en
+Centres de Treball), defined as data: it certifies that the student completed a number of hours of
+workplace training at a collaborating company. Its circuit:
 
 1. the **VET coordinator** (`ems.role_vetcoord`) completes the company's details (company, VAT
    number, period, hours, agreement registration number);
@@ -31,9 +34,18 @@ How a request starts:
   no login needed. The same link later shows how far the request has got and downloads the
   certificate.
 
-The applicant's details (name, identity document, study, school year of the FCT) are mandatory; the
-company's (name, VAT number, period, hours, agreement number) are optional, since the applicant
-rarely has them: the VET coordinator completes them.
+The applicant's details common to every type (full name, identity document, study) are always
+mandatory. Each datum of the type says whether the applicant is asked for it (mandatory, optional or
+not asked) and, optionally, the step of the circuit that must have it filled in before it is done. FCT
+asks for the school year (mandatory) and, optionally, the company, period, hours and agreement number,
+since the applicant rarely has them: the VET coordinator's step requires the company, the period and
+the hours.
+
+**Why not Odoo's `fields.Properties`.** Properties (fields defined on a parent record) would store
+the data, but their labels are not translatable (the portal is trilingual) and a definition only
+accepts Odoo's own keys (`PropertiesDefinition.ALLOWED_KEYS`): there is nowhere to say who fills a
+datum in, whether it is mandatory or by which step. So the type keeps its own definition lines
+(`ems.certificate.type.field`) and the request one value line per datum (`ems.certificate.value`).
 
 **Documentation.** A type may require documents (**Required attached documentation**, with one line
 per document: e.g. FCT requires the *FCT agreement*). Each line says who may attach it: the
@@ -65,16 +77,20 @@ screenshots)
 erDiagram
     EMS_CERTIFICATE_TYPE ||--|{ EMS_CERTIFICATE_TYPE_STEP : "step_ids (cascade)"
     EMS_CERTIFICATE_TYPE ||--o{ EMS_CERTIFICATE_TYPE_DOCUMENT : "document_ids (cascade)"
+    EMS_CERTIFICATE_TYPE ||--o{ EMS_CERTIFICATE_TYPE_FIELD : "field_ids (cascade)"
+    EMS_CERTIFICATE_TYPE_STEP |o--o{ EMS_CERTIFICATE_TYPE_FIELD : "required_step_id (restrict)"
+    EMS_CERTIFICATE ||--o{ EMS_CERTIFICATE_VALUE : "value_ids (cascade)"
+    EMS_CERTIFICATE_TYPE_FIELD ||--o{ EMS_CERTIFICATE_VALUE : "field_id (cascade)"
+    RES_PARTNER |o--o{ EMS_CERTIFICATE_VALUE : "value_company_id (collaborating company)"
     EMS_ROLE }o--o{ EMS_CERTIFICATE_TYPE_DOCUMENT : "role_ids (who attaches it)"
     EMS_CERTIFICATE ||--o{ EMS_CERTIFICATE_DOCUMENT : "document_ids (cascade)"
     EMS_CERTIFICATE_TYPE_DOCUMENT ||--o{ EMS_CERTIFICATE_DOCUMENT : "type_document_id (cascade)"
     EMS_CERTIFICATE_DOCUMENT }o--o{ IR_ATTACHMENT : "attachment_ids (its files)"
     EMS_CERTIFICATE_TYPE }o--o{ EMS_LEVEL : "level_ids (who may request it on the portal)"
-    EMS_ROLE ||--o{ EMS_CERTIFICATE_TYPE_STEP : "role_id (restrict)"
+    EMS_ROLE }o--o{ EMS_CERTIFICATE_TYPE_STEP : "role_ids (who does it)"
     EMS_CERTIFICATE_TYPE ||--o{ EMS_CERTIFICATE : "type_id (restrict)"
     EMS_CERTIFICATE_TYPE_STEP |o--o{ EMS_CERTIFICATE : "step_id (current step)"
     RES_PARTNER ||--o{ EMS_CERTIFICATE : "student_id (restrict)"
-    RES_PARTNER |o--o{ EMS_CERTIFICATE : "training_company_id (collaborating company)"
     EMS_STUDY |o--o{ EMS_CERTIFICATE : "study_id"
     EMS_COURSE |o--o{ EMS_CERTIFICATE : "course_id (course it was issued in)"
     EMS_CERTIFICATE ||--o{ EMS_CERTIFICATE_STAMP : "stamp_ids (cascade)"
@@ -87,7 +103,9 @@ erDiagram
 | Field | Type | Notes |
 |-------|------|-------|
 | `name` | Char, translatable | E.g. "FCT (Formació en Centres de Treball)". |
-| `kind` | Selection | What the certificate says and which data it needs: only `fct` for now. Each kind has its own report body and form fields. |
+| `field_ids` | O2m `ems.certificate.type.field` | The data the certificate needs, besides the common ones, by `sequence`. |
+| `certificate_text` | Text, translatable | What the certificate says after "CERTIFIES:". `{key}` prints a datum in bold; text between `[` and `]` prints only when every datum inside has a value; a blank line starts a new paragraph. Mandatory in the form; `_check_certificate_text` refuses an unknown key or an unbalanced bracket, in every installed language. |
+| `placeholder_help` | Html, computed | The keys the text may use, listed under it in the form. |
 | `level_ids` | M2m `ems.level` | Levels whose current students may request it from the portal (FCT: CFGM, CFGS). Empty: never offered on the portal (the secretariat still registers it). |
 | `requires_documents` | Boolean | "Required attached documentation": the `document_ids` lines are required before the issuing step (FCT: yes). Ticked with no line is refused (`_check_documents`). |
 | `document_ids` | O2m `ems.certificate.type.document` | The required documents, by `sequence`. |
@@ -106,12 +124,22 @@ erDiagram
 Seeded in `data/main/ems.certificate.type.xml` with `noupdate="1"`: the centre configures the circuit
 from the UI and no upgrade reverts it.
 
+### `ems.certificate.type.field` (a datum of the type)
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `sequence`, `name`, `help` | Integer, Char (translatable), Char (translatable) | Order, label and the hint the applicant reads under it. |
+| `key` | Char | What the text writes between braces: lowercase letters, digits and `_`, unique in the type (`_sql_constraints`), never one of the common ones (`name`, `document`, `study`) nor ending in `_vat`. Renaming it rewrites `{old}` (and `{old_vat}` for a company) in the type's text in every language at once (`write()` → `_ems_rename_text_key`, through `update_field_translations`), so the text check, which reads every language, does not refuse a key renamed from a form in another language. |
+| `field_type` | Selection | `char` (short text), `text` (long text), `number` (a number with decimals, never negative; shown without trailing zeros and with the language's decimal separator), `date`, `boolean` (yes/no), `school_year` (short text; the portal suggests the courses EMS has) and `company` (a collaborating company: the applicant writes its name and VAT number as text, the centre links the contact; the text prints `{key}` and `{key_vat}`). |
+| `applicant_input` | Selection | `required`, `optional` or `none` (only the centre fills it in). |
+| `required_step_id` | M2o `ems.certificate.type.step` (restrict) | The step that must have it filled in before it is done (and so every later step, and *Issue it now*). Empty: never required by the circuit. A `company` datum required by a step needs the contact linked, not just the text written. |
+
 ### `ems.certificate.type.step`
 
 | Field | Type | Notes |
 |-------|------|-------|
 | `sequence`, `name` | Integer, Char (translatable) | Order and label ("Complete the company's details"). |
-| `role_id` | M2o `ems.role` | Whose step it is: its holders get the task and may act. The administrator may always act too. |
+| `role_ids` | M2m `ems.role`, at least one (`_check_roles`) | Whose step it is: the holders of any of them get the task and may act (`_ems_users()`); the first to do it closes everybody's task. The administrator may always act too. EMS seeds FCT's completing step with the VET coordinator and the secretary technicians (`ems.role_secretary_technician`, a catalog position that brings `ems.group_secretary`), so the secretariat's staff get the task without holding the Secretary's post. |
 | `action` | Selection | `complete` ("Complete the data": fills in data, moves on), `issue` ("Issue the certificate": number + "Issued" stamp), `approve` ("Approve": "Approved" stamp). The labels are full phrases on purpose: a bare "Issue" or "Complete" would take another screen's translation ("Incident"). |
 
 Constraints (`_check_steps` on the type): at least one step, exactly one `issue` step, and every
@@ -122,23 +150,35 @@ Constraints (`_check_steps` on the type): at least one step, exactly one `issue`
 | Field | Type | Notes |
 |-------|------|-------|
 | `name` | Char | `CERT-<start>-<end, two digits>-<4-digit counter>` (e.g. `CERT-2026-27-0001`), assigned by the `issue` step (`ems.base.next_course_number`, code `ems.certificate.course.<id>`), in the course current on that day (`course_id`). Empty before: a cancelled or rejected request uses no number. |
-| `type_id`, `kind` | M2o, related | |
+| `type_id` | M2o | Only changes in draft: the request's value and document lines follow it. |
 | `state` | Selection | `draft` (waiting for the applicant's form, former students only), `in_progress`, `documentation` (waiting for the applicant), `issued`, `rejected`, `cancelled`. Written by the actions only (`write()` refuses it outside `sudo`). |
 | `step_id` | M2o `ems.certificate.type.step` | The current step while `in_progress`/`documentation`. |
 | `student_id`, `requester_id` | M2o `res.partner` | The student (or former student) in EMS, and who filed it on the portal. Optional: a former student who is not in EMS is opened with only their full name (`student_name`) and email (`_check_applicant`), and fills in the rest in the form. |
 | `origin` | Selection | `portal` or `secretariat`. |
 | `applicant_email` | Char | Where a former student's form link, requests for documentation and the certificate go. Portal requests use `student_id._ems_informed_recipients()`. |
-| `student_name`, `student_document`, `study_id`, `fct_school_year` | Char, Char, M2o, Char | The applicant's details, mandatory on submission. Prefilled from the contact when known. `study_id` must belong to one of the type's levels (`_check_study_level`; the form and the portal only offer those). On the portal, `fct_school_year` suggests the courses EMS has (a datalist) but takes any text, for older years. |
-| `training_company_id` | M2o `res.partner` | Collaborating company (`contact_type = 'company'`). Required by the `complete` step and after. |
-| `company_name`, `company_vat` | Char | What the applicant wrote, kept as text: the form never creates contacts. **Create company** (`action_create_company`) creates one from them. |
-| `period_start`, `period_end`, `hours`, `agreement_reference` | Date, Date, Integer, Char | The workplace training; the first three required by the `complete` step. |
+| `student_name`, `student_document`, `study_id` | Char, Char, M2o | The applicant's details common to every type, mandatory on submission. Prefilled from the contact when known. `study_id` must belong to one of the type's levels (`_check_study_level`; the form and the portal only offer those). |
+| `value_ids` | O2m `ems.certificate.value` | One line per datum of the type, created with the request (`_ems_sync_values`, again when the type changes in draft or a datum is added to a type with open requests). |
+| `value_field_types` | Char, computed | The data types the request has, so the form only shows the value columns it uses. |
 | `document_ids` | O2m `ems.certificate.document` | One line per required document of the type, created with the request (`_ems_sync_documents`, again if the type changes while in draft). Each must have files before the `issue` step. |
 | `other_attachment_ids` | M2m `ir.attachment` | Optional documentation, anyone taking part. Never appended. |
 | `stamp_ids` | O2m `ems.certificate.stamp` | One per finished step: step, action, user, date. The PDF prints those of `issue` and `approve` steps. |
 | `certificate_pdf_id` | M2o `ir.attachment` | The final PDF. |
 | `applicant_form_open` | Boolean | The applicant may still edit their form from the link: set when the form is sent or the portal request filed, cleared as soon as someone of the centre writes the request (or one of its documents) or acts on it (step done, return, request documentation, reject, cancel). `_ems_portal_can_edit()`: in draft, or in progress with this flag. While open, the portal shows the form with **Save changes** (`_ems_portal_fill` updates and leaves a note). |
 | `info_request`, `return_reason`, `reject_reason`, `cancel_reason` | Text | Last request for documentation, the last return to the previous step, why it was rejected or cancelled. |
-| `step_user_ids` | M2m `res.users`, computed, searchable | Holders of the current step's role. `is_pending_for_me` (searchable) = the current user is one of them, or is the administrator and the request is in progress. `can_act` = may press the step's button. `can_manage` = may reject, cancel or mark the documentation received: the secretariat (and the administrator) or a holder of the current step. `can_issue_now` = may issue it right away (`action_issue_now`): a holder of the `issue` step's position, or the administrator, while the request is in draft or before that step. The form only offers each button to whoever can use it. |
+| `step_user_ids` | M2m `res.users`, computed, searchable | Holders of any of the current step's positions. `is_pending_for_me` (searchable) = the current user is one of them, or is the administrator and the request is in progress. `can_act` = may press the step's button. `can_manage` = may reject, cancel or mark the documentation received: the secretariat (and the administrator) or a holder of the current step. `can_issue_now` = may issue it right away (`action_issue_now`): a holder of one of the `issue` step's positions, or the administrator, while the request is in draft or before that step. The form only offers each button to whoever can use it. |
+
+### `ems.certificate.value` (a datum of a request)
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `field_id` | M2o `ems.certificate.type.field` (cascade) | Label, type, order and who fills it in come from it. |
+| `value_char`, `value_text`, `value_number`, `value_date`, `value_boolean` | | The value, in the column of its type (`VALUE_COLUMNS`). |
+| `value_company_id`, `value_char`, `value_vat` | M2o `res.partner`, Char, Char | A `company` datum: the contact, and the name and VAT number the applicant wrote (the form never creates contacts). **Create company** (`action_create_company`) creates one from them, or links the one with that VAT number. |
+| `display_value` | Char, computed | The value as the portal and the certificate print it (dates in the reader's language). |
+| `is_pending` | Boolean, computed | Required by now (by the applicant, or by the current or an earlier step) and still empty: the form marks it. |
+
+`write()` follows the request: refused once it is closed, and it closes the applicant's form, as
+writing the request itself does.
 
 ### `ems.certificate.document` (a required document of a request)
 
@@ -172,11 +212,11 @@ stateDiagram-v2
 ```
 
 - `action_done_step()`: checks the step's data (`_ems_check_step_data`), records the stamp, assigns
-  the number on `issue`, and moves to the next step (task to its role holders) or finishes.
-- `action_issue_now()`: whoever holds the `issue` step's position (or the administrator,
+  the number on `issue`, and moves to the next step (task to the holders of its positions) or finishes.
+- `action_issue_now()`: whoever holds one of the `issue` step's positions (or the administrator,
   `can_issue_now`) issues the certificate while the request is still in draft or on an earlier
   step, when they already have every detail. It runs the issuing step's checks first
-  (`_ems_check_step_data(action='issue')`: applicant, workplace training, required documents), so
+  (`_ems_check_step_data(action='issue')`: applicant, data required up to the issuing step, required documents), so
   nothing moves while something mandatory is missing; then it closes the earlier steps' tasks,
   posts a note naming the skipped steps and their skipper, puts the request on the `issue` step and
   calls `action_done_step()`. A skipped `complete` step leaves no stamp (it is never printed
@@ -188,9 +228,10 @@ stateDiagram-v2
 - The PDF (`ems.report_certificate`, in the centre language, `CENTRE_LANG_REPORTS`) is one page: a
   header band in the company's colour (as minutes' headings) with the number, the text with wider
   side margins than the letterhead, and the signature boxes anchored at the foot of the page. It prints its
-  sentences from `_ems_report_paragraphs()`: each one a single translatable string with named
-  placeholders, so Catalan and Spanish keep their own word order (a sentence written in QWeb around
-  `t-esc` nodes is split into fragments that can't be translated well). The files of the required
+  paragraphs from `_ems_report_paragraphs()`: the issuer's sentence and "CERTIFIES:" (common), the
+  type's `certificate_text` in the centre language with every `{key}` replaced and escaped
+  (`_ems_render_text`), and the closing sentence and the place and date (common). The type's text is
+  one translatable value per language, so each language keeps its own word order. The files of the required
   documents marked *Add to the certificate* are appended by `_ems_generate_pdf()` with `odoo.tools.pdf.merge_pdf`, an image becoming one page
   (Pillow).
 
@@ -212,12 +253,17 @@ filter 14 ms / 6 cold; form read 18 ms / 23 cold, 1 ms warm; the documentation l
 
 - The list (filter *Pending for me*): one query on `ems_role` (the user's positions) and one search
   of `ems_certificate` by `state` (indexed) and `step_id`; then `step_user_ids` reads the holders
-  once per distinct position on the page (three at most for FCT), not once per row.
+  once per distinct step on the page (three at most for FCT), not once per row.
 - The record rule for staff joins `ems_certificate_type` → steps → positions → employees: a few
   rows each, whatever the number of requests.
 - The portal page: one search by `student_id` (indexed).
 - Generating the PDF happens once per certificate; its memory is bounded by the appended documents'
   files (a few MB), merged in memory once.
+- The certificate's data: a type has a handful of details, so a request a handful of value lines.
+  Measured on this box (FCT, six details): the form's read of a request with its details, cold, 2.5 ms
+  / 4 queries (0.2 ms / 0 warm); rendering the certificate text 2.4 ms / 5 queries cold. Adding a
+  detail to a type searches its open requests once (by `type_id` and the indexed `state`) to give
+  them the new line.
 - The documentation tab: a type requires a handful of documents; `can_upload` reads each position's
   holders once per request page (memoized per role), not once per line.
 
@@ -228,7 +274,8 @@ Certificate types and Collaborating companies, ACL, readable records and what th
 mismatches: the Certificates menu shows to the administrator, the secretariat, the Director and the
 VET coordinator (Academic management shows to the VET coordinator for it, and nothing else of that
 menu); the types to the administrator only; the companies to the administrator, the secretariat,
-Heads of Studies and the VET coordinator. A user given the VET coordinator group without holding the
+Heads of Studies and the VET coordinator. The data lines (`ems.certificate.type.field`,
+`ems.certificate.value`) follow the same ACL and record rules as the documents. A user given the VET coordinator group without holding the
 position reads no request: the group comes from the position, and the record rule reads its holders.
 
 ## Access control

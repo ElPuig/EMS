@@ -13,9 +13,9 @@ On the portal, FCT certificates can be requested by vocational training students
 ## Requesting a certificate from the portal
 
 1. Log in to the portal and click the **Certificates** card.
-2. Click **New certificate request** to unfold the form.
-3. Check **Your details** and write the **School year of the training** (choose one from the list or write another).
-4. Under **The company**, fill in as much information as you have: the name, the VAT number, the dates, the hours and the agreement registration number.
+2. Click **New request** followed by the certificate you need (for example, **New request - FCT (Formació en Centres de Treball)**) to unfold its form. Each certificate has its own form.
+3. Check **Your details**.
+4. Under **Certificate details**, fill in what the certificate asks for. The ones with an asterisk are mandatory; fill in the rest as far as you can, the centre completes it. For FCT: the **School year of the training** (choose one from the list or write another) and, if you have them, the company and its VAT number, the dates, the hours and the agreement registration number.
 5. Under **Documentation**, attach the **FCT agreement** if you keep a copy (a PDF or photos of its pages). If you do not have it, the centre attaches it. You may also add **Other documentation**.
 6. Click **Submit request**.
 
@@ -30,7 +30,7 @@ On the portal, FCT certificates can be requested by vocational training students
 Under **Your requests**, click **Open my request** to see:
 
 - its state and **Current step**;
-- your details and the training's, including what the centre adds;
+- your details and the certificate's, including what the centre adds;
 - the documentation attached.
 
 Until the centre starts working on the request, you can still complete or correct your details and documents from the same page, with **Save changes**.

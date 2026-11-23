@@ -53,7 +53,10 @@ ACCESS_MATRIX = {
     'ems.certificate.type': {'teacher': 'r', 'vet_coordinator': 'r', 'secretary': 'r', 'director': 'r', 'academic_admin': 'rwcu'},
     'ems.certificate.type.step': {'teacher': 'r', 'vet_coordinator': 'r', 'secretary': 'r', 'director': 'r', 'academic_admin': 'rwcu'},
     'ems.certificate.type.document': {'teacher': 'r', 'vet_coordinator': 'r', 'secretary': 'r', 'director': 'r', 'academic_admin': 'rwcu'},
-    # Lines created by the request itself; whoever may attach a file writes them (can_upload).
+    'ems.certificate.type.field': {'teacher': 'r', 'vet_coordinator': 'r', 'secretary': 'r', 'director': 'r', 'academic_admin': 'rwcu'},
+    # Lines created by the request itself: its details, written by whoever may write the request,
+    # and its documents, by whoever may attach a file (can_upload).
+    'ems.certificate.value': {'teacher': 'rw', 'vet_coordinator': 'rw', 'secretary': 'rw', 'director': 'rw', 'academic_admin': 'rwcu'},
     'ems.certificate.document': {'teacher': 'rw', 'vet_coordinator': 'rw', 'secretary': 'rw', 'director': 'rw', 'academic_admin': 'rwcu'},
     'ems.certificate.wizard': {'teacher': 'rwc', 'vet_coordinator': 'rwc', 'secretary': 'rwc', 'academic_admin': 'rwcu'},
     'ems.course': {'teacher': 'r', 'secretary': 'r', 'erasmus': 'r'},

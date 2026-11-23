@@ -23,17 +23,17 @@ Mientras no hagas ningún cambio, el alumno aún puede completar o corregir sus 
 ## Completar la formación
 
 1. Abre la solicitud.
-2. En la pestaña **Formación en centros de trabajo**:
-   - En **Empresa colaboradora**, elige la empresa. Si no existe y el alumno escribió su nombre, haz clic en **Crear empresa**: se crea con el nombre y el NIF que escribió (si ya hay una con el mismo NIF, se vincula esa).
-   - Rellena **Desde**, **Hasta**, **Horas** y el **Número de registro del convenio** (sBID).
+2. En la pestaña **Datos del certificado**, cada línea es un dato del certificado. Haz clic en el valor de una línea para rellenarlo:
+   - En **Empresa colaboradora**, elige la empresa. Si no existe y el alumno escribió su nombre, haz clic en **Crear empresa** en la misma línea: se crea con el nombre y el NIF que escribió (si ya hay una con el mismo NIF, se vincula esa).
+   - Rellena **Fecha de inicio**, **Fecha de finalización**, **Horas** y el **Número de registro del convenio (sBID)**.
 3. En la pestaña **Documentación**, comprueba el **Convenio de FCT**. Si no está, abre la línea, adjúntalo (PDF o fotos de las páginas) y guarda.
 4. Abre **Acciones → Hecho: enviar al paso siguiente**. La solicitud pasa a secretaría.
 
-![La formación en centros de trabajo de una solicitud](../../assets/teachers/certificats-04-formacio.png)
+![Los datos del certificado de una solicitud](../../assets/teachers/certificats-04-formacio.png)
 
 ![La documentación de una solicitud](../../assets/teachers/certificats-05-documentacio.png)
 
-Sin la empresa, el periodo y las horas, EMS no deja pasar la solicitud al paso siguiente.
+Sin la empresa, las fechas y las horas, EMS no deja pasar la solicitud al paso siguiente: las líneas que faltan aparecen resaltadas.
 
 ---
 

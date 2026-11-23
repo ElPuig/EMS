@@ -10,7 +10,6 @@
                 <list string="Certificate types">
                     <field name="sequence" widget="handle"/>
                     <field name="name"/>
-                    <field name="kind"/>
                     <field name="level_ids" widget="many2many_tags"/>
                 </list>
             </field>
@@ -29,7 +28,6 @@
                         </div>
                         <group>
                             <group>
-                                <field name="kind"/>
                                 <field name="requires_documents"/>
                             </group>
                             <group>
@@ -56,17 +54,49 @@
                                 certificate is issued. Any other document can always be attached as optional.
                             </div>
                         </div>
+                        <separator string="Certificate details"/>
+                        <field name="field_ids">
+                            <list editable="bottom">
+                                <field name="sequence" widget="handle"/>
+                                <field name="name"/>
+                                <field name="key"/>
+                                <field name="field_type"/>
+                                <field name="applicant_input"/>
+                                <field name="required_step_id" options="{'no_create': True, 'no_open': True}"
+                                       domain="[('id', 'in', parent.step_ids)]"/>
+                                <field name="help" optional="hide"/>
+                            </list>
+                        </field>
+                        <div class="text-muted mb-3">
+                            <i class="fa fa-info-circle me-1"/>Every certificate also has the student's full name,
+                            identity document and study. Each detail says whether the request form asks the applicant
+                            for it, and the step of the circuit that cannot be done until it is filled in.
+                        </div>
+                        <separator string="Certificate text"/>
+                        <field name="certificate_text" required="1"
+                               placeholder="That {name}, with identity document {document}, a student of {study}, ..."/>
+                        <div class="text-muted mb-3">
+                            <i class="fa fa-info-circle me-1"/>Printed after "CERTIFIES:". Write a detail's key between
+                            braces; a part between square brackets is printed only when every detail inside it has a
+                            value; a blank line starts a new paragraph. Details:
+                            <field name="placeholder_help" class="d-inline"/>
+                        </div>
+                        <div class="text-muted mb-3">
+                            <i class="fa fa-lightbulb-o me-1"/>Example, for a grades certificate whose details are the
+                            school year (key school_year) and the average grade (key average, not asked to the applicant):
+                            <div class="font-monospace border rounded p-2 mt-1">That {name}, with identity document {document}, a student of {study}, completed the school year {school_year}[ with an average grade of {average}].<br/><br/>Source: the student's academic record at the centre.</div>
+                        </div>
                         <separator string="Approval circuit"/>
                         <field name="step_ids">
                             <list editable="bottom">
                                 <field name="sequence" widget="handle"/>
                                 <field name="name"/>
-                                <field name="role_id" options="{'no_create': True}"/>
+                                <field name="role_ids" widget="many2many_tags" options="{'no_create': True}"/>
                                 <field name="action"/>
                             </list>
                         </field>
                         <div class="text-muted">
-                            <i class="fa fa-info-circle me-1"/>Each step is done by whoever holds its position, who
+                            <i class="fa fa-info-circle me-1"/>Each step is done by whoever holds one of its positions, who
                             gets it as a task; the administrator can do any step. One step issues the certificate (its
                             number and the issuer's stamp); approvals go after it. The last step generates the PDF and
                             sends it to the applicant.

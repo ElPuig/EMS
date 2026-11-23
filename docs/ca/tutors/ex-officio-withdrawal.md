@@ -87,3 +87,5 @@ Mentre l'expedient està obert (també si encara és una proposta), EMS revisa e
 Quan acceptes el teu pas, l'expedient passa al responsable següent (Convivència, Secretaria o Direcció), que rep la seva tasca el dia que toca. Tu continues veient l'expedient i el seu **Històric**, amb cada pas fet, qui el va fer i quan.
 
 Si l'alumne demana la baixa voluntària o és expulsat, l'expedient es tanca sol.
+
+Quan Secretaria ha tramitat la baixa, l'alumne ja no té grup, però l'expedient continua sent teu (i del cap de departament o de seminari, del cap d'estudis i de la direcció que tens per sobre) la resta d'aquell curs: conserva el tutor que l'alumne tenia en marxar. La llista només mostra al principi els expedients oberts; treu el filtre **Oberta** per veure'n un de tancat. A partir del curs següent només el veuen Secretaria, Convivència, Orientació, la direcció, el cap d'estudis i els administradors.

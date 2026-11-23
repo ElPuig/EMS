@@ -108,6 +108,18 @@ class TestExOfficioWithdrawalTour(HttpCase):
         case_file.current_step_id.due_date = today
         return case_file, director
 
+    def test_tutor_opens_the_closed_case_file_after_the_withdrawal(self):
+        """Issue #817: the student has left their group, the tutor still opens the case file."""
+        case_file, _director = self._case_at('withdrawal')
+        secretary = create_role_user(self, 'secretary', 'test_eow_tour_secretary3', name='EOW Tour Secretary 3')
+        case_file.current_check_ids.write({'done': True, 'date': shift_ems_clock(self).date()})
+        action = case_file.with_user(secretary).action_open_withdrawal_wizard()
+        self.env['ems.withdrawal_wizard'].with_user(secretary).with_context(action['context']).create({}).action_apply()
+        self.assertEqual(case_file.state, 'done')
+        self.assertFalse(self.student.with_context(active_test=False).tutor_id)
+        self.start_tour("/odoo/action-ems.action_ex_officio_withdrawal", "ems_ex_officio_withdrawal_closed_tutor",
+                        login=self.tutor_user.login)
+
     def test_secretariat_processes_the_withdrawal(self):
         case_file, _director = self._case_at('withdrawal')
         secretary = create_role_user(self, 'secretary', 'test_eow_tour_secretary2', name='EOW Tour Secretary')

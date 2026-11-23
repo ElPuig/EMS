@@ -44733,8 +44733,8 @@ msgstr "Només es pot iniciar o descartar una proposta."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
-msgid "Only the student's tutor, the people above them and the Head of Studies can decide this proposal."
-msgstr "Només el tutor de l'alumne, els seus superiors i el cap d'estudis poden decidir aquesta proposta."
+msgid "Only the student's tutor and the people above them can decide this proposal."
+msgstr "Només el tutor de l'alumne i els seus superiors poden decidir aquesta proposta."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal__origin__manual
@@ -45993,10 +45993,10 @@ msgstr "Faltes justificades per revisar"
 #. odoo-python
 #: code:addons/ems/models/contacts/ex_officio_withdrawal.py:0
 msgid ""
-"Only the student's tutor, the people above them and the Head of Studies can "
+"Only the student's tutor and the people above them can "
 "review the roll-calls of this case file."
 msgstr ""
-"Només el tutor de l'alumne, els seus superiors i el cap d'estudis poden "
+"Només el tutor de l'alumne i els seus superiors poden "
 "revisar els passis de llista d'aquest expedient."
 
 #. module: ems
@@ -55746,3 +55746,12 @@ msgstr "0,5 punts: la proposta A és un job shadowing o una estada de docència.
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__activity_kind__0
 msgid "0 points: Proposal A is a course."
 msgstr "0 punts: la proposta A és un curs."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_ex_officio_withdrawal__tutor_id
+msgid ""
+"The student's tutor while they have a group; once they leave, the tutor they "
+"had at that moment."
+msgstr ""
+"El tutor/a de l'alumne mentre té grup; quan se'n va, el tutor/a que tenia en "
+"aquell moment."

@@ -6,7 +6,7 @@
 
 Esta página trata **Comunicaciones → Comunicados** para los Jefes de departamento y Jefes de seminario. La pantalla y el proceso de crear y enviar son los mismos que describe el [manual de administración](../admin/notice.md#crear-y-enviar-un-comunicado); aquí solo está lo que cambia para ti.
 
-**Rol necesario:** Jefe de departamento / Jefe de seminario
+**Rol necesario:** jefe de departamento / jefe de seminario
 
 ---
 

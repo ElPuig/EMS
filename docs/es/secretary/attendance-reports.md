@@ -39,20 +39,20 @@ En la pantalla de **Informes de asistencia**, haz clic en el botón de la **impr
 **Informe de asistencia (por grupo):**
 1. Selecciona un **Grupo**.
 2. El **Tutor/a** y las fechas **Desde**/**Hasta** se rellenan automáticamente a partir del grupo y su rango de sesiones.
-3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo. Incluye al alumnado del grupo, según el grupo de cada alumno en la fecha de cada sesión.
+3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/ausencia, un recuento por estado y las notas de sesión registradas durante el periodo. Incluye al alumnado del grupo, según el grupo de cada alumno en la fecha de cada sesión.
 
    ![Formulario para imprimir el informe de asistencia, con un grupo seleccionado y los campos rellenados](../../assets/teachers/informes-02-imprimir.png)
 
 **Informe de asistencia (por alumno):**
 1. Selecciona un **Alumno**.
 2. El **Tutor/a** y las fechas **Desde**/**Hasta** se rellenan automáticamente a partir del alumno y su rango de sesiones.
-3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo.
+3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/ausencia, un recuento por estado y las notas de sesión registradas durante el periodo.
 
 **Informe de asistencia (por asignatura):**
 1. Selecciona una **Asignatura**.
 2. El campo **Grupos** se rellena automáticamente con todos los grupos que imparten esa asignatura, y **Tutores** muestra sus tutores como referencia. Quita los grupos que no quieras en el informe — **Grupos** se queda editable.
 3. Las fechas **Desde**/**Hasta** se rellenan automáticamente para cubrir todo el rango de sesiones de tu selección.
-4. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo.
+4. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/ausencia, un recuento por estado y las notas de sesión registradas durante el periodo.
 
 **Para cualquier tipo de informe**, dos controles gobiernan el detalle por línea en el PDF:
 - **Estados de detalle** — qué estados aparecen en las tablas "Detalles". Por defecto solo incluye estados

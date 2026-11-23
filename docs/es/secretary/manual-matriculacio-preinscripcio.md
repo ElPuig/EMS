@@ -168,7 +168,7 @@ Cuando termina el periodo de matrícula, las matrículas que siguen en borrador 
 | Acción | A quién | Qué pasa |
 |---|---|---|
 | **Eliminar la persona** | Solicitantes que nunca han sido alumnos del centro | Se elimina la persona, con su usuario del portal, las matrículas, las autorizaciones y los documentos subidos. |
-| **Archivar** | Solicitantes que nunca han sido alumnos pero ya tienen cuenta corporativa o una convalidación | Se cancela la matrícula, se revoca el acceso al portal y se archiva el contacto. |
+| **Archivar** | Solicitantes que nunca han sido alumnos, pero ya tienen cuenta corporativa o una convalidación | Se cancela la matrícula, se revoca el acceso al portal y se archiva el contacto. |
 | **Volver a graduado/a o baja** | Solicitantes que ya habían estudiado en el centro | Se cancela la matrícula y vuelven a graduado/a (si obtuvieron el título) o a baja, con sus datos de salida anteriores. Reciben el aviso habitual de que la cuenta corporativa se suspenderá al terminar el periodo de gracia. |
 | **Dar de baja** | Alumnado sin grupo | Lo mismo que el asistente de baja, con la **Fecha de salida** y el **Motivo de salida** que se muestran arriba del asistente. |
 | **Solo cancelar la matrícula** | Alumnado con grupo o con la matrícula de este curso confirmada, graduados, bajas y expulsados | Solo se cancela la matrícula. |
@@ -180,7 +180,7 @@ Al terminar, el asistente muestra cuántas personas han recibido cada acción y 
 
 ### Solicitantes que nunca han tenido matrícula
 
-En **Pre-inscripción**, el filtro **Sin matrícula** muestra los solicitantes que nunca han recibido una propuesta de matrícula (por ejemplo, los importados de GEDAC que no se han presentado). Seleccionadlos, abrid el desplegable **Acciones** y elegid **Cerrar matrículas no confirmadas**: se abre el mismo asistente y se eliminan (o se archivan, si tienen cuenta corporativa o una convalidación).
+En **Preinscripción**, el filtro **Sin matrícula** muestra los solicitantes que nunca han recibido una propuesta de matrícula (por ejemplo, los importados de GEDAC que no se han presentado). Seleccionadlos, abrid el desplegable **Acciones** y elegid **Cerrar matrículas no confirmadas**: se abre el mismo asistente y se eliminan (o se archivan, si tienen cuenta corporativa o una convalidación).
 
 ---
 
@@ -198,7 +198,7 @@ La casilla solo la ven **secretaría** y **administración académica**. Los tut
 
 Cuando se aprueba un documento de **bonificación o exención** de tasas de un alumno, el descuento se aplica automáticamente **solo a las matrículas todavía en borrador**. Las matrículas **ya confirmadas** quedan congeladas: ni las líneas ni el total cambian, porque la factura ya se ha emitido con los importes originales. Así, lo que ve el alumno en el portal coincide siempre con la factura.
 
-Si el alumno tenía derecho al beneficio pero lo ha subido y se ha aprobado **después** de confirmar la matrícula, hay que aplicarlo explícitamente:
+Si el alumno tenía derecho al beneficio, pero lo ha subido y se ha aprobado **después** de confirmar la matrícula, hay que aplicarlo explícitamente:
 
 1. Abrid la matrícula confirmada del alumno.
 2. Pulsad el botón **Reaplicar beneficios** **(1)** de la cabecera.

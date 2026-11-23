@@ -28,7 +28,7 @@ Si el alumno participa, o ha participado, en una movilidad Erasmus+ gestionada c
 
 ## Consultar los datos de cualquier alumno (Orientación y Convivencia)
 
-Con el rol de **Coordinador/a de orientación** o de **Coordinador/a de convivencia**, consultas los datos de todo el alumnado del centro, no solo los de tus tutorandos:
+Con el rol de **Coordinador/a de orientación** o de **Coordinador/a de convivencia**, consultas los datos de todo el alumnado del centro, no solo los de tus tutorizados:
 
 - **Notas** — Planificación y Calificación → Notas → Evaluación por grupo y materia.
 - **Historial académico** — tal como se ha descrito arriba.

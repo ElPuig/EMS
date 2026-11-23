@@ -4,7 +4,7 @@
 
 # Comunicados: enviar correos masivos a alumnos y familias
 
-**Rol necesario:** Administrador (o Director, que tiene la misma visibilidad completa — ver más abajo)
+**Rol necesario:** Administrador (o director, que tiene la misma visibilidad completa — ver más abajo)
 
 ---
 
@@ -83,7 +83,7 @@ que también puede sobrescribir individualmente sin tocar la del centro.
 
 ## Quién ve qué comunicados
 
-Todo el mundo con acceso a Comunicados — administradores, Director, Jefe de estudios, Jefe de
+Todo el mundo con acceso a Comunicados — administradores, director, jefe de estudios, Jefe de
 estudios adjunto y coordinador de calidad por igual — ve todos los comunicados de todo el
 centro, pero la lista siempre se abre filtrada con **"Mostrar solo los míos"** por defecto, de
 modo que en el día a día todo el mundo trabaja cómodamente solo con los suyos. Si quita ese
@@ -96,7 +96,7 @@ el mundo, para cuando necesite supervisar.
 - El **Jefe de estudios, el Jefe de estudios adjunto** y el **coordinador de calidad** solo
   pueden editar o eliminar los comunicados que ellos mismos han creado — el comunicado de otra
   persona se abre en modo solo lectura incluso con el filtro quitado. Vea el
-  [manual de Jefe de estudios](../head_of_studies/notice.md) para su perspectiva.
+  [manual de jefe de estudios](../head_of_studies/notice.md) para su perspectiva.
 
 Si su cuenta no está vinculada a ningún docente (un caso poco habitual — la mayoría de cuentas
 de Administrador/Director corresponden a un docente real) y prefiere no ver nunca marcado

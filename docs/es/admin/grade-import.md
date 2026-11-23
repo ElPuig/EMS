@@ -39,7 +39,7 @@ Al terminar obtendrás un resumen de lo aplicado y un **registro CSV** que puede
 
 ## Crear las matrículas que falten
 
-Esfera lista **todos los módulos del ciclo** en el boletín de cada alumno, mientras que EMS solo tiene matrícula de los módulos que el alumno cursa realmente. Cuando ambos no coinciden —el alumno tiene nota en Esfera pero no tiene matrícula en EMS— esa nota no tiene dónde ir y se descarta, con una nota de "no matriculado" en el registro.
+Esfera lista **todos los módulos del ciclo** en el boletín de cada alumno, mientras que EMS solo tiene matrícula de los módulos que el alumno cursa realmente. Cuando ambos no coinciden —el alumno tiene nota en Esfera, pero no tiene matrícula en EMS— esa nota no tiene dónde ir y se descarta, con una nota de "no matriculado" en el registro.
 
 Marcar esta casilla permite que la importación lo resuelva matriculando al alumno. Está **desactivada por defecto** y solo actúa allí donde el hueco es casi con seguridad un error real:
 

@@ -6,7 +6,7 @@
 
 Consulta tu propio horario semanal — asignaturas, grupos, aulas, patios y reuniones de coordinación — desde tu propia ficha de empleado.
 
-**Rol necesario:** Docente (solo puedes ver y exportar tu propio horario; la edición la realiza un Jefe de departamento o superior)
+**Rol necesario:** Docente (solo puedes ver y exportar tu propio horario; la edición la realiza un jefe de departamento o superior)
 
 ---
 
@@ -36,9 +36,9 @@ Un "grupo" también puede ser un **grupo de refuerzo** — una clase formada por
 
 ---
 
-## Co-docencia
+## Codocencia
 
-Si una clase la imparten realmente dos docentes a la vez (misma asignatura, mismo grupo, misma aula, misma hora), esa franja aparece como una clase compartida en el horario de **ambos** docentes. La asistencia también es compartida: sea cual sea el co-docente que la marque, ambos veis el mismo registro de asistencia para esa sesión — no hace falta que cada uno pase lista por separado.
+Si una clase la imparten realmente dos docentes a la vez (misma asignatura, mismo grupo, misma aula, misma hora), esa franja aparece como una clase compartida en el horario de **ambos** docentes. La asistencia también es compartida: sea cual sea el codocente que la marque, ambos veis el mismo registro de asistencia para esa sesión — no hace falta que cada uno pase lista por separado.
 
 ---
 

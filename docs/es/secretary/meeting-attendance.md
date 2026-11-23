@@ -104,7 +104,7 @@ Quien tiene una ausencia o una solicitud de ausencia (aprobada o pendiente de ap
 
 En la pestaña **Personas**, cambia la columna **Estado** de la fila:
 
-- **Presente**: para quien asiste pero no lleva la tarjeta.
+- **Presente**: para quien asiste, pero no lleva la tarjeta.
 - **Justificado**: para quien ha avisado de que no asistirá. Escribe el motivo en **Notas**.
 - **Pendiente**: para deshacer una marca errónea.
 

@@ -62,11 +62,11 @@ Los criterios de evaluación solo existen dentro de un resultado de aprendizaje 
 
 ### Añadir contenidos
 
-Los contenidos viven en la pestaña **Contenido**, separada de Resultado de aprendizaje, y pueden anidarse (un contenido puede tener sub-elementos "Composición").
+Los contenidos viven en la pestaña **Contenido**, separada de Resultado de aprendizaje, y pueden anidarse (un contenido puede tener subelementos "Composición").
 
 1. Abre una asignatura y ve a la pestaña **Contenido**. Haz clic en **Añadir una línea** para crear un contenido de nivel superior (código, acrónimo, nombre).
-2. Para añadir un sub-elemento bajo un contenido existente: haz clic en su icono de lápiz (**Editar**) para abrir su propio formulario, ve a la pestaña **Composición**, y haz clic en **Añadir una línea** ahí.
-   - **Código**: el código de un sub-elemento debe empezar con el código de su padre directo — los contenidos de nivel superior no están obligados a empezar con el código de la asignatura.
+2. Para añadir un subelemento bajo un contenido existente: haz clic en su icono de lápiz (**Editar**) para abrir su propio formulario, ve a la pestaña **Composición**, y haz clic en **Añadir una línea** ahí.
+   - **Código**: el código de un subelemento debe empezar con el código de su padre directo — los contenidos de nivel superior no están obligados a empezar con el código de la asignatura.
 3. Guarda el formulario de la asignatura (y cualquier popup abierto) para persistir los cambios.
 
 > Al guardar se crea automáticamente un producto de facturación en segundo plano para que la asignatura pueda incluirse en matrículas. No necesitas crear ni gestionar este producto manualmente — se mantiene sincronizado cada vez que renombras la asignatura o cambias su código.

@@ -6,7 +6,7 @@
 
 La jefatura de estudios, la jefatura de estudios adjunta y la coordinación TAC pueden crear fichas nuevas de profesorado y editar las existentes, sin tener que pasar por una persona administradora. Gestionan la ficha del profesorado entera, incluidas las pestañas **Información privada** y **Recursos Humanos**.
 
-**Cargo necesario:** Jefe/a de estudios, Jefe/a de estudios adjunto/a, Director/a o Coordinador/a TAC
+**Cargo necesario:** Jefe/a de estudios, Jefe/a de estudios adjunto/a, director/a o Coordinador/a TAC
 
 ---
 
@@ -68,9 +68,9 @@ Si la persona ya tiene una cuenta corporativa (por ejemplo, en otra ficha), marc
 
 ## Documento de identidad y número de la Seguridad Social
 
-La pestaña **Información privada** de la ficha de un docente empieza con un grupo **Identificación** con el **Documento de identidad** (DNI/NIE) y el **Núm. de la Seguridad Social**. Vosotros, el adjunto/a, el Director y el coordinador TAC podéis editarlos en las fichas del profesorado; la Secretaría los mantiene al día para todo el personal, PAS incluido.
+La pestaña **Información privada** de la ficha de un docente empieza con un grupo **Identificación** con el **Documento de identidad** (DNI/NIE) y el **Núm. de la Seguridad Social**. Vosotros, el adjunto/a, el director y el coordinador TAC podéis editarlos en las fichas del profesorado; la Secretaría los mantiene al día para todo el personal, PAS incluido.
 
-El Jefe de departamento y el Jefe de seminario de un docente también pueden ver estos dos campos, solo de lectura, en las fichas del personal de su propio departamento (solo su propia cadena de mando, no la de otros departamentos). Para ellos la pestaña solo muestra el grupo **Identificación**: el resto de la información privada queda oculta.
+El jefe de departamento y el jefe de seminario de un docente también pueden ver estos dos campos, solo de lectura, en las fichas del personal de su propio departamento (solo su propia cadena de mando, no la de otros departamentos). Para ellos la pestaña solo muestra el grupo **Identificación**: el resto de la información privada queda oculta.
 
 ---
 

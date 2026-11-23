@@ -70,7 +70,7 @@ La insígnia mostra automàticament el color triat amb un text llegible, sigui q
 
 El compte d'usuari del professor s'actualitza immediatament: es concedeix el grup de seguretat vinculat al rol, juntament amb tot allò que implica (p. ex. assignar **Cap de departament** també concedeix l'accés de Tutor i de professor).
 
-> Els rols **Tutor**, **Cap de departament**, **Cap de seminari**, **Cap d'estudis**, **Cap d'estudis adjunt**, **Secretari/ària** i **Director** no es poden afegir ni treure manualment — ni des d'aquí, ni des de la llista **Assignat a** del propi rol (**Comunitat Educativa → Configuració → Professorat/PAS → Rols**), ni per importació o edició massiva. Intentar-ho mostra un missatge que indica exactament on s'ha de fer el canvi en realitat. El Tutor es gestiona automàticament segons si el professor és tutor d'algun Grup; els cinc següents es gestionen automàticament des del formulari d'un departament; el director es gestiona automàticament des d'Ajustes (vegeu més avall).
+> Els rols **Tutor**, **Cap de departament**, **Cap de seminari**, **Cap d'estudis**, **Cap d'estudis adjunt**, **Secretari/ària** i **Director** no es poden afegir ni treure manualment — ni des d'aquí, ni des de la llista **Assignat a** del rol (**Comunitat Educativa → Configuració → Professorat/PAS → Rols**), ni per importació o edició massiva. Intentar-ho mostra un missatge que indica exactament on s'ha de fer el canvi en realitat. El Tutor es gestiona automàticament segons si el professor és tutor d'algun Grup; els cinc següents es gestionen automàticament des del formulari d'un departament; el director es gestiona automàticament des d'Ajustes (vegeu més avall).
 
 ---
 
@@ -99,7 +99,7 @@ A diferència dels altres rols, **Cap de departament** i **Cap de seminari** no 
 Això té un efecte immediat i automàtic sobre tots els professors d'aquell departament:
 
 - Tots els professors del departament, **excepte el Cap de departament**, tenen el seu **Responsable** establert al **Cap de seminari**.
-- El **Responsable** del propi Cap de seminari s'estableix al **Cap de departament**.
+- El **Responsable** del Cap de seminari s'estableix al **Cap de departament**.
 - Si no hi ha cap **Cap de seminari** establert, tots els professors del departament (excepte el Cap de departament) tenen el seu **Responsable** establert directament al **Cap de departament** — se salta el nivell de Cap de seminari.
 - El camp **Responsable** de la fitxa d'un professor és de només lectura — només es pot canviar editant el departament, mai directament des de la fitxa del professor.
 - Reassignar qualsevol dels dos rols a un altre professor el revoca automàticament a qui l'ocupava abans (dins d'aquell departament).
@@ -142,9 +142,9 @@ Alguns departaments (actualment **VET**, **ESO/BTX** i **ASP**) són **departame
 
 Quina **Àrea**/**Rol** triar depèn del departament: VET i ESO/BTX són àrees Acadèmiques, així que el seu Responsable d'àrea normalment és cap d'estudis o adjunt; **ASP és diferent** — la seva Àrea és ASP, el seu Responsable d'àrea és un professor que coordina el personal administratiu/de secretaria, així que el seu Rol hauria de ser **Secretari/ària** (això concedeix el bloc de permisos de Secretaria, no un d'acadèmic — vegeu la nota sota la taula de permisos de dalt).
 
-Això té un efecte més enllà del propi departament:
+Això té un efecte més enllà del departament:
 
-- Qualsevol altre departament col·locat *sota* un departament top-level (p. ex. "Computer Science" sota VET, o "Secretariat"/"Consergeria" sota ASP) té el seu propi **Cap de departament** amb el **Responsable** establert automàticament al **Responsable d'àrea** del departament top-level. La resta no canvia — els seus propis professors i el seu Cap de seminari segueixen funcionant exactament igual, només canvia el Responsable del propi Cap de departament.
+- Qualsevol altre departament col·locat *sota* un departament top-level (p. ex. "Computer Science" sota VET, o "Secretariat"/"Consergeria" sota ASP) té el seu propi **Cap de departament** amb el **Responsable** establert automàticament al **Responsable d'àrea** del departament top-level. La resta no canvia — els seus propis professors i el seu Cap de seminari segueixen funcionant exactament igual, només canvia el Responsable del Cap de departament.
 - Com que **Cap d'estudis**, **Cap d'estudis adjunt** i **Secretari/ària** només poden estar ocupats per una persona a tot el centre, intentar establir el mateix a dos departaments amb dues persones diferents es rebutja — cal treure primer l'altra assignació si voleu reassignar-lo.
 
 > **Nota per a departaments existents:** VET, ESO/BTX i ASP ja estan marcats com a top-level, però sense cap Responsable d'àrea establert encara — un administrador ha d'obrir cadascun i establir-lo manualment; no s'omple res automàticament.
@@ -159,7 +159,7 @@ A diferència de tots els altres rols, el **Director** no s'estableix des de cap
 2. Establiu el **Director**.
 3. Feu clic a **Desar**.
 
-Això té un efecte més enllà del propi ajust:
+Això té un efecte més enllà de l'ajust:
 
 - El **Responsable** de qui exerceixi de Responsable d'àrea en qualsevol departament top-level (p. ex. de VET, d'ESO/BTX, d'ASP) s'estableix automàticament al **Director**.
 - El propi **Responsable** del director sempre queda buit — ningú no pot estar mai per sobre del director, sigui quin sigui el departament al qual pertanyi nominalment, tant si n'és el cap com si només n'és un membre normal el cap del qual és una altra persona.

@@ -15286,7 +15286,7 @@ msgstr "Departaments dirigits"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_hr_department__seminar_chief_id
 msgid "Every other member of this department (the Department Chief excluded) will have their Manager set to this employee; the Seminar Chief's own Manager is set to the Department Chief."
-msgstr "La resta de membres d'aquest departament (excloent el Cap de departament) tindran com a Responsable aquest empleat; el Responsable del propi Cap de seminari serà el Cap de departament."
+msgstr "La resta de membres d'aquest departament (excloent el Cap de departament) tindran com a Responsable aquest empleat; el Responsable del Cap de seminari serà el Cap de departament."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_department__seminar_chief_id
@@ -15480,7 +15480,7 @@ msgstr "Gestionat per jerarquia"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_role__is_hierarchy_managed
 msgid "Assigned automatically from the department, company or group form - cannot be edited from this role's own record."
-msgstr "S'assigna automàticament des del formulari del departament, l'empresa o el grup — no es pot editar des de la pròpia fitxa del rol."
+msgstr "S'assigna automàticament des del formulari del departament, l'empresa o el grup — no es pot editar des de la fitxa del rol."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__hierarchy_managed_message
@@ -15491,37 +15491,37 @@ msgstr "Missatge de gestió per jerarquia"
 #. odoo-python
 #: code:addons/ems/models/employees/role.py:0
 msgid "This role is assigned automatically when a teacher is set as a group's Tutor (the group's own form)."
-msgstr "Aquest rol s'assigna automàticament quan un professor s'estableix com a Tutor d'un grup (des del propi formulari del grup)."
+msgstr "Aquest rol s'assigna automàticament quan un professor s'estableix com a Tutor d'un grup (des del formulari del grup)."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/role.py:0
 msgid "This role is assigned automatically from the department's own form (Manager field)."
-msgstr "Aquest rol s'assigna automàticament des del propi formulari del departament (camp Responsable)."
+msgstr "Aquest rol s'assigna automàticament des del formulari del departament (camp Responsable)."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/role.py:0
 msgid "This role is assigned automatically from the department's own form (Seminar Chief field)."
-msgstr "Aquest rol s'assigna automàticament des del propi formulari del departament (camp Cap de seminari)."
+msgstr "Aquest rol s'assigna automàticament des del formulari del departament (camp Cap de seminari)."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/role.py:0
 msgid "This role is assigned automatically from the top-level department's own form (Area Manager, with Role set to Head of Studies)."
-msgstr "Aquest rol s'assigna automàticament des del propi formulari del departament top-level (Responsable d'àrea, amb el Rol establert a cap d'estudis)."
+msgstr "Aquest rol s'assigna automàticament des del formulari del departament top-level (Responsable d'àrea, amb el Rol establert a cap d'estudis)."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/role.py:0
 msgid "This role is assigned automatically from the top-level department's own form (Area Manager, with Role set to Deputy Head of Studies)."
-msgstr "Aquest rol s'assigna automàticament des del propi formulari del departament top-level (Responsable d'àrea, amb el Rol establert a cap d'estudis adjunt)."
+msgstr "Aquest rol s'assigna automàticament des del formulari del departament top-level (Responsable d'àrea, amb el Rol establert a cap d'estudis adjunt)."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/role.py:0
 msgid "This role is assigned automatically from the top-level department's own form (Area Manager, with Role set to Secretary)."
-msgstr "Aquest rol s'assigna automàticament des del propi formulari del departament top-level (Responsable d'àrea, amb el Rol establert a secretari/ària)."
+msgstr "Aquest rol s'assigna automàticament des del formulari del departament top-level (Responsable d'àrea, amb el Rol establert a secretari/ària)."
 
 #. module: ems
 #. odoo-python
@@ -17085,7 +17085,7 @@ msgstr "Notificat a"
 msgid ""
 "One email per student listing every authorization sent in this batch. A "
 "minor's family is emailed instead of the student."
-msgstr "Un correu per alumne amb la llista de totes les autoritzacions enviades en aquest enviament. Si l'alumne és menor, el correu s'envia a la família en lloc de a ell."
+msgstr "Un correu per alumne amb la llista de totes les autoritzacions enviades en aquest enviament. Si l'alumne és menor, el correu s'envia a la família en lloc d'ell."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_form
@@ -32740,7 +32740,7 @@ msgstr "Document d'identitat (publicat)"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "If you disagree, you can claim by replying to the result email."
 msgstr ""
-"Si no hi estàs d'acord, pots reclamar responent el correu del resultat."
+"Si no hi estàs d'acord, pots reclamar responent al correu del resultat."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__line_ids
@@ -32770,7 +32770,7 @@ msgstr "Sense resposta"
 #. odoo-python
 #: code:addons/ems/models/erasmus/offer.py:0
 msgid "No answer to the place offer by the deadline: renounced."
-msgstr "No s'ha respost l'oferta de plaça dins del termini: renúncia."
+msgstr "No s'ha respost a l'oferta de plaça dins del termini: renúncia."
 
 #. module: ems
 #. odoo-python
@@ -33039,7 +33039,7 @@ msgstr "El termini ha de ser futur."
 #. odoo-python
 #: code:addons/ems/models/erasmus/offer.py:0
 msgid "The deadline to answer this offer has passed."
-msgstr "Ha passat el termini per respondre aquesta oferta."
+msgstr "Ha passat el termini per respondre a aquesta oferta."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_form
@@ -40625,7 +40625,7 @@ msgstr "Acord d'aprenentatge del grup (previst)"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
 msgid "If you disagree, you can claim by replying to the result email until"
 msgstr ""
-"Si no hi estàs d'acord, pots reclamar responent el correu del resultat fins "
+"Si no hi estàs d'acord, pots reclamar responent al correu del resultat fins "
 "al"
 
 #. module: ems
@@ -46196,7 +46196,7 @@ msgstr "Us fem arribar l'esborrany de l'acta de la reunió perquè el pugueu rev
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
 msgid "If anything needs correcting, please reply to this email."
-msgstr "Si cal corregir-hi alguna cosa, us preguem que respongueu aquest correu."
+msgstr "Si cal corregir-hi alguna cosa, us preguem que respongueu a aquest correu."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_submit_wizard_form
@@ -46682,7 +46682,7 @@ msgid ""
 "The coordinator's tasks to answer this exception request, open until the "
 "coordinator sets the exception or approves the selection."
 msgstr ""
-"Les tasques de la coordinació per respondre aquesta petició d'excepció, "
+"Les tasques de la coordinació per respondre a aquesta petició d'excepció, "
 "obertes fins que la coordinació posa l'excepció o aprova la selecció."
 
 #. module: ems
@@ -52600,7 +52600,7 @@ msgstr ""
 msgid ""
 "Hello! This meeting is held by email: to take part, reply to this email."
 msgstr ""
-"Hola! Aquesta reunió es fa per correu: per participar-hi, respongueu aquest "
+"Hola! Aquesta reunió es fa per correu: per participar-hi, respongueu a aquest "
 "correu."
 
 #. module: ems
@@ -52609,7 +52609,7 @@ msgid ""
 "If anything needs correcting, reply to this email: your answer is recorded "
 "as an amendment. If everything is right, there is no need to reply."
 msgstr ""
-"Si cal corregir-hi alguna cosa, respongueu aquest correu: la resposta queda "
+"Si cal corregir-hi alguna cosa, respongueu a aquest correu: la resposta queda "
 "registrada com una esmena. Si tot és correcte, no cal respondre."
 
 #. module: ems
@@ -52692,7 +52692,7 @@ msgstr "Remitent desconegut"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.mail_layout_minutes
 msgid "Answering this message writes to whoever sent it."
-msgstr "Si respons aquest missatge, escriuràs a qui te l'ha enviat."
+msgstr "Si respons a aquest missatge, escriuràs a qui te l'ha enviat."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.minute_draft_email
@@ -52731,7 +52731,7 @@ msgid ""
 "Meeting held by email · Answer this message to take part: everybody taking "
 "part receives your answer."
 msgstr ""
-"Reunió per correu · Respon aquest missatge per participar-hi: tothom qui hi "
+"Reunió per correu · Respon a aquest missatge per participar-hi: tothom qui hi "
 "participa rebrà la teva resposta."
 
 #. module: ems

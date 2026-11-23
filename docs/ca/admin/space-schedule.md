@@ -40,7 +40,7 @@ Sota la graella, una taula **Assignatura → Professor(s)** llista cada assignat
 n'hi ha, tema) impartida en aquesta aula i qui la imparteix.
 
 Tot en aquesta pestanya és de només lectura — per moure una classe a una altra aula, dia o hora,
-utilitza la pestanya d'Horari del professor corresponent, o la del propi grup si el canvi ha
+utilitza la pestanya d'Horari del professor corresponent, o la del grup si el canvi ha
 d'aplicar-se a tot el grup.
 
 ---

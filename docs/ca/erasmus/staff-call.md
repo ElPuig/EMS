@@ -81,7 +81,7 @@ Són seleccionades les persones que entren dins de les places de la convocatòri
 
 ## 6. Ofertes i full de càlcul
 
-Les persones seleccionades responen l'oferta des de la seva sol·licitud a l'EMS (**Accions > Accepta la plaça** o **Renuncia a la plaça**). Una plaça lliure s'ofereix a la següent persona de reserva de tota la convocatòria (**Accions > Ofereix una plaça lliure**, sense triar modalitat).
+Les persones seleccionades responen a l'oferta des de la seva sol·licitud a l'EMS (**Accions > Accepta la plaça** o **Renuncia a la plaça**). Una plaça lliure s'ofereix a la següent persona de reserva de tota la convocatòria (**Accions > Ofereix una plaça lliure**, sense triar modalitat).
 
 **Exporta a full de càlcul** treu les dades del personal de la seva fitxa d'empleat. Les columnes del cicle, el curs i el tutor legal queden buides.
 

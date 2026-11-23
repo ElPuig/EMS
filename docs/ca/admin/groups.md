@@ -39,7 +39,7 @@ Navega a: **Comunitat Educativa → Grups**
 
 ![Fitxa d'un grup principal: nivell, estudi, curs, acrònim, tutor, delegat, sotsdelegat i l'altra meitat amb què s'uneix, amb els seus alumnes](../../assets/admin/admin-groups-form.png)
 
-Els alumnes no s'afegeixen des d'aquí — consulta la pestanya **Alumnes** per revisar qui està assignat, però és el propi registre de l'alumne (o el procés de matrícula) el que realment l'assigna a un grup.
+Els alumnes no s'afegeixen des d'aquí — consulta la pestanya **Alumnes** per revisar qui està assignat, però és el registre de l'alumne (o el procés de matrícula) el que realment l'assigna a un grup.
 
 **Canviar el grup d'un alumne també mou les seves matrícules per assignatura.** Editar el camp **Grup principal** de l'alumne (a la seva pròpia fitxa, pestanya Estudis) — això inclou el tutor/a del grup, que ara pot fer-ho directament per als seus propis alumnes tutoritzats, vegeu [Canviar el grup d'un alumne](../tutors/change-student-group.md) — mou automàticament qualsevol matrícula que estigués al grup antic cap al grup nou; una assignatura ja matriculada a través d'un grup diferent (per exemple, un grup de reforç) es manté igual. El canvi es rebutja si alguna assignatura del grup antic ja té notes registrades per a aquest alumne.
 
@@ -53,7 +53,7 @@ Els alumnes no s'afegeixen des d'aquí — consulta la pestanya **Alumnes** per 
 4. Si el grup és un desdoblament, un grup flexible o una optativa, indica a **Grups principals** els grups dels quals ve el seu alumnat (p. ex., `ESO1A` per a un desdoblament de 1A, o tots els grups de 1r per a una optativa de 1r). Les seves classes apareixeran també a l'horari de cadascun d'aquests grups.
    Quan ja hi ha alumnat inscrit, si part d'ell ve de grups principals que no hi són, un avís groc a dalt de la fitxa ho indica, i el botó **Omplir els grups principals des de l'alumnat inscrit**, a dalt de la fitxa, els afegeix (mai no en treu cap, perquè un grup principal es pot indicar abans que el seu alumnat s'hi inscrigui).
 5. Fes clic a **Desa**.
-6. Afegeix alumnes de la mateixa manera que a qualsevol altre grup: des de la fitxa del propi alumne (o el procés de matrícula), matricula'l en una assignatura amb aquest grup de reforç com a **Grup** — poden venir de qualsevol grup/estudi principal. Apareixeran a la pestanya **Inscrit** d'aquest grup.
+6. Afegeix alumnes de la mateixa manera que a qualsevol altre grup: des de la fitxa de l'alumne (o el procés de matrícula), matricula'l en una assignatura amb aquest grup de reforç com a **Grup** — poden venir de qualsevol grup/estudi principal. Apareixeran a la pestanya **Inscrit** d'aquest grup.
 
 ---
 
@@ -73,7 +73,7 @@ També la podeu canviar a mà:
 
 Canviar l'**Aula de referència** d'un grup (la seva aula per defecte) mou automàticament totes les classes d'aquest grup que encara usaven l'aula antiga a la nova. Si la nova aula ja està ocupada per algú altre exactament el mateix dia i hora que una d'aquestes classes, aquesta classe concreta es queda a la seva aula actual en comptes de fer fallar tot el desat — vegeu "Resoldre un Conflicte d'Aula Pendent" a sota.
 
-La mateixa gestió de conflictes també s'aplica quan es canvia l'aula d'una *sola* classe des de la pestanya **Horari** d'un docent (vegeu [Editar l'Horari d'un Docent](working-schedules.md#editar-lhorari-dun-docent)), o directament des de la pestanya Horari del propi grup (vegeu [L'horari setmanal d'un grup](group-schedule.md#editar-el-tema-o-laula-dun-bloc)) — els tres casos es resolen des de la mateixa pantalla.
+La mateixa gestió de conflictes també s'aplica quan es canvia l'aula d'una *sola* classe des de la pestanya **Horari** d'un docent (vegeu [Editar l'Horari d'un Docent](working-schedules.md#editar-lhorari-dun-docent)), o directament des de la pestanya Horari del grup (vegeu [L'horari setmanal d'un grup](group-schedule.md#editar-el-tema-o-laula-dun-bloc)) — els tres casos es resolen des de la mateixa pantalla.
 
 ## Resoldre un Conflicte d'Aula Pendent
 

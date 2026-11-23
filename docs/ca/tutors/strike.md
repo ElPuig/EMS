@@ -17,7 +17,7 @@ Com a tutor/a de grup, reps una notificació per correu electrònic cada vegada 
   Cada fila mostra el grup de l'alumne i l'assignatura i l'aula de la sessió on es va posar el strike. Un strike posat fora de classe (amb **Nou strike**) mostra el grup principal de l'alumne, sense assignatura ni aula.
 
   ![Llista d'strikes amb els de l'alumnat tutorat, els hagi posat qui els hagi posat](../../assets/tutors/amonestacions-01-llista.png)
-- A la fitxa del propi alumne, apareix un botó de **Strikes** a la capçalera que mostra el recompte acumulat (0 si encara no en té cap) — clica'l per veure l'historial complet d'aquell alumne i, des d'allà, posar-li'n un de nou amb **Nou strike**.
+- A la fitxa de l'alumne, apareix un botó de **Strikes** a la capçalera que mostra el recompte acumulat (0 si encara no en té cap) — clica'l per veure l'historial complet d'aquell alumne i, des d'allà, posar-li'n un de nou amb **Nou strike**.
 
   ![Botó Strikes a la capçalera de la fitxa d'un alumne, amb el recompte de l'alumne](../../assets/tutors/amonestacions-02-boto-fitxa.png)
 

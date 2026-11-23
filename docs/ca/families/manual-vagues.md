@@ -55,7 +55,7 @@ Tots dos són obligatoris: sense un motiu i un document no pots proposar la vota
 
 El teu grup rep de seguida un correu per votar. Només hi pot haver una proposta per grup i dia.
 
-Mentre la proposta està en votació o en adhesions, la seva pàgina et mostra quants alumnes han respost, i **Anul·la la proposta** l'anul·la. Una proposta anul·lada desapareix per al grup.
+Mentre la proposta està en votació o en adhesions, la seva pàgina et mostra quants alumnes han respost, i **Anul·la la proposta** l'anul·la. Una proposta anul·lada desapareix per al grup: només la continuen veient el delegat i el subdelegat, sigui quin sigui dels dos qui l'ha anul·lat.
 
 ---
 
@@ -135,7 +135,7 @@ L'acta (PDF) és a la pàgina de la proposta un cop tancada.
 | **Validada** | Els qui s'hi sumen no consten al passi de llista d'aquell dia |
 | **Avortada** | El tutor ha aturat la proposta, amb un motiu |
 | **No validada** | El cap d'estudis no l'ha validat, amb un motiu |
-| **Anul·lada** | El delegat l'ha anul·lat |
+| **Anul·lada** | El delegat o el subdelegat l'ha anul·lat |
 
 ---
 

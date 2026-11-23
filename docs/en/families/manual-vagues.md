@@ -55,7 +55,7 @@ Both are required: without a reason and a document you cannot propose the vote.
 
 Your group gets an email at once to vote. Only one proposal per group and day is possible.
 
-While the proposal is being voted or joined, its page shows you how many students have answered, and **Cancel the proposal** cancels it. A cancelled proposal disappears for the group.
+While the proposal is being voted or joined, its page shows you how many students have answered, and **Cancel the proposal** cancels it. A cancelled proposal disappears for the group: only the delegate and the sub-delegate keep seeing it, whichever of the two cancelled it.
 
 ---
 
@@ -135,7 +135,7 @@ The minute (PDF) is on the proposal's page once it closes.
 | **Validated** | Those who join it are off the roll-calls of that day |
 | **Aborted** | The tutor stopped the proposal, with a reason |
 | **Not validated** | The Head of Studies did not validate it, with a reason |
-| **Cancelled** | The delegate cancelled it |
+| **Cancelled** | The delegate or the sub-delegate cancelled it |
 
 ---
 

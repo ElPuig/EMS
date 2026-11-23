@@ -55,7 +55,7 @@ Los dos son obligatorios: sin un motivo y un documento no puedes proponer la vot
 
 Tu grupo recibe enseguida un correo para votar. Solo puede haber una propuesta por grupo y día.
 
-Mientras la propuesta está en votación o en adhesiones, su página te muestra cuántos alumnos han respondido, y **Anula la propuesta** la anula. Una propuesta anulada desaparece para el grupo.
+Mientras la propuesta está en votación o en adhesiones, su página te muestra cuántos alumnos han respondido, y **Anula la propuesta** la anula. Una propuesta anulada desaparece para el grupo: solo la siguen viendo el delegado y el subdelegado, sea cual sea de los dos quien la haya anulado.
 
 ---
 
@@ -135,7 +135,7 @@ El acta (PDF) está en la página de la propuesta una vez cerrada.
 | **Validada** | Quienes se suman no constan en el pase de lista de ese día |
 | **Abortada** | El tutor ha detenido la propuesta, con un motivo |
 | **No validada** | La jefatura de estudios no la ha validado, con un motivo |
-| **Anulada** | El delegado la ha anulado |
+| **Anulada** | El delegado o el subdelegado la ha anulado |
 
 ---
 

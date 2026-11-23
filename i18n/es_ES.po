@@ -7915,11 +7915,8 @@ msgstr "Plan de pago"
 #: model:ir.model.fields.selection,name:ems.selection__ems_ex_officio_withdrawal_review__state__pending
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout_line__ratification__pending
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__step_role_id
-#: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
-
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_walkout__group_vote_result__pending
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__step_role_id
+#: model:ir.model.fields,field_description:ems.field_ems_certificate__step_role_ids
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__is_pending
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
 msgid "Pending"
@@ -27756,7 +27753,6 @@ msgstr "Cuándo, con palabras"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_panel__post
-#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__role_id
 msgid "Post"
 msgstr "Cargo"
 
@@ -53028,12 +53024,12 @@ msgstr ""
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_type_form
 msgid ""
-"<i class=\"fa fa-info-circle me-1\"/>Each step is done by whoever holds its position, who\n"
+"<i class=\"fa fa-info-circle me-1\"/>Each step is done by whoever holds one of its positions, who\n"
 "                            gets it as a task; the administrator can do any step. One step issues the certificate (its\n"
 "                            number and the issuer's stamp); approvals go after it. The last step generates the PDF and\n"
 "                            sends it to the applicant."
 msgstr ""
-"<i class=\"fa fa-info-circle me-1\"/>Cada paso lo hace quien ocupa su cargo,"
+"<i class=\"fa fa-info-circle me-1\"/>Cada paso lo hace quien ocupa alguno de sus cargos,"
 " que lo recibe como tarea; el administrador puede hacer cualquier paso. Un "
 "paso expide el certificado (su número y el sello de quien lo expide); los "
 "vistos buenos van después. El último paso genera el PDF y lo envía a la "
@@ -53773,14 +53769,12 @@ msgstr ""
 "tiene portal)."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_certificate__step_role_id
-#: model:ir.model.fields,help:ems.field_ems_certificate_type_step__role_id
+#: model:ir.model.fields,help:ems.field_ems_certificate__step_role_ids
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_step__role_ids
 msgid ""
-"Whoever holds this position gets the task and does the step. The "
+"Whoever holds any of these positions gets the task and may do the step. The "
 "administrator can always do it too."
-msgstr ""
-"Quien ocupa este cargo recibe la tarea y hace el paso. El administrador "
-"también puede hacerlo siempre."
+msgstr "Quien ocupa alguno de estos cargos recibe la tarea y puede hacer el paso. El administrador también puede hacerlo siempre."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_certificate__return_reason
@@ -55970,3 +55964,19 @@ msgid ""
 "completed the school year {school_year}[ with an average grade of "
 "{average}].<br/><br/>Source: the student's academic record at the centre."
 msgstr "Que {name}, con documento de identidad {document}, estudiante de {study}, ha cursado el curso escolar {school_year}[ con una nota media de {average}].<br/><br/>Fuente: el expediente académico del alumno en el centro."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_step__role_ids
+msgid "Posts"
+msgstr "Cargos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate_type.py:0
+msgid "Every step of the approval circuit needs at least one position."
+msgstr "Cada paso del circuito de aprobación necesita al menos un cargo."
+
+#. module: ems
+#: model:ems.role,name:ems.role_secretary_technician
+msgid "Secretary technician"
+msgstr "Técnico/a de secretaría"

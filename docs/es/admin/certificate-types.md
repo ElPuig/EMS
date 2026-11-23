@@ -78,7 +78,9 @@ Además de los documentos obligatorios, cualquier solicitud admite **Otra docume
 Cada línea es un paso, por orden:
 
 - **Nombre** — lo que ve quien tiene que hacer el paso.
-- **Cargo** — quien lo ocupa recibe la tarea y hace el paso. Los cargos y quién los ocupa se configuran en [Cargos](teacher-roles.md).
+- **Cargos** — uno o más cargos. Quien ocupa alguno de ellos recibe la tarea y puede hacer el paso; cuando uno lo hace, la tarea de los demás se cierra. Los cargos y quién los ocupa se configuran en [Cargos](teacher-roles.md).
+
+Para dar un paso al personal de secretaría, añádale el cargo **Técnico/a de secretaría** y asigne ese cargo a cada una de esas personas. Quien lo ocupa también tiene acceso a la secretaría. El primer paso del tipo FCT ya lo lleva, junto con el coordinador de FP.
 - **Acción**:
   - **Completar los datos** — completa la información y pasa la solicitud al paso siguiente.
   - **Expedir el certificado** — da el número al certificado y pone el sello de expedición.

@@ -2,6 +2,7 @@
 import logging
 
 from odoo import SUPERUSER_ID, api
+from odoo.tools import sql
 
 _logger = logging.getLogger(__name__)
 
@@ -26,7 +27,28 @@ FCT_TEXT = {
 
 def migrate(cr, version):
     env = api.Environment(cr, SUPERUSER_ID, {})
+    _step_positions(env)
     _generic_certificate_types(env)
+
+
+def _step_positions(env):
+    """Issue #851: a step of a certificate circuit may be done by several positions. Each step keeps
+    the one it had (its old column is still there: Odoo drops it after the migration), and the FCT
+    step that completes the data also goes to the new secretary technicians, as on a clean install."""
+    cr = env.cr
+    if sql.column_exists(cr, 'ems_certificate_type_step', 'role_id'):
+        cr.execute("""
+            INSERT INTO ems_certificate_type_step_role_rel (step_id, role_id)
+            SELECT id, role_id FROM ems_certificate_type_step WHERE role_id IS NOT NULL
+            ON CONFLICT DO NOTHING
+        """)
+        cr.execute("ALTER TABLE ems_certificate_type_step ALTER COLUMN role_id DROP NOT NULL")
+        env.invalidate_all()
+    step = env.ref('ems.certificate_step_fct_complete', raise_if_not_found=False)
+    technician = env.ref('ems.role_secretary_technician', raise_if_not_found=False)
+    if step and technician:
+        step.role_ids = [(4, technician.id)]
+    _logger.info("Certificates: step positions moved to the new list.")
 
 
 def _generic_certificate_types(env):

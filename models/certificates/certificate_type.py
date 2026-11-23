@@ -78,10 +78,10 @@ class EmsCertificateType(models.Model):
     circuit_role_ids = fields.Many2many(string="Positions of the circuit", comodel_name='ems.role',
                                         compute='_compute_circuit_role_ids')
 
-    @api.depends('step_ids.role_id')
+    @api.depends('step_ids.role_ids')
     def _compute_circuit_role_ids(self):
         for certificate_type in self:
-            certificate_type.circuit_role_ids = certificate_type.step_ids.role_id
+            certificate_type.circuit_role_ids = certificate_type.step_ids.role_ids
 
     @api.depends('field_ids.key', 'field_ids.name', 'field_ids.field_type')
     def _compute_placeholder_help(self):
@@ -177,10 +177,27 @@ class EmsCertificateTypeStep(models.Model):
                               ondelete='cascade', index=True)
     sequence = fields.Integer(string="Sequence", default=10)
     name = fields.Char(string="Name", required=True, translate=True)
-    role_id = fields.Many2one(string="Post", comodel_name='ems.role', required=True, ondelete='restrict',
-                              help="Whoever holds this position gets the task and does the step. The "
-                                   "administrator can always do it too.")
+    role_ids = fields.Many2many(string="Posts", comodel_name='ems.role', relation='ems_certificate_type_step_role_rel',
+                                column1='step_id', column2='role_id', required=True,
+                                help="Whoever holds any of these positions gets the task and may do the step. The "
+                                     "administrator can always do it too.")
     action = fields.Selection(string="Action", selection=STEP_ACTIONS, required=True, default='complete')
+
+    @api.constrains('role_ids')
+    def _check_roles(self):
+        if self.filtered(lambda step: not step.role_ids):
+            raise ValidationError(_("Every step of the approval circuit needs at least one position."))
+
+    def _ems_users(self):
+        """The users who hold any position of the step: they get its task and may do it."""
+        base = self.env['ems.base']
+        users = self.env['res.users']
+        for role in self.role_ids:
+            users |= base.role_users(role)
+        return users
+
+    def _ems_roles_label(self):
+        return ", ".join(self.role_ids.mapped('name'))
 
 
 class EmsCertificateTypeField(models.Model):

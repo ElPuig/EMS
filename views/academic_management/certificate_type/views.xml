@@ -91,12 +91,12 @@
                             <list editable="bottom">
                                 <field name="sequence" widget="handle"/>
                                 <field name="name"/>
-                                <field name="role_id" options="{'no_create': True}"/>
+                                <field name="role_ids" widget="many2many_tags" options="{'no_create': True}"/>
                                 <field name="action"/>
                             </list>
                         </field>
                         <div class="text-muted">
-                            <i class="fa fa-info-circle me-1"/>Each step is done by whoever holds its position, who
+                            <i class="fa fa-info-circle me-1"/>Each step is done by whoever holds one of its positions, who
                             gets it as a task; the administrator can do any step. One step issues the certificate (its
                             number and the issuer's stamp); approvals go after it. The last step generates the PDF and
                             sends it to the applicant.

@@ -14,11 +14,11 @@ Registra las solicitudes de certificado que llegan a secretaría (por ejemplo, d
 
 Cada certificado es de un **tipo** (por ejemplo, *FCT (Formació en Centres de Treball)*), y cada tipo tiene su **circuito de aprobación**: los pasos que hace cada cargo, por orden. El del certificado de FCT es:
 
-1. **Completar los datos** — el coordinador o coordinadora de FP completa los datos del certificado: la empresa, las fechas, las horas y el convenio.
+1. **Completar los datos** — el coordinador o coordinadora de FP o el personal de secretaría (cargo Técnico/a de secretaría) completan los datos del certificado: la empresa, las fechas, las horas y el convenio.
 2. **Expedir el certificado** — secretaría lo expide: recibe el número (por ejemplo `CERT-2026-27-0001`) y el sello de EMS.
 3. **Dar el visto bueno** — el director o directora da el visto bueno. Se genera el PDF y se envía por correo a la persona solicitante.
 
-Cada paso es una tarea para quien ocupa el cargo, que la encuentra en su resumen diario y en el filtro **Pendientes de mí**.
+Cada paso es una tarea para quien ocupa alguno de sus cargos, que la encuentra en su resumen diario y en el filtro **Pendientes de mí**.
 
 Una solicitud puede llegar de dos maneras:
 

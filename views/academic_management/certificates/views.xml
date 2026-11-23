@@ -15,7 +15,7 @@
                     <field name="study_id" optional="show"/>
                     <field name="submission_date"/>
                     <field name="origin" optional="hide"/>
-                    <field name="step_role_id" optional="show"/>
+                    <field name="step_role_ids" widget="many2many_tags" optional="show"/>
                     <field name="state" widget="badge"
                            decoration-info="state == 'in_progress'"
                            decoration-warning="state in ('draft', 'documentation')"
@@ -81,7 +81,7 @@
                         <widget name="web_ribbon" title="Rejected" bg_color="text-bg-danger" invisible="state != 'rejected'"/>
                         <div class="alert alert-info" role="alert" invisible="state != 'in_progress'">
                             <i class="fa fa-arrow-right me-1"/>Current step: <field name="step_id" class="d-inline fw-bold" options="{'no_open': True}"/>
-                            (<field name="step_role_id" class="d-inline" options="{'no_open': True}"/>)
+                            (<field name="step_role_ids" class="d-inline" widget="many2many_tags" options="{'no_open': True}"/>)
                         </div>
                         <div class="alert alert-warning" role="alert" invisible="state != 'in_progress' or not return_reason">
                             <strong>Returned:</strong> <field name="return_reason" class="d-inline"/>

@@ -7,7 +7,7 @@ about them. The centre issues it as a numbered PDF, stamped in EMS by whoever is
 it. Each request belongs to a **certificate type** (`ems.certificate.type`), which defines the
 **data** the certificate needs (`field_ids`), the **text** it prints (`certificate_text`) and the
 **approval circuit**: an ordered list of steps, each one done by whoever
-holds a position of the centre (`ems.role`). The administrator configures the types and their
+holds one of its positions of the centre (`ems.role`; one or more per step). The administrator configures the types and their
 circuits from Academic management > Configuration > Certificates > Certificate types.
 
 Nothing in the code is specific to one kind of certificate: a new type is configured entirely from
@@ -87,7 +87,7 @@ erDiagram
     EMS_CERTIFICATE_TYPE_DOCUMENT ||--o{ EMS_CERTIFICATE_DOCUMENT : "type_document_id (cascade)"
     EMS_CERTIFICATE_DOCUMENT }o--o{ IR_ATTACHMENT : "attachment_ids (its files)"
     EMS_CERTIFICATE_TYPE }o--o{ EMS_LEVEL : "level_ids (who may request it on the portal)"
-    EMS_ROLE ||--o{ EMS_CERTIFICATE_TYPE_STEP : "role_id (restrict)"
+    EMS_ROLE }o--o{ EMS_CERTIFICATE_TYPE_STEP : "role_ids (who does it)"
     EMS_CERTIFICATE_TYPE ||--o{ EMS_CERTIFICATE : "type_id (restrict)"
     EMS_CERTIFICATE_TYPE_STEP |o--o{ EMS_CERTIFICATE : "step_id (current step)"
     RES_PARTNER ||--o{ EMS_CERTIFICATE : "student_id (restrict)"
@@ -139,7 +139,7 @@ from the UI and no upgrade reverts it.
 | Field | Type | Notes |
 |-------|------|-------|
 | `sequence`, `name` | Integer, Char (translatable) | Order and label ("Complete the company's details"). |
-| `role_id` | M2o `ems.role` | Whose step it is: its holders get the task and may act. The administrator may always act too. |
+| `role_ids` | M2m `ems.role`, at least one (`_check_roles`) | Whose step it is: the holders of any of them get the task and may act (`_ems_users()`); the first to do it closes everybody's task. The administrator may always act too. EMS seeds FCT's completing step with the VET coordinator and the secretary technicians (`ems.role_secretary_technician`, a catalog position that brings `ems.group_secretary`), so the secretariat's staff get the task without holding the Secretary's post. |
 | `action` | Selection | `complete` ("Complete the data": fills in data, moves on), `issue` ("Issue the certificate": number + "Issued" stamp), `approve` ("Approve": "Approved" stamp). The labels are full phrases on purpose: a bare "Issue" or "Complete" would take another screen's translation ("Incident"). |
 
 Constraints (`_check_steps` on the type): at least one step, exactly one `issue` step, and every
@@ -165,7 +165,7 @@ Constraints (`_check_steps` on the type): at least one step, exactly one `issue`
 | `certificate_pdf_id` | M2o `ir.attachment` | The final PDF. |
 | `applicant_form_open` | Boolean | The applicant may still edit their form from the link: set when the form is sent or the portal request filed, cleared as soon as someone of the centre writes the request (or one of its documents) or acts on it (step done, return, request documentation, reject, cancel). `_ems_portal_can_edit()`: in draft, or in progress with this flag. While open, the portal shows the form with **Save changes** (`_ems_portal_fill` updates and leaves a note). |
 | `info_request`, `return_reason`, `reject_reason`, `cancel_reason` | Text | Last request for documentation, the last return to the previous step, why it was rejected or cancelled. |
-| `step_user_ids` | M2m `res.users`, computed, searchable | Holders of the current step's role. `is_pending_for_me` (searchable) = the current user is one of them, or is the administrator and the request is in progress. `can_act` = may press the step's button. `can_manage` = may reject, cancel or mark the documentation received: the secretariat (and the administrator) or a holder of the current step. `can_issue_now` = may issue it right away (`action_issue_now`): a holder of the `issue` step's position, or the administrator, while the request is in draft or before that step. The form only offers each button to whoever can use it. |
+| `step_user_ids` | M2m `res.users`, computed, searchable | Holders of any of the current step's positions. `is_pending_for_me` (searchable) = the current user is one of them, or is the administrator and the request is in progress. `can_act` = may press the step's button. `can_manage` = may reject, cancel or mark the documentation received: the secretariat (and the administrator) or a holder of the current step. `can_issue_now` = may issue it right away (`action_issue_now`): a holder of one of the `issue` step's positions, or the administrator, while the request is in draft or before that step. The form only offers each button to whoever can use it. |
 
 ### `ems.certificate.value` (a datum of a request)
 
@@ -212,8 +212,8 @@ stateDiagram-v2
 ```
 
 - `action_done_step()`: checks the step's data (`_ems_check_step_data`), records the stamp, assigns
-  the number on `issue`, and moves to the next step (task to its role holders) or finishes.
-- `action_issue_now()`: whoever holds the `issue` step's position (or the administrator,
+  the number on `issue`, and moves to the next step (task to the holders of its positions) or finishes.
+- `action_issue_now()`: whoever holds one of the `issue` step's positions (or the administrator,
   `can_issue_now`) issues the certificate while the request is still in draft or on an earlier
   step, when they already have every detail. It runs the issuing step's checks first
   (`_ems_check_step_data(action='issue')`: applicant, data required up to the issuing step, required documents), so
@@ -253,7 +253,7 @@ filter 14 ms / 6 cold; form read 18 ms / 23 cold, 1 ms warm; the documentation l
 
 - The list (filter *Pending for me*): one query on `ems_role` (the user's positions) and one search
   of `ems_certificate` by `state` (indexed) and `step_id`; then `step_user_ids` reads the holders
-  once per distinct position on the page (three at most for FCT), not once per row.
+  once per distinct step on the page (three at most for FCT), not once per row.
 - The record rule for staff joins `ems_certificate_type` → steps → positions → employees: a few
   rows each, whatever the number of requests.
 - The portal page: one search by `student_id` (indexed).

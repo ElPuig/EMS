@@ -15,7 +15,7 @@
         <field name="name">Certificate request: holders of a position of its circuit</field>
         <field name="model_id" ref="ems.model_ems_certificate"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('type_id.step_ids.role_id.employee_ids.user_id', '=', user.id)]</field>
+        <field name="domain_force">[('type_id.step_ids.role_ids.employee_ids.user_id', '=', user.id)]</field>
     </record>
 
     <record id="rule_certificate_stamp_all" model="ir.rule">
@@ -28,7 +28,7 @@
         <field name="name">Certificate stamp: holders of a position of its circuit</field>
         <field name="model_id" ref="ems.model_ems_certificate_stamp"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('certificate_id.type_id.step_ids.role_id.employee_ids.user_id', '=', user.id)]</field>
+        <field name="domain_force">[('certificate_id.type_id.step_ids.role_ids.employee_ids.user_id', '=', user.id)]</field>
     </record>
 
     <record id="rule_certificate_document_all" model="ir.rule">
@@ -41,7 +41,7 @@
         <field name="name">Certificate required document: holders of a position of its circuit</field>
         <field name="model_id" ref="ems.model_ems_certificate_document"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('certificate_id.type_id.step_ids.role_id.employee_ids.user_id', '=', user.id)]</field>
+        <field name="domain_force">[('certificate_id.type_id.step_ids.role_ids.employee_ids.user_id', '=', user.id)]</field>
     </record>
 
     <record id="rule_certificate_value_all" model="ir.rule">
@@ -54,7 +54,7 @@
         <field name="name">Certificate detail: holders of a position of its circuit</field>
         <field name="model_id" ref="ems.model_ems_certificate_value"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('certificate_id.type_id.step_ids.role_id.employee_ids.user_id', '=', user.id)]</field>
+        <field name="domain_force">[('certificate_id.type_id.step_ids.role_ids.employee_ids.user_id', '=', user.id)]</field>
     </record>
 
     <!-- The VET coordinator maintains the collaborating companies (and their contacts, such as the

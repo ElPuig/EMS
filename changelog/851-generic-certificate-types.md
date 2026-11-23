@@ -24,3 +24,9 @@
 - New test for the details' values: a wrong number or date from the portal form is left out, each data type is displayed as such, what the current step requires is highlighted until filled in, and a closed request's details can't be changed.
 - The request's document lines and detail lines are kept in step with its type by one shared helper (they were two copies of the same code), creating the missing lines in one batch.
 - The manual screenshots of the certificate list, the certificate details, the type form and the three portal screens were regenerated; their test now pins the FCT type as seeded, whatever other types the database has.
+
+## Several positions per circuit step, and a Secretary technician position:
+
+- A step of a certificate's approval circuit now takes one or more positions (`ems.certificate.type.step.role_ids`, at least one): the holders of any of them get its task (daily summary) and may do it, and the first to do it closes everybody's task. Juan's request after testing: the secretariat's administrative staff hold no position, so they got no task and could not do the "complete the data" step.
+- New catalog position "Secretary technician" (`ems.role_secretary_technician`, ASP, several holders, brings `ems.group_secretary`), to assign to the secretariat's staff. FCT's completing step comes with the VET coordinator and this position.
+- Migration (18.0.0.51.0 post-migrate): each step's former position is copied into the new list before Odoo drops the old column, and FCT's completing step gets the new position.

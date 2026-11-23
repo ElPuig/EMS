@@ -31,21 +31,21 @@
             <field name="type_id" ref="certificate_type_fct"/>
             <field name="sequence">10</field>
             <field name="name">Complete the workplace training</field>
-            <field name="role_id" ref="ems.role_vetcoord"/>
+            <field name="role_ids" eval="[(6, 0, [ref('ems.role_vetcoord'), ref('ems.role_secretary_technician')])]"/>
             <field name="action">complete</field>
         </record>
         <record id="certificate_step_fct_issue" model="ems.certificate.type.step">
             <field name="type_id" ref="certificate_type_fct"/>
             <field name="sequence">20</field>
             <field name="name">Issue the certificate</field>
-            <field name="role_id" ref="ems.role_secretary"/>
+            <field name="role_ids" eval="[(6, 0, [ref('ems.role_secretary')])]"/>
             <field name="action">issue</field>
         </record>
         <record id="certificate_step_fct_approve" model="ems.certificate.type.step">
             <field name="type_id" ref="certificate_type_fct"/>
             <field name="sequence">30</field>
             <field name="name">Approve the certificate</field>
-            <field name="role_id" ref="ems.role_director"/>
+            <field name="role_ids" eval="[(6, 0, [ref('ems.role_director')])]"/>
             <field name="action">approve</field>
         </record>
 

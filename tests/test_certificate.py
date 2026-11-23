@@ -58,9 +58,9 @@ def create_certificate_fixtures(cls, prefix='TCRT'):
                     'append_to_certificate': False}),
         ],
         'step_ids': [
-            (0, 0, {'sequence': 10, 'name': 'Complete', 'role_id': roles['complete'].id, 'action': 'complete'}),
-            (0, 0, {'sequence': 20, 'name': 'Issue', 'role_id': roles['issue'].id, 'action': 'issue'}),
-            (0, 0, {'sequence': 30, 'name': 'Approve', 'role_id': roles['approve'].id, 'action': 'approve'}),
+            (0, 0, {'sequence': 10, 'name': 'Complete', 'role_ids': [(6, 0, roles['complete'].ids)], 'action': 'complete'}),
+            (0, 0, {'sequence': 20, 'name': 'Issue', 'role_ids': [(6, 0, roles['issue'].ids)], 'action': 'issue'}),
+            (0, 0, {'sequence': 30, 'name': 'Approve', 'role_ids': [(6, 0, roles['approve'].ids)], 'action': 'approve'}),
         ],
     })
     cls.steps = cls.certificate_type.step_ids.sorted('sequence')
@@ -99,7 +99,7 @@ def create_other_type(case, name, field_commands, text):
     given details and text."""
     return case.env['ems.certificate.type'].create({
         'name': name, 'level_ids': [(6, 0, case.level.ids)], 'field_ids': field_commands, 'certificate_text': text,
-        'step_ids': [(0, 0, {'name': 'Issue', 'role_id': case.roles['issue'].id, 'action': 'issue'})],
+        'step_ids': [(0, 0, {'name': 'Issue', 'role_ids': [(6, 0, case.roles['issue'].ids)], 'action': 'issue'})],
     })
 
 
@@ -230,6 +230,31 @@ class TestCertificate(TransactionCase):
         admin = create_role_user(self, 'academic_admin', 'test_tcrt_admin')
         certificate.with_user(admin).action_done_step()
         self.assertEqual(certificate.step_id, self.steps[1])
+
+    def test_step_with_several_positions(self):
+        """Holders of any of the step's positions get its task and may do it; the first to do it
+        closes everybody's task. The new secretary technician position brings the secretariat group."""
+        technician = create_role_user(self, 'teacher', 'test_tcrt_technician', name='TCRT Technician')
+        technician.groups_id = [(3, self.env.ref('ems.group_teacher').id)]
+        role = self.env.ref('ems.role_secretary_technician')
+        role.employee_ids = [(4, create_role_employee(self, technician, employee_type='asp').id)]
+        self.assertTrue(technician.has_group('ems.group_secretary'))
+        self.steps[0].role_ids = [(4, role.id)]
+        with self.assertRaises(ValidationError):
+            self.steps[0].role_ids = [(5, 0, 0)]
+
+        certificate = self._submitted()
+        note = certificate.message_ids.filtered(lambda message: 'Request submitted' in (message.body or ''))
+        self.assertIn(self.roles['complete'].name, note.body)
+        self.assertIn(role.name, note.body)
+        self.assertEqual(certificate.activity_ids.user_id, self.coordinator | technician)
+        self.assertTrue(certificate.with_user(technician).is_pending_for_me)
+        self.assertIn(certificate, self.env['ems.certificate'].with_user(technician).search(
+            [('is_pending_for_me', '=', True)]))
+        self._complete_training(certificate)
+        certificate.with_user(technician).action_done_step()
+        self.assertEqual(certificate.step_id, self.steps[1])
+        self.assertEqual(certificate.activity_ids.user_id, self.secretary, "Both tasks of the first step close.")
 
     def test_issuer_issues_it_now_skipping_earlier_steps(self):
         certificate = self._submitted()
@@ -485,7 +510,7 @@ class TestCertificate(TransactionCase):
         with self.assertRaises(ValidationError):
             self.env['ems.certificate.type'].create({
                 'name': 'TCRT no documents', 'requires_documents': True,
-                'step_ids': [(0, 0, {'name': 'Issue', 'role_id': self.roles['issue'].id, 'action': 'issue'})],
+                'step_ids': [(0, 0, {'name': 'Issue', 'role_ids': [(6, 0, self.roles['issue'].ids)], 'action': 'issue'})],
             })
         self.assertEqual(self._submitted().document_ids.mapped('uploaders'), ['Anyone', 'TCRT complete position'])
 

@@ -14,11 +14,11 @@ Registra les sol·licituds de certificat que arriben a secretaria (per exemple, 
 
 Cada certificat és d'un **tipus** (per exemple, *FCT (Formació en Centres de Treball)*), i cada tipus té el seu **circuit d'aprovació**: els passos que fa cada càrrec, per ordre. El del certificat de FCT és:
 
-1. **Completar les dades** — el coordinador o coordinadora d'FP completa les dades del certificat: l'empresa, les dates, les hores i el conveni.
+1. **Completar les dades** — el coordinador o coordinadora d'FP o el personal de secretaria (càrrec Tècnic/a de secretaria) completen les dades del certificat: l'empresa, les dates, les hores i el conveni.
 2. **Expedir el certificat** — secretaria l'expedeix: rep el número (per exemple `CERT-2026-27-0001`) i el segell d'EMS.
 3. **Donar el vistiplau** — el director o directora hi dona el vistiplau. Es genera el PDF i s'envia per correu a la persona sol·licitant.
 
-Cada pas és una tasca per a qui ocupa el càrrec, que la troba al seu resum diari i al filtre **Pendents de mi**.
+Cada pas és una tasca per a qui ocupa algun dels seus càrrecs, que la troba al seu resum diari i al filtre **Pendents de mi**.
 
 Una sol·licitud pot arribar de dues maneres:
 

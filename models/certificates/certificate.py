@@ -64,7 +64,7 @@ class EmsCertificate(models.Model):
                              ])
     step_id = fields.Many2one(string="Current step", comodel_name='ems.certificate.type.step', readonly=True,
                               copy=False, ondelete='restrict', tracking=True)
-    step_role_id = fields.Many2one(string="Pending", related='step_id.role_id')
+    step_role_ids = fields.Many2many(string="Pending", related='step_id.role_ids')
     step_action = fields.Selection(related='step_id.action')
     origin = fields.Selection(string="Requested from", readonly=True, default='secretariat', selection=[
         ('portal', 'Portal'),
@@ -149,17 +149,16 @@ class EmsCertificate(models.Model):
 
     @api.depends('step_id')
     def _compute_step_user_ids(self):
-        base = self.env['ems.base']
-        users_by_role = {role: base.role_users(role) for role in self.step_id.role_id}
+        users_by_step = {step: step._ems_users() for step in self.step_id}
         for certificate in self:
-            certificate.step_user_ids = users_by_role.get(certificate.step_id.role_id, self.env['res.users'])
+            certificate.step_user_ids = users_by_step.get(certificate.step_id, self.env['res.users'])
 
     def _search_step_user_ids(self, operator, value):
         if operator not in ('=', 'in'):
             raise NotImplementedError(f"Unsupported search on step_user_ids: {operator}")
         user_ids = value if isinstance(value, (list, tuple)) else [value]
         roles = self.env['ems.role'].sudo().search([('employee_ids.user_id', 'in', user_ids)])
-        return [('step_id.role_id', 'in', roles.ids)]
+        return [('step_id.role_ids', 'in', roles.ids)]
 
     @api.depends('state', 'step_id')
     @api.depends_context('uid')
@@ -192,18 +191,16 @@ class EmsCertificate(models.Model):
     @api.depends_context('uid')
     def _compute_can_issue_now(self):
         is_admin = self._ems_is_admin()
-        base = self.env['ems.base']
-        issuers_by_role = {}
+        issuers_by_step = {}
         for certificate in self:
             issue_step = certificate._ems_issue_step()
             if certificate.state not in ('draft', 'in_progress') or not issue_step or (
                     certificate.state == 'in_progress' and certificate.step_id.sequence >= issue_step.sequence):
                 certificate.can_issue_now = False
                 continue
-            role = issue_step.role_id
-            if role not in issuers_by_role:
-                issuers_by_role[role] = base.role_users(role)
-            certificate.can_issue_now = is_admin or self.env.user in issuers_by_role[role]
+            if issue_step not in issuers_by_step:
+                issuers_by_step[issue_step] = issue_step._ems_users()
+            certificate.can_issue_now = is_admin or self.env.user in issuers_by_step[issue_step]
 
     @api.depends('value_ids.field_type')
     def _compute_value_field_types(self):
@@ -347,7 +344,7 @@ class EmsCertificate(models.Model):
         for certificate in self:
             if not certificate.can_act:
                 raise AccessError(_("The current step of %(request)s is not yours: it is for %(position)s.",
-                                    request=certificate.display_name, position=certificate.step_role_id.name or '-'))
+                                    request=certificate.display_name, position=certificate.step_id._ems_roles_label() or '-'))
 
     def _ems_check_state(self, expected):
         labels = dict(self._fields['state']._description_selection(self.env))
@@ -424,7 +421,7 @@ class EmsCertificate(models.Model):
                 'state': 'in_progress', 'step_id': first.id,
                 'submission_date': fields.Date.context_today(certificate),
             })
-            certificate._ems_post_note(_("Request submitted: it is now with %s.", first.role_id.name))
+            certificate._ems_post_note(_("Request submitted: it is now with %s.", first._ems_roles_label()))
         self._ems_schedule_task()
 
     def action_done_step(self):
@@ -628,12 +625,12 @@ class EmsCertificate(models.Model):
     # --- tasks and messages ----------------------------------------------------
 
     def _ems_schedule_task(self):
-        """The current step's task, for whoever holds its position. Quietly: they find it in
+        """The current step's task, for whoever holds one of its positions. Quietly: they find it in
         their daily summary (developer, 2026-10-31), not in an email of its own."""
         base = self.env['ems.base']
         for certificate in self.filtered(lambda certificate: certificate.state == 'in_progress' and certificate.step_id):
             step = certificate.step_id
-            for user in base.task_users(base.role_users(step.role_id), step.role_id.name):
+            for user in base.task_users(step._ems_users(), step._ems_roles_label()):
                 certificate.sudo().with_context(mail_activity_quick_update=True).activity_schedule(
                     act_type_xmlid='ems.mail_activity_certificate_step',
                     summary=_("%(step)s: %(student)s", step=step.name, student=certificate._ems_applicant_name()),

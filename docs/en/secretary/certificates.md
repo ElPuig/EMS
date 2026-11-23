@@ -14,11 +14,11 @@ Register the certificate requests that reach the secretariat (for example, from 
 
 Each certificate is of a **type** (for example, *FCT (Formació en Centres de Treball)*), and each type has its **approval circuit**: the steps each position does, in order. The FCT certificate's is:
 
-1. **Complete the data** — the VET coordinator completes the certificate details: the company, the dates, the hours and the agreement.
+1. **Complete the data** — the VET coordinator or the secretariat's staff (Secretary technician position) complete the certificate details: the company, the dates, the hours and the agreement.
 2. **Issue the certificate** — the secretariat issues it: it gets its number (for example `CERT-2026-27-0001`) and the EMS stamp.
 3. **Approve** — the Director approves it. The PDF is generated and emailed to the applicant.
 
-Each step is a task for whoever holds the position, who finds it in their daily summary and under the **Pending for me** filter.
+Each step is a task for whoever holds one of its positions, who finds it in their daily summary and under the **Pending for me** filter.
 
 A request arrives in one of two ways:
 

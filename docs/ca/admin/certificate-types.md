@@ -78,7 +78,9 @@ A més dels documents obligatoris, qualsevol sol·licitud admet **Altra document
 Cada línia és un pas, per ordre:
 
 - **Nom** — el que veu qui ha de fer el pas.
-- **Càrrec** — qui l'ocupa rep la tasca i fa el pas. Els càrrecs i qui els ocupa es configuren a [Càrrecs](teacher-roles.md).
+- **Càrrecs** — un o més càrrecs. Qui ocupa algun d'aquests càrrecs rep la tasca i pot fer el pas; quan un d'ells el fa, la tasca dels altres es tanca. Els càrrecs i qui els ocupa es configuren a [Càrrecs](teacher-roles.md).
+
+Per donar un pas al personal de secretaria, afegiu-hi el càrrec **Tècnic/a de secretaria** i assigneu aquest càrrec a cadascuna d'aquestes persones. Qui l'ocupa també té accés a la secretaria. El primer pas del tipus FCT ja el porta, juntament amb el coordinador d'FP.
 - **Acció**:
   - **Completar les dades** — completa la informació i passa la sol·licitud al pas següent.
   - **Expedir el certificat** — dona el número al certificat i hi posa el segell d'expedició.

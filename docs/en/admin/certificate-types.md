@@ -78,7 +78,9 @@ Besides the required documents, any request takes optional **Other documentation
 Each line is a step, in order:
 
 - **Name** — what whoever does the step sees.
-- **Post** — whoever holds it gets the task and does the step. Positions and their holders are configured in [Positions](teacher-roles.md).
+- **Posts** — one or more positions. Whoever holds any of them gets the task and may do the step; once one of them does it, the others' task closes. Positions and their holders are configured in [Positions](teacher-roles.md).
+
+To give a step to the secretariat's staff, add the **Secretary technician** position to it and assign that position to each of them. Whoever holds it also gets access to the secretariat. The FCT type's first step comes with it, together with the VET coordinator.
 - **Action**:
   - **Complete the data** — completes the information and hands the request on.
   - **Issue the certificate** — gives the certificate its number and the issuing stamp.

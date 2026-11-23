@@ -55,6 +55,21 @@ class TestGroupScheduleDeclaration(TransactionCase):
         self.level.declaration_code = False
         self.assertEqual(self.group.get_schedule_declaration_data()['page'], 'general')
 
+    def test_level_of_a_general_group(self):
+        """Page 5 names the level the way the centre says it (ESO, Batxillerat), like page 6 names the
+        cycle's degree; a level without one of those codes falls back to its own name."""
+        self.assertEqual(self.group.get_schedule_declaration_data()['level'], 'ESO')
+        self.level.declaration_code = 'bat'
+        self.assertEqual(self.group.get_schedule_declaration_data()['level'], 'Batxillerat')
+        self.level.declaration_code = False
+        self.assertEqual(self.group.get_schedule_declaration_data()['level'], self.level.name)
+
+    def test_general_page_shows_level_course_and_group_letter(self):
+        self.group.write({'course': 3, 'acronym': 'C'})
+        general = self._render(self.group)
+        for text in ('Nivell', 'ESO', 'Acrònim', self.group.name, 'Curs', '>3<', '>C<', 'Prof. tutor/a'):
+            self.assertIn(text.encode(), general, text)
+
     def test_degree_of_a_cycle(self):
         self.assertEqual(self.cycle_group.get_schedule_declaration_data()['degree'], 'Superior')
         self.cycle_level.declaration_code = 'cfgm'

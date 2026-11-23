@@ -52,11 +52,21 @@
                     <p class="sd-title" t-if="not vocational">Horari grup d’alumnes</p>
                     <p class="sd-title" t-else="">Distribució horària dels Cicles Formatius</p>
 
+                    <!-- The same layout as the cycles' box below: level, acronym, course and group letter
+                         (developer, 2026-11-23), then the tutor. -->
                     <table t-if="not vocational" class="sd-box">
-                        <colgroup><col style="width: 10%;"/><col style="width: 40%;"/><col style="width: 15%;"/><col style="width: 35%;"/></colgroup>
+                        <colgroup>
+                            <col style="width: 13%;"/><col style="width: 37%;"/><col style="width: 7%;"/><col style="width: 11%;"/>
+                            <col style="width: 7%;"/><col style="width: 7%;"/><col style="width: 9%;"/><col style="width: 9%;"/>
+                        </colgroup>
                         <tr>
-                            <td class="sd-label">Grup</td><td><t t-esc="group.name"/></td>
-                            <td class="sd-label">Prof. tutor/a</td><td><t t-esc="group.tutor_id.name"/></td>
+                            <td class="sd-label">Nivell</td><td><t t-esc="data['level']"/></td>
+                            <td class="sd-label">Acrònim</td><td><t t-esc="group.name"/></td>
+                            <td class="sd-label">Curs</td><td><t t-esc="group.course"/></td>
+                            <td class="sd-label">Grup</td><td><t t-esc="group.acronym"/></td>
+                        </tr>
+                        <tr>
+                            <td class="sd-label">Prof. tutor/a</td><td colspan="7"><t t-esc="group.tutor_id.name"/></td>
                         </tr>
                     </table>
                     <table t-else="" class="sd-box">

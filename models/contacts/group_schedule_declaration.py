@@ -3,7 +3,7 @@
 from odoo import _, api, models
 from odoo.exceptions import UserError
 
-from ..employees.non_teaching_type import VOCATIONAL_DEGREES
+from ..employees.non_teaching_type import GENERAL_LEVELS, VOCATIONAL_DEGREES
 
 class EmsGroupScheduleDeclaration(models.Model):
     """The group pages of the Departament's "Annexos Dades anuals" (issue #853), the counterpart of
@@ -12,12 +12,14 @@ class EmsGroupScheduleDeclaration(models.Model):
 
     def get_schedule_declaration_data(self):
         """What the group's page adds to the weekly grid: which page of the form it takes, the cycle's
-        degree, how many students it has and its study's duration in hours."""
+        degree (page 6) or the level's name (page 5), how many students it has and its study's
+        duration in hours."""
         self.ensure_one()
         code = self.level_id.declaration_code
         return {
             'page': 'vocational' if code in VOCATIONAL_DEGREES else 'general',
             'degree': VOCATIONAL_DEGREES.get(code, ''),
+            'level': GENERAL_LEVELS.get(code) or self.level_id.name or '',
             'students': self.env['res.partner'].search_count(
                 [('main_group_id', '=', self.id), ('contact_type', '=', 'student')]),
             'course_hours': self.study_id.duration_hours,

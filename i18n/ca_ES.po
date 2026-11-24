@@ -17301,6 +17301,7 @@ msgid ""
 msgstr "Només secretaria, l'administració acadèmica, la direcció d'estudis i els tutors poden enviar autoritzacions."
 
 #. module: ems
+
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block
 msgid "Respond"
@@ -26648,6 +26649,7 @@ msgid "Correction to the students of %(groups)s: %(change)s."
 msgstr "Rectificació a l'alumnat de %(groups)s: %(change)s."
 
 #. module: ems
+
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_group__joinable_group_ids
 msgid ""
@@ -56279,6 +56281,7 @@ msgstr "Si aquest departament pertany a l'àrea PAS (el seu departament top-leve
 #: model:ir.model.fields,help:ems.field_hr_department__effective_manager_id
 msgid "The Manager that applies to this department: its own, or the one of the parent department when it shares it."
 msgstr "El gestor que s'aplica a aquest departament: el propi o, si el comparteix, el del departament pare."
+
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/contact.py:0

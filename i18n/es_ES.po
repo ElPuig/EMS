@@ -17303,6 +17303,7 @@ msgid ""
 msgstr "Solo secretaría, la administración académica, la jefatura de estudios y los tutores pueden enviar autorizaciones."
 
 #. module: ems
+
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block
 msgid "Respond"
@@ -26652,6 +26653,7 @@ msgid "Correction to the students of %(groups)s: %(change)s."
 msgstr "Rectificación al alumnado de %(groups)s: %(change)s."
 
 #. module: ems
+
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_group__joinable_group_ids
 msgid ""
@@ -56314,6 +56316,7 @@ msgstr "Si este departamento pertenece al área PAS (su departamento top-level e
 #: model:ir.model.fields,help:ems.field_hr_department__effective_manager_id
 msgid "The Manager that applies to this department: its own, or the one of the parent department when it shares it."
 msgstr "El gestor que se aplica a este departamento: el propio o, si lo comparte, el del departamento padre."
+
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/contact.py:0

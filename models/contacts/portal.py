@@ -327,6 +327,15 @@ class ems_contact_portal(models.Model):
     # ------------------------------------------------------------------
     # Changing the main email of a contact with (or without) portal access (issue #842)
     # ------------------------------------------------------------------
+    def _ems_is_family_email_clash(self, other):
+        """Whether this partner and `other` are a student (or ex-student) and a family contact
+        holding the same email, which is never allowed (issue #842)."""
+        self.ensure_one()
+        return bool(
+            self.email_normalized and self.email_normalized == other.email_normalized
+            and (self.contact_type == 'family') != (other.contact_type == 'family')
+            and {self.contact_type, other.contact_type} & set(STUDENT_LIKE_TYPES))
+
     def _ems_portal_grantable(self):
         """The partners of self that could be given portal access with their email: an active
         student, applicant or family contact (one with a student) the current user may manage,

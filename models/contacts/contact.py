@@ -262,9 +262,7 @@ class ResPartner(models.Model):
         ])
         for relation in related:
             partner, other = relation.this_partner_id, relation.other_partner_id
-            if partner.email_normalized == other.email_normalized \
-                    and (partner.contact_type == 'family') != (other.contact_type == 'family') \
-                    and {partner.contact_type, other.contact_type} & set(STUDENT_LIKE_TYPES):
+            if partner._ems_is_family_email_clash(other):
                 raise ValidationError(_(
                     "%(email)s is already the email of %(other)s, linked to %(partner)s: a student "
                     "and their family must have different emails (each gets a portal login of "

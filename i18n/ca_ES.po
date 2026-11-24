@@ -2571,12 +2571,6 @@ msgid "Change grade session state"
 msgstr "Canviar l'estat de la sessió d'avaluació"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/contact.py:0
-msgid "Changing the main email revokes the portal access linked to the old email and sends a new portal invitation to the new email. Discard the change if you don't want this."
-msgstr "Canviar el correu electrònic principal revoca l'accés al portal vinculat al correu antic i envia una nova invitació al portal al correu nou. Descarta el canvi si no ho vols."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "Check attendance records and schedules"
 msgstr "Consultar registres d'assistència i horaris"
@@ -8136,12 +8130,6 @@ msgstr "Accés al portal (alumnes/famílies)"
 #: model:ir.model,name:ems.model_ems_portal_access_wizard_line
 msgid "Portal access recipient (preview)"
 msgstr "Destinatari de l'accés al portal (previsualització)"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/contact.py:0
-msgid "Portal access will be updated"
-msgstr "L'accés al portal s'actualitzarà"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_zip
@@ -56091,18 +56079,6 @@ msgstr "Què cal fer"
 #: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__selected
 msgid "Apply"
 msgstr "Aplica"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/contact.py:0
-msgid "Portal access stays revoked"
-msgstr "L'accés al portal continua revocat"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/contact.py:0
-msgid "The portal access of this contact was revoked, so the new email does not get access by itself. To give it access, save and use Actions > Portal access (students/families) > Grant access."
-msgstr "L'accés al portal d'aquest contacte es va revocar, de manera que el correu nou no en té per si sol. Per donar-li accés, desa i usa Accions > Accés al portal (alumnes/famílies) > Concedeix l'accés."
 
 #. module: ems
 #. odoo-python

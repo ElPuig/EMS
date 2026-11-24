@@ -64,7 +64,9 @@
             <field name="model_id" ref="base.model_res_partner"/>
             <field name="binding_model_id" ref="base.model_res_partner"/>
             <field name="binding_view_types">list</field>
-            <field name="groups_id" eval="[(4, ref('ems.group_academic_admin')), (4, ref('ems.group_secretary')), (4, ref('ems.group_teacher'))]"/>
+            <!-- The groups that can open the wizard (ir.model.access.csv): offering it to a teacher who is
+                 not a tutor, or to a role implying teacher, ended in an access error (issue #842). -->
+            <field name="groups_id" eval="[(6, 0, [ref('ems.group_academic_admin'), ref('ems.group_secretary'), ref('ems.group_tutor')])]"/>
             <field name="state">code</field>
             <!-- Keep this to a single call: safe_eval's context has no `_`, so any
                  translatable message has to come from real Python (res.partner). -->

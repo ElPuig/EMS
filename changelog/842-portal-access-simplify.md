@@ -14,6 +14,10 @@ A family contact can never have a centre (corporate) email, and a student's pers
 
 # Fixes
 
+## Portal access action offered to roles that cannot open it:
+
+The students list's "Portal access" action was offered to every teacher (and to roles that include teacher) although only admin, secretary and tutors can open the wizard, so the others got an access error. It is now offered only to those who can use it.
+
 ## Revoking portal access now unchecks it:
 
 A revoked access (archived portal user) was still shown as current access in the wizard.

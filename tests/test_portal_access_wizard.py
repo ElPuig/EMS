@@ -398,3 +398,28 @@ class TestPortalAccessWizard(TransactionCase):
         self.adult_student.user_ids = [(4, portal_user.id)]
         self.adult_student._ems_sync_portal_login()
         self.assertEqual(portal_user.login, old_email)
+
+    def test_login_held_by_a_contact_assigned_to_the_student_says_they_cannot_share_it(self):
+        # A second family contact of the same student already holds the login this one needs.
+        other = self.env['res.partner'].create({
+            'name': 'Other Family (Portal Wizard)', 'contact_type': 'family', 'email': 'other.family.pw@example.com'})
+        self.env['res.partner.relation'].create({
+            'left_partner_id': other.id, 'type_id': self.relation_father.id,
+            'right_partner_id': self.minor_student.id})
+        self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Other Family User (Portal Wizard)', 'login': self.family_contact.email,
+            'partner_id': other.id, 'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
+        })
+        conflict = self.family_contact.with_context(lang='en_US')._ems_portal_login_conflict(self.minor_student)
+        self.assertEqual(conflict['holder_id'], other.id)
+        self.assertTrue(conflict['related'])
+        self.assertIn('cannot share a portal login', conflict['advice'])
+
+    def test_the_bulk_action_is_offered_only_to_who_can_open_the_wizard(self):
+        action = self.env.ref('ems.action_portal_access_bulk')
+        offered = action.groups_id
+        self.assertIn(self.env.ref('ems.group_tutor'), offered)
+        self.assertNotIn(self.env.ref('ems.group_teacher'), offered)
+        wizard_access = self.env['ir.model.access'].search([
+            ('model_id.model', '=', 'ems.portal.access.wizard'), ('perm_create', '=', True)])
+        self.assertLessEqual(offered, wizard_access.mapped('group_id'))

@@ -3,7 +3,6 @@ from psycopg2 import IntegrityError
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
 
-from .portal import STUDENT_LIKE_TYPES
 
 class ems_partner_relation_all(models.AbstractModel):
     _inherit = 'res.partner.relation.all'
@@ -23,9 +22,7 @@ class EmsPartnerRelation(models.Model):
         see res.partner._check_email_not_shared_with_family)."""
         for relation in self:
             left, right = relation.left_partner_id, relation.right_partner_id
-            if left.email_normalized and left.email_normalized == right.email_normalized \
-                    and (left.contact_type == 'family') != (right.contact_type == 'family') \
-                    and {left.contact_type, right.contact_type} & set(STUDENT_LIKE_TYPES):
+            if left._ems_is_family_email_clash(right):
                 raise ValidationError(_(
                     "%(left)s and %(right)s have the same email (%(email)s): a student and their "
                     "family must have different emails.",

@@ -2571,12 +2571,6 @@ msgid "Change grade session state"
 msgstr "Cambiar el estado de la sesión de evaluación"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/contact.py:0
-msgid "Changing the main email revokes the portal access linked to the old email and sends a new portal invitation to the new email. Discard the change if you don't want this."
-msgstr "Cambiar el correo electrónico principal revoca el acceso al portal vinculado al correo antiguo y envía una nueva invitación al portal al correo nuevo. Descarta el cambio si no deseas esto."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "Check attendance records and schedules"
 msgstr "Consultar registros de asistencia y horarios"
@@ -8136,12 +8130,6 @@ msgstr "Acceso al portal (alumnos/familias)"
 #: model:ir.model,name:ems.model_ems_portal_access_wizard_line
 msgid "Portal access recipient (preview)"
 msgstr "Destinatario del acceso al portal (vista previa)"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/contact.py:0
-msgid "Portal access will be updated"
-msgstr "El acceso al portal se actualizará"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_zip
@@ -56126,18 +56114,6 @@ msgstr "Qué hay que hacer"
 #: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__selected
 msgid "Apply"
 msgstr "Aplica"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/contact.py:0
-msgid "Portal access stays revoked"
-msgstr "El acceso al portal sigue revocado"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/contact.py:0
-msgid "The portal access of this contact was revoked, so the new email does not get access by itself. To give it access, save and use Actions > Portal access (students/families) > Grant access."
-msgstr "El acceso al portal de este contacto se revocó, de modo que el correo nuevo no lo tiene por sí solo. Para darle acceso, guarda y usa Acciones > Acceso al portal (alumnos/familias) > Conceder acceso."
 
 #. module: ems
 #. odoo-python

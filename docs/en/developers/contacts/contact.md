@@ -371,7 +371,7 @@ the importers, an approved contact data request). Providers and staff are left a
 
 ## Portal email change
 
-`write()` detects, **before** calling `super()`, any student/family partner whose `email` is about to change while holding active portal access (`_has_active_portal_user`), then **after** the write calls `_apply_portal_email_change()` for each: revokes portal access at the old email and re-grants it at the new one via `ems.portal.access.wizard` (sudo — tutors lack `res.users` rights), and posts a portal-visible message on the related student(s) explaining what happened. `_onchange_email_portal_warning` gives the same heads-up client-side, before Save, via a non-blocking `warning`.
+Saving a new `email` on a student, applicant or family contact form asks what to do with the portal access (`get_portal_email_question`, answered through the form controller's `onWillSaveRecord`; see [Portal access wizard](portal_access_wizard.md#changing-a-main-email)). `write()` captures, **before** calling `super()`, the partners whose `email` really changes, takes the answer from the non-stored `portal_email_decision` field and, **after** the write, either calls `_apply_portal_email_change()` for those holding active portal access (revokes it at the old email and re-grants it at the new one via `ems.portal.access.wizard`, sudo, since tutors lack `res.users` rights, and posts a portal-visible message on the related student(s)) or gives access to those without it (`_ems_grant_portal_after_email_change`). Without an answer (imports, other code) an active access still moves by itself. A student's email can never equal a linked family contact's (`_check_email_not_shared_with_family`, checked only for emails that really change).
 
 ---
 

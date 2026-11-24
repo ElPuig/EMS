@@ -94,3 +94,12 @@ class TestPortalEmailChange(TransactionCase):
         self._grant(student)
         student.with_user(self.admin_user).write({'email': 'auto@example.com'})
         self.assertEqual(self._login(student), 'auto@example.com')
+
+    def test_a_tutor_of_another_group_is_not_offered_the_access(self):
+        other_teacher = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Other Tutor (Email Change)', 'login': 'test_other_tutor_email_change',
+            'groups_id': [(4, self.env.ref('ems.group_tutor').id), (4, self.env.ref('base.group_user').id)],
+        })
+        student = self._student()
+        self.assertFalse(self.env['res.partner'].with_user(other_teacher).get_portal_email_question(
+            student.id, 'new@example.com'))

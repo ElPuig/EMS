@@ -484,7 +484,9 @@ class EmsAttendanceSessionHeader(models.Model):
         raise UserError(_("Attendance sessions cannot be duplicated."))
 
     def unlink(self):
-        # NOTE: removing the session removes also the statuses and the related notification entries
+        # NOTE: removing the session removes also the statuses (database cascade, so their queued
+        # notification jobs are not cancelled: ems.attendance_issue_status.send_notification() ends
+        # quietly when its status is gone, issue #816)
         # TODO: should be blocked if the notifications have been sent? I guess so, but the admins should be ablte to delete those
         #  after confirming a popup.
         date = self.date

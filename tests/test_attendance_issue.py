@@ -161,6 +161,22 @@ class TestAttendanceIssue(TransactionCase):
         status.unlink()
         self.assertIn(job.state, ('cancelled', 'done'))
 
+    def test_deleting_the_session_leaves_no_failing_notification_job(self):
+        """Issue #816: deleting a session removes its lines and, through the database's own
+        ON DELETE CASCADE, their statuses, which never goes through the status's unlink() and so
+        never cancels the queued notification. The job then ran on a record that no longer
+        existed (MissingError). It must end quietly and send nothing."""
+        self._mark_miss(self.student1)
+        status = self._issue_tutor().attendance_issue_student_ids.attendance_issue_status_ids
+        status_ids = status.ids
+        self.session.unlink()
+        self.assertFalse(self.env['ems.attendance_issue_status'].browse(status_ids).exists())
+
+        self.mail_transport.reset_mock()
+        orphan = self.env['ems.attendance_issue_status'].browse(status_ids)
+        self.assertTrue(orphan.send_notification())
+        self.mail_transport.assert_not_called()
+
     # --- the tutor's daily summary, with everything not reported yet ----------------------
 
     def _send_summary(self):

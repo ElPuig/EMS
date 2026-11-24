@@ -462,6 +462,10 @@ def mock_outgoing_email(cls):
     )
     mock = patcher.start()
     cls.addClassCleanup(patcher.stop)
+    # A development machine cancels OdooBot's emails before they reach the transport (issue #752),
+    # so a test of an automatic notice would see nothing sent there and pass or fail depending on
+    # the machine it runs on. Written inside the class's transaction, rolled back with it.
+    cls.env['ir.config_parameter'].sudo().set_param('ems.dev_mail_odoobot', 'True')
     return mock
 
 

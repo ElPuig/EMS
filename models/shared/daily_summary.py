@@ -64,7 +64,7 @@ class EmsDailySummaryUsers(models.Model):
         return super().SELF_WRITEABLE_FIELDS + ['ems_digest_moment', 'ems_digest_time']
 
     def _compute_ems_is_tutor(self):
-        tutors = self.env['ems.group'].search([('tutor_id.user_id', 'in', self.ids)]).tutor_id.user_id
+        tutors = self.env['ems.group'].search([('tutor_id.acting_user_ids', 'in', self.ids)]).tutor_id._ems_acting_teacher().user_id
         for user in self:
             user.ems_is_tutor = user in tutors
 

@@ -8,7 +8,7 @@ from odoo import fields
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group, mock_outgoing_email, next_student_id
+from .common import create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email, next_student_id
 
 
 class TestStrike(TransactionCase):
@@ -168,6 +168,17 @@ class TestStrike(TransactionCase):
         strike = self._create_strike(self.teacher_a_user)
         with self.assertRaises(AccessError):
             strike.with_user(self.teacher_a_user).unlink()
+
+    def test_the_tutor_copy_goes_to_their_substitute(self):
+        """Issue #748: the tutor's copy of a strike notice reaches whoever is replacing them."""
+        substitute_user = create_role_user(self, 'teacher', 'test_substitute_tutor_strike',
+                                           email='substitute.tutor.strike@example.com')
+        create_role_employee(self, substitute_user, substitute_of_id=self.tutor_employee.id)
+        strike = self._create_strike(self.teacher_a_user)
+
+        tutors = strike.sudo()._collect_recipients_by_kind()['tutor']
+
+        self.assertEqual([email for email, _lang in tutors], ['substitute.tutor.strike@example.com'])
 
     def test_tutor_sees_tutee_strikes(self):
         strike = self._create_strike(self.teacher_a_user)

@@ -106,6 +106,32 @@ Les hores d'un bloc d'*Atenció a l'alumnat* compten a la fila del seu nivell o 
 
 La declaració dels grups funciona igual: a **Comunitat Educativa → Grups**, passeu a la vista de llista, seleccioneu els grups principals i trieu **Imprimeix → Declaració horària** (una pàgina cadascun), o obriu un grup i trieu **Accions → Imprimeix la declaració horària**. A [Imprimir la declaració horària oficial](../admin/working-schedules.md#imprimir-la-declaració-horària-oficial) teniu què contenen les pàgines.
 
+## Registrar una substitució
+
+Quan un docent és substituït mentre és absent, registreu-ho a la fitxa del **substitut**, perquè l'EMS sàpiga qui substitueix qui:
+
+1. Aneu a **Comunitat Educativa → Professorat** i obriu la fitxa del substitut.
+2. A la pestanya **Ensenyament**, a **Substitució**, trieu el docent substituït a **Substitut de**. L'EMS us avisa que es reemplaçarà l'horari del substitut.
+3. Feu clic a **Desa**.
+
+![La fitxa d'un substitut: la cinta Substitut i, a la pestanya Ensenyament, a qui substitueix](../../assets/head_of_studies/hos-substitucio.png)
+
+A partir d'aquest moment, i fins que s'acabi la substitució:
+
+- **Horari:** l'horari del substitut passa a ser una còpia de l'horari del docent substituït, amb les classes i les guàrdies. La còpia es fa una sola vegada: si després canvia l'horari del docent substituït, modifiqueu també el del substitut.
+- **Cinta:** la fitxa del substitut mostra la cinta **Substitut** i la del docent substituït, la cinta **Substituït**, amb el nom del substitut a **Substituït per** (pestanya Ensenyament).
+- **Tauler de guàrdies:** el docent substituït ja no hi apareix. Les seves classes i guàrdies (lavabos, pati...) són del substitut, de manera que no cal cobrir-les.
+- **Què veu el substitut:** el mateix que el docent substituït com a docent i com a tutor: l'alumnat del seu grup de tutoria i les seves incidències d'assistència, els seus passis de llista i les seves notes. Els avisos i les tasques de tutoria també arriben al substitut.
+- **Què continua sent del docent substituït:** les seves absències, fitxatges i declaracions de vaga, i els seus rols (el substitut d'un cap de departament no esdevé cap de departament).
+
+**Quan el docent substituït torna**, arxiveu el substitut, com qualsevol docent que deixa el centre. Això acaba la substitució: el seu horari s'arxiva amb ell (els passis de llista que ha fet conserven l'historial), el docent substituït torna a aparèixer al tauler de guàrdies i el substitut deixa de tenir accés a les seves dades. La seva fitxa arxivada continua mostrant a qui va substituir. Si més endavant torna al centre, desarxivar-lo no reprèn la substitució antiga: **Substitut de** i el seu horari queden buits, a punt per a una de nova.
+
+Si buideu a mà el camp **Substitut de**, només es desfà la substitució (feu-ho si us heu equivocat de docent): l'horari copiat es queda tal com està, així que ajusteu-lo a la pestanya **Horari** o trieu el docent correcte, cosa que en torna a copiar l'horari.
+
+Si el substitut també és substituït, a la fitxa del nou substitut, trieu el primer al camp **Substitut de**: també actua com el docent original.
+
+---
+
 ## Què no podeu fer
 
 Hi ha dos límits deliberats, i l'Odoo rebutjarà l'operació si ho proveu:

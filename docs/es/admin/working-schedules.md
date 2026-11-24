@@ -250,14 +250,16 @@ Reimportar un archivo actualizado para un puesto todavía sin cubrir (el mismo c
 
 ## Empezar el horario de un docente a partir de un marco o de otro docente
 
-Usa esto para reiniciar a un docente con un marco distinto (p. ej. ahora imparte otro nivel), o para configurar un **sustituto** con el mismo horario que el docente al que está cubriendo:
+Usa esto para reiniciar a un docente con un marco distinto (p. ej. ahora imparte otro nivel), o para partir del horario de un compañero:
 
 1. Abre la pestaña **Horario** del docente y haz clic en **Nuevo**.
-2. Elige un **marco horario** (empieza en blanco, siguiendo las franjas de ese marco) o **otro docente** (copia sus asignaturas/grupos reales — ideal para sustituciones).
+2. Elige un **marco horario** (empieza en blanco, siguiendo las franjas de ese marco) u **otro docente** (copia sus asignaturas/grupos reales).
 3. Haz clic en **Cargar** — verás el horario cargado en modo edición.
 4. Ajusta lo que haga falta y haz clic en **Guardar** para aplicarlo, o en **Cancelar** para descartarlo y mantener el horario anterior del docente intacto.
 
 > **Nuevo** sustituye todo el horario — nada de lo anterior se conserva salvo que también aparezca en lo que acabas de cargar. Cancelar antes de guardar deja todo exactamente como estaba.
+
+> Las **sustituciones** se registran en la ficha del sustituto (**Enseñanza → Sustituto de**): EMS copia el horario por sí solo, quita al docente sustituido del tablero de guardias y da al sustituto acceso a sus datos. Véase [Registrar una sustitución](../head_of_studies/staff-management.md#registrar-una-sustitución).
 
 ---
 

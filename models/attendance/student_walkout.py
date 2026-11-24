@@ -882,7 +882,7 @@ class EmsStudentWalkout(models.Model):
         """Who watches over the proposal: the tutors of its groups (co-tutors of a split group too);
         with no tutor, the Head of Studies who would get the minute."""
         self.ensure_one()
-        return self.group_ids.tutor_id.sudo().user_id or self._ems_head_users()
+        return self.group_ids.tutor_id._ems_acting_teacher().sudo().user_id or self._ems_head_users()
 
     def _ems_mail_tutors(self, event):
         """The tutors' copy of what the group is told (`event`: call, join, closed, validated,

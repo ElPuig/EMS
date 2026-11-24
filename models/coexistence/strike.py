@@ -124,9 +124,11 @@ class ems_strike(models.Model):
                 partner = relation.other_partner_id
                 if partner.contact_type == "family" and partner.email:
                     by_kind["family"].append((partner.email, partner.lang))
-        if student.tutor_id and student.tutor_id.email:
-            tutor_lang = student.tutor_id.user_id.lang if student.tutor_id.user_id else False
-            by_kind["tutor"].append((student.tutor_id.email, tutor_lang))
+        # The teacher acting as the tutor now (a substitute, issue #748).
+        tutor = student.tutor_id._ems_acting_teacher()
+        if tutor and tutor.email:
+            tutor_lang = tutor.user_id.lang if tutor.user_id else False
+            by_kind["tutor"].append((tutor.email, tutor_lang))
         return by_kind
 
     def _send_per_recipient(self, template, recipients):

@@ -78,6 +78,10 @@ addressable by a real, stable URL.
   aggregation and its generic 8-12 block absorbed narrower real periods into itself (found via
   CI, which installs clean — this box's own long-lived dev DB never had that generic calendar
   to begin with, which is why the bug never showed up locally).
+  A teacher being substituted (`hr.employee.substituted_by_ids`, issue #748) is excluded in the
+  domain: their substitute holds a copy of their schedule, so the board shows the substitute and
+  nothing of the teacher away (no absence row, no "co-teaching" strike-through, no WC/break guard
+  to cover, no missing check-in). See [Substitutions](../employees/employee.md#substitutions-issue-748).
 - `get_guard_duty_board_lines(weekday, shift, area_ids=None, day=None)` — instance method, `self.ensure_one()`, called
   on a real `ems.course` record (the PDF template calls it on each of `docs`). For one weekday
   (`'0'`-`'4'`) and one shift (`'morning'`/`'afternoon'`, `SHIFT_HOURS` mirroring `ems.group`'s

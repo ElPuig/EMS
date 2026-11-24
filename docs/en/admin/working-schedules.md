@@ -250,14 +250,16 @@ Re-importing an updated file for a post that's still unstaffed (same placeholder
 
 ## Start a Teacher's Schedule From a Framework or From Another Teacher
 
-Use this to reset a teacher onto a different framework (e.g. they now teach a different level), or to set up a **substitute** with the same schedule as the teacher they're covering for:
+Use this to reset a teacher onto a different framework (e.g. they now teach a different level), or to start from a colleague's schedule:
 
 1. Open the teacher's **Schedule** tab and click **New**.
-2. Choose either a **schedule framework** (starts blank, following that framework's periods) or **another teacher** (copies their real subjects/groups — ideal for substitutions).
+2. Choose either a **schedule framework** (starts blank, following that framework's periods) or **another teacher** (copies their real subjects/groups).
 3. Click **Load** — you'll see the loaded schedule in edit mode.
 4. Adjust anything needed, then click **Save** to apply, or **Cancel** to discard and keep the teacher's previous schedule untouched.
 
 > **New** replaces the whole schedule — nothing from before is kept unless it also appears in what you just loaded. Cancelling before Save leaves everything exactly as it was.
+
+> **Substitutions** are registered on the substitute's own form instead (**Teaching → Substitute of**): EMS copies the schedule by itself, removes the replaced teacher from the guard duty board and gives the substitute access to their data. See [Register a Substitution](../head_of_studies/staff-management.md#register-a-substitution).
 
 ---
 

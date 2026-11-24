@@ -526,8 +526,10 @@ class EmsAttendanceSessionHeader(models.Model):
         student_id = attendance_session_line_id.student_id
 
         if rectification or attendance_session_line_id.status_is_notificable():
-            if student_id.tutor_id not in status_by_tutor:
-                status_by_tutor[student_id.tutor_id] = []
+            # The teacher acting as the tutor now (a substitute, issue #748) gets the issues.
+            tutor = student_id.tutor_id._ems_acting_teacher()
+            if tutor not in status_by_tutor:
+                status_by_tutor[tutor] = []
 
             send_to = [student_id.student_email] if student_id.student_email else []
             if student_id.auth_share or not student_id.is_adult:
@@ -537,7 +539,7 @@ class EmsAttendanceSessionHeader(models.Model):
 
             # NOTE: The 'send_to' field will be empty if adult or family shared not authorized.
             #  All entries must be notified to the tutor, always. This trick simplifies a bit the logic.
-            status_by_tutor[student_id.tutor_id].append({
+            status_by_tutor[tutor].append({
                 'attendance_session_line_id': attendance_session_line_id.id,
                 'student_id': student_id.id,
                 'send_to': separator.join(send_to)
@@ -846,7 +848,7 @@ class EmsAttendanceSessionLine(models.Model):
         `compose(line)` writes the sentence in the tutor's language (the line comes with their lang)."""
         self.ensure_one()
         student = self.sudo().student_id
-        tutor_user = (student.tutor_id or student.main_group_id.tutor_id).user_id
+        tutor_user = (student.tutor_id or student.main_group_id.tutor_id)._ems_acting_teacher().user_id
         if tutor_user:
             self.env['ems.info_notice']._ems_queue(
                 tutor_user, student, lambda user: Markup("<p>{}</p>").format(
@@ -1052,7 +1054,8 @@ class EmsAttendanceSessionLine(models.Model):
         archives every outgoing session) and, unless the user sees the whole centre, escalating by
         the chain of command, never by role alone:
         - a teacher: the subjects they teach (the template's teachers; a roll-call taken on guard
-          duty or as a substitute belongs to the template's own teacher, not to them);
+          duty or as a substitute belongs to the template's own teacher, not to them), and those of
+          the teacher they substitute (acting_user_ids, issue #748);
         - a tutor, and above them their Department/Seminar Chief, Head of Studies and the Director:
           every subject of the tutor's students (tutor_scope_user_ids, issue #483);
         - a Department/Seminar Chief or a Head of Studies (an area's manager): every student of the
@@ -1064,7 +1067,7 @@ class EmsAttendanceSessionLine(models.Model):
         managed_groups = self.env['ems.group'].sudo().search(
             self.env['ems.group']._managed_by_departments_domain(managed)) if managed else self.env['ems.group']
         return domain + [
-            '|', '|', ('template_teacher_ids.user_id', '=', self.env.uid),
+            '|', '|', ('template_teacher_ids.acting_user_ids', '=', self.env.uid),
             ('student_id.tutor_id.tutor_scope_user_ids', '=', self.env.uid),
             ('student_group_id', 'in', managed_groups.ids),
         ]

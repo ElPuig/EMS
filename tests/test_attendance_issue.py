@@ -138,6 +138,19 @@ class TestAttendanceIssue(TransactionCase):
         self.assertTrue(issue_tutor.exists())
         self.assertEqual(len(issue_tutor.attendance_issue_student_ids), 1)
 
+    def test_a_substituted_tutor_s_issues_go_to_the_substitute(self):
+        """Issue #748: while a substitute replaces the tutor, the issues of their students are the
+        substitute's, in their daily summary, not the absent tutor's."""
+        substitute = self.env['hr.employee'].create({
+            'name': 'Test Substitute Tutor (Attendance Issue)', 'employee_type': 'teacher',
+            'substitute_of_id': self.tutor_employee.id})
+
+        self._mark_miss(self.student1)
+
+        self.assertFalse(self._issue_tutor())
+        self.assertTrue(self.env['ems.attendance_issue_tutor'].search([
+            ('tutor_id', '=', substitute.id), ('issue_date', '=', self.session.date)]))
+
     # --- unlink cancels the queued notification -------------------------------------------
 
     def test_unlink_status_cancels_notification_job(self):

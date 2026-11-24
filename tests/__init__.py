@@ -165,6 +165,8 @@ from . import test_group_public_schedule_tour
 from . import test_portal_schedule
 from . import test_portal_schedule_tour
 from . import test_guard_duty_board
+from . import test_employee_substitution
+from . import test_employee_substitution_tour
 from . import test_absence_coverage
 from . import test_guard_support
 from . import test_guard_board_public_holiday
@@ -336,6 +338,7 @@ from . import test_erasmus_staff_backend
 from . import test_docs_screenshots_student_card
 from . import test_docs_screenshots_certificates
 from . import test_docs_screenshots_schedule_declaration
+from . import test_docs_screenshots_substitution
 from . import test_docs_screenshots_ex_officio_withdrawal
 from . import test_docs_screenshots_erasmus
 from . import test_ex_officio_withdrawal

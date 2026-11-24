@@ -158,6 +158,11 @@ substitució). Mostra, només per al dia d'avui:
 
 ![Mode Guàrdia, mostrant una franja d'una companya encara no iniciada](../../assets/teachers/passlist-02-mode-guarida.png)
 
+**Si l'horari de guàrdies t'envia a una classe** (n'ets el docent de guàrdia, o el suport, aquella
+hora), no cal que canviïs de mode: la classe apareix a **Actual** a la seva hora, com les teves, i
+d'allà l'inicies i passes llista. Només s'ofereixen les hores a les quals t'han enviat, no la resta
+de classes del grup.
+
 Marcar estats, afegir notes i posar strikes funciona exactament igual que a les teves pròpies
 sessions. El botó **Eliminar sessió** no està disponible en mode Guàrdia — només el docent titular
 de la franja (o un administrador) pot eliminar una sessió coberta en guàrdia.

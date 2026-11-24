@@ -158,6 +158,11 @@ substitution). It shows, for today only:
 
 ![Guard mode, showing a colleague's slot not started yet](../../assets/teachers/passlist-02-mode-guarida.png)
 
+**If the guard schedule sends you to a class** (you are its guard teacher, or the support, for that
+hour), you don't need to switch modes: the class appears in **Current** at its hour, like your own,
+and you start it and take the roll-call from there. Only the hours you were sent to are offered, not
+the group's other lessons.
+
 Marking statuses, adding notes and issuing strikes work exactly the same way as in your own
 sessions. The **Delete session** button isn't available in Guard mode — only the teacher who
 actually owns the slot (or an Administrator) can delete a guard-covered session.

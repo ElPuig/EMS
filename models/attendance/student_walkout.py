@@ -299,8 +299,10 @@ class EmsStudentWalkout(models.Model):
         if self.search_count([('group_ids', 'in', groups.ids), ('walkout_date', '=', walkout_date),
                               ('state', 'not in', ('cancelled', 'rejected'))]):
             raise already
+        # tutorship_group_id: a student whose tutorship was transferred (issue #807) attends with the
+        # group it was transferred to, so they take part in its walkouts, not their main group's.
         students = self.env['res.partner'].search([('contact_type', '=', 'student'),
-                                                   ('main_group_id', 'in', groups.ids)])
+                                                   ('tutorship_group_id', 'in', groups.ids)])
         with_portal = set(self._ems_with_portal(students).ids)
         try:
             walkout = self.create({
@@ -859,7 +861,7 @@ class EmsStudentWalkout(models.Model):
             email = line.student_id.student_email or line.student_id.email
             if not email:
                 continue
-            group = line.student_id.main_group_id or self.group_id
+            group = line.student_id.tutorship_group_id or self.group_id
             if group not in moments:
                 moments[group] = not at_once and group._ems_school_send_time()
             template.send_mail(line.id, email_values={'email_to': email, 'scheduled_date': moments[group]})

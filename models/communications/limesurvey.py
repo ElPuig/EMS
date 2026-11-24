@@ -925,8 +925,9 @@ class EmsLimesurveyHeader(models.Model):
 
                     teacher_name = ""
                     if block.special_tutorship:
-                        teacher_name = "" if not std_id or not std_id.main_group_id or not std_id.main_group_id.tutor_id else std_id.main_group_id.tutor_id.display_name
-                        survey_name += f" {std_id.main_group_id.display_name}"
+                        # The tutor the student actually has: their tutorship group's (issue #807).
+                        teacher_name = std_id.tutor_id.display_name if std_id and std_id.tutor_id else ""
+                        survey_name += f" {std_id.tutorship_group_id.display_name}"
 
                     study = "NONE" if not std_id or not std_id.study_id else std_id.study_id.acronym
                     group = "NONE" if not std_id or not std_id.main_group_id else std_id.main_group_id.display_name

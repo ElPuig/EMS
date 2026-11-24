@@ -95,7 +95,7 @@ class EmsErasmusOffer(models.Model):
         to do, so a notice in their next daily summary (ems.info_notice), on the student, as for a
         convalidation; not urgent, so never an email on the spot."""
         for offer in self.sudo().filtered(lambda offer: offer.call_id.audience == 'student'):
-            tutor = offer.partner_id.main_group_id.tutor_id.user_id
+            tutor = offer.partner_id.tutor_id.user_id
             student = offer.partner_id.with_context(lang=tutor.lang or self.env.lang)
             env = student.env
             body = Markup("<p>{}</p>").format(env._(

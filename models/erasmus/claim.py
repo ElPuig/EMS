@@ -142,7 +142,7 @@ class EmsErasmusClaim(models.Model):
         application = self.application_id.sudo()
         if application.audience == 'staff':
             return application.employee_id, application.employee_id
-        return application.partner_id.main_group_id.tutor_id, application.employee_id
+        return application.partner_id.tutor_id, application.employee_id
 
     @api.model
     def _ems_portal_create(self, vals, description, files=()):

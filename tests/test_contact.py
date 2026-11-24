@@ -385,21 +385,14 @@ class TestContactFields(TransactionCase):
     # --- tutor_id ---------------------------------------------------------------
 
     def test_tutor_id_write_does_not_reassign_the_group_tutor(self):
-        # Regression (found 2026-09-06): 'tutor_id' is related="main_group_id.tutor_id" with no
-        # explicit readonly - Odoo only skips auto-generating a write-through inverse when the
-        # field (or its target) is already readonly, neither of which was true here. Without
-        # readonly=True, writing "Tutor" from a STUDENT's own form would silently reassign that
-        # student's WHOLE GROUP's tutor (affecting every other student in it), not just a
-        # display value scoped to this one student.
+        # Regression (found 2026-09-06): without readonly=True, Odoo auto-generated a write-through
+        # inverse on the related 'tutor_id', so writing "Tutor" from a STUDENT's form reassigned the
+        # WHOLE GROUP's tutor. Since issue #807 it is stored, and res.partner.write() drops it.
         other_teacher = self.env['hr.employee'].create({'name': 'Other Teacher (TCF)', 'employee_type': 'teacher'})
         student = self.env['res.partner'].create({
             'name': 'Tutor Readonly Student', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.group.id})
 
-        # A readonly related field with no inverse is silently ignored by write(), not
-        # rejected with an exception - it only ends up staged in this recordset's own
-        # in-memory cache (a compute field with no inverse has nowhere to persist a write to),
-        # so the actual guarantee to verify is that the group's own tutor - the field's real
-        # source of truth - never changes, and that a fresh (recomputed) read reflects that.
+        # Ignored, not rejected: neither the group's tutor nor the student's stored value changes.
         student.write({'tutor_id': other_teacher.id})
 
         self.assertNotEqual(self.group.tutor_id, other_teacher)

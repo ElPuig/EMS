@@ -34,6 +34,7 @@ Esta sección contiene los manuales para el **personal de secretaría**.
 - [Actualizar datos del alumnado desde un CSV](student-update-csv.md) — Actualización masiva genérica, de cualquier formato CSV, para alumnado existente (nunca crea uno), con columnas mapeables y actualización opcional de la cuenta bancaria.
 - [Aprobar las ausencias del personal PAS](absences.md) — Quién aprueba las ausencias del área ASP y en qué se diferencia de jefatura de estudios.
 - [Erasmus+: servicios pagados por el centro, gastos y proyectos](erasmus-economy.md) — Registrar las facturas que el centro paga para los participantes, registrar y pagar los otros gastos de los proyectos Erasmus+, y consultar el presupuesto de cada proyecto.
+- [Traspasar la tutoría de un alumno](tutorship-transfer.md) — Un alumno que solo asiste a las clases de otro grupo pasa a ser seguido por el tutor de ese grupo, mientras su grupo y su tutor de Esfer@ siguen siendo los oficiales.
 
 ## Temas previstos
 

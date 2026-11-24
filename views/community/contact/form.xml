@@ -602,6 +602,13 @@
                                      current one - same study, course and shift (_compute_allowed_main_group_ids). -->
                                 <field name="allowed_main_group_ids" invisible="1"/>
                                 <field name="main_group_id" readonly="study_id == False or read_only_user" domain="[('id', 'in', allowed_main_group_ids)]" />
+                                <!-- Issue #807: the group whose tutor follows the student, when it isn't the main
+                                     one. Only the secretary's office, academic administration and the Heads of
+                                     Studies set it (re-checked in res.partner.write()). -->
+                                <field name="can_transfer_tutorship" invisible="1"/>
+                                <field name="transferred_group_id" readonly="not can_transfer_tutorship"
+                                       invisible="not transferred_group_id and not can_transfer_tutorship"
+                                       options="{'no_create': True}"/>
                             </group>
                             <group>
                                 <field name="study_id" readonly="level_id == False or read_only_user or is_tutor_readonly" domain="[('level_id','=', level_id)]" />
@@ -609,6 +616,7 @@
                                      now readonly=True at the model level (see contact.py) - genuinely
                                      always read-only, not just conditionally for tutors. -->
                                 <field name="tutor_id" />
+                                <field name="official_tutor_id" invisible="not transferred_group_id"/>
                             </group>
 
                             <separator name="enrollment" string="Enrollment Data"/>

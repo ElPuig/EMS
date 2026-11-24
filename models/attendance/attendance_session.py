@@ -846,7 +846,7 @@ class EmsAttendanceSessionLine(models.Model):
         `compose(line)` writes the sentence in the tutor's language (the line comes with their lang)."""
         self.ensure_one()
         student = self.sudo().student_id
-        tutor_user = (student.tutor_id or student.main_group_id.tutor_id).user_id
+        tutor_user = student.tutor_id.user_id
         if tutor_user:
             self.env['ems.info_notice']._ems_queue(
                 tutor_user, student, lambda user: Markup("<p>{}</p>").format(

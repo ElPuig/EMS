@@ -1951,7 +1951,7 @@ class EmsErasmusClaim(models.Model):
 
     def _ems_appeal_chain(self):
         if self.group_registration_id:
-            return self.partner_id.sudo().main_group_id.tutor_id, self.env['hr.employee']
+            return self.partner_id.sudo().tutor_id, self.env['hr.employee']
         return super()._ems_appeal_chain()
 
 

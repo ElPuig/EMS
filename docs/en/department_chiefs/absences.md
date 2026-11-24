@@ -199,6 +199,12 @@ If an absence is refused, cancelled or shortened, or a co-teacher turns out to b
 
 ![Red corrections box: a proposal with its correction step and, last, only telling the families](../../assets/teachers/guard-duty-10-correccions.png)
 
+## Videos
+
+> ⚠️ **The videos may be out of date.** EMS is updated often and not every video is remade after each change, so a screen or a step may differ from what you see. If something differs, follow this manual. The videos are in Catalan and have no voice-over: all the text is shown on screen.
+
+- ▶ [Organising an absence](https://drive.google.com/file/d/1qgrK0HfhyVUIQdm5OHJmuQ8m5BgTkJR8/view?usp=drivesdk)
+
 ---
 
 [← Back to main index](index.md)

@@ -1,0 +1,8 @@
+/* Erasmus+ document lists: the comment for the applicant, while it is written in the row, has a
+   visible box (a list's input otherwise has no border and looks like the background, issue #859). */
+.o_list_renderer .o_data_row.o_selected_row td.o_ems_review_comment input {
+    border: 1px solid var(--border-color, #ced4da);
+    border-radius: 4px;
+    background-color: var(--o-view-background-color, #ffffff);
+    padding: 2px 6px;
+}

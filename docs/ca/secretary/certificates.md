@@ -39,13 +39,13 @@ Navega a: **Gestió acadèmica → Certificats**. La llista s'obre amb el filtre
 
 1. Fes clic a **Nou**.
 2. Tria el **Tipus de certificat**.
-3. Si l'exalumne és a EMS, tria'l a **Estudiant (si és a EMS)**: les seves dades s'omplen soles. Si no hi és, deixa-ho buit i escriu-ne el **Nom complet** i el **Correu de la persona sol·licitant**.
+3. Si l'exalumne és a EMS, tria'l a **Estudiant (si és a EMS)**: les seves dades s'omplen soles, amb el correu personal (no el del centre). Si el correu queda buit, escriu el seu correu personal. Si no hi és, deixa-ho buit i escriu-ne el **Nom complet** i el **Correu de la persona sol·licitant**.
 4. Desa.
 5. Obre **Accions → Enviar formulari**. L'exalumne rep un correu amb un enllaç al formulari, on omple les dades que falten i adjunta la documentació que tingui, sense iniciar sessió.
 
 ![Sol·licitud d'un exalumne que no és a EMS](../../assets/secretary/certificats-02-exalumne.png)
 
-Si ja tens totes les dades obligatòries (document d'identitat i estudi a la pestanya **Sol·licitant**, i les obligatòries de la pestanya **Dades del certificat**, com el curs de la formació per a la FCT), **Enviar formulari** també passa la sol·licitud al primer pas. L'exalumne encara pot completar o corregir les seves dades des de l'enllaç fins que algú del centre canviï la sol·licitud o hi faci alguna acció.
+Si ja tens totes les dades obligatòries (document d'identitat i estudi a la pestanya **Sol·licitant**, i les obligatòries de la pestanya **Dades del certificat**, com el curs acadèmic per a la FCT), **Enviar formulari** també passa la sol·licitud al primer pas. L'exalumne encara pot completar o corregir les seves dades des de l'enllaç fins que algú del centre canviï la sol·licitud o hi faci alguna acció.
 
 Si la sol·licitud t'arriba en paper i no cal enviar res, omple totes les dades i fes clic a **Accions → Iniciar la sol·licitud**.
 
@@ -76,6 +76,10 @@ Els passos anteriors se salten i les seves tasques pendents es tanquen, i l'hist
 
 ---
 
+## Veure l'esborrany
+
+Mentre una sol·licitud no està tancada, **Accions → Veure l'esborrany** mostra el certificat tal com és ara, marcat com a **ESBORRANY** i sense número: les dades encara buides hi surten pel seu nom en vermell (per exemple, **[Hores]**), i les signatures que encara falten, com a **Pendent**. És només per al personal del centre: la persona sol·licitant no el veu mai.
+
 ## Altres accions
 
 Al menú **Accions** de la sol·licitud:
@@ -86,7 +90,7 @@ Al menú **Accions** de la sol·licitud:
 - **Rebutjar** — escriu el motiu; la persona sol·licitant el rep per correu.
 - **Anul·la la sol·licitud** — només abans d'expedir el certificat (per exemple, si és duplicada). Una sol·licitud anul·lada es pot **Reobrir**.
 
-La pestanya **Certificat** conté el PDF expedit i els segells (qui va fer cada pas i quan).
+La pestanya **Certificat** conté el PDF expedit i els segells (qui va fer cada pas, amb quin càrrec, i la data i l'hora). El certificat anomena qui l'expedeix i qui l'aprova pel seu càrrec a EMS: si l'expedeix algú que no és el secretari o la secretària (per exemple, la direcció mentre el secretari és absent), hi surt el càrrec d'aquesta persona.
 
 ---
 

@@ -205,7 +205,11 @@ class TestPortalStudentWalkout(HttpCase):
 
     def test_a_student_sharing_the_email_signs_in_as_a_student_and_the_family_as_a_family(self):
         self._corporate_domain(self.subdelegate)
-        self.subdelegate.email = self.family.email
+        # A legacy pair that already shares the email (issue #842 refuses to create a new one, so it is
+        # written straight to the table, as the data an existing installation still holds).
+        self.env.cr.execute("UPDATE res_partner SET email = %s, email_normalized = %s WHERE id = %s",
+                            (self.family.email, self.family.email_normalized, self.subdelegate.id))
+        self.subdelegate.invalidate_recordset(['email', 'email_normalized'])
         (self.family | self.subdelegate)._ems_sync_portal_login()
         student_user, family_user = self.subdelegate.user_ids, self.family_user
         self.assertEqual(student_user.login, self.subdelegate.student_email)

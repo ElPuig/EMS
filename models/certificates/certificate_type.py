@@ -85,25 +85,26 @@ class EmsCertificateType(models.Model):
 
     @api.depends('field_ids.key', 'field_ids.name', 'field_ids.field_type')
     def _compute_placeholder_help(self):
-        common = [('name', _("Full name")), ('document', _("Identity document")), ('study', _("Study"))]
         for certificate_type in self:
-            keys = list(common)
-            for field in certificate_type.field_ids.sorted('sequence').filtered('key'):
-                keys.append((field.key, field.name))
-                if field.field_type == 'company':
-                    keys.append((f'{field.key}_vat', _("%s (VAT number)", field.name)))
             certificate_type.placeholder_help = Markup(", ").join(
-                Markup("<code>{{{}}}</code> {}").format(key, label) for key, label in keys)
+                Markup("<code>{{{}}}</code> {}").format(key, label)
+                for key, label in certificate_type._ems_text_key_labels())
+
+    def _ems_text_key_labels(self):
+        """Every key the type's text may use, with its label, in order: the common ones and the
+        type's (a company's VAT number too). Listed under the text, and what a draft certificate
+        shows where a detail is still empty (issue #858)."""
+        self.ensure_one()
+        keys = [('name', _("Full name")), ('document', _("Identity document")), ('study', _("Study"))]
+        for field in self.field_ids.sorted('sequence').filtered('key'):
+            keys.append((field.key, field.name))
+            if field.field_type == 'company':
+                keys.append((f'{field.key}_vat', _("%s (VAT number)", field.name)))
+        return keys
 
     def _ems_text_keys(self):
         """The keys the type's text may write between braces."""
-        self.ensure_one()
-        keys = set(COMMON_KEYS)
-        for field in self.field_ids:
-            keys.add(field.key)
-            if field.field_type == 'company':
-                keys.add(f'{field.key}_vat')
-        return keys
+        return {key for key, _label in self._ems_text_key_labels()}
 
     @api.constrains('certificate_text', 'field_ids')
     def _check_certificate_text(self):
@@ -150,9 +151,15 @@ class EmsCertificateType(models.Model):
         copies = super().copy(default)
         for certificate_type, new_type in zip(self, copies):
             steps = dict(zip(certificate_type.step_ids.sorted('sequence'), new_type.step_ids.sorted('sequence')))
+            new_fields = {}
             for field in certificate_type.field_ids:
-                field.copy({'type_id': new_type.id,
-                            'required_step_id': steps.get(field.required_step_id, field.required_step_id.browse()).id})
+                new_fields[field] = field.copy({
+                    'type_id': new_type.id, 'after_field_id': False,
+                    'required_step_id': steps.get(field.required_step_id, field.required_step_id.browse()).id,
+                })
+            # Once every detail exists: a date compared with another one of the copy.
+            for field in certificate_type.field_ids.filtered('after_field_id'):
+                new_fields[field].after_field_id = new_fields[field.after_field_id]
             # The text once its details exist (_check_certificate_text), in every language.
             for lang, _name in self.env['res.lang'].get_installed():
                 new_type.with_context(lang=lang).certificate_text = \
@@ -242,7 +249,13 @@ class EmsCertificateTypeField(models.Model):
                                        ondelete='restrict',
                                        help="The step that cannot be done until it is filled in (nor any later one). "
                                             "Empty: the circuit never requires it. Save the circuit's steps first.")
-    help = fields.Char(string="Hint", translate=True, help="Shown to the applicant under the detail.")
+    help = fields.Char(string="Hint", translate=True,
+                       help="What to write and how, with an example: shown to the applicant under the detail, and "
+                            "next to it in the request.")
+    after_field_id = fields.Many2one(string="Not before", comodel_name='ems.certificate.type.field',
+                                     ondelete='set null',
+                                     help="For a date: another date of the type it cannot be earlier than (e.g. the "
+                                          "end of a period, not before its start).")
 
     @api.constrains('key', 'field_type')
     def _check_key(self):
@@ -259,6 +272,15 @@ class EmsCertificateTypeField(models.Model):
         for field in self:
             if field.required_step_id and field.required_step_id.type_id != field.type_id:
                 raise ValidationError(_("%s must be required by a step of its own certificate type.", field.name))
+
+    @api.constrains('after_field_id', 'field_type', 'type_id')
+    def _check_after_field(self):
+        for field in self.filtered('after_field_id'):
+            after = field.after_field_id
+            if field.field_type != 'date' or after.field_type != 'date' or after.type_id != field.type_id \
+                    or after == field:
+                raise ValidationError(_("%s can only be compared with another date of its own certificate type.",
+                                        field.name))
 
     @api.model_create_multi
     def create(self, vals_list):

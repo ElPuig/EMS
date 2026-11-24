@@ -35,6 +35,8 @@ from . import test_enrollment_head_of_studies_tour
 from . import test_portal_convalidation
 from . import test_convalidation_tour
 from . import test_tutor_scope
+from . import test_student_tutorship_transfer
+from . import test_student_tutorship_transfer_tour
 from . import test_student_document_tour
 from . import test_student_google_workspace
 from . import test_coming_of_age
@@ -165,6 +167,8 @@ from . import test_group_public_schedule_tour
 from . import test_portal_schedule
 from . import test_portal_schedule_tour
 from . import test_guard_duty_board
+from . import test_employee_substitution
+from . import test_employee_substitution_tour
 from . import test_absence_coverage
 from . import test_guard_support
 from . import test_guard_board_public_holiday
@@ -180,6 +184,7 @@ from . import test_company_director
 from . import test_role
 from . import test_role_color_tour
 from . import test_department_color_tour
+from . import test_department_job_tour
 from . import test_department_head_optional_tour
 from . import test_attendance_template_color_tour
 from . import test_withdrawal_tour
@@ -336,6 +341,7 @@ from . import test_erasmus_staff_backend
 from . import test_docs_screenshots_student_card
 from . import test_docs_screenshots_certificates
 from . import test_docs_screenshots_schedule_declaration
+from . import test_docs_screenshots_substitution
 from . import test_docs_screenshots_ex_officio_withdrawal
 from . import test_docs_screenshots_erasmus
 from . import test_ex_officio_withdrawal
@@ -383,5 +389,5 @@ from . import test_erasmus_polish_grant_names
 from . import test_erasmus_polish_economy_services
 from . import test_erasmus_polish_actions_tour
 from . import test_erasmus_polish_quality_dashboard
-from . import test_portal_shared_email
+from . import test_portal_shared_email, test_student_family_email, test_portal_email_change
 from . import test_file_compression

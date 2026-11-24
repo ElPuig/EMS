@@ -85,6 +85,8 @@ Así ves de un vistazo qué guardias coinciden con cada clase que hay que cubrir
 
 En una clase con codocencia (dos docentes en la misma aula) en la que solo falta uno, su línea aparece **tachada**: sigue ahí para que sepas quién falta, pero no hace falta guardia porque el otro docente se hace cargo de la clase. Pasa el ratón por encima de la línea o haz clic en ella para ver el motivo; el icono **ⓘ** de su izquierda indica que hay una explicación.
 
+Un docente que tiene sustituto no aparece en absoluto: sus clases y guardias son del sustituto, así que no hay nada que cubrir.
+
 Toda línea tachada tiene ese icono, sea cual sea el motivo: otro docente está en la clase, ya se ha enviado un docente de guardia (su nombre aparece al lado), o se ha comunicado a las familias que el alumnado no tiene que venir a esa clase (ver [Organizar una ausencia](#organizar-una-ausencia)). Si faltan los dos, o cada docente tiene medio grupo en un aula distinta, la línea no aparece tachada y sí hay que cubrir la clase.
 
 ![Tabla de ausencias del mismo día: una columna por área con las clases que hay que cubrir, una ya cubierta por un docente de guardia, y la guardia de patio de una docente ausente en la columna Guardia](../../assets/teachers/guard-duty-02-absencies.png)
@@ -172,6 +174,14 @@ La dirección del horario conserva la semana, el día, el turno, la vista y las 
 ## Exportar a PDF
 
 Haz clic en **PDF** en la barra de herramientas para descargar el día y el turno que se están mostrando (no toda la semana) como documento imprimible — el filtro de área que tengas marcado se aplica también al PDF, que usa los mismos tramos de tiempo y las mismas columnas que la pantalla. El PDF imprime la vista que tengas activa en pantalla: el horario si está activo **Horario de guardias**, o la tabla de ausencias si está activo **Tabla de ausencias**.
+
+## Vídeos
+
+> ⚠️ **Los vídeos pueden estar desactualizados.** El EMS se actualiza a menudo y no todos los vídeos se rehacen tras cada cambio: puede que alguna pantalla o algún paso no coincida con lo que ves. Si hay alguna diferencia, haz caso de este manual. Los vídeos están en catalán y no tienen voz: todo el texto aparece en pantalla.
+
+- ▶ [Leer el cuadro de guardias](https://drive.google.com/file/d/191MPigr_wHHVomni1mheu2hOUNhlCZ6M/view?usp=drivesdk)
+- ▶ [Todo por el EMS](https://drive.google.com/file/d/1Vce04MgTVhrpyV12KMWclYaUaz-By6BM/view?usp=drivesdk)
+- ▶ [Las guardias en directo](https://drive.google.com/file/d/1zUi_8nxIBFvpPGiQsZpRo1G66Yml41P7/view?usp=drivesdk)
 
 ---
 

@@ -33,10 +33,11 @@ Tots els certificats ja tenen el **nom complet**, el **document d'identitat** i 
 
 - **Detall** — el nom de la dada, tal com el llegeixen la persona sol·licitant i el personal (per exemple, *Hores*).
 - **Clau** — com l'escriu el text del certificat, entre claus: lletres minúscules, dígits i `_` (per exemple, `hores`). No pot ser `name`, `document` ni `study`, que ja estan agafades. Si la canvieu, el text s'actualitza en tots els idiomes.
-- **Tipus de dada** — **Text curt**, **Text llarg**, **Número** (pot tenir decimals, com una nota mitjana de 7,45), **Data**, **Sí/No**, **Curs escolar** (el formulari suggereix els cursos que té EMS) o **Empresa col·laboradora** (la persona sol·licitant n'escriu el nom i el NIF, i el centre vincula l'empresa).
+- **Tipus de dada** — **Text curt**, **Text llarg**, **Número** (pot tenir decimals, com una nota mitjana de 7,45), **Data**, **Sí/No**, **Curs escolar** (s'escriu 2024-25 o 2024-2025, amb anys consecutius, i es desa com a 2024-25; el formulari suggereix els cursos que té EMS) o **Empresa col·laboradora** (la persona sol·licitant n'escriu el nom i el NIF, i el centre vincula l'empresa).
 - **Sol·licitant** — **Obligatori**: el formulari la demana i cal emplenar-la per enviar la sol·licitud; **Opcional**: el formulari la demana; **No es demana**: només l'emplena el centre.
 - **Obligatòria abans de** — el pas del circuit que no es pot fer fins que no estigui emplenada (ni cap de posterior). Deixa-ho buit si el circuit no l'exigeix mai. Per triar un pas, desa primer el circuit.
-- **Ajuda** (columna opcional) — un text breu que la persona sol·licitant llegeix sota la dada.
+- **Indicació** — què cal escriure i com, amb un exemple (per exemple, *Format AAAA-AA, per exemple 2024-25.*). La persona sol·licitant la llegeix sota la dada, i el personal del centre, al seu costat a la sol·licitud.
+- **No anterior a** (columna opcional, només per a dates) — una altra data del tipus de la qual no pot ser anterior: a la FCT, la data de finalització no pot ser anterior a la d'inici.
 
 En una sol·licitud, el personal emplena aquestes dades a la pestanya **Dades del certificat**. Les que encara estan buides i que exigeix el pas actual surten ressaltades.
 
@@ -44,7 +45,7 @@ En una sol·licitud, el personal emplena aquestes dades a la pestanya **Dades de
 
 ## Text del certificat
 
-**Text del certificat** és el que diu el certificat després de "CERTIFICA:". L'encapçalament amb el nom del secretari o la secretària, el tancament, el lloc, la data i els segells són iguals per a tots els certificats.
+**Text del certificat** és el que diu el certificat després de "CERTIFICA:". L'encapçalament amb el nom i el càrrec de qui l'expedeix, el tancament, el lloc, la data i els segells són iguals per a tots els certificats.
 
 - Escriu la clau d'una dada entre claus on ha d'anar el seu valor: `{hores}`. Sota el text hi ha totes les claus que pots fer servir. Una dada **Empresa col·laboradora** també té el NIF: `{empresa_vat}` si la clau és `empresa`.
 - Una part entre claudàtors només s'imprimeix quan totes les dades que conté tenen valor: `[, amb NIF {empresa_vat}]`.

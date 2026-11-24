@@ -104,9 +104,9 @@ Enforced server side in `controllers/portal_view_only.py`:
 |------|-------------|------------|
 | `grant` | `portal.wizard.user.action_grant_access()` | Recipients without portal access (or archived from a previous revoke) |
 | `revoke` | `action_revoke_access()` | Recipients with active portal access |
-| `resend` | `action_invite_again()` | Recipients with portal access who **never logged in** (`login_date` empty) — an expired/lost invitation |
+| `regenerate` | `action_invite_again()` | Recipients with portal access, whether or not they ever logged in: a new link to set the password (forgotten password, expired invitation) |
 
-`grant`/`resend` both end up calling Odoo's native `_send_email()` (`force_send=True`, real synchronous SMTP) — any test exercising either mode must mock `IrMailServer.send_email` (see `tests/test_portal_access_wizard.py`).
+`grant`/`regenerate` both end up calling Odoo's native `_send_email()` (`force_send=True`, real synchronous SMTP) — any test exercising either mode must mock `IrMailServer.send_email` (see `tests/test_portal_access_wizard.py`).
 
 ### `_apply_one(partner)` — the shared per-recipient application
 
@@ -118,11 +118,12 @@ flowchart TD
     D -- grant --> E{"already portal or internal?"}
     E -- yes --> S1["'skipped'"]
     E -- no --> P["partner._ems_check_portal_login()\n(shared email, no corporate one: UserError)"]
-    P --> F["(students sharing this family email | partner)._ems_sync_portal_login()"]
+    P --> L["partner._ems_portal_login_conflict(students)\n(another contact holds the login: PortalLoginTaken)"]
+    L --> F["(students sharing this family email | partner)._ems_sync_portal_login()"]
     F --> G["action_grant_access()"] --> R1["'granted'"]
-    D -- resend --> H{"is_portal AND never logged in?"}
+    D -- regenerate --> H{"is_portal?"}
     H -- no --> S2["'skipped'"]
-    H -- yes --> I["action_invite_again()"] --> R2["'resent'"]
+    H -- yes --> I["action_invite_again()"] --> R2["'regenerated'"]
     D -- revoke --> J{"is_portal?"}
     J -- no --> S3["'skipped'"]
     J -- yes --> K["action_revoke_access()"] --> R3["'revoked'"]
@@ -178,35 +179,20 @@ Loops `student_ids`; per student: re-checks `_user_can_manage` (defense in depth
 
 ## Preview (`line_ids`) — `default_get` / `_onchange_mode` / `_build_lines`
 
-The form shows a **read-only preview** of who will be affected before the user clicks Apply — `_build_lines` resolves recipients per selected student and computes `has_portal`/`connected` (from `recipient.user_ids[:1]`, `active_test=False` so an archived/revoked user is still found) and a `note` (`"Recipient without email"` if the recipient has none, otherwise `"No family contact found"` on the student's own line when `_ems_notification_recipients()` came back empty, otherwise, for a student sharing the email with the family, the corporate email they sign in with or that they have no access until it exists). `default_get` builds the initial preview from `active_ids` (the selected `res.partner` records the wizard was opened from); `_onchange_mode` rebuilds it whenever the mode radio changes, additionally filtering to `has_portal and not connected` when switching to `resend` (only those recipients would actually be affected).
+The form lists who the action can reach, one line per recipient, and **the user ticks the ones to apply it to** (`line.selected`; the student and recipient columns are `force_save`, since a read-only list field is not sent back otherwise and `action_apply` matches the ticked lines on them). `_build_lines(students, mode)` resolves recipients per selected student and computes `has_portal`/`connected` from the recipient's **active** portal user (an archived one, left by a revoke, is not access, so a revoked access shows unchecked), a `note` (`"Recipient without email"`, `"No family contact found"`, or, for a student sharing the email with the family, the corporate email they sign in with) and the default tick: granting ticks the recipients without access, regenerating and revoking those with it. `default_get` builds the initial preview from `active_ids`; `_onchange_mode` rebuilds it (and the default ticks) when the mode radio changes.
 
-`default_get`/`_build_lines` are **not** re-triggered by a plain ORM `create()` from Python — that's an onchange, which only fires through the web client (or an explicit test call to `_onchange_mode()`); this is a common testing gotcha, not a wizard bug.
+### Login clash popup (issue #842)
 
----
+A portal login is unique. `res.partner._ems_portal_login_conflict(students)` finds the other contact (active or archived user) that holds the login a recipient needs and says whether that contact is related to the student; granting then raises `PortalLoginTaken`, which `action_apply` collects instead of reporting a one-line issue. When there is any, `action_apply` returns the `ems.portal.access.result` popup: for each clash the contact, the login, who holds it (type, active, related to the student) and what to do (assigned to the student: they cannot share a login, give one a different email; not assigned: probably a duplicate or stray contact, merge or archive it, or change an email). The email-change path (`_apply_portal_email_change`) goes through the same check and surfaces the same message.
 
-## Access Control
+### Changing a main email
 
-### `ir.model.access.csv`
+Saving a new main email on a **student, applicant or family** contact form asks the user (`StudentPopupFormController.onWillSaveRecord`, `form_controller_custom.js`, backed by `res.partner.get_portal_email_question`): with active portal access, whether to **update** it (the old email's access is revoked and an invitation goes to the new one) or **leave it** as it is; with no access, or a revoked one, whether to **give** it with the new email or **not now**. Closing the dialog does not save. The answer travels in the same save as the non-stored `portal_email_decision` field (`apply`/`keep`), which `res.partner.write` consumes: `apply` runs `_apply_portal_email_change` (active access) or `_ems_grant_portal_after_email_change` (no access; it raises with who holds the login when it is taken, so the save fails and nothing is left half done). Only contacts the user may manage (`ems.portal.access.wizard._user_can_manage`) are offered a grant. Writers with no dialog (imports, other code) keep the previous behaviour: an active access moves to the new email by itself and nothing is granted.
 
-| Model | Role | Create | Read | Write | Delete |
-|-------|------|:------:|:----:|:-----:|:------:|
-| `ems.portal.access.wizard` (+ `.line`) | Academic admin | ✓ | ✓ | ✓ | ✓ |
-| | Secretary | ✓ | ✓ | ✓ | ✓ |
-| | **`ems.group_tutor`** (not the generic `ems.group_teacher`) | ✓ | ✓ | ✓ | ✓ |
+## Email rules and the portal login (issue #842)
 
-A plain teacher who is not currently tutoring anyone cannot even open this wizard — `ems.group_tutor` is a role-derived group only granted while an employee actually tutors at least one group (see [`ems.group`](group.md)'s `_sync_tutor_role`). `_user_can_manage`'s tutor branch is the **per-student** narrowing on top of that: even a real tutor can only manage their own tutorands, checked both in `default_get` (silently filters the preselection) and again in `action_apply` (reports an explicit issue rather than silently skipping, in case `student_ids` reached the server without going through the normal preselection — e.g. tampered client state).
-
----
-
-## Views
-
-| View | File | Notes |
-|------|------|-------|
-| Form | `views/community/contact/portal_access_wizard.xml` | `view_portal_access_wizard_form` — mode radio, readonly recipient preview list, Apply/Cancel footer |
-| Bulk entry point | same file | `action_portal_access_bulk` (`ir.actions.server`), bound to the `res.partner` list's cog menu (a student's form has the same method as an entry of its Actions dropdown, see [contact.md](contact.md#student-form-actions-actions-dropdown-cog-menu-or-smart-button)), restricted to `group_academic_admin`/`group_secretary`/`group_teacher` at the action level (the model's own `ir.model.access.csv`/`_user_can_manage` are the real gate for a non-tutoring teacher, as above). Its `code` field is a single call to `res.partner.action_portal_access_bulk()` (`models/contacts/contact.py`), which filters the selection down to `student`/`applicant` and raises a `UserError` when nothing survives. The logic lives in Python, not inline in the action, because `safe_eval`'s context has no `_`: an inline `_("...")` raises `NameError: name '_' is not defined` and the RPC surfaces that traceback instead of the intended message. |
-
-> **How a returning ex-student gets in.** A contact that left is `withdrawal`/`alumni`/`expelled` and cannot hold portal access as such. Sending them a new enrollment converts them to `applicant` (`sale.order._ems_offer_to_ex_student()`, called from `write()`'s "→ `sent`" branch in `models/enrollment/enrollment.py`), which is what makes them eligible here; confirming that enrollment later turns them into a full `student` via `_ems_admit_student()`. The two steps are distinct: an ex-student never goes straight back to `student`. An `expelled` contact is never converted, so it stays out of scope on purpose.
->
-> This exists because the four requirements otherwise form a closed loop: portal access needs `student`/`applicant`, becoming a student needs a confirmed enrollment, confirming needs the required authorizations answered, and those are answered *from the portal*. Sending the offer is the only deliberate act that can break it. See `docs/en/developers/enrollment/enrollment.md`.
-
-Registered as a `data` entry in `__manifest__.py` (line ~97), alongside the rest of `views/community/contact/`.
+- A family contact's email can never be corporate (`res.partner._check_email_not_corporate`, same rule as the student's personal email).
+- A student's personal email can never equal the email of a family contact linked to them: checked when either email changes (`res.partner.write` → `_check_email_not_shared_with_family`, only for emails that really change, since the portal grant rewrites the same value) and when they are linked (`res.partner.relation` constraint). A pair that already shares an email (legacy) is left alone, with the student form's warning, until one of the emails is edited.
+- Portal login of a student: the personal email; the corporate email is linked to the same user through Google OAuth (`portal_google_signin.py`), so the student can use either. A legacy student sharing the email with the family gets the corporate email as login (`_ems_portal_login`, issue #833). When the corporate account is removed (withdrawal, graduation), a student with a personal login keeps access.
+- Importing from a source that brings a single email (`ems.student_import_wizard._split_shared_email`): if it is the student's and the family's, a **minor** keeps it on the family contact and is left without a personal email (reported in the import summary), an **adult** keeps it and the family contact gets none.
+- Not covered: giving portal access to a student that has no personal email (it would need the corporate email as login and an invitation to it).

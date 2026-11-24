@@ -141,6 +141,13 @@ The minute (PDF) is on the proposal's page once it closes.
 | **Not validated** | The Head of Studies did not validate it, with a reason |
 | **Cancelled** | The delegate or the sub-delegate cancelled it |
 
+## Videos
+
+> ⚠️ **The videos may be out of date.** EMS is updated often and not every video is remade after each change, so a screen or a step may differ from what you see. If something differs, follow this manual. The videos are in Catalan and have no voice-over: all the text is shown on screen.
+
+- ▶ [Proposing the vote](https://drive.google.com/file/d/1z_PdjquReu8f1BIXbCzW3Gb68JIQ5xrG/view?usp=drivesdk)
+- ▶ [Voting and joining](https://drive.google.com/file/d/16wyQlzbPLoB3TITTcV0VeB_Y3JyQZfyD/view?usp=drivesdk)
+
 ---
 
 [← Back to the families' manuals](index.md)

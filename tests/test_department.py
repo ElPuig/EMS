@@ -1,7 +1,12 @@
+import importlib.util
+import re
+from pathlib import Path
 from unittest.mock import patch
 
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
+
+from .common import create_role_user
 
 
 class TestDepartment(TransactionCase):
@@ -35,6 +40,83 @@ class TestDepartment(TransactionCase):
             })
             vals['user_id'] = user.id
         return self.env['hr.employee'].create(vals)
+
+    def _asp_department(self, name):
+        area = self.env['hr.department'].create({
+            'name': f'{name} area', 'is_top_level': True, 'top_level_area': 'asp'})
+        return self.env['hr.department'].create({'name': name, 'parent_id': area.id, 'shares_manager_with_parent': True})
+
+    def test_asp_members_follow_the_department_job(self):
+        """Issue #815: the job position of ASP staff is declared once, on the department."""
+        job = self.env['hr.job'].create({'name': 'Test job 815', 'employee_type': 'asp'})
+        other = self.env['hr.job'].create({'name': 'Other job 815', 'employee_type': 'asp'})
+        department = self._asp_department('Test ASP (Job)')
+        self.assertTrue(department.is_asp_area)
+        member = self.env['hr.employee'].create({'name': 'ASP member', 'employee_type': 'asp', 'department_id': department.id})
+        teacher = self.env['hr.employee'].create({'name': 'Teacher 815', 'employee_type': 'teacher', 'department_id': department.id, 'job_id': other.id})
+        self.assertFalse(member.job_id, "A department without a job leaves its members untouched")
+        department.job_id = job
+        self.assertEqual(member.job_id, job)
+        self.assertEqual(teacher.job_id, other, "Teachers keep their own job position")
+        newcomer = self.env['hr.employee'].create({'name': 'ASP newcomer', 'employee_type': 'asp', 'department_id': department.id})
+        self.assertEqual(newcomer.job_id, job)
+        moved = self.env['hr.employee'].create({'name': 'ASP moved', 'employee_type': 'asp', 'job_id': other.id})
+        moved.department_id = department
+        self.assertEqual(moved.job_id, job)
+
+    def test_migration_infers_department_job_from_members(self):
+        """migrations/18.0.0.52.0: a department whose ASP members share one job takes it."""
+        path = Path(__file__).resolve().parent.parent / 'migrations' / '18.0.0.52.0' / 'post-migrate.py'
+        spec = importlib.util.spec_from_file_location('migrate_51_1', path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        job = self.env['hr.job'].create({'name': 'Mig job 815', 'employee_type': 'asp'})
+        other = self.env['hr.job'].create({'name': 'Mig other 815', 'employee_type': 'asp'})
+        shared, mixed, empty = (self._asp_department(name) for name in ('Mig shared', 'Mig mixed', 'Mig empty'))
+        Employee = self.env['hr.employee']
+        for name, department, member_job in (('A', shared, job), ('B', shared, job), ('C', mixed, job), ('D', mixed, other)):
+            Employee.create({'name': f'Mig {name}', 'employee_type': 'asp', 'department_id': department.id, 'job_id': member_job.id})
+        module._department_job_from_members(self.env)
+        self.assertEqual(shared.job_id, job)
+        self.assertFalse(mixed.job_id, "Several different jobs: left for an administrator")
+        self.assertFalse(empty.job_id)
+
+    def test_academic_admin_can_set_department_job(self):
+        """The administrator sets the job on the department, which writes it on the members."""
+        admin = create_role_user(self, 'academic_admin', 'dept_job_admin')
+        job = self.env['hr.job'].create({'name': 'Admin job 815', 'employee_type': 'asp'})
+        department = self._asp_department('Test ASP (Admin)')
+        member = self.env['hr.employee'].create({'name': 'ASP admin member', 'employee_type': 'asp', 'department_id': department.id})
+        department.with_user(admin).write({'job_id': job.id})
+        self.assertEqual(member.job_id, job)
+
+    def test_only_employee_managers_can_set_department_job(self):
+        """The job carries a security group every member gets, so a teacher (who can write a
+        department through Odoo's own ACL) must not be able to set it."""
+        teacher = create_role_user(self, 'teacher', 'dept_job_teacher')
+        secretary = create_role_user(self, 'secretary', 'dept_job_secretary_w')
+        job = self.env['hr.job'].create({'name': 'Guarded job 815', 'employee_type': 'asp', 'group_id': self.env.ref('ems.group_secretary').id})
+        department = self._asp_department('Test ASP (Guarded)')
+        member = self.env['hr.employee'].create({'name': 'ASP guarded member', 'employee_type': 'asp', 'department_id': department.id})
+        with self.assertRaises(AccessError):
+            department.with_user(teacher).write({'job_id': job.id})
+        self.assertFalse(member.job_id)
+        department.with_user(secretary).write({'job_id': job.id})
+        self.assertEqual(member.job_id, job)
+
+    def test_effective_manager_is_shown_when_shared_with_parent(self):
+        manager = self.env['hr.employee'].create({'name': 'Area manager 815', 'employee_type': 'asp'})
+        department = self._asp_department('Test ASP (Manager)')
+        self.assertFalse(department.manager_id)
+        department.parent_id.manager_id = manager
+        self.assertEqual(department.effective_manager_id, manager)
+
+    def test_pas_employee_form_hides_job_position(self):
+        arch = self.env['hr.employee'].get_view(self.env.ref('hr.view_employee_form').id)['arch']
+        fields = re.findall(r'<field[^>]*name="job_id"[^>]*>', arch)
+        self.assertTrue(fields)
+        for field in fields:
+            self.assertIn("invisible=\"employee_type == 'asp'\"", field)
 
     def test_seminar_chief_becomes_manager_of_other_members(self):
         department = self.env['hr.department'].create({'name': 'Test Department (Seminar Cascade)'})

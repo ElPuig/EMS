@@ -1504,6 +1504,7 @@ msgstr "Administrador/a"
 #. module: ems
 #: model:res.groups,name:ems.group_coexistence model:res.groups,name:ems.group_settings model:res.groups,name:ems.group_tac model:res.groups,name:ems.group_orientation
 #: model:ir.model.fields,field_description:ems.field_hr_department__manager_id
+#: model_terms:ir.ui.view,arch_db:ems.view_department_list
 #: model:res.groups,name:ems.group_secretary
 #: model:res.groups,name:ems.group_erasmus
 msgid "Manager"
@@ -2571,12 +2572,6 @@ msgid "Change grade session state"
 msgstr "Canviar l'estat de la sessió d'avaluació"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/contact.py:0
-msgid "Changing the main email revokes the portal access linked to the old email and sends a new portal invitation to the new email. Discard the change if you don't want this."
-msgstr "Canviar el correu electrònic principal revoca l'accés al portal vinculat al correu antic i envia una nova invitació al portal al correu nou. Descarta el canvi si no ho vols."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "Check attendance records and schedules"
 msgstr "Consultar registres d'assistència i horaris"
@@ -3519,6 +3514,7 @@ msgstr "Data"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_strike__date model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
 #: model:ir.model.fields,field_description:ems.field_ems_minute__start_datetime
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Date and time"
 msgstr "Data i hora"
 
@@ -6044,7 +6040,7 @@ msgid "Item '%(name)s' is already enrolled in this record."
 msgstr "L'element '%(name)s' ja està matriculat en aquest registre."
 
 #. module: ems
-#: model:ir.model,name:ems.model_hr_job model:ir.model.fields,field_description:ems.field_hr_employee__job_id model:ir.model.fields,field_description:ems.field_hr_employee_base__job_id model:ir.model.fields,field_description:ems.field_hr_employee_public__job_id model_terms:ir.ui.view,arch_db:ems.view_employee_form
+#: model:ir.model,name:ems.model_hr_job model:ir.model.fields,field_description:ems.field_hr_employee__job_id model:ir.model.fields,field_description:ems.field_hr_employee_base__job_id model:ir.model.fields,field_description:ems.field_hr_employee_public__job_id model:ir.model.fields,field_description:ems.field_hr_department__job_id model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Job Position"
 msgstr "Lloc de treball"
 
@@ -7919,6 +7915,7 @@ msgstr "Pla de pagament"
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__step_role_ids
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__is_pending
 #: model_terms:ir.ui.view,arch_db:ems.portal_certificate_summary
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Pending"
 msgstr "Pendent"
 
@@ -8136,12 +8133,6 @@ msgstr "Accés al portal (alumnes/famílies)"
 #: model:ir.model,name:ems.model_ems_portal_access_wizard_line
 msgid "Portal access recipient (preview)"
 msgstr "Destinatari de l'accés al portal (previsualització)"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/contact.py:0
-msgid "Portal access will be updated"
-msgstr "L'accés al portal s'actualitzarà"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_zip
@@ -8533,9 +8524,9 @@ msgid "Required when accepting"
 msgstr "Obligatori en acceptar"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_portal_access_wizard__mode__resend
-msgid "Resend portal invitation (users who never logged in)"
-msgstr "Reenviar invitació d'accés al portal (usuaris que no han entrat mai)"
+#: model:ir.model.fields.selection,name:ems.selection__ems_portal_access_wizard__mode__regenerate
+msgid "Regenerate credentials (send a new password link)"
+msgstr "Regenera les credencials (envia un enllaç nou de contrasenya)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
@@ -9835,6 +9826,7 @@ msgstr "Nota de l'assignatura suggerida aplicant les ponderacions de la planific
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_log__name
 #: code:addons/ems/models/erasmus/export.py:0
 #: code:addons/ems/models/erasmus/economy.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result__summary
 msgid "Summary"
 msgstr "Resum"
 
@@ -10830,6 +10822,7 @@ msgstr "Coordinador/a d'FP"
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_response__value model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
 #: code:addons/ems/models/erasmus/satisfaction.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_value__display_value
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Value"
 msgstr "Valor"
 
@@ -14646,6 +14639,7 @@ msgstr "Previsualitzar"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__result
 #: code:addons/ems/models/erasmus/export.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__outcome
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result_line__result_id
 msgid "Result"
 msgstr "Resultat"
 
@@ -17307,6 +17301,7 @@ msgid ""
 msgstr "Només secretaria, l'administració acadèmica, la direcció d'estudis i els tutors poden enviar autoritzacions."
 
 #. module: ems
+
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block
 msgid "Respond"
@@ -17945,11 +17940,6 @@ msgstr "Això assigna una contrasenya nova al compte de Google de l'alumne: l'ac
 msgid "Users acting as tutor"
 msgstr "Usuaris que actuen com a tutor"
 
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/employee.py:0
-msgid "Unsupported search on tutor_scope_user_ids"
-msgstr "Cerca no admesa sobre tutor_scope_user_ids"
 
 #. module: ems
 #. odoo-python
@@ -26659,6 +26649,7 @@ msgid "Correction to the students of %(groups)s: %(change)s."
 msgstr "Rectificació a l'alumnat de %(groups)s: %(change)s."
 
 #. module: ems
+
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_group__joinable_group_ids
 msgid ""
@@ -27749,6 +27740,7 @@ msgstr "Quan, amb paraules"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_panel__post
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__role_id
 msgid "Post"
 msgstr "Càrrec"
 
@@ -27877,7 +27869,7 @@ msgstr "Enviada a aprovar a l'EMS"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Approved in EMS"
 msgstr "Aprovada a l'EMS"
 
@@ -39062,6 +39054,8 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__substitution_state
+#: model:ir.model.fields,field_description:ems.field_hr_employee__substitution_label
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Substitution"
 msgstr "Substitució"
 
@@ -53069,12 +53063,12 @@ msgid "Approve the certificate"
 msgstr "Donar el vistiplau al certificat"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Approved by the director"
 msgstr "Vistiplau de la direcció"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Approved by:"
 msgstr "Vistiplau de:"
 
@@ -53113,7 +53107,7 @@ msgstr "Pot rebutjar-la o cancel·lar-la"
 #: model:ir.actions.report,name:ems.action_report_certificate
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__certificate_pdf_link
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_stamp__certificate_id
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 #: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Certificate"
 msgstr "Certificat"
@@ -53135,7 +53129,7 @@ msgid "Certificate number"
 msgstr "Número de certificat"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Certificate number:"
 msgstr "Número de certificat:"
 
@@ -53363,12 +53357,12 @@ msgid "Issued"
 msgstr "Expedit"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Issued by:"
 msgstr "Expedit per:"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "Issued in EMS"
 msgstr "Expedit a EMS"
 
@@ -53500,11 +53494,6 @@ msgstr "Motiu del retorn"
 #: code:addons/ems/models/certificates/certificate.py:0
 msgid "Returned to \"%s\" by %s:"
 msgstr "Retornada a \"%s\" per %s:"
-
-#. module: ems
-#: model:ems.certificate.type.field,name:ems.certificate_field_fct_school_year
-msgid "School year of the training"
-msgstr "Curs de la formació"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_certificate__access_token
@@ -53643,7 +53632,7 @@ msgid "The secretariat, and whoever does the current step."
 msgstr "La secretaria i qui fa el pas actual."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
 msgid "The secretary"
 msgstr "El/la secretari/ària"
 
@@ -55587,11 +55576,6 @@ msgid "Data type"
 msgstr "Tipus de dada"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_certificate__value_field_types
-msgid "Data types of its details"
-msgstr "Tipus de dada"
-
-#. module: ems
 #: model:ir.model,name:ems.model_ems_certificate_type_field
 msgid "Detail a certificate type needs, and who fills it in."
 msgstr "Dada que necessita un tipus de certificat i qui l'emplena."
@@ -55624,8 +55608,10 @@ msgstr "Omple primer les dades del certificat: %s."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__help
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_value__hint
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
 msgid "Hint"
-msgstr "Ajuda"
+msgstr "Indicació"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_certificate_type_field__key
@@ -56042,3 +56028,487 @@ msgstr "Només els grups principals tenen declaració horària."
 #: model:ir.model.fields,field_description:ems.field_ems_study__duration_hours
 msgid "Duration (hours)"
 msgstr "Durada (hores)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Substitute"
+msgstr "Substitut"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Substituted"
+msgstr "Substituït"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Only a teacher can substitute another teacher."
+msgstr "Només un docent pot substituir un altre docent."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "A teacher can't substitute themselves, not even through another substitute."
+msgstr "Un docent no es pot substituir a si mateix, ni tan sols a través d'un altre substitut."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "The schedule will be replaced"
+msgstr "Es reemplaçarà l'horari"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "On saving, %(teacher)s's schedule is replaced with a copy of %(replaced)s's."
+msgstr "En desar, l'horari de %(teacher)s es reemplaça per una còpia del de %(replaced)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Unsupported search operator on a users field: %s"
+msgstr "Operador de cerca no admès en un camp d'usuaris: %s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__substitute_of_id
+msgid "Substitute of"
+msgstr "Substitut de"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__substitute_of_id
+msgid "The teacher this one replaces while they are away. Setting it replaces this teacher's schedule with a copy of theirs. The substitution ends when this teacher is archived."
+msgstr "El docent a qui substitueix mentre és absent. En informar-ho, l'horari d'aquest docent es reemplaça per una còpia del seu. La substitució s'acaba quan s'arxiva aquest docent."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__substituted_by_ids
+msgid "Substituted by"
+msgstr "Substituït per"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__substitution_color
+msgid "Substitution color"
+msgstr "Color de la substitució"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__acting_user_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__acting_user_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__acting_user_ids
+msgid "Users acting as this teacher"
+msgstr "Usuaris que actuen com aquest docent"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__transferred_group_id model:ir.model.fields,field_description:ems.field_res_users__transferred_group_id
+msgid "Tutorship transferred to"
+msgstr "Tutoria traspassada a"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__transferred_group_id model:ir.model.fields,help:ems.field_res_users__transferred_group_id
+msgid "The group whose tutor follows this student (attendance, family, notices), when it isn't their main group: the main group and its tutor remain the official ones (Esfer@, grades)."
+msgstr "El grup el tutor del qual fa el seguiment d'aquest alumne (assistència, família, avisos), quan no és el seu grup principal: el grup principal i el seu tutor continuen sent els oficials (Esfer@, notes)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__tutorship_group_id model:ir.model.fields,field_description:ems.field_res_users__tutorship_group_id
+msgid "Tutorship group"
+msgstr "Grup de tutoria"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__official_tutor_id model:ir.model.fields,field_description:ems.field_res_users__official_tutor_id
+msgid "Official tutor (Esfer@)"
+msgstr "Tutor/a oficial (Esfer@)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__official_tutor_id model:ir.model.fields,help:ems.field_res_users__official_tutor_id
+msgid "The main group's tutor, the one in Esfer@."
+msgstr "El tutor del grup principal, el que consta a Esfer@."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_transfer_tutorship model:ir.model.fields,field_description:ems.field_res_users__can_transfer_tutorship
+msgid "Can transfer the tutorship"
+msgstr "Pot traspassar la tutoria"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result__conflict_ids
+msgid "Conflict"
+msgstr "Conflicte"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result_line__contact_id
+msgid "Contact without access"
+msgstr "Contacte sense accés"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result_line__login
+msgid "Login in use"
+msgstr "Usuari en ús"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result_line__holder_id
+msgid "Contact holding it"
+msgstr "Contacte que el té"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result_line__holder_type
+msgid "Contact type"
+msgstr "Tipus de contacte"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result_line__holder_active
+msgid "Active"
+msgstr "Actiu"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result_line__related
+msgid "Related to the student"
+msgstr "Relacionat amb l'alumne"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_result_line__advice
+msgid "What to do"
+msgstr "Què cal fer"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__selected
+msgid "Apply"
+msgstr "Aplica"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Staff"
+msgstr "Personal"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "%(holder)s is also assigned to this student, and two contacts cannot share a portal login. Give one of them a different email."
+msgstr "%(holder)s també està assignat a aquest alumne, i dos contactes no poden compartir un usuari del portal. Doneu a un d'ells un correu diferent."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "%(holder)s is not assigned to this student: it is probably a duplicate or a stray contact. Merge or archive it, or give one of the two a different email."
+msgstr "%(holder)s no està assignat a aquest alumne: probablement és un duplicat o un contacte perdut. Fusioneu-lo o arxiveu-lo, o doneu a un dels dos un correu diferent."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "The contact \"%(contact)s\" cannot get portal access: %(login)s is already the login of %(holder)s (%(type)s, %(state)s, %(related)s). %(advice)s"
+msgstr "El contacte «%(contact)s» no pot tenir accés al portal: %(login)s ja és l'usuari de %(holder)s (%(type)s, %(state)s, %(related)s). %(advice)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "active"
+msgstr "actiu"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "archived"
+msgstr "arxivat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "assigned to this student"
+msgstr "assignat a aquest alumne"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "not assigned to this student"
+msgstr "no assignat a aquest alumne"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal_access_wizard.py:0
+msgid "%s password link(s) sent"
+msgstr "%s enllaços de contrasenya enviats"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_portal_access_result_form
+msgid "Contacts that could not get access: their login is already in use"
+msgstr "Contactes que no han pogut tenir accés: el seu usuari ja està en ús"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "Only the secretary's office, academic administration and the Head of Studies can transfer a student's tutorship."
+msgstr "Només la secretaria, l'administració acadèmica i el cap d'estudis poden traspassar la tutoria d'un alumne."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "The tutorship can only be transferred to a group other than the main one."
+msgstr "La tutoria només es pot traspassar a un grup diferent del principal."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "The tutorship can only be transferred to a main group."
+msgstr "La tutoria només es pot traspassar a un grup principal."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "The tutorship can only be transferred to a group of the student's own study."
+msgstr "La tutoria només es pot traspassar a un grup del mateix estudi de l'alumne."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_department__is_asp_area
+msgid "ASP area"
+msgstr "Àrea PAS"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_department__effective_manager_id
+msgid "Applicable Manager"
+msgstr "Gestor/a aplicable"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__job_id
+msgid "The job position of the ASP staff of this department: every member takes it, so it is not chosen on each employee's form."
+msgstr "El lloc de treball del personal PAS d'aquest departament: tots els membres l'adopten, per això no es tria a la fitxa de cada empleat."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__is_asp_area
+msgid "Whether this department belongs to the ASP area (its top-level department is ASP)."
+msgstr "Si aquest departament pertany a l'àrea PAS (el seu departament top-level és PAS)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__effective_manager_id
+msgid "The Manager that applies to this department: its own, or the one of the parent department when it shares it."
+msgstr "El gestor que s'aplica a aquest departament: el propi o, si el comparteix, el del departament pare."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "%(email)s is already the email of %(other)s, linked to %(partner)s: a student and their family must have different emails (each gets a portal login of their own)."
+msgstr "%(email)s ja és el correu de %(other)s, vinculat a %(partner)s: un alumne i la seva família han de tenir correus diferents (cadascú té el seu propi usuari del portal)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_relation.py:0
+msgid "%(left)s and %(right)s have the same email (%(email)s): a student and their family must have different emails."
+msgstr "%(left)s i %(right)s tenen el mateix correu (%(email)s): un alumne i la seva família han de tenir correus diferents."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid "%(student)s: the email %(email)s is the student's own and the student is an adult: family contact %(family)s was left without email."
+msgstr "%(student)s: el correu %(email)s és el de l'alumne i l'alumne és major d'edat: el contacte familiar %(family)s s'ha deixat sense correu."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid "%(student)s: the only email received, %(email)s, is also the family's and the student is a minor: it stays with %(family)s and the student has no personal email, ask for one."
+msgstr "%(student)s: l'únic correu rebut, %(email)s, també és de la família i l'alumne és menor: es queda amb %(family)s i l'alumne no té correu personal, cal demanar-ne un."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Update the portal access?"
+msgstr "Actualitzar l'accés al portal?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "%(name)s has portal access with the email %(old)s, and you are changing it to %(new)s.\n\nUpdate the portal access: the access of the old email is revoked and an invitation to set the password is sent to %(new)s.\n\nDon't change the access: nothing is revoked or sent, and %(old)s keeps being the login."
+msgstr "%(name)s té accés al portal amb el correu %(old)s i el canvies per %(new)s.\n\nActualitza l'accés al portal: es revoca l'accés del correu antic i s'envia una invitació per fixar la contrasenya a %(new)s.\n\nNo canviïs l'accés: no es revoca ni s'envia res, i %(old)s continua sent l'usuari."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Update the portal access"
+msgstr "Actualitza l'accés al portal"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Don't change the access"
+msgstr "No canviïs l'accés"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Give portal access?"
+msgstr "Donar accés al portal?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "The portal access of %(name)s was revoked.\n\n"
+msgstr "L'accés al portal de %(name)s es va revocar.\n\n"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "%(name)s has no portal access.\n\n"
+msgstr "%(name)s no té accés al portal.\n\n"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Give portal access: an invitation to set the password is sent to %(new)s.\n\nNot now: the email is saved and the access stays as it is; it can be given later from Actions > Portal access."
+msgstr "Dona accés al portal: s'envia una invitació per fixar la contrasenya a %(new)s.\n\nAra no: el correu es desa i l'accés queda com està; es pot donar més endavant des d'Accions > Accés al portal."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Give portal access"
+msgstr "Dona accés al portal"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Not now"
+msgstr "Ara no"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__portal_email_decision
+msgid "Portal access decision"
+msgstr "Decisió sobre l'accés al portal"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "%(detail)s cannot be earlier than %(earlier)s."
+msgstr "%(detail)s no pot ser anterior a %(earlier)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "%(detail)s: write the school year as 2024-25."
+msgstr "%(detail)s: escriu el curs amb el format 2024-25."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate_type.py:0
+msgid "%s can only be compared with another date of its own certificate type."
+msgstr "%s només es pot comparar amb una altra data del seu tipus de certificat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificate
+#: model_terms:ir.ui.view,arch_db:ems.portal_certificates
+msgid "<i class=\"fa fa-exclamation-triangle me-1\"/> Some details are not written correctly: check the hint under each one."
+msgstr "<i class=\"fa fa-exclamation-triangle me-1\"/> Algunes dades no estan ben escrites: revisa la indicació de sota de cadascuna."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_field__after_field_id
+msgid "For a date: another date of the type it cannot be earlier than (e.g. the end of a period, not before its start)."
+msgstr "Per a una data: una altra data del tipus de la qual no pot ser anterior (p. ex. el final d'un període, no abans del seu inici)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_certificate_type_field__after_field_id
+msgid "Not before"
+msgstr "No anterior a"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_type_field__help
+#: model:ir.model.fields,help:ems.field_ems_certificate_value__hint
+msgid "What to write and how, with an example: shown to the applicant under the detail, and next to it in the request."
+msgstr "Què cal escriure i com, amb un exemple: es mostra a la persona sol·licitant sota la dada, i al seu costat a la sol·licitud."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "Written by the applicant"
+msgstr "Escrit per la persona sol·licitant"
+
+#. module: ems
+#: model:ems.certificate.type.field,name:ems.certificate_field_fct_school_year
+msgid "Academic course"
+msgstr "Curs acadèmic"
+
+#. module: ems
+#: model:ems.certificate.type.field,help:ems.certificate_field_fct_school_year
+msgid "As YYYY-YY, e.g. 2024-25."
+msgstr "Format AAAA-AA, per exemple 2024-25."
+
+#. module: ems
+#: model:ems.certificate.type.field,help:ems.certificate_field_fct_company
+msgid "The company where the training was done and, if you know it, its VAT number."
+msgstr "L'empresa on es va fer la formació i, si el saps, el seu NIF."
+
+#. module: ems
+#: model:ems.certificate.type.field,help:ems.certificate_field_fct_start
+msgid "The first day of the training at the company."
+msgstr "El primer dia de la formació a l'empresa."
+
+#. module: ems
+#: model:ems.certificate.type.field,help:ems.certificate_field_fct_end
+msgid "The last day of the training at the company."
+msgstr "L'últim dia de la formació a l'empresa."
+
+#. module: ems
+#: model:ems.certificate.type.field,help:ems.certificate_field_fct_hours
+msgid "The total hours of the training, e.g. 400."
+msgstr "El total d'hores de la formació, per exemple 400."
+
+#. module: ems
+#: model:ems.certificate.type.field,help:ems.certificate_field_fct_agreement
+msgid "The agreement's number in sBID, e.g. 2025146951."
+msgstr "El número del conveni a sBID, per exemple 2025146951."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "%(name)s, %(position)s of %(centre)s,"
+msgstr "%(name)s, %(position)s del centre %(centre)s,"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_certificate_stamp__role_id
+msgid "The post the step was done under: the certificate names the signer by it."
+msgstr "El càrrec amb què es va fer el pas: el certificat anomena qui signa per aquest càrrec."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
+msgid "DRAFT"
+msgstr "ESBORRANY"
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_report_certificate_draft
+msgid "Draft certificate"
+msgstr "Esborrany del certificat"
+
+#. module: ems
+#: model:ir.model,name:ems.model_report_ems_report_certificate_draft
+msgid "Draft certificate, for the staff."
+msgstr "Esborrany del certificat, per al personal del centre."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/certificates/certificate.py:0
+msgid "Only the centre's staff can see a draft certificate."
+msgstr "Només el personal del centre pot veure l'esborrany d'un certificat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_certificate_document
+msgid "Pending issue"
+msgstr "Pendent d'expedir"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "See the draft"
+msgstr "Veure l'esborrany"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_certificate_form
+msgid "The certificate as it stands now, marked DRAFT: the details still empty are shown by their name. Only for the centre's staff."
+msgstr "El certificat tal com és ara, marcat com a ESBORRANY: les dades encara buides es mostren pel seu nom. Només per al personal del centre."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/attachments_field.xml:0
+msgid "Open link"
+msgstr "Obre l'enllaç"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_document_list
+msgid "Write what to correct"
+msgstr "Escriu què cal corregir"

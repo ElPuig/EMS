@@ -297,11 +297,12 @@ class EmsExOfficioWithdrawal(models.Model):
             step = withdrawal.step_ids.filtered(lambda pending: not pending.done_date)[:1]
             withdrawal.current_step_id = step
 
-    @api.depends('student_id.main_group_id.tutor_id')
+    @api.depends('student_id.tutor_id')
     def _compute_tutor_id(self):
-        """Follows the student's group tutor, and freezes when the student has none any more."""
+        """Follows the student's tutor (their tutorship group's, issue #807), and freezes when the student has
+        none any more."""
         for withdrawal in self:
-            withdrawal.tutor_id = withdrawal.student_id.main_group_id.tutor_id or withdrawal.tutor_id
+            withdrawal.tutor_id = withdrawal.student_id.tutor_id or withdrawal.tutor_id
 
     @api.depends('student_id', 'state')
     @api.depends_context('uid')

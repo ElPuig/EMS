@@ -141,6 +141,13 @@ El acta (PDF) está en la página de la propuesta una vez cerrada.
 | **No validada** | La jefatura de estudios no la ha validado, con un motivo |
 | **Anulada** | El delegado o el subdelegado la ha anulado |
 
+## Vídeos
+
+> ⚠️ **Los vídeos pueden estar desactualizados.** El EMS se actualiza a menudo y no todos los vídeos se rehacen tras cada cambio: puede que alguna pantalla o algún paso no coincida con lo que ves. Si hay alguna diferencia, haz caso de este manual. Los vídeos están en catalán y no tienen voz: todo el texto aparece en pantalla.
+
+- ▶ [Proponer la votación](https://drive.google.com/file/d/1z_PdjquReu8f1BIXbCzW3Gb68JIQ5xrG/view?usp=drivesdk)
+- ▶ [Votar y sumarse](https://drive.google.com/file/d/16wyQlzbPLoB3TITTcV0VeB_Y3JyQZfyD/view?usp=drivesdk)
+
 ---
 
 [← Volver a los manuales de familias](index.md)

@@ -89,3 +89,10 @@ When you accept your step, the case file goes to the next responsible (Coexisten
 If the student asks for a voluntary withdrawal or is expelled, the case file closes on its own.
 
 Once the Secretariat has processed the withdrawal the student has no group any more, but the case file stays yours (and the Department or Seminar Chief's, the Head of Studies' and Direction's above you) for the rest of that course: it keeps the tutor the student had when they left. The list shows only open case files at first, so remove the **Open** filter to see a closed one. From the next course on, only the Secretariat, Coexistence, Guidance, Direction, the Head of Studies and the administrators see it.
+
+## Videos
+
+> ⚠️ **The videos may be out of date.** EMS is updated often and not every video is remade after each change, so a screen or a step may differ from what you see. If something differs, follow this manual. The videos are in Catalan and have no voice-over: all the text is shown on screen.
+
+- ▶ [Ex officio withdrawal, post-compulsory education](https://drive.google.com/file/d/1Ia0xGFlXyh7MbUxH3aFdJjZdhn-Tye8b/view?usp=drivesdk)
+- ▶ [Ex officio withdrawal, compulsory education](https://drive.google.com/file/d/1f80ulfZ_bxHEuzLJ_MyxgVnHgCNzWRd1/view?usp=drivesdk)

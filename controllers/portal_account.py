@@ -82,7 +82,7 @@ class EMSPortalAccount(CustomerPortal):
             'ems_profile_student': student,
             'ems_profile_own': student == partner,
             'ems_profile_photo': student.image_256 and image_data_uri(student.image_256),
-            'ems_profile_tutor': student.main_group_id.tutor_id,
+            'ems_profile_tutor': student.tutor_id,
             'ems_profile_family': student._ems_contact_data()['family'] if student == partner else [],
             'ems_profile_can_review': bool(contact_student),
             'ems_profile_request': contact_student and contact_student._ems_contact_data_running_request(),

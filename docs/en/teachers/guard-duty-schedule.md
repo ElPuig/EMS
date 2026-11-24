@@ -85,6 +85,8 @@ So you can see at a glance which guard duties line up with each class to cover, 
 
 In a co-taught class (two teachers in the same classroom) where only one of them is away, their line is **struck through**: it stays there so you know who is missing, but no guard is needed because the other teacher is taking the class. Hover over the line or click it to see why; the **ⓘ** icon on its left shows there is an explanation.
 
+A teacher who has a substitute does not appear at all: the substitute has their classes and guard duties, so there is nothing to cover.
+
 Every struck-through line has that icon, whatever the reason: a co-teacher is in the class, a guard teacher has already been sent to it (their name appears next to it), or the families were told the students can stay at home for it (see [Organising an absence](#organising-an-absence)). If both are away, or each teacher has half of the group in a different classroom, the line is not struck through and the class does need covering.
 
 ![Absences table of the same day: one column per area with the classes to cover, one already covered by a guard, and an absent teacher's break guard in the Guard duty column](../../assets/teachers/guard-duty-02-absencies.png)
@@ -172,6 +174,14 @@ The board's address keeps the week, day, shift, view and areas you are looking a
 ## Exporting to PDF
 
 Click **PDF** in the toolbar to download the day and shift currently shown (not the whole week) as a printable document — whatever area filter is currently checked is applied to the PDF too, which uses the same stretches of time and the same columns as the screen. The PDF prints whichever of the two views is on screen: the timetable if **Guard duty schedule** is active, or the Absences table if **Absences table** is active, with its guards, colours and struck-through lines as on screen.
+
+## Videos
+
+> ⚠️ **The videos may be out of date.** EMS is updated often and not every video is remade after each change, so a screen or a step may differ from what you see. If something differs, follow this manual. The videos are in Catalan and have no voice-over: all the text is shown on screen.
+
+- ▶ [Reading the guard duty board](https://drive.google.com/file/d/191MPigr_wHHVomni1mheu2hOUNhlCZ6M/view?usp=drivesdk)
+- ▶ [Everything through EMS](https://drive.google.com/file/d/1Vce04MgTVhrpyV12KMWclYaUaz-By6BM/view?usp=drivesdk)
+- ▶ [Guard duties live](https://drive.google.com/file/d/1zUi_8nxIBFvpPGiQsZpRo1G66Yml41P7/view?usp=drivesdk)
 
 ---
 

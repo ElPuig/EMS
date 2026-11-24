@@ -15,9 +15,12 @@
                 <span class="o_image flex-shrink-0" t-att-data-mimetype="file.mimetype" t-att-data-ext="getExtension(file)" role="img"/>
                 <span class="o_ems_attachment_name text-truncate flex-grow-1" t-esc="file.name"/>
                 <div class="o_ems_attachment_actions d-flex flex-shrink-0 gap-1">
-                    <button t-if="file.isViewable" type="button" class="btn btn-link btn-sm p-1 fa fa-eye o_ems_attachment_preview"
+                    <button t-if="file.isViewable and !file.isUrl" type="button" class="btn btn-link btn-sm p-1 fa fa-eye o_ems_attachment_preview"
                             title="Preview" aria-label="Preview" t-on-click.stop="() => this.onFilePreview(file)"/>
-                    <a t-if="!viewOnly" class="btn btn-link btn-sm p-1 fa fa-download o_ems_attachment_download"
+                    <!-- A document handed in as a link (a video): opened in a new tab, nothing to download. -->
+                    <a t-if="file.isUrl" class="btn btn-link btn-sm p-1 fa fa-external-link o_ems_attachment_link"
+                       t-att-href="file.url" target="_blank" rel="noopener noreferrer" title="Open link" aria-label="Open link"/>
+                    <a t-elif="!viewOnly" class="btn btn-link btn-sm p-1 fa fa-download o_ems_attachment_download"
                        t-att-href="getUrl(file.id)" download="" title="Download" aria-label="Download"/>
                     <button t-if="!props.readonly" type="button" class="btn btn-link btn-sm p-1 fa fa-trash o_ems_attachment_delete"
                             title="Delete" aria-label="Delete" t-on-click.stop="() => this.onFileRemove(file.id)"/>

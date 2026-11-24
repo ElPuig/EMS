@@ -238,8 +238,14 @@
                 </xpath>
 
                 <field name="job_title" position="replace">
-                    <field name="job_id" placeholder="Job Position" />
+                    <!-- Issue #815: a PAS member's job position is their department's, set on the department. -->
+                    <field name="job_id" placeholder="Job Position" invisible="employee_type == 'asp'"/>
                 </field>
+
+                <!-- The native one, in the work information block (the one above is ours, under the name). -->
+                <xpath expr="(//field[@name='job_id'])[2]" position="attributes">
+                    <attribute name="invisible">employee_type == 'asp'</attribute>
+                </xpath>
 
                 <field name="category_ids" position="replace">
                     <!-- Issue #846: 'groups' here and on Tutorships/Subjects below: a role that can't read them
@@ -346,6 +352,14 @@
                            groups="hr.group_hr_user,ems.group_teacher"
                            options="{'color_field': 'archived_reason_color'}"
                            invisible="active or pending_identification or not archived_reason_label"/>
+                    <!-- Issue #748: a substitute, or a teacher being substituted. Never with the
+                    archived ribbon (substitution_label is empty on an archived employee). -->
+                    <field name="substitution_color" invisible="1"
+                           groups="hr.group_hr_user,ems.group_teacher"/>
+                    <field name="substitution_label" widget="ems_archived_reason_ribbon"
+                           groups="hr.group_hr_user,ems.group_teacher"
+                           options="{'color_field': 'substitution_color'}"
+                           invisible="pending_identification or not substitution_label"/>
                 </xpath>
 
                 <!-- Staffing type (issue #584): a named teacher, or a vacancy with its code and no
@@ -407,6 +421,13 @@
                     </page>
 
                     <page string="Teaching" invisible="employee_type == 'asp'">
+                        <!-- Issue #748. Whoever may edit the employee sets it; it replaces the
+                        schedule (see hr.employee._ems_start_substitution). -->
+                        <group string="Substitution" name="substitution" groups="ems.group_teacher,ems.group_secretary">
+                            <field name="substitute_of_id" options="{'no_create': True}"/>
+                            <field name="substituted_by_ids" widget="many2many_tags" readonly="1"
+                                   invisible="not substituted_by_ids"/>
+                        </group>
                         <group string="Tutorships" groups="ems.group_teacher,ems.group_secretary">
                             <field name="tutorship_ids" widget="many2many_tags" nolabel="1" />
                         </group>

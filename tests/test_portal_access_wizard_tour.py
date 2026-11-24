@@ -65,14 +65,40 @@ class TestPortalAccessWizardTour(HttpCase):
             'birth_date': date.today() - relativedelta(years=15),
         })
         family = self.env['res.partner'].create({
-            'name': 'Shared Email Tour Family', 'contact_type': 'family', 'email': 'home.tour@example.com',
+            'name': 'Shared Email Tour Family', 'contact_type': 'family', 'email': 'family.tour@example.com',
         })
         self.env['res.partner.relation'].create({
             'left_partner_id': family.id, 'type_id': self.env.ref('ems.relation_type_father').id,
             'right_partner_id': student.id,
         })
+        # A pair sharing the email can no longer be saved (issue #842); it is the legacy state
+        # this tour is about, so the family's email is set under the constraint's feet.
+        self.env.flush_all()
+        self.env.cr.execute(
+            "UPDATE res_partner SET email = 'home.tour@example.com', "
+            "email_normalized = 'home.tour@example.com' WHERE id = %s", (family.id,))
+        self.env['res.partner'].invalidate_model(['email', 'email_normalized'])
         self.start_tour(f"/odoo/res.partner/{student.id}", "ems_portal_access_wizard_shared_email",
                         login=tutor.login)
         self.assertEqual(student.with_context(active_test=False).user_ids.login,
                          'shared.tour@shared-tour.example.com')
         self.assertEqual(family.with_context(active_test=False).user_ids.login, 'home.tour@example.com')
+
+    def test_portal_email_change_dialog_tour(self):
+        """Issue #842, as the student's tutor: changing the main email of a student without
+        portal access asks whether to give it, and answering yes sends the invitation to the
+        new email."""
+        tutor = create_role_user(self, 'tutor', 'test_tutor_email_dialog_tour',
+                                 email='tutor.dialog.tour@example.com')
+        self.group.tutor_id = create_role_employee(self, tutor)
+        student = self.env['res.partner'].create({
+            'name': 'Email Dialog Tour Student', 'contact_type': 'student',
+            'student_id': next_student_id(), 'main_group_id': self.group.id,
+            'email': 'before.dialog.tour@example.com',
+            'birth_date': date.today() - relativedelta(years=19),
+        })
+        self.start_tour(f"/odoo/res.partner/{student.id}", "ems_portal_email_change_dialog",
+                        login=tutor.login)
+        self.assertEqual(student.email, 'after.dialog.tour@example.com')
+        self.assertEqual(student.with_context(active_test=False).user_ids.login,
+                         'after.dialog.tour@example.com')

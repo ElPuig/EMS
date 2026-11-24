@@ -12,6 +12,9 @@
                 <xpath expr="//field[@name='coach_id']" position="after">
                     <field name="pending_identification" optional="show"
                         decoration-warning="pending_identification"/>
+                    <!-- Issue #748: who this teacher substitutes. -->
+                    <field name="substitute_of_id" optional="hide"
+                           groups="base.group_system,hr.group_hr_user,ems.group_teacher"/>
                 </xpath>
 
                 <!-- <xpath expr="//field[@name='coach_id']" position="after">

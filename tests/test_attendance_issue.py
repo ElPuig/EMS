@@ -138,6 +138,19 @@ class TestAttendanceIssue(TransactionCase):
         self.assertTrue(issue_tutor.exists())
         self.assertEqual(len(issue_tutor.attendance_issue_student_ids), 1)
 
+    def test_a_substituted_tutor_s_issues_go_to_the_substitute(self):
+        """Issue #748: while a substitute replaces the tutor, the issues of their students are the
+        substitute's, in their daily summary, not the absent tutor's."""
+        substitute = self.env['hr.employee'].create({
+            'name': 'Test Substitute Tutor (Attendance Issue)', 'employee_type': 'teacher',
+            'substitute_of_id': self.tutor_employee.id})
+
+        self._mark_miss(self.student1)
+
+        self.assertFalse(self._issue_tutor())
+        self.assertTrue(self.env['ems.attendance_issue_tutor'].search([
+            ('tutor_id', '=', substitute.id), ('issue_date', '=', self.session.date)]))
+
     # --- unlink cancels the queued notification -------------------------------------------
 
     def test_unlink_status_cancels_notification_job(self):
@@ -147,6 +160,22 @@ class TestAttendanceIssue(TransactionCase):
         self.assertTrue(job)
         status.unlink()
         self.assertIn(job.state, ('cancelled', 'done'))
+
+    def test_deleting_the_session_leaves_no_failing_notification_job(self):
+        """Issue #816: deleting a session removes its lines and, through the database's own
+        ON DELETE CASCADE, their statuses, which never goes through the status's unlink() and so
+        never cancels the queued notification. The job then ran on a record that no longer
+        existed (MissingError). It must end quietly and send nothing."""
+        self._mark_miss(self.student1)
+        status = self._issue_tutor().attendance_issue_student_ids.attendance_issue_status_ids
+        status_ids = status.ids
+        self.session.unlink()
+        self.assertFalse(self.env['ems.attendance_issue_status'].browse(status_ids).exists())
+
+        self.mail_transport.reset_mock()
+        orphan = self.env['ems.attendance_issue_status'].browse(status_ids)
+        self.assertTrue(orphan.send_notification())
+        self.mail_transport.assert_not_called()
 
     # --- the tutor's daily summary, with everything not reported yet ----------------------
 

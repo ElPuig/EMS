@@ -85,6 +85,8 @@ Així veus d'un cop d'ull quines guàrdies coincideixen amb cada classe que cal 
 
 En una classe amb codocència (dos docents a la mateixa aula) on només en falta un, la seva línia surt **ratllada**: hi continua perquè sàpigues qui falta, però no cal guàrdia perquè l'altre docent es fa càrrec de la classe. Passa el ratolí per sobre de la línia o fes-hi clic per veure'n el motiu; la icona **ⓘ** de la seva esquerra indica que hi ha una explicació.
 
+Un docent que té substitut no hi surt gens: les seves classes i guàrdies són del substitut, de manera que no hi ha res a cobrir.
+
 Tota línia ratllada té aquesta icona, sigui quin sigui el motiu: un altre docent és a la classe, ja s'hi ha enviat un docent de guàrdia (el seu nom apareix al costat), o s'ha comunicat a les famílies que l'alumnat no ha de venir a aquella classe (consulta [Organitzar una absència](#organitzar-una-absencia)). Si falten tots dos, o cada docent té mig grup en una aula diferent, la línia no surt ratllada i sí que cal cobrir la classe.
 
 ![Taula d'absències del mateix dia: una columna per àrea amb les classes que cal cobrir, una ja coberta per un docent de guàrdia, i la guàrdia de pati d'una docent absent a la columna Guàrdia](../../assets/teachers/guard-duty-02-absencies.png)
@@ -172,6 +174,14 @@ L'adreça de l'horari conserva la setmana, el dia, el torn, la vista i les àree
 ## Exportar a PDF
 
 Fes clic a **PDF** a la barra d'eines per descarregar el dia i el torn que s'estan mostrant (no tota la setmana) com a document imprimible — el filtre d'àrea que tinguis marcat s'aplica també al PDF, que fa servir els mateixos trams de temps i les mateixes columnes que la pantalla. El PDF imprimeix la vista que tinguis activa a la pantalla: l'horari si està activa **Horari de guàrdies**, o la taula d'absències si està activa **Taula d'absències**.
+
+## Vídeos
+
+> ⚠️ **Els vídeos poden estar desactualitzats.** L'EMS s'actualitza sovint i no tots els vídeos es tornen a fer després de cada canvi: pot ser que alguna pantalla o algun pas no coincideixi amb el que veus. Si hi ha alguna diferència, fes cas d'aquest manual. Els vídeos són en català i no tenen veu: tot el text apareix a la pantalla.
+
+- ▶ [Llegir el quadre de guàrdies](https://drive.google.com/file/d/191MPigr_wHHVomni1mheu2hOUNhlCZ6M/view?usp=drivesdk)
+- ▶ [Tot per l'EMS](https://drive.google.com/file/d/1Vce04MgTVhrpyV12KMWclYaUaz-By6BM/view?usp=drivesdk)
+- ▶ [Les guàrdies en directe](https://drive.google.com/file/d/1zUi_8nxIBFvpPGiQsZpRo1G66Yml41P7/view?usp=drivesdk)
 
 ---
 

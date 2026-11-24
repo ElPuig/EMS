@@ -64,7 +64,10 @@
                                 <field name="applicant_input"/>
                                 <field name="required_step_id" options="{'no_create': True, 'no_open': True}"
                                        domain="[('id', 'in', parent.step_ids)]"/>
-                                <field name="help" optional="hide"/>
+                                <field name="help"/>
+                                <field name="after_field_id" optional="hide" options="{'no_create': True, 'no_open': True}"
+                                       domain="[('id', 'in', parent.field_ids), ('field_type', '=', 'date')]"
+                                       invisible="field_type != 'date'"/>
                             </list>
                         </field>
                         <div class="text-muted mb-3">

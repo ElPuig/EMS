@@ -238,6 +238,42 @@ registry.category("web_tour.tours").add("ems_attendance_session_guard", {
     ],
 });
 
+// Issue #856: a guard teacher sent to a class by the guard schedule finds it in the default
+// (current session) mode, no switch to Guard mode needed. Marking a student still goes through the
+// guard write (the class is a colleague's), and the Delete session button is not offered.
+registry.category("web_tour.tours").add("ems_attendance_session_guard_cover", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_passlist",
+    steps: () => [
+        { trigger: ".ems-av-root", content: "Roll-call view loaded, in the default mode" },
+        {
+            trigger: slotOption(),
+            content: "The class the guard was sent to is offered without switching to Guard mode",
+            run: () => selectSlot(),
+        },
+        { trigger: ".ems-av-start-btn", content: "Start the covered session", run: "click" },
+        { trigger: ".ems-av-name:contains('Zoe Aguilar')", content: "The colleague's student is loaded" },
+        {
+            trigger: ".ems-av-line:has(.ems-av-name:contains('Zoe Aguilar')) .ems-av-td-status:nth-child(3) .ems-av-status-btn",
+            content: "Mark the student's 2nd status option while covering",
+            run: "click",
+        },
+        {
+            trigger: ".ems-av-line:has(.ems-av-name:contains('Zoe Aguilar')) .ems-av-td-status:nth-child(3) .ems-av-status-btn--active",
+            content: "The guard write persisted",
+        },
+        {
+            trigger: ".ems-av-table",
+            content: "No delete button is offered for a colleague's session",
+            run: function () {
+                if (document.querySelector(".ems-av-delete-btn")) {
+                    throw new Error("Delete session button should not be present for a covered class");
+                }
+            },
+        },
+    ],
+});
+
 // Issue #537: removing a student from the roll-call (e.g. not sitting an exam) and restoring it.
 // Structural selectors only (row/button classes), never the translated button titles.
 const anaRow = ".ems-av-line:has(.ems-av-name:contains('Ana Bosch'))";

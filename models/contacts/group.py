@@ -248,10 +248,10 @@ class EmsGroup(models.Model):
 
 	@api.model
 	def _ems_my_ids(self):
-		"""The groups the user tutors or teaches."""
+		"""The groups the user tutors or teaches, also as a substitute (acting_user_ids, issue #748)."""
 		uid = self.env.uid
-		taught = self.env['ems.teaching'].sudo().search([('teacher_id.user_id', '=', uid)]).group_id
-		return self.sudo().search(['|', ('tutor_id.user_id', '=', uid), ('id', 'in', taught.ids)]).ids
+		taught = self.env['ems.teaching'].sudo().search([('teacher_id.acting_user_ids', '=', uid)]).group_id
+		return self.sudo().search(['|', ('tutor_id.acting_user_ids', '=', uid), ('id', 'in', taught.ids)]).ids
 
 	@api.model
 	def _managed_by_departments_domain(self, departments):

@@ -6,6 +6,7 @@ from odoo.tools import email_normalize, format_date
 from odoo.osv import expression
 from ..shared import base
 from .coming_of_age import ADULT_AGE
+from .portal import STUDENT_LIKE_TYPES
 import re
 from dateutil.relativedelta import relativedelta
 from markupsafe import Markup
@@ -101,17 +102,33 @@ class ResPartner(models.Model):
     # level_id and study_id are used for form view purposes (linked dropdowns: level > study > group) and will be computed on save.
     level_id = fields.Many2one(string='Level', comodel_name='ems.level')    
     study_id = fields.Many2one(string='Studies', comodel_name='ems.study') 
-    # readonly=True (bug found 2026-09-06): a related field is only auto-readonly when its
-    # target is itself readonly or when 'store' would need an inverse Odoo can't build. Since
-    # neither applied here, Odoo silently auto-generated a write-through inverse - editing this
-    # field from a student's own form would have actually reassigned that student's WHOLE
-    # GROUP's tutor (main_group_id.tutor_id), for every one of its students, not just a display
-    # value scoped to this one student. It's purely a read-only mirror of the group's own tutor;
-    # to actually change a tutor, edit it on the ems.group record.
-    tutor_id = fields.Many2one(string='Tutor', related="main_group_id.tutor_id", readonly=True) # Related field: auto-computed and auto-refreshed within the form.
-    
+    # The student's tutor: the tutor of their tutorship group (issue #807), the one every tutor
+    # rule, check and notice goes by. readonly=True (bug found 2026-09-06): without it Odoo builds a
+    # write-through inverse, and editing it from a student's form reassigned the WHOLE group's
+    # tutor. To change a tutor, edit it on the ems.group record. Stored, so the ~40 record rules
+    # matching on 'tutor_id.tutor_scope_user_ids' resolve it without joining the groups.
+    tutor_id = fields.Many2one(string='Tutor', related="tutorship_group_id.tutor_id", readonly=True, store=True,
+                               index=True)
+
     # model-data fields:
     main_group_id = fields.Many2one(string='Main Group', comodel_name='ems.group')
+    # Tutorship transfer (issue #807): a student who drops every subject of their group (a 2nd-year
+    # student left with the 1st-year subjects they failed) stays in it in Esfer@, but is followed by
+    # the tutor of the group they now attend. main_group_id stays the official (Esfer@) group, which
+    # the enrollment, the grades, the year record and the schedule declaration go by; everything a
+    # tutor does follows the transferred group's tutor instead.
+    transferred_group_id = fields.Many2one(
+        string='Tutorship transferred to', comodel_name='ems.group', index='btree_not_null',
+        domain="[('group_type', '=', 'main'), ('id', '!=', main_group_id), ('study_id', '=', study_id)]",
+        help="The group whose tutor follows this student (attendance, family, notices), when it isn't "
+             "their main group: the main group and its tutor remain the official ones (Esfer@, grades).")
+    tutorship_group_id = fields.Many2one(
+        string='Tutorship group', comodel_name='ems.group', compute='_compute_tutorship_group_id',
+        store=True, index='btree_not_null')
+    official_tutor_id = fields.Many2one(string='Official tutor (Esfer@)', related='main_group_id.tutor_id',
+                                        help="The main group's tutor, the one in Esfer@.")
+    can_transfer_tutorship = fields.Boolean(string='Can transfer the tutorship',
+                                            compute='_compute_can_transfer_tutorship')
     # Domain helper for main_group_id on the form - see _compute_allowed_main_group_ids.
     allowed_main_group_ids = fields.Many2many(string='Allowed main groups', comodel_name='ems.group',
                                               compute='_compute_allowed_main_group_ids')
@@ -223,6 +240,13 @@ class ResPartner(models.Model):
     document_id = fields.Char(string="Document ID")
     passport_id = fields.Char(string="Passport")
     student_email = fields.Char(string="Student email")
+    # Set by the form's own save (static/src/js/backend/form_controller_custom.js) after the user
+    # answered the "update the portal access?" dialog of a main email change (issue #842); never
+    # stored, write() consumes it. Without it (imports, other code) an active access still moves
+    # to the new email by itself.
+    portal_email_decision = fields.Selection(
+        [('apply', 'Update the portal access'), ('keep', "Don't change the portal access")],
+        string="Portal access decision", store=False)
 
     @api.constrains('email', 'student_email')
     def _check_email_format(self):
@@ -238,9 +262,76 @@ class ResPartner(models.Model):
         # a type change (applicant -> student, graduation...) that doesn't touch the email.
         for partner in self.filtered(lambda p: p.contact_type in PERSONAL_EMAIL_CONTACT_TYPES):
             (partner.company_id or self.env.company)._ems_check_personal_email(partner.email)
+
+    def _check_email_not_shared_with_family(self):
+        """A student's personal email can never be a family contact's (issue #842): each of them
+        gets a portal login of their own, and a login is unique. Called by write() only for the
+        partners whose email really changes: a constraint would also fire when something
+        rewrites the same value (the portal grant does), which would block a legacy shared pair
+        the student form already warns about."""
+        candidates = self.filtered(lambda p: p.email_normalized and (
+            p.contact_type in STUDENT_LIKE_TYPES or p.contact_type == 'family'))
+        if not candidates:
+            return
+        related = self.env['res.partner.relation.all'].sudo().search([
+            ('this_partner_id', 'in', candidates.ids),
+            ('other_partner_id.email_normalized', 'in', candidates.mapped('email_normalized')),
+        ])
+        for relation in related:
+            partner, other = relation.this_partner_id, relation.other_partner_id
+            if partner._ems_is_family_email_clash(other):
+                raise ValidationError(_(
+                    "%(email)s is already the email of %(other)s, linked to %(partner)s: a student "
+                    "and their family must have different emails (each gets a portal login of "
+                    "their own).", email=partner.email, other=other.name, partner=partner.name))
+
     student_id = fields.Char(string="Student ID", copy=False)
     medical_id = fields.Char(string="Medical ID")
     nuss = fields.Char(string="NUSS")
+
+    @api.depends('main_group_id', 'transferred_group_id')
+    def _compute_tutorship_group_id(self):
+        for partner in self:
+            partner.tutorship_group_id = partner.transferred_group_id or partner.main_group_id
+
+    @api.depends_context('uid')
+    def _compute_can_transfer_tutorship(self):
+        can_transfer = self._ems_user_can_transfer_tutorship()
+        for partner in self:
+            partner.can_transfer_tutorship = can_transfer
+
+    @api.model
+    def _ems_user_can_transfer_tutorship(self):
+        """The secretary's office and Heads of Studies (Director included), with the academic
+        administrator above everyone. A system administrator without it edits no student (record
+        rules), so they aren't offered this either - the same criterion as editing enrollments."""
+        return (base.EmsBase.get_user_is_admin(self) or base.EmsBase.get_user_is_secretary(self)
+                or base.EmsBase.get_user_is_head_of_studies(self))
+
+    @api.constrains('transferred_group_id', 'main_group_id')
+    def _check_transferred_group(self):
+        for partner in self.filtered('transferred_group_id'):
+            if partner.transferred_group_id == partner.main_group_id:
+                raise ValidationError(_("The tutorship can only be transferred to a group other than the main one."))
+            if partner.transferred_group_id.group_type != 'main':
+                raise ValidationError(_("The tutorship can only be transferred to a main group."))
+            if partner.main_group_id and partner.transferred_group_id.study_id != partner.main_group_id.study_id:
+                raise ValidationError(_("The tutorship can only be transferred to a group of the student's own study."))
+
+    def _ems_end_stale_tutorship_transfers(self, values):
+        """Ends the tutorship transfer of the students whose new main group (values['main_group_id'],
+        as write() is about to store it) no longer fits it: none at all (a withdrawal), the transferred
+        group itself, or a group of another study. Before the write, so _check_transferred_group never
+        sees the stale pair."""
+        if 'main_group_id' not in values or 'transferred_group_id' in values:
+            return
+        new_group = self.env['ems.group'].browse(values['main_group_id'] or [])
+        ending = self.filtered(lambda partner: partner.transferred_group_id and (
+            not new_group or partner.transferred_group_id == new_group
+            or partner.transferred_group_id.study_id != new_group.study_id))
+        if ending:
+            # sudo: a consequence of the group change, which a tutor may make (issue #534).
+            ending.sudo().write({'transferred_group_id': False})
 
     @api.constrains('nuss')
     def _check_nuss(self):
@@ -831,8 +922,9 @@ class ResPartner(models.Model):
             return []
         # Two branches, deliberately of different width.
         #
-        # 'main_group_id' covers the groups themselves: everyone whose main group is one of
-        # mine, whatever they happen to be enrolled in there.
+        # 'tutorship_group_id' covers the groups themselves: everyone whose group is one of mine,
+        # whatever they happen to be enrolled in there - their main group, or the one their
+        # tutorship was transferred to (issue #807), which is where they now attend.
         #
         # ems.enrollment covers the students who reach one of my groups WITHOUT it being their
         # main one - a reinforcement group (nobody's main group is a reinforcement one, its
@@ -856,9 +948,9 @@ class ResPartner(models.Model):
             ('group_id', 'in', [group_id for group_id, _subject_id in pairs]),
             ('subject_id', 'in', [subject_id for _group_id, subject_id in pairs]),
         ]).filtered(lambda enrollment: (enrollment.group_id.id, enrollment.subject_id.id) in pairs)
-        return ['|', ('main_group_id', 'in', groups.ids), ('id', 'in', enrolled.student_id.ids)]
+        return ['|', ('tutorship_group_id', 'in', groups.ids), ('id', 'in', enrolled.student_id.ids)]
 
-    @api.depends('main_group_id')
+    @api.depends('tutorship_group_id')
     def _compute_is_my_student(self):
         mine = self.filtered_domain(self._ems_my_students_domain())
         for partner in self:
@@ -1144,6 +1236,10 @@ class ResPartner(models.Model):
             self._ems_store_private_notes(values.pop('private_notes'))
             if not values:
                 return True
+        portal_decision = False
+        if 'portal_email_decision' in values:
+            values = dict(values)
+            portal_decision = values.pop('portal_email_decision')
         if set(PERSON_NAME_FIELDS) & set(values) and self and (
                 values.get('contact_type') in PERSON_NAME_CONTACT_TYPES
                 or all(partner.contact_type in PERSON_NAME_CONTACT_TYPES for partner in self)):
@@ -1152,16 +1248,28 @@ class ResPartner(models.Model):
         self._ems_normalize_student_id(values)
         self._ems_check_student_id_on_write(values)
         self._ems_check_orientation_write(values)
+        # tutor_id is the tutorship group's tutor, stored (issue #807): a write to it would overwrite
+        # the stored value instead of being ignored, as it was while it wasn't stored. A tutor is
+        # changed on the group.
+        if 'tutor_id' in values:
+            values = {key: value for key, value in values.items() if key != 'tutor_id'}
+        if 'transferred_group_id' in values and not self.env.su and not self._ems_user_can_transfer_tutorship():
+            raise AccessError(_("Only the secretary's office, academic administration and the Head of Studies "
+                                "can transfer a student's tutorship."))
         # Capture (before the write) the students/families whose main email is about
         # to change while they hold active portal access: their access must be moved
         # from the old email to the new one (see _apply_portal_email_change).
         portal_email_changed = self.env['res.partner']
+        portal_email_granted = self.env['res.partner']
+        email_changed = self.env['res.partner']
         if 'email' in values:
             new_email = email_normalize(values.get('email'))
-            portal_email_changed = self.filtered(
-                lambda p: p.contact_type in ('student', 'family')
-                and email_normalize(p.email) != new_email
-                and p._has_active_portal_user())
+            email_changed = self.filtered(lambda p: email_normalize(p.email) != new_email)
+            if portal_decision != 'keep':
+                portal_email_changed = email_changed.filtered(
+                    lambda p: p.contact_type in ('student', 'family') and p._has_active_portal_user())
+            if portal_decision == 'apply' and new_email:
+                portal_email_granted = (email_changed - portal_email_changed)._ems_portal_grantable()
         # Capture (before the write) the previous main group of every partner about to
         # change it, so their subject enrollments in that group can follow them to the new
         # one (see _migrate_enrollments_on_group_change below). Skipped under env.su: that
@@ -1229,6 +1337,7 @@ class ResPartner(models.Model):
                 # every other path. See _ems_auto_group_for_study() for how the group is picked.
                 values['main_group_id'] = self._ems_auto_group_for_study(new_study_id).id
 
+        self._ems_end_stale_tutorship_transfers(values)
         self._compute_group_data(values)
         contact = super(ResPartner, self).write(values)
         if 'contact_type' in values:
@@ -1240,8 +1349,10 @@ class ResPartner(models.Model):
         if study_refresh_candidates:
             study_refresh_candidates._ems_refresh_enrollments_from_template()
 
+        email_changed._check_email_not_shared_with_family()
         for partner in portal_email_changed:
             partner._apply_portal_email_change()
+        portal_email_granted._ems_grant_portal_after_email_change()
 
         # Google Workspace: with form autosave the student is created with partial
         # data; enqueue once the required fields are completed (deduplicated).
@@ -1297,21 +1408,6 @@ class ResPartner(models.Model):
                 others.toggle_active()
             return students.action_withdrawal_wizard()
         return super().toggle_active()
-
-    @api.onchange('email')
-    def _onchange_email_portal_warning(self):
-        """Inform the user, before saving, that changing the main email of a
-        contact with portal access will move that access to the new email."""
-        if self.contact_type in ('student', 'family') and self._has_active_portal_user():
-            return {
-                'warning': {
-                    'title': _("Portal access will be updated"),
-                    'message': _(
-                        "Changing the main email revokes the portal access linked to "
-                        "the old email and sends a new portal invitation to the new "
-                        "email. Discard the change if you don't want this."),
-                }
-            }
 
     def _has_active_portal_user(self):
         """True when the partner has a non-archived portal user (access enabled now)."""
@@ -1546,6 +1642,9 @@ class ResPartner(models.Model):
             for tutor_issue in tutor_issues.exists():
                 tutor_issue.remove_if_empty()
             partner._ems_clear_stale_delegate(group)
+        # A tutorship transfer (issue #807) belongs to the year that ends: leaving the centre or
+        # moving on to the next course (the transition wizard runs this for every student) ends it.
+        self.filtered('transferred_group_id').sudo().write({'transferred_group_id': False})
 
     def _ems_clear_stale_delegate(self, group):
         """Clears 'group.delegate_id' (and 'subdelegate_id', issue #574) if it still points at one

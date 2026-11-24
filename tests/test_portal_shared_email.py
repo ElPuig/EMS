@@ -44,19 +44,29 @@ class TestPortalSharedEmail(TransactionCase):
         student = self.env['res.partner'].create({
             'name': f'Shared Email Student {email}', 'firstname': 'Shared', 'lastname': 'Student',
             'contact_type': 'student', 'student_id': next_student_id(),
-            'main_group_id': self.group.id, 'email': email, 'student_email': student_email,
+            'main_group_id': self.group.id, 'email': 'placeholder.student@example.com',
+            'student_email': student_email,
             'birth_date': date.today() - relativedelta(years=19 if adult else 15),
         })
         family = self.env['res.partner']
         if family_email:
             family = self.env['res.partner'].create({
                 'name': f'Shared Email Family {family_email}', 'contact_type': 'family',
-                'email': family_email,
+                'email': 'placeholder.family@example.com',
             })
             self.env['res.partner.relation'].create({
                 'left_partner_id': family.id, 'type_id': self.father.id,
                 'right_partner_id': student.id,
             })
+        # New data can no longer share the email (issue #842): written under the constraint's
+        # feet, as an installation that predates it still holds such a pair.
+        self.env.flush_all()
+        for partner, value in ((student, email), (family, family_email)):
+            if partner:
+                self.env.cr.execute(
+                    "UPDATE res_partner SET email = %s, email_normalized = lower(%s) WHERE id = %s",
+                    (value, value, partner.id))
+        self.env['res.partner'].invalidate_model(['email', 'email_normalized'])
         return student, family
 
     def _grant(self, students):

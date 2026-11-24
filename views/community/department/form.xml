@@ -44,6 +44,10 @@
                 </group>
             </field>
             <field name="manager_id" position="after">
+                <group invisible="not is_asp_area or is_top_level">
+                    <field name="is_asp_area" invisible="1"/>
+                    <field name="job_id"/>
+                </group>
                 <group invisible="is_top_level or shares_manager_with_parent">
                     <field name="seminar_chief_id" widget="many2one_avatar_employee"/>
                 </group>

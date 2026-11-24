@@ -141,6 +141,13 @@ L'acta (PDF) és a la pàgina de la proposta un cop tancada.
 | **No validada** | El cap d'estudis no l'ha validat, amb un motiu |
 | **Anul·lada** | El delegat o el subdelegat l'ha anul·lat |
 
+## Vídeos
+
+> ⚠️ **Els vídeos poden estar desactualitzats.** L'EMS s'actualitza sovint i no tots els vídeos es tornen a fer després de cada canvi: pot ser que alguna pantalla o algun pas no coincideixi amb el que veus. Si hi ha alguna diferència, fes cas d'aquest manual. Els vídeos són en català i no tenen veu: tot el text apareix a la pantalla.
+
+- ▶ [Proposar la votació](https://drive.google.com/file/d/1z_PdjquReu8f1BIXbCzW3Gb68JIQ5xrG/view?usp=drivesdk)
+- ▶ [Votar i sumar-se](https://drive.google.com/file/d/16wyQlzbPLoB3TITTcV0VeB_Y3JyQZfyD/view?usp=drivesdk)
+
 ---
 
 [← Tornar als manuals de famílies](index.md)

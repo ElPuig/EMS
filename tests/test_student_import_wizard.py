@@ -980,3 +980,31 @@ class TestStudentImportWizard(TransactionCase):
             student.student_id, {'google_ws_manual_email': True, 'active': True}, self._stats())
         self.assertFalse(student.google_ws_manual_email)
         self.assertEqual(student.google_ws_state, 'active')
+
+    def _student_with_email(self, email, adult):
+        return self.env['res.partner'].create({
+            'name': f'Single Email Student {adult}', 'firstname': 'Single', 'lastname': 'Email',
+            'contact_type': 'student', 'student_id': next_student_id(), 'email': email,
+            'birth_date': date.today().replace(year=date.today().year - (20 if adult else 15)),
+        })
+
+    def test_single_email_of_a_minor_stays_with_the_family(self):
+        wizard, stats = self._wizard(), self._stats()
+        student = self._student_with_email('only.one@example.com', adult=False)
+        result = wizard._split_shared_email(student, 'Only.One@example.com', 'A Parent', stats)
+        self.assertEqual(result, 'Only.One@example.com')
+        self.assertFalse(student.email)
+        self.assertEqual(len(stats['warnings']), 1)
+
+    def test_single_email_of_an_adult_stays_with_the_student(self):
+        wizard, stats = self._wizard(), self._stats()
+        student = self._student_with_email('only.adult@example.com', adult=True)
+        self.assertFalse(wizard._split_shared_email(student, 'only.adult@example.com', 'A Parent', stats))
+        self.assertEqual(student.email, 'only.adult@example.com')
+        self.assertEqual(len(stats['warnings']), 1)
+
+    def test_different_family_email_is_left_alone(self):
+        wizard, stats = self._wizard(), self._stats()
+        student = self._student_with_email('own.student@example.com', adult=False)
+        self.assertEqual(wizard._split_shared_email(student, 'parent@example.com', 'A Parent', stats), 'parent@example.com')
+        self.assertFalse(stats['warnings'])

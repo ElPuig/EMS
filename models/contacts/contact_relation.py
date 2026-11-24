@@ -3,6 +3,7 @@ from psycopg2 import IntegrityError
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
 
+
 class ems_partner_relation_all(models.AbstractModel):
     _inherit = 'res.partner.relation.all'
 
@@ -14,6 +15,18 @@ class ems_partner_relation_all(models.AbstractModel):
 
 class EmsPartnerRelation(models.Model):
     _inherit = 'res.partner.relation'
+
+    @api.constrains('left_partner_id', 'right_partner_id')
+    def _check_family_email_differs_from_student(self):
+        """Linking a family contact to a student with the same email is refused (issue #842,
+        see res.partner._check_email_not_shared_with_family)."""
+        for relation in self:
+            left, right = relation.left_partner_id, relation.right_partner_id
+            if left._ems_is_family_email_clash(right):
+                raise ValidationError(_(
+                    "%(left)s and %(right)s have the same email (%(email)s): a student and their "
+                    "family must have different emails.",
+                    left=left.name, right=right.name, email=left.email))
 
     def unlink(self):
         # Set only by the trash button on the student's Contacts & Addresses tab

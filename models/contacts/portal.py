@@ -324,6 +324,129 @@ class ems_contact_portal(models.Model):
             if not Users.search_count([('login', '=', login), ('id', '!=', user.id)]):
                 user.write({'login': login})
 
+    # ------------------------------------------------------------------
+    # Changing the main email of a contact with (or without) portal access (issue #842)
+    # ------------------------------------------------------------------
+    def _ems_is_family_email_clash(self, other):
+        """Whether this partner and `other` are a student (or ex-student) and a family contact
+        holding the same email, which is never allowed (issue #842)."""
+        self.ensure_one()
+        return bool(
+            self.email_normalized and self.email_normalized == other.email_normalized
+            and (self.contact_type == 'family') != (other.contact_type == 'family')
+            and {self.contact_type, other.contact_type} & set(STUDENT_LIKE_TYPES))
+
+    def _ems_portal_grantable(self):
+        """The partners of self that could be given portal access with their email: an active
+        student, applicant or family contact (one with a student) the current user may manage,
+        that has no active portal user."""
+        wizard = self.env['ems.portal.access.wizard']
+        grantable = self.browse()
+        for partner in self:
+            if not partner.active or partner._has_active_portal_user():
+                continue
+            if partner.contact_type in ('student', 'applicant'):
+                students = partner
+            elif partner.contact_type == 'family':
+                students = self.env['res.partner.relation.all'].sudo().search([
+                    ('this_partner_id', '=', partner.id),
+                    ('other_partner_id.contact_type', 'in', ('student', 'applicant')),
+                ]).mapped('other_partner_id')
+            else:
+                continue
+            if any(wizard._user_can_manage(student) for student in students):
+                grantable |= partner
+        return grantable
+
+    @api.model
+    def get_portal_email_question(self, partner_id, new_email):
+        """What the contact form asks before saving a new main email (issue #842), or False when
+        there is nothing to decide: {'title', 'message', 'confirm', 'cancel'}. A contact with
+        portal access can have it moved to the new email; one without (or with it revoked) can be
+        given it, and the user decides each time. The answer comes back in `portal_email_decision`."""
+        partner = self.browse(partner_id).exists()
+        new_email = email_normalize(new_email)
+        if not partner or not new_email or new_email == email_normalize(partner.email):
+            return False
+        if partner.contact_type in ('student', 'family') and partner._has_active_portal_user():
+            return {
+                'title': _("Update the portal access?"),
+                'message': _(
+                    "%(name)s has portal access with the email %(old)s, and you are changing it "
+                    "to %(new)s.\n\n"
+                    "Update the portal access: the access of the old email is revoked and an "
+                    "invitation to set the password is sent to %(new)s.\n\n"
+                    "Don't change the access: nothing is revoked or sent, and %(old)s keeps being "
+                    "the login.", name=partner.name, old=partner.email, new=new_email),
+                'confirm': _("Update the portal access"),
+                'cancel': _("Don't change the access"),
+            }
+        if not partner._ems_portal_grantable():
+            return False
+        revoked = bool(partner.sudo().with_context(active_test=False).user_ids.filtered('share'))
+        return {
+            'title': _("Give portal access?"),
+            'message': (_(
+                "The portal access of %(name)s was revoked.\n\n", name=partner.name) if revoked else _(
+                "%(name)s has no portal access.\n\n", name=partner.name)) + _(
+                "Give portal access: an invitation to set the password is sent to %(new)s.\n\n"
+                "Not now: the email is saved and the access stays as it is; it can be given later "
+                "from Actions > Portal access.", new=new_email),
+            'confirm': _("Give portal access"),
+            'cancel': _("Not now"),
+        }
+
+    def _ems_grant_portal_after_email_change(self):
+        """Give each partner the portal access the user chose when changing its email. Raises
+        (PortalLoginTaken, with who holds the login) instead of reporting: the save fails and the
+        email is not changed, so nothing is left half done."""
+        wizard = self.env['ems.portal.access.wizard'].sudo().new({'mode': 'grant'})
+        for partner in self:
+            wizard._apply_one(partner)
+
+    def _ems_portal_login_conflict(self, students=None):
+        """Details of the contact that already holds the portal login this partner needs (issue
+        #842), or None when it is free: a portal login is unique, so this partner can never get
+        one while another contact has it (an archived user keeps its login too). `students`:
+        the students access is being granted for (default: the partner itself if it is one, else
+        its related students); whether the holder is related to them decides the advice."""
+        self.ensure_one()
+        login = self._ems_portal_login()
+        if not login:
+            return None
+        user = self.env['res.users'].sudo().with_context(active_test=False).search([
+            ('login', '=', login), ('partner_id', '!=', self.id)], limit=1)
+        if not user:
+            return None
+        holder = user.partner_id
+        if students is None:
+            students = self if self.contact_type in STUDENT_LIKE_TYPES else self.get_portal_students()
+        related = bool(self.env['res.partner.relation.all'].sudo().search_count([
+            ('this_partner_id', '=', holder.id), ('other_partner_id', 'in', students.ids)]))
+        holder_type = dict(holder._fields['contact_type']._description_selection(self.env)).get(
+            holder.contact_type) or _("Staff")
+        if related:
+            advice = _(
+                "%(holder)s is also assigned to this student, and two contacts cannot share a "
+                "portal login. Give one of them a different email.", holder=holder.name)
+        else:
+            advice = _(
+                "%(holder)s is not assigned to this student: it is probably a duplicate or a "
+                "stray contact. Merge or archive it, or give one of the two a different email.",
+                holder=holder.name)
+        return {
+            'contact_id': self.id, 'login': login, 'holder_id': holder.id,
+            'holder_type': holder_type, 'holder_active': holder.active and user.active,
+            'related': related, 'advice': advice,
+            'message': _(
+                "The contact \"%(contact)s\" cannot get portal access: %(login)s is already the "
+                "login of %(holder)s (%(type)s, %(state)s, %(related)s). %(advice)s",
+                contact=self.name, login=login, holder=holder.name, type=holder_type,
+                state=_("active") if holder.active and user.active else _("archived"),
+                related=_("assigned to this student") if related else _("not assigned to this student"),
+                advice=advice),
+        }
+
     def _ems_students_sharing_email(self):
         """For a family member: the related students whose main email is this family member's
         too (each of them signs in with the corporate email, never with this one)."""

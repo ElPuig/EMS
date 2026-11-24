@@ -36,6 +36,9 @@ VALUE_COLUMNS = {
 CIRCUIT_FIELDS = {'state', 'step_id', 'name', 'course_id', 'stamp_ids', 'certificate_pdf_id', 'origin',
                   'applicant_form_open'}
 
+# A school year as 2024-25 or 2024-2025 (issue #858): stored as 2024-25.
+SCHOOL_YEAR = re.compile(r'^(\d{4})\s*[-/]\s*(\d{2}|\d{4})$')
+
 # Files a document appended to the certificate may come as: a PDF, or photos/scans of its pages.
 ANNEX_IMAGE_MIMETYPES = ('image/jpeg', 'image/png')
 
@@ -72,7 +75,7 @@ class EmsCertificate(models.Model):
     ])
     submission_date = fields.Date(string="Request date", readonly=True, copy=False)
     student_id = fields.Many2one(string="Student", comodel_name='res.partner', ondelete='restrict', index=True,
-                                 domain=[('contact_type', 'in', ('student', 'alumni', 'withdrawal'))],
+                                 domain=[('contact_type', 'in', ('student', 'alumni', 'withdrawal', 'expelled'))],
                                  help="The student or former student in EMS. A former student who is not in EMS can "
                                       "be left empty: the applicant's details and email are enough.")
     requester_id = fields.Many2one(string="Requested by", comodel_name='res.partner', readonly=True,
@@ -93,7 +96,6 @@ class EmsCertificate(models.Model):
     # The details of its type.
     value_ids = fields.One2many(string="Certificate details", comodel_name='ems.certificate.value',
                                 inverse_name='certificate_id', copy=False)
-    value_field_types = fields.Char(string="Data types of its details", compute='_compute_value_field_types')
     document_ids = fields.One2many(string="Required documentation", comodel_name='ems.certificate.document',
                                    inverse_name='certificate_id', copy=False)
     other_attachment_ids = fields.Many2many(string="Other documentation", comodel_name='ir.attachment',
@@ -202,11 +204,6 @@ class EmsCertificate(models.Model):
                 issuers_by_step[issue_step] = issue_step._ems_users()
             certificate.can_issue_now = is_admin or self.env.user in issuers_by_step[issue_step]
 
-    @api.depends('value_ids.field_type')
-    def _compute_value_field_types(self):
-        for certificate in self:
-            certificate.value_field_types = ",".join(sorted(set(certificate.value_ids.mapped('field_type'))))
-
     @api.depends('name', 'student_id', 'student_name', 'type_id')
     def _compute_display_name(self):
         for certificate in self:
@@ -248,13 +245,16 @@ class EmsCertificate(models.Model):
 
     @api.model
     def _ems_student_defaults(self, student):
-        """What EMS knows about the student for the applicant's details and the email."""
+        """What EMS knows about the student for the applicant's details and the email: their
+        personal one. A legacy contact that still keeps the centre's corporate address there (from
+        before issue #514) gets none (issue #858): that account is suspended once they leave."""
         student = student.sudo()
+        company = student.company_id or self.env.company
         return {
             'student_name': student.name,
             'student_document': student.document_id,
             'study_id': student.main_group_id.study_id.id,
-            'applicant_email': student.email,
+            'applicant_email': False if company._ems_is_corporate_email(student.email) else student.email,
         }
 
     @api.model_create_multi
@@ -317,6 +317,32 @@ class EmsCertificate(models.Model):
                           for record in needed - current[link_field]]
         stale.sudo().unlink()
         lines.sudo().create(to_create)
+
+    def _ems_details_by_field(self):
+        """Each detail of the request (ems.certificate.type.field) with the values it holds."""
+        self.ensure_one()
+        return {line.field_id: {'value_char': line.value_char, 'value_date': line.value_date}
+                for line in self.value_ids}
+
+    def _ems_check_details(self):
+        """Raise if a detail is not valid (_ems_detail_errors): when it is written, and before any
+        step, for a value written before the check existed."""
+        Value = self.env['ems.certificate.value']
+        for certificate in self:
+            errors = Value._ems_detail_errors(certificate._ems_details_by_field())
+            if errors:
+                raise ValidationError("\n".join(errors))
+
+    def _ems_portal_detail_errors(self, details, certificate_type=None):
+        """What is wrong in the details of a submitted form ({key: column values}, as
+        _ems_parse_portal_form gives them), together with those the request already holds."""
+        certificate_type = certificate_type or self.type_id
+        by_field = self._ems_details_by_field() if self else {}
+        by_key = {field.key: field for field in certificate_type.field_ids}
+        for key, values in details.items():
+            if key in by_key:
+                by_field[by_key[key]] = {**by_field.get(by_key[key], {}), **values}
+        return self.env['ems.certificate.value']._ems_detail_errors(by_field)
 
     def _ems_set_values(self, values_by_key):
         """Write details by their key: {key: value}, the value in its type's column; a company's
@@ -398,6 +424,7 @@ class EmsCertificate(models.Model):
         applicant's details always; the details the type requires by that step or an earlier one;
         every document the type requires before issuing."""
         self._ems_check_applicant_data()
+        self._ems_check_details()
         for certificate in self:
             checked_action = action or certificate.step_id.action
             step = certificate._ems_issue_step() if action == 'issue' else certificate.step_id
@@ -440,7 +467,8 @@ class EmsCertificate(models.Model):
                 course = self.env['ems.course'].search([('is_current', '=', True)], limit=1)
                 vals.update(name=certificate._ems_next_number(course), course_id=course.id)
             vals['stamp_ids'] = [(0, 0, {'step_id': step.id, 'action': step.action, 'name': step.name,
-                                         'user_id': self.env.user.id, 'date': today})]
+                                         'user_id': self.env.user.id, 'role_id': certificate._ems_signer_role(step).id,
+                                         'date': today})]
             next_step = certificate._ems_next_step()
             vals.update(step_id=next_step.id, return_reason=False)
             certificate._ems_close_tasks()
@@ -450,6 +478,24 @@ class EmsCertificate(models.Model):
                 certificate._ems_schedule_task()
             else:
                 certificate._ems_finish()
+
+    def _ems_signer_role(self, step):
+        """The position the current user does `step` under (issue #858): theirs among the step's;
+        else another of theirs in the circuit (e.g. the Director, as administrator, issuing while
+        the Secretary is away); else - an administrator with no position - the step's own."""
+        self.ensure_one()
+        base = self.env['ems.base']
+        user = self.env.user
+        for roles in (step.role_ids, self._ems_steps().role_ids):
+            held = roles.filtered(lambda role: user in base.role_users(role))
+            if held:
+                return held[:1]
+        return step.role_ids[:1]
+
+    def action_preview_draft(self):
+        """The certificate as it stands, before it is issued: for the staff only (issue #858)."""
+        self.ensure_one()
+        return self.env.ref('ems.action_report_certificate_draft').report_action(self)
 
     def action_issue_now(self):
         """Whoever issues the certificate already has every detail: the steps before theirs are
@@ -676,9 +722,11 @@ class EmsCertificate(models.Model):
 
     # --- the PDF -------------------------------------------------------------
 
-    def _ems_report_paragraphs(self):
+    def _ems_report_paragraphs(self, draft=False):
         """The certificate's text, one translatable sentence each so every language keeps its own
-        word order, in the environment's language (the report renders in the centre's)."""
+        word order, in the environment's language (the report renders in the centre's). A `draft`
+        (issue #858), before it is issued, names whoever holds the issuing step's post, marks every
+        detail still empty with its label and is dated today."""
         self.ensure_one()
         env = self.env
 
@@ -687,19 +735,38 @@ class EmsCertificate(models.Model):
             return Markup(escape(template)) % bold
 
         issue = self._ems_stamps_to_print().filtered(lambda stamp: stamp.action == 'issue')[:1]
+        issuer, role, date = issue.user_id, issue.role_id, issue.date
+        if draft and not issue:
+            role = self._ems_issue_step().role_ids[:1]
+            issuer = env['ems.base'].role_users(role)[:1]
+            date = fields.Date.context_today(self)
+        position = role.with_env(env).name
+        # Issue #858: the issuer's real position; a stamp from before it was recorded says secretary.
+        first = sentence(env._("%(name)s, %(position)s of %(centre)s,"), name=issuer.name,
+                         position=self._ems_position_in_sentence(position), centre=env.company.name) \
+            if position else sentence(env._("%(secretary)s, secretary of %(centre)s,"),
+                                      secretary=issuer.name, centre=env.company.name)
         paragraphs = [
-            sentence(env._("%(secretary)s, secretary of %(centre)s,"), secretary=issue.user_id.name,
-                     centre=env.company.name),
+            first,
             Markup('<strong>{}</strong>').format(env._("CERTIFIES:")),
         ]
+        missing = dict(self.type_id.with_env(env)._ems_text_key_labels()) if draft else None
         paragraphs += self._ems_render_text(self.type_id.with_env(env).certificate_text,
-                                            self.with_env(env)._ems_placeholder_values())
+                                            self.with_env(env)._ems_placeholder_values(), missing)
         paragraphs.append(Markup(escape(env._(
             "And for the record, I issue this certificate at the request of the person concerned."))))
         city = env.company.city
-        date = format_date(env, issue.date)
+        date = format_date(env, date)
         paragraphs.append(Markup(escape(f"{city}, {date}" if city else date)))
         return paragraphs
+
+    @api.model
+    def _ems_position_in_sentence(self, name):
+        """A position inside a sentence: its first letter in lowercase (Director/a -> director/a),
+        unless it starts with an acronym (FP coordinator)."""
+        if not name or (len(name) > 1 and name[1].isupper()):
+            return name or ''
+        return name[0].lower() + name[1:]
 
     def _ems_placeholder_values(self):
         """What each key of the text prints: the common details and the type's, as displayed in the
@@ -713,15 +780,20 @@ class EmsCertificate(models.Model):
         return values
 
     @api.model
-    def _ems_render_text(self, text, values):
+    def _ems_render_text(self, text, values, missing=None):
         """The certificate text as paragraphs of escaped HTML: each {key} replaced by its value in
         bold, each [optional part] kept only when every key inside it has a value. A blank line
-        separates paragraphs."""
+        separates paragraphs. `missing` ({key: label}, a draft's) marks an empty value by its label."""
         def fill(part):
             pieces, position = [], 0
             for match in PLACEHOLDER.finditer(part):
                 pieces.append(escape(part[position:match.start()]))
-                pieces.append(Markup('<strong>{}</strong>').format(values.get(match[1]) or ''))
+                value = values.get(match[1])
+                if not value and missing and match[1] in missing:
+                    pieces.append(Markup('<strong class="o_ems_certificate_missing">[{}]</strong>').format(
+                        missing[match[1]]))
+                else:
+                    pieces.append(Markup('<strong>{}</strong>').format(value or ''))
                 position = match.end()
             pieces.append(escape(part[position:]))
             return Markup('').join(pieces)
@@ -743,6 +815,18 @@ class EmsCertificate(models.Model):
         """The stamps the certificate carries: who issued it and who approved it."""
         self.ensure_one()
         return self.stamp_ids.filtered(lambda stamp: stamp.action in ('issue', 'approve')).sorted('id')
+
+    def _ems_report_signatures(self, draft=False):
+        """The certificate's signature boxes: each stamp to print, and - a `draft` (issue #858) - one
+        per issuing or approving step still to be done, headed by its post and left empty."""
+        self.ensure_one()
+        stamps = self._ems_stamps_to_print()
+        signatures = [{'stamp': stamp, 'role': stamp.role_id, 'action': stamp.action} for stamp in stamps]
+        if draft:
+            signatures += [{'stamp': False, 'role': step.role_ids[:1], 'action': step.action}
+                           for step in self._ems_steps()
+                           if step.action in ('issue', 'approve') and step not in stamps.step_id]
+        return signatures
 
     def _ems_generate_pdf(self):
         """Render the certificate and append the pages of the required documents the type adds to
@@ -889,6 +973,7 @@ class EmsCertificateValue(models.Model):
                                        ondelete='restrict',
                                        domain=[('contact_type', '=', 'company'), ('parent_id', '=', False)])
     value_vat = fields.Char(string="VAT number (as written by the applicant)")
+    hint = fields.Char(related='field_id.help')
     display_value = fields.Char(string="Value", compute='_compute_display_value')
     is_pending = fields.Boolean(string="Pending", compute='_compute_is_pending',
                                 help="Required by now and still empty.")
@@ -929,11 +1014,50 @@ class EmsCertificateValue(models.Model):
         if any(line.value_number < 0 for line in self):
             raise ValidationError(_("A number of a certificate cannot be negative."))
 
+    @api.constrains('value_char', 'value_date')
+    def _check_values(self):
+        self.certificate_id._ems_check_details()
+
+    @api.model
+    def _ems_normalize_school_year(self, text):
+        """2024-25 for "2024-25" or "2024-2025"; None when it is not a school year (the second year
+        must follow the first)."""
+        match = SCHOOL_YEAR.match((text or '').strip())
+        if not match:
+            return None
+        first, second = int(match[1]), match[2]
+        following = first + 1
+        if int(second) != (following if len(second) == 4 else following % 100):
+            return None
+        return f'{first}-{following % 100:02d}'
+
+    @api.model
+    def _ems_detail_errors(self, values_by_field):
+        """What is wrong in a request's details, as messages: `values_by_field` maps each detail of
+        the type (ems.certificate.type.field) to its column values. One check for the backend and
+        the portal (issue #858)."""
+        errors = []
+        dates = {}
+        for field, values in values_by_field.items():
+            if field.field_type == 'school_year' and values.get('value_char') \
+                    and not self._ems_normalize_school_year(values['value_char']):
+                errors.append(_("%(detail)s: write the school year as 2024-25.", detail=field.name))
+            elif field.field_type == 'date':
+                dates[field] = values.get('value_date')
+        for field, value in dates.items():
+            earliest = dates.get(field.after_field_id)
+            if value and earliest and value < earliest:
+                errors.append(_("%(detail)s cannot be earlier than %(earlier)s.", detail=field.name,
+                                earlier=field.after_field_id.name))
+        return errors
+
     def write(self, vals):
         if not self.env.su:
             if self.certificate_id.filtered(lambda certificate: certificate.state not in ('draft',) + OPEN_STATES):
                 raise UserError(_("A certificate request that is closed cannot be changed."))
             self.certificate_id._ems_close_applicant_form()
+        if vals.get('value_char') and self and all(line.field_type == 'school_year' for line in self):
+            vals = dict(vals, value_char=self._ems_normalize_school_year(vals['value_char']) or vals['value_char'])
         return super().write(vals)
 
     def _ems_column(self):
@@ -1075,6 +1199,8 @@ class EmsCertificateStamp(models.Model):
     name = fields.Char(string="Step name", required=True)
     action = fields.Selection(string="Action", selection=STEP_ACTIONS, required=True)
     user_id = fields.Many2one(string="Done by", comodel_name='res.users', required=True, ondelete='restrict')
+    role_id = fields.Many2one(string="Post", comodel_name='ems.role', ondelete='set null',
+                              help="The post the step was done under: the certificate names the signer by it.")
     date = fields.Date(string="Date", required=True)
 
 
@@ -1104,3 +1230,18 @@ class EmsCertificatePartner(models.Model):
         return student.contact_type == 'student' \
             and (student == self or self._ems_can_file_requests_for(student)) \
             and bool(self.env['ems.certificate']._ems_portal_types(student))
+
+
+class ReportEmsCertificateDraft(models.AbstractModel):
+    """The draft certificate (issue #858): for the staff only, never for the applicant, even one who
+    knows the report's URL and can read the request from the portal."""
+    _name = 'report.ems.report_certificate_draft'
+    _description = "Draft certificate, for the staff."
+
+    @api.model
+    def _get_report_values(self, docids, data=None):
+        if not self.env.su and not self.env.user._is_internal():
+            raise AccessError(_("Only the centre's staff can see a draft certificate."))
+        docs = self.env['ems.certificate'].browse(docids)
+        docs.check_access('read')
+        return {'doc_ids': docids, 'doc_model': 'ems.certificate', 'docs': docs}

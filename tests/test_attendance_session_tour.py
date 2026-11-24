@@ -133,6 +133,21 @@ class TestAttendanceSessionTour(HttpCase):
         line = session.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student1)
         self.assertEqual(line.status_id, self.env.ref('ems.attendance_status_delayed'))
 
+    def test_attendance_session_guard_cover_tour(self):
+        # Created here, not in setUpClass: it would add the colleague's class to every other tour.
+        self.env['ems.absence_cover'].create({
+            'date': self.today, 'hour_from': 9.5, 'hour_to': 10.5, 'absent_employee_id': self.other_employee.id,
+            'group_id': self.group.id, 'cover_type': 'guard', 'guard_employee_id': self.teacher_employee.id,
+        })
+        self.start_tour("/odoo", "ems_attendance_session_guard_cover", login="test_teacher_attendance_session_guard_tour")
+
+        session = self.env['ems.attendance_session_header'].search([
+            ('attendance_schedule_id', '=', self.guard_schedule.id),
+        ])
+        self.assertEqual(session.session_teacher_id, self.teacher_employee)
+        line = session.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student1)
+        self.assertEqual(line.status_id, self.env.ref('ems.attendance_status_delayed'))
+
     def test_attendance_session_remove_line_tour(self):
         self.start_tour("/odoo", "ems_attendance_session_remove_line", login="test_teacher_attendance_session_guard_tour")
 

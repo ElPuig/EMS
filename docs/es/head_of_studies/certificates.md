@@ -19,7 +19,7 @@ Después de que secretaría expide un certificado, el último paso del circuito 
 ## Dar el visto bueno
 
 1. Abre la solicitud.
-2. Comprueba los datos de las pestañas **Solicitante**, **Datos del certificado** y **Documentación**.
+2. Comprueba los datos de las pestañas **Solicitante**, **Datos del certificado** y **Documentación**. **Acciones → Ver el borrador** muestra cómo será el certificado, marcado como **BORRADOR**.
 3. Abre **Acciones → Aprobar** y confirma.
 
 ![Acciones de una solicitud pendiente del visto bueno](../../assets/head_of_studies/certificats-06-aprovar.png)

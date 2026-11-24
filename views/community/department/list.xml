@@ -8,6 +8,13 @@
                 <xpath expr="//field[@name='parent_id']" position="attributes">
                    <attribute name="column_invisible">True</attribute>
                 </xpath>
+                <!-- Issue #815: a department sharing its Manager with its parent showed none. -->
+                <field name="manager_id" position="attributes">
+                    <attribute name="column_invisible">True</attribute>
+                </field>
+                <field name="manager_id" position="after">
+                    <field name="effective_manager_id" string="Manager" widget="many2one_avatar_employee"/>
+                </field>
                 <xpath expr="//field[@name='color']" position="replace">
                     <field name="color" column_invisible="True"/>
                     <field name="custom_color" widget="color" string="Color" width="50px" class="ems_color_swatch"/>

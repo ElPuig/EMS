@@ -71,7 +71,7 @@ registry.category("web_tour.tours").add("ems_department_head_optional", {
         },
         {
             trigger:
-                ".o_list_view .o_data_row:has(td[name='name']:contains('Department Head Optional Tour Department')) td[name='manager_id']:empty",
+                ".o_list_view .o_data_row:has(td[name='name']:contains('Department Head Optional Tour Department')) td[name='effective_manager_id']:empty",
             content: "The Department Chief really persisted empty - checked in the list, not via the form widget",
         },
     ],

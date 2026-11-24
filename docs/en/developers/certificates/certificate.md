@@ -128,10 +128,11 @@ from the UI and no upgrade reverts it.
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `sequence`, `name`, `help` | Integer, Char (translatable), Char (translatable) | Order, label and the hint the applicant reads under it. |
+| `sequence`, `name`, `help` | Integer, Char (translatable), Char (translatable) | Order, label and the hint (what to write and how, with an example) the applicant reads under it and the staff next to it in the request. |
 | `key` | Char | What the text writes between braces: lowercase letters, digits and `_`, unique in the type (`_sql_constraints`), never one of the common ones (`name`, `document`, `study`) nor ending in `_vat`. Renaming it rewrites `{old}` (and `{old_vat}` for a company) in the type's text in every language at once (`write()` → `_ems_rename_text_key`, through `update_field_translations`), so the text check, which reads every language, does not refuse a key renamed from a form in another language. |
-| `field_type` | Selection | `char` (short text), `text` (long text), `number` (a number with decimals, never negative; shown without trailing zeros and with the language's decimal separator), `date`, `boolean` (yes/no), `school_year` (short text; the portal suggests the courses EMS has) and `company` (a collaborating company: the applicant writes its name and VAT number as text, the centre links the contact; the text prints `{key}` and `{key_vat}`). |
+| `field_type` | Selection | `char` (short text), `text` (long text), `number` (a number with decimals, never negative; shown without trailing zeros and with the language's decimal separator), `date`, `boolean` (yes/no), `school_year` (short text written as `2024-25` or `2024-2025`, consecutive years, stored as `2024-25`; the portal suggests the courses EMS has) and `company` (a collaborating company: the applicant writes its name and VAT number as text, the centre links the contact; the text prints `{key}` and `{key_vat}`). |
 | `applicant_input` | Selection | `required`, `optional` or `none` (only the centre fills it in). |
+| `after_field_id` | M2o `ems.certificate.type.field` (set null) | A date only: another date of the same type it cannot be earlier than (FCT: `end` not before `start`). `copy()` points it at the copy's own date. |
 | `required_step_id` | M2o `ems.certificate.type.step` (restrict) | The step that must have it filled in before it is done (and so every later step, and *Issue it now*). Empty: never required by the circuit. A `company` datum required by a step needs the contact linked, not just the text written. |
 
 ### `ems.certificate.type.step`
@@ -153,15 +154,14 @@ Constraints (`_check_steps` on the type): at least one step, exactly one `issue`
 | `type_id` | M2o | Only changes in draft: the request's value and document lines follow it. |
 | `state` | Selection | `draft` (waiting for the applicant's form, former students only), `in_progress`, `documentation` (waiting for the applicant), `issued`, `rejected`, `cancelled`. Written by the actions only (`write()` refuses it outside `sudo`). |
 | `step_id` | M2o `ems.certificate.type.step` | The current step while `in_progress`/`documentation`. |
-| `student_id`, `requester_id` | M2o `res.partner` | The student (or former student) in EMS, and who filed it on the portal. Optional: a former student who is not in EMS is opened with only their full name (`student_name`) and email (`_check_applicant`), and fills in the rest in the form. |
+| `student_id`, `requester_id` | M2o `res.partner` | The student (or former student) in EMS, and who filed it on the portal. `student_id` takes a current student, an alumnus, a withdrawal or an expelled student; the form's dropdown runs with `active_test=False`, since the last three are archived. Optional: a former student who is not in EMS is opened with only their full name (`student_name`) and email (`_check_applicant`), and fills in the rest in the form. |
 | `origin` | Selection | `portal` or `secretariat`. |
-| `applicant_email` | Char | Where a former student's form link, requests for documentation and the certificate go. Portal requests use `student_id._ems_informed_recipients()`. |
+| `applicant_email` | Char | Where a former student's form link, requests for documentation and the certificate go. Choosing the student fills it with their personal `email`, or leaves it empty when that is still a legacy corporate address (`_ems_student_defaults`). Portal requests use `student_id._ems_informed_recipients()`. |
 | `student_name`, `student_document`, `study_id` | Char, Char, M2o | The applicant's details common to every type, mandatory on submission. Prefilled from the contact when known. `study_id` must belong to one of the type's levels (`_check_study_level`; the form and the portal only offer those). |
 | `value_ids` | O2m `ems.certificate.value` | One line per datum of the type, created with the request (`_ems_sync_values`, again when the type changes in draft or a datum is added to a type with open requests). |
-| `value_field_types` | Char, computed | The data types the request has, so the form only shows the value columns it uses. |
 | `document_ids` | O2m `ems.certificate.document` | One line per required document of the type, created with the request (`_ems_sync_documents`, again if the type changes while in draft). Each must have files before the `issue` step. |
 | `other_attachment_ids` | M2m `ir.attachment` | Optional documentation, anyone taking part. Never appended. |
-| `stamp_ids` | O2m `ems.certificate.stamp` | One per finished step: step, action, user, date. The PDF prints those of `issue` and `approve` steps. |
+| `stamp_ids` | O2m `ems.certificate.stamp` | One per finished step: step, action, user, post (`role_id`), date. The PDF prints those of `issue` and `approve` steps; the form lists them with their `create_date` (date and time). |
 | `certificate_pdf_id` | M2o `ir.attachment` | The final PDF. |
 | `applicant_form_open` | Boolean | The applicant may still edit their form from the link: set when the form is sent or the portal request filed, cleared as soon as someone of the centre writes the request (or one of its documents) or acts on it (step done, return, request documentation, reject, cancel). `_ems_portal_can_edit()`: in draft, or in progress with this flag. While open, the portal shows the form with **Save changes** (`_ems_portal_fill` updates and leaves a note). |
 | `info_request`, `return_reason`, `reject_reason`, `cancel_reason` | Text | Last request for documentation, the last return to the previous step, why it was rejected or cancelled. |
@@ -174,11 +174,25 @@ Constraints (`_check_steps` on the type): at least one step, exactly one `issue`
 | `field_id` | M2o `ems.certificate.type.field` (cascade) | Label, type, order and who fills it in come from it. |
 | `value_char`, `value_text`, `value_number`, `value_date`, `value_boolean` | | The value, in the column of its type (`VALUE_COLUMNS`). |
 | `value_company_id`, `value_char`, `value_vat` | M2o `res.partner`, Char, Char | A `company` datum: the contact, and the name and VAT number the applicant wrote (the form never creates contacts). **Create company** (`action_create_company`) creates one from them, or links the one with that VAT number. |
-| `display_value` | Char, computed | The value as the portal and the certificate print it (dates in the reader's language). |
+| `hint` | Char, related | `field_id.help`. |
+| `display_value` | Char, computed | The value as the portal, the request's form and the certificate show it (dates in the reader's language). |
 | `is_pending` | Boolean, computed | Required by now (by the applicant, or by the current or an earlier step) and still empty: the form marks it. |
 
 `write()` follows the request: refused once it is closed, and it closes the applicant's form, as
-writing the request itself does.
+writing the request itself does. It also stores a school year as `2024-25`.
+
+**Validation (issue #858).** `ems.certificate.value._ems_detail_errors()` is the one check for the
+backend and the portal: a school year that is not one, and a date earlier than its `after_field_id`.
+The backend runs it as a constraint on the lines (`_check_values` → `ems.certificate._ems_check_details`)
+and again before any step (`_ems_check_step_data`), for a value written before the check existed;
+the portal runs it on the submitted form, merged with what the request already holds
+(`_ems_portal_detail_errors`), and sends the applicant back with `error=invalid` instead of writing
+it. The portal's school-year input also carries an HTML `pattern`.
+
+**The form's tab.** The *Certificate details* tab is a read-only list (detail, hint, value); a click
+opens a dialog with only the input of the line's data type (and, for a company, the name and VAT
+number written by the applicant plus *Create company*). Not an inline editable list: a list column
+holds one field, so every data type would need its own column, mostly empty, or a custom widget.
 
 ### `ems.certificate.document` (a required document of a request)
 
@@ -211,7 +225,7 @@ stateDiagram-v2
     cancelled --> in_progress: Reopen (first step)
 ```
 
-- `action_done_step()`: checks the step's data (`_ems_check_step_data`), records the stamp, assigns
+- `action_done_step()`: checks the step's data (`_ems_check_step_data`), records the stamp (with the post it is done under, `_ems_signer_role`: the user's among the step's posts; else another of theirs in the circuit, e.g. the Director issuing as administrator; else, an administrator holding none, the step's own; each signature box is headed by it), assigns
   the number on `issue`, and moves to the next step (task to the holders of its positions) or finishes.
 - `action_issue_now()`: whoever holds one of the `issue` step's positions (or the administrator,
   `can_issue_now`) issues the certificate while the request is still in draft or on an earlier
@@ -223,12 +237,20 @@ stateDiagram-v2
   anyway); approvals after the issue step are never skipped.
 - Every step change closes the previous task and schedules the next one quietly
   (`mail_activity_quick_update`): the holders find it in their daily summary.
+- `action_preview_draft()` (*See the draft*, any open state) renders `ems.action_report_certificate_draft`:
+  the same body as the certificate (`ems.report_certificate_document`, `draft` set), with a DRAFT
+  watermark, "Pending issue" for the number, the issuer taken from the issuing step's post when it is
+  not issued yet, every empty `{key}` marked by its label (`ems.certificate.type._ems_text_key_labels`,
+  the same list the type's form shows under the text) and the signatures still to come
+  (`_ems_report_signatures(draft=True)`). Nothing is stored. Staff only: its report model
+  (`report.ems.report_certificate_draft`) refuses a non-internal user, so a portal applicant who can
+  read the request cannot fetch it from the report URL.
 - `ems.certificate.wizard` (`mode`: `info`, `return`, `reject`, `cancel`) asks for the text and runs
   the matching method.
 - The PDF (`ems.report_certificate`, in the centre language, `CENTRE_LANG_REPORTS`) is one page: a
   header band in the company's colour (as minutes' headings) with the number, the text with wider
   side margins than the letterhead, and the signature boxes anchored at the foot of the page. It prints its
-  paragraphs from `_ems_report_paragraphs()`: the issuer's sentence and "CERTIFIES:" (common), the
+  paragraphs from `_ems_report_paragraphs()`: the issuer's sentence (their name and the post on their stamp, first letter in lowercase unless it starts with an acronym, `_ems_position_in_sentence`; a stamp from before issue #858 has none and says "secretary") and "CERTIFIES:" (common), the
   type's `certificate_text` in the centre language with every `{key}` replaced and escaped
   (`_ems_render_text`), and the closing sentence and the place and date (common). The type's text is
   one translatable value per language, so each language keeps its own word order. The files of the required

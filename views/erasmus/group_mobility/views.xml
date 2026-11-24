@@ -446,7 +446,7 @@
                                                decoration-danger="file_state in ('missing', 'needs_change')"
                                                decoration-warning="file_state == 'to_review'"/>
                                         <field name="review_state" optional="hide"/>
-                                        <field name="review_comment"/>
+                                        <field name="review_comment" width="240px" placeholder="Write what to correct" class="o_ems_review_comment"/>
                                         <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
                                                 invisible="file_state != 'to_review' or parent.user_role not in ('team', 'leader')"/>
                                         <button name="action_mark_needs_change" type="object" string="Needs changes" icon="fa-pencil"
@@ -606,7 +606,7 @@
                            decoration-danger="file_state in ('missing', 'needs_change')"
                            decoration-warning="file_state == 'to_review'"/>
                     <field name="review_state" column_invisible="1"/>
-                    <field name="review_comment" optional="show"/>
+                    <field name="review_comment" optional="show" width="240px" placeholder="Write what to correct" class="o_ems_review_comment"/>
                     <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
                             invisible="file_state != 'to_review'"/>
                     <button name="action_mark_needs_change" type="object" string="Needs changes" icon="fa-pencil"
@@ -703,7 +703,7 @@
                                 <field name="is_required"/>
                                 <field name="confidential" column_invisible="1"/>
                                 <field name="handled_by" optional="hide"/>
-                                <field name="review_comment" optional="hide"/>
+                                <field name="review_comment" optional="hide" width="240px" placeholder="Write what to correct" class="o_ems_review_comment"/>
                                 <field name="prepared_attachment_ids" widget="ems_attachments"
                                        readonly="handled_by == 'participant'"/>
                                 <field name="attachment_ids" widget="ems_attachments" readonly="handled_by == 'team'"/>

@@ -167,6 +167,12 @@ class EmsAttendanceIssueStatus(models.Model):
 
     def send_notification(self):
         self.ensure_one()
+        # Issue #816: the status can be gone by the time the delayed job runs. Deleting a session
+        # (or a line, or a student) removes the status through the database's ON DELETE CASCADE,
+        # which never reaches unlink() above and so never cancels this job. There is nothing left
+        # to tell the family about, so the job just ends.
+        if not self.exists():
+            return True
         separator = "; "
 
         # The student and the family get the same underlying notification, but worded for

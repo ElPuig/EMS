@@ -94,7 +94,7 @@ class EmsAttendanceJustification(models.Model):
             group_domain = [('group_type', '=', 'main')]
             if not is_admin:
                 user_id = justification.teacher_id.user_id.id
-                student_domain.append(('main_group_id.tutor_id.tutor_scope_user_ids', '=', user_id))
+                student_domain.append(('tutor_id.tutor_scope_user_ids', '=', user_id))
                 group_domain.append(('tutor_id.tutor_scope_user_ids', '=', user_id))
             justification.student_domain = str(student_domain)
             justification.group_domain = str(group_domain)

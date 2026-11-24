@@ -39,6 +39,7 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 - [A Student's Public and Private Notes](../teachers/student-notes.md) — Where every teacher reads a student's public notes, and who can read and write the private tutoring ones.
 - [Erasmus+: checking the projects' economy](erasmus-economy.md) — The Director reads every Erasmus+ project's grant, commitments, payments, expenses and organisational support, and exports it to Excel.
 - [Student walkouts: validating them](student-walkout.md) — The minute when a proposal closes, and validating it (justifying the absences of those who join it) or not.
+- [Transferring a student's tutorship](tutorship-transfer.md) — A student who only attends another group's classes is followed by that group's tutor, while their group and tutor in Esfer@ stay the official ones.
 
 ---
 

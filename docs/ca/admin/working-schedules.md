@@ -250,14 +250,16 @@ Reimportar un fitxer actualitzat per a un lloc encara no cobert (el mateix codi 
 
 ## Començar l'horari d'un docent a partir d'un marc o d'un altre docent
 
-Fes servir això per reiniciar un docent amb un marc diferent (p. ex. ara imparteix un altre nivell), o per configurar un **substitut** amb el mateix horari que el docent que està cobrint:
+Fes servir això per reiniciar un docent amb un marc diferent (p. ex. ara imparteix un altre nivell), o per partir de l'horari d'un company:
 
 1. Obre la pestanya **Horari** del docent i fes clic a **Nou**.
-2. Tria un **marc horari** (comença en blanc, seguint les franges d'aquest marc) o **un altre docent** (copia les seves assignatures/grups reals — ideal per a substitucions).
+2. Tria un **marc horari** (comença en blanc, seguint les franges d'aquest marc) o **un altre docent** (copia les seves assignatures/grups reals).
 3. Fes clic a **Carrega** — veuràs l'horari carregat en mode edició.
 4. Ajusta el que calgui i fes clic a **Desa** per aplicar-ho, o a **Cancel·la** per descartar-ho i mantenir l'horari anterior del docent intacte.
 
 > **Nou** substitueix tot l'horari — res de l'anterior es conserva llevat que també aparegui en el que acabes de carregar. Cancel·lar abans de desar deixa tot exactament com estava.
+
+> Les **substitucions** es registren a la fitxa del substitut (**Ensenyament → Substitut de**): l'EMS copia l'horari tot sol, treu el docent substituït del tauler de guàrdies i dona al substitut accés a les seves dades. Vegeu [Registrar una substitució](../head_of_studies/staff-management.md#registrar-una-substitució).
 
 ---
 

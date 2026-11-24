@@ -34,6 +34,7 @@ This section contains the manuals for **secretariat staff**.
 - [Updating student data from a CSV file](student-update-csv.md) — A generic, any-format CSV bulk-update for existing students (never creates one), with mappable columns and an optional bank account update.
 - [Approving absences for administrative and services staff](absences.md) — Who approves ASP absences and how it differs from the Head of Studies.
 - [Erasmus+: services paid by the centre, project expenses and projects](erasmus-economy.md) — Registering the invoices the centre pays for participants, registering and paying the Erasmus+ projects' other expenses, and checking each project's budget.
+- [Transferring a student's tutorship](tutorship-transfer.md) — A student who only attends another group's classes is followed by that group's tutor, while their group and tutor in Esfer@ stay the official ones.
 
 ## Planned Topics
 

@@ -19,6 +19,8 @@ A veces, un alumno matriculado en 2.º con asignaturas de 1.º pendientes se da 
 
 Para deshacerlo, vacía **Tutoría traspasada a** y guarda.
 
+![Pestaña Estudios de un alumno de DAM2A con la tutoría traspasada a DAM1A: Tutor/a muestra la tutora de 1.º y Tutor/a oficial (Esfer@), el tutor de 2.º](../../assets/tutors/traspas-tutoria-01-estudis.png)
+
 ## Qué cambia
 
 - El tutor nuevo encuentra al alumno entre su alumnado (**Mi alumnado**) y puede gestionar sus datos y los de su familia, como con cualquier alumno de su grupo. Recibe las incidencias de asistencia del alumno, los avisos de strikes y el resto de avisos de tutor.

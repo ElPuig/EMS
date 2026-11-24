@@ -214,6 +214,28 @@ class TestDocsScreenshotsTutors(DocsScreenshotMixin, HttpCase):
             ],
         )
 
+    def test_capture_tutorship_transfer(self):
+        """tutorship-transfer.md (tutors, secretary, head_of_studies): the Studies tab of a DAM2A
+        student whose tutorship was transferred to DAM1A, seen by the 1st-year tutor (issue #807)."""
+        second = self.env['ems.group'].create({
+            'course': 2, 'acronym': 'A', 'level_id': self.level.id, 'study_id': self.study.id,
+            'tutor_id': self.env['hr.employee'].create({
+                'name': '0000 Tutor Segon Exemple', 'employee_type': 'teacher'}).id,
+        })
+        student = self._student('Marc Prova Vidal', main_group_id=second.id, transferred_group_id=self.group.id)
+        action = self.env['ir.actions.act_window'].create({
+            'name': 'Alumnes', 'res_model': 'res.partner', 'view_mode': 'form',
+            'domain': [('id', '=', student.id)],
+        })
+        open_tab = "document.querySelector(\".o_notebook .nav-link[name='studies']\").click();"
+        self._capture(
+            '/odoo/action-%d/%d' % (action.id, student.id),
+            '.o_notebook', 'traspas-tutoria-01-estudis.png',
+            login='doc_shot_tutor', wait_for='.o_notebook',
+            run=[open_tab], wait_after=[".tab-pane.active div[name='official_tutor_id']"],
+            max_height=330,
+        )
+
     def test_capture_custom_schedule(self):
         """custom-schedule.md: Programació split between groups A and B, Bases de dades not in
         person; then the B session moves to another time (a teacher's schedule change) and the

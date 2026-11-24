@@ -17,6 +17,8 @@ A veces, un alumno matriculado en 2.º con asignaturas de 1.º pendientes se da 
 - Participa en las inasistencias colectivas de tu grupo.
 - En la pestaña **Estudios** de su ficha, **Tutoría traspasada a** muestra tu grupo, **Tutor/a** te muestra a ti y **Tutor/a oficial (Esfer@)**, al tutor de su grupo principal. No puedes cambiar el traspaso: pídeselo a la secretaría.
 
+![Pestaña Estudios de un alumno de DAM2A con la tutoría traspasada a DAM1A: Tutor/a muestra la tutora de 1.º y Tutor/a oficial (Esfer@), el tutor de 2.º](../../assets/tutors/traspas-tutoria-01-estudis.png)
+
 ## Si eres el tutor oficial (el del grupo principal del alumno)
 
 Sigues poniéndole las notas: las sesiones de evaluación y el expediente van por grupo, y el alumno sigue en el tuyo. Dejas de gestionar sus datos y de recibir avisos sobre él: ahora es tarea del tutor nuevo.

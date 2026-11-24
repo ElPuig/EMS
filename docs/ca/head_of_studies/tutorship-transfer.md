@@ -19,6 +19,8 @@ De vegades, un alumne matriculat a 2n amb assignatures de 1r pendents es dona de
 
 Per desfer-ho, buideu **Tutoria traspassada a** i deseu.
 
+![Pestanya Estudis d'un alumne de DAM2A amb la tutoria traspassada a DAM1A: Tutor/a mostra la tutora de 1r i Tutor/a oficial (Esfer@), el tutor de 2n](../../assets/tutors/traspas-tutoria-01-estudis.png)
+
 ## Què canvia
 
 - El tutor nou troba l'alumne entre el seu alumnat (**El meu alumnat**) i pot gestionar-ne les dades i les de la família, com amb qualsevol alumne del seu grup. Rep les incidències d'assistència de l'alumne, els avisos de strikes i la resta d'avisos de tutor.

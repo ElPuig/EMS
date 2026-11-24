@@ -19,6 +19,8 @@ A student enrolled in 2nd year with 1st-year subjects pending sometimes drops ev
 
 To undo it, empty **Tutorship transferred to** and save.
 
+![Studies tab of a DAM2A student whose tutorship was transferred to DAM1A: Tutor shows the 1st-year tutor and Official tutor (Esfer@) the 2nd-year one](../../assets/tutors/traspas-tutoria-01-estudis.png)
+
 ## What changes
 
 - The new tutor finds the student among their own students (**My students**), and can manage their data and their family's, as with any student of their group. They receive the student's attendance issues, strike notices and the rest of the tutor notices.

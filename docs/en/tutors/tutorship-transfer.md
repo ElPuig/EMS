@@ -17,6 +17,8 @@ A student enrolled in 2nd year with 1st-year subjects pending sometimes drops ev
 - They take part in your group's student walkouts.
 - On the **Studies** tab of their form, **Tutorship transferred to** shows your group, **Tutor** shows you and **Official tutor (Esfer@)** shows the tutor of their main group. You can't change the transfer yourself: ask the secretary's office.
 
+![Studies tab of a DAM2A student whose tutorship was transferred to DAM1A: Tutor shows the 1st-year tutor and Official tutor (Esfer@) the 2nd-year one](../../assets/tutors/traspas-tutoria-01-estudis.png)
+
 ## If you are the official tutor (the student's main group)
 
 You keep entering their grades: the evaluation sessions and the academic record go by group, and the student is still in yours. You no longer manage their data nor receive notices about them: that is now the new tutor's job.

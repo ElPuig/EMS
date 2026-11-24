@@ -140,3 +140,30 @@ registry.category("web_tour.tours").add("ems_portal_access_wizard_shared_email",
         },
     ],
 });
+
+// Issue #842: changing the main email of a student without portal access asks whether to give it
+// (see get_portal_email_question); the "Give portal access" button answers yes.
+registry.category("web_tour.tours").add("ems_portal_email_change_dialog", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_field_widget[name='email'] input",
+            content: "Change the main email",
+            run: "edit after.dialog.tour@example.com",
+        },
+        {
+            trigger: ".o_form_button_save",
+            content: "Save",
+            run: "click",
+        },
+        {
+            trigger: ".modal:contains('Give portal access') .modal-footer .btn-primary",
+            content: "The dialog asks whether to give portal access, with clear buttons",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_form_saved",
+            content: "The form is saved",
+        },
+    ],
+});

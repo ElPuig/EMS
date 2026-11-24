@@ -224,6 +224,13 @@ class ResPartner(models.Model):
     document_id = fields.Char(string="Document ID")
     passport_id = fields.Char(string="Passport")
     student_email = fields.Char(string="Student email")
+    # Set by the form's own save (static/src/js/backend/form_controller_custom.js) after the user
+    # answered the "update the portal access?" dialog of a main email change (issue #842); never
+    # stored, write() consumes it. Without it (imports, other code) an active access still moves
+    # to the new email by itself.
+    portal_email_decision = fields.Selection(
+        [('apply', 'Update the portal access'), ('keep', "Don't change the portal access")],
+        string="Portal access decision", store=False)
 
     @api.constrains('email', 'student_email')
     def _check_email_format(self):
@@ -1169,6 +1176,10 @@ class ResPartner(models.Model):
             self._ems_store_private_notes(values.pop('private_notes'))
             if not values:
                 return True
+        portal_decision = False
+        if 'portal_email_decision' in values:
+            values = dict(values)
+            portal_decision = values.pop('portal_email_decision')
         if set(PERSON_NAME_FIELDS) & set(values) and self and (
                 values.get('contact_type') in PERSON_NAME_CONTACT_TYPES
                 or all(partner.contact_type in PERSON_NAME_CONTACT_TYPES for partner in self)):
@@ -1181,14 +1192,16 @@ class ResPartner(models.Model):
         # to change while they hold active portal access: their access must be moved
         # from the old email to the new one (see _apply_portal_email_change).
         portal_email_changed = self.env['res.partner']
+        portal_email_granted = self.env['res.partner']
         email_changed = self.env['res.partner']
         if 'email' in values:
             new_email = email_normalize(values.get('email'))
             email_changed = self.filtered(lambda p: email_normalize(p.email) != new_email)
-            portal_email_changed = self.filtered(
-                lambda p: p.contact_type in ('student', 'family')
-                and email_normalize(p.email) != new_email
-                and p._has_active_portal_user())
+            if portal_decision != 'keep':
+                portal_email_changed = email_changed.filtered(
+                    lambda p: p.contact_type in ('student', 'family') and p._has_active_portal_user())
+            if portal_decision == 'apply' and new_email:
+                portal_email_granted = (email_changed - portal_email_changed)._ems_portal_grantable()
         # Capture (before the write) the previous main group of every partner about to
         # change it, so their subject enrollments in that group can follow them to the new
         # one (see _migrate_enrollments_on_group_change below). Skipped under env.su: that
@@ -1270,6 +1283,7 @@ class ResPartner(models.Model):
         email_changed._check_email_not_shared_with_family()
         for partner in portal_email_changed:
             partner._apply_portal_email_change()
+        portal_email_granted._ems_grant_portal_after_email_change()
 
         # Google Workspace: with form autosave the student is created with partial
         # data; enqueue once the required fields are completed (deduplicated).
@@ -1325,33 +1339,6 @@ class ResPartner(models.Model):
                 others.toggle_active()
             return students.action_withdrawal_wizard()
         return super().toggle_active()
-
-    @api.onchange('email')
-    def _onchange_email_portal_warning(self):
-        """Inform the user, before saving, what a change of the main email does to the portal
-        access: it moves to the new email, or, when it had been revoked, stays revoked."""
-        if self.contact_type not in ('student', 'family'):
-            return
-        if self._has_active_portal_user():
-            return {
-                'warning': {
-                    'title': _("Portal access will be updated"),
-                    'message': _(
-                        "Changing the main email revokes the portal access linked to "
-                        "the old email and sends a new portal invitation to the new "
-                        "email. Discard the change if you don't want this."),
-                }
-            }
-        if self._origin.sudo().with_context(active_test=False).user_ids.filtered('share'):
-            return {
-                'warning': {
-                    'title': _("Portal access stays revoked"),
-                    'message': _(
-                        "The portal access of this contact was revoked, so the new email "
-                        "does not get access by itself. To give it access, save and use "
-                        "Actions > Portal access (students/families) > Grant access."),
-                }
-            }
 
     def _has_active_portal_user(self):
         """True when the partner has a non-archived portal user (access enabled now)."""

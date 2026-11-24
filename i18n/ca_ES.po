@@ -56186,3 +56186,68 @@ msgstr "%(student)s: el correu %(email)s és el de l'alumne i l'alumne és major
 #: code:addons/ems/models/contacts/student_import_wizard.py:0
 msgid "%(student)s: the only email received, %(email)s, is also the family's and the student is a minor: it stays with %(family)s and the student has no personal email, ask for one."
 msgstr "%(student)s: l'únic correu rebut, %(email)s, també és de la família i l'alumne és menor: es queda amb %(family)s i l'alumne no té correu personal, cal demanar-ne un."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Update the portal access?"
+msgstr "Actualitzar l'accés al portal?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "%(name)s has portal access with the email %(old)s, and you are changing it to %(new)s.\n\nUpdate the portal access: the access of the old email is revoked and an invitation to set the password is sent to %(new)s.\n\nDon't change the access: nothing is revoked or sent, and %(old)s keeps being the login."
+msgstr "%(name)s té accés al portal amb el correu %(old)s i el canvies per %(new)s.\n\nActualitza l'accés al portal: es revoca l'accés del correu antic i s'envia una invitació per fixar la contrasenya a %(new)s.\n\nNo canviïs l'accés: no es revoca ni s'envia res, i %(old)s continua sent l'usuari."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Update the portal access"
+msgstr "Actualitza l'accés al portal"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Don't change the access"
+msgstr "No canviïs l'accés"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Give portal access?"
+msgstr "Donar accés al portal?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "The portal access of %(name)s was revoked.\n\n"
+msgstr "L'accés al portal de %(name)s es va revocar.\n\n"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "%(name)s has no portal access.\n\n"
+msgstr "%(name)s no té accés al portal.\n\n"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Give portal access: an invitation to set the password is sent to %(new)s.\n\nNot now: the email is saved and the access stays as it is; it can be given later from Actions > Portal access."
+msgstr "Dona accés al portal: s'envia una invitació per fixar la contrasenya a %(new)s.\n\nAra no: el correu es desa i l'accés queda com està; es pot donar més endavant des d'Accions > Accés al portal."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Give portal access"
+msgstr "Dona accés al portal"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/portal.py:0
+msgid "Not now"
+msgstr "Ara no"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__portal_email_decision
+msgid "Portal access decision"
+msgstr "Decisió sobre l'accés al portal"

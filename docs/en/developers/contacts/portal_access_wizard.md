@@ -187,38 +187,7 @@ A portal login is unique. `res.partner._ems_portal_login_conflict(students)` fin
 
 ### Changing a main email
 
-The `email` onchange on a student or family contact warns: with active portal access, it moves to the new email (revoke + grant); with a **revoked** access, it stays revoked and the warning says to grant it again from the Actions menu (a dialog button that opens the wizard is not implemented: the standard onchange warning has no buttons). A shared student/family email resyncs the student's login with `student_email` (`portal_google_signin.py`).
-
-`default_get`/`_build_lines` are **not** re-triggered by a plain ORM `create()` from Python — that's an onchange, which only fires through the web client (or an explicit test call to `_onchange_mode()`); this is a common testing gotcha, not a wizard bug.
-
----
-
-## Access Control
-
-### `ir.model.access.csv`
-
-| Model | Role | Create | Read | Write | Delete |
-|-------|------|:------:|:----:|:-----:|:------:|
-| `ems.portal.access.wizard` (+ `.line`) | Academic admin | ✓ | ✓ | ✓ | ✓ |
-| | Secretary | ✓ | ✓ | ✓ | ✓ |
-| | **`ems.group_tutor`** (not the generic `ems.group_teacher`) | ✓ | ✓ | ✓ | ✓ |
-
-A plain teacher who is not currently tutoring anyone cannot even open this wizard — `ems.group_tutor` is a role-derived group only granted while an employee actually tutors at least one group (see [`ems.group`](group.md)'s `_sync_tutor_role`). `_user_can_manage`'s tutor branch is the **per-student** narrowing on top of that: even a real tutor can only manage their own tutorands, checked both in `default_get` (silently filters the preselection) and again in `action_apply` (reports an explicit issue rather than silently skipping, in case `student_ids` reached the server without going through the normal preselection — e.g. tampered client state).
-
----
-
-## Views
-
-| View | File | Notes |
-|------|------|-------|
-| Form | `views/community/contact/portal_access_wizard.xml` | `view_portal_access_wizard_form` — mode radio, readonly recipient preview list, Apply/Cancel footer |
-| Bulk entry point | same file | `action_portal_access_bulk` (`ir.actions.server`), bound to the `res.partner` list's cog menu (a student's form has the same method as an entry of its Actions dropdown, see [contact.md](contact.md#student-form-actions-actions-dropdown-cog-menu-or-smart-button)), restricted to `group_academic_admin`/`group_secretary`/`group_teacher` at the action level (the model's own `ir.model.access.csv`/`_user_can_manage` are the real gate for a non-tutoring teacher, as above). Its `code` field is a single call to `res.partner.action_portal_access_bulk()` (`models/contacts/contact.py`), which filters the selection down to `student`/`applicant` and raises a `UserError` when nothing survives. The logic lives in Python, not inline in the action, because `safe_eval`'s context has no `_`: an inline `_("...")` raises `NameError: name '_' is not defined` and the RPC surfaces that traceback instead of the intended message. |
-
-> **How a returning ex-student gets in.** A contact that left is `withdrawal`/`alumni`/`expelled` and cannot hold portal access as such. Sending them a new enrollment converts them to `applicant` (`sale.order._ems_offer_to_ex_student()`, called from `write()`'s "→ `sent`" branch in `models/enrollment/enrollment.py`), which is what makes them eligible here; confirming that enrollment later turns them into a full `student` via `_ems_admit_student()`. The two steps are distinct: an ex-student never goes straight back to `student`. An `expelled` contact is never converted, so it stays out of scope on purpose.
->
-> This exists because the four requirements otherwise form a closed loop: portal access needs `student`/`applicant`, becoming a student needs a confirmed enrollment, confirming needs the required authorizations answered, and those are answered *from the portal*. Sending the offer is the only deliberate act that can break it. See `docs/en/developers/enrollment/enrollment.md`.
-
-Registered as a `data` entry in `__manifest__.py` (line ~97), alongside the rest of `views/community/contact/`.
+Saving a new main email on a **student, applicant or family** contact form asks the user (`StudentPopupFormController.onWillSaveRecord`, `form_controller_custom.js`, backed by `res.partner.get_portal_email_question`): with active portal access, whether to **update** it (the old email's access is revoked and an invitation goes to the new one) or **leave it** as it is; with no access, or a revoked one, whether to **give** it with the new email or **not now**. Closing the dialog does not save. The answer travels in the same save as the non-stored `portal_email_decision` field (`apply`/`keep`), which `res.partner.write` consumes: `apply` runs `_apply_portal_email_change` (active access) or `_ems_grant_portal_after_email_change` (no access; it raises with who holds the login when it is taken, so the save fails and nothing is left half done). Only contacts the user may manage (`ems.portal.access.wizard._user_can_manage`) are offered a grant. Writers with no dialog (imports, other code) keep the previous behaviour: an active access moves to the new email by itself and nothing is granted.
 
 ## Email rules and the portal login (issue #842)
 

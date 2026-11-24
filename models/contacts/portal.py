@@ -324,6 +324,77 @@ class ems_contact_portal(models.Model):
             if not Users.search_count([('login', '=', login), ('id', '!=', user.id)]):
                 user.write({'login': login})
 
+    # ------------------------------------------------------------------
+    # Changing the main email of a contact with (or without) portal access (issue #842)
+    # ------------------------------------------------------------------
+    def _ems_portal_grantable(self):
+        """The partners of self that could be given portal access with their email: an active
+        student, applicant or family contact (one with a student) the current user may manage,
+        that has no active portal user."""
+        wizard = self.env['ems.portal.access.wizard']
+        grantable = self.browse()
+        for partner in self:
+            if not partner.active or partner._has_active_portal_user():
+                continue
+            if partner.contact_type in ('student', 'applicant'):
+                students = partner
+            elif partner.contact_type == 'family':
+                students = self.env['res.partner.relation.all'].sudo().search([
+                    ('this_partner_id', '=', partner.id),
+                    ('other_partner_id.contact_type', 'in', ('student', 'applicant')),
+                ]).mapped('other_partner_id')
+            else:
+                continue
+            if any(wizard._user_can_manage(student) for student in students):
+                grantable |= partner
+        return grantable
+
+    @api.model
+    def get_portal_email_question(self, partner_id, new_email):
+        """What the contact form asks before saving a new main email (issue #842), or False when
+        there is nothing to decide: {'title', 'message', 'confirm', 'cancel'}. A contact with
+        portal access can have it moved to the new email; one without (or with it revoked) can be
+        given it, and the user decides each time. The answer comes back in `portal_email_decision`."""
+        partner = self.browse(partner_id).exists()
+        new_email = email_normalize(new_email)
+        if not partner or not new_email or new_email == email_normalize(partner.email):
+            return False
+        if partner.contact_type in ('student', 'family') and partner._has_active_portal_user():
+            return {
+                'title': _("Update the portal access?"),
+                'message': _(
+                    "%(name)s has portal access with the email %(old)s, and you are changing it "
+                    "to %(new)s.\n\n"
+                    "Update the portal access: the access of the old email is revoked and an "
+                    "invitation to set the password is sent to %(new)s.\n\n"
+                    "Don't change the access: nothing is revoked or sent, and %(old)s keeps being "
+                    "the login.", name=partner.name, old=partner.email, new=new_email),
+                'confirm': _("Update the portal access"),
+                'cancel': _("Don't change the access"),
+            }
+        if not partner._ems_portal_grantable():
+            return False
+        revoked = bool(partner.sudo().with_context(active_test=False).user_ids.filtered('share'))
+        return {
+            'title': _("Give portal access?"),
+            'message': (_(
+                "The portal access of %(name)s was revoked.\n\n", name=partner.name) if revoked else _(
+                "%(name)s has no portal access.\n\n", name=partner.name)) + _(
+                "Give portal access: an invitation to set the password is sent to %(new)s.\n\n"
+                "Not now: the email is saved and the access stays as it is; it can be given later "
+                "from Actions > Portal access.", new=new_email),
+            'confirm': _("Give portal access"),
+            'cancel': _("Not now"),
+        }
+
+    def _ems_grant_portal_after_email_change(self):
+        """Give each partner the portal access the user chose when changing its email. Raises
+        (PortalLoginTaken, with who holds the login) instead of reporting: the save fails and the
+        email is not changed, so nothing is left half done."""
+        wizard = self.env['ems.portal.access.wizard'].sudo().new({'mode': 'grant'})
+        for partner in self:
+            wizard._apply_one(partner)
+
     def _ems_portal_login_conflict(self, students=None):
         """Details of the contact that already holds the portal login this partner needs (issue
         #842), or None when it is free: a portal login is unique, so this partner can never get

@@ -107,7 +107,7 @@ flowchart LR
 
 | Field | Kind | Notes |
 |-------|------|-------|
-| `transferred_group_id` | Many2one `ems.group`, indexed | Empty = no transfer. A main group other than `main_group_id` (`_check_transferred_group`). Only academic administration, the secretary's office and Heads of Studies/Deputies/Director write it (`_ems_user_can_transfer_tutorship()`, checked in `write()`, mirrored by `can_transfer_tutorship` on the form). |
+| `transferred_group_id` | Many2one `ems.group`, indexed | Empty = no transfer. A main group of the student's own study other than `main_group_id` (`_check_transferred_group`; e.g. SMX2A to SMX1C, never to DAW2A). A change of main group that no longer fits (no group, the transferred one, another study) ends it before the write (`_ems_end_stale_tutorship_transfers`). Only academic administration, the secretary's office and Heads of Studies/Deputies/Director write it (`_ems_user_can_transfer_tutorship()`, checked in `write()`, mirrored by `can_transfer_tutorship` on the form). |
 | `tutorship_group_id` | stored compute | `transferred_group_id or main_group_id`: the group the student attends with. |
 | `tutor_id` | stored related `tutorship_group_id.tutor_id` | The student's tutor for everything a tutor does. Stored so the record rules matching on `tutor_id.tutor_scope_user_ids` resolve it in SQL, and recomputed when either group's tutor changes. `write()` drops it: a tutor is changed on the group. |
 | `official_tutor_id` | related `main_group_id.tutor_id` | Shown on the form, under the tutor, only while a transfer is set ("Official tutor (Esfer@)"). |
@@ -134,7 +134,7 @@ makes only the latter show.
 
 **End of a transfer.** Cleared by `_ems_clear_operational_records()` (a withdrawal, and the
 course transition for every student in its scope: a transfer belongs to one year), and when the
-student's main group becomes the transferred group. Covered by
+student's main group changes to the transferred group, to another study's or to none. Covered by
 `tests/test_student_tutorship_transfer.py` and `tests/test_student_tutorship_transfer_tour.py`.
 
 ## Birth date of a student (issue #640)

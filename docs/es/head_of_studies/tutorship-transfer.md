@@ -14,7 +14,7 @@ A veces, un alumno matriculado en 2.º con asignaturas de 1.º pendientes se da 
 
 1. Abre la ficha del alumno (**Comunidad educativa → Alumnado**).
 2. Ve a la pestaña **Estudios**.
-3. En **Tutoría traspasada a**, elige el grupo al que asiste ahora el alumno (por ejemplo, el grupo de 1.º). Deja el **Grupo principal** como está: es el grupo de Esfer@.
+3. En **Tutoría traspasada a**, elige el grupo al que asiste ahora el alumno (por ejemplo, el grupo de 1.º). Solo se ofrecen grupos del mismo estudio del alumno: de SMX2A a SMX1C, nunca a DAW2A. Deja el **Grupo principal** como está: es el grupo de Esfer@.
 4. Guarda. Ahora **Tutor/a** muestra el tutor del grupo nuevo y **Tutor/a oficial (Esfer@)**, el del grupo principal.
 
 Para deshacerlo, vacía **Tutoría traspasada a** y guarda.
@@ -34,7 +34,7 @@ El horario muestra las asignaturas en las que está matriculado el alumno. Para 
 
 ## Cuándo termina
 
-El traspaso termina solo cuando cambia el curso, cuando el alumno deja el centro y cuando su grupo principal pasa a ser el grupo al que se había traspasado la tutoría.
+El traspaso termina solo cuando cambia el curso, cuando el alumno deja el centro y cuando su grupo principal pasa a ser el grupo al que se había traspasado la tutoría o un grupo de otro estudio.
 
 ---
 

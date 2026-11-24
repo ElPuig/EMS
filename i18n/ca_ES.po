@@ -56090,3 +56090,9 @@ msgstr "La tutoria només es pot traspassar a un grup diferent del principal."
 #: code:addons/ems/models/contacts/contact.py:0
 msgid "The tutorship can only be transferred to a main group."
 msgstr "La tutoria només es pot traspassar a un grup principal."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "The tutorship can only be transferred to a group of the student's own study."
+msgstr "La tutoria només es pot traspassar a un grup del mateix estudi de l'alumne."

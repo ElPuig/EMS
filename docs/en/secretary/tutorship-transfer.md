@@ -14,7 +14,7 @@ A student enrolled in 2nd year with 1st-year subjects pending sometimes drops ev
 
 1. Open the student's form (**Educational Community → Students**).
 2. Go to the **Studies** tab.
-3. In **Tutorship transferred to**, choose the group the student now attends (for example, the 1st-year group). Leave **Main Group** as it is: it is the group in Esfer@.
+3. In **Tutorship transferred to**, choose the group the student now attends (for example, the 1st-year group). Only groups of the student's own study are offered: from SMX2A to SMX1C, never to DAW2A. Leave **Main Group** as it is: it is the group in Esfer@.
 4. Save. **Tutor** now shows the new group's tutor, and **Official tutor (Esfer@)** shows the main group's tutor.
 
 To undo it, empty **Tutorship transferred to** and save.
@@ -34,7 +34,7 @@ The schedule shows the subjects the student is enrolled in. So that only the 1st
 
 ## When it ends
 
-The transfer ends by itself when the course changes, when the student leaves the centre, and when their main group becomes the group the tutorship was transferred to.
+The transfer ends by itself when the course changes, when the student leaves the centre, and when their main group changes to the group the tutorship was transferred to or to a group of another study.
 
 ---
 

@@ -75,6 +75,20 @@ class TestStudentTutorshipTransfer(TransactionCase):
         with self.assertRaises(ValidationError):
             self._transfer(self.second)
 
+    def test_transfer_stays_within_the_study(self):
+        """SMX2A -> SMX1C, never SMX1B -> DAW2A."""
+        __, other_study = create_level_study(self, 'TTRO')
+        foreign = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'A', 'level_id': other_study.level_id.id, 'study_id': other_study.id,
+            'tutor_id': self.new_tutor.id})
+        with self.assertRaises(ValidationError):
+            self._transfer(foreign)
+        # Moving the student to another study ends a transfer made within the old one.
+        self._transfer()
+        self.student.write({'main_group_id': foreign.id})
+        self.assertFalse(self.student.transferred_group_id)
+        self.assertEqual(self.student.tutor_id, self.new_tutor)
+
     def test_moving_into_the_transferred_group_ends_the_transfer(self):
         self._transfer()
         self.student.write({'main_group_id': self.first.id})

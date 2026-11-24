@@ -14,7 +14,7 @@ De vegades, un alumne matriculat a 2n amb assignatures de 1r pendents es dona de
 
 1. Obriu la fitxa de l'alumne (**Comunitat Educativa → Alumnat**).
 2. Aneu a la pestanya **Estudis**.
-3. A **Tutoria traspassada a**, trieu el grup al qual assisteix ara l'alumne (per exemple, el grup de 1r). Deixeu el **Grup principal** tal com està: és el grup d'Esfer@.
+3. A **Tutoria traspassada a**, trieu el grup al qual assisteix ara l'alumne (per exemple, el grup de 1r). Només s'ofereixen grups del mateix estudi de l'alumne: d'SMX2A a SMX1C, mai a DAW2A. Deixeu el **Grup principal** tal com està: és el grup d'Esfer@.
 4. Deseu. Ara **Tutor/a** mostra el tutor del grup nou i **Tutor/a oficial (Esfer@)**, el del grup principal.
 
 Per desfer-ho, buideu **Tutoria traspassada a** i deseu.
@@ -34,7 +34,7 @@ L'horari mostra les assignatures en què està matriculat l'alumne. Perquè nom�
 
 ## Quan s'acaba
 
-El traspàs s'acaba sol quan canvia el curs, quan l'alumne deixa el centre i quan el seu grup principal passa a ser el grup al qual s'havia traspassat la tutoria.
+El traspàs s'acaba sol quan canvia el curs, quan l'alumne deixa el centre i quan el seu grup principal passa a ser el grup al qual s'havia traspassat la tutoria o un grup d'un altre estudi.
 
 ---
 

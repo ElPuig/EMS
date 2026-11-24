@@ -118,7 +118,7 @@ class ResPartner(models.Model):
     # tutor does follows the transferred group's tutor instead.
     transferred_group_id = fields.Many2one(
         string='Tutorship transferred to', comodel_name='ems.group', index='btree_not_null',
-        domain="[('group_type', '=', 'main'), ('id', '!=', main_group_id)]",
+        domain="[('group_type', '=', 'main'), ('id', '!=', main_group_id), ('study_id', '=', study_id)]",
         help="The group whose tutor follows this student (attendance, family, notices), when it isn't "
              "their main group: the main group and its tutor remain the official ones (Esfer@, grades).")
     tutorship_group_id = fields.Many2one(
@@ -284,6 +284,23 @@ class ResPartner(models.Model):
                 raise ValidationError(_("The tutorship can only be transferred to a group other than the main one."))
             if partner.transferred_group_id.group_type != 'main':
                 raise ValidationError(_("The tutorship can only be transferred to a main group."))
+            if partner.main_group_id and partner.transferred_group_id.study_id != partner.main_group_id.study_id:
+                raise ValidationError(_("The tutorship can only be transferred to a group of the student's own study."))
+
+    def _ems_end_stale_tutorship_transfers(self, values):
+        """Ends the tutorship transfer of the students whose new main group (values['main_group_id'],
+        as write() is about to store it) no longer fits it: none at all (a withdrawal), the transferred
+        group itself, or a group of another study. Before the write, so _check_transferred_group never
+        sees the stale pair."""
+        if 'main_group_id' not in values or 'transferred_group_id' in values:
+            return
+        new_group = self.env['ems.group'].browse(values['main_group_id'] or [])
+        ending = self.filtered(lambda partner: partner.transferred_group_id and (
+            not new_group or partner.transferred_group_id == new_group
+            or partner.transferred_group_id.study_id != new_group.study_id))
+        if ending:
+            # sudo: a consequence of the group change, which a tutor may make (issue #534).
+            ending.sudo().write({'transferred_group_id': False})
 
     @api.constrains('nuss')
     def _check_nuss(self):
@@ -1204,12 +1221,6 @@ class ResPartner(models.Model):
         if 'transferred_group_id' in values and not self.env.su and not self._ems_user_can_transfer_tutorship():
             raise AccessError(_("Only the secretary's office, academic administration and the Head of Studies "
                                 "can transfer a student's tutorship."))
-        # A student moved into the group their tutorship was transferred to no longer needs the transfer.
-        if values.get('main_group_id') and 'transferred_group_id' not in values:
-            ending = self.filtered(lambda partner: partner.transferred_group_id.id == values['main_group_id'])
-            if ending:
-                # sudo: a consequence of the group change, which a tutor may make (issue #534).
-                ending.sudo().write({'transferred_group_id': False})
         # Capture (before the write) the students/families whose main email is about
         # to change while they hold active portal access: their access must be moved
         # from the old email to the new one (see _apply_portal_email_change).
@@ -1287,6 +1298,7 @@ class ResPartner(models.Model):
                 # every other path. See _ems_auto_group_for_study() for how the group is picked.
                 values['main_group_id'] = self._ems_auto_group_for_study(new_study_id).id
 
+        self._ems_end_stale_tutorship_transfers(values)
         self._compute_group_data(values)
         contact = super(ResPartner, self).write(values)
         if 'contact_type' in values:

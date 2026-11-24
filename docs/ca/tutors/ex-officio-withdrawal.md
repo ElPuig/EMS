@@ -18,6 +18,7 @@ Aquesta guia explica què has de fer quan un alumne teu deixa de venir a classe:
 4. [El teu pas: contacte amb la família](#el-teu-pas-contacte-amb-la-família)
 5. [Si els passis de llista diuen una altra cosa](#si-els-passis-de-llista-diuen-una-altra-cosa)
 6. [Què passa després](#què-passa-després)
+7. [Vídeos](#vídeos)
 
 ---
 
@@ -89,3 +90,10 @@ Quan acceptes el teu pas, l'expedient passa al responsable següent (Convivènci
 Si l'alumne demana la baixa voluntària o és expulsat, l'expedient es tanca sol.
 
 Quan Secretaria ha tramitat la baixa, l'alumne ja no té grup, però l'expedient continua sent teu (i del cap de departament o de seminari, del cap d'estudis i de la direcció que tens per sobre) la resta d'aquell curs: conserva el tutor que l'alumne tenia en marxar. La llista només mostra al principi els expedients oberts; treu el filtre **Oberta** per veure'n un de tancat. A partir del curs següent només el veuen Secretaria, Convivència, Orientació, la direcció, el cap d'estudis i els administradors.
+
+## Vídeos
+
+> ⚠️ **Els vídeos poden estar desactualitzats.** L'EMS s'actualitza sovint i no tots els vídeos es tornen a fer després de cada canvi: pot ser que alguna pantalla o algun pas no coincideixi amb el que veus. Si hi ha alguna diferència, fes cas d'aquest manual. Els vídeos són en català i no tenen veu: tot el text apareix a la pantalla.
+
+- ▶ [Baixa d'ofici en l'ensenyament postobligatori](https://drive.google.com/file/d/1Ia0xGFlXyh7MbUxH3aFdJjZdhn-Tye8b/view?usp=drivesdk)
+- ▶ [Baixa d'ofici en l'ensenyament obligatori](https://drive.google.com/file/d/1f80ulfZ_bxHEuzLJ_MyxgVnHgCNzWRd1/view?usp=drivesdk)

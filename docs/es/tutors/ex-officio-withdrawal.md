@@ -18,6 +18,7 @@ Esta guía explica qué tienes que hacer cuando un alumno tuyo deja de venir a c
 4. [Tu paso: contacto con la familia](#tu-paso-contacto-con-la-familia)
 5. [Si los pases de lista dicen otra cosa](#si-los-pases-de-lista-dicen-otra-cosa)
 6. [Qué pasa después](#qué-pasa-después)
+7. [Vídeos](#vídeos)
 
 ---
 
@@ -89,3 +90,10 @@ Cuando aceptas tu paso, el expediente pasa al responsable siguiente (Convivencia
 Si el alumno pide la baja voluntaria o es expulsado, el expediente se cierra solo.
 
 Cuando Secretaría ha tramitado la baja, el alumno ya no tiene grupo, pero el expediente sigue siendo tuyo (y del jefe de departamento o de seminario, del jefe de estudios y de la dirección que tienes por encima) el resto de ese curso: conserva el tutor que el alumno tenía al marcharse. La lista solo muestra al principio los expedientes abiertos; quita el filtro **Abierta** para ver uno cerrado. A partir del curso siguiente solo lo ven Secretaría, Convivencia, Orientación, la dirección, el jefe de estudios y los administradores.
+
+## Vídeos
+
+> ⚠️ **Los vídeos pueden estar desactualizados.** El EMS se actualiza a menudo y no todos los vídeos se rehacen tras cada cambio: puede que alguna pantalla o algún paso no coincida con lo que ves. Si hay alguna diferencia, haz caso de este manual. Los vídeos están en catalán y no tienen voz: todo el texto aparece en pantalla.
+
+- ▶ [Baja de oficio postobligatoria](https://drive.google.com/file/d/1Ia0xGFlXyh7MbUxH3aFdJjZdhn-Tye8b/view?usp=drivesdk)
+- ▶ [Baja de oficio obligatoria](https://drive.google.com/file/d/1f80ulfZ_bxHEuzLJ_MyxgVnHgCNzWRd1/view?usp=drivesdk)

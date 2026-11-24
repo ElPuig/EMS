@@ -199,6 +199,12 @@ Si una absència es rebutja, s'anul·la o s'escurça, o resulta que un altre doc
 
 ![Quadre vermell de correccions: una proposta amb el seu pas de rectificació i, al final, només avisar les famílies](../../assets/teachers/guard-duty-10-correccions.png)
 
+## Vídeos
+
+> ⚠️ **Els vídeos poden estar desactualitzats.** L'EMS s'actualitza sovint i no tots els vídeos es tornen a fer després de cada canvi: pot ser que alguna pantalla o algun pas no coincideixi amb el que veus. Si hi ha alguna diferència, fes cas d'aquest manual. Els vídeos són en català i no tenen veu: tot el text apareix a la pantalla.
+
+- ▶ [Organitzar una absència](https://drive.google.com/file/d/1qgrK0HfhyVUIQdm5OHJmuQ8m5BgTkJR8/view?usp=drivesdk)
+
 ---
 
 [← Tornar a l'índex principal](index.md)

@@ -196,3 +196,9 @@ To explain something or ask a question, write in the message history at the bott
 If a request takes you over it, you are warned as you file it. The warning does not stop you sending it: the request goes through and is flagged in the Head of Studies' list.
 
 The hours you have used so far are shown on the form itself once you choose the `Health` type.
+
+## Videos
+
+> ⚠️ **The videos may be out of date.** EMS is updated often and not every video is remade after each change, so a screen or a step may differ from what you see. If something differs, follow this manual. The videos are in Catalan and have no voice-over: all the text is shown on screen.
+
+- ▶ [I will be absent: requesting an absence](https://drive.google.com/file/d/1fDgSE-C1fx2zvwwgCtut9RcKkSgQzttN/view?usp=drivesdk)

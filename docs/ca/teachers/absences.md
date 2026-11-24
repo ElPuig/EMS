@@ -20,6 +20,7 @@
 8. [Recordatoris d'un justificant pendent](#recordatoris-dun-justificant-pendent)
 9. [Absències detectades](#absències-detectades)
 10. [Crèdit d'hores per motius de salut](#crèdit-dhores-per-motius-de-salut)
+11. [Vídeos](#vídeos)
 
 ---
 
@@ -197,3 +198,9 @@ Les absències de tipus **Salut** descompten d'un crèdit de **15 hores per curs
 Si una sol·licitud et fa superar el crèdit, rebràs un avís en demanar-la. L'avís no impedeix enviar-la: la sol·licitud es tramita igualment i queda marcada al llistat del cap d'estudis.
 
 Pots consultar les hores que portes consumides al mateix formulari, un cop tries el tipus `Salut`.
+
+## Vídeos
+
+> ⚠️ **Els vídeos poden estar desactualitzats.** L'EMS s'actualitza sovint i no tots els vídeos es tornen a fer després de cada canvi: pot ser que alguna pantalla o algun pas no coincideixi amb el que veus. Si hi ha alguna diferència, fes cas d'aquest manual. Els vídeos són en català i no tenen veu: tot el text apareix a la pantalla.
+
+- ▶ [Faltaré: demanar una absència](https://drive.google.com/file/d/1fDgSE-C1fx2zvwwgCtut9RcKkSgQzttN/view?usp=drivesdk)

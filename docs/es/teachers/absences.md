@@ -20,6 +20,7 @@
 8. [Recordatorios de un justificante pendiente](#recordatorios-de-un-justificante-pendiente)
 9. [Ausencias detectadas](#ausencias-detectadas)
 10. [Crédito de horas por motivos de salud](#crédito-de-horas-por-motivos-de-salud)
+11. [Vídeos](#vídeos)
 
 ---
 
@@ -197,3 +198,9 @@ Las ausencias de tipo **Salud** descuentan de un crédito de **15 horas por curs
 Si una solicitud te hace superar el crédito, recibirás un aviso al pedirla. El aviso no impide enviarla: la solicitud se tramita igualmente y queda marcada en el listado de jefatura de estudios.
 
 Puedes consultar las horas que llevas consumidas en el propio formulario, una vez eliges el tipo `Salud`.
+
+## Vídeos
+
+> ⚠️ **Los vídeos pueden estar desactualizados.** El EMS se actualiza a menudo y no todos los vídeos se rehacen tras cada cambio: puede que alguna pantalla o algún paso no coincida con lo que ves. Si hay alguna diferencia, haz caso de este manual. Los vídeos están en catalán y no tienen voz: todo el texto aparece en pantalla.
+
+- ▶ [Faltaré: pedir una ausencia](https://drive.google.com/file/d/1fDgSE-C1fx2zvwwgCtut9RcKkSgQzttN/view?usp=drivesdk)

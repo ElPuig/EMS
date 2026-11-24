@@ -175,6 +175,14 @@ La dirección del horario conserva la semana, el día, el turno, la vista y las 
 
 Haz clic en **PDF** en la barra de herramientas para descargar el día y el turno que se están mostrando (no toda la semana) como documento imprimible — el filtro de área que tengas marcado se aplica también al PDF, que usa los mismos tramos de tiempo y las mismas columnas que la pantalla. El PDF imprime la vista que tengas activa en pantalla: el horario si está activo **Horario de guardias**, o la tabla de ausencias si está activo **Tabla de ausencias**.
 
+## Vídeos
+
+> ⚠️ **Los vídeos pueden estar desactualizados.** El EMS se actualiza a menudo y no todos los vídeos se rehacen tras cada cambio: puede que alguna pantalla o algún paso no coincida con lo que ves. Si hay alguna diferencia, haz caso de este manual. Los vídeos están en catalán y no tienen voz: todo el texto aparece en pantalla.
+
+- ▶ [Leer el cuadro de guardias](https://drive.google.com/file/d/191MPigr_wHHVomni1mheu2hOUNhlCZ6M/view?usp=drivesdk)
+- ▶ [Todo por el EMS](https://drive.google.com/file/d/1Vce04MgTVhrpyV12KMWclYaUaz-By6BM/view?usp=drivesdk)
+- ▶ [Las guardias en directo](https://drive.google.com/file/d/1zUi_8nxIBFvpPGiQsZpRo1G66Yml41P7/view?usp=drivesdk)
+
 ---
 
 [← Volver al índice principal](index.md)

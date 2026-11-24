@@ -1,8 +1,12 @@
+import importlib.util
 import re
+from pathlib import Path
 from unittest.mock import patch
 
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
+
+from .common import create_role_user
 
 
 class TestDepartment(TransactionCase):
@@ -59,6 +63,32 @@ class TestDepartment(TransactionCase):
         moved = self.env['hr.employee'].create({'name': 'ASP moved', 'employee_type': 'asp', 'job_id': other.id})
         moved.department_id = department
         self.assertEqual(moved.job_id, job)
+
+    def test_migration_infers_department_job_from_members(self):
+        """migrations/18.0.0.51.1: a department whose ASP members share one job takes it."""
+        path = Path(__file__).resolve().parent.parent / 'migrations' / '18.0.0.51.1' / 'post-migrate.py'
+        spec = importlib.util.spec_from_file_location('migrate_51_1', path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        job = self.env['hr.job'].create({'name': 'Mig job 815', 'employee_type': 'asp'})
+        other = self.env['hr.job'].create({'name': 'Mig other 815', 'employee_type': 'asp'})
+        shared, mixed, empty = (self._asp_department(name) for name in ('Mig shared', 'Mig mixed', 'Mig empty'))
+        Employee = self.env['hr.employee']
+        for name, department, member_job in (('A', shared, job), ('B', shared, job), ('C', mixed, job), ('D', mixed, other)):
+            Employee.create({'name': f'Mig {name}', 'employee_type': 'asp', 'department_id': department.id, 'job_id': member_job.id})
+        module._department_job_from_members(self.env)
+        self.assertEqual(shared.job_id, job)
+        self.assertFalse(mixed.job_id, "Several different jobs: left for an administrator")
+        self.assertFalse(empty.job_id)
+
+    def test_academic_admin_can_set_department_job(self):
+        """The administrator sets the job on the department, which writes it on the members."""
+        admin = create_role_user(self, 'academic_admin', 'dept_job_admin')
+        job = self.env['hr.job'].create({'name': 'Admin job 815', 'employee_type': 'asp'})
+        department = self._asp_department('Test ASP (Admin)')
+        member = self.env['hr.employee'].create({'name': 'ASP admin member', 'employee_type': 'asp', 'department_id': department.id})
+        department.with_user(admin).write({'job_id': job.id})
+        self.assertEqual(member.job_id, job)
 
     def test_effective_manager_is_shown_when_shared_with_parent(self):
         manager = self.env['hr.employee'].create({'name': 'Area manager 815', 'employee_type': 'asp'})

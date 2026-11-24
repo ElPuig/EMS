@@ -122,7 +122,9 @@ A partir d'aquest moment, i fins que s'acabi la substitució:
 - **Què veu el substitut:** el mateix que el docent substituït com a docent i com a tutor: l'alumnat del seu grup de tutoria i les seves incidències d'assistència, els seus passis de llista i les seves notes. Els avisos i les tasques de tutoria també arriben al substitut.
 - **Què continua sent del docent substituït:** les seves absències, fitxatges i declaracions de vaga, i els seus rols (el substitut d'un cap de departament no esdevé cap de departament).
 
-**Quan el docent substituït torna**, obriu de nou la fitxa del substitut, buideu **Substitut de** i deseu. L'horari del substitut es buida (els passis de llista que ha fet conserven l'historial), el docent substituït torna a aparèixer al tauler de guàrdies i el substitut deixa de tenir accés a les seves dades.
+**Quan el docent substituït torna**, arxiveu el substitut, com qualsevol docent que deixa el centre. Això acaba la substitució: el seu horari s'arxiva amb ell (els passis de llista que ha fet conserven l'historial), el docent substituït torna a aparèixer al tauler de guàrdies i el substitut deixa de tenir accés a les seves dades. La seva fitxa arxivada continua mostrant a qui va substituir. Si més endavant torna al centre, desarxivar-lo no reprèn la substitució antiga: **Substitut de** i el seu horari queden buits, a punt per a una de nova.
+
+Si buideu a mà el camp **Substitut de**, només es desfà la substitució (feu-ho si us heu equivocat de docent): l'horari copiat es queda tal com està, així que ajusteu-lo a la pestanya **Horari** o trieu el docent correcte, cosa que en torna a copiar l'horari.
 
 Si el substitut també és substituït, registreu el nou substitut com a **Substitut de** el primer: també actua com el docent original.
 

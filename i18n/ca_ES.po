@@ -56079,18 +56079,6 @@ msgstr "En desar, l'horari de %(teacher)s es reemplaça per una còpia del de %(
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/employee.py:0
-msgid "The schedule will be emptied"
-msgstr "Es buidarà l'horari"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/employee.py:0
-msgid "On saving, the substitution ends and %(teacher)s's schedule, the copy of %(replaced)s's, is emptied. The roll-calls already taken keep their history."
-msgstr "En desar, s'acaba la substitució i es buida l'horari de %(teacher)s, la còpia del de %(replaced)s. Els passis de llista ja fets conserven l'historial."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/employee.py:0
 msgid "Unsupported search operator on a users field: %s"
 msgstr "Operador de cerca no admès en un camp d'usuaris: %s"
 
@@ -56101,8 +56089,8 @@ msgstr "Substitut de"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_hr_employee__substitute_of_id
-msgid "The teacher this one replaces while they are away. Setting it replaces this teacher's schedule with a copy of theirs; clearing it, when they come back, empties it again."
-msgstr "El docent a qui substitueix mentre és absent. En informar-ho, l'horari d'aquest docent es reemplaça per una còpia del seu; en buidar-ho, quan torna, l'horari es torna a buidar."
+msgid "The teacher this one replaces while they are away. Setting it replaces this teacher's schedule with a copy of theirs. The substitution ends when this teacher is archived."
+msgstr "El docent a qui substitueix mentre és absent. En informar-ho, l'horari d'aquest docent es reemplaça per una còpia del seu. La substitució s'acaba quan s'arxiva aquest docent."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_employee__substituted_by_ids

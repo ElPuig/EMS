@@ -180,11 +180,14 @@ class ems_employee_base(models.AbstractModel):
         return found
 
     def _ems_substituted(self):
-        """The mirror of _ems_substitutes: the teachers these substitute, through the chain."""
-        found, current = self.env['hr.employee'].sudo(), self.env['hr.employee'].sudo().browse(self.ids).substitute_of_id
+        """The mirror of _ems_substitutes: the teachers these substitute, through the chain. Only
+        while the substitute is active: archiving them (the titular is back) ends the substitution,
+        even if their user is still active (_ems_substitutes skips them the same way)."""
+        Employee = self.env['hr.employee'].sudo()
+        found, current = Employee, Employee.browse(self.ids).filtered('active').substitute_of_id
         while current:
             found |= current
-            current = current.substitute_of_id - found
+            current = current.filtered('active').substitute_of_id - found
         return found
 
     @staticmethod
@@ -796,8 +799,10 @@ class ems_employee(models.AbstractModel):
         groups="hr.group_hr_user,ems.group_teacher")
 
     # Issue #748: a teacher who replaces another one while they are away. Setting it copies the
-    # replaced teacher's schedule onto this one, and clearing it (the replaced teacher is back)
-    # empties it again (see _ems_start_substitution/_ems_end_substitution). While it is set, the
+    # replaced teacher's schedule onto this one (_ems_start_substitution). It ends when the
+    # replaced teacher is back and the substitute is archived (their calendar goes with them);
+    # clearing it by hand only corrects it, the schedule stays. Unarchiving a substitute ends their
+    # old substitution (_ems_end_substitution). While it is set on an active teacher, the
     # replaced teacher leaves the guard duty board and this one acts as them: acting_user_ids, and
     # through it tutor_scope_user_ids, give them what the replaced teacher sees as a teacher and as a
     # tutor. Their own absences, check-ins, strikes and roles stay theirs. A substitute can be
@@ -807,7 +812,7 @@ class ems_employee(models.AbstractModel):
         domain="[('employee_type', '=', 'teacher'), ('id', '!=', id)]",
         groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="The teacher this one replaces while they are away. Setting it replaces this teacher's "
-             "schedule with a copy of theirs; clearing it, when they come back, empties it again.")
+             "schedule with a copy of theirs. The substitution ends when this teacher is archived.")
     substituted_by_ids = fields.One2many(
         string="Substituted by", comodel_name="hr.employee", inverse_name="substitute_of_id",
         groups="base.group_system,hr.group_hr_user,ems.group_teacher")
@@ -868,13 +873,6 @@ class ems_employee(models.AbstractModel):
                 'title': _("The schedule will be replaced"),
                 'message': _("On saving, %(teacher)s's schedule is replaced with a copy of %(replaced)s's.",
                              teacher=self.name, replaced=self.substitute_of_id.name),
-            }}
-        if not self.substitute_of_id and self._origin.substitute_of_id:
-            return {'warning': {
-                'title': _("The schedule will be emptied"),
-                'message': _("On saving, the substitution ends and %(teacher)s's schedule, the copy of "
-                             "%(replaced)s's, is emptied. The roll-calls already taken keep their history.",
-                             teacher=self.name, replaced=self._origin.substitute_of_id.name),
             }}
         return None
 
@@ -1032,9 +1030,12 @@ class ems_employee(models.AbstractModel):
         return acting
 
     def _ems_end_substitution(self):
-        """Issue #748: the replaced teacher is back, so the copy of their schedule goes away (an
-        empty schedule saved the usual way: roll-calls already taken keep their history)."""
+        """Issue #748: a substitute coming back to the centre (unarchived) does not take up their old
+        substitution again: the field is cleared and the copy of the old titular's schedule, restored
+        with their calendar, is emptied the usual way (the roll-calls already taken keep their
+        history). If they come back to substitute someone, the field is set again."""
         for employee in self.sudo():
+            employee.substitute_of_id = False
             calendar = employee.resource_calendar_id
             if calendar.employee_id == employee:
                 calendar.apply_schedule_changes([])
@@ -1090,15 +1091,11 @@ class ems_employee(models.AbstractModel):
             for employee in self:
                 if employee.user_id and employee.user_id.image_disabled:
                     raise UserError(_("The profile picture is disabled; it cannot be changed."))
-        # Issue #748: those whose substitution ends with this write (a new one starts afterwards).
-        ending = self.sudo().filtered('substitute_of_id') \
-            if 'substitute_of_id' in vals and not vals['substitute_of_id'] else self.browse()
 
         result = super().write(vals)
 
         if vals.get('substitute_of_id'):
             self._ems_start_substitution()
-        ending._ems_end_substitution()
 
         if photo is not _UNSET:
             for employee in self:
@@ -1235,6 +1232,7 @@ class ems_employee(models.AbstractModel):
             if calendar.employee_id == employee and not calendar.active:
                 calendar.action_unarchive()
                 calendar._restore_blocks_archived_with_calendar()
+        self.filtered('substitute_of_id')._ems_end_substitution()
         return result
 
     @api.model

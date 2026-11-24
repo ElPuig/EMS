@@ -53,16 +53,16 @@ class TestEmployeeSubstitution(GuardDutyBoardCase):
         self.assertEqual(self.substitute.substitution_label, 'Substitute')
         self.assertEqual(self.titular.substitution_label, 'Substituted')
 
-    def test_clearing_it_empties_the_copy_and_leaves_the_titular_alone(self):
+    def test_clearing_it_by_hand_only_corrects_it(self):
+        """Chosen the wrong titular, say: the substitution is undone, the schedule stays as it is."""
         self._substitute()
-        titular_week = self._week(self.titular.resource_calendar_id)
+        copied_week = self._week(self.substitute.resource_calendar_id)
 
         self.substitute.substitute_of_id = False
 
-        self.assertFalse(self.substitute.resource_calendar_id.attendance_ids.filtered(
-            lambda block: block.dayofweek in ('0', '1', '2', '3', '4')))
-        self.assertEqual(self._week(self.titular.resource_calendar_id), titular_week)
+        self.assertEqual(self._week(self.substitute.resource_calendar_id), copied_week)
         self.assertFalse(self.titular.substitution_label)
+        self.assertEqual(self.titular.acting_user_ids, self.titular_user)
 
     def test_a_teacher_cannot_substitute_themselves_even_through_a_chain(self):
         with self.assertRaises(ValidationError):
@@ -128,6 +128,39 @@ class TestEmployeeSubstitution(GuardDutyBoardCase):
         for record in (issue, grade_session):
             with self.assertRaises(AccessError):
                 record.with_user(self.substitute_user).check_access('read')
+
+    def test_archiving_the_substitute_ends_the_substitution(self):
+        """The usual end: the titular is back and the substitute leaves the centre. Their user may
+        still be active for a while (the Google account is suspended separately)."""
+        self._substitute()
+        issue = self.env['ems.attendance_issue_tutor'].create({'tutor_id': self.titular.id, 'issue_date': self._monday()})
+        calendar = self.substitute.resource_calendar_id
+
+        self.substitute.action_archive()
+
+        self.assertFalse(calendar.active)
+        blocks = self.env['ems.course']._get_guard_duty_board_attendance_ids([('dayofweek', '=', '0')])
+        self.assertIn(self.titular, blocks.employee_id)
+        self.assertNotIn(self.substitute, blocks.employee_id)
+        self.assertEqual(self.titular.acting_user_ids, self.titular_user)
+        self.assertEqual(self.titular._ems_acting_teacher(), self.titular)
+        self.assertFalse(self.titular.substitution_label)
+        self.assertNotIn(self.titular, self.env['hr.employee'].search([('acting_user_ids', '=', self.substitute_user.id)]))
+        with self.assertRaises(AccessError):
+            issue.with_user(self.substitute_user).check_access('read')
+
+    def test_unarchiving_the_substitute_does_not_take_up_the_old_substitution(self):
+        self._substitute()
+        self.substitute.action_archive()
+
+        self.substitute.action_unarchive()
+
+        self.assertFalse(self.substitute.substitute_of_id)
+        self.assertTrue(self.substitute.resource_calendar_id.active)
+        self.assertFalse(self.substitute.resource_calendar_id.attendance_ids.filtered(
+            lambda block: block.dayofweek in ('0', '1', '2', '3', '4')))
+        blocks = self.env['ems.course']._get_guard_duty_board_attendance_ids([('dayofweek', '=', '0')])
+        self.assertIn(self.titular, blocks.employee_id)
 
     def test_the_titulars_own_absences_stay_private(self):
         self.substitute.substitute_of_id = self.titular

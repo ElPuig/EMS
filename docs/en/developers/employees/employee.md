@@ -164,12 +164,15 @@ after the last slot, checked in, online but not checked in, the company flag and
 ## Substitutions (issue #748)
 
 A teacher who replaces another one while they are away is declared on the substitute's own form:
-`substitute_of_id` (Teaching tab, "Substitute of"). Everything else derives from that one field.
+`substitute_of_id` (Teaching tab, "Substitute of"). Everything else derives from that one field and
+from the substitute being active: the substitution ends when the titular is back and the substitute
+is archived (their calendar and blocks go with them, `action_archive()`).
 
 ```mermaid
 graph TD
     S["Substitute: hr.employee.substitute_of_id = T"] -->|"create()/write() sets it"| COPY["_ems_start_substitution(): T's calendar ->_ems_schedule_cells() -> substitute's apply_schedule_changes()"]
-    S -->|"write() clears it"| EMPTY["_ems_end_substitution(): substitute's apply_schedule_changes([])"]
+    S -->|"action_archive()"| END["Substitution over: calendar archived, S no longer counted (active only)"]
+    S -->|"action_unarchive()"| EMPTY["_ems_end_substitution(): field cleared, restored copy emptied"]
     T["Titular T: substituted_by_ids"] --> BOARD["Guard duty board: T's blocks excluded (_get_guard_duty_board_attendance_ids)"]
     T --> DETECT["Detected absences: T skipped (_ems_detect_missing_check_ins)"]
     S --> ACT["T.acting_user_ids / T.tutor_scope_user_ids include the substitute's user"]
@@ -181,12 +184,13 @@ graph TD
 |-------|--------------|
 | `substitute_of_id` / `substituted_by_ids` | `hr.employee` only (with the usual `groups=` trio), tracked in the chatter, which is the only history kept (no dates: the substitution lasts while the field is set). Constraint `_check_substitute_of`: both teachers, no cycle (`_has_cycle`). A chain is allowed (a substitute replaced in turn) and so are several substitutes for one teacher. |
 | `_ems_start_substitution()` | Replaces the substitute's personal calendar with `resource.calendar._ems_schedule_cells()` of the titular's, through `apply_schedule_changes()` - the same path the Schedule tab saves by, so teachings, roll-call templates (the copied classes become co-teaching) and the groups' classroom follow. sudo: the right to set the field is the right to set the schedule. The copy is a snapshot: a later change of the titular's schedule is not followed. |
-| `_ems_end_substitution()` | `apply_schedule_changes([])` on the substitute's calendar (the roll-call history is kept by the usual sync). The calendar is not archived: the substitute stays an active teacher with an empty week. |
+| Ending | Archiving the substitute: `action_archive()` already archives their calendar and blocks, and every reading of the substitution only counts active substitutes (`substituted_by_ids` and `_ems_substitutes()` through `active_test`, `_ems_substituted()` explicitly, since the rules' searches run with `active_test=False` and the substitute's user may still be active). The archived form keeps `substitute_of_id` as a record. Clearing the field by hand only undoes the substitution (a correction): the copied schedule stays. |
+| `_ems_end_substitution()` | Called by `action_unarchive()`: a substitute coming back does not take up their old substitution, so the field is cleared and the restored copy is emptied (`apply_schedule_changes([])`, roll-call history kept). |
 | `acting_user_ids` | `ems_employee_base`, non-stored, searchable: own user + the users of `_ems_substitutes()` (the chain downwards). The "own" record rules of a teacher's attendance templates, schedule lines, sessions and lines, justifications and grade sessions/lines (`security/rules/{attendance,grading}.xml`) match on it instead of `user_id`, as do the attendance reports' domain and `ems.group._ems_my_ids()`. Its `_search` adds `_ems_substituted()` (the chain upwards). |
 | `tutor_scope_user_ids` | Includes the substitutes' users too, so every tutor-scope rule and `user_acts_as_tutor()` work unchanged. Never the chief rung: a substitute of a Department Chief does not get their department (see [role_hierarchy.md](role_hierarchy.md)). |
 | `_ems_acting_teacher()` | Who acts as the teacher now (the last substitute of the chain, the first by id when there are several). The tutor's attendance issues and daily summary, the expected-withdrawal and Erasmus+ notices, the contact data review task and the walkout emails go to them. |
 | `substitution_label` / `substitution_color` | The form ribbon (shared `ems_archived_reason_ribbon` widget): "Substitute" (orange) or "Substituted" (grey), empty on an archived employee. |
-| `_onchange_substitute_of_id` | Warns that saving replaces (or empties) the substitute's schedule. |
+| `_onchange_substitute_of_id` | Warns that saving replaces the substitute's schedule. |
 
 What is deliberately **not** passed on, being the titular's own: their absences (`hr.leave`,
 `ems.absence_pending`), attendance corrections, strike declarations, Erasmus+ roles, certificate

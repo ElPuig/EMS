@@ -122,7 +122,9 @@ From then on, until the substitution ends:
 - **What the substitute sees:** the same as the replaced teacher as a teacher and as a tutor: their tutor group's students and their attendance issues, their roll-calls and grades. Their tutor's notices and tasks reach the substitute too.
 - **What stays the replaced teacher's:** their own absences, check-ins and strike declarations, and their roles (a Department Chief's substitute does not become Department Chief).
 
-**When the replaced teacher comes back**, open the substitute's form again, clear **Substitute of** and save. The substitute's schedule is emptied (the roll-calls they took keep their history), the replaced teacher comes back to the guard duty board and the substitute loses access to their data.
+**When the replaced teacher comes back**, archive the substitute, as with any teacher who leaves the centre. That ends the substitution: their schedule is archived with them (the roll-calls they took keep their history), the replaced teacher comes back to the guard duty board and the substitute loses access to their data. Their archived form still shows whom they substituted. If they come back to the centre later, unarchiving them does not take up the old substitution: **Substitute of** and their schedule are emptied, ready for a new one.
+
+Clearing **Substitute of** by hand only undoes the substitution (use it if you chose the wrong teacher): the copied schedule stays as it is, so adjust it in the **Schedule** tab or choose the right teacher, which copies their schedule again.
 
 If the substitute is replaced in turn, register the new substitute as **Substitute of** the first one: they act as the original teacher too.
 

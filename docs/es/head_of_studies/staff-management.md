@@ -122,7 +122,9 @@ A partir de ese momento, y hasta que termine la sustitución:
 - **Qué ve el sustituto:** lo mismo que el docente sustituido como docente y como tutor: el alumnado de su grupo de tutoría y sus incidencias de asistencia, sus pases de lista y sus notas. Los avisos y las tareas de tutoría también le llegan al sustituto.
 - **Qué sigue siendo del docente sustituido:** sus ausencias, fichajes y declaraciones de huelga, y sus roles (el sustituto de un jefe de departamento no pasa a ser jefe de departamento).
 
-**Cuando el docente sustituido vuelve**, abrid de nuevo la ficha del sustituto, vaciad **Sustituto de** y guardad. El horario del sustituto se vacía (los pases de lista que ha hecho conservan su historial), el docente sustituido vuelve a aparecer en el tablero de guardias y el sustituto deja de tener acceso a sus datos.
+**Cuando el docente sustituido vuelve**, archivad al sustituto, como a cualquier docente que deja el centro. Eso termina la sustitución: su horario se archiva con él (los pases de lista que ha hecho conservan su historial), el docente sustituido vuelve a aparecer en el tablero de guardias y el sustituto deja de tener acceso a sus datos. Su ficha archivada sigue mostrando a quién sustituyó. Si más adelante vuelve al centro, desarchivarlo no retoma la sustitución antigua: **Sustituto de** y su horario quedan vacíos, listos para una nueva.
+
+Vaciar **Sustituto de** a mano solo deshace la sustitución (hacedlo si os habéis equivocado de docente): el horario copiado se queda tal cual, así que ajustadlo en la pestaña **Horario** o elegid al docente correcto, lo que vuelve a copiar su horario.
 
 Si el sustituto también es sustituido, registrad al nuevo sustituto como **Sustituto de** el primero: también actúa como el docente original.
 

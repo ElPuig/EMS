@@ -1300,9 +1300,11 @@ class ResPartner(models.Model):
 
     @api.onchange('email')
     def _onchange_email_portal_warning(self):
-        """Inform the user, before saving, that changing the main email of a
-        contact with portal access will move that access to the new email."""
-        if self.contact_type in ('student', 'family') and self._has_active_portal_user():
+        """Inform the user, before saving, what a change of the main email does to the portal
+        access: it moves to the new email, or, when it had been revoked, stays revoked."""
+        if self.contact_type not in ('student', 'family'):
+            return
+        if self._has_active_portal_user():
             return {
                 'warning': {
                     'title': _("Portal access will be updated"),
@@ -1310,6 +1312,16 @@ class ResPartner(models.Model):
                         "Changing the main email revokes the portal access linked to "
                         "the old email and sends a new portal invitation to the new "
                         "email. Discard the change if you don't want this."),
+                }
+            }
+        if self._origin.sudo().with_context(active_test=False).user_ids.filtered('share'):
+            return {
+                'warning': {
+                    'title': _("Portal access stays revoked"),
+                    'message': _(
+                        "The portal access of this contact was revoked, so the new email "
+                        "does not get access by itself. To give it access, save and use "
+                        "Actions > Portal access (students/families) > Grant access."),
                 }
             }
 

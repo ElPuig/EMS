@@ -4,7 +4,7 @@
 
 # Cómo gestionar el acceso al portal de alumnos y familias
 
-Esta guía explica cómo el tutor puede **dar de alta**, **dar de baja** o **reenviar** las invitaciones de acceso al portal para sus alumnos y, en el caso de los menores, para sus familias.
+Esta guía explica cómo el tutor puede **dar de alta**, **dar de baja** o **regenerar las credenciales** de acceso al portal para sus alumnos y, en el caso de los menores, para sus familias.
 
 El portal es el espacio donde alumnos y familias consultan y confirman la información del alumno (matrículas, autorizaciones, etc.). Para acceder, cada destinatario recibe un correo de invitación con un enlace para establecer la contraseña. Este enlace **caduca al cabo de unos días**, de modo que si alguien no lo utiliza a tiempo habrá que volver a enviarle la invitación.
 
@@ -50,13 +50,13 @@ Una vez hecha la selección, abre el menú **Acciones** en la barra superior y h
 
 Se abrirá el cuadro de diálogo **Acceso al portal**.
 
-1. En el apartado **Acción** **(1)**, elige qué quieres hacer: **Otorgar acceso**, **Revocar acceso** o **Reenviar invitación**.
-2. Revisa la lista de **Destinatarios (previsualización)** para comprobar a quién afectará la acción.
+1. En el apartado **Acción** **(1)**, elige qué quieres hacer: **Otorgar acceso**, **Regenerar credenciales** o **Revocar acceso**.
+2. En la lista de **Destinatarios (previsualización)**, marca o desmarca la casilla **Aplica** de cada persona. Por defecto están marcadas las que la acción tiene sentido.
 3. Haz clic en **Aplicar** **(2)** para ejecutar la acción.
 
 ![Cuadro de diálogo de acceso al portal](../../assets/tutors/tutor-accesalportal1.png)
 
-Al terminar, se mostrará un mensaje resumen con el número de accesos otorgados, revocados o invitaciones reenviadas, y los posibles avisos (por ejemplo, destinatarios sin correo electrónico).
+Al terminar, se mostrará un mensaje resumen con el número de accesos otorgados, revocados o enlaces de contraseña enviados, y los posibles avisos (por ejemplo, destinatarios sin correo electrónico).
 
 ---
 
@@ -64,7 +64,7 @@ Al terminar, se mostrará un mensaje resumen con el número de accesos otorgados
 
 - **Otorgar acceso** — Crea el usuario del portal (si todavía no existe) y envía el correo de invitación para establecer la contraseña. Los que ya tienen acceso se omiten.
 - **Revocar acceso** — Retira el acceso al portal a los destinatarios que lo tenían.
-- **Reenviar invitación de acceso al portal (usuarios que nunca han entrado)** — Vuelve a enviar el correo de invitación, con un enlace nuevo, **solo** a los destinatarios que tienen el acceso concedido, pero que **nunca se han conectado** (porque no utilizaron la invitación a tiempo y les ha caducado). Al seleccionar esta acción, la lista de destinatarios se filtra automáticamente y solo quedan estos casos.
+- **Regenerar credenciales (enviar un enlace nuevo de contraseña)** — Envía un correo nuevo con un enlace para fijar la contraseña a los destinatarios que ya tienen acceso, hayan entrado o no. Sirve cuando un familiar o un alumno ha olvidado la contraseña (el alumno entra con el correo personal) o la invitación ha caducado.
 
 ---
 
@@ -116,3 +116,11 @@ Si más adelante el alumno tiene un correo propio, cambiadlo en su ficha: su acc
 ---
 
 [← Volver al índice de tutores](index.md)
+
+## Cuando el correo no se puede usar
+
+El usuario del portal es único. Si un destinatario no puede tener acceso porque otro contacto ya tiene ese correo como usuario, una ventana explica qué contacto lo tiene (nombre, tipo de contacto, usuario, activo o archivado) y si está asignado al alumno. Si **no** está asignado, probablemente es un duplicado o un contacto suelto: fusionadlo o archivadlo, o dad a uno de los dos un correo diferente. Si **está** asignado (por ejemplo, un padre y un tutor legal que comparten buzón), no pueden compartir usuario: dad a uno de ellos un correo diferente.
+
+## Cambiar un correo
+
+Cuando cambia el correo principal de un alumno o de un contacto familiar y el acceso no estaba revocado, el acceso pasa al correo nuevo automáticamente (se revoca el antiguo y el nuevo recibe una invitación), y un aviso te lo dice antes de guardar. Si el acceso **estaba revocado**, sigue revocado: un aviso te dice que lo vuelvas a otorgar desde **Acciones > Acceso al portal**. Al revocar un acceso, la casilla **Acceso actual** de la lista se desmarca.

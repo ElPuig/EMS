@@ -104,9 +104,9 @@ Enforced server side in `controllers/portal_view_only.py`:
 |------|-------------|------------|
 | `grant` | `portal.wizard.user.action_grant_access()` | Recipients without portal access (or archived from a previous revoke) |
 | `revoke` | `action_revoke_access()` | Recipients with active portal access |
-| `resend` | `action_invite_again()` | Recipients with portal access who **never logged in** (`login_date` empty) — an expired/lost invitation |
+| `regenerate` | `action_invite_again()` | Recipients with portal access, whether or not they ever logged in: a new link to set the password (forgotten password, expired invitation) |
 
-`grant`/`resend` both end up calling Odoo's native `_send_email()` (`force_send=True`, real synchronous SMTP) — any test exercising either mode must mock `IrMailServer.send_email` (see `tests/test_portal_access_wizard.py`).
+`grant`/`regenerate` both end up calling Odoo's native `_send_email()` (`force_send=True`, real synchronous SMTP) — any test exercising either mode must mock `IrMailServer.send_email` (see `tests/test_portal_access_wizard.py`).
 
 ### `_apply_one(partner)` — the shared per-recipient application
 
@@ -118,11 +118,12 @@ flowchart TD
     D -- grant --> E{"already portal or internal?"}
     E -- yes --> S1["'skipped'"]
     E -- no --> P["partner._ems_check_portal_login()\n(shared email, no corporate one: UserError)"]
-    P --> F["(students sharing this family email | partner)._ems_sync_portal_login()"]
+    P --> L["partner._ems_portal_login_conflict(students)\n(another contact holds the login: PortalLoginTaken)"]
+    L --> F["(students sharing this family email | partner)._ems_sync_portal_login()"]
     F --> G["action_grant_access()"] --> R1["'granted'"]
-    D -- resend --> H{"is_portal AND never logged in?"}
+    D -- regenerate --> H{"is_portal?"}
     H -- no --> S2["'skipped'"]
-    H -- yes --> I["action_invite_again()"] --> R2["'resent'"]
+    H -- yes --> I["action_invite_again()"] --> R2["'regenerated'"]
     D -- revoke --> J{"is_portal?"}
     J -- no --> S3["'skipped'"]
     J -- yes --> K["action_revoke_access()"] --> R3["'revoked'"]
@@ -178,7 +179,15 @@ Loops `student_ids`; per student: re-checks `_user_can_manage` (defense in depth
 
 ## Preview (`line_ids`) — `default_get` / `_onchange_mode` / `_build_lines`
 
-The form shows a **read-only preview** of who will be affected before the user clicks Apply — `_build_lines` resolves recipients per selected student and computes `has_portal`/`connected` (from `recipient.user_ids[:1]`, `active_test=False` so an archived/revoked user is still found) and a `note` (`"Recipient without email"` if the recipient has none, otherwise `"No family contact found"` on the student's own line when `_ems_notification_recipients()` came back empty, otherwise, for a student sharing the email with the family, the corporate email they sign in with or that they have no access until it exists). `default_get` builds the initial preview from `active_ids` (the selected `res.partner` records the wizard was opened from); `_onchange_mode` rebuilds it whenever the mode radio changes, additionally filtering to `has_portal and not connected` when switching to `resend` (only those recipients would actually be affected).
+The form lists who the action can reach, one line per recipient, and **the user ticks the ones to apply it to** (`line.selected`; the student and recipient columns are `force_save`, since a read-only list field is not sent back otherwise and `action_apply` matches the ticked lines on them). `_build_lines(students, mode)` resolves recipients per selected student and computes `has_portal`/`connected` from the recipient's **active** portal user (an archived one, left by a revoke, is not access, so a revoked access shows unchecked), a `note` (`"Recipient without email"`, `"No family contact found"`, or, for a student sharing the email with the family, the corporate email they sign in with) and the default tick: granting ticks the recipients without access, regenerating and revoking those with it. `default_get` builds the initial preview from `active_ids`; `_onchange_mode` rebuilds it (and the default ticks) when the mode radio changes.
+
+### Login clash popup (issue #842)
+
+A portal login is unique. `res.partner._ems_portal_login_conflict(students)` finds the other contact (active or archived user) that holds the login a recipient needs and says whether that contact is related to the student; granting then raises `PortalLoginTaken`, which `action_apply` collects instead of reporting a one-line issue. When there is any, `action_apply` returns the `ems.portal.access.result` popup: for each clash the contact, the login, who holds it (type, active, related to the student) and what to do (assigned to the student: they cannot share a login, give one a different email; not assigned: probably a duplicate or stray contact, merge or archive it, or change an email). The email-change path (`_apply_portal_email_change`) goes through the same check and surfaces the same message.
+
+### Changing a main email
+
+The `email` onchange on a student or family contact warns: with active portal access, it moves to the new email (revoke + grant); with a **revoked** access, it stays revoked and the warning says to grant it again from the Actions menu (a dialog button that opens the wizard is not implemented: the standard onchange warning has no buttons). A shared student/family email resyncs the student's login with `student_email` (`portal_google_signin.py`).
 
 `default_get`/`_build_lines` are **not** re-triggered by a plain ORM `create()` from Python — that's an onchange, which only fires through the web client (or an explicit test call to `_onchange_mode()`); this is a common testing gotcha, not a wizard bug.
 

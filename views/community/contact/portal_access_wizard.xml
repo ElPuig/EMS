@@ -13,19 +13,45 @@
                     <separator string="Selected students"/>
                     <field name="student_ids" widget="many2many_tags" readonly="1"/>
                     <separator string="Recipients (preview)"/>
-                    <field name="line_ids" readonly="1">
-                        <list create="false" delete="false" edit="false">
-                            <field name="student_id" string="Student"/>
-                            <field name="recipient_id" string="Recipient"/>
-                            <field name="recipient_email" string="Email"/>
+                    <field name="line_ids">
+                        <list create="false" delete="false" editable="bottom">
+                            <field name="selected" string="Apply"/>
+                            <field name="student_id" string="Student" readonly="1" force_save="1"/>
+                            <field name="recipient_id" string="Recipient" readonly="1" force_save="1"/>
+                            <field name="recipient_email" string="Email" readonly="1"/>
                             <field name="has_portal" string="Current access" widget="boolean" readonly="1"/>
                             <field name="connected" string="Connected" widget="boolean" readonly="1"/>
-                            <field name="note" string="Note" decoration-warning="note != False"/>
+                            <field name="note" string="Note" readonly="1" decoration-warning="note != False"/>
                         </list>
                     </field>
                     <footer>
                         <button name="action_apply" type="object" string="Apply" class="btn-primary"/>
                         <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_portal_access_result_form">
+            <field name="name">ems.portal.access.result.form</field>
+            <field name="model">ems.portal.access.result</field>
+            <field name="arch" type="xml">
+                <form string="Portal access" create="false" edit="false">
+                    <field name="summary" nolabel="1"/>
+                    <separator string="Contacts that could not get access: their login is already in use"/>
+                    <field name="conflict_ids" nolabel="1">
+                        <list create="false" delete="false" edit="false">
+                            <field name="contact_id"/>
+                            <field name="login"/>
+                            <field name="holder_id"/>
+                            <field name="holder_type"/>
+                            <field name="holder_active" widget="boolean"/>
+                            <field name="related" widget="boolean"/>
+                            <field name="advice"/>
+                        </list>
+                    </field>
+                    <footer>
+                        <button string="Close" class="btn-primary" special="cancel"/>
                     </footer>
                 </form>
             </field>

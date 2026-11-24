@@ -324,6 +324,49 @@ class ems_contact_portal(models.Model):
             if not Users.search_count([('login', '=', login), ('id', '!=', user.id)]):
                 user.write({'login': login})
 
+    def _ems_portal_login_conflict(self, students=None):
+        """Details of the contact that already holds the portal login this partner needs (issue
+        #842), or None when it is free: a portal login is unique, so this partner can never get
+        one while another contact has it (an archived user keeps its login too). `students`:
+        the students access is being granted for (default: the partner itself if it is one, else
+        its related students); whether the holder is related to them decides the advice."""
+        self.ensure_one()
+        login = self._ems_portal_login()
+        if not login:
+            return None
+        user = self.env['res.users'].sudo().with_context(active_test=False).search([
+            ('login', '=', login), ('partner_id', '!=', self.id)], limit=1)
+        if not user:
+            return None
+        holder = user.partner_id
+        if students is None:
+            students = self if self.contact_type in STUDENT_LIKE_TYPES else self.get_portal_students()
+        related = bool(self.env['res.partner.relation.all'].sudo().search_count([
+            ('this_partner_id', '=', holder.id), ('other_partner_id', 'in', students.ids)]))
+        holder_type = dict(holder._fields['contact_type']._description_selection(self.env)).get(
+            holder.contact_type) or _("Staff")
+        if related:
+            advice = _(
+                "%(holder)s is also assigned to this student, and two contacts cannot share a "
+                "portal login. Give one of them a different email.", holder=holder.name)
+        else:
+            advice = _(
+                "%(holder)s is not assigned to this student: it is probably a duplicate or a "
+                "stray contact. Merge or archive it, or give one of the two a different email.",
+                holder=holder.name)
+        return {
+            'contact_id': self.id, 'login': login, 'holder_id': holder.id,
+            'holder_type': holder_type, 'holder_active': holder.active and user.active,
+            'related': related, 'advice': advice,
+            'message': _(
+                "The contact \"%(contact)s\" cannot get portal access: %(login)s is already the "
+                "login of %(holder)s (%(type)s, %(state)s, %(related)s). %(advice)s",
+                contact=self.name, login=login, holder=holder.name, type=holder_type,
+                state=_("active") if holder.active and user.active else _("archived"),
+                related=_("assigned to this student") if related else _("not assigned to this student"),
+                advice=advice),
+        }
+
     def _ems_students_sharing_email(self):
         """For a family member: the related students whose main email is this family member's
         too (each of them signs in with the corporate email, never with this one)."""

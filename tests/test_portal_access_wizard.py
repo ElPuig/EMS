@@ -9,7 +9,7 @@ from .common import create_level_study_group, mock_outgoing_email, next_student_
 
 
 class TestPortalAccessWizard(TransactionCase):
-    """ems.portal.access.wizard: bulk grant/revoke/resend of portal access for
+    """ems.portal.access.wizard: bulk grant/revoke/regenerate of portal access for
     students (adults) or their family contacts (minors/applicants)."""
 
     @classmethod
@@ -266,20 +266,29 @@ class TestPortalAccessWizard(TransactionCase):
         wizard._onchange_mode()
         self.assertTrue(wizard.line_ids.connected)
 
-    def test_onchange_mode_resend_keeps_only_never_logged_in(self):
+    def _portal_user(self, name='Portal User (Portal Wizard)'):
         portal_user = self.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Resend Portal User (Portal Wizard)', 'login': 'adult.student.pw@example.com',
+            'name': name, 'login': 'adult.student.pw@example.com',
             'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
         })
         self.adult_student.user_ids = [(4, portal_user.id)]
-        wizard = self._wizard()
-        wizard.mode = 'resend'
-        wizard._onchange_mode()
-        self.assertEqual(wizard.line_ids.recipient_id, self.adult_student)
+        return portal_user
 
-        self._simulate_login(portal_user)
-        wizard._onchange_mode()
-        self.assertFalse(wizard.line_ids)
+    def test_lines_start_ticked_where_the_mode_has_work_to_do(self):
+        wizard = self._wizard()
+        self.assertTrue(wizard.line_ids.selected, "granting: a recipient without access is ticked")
+        self._portal_user()
+        for mode, ticked in (('grant', False), ('regenerate', True), ('revoke', True)):
+            wizard.mode = mode
+            wizard._onchange_mode()
+            self.assertEqual(wizard.line_ids.selected, ticked, mode)
+
+    def test_revoked_access_is_not_current_access(self):
+        portal_user = self._portal_user()
+        portal_user.action_archive()
+        wizard = self._wizard()
+        self.assertFalse(wizard.line_ids.has_portal)
+        self.assertTrue(wizard.line_ids.selected)
 
     # --- action_apply: grant/revoke/resend --------------------------------------
 
@@ -314,16 +323,32 @@ class TestPortalAccessWizard(TransactionCase):
         wizard.action_apply()
         self.assertFalse(portal_user.active)
 
-    def test_action_apply_resend_skips_already_connected(self):
-        portal_user = self.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Connected Portal User (Portal Wizard)', 'login': 'adult.student.pw@example.com',
+    def test_action_apply_regenerate_also_reaches_who_already_logged_in(self):
+        self._simulate_login(self._portal_user())
+        result = self._wizard(mode='regenerate').action_apply()
+        self.assertIn('1 password link(s) sent', result['params']['message'])
+
+    def test_action_apply_skips_unticked_recipients(self):
+        wizard = self._wizard()
+        wizard.line_ids.selected = False
+        result = wizard.action_apply()
+        self.assertIn('Nothing to do', result['params']['message'])
+        self.assertFalse(self.adult_student.user_ids)
+
+    def test_action_apply_grant_login_held_by_unrelated_contact_opens_popup(self):
+        holder = self.env['res.partner'].create({'name': 'Stray Contact (Portal Wizard)'})
+        self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Stray User (Portal Wizard)', 'login': self.adult_student.email,
+            'partner_id': holder.id,
             'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
         })
-        self.adult_student.user_ids = [(4, portal_user.id)]
-        self._simulate_login(portal_user)
-        wizard = self._wizard(mode='resend')
-        result = wizard.action_apply()
-        self.assertIn('1 skipped', result['params']['message'])
+        result = self._wizard().action_apply()
+        self.assertEqual(result['res_model'], 'ems.portal.access.result')
+        line = self.env['ems.portal.access.result'].browse(result['res_id']).conflict_ids
+        self.assertEqual(line.holder_id, holder)
+        self.assertFalse(line.related)
+        self.assertIn('not assigned to this student', line.advice)
+        self.assertFalse(self.adult_student.user_ids)
 
     # --- action_apply: issues ---------------------------------------------------
 

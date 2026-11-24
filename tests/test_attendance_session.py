@@ -529,6 +529,13 @@ class TestAttendanceSessionHeader(TransactionCase):
             self.today.isoformat())
         self.assertEqual([(entry['id'], entry['is_cover']) for entry in result['planned']], [(self.schedule.id, True)])
 
+    def test_cover_needs_the_teacher_group(self):
+        guard_user, _cover = self._guard_with_cover()
+        guard_user.write({'groups_id': [(3, self.env.ref('ems.group_teacher').id), (4, self.env.ref('ems.group_secretary').id)]})
+        result = self.env['ems.attendance_session_header'].with_user(guard_user).get_normal_sessions_and_planned(
+            self.today.isoformat())
+        self.assertEqual(result['planned'], [])
+
     def test_released_support_or_other_day_cover_shows_nothing(self):
         guard_user, cover = self._guard_with_cover(state='released')
         Header = self.env['ems.attendance_session_header'].with_user(guard_user)

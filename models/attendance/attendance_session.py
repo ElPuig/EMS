@@ -631,7 +631,8 @@ class EmsAttendanceSessionHeader(models.Model):
 
         # Issue #856: the classes a guard teacher was sent to are theirs to roll-call, no need to
         # switch to the guard mode. Read like the guard mode does (sudo, other teachers' sessions).
-        if is_teacher_emp:
+        # Same access as the guard mode: the Teacher group (or an administrator).
+        if is_teacher_emp and (self.env.user.has_group('ems.group_teacher') or is_admin):
             cover_domain = self._covered_class_domain(date, own_emp)
             if cover_domain:
                 covered = {entry['id']: entry for entry in self.sudo().search_read(

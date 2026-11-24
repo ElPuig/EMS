@@ -215,6 +215,15 @@ any `attendance_issue_student` with no remaining `attendance_issue_status_ids`, 
 the `attendance_issue_tutor` itself if it has no remaining students — cancelling each status's
 family `notification_id` job via `unlink()`'s own override.
 
+### Statuses removed by the database cascade
+
+`unlink()`'s cancelling only runs when a status is deleted through the ORM. A status is also
+removed by the database's own `ON DELETE CASCADE` when its session line (so, when its session is
+deleted), its student row or the status it rectifies goes, and that path never reaches `unlink()`:
+the queued family notification stays pending. `send_notification()` therefore starts with
+`if not self.exists(): return True`, so such a job ends quietly instead of failing with
+`MissingError` (issue #816).
+
 ## Views
 
 | View | File | Notes |

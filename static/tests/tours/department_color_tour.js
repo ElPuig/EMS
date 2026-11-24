@@ -25,6 +25,11 @@ registry.category("web_tour.tours").add("ems_department_color_smoke", {
             trigger: ".o_form_view .o_field_widget[name='custom_color'] .o_field_color",
             content: "Color swatch rendered on the form",
         },
+        {
+            // Issue #815: the department declares its work location.
+            trigger: ".o_form_view .o_field_widget[name='work_location_id']",
+            content: "Work location rendered on the form",
+        },
     ],
 });
 

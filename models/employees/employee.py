@@ -694,6 +694,11 @@ class ems_employee(models.AbstractModel):
     # 'leave_manager_id' was always populated - the same person is meant to approve both an
     # absence and an attendance correction (the Area Manager of the employee's top-level
     # department), so there is no reason for the two to ever diverge.
+    # Follows the department's work location (issue #815): the place is declared once, on the
+    # department, instead of repeated on each member. A department without one leaves the
+    # employee's current value untouched.
+    work_location_id = fields.Many2one(
+        compute="_compute_work_location_id", store=True, readonly=True)
     attendance_manager_id = fields.Many2one(
         compute="_compute_attendance_manager_id", store=True,
         groups="hr_attendance.group_hr_attendance_officer,ems.group_teacher")
@@ -837,6 +842,11 @@ class ems_employee(models.AbstractModel):
             "view_mode": "form",
             "target": "new",
         }
+
+    @api.depends("department_id.work_location_id")
+    def _compute_work_location_id(self):
+        for employee in self:
+            employee.work_location_id = employee.department_id.work_location_id or employee.work_location_id
 
     @api.depends("leave_manager_id")
     def _compute_attendance_manager_id(self):

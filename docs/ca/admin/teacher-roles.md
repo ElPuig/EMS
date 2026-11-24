@@ -74,6 +74,10 @@ El compte d'usuari del professor s'actualitza immediatament: es concedeix el gru
 
 ---
 
+## Lloc de treball d'un departament
+
+Al formulari del departament (**Empleats → Departaments**), establiu el **Lloc de treball** on treballa aquest departament (p. ex. Secretaria). Tots els membres del departament l'adopten com a lloc de treball propi i no es pot editar a l'empleat: es canvia al departament. El camp no es mostra al formulari del personal PAS, perquè només repetiria el seu departament. Els llocs es gestionen a **Comunitat Educativa → Configuració → Recursos humans → Llocs de treball**.
+
 ## Treure un rol
 
 1. Obriu la fitxa de l'empleat del professor.

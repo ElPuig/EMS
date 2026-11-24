@@ -85,6 +85,10 @@ flowchart LR
 
 `hr.department` also carries `custom_color` (`Char`, hex), a free-pick display color shown on the department's own form/list/kanban — added *alongside* Odoo's native `color` (`Integer`) rather than replacing it, since the native field still drives the kanban's `highlight_color` card-tinting mechanism and other installed modules may assume it stays an `Integer`. See [Free-pick color widget](../shared/color_widget.md) for the full rationale and how the other two color-picking models (`ems.role`, `ems.attendance_template`) differ from this one (they own their field outright and converted it in place).
 
+## Work location (`work_location_id`)
+
+`hr.department.work_location_id` (`hr.work.location`) declares where the department works. `hr.employee.work_location_id` is overridden as a stored, read-only computed field depending on `department_id.work_location_id`: a member takes the department's location, and a department without one leaves the employee's current value untouched (nothing is wiped). The field is hidden on the employee form when `employee_type == 'asp'`, where it only repeated the department (issue #815). Spaces keep their own `work_location_id` (used in the space schedule report and in the `unique (work_location_id, code)` constraint).
+
 ## Known limitations
 
 - No automatic backfill: existing departments keep `seminar_chief_id` empty, and some predate this feature with no `manager_id` either, until an admin opens the form and sets one — nothing forces this anymore (see point 7 above). All three known top-level departments (VET, ESO/BTX, ASP) are seeded with `is_top_level=1` and `top_level_area` but no `manager_id`/`top_level_role` — set manually post-deploy. `director_id` similarly starts empty — no employee is seeded as Director. `shares_manager_with_parent` defaults to unset for every existing department (an explicit opt-in, never inferred from an empty `manager_id` — see below).

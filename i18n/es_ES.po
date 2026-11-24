@@ -22316,6 +22316,7 @@ msgid "Color field"
 msgstr "Campo de color"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_department__work_location_id
 #: model:ir.model.fields,field_description:ems.field_hr_work_location__name
 msgid "Work Location"
 msgstr "Ubicación de trabajo"
@@ -56077,3 +56078,13 @@ msgstr "Solo los grupos principales tienen declaración horaria."
 #: model:ir.model.fields,field_description:ems.field_ems_study__duration_hours
 msgid "Duration (hours)"
 msgstr "Duración (horas)"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_hr_work_locations
+msgid "Work locations"
+msgstr "Lugares de trabajo"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__work_location_id
+msgid "Where this department works. Its members' work location follows it."
+msgstr "Dónde trabaja este departamento. El lugar de trabajo de sus miembros lo sigue."

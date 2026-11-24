@@ -722,6 +722,9 @@ class ems_employee_base(models.AbstractModel):
         res = super(ems_employee_base, self).write(vals)
         if sync_groups:
             self._sync_security_groups(previous_groups)
+        if 'department_id' in vals and 'job_id' not in vals:
+            # Issue #815: the ASP staff's job position is their department's.
+            self.filtered(lambda employee: employee.employee_type == 'asp').department_id._apply_job_to_members()
         return res
                         
     @api.model
@@ -1012,6 +1015,7 @@ class ems_employee(models.AbstractModel):
             if vals.get('schedule_import_code') and not vals.get('name'):
                 vals['name'] = vals['schedule_import_code']
         employees = super().create(vals_list)
+        employees.filtered(lambda employee: employee.employee_type == 'asp' and not employee.job_id).department_id._apply_job_to_members()
         # NOTE: every teacher gets their OWN calendar, always — 'resource_calendar_id' arrives
         # already pre-filled by resource.mixin's client-side default (the company's shared
         # calendar), so it can never be used to detect "nothing was set yet". Sharing a calendar

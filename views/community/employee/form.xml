@@ -238,8 +238,14 @@
                 </xpath>
 
                 <field name="job_title" position="replace">
-                    <field name="job_id" placeholder="Job Position" />
+                    <!-- Issue #815: a PAS member's job position is their department's, set on the department. -->
+                    <field name="job_id" placeholder="Job Position" invisible="employee_type == 'asp'"/>
                 </field>
+
+                <!-- The native one, in the work information block (the one above is ours, under the name). -->
+                <xpath expr="(//field[@name='job_id'])[2]" position="attributes">
+                    <attribute name="invisible">employee_type == 'asp'</attribute>
+                </xpath>
 
                 <field name="category_ids" position="replace">
                     <!-- Issue #846: 'groups' here and on Tutorships/Subjects below: a role that can't read them

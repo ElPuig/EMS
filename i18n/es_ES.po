@@ -1504,6 +1504,7 @@ msgstr "Administrador"
 #. module: ems
 #: model:res.groups,name:ems.group_coexistence model:res.groups,name:ems.group_settings model:res.groups,name:ems.group_tac model:res.groups,name:ems.group_orientation
 #: model:ir.model.fields,field_description:ems.field_hr_department__manager_id
+#: model_terms:ir.ui.view,arch_db:ems.view_department_list
 #: model:res.groups,name:ems.group_secretary
 #: model:res.groups,name:ems.group_erasmus
 msgid "Manager"
@@ -6044,7 +6045,7 @@ msgid "Item '%(name)s' is already enrolled in this record."
 msgstr "El elemento '%(name)s' ya está matriculado en este registro."
 
 #. module: ems
-#: model:ir.model,name:ems.model_hr_job model:ir.model.fields,field_description:ems.field_hr_employee__job_id model:ir.model.fields,field_description:ems.field_hr_employee_base__job_id model:ir.model.fields,field_description:ems.field_hr_employee_public__job_id model_terms:ir.ui.view,arch_db:ems.view_employee_form
+#: model:ir.model,name:ems.model_hr_job model:ir.model.fields,field_description:ems.field_hr_employee__job_id model:ir.model.fields,field_description:ems.field_hr_employee_base__job_id model:ir.model.fields,field_description:ems.field_hr_employee_public__job_id model:ir.model.fields,field_description:ems.field_hr_department__job_id model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Job Position"
 msgstr "Puesto de trabajo"
 
@@ -56197,3 +56198,28 @@ msgstr "La tutoría solo se puede traspasar a un grupo principal."
 #: code:addons/ems/models/contacts/contact.py:0
 msgid "The tutorship can only be transferred to a group of the student's own study."
 msgstr "La tutoría solo se puede traspasar a un grupo del mismo estudio del alumno."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_department__is_asp_area
+msgid "ASP area"
+msgstr "Área PAS"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_department__effective_manager_id
+msgid "Applicable Manager"
+msgstr "Gestor/a aplicable"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__job_id
+msgid "The job position of the ASP staff of this department: every member takes it, so it is not chosen on each employee's form."
+msgstr "El puesto de trabajo del personal PAS de este departamento: todos los miembros lo adoptan, por eso no se elige en la ficha de cada empleado."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__is_asp_area
+msgid "Whether this department belongs to the ASP area (its top-level department is ASP)."
+msgstr "Si este departamento pertenece al área PAS (su departamento top-level es PAS)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_department__effective_manager_id
+msgid "The Manager that applies to this department: its own, or the one of the parent department when it shares it."
+msgstr "El gestor que se aplica a este departamento: el propio o, si lo comparte, el del departamento padre."

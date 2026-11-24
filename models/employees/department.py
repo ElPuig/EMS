@@ -17,6 +17,20 @@ class ems_department(models.Model):
         'shares_manager_with_parent',
     )
 
+    job_id = fields.Many2one(
+        string="Job Position", comodel_name="hr.job", domain="[('employee_type', '=', 'asp')]",
+        # The job carries a security group that every member gets, and Odoo's own ACL lets any
+        # internal user write a department: only who already manages employees may set it.
+        groups="hr.group_hr_user,ems.group_academic_admin",
+        help="The job position of the ASP staff of this department: every member takes it, so it "
+             "is not chosen on each employee's form.")
+    is_asp_area = fields.Boolean(
+        string="ASP area", compute="_compute_is_asp_area", recursive=True,
+        help="Whether this department belongs to the ASP area (its top-level department is ASP).")
+    effective_manager_id = fields.Many2one(
+        string="Applicable Manager", comodel_name="hr.employee", compute="_compute_effective_manager_id",
+        help="The Manager that applies to this department: its own, or the one of the parent "
+             "department when it shares it.")
     custom_color = fields.Char(
         string="Color", default="#3A8DDE",
         help="Free-pick display color for this department (not Odoo's native, fixed-palette "
@@ -49,6 +63,20 @@ class ems_department(models.Model):
         help="If set, this department has no Manager of its own - every member (and, if this "
              "department itself has children, their own Chief's Manager too) uses the nearest "
              "ancestor department's Manager instead, walking up the hierarchy until one is found.")
+
+    @api.depends('is_top_level', 'top_level_area', 'parent_id.is_asp_area')
+    def _compute_is_asp_area(self):
+        for department in self:
+            if department.parent_id and not department.is_top_level:
+                department.is_asp_area = department.parent_id.is_asp_area
+            else:
+                department.is_asp_area = department.top_level_area == 'asp'
+
+    @api.depends('manager_id', 'shares_manager_with_parent', 'is_top_level', 'parent_id.manager_id',
+                 'parent_id.shares_manager_with_parent', 'company_id.director_id')
+    def _compute_effective_manager_id(self):
+        for department in self:
+            department.effective_manager_id = department._effective_manager()
 
     @api.depends('name', 'parent_id')
     @api.depends_context('hierarchical_naming', 'lang')
@@ -189,7 +217,20 @@ class ems_department(models.Model):
         for department in self:
             if old_values[department] != [department[field] for field in cascade_fields]:
                 department._cascade_department_heads(*old_heads[department])
+        if vals.get('job_id'):
+            self._apply_job_to_members()
         return res
+
+    def _apply_job_to_members(self):
+        """Gives the ASP staff of these departments the department's job position. Written through
+        the employee's own write(), which re-syncs the security groups the job carries."""
+        # sudo only to read the job (a field restricted to employee managers): the members are
+        # written with the acting user's own rights.
+        for department in self.sudo().filtered('job_id'):
+            members = self.env['hr.employee'].search([
+                ('department_id', '=', department.id), ('employee_type', '=', 'asp'),
+                ('job_id', '!=', department.job_id.id)])
+            members.write({'job_id': department.job_id.id})
 
     def _sanitize_top_level_vals(self, vals):
         if vals.get('is_top_level'):

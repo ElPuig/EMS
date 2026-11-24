@@ -17947,11 +17947,6 @@ msgstr "Esto asigna una contraseña nueva a la cuenta de Google del alumno: la a
 msgid "Users acting as tutor"
 msgstr "Usuarios que actúan como tutor"
 
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/employee.py:0
-msgid "Unsupported search on tutor_scope_user_ids"
-msgstr "Búsqueda no admitida sobre tutor_scope_user_ids"
 
 #. module: ems
 #. odoo-python
@@ -39081,6 +39076,8 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__substitution_state
+#: model:ir.model.fields,field_description:ems.field_hr_employee__substitution_label
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Substitution"
 msgstr "Sustitución"
 
@@ -56077,3 +56074,84 @@ msgstr "Solo los grupos principales tienen declaración horaria."
 #: model:ir.model.fields,field_description:ems.field_ems_study__duration_hours
 msgid "Duration (hours)"
 msgstr "Duración (horas)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Substitute"
+msgstr "Sustituto"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Substituted"
+msgstr "Sustituido"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Only a teacher can substitute another teacher."
+msgstr "Solo un docente puede sustituir a otro docente."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "A teacher can't substitute themselves, not even through another substitute."
+msgstr "Un docente no puede sustituirse a sí mismo, ni siquiera a través de otro sustituto."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "The schedule will be replaced"
+msgstr "Se reemplazará el horario"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "On saving, %(teacher)s's schedule is replaced with a copy of %(replaced)s's."
+msgstr "Al guardar, el horario de %(teacher)s se reemplaza por una copia del de %(replaced)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "The schedule will be emptied"
+msgstr "Se vaciará el horario"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "On saving, the substitution ends and %(teacher)s's schedule, the copy of %(replaced)s's, is emptied. The roll-calls already taken keep their history."
+msgstr "Al guardar, termina la sustitución y se vacía el horario de %(teacher)s, la copia del de %(replaced)s. Los pases de lista ya hechos conservan su historial."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Unsupported search operator on a users field: %s"
+msgstr "Operador de búsqueda no admitido en un campo de usuarios: %s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__substitute_of_id
+msgid "Substitute of"
+msgstr "Sustituto de"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__substitute_of_id
+msgid "The teacher this one replaces while they are away. Setting it replaces this teacher's schedule with a copy of theirs; clearing it, when they come back, empties it again."
+msgstr "El docente al que sustituye mientras está ausente. Al indicarlo, el horario de este docente se reemplaza por una copia del suyo; al vaciarlo, cuando vuelve, el horario se vacía de nuevo."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__substituted_by_ids
+msgid "Substituted by"
+msgstr "Sustituido por"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__substitution_color
+msgid "Substitution color"
+msgstr "Color de la sustitución"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__acting_user_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__acting_user_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__acting_user_ids
+msgid "Users acting as this teacher"
+msgstr "Usuarios que actúan como este docente"

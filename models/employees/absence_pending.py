@@ -849,6 +849,8 @@ class EmsAbsencePending(models.Model):
             return self.browse()
         if employees is not None:
             teachers &= employees.sudo()
+        # A teacher being substituted (issue #748) is away by definition: their substitute checks in.
+        teachers = teachers.filtered(lambda teacher: not teacher.substituted_by_ids)
         candidates = {employee_id: self._utc_bounds(day, *hours)
                       for employee_id, hours in self._ems_missing_check_ins(day, teachers, arrivals).items()}
         if not candidates:

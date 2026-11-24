@@ -368,11 +368,18 @@ class EmsCourseGuardDutyBoard(models.Model):
         generic 8-12 block contains/absorbs a real, narrower test period into itself).
 
         'domain' narrows the search further (a weekday, a shift, some groups): filtering in SQL
-        rather than over the whole centre's rows in Python (issue #637, performance)."""
+        rather than over the whole centre's rows in Python (issue #637, performance).
+
+        A teacher being substituted (issue #748) is left out altogether: their substitute holds a
+        copy of their schedule, so the board shows the substitute's classes and guard duties and
+        nothing of the teacher who is away - no absence to cover, no "co-teaching" row. sudo: who is
+        substituted is no secret on the board, and the field is not readable by every role."""
+        substituted = self.env['hr.employee'].sudo().search([('substituted_by_ids', '!=', False)])
         return self.env['resource.calendar.attendance'].search([
             ('calendar_id.is_framework', '=', False),
             ('calendar_id.active', '=', True),
             ('calendar_id.employee_id', '!=', False),
+            ('calendar_id.employee_id', 'not in', substituted.ids),
             ('dayofweek', 'in', WEEKDAYS),
             *domain,
         ])

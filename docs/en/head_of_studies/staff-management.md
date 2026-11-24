@@ -106,6 +106,28 @@ The hours of a *Student support* block count in its level's row or in that level
 
 The groups' declaration works the same way: in **Educational Community → Groups**, switch to the list view, select the main groups and choose **Print → Schedule declaration** (one page each), or open one group and choose **Actions → Print schedule declaration**. See [Print the Official Schedule Declaration](../admin/working-schedules.md#print-the-official-schedule-declaration) for what the pages contain.
 
+## Register a Substitution
+
+When a teacher is replaced while they are away, register it on the **substitute's** form, so EMS knows who stands in for whom:
+
+1. Navigate to **Educational Community → Teachers** and open the substitute.
+2. In the **Teaching** tab, under **Substitution**, choose the teacher being replaced in **Substitute of**. EMS warns you that the substitute's schedule is going to be replaced.
+3. Click **Save**.
+
+From then on, until the substitution ends:
+
+- **Schedule:** the substitute's schedule becomes a copy of the replaced teacher's, classes and guard duties included. The copy is made once: if the replaced teacher's schedule changes later, edit the substitute's too.
+- **Ribbon:** the substitute's form shows a **Substitute** ribbon, and the replaced teacher's a **Substituted** one, with the substitute's name in **Substituted by** (Teaching tab).
+- **Guard duty board:** the replaced teacher no longer appears. Their classes and guard duties (WC, break...) are the substitute's, so nobody is asked to cover them.
+- **What the substitute sees:** the same as the replaced teacher as a teacher and as a tutor: their tutor group's students and their attendance issues, their roll-calls and grades. Their tutor's notices and tasks reach the substitute too.
+- **What stays the replaced teacher's:** their own absences, check-ins and strike declarations, and their roles (a Department Chief's substitute does not become Department Chief).
+
+**When the replaced teacher comes back**, open the substitute's form again, clear **Substitute of** and save. The substitute's schedule is emptied (the roll-calls they took keep their history), the replaced teacher comes back to the guard duty board and the substitute loses access to their data.
+
+If the substitute is replaced in turn, register the new substitute as **Substitute of** the first one: they act as the original teacher too.
+
+---
+
 ## What you cannot do
 
 Two limits are deliberate, and Odoo will refuse the operation if you try:

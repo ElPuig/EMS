@@ -17945,11 +17945,6 @@ msgstr "Això assigna una contrasenya nova al compte de Google de l'alumne: l'ac
 msgid "Users acting as tutor"
 msgstr "Usuaris que actuen com a tutor"
 
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/employee.py:0
-msgid "Unsupported search on tutor_scope_user_ids"
-msgstr "Cerca no admesa sobre tutor_scope_user_ids"
 
 #. module: ems
 #. odoo-python
@@ -39062,6 +39057,8 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__substitution_state
+#: model:ir.model.fields,field_description:ems.field_hr_employee__substitution_label
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Substitution"
 msgstr "Substitució"
 
@@ -56042,3 +56039,84 @@ msgstr "Només els grups principals tenen declaració horària."
 #: model:ir.model.fields,field_description:ems.field_ems_study__duration_hours
 msgid "Duration (hours)"
 msgstr "Durada (hores)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Substitute"
+msgstr "Substitut"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Substituted"
+msgstr "Substituït"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Only a teacher can substitute another teacher."
+msgstr "Només un docent pot substituir un altre docent."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "A teacher can't substitute themselves, not even through another substitute."
+msgstr "Un docent no es pot substituir a si mateix, ni tan sols a través d'un altre substitut."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "The schedule will be replaced"
+msgstr "Es reemplaçarà l'horari"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "On saving, %(teacher)s's schedule is replaced with a copy of %(replaced)s's."
+msgstr "En desar, l'horari de %(teacher)s es reemplaça per una còpia del de %(replaced)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "The schedule will be emptied"
+msgstr "Es buidarà l'horari"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "On saving, the substitution ends and %(teacher)s's schedule, the copy of %(replaced)s's, is emptied. The roll-calls already taken keep their history."
+msgstr "En desar, s'acaba la substitució i es buida l'horari de %(teacher)s, la còpia del de %(replaced)s. Els passis de llista ja fets conserven l'historial."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Unsupported search operator on a users field: %s"
+msgstr "Operador de cerca no admès en un camp d'usuaris: %s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__substitute_of_id
+msgid "Substitute of"
+msgstr "Substitut de"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__substitute_of_id
+msgid "The teacher this one replaces while they are away. Setting it replaces this teacher's schedule with a copy of theirs; clearing it, when they come back, empties it again."
+msgstr "El docent a qui substitueix mentre és absent. En informar-ho, l'horari d'aquest docent es reemplaça per una còpia del seu; en buidar-ho, quan torna, l'horari es torna a buidar."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__substituted_by_ids
+msgid "Substituted by"
+msgstr "Substituït per"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__substitution_color
+msgid "Substitution color"
+msgstr "Color de la substitució"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__acting_user_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__acting_user_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__acting_user_ids
+msgid "Users acting as this teacher"
+msgstr "Usuaris que actuen com aquest docent"

@@ -589,7 +589,7 @@ class EmsContactDataRequest(models.Model):
         tutor, no activity: the request still waits in the list, where the tutor assigned later
         finds it. One per request, even if the family sends it again before the review."""
         for request in self:
-            tutor_user = request.tutor_id.user_id
+            tutor_user = request.tutor_id._ems_acting_teacher().user_id
             if tutor_user and not request._ems_review_activities():
                 request.activity_schedule('ems.mail_activity_contact_data_review', user_id=tutor_user.id)
 

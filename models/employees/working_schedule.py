@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, _
+from odoo import Command, api, fields, models, _
 from odoo.exceptions import ValidationError
 from markupsafe import Markup
 import xml.etree.ElementTree as ET
@@ -171,6 +171,28 @@ class ems_working_schedule(models.Model):
 		teacher = self.get_employee()
 		if teacher:
 			teacher._ems_sync_schedule_from_calendar()
+
+	def _ems_schedule_cells(self):
+		"""This calendar's Mon-Fri blocks as the 'cells' apply_schedule_changes() takes, the same values
+		the Schedule tab sends: copying them onto another calendar gives it the same week (issue #748, a
+		substitute takes the schedule of the teacher they replace)."""
+		self.ensure_one()
+		return [{
+			'name': block.name,
+			'dayofweek': block.dayofweek,
+			'hour_from': block.hour_from,
+			'hour_to': block.hour_to,
+			'day_period': block.day_period,
+			'date_from': block.date_from,
+			'date_to': block.date_to,
+			'space_id': block.space_id.id,
+			'subject_id': block.subject_id.id,
+			'group_ids': [Command.set(block.group_ids.ids)],
+			'topic': block.topic,
+			'non_teaching': block.non_teaching.id,
+			'level_id': block.level_id.id,
+			'attention_type': block.attention_type,
+		} for block in self.attendance_ids if block.dayofweek in ('0', '1', '2', '3', '4')]
 
 	def get_employee(self):
 		"""The teacher this calendar belongs to (a documented 1:1 assumption: one personal calendar

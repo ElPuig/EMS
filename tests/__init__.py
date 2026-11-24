@@ -165,6 +165,8 @@ from . import test_group_public_schedule_tour
 from . import test_portal_schedule
 from . import test_portal_schedule_tour
 from . import test_guard_duty_board
+from . import test_employee_substitution
+from . import test_employee_substitution_tour
 from . import test_absence_coverage
 from . import test_guard_support
 from . import test_guard_board_public_holiday

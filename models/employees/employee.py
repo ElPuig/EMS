@@ -151,6 +151,14 @@ class ems_employee_base(models.AbstractModel):
         string="Users acting as tutor", comodel_name="res.users",
         compute="_compute_tutor_scope_user_ids", search="_search_tutor_scope_user_ids", compute_sudo=True)
 
+    # Issue #748: the users who act as this teacher in their teaching - their own user and those of
+    # the teachers substituting them (substitute_of_id, through the chain). The "own" record rules of
+    # a teacher's roll-calls and grades match on it instead of user_id. Not stored: it follows the
+    # substitutions as they start and end.
+    acting_user_ids = fields.Many2many(
+        string="Users acting as this teacher", comodel_name="res.users",
+        compute="_compute_acting_user_ids", search="_search_acting_user_ids", compute_sudo=True)
+
     # This field is used to set the entire form as read-only; compute_sudo needed to compute on read-only.
     read_only = fields.Boolean(string="Read only", compute="_compute_read_only", compute_sudo=True, store=False)
 
@@ -160,9 +168,45 @@ class ems_employee_base(models.AbstractModel):
     # can already read a schedule may also export it.
     can_edit_schedule = fields.Boolean(string="Can edit schedule", compute="_compute_can_edit_schedule", compute_sudo=True, store=False)
 
+    def _ems_substitutes(self):
+        """The teachers substituting these (issue #748), through the chain: whoever replaces a
+        substitute also replaces the teacher they replace. As hr.employee, also from the public
+        profile."""
+        Employee = self.env['hr.employee'].sudo()
+        found, current = Employee, Employee.search([('substitute_of_id', 'in', self.ids)])
+        while current:
+            found |= current
+            current = Employee.search([('substitute_of_id', 'in', current.ids)]) - found
+        return found
+
+    def _ems_substituted(self):
+        """The mirror of _ems_substitutes: the teachers these substitute, through the chain."""
+        found, current = self.env['hr.employee'].sudo(), self.env['hr.employee'].sudo().browse(self.ids).substitute_of_id
+        while current:
+            found |= current
+            current = current.substitute_of_id - found
+        return found
+
+    @staticmethod
+    def _ems_user_ids_operand(operator, value):
+        """The user ids a search on a users field of this model asks for ('=' or 'in' only)."""
+        if operator not in ('=', 'in'):
+            raise NotImplementedError(_("Unsupported search operator on a users field: %s", operator))
+        return [user_id for user_id in ([value] if isinstance(value, int) else value or []) if user_id]
+
+    def _compute_acting_user_ids(self):
+        for employee in self:
+            employee.acting_user_ids = employee.user_id | employee._ems_substitutes().user_id
+
+    def _search_acting_user_ids(self, operator, value):
+        """The employees the given users act as: their own, and those they substitute."""
+        own = self.env['hr.employee'].sudo().with_context(active_test=False).search(
+            [('user_id', 'in', self._ems_user_ids_operand(operator, value))])
+        return [('id', 'in', (own | own._ems_substituted()).ids)]
+
     def _compute_tutor_scope_user_ids(self):
         for employee in self:
-            users = employee.user_id | employee.company_id.director_id.user_id
+            users = employee.user_id | employee.company_id.director_id.user_id | employee._ems_substitutes().user_id
             ancestor, seen = employee.parent_id, employee
             while ancestor and ancestor not in seen:
                 if ancestor.user_id and ancestor.user_id.has_group(TUTOR_SCOPE_CHIEF_GROUP):
@@ -175,17 +219,20 @@ class ems_employee_base(models.AbstractModel):
         """The mirror of the compute, for record rules: the employees whose tutees the given users
         tutor - their own employee records, everyone below them when they are a chief, everyone
         in a company they direct."""
-        if operator not in ('=', 'in'):
-            raise NotImplementedError(_("Unsupported search on tutor_scope_user_ids"))
-        user_ids = [user_id for user_id in ([value] if isinstance(value, int) else value or []) if user_id]
+        user_ids = self._ems_user_ids_operand(operator, value)
         Employee = self.env['hr.employee'].sudo().with_context(active_test=False)
         own = Employee.search([('user_id', 'in', user_ids)])
+        # Issue #748: a substitute tutors the tutees of the teacher they replace. Only as that
+        # teacher, never with their chief rung: a role is personal and does not pass on.
+        substituted = own._ems_substituted()
         chiefs = own.filtered(lambda employee: employee.user_id.has_group(TUTOR_SCOPE_CHIEF_GROUP))
         if chiefs:
             own |= Employee.search([('id', 'child_of', chiefs.ids)])
+        directed = own.directed_company_ids
+        own |= substituted
         domain = [('id', 'in', own.ids)]
-        if own.directed_company_ids:
-            domain = ['|', ('company_id', 'in', own.directed_company_ids.ids)] + domain
+        if directed:
+            domain = ['|', ('company_id', 'in', directed.ids)] + domain
         return domain
 
     def _compute_read_only(self):
@@ -748,6 +795,30 @@ class ems_employee(models.AbstractModel):
         string="Archived reason color", related="departure_reason_id.color",
         groups="hr.group_hr_user,ems.group_teacher")
 
+    # Issue #748: a teacher who replaces another one while they are away. Setting it copies the
+    # replaced teacher's schedule onto this one, and clearing it (the replaced teacher is back)
+    # empties it again (see _ems_start_substitution/_ems_end_substitution). While it is set, the
+    # replaced teacher leaves the guard duty board and this one acts as them: acting_user_ids, and
+    # through it tutor_scope_user_ids, give them what the replaced teacher sees as a teacher and as a
+    # tutor. Their own absences, check-ins, strikes and roles stay theirs. A substitute can be
+    # replaced in turn (the chain is followed), and a teacher can have several substitutes.
+    substitute_of_id = fields.Many2one(
+        string="Substitute of", comodel_name="hr.employee", index=True, tracking=True,
+        domain="[('employee_type', '=', 'teacher'), ('id', '!=', id)]",
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
+        help="The teacher this one replaces while they are away. Setting it replaces this teacher's "
+             "schedule with a copy of theirs; clearing it, when they come back, empties it again.")
+    substituted_by_ids = fields.One2many(
+        string="Substituted by", comodel_name="hr.employee", inverse_name="substitute_of_id",
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher")
+    # The ribbon of both sides (shared 'ems_archived_reason_ribbon' widget), only when not archived.
+    substitution_label = fields.Char(
+        string="Substitution", compute="_compute_substitution_label",
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher")
+    substitution_color = fields.Char(
+        string="Substitution color", compute="_compute_substitution_label",
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher")
+
     # NOTE: issue #444's follow-up (2026-09-12) - same field/action pair as 'ems.group's own
     # 'pending_classroom_conflict_count'/'action_open_classroom_change_wizard' (models/contacts/
     # group.py), for the OTHER origin a 'resource.calendar.attendance' block can be flagged
@@ -775,6 +846,37 @@ class ems_employee(models.AbstractModel):
     scoped_ssnid = fields.Char(
         string="Social Security No", compute="_compute_scoped_identity", compute_sudo=True,
         groups="base.group_system,hr.group_hr_user,ems.group_teacher")
+
+    @api.depends('substitute_of_id', 'substituted_by_ids', 'active')
+    def _compute_substitution_label(self):
+        for employee in self:
+            if not employee.active:
+                employee.substitution_label = False
+            elif employee.substitute_of_id:
+                employee.substitution_label = _("Substitute")
+            elif employee.substituted_by_ids:
+                employee.substitution_label = _("Substituted")
+            else:
+                employee.substitution_label = False
+            # Orange (the substitute, at work) and grey (the teacher away), never the archived red.
+            employee.substitution_color = '#EF902A' if employee.substitute_of_id else '#6c757d'
+
+    @api.onchange('substitute_of_id')
+    def _onchange_substitute_of_id(self):
+        if self.substitute_of_id and self.substitute_of_id != self._origin.substitute_of_id:
+            return {'warning': {
+                'title': _("The schedule will be replaced"),
+                'message': _("On saving, %(teacher)s's schedule is replaced with a copy of %(replaced)s's.",
+                             teacher=self.name, replaced=self.substitute_of_id.name),
+            }}
+        if not self.substitute_of_id and self._origin.substitute_of_id:
+            return {'warning': {
+                'title': _("The schedule will be emptied"),
+                'message': _("On saving, the substitution ends and %(teacher)s's schedule, the copy of "
+                             "%(replaced)s's, is emptied. The roll-calls already taken keep their history.",
+                             teacher=self.name, replaced=self._origin.substitute_of_id.name),
+            }}
+        return None
 
     @api.depends("schedule_import_code")
     def _compute_pending_identification(self):
@@ -870,6 +972,14 @@ class ems_employee(models.AbstractModel):
                 raise ValidationError(_(
                     "Another active teacher already has the vacancy code %s.") % employee.schedule_import_code)
 
+    @api.constrains('substitute_of_id')
+    def _check_substitute_of(self):
+        for employee in self.filtered('substitute_of_id'):
+            if employee.employee_type != 'teacher' or employee.substitute_of_id.employee_type != 'teacher':
+                raise ValidationError(_("Only a teacher can substitute another teacher."))
+        if self._has_cycle('substitute_of_id'):
+            raise ValidationError(_("A teacher can't substitute themselves, not even through another substitute."))
+
     @api.constrains('private_email')
     def _check_private_email_not_corporate(self):
         # The personal email is the Google Workspace account's recovery address, so it can't be
@@ -893,7 +1003,41 @@ class ems_employee(models.AbstractModel):
         # See '_ems_create_personal_calendar' for why this is a shared method, not inline here.
         employees._ems_create_personal_calendar()
         employees.filtered('user_id')._refresh_stale_avatar_placeholder()
+        employees.filtered('substitute_of_id')._ems_start_substitution()
         return employees
+
+    def _ems_start_substitution(self):
+        """Issue #748: replaces each substitute's schedule with a copy of the teacher they replace,
+        through the same path the Schedule tab saves by (apply_schedule_changes, which also re-derives
+        their teachings and roll-calls). The copied classes are the replaced teacher's, so they become
+        co-teaching and the roll-calls already taken stay where they are. sudo: whoever may set the
+        field on the employee may set the schedule that comes with it."""
+        for employee in self.sudo():
+            employee._ems_create_personal_calendar()
+            source = employee.substitute_of_id.resource_calendar_id
+            calendar = employee.resource_calendar_id
+            if calendar.employee_id == employee and source.employee_id == employee.substitute_of_id:
+                calendar.apply_schedule_changes(source._ems_schedule_cells(), source.source_framework_id.id)
+
+    def _ems_acting_teacher(self):
+        """Who acts as each of these teachers now (issue #748): the teacher replacing them, at the end
+        of the chain when the substitute is replaced too, or themselves. The tutor's notices and tasks
+        go to them. With several substitutes, the first one (a split job has one tutor)."""
+        acting = self.browse()
+        for employee in self:
+            current = employee.sudo()
+            while current.substituted_by_ids:
+                current = current.substituted_by_ids.sorted('id')[:1]
+            acting |= current.with_env(self.env)
+        return acting
+
+    def _ems_end_substitution(self):
+        """Issue #748: the replaced teacher is back, so the copy of their schedule goes away (an
+        empty schedule saved the usual way: roll-calls already taken keep their history)."""
+        for employee in self.sudo():
+            calendar = employee.resource_calendar_id
+            if calendar.employee_id == employee:
+                calendar.apply_schedule_changes([])
 
     def _ems_create_personal_calendar(self):
         """Creates and assigns a personal 'resource.calendar' for every teacher in 'self' that
@@ -946,8 +1090,15 @@ class ems_employee(models.AbstractModel):
             for employee in self:
                 if employee.user_id and employee.user_id.image_disabled:
                     raise UserError(_("The profile picture is disabled; it cannot be changed."))
+        # Issue #748: those whose substitution ends with this write (a new one starts afterwards).
+        ending = self.sudo().filtered('substitute_of_id') \
+            if 'substitute_of_id' in vals and not vals['substitute_of_id'] else self.browse()
 
         result = super().write(vals)
+
+        if vals.get('substitute_of_id'):
+            self._ems_start_substitution()
+        ending._ems_end_substitution()
 
         if photo is not _UNSET:
             for employee in self:

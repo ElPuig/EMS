@@ -85,6 +85,8 @@ So you can see at a glance which guard duties line up with each class to cover, 
 
 In a co-taught class (two teachers in the same classroom) where only one of them is away, their line is **struck through**: it stays there so you know who is missing, but no guard is needed because the other teacher is taking the class. Hover over the line or click it to see why; the **ⓘ** icon on its left shows there is an explanation.
 
+A teacher who has a substitute does not appear at all: the substitute has their classes and guard duties, so there is nothing to cover.
+
 Every struck-through line has that icon, whatever the reason: a co-teacher is in the class, a guard teacher has already been sent to it (their name appears next to it), or the families were told the students can stay at home for it (see [Organising an absence](#organising-an-absence)). If both are away, or each teacher has half of the group in a different classroom, the line is not struck through and the class does need covering.
 
 ![Absences table of the same day: one column per area with the classes to cover, one already covered by a guard, and an absent teacher's break guard in the Guard duty column](../../assets/teachers/guard-duty-02-absencies.png)

@@ -85,6 +85,8 @@ Así ves de un vistazo qué guardias coinciden con cada clase que hay que cubrir
 
 En una clase con codocencia (dos docentes en la misma aula) en la que solo falta uno, su línea aparece **tachada**: sigue ahí para que sepas quién falta, pero no hace falta guardia porque el otro docente se hace cargo de la clase. Pasa el ratón por encima de la línea o haz clic en ella para ver el motivo; el icono **ⓘ** de su izquierda indica que hay una explicación.
 
+Un docente que tiene sustituto no aparece en absoluto: sus clases y guardias son del sustituto, así que no hay nada que cubrir.
+
 Toda línea tachada tiene ese icono, sea cual sea el motivo: otro docente está en la clase, ya se ha enviado un docente de guardia (su nombre aparece al lado), o se ha comunicado a las familias que el alumnado no tiene que venir a esa clase (ver [Organizar una ausencia](#organizar-una-ausencia)). Si faltan los dos, o cada docente tiene medio grupo en un aula distinta, la línea no aparece tachada y sí hay que cubrir la clase.
 
 ![Tabla de ausencias del mismo día: una columna por área con las clases que hay que cubrir, una ya cubierta por un docente de guardia, y la guardia de patio de una docente ausente en la columna Guardia](../../assets/teachers/guard-duty-02-absencies.png)

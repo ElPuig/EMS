@@ -106,6 +106,28 @@ Las horas de un bloque de *Atención al alumnado* cuentan en la fila de su nivel
 
 La declaración de los grupos funciona igual: en **Comunidad Educativa → Grupos**, pasad a la vista de lista, seleccionad los grupos principales y elegid **Imprimir → Declaración horaria** (una página cada uno), o abrid un grupo y elegid **Acciones → Imprimir la declaración horaria**. En [Imprimir la declaración horaria oficial](../admin/working-schedules.md#imprimir-la-declaración-horaria-oficial) tenéis qué contienen las páginas.
 
+## Registrar una sustitución
+
+Cuando un docente es sustituido mientras está ausente, registradlo en la ficha del **sustituto**, para que EMS sepa quién sustituye a quién:
+
+1. Id a **Comunidad Educativa → Profesorado** y abrid la ficha del sustituto.
+2. En la pestaña **Enseñanza**, en **Sustitución**, elegid al docente sustituido en **Sustituto de**. EMS os avisa de que se reemplazará el horario del sustituto.
+3. Haced clic en **Guardar**.
+
+A partir de ese momento, y hasta que termine la sustitución:
+
+- **Horario:** el horario del sustituto pasa a ser una copia del del docente sustituido, con sus clases y guardias. La copia se hace una sola vez: si más adelante cambia el horario del docente sustituido, modificad también el del sustituto.
+- **Cinta:** la ficha del sustituto muestra la cinta **Sustituto** y la del docente sustituido, la cinta **Sustituido**, con el nombre del sustituto en **Sustituido por** (pestaña Enseñanza).
+- **Tablero de guardias:** el docente sustituido ya no aparece. Sus clases y guardias (lavabos, patio...) son del sustituto, así que no hay que cubrirlas.
+- **Qué ve el sustituto:** lo mismo que el docente sustituido como docente y como tutor: el alumnado de su grupo de tutoría y sus incidencias de asistencia, sus pases de lista y sus notas. Los avisos y las tareas de tutoría también le llegan al sustituto.
+- **Qué sigue siendo del docente sustituido:** sus ausencias, fichajes y declaraciones de huelga, y sus roles (el sustituto de un jefe de departamento no pasa a ser jefe de departamento).
+
+**Cuando el docente sustituido vuelve**, abrid de nuevo la ficha del sustituto, vaciad **Sustituto de** y guardad. El horario del sustituto se vacía (los pases de lista que ha hecho conservan su historial), el docente sustituido vuelve a aparecer en el tablero de guardias y el sustituto deja de tener acceso a sus datos.
+
+Si el sustituto también es sustituido, registrad al nuevo sustituto como **Sustituto de** el primero: también actúa como el docente original.
+
+---
+
 ## Qué no podéis hacer
 
 Hay dos límites deliberados, y Odoo rechazará la operación si lo intentáis:

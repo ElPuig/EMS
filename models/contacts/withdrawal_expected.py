@@ -95,7 +95,7 @@ class EmsWithdrawalExpectedPartner(models.Model):
         for teaching in teachings:
             if teaching.group_id in groups_by_subject[teaching.subject_id] and teaching.teacher_id.user_id:
                 staff[teaching.teacher_id.user_id] |= teaching.subject_id
-        tutor_user = (student.tutor_id or student.main_group_id.tutor_id).user_id
+        tutor_user = (student.tutor_id or student.main_group_id.tutor_id)._ems_acting_teacher().user_id
         if tutor_user:
             staff[tutor_user] |= self.env['ems.subject'].union(*groups_by_subject)
         return dict(staff)

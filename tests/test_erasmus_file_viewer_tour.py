@@ -24,7 +24,8 @@ def minimal_pdf():
 @tagged('post_install', '-at_install')
 class TestErasmusFileViewerTour(HttpCase):
     """Issue #845 - as the Erasmus team: a file is viewed in Odoo's file viewer, and a confidential
-    document's file has neither a download button nor the viewer's Download and Print."""
+    document's file has neither a download button nor the viewer's Download and Print. Issue #859: a
+    document handed in as a link opens in a new tab, with no download."""
 
     @classmethod
     def setUpClass(cls):
@@ -35,9 +36,13 @@ class TestErasmusFileViewerTour(HttpCase):
         cls.registry.test_readonly_enabled = False
         cls.addClassCleanup(setattr, cls.registry, 'test_readonly_enabled', True)
         create_portal_erasmus_fixtures(cls)
+        cls.call.write({'document_ids': [(0, 0, {'name': 'Presentation video', 'requirement': 'optional',
+                                                 'upload_kind': 'link', 'sequence': 5})]})
         cls.application = cls.env['ems.erasmus.application']._ems_portal_get_or_create(cls.call, cls.student)
         upload(cls.application, cls.cv, content=minimal_pdf())
         upload(cls.application, cls.evidence, 'evidence.pdf', content=minimal_pdf())
+        cls.application.document_ids.filtered(lambda line: line.name == 'Presentation video')._ems_add_link(
+            'https://example.com/video')
 
     def test_file_viewer_tour(self):
         self.start_tour('/odoo/action-ems.action_erasmus_application', 'ems_erasmus_file_viewer',

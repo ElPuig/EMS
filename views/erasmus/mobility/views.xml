@@ -268,7 +268,7 @@
                                                decoration-danger="todo_state in ('missing', 'needs_change')"
                                                decoration-warning="todo_state == 'to_review'"/>
                                         <field name="review_state" optional="hide"/>
-                                        <field name="review_comment" optional="hide"/>
+                                        <field name="review_comment" optional="hide" width="240px" placeholder="Write what to correct" class="o_ems_review_comment"/>
                                         <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
                                                 invisible="file_state != 'to_review'" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                         <!-- Only on a file to correct: nothing to correct in a missing or not applicable document. -->

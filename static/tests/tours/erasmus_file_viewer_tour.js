@@ -4,7 +4,8 @@ import { registry } from "@web/core/registry";
 
 // Issue #845 - the files of an application are viewed in Odoo's file viewer; a confidential
 // document's file offers no download, neither on its card nor in the viewer. Records seeded by
-// tests/test_erasmus_file_viewer_tour.py.
+// tests/test_erasmus_file_viewer_tour.py. Issue #859: a document handed in as a link opens in a new
+// tab, with no download.
 
 const LINES = ".o_form_view .o_field_widget[name='document_ids']";
 
@@ -52,6 +53,14 @@ registry.category("web_tour.tours").add("ems_erasmus_file_viewer", {
         {
             trigger: `${LINES} .o_data_row:contains('Fewer opportunities'):not(:has(.o_ems_attachment_download))`,
             content: "The confidential document's file card has no download",
+        },
+        {
+            trigger: `${LINES} .o_data_row:contains('Presentation video') .o_ems_attachment_link[target='_blank'][href='https://example.com/video']`,
+            content: "A link opens in a new tab",
+        },
+        {
+            trigger: `${LINES} .o_data_row:contains('Presentation video'):not(:has(.o_ems_attachment_download, .o_ems_attachment_preview))`,
+            content: "A link has neither download nor preview",
         },
     ],
 });

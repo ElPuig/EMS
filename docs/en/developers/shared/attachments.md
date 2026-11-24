@@ -71,12 +71,13 @@ three matching icon buttons:
 
 | Button | Shown | Action |
 |--------|-------|--------|
-| Preview (`fa-eye`) | `FileModel.isViewable` (PDF, images, text, video) | Odoo's own `FileViewer` (`@web/core/file_viewer`, the chatter's), browsing every viewable file of the field |
-| Download (`fa-download`) | always | `/web/content/<id>?download=true` |
+| Preview (`fa-eye`) | `FileModel.isViewable` (PDF, images, text, video), not a link | Odoo's own `FileViewer` (`@web/core/file_viewer`, the chatter's), browsing every viewable file of the field |
+| Open link (`fa-external-link`) | a link (attachment `type = 'url'`, e.g. an Erasmus+ presentation video) | the link's own address, in a new tab |
+| Download (`fa-download`) | a file (not a link), unless the record is `confidential` | `/web/content/<id>?download=true` |
 | Delete (`fa-trash`) | the field is editable | removes the file from the record; the mixin deletes it on save |
 
-`files` builds `FileModel` objects from each record's `name`/`mimetype`/`checksum` (`checksum` is
-added to the stock widget's `relatedFields`). The upload button and the delete icon follow the
+`files` builds `FileModel` objects from each record's `name`/`mimetype`/`checksum`/`type`/`url`
+(the last three added to the stock widget's `relatedFields`). The upload button and the delete icon follow the
 field's `readonly`: a user who cannot write the model gets a read-only form from Odoo itself
 (`ir.ui.view` sets `edit="False"`), and the justification form also makes the field read-only for
 anyone but the student's tutor or an admin.
